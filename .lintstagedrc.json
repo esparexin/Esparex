@@ -1,0 +1,10 @@
+{
+    "frontend/src/**/*.{ts,tsx}": [
+        "bash -c 'cd frontend && npm run typecheck' --",
+        "bash -c 'cd frontend && npm run lint' --"
+    ],
+    "backend/src/**/*.ts": [
+        "bash -c 'cd backend && npm run typecheck' --",
+        "bash -c 'cd backend && npm run lint' --"
+    ]
+}

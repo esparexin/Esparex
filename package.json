@@ -1,0 +1,42 @@
+{
+  "name": "esparex-admin-root",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "admin-frontend"
+  ],
+  "scripts": {
+    "build": "npm run build -w backend && npm run build -w frontend && npm run build -w admin-frontend",
+    "type-check": "npm run type-check -w backend && npm run type-check -w frontend && npm run type-check -w admin-frontend",
+    "lint:no-api-string-literals": "node scripts/enforce-no-api-string-literals.js",
+    "guard:route-collision": "node scripts/enforce-route-collision-guard.js",
+    "guard:route-hierarchy": "node scripts/guard-route-shadowing.js",
+    "guard:ad-ssot": "node scripts/enforce-ad-ssot-guard.js",
+    "guard:platform-governance": "node scripts/guard-platform-governance.js && node scripts/enforce-no-ad-hard-delete.js && node scripts/enforce-moderation-route-whitelist.js",
+    "guard:no-ad-hard-delete": "node scripts/enforce-no-ad-hard-delete.js",
+    "guard:moderation-namespace": "node scripts/enforce-moderation-route-whitelist.js",
+    "guard:schema-migration": "bash scripts/enforce-schema-migration-gate.sh",
+    "guard:pr-impact-analysis": "node scripts/enforce-pr-impact-analysis.js",
+    "ci:image-domains": "npm run ci:image-domains -w frontend",
+    "lint:admin-status:ssot": "node scripts/enforce-admin-status-literals.js",
+    "lint:user-api-result:ssot": "node scripts/enforce-user-api-result-ssot.js",
+    "contract:user-api": "node scripts/verify-api-contract.js --scope=user",
+    "contract:admin-api": "node scripts/verify-api-contract.js --scope=admin",
+    "contract:api": "node scripts/verify-api-contract.js --scope=both",
+    "guard:api-ssot": "npm run lint:no-api-string-literals",
+    "contract:error-envelope": "node scripts/enforce-error-response-contract.js",
+    "audit:orphans": "node scripts/orphan-sweep.cjs",
+    "ci:admin-guardrails": "npm run ci:guardrails -w admin-frontend",
+    "check:s3-images": "npx ts-node --compiler-options '{\"moduleResolution\":\"NodeNext\"}' scripts/check-s3-images.ts",
+    "lint": "node scripts/run-eslint-changed.js",
+    "guard:unused-imports": "node scripts/enforce-no-new-unused-imports.js",
+    "guard:duplication": "npx jscpd --threshold 3 frontend backend admin-frontend",
+    "guard:api-surface": "node scripts/enforce-api-surface-guard.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/validator": "^13.15.10"
+  }
+}

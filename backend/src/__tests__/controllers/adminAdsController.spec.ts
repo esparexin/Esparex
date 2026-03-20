@@ -1,0 +1,110 @@
+jest.mock("../../services/AdService", () => ({
+    __esModule: true,
+    getAds: jest.fn(),
+    updateAdStatus: jest.fn(),
+}));
+
+jest.mock("../../utils/adminLogger", () => ({
+    __esModule: true,
+    logAdminAction: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock("../../utils/redisCache", () => ({
+    __esModule: true,
+    invalidateAdFeedCaches: jest.fn(async () => undefined),
+    invalidatePublicAdCache: jest.fn(async () => undefined),
+    clearCachePattern: jest.fn(async () => 0),
+    getCache: jest.fn(async () => null),
+    setCache: jest.fn(async () => false),
+    delCache: jest.fn(async () => false),
+    isConnected: false,
+    cacheMetrics: {
+        hits: 0,
+        misses: 0,
+        errors: 0,
+        keys: 0,
+        memory: 0,
+        lastUpdated: new Date(),
+    },
+}));
+
+import { adminGetAds, approveAd } from "../../controllers/admin/adminAdsController";
+import * as adService from "../../services/AdService";
+import { logAdminAction } from "../../utils/adminLogger";
+import { AD_STATUS_VALUES } from "../../../../shared/enums/adStatus";
+
+describe("adminAdsController status normalization", () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        (adService.getAds as jest.Mock).mockResolvedValue({
+            data: [],
+            pagination: { page: 1, limit: 20, total: 0, pages: 1 },
+        });
+    });
+
+    it("uses all canonical statuses when status query is missing", async () => {
+        const req = { query: {} } as any;
+        const res = { json: jest.fn() } as any;
+
+        await adminGetAds(req, res);
+
+        expect(adService.getAds).toHaveBeenCalledTimes(1);
+        const [filters, pagination] = (adService.getAds as jest.Mock).mock.calls[0];
+        expect(filters.status).toEqual([...AD_STATUS_VALUES]);
+        expect(pagination).toEqual({ page: 1, limit: 20 });
+        expect(res.json).toHaveBeenCalled();
+    });
+
+    it("uses all canonical statuses when status=all", async () => {
+        const req = { query: { status: "all" } } as any;
+        const res = { json: jest.fn() } as any;
+
+        await adminGetAds(req, res);
+
+        expect(adService.getAds).toHaveBeenCalledTimes(1);
+        const [filters] = (adService.getAds as jest.Mock).mock.calls[0];
+        expect(filters.status).toEqual([...AD_STATUS_VALUES]);
+        expect(res.json).toHaveBeenCalled();
+    });
+
+    it("passes explicit status through when a specific status is requested", async () => {
+        const req = { query: { status: "approved", page: "2", limit: "50" } } as any;
+        const res = { json: jest.fn() } as any;
+
+        await adminGetAds(req, res);
+
+        expect(adService.getAds).toHaveBeenCalledTimes(1);
+        const [filters, pagination] = (adService.getAds as jest.Mock).mock.calls[0];
+        expect(filters.status).toBe("approved");
+        expect(pagination).toEqual({ page: 2, limit: 50 });
+        expect(res.json).toHaveBeenCalled();
+    });
+
+    it("logs admin audit entry when approving an ad", async () => {
+        (adService.updateAdStatus as jest.Mock).mockResolvedValue({
+            _id: "65fa29c9d2c1f2e165fa29c9",
+            status: "approved",
+        });
+
+        const req = {
+            params: { id: "65fa29c9d2c1f2e165fa29c9" },
+            user: { _id: "admin_1" },
+            body: {},
+            originalUrl: "/api/v1/admin/ads/65fa29c9d2c1f2e165fa29c9/approve",
+        } as any;
+        const res = { json: jest.fn() } as any;
+
+        await approveAd(req, res);
+
+        expect(logAdminAction).toHaveBeenCalledWith(
+            req,
+            "APPROVE_AD",
+            "Ad",
+            "65fa29c9d2c1f2e165fa29c9",
+            expect.objectContaining({ status: "approved" })
+        );
+        expect(res.json).toHaveBeenCalledWith(
+            expect.objectContaining({ success: true })
+        );
+    });
+});

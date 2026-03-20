@@ -1,0 +1,43 @@
+{
+  "placeholderImageUrl": "https://placehold.co/600x400/png?text=No+Image",
+  "s3PublicHostPattern": "^(?:[a-z0-9][a-z0-9.-]{1,61}[a-z0-9])\\.s3(?:[.-][a-z0-9-]+)?\\.amazonaws\\.com$",
+  "s3PathStyleHostPattern": "^s3(?:[.-][a-z0-9-]+)?\\.amazonaws\\.com$",
+  "nextRemotePatterns": [
+    {
+      "protocol": "https",
+      "hostname": "images.unsplash.com",
+      "port": "",
+      "pathname": "/**"
+    },
+    {
+      "protocol": "http",
+      "hostname": "localhost",
+      "port": "5000",
+      "pathname": "/**"
+    },
+    {
+      "protocol": "https",
+      "hostname": "placehold.co",
+      "port": "",
+      "pathname": "/**"
+    },
+    {
+      "protocol": "https",
+      "hostname": "**.amazonaws.com",
+      "port": "",
+      "pathname": "/**"
+    },
+    {
+      "protocol": "https",
+      "hostname": "**.cloudfront.net",
+      "port": "",
+      "pathname": "/**"
+    },
+    {
+      "protocol": "https",
+      "hostname": "**.esparex.com",
+      "port": "",
+      "pathname": "/**"
+    }
+  ]
+}

@@ -1,0 +1,278 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================
+   DESIGN TOKENS (LIGHT MODE)
+   ========================================= */
+:root {
+  --background: 0 0% 100%;
+  /* #ffffff */
+  --foreground: 0 0% 10.2%;
+  /* #1a1a1a (Near Black) */
+
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10.2%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 10.2%;
+
+  --primary: 142.1 76.2% 45.3%;
+  /* #22c55e (Green) */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 204 100% 97.1%;
+  /* #f0f9ff (Light Sky Blue) */
+  --secondary-foreground: 201.3 96.3% 32.2%;
+  /* #0369a1 (Dark Blue) */
+
+  --muted: 210 40% 98%;
+  /* #f8fafc (Very Light Gray) */
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  --accent: 210 40% 96.1%;
+  /* #f1f5f9 (Pale Gray) */
+  --accent-foreground: 222.2 47.4% 11.2%;
+
+  --destructive: 0 84.2% 60.2%;
+  /* #ef4444 (Red) */
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 158.1 84.4% 39.4%;
+  /* #10b981 (Emerald Green) */
+  --success-foreground: 0 0% 100%;
+
+  --warning: 37.7 92.1% 50.2%;
+  /* #f59e0b (Amber) */
+  --warning-foreground: 0 0% 100%;
+
+  --info: 188.7 94.5% 42.7%;
+  /* #06b6d4 (Cyan) */
+  --info-foreground: 0 0% 100%;
+
+  --border: 214.3 31.8% 91.4%;
+  /* #e2e8f0 (Light Gray) */
+  --input: 214.3 31.8% 91.4%;
+  --ring: 142.1 76.2% 45.3%;
+  /* Match Primary */
+
+  --radius: 0.625rem;
+
+  /* Typography scale */
+  --font-size: 16px;
+  --text-2xl: 1.5rem;
+  --text-xl: 1.25rem;
+  --text-lg: 1.125rem;
+  --text-base: 1rem;
+  --text-sm: 0.875rem;
+  --text-xs: 0.75rem;
+
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+
+  /* Sidebar Tokens */
+  --sidebar: 210 40% 98%;
+  --sidebar-foreground: 0 0% 10.2%;
+  --sidebar-primary: 142.1 76.2% 45.3%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 210 40% 96.1%;
+  --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+  --sidebar-border: 214.3 31.8% 91.4%;
+  --sidebar-ring: 142.1 76.2% 45.3%;
+
+  /* Chart Colors */
+  --chart-1: 142.1 76.2% 45.3%;
+  /* Green */
+  --chart-2: 188.7 94.5% 42.7%;
+  /* Cyan */
+  --chart-3: 258.3 89.5% 66.3%;
+  /* Purple #8b5cf6 */
+  --chart-4: 158.1 84.4% 39.4%;
+  /* Emerald */
+  --chart-5: 37.7 92.1% 50.2%;
+  /* Amber */
+
+  /* Mesh Gradients (Updated to Green/Blue/Amber) */
+  --mesh-1: #22c55e;
+  --mesh-2: #06b6d4;
+  --mesh-3: #f59e0b;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  /* Dark Slate */
+  --foreground: 210 40% 98%;
+
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 142.1 70% 50%;
+  /* Slightly lighter Green for dark mode */
+  --primary-foreground: 222.2 47.4% 11.2%;
+
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  --success: 158.1 84.4% 39.4%;
+  --success-foreground: 210 40% 98%;
+
+  --warning: 37.7 92.1% 50.2%;
+  --warning-foreground: 222.2 47.4% 11.2%;
+
+  --info: 188.7 94.5% 42.7%;
+  --info-foreground: 222.2 47.4% 11.2%;
+
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 142.1 70% 50%;
+
+  /* Sidebar Tokens (Dark) */
+  --sidebar: 222.2 84% 4.9%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 142.1 70% 50%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 217.2 32.6% 17.5%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-border: 217.2 32.6% 17.5%;
+  --sidebar-ring: 142.1 76.2% 45.3%;
+
+  /* Charts Dark Mode (Adjusted for visibility if needed, or keep same) */
+  --chart-1: 142.1 70% 50%;
+  --chart-2: 188.7 94.5% 50%;
+  --chart-3: 258.3 89.5% 70%;
+  --chart-4: 158.1 84.4% 50%;
+  --chart-5: 37.7 92.1% 50%;
+}
+
+/* =========================================
+   BASE LAYER
+   ========================================= */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* =========================================
+   BASE TYPOGRAPHY (NO TAILWIND OVERRIDE)
+   ========================================= */
+@layer base {
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  p,
+  label,
+  input {
+    font-size: var(--text-base);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+}
+
+/* =========================================
+   HTML / BODY SAFETY + OPTIONAL IMPROVEMENTS
+   ========================================= */
+html {
+  font-size: var(--font-size);
+  font-feature-settings: "cv05", "cv08";
+  color-scheme: light dark;
+  /* Optional: native UI theming */
+}
+
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  min-height: 100dvh;
+  position: relative;
+}
+
+/* Ensure form controls inherit typography */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* =========================================
+   UTILITIES
+   ========================================= */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* =========================================
+   SCROLL-DRIVEN HEADER TRANSITIONS
+   (Principal Engineer: Zero-Render Strategy)
+   ========================================= */
+header {
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Default state (at top) */
+header.sticky {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Scrolled state */
+[data-scrolled="true"] header.sticky {
+  background-color: hsl(var(--background) / 0.8) !important;
+  backdrop-filter: blur(12px) !important;
+  border-color: hsl(var(--border)) !important;
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05)) !important;
+}
+
+/* Mobile Header Safety */
+@media (max-width: 767px) {
+  [data-scrolled="true"] header.sticky {
+    background-color: hsl(var(--background)) !important;
+  }
+}

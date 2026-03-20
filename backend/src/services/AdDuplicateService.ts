@@ -1,0 +1,94 @@
+import mongoose, { ClientSession } from 'mongoose';
+import Ad from '../models/Ad';
+import logger from '../utils/logger';
+import {
+    buildDuplicateFingerprint, 
+    findExistingSelfDuplicate, 
+    assessCrossUserDuplicateRisk,
+    logDuplicateEvent,
+    DuplicatePayload,
+    DuplicateAwareError,
+    createDuplicateError
+} from './AdValidationService';
+import { AD_STATUS } from '../../../shared/enums/adStatus';
+
+export interface DuplicateCheckResult {
+    isDuplicate: boolean;
+    riskScore: number;
+    matchedAdId?: mongoose.Types.ObjectId;
+    reason?: string;
+}
+
+/**
+ * AdDuplicateService
+ * Handles high-concurrency duplicate detection and risk assessment.
+ */
+export class AdDuplicateService {
+    /**
+     * Check if an ad is a duplicate of an existing active listing.
+     * Combines self-duplicate check, fingerprinting, and cross-user risk.
+     */
+    static async checkDuplicate(
+        payload: DuplicatePayload,
+        sellerId: string,
+        imageHashes: string[] = [],
+        session?: ClientSession
+    ): Promise<DuplicateCheckResult> {
+        // 1. Precise Self-Duplicate Check (Idempotency Guard)
+        const selfDuplicate = await findExistingSelfDuplicate(
+            sellerId,
+            payload.categoryId ? String(payload.categoryId) : undefined as any,
+            (payload.location as any)?.locationId ? String((payload.location as any).locationId) : undefined,
+            payload.price as number,
+            payload.brandId ? String(payload.brandId) : undefined,
+            payload.modelId ? String(payload.modelId) : undefined,
+            undefined,
+            session
+        );
+
+        if (selfDuplicate) {
+            return {
+                isDuplicate: true,
+                riskScore: 100,
+                matchedAdId: selfDuplicate._id,
+                reason: 'Existing active listing detected for this user.'
+            };
+        }
+
+        // 2. Fingerprint Check (Unique constraint fallback)
+        const fingerprint = buildDuplicateFingerprint(payload, sellerId);
+        if (fingerprint) {
+            const fingerprintMatch = await Ad.findOne({
+                duplicateFingerprint: fingerprint,
+                status: { $in: [AD_STATUS.LIVE, AD_STATUS.PENDING] }
+            })
+                .session(session as any)
+                .select('_id')
+                .lean();
+            
+            if (fingerprintMatch) {
+                return {
+                    isDuplicate: true,
+                    riskScore: 90,
+                    matchedAdId: (fingerprintMatch as any)._id,
+                    reason: 'Duplicate fingerprint detected.'
+                };
+            }
+        }
+
+        // 3. Cross-User Risk Assessment
+        const crossUserRisk = await assessCrossUserDuplicateRisk(payload, sellerId, imageHashes, session);
+        
+        return {
+            isDuplicate: crossUserRisk.score > 70, // Threshold for blocking
+            riskScore: crossUserRisk.score,
+            matchedAdId: crossUserRisk.matchedAdId,
+            reason: crossUserRisk.reason
+        };
+    }
+}
+
+export {
+    buildDuplicateFingerprint,
+    logDuplicateEvent
+};

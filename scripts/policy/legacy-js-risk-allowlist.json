@@ -1,0 +1,46 @@
+{
+  "dbMutationShadowScripts": [
+    "backend/seed.js",
+    "backend/scripts/backfill-brand-categoryId.js",
+    "backend/scripts/catalog_activation.js",
+    "backend/scripts/catalog_recovery_migration.js",
+    "backend/scripts/catalog_repair.js",
+    "backend/scripts/cleanup-duplicate-locations.js",
+    "backend/scripts/cleanup-malformed-geo-fields.js",
+    "backend/scripts/cleanup_data.js",
+    "backend/scripts/ensure-location-indexes.js",
+    "backend/scripts/master-data-full-repair.js",
+    "backend/scripts/migrate-districts.js",
+    "backend/scripts/migrate-location-hierarchy.js",
+    "backend/scripts/migrate_indexes.js",
+    "backend/scripts/remap-null-category-models.js",
+    "backend/scripts/remediate-location-data.js",
+    "backend/scripts/remediate-master-data.js"
+  ],
+  "lifecycleBypassScripts": [
+    "backend/seed.js",
+    "backend/scripts/catalog_activation.js",
+    "backend/scripts/catalog_repair.js",
+    "backend/scripts/cleanup-duplicate-locations.js",
+    "backend/scripts/ensure-location-indexes.js",
+    "backend/scripts/master-data-full-repair.js",
+    "backend/scripts/migrate-location-hierarchy.js",
+    "backend/scripts/migrate_indexes.js",
+    "backend/scripts/remap-null-category-models.js",
+    "backend/scripts/remediate-master-data.js"
+  ],
+  "migrationShadowScripts": [
+    "backend/scripts/backfill-brand-categoryId.js",
+    "backend/scripts/catalog_recovery_migration.js",
+    "backend/scripts/catalog_repair.js",
+    "backend/scripts/cleanup-duplicate-locations.js",
+    "backend/scripts/cleanup-malformed-geo-fields.js",
+    "backend/scripts/cleanup_data.js",
+    "backend/scripts/migrate-districts.js",
+    "backend/scripts/migrate-location-hierarchy.js",
+    "backend/scripts/migrate_indexes.js",
+    "backend/scripts/remap-null-category-models.js",
+    "backend/scripts/remediate-location-data.js",
+    "backend/scripts/remediate-master-data.js"
+  ]
+}

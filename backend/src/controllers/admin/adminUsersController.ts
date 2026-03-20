@@ -1,0 +1,511 @@
+import { Request, Response } from 'express';
+import User from '../../models/User';
+import Admin from '../../models/Admin';
+import Ad from '../../models/Ad';
+import { logAdminAction } from '../../utils/adminLogger';
+import * as userStatusService from '../../services/UserStatusService';
+import { recalculateTrustScore } from '../../services/TrustService';
+import { hashPassword } from '../../utils/auth';
+import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse } from './adminBaseController';
+import { IAuthUser } from '../../types/auth';
+import { sendErrorResponse } from '../../utils/errorResponse';
+import { Role } from '../../../../shared/enums/roles';
+import { revokeAdminSessionsForAdmin } from '../../services/AdminSessionService';
+import { USER_STATUS } from '../../../../shared/enums/userStatus';
+import * as adminUsersService from '../../services/AdminUsersService';
+
+type UserQuery = Record<string, unknown> & { $or?: Array<Record<string, unknown>> };
+
+const sendUsersAdminError = (req: Request, res: Response, error: unknown) => {
+    const message = error instanceof Error ? error.message : 'Admin user operation failed';
+    sendErrorResponse(req, res, 500, message);
+};
+
+const ADMIN_ROLE_RANK: Record<string, number> = {
+    viewer: 10,
+    editor: 20,
+    content_moderator: 30,
+    moderator: 40,
+    finance_manager: 50,
+    user_manager: 60,
+    admin: 70,
+    super_admin: 100
+};
+
+const getRoleRank = (role: string | undefined): number => ADMIN_ROLE_RANK[role || ''] || 0;
+
+const ensureRoleAssignmentAllowed = (actorRole: string | undefined, targetRole: string): boolean => {
+    if (!actorRole) return false;
+    if (actorRole === Role.SUPER_ADMIN) return true;
+    return getRoleRank(targetRole) <= getRoleRank(actorRole);
+};
+
+const isLastActiveSuperAdmin = async (adminId: string): Promise<boolean> => {
+    const [targetAdmin, superAdminCount] = await Promise.all([
+        Admin.findById(adminId).select('role status isDeleted').lean(),
+        Admin.countDocuments({
+            role: Role.SUPER_ADMIN,
+            status: USER_STATUS.ACTIVE,
+            isDeleted: { $ne: true }
+        })
+    ]);
+
+    if (!targetAdmin) return false;
+    if (targetAdmin.role !== Role.SUPER_ADMIN) return false;
+    if (targetAdmin.status !== USER_STATUS.ACTIVE) return false;
+    return superAdminCount <= 1;
+};
+
+export const getUsers = async (req: Request, res: Response) => {
+    try {
+        const { page, limit, skip } = getPaginationParams(req);
+        const search = req.query.search as string;
+        const status = req.query.status as string;
+        const role = req.query.userType as string;
+        const isVerified = req.query.isVerified !== undefined ? req.query.isVerified === 'true' : undefined;
+
+        const { data, total } = await adminUsersService.getUsers(
+            { search, status, role, isVerified },
+            { skip, limit }
+        );
+
+        sendPaginatedResponse(res, data, total, page, limit);
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+import AdminMetrics from '../../models/AdminMetrics';
+
+export const getUserManagementOverview = async (req: Request, res: Response) => {
+    try {
+        const summary = await adminUsersService.getUserManagementOverview();
+        sendSuccessResponse(res, summary);
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const getAdmins = async (req: Request, res: Response) => {
+    try {
+        const admins = await Admin.find().select('-password');
+        sendSuccessResponse(res, admins);
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const getAdminById = async (req: Request, res: Response) => {
+    try {
+        const admin = await Admin.findById(req.params.id).select('-password');
+        if (!admin) {
+            sendErrorResponse(req, res, 404, 'Admin not found');
+            return;
+        }
+        sendSuccessResponse(res, admin);
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const getUserById = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        if (!user) {
+            sendErrorResponse(req, res, 404, 'User not found');
+            return;
+        }
+        sendSuccessResponse(res, user);
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const verifyUser = async (req: Request, res: Response) => {
+    try {
+        const verifiedInput = req.body.verified ?? req.body.isVerified;
+        if (typeof verifiedInput !== 'boolean') {
+            return sendErrorResponse(req, res, 400, 'Invalid verification payload. "verified" must be boolean.');
+        }
+
+        const verified = verifiedInput;
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            { isVerified: verified },
+            { new: true }
+        ).select('-password');
+
+        if (!user) {
+            sendErrorResponse(req, res, 404, 'User not found');
+            return;
+        }
+
+        await logAdminAction(req, 'VERIFY_USER', 'User', String(req.params.id), { isVerified: verified });
+
+        // 🏆 TRUST SCORE: Recalculate on verification change
+        setImmediate(() => recalculateTrustScore(user._id).catch(() => { }));
+
+        sendSuccessResponse(res, user, 'User verification updated');
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+// ADMIN MANAGEMENT
+
+export const createUser = async (req: Request, res: Response) => {
+    try {
+        const { name, email, mobile, password, isVerified } = req.body;
+
+        if (!mobile || !name) {
+            return sendErrorResponse(req, res, 400, 'Name and Mobile are required');
+        }
+
+        const userObj = await adminUsersService.createAdminUser(
+            { name, email, mobile, password, isVerified },
+            (req.user as IAuthUser)._id.toString()
+        );
+
+        await logAdminAction(req, 'CREATE_USER', 'User', userObj._id.toString(), { name, mobile, role: Role.USER });
+        sendSuccessResponse(res, userObj, 'User created successfully');
+
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+    try {
+        const { id: userId } = req.params;
+        if (!userId || typeof userId !== 'string') {
+            return sendErrorResponse(req, res, 400, 'Invalid user id');
+        }
+
+        const user = await adminUsersService.updateAdminUser(
+            userId,
+            req.body,
+            (req.user as IAuthUser)._id.toString()
+        );
+
+        await logAdminAction(req, 'UPDATE_USER', 'User', userId, { changes: Object.keys(req.body) });
+        sendSuccessResponse(res, user, 'User updated successfully');
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const updateUserStatus = async (req: Request, res: Response) => {
+    try {
+        const { status, reason } = req.body;
+        const { id: userId } = req.params;
+
+        if (![USER_STATUS.ACTIVE, USER_STATUS.SUSPENDED, USER_STATUS.BANNED].includes(status as any)) {
+            return sendErrorResponse(req, res, 400, 'Invalid status');
+        }
+
+        if (!userId || typeof userId !== 'string') {
+            return sendErrorResponse(req, res, 400, 'Invalid user id');
+        }
+
+        const user = await userStatusService.updateUserStatus(userId, status, {
+            actor: 'ADMIN',
+            adminReq: req,
+            reason
+        });
+
+        sendSuccessResponse(res, user, `User status updated to ${status}`);
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const suspendUser = async (req: Request, res: Response) => {
+    req.body = { ...(req.body || {}), status: USER_STATUS.SUSPENDED };
+    return updateUserStatus(req, res);
+};
+
+export const banUser = async (req: Request, res: Response) => {
+    req.body = { ...(req.body || {}), status: USER_STATUS.BANNED };
+    return updateUserStatus(req, res);
+};
+
+export const createAdmin = async (req: Request, res: Response) => {
+    try {
+        const {
+            firstName,
+            lastName,
+            name,
+            email,
+            mobile,
+            password,
+            role,
+            permissions
+        } = req.body || {};
+
+        const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+        const normalizedPassword = typeof password === 'string' ? password : '';
+
+        const derivedFirstName = typeof firstName === 'string'
+            ? firstName.trim()
+            : typeof name === 'string'
+                ? name.trim().split(/\s+/)[0] || ''
+                : '';
+
+        const derivedLastName = typeof lastName === 'string'
+            ? lastName.trim()
+            : typeof name === 'string'
+                ? name.trim().split(/\s+/).slice(1).join(' ')
+                : '';
+
+        if (!derivedFirstName || !derivedLastName || !normalizedEmail || !normalizedPassword) {
+            return sendErrorResponse(req, res, 400, 'Name, email, and password are required');
+        }
+
+        // Check if exists
+        const exists = await Admin.findOne({ email: normalizedEmail });
+        if (exists) {
+            return sendErrorResponse(req, res, 409, 'Admin with this email already exists');
+        }
+
+        const allowedRoles = new Set([
+            Role.SUPER_ADMIN,
+            Role.ADMIN,
+            Role.MODERATOR,
+            'user_manager',
+            'finance_manager',
+            'content_moderator',
+            'editor',
+            'viewer',
+            'custom'
+        ]);
+
+        const normalizedRole =
+            typeof role === 'string' && allowedRoles.has(role)
+                ? role
+                : Role.ADMIN;
+
+        const actorRole = (req.user as IAuthUser | undefined)?.role;
+        if (!ensureRoleAssignmentAllowed(actorRole, normalizedRole)) {
+            return sendErrorResponse(req, res, 403, 'Cannot assign a role higher than your own');
+        }
+
+        const normalizedPermissions = Array.isArray(permissions)
+            ? permissions.filter((value) => typeof value === 'string')
+            : [];
+
+        const newAdmin = await Admin.create({
+            firstName: derivedFirstName,
+            lastName: derivedLastName,
+            email: normalizedEmail,
+            mobile,
+            // Model pre-save hook hashes passwords; avoid pre-hashing to prevent double hashing.
+            password: normalizedPassword,
+            role: normalizedRole,
+            permissions: normalizedPermissions,
+            status: USER_STATUS.ACTIVE
+        });
+
+        const adminObj = newAdmin.toObject() as unknown as Record<string, unknown>;
+        delete adminObj.password;
+
+        await logAdminAction(req, 'CREATE_ADMIN', 'Admin', newAdmin._id.toString(), {
+            role: normalizedRole,
+            permissions: normalizedPermissions
+        });
+        sendSuccessResponse(res, adminObj, 'Admin created successfully');
+
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const updateAdmin = async (req: Request, res: Response) => {
+    try {
+        const targetId = typeof req.params.id === 'string' ? req.params.id : '';
+        if (!targetId) {
+            return sendErrorResponse(req, res, 400, 'Invalid admin id');
+        }
+        const { firstName, lastName, email, mobile, permissions, status, password, role } = req.body;
+        const currentId = (req.user as IAuthUser)._id.toString();
+
+        if (targetId === currentId && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(status)) {
+            return sendErrorResponse(req, res, 400, 'You cannot suspend/deactivate your own admin account');
+        }
+        if (targetId === currentId && role) {
+            return sendErrorResponse(req, res, 400, 'You cannot change your own role');
+        }
+
+        if (await isLastActiveSuperAdmin(targetId) && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(status)) {
+            return sendErrorResponse(req, res, 400, 'Cannot suspend/deactivate the last active Super Admin');
+        }
+
+        const updateData: Record<string, unknown> = {};
+        if (firstName) updateData.firstName = firstName;
+        if (lastName) updateData.lastName = lastName;
+        if (email) updateData.email = email;
+        if (mobile) updateData.mobile = mobile;
+        if (permissions) updateData.permissions = permissions;
+        if (status) updateData.status = status;
+        const allowedRoles = new Set([
+            Role.SUPER_ADMIN,
+            Role.ADMIN,
+            Role.MODERATOR,
+            'user_manager',
+            'finance_manager',
+            'content_moderator',
+            'editor',
+            'viewer',
+            'custom'
+        ]);
+        if (role) {
+            if (typeof role !== 'string' || !allowedRoles.has(role)) {
+                return sendErrorResponse(req, res, 400, 'Invalid admin role');
+            }
+            const actorRole = (req.user as IAuthUser | undefined)?.role;
+            if (!ensureRoleAssignmentAllowed(actorRole, role)) {
+                return sendErrorResponse(req, res, 403, 'Cannot assign a role higher than your own');
+            }
+            updateData.role = role;
+        }
+
+        if (password && password.trim().length > 0) {
+            updateData.password = await hashPassword(password);
+        }
+
+        if (await isLastActiveSuperAdmin(targetId) && role && role !== Role.SUPER_ADMIN) {
+            return sendErrorResponse(req, res, 400, 'Cannot downgrade the last active Super Admin');
+        }
+
+        const updatedAdmin = await Admin.findByIdAndUpdate(
+            targetId,
+            { $set: updateData },
+            { new: true }
+        ).select('-password');
+
+        if (!updatedAdmin) {
+            return sendErrorResponse(req, res, 404, 'Admin not found');
+        }
+
+        if (status && [USER_STATUS.INACTIVE, USER_STATUS.SUSPENDED, USER_STATUS.BANNED].includes(status)) {
+            await revokeAdminSessionsForAdmin(targetId);
+        }
+
+        await logAdminAction(req, 'UPDATE_ADMIN', 'Admin', String(targetId), { changes: Object.keys(updateData) });
+        sendSuccessResponse(res, updatedAdmin, 'Admin updated successfully');
+
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const deleteAdmin = async (req: Request, res: Response) => {
+    try {
+        const targetId = typeof req.params.id === 'string' ? req.params.id : '';
+        if (!targetId) {
+            return sendErrorResponse(req, res, 400, 'Invalid admin id');
+        }
+        const currentId = (req.user as IAuthUser)._id;
+
+        if (targetId === currentId.toString()) {
+            return sendErrorResponse(req, res, 400, 'You cannot delete yourself');
+        }
+
+        if (await isLastActiveSuperAdmin(targetId)) {
+            return sendErrorResponse(req, res, 400, 'Cannot delete the last active Super Admin');
+        }
+
+        const admin = await Admin.findById(targetId);
+        if (!admin) {
+            return sendErrorResponse(req, res, 404, 'Admin not found');
+        }
+
+        await admin.softDelete();
+        await revokeAdminSessionsForAdmin(targetId);
+
+        await logAdminAction(req, 'DELETE_ADMIN', 'Admin', targetId, { email: admin.email });
+        sendSuccessResponse(res, null, 'Admin deleted successfully');
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const deactivateAdmin = async (req: Request, res: Response) => {
+    try {
+        const targetId = typeof req.params.id === 'string' ? req.params.id : '';
+        if (!targetId) {
+            return sendErrorResponse(req, res, 400, 'Invalid admin id');
+        }
+        const currentId = (req.user as IAuthUser)._id.toString();
+
+        if (targetId === currentId) {
+            return sendErrorResponse(req, res, 400, 'You cannot deactivate yourself');
+        }
+
+        if (await isLastActiveSuperAdmin(targetId)) {
+            return sendErrorResponse(req, res, 400, 'Cannot deactivate the last active Super Admin');
+        }
+
+        const admin = await Admin.findByIdAndUpdate(
+            targetId,
+            { status: USER_STATUS.INACTIVE },
+            { new: true }
+        ).select('-password');
+
+        if (!admin) {
+            return sendErrorResponse(req, res, 404, 'Admin not found');
+        }
+
+        await revokeAdminSessionsForAdmin(targetId);
+        await logAdminAction(req, 'DEACTIVATE_ADMIN', 'Admin', targetId, { status: 'inactive' });
+        sendSuccessResponse(res, admin, 'Admin deactivated successfully');
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+    try {
+        await userStatusService.updateUserStatus(req.params.id as string, USER_STATUS.DELETED, {
+            actor: 'ADMIN',
+            adminReq: req,
+            reason: 'Admin Soft Delete'
+        });
+        sendSuccessResponse(res, null, 'User deleted successfully (Soft Delete)');
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};
+
+
+
+export const searchUsers = async (req: Request, res: Response) => {
+    try {
+        const q = req.query.q as string;
+        if (!q) {
+            return sendSuccessResponse(res, []);
+        }
+
+        const users = await User.find({
+            $or: [
+                { name: { $regex: q, $options: 'i' } },
+                { email: { $regex: q, $options: 'i' } },
+                { mobile: { $regex: q, $options: 'i' } }
+            ]
+        })
+            .select('_id name mobile email fcmTokens')
+            .limit(20);
+
+        // Map to format expected by UI (name, phone)
+        const mappedUsers = users.map(u => ({
+            _id: u._id,
+            name: u.name || 'Unknown',
+            mobile: u.mobile, // Standardized naming to 'mobile'
+            email: u.email,
+            fcmTokensCount: u.fcmTokens?.length || 0
+        }));
+
+        sendSuccessResponse(res, mappedUsers);
+    } catch (error: unknown) {
+        sendUsersAdminError(req, res, error);
+    }
+};

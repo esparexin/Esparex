@@ -1,0 +1,178 @@
+import mongoose from 'mongoose';
+import Ad from '../models/Ad';
+import PhoneRevealLog from '../models/PhoneRevealLog';
+import PhoneRequest from '../models/PhoneRequest';
+import logger from '../utils/logger';
+import { AD_STATUS } from '../../../shared/enums/adStatus';
+
+/**
+ * Mask phone number for display
+ * e.g., "+1234567890" → "+1****7890"
+ */
+export const maskPhone = (phone?: string): string | undefined => {
+    if (!phone || phone.length < 4) {
+        return undefined;
+    }
+
+    const start = phone.substring(0, 3);
+    const end = phone.substring(phone.length - 4);
+    return `${start}****${end}`;
+};
+
+/**
+ * Log when a phone number is revealed to a buyer
+ * This helps track suspicious activity and validate business metrics
+ */
+export const logPhoneReveal = async (
+    entityId: string,
+    entityType: string,
+    sellerId: string,
+    buyerId: string,
+    ipAddress?: string,
+    device?: string
+): Promise<void> => {
+    try {
+        // 1. Persistent Audit Log (Non-blocking DB insertion)
+        const logData = {
+            entityId: new mongoose.Types.ObjectId(entityId),
+            entityType: entityType as any,
+            sellerId: new mongoose.Types.ObjectId(sellerId),
+            buyerId: new mongoose.Types.ObjectId(buyerId),
+            ipAddress,
+            device,
+            revealedAt: new Date()
+        };
+
+        // Create log record asynchronously
+        PhoneRevealLog.create(logData).catch(err => {
+            logger.error('Failed to create PhoneRevealLog document', { error: err.message });
+        });
+
+        // 2. Technical Debug Log for Developer awareness
+        logger.debug('Phone number revealed', {
+            entityId,
+            entityType,
+            sellerId,
+            buyerId,
+            ipAddress,
+            device,
+            timestamp: logData.revealedAt.toISOString()
+        });
+    } catch (error) {
+        logger.error('Failed to log phone reveal', {
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+};
+
+/**
+ * Canonical service for getting seller phone numbers for all listings
+ */
+export const getSellerPhone = async (
+    entityId: string | mongoose.Types.ObjectId,
+    entityType: 'ad' | 'service' | 'spare_part', // Keep for compatibility, but query Ad
+    buyerId?: string,
+    metadata?: { ip?: string; device?: string }
+): Promise<{
+    phone?: string;
+    mobile?: string;
+    countryCode?: string;
+    masked?: string;
+    error?: string;
+} | null> => {
+    if (!mongoose.Types.ObjectId.isValid(String(entityId))) {
+        return null;
+    }
+
+    const id = new mongoose.Types.ObjectId(String(entityId));
+
+    try {
+        const entity = await Ad.findById(id)
+            .select('sellerId status isDeleted listingType')
+            .populate('sellerId', 'mobile countryCode status mobileVisibility')
+            .lean() as any;
+
+        if (!entity) return { error: 'Listing not found' };
+
+        const seller = entity.sellerId;
+        if (!seller) return { error: 'Seller not found' };
+
+        // Standardize generic payload mapping
+        seller.phone = seller.mobile;
+        const entityActive = entity.status === AD_STATUS.LIVE && !entity.isDeleted;
+        const resolvedEntityType = entity.listingType || (entityType === 'spare_part' ? 'spare_part' : 'ad');
+
+        const isOwner = Boolean(buyerId && seller._id && buyerId === seller._id.toString());
+
+        // Privacy Logic Enforcement (Bypass for owners)
+        if (!isOwner) {
+            if (seller.mobileVisibility === 'hide') {
+                return { error: 'HIDDEN' };
+            }
+            if (seller.mobileVisibility === 'on-request') {
+                // Check for approved request
+                const approvedRequest = await PhoneRequest.findOne({
+                    buyerId: new mongoose.Types.ObjectId(buyerId),
+                    sellerId: seller._id,
+                    entityId: id,
+                    entityType: resolvedEntityType,
+                    status: 'approved'
+                }).lean();
+
+                if (!approvedRequest) {
+                    return { error: 'REQUEST_REQUIRED' };
+                }
+            }
+        }
+
+        const sellerActive = seller.status === 'active';
+
+        if (!isOwner && (!entityActive || !sellerActive)) {
+            const err = new Error('Phone number is unavailable for this listing.');
+            (err as Error & { statusCode?: number }).statusCode = 403;
+            throw err;
+        }
+
+        // Phone numbers should only be revealed to logged-in buyers
+        if (!buyerId) {
+            // Return masked phone for unauthenticated users
+            const maskedPhone = maskPhone(seller.phone);
+            return {
+                masked: maskedPhone,
+                countryCode: seller.countryCode
+            };
+        }
+
+        // Log phone reveal for audit trail
+        if (buyerId && !isOwner) {
+            logPhoneReveal(
+                String(id),
+                resolvedEntityType,
+                String(seller._id || ''),
+                buyerId,
+                metadata?.ip,
+                metadata?.device
+            ).catch(err => {
+                logger.error('Failed to log phone reveal', { error: err });
+            });
+        }
+
+        return {
+            phone: seller.phone,
+            mobile: seller.phone, // Include mobile field for legacy compatibility for frontend
+            countryCode: seller.countryCode
+        };
+    } catch (error) {
+        logger.error(`Failed to get listing phone`, {
+            error: error instanceof Error ? error.message : String(error),
+            entityId: String(id)
+        });
+
+        if ((error as Error & { statusCode?: number }).statusCode === 403) {
+            throw error;
+        }
+
+        return { error: 'Failed to retrieve phone number' };
+    }
+};
+

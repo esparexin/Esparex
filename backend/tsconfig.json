@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "typeRoots": [
+      "./node_modules/@types",
+      "../node_modules/@types",
+      "./src/@types"
+    ],
+    "types": [
+      "jest",
+      "node"
+    ],
+    "outDir": "./dist",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "ES2023"
+    ],
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    }
+  },
+  "ts-node": {
+    "files": true,
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  },
+  "files": [
+    "src/@types/index.d.ts",
+    "src/types/global.d.ts"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/@types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/tests",
+    "src/__tests__",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "src/seeds"
+  ]
+}

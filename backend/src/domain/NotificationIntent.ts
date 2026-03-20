@@ -1,0 +1,107 @@
+import crypto from 'crypto';
+
+export interface EntityRef {
+    domain: string;
+    id: string;
+}
+
+export class NotificationIntent {
+    userId: string;
+    type: string;
+    entityRef: EntityRef;
+    message: { title: string; body: string; data?: Record<string, unknown> };
+    priority: 'high' | 'normal' | 'low';
+    dedupKey: string;
+    channels: string[];
+    metadata?: Record<string, unknown>;
+
+    constructor(init: {
+        userId: string;
+        type: string;
+        entityRef: EntityRef;
+        message: { title: string; body: string; data?: Record<string, unknown> };
+        priority?: 'high' | 'normal' | 'low';
+        channels?: string[];
+        metadata?: Record<string, unknown>;
+        dedupKey?: string;
+    }) {
+        this.userId = init.userId;
+        this.type = init.type;
+        this.entityRef = init.entityRef;
+        this.message = init.message;
+        this.priority = init.priority || 'normal';
+        this.channels = init.channels && init.channels.length > 0 ? init.channels : ['in-app'];
+        this.metadata = init.metadata;
+        
+        // Ensure partial dedup uniqueness (per user, per domain id, per type)
+        // Note: TTL index in schema handles temporal deduplication window (e.g. 24h)
+        this.dedupKey = init.dedupKey || crypto
+            .createHash('sha256')
+            .update(`${this.userId}:${this.type}:${this.entityRef.domain}:${this.entityRef.id}`)
+            .digest('hex');
+    }
+
+    static fromSmartAlert(
+        userId: string,
+        alertName: string,
+        adId: string,
+        alertId: string,
+        channels: string[] = ['push', 'in-app']
+    ): NotificationIntent {
+        return new NotificationIntent({
+            userId,
+            type: 'SMART_ALERT',
+            entityRef: { domain: 'ad', id: adId },
+            message: {
+                title: 'New Ad Alert',
+                body: `A new ad matches your alert: ${alertName}`,
+                data: { adId, alertId, type: 'SMART_ALERT' }
+            },
+            priority: 'high',
+            channels,
+            metadata: { alertId }
+        });
+    }
+
+    static fromSchedulerJob(
+        userId: string,
+        jobId: string,
+        title: string,
+        body: string,
+        targetType: string
+    ): NotificationIntent {
+        return new NotificationIntent({
+            userId,
+            type: 'admin_push_scheduled',
+            entityRef: { domain: 'scheduler_job', id: jobId },
+            message: {
+                title,
+                body,
+                data: { type: 'admin_broadcast', targetType }
+            },
+            priority: 'normal',
+            channels: ['push', 'in-app']
+        });
+    }
+
+    static fromAdminBroadcast(
+        userId: string,
+        broadcastId: string,
+        title: string,
+        body: string,
+        typeStr: string = 'admin_broadcast'
+    ): NotificationIntent {
+        return new NotificationIntent({
+            userId,
+            type: typeStr,
+            entityRef: { domain: 'admin_broadcast', id: broadcastId },
+            message: {
+                title,
+                body,
+                data: { type: 'admin_broadcast' }
+            },
+            priority: 'normal',
+            channels: ['push', 'in-app']
+        });
+    }
+}

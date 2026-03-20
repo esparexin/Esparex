@@ -1,0 +1,28 @@
+{
+    "extends": [
+        "next/core-web-vitals"
+    ],
+    "rules": {
+        "no-restricted-syntax": [
+            "error",
+            {
+                "selector": "CallExpression[callee.object.name='router'][callee.property.name='replace']",
+                "message": "router.replace() is only allowed in guard files (guards/, AuthGuard.tsx, withGuard.tsx). Use router.push() for navigation or state updates for tab switching instead."
+            }
+        ]
+    },
+    "overrides": [
+        {
+            "files": [
+                "**/guards/**/*.tsx",
+                "**/guards/**/*.ts",
+                "**/AuthGuard.tsx",
+                "**/withGuard.tsx",
+                "**/AdminAuthGuard.tsx"
+            ],
+            "rules": {
+                "no-restricted-syntax": "off"
+            }
+        }
+    ]
+}

@@ -1,0 +1,66 @@
+name: Architecture Guardrails
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  architecture-guard:
+    name: SSOT Architecture Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check frontend
+        run: npm run type-check -w frontend
+
+      - name: Type check backend
+        run: npm run type-check -w backend
+
+      - name: Type check admin frontend
+        run: npm run type-check -w admin-frontend
+
+      - name: Lint repository
+        run: npm run lint
+
+      - name: Route collision guard
+        run: node scripts/enforce-route-collision-guard.js
+
+      - name: Ad SSOT guard
+        run: node scripts/enforce-ad-ssot-guard.js
+
+      - name: Dead import protection
+        run: npm run guard:unused-imports
+
+      - name: Duplicate code detection
+        run: npm run guard:duplication
+
+      - name: API surface SSOT guard
+        run: npm run guard:api-surface
+
+      - name: Guardrail failure hints
+        if: failure()
+        run: |
+          echo "Architecture guardrails failed."
+          echo "Possible causes:"
+          echo "- Duplicate API detected. Use canonical /api/v1/<resource> endpoint."
+          echo "- Reserved slug collision detected."
+          echo "- Duplicate hook family detected."

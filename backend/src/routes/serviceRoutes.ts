@@ -1,0 +1,49 @@
+import express from 'express';
+import * as serviceController from '../controllers/service';
+import { protect } from '../middleware/authMiddleware';
+import { validateObjectId } from '../middleware/validateObjectId';
+import { validateRequest } from '../middleware/validateRequest';
+import { mutationLimiter, searchLimiter, phoneRevealLimiter } from '../middleware/rateLimiter';
+import { ServicePayloadSchema, PartialServicePayloadSchema } from '../../../shared/schemas/servicePayload.schema';
+import type { ZodTypeAny } from 'zod';
+import { createListingValidator } from '../validators/listing.validator';
+
+import { requireBusinessApproved } from '../middleware/businessMiddleware';
+import { duplicateCooldownMiddleware } from '../middlewares/duplicateCooldownMiddleware';
+
+const router = express.Router();
+
+// Protected CRUD (Business Only)
+router.post(
+    '/',
+    protect,
+    requireBusinessApproved,
+    mutationLimiter,
+    duplicateCooldownMiddleware('service'),
+    validateRequest(ServicePayloadSchema as unknown as ZodTypeAny),
+    createListingValidator,
+    serviceController.createService
+);
+router.get('/my-services', protect, serviceController.getMyServices);
+// router.get('/analytics', ...) — removed: admin-only endpoint moved exclusively to
+// /api/v1/admin/services/analytics (adminRoutes.ts). Do not re-add here.
+
+router.put(
+    '/:id',
+    protect,
+    requireBusinessApproved,
+    validateObjectId,
+    validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
+    serviceController.updateService
+);
+router.delete('/:id', protect, requireBusinessApproved, validateObjectId, serviceController.deleteService);
+
+import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
+
+// Public Get
+router.get('/', searchLimiter, serviceController.getServices);
+router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), serviceController.incrementServiceView);
+router.get('/:id', validateIdOrSlug('id'), serviceController.getServiceById);
+router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, serviceController.getServicePhone);
+
+export default router;

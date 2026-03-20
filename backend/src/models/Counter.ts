@@ -1,0 +1,38 @@
+// backend/src/models/Counter.ts
+import { Schema, Document } from "mongoose";
+import { getUserConnection } from "../config/db";
+import type { Model } from "mongoose";
+
+export interface ICounter extends Document {
+    key: string;
+    value: number;
+}
+
+const CounterSchema = new Schema<ICounter>({
+    key: { type: String, required: true },
+    value: { type: Number, default: 0 }
+});
+
+/* -------------------------------------------------------------------------- */
+/* Indexes (Explicitly Named)                                                 */
+/* -------------------------------------------------------------------------- */
+
+CounterSchema.index({ key: 1 }, { name: 'counter_key_unique_idx', unique: true });
+
+const connection = getUserConnection();
+export const Counter: Model<ICounter> =
+    (connection.models.Counter as Model<ICounter>) ||
+    connection.model<ICounter>("Counter", CounterSchema);
+// toJSON Transform - Convert _id to id
+CounterSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (_doc: unknown, ret: unknown) {
+        const json = ret as unknown as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
+        json.id = json._id?.toString();
+        delete json._id;
+        return json;
+    }
+});
+
+export default Counter;

@@ -1,0 +1,258 @@
+import mongoose from 'mongoose';
+import slugify from 'slugify';
+import { hasValidCoordinateArray } from '@shared/utils/geoUtils';
+
+export const LOCATION_LEVELS = ['country', 'state', 'district', 'city', 'area', 'village'] as const;
+export type LocationLevel = (typeof LOCATION_LEVELS)[number];
+
+type LocationLikeInput = {
+    name?: unknown;
+    city?: unknown;
+    state?: unknown;
+    country?: unknown;
+    district?: unknown;
+    level?: unknown;
+    coordinates?: unknown;
+    aliases?: unknown;
+    parentId?: unknown;
+    [key: string]: unknown;
+};
+
+type NormalizeLocationInputOptions = {
+    resolveHierarchy?: boolean;
+    ensureUnique?: boolean;
+    defaultCountry?: string;
+    excludeId?: unknown;
+    documentId?: mongoose.Types.ObjectId;
+};
+
+export type NormalizedLocationPersistenceInput = {
+    documentId: mongoose.Types.ObjectId;
+    name: string;
+    normalizedName: string;
+    slug: string;
+    city: string;
+    state: string;
+    country: string;
+    district?: string;
+    level: LocationLevel;
+    aliases: string[];
+    coordinates: {
+        type: 'Point';
+        coordinates: [number, number];
+    };
+    parentId: mongoose.Types.ObjectId | null;
+    path: mongoose.Types.ObjectId[];
+};
+
+const asString = (value: unknown): string | undefined => {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : undefined;
+    }
+    if (
+        value &&
+        typeof value === 'object' &&
+        typeof (value as { toString?: () => string }).toString === 'function'
+    ) {
+        const converted = (value as { toString: () => string }).toString().trim();
+        return converted.length > 0 ? converted : undefined;
+    }
+    return undefined;
+};
+
+const toTitleCase = (value?: string): string => {
+    if (!value) return '';
+    return value
+        .split(' ')
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join(' ');
+};
+
+export const normalizeLocationLevel = (value: unknown): LocationLevel | undefined => {
+    const normalized = asString(value)?.toLowerCase();
+    if (!normalized) return undefined;
+    return (LOCATION_LEVELS as readonly string[]).includes(normalized)
+        ? (normalized as LocationLevel)
+        : undefined;
+};
+
+export const normalizeLocationNameForSearch = (value: unknown): string => {
+    const source = asString(value) || '';
+    return slugify(source, {
+        lower: true,
+        strict: true,
+        trim: true,
+        replacement: ''
+    });
+};
+
+export const buildLocationSlug = (...parts: Array<unknown>): string =>
+    slugify(
+        parts
+            .map((part) => asString(part))
+            .filter((part): part is string => Boolean(part))
+            .join('-'),
+        {
+            lower: true,
+            strict: true,
+            trim: true
+        }
+    );
+
+const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
+    const candidate = asString(value);
+    if (!candidate || !mongoose.Types.ObjectId.isValid(candidate)) return null;
+    return new mongoose.Types.ObjectId(candidate);
+};
+
+const loadLocationModel = async () => (await import('../models/Location')).default;
+const loadHierarchyUtils = async () => import('./locationHierarchy');
+
+const buildHierarchyPath = (
+    selfId: mongoose.Types.ObjectId,
+    parent?: Pick<{ _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] }, '_id' | 'path'> | null
+): mongoose.Types.ObjectId[] => {
+    const chain = Array.isArray(parent?.path) && parent.path.length > 0
+        ? [...parent.path, selfId]
+        : parent?._id
+            ? [parent._id, selfId]
+            : [selfId];
+
+    const deduped: mongoose.Types.ObjectId[] = [];
+    const seen = new Set<string>();
+    for (const item of chain) {
+        const key = String(item);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        deduped.push(item);
+    }
+    return deduped;
+};
+
+const extractCoordinates = (value: unknown): [number, number] => {
+    if (
+        value &&
+        typeof value === 'object' &&
+        (value as { type?: unknown }).type === 'Point' &&
+        hasValidCoordinateArray((value as { coordinates?: unknown }).coordinates)
+    ) {
+        return [...(value as { coordinates: [number, number] }).coordinates];
+    }
+
+    if (
+        value &&
+        typeof value === 'object' &&
+        'coordinates' in (value as Record<string, unknown>) &&
+        hasValidCoordinateArray((value as { coordinates?: unknown }).coordinates)
+    ) {
+        return [...((value as { coordinates: [number, number] }).coordinates)];
+    }
+
+    throw new Error('Invalid coordinates');
+};
+
+const normalizeAliases = (value: unknown): string[] => {
+    if (!Array.isArray(value)) return [];
+    return Array.from(
+        new Set(
+            value
+                .map((entry) => toTitleCase(asString(entry)))
+                .filter((entry): entry is string => Boolean(entry))
+        )
+    );
+};
+
+export const normalizeLocationInput = async (
+    input: LocationLikeInput,
+    options: NormalizeLocationInputOptions = {}
+): Promise<NormalizedLocationPersistenceInput> => {
+    const level = normalizeLocationLevel(input.level) || 'city';
+    const preferredName =
+        asString(input.name) ||
+        (level === 'district' ? asString(input.district) : undefined) ||
+        asString(input.city) ||
+        '';
+    const name = toTitleCase(preferredName);
+    const city = toTitleCase(asString(input.city) || name);
+    const state = toTitleCase(asString(input.state) || '');
+    const country = toTitleCase(asString(input.country) || options.defaultCountry || 'Unknown');
+    const district = toTitleCase(asString(input.district) || '');
+    const coordinates = extractCoordinates(input.coordinates);
+    const normalizedName = normalizeLocationNameForSearch(name);
+
+    if (!name || !normalizedName) {
+        throw new Error('Location name is required');
+    }
+
+    const slug = buildLocationSlug(name, city, state || country);
+    const aliases = normalizeAliases(input.aliases);
+
+    let parentId = toObjectId(input.parentId);
+    let path: mongoose.Types.ObjectId[] = [];
+    let parentLocation: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null = null;
+
+    if (parentId) {
+        const Location = await loadLocationModel();
+        parentLocation = await Location.findOne({ _id: parentId, isActive: true })
+            .select('_id path')
+            .lean<{ _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null>();
+        if (!parentLocation) {
+            throw new Error('Invalid parent location');
+        }
+    } else if (options.resolveHierarchy) {
+        const { resolveParentLocation } = await loadHierarchyUtils();
+        parentLocation = await resolveParentLocation({
+            level,
+            country,
+            state,
+            district,
+            city,
+            excludeId: options.excludeId
+        });
+        parentId = parentLocation?._id || null;
+    }
+
+    const documentId = options.documentId || new mongoose.Types.ObjectId();
+    path = buildHierarchyPath(documentId, parentLocation);
+
+    if (options.ensureUnique) {
+        const Location = await loadLocationModel();
+        const duplicate = await Location.findOne({
+            isActive: true,
+            normalizedName,
+            level,
+            state,
+            ...(parentId ? { parentId } : {}),
+            ...(options.excludeId && mongoose.Types.ObjectId.isValid(String(options.excludeId))
+                ? { _id: { $ne: new mongoose.Types.ObjectId(String(options.excludeId)) } }
+                : {})
+        })
+            .select('_id')
+            .lean();
+
+        if (duplicate) {
+            throw new Error('Duplicate location detected');
+        }
+    }
+
+    return {
+        documentId,
+        name,
+        normalizedName,
+        slug,
+        city,
+        state,
+        country,
+        district: district || undefined,
+        level,
+        aliases,
+        coordinates: {
+            type: 'Point',
+            coordinates
+        },
+        parentId,
+        path
+    };
+};

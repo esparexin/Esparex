@@ -1,0 +1,111 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+**/coverage/
+
+# Next.js
+/.next/
+/out/
+.next
+out
+build
+
+# Production
+/build
+dist
+
+# Misc
+.DS_Store
+*.pem
+tmp/
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env
+.env.test
+**/.env.test
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+backend/.env
+backend/src/config/.env
+
+# Service credentials
+service-account.json
+service-account*.json
+**/service-account*.json
+
+# Generated service worker files (contain injected credentials)
+# Templates are tracked, but generated files are not
+public/firebase-messaging-sw.js
+firebase-messaging-sw.js
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# MongoDB
+data/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.config/
+.kilo/
+.kombai/
+.antigravity.system.prompt.md
+.cursorrules
+
+# Logs
+*.log
+logs/
+backend/logs/
+
+# Backups
+backups/
+*.gz
+
+# OS
+Thumbs.db
+
+# Build artifacts
+*.tgz
+
+# Submodules
+Esparex-next/
+node_modules
+frontend/.unimportedrc.json
+
+# Temporary audit files
+duplicates_report.txt
+*_report.txt
+*_audit.txt
+
+# Temporary output files
+backend/error_output.txt
+frontend/typecheck_errors.txt
+*_response.json
+walkthrough_*.md
+home_ads_*.json
+category_usage_report.md
+cookies.txt
+
+# Workspace env locals (keep examples only)
+frontend/.env.local
+admin-frontend/.env.local

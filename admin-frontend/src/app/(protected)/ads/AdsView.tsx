@@ -1,0 +1,515 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { AlertCircle, RefreshCcw, Search, X } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useToast } from "@/context/ToastContext";
+import { AdsTable } from "@/components/moderation/AdsTable";
+import { RejectAdModal } from "@/components/moderation/RejectAdModal";
+import { ViewAdModal } from "@/components/moderation/ViewAdModal";
+import { DEFAULT_FILTERS, type ModerationFilters, type ModerationItem } from "@/components/moderation/moderationTypes";
+import { MODERATION_STATUSES, MODERATION_STATUS_LABELS } from "@/components/moderation/moderationStatus";
+import { useAdminAdsQuery } from "@/hooks/useAdminAdsQuery";
+import {
+    activateAdminAd,
+    approveAdminAd,
+    blockAdminSeller,
+    deactivateAdminAd,
+    deleteAdminAd,
+    fetchAdminAdDetail,
+    rejectAdminAd
+} from "@/lib/api/moderation";
+import { normalizeModerationAd } from "@/components/moderation/normalizeModerationAd";
+import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
+import { adLifecycleTabs, adModerationTabs } from "@/components/layout/adminModuleTabSets";
+import { AdminErrorBoundary } from "@/components/common/AdminErrorBoundary";
+
+const SORT_OPTIONS: Array<{ label: string; value: ModerationFilters["sort"] }> = [
+    { label: "Newest", value: "newest" },
+    { label: "Oldest", value: "oldest" },
+    { label: "Price High", value: "price_high" },
+    { label: "Price Low", value: "price_low" }
+];
+
+type AdsViewProps = {
+    mode?: "moderation" | "ads";
+    listingType?: "ad" | "service" | "spare_part";
+};
+
+export default function AdsView({ mode = "moderation", listingType }: AdsViewProps) {
+    const { showToast } = useToast();
+    const searchParams = useSearchParams();
+    const basePath = mode === "ads" ? "/ads" : "/moderation";
+
+    const [filters, setFilters] = useState<ModerationFilters>(DEFAULT_FILTERS);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [viewAd, setViewAd] = useState<ModerationItem | null>(null);
+    const [viewLoading, setViewLoading] = useState(false);
+    const [viewError, setViewError] = useState("");
+
+    const [rejectModalOpen, setRejectModalOpen] = useState(false);
+    const [rejectTargetIds, setRejectTargetIds] = useState<string[]>([]);
+    const [rejectTitle, setRejectTitle] = useState<string | undefined>(undefined);
+    const [rejectSubmitting, setRejectSubmitting] = useState(false);
+
+    useEffect(() => {
+        const statusFromQuery = searchParams.get("status");
+        const sellerIdFromQuery = searchParams.get("sellerId");
+        const searchFromQuery = searchParams.get("search");
+        const listingTypeFromQuery = searchParams.get("listingType") as ModerationFilters["listingType"];
+        const allowed = new Set(["pending", "live", "rejected", "deactivated", "sold", "expired", "all"]);
+        const normalizedStatus =
+            statusFromQuery && allowed.has(statusFromQuery)
+                ? statusFromQuery as ModerationFilters["status"]
+                : mode === "ads"
+                    ? "live"
+                    : "pending";
+        const normalizedSellerId = typeof sellerIdFromQuery === "string" ? sellerIdFromQuery.trim() : "";
+        const normalizedSearch = typeof searchFromQuery === "string" ? searchFromQuery.trim() : "";
+        const normalizedListingType = listingType || listingTypeFromQuery;
+
+        setFilters((prev) => {
+            if (
+                prev.status === normalizedStatus &&
+                prev.sellerId === normalizedSellerId &&
+                prev.search === normalizedSearch &&
+                prev.listingType === normalizedListingType
+            ) {
+                return prev;
+            }
+            return {
+                ...prev,
+                status: normalizedStatus,
+                sellerId: normalizedSellerId,
+                search: normalizedSearch,
+                listingType: normalizedListingType
+            };
+        });
+        setPage(1);
+    }, [mode, listingType, searchParams]);
+
+    const { items, pagination, summary, isLoading, error } = useAdminAdsQuery({
+        filters,
+        page,
+        limit: pageSize,
+        refreshKey
+    });
+
+    const selectedCount = selectedIds.length;
+
+    useEffect(() => {
+        setSelectedIds((prev) => prev.filter((id) => items.some((item) => item.id === id)));
+    }, [items]);
+
+    useEffect(() => {
+        if (page > pagination.pages) {
+            setPage(pagination.pages);
+        }
+    }, [page, pagination.pages]);
+
+    const moduleTabs = useMemo(() => {
+        const baseTabs = mode === "ads" ? adLifecycleTabs : adModerationTabs;
+        return baseTabs.map(tab => {
+            const status = new URLSearchParams(tab.href.split('?')[1]).get('status');
+            const count = status === 'all' ? summary.total : summary[status as keyof typeof summary];
+            return {
+                ...tab,
+                count: typeof count === 'number' ? count : undefined
+            };
+        });
+    }, [mode, summary]);
+
+    const refresh = () => setRefreshKey((value) => value + 1);
+
+    const withActionGuard = async (operation: () => Promise<void>, successMessage: string, fallbackError: string) => {
+        try {
+            await operation();
+            showToast(successMessage, "success");
+            refresh();
+        } catch (actionError) {
+            const message = actionError instanceof Error ? actionError.message : fallbackError;
+            showToast(message, "error");
+        }
+    };
+
+    const lastRequestId = useMemo(() => ({ current: 0 }), []);
+
+    const resolveAdId = (item: ModerationItem) =>
+        item.adId ||
+        item.id ||
+        (item as any).ad?._id ||
+        (item as any).ad?.id;
+
+    const handleView = async (item: ModerationItem) => {
+        const requestId = ++lastRequestId.current;
+        const targetId = resolveAdId(item);
+
+        setViewModalOpen(true);
+        setViewAd(item);
+        setViewLoading(true);
+        setViewError("");
+
+        try {
+            const detail = await fetchAdminAdDetail(targetId);
+            if (requestId !== lastRequestId.current) return;
+            setViewAd(normalizeModerationAd(detail));
+        } catch (detailError) {
+            if (requestId !== lastRequestId.current) return;
+            setViewError(detailError instanceof Error ? detailError.message : "Failed to load ad details");
+        } finally {
+            if (requestId === lastRequestId.current) {
+                setViewLoading(false);
+            }
+        }
+    };
+
+    const handleApprove = async (item: ModerationItem) => {
+        await withActionGuard(
+            () => approveAdminAd(item.id),
+            "Ad approved",
+            "Failed to approve ad"
+        );
+    };
+
+    const openSingleReject = (item: ModerationItem) => {
+        setRejectTitle(item.title);
+        setRejectTargetIds([item.id]);
+        setRejectModalOpen(true);
+    };
+
+    const openBulkReject = () => {
+        if (selectedIds.length === 0) return;
+        setRejectTitle(undefined);
+        setRejectTargetIds(selectedIds);
+        setRejectModalOpen(true);
+    };
+
+    const handleRejectSubmit = async (reason: string) => {
+        if (rejectTargetIds.length === 0) return;
+        setRejectSubmitting(true);
+        try {
+            await Promise.all(rejectTargetIds.map((id) => rejectAdminAd(id, reason)));
+            showToast(`Rejected ${rejectTargetIds.length} ad(s)`, "success");
+            setRejectModalOpen(false);
+            setRejectTargetIds([]);
+            setRejectTitle(undefined);
+            setSelectedIds([]);
+            refresh();
+        } catch (submitError) {
+            const message = submitError instanceof Error ? submitError.message : "Failed to reject ad";
+            showToast(message, "error");
+        } finally {
+            setRejectSubmitting(false);
+        }
+    };
+
+    const handleDeactivate = async (item: ModerationItem) => {
+        await withActionGuard(
+            () => deactivateAdminAd(item.id),
+            "Ad deactivated",
+            "Failed to deactivate ad"
+        );
+    };
+
+    const handleActivate = async (item: ModerationItem) => {
+        await withActionGuard(
+            () => activateAdminAd(item.id),
+            "Ad activated",
+            "Failed to activate ad"
+        );
+    };
+
+    const handleDelete = async (item: ModerationItem) => {
+        const shouldDelete = window.confirm(`Delete ad \"${item.title}\"?`);
+        if (!shouldDelete) return;
+        await withActionGuard(
+            () => deleteAdminAd(item.id),
+            "Ad deleted",
+            "Failed to delete ad"
+        );
+    };
+
+    const handleBanSeller = async (item: ModerationItem) => {
+        if (!item.sellerId) return;
+        const shouldBlock = window.confirm(`Block seller ${item.sellerName || item.sellerId}?`);
+        if (!shouldBlock) return;
+
+        await withActionGuard(
+            () => blockAdminSeller(item.sellerId!, "Blocked via Ads Moderation"),
+            "Seller blocked",
+            "Failed to block seller"
+        );
+    };
+
+    const handleBulkApprove = async () => {
+        if (selectedIds.length === 0) return;
+        await withActionGuard(
+            async () => {
+                await Promise.all(selectedIds.map((id) => approveAdminAd(id)));
+                setSelectedIds([]);
+            },
+            `Approved ${selectedIds.length} ad(s)`,
+            "Failed to bulk approve ads"
+        );
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+        const shouldDelete = window.confirm(`Delete ${selectedIds.length} selected ad(s)?`);
+        if (!shouldDelete) return;
+
+        await withActionGuard(
+            async () => {
+                await Promise.all(selectedIds.map((id) => deleteAdminAd(id)));
+                setSelectedIds([]);
+            },
+            `Deleted ${selectedIds.length} ad(s)`,
+            "Failed to bulk delete ads"
+        );
+    };
+
+    const updateFilter = <K extends keyof ModerationFilters>(key: K, value: ModerationFilters[K]) => {
+        setPage(1);
+        setFilters((prev) => ({ ...prev, [key]: value }));
+    };
+
+    const toggleSelect = (adId: string, checked: boolean) => {
+        setSelectedIds((prev) => {
+            if (checked) return Array.from(new Set([...prev, adId]));
+            return prev.filter((id) => id !== adId);
+        });
+    };
+
+    const toggleSelectAll = (checked: boolean) => {
+        const currentIds = items.map((item) => item.id);
+        setSelectedIds((prev) => {
+            if (checked) return Array.from(new Set([...prev, ...currentIds]));
+            return prev.filter((id) => !currentIds.includes(id));
+        });
+    };
+
+    const clearFilters = () => {
+        setFilters(DEFAULT_FILTERS);
+        setPage(1);
+    };
+
+    return (
+        <AdminPageShell
+            headerVariant="compact"
+            title={listingType ? (listingType === 'service' ? "Services" : listingType === 'spare_part' ? "Spare Parts" : "Ads") : (mode === "ads" ? "Ads" : "Moderation")}
+            tabs={<AdminModuleTabs tabs={moduleTabs} />}
+            actions={
+                <button
+                    type="button"
+                    onClick={refresh}
+                    className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                    <RefreshCcw size={14} /> Refresh
+                </button>
+            }
+        >
+            <div className="flex min-h-0 flex-1 flex-col gap-3">
+                {/* Filter toolbar */}
+                <AdminFilterToolbar
+                    search={filters.search}
+                    onSearchChange={(val) => updateFilter("search", val)}
+                    searchPlaceholder="Search title, description, seller, phone"
+                    status={filters.status}
+                    onStatusChange={(val) => updateFilter("status", val as ModerationFilters["status"])}
+                    statusOptions={[
+                        { value: "all", label: "All Statuses" },
+                        ...MODERATION_STATUSES.map((s) => ({ value: s, label: MODERATION_STATUS_LABELS[s] })),
+                    ]}
+                    extraFilters={
+                        <>
+                            <input
+                                value={filters.sellerId}
+                                onChange={(e) => updateFilter("sellerId", e.target.value)}
+                                placeholder="Seller ID"
+                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-32"
+                            />
+                            <input
+                                value={filters.location}
+                                onChange={(e) => updateFilter("location", e.target.value)}
+                                placeholder="Location"
+                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-28"
+                            />
+                            <select
+                                value={filters.sort}
+                                onChange={(e) => updateFilter("sort", e.target.value as ModerationFilters["sort"])}
+                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                            >
+                                {SORT_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                            <input
+                                type="date"
+                                value={filters.dateFrom}
+                                onChange={(e) => updateFilter("dateFrom", e.target.value)}
+                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+                            />
+                            <input
+                                type="date"
+                                value={filters.dateTo}
+                                onChange={(e) => updateFilter("dateTo", e.target.value)}
+                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+                            />
+                            <button
+                                type="button"
+                                onClick={clearFilters}
+                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                            >
+                                Clear
+                            </button>
+                        </>
+                    }
+                />
+
+                {error && (
+                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">
+                        <AlertCircle size={16} /> {error}
+                    </div>
+                )}
+
+                <div className="min-h-0 flex-1">
+                    <AdsTable
+                        data={items}
+                        isLoading={isLoading}
+                        emptyMessage="No ads matched current moderation filters"
+                        currentPage={page}
+                        totalPages={pagination.pages}
+                        totalItems={pagination.total}
+                        pageSize={pagination.limit}
+                        selectedIds={selectedIds}
+                        onToggleSelect={toggleSelect}
+                        onToggleSelectAll={toggleSelectAll}
+                        onPageChange={setPage}
+                        onPageSizeChange={(size) => {
+                            setPage(1);
+                            setPageSize(size);
+                        }}
+                        onView={handleView}
+                        onApprove={(item) => void handleApprove(item)}
+                        onReject={openSingleReject}
+                        onDeactivate={(item) => void handleDeactivate(item)}
+                        onActivate={(item) => void handleActivate(item)}
+                        onDelete={(item) => void handleDelete(item)}
+                        onBanSeller={(item) => void handleBanSeller(item)}
+                        showCheckboxes={filters.status === 'pending'}
+                        bulkActions={
+                            filters.status === 'pending' ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => void handleBulkApprove()}
+                                        disabled={selectedCount === 0}
+                                        className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        Approve Selected
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={openBulkReject}
+                                        disabled={selectedCount === 0}
+                                        className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        Reject Selected
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => void handleBulkDelete()}
+                                        disabled={selectedCount === 0}
+                                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        Delete Selected
+                                    </button>
+                                </>
+                            ) : undefined
+                        }
+                    />
+                </div>
+
+                <AdminErrorBoundary fallbackLabel="Moderation Modal Error">
+                    <RejectAdModal
+                        open={rejectModalOpen}
+                        title={rejectTitle}
+                        affectedCount={rejectTargetIds.length}
+                        isSubmitting={rejectSubmitting}
+                        onClose={() => {
+                            setRejectModalOpen(false);
+                            setRejectTargetIds([]);
+                            setRejectTitle(undefined);
+                        }}
+                        onSubmit={handleRejectSubmit}
+                    />
+
+                    <ViewAdModal
+                        open={viewModalOpen}
+                        ad={viewAd}
+                        loading={viewLoading}
+                        error={viewError}
+                        onClose={() => {
+                            setViewModalOpen(false);
+                            setViewAd(null);
+                            setViewError("");
+                        }}
+                        onApprove={async (adId) => {
+                            await withActionGuard(
+                                () => approveAdminAd(adId),
+                                "Ad approved",
+                                "Failed to approve ad"
+                            );
+                            // Re-fetch so the modal reflects the new status (hides Approve button)
+                            try {
+                                const detail = await fetchAdminAdDetail(adId);
+                                setViewAd(normalizeModerationAd(detail));
+                            } catch { /* table already refreshed */ }
+                        }}
+                        onReject={(adId) => {
+                            const ad = items.find((item) => item.id === adId) || viewAd;
+                            if (ad) openSingleReject(ad);
+                        }}
+                        onDeactivate={async (adId) => {
+                            await withActionGuard(
+                                () => deactivateAdminAd(adId),
+                                "Ad deactivated",
+                                "Failed to deactivate ad"
+                            );
+                            try {
+                                const detail = await fetchAdminAdDetail(adId);
+                                setViewAd(normalizeModerationAd(detail));
+                            } catch { /* table already refreshed */ }
+                        }}
+                        onActivate={async (adId) => {
+                            await withActionGuard(
+                                () => activateAdminAd(adId),
+                                "Ad activated",
+                                "Failed to activate ad"
+                            );
+                            try {
+                                const detail = await fetchAdminAdDetail(adId);
+                                setViewAd(normalizeModerationAd(detail));
+                            } catch { /* table already refreshed */ }
+                        }}
+                        onBlockSeller={async (sellerId) => {
+                            await withActionGuard(
+                                () => blockAdminSeller(sellerId, "Blocked via Ads Moderation drawer"),
+                                "Seller blocked",
+                                "Failed to block seller"
+                            );
+                        }}
+                    />
+                </AdminErrorBoundary>
+            </div>
+        </AdminPageShell>
+    );
+}

@@ -1,0 +1,308 @@
+/**
+ * Admin Authentication Controller
+ * Handles admin login, logout, password reset, and profile
+ * Extracted from adminSystemController.ts
+ */
+
+import { Request, Response } from 'express';
+import * as adminService from '../../../services/AdminService';
+import { IAuthUser } from '../../../types/auth';
+import Admin from '../../../models/Admin';
+import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
+import { getAdminCookieOptions, getAuthCookieOptions } from '../../../utils/cookieHelper';
+import { sendErrorResponse } from '../../../utils/errorResponse';
+import logger from '../../../utils/logger';
+import {
+    sendSuccessResponse
+} from '../adminBaseController';
+
+import crypto from 'crypto';
+import speakeasy from 'speakeasy';
+import { emailService } from '../../../services/EmailService';
+import { logAdminAction } from '../../../utils/adminLogger';
+import { generateAdminToken, verifyAdminToken } from '../../../utils/auth';
+import { USER_STATUS } from '@shared/enums/userStatus';
+import { getSingleParam } from '../../../utils/requestParams';
+import {
+    createAdminSession,
+    getAdminSessionTtlMs,
+    revokeAdminSession,
+    revokeAdminSessionsForAdmin
+} from '../../../services/AdminSessionService';
+
+const sendAuthError = (req: Request, res: Response, error: unknown) => {
+    const message = error instanceof Error ? error.message : 'Auth operation failed';
+    sendErrorResponse(req, res, 500, message);
+};
+
+/**
+ * Initiate password reset via email
+ */
+export const forgotPassword = async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+        const admin = await Admin.findOne({ email });
+
+        if (!admin) {
+            // 🛡️ SECURITY: Don't reveal if user exists
+            return sendSuccessResponse(res, { message: 'If that email exists, a reset link has been sent.' });
+        }
+
+        // Generate token
+        const resetToken = crypto.randomBytes(20).toString('hex');
+
+        // Hash and save to DB
+        admin.resetPasswordToken = crypto
+            .createHash('sha256')
+            .update(resetToken)
+            .digest('hex');
+
+        // Expire in 10 minutes
+        admin.resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000);
+
+        await admin.save();
+
+        // Create reset URL
+        const resetUrl = `${process.env.ADMIN_URL || 'http://localhost:3000'}/admin/reset-password/${resetToken}`;
+
+        const message = `
+            <h1>Password Reset Request</h1>
+            <p>You requested a password reset for Esparex Admin.</p>
+            <p>Click the link below to verify it's you and set a new password:</p>
+            <a href="${resetUrl}" clicktracking=off>${resetUrl}</a>
+            <p>This link expires in 10 minutes.</p>
+        `;
+
+        const sent = await emailService.sendEmail(
+            admin.email,
+            'Esparex Admin Password Reset',
+            message
+        );
+
+        if (!sent) {
+            admin.resetPasswordToken = undefined;
+            admin.resetPasswordExpire = undefined;
+            await admin.save();
+            return sendErrorResponse(req, res, 500, 'Email could not be sent');
+        }
+
+        sendSuccessResponse(res, { message: 'If that email exists, a reset link has been sent.' });
+
+    } catch (error: unknown) {
+        sendAuthError(req, res, error);
+    }
+};
+
+/**
+ * Complete password reset with token
+ */
+export const resetPassword = async (req: Request, res: Response) => {
+    try {
+        const token = getSingleParam(req, res, 'token', { error: 'Invalid reset token' });
+        if (!token) return;
+        const { password } = req.body;
+
+        if (!password) return sendErrorResponse(req, res, 400, 'Password is required');
+
+        // 🛡️ SECURITY: Password strength check
+        if (password.length < 8) {
+            return sendErrorResponse(req, res, 400, 'Password must be at least 8 characters long');
+        }
+        if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+            return sendErrorResponse(req, res, 400, 'Password must contain at least one uppercase letter, one lowercase letter, and one number');
+        }
+
+        // Hash token to compare
+        const resetPasswordToken = crypto
+            .createHash('sha256')
+            .update(token)
+            .digest('hex');
+
+        const admin = await Admin.findOne({
+            resetPasswordToken,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
+
+        if (!admin) {
+            return sendErrorResponse(req, res, 400, 'Invalid or expired token');
+        }
+
+        // Model pre-save hook hashes password; setting plaintext here avoids double-hashing.
+        admin.password = password;
+
+        admin.resetPasswordToken = undefined;
+        admin.resetPasswordExpire = undefined;
+
+        await admin.save();
+        await revokeAdminSessionsForAdmin(admin._id.toString());
+
+        await logAdminAction(req, 'RESET_PASSWORD', 'Admin', admin._id.toString(), { email: admin.email });
+
+        sendSuccessResponse(res, { message: 'Password updated successfully' });
+
+    } catch (error: unknown) {
+        sendAuthError(req, res, error);
+    }
+};
+
+/**
+ * Admin login with optional 2FA
+ */
+export const adminLogin = async (req: Request, res: Response) => {
+    try {
+        const { email, password, twoFactorCode } = req.body;
+        if (!email || !password) return sendErrorResponse(req, res, 400, 'Email and password are required');
+
+        // 🛡️ SECURITY AUDIT: Load dynamic security settings
+        await getSystemConfigDoc();
+
+        // Direct DB Access for Auth (as per Step 1 of plan)
+        const admin = await Admin.findOne({ email }).select('+password +twoFactorSecret');
+        const adminRecord = admin as unknown as
+            (typeof admin & { twoFactorEnabled?: boolean; twoFactorSecret?: string });
+
+        if (!admin) {
+            logger.warn('Admin login failed: Account not found', { email, ip: req.ip });
+            return sendErrorResponse(req, res, 401, 'Invalid credentials');
+        }
+
+        if (admin.status !== USER_STATUS.LIVE) {
+            logger.warn('Admin login failed: Account status not LIVE', { 
+                email, 
+                status: admin.status,
+                ip: req.ip 
+            });
+            return sendErrorResponse(req, res, 401, 'Invalid credentials');
+        }
+
+        const serviceResult = await adminService.loginAdmin(email, password);
+
+        if (!serviceResult) return sendErrorResponse(req, res, 401, 'Invalid credentials');
+
+        const { admin: adminData } = serviceResult;
+        const adminDataWithId = adminData as Partial<typeof adminData> & {
+            _id?: { toString: () => string } | string;
+            id?: string;
+        };
+
+        // 🔐 2FA VERIFICATION
+        if (adminRecord?.twoFactorEnabled) {
+            if (!twoFactorCode) {
+                return sendErrorResponse(req, res, 403, '2FA code required', {
+                    code: 'ADMIN_2FA_REQUIRED',
+                    requires2FA: true
+                });
+            }
+
+            // Verify 2FA code
+            const verified = speakeasy.totp.verify({
+                secret: adminRecord.twoFactorSecret || '',
+                encoding: 'base32',
+                token: twoFactorCode,
+                window: 2 // Allow 2 time steps for clock drift
+            });
+
+            if (!verified) {
+                return sendErrorResponse(req, res, 401, 'Invalid 2FA code');
+            }
+        }
+
+        const tokenId = adminDataWithId._id || adminDataWithId.id;
+        if (!tokenId) {
+            return sendErrorResponse(req, res, 500, 'Invalid admin payload');
+        }
+
+        // Use standardized token generation
+        const token = generateAdminToken({ id: tokenId, role: adminData.role || 'admin' });
+
+        // 🔒 UNIFIED SESSION COOKIE
+        const cookieOptions = getAdminCookieOptions(getAdminSessionTtlMs());
+        res.cookie('admin_token', token, cookieOptions);
+
+        // Also clear legacy cookie just in case
+        res.clearCookie('admin_access_token');
+
+        const decodedToken = verifyAdminToken(token) as { jti?: string } | null;
+        await createAdminSession({
+            adminId: String(tokenId),
+            token,
+            tokenId: decodedToken?.jti,
+            ip: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '',
+            device: req.headers['user-agent'] || ''
+        });
+
+        await logAdminAction(
+            req,
+            'LOGIN',
+            'Admin',
+            String(tokenId),
+            { email: admin.email, role: adminData.role || 'admin' },
+            String(tokenId)
+        );
+
+        sendSuccessResponse(res, {
+            accessToken: token, // Frontend expects this in response body too
+            admin: {
+                ...adminData,
+                id: typeof adminDataWithId._id === 'string'
+                    ? adminDataWithId._id
+                    : adminDataWithId._id?.toString() || adminDataWithId.id,
+                name: `${adminData.firstName} ${adminData.lastName}`.trim(),
+                mobile: "",
+                twoFactorEnabled: adminRecord?.twoFactorEnabled || false
+            }
+        });
+
+    } catch (error: unknown) {
+        sendAuthError(req, res, error);
+    }
+};
+
+/**
+ * Admin logout
+ */
+export const adminLogout = async (req: Request, res: Response) => {
+    try {
+        const token = req.cookies?.admin_token;
+        if (typeof token === 'string' && token.length > 0) {
+            await revokeAdminSession(token);
+        }
+        res.clearCookie('admin_token', getAdminCookieOptions(0));
+        res.clearCookie('admin_access_token'); // Clean legacy
+        sendSuccessResponse(res, { message: 'Logged out successfully' });
+    } catch (error: unknown) {
+        sendAuthError(req, res, error);
+    }
+};
+
+/**
+ * Get current logged-in admin profile
+ */
+export const getMe = async (req: Request, res: Response) => {
+    try {
+        // req.user is populated by requireAdmin middleware
+        const adminId = (req.user as IAuthUser)._id;
+
+        const admin = await Admin.findById(adminId).lean();
+
+        if (!admin) {
+            return sendErrorResponse(req, res, 401, "Admin not found");
+        }
+
+        sendSuccessResponse(res, {
+            admin: {
+                ...admin,
+                id: admin._id.toString(),
+                name: `${admin.firstName} ${admin.lastName}`.trim()
+            },
+            role: admin.role,
+            type: 'admin'
+        });
+    } catch (error: unknown) {
+        sendAuthError(req, res, error);
+    }
+};
+
+// Aliases for compatibility if needed, but routes should update to use these new names
+export const login = adminLogin;
+export const logout = adminLogout;

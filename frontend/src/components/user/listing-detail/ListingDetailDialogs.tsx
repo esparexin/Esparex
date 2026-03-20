@@ -1,0 +1,107 @@
+"use client";
+
+import dynamic from "next/dynamic";
+
+import { type Ad } from "@/schemas/ad.schema";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+const ReportAdDialog = dynamic(
+  () => import("../ReportAdDialog").then((mod) => mod.ReportAdDialog),
+  { ssr: false }
+);
+const BoostPlanDialog = dynamic(
+  () => import("../BoostPlanDialog").then((mod) => mod.BoostPlanDialog),
+  { ssr: false }
+);
+const SoldOutDialog = dynamic(
+  () => import("../SoldOutDialog").then((mod) => mod.SoldOutDialog),
+  { ssr: false }
+);
+
+interface ListingDetailDialogsProps {
+  ad: Ad;
+  showReportDialog: boolean;
+  setShowReportDialog: (value: boolean) => void;
+  showBoostDialog: boolean;
+  setShowBoostDialog: (value: boolean) => void;
+  showSoldDialog: boolean;
+  setShowSoldDialog: (value: boolean) => void;
+  showDeleteDialog: boolean;
+  setShowDeleteDialog: (value: boolean) => void;
+  isDeleting: boolean;
+  onDeleteConfirm: () => void | Promise<void>;
+  onSoldConfirm: (platform: string) => Promise<void>;
+}
+
+export function ListingDetailDialogs({
+  ad,
+  showReportDialog,
+  setShowReportDialog,
+  showBoostDialog,
+  setShowBoostDialog,
+  showSoldDialog,
+  setShowSoldDialog,
+  showDeleteDialog,
+  setShowDeleteDialog,
+  isDeleting,
+  onDeleteConfirm,
+  onSoldConfirm,
+}: ListingDetailDialogsProps) {
+  return (
+    <>
+      <ReportAdDialog
+        adId={ad.id}
+        adTitle={ad.title}
+        open={showReportDialog}
+        onOpenChange={setShowReportDialog}
+      />
+
+      <BoostPlanDialog
+        adId={ad.id}
+        adTitle={ad.title}
+        open={showBoostDialog}
+        onOpenChange={setShowBoostDialog}
+      />
+
+      <SoldOutDialog
+        adTitle={ad.title}
+        open={showSoldDialog}
+        onOpenChange={setShowSoldDialog}
+        onSoldConfirm={onSoldConfirm}
+      />
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Ad</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove your pending ad. Your posting slot will not be refunded.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void onDeleteConfirm();
+              }}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete Ad"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
