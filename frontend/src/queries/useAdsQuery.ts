@@ -58,7 +58,7 @@ export const useHomeAdsQuery = (
     return useQuery({
         queryKey: queryKeys.ads.home(effectiveParams),
         queryFn: () => getHomeAds(effectiveParams),
-        staleTime: 5 * 60 * 1000,
+        staleTime: 1 * 60 * 1000, // Keep in sync with backend home-feed Redis TTL.
         enabled: options?.enabled ?? true,
         initialData: options?.initialData,
     });

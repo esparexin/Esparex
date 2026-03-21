@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Ad from '../models/Ad';
 import { getAds, getAnyAdById } from './AdService';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
+import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 
 export const MODERATION_STATUSES = [
     AD_STATUS.PENDING,
@@ -23,6 +24,7 @@ export type ListingModerationFilters = {
     categoryId?: string;
     brandId?: string;
     modelId?: string;
+    isSpotlight?: boolean;
     location?: string;
     search?: string;
     minPrice?: number;
@@ -36,6 +38,11 @@ export type ListingModerationFilters = {
 export type ModerationPagination = {
     page: number;
     limit: number;
+};
+
+export type PublicLiveListingCounts = {
+    total: number;
+    byListingType: Record<ModerationListingType, number>;
 };
 
 const isModerationStatus = (status: string): status is ModerationStatus =>
@@ -63,6 +70,7 @@ export const listModerationListings = async (
             categoryId: filters.categoryId,
             brandId: filters.brandId,
             modelId: filters.modelId,
+            isSpotlight: filters.isSpotlight,
             location: filters.location,
             search: filters.search,
             minPrice: filters.minPrice,
@@ -91,6 +99,11 @@ type RawAggregationRow = {
     count: number;
 };
 
+type LiveAggregationRow = {
+    _id: ModerationListingType;
+    count: number;
+};
+
 const createEmptyStatusMap = () => ({
     pending: 0,
     live: 0,
@@ -105,7 +118,15 @@ const createEmptyCounts = () => ({
     ...createEmptyStatusMap(),
 });
 
+const createEmptyListingTypeCounts = (): Record<ModerationListingType, number> => ({
+    ad: 0,
+    service: 0,
+    spare_part: 0,
+});
+
 export const getModerationCounts = async (listingType?: ModerationListingType) => {
+    const publicLiveCounts = await getPublicLiveListingCounts(listingType);
+
     const match: Record<string, unknown> = {
         isDeleted: { $ne: true },
         status: { $in: [...MODERATION_STATUSES] },
@@ -115,17 +136,31 @@ export const getModerationCounts = async (listingType?: ModerationListingType) =
         match.listingType = listingType;
     }
 
-    const rows = await Ad.aggregate<RawAggregationRow>([
-        { $match: match },
-        {
-            $group: {
-                _id: {
-                    listingType: { $ifNull: ['$listingType', 'ad'] },
-                    status: '$status',
+    const now = new Date();
+    const spotlightMatch: Record<string, unknown> = {
+        ...buildPublicAdFilter(),
+        isSpotlight: true,
+        spotlightExpiresAt: { $gt: now },
+    };
+
+    if (listingType) {
+        spotlightMatch.listingType = listingType;
+    }
+
+    const [rows, spotlight] = await Promise.all([
+        Ad.aggregate<RawAggregationRow>([
+            { $match: match },
+            {
+                $group: {
+                    _id: {
+                        listingType: { $ifNull: ['$listingType', 'ad'] },
+                        status: '$status',
+                    },
+                    count: { $sum: 1 },
                 },
-                count: { $sum: 1 },
             },
-        },
+        ]),
+        Ad.countDocuments(spotlightMatch),
     ]);
 
     const byListingType: Record<ModerationListingType, ReturnType<typeof createEmptyCounts>> = {
@@ -151,10 +186,59 @@ export const getModerationCounts = async (listingType?: ModerationListingType) =
         total += row.count;
     });
 
+    byStatus.live = publicLiveCounts.total;
+    for (const type of MODERATION_LISTING_TYPES) {
+        byListingType[type].live = publicLiveCounts.byListingType[type];
+    }
+
     return {
         total,
         ...byStatus,
+        spotlight,
         byStatus,
+        byListingType,
+    };
+};
+
+type PublicLiveAggregationRow = {
+    _id: ModerationListingType;
+    count: number;
+};
+
+export const getPublicLiveListingCounts = async (listingType?: ModerationListingType): Promise<PublicLiveListingCounts> => {
+    const match: Record<string, unknown> = {
+        ...buildPublicAdFilter(),
+    };
+
+    if (listingType) {
+        match.listingType = listingType;
+    }
+
+    const rows = await Ad.aggregate<PublicLiveAggregationRow>([
+        {
+            $match: match,
+        },
+        {
+            $group: {
+                _id: { $ifNull: ['$listingType', 'ad'] },
+                count: { $sum: 1 },
+            },
+        },
+    ]);
+
+    const byListingType = createEmptyListingTypeCounts();
+    let total = 0;
+
+    for (const row of rows) {
+        if (!MODERATION_LISTING_TYPES.includes(row._id)) {
+            continue;
+        }
+        byListingType[row._id] += row.count;
+        total += row.count;
+    }
+
+    return {
+        total,
         byListingType,
     };
 };
