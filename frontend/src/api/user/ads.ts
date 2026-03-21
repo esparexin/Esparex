@@ -761,7 +761,7 @@ export const updateAd = async (
 ): Promise<Ad | null> => {
     try {
         const sanitizedPayload = stripEmptyObjectIdFields(adData as Record<string, unknown>);
-        const response = await apiClient.patch<unknown>(API_ROUTES.USER.AD_DETAIL(id), sanitizedPayload, {
+        const response = await apiClient.put<unknown>(API_ROUTES.USER.LISTING_EDIT(id), sanitizedPayload, {
             silent: true,
         });
 

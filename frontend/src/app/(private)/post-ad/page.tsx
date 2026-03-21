@@ -66,11 +66,27 @@ export default async function PostAdPage() {
     if (!bypassQuotaCheck && (!balance || totalRemaining <= 0)) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center px-4">
-                <div className="max-w-lg w-full rounded-2xl border border-amber-200 bg-amber-50 p-6">
-                    <h1 className="text-xl font-semibold text-amber-900">Unable to post a new ad</h1>
-                    <p className="mt-3 text-sm text-amber-800">
-                        You currently have no ad posting slots remaining. Buy an Ad Pack or wait for your monthly free slots to reset.
-                    </p>
+                <div className="max-w-lg w-full rounded-2xl border border-amber-200 bg-amber-50 p-6 space-y-4">
+                    <div>
+                        <h1 className="text-xl font-semibold text-amber-900">Unable to post a new ad</h1>
+                        <p className="mt-2 text-sm text-amber-800">
+                            You have no ad posting slots remaining. Buy an Ad Pack to post more ads, or wait for your monthly free slots to reset.
+                        </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <a
+                            href="/account/plans"
+                            className="flex-1 inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm h-11 px-4 transition-colors"
+                        >
+                            Buy Ad Pack
+                        </a>
+                        <a
+                            href="/"
+                            className="flex-1 inline-flex items-center justify-center rounded-xl bg-white border border-amber-300 text-amber-800 font-semibold text-sm h-11 px-4 hover:bg-amber-50 transition-colors"
+                        >
+                            Back to Home
+                        </a>
+                    </div>
                 </div>
             </div>
         );

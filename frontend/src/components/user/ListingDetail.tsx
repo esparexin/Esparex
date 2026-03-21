@@ -195,7 +195,11 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
       notify.error("Cannot edit a sold ad");
       return;
     }
-    navigateTo(ROUTES.EDIT_AD, String(ad.id));
+    const editRoute =
+      ad.listingType === "service" ? ROUTES.EDIT_SERVICE :
+      ad.listingType === "spare_part" ? ROUTES.EDIT_SPARE_PART :
+      ROUTES.EDIT_AD;
+    navigateTo(editRoute, String(ad.id));
   };
 
   const handleMarkSoldClick = () => {
@@ -259,6 +263,15 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
 
   const handleViewAnalytics = () => {
     notify.info("Viewing detailed analytics...");
+  };
+
+  const handleChatWithSeller = () => {
+    if (!user) {
+      notify.info("Please login to chat with the seller");
+      navigateTo(ROUTES.LOGIN);
+      return;
+    }
+    navigateTo(ROUTES.MESSAGES);
   };
 
   // Mock multiple images (in real app, this would come from ad data)
@@ -437,6 +450,9 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
               onMarkSoldClick={() => handleMarkSoldClick()}
               onPromoteClick={handlePromote}
               onAnalyticsClick={handleViewAnalytics}
+              // Visitor props
+              onChatClick={handleChatWithSeller}
+              isChatLocked={adStatus.isChatLocked}
             />
           </div>
 

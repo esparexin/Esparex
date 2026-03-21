@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { PackageOpen, RefreshCw } from "lucide-react";
+import { PackageOpen, RefreshCw, BellPlus } from "lucide-react";
 
 import { type AdFilters, type Ad, type AdPageResult } from "@/api/user/ads";
 import { getCategories } from "@/api/user/categories";
@@ -350,9 +350,27 @@ export function BrowseAds({
                     ? `No results for "${query}". Try different keywords or remove filters.`
                     : "No listings match your current filters."}
                 </p>
-                <Button variant="outline" onClick={handleReset}>
-                  Clear All Filters
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button variant="outline" onClick={handleReset}>
+                    Clear All Filters
+                  </Button>
+                  {query && (
+                    <Button
+                      asChild
+                      className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <a href="/account/alerts">
+                        <BellPlus className="h-4 w-4" />
+                        Get Notified When Available
+                      </a>
+                    </Button>
+                  )}
+                </div>
+                {query && (
+                  <p className="mt-4 text-xs text-slate-400 max-w-xs">
+                    Set a Smart Alert and we&apos;ll notify you when a matching listing is posted.
+                  </p>
+                )}
               </div>
             )}
 

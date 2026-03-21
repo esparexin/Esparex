@@ -10,7 +10,10 @@ export function HeaderLocation({ onClick }: { onClick?: () => void }) {
     const { location } = useLocationState();
     const mounted = useMounted();
     const { headerText } = getHeaderLocationText(location);
-    const resolvedHeaderText = headerText || "Select Location";
+    // Only use the real location text after mount — pre-mount renders the static
+    // placeholder so SSR HTML and the initial client render are identical, avoiding
+    // a hydration mismatch when location is loaded from localStorage on the client.
+    const resolvedHeaderText = mounted ? (headerText || "Select Location") : "Select Location";
 
     return (
         <button

@@ -83,6 +83,13 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
         const authUserId = (req.user as IAuthUser)._id.toString();
         const sellerId = req.body.sellerId || req.body.userId || authUserId;
 
+        // Defense-in-depth: strip immutable identity fields — mirrors listingController.editListing
+        const PROTECTED_FIELDS = ['categoryId', 'brandId', 'modelId', 'listingType', 'sellerId',
+            'status', 'moderationStatus', 'approvedAt', 'approvedBy', 'isDeleted', 'deletedAt', 'expiresAt'];
+        for (const field of PROTECTED_FIELDS) {
+            delete req.body[field];
+        }
+
         if (req.body.listingType === 'service') {
             const business = await Business.findOne({ userId: authUserId });
             if (!business || !isBusinessPublishedStatus(business.status)) {
@@ -90,8 +97,6 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
                     message: 'You need an approved business account to post a service.'
                 });
             }
-            // Ensure status goes to pending when a service is edited
-            req.body.status = 'pending';
         }
 
         const ad = await adService.updateAd(id, req.body, {

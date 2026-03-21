@@ -6,6 +6,7 @@ import {
   Edit2,
   TrendingUp,
   Trash2,
+  MessageCircle,
 } from "lucide-react";
 import { ActionBarVariant } from "@/lib/logic/bottomBarActions";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
@@ -18,6 +19,9 @@ interface ListingBottomActionsProps {
   onMarkSoldClick?: () => void;
   onPromoteClick?: () => void;
   onAnalyticsClick?: () => void;
+  // Visitor props
+  onChatClick?: () => void;
+  isChatLocked?: boolean;
 }
 
 export function ListingBottomActions({
@@ -27,6 +31,8 @@ export function ListingBottomActions({
   onMarkSoldClick,
   onPromoteClick,
   onAnalyticsClick,
+  onChatClick,
+  isChatLocked,
 }: ListingBottomActionsProps) {
   const pathname = usePathname();
   const policy = getMobileChromePolicy(pathname);
@@ -173,5 +179,32 @@ export function ListingBottomActions({
   }
 
   // Visitor Action Bar
-  return null;
+  if (isChatLocked) {
+    return (
+      <div className="md:hidden">
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-50 border-t border-slate-200 shadow-lg z-40 safe-area-bottom">
+          <div className="p-4 flex items-center justify-center gap-3">
+            <MessageCircle className="h-5 w-5 text-slate-400" />
+            <p className="text-sm font-medium text-slate-500">This listing is no longer accepting messages</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom">
+        <div className="p-3">
+          <Button
+            onClick={onChatClick}
+            className="w-full h-14 rounded-xl bg-green-600 hover:bg-green-700 active:scale-[0.98] text-white font-bold text-base gap-3 shadow-lg shadow-green-200 transition-all"
+          >
+            <MessageCircle className="h-5 w-5" />
+            Chat with Seller
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }

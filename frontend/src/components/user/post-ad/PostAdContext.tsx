@@ -210,15 +210,14 @@ export function PostAdProvider({
     });
 
     // Navigation State for 9-Step Flow
-    const [currentStep, setCurrentStep] = useState(1);
+    const isEditMode = !!editAdId;
+    const [currentStep, setCurrentStep] = useState(isEditMode ? 2 : 1);
 
     // State for spare parts and pending states
     const [spareParts, setSpareParts] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [brandIsPending, setBrandIsPending] = useState(false);
     const [submittedAd, setSubmittedAd] = useState<any | null>(null);
-
-    const isEditMode = !!editAdId;
 
     // Derived state from images hook
     const { listingImages, setListingImages } = imagesHook;
@@ -427,6 +426,23 @@ export function PostAdProvider({
     }, []);
 
     const nextStep = useCallback(async () => {
+        // Step 1: categoryId and deviceCondition are optional in the base schema
+        // (for partial saves / edit mode), so we gate them manually here before
+        // running the schema-level trigger.
+        if (currentStep === 1) {
+            const { categoryId: catId, deviceCondition: dc } = form.getValues();
+            let hasErrors = false;
+            if (!catId) {
+                form.setError("categoryId" as any, { type: "manual", message: "Please select a category" });
+                hasErrors = true;
+            }
+            if (!dc) {
+                form.setError("deviceCondition" as any, { type: "manual", message: "Please select device condition" });
+                hasErrors = true;
+            }
+            if (hasErrors) return;
+        }
+
         let fieldsToValidate: any[] = [];
 
         // Validate the fields the backend actually checks (IDs, not display strings).
@@ -448,7 +464,7 @@ export function PostAdProvider({
                 document.querySelector("[data-post-ad-scroll]")?.scrollTo({ top: 0, behavior: "smooth" });
             }
         }
-    }, [currentStep, trigger]);
+    }, [currentStep, form, trigger]);
 
     const prevStep = useCallback(() => {
         if (currentStep > 1) {

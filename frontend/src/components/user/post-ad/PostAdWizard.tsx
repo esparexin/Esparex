@@ -54,10 +54,13 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 {isEditMode ? "Ad Updated Successfully" : "Ad Submitted Successfully"}
               </h2>
               <p className="text-sm text-slate-600">
-                {isEditMode 
+                {isEditMode
                   ? "Your changes are pending admin review. They will go live after approval."
                   : "Pending admin review. It will go live after approval."
                 }
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                Typically reviewed within 24 hours.
               </p>
             </div>
 
@@ -94,8 +97,8 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
       <div
         onClick={handleClose}
         className={cn(
-          "h-[100dvh] flex flex-col bg-white overflow-hidden font-inter",
-          "sm:fixed sm:inset-0 sm:h-auto sm:bg-slate-900/40 sm:backdrop-blur-md sm:flex sm:items-center sm:justify-center sm:p-6 sm:z-40 sm:cursor-pointer"
+          "fixed inset-0 z-[1001] flex flex-col bg-white overflow-hidden font-inter",
+          "sm:bg-slate-900/40 sm:backdrop-blur-md sm:items-center sm:justify-center sm:p-6 sm:cursor-pointer"
         )}
       >
         <div
@@ -110,7 +113,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
             "flex items-center px-4 h-14",
             "sm:gap-3 sm:px-5 sm:h-auto sm:py-4"
           )}>
-            <div className="sm:contents">
+            <div className="flex items-center w-full sm:contents">
               <div className="w-10 sm:w-auto flex items-center justify-start shrink-0">
                 <Button
                   variant="ghost"
@@ -134,29 +137,40 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
           </header>
 
           <div className="shrink-0 px-4 pt-4 sm:px-5 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Step {currentStep} of 2
-              </span>
-              <span className="text-[11px] font-bold text-blue-600 uppercase tracking-widest">
-                {STEP_LABELS[currentStep - 1]}
-              </span>
-            </div>
-            <div className="flex gap-1">
-              {STEP_LABELS.map((_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "h-1 flex-1 rounded-full transition-all duration-500",
-                    currentStep > i + 1
-                      ? "bg-blue-600"
-                      : currentStep === i + 1
-                      ? "bg-blue-400"
-                      : "bg-slate-100"
-                  )}
-                />
-              ))}
-            </div>
+            {isEditMode ? (
+              <>
+                <span className="text-[11px] font-bold text-blue-600 uppercase tracking-widest">
+                  Edit Listing Details
+                </span>
+                <div className="h-1 rounded-full bg-blue-400 w-full" />
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                    Step {currentStep} of 2
+                  </span>
+                  <span className="text-[11px] font-bold text-blue-600 uppercase tracking-widest">
+                    {STEP_LABELS[currentStep - 1]}
+                  </span>
+                </div>
+                <div className="flex gap-1">
+                  {STEP_LABELS.map((_, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "h-1 flex-1 rounded-full transition-all duration-500",
+                        currentStep > i + 1
+                          ? "bg-blue-600"
+                          : currentStep === i + 1
+                          ? "bg-blue-400"
+                          : "bg-slate-100"
+                      )}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           <main data-post-ad-scroll className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
@@ -170,7 +184,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
             </div>
           </main>
 
-          {currentStep > 1 && (
+          {currentStep > 1 && !isEditMode && (
             <div className="shrink-0 border-t border-slate-100 px-4 py-2 sm:px-5 bg-white">
               <Button
                 variant="ghost"
