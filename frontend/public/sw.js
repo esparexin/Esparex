@@ -1,5 +1,5 @@
-const CACHE_NAME = 'temporary-v1-static';
-const DYNAMIC_CACHE_NAME = 'temporary-v1-dynamic';
+const CACHE_NAME = 'temporary-v2-static';
+const DYNAMIC_CACHE_NAME = 'temporary-v2-dynamic';
 
 // Static assets to cache immediately
 const STATIC_ASSETS = [
@@ -63,6 +63,18 @@ self.addEventListener('fetch', (event) => {
     }
 
     const url = event.request.url;
+    let requestUrl;
+    try {
+        requestUrl = new URL(url);
+    } catch {
+        return;
+    }
+
+    // Never intercept cross-origin requests (e.g. S3 images).
+    // This avoids CSP/connect-src violations inside SW fetch() for external origins.
+    if (requestUrl.origin !== self.location.origin) {
+        return;
+    }
 
     if (isBlacklisted(url)) {
         // Strictly Network Only for Backlisted URLs
@@ -90,7 +102,7 @@ self.addEventListener('fetch', (event) => {
             .catch(() => {
                 // Network failed, try cache
                 console.log('[Service Worker] Network failed, trying cache', url);
-                return caches.match(event.request);
+                return caches.match(event.request).then((cachedResponse) => cachedResponse || Response.error());
             })
     );
 });

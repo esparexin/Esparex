@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { getAdById, type Ad } from "@/api/user/ads";
 import { normalizeOptionalObjectId, resolveCanonicalLocationId } from "@/utils/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
@@ -33,8 +33,18 @@ export function usePostAdPreload({
     loadBrandsForCategory,
     loadSparePartsForCategory,
 }: UsePostAdPreloadProps) {
+    const loadedAdIdRef = useRef<string | null>(null);
+
     useEffect(() => {
-        if (!editAdId || !isEditMode) return;
+        if (!editAdId || !isEditMode) {
+            loadedAdIdRef.current = null;
+            return;
+        }
+
+        if (loadedAdIdRef.current === editAdId) {
+            return;
+        }
+        loadedAdIdRef.current = editAdId;
 
         const loadAdData = async () => {
             setIsLoading(true);
@@ -115,6 +125,7 @@ export function usePostAdPreload({
                 }
             } catch (err) {
                 logger.error("[Preload] Failed to load ad:", err);
+                loadedAdIdRef.current = null; // Allow retry after transient failures (e.g., 429).
                 setFormError(TOAST_MESSAGES.LOAD_FAILED);
             } finally {
                 setIsLoading(false);

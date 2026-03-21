@@ -10,8 +10,14 @@ export function ReactQueryProvider({ children }: { children: ReactNode }) {
             queries: {
                 // Prevent automatic refetching in the background by default
                 refetchOnWindowFocus: false,
-                // Retry failed requests once
-                retry: 1,
+                // Retry failed requests once, except 429 (do not amplify rate-limit storms).
+                retry: (failureCount, error) => {
+                    const status =
+                        (error as { status?: number })?.status ??
+                        (error as { response?: { status?: number } })?.response?.status;
+                    if (status === 429) return false;
+                    return failureCount < 1;
+                },
                 // Cache data for 5 minutes by default
                 staleTime: 5 * 60 * 1000,
             },
