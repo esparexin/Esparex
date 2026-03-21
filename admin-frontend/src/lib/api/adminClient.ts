@@ -37,6 +37,17 @@ type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
 };
 
+export class AdminApiError<T = unknown> extends Error {
+  status: number;
+  payload: AdminEnvelope<T>;
+
+  constructor(message: string, status: number, payload: AdminEnvelope<T>) {
+    super(message);
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
 export async function adminFetch<T>(
   path: string,
   options: RequestOptions = {}
@@ -89,16 +100,11 @@ export async function adminFetch<T>(
       // Clear cache on CSRF errors to force refresh next time
       cachedCsrfToken = null;
     }
-    const message = payload.message || payload.error || `Request failed (${response.status})`;
-    class AdminApiError extends Error {
-      status: number;
-      payload: AdminEnvelope<T>;
-      constructor(message: string, status: number, payload: AdminEnvelope<T>) {
-        super(message);
-        this.status = status;
-        this.payload = payload;
-      }
-    }
+    const details = payload.details && typeof payload.details === "object"
+      ? (payload.details as { message?: unknown })
+      : undefined;
+    const detailsMessage = typeof details?.message === "string" ? details.message : undefined;
+    const message = payload.message || payload.error || detailsMessage || `Request failed (${response.status})`;
     throw new AdminApiError(message, response.status, payload);
   }
 

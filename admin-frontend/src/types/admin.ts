@@ -12,4 +12,8 @@ export interface AdminEnvelope<T> {
   data?: T;
   message?: string;
   error?: string;
+  code?: string;
+  details?: unknown;
+  status?: number;
+  path?: string;
 }

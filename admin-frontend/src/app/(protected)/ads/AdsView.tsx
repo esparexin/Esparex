@@ -23,8 +23,9 @@ import { normalizeModerationAd } from "@/components/moderation/normalizeModerati
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { adLifecycleTabs, adModerationTabs } from "@/components/layout/adminModuleTabSets";
+import { moderationTabs, adLifecycleTabs, adModerationTabs, serviceLifecycleTabs, partLifecycleTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminErrorBoundary } from "@/components/common/AdminErrorBoundary";
+import { AdminApiError } from "@/lib/api/adminClient";
 
 const SORT_OPTIONS: Array<{ label: string; value: ModerationFilters["sort"] }> = [
     { label: "Newest", value: "newest" },
@@ -59,6 +60,20 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
     const [rejectTargetIds, setRejectTargetIds] = useState<string[]>([]);
     const [rejectTitle, setRejectTitle] = useState<string | undefined>(undefined);
     const [rejectSubmitting, setRejectSubmitting] = useState(false);
+
+    const resolveActionErrorMessage = (actionError: unknown, fallbackMessage: string): string => {
+        if (actionError instanceof AdminApiError) {
+            const payload = actionError.payload as {
+                error?: string;
+                message?: string;
+                code?: string;
+                details?: { message?: string };
+            };
+            const detailMessage = typeof payload.details?.message === "string" ? payload.details.message : undefined;
+            return payload.error || payload.message || detailMessage || fallbackMessage;
+        }
+        return actionError instanceof Error ? actionError.message : fallbackMessage;
+    };
 
     useEffect(() => {
         const statusFromQuery = searchParams.get("status");
@@ -116,7 +131,15 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
     }, [page, pagination.pages]);
 
     const moduleTabs = useMemo(() => {
-        const baseTabs = mode === "ads" ? adLifecycleTabs : adModerationTabs;
+        let baseTabs = adLifecycleTabs;
+        if (mode === "moderation") {
+            baseTabs = adModerationTabs;
+        } else if (listingType === "service") {
+            baseTabs = serviceLifecycleTabs;
+        } else if (listingType === "spare_part") {
+            baseTabs = partLifecycleTabs;
+        }
+        
         return baseTabs.map(tab => {
             const status = new URLSearchParams(tab.href.split('?')[1]).get('status');
             const count = status === 'all' ? summary.total : summary[status as keyof typeof summary];
@@ -125,7 +148,15 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                 count: typeof count === 'number' ? count : undefined
             };
         });
-    }, [mode, summary]);
+    }, [mode, listingType, summary]);
+
+    const activeStatusOptions = useMemo(() => {
+        const allowedStatuses = new Set(moduleTabs.map(t => new URLSearchParams(t.href.split('?')[1]).get('status')).filter(Boolean));
+        return [
+            { value: "all", label: "All Statuses" },
+            ...MODERATION_STATUSES.filter(s => allowedStatuses.has(s)).map((s) => ({ value: s, label: MODERATION_STATUS_LABELS[s] }))
+        ];
+    }, [moduleTabs]);
 
     const refresh = () => setRefreshKey((value) => value + 1);
 
@@ -135,7 +166,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
             showToast(successMessage, "success");
             refresh();
         } catch (actionError) {
-            const message = actionError instanceof Error ? actionError.message : fallbackError;
+            const message = resolveActionErrorMessage(actionError, fallbackError);
             showToast(message, "error");
         }
     };
@@ -304,8 +335,13 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
     return (
         <AdminPageShell
             headerVariant="compact"
-            title={listingType ? (listingType === 'service' ? "Services" : listingType === 'spare_part' ? "Spare Parts" : "Ads") : (mode === "ads" ? "Ads" : "Moderation")}
-            tabs={<AdminModuleTabs tabs={moduleTabs} />}
+            title={listingType ? (listingType === 'service' ? "Services" : listingType === 'spare_part' ? "Spare Parts" : "Listings") : (mode === "ads" ? "Listings" : "Moderation")}
+            tabs={
+                <div className="flex flex-col gap-4 mb-2">
+                    <AdminModuleTabs tabs={moderationTabs} variant="primary" />
+                    <AdminModuleTabs tabs={moduleTabs} variant="pills" />
+                </div>
+            }
             actions={
                 <button
                     type="button"
@@ -324,10 +360,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                     searchPlaceholder="Search title, description, seller, phone"
                     status={filters.status}
                     onStatusChange={(val) => updateFilter("status", val as ModerationFilters["status"])}
-                    statusOptions={[
-                        { value: "all", label: "All Statuses" },
-                        ...MODERATION_STATUSES.map((s) => ({ value: s, label: MODERATION_STATUS_LABELS[s] })),
-                    ]}
+                    statusOptions={activeStatusOptions}
                     extraFilters={
                         <>
                             <input

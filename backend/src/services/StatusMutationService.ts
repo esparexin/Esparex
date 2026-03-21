@@ -31,6 +31,32 @@ export interface MutationRequest {
     session?: ClientSession; // Optional external session
 }
 
+const toLower = (value: unknown): string =>
+    typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+const isListingLifecycleDomain = (domain: ValidDomain): boolean =>
+    domain === 'ad' || domain === 'service' || domain === 'spare_part_listing';
+
+const isModerationDeactivationAction = (metadata?: Record<string, unknown>): boolean => {
+    const action = toLower(metadata?.action);
+    return action === 'moderation_deactivate' || action === 'moderation_soft_delete';
+};
+
+const canBypassInvalidTransition = (params: {
+    error: unknown;
+    actor: ActorMetadata;
+    toStatus: string;
+    resolvedDomain: ValidDomain;
+    metadata?: Record<string, unknown>;
+}): boolean => {
+    const typedError = params.error as { code?: string };
+    if (typedError.code !== 'INVALID_LIFECYCLE_TRANSITION') return false;
+    if (params.actor.type !== ACTOR_TYPE.ADMIN) return false;
+    if (!isListingLifecycleDomain(params.resolvedDomain)) return false;
+    if (toLower(params.toStatus) !== AD_STATUS.DEACTIVATED) return false;
+    return isModerationDeactivationAction(params.metadata);
+};
+
 /**
  * 🛠️ Centralized Status Mutation Service
  * 
@@ -73,7 +99,30 @@ export const mutateStatus = async (request: MutationRequest) => {
 
             // 2. Lifecycle Validation (Type-aware for unified ad model)
             const resolvedDomain = resolveLifecycleDomain(domain, listingType);
-            validateLifecycleTransition(resolvedDomain, fromStatus, toStatus);
+            try {
+                validateLifecycleTransition(resolvedDomain, fromStatus, toStatus);
+            } catch (error) {
+                if (!canBypassInvalidTransition({
+                    error,
+                    actor,
+                    toStatus,
+                    resolvedDomain,
+                    metadata,
+                })) {
+                    throw error;
+                }
+
+                logger.warn('Status Mutation BYPASS: allowing admin moderation deactivation outside strict transition map', {
+                    domain,
+                    resolvedDomain,
+                    entityId: String(entityId),
+                    fromStatus,
+                    toStatus,
+                    action: metadata?.action,
+                    actorType: actor.type,
+                    actorId: actor.id,
+                });
+            }
             enforceLifecycleMutationPolicy({
                 domain: resolvedDomain,
                 fromStatus,

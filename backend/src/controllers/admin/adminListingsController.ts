@@ -51,7 +51,40 @@ const resolveListingTypeFilter = (value: unknown): ModerationListingType | undef
     return value;
 };
 
-const getActorId = (req: Request): string => req.user!._id.toString();
+type ControllerError = Error & { statusCode?: number; code?: string };
+
+const toControllerError = (statusCode: number, message: string, code: string): ControllerError => {
+    const error = new Error(message) as ControllerError;
+    error.statusCode = statusCode;
+    error.code = code;
+    return error;
+};
+
+const resolveControllerError = (error: unknown, fallbackMessage: string) => {
+    const typedError = error as ControllerError;
+    return {
+        statusCode: typeof typedError?.statusCode === 'number' ? typedError.statusCode : 500,
+        code: typeof typedError?.code === 'string' ? typedError.code : undefined,
+        message: error instanceof Error ? error.message : fallbackMessage,
+    };
+};
+
+const getActorId = (req: Request): string => {
+    const rawActorId = req.user?._id ?? req.user?.id;
+
+    if (typeof rawActorId === 'string' && rawActorId.trim().length > 0) {
+        return rawActorId;
+    }
+
+    if (rawActorId && typeof (rawActorId as { toString?: () => string }).toString === 'function') {
+        const normalized = (rawActorId as { toString: () => string }).toString();
+        if (normalized && normalized !== '[object Object]') {
+            return normalized;
+        }
+    }
+
+    throw toControllerError(401, 'Unauthorized admin context', 'ADMIN_ACTOR_MISSING');
+};
 
 const resolveListingId = (req: Request, res: Response): string | null => {
     const id = getSingleParam(req, res, 'id', { error: 'Invalid listing id' });
@@ -64,10 +97,11 @@ const resolveListingId = (req: Request, res: Response): string | null => {
 };
 
 const getListingForMutation = async (req: Request, res: Response, id: string) => {
-    const listing = await Ad.findById(id).select('status reviewVersion listingType').lean<{
+    const listing = await Ad.findById(id).select('status reviewVersion listingType isDeleted').lean<{
         status: string;
         reviewVersion?: number;
         listingType?: string;
+        isDeleted?: boolean;
     } | null>();
 
     if (!listing) {
@@ -213,10 +247,8 @@ export const adminApproveListing = async (req: Request, res: Response) => {
             })
         );
     } catch (error: unknown) {
-        const statusCode = typeof (error as { statusCode?: number })?.statusCode === 'number'
-            ? (error as { statusCode: number }).statusCode
-            : 500;
-        sendErrorResponse(req, res, statusCode, error instanceof Error ? error.message : 'Failed to approve listing');
+        const resolved = resolveControllerError(error, 'Failed to approve listing');
+        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
     }
 };
 
@@ -271,10 +303,8 @@ export const adminRejectListing = async (req: Request, res: Response) => {
             })
         );
     } catch (error: unknown) {
-        const statusCode = typeof (error as { statusCode?: number })?.statusCode === 'number'
-            ? (error as { statusCode: number }).statusCode
-            : 500;
-        sendErrorResponse(req, res, statusCode, error instanceof Error ? error.message : 'Failed to reject listing');
+        const resolved = resolveControllerError(error, 'Failed to reject listing');
+        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
     }
 };
 
@@ -285,6 +315,26 @@ export const adminDeactivateListing = async (req: Request, res: Response) => {
 
         const listing = await getListingForMutation(req, res, id);
         if (!listing) return;
+
+        if (listing.status === AD_STATUS.DEACTIVATED) {
+            const currentListing = await getModerationListingById(id);
+
+            res.json(
+                respond({
+                    success: true,
+                    data: serializeLifecycleActionResponse({
+                        action: 'deactivated',
+                        listing: currentListing || {
+                            id,
+                            status: AD_STATUS.DEACTIVATED,
+                            listingType: listing.listingType || 'ad',
+                        },
+                        message: 'Listing is already deactivated',
+                    }),
+                })
+            );
+            return;
+        }
 
         const updated = await mutateStatus({
             domain: 'ad',
@@ -322,10 +372,8 @@ export const adminDeactivateListing = async (req: Request, res: Response) => {
             })
         );
     } catch (error: unknown) {
-        const statusCode = typeof (error as { statusCode?: number })?.statusCode === 'number'
-            ? (error as { statusCode: number }).statusCode
-            : 500;
-        sendErrorResponse(req, res, statusCode, error instanceof Error ? error.message : 'Failed to deactivate listing');
+        const resolved = resolveControllerError(error, 'Failed to deactivate listing');
+        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
     }
 };
 
@@ -373,10 +421,8 @@ export const adminExpireListing = async (req: Request, res: Response) => {
             })
         );
     } catch (error: unknown) {
-        const statusCode = typeof (error as { statusCode?: number })?.statusCode === 'number'
-            ? (error as { statusCode: number }).statusCode
-            : 500;
-        sendErrorResponse(req, res, statusCode, error instanceof Error ? error.message : 'Failed to expire listing');
+        const resolved = resolveControllerError(error, 'Failed to expire listing');
+        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
     }
 };
 
@@ -392,6 +438,27 @@ export const adminSoftDeleteListing = async (req: Request, res: Response) => {
 
         const listing = await getListingForMutation(req, res, id);
         if (!listing) return;
+
+        if (listing.isDeleted) {
+            const currentListing = await getModerationListingById(id);
+
+            res.json(
+                respond({
+                    success: true,
+                    data: serializeLifecycleActionResponse({
+                        action: 'deleted',
+                        listing: currentListing || {
+                            id,
+                            status: listing.status,
+                            listingType: listing.listingType || 'ad',
+                            isDeleted: true,
+                        },
+                        message: 'Listing is already deleted',
+                    }),
+                })
+            );
+            return;
+        }
 
         const updated = await mutateStatus({
             domain: 'ad',
@@ -431,10 +498,8 @@ export const adminSoftDeleteListing = async (req: Request, res: Response) => {
             })
         );
     } catch (error: unknown) {
-        const statusCode = typeof (error as { statusCode?: number })?.statusCode === 'number'
-            ? (error as { statusCode: number }).statusCode
-            : 500;
-        sendErrorResponse(req, res, statusCode, error instanceof Error ? error.message : 'Failed to delete listing');
+        const resolved = resolveControllerError(error, 'Failed to delete listing');
+        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
     }
 };
 
@@ -518,10 +583,8 @@ export const adminResolveListingReport = async (req: Request, res: Response) => 
             })
         );
     } catch (error: unknown) {
-        const statusCode = typeof (error as { statusCode?: number })?.statusCode === 'number'
-            ? (error as { statusCode: number }).statusCode
-            : 500;
-        sendErrorResponse(req, res, statusCode, error instanceof Error ? error.message : 'Failed to resolve listing reports');
+        const resolved = resolveControllerError(error, 'Failed to resolve listing reports');
+        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
     }
 };
 
