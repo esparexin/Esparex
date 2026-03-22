@@ -7,6 +7,7 @@ import {
     MAX_AD_SPARE_PARTS,
     MIN_AD_IMAGES,
 } from '../constants/adLimits';
+import { LISTING_TYPE_VALUES } from '../enums/listingType';
 
 
 const objectId = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId');
@@ -41,7 +42,7 @@ export const BaseAdPayloadSchema = z.object({
     modelId: optionalObjectId, // Canonical
 
     screenSize: optionalTrimmedString,
-    listingType: z.enum(['ad', 'service', 'spare_part']).optional(),
+    listingType: z.enum(LISTING_TYPE_VALUES).optional(),
     attributes: z.record(z.string(), z.unknown()).optional(),
 
     // Uses centralized text validation (bans profanity, gibberish, etc.)

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { Business as SharedBusiness } from '@shared/types/Business';
-import { hasValidCoordinateArray } from '@shared/utils/geoUtils';
+import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared/utils/geoUtils';
 import { BUSINESS_STATUS, BusinessStatusValue, BUSINESS_STATUS_VALUES } from '@shared/enums/businessStatus';
 
 export interface IBusinessDocument {
@@ -108,13 +108,6 @@ const BusinessSchema: Schema = new Schema({
     expiresAt: { type: Date },
     slug: { type: String },
 }, { timestamps: true });
-
-const sanitizeGeoPoint = (value: unknown): unknown => {
-    if (!value || typeof value !== 'object') return undefined;
-    const node = value as Record<string, unknown>;
-    const coords = Array.isArray(node.coordinates) ? node.coordinates as number[] : undefined;
-    return coords && hasValidCoordinateArray(coords) ? node : undefined;
-};
 
 const sanitizeBusinessLocation = (value: unknown): unknown => {
     if (!value || typeof value !== 'object') return value;

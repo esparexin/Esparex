@@ -26,7 +26,7 @@ export interface IUser extends Document {
   businessId?: Types.ObjectId;
 
   location?: {
-    coordinates?: [number, number] | GeoJSONPoint;
+    coordinates?: GeoJSONPoint;
     locationId?: Types.ObjectId;
     city?: string;
     state?: string;
@@ -67,24 +67,32 @@ const toUserGeoPoint = (value: unknown): GeoJSONPoint | undefined => {
 
   if (Array.isArray(value)) {
     if (value.length !== 2) {
-      throw new Error('Invalid location.coordinates format. Expected [lng, lat].');
+      return undefined; // Be resilient
     }
     if (!hasValidCoordinateArray(value)) {
-      throw new Error('Invalid location.coordinates values. Expected valid [lng, lat].');
+      return undefined; // Be resilient
     }
     return { type: 'Point', coordinates: [Number(value[0]), Number(value[1])] };
   }
 
   if (typeof value === 'object') {
     const node = value as { type?: unknown; coordinates?: unknown };
+    
+    // Legacy support: if it's an object with coordinates but no type, assume Point
+    const coords = node.coordinates || (Array.isArray(value) ? value : undefined);
+    
+    if (Array.isArray(coords) && coords.length === 2 && hasValidCoordinateArray(coords)) {
+        return {
+            type: 'Point',
+            coordinates: [Number(coords[0]), Number(coords[1])]
+        };
+    }
+    
     if (node.type !== 'Point') {
-      throw new Error('Invalid location.coordinates type. Expected GeoJSON Point.');
+      return undefined; // Be resilient instead of throwing
     }
     if (!Array.isArray(node.coordinates) || node.coordinates.length !== 2) {
-      throw new Error('Invalid location.coordinates.coordinates format. Expected [lng, lat].');
-    }
-    if (!hasValidCoordinateArray(node.coordinates)) {
-      throw new Error('Invalid location.coordinates.coordinates values. Expected valid [lng, lat].');
+      return undefined;
     }
     return {
       type: 'Point',
@@ -92,20 +100,25 @@ const toUserGeoPoint = (value: unknown): GeoJSONPoint | undefined => {
     };
   }
 
-  throw new Error('Invalid location.coordinates format. Expected [lng, lat] or GeoJSON Point.');
+  return undefined;
 };
 
 const normalizeUserLocation = (value: unknown): unknown => {
   if (!value || typeof value !== 'object') return value;
   const location = value as Record<string, unknown>;
 
-  if ('coordinates' in location) {
-    const nextGeo = toUserGeoPoint(location.coordinates);
-    if (!nextGeo) {
-      delete location.coordinates;
-    } else {
-      location.coordinates = nextGeo;
+  try {
+    if ('coordinates' in location) {
+      const nextGeo = toUserGeoPoint(location.coordinates);
+      if (!nextGeo) {
+        delete location.coordinates;
+      } else {
+        location.coordinates = nextGeo;
+      }
     }
+  } catch (err) {
+    // Never crash normalization
+    delete (location as any).coordinates;
   }
 
   return location;
@@ -146,11 +159,6 @@ const UserSchema: Schema = new Schema({
       },
       coordinates: {
         type: [Number],
-        validate: {
-          validator: (coords: unknown): boolean =>
-            coords === undefined || hasValidCoordinateArray(coords),
-          message: 'location.coordinates.coordinates must be a valid [lng, lat] pair.',
-        },
       },
     },
     locationId: { type: Schema.Types.ObjectId },

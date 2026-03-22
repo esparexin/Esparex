@@ -10,6 +10,7 @@ module.exports = {
     },
     moduleNameMapper: {
         '^uuid$': '<rootDir>/__mocks__/uuid.js',
-        '^@sentry/profiling-node$': '<rootDir>/src/tests/mocks/sentry-profiling-node.ts'
+        '^@sentry/profiling-node$': '<rootDir>/src/tests/mocks/sentry-profiling-node.ts',
+        '^@shared/(.*)$': '<rootDir>/../shared/$1'
     }
 };

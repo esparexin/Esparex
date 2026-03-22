@@ -81,6 +81,8 @@ export const USER_ROUTES = {
   BUSINESS_DETAIL: (id: string) => `businesses/${id}`,
   BUSINESS_STATS: (id: string) => `businesses/${id}/stats`,
   BUSINESS_SERVICES: (id: string) => `businesses/${id}/services`,
+  BUSINESS_ADS: (id: string) => `businesses/${id}/ads`,
+  BUSINESS_SPARE_PARTS: (id: string) => `businesses/${id}/spare-parts`,
 
   // Services
   SERVICES: "services",

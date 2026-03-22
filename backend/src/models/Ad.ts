@@ -1,8 +1,9 @@
 import mongoose, { Schema, Model, Document, Types } from 'mongoose';
 import { Ad as SharedAd } from '@shared/schemas/ad.schema';
 import { ISoftDeleteDocument } from '../utils/softDeletePlugin';
-import { hasValidCoordinateArray } from '@shared/utils/geoUtils';
+import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared/utils/geoUtils';
 import { AD_STATUS, AD_STATUS_VALUES, AdStatusValue } from '@shared/enums/adStatus';
+import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@shared/enums/listingType';
 
 export interface IAd extends Document, ISoftDeleteDocument {
     title: string;
@@ -21,7 +22,7 @@ export interface IAd extends Document, ISoftDeleteDocument {
         brand: string;
     }>;
     images: string[];
-    listingType?: 'ad' | 'service' | 'spare_part';
+    listingType?: ListingTypeValue;
     attributes?: Record<string, unknown>;
     sellerId: Types.ObjectId;
     sellerType: 'user' | 'business';
@@ -121,7 +122,7 @@ const AdSchema: Schema = new Schema({
     }],
 
     images: [{ type: String }],
-    listingType: { type: String, enum: ['ad', 'service', 'spare_part'], default: 'ad' },
+    listingType: { type: String, enum: LISTING_TYPE_VALUES, default: LISTING_TYPE.AD },
     attributes: { type: Schema.Types.Mixed },
     sellerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, immutable: true },
     sellerType: { type: String, enum: ['user', 'business'], default: 'user' },
@@ -351,6 +352,15 @@ AdSchema.index(
     }
 );
 
+// L2 city fallback: used by FeedDecisionEngine city-scope stage
+AdSchema.index(
+    { 'location.city': 1, status: 1, createdAt: -1 },
+    {
+        name: 'ad_city_status_freshness_idx',
+        partialFilterExpression: { status: 'live', isDeleted: false }
+    }
+);
+
 // 🚀 SHARDING & CLUSTERING STRATEGY
 AdSchema.index({ sellerId: 1, createdAt: 1 }, { name: 'ad_seller_clustering_idx' });
 
@@ -391,13 +401,6 @@ import { generateUniqueSlug } from '../utils/slugGenerator';
 
 AdSchema.plugin(softDeletePlugin);
 
-const sanitizeGeoPoint = (value: unknown): unknown => {
-    if (!value || typeof value !== 'object') return undefined;
-    const node = value as Record<string, unknown>;
-    const coords = Array.isArray(node.coordinates) ? node.coordinates as number[] : undefined;
-    return coords && hasValidCoordinateArray(coords) ? node : undefined;
-};
-
 const sanitizeAdLocation = (value: unknown): unknown => {
     if (!value || typeof value !== 'object') return value;
     const location = value as Record<string, unknown>;
@@ -417,16 +420,34 @@ AdSchema.pre('save', async function (this: IAd) {
 
     // ── Location consistency guard (PR 4 — dual-write contract) ──────────────
     // If a canonical locationId is set but the denormalised city/state fields
-    // are empty, the hierarchy matching at L2/L3 will silently break.
-    // This guard logs a warning so the issue surfaces without blocking writes.
+    // are empty, auto-populate them from the Location document so that L2/L3
+    // fallback matching works correctly. Logs a warning if the Location doc
+    // cannot be found so the issue surfaces without blocking the write.
     if (this.location?.locationId && (!this.location.city || !this.location.state)) {
-        const logger = (await import('../utils/logger')).default;
-        logger.warn('Ad.pre(save): locationId present but city/state is empty — dual-write contract violation', {
-            adId: this._id?.toString(),
-            locationId: this.location.locationId?.toString(),
-            city: this.location.city,
-            state: this.location.state,
-        });
+        try {
+            const Location = (await import('./Location')).default;
+            const loc = await Location.findById(this.location.locationId)
+                .select('+city +state +country')
+                .lean() as { city?: string; state?: string; country?: string; name?: string } | null;
+            if (loc) {
+                if (!this.location.city && loc.city) this.location.city = loc.city;
+                if (!this.location.state && loc.state) this.location.state = loc.state;
+                if (!this.location.country && loc.country) this.location.country = loc.country;
+            } else {
+                const logger = (await import('../utils/logger')).default;
+                logger.warn('Ad.pre(save): locationId present but Location doc not found — dual-write cannot be repaired', {
+                    adId: this._id?.toString(),
+                    locationId: this.location.locationId?.toString(),
+                });
+            }
+        } catch (err) {
+            const logger = (await import('../utils/logger')).default;
+            logger.warn('Ad.pre(save): failed to auto-populate city/state from locationId', {
+                adId: this._id?.toString(),
+                locationId: this.location.locationId?.toString(),
+                err: String(err),
+            });
+        }
     }
 
     if (!this.seoSlug) {

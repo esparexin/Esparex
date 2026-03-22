@@ -45,6 +45,18 @@ export const isValidGeoPoint = (input: unknown): input is GeoJSONPoint => {
 };
 
 /**
+ * Safe GeoJSON Point guard — validates coordinates without throwing.
+ * Returns the original object unchanged when valid; undefined when invalid.
+ * Used in Mongoose pre-save/findOneAndUpdate hooks as a no-op passthrough guard.
+ */
+export const sanitizeGeoPoint = (value: unknown): unknown => {
+    if (!value || typeof value !== 'object') return undefined;
+    const node = value as Record<string, unknown>;
+    const coords = Array.isArray(node.coordinates) ? node.coordinates as number[] : undefined;
+    return coords && hasValidCoordinateArray(coords) ? node : undefined;
+};
+
+/**
  * Extracts and strictly formats a GeoJSON Point [lng, lat].
  * THROWS explicit errors on bad data to prevent silent logic bypasses.
  */

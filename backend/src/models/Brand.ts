@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Types, Model, CallbackWithoutResultAndOptionalError } from 'mongoose'
 import { ISoftDeleteDocument } from '../utils/softDeletePlugin'
+import softDeletePlugin from '../utils/softDeletePlugin'
 import { CATALOG_STATUS } from '../../../shared/enums/catalogStatus'
 
 export interface IBrand extends Document, ISoftDeleteDocument {
@@ -27,9 +28,8 @@ const BrandSchema = new Schema<IBrand>({
   suggestedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   rejectionReason: { type: String },
   needsReview: { type: Boolean, default: false },
-  isDeleted: { type: Boolean, default: false },
-  deletedAt: { type: Date },
-}, { 
+  // isDeleted and deletedAt are injected by softDeletePlugin below
+}, {
   timestamps: true,
   toJSON: {
     virtuals: true,
@@ -44,6 +44,9 @@ const BrandSchema = new Schema<IBrand>({
   toObject: { virtuals: true, versionKey: false }
 })
 
+// Apply soft-delete plugin (adds isDeleted, deletedAt fields + auto-filter pre-hooks + softDelete()/restore() methods)
+BrandSchema.plugin(softDeletePlugin);
+
 // 🚀 CORE INDEXES (Aligned with Atlas ground truth in migrations)
 BrandSchema.index({ categoryIds: 1 }, { name: 'brand_categoryIds_idx' })
 BrandSchema.index({ status: 1 }, { name: 'brand_status_idx' })
@@ -56,7 +59,8 @@ BrandSchema.index(
     name: 'idx_brand_categoryIds_name_unique',
     partialFilterExpression: {
       isDeleted: false,
-      status: { $in: ['active', 'pending'] }
+      // 'live' is CATALOG_STATUS.ACTIVE; 'active' kept for legacy records
+      status: { $in: ['live', 'active', 'pending'] }
     },
     collation: { locale: 'en', strength: 2 }
   }
@@ -69,7 +73,8 @@ BrandSchema.index(
     name: 'idx_brand_categoryIds_slug_unique',
     partialFilterExpression: {
       isDeleted: false,
-      status: { $in: ['active', 'pending'] }
+      // 'live' is CATALOG_STATUS.ACTIVE; 'active' kept for legacy records
+      status: { $in: ['live', 'active', 'pending'] }
     }
   }
 )

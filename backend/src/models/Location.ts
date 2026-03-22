@@ -1,7 +1,7 @@
 import { Schema, Model, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
 import softDeletePlugin, { ISoftDeleteDocument } from "../utils/softDeletePlugin";
-import { hasValidCoordinateArray } from "../../../shared/utils/geoUtils";
+import { hasValidCoordinateArray, sanitizeGeoPoint } from "../../../shared/utils/geoUtils";
 import { LOCATION_LEVELS, buildLocationSlug, normalizeLocationNameForSearch } from "../utils/locationInputNormalizer";
 
 /* -------------------------------------------------------------------------- */
@@ -121,13 +121,6 @@ const LocationSchema = new Schema<ILocation>(
         toObject: { virtuals: true, versionKey: false },
     }
 );
-
-const sanitizeGeoPoint = (value: unknown): unknown => {
-    if (!value || typeof value !== 'object') return undefined;
-    const node = value as Record<string, unknown>;
-    const coords = Array.isArray(node.coordinates) ? node.coordinates as number[] : undefined;
-    return coords && hasValidCoordinateArray(coords) ? node : undefined;
-};
 
 // Pre-save hook for slugification
 LocationSchema.pre("save", async function () {

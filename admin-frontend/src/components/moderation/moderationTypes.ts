@@ -12,6 +12,9 @@ export type ModerationItem = {
     title: string;
     description?: string;
     price: number;
+    priceMin?: number;
+    priceMax?: number;
+    diagnosticFee?: number;
     currency: string;
     images: string[];
     status: ModerationStatus;
@@ -33,10 +36,25 @@ export type ModerationItem = {
         coordinates: [number, number];
     };
     devicePowerOn?: boolean;
+    deviceCondition?: "power_on" | "power_off";
+    onsiteService?: boolean;
+    turnaroundTime?: string;
+    warranty?: string;
+    included?: string;
+    excluded?: string;
+    serviceTypeIds?: string[];
+    sparePartId?: string;
+    compatibleModels?: string[];
+    condition?: "new" | "used" | "refurbished";
+    stock?: number;
+    deviceType?: string;
+    listingType?: ListingTypeValue;
     reportCount: number;
     fraudScore: number;
     riskScore?: number;
 };
+
+import type { ListingTypeValue } from "@shared/enums/listingType";
 
 export type ModerationFilters = {
     search: string;
@@ -47,7 +65,7 @@ export type ModerationFilters = {
     dateFrom: string;
     dateTo: string;
     sort: "newest" | "oldest" | "price_high" | "price_low";
-    listingType?: "ad" | "service" | "spare_part";
+    listingType?: ListingTypeValue;
 };
 
 export type ModerationSummary = {
