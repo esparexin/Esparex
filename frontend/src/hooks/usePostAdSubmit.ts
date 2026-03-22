@@ -12,6 +12,7 @@ import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "@/api/routes";
 import { type Ad, createAd, updateAd } from "@/api/user/ads";
 import { notify } from "@/lib/notify";
+import { injectApiErrors } from "@/utils/injectApiErrors";
 
 
 const generateFallbackUuidV4 = (): string =>
@@ -200,6 +201,8 @@ export function usePostAdSubmit({
             logger.error("Ad submission failed", e);
             const errorMessage = e instanceof Error ? e.message : "Failed to post ad. Please try again.";
             setFormError(errorMessage);
+            // Inject API field-level errors into the form (highlights specific fields)
+            injectApiErrors(form, e);
             generateNewIdempotencyKey(); // Reset on error to allow retry
         } finally {
             setIsSubmitting(false);

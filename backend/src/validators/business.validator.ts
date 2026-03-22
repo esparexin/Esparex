@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { commonSchemas, sanitizeString } from '../middleware/validateRequest';
+import { normalizeTo10Digits } from '../utils/phoneUtils';
 import { BUSINESS_LIMITS } from '../../../shared/schemas/common.schemas';
 import { validateText } from '../../../shared/utils/textValidator';
 import { ID_PROOF_TYPE_VALUES } from '../../../shared/enums/idProofType';
@@ -11,14 +12,15 @@ import { ID_PROOF_TYPE_VALUES } from '../../../shared/enums/idProofType';
 // --- v3-native schemas (avoid cross-package Zod version mixing) ---
 
 /**
- * Phone number schema — v3 native.
- * Strips whitespace, ensures at least 10 digits.
+ * Phone number schema — normalizes any format (+91, 91, dashes) → 10-digit Indian mobile.
+ * Aligns with auth.validator.ts SSOT (normalizeTo10Digits from phoneUtils).
  */
 const phoneSchema = z.string()
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(20, 'Phone number must be less than 20 characters')
-    .transform((val) => val.replace(/\s+/g, ''))
-    .refine((val) => val.replace(/\D/g, '').length >= 10, 'Phone number must contain at least 10 digits');
+    .transform(normalizeTo10Digits)
+    .refine(
+        (val) => /^[6-9]\d{9}$/.test(val),
+        'Invalid phone number (must be a 10-digit Indian mobile starting with 6–9)'
+    );
 
 /**
  * Business name schema — v3 native with shared text content validation.

@@ -685,7 +685,9 @@ export const incrementListingView = async (id: string | number): Promise<void> =
 
 export const getMyAds = async (status?: string): Promise<Ad[]> => {
     try {
-        const url = status ? `${API_ROUTES.USER.MY_ADS}?status=${status}` : API_ROUTES.USER.MY_ADS;
+        const params = new URLSearchParams({ listingType: 'ad' });
+        if (status) params.set('status', status);
+        const url = `${API_ROUTES.USER.MY_ADS}?${params.toString()}`;
         const api = await toApiResult<unknown>(
             apiClient.get(url)
         );
@@ -714,7 +716,7 @@ export const getMyAds = async (status?: string): Promise<Ad[]> => {
 export const getMyAdsStats = async (): Promise<Record<string, number>> => {
     try {
         const { data: result } = await toApiResult<Record<string, number>>(
-            apiClient.get(API_ROUTES.USER.MY_ADS_STATS)
+            apiClient.get(`${API_ROUTES.USER.MY_ADS_STATS}?listingType=ad`)
         );
         return result || {};
     } catch (e) {

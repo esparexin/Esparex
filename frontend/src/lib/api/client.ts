@@ -352,7 +352,19 @@ class APIClient {
                     });
 
                 if (!requestConfig?.silent) {
-                    emitErrorPopup(apiError);
+                    // For retryable errors (5xx, network, 408, 429), offer a retry action.
+                    // Re-sending the original config lets the request pipeline run again
+                    // (CSRF refresh, health gate, etc.).
+                    const isRetryable =
+                        latestStatus === 0 ||
+                        latestStatus >= 500 ||
+                        latestStatus === 408 ||
+                        latestStatus === 429;
+                    const onRetry =
+                        isRetryable && requestConfig
+                            ? () => { void this.client.request(requestConfig); }
+                            : undefined;
+                    emitErrorPopup(apiError, onRetry);
                 }
 
                 return Promise.reject(apiError);

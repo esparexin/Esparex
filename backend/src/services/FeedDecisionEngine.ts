@@ -86,7 +86,6 @@ export class FeedDecisionEngine {
                 { $match: { ...visibilityFilter, ...matchStage, _id: { $nin: Array.from(seenIds).map(id => new mongoose.Types.ObjectId(id)) } } },
                 { $sort: { createdAt: -1 } as any },
                 { $limit: limitNeeded - mergedAds.length },
-                { $project: { _id: 1, title: 1, price: 1, images: 1, createdAt: 1, isSpotlight: 1, 'location.state': 1, 'location.city': 1 } }
             ];
 
             const results = await Ad.aggregate(pipeline);

@@ -35,10 +35,19 @@ export const getMyServices = async (req: Request, res: Response) => {
         return;
     }
 
-    // Unified: use AdModel with listingType guard
+    const baseQuery: Record<string, unknown> = {
+        sellerId: user._id,
+        listingType: LISTING_TYPE.SERVICE,
+    };
+
+    // Optional server-side status filter — ?status=live|pending|rejected|expired|deactivated
+    if (typeof req.query.status === 'string' && req.query.status) {
+        baseQuery.status = req.query.status;
+    }
+
     return handlePaginatedContent(req, res, asModel(AdModel), {
-        adminQuery: { sellerId: user._id, listingType: LISTING_TYPE.SERVICE },
-        publicQuery: { sellerId: user._id, listingType: LISTING_TYPE.SERVICE },
+        adminQuery: baseQuery,
+        publicQuery: baseQuery,
         populate: [
             { path: 'location.locationId', select: 'name city state' }
         ],

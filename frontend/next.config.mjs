@@ -128,6 +128,7 @@ const nextConfig = {
                             `connect-src ${connectSrc}`,
 
                             "frame-ancestors 'self'",
+                            "frame-src 'self' https://www.openstreetmap.org",
                             "base-uri 'self'",
                             "form-action 'self'"
                         ].join('; ')

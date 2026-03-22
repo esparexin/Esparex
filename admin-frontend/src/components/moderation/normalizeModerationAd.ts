@@ -24,7 +24,7 @@ const computeDaysRemaining = (expiresAt?: string): number | undefined => {
     if (!expiresAt) return undefined;
     const expiresAtMs = new Date(expiresAt).getTime();
     if (!Number.isFinite(expiresAtMs)) return undefined;
-    return Math.ceil((expiresAtMs - Date.now()) / DAY_IN_MS);
+    return Math.max(0, Math.floor((expiresAtMs - Date.now()) / DAY_IN_MS));
 };
 
 const normalizeSeller = (value: unknown): { sellerId?: string; sellerName?: string; sellerPhone?: string } => {

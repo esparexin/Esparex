@@ -5,7 +5,6 @@ import * as RadixDialog from "@radix-ui/react-dialog";
 import { AlertTriangle, CheckCircle2, Info, TriangleAlert, X } from "lucide-react";
 
 import type { PopupState } from "@/lib/popup/popupEvents";
-import { cn } from "@/components/ui/utils";
 
 type RenderablePopup = PopupState & { count?: number };
 
@@ -42,7 +41,11 @@ const typeConfig = {
   },
 } as const;
 
-export function AppPopup({
+function cn(...classes: (string | undefined | false | null)[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export function AdminPopup({
   popup,
   onClose,
 }: {
@@ -51,16 +54,13 @@ export function AppPopup({
 }) {
   const active = popup?.open ? popup : null;
 
-  // Auto-dismiss for non-critical types
   useEffect(() => {
     if (!active) return;
     if (active.type !== "success" && active.type !== "info") return;
-
     const timer = window.setTimeout(() => onClose(), 4000);
     return () => window.clearTimeout(timer);
   }, [active, onClose]);
 
-  // Countdown for retryAfter (429 rate-limit or other timed delays)
   const [countdown, setCountdown] = useState<number | null>(null);
   useEffect(() => {
     if (!active?.retryAfter) {
@@ -78,7 +78,6 @@ export function AppPopup({
       });
     }, 1000);
     return () => window.clearInterval(interval);
-  // Reset countdown whenever a new popup with retryAfter appears
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active?.id, active?.retryAfter]);
 
@@ -92,7 +91,11 @@ export function AppPopup({
       : [{ label: "Dismiss", action: onClose }];
 
   return (
-    <RadixDialog.Root open={active.open} onOpenChange={(open) => !open && onClose()} modal={active.type === "confirm"}>
+    <RadixDialog.Root
+      open={active.open}
+      onOpenChange={(open) => !open && onClose()}
+      modal={active.type === "confirm"}
+    >
       <RadixDialog.Portal>
         {active.type === "confirm" ? (
           <RadixDialog.Overlay className="fixed inset-0 z-[12000] bg-black/50 backdrop-blur-[2px]" />
@@ -103,12 +106,10 @@ export function AppPopup({
             active.type === "confirm"
               ? "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-6"
               : "right-3 top-3 p-4 sm:right-5 sm:top-5",
-            config.cardClass
+            config.cardClass,
           )}
           onInteractOutside={(event) => {
-            if (active.type !== "confirm") {
-              event.preventDefault();
-            }
+            if (active.type !== "confirm") event.preventDefault();
           }}
         >
           <div className="flex items-start gap-3">

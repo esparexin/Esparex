@@ -141,7 +141,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
 
                     {/* Search Input */}
                     {!chromePolicy.showStickySearch && (
-                        <form onSubmit={handleSearchSubmit} className="flex-1 relative">
+                        <form onSubmit={handleSearchSubmit} className="flex-1 relative mx-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 className="w-full pl-9 h-10 bg-muted/40 border-transparent focus:bg-background focus:border-primary/30 transition-all rounded-full text-base"

@@ -50,19 +50,22 @@ export const moderationTabs: AdminTabItem[] = [
 ];
 
 export const serviceLifecycleTabs: AdminTabItem[] = [
-    { label: "Pending", href: "/services?status=pending" },
-    { label: "Live", href: "/services?status=live" },
-    { label: "Rejected", href: "/services?status=rejected" },
+    { label: "Pending",     href: "/services?status=pending" },
+    { label: "Live",        href: "/services?status=live" },
+    { label: "Rejected",    href: "/services?status=rejected" },
+    { label: "Expired",     href: "/services?status=expired" },
     { label: "Deactivated", href: "/services?status=deactivated" },
-    { label: "All", href: "/services?status=all" },
+    { label: "All",         href: "/services?status=all" },
 ];
 
 export const partLifecycleTabs: AdminTabItem[] = [
-    { href: '/spare-parts?status=pending',     label: 'Pending' },
-    { href: '/spare-parts?status=live',        label: 'Live' },
-    { href: '/spare-parts?status=rejected',    label: 'Rejected' },
-    { href: '/spare-parts?status=deactivated', label: 'Deactivated' },
-    { href: '/spare-parts?status=all',         label: 'All' },
+    { label: 'Pending',     href: '/spare-parts?status=pending' },
+    { label: 'Live',        href: '/spare-parts?status=live' },
+    { label: 'Rejected',    href: '/spare-parts?status=rejected' },
+    { label: 'Sold',        href: '/spare-parts?status=sold' },
+    { label: 'Expired',     href: '/spare-parts?status=expired' },
+    { label: 'Deactivated', href: '/spare-parts?status=deactivated' },
+    { label: 'All',         href: '/spare-parts?status=all' },
 ];
 
 
@@ -76,12 +79,6 @@ export const adLifecycleTabs: AdminTabItem[] = [
     { label: "All", href: "/ads?status=all" },
 ];
 
-export const adModerationTabs: AdminTabItem[] = [
-    { label: "Pending", href: "/moderation?status=pending" },
-    { label: "Rejected", href: "/moderation?status=rejected" },
-    { label: "Live", href: "/moderation?status=live" },
-    { label: "All", href: "/moderation?status=all" },
-];
 
 export const notificationsTabs: AdminTabItem[] = [
     { label: "Broadcast", href: "/notifications" },

@@ -23,7 +23,7 @@ import { normalizeModerationAd } from "@/components/moderation/normalizeModerati
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { moderationTabs, adLifecycleTabs, adModerationTabs, serviceLifecycleTabs, partLifecycleTabs } from "@/components/layout/adminModuleTabSets";
+import { moderationTabs, adLifecycleTabs, serviceLifecycleTabs, partLifecycleTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminErrorBoundary } from "@/components/common/AdminErrorBoundary";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { getListingPresentation } from "@/components/moderation/listingPresentation";
@@ -36,11 +36,11 @@ const SORT_OPTIONS: Array<{ label: string; value: ModerationFilters["sort"] }> =
 ];
 
 type AdsViewProps = {
-    mode?: "moderation" | "ads";
+    mode?: "ads";
     listingType?: "ad" | "service" | "spare_part";
 };
 
-export default function AdsView({ mode = "moderation", listingType }: AdsViewProps) {
+export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
     const { showToast } = useToast();
     const searchParams = useSearchParams();
     const presentation = getListingPresentation(listingType);
@@ -49,7 +49,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
 
     const [filters, setFilters] = useState<ModerationFilters>(() => ({
         ...DEFAULT_FILTERS,
-        status: mode === "ads" ? "live" : "pending",
+        status: "live",
         listingType
     }));
     const [page, setPage] = useState(1);
@@ -91,9 +91,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
         const normalizedStatus =
             statusFromQuery && allowed.has(statusFromQuery)
                 ? statusFromQuery as ModerationFilters["status"]
-                : mode === "ads"
-                    ? "live"
-                    : "pending";
+                : "live";
         const normalizedSellerId = typeof sellerIdFromQuery === "string" ? sellerIdFromQuery.trim() : "";
         const normalizedSearch = typeof searchFromQuery === "string" ? searchFromQuery.trim() : "";
         const normalizedListingType = listingType || listingTypeFromQuery;
@@ -116,7 +114,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
             };
         });
         setPage(1);
-    }, [mode, listingType, searchParams]);
+    }, [listingType, searchParams]);
 
     const { items, pagination, summary, isLoading, error } = useAdminAdsQuery({
         filters,
@@ -139,14 +137,12 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
 
     const moduleTabs = useMemo(() => {
         let baseTabs = adLifecycleTabs;
-        if (mode === "moderation") {
-            baseTabs = adModerationTabs;
-        } else if (listingType === "service") {
+        if (listingType === "service") {
             baseTabs = serviceLifecycleTabs;
         } else if (listingType === "spare_part") {
             baseTabs = partLifecycleTabs;
         }
-        
+
         return baseTabs.map(tab => {
             const status = new URLSearchParams(tab.href.split('?')[1]).get('status');
             const count = status === 'all' ? summary.total : summary[status as keyof typeof summary];
@@ -155,7 +151,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                 count: typeof count === 'number' ? count : undefined
             };
         });
-    }, [mode, listingType, summary]);
+    }, [listingType, summary]);
 
     const activeStatusOptions = useMemo(() => {
         const allowedStatuses = new Set(moduleTabs.map(t => new URLSearchParams(t.href.split('?')[1]).get('status')).filter(Boolean));
@@ -337,7 +333,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
     const clearFilters = () => {
         setFilters((prev) => ({
             ...DEFAULT_FILTERS,
-            status: mode === "ads" ? "live" : "pending",
+            status: "live",
             listingType: listingType ?? prev.listingType
         }));
         setPage(1);
@@ -346,7 +342,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
     return (
         <AdminPageShell
             headerVariant="compact"
-            title={listingType ? presentation.pageTitle : (mode === "ads" ? "Listings" : "Moderation")}
+            title={listingType ? presentation.pageTitle : "Listings"}
             tabs={
                 <div className="flex flex-col gap-4 mb-2">
                     <AdminModuleTabs tabs={moderationTabs} variant="primary" />

@@ -71,18 +71,26 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                 <button
                     onClick={handlePostAdClick}
                     disabled={!isBackendUp}
-                    className={`flex flex-col items-center justify-center -mt-6 ${!isBackendUp ? "cursor-not-allowed opacity-50" : ""}`}
+                    className={cn(
+                        "flex flex-col items-center justify-center w-full h-full space-y-1",
+                        !isBackendUp && "cursor-not-allowed opacity-50"
+                    )}
                 >
                     <div
-                        className={`text-primary-foreground rounded-full p-3 shadow-lg border-4 border-white ${isBackendUp
-                            ? "bg-primary hover:scale-105 transition-transform"
-                            : "bg-muted text-muted-foreground"
-                            }`}
+                        className={cn(
+                            "rounded-full p-1 shadow-sm transition-transform",
+                            isBackendUp
+                                ? "bg-primary text-primary-foreground hover:scale-105"
+                                : "bg-muted text-muted-foreground"
+                        )}
                     >
-                        <PlusCircle className="w-6 h-6" />
+                        <PlusCircle className="w-5 h-5" />
                     </div>
                     <span
-                        className={`text-xs font-medium mt-1 ${isBackendUp ? "text-primary" : "text-muted-foreground"}`}
+                        className={cn(
+                            "text-[10px] font-medium",
+                            isBackendUp ? "text-primary" : "text-muted-foreground"
+                        )}
                     >
                         Post
                     </span>

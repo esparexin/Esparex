@@ -258,7 +258,7 @@ export function MyAdsTab({
                                                                 : 0)}{" "}
                                                         views
                                                     </span>
-                                                    <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {ad.likes || 0} likes</span>
+                                                    <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {(ad.views as any)?.favorites ?? ad.likes ?? 0} likes</span>
                                                     {ad.status === 'live' && ad.expiresAt && (
                                                         <span className="flex items-center gap-1 text-amber-600 font-medium whitespace-nowrap">
                                                             <Clock className="h-3 w-3" /> Expires {formatDate(ad.expiresAt || new Date())}

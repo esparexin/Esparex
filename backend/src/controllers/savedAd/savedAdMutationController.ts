@@ -26,6 +26,7 @@ export const saveAd = async (req: Request, res: Response) => {
 
         await SavedAd.create({ userId, adId: finalAdId });
         void recordAdAnalyticsEvent(finalAdId, 'favorite');
+        void Ad.findByIdAndUpdate(finalAdId, { $inc: { 'views.favorites': 1 } });
 
         res.status(201).json(respond({ success: true, message: 'Ad saved successfully' }));
     } catch (error: unknown) {
@@ -47,7 +48,14 @@ export const unsaveAd = async (req: Request, res: Response) => {
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
         const { adId } = savedAdReq.params;
 
-        await SavedAd.findOneAndDelete({ userId, adId });
+        const deleted = await SavedAd.findOneAndDelete({ userId, adId });
+        if (deleted) {
+            // Decrement counter but never go below 0
+            void Ad.findOneAndUpdate(
+                { _id: adId, 'views.favorites': { $gt: 0 } },
+                { $inc: { 'views.favorites': -1 } }
+            );
+        }
         res.json(respond({ success: true, message: 'Ad removed from saved' }));
     } catch {
         sendErrorResponse(req, res, 500, 'Failed to unsave ad');

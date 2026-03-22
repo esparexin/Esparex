@@ -48,6 +48,7 @@ import { PersonalTab } from "./profile/tabs/PersonalTab";
 import { MyAdsTab } from "./profile/tabs/MyAdsTab";
 import { MyServicesTab } from "./profile/tabs/MyServicesTab";
 import { MySparePartsTab } from "./profile/tabs/MySparePartsTab";
+import { MyListingsTab } from "./profile/tabs/MyListingsTab";
 import { PlansTab } from "./profile/tabs/PlansTab";
 import { SettingsTab } from "./profile/tabs/SettingsTab";
 import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
@@ -216,6 +217,15 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           businessData={businessData}
           onEditBusinessApplication={() => navigateTo("profile-settings-business")}
           navigateToBusinessTab={() => setActiveTabFromChild("business")}
+        />
+      );
+      case "listings": return (
+        <MyListingsTab
+          ads={myAds} adCounts={adCounts} loadingAds={loadingAds}
+          myAdsStatusTab={myAdsTab} setMyAdsStatusTab={setMyAdsTab}
+          handleDeleteAd={handleDeleteAdForTab} handleMarkAsSold={handleMarkAsSoldForTab}
+          user={user} navigateTo={(page, adId, cat, bid, sid) => navigateTo(page as UserPage, adId, cat, bid, sid)}
+          getStatusBadge={getStatusBadge} formatDate={formatDate}
         />
       );
       case "myads": return <MyAdsTab ads={myAds} adCounts={adCounts} loadingAds={loadingAds} myAdsTab={myAdsTab} setMyAdsTab={setMyAdsTab} navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} getStatusBadge={getStatusBadge} fetchMyAds={fetchMyAds} formatDate={formatDate} handleDeleteAd={handleDeleteAdForTab} handleMarkAsSold={handleMarkAsSoldForTab} />;

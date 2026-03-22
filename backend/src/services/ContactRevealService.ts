@@ -76,7 +76,6 @@ export const getSellerPhone = async (
 ): Promise<{
     phone?: string;
     mobile?: string;
-    countryCode?: string;
     masked?: string;
     error?: string;
 } | null> => {
@@ -89,7 +88,7 @@ export const getSellerPhone = async (
     try {
         const entity = await Ad.findById(id)
             .select('sellerId status isDeleted listingType')
-            .populate('sellerId', 'mobile countryCode status mobileVisibility')
+            .populate('sellerId', 'mobile status mobileVisibility')
             .lean() as any;
 
         if (!entity) return { error: 'Listing not found' };
@@ -125,7 +124,8 @@ export const getSellerPhone = async (
             }
         }
 
-        const sellerActive = seller.status === 'active';
+        // Accept both 'live' (canonical) and legacy 'active' alias
+        const sellerActive = seller.status === 'live' || seller.status === 'active';
 
         if (!isOwner && (!entityActive || !sellerActive)) {
             const err = new Error('Phone number is unavailable for this listing.');
@@ -137,10 +137,7 @@ export const getSellerPhone = async (
         if (!buyerId) {
             // Return masked phone for unauthenticated users
             const maskedPhone = maskPhone(seller.phone);
-            return {
-                masked: maskedPhone,
-                countryCode: seller.countryCode
-            };
+            return { masked: maskedPhone };
         }
 
         // Log phone reveal for audit trail
@@ -159,8 +156,7 @@ export const getSellerPhone = async (
 
         return {
             phone: seller.phone,
-            mobile: seller.phone, // Include mobile field for legacy compatibility for frontend
-            countryCode: seller.countryCode
+            mobile: seller.phone,
         };
     } catch (error) {
         logger.error(`Failed to get listing phone`, {

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { notify } from "@/lib/notify";
 import { TOAST_MESSAGES } from "@/constants/toastMessages";
 import { useRouter } from "next/navigation";
@@ -10,18 +12,17 @@ import { User } from "@/types/User";
 import { getMyBusiness, updateBusiness, CreateBusinessDTO } from "@/api/user/businesses";
 
 import { Button } from "../ui/button";
-import {
-    ArrowLeft,
-} from "@/icons/IconRegistry";
+import { ArrowLeft } from "@/icons/IconRegistry";
 import { FormError } from "@/components/ui/FormError";
 
-import { StepData, initialStepData } from "./business-registration/types";
 import { fileToBase64 } from "./business-registration/utils";
 import { StepBasicDetails } from "./business-registration/StepBasicDetails";
 import { StepAddress } from "./business-registration/StepAddress";
 import { StepDocuments } from "./business-registration/StepDocuments";
 import { StepReview } from "./business-registration/StepReview";
 import logger from "@/lib/logger";
+import { businessEditSchema, type BusinessEditFormData, type BusinessEditFormInput } from "@/schemas/businessEditPayload.schema";
+import { injectApiErrors } from "@/utils/injectApiErrors";
 
 interface BusinessEditFlowProps {
     user: User | null;
@@ -35,11 +36,73 @@ export function BusinessEditFlow({
 }: BusinessEditFlowProps) {
     const router = useRouter();
     const [currentStep, setCurrentStep] = useState(0);
-    const [formData, setFormData] = useState<StepData>(initialStepData);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [businessId, setBusinessId] = useState<string | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
+
+    const form = useForm<BusinessEditFormInput, any, BusinessEditFormData>({
+        resolver: zodResolver(businessEditSchema),
+        mode: "onBlur",
+        reValidateMode: "onChange",
+        defaultValues: {
+            businessTypes: [],
+            businessName: "",
+            businessDescription: "",
+            shopNo: "",
+            street: "",
+            landmark: "",
+            city: "",
+            state: "",
+            pincode: "",
+            coordinates: null,
+            contactNumber: "",
+            email: "",
+            idProofType: "aadhaar",
+            idProof: null,
+            businessProof: null,
+            certificates: [],
+            shopImages: [],
+        }
+    });
+
+    const { handleSubmit, trigger, watch, setValue, reset, formState: { errors, isSubmitting } } = form;
+    const formData = watch();
+
+    const resolveErrorMessage = (fieldError: unknown): string => {
+        const err = fieldError as any;
+        if (!err) return "Invalid field";
+        if (typeof err.message === "string" && err.message.trim()) return err.message;
+        if (typeof err?.root?.message === "string" && err.root.message.trim()) return err.root.message;
+        if (Array.isArray(err)) {
+            const nested = err.find((item: any) => typeof item?.message === "string" && item.message.trim());
+            if (nested?.message) return nested.message;
+        }
+        if (err && typeof err === "object") {
+            for (const value of Object.values(err)) {
+                if (value && typeof (value as any).message === "string" && (value as any).message.trim()) {
+                    return (value as any).message;
+                }
+            }
+        }
+        return "Invalid field";
+    };
+
+    // Bridge watch() results back to the legacy StepData shape the step components expect
+    const legacyFormData = {
+        ...formData,
+        deviceCategories: [],
+        errors: Object.keys(errors).reduce((acc, key) => {
+            acc[key as keyof BusinessEditFormData] = resolveErrorMessage((errors as any)[key]);
+            return acc;
+        }, {} as any)
+    };
+
+    const setLegacyFormData = (updater: any) => {
+        const next = typeof updater === "function" ? updater(formData) : updater;
+        Object.entries(next).forEach(([key, val]) => {
+            setValue(key as any, val, { shouldDirty: true });
+        });
+    };
 
     /* -------------------------------------------------------------------------- */
     /* Load Existing Data                                                         */
@@ -51,23 +114,18 @@ export function BusinessEditFlow({
                 const business = await getMyBusiness();
                 if (!business) {
                     setFormError("No business profile found.");
-
                     void router.push('/account/business/apply');
                     return;
                 }
 
                 setBusinessId(business.id);
 
-                // Map API Data to StepData
-                setFormData({
+                reset({
                     businessTypes: business.businessTypes || [],
-                    deviceCategories: [],
                     businessName: business.businessName || "",
                     businessDescription: business.description || "",
                     contactNumber: business.contactNumber || "",
                     email: business.email || "",
-
-                    // Address
                     shopNo: business.location.shopNo || "",
                     street: business.location.street || "",
                     city: business.location.city || "",
@@ -75,14 +133,14 @@ export function BusinessEditFlow({
                     pincode: business.location.pincode || "",
                     landmark: business.location.landmark || "",
                     coordinates: business.location.coordinates || null,
-
-                    // Images (Already URLs)
                     shopImages: business.images || [],
-
-                    // Docs (Already URLs)
-                    idProof: (business.documents?.idProof && business.documents.idProof.length > 0) ? business.documents.idProof[0]! : null,
-                    businessProof: (business.documents?.businessProof && business.documents.businessProof.length > 0) ? business.documents.businessProof[0]! : null,
-                    certificates: business.documents?.certificates || []
+                    idProof: (business.documents?.idProof && business.documents.idProof.length > 0)
+                        ? business.documents.idProof[0]!
+                        : null,
+                    businessProof: (business.documents?.businessProof && business.documents.businessProof.length > 0)
+                        ? business.documents.businessProof[0]!
+                        : null,
+                    certificates: business.documents?.certificates || [],
                 });
 
             } catch (error) {
@@ -94,41 +152,25 @@ export function BusinessEditFlow({
         }
 
         loadBusiness();
-    }, [router]);
+    }, [router, reset]);
 
     /* -------------------------------------------------------------------------- */
-    /* Validation                                                                 */
+    /* Step Navigation                                                            */
     /* -------------------------------------------------------------------------- */
 
-    const validateStep = (step: number): boolean => {
-        // Step indices match the rendered StepXxx components:
-        // 0 = StepBasicDetails, 1 = StepAddress, 2 = StepDocuments, 3 = StepReview
+    const validateStep = async (): Promise<boolean> => {
+        let fieldsToValidate: (keyof BusinessEditFormData)[] = [];
+        if (currentStep === 0) fieldsToValidate = ["businessName", "businessDescription", "contactNumber", "email", "shopImages"];
+        if (currentStep === 1) fieldsToValidate = ["shopNo", "street", "city", "state", "pincode"];
+        if (currentStep === 2) fieldsToValidate = []; // Documents optional on edit
 
-        if (step === 0 && (!formData.businessName || !formData.businessDescription || !formData.contactNumber || !formData.email)) {
-            notify.error("Please fill in all required basic details");
-            return false;
-        }
-        if (
-            step === 1 &&
-            (!formData.shopNo ||
-                !formData.street ||
-                !formData.city ||
-                !formData.state ||
-                !formData.pincode)
-        ) {
-            setFormError("Complete address details.");
-            return false;
-        }
-        if (step === 2 && (!formData.idProof || !formData.businessProof)) {
-            setFormError("Upload required documents.");
-            return false;
-        }
-        return true;
+        return trigger(fieldsToValidate);
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (formError) setFormError(null);
-        if (!validateStep(currentStep)) return;
+        const isValid = await validateStep();
+        if (!isValid) return;
         setCurrentStep((s) => s + 1);
     };
 
@@ -136,47 +178,41 @@ export function BusinessEditFlow({
     /* Submit                                                                     */
     /* -------------------------------------------------------------------------- */
 
-    const handleSubmit = async () => {
-        if (isSubmitting || !businessId) return;
+    const onValidSubmit = async (data: BusinessEditFormData) => {
+        if (!businessId) return;
         setFormError(null);
-        setIsSubmitting(true);
 
         try {
-            // Helper to process mixed (File | string) arrays
-            // If it's a File, convert to Base64. If it's a string (URL), keep as is.
             const processMixedImages = async (items: (File | string)[]) => {
                 return await Promise.all(items.map(item =>
                     item instanceof File ? fileToBase64(item) : item
                 ));
             };
 
-            const images = await processMixedImages(formData.shopImages);
+            const images = await processMixedImages((data.shopImages ?? []) as (File | string)[]);
 
-            // Docs
-            const idProofList = formData.idProof ? [formData.idProof] : [];
-            const busProofList = formData.businessProof ? [formData.businessProof] : [];
+            const idProofList = data.idProof ? [data.idProof as File | string] : [];
+            const busProofList = data.businessProof ? [data.businessProof as File | string] : [];
 
             const idProofProcessed = await processMixedImages(idProofList);
             const busProofProcessed = await processMixedImages(busProofList);
-            const certsProcessed = await processMixedImages(formData.certificates);
+            const certsProcessed = await processMixedImages((data.certificates ?? []) as (File | string)[]);
 
             const payload: Partial<CreateBusinessDTO> = {
-                name: formData.businessName,
-                description: formData.businessDescription,
-                businessTypes: formData.businessTypes,
-
+                name: data.businessName,
+                description: data.businessDescription,
+                businessTypes: data.businessTypes,
                 location: {
-                    city: formData.city,
-                    state: formData.state,
-                    pincode: formData.pincode,
-                    street: formData.street,
-                    shopNo: formData.shopNo,
-                    landmark: formData.landmark,
-                    coordinates: formData.coordinates || undefined,
+                    city: data.city,
+                    state: data.state,
+                    pincode: data.pincode,
+                    street: data.street,
+                    shopNo: data.shopNo,
+                    landmark: data.landmark || undefined,
+                    coordinates: data.coordinates || undefined,
                 },
-                phone: formData.contactNumber,
-                email: formData.email,
-
+                phone: data.contactNumber,
+                email: data.email,
                 images,
                 documents: {
                     idProof: idProofProcessed,
@@ -191,28 +227,27 @@ export function BusinessEditFlow({
                 throw new Error("Update failed");
             }
 
-            // If critical fields changed the backend resets status to PENDING for re-review
             if (updated.status === 'pending') {
                 notify.success("Changes saved. Your profile is under admin review again.");
             } else {
                 notify.success(TOAST_MESSAGES.UPDATE_SUCCESS);
             }
 
-            // Trigger session refresh to sync businessStatus in sidebar/navigation
             window.dispatchEvent(new CustomEvent("esparex_auth_update"));
 
             if (onComplete) {
                 onComplete();
             } else {
-
                 void router.push('/account/business');
             }
 
         } catch (e: unknown) {
             logger.error(e);
-            setFormError(mapErrorToMessage(e, TOAST_MESSAGES.LOAD_FAILED));
-        } finally {
-            setIsSubmitting(false);
+            // Inject field-level API errors into the form before falling back to banner
+            const injected = injectApiErrors(form as any, e);
+            if (!injected) {
+                setFormError(mapErrorToMessage(e, TOAST_MESSAGES.LOAD_FAILED));
+            }
         }
     };
 
@@ -245,12 +280,16 @@ export function BusinessEditFlow({
                 </div>
             </div>
 
-            <form className="max-w-4xl mx-auto px-4 space-y-4" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+            <form
+                className="max-w-4xl mx-auto px-4 space-y-4"
+                onSubmit={handleSubmit(onValidSubmit as unknown as Parameters<typeof handleSubmit>[0])}
+                noValidate
+            >
                 <FormError message={formError} className="mb-2" />
 
                 <StepBasicDetails
-                    formData={formData}
-                    setFormData={setFormData}
+                    formData={legacyFormData as any}
+                    setFormData={setLegacyFormData}
                     user={user}
                     onNext={handleNext}
                     onBack={() => void router.push('/account/business')}
@@ -260,8 +299,8 @@ export function BusinessEditFlow({
                 />
 
                 <StepAddress
-                    formData={formData}
-                    setFormData={setFormData}
+                    formData={legacyFormData as any}
+                    setFormData={setLegacyFormData}
                     onNext={handleNext}
                     onBack={() => setCurrentStep(0)}
                     isActive={currentStep === 1}
@@ -270,8 +309,8 @@ export function BusinessEditFlow({
                 />
 
                 <StepDocuments
-                    formData={formData}
-                    setFormData={setFormData}
+                    formData={legacyFormData as any}
+                    setFormData={setLegacyFormData}
                     onNext={handleNext}
                     onBack={() => setCurrentStep(1)}
                     isActive={currentStep === 2}
@@ -280,7 +319,7 @@ export function BusinessEditFlow({
                 />
 
                 <StepReview
-                    formData={formData}
+                    formData={legacyFormData as any}
                     onBack={() => setCurrentStep(2)}
                     isActive={currentStep === 3}
                     onEditStep={setCurrentStep}

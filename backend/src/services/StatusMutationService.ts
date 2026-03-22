@@ -137,6 +137,25 @@ export const mutateStatus = async (request: MutationRequest) => {
             (doc as any).statusChangedAt = new Date();
             if (reason) (doc as any).statusReason = reason;
 
+            // 🛡️ DATA INTEGRITY: Coerce stale/legacy moderationStatus values that are
+            // not in the current enum. These exist in documents written before the enum
+            // was tightened (e.g. "approved" was an old value, now split into
+            // "auto_approved" / "manual_approved"). Mongoose validates the entire
+            // document on .save(), so a single stale field blocks ALL mutations.
+            const VALID_MODERATION_STATUSES = new Set([
+                'auto_approved', 'held_for_review', 'manual_approved', 'rejected', 'community_hidden'
+            ]);
+            const currentModerationStatus = (doc as any).moderationStatus;
+            if (currentModerationStatus && !VALID_MODERATION_STATUSES.has(currentModerationStatus)) {
+                logger.warn('StatusMutationService: coercing stale moderationStatus', {
+                    entityId: String(entityId),
+                    domain,
+                    staleValue: currentModerationStatus,
+                    coercedTo: 'manual_approved',
+                });
+                (doc as any).moderationStatus = 'manual_approved';
+            }
+
             // Apply status-specific patch (e.g., soldAt, rejectionReason, $push: { timeline })
             if (patch) {
                 for (const [key, value] of Object.entries(patch)) {

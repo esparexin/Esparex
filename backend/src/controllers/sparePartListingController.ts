@@ -244,14 +244,23 @@ export const getSparePartListing = async (req: Request, res: Response) => {
  */
 export const getMySparePartListings = async (req: Request, res: Response) => {
     try {
-        const businessId = req.business?._id;
-        if (!businessId) {
-            return sendContractErrorResponse(req, res, 401, 'Business not found');
+        if (!req.user) {
+            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
         }
 
         const { status } = req.query;
-        const query: any = { businessId: businessId, listingType: LISTING_TYPE.SPARE_PART, isDeleted: false };
-        if (status) query.status = status;
+
+        // Query by sellerId (canonical owner field, works for all users).
+        // businessId is not used here — owners must always be able to see
+        // their own listings regardless of current business approval status.
+        const query: Record<string, unknown> = {
+            sellerId: req.user._id,
+            listingType: LISTING_TYPE.SPARE_PART,
+            isDeleted: false,
+        };
+        if (typeof status === 'string' && status) {
+            query.status = status;
+        }
 
         const items = await AdModel.find(query)
             .populate({ path: 'categoryId', model: Category, select: 'name slug' })
@@ -336,16 +345,16 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
  */
 export const deleteSparePartListing = async (req: Request, res: Response) => {
     try {
-        const businessId = req.business?._id;
-        if (!businessId) {
-            return sendContractErrorResponse(req, res, 401, 'Business not found');
+        if (!req.user) {
+            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
         }
 
         const listingId = req.params.id as string;
+        // Ownership enforced via sellerId — no business approval required to delete own listing
         const listing = await AdModel.findOne({
             _id: listingId,
             listingType: LISTING_TYPE.SPARE_PART,
-            businessId: businessId,
+            sellerId: req.user._id,
             isDeleted: false,
         });
 

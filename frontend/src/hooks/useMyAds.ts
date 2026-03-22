@@ -12,7 +12,8 @@ import logger from "@/lib/logger";
 export function useMyAds(activeTab: string, user: User | null, statusFilter: MyAdsStatus = "live") {
     const queryClient = useQueryClient();
 
-    const isEnabled = activeTab === "myads" && !!user;
+    // "listings" is the unified tab, "myads" is the legacy standalone tab
+    const isEnabled = (activeTab === "myads" || activeTab === "listings") && !!user;
 
     // Fetch Ads using TanStack Query
     const {

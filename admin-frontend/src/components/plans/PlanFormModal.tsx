@@ -1,44 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { X, CreditCard, Zap, BellRing, Package } from "lucide-react";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import type { Plan } from "@/types/plan";
+import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
 type PlanType = "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";
-type UserType = "normal" | "business" | "both";
 type MatchFrequency = "instant" | "hourly" | "daily";
 
-interface PlanFormState {
-    code: string;
-    name: string;
-    description: string;
-    type: PlanType;
-    userType: UserType;
-    price: number;
-    currency: string;
-    durationDays: number;
-    isDefault: boolean;
-    active: boolean;
-    // limits
-    maxAds: number;
-    maxServices: number;
-    maxParts: number;
-    spotlightCredits: number;
-    smartAlertSlots: number;
-    // smartAlertConfig
-    matchFrequency: MatchFrequency;
-    radiusLimitKm: number;
-    notificationChannels: string[];
-    // features
-    priorityWeight: number;
-    businessBadge: boolean;
-    canEditAd: boolean;
-    showOnHomePage: boolean;
-}
-
-const DEFAULT_FORM: PlanFormState = {
+const DEFAULT_FORM: PlanFormValues = {
     code: "",
     name: "",
     description: "",
@@ -88,7 +62,7 @@ const TYPE_META: Record<PlanType, { label: string; icon: React.ReactNode; color:
     },
 };
 
-function planToForm(plan: Plan): PlanFormState {
+function planToForm(plan: Plan): PlanFormValues {
     return {
         code: plan.code,
         name: plan.name,
@@ -115,11 +89,11 @@ function planToForm(plan: Plan): PlanFormState {
     };
 }
 
-function formToPayload(f: PlanFormState) {
+function formToPayload(f: PlanFormValues) {
     const payload: Record<string, unknown> = {
         code: f.code.trim().toUpperCase(),
         name: f.name.trim(),
-        description: f.description.trim() || undefined,
+        description: f.description?.trim() || undefined,
         type: f.type,
         userType: f.userType,
         price: Number(f.price),
@@ -154,59 +128,57 @@ function formToPayload(f: PlanFormState) {
     return payload;
 }
 
-export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModalProps) {
-    const [form, setForm] = useState<PlanFormState>(DEFAULT_FORM);
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState("");
+// Inline field error helper — matches admin-frontend style
+function FieldError({ message }: { message?: string }) {
+    if (!message) return null;
+    return <p className="mt-1 text-xs text-red-500">{message}</p>;
+}
 
+export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModalProps) {
     const isEdit = Boolean(editPlan);
+
+    const {
+        register,
+        handleSubmit,
+        watch,
+        setValue,
+        reset,
+        control,
+        formState: { errors, isSubmitting },
+    } = useForm<PlanFormValues>({
+        resolver: zodResolver(planFormSchema),
+        defaultValues: DEFAULT_FORM,
+    });
+
+    const formType = watch("type");
+    const isDefault = watch("isDefault");
+    const notificationChannels = watch("notificationChannels");
 
     useEffect(() => {
         if (open) {
-            setForm(editPlan ? planToForm(editPlan) : DEFAULT_FORM);
-            setError("");
+            reset(editPlan ? planToForm(editPlan) : DEFAULT_FORM);
         }
-    }, [open, editPlan]);
+    }, [open, editPlan, reset]);
 
-    const set = <K extends keyof PlanFormState>(key: K, value: PlanFormState[K]) =>
-        setForm((prev) => ({ ...prev, [key]: value }));
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError("");
-
-        if (!form.code.trim()) { setError("Plan code is required."); return; }
-        if (!form.name.trim()) { setError("Plan name is required."); return; }
-        if (form.price < 0) { setError("Price cannot be negative."); return; }
-        if (!form.isDefault && form.durationDays < 1) { setError("Validity (days) must be at least 1."); return; }
-
-        setSaving(true);
-        try {
-            const payload = formToPayload(form);
-            if (isEdit && editPlan) {
-                await adminFetch(ADMIN_ROUTES.PLAN_BY_ID(editPlan.id), {
-                    method: "PUT",
-                    body: payload,
-                });
-            } else {
-                await adminFetch(ADMIN_ROUTES.PLANS, {
-                    method: "POST",
-                    body: payload,
-                });
-            }
-            onSaved();
-            onClose();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to save plan");
-        } finally {
-            setSaving(false);
+    const onValidSubmit = async (data: PlanFormValues) => {
+        const payload = formToPayload(data);
+        if (isEdit && editPlan) {
+            await adminFetch(ADMIN_ROUTES.PLAN_BY_ID(editPlan.id), { method: "PUT", body: payload });
+        } else {
+            await adminFetch(ADMIN_ROUTES.PLANS, { method: "POST", body: payload });
         }
+        onSaved();
+        onClose();
     };
 
     if (!open) return null;
 
     const inputCls = "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100";
     const labelCls = "block text-xs font-semibold text-slate-600 mb-1";
+
+    // API errors from adminFetch surface via the popup system (emitAdminErrorPopup)
+    // and are not re-shown here. Only field-level Zod errors appear inline.
+    const apiError = errors.root?.message;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
@@ -236,29 +208,38 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                 </div>
 
                 {/* Body */}
-                <form onSubmit={(e) => { void handleSubmit(e); }} className="flex-1 overflow-y-auto">
+                <form
+                    onSubmit={(e) => { void handleSubmit(onValidSubmit)(e); }}
+                    className="flex-1 overflow-y-auto"
+                >
                     <div className="space-y-5 px-6 py-5">
 
                         {/* Plan Type selector */}
                         <div>
                             <label className={labelCls}>Plan Type</label>
-                            <div className="grid grid-cols-3 gap-2">
-                                {(Object.keys(TYPE_META) as PlanType[]).map((t) => (
-                                    <button
-                                        key={t}
-                                        type="button"
-                                        onClick={() => set("type", t)}
-                                        className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all ${
-                                            form.type === t
-                                                ? TYPE_META[t].color + " ring-2 ring-offset-1 ring-sky-400"
-                                                : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        {TYPE_META[t].icon}
-                                        {TYPE_META[t].label}
-                                    </button>
-                                ))}
-                            </div>
+                            <Controller
+                                name="type"
+                                control={control}
+                                render={({ field }) => (
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {(Object.keys(TYPE_META) as PlanType[]).map((t) => (
+                                            <button
+                                                key={t}
+                                                type="button"
+                                                onClick={() => field.onChange(t)}
+                                                className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all ${
+                                                    field.value === t
+                                                        ? TYPE_META[t].color + " ring-2 ring-offset-1 ring-sky-400"
+                                                        : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                                                }`}
+                                            >
+                                                {TYPE_META[t].icon}
+                                                {TYPE_META[t].label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            />
                         </div>
 
                         {/* Basic info row */}
@@ -266,51 +247,63 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                             <div>
                                 <label className={labelCls}>Plan Code *</label>
                                 <input
+                                    {...register("code")}
                                     className={inputCls}
                                     placeholder="e.g. SPOTLIGHT_3"
-                                    value={form.code}
-                                    onChange={(e) => set("code", e.target.value.toUpperCase())}
+                                    onChange={(e) => setValue("code", e.target.value.toUpperCase(), { shouldValidate: true })}
                                     disabled={isEdit}
                                 />
                                 {isEdit && <p className="mt-1 text-[10px] text-slate-400">Code cannot be changed after creation.</p>}
+                                <FieldError message={errors.code?.message} />
                             </div>
                             <div>
                                 <label className={labelCls}>Plan Name *</label>
-                                <input className={inputCls} placeholder="e.g. Spotlight 3 Credits" value={form.name} onChange={(e) => set("name", e.target.value)} />
+                                <input
+                                    {...register("name")}
+                                    className={inputCls}
+                                    placeholder="e.g. Spotlight 3 Credits"
+                                />
+                                <FieldError message={errors.name?.message} />
                             </div>
                         </div>
 
                         <div>
                             <label className={labelCls}>Description</label>
                             <textarea
+                                {...register("description")}
                                 className={inputCls + " resize-none"}
                                 rows={2}
                                 placeholder="Short description shown to users"
-                                value={form.description}
-                                onChange={(e) => set("description", e.target.value)}
                             />
+                            <FieldError message={errors.description?.message} />
                         </div>
 
                         {/* Pricing + validity */}
                         <div className="grid grid-cols-3 gap-4">
                             <div>
                                 <label className={labelCls}>Price (₹)</label>
-                                <input type="number" min={0} className={inputCls} value={form.price} onChange={(e) => set("price", Number(e.target.value))} />
+                                <input
+                                    type="number"
+                                    min={0}
+                                    {...register("price", { valueAsNumber: true })}
+                                    className={inputCls}
+                                />
+                                <FieldError message={errors.price?.message} />
                             </div>
                             <div>
                                 <label className={labelCls}>Validity (Days)</label>
                                 <input
                                     type="number"
                                     min={1}
+                                    {...register("durationDays", { valueAsNumber: true })}
                                     className={inputCls}
-                                    value={form.durationDays}
-                                    onChange={(e) => set("durationDays", Number(e.target.value))}
-                                    disabled={form.isDefault}
+                                    disabled={isDefault}
                                 />
+                                <FieldError message={errors.durationDays?.message} />
                             </div>
                             <div>
                                 <label className={labelCls}>For Users</label>
-                                <select className={inputCls} value={form.userType} onChange={(e) => set("userType", e.target.value as UserType)}>
+                                <select {...register("userType")} className={inputCls}>
                                     <option value="both">Both</option>
                                     <option value="normal">Normal</option>
                                     <option value="business">Business</option>
@@ -321,44 +314,45 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                         {/* Limits — conditional by type */}
                         <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-500">Limits & Credits</p>
-                            {form.type === "AD_PACK" && (
+                            {formType === "AD_PACK" && (
                                 <div className="grid grid-cols-3 gap-4">
                                     <div>
                                         <label className={labelCls}>Max Ads</label>
-                                        <input type="number" min={0} className={inputCls} value={form.maxAds} onChange={(e) => set("maxAds", Number(e.target.value))} />
+                                        <input type="number" min={0} {...register("maxAds", { valueAsNumber: true })} className={inputCls} />
                                     </div>
                                     <div>
                                         <label className={labelCls}>Max Services</label>
-                                        <input type="number" min={0} className={inputCls} value={form.maxServices} onChange={(e) => set("maxServices", Number(e.target.value))} />
+                                        <input type="number" min={0} {...register("maxServices", { valueAsNumber: true })} className={inputCls} />
                                     </div>
                                     <div>
                                         <label className={labelCls}>Max Spare Parts</label>
-                                        <input type="number" min={0} className={inputCls} value={form.maxParts} onChange={(e) => set("maxParts", Number(e.target.value))} />
+                                        <input type="number" min={0} {...register("maxParts", { valueAsNumber: true })} className={inputCls} />
                                     </div>
                                 </div>
                             )}
-                            {form.type === "SPOTLIGHT" && (
+                            {formType === "SPOTLIGHT" && (
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Spotlight Credits</label>
-                                        <input type="number" min={1} className={inputCls} value={form.spotlightCredits} onChange={(e) => set("spotlightCredits", Number(e.target.value))} />
+                                        <input type="number" min={1} {...register("spotlightCredits", { valueAsNumber: true })} className={inputCls} />
                                         <p className="mt-1 text-[10px] text-slate-400">1 credit = 1 ad featured for the duration</p>
                                     </div>
                                     <div>
                                         <label className={labelCls}>Priority Weight</label>
-                                        <input type="number" min={1} max={10} className={inputCls} value={form.priorityWeight} onChange={(e) => set("priorityWeight", Number(e.target.value))} />
+                                        <input type="number" min={1} max={10} {...register("priorityWeight", { valueAsNumber: true })} className={inputCls} />
+                                        <FieldError message={errors.priorityWeight?.message} />
                                     </div>
                                 </div>
                             )}
-                            {form.type === "SMART_ALERT" && (
+                            {formType === "SMART_ALERT" && (
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Alert Slots</label>
-                                        <input type="number" min={1} className={inputCls} value={form.smartAlertSlots} onChange={(e) => set("smartAlertSlots", Number(e.target.value))} />
+                                        <input type="number" min={1} {...register("smartAlertSlots", { valueAsNumber: true })} className={inputCls} />
                                     </div>
                                     <div>
                                         <label className={labelCls}>Match Frequency</label>
-                                        <select className={inputCls} value={form.matchFrequency} onChange={(e) => set("matchFrequency", e.target.value as MatchFrequency)}>
+                                        <select {...register("matchFrequency")} className={inputCls}>
                                             <option value="instant">Instant</option>
                                             <option value="hourly">Hourly</option>
                                             <option value="daily">Daily</option>
@@ -366,7 +360,8 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                     </div>
                                     <div>
                                         <label className={labelCls}>Radius Limit (km)</label>
-                                        <input type="number" min={1} className={inputCls} value={form.radiusLimitKm} onChange={(e) => set("radiusLimitKm", Number(e.target.value))} />
+                                        <input type="number" min={1} {...register("radiusLimitKm", { valueAsNumber: true })} className={inputCls} />
+                                        <FieldError message={errors.radiusLimitKm?.message} />
                                     </div>
                                     <div>
                                         <label className={labelCls}>Notification Channels</label>
@@ -375,12 +370,12 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                                 <label key={ch} className="flex items-center gap-1.5 text-xs font-medium text-slate-700 cursor-pointer">
                                                     <input
                                                         type="checkbox"
-                                                        checked={form.notificationChannels.includes(ch)}
+                                                        checked={notificationChannels.includes(ch)}
                                                         onChange={(e) => {
                                                             const updated = e.target.checked
-                                                                ? [...form.notificationChannels, ch]
-                                                                : form.notificationChannels.filter((c) => c !== ch);
-                                                            set("notificationChannels", updated);
+                                                                ? [...notificationChannels, ch]
+                                                                : notificationChannels.filter((c) => c !== ch);
+                                                            setValue("notificationChannels", updated, { shouldValidate: true });
                                                         }}
                                                         className="accent-sky-600"
                                                     />
@@ -388,6 +383,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                                 </label>
                                             ))}
                                         </div>
+                                        <FieldError message={errors.notificationChannels?.message} />
                                     </div>
                                 </div>
                             )}
@@ -396,30 +392,38 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                         {/* Flags */}
                         <div className="flex flex-wrap items-center gap-5">
                             <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
-                                <input type="checkbox" className="accent-sky-600" checked={form.isDefault} onChange={(e) => { set("isDefault", e.target.checked); if (e.target.checked) { set("price", 0); } }} />
+                                <input
+                                    type="checkbox"
+                                    {...register("isDefault")}
+                                    className="accent-sky-600"
+                                    onChange={(e) => {
+                                        setValue("isDefault", e.target.checked, { shouldValidate: true });
+                                        if (e.target.checked) setValue("price", 0, { shouldValidate: true });
+                                    }}
+                                />
                                 Free / Default Plan
                             </label>
                             <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
-                                <input type="checkbox" className="accent-emerald-600" checked={form.active} onChange={(e) => set("active", e.target.checked)} />
+                                <input type="checkbox" {...register("active")} className="accent-emerald-600" />
                                 Active (visible to users)
                             </label>
-                            {form.type === "SPOTLIGHT" && (
+                            {formType === "SPOTLIGHT" && (
                                 <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
-                                    <input type="checkbox" className="accent-amber-500" checked={form.showOnHomePage} onChange={(e) => set("showOnHomePage", e.target.checked)} />
+                                    <input type="checkbox" {...register("showOnHomePage")} className="accent-amber-500" />
                                     Feature on Home Page
                                 </label>
                             )}
-                            {form.type === "AD_PACK" && (
+                            {formType === "AD_PACK" && (
                                 <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
-                                    <input type="checkbox" className="accent-blue-600" checked={form.businessBadge} onChange={(e) => set("businessBadge", e.target.checked)} />
+                                    <input type="checkbox" {...register("businessBadge")} className="accent-blue-600" />
                                     Business Badge
                                 </label>
                             )}
                         </div>
 
-                        {error && (
+                        {apiError && (
                             <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
-                                {error}
+                                {apiError}
                             </div>
                         )}
                     </div>
@@ -435,11 +439,11 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                         </button>
                         <button
                             type="submit"
-                            disabled={saving}
+                            disabled={isSubmitting}
                             className="flex items-center gap-2 rounded-lg bg-sky-600 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:opacity-60"
                         >
                             <CreditCard size={15} />
-                            {saving ? "Saving…" : isEdit ? "Update Plan" : "Create Plan"}
+                            {isSubmitting ? "Saving…" : isEdit ? "Update Plan" : "Create Plan"}
                         </button>
                     </div>
                 </form>

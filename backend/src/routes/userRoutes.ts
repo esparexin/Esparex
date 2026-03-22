@@ -97,8 +97,8 @@ router.delete('/me', protect, userController.deleteMe);
 import { saveAdSchema, savedAdParamSchema, getSavedAdsQuerySchema } from '../validators/savedAd.validator';
 
 // --- Saved Ads ---
-router.post('/saved-ads', protect, validateRequest(saveAdSchema), savedAdController.saveAd);
-router.delete('/saved-ads/:adId', protect, validateRequest({ params: savedAdParamSchema }), savedAdController.unsaveAd);
+router.post('/saved-ads', protect, mutationLimiter, validateRequest(saveAdSchema), savedAdController.saveAd);
+router.delete('/saved-ads/:adId', protect, mutationLimiter, validateRequest({ params: savedAdParamSchema }), savedAdController.unsaveAd);
 router.get('/saved-ads', protect, validateRequest({ query: getSavedAdsQuerySchema }), savedAdController.getSavedAds);
 
 export default router;

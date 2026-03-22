@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { coordinatesSchema } from "./coordinates.schema";
+import { LISTING_TYPE_VALUES } from "../enums/listingType";
+import { AD_DISPLAY_STATUS_VALUES } from "../enums/adStatus";
 
 export const AdSchema = z.object({
     id: z.string().or(z.number()).transform(String),
@@ -7,7 +9,7 @@ export const AdSchema = z.object({
     price: z.number(),
     description: z.string(),
     images: z.array(z.string()),
-    listingType: z.enum(['ad', 'service', 'spare_part']).optional(),
+    listingType: z.enum(LISTING_TYPE_VALUES).optional(),
     attributes: z.record(z.string(), z.unknown()).optional(),
     category: z.string().optional(),
     seoSlug: z.string().optional(),
@@ -27,16 +29,16 @@ export const AdSchema = z.object({
     sellerId: z.string(), // Canonical Ownership Key
     userId: z.string().optional(), // Legacy Alias (Deprecated)
     ownerId: z.string().optional(), // Future Canonical Key
-    status: z.enum(['live', 'pending', 'sold', 'expired', 'rejected', 'deactivated']),
+    status: z.enum(AD_DISPLAY_STATUS_VALUES),
     sellerType: z.enum(['business', 'user']).optional(),
-    createdAt: z.string(),
-    updatedAt: z.string().optional(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }).optional(),
     views: z.union([
         z.number(),
         z.object({
             total: z.number(),
             unique: z.number(),
-            lastViewedAt: z.string().optional(),
+            lastViewedAt: z.string().datetime({ offset: true }).optional(),
         })
     ]).optional(),
     deviceCondition: z.enum(['power_on', 'power_off']).optional(),
@@ -76,8 +78,8 @@ export const AdSchema = z.object({
 
     isSpotlight: z.boolean().optional(),
     isBoosted: z.boolean().optional(),
-    expiresAt: z.string().optional(),
-    spotlightExpiresAt: z.string().optional(),
+    expiresAt: z.string().datetime({ offset: true }).optional(),
+    spotlightExpiresAt: z.string().datetime({ offset: true }).optional(),
     rejectionReason: z.string().optional(),
 }).passthrough();
 

@@ -10,10 +10,20 @@ export const getSavedAds = async (req: Request, res: Response) => {
         const savedAdReq = req as SavedAdRequest;
         const userId = getUserId(savedAdReq);
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
-        const saved = await SavedAd.find({ userId })
-            .populate('adId')
-            .sort({ createdAt: -1 })
-            .lean();
+
+        const page = Math.max(1, Number(req.query.page) || 1);
+        const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+        const skip = (page - 1) * limit;
+
+        const [saved, total] = await Promise.all([
+            SavedAd.find({ userId })
+                .populate('adId')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            SavedAd.countDocuments({ userId })
+        ]);
 
         const ads = saved
             .filter(s => s.adId)
@@ -29,11 +39,22 @@ export const getSavedAds = async (req: Request, res: Response) => {
                     images: sanitizePersistedImageUrls(
                         rawImages.filter((image): image is string => typeof image === 'string'),
                         false
-                    )
+                    ),
+                    // When the user saved this ad — separate from ad's own createdAt
+                    _savedAt: (s as any).createdAt,
                 };
             });
 
-        res.json(respond({ success: true, data: ads }));
+        res.json(respond({
+            success: true,
+            data: ads,
+            pagination: {
+                page,
+                limit,
+                total,
+                hasMore: skip + ads.length < total
+            }
+        }));
     } catch {
         sendErrorResponse(req, res, 500, 'Failed to fetch saved ads');
     }

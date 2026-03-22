@@ -6,12 +6,12 @@ import {
   Heart,
   Home,
   Package,
+  ShoppingBag,
   Search,
   Settings,
   Sparkles,
   Wrench,
   CreditCard,
-  CircuitBoard,
 } from "lucide-react";
 import {
   type UserPage,
@@ -49,6 +49,7 @@ export interface ResolvedNavigationItem extends NavigationItem {
 
 export type ProfileTabValue =
   | "personal"
+  | "listings"
   | "myads"
   | "services"
   | "spare-parts"
@@ -67,13 +68,11 @@ export const PROFILE_TAB_ITEMS: Array<{
   businessOnly?: boolean;
 }> = [
     { value: "personal", label: "Account", icon: UserIcon },
-    { value: "myads", label: "My Ads", icon: Package },
-    { value: "services", label: "My Services", icon: Wrench, businessOnly: true },
-    { value: "spare-parts", label: "My Spare Parts", icon: CircuitBoard, businessOnly: true },
+    { value: "listings", label: "My Listings", icon: Package },
     { value: "saved", label: "Saved Ads", icon: Heart },
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
-    { value: "purchases", label: "My Purchases", icon: Package },
+    { value: "purchases", label: "My Purchases", icon: ShoppingBag },
     { value: "plans", label: "Plans", icon: CreditCard },
     { value: "settings", label: "Settings", icon: Settings },
   ];
@@ -82,6 +81,7 @@ export const PROFILE_TAB_PAGE_ROUTES: Partial<Record<ProfileTabValue, UserPage>>
   Object.freeze({
     personal: "profile",
     settings: "profile-settings",
+    listings: "my-ads",
     myads: "my-ads",
     saved: "saved-ads",
     smartalerts: "smart-alerts",
@@ -152,7 +152,7 @@ const BASE_NAVIGATION: NavigationItem[] = [
     page: "my-ads",
   },
   {
-    id: "favorites",
+    id: "saved-ads",
     label: "Favorites",
     slug: "saved-ads",
     icon: Heart,

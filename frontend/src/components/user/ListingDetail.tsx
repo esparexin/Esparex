@@ -49,6 +49,7 @@ import { getActionBarVariant } from "../../lib/logic/bottomBarActions";
 import { ROUTES } from "../../lib/logic/routes";
 import { useListingDetailQuery, useSavedAdsQuery } from "@/queries";
 import { queryKeys } from "@/queries/queryKeys";
+import { useAuth } from "@/context/AuthContext";
 import logger from "@/lib/logger";
 import { adDetailUiReducer, initialAdDetailUiState } from "./listing-detail/adDetailUiState";
 
@@ -67,8 +68,11 @@ interface ListingDetailProps {
   };
 }
 
-export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showBackButton = true, user }: ListingDetailProps) {
+export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showBackButton = true, user: userProp }: ListingDetailProps) {
   const queryClient = useQueryClient();
+  const { user: authUser, isAuthResolved } = useAuth();
+  // Prefer the auth context (always up-to-date) over the prop (can be stale or missing)
+  const user = authUser ?? userProp;
   // Scroll once on mount (kept out of render body to satisfy React rules).
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -267,6 +271,7 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
 
   const handleChatWithSeller = () => {
     if (!user) {
+      if (!isAuthResolved) return;
       notify.info("Please login to chat with the seller");
       navigateTo(ROUTES.LOGIN);
       return;
@@ -279,7 +284,11 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
 
   const handleFavorite = async () => {
     if (!ad) return;
+    // Owners cannot save their own listing
+    if (isOwner) return;
     if (!user) {
+      // Auth still hydrating — don't navigate yet; resolved state will update
+      if (!isAuthResolved) return;
       notify.info("Please login to save favorites");
       navigateTo(ROUTES.LOGIN);
       return;
@@ -389,7 +398,7 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
                       isFavorited={isFavorited}
                       onFavorite={handleFavorite}
                       onShare={handleShare}
-                      showActionButtons={!isPendingOwner}
+                      showActionButtons={!isOwner}
                     />
 
                     {isPendingOwner && <AdPendingStatusCard />}

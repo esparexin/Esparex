@@ -11,6 +11,7 @@ import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { fileToBase64 } from "@/components/user/business-registration/utils";
 
 import { generateIdempotencyKey } from "@/utils/listings/submissionUtils";
+import { injectApiErrors } from "@/utils/injectApiErrors";
 
 interface UseListingSubmissionProps<TFieldValues extends Record<string, any>> {
     form: UseFormReturn<TFieldValues>;
@@ -29,6 +30,7 @@ interface UseListingSubmissionProps<TFieldValues extends Record<string, any>> {
  * Handles validation, image uploads, and API calls.
  */
 export function useListingSubmission<T extends Record<string, any>>({
+    form,
     listingImages,
     isEditMode,
     editId,
@@ -90,6 +92,12 @@ export function useListingSubmission<T extends Record<string, any>>({
             
             if (!validation.success) {
                 const firstError = validation.error.errors[0]!;
+                // Scroll to the first invalid field so it is visible on long forms
+                const firstPath = firstError.path[0];
+                if (typeof firstPath === "string" && typeof document !== "undefined") {
+                    const el = document.querySelector(`[name='${firstPath}']`);
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
                 throw new Error(firstError.message || "Validation failed. Please check your inputs.");
             }
 
@@ -109,6 +117,8 @@ export function useListingSubmission<T extends Record<string, any>>({
             const msg = e instanceof Error ? e.message : "Submission failed. Please try again.";
             if (onError) onError(msg);
             else notify.error(msg);
+            // Inject API field-level errors into the form (highlights specific fields)
+            if (form) injectApiErrors(form, e);
             resetIdempotency();
         } finally {
             setIsSubmitting(false);

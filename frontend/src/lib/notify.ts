@@ -1,5 +1,6 @@
 import { mapErrorToMessage } from '@/utils/errorMapper';
 import { hidePopup, showPopup } from '@/lib/popup/popupEvents';
+import type { PopupAction } from '@/lib/popup/popupEvents';
 
 export const notify = {
     success(message: string, options?: unknown) {
@@ -10,19 +11,32 @@ export const notify = {
             message
         });
     },
-    error(error: unknown, fallbackOrOptions?: string | unknown, _options?: unknown) {
+    error(
+        error: unknown,
+        fallbackOrOptions?: string | { onRetry?: () => void } | unknown,
+        options?: { onRetry?: () => void }
+    ) {
         let message = "";
+        let onRetry: (() => void) | undefined;
 
         if (typeof fallbackOrOptions === 'object' && fallbackOrOptions !== null) {
+            const opts = fallbackOrOptions as { onRetry?: () => void };
             message = typeof error === 'string' ? error : mapErrorToMessage(error);
+            onRetry = opts.onRetry;
         } else {
             message = typeof error === 'string' ? error : mapErrorToMessage(error, fallbackOrOptions as string | undefined);
+            onRetry = options?.onRetry;
         }
+
+        const actions: PopupAction[] | undefined = onRetry
+            ? [{ label: "Retry", action: onRetry, isRetry: true }, { label: "Dismiss" }]
+            : undefined;
 
         return showPopup({
             type: "error",
             title: "Request Failed",
-            message
+            message,
+            ...(actions ? { actions } : {}),
         });
     },
     info(message: string, options?: unknown) {

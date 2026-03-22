@@ -60,8 +60,8 @@ export async function fetchAdminModerationAds(input: {
     if (filters.sellerId.trim()) params.set("sellerId", filters.sellerId.trim());
     if (filters.categoryId.trim()) params.set("categoryId", filters.categoryId.trim());
     if (filters.location.trim()) params.set("location", filters.location.trim());
-    if (filters.dateFrom) params.set("createdAfter", new Date(filters.dateFrom).toISOString());
-    if (filters.dateTo) params.set("createdBefore", new Date(filters.dateTo).toISOString());
+    if (filters.dateFrom) params.set("createdAfter", new Date(filters.dateFrom + "T00:00:00.000Z").toISOString());
+    if (filters.dateTo) params.set("createdBefore", new Date(filters.dateTo + "T23:59:59.999Z").toISOString());
     if (filters.listingType) params.set("listingType", filters.listingType);
 
     applySort(params, filters.sort);
@@ -96,10 +96,6 @@ export async function fetchAdminModerationSummary(listingType?: string): Promise
 
 export async function fetchAdminAdSummary(): Promise<ModerationSummary> {
     return fetchAdminModerationSummary('ad');
-}
-
-export async function fetchAdminServiceSummary(): Promise<ModerationSummary> {
-    return fetchAdminModerationSummary('service');
 }
 
 

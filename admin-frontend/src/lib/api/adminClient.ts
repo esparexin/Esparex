@@ -4,6 +4,7 @@ import {
   ADMIN_ROUTES,
   DEFAULT_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
+import { emitAdminErrorPopup } from "@/lib/popup/popupEvents";
 
 const rawBase =
   process.env.NEXT_PUBLIC_ADMIN_API_URL ||
@@ -105,11 +106,29 @@ export async function adminFetch<T>(
       : undefined;
     const detailsMessage = typeof details?.message === "string" ? details.message : undefined;
     const message = payload.message || payload.error || detailsMessage || `Request failed (${response.status})`;
-    throw new AdminApiError(message, response.status, payload);
+    const error = new AdminApiError(message, response.status, payload);
+
+    // Surface unexpected failures (5xx, network) via popup. 4xx errors are
+    // expected business logic and should be handled by the calling hook.
+    const isUnexpected = response.status === 0 || response.status >= 500;
+    if (isUnexpected) {
+      emitAdminErrorPopup(response.status, message);
+    }
+
+    throw error;
   }
 
   return payload;
   };
 
-  return makeRequest(false);
+  try {
+    return await makeRequest(false);
+  } catch (err) {
+    // Re-throw AdminApiError (already handled + popup shown inside makeRequest)
+    if (err instanceof AdminApiError) throw err;
+    // Network-level failure (fetch threw before receiving a response)
+    const message = err instanceof Error ? err.message : "Unable to connect to server.";
+    emitAdminErrorPopup(0, message, "NETWORK_FAILURE");
+    throw err;
+  }
 }

@@ -8,7 +8,6 @@ export interface User {
     id: string; // Unified ID field
     role: UserRole;
     mobile: string;
-    countryCode?: string;
     businessStatus?: BusinessStatus;
     isPhoneVerified: boolean;
     isVerified?: boolean;

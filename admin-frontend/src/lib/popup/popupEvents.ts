@@ -1,12 +1,9 @@
-import type { APIError } from "@/lib/api/APIError";
-import { errorToPopup } from "@/lib/errors/errorToPopup";
-
 export type PopupType = "error" | "warning" | "info" | "success" | "confirm";
 
 export interface PopupAction {
   label: string;
   action?: () => void;
-  /** When true, AppPopup disables this button during a retryAfter countdown. */
+  /** When true, AdminPopup disables this button during a retryAfter countdown. */
   isRetry?: boolean;
 }
 
@@ -17,8 +14,6 @@ export interface PopupState {
   title: string;
   message: string;
   code?: string;
-  endpoint?: string;
-  source?: string;
   count?: number;
   actions?: PopupAction[];
   /** Seconds until the user may retry (for 429 rate-limit countdown). */
@@ -30,9 +25,9 @@ type PopupListener = (popup: PopupState | null) => void;
 const listeners = new Set<PopupListener>();
 let lastEmission: { key: string; at: number } | null = null;
 
-const makeId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const makeId = () => `admin-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-export function subscribePopupEvents(listener: PopupListener) {
+export function subscribeAdminPopupEvents(listener: PopupListener) {
   listeners.add(listener);
   return () => {
     listeners.delete(listener);
@@ -43,7 +38,7 @@ function broadcast(popup: PopupState | null) {
   listeners.forEach((listener) => listener(popup));
 }
 
-export function showPopup(
+export function showAdminPopup(
   popup: Omit<PopupState, "id" | "open"> & { id?: string },
   options?: { dedupeKey?: string; dedupeMs?: number }
 ) {
@@ -63,31 +58,43 @@ export function showPopup(
   lastEmission = { key: dedupeKey, at: now };
 
   const id = popup.id ?? makeId();
-  broadcast({
-    ...popup,
-    id,
-    open: true,
-  });
+  broadcast({ ...popup, id, open: true });
   return id;
 }
 
-export function hidePopup(id?: string) {
+export function hideAdminPopup(id?: string) {
   broadcast(
     id
-      ? {
-          id,
-          open: false,
-          type: "info",
-          title: "",
-          message: "",
-        }
+      ? { id, open: false, type: "info", title: "", message: "" }
       : null
   );
 }
 
-export function emitErrorPopup(error: APIError, onRetry?: () => void) {
-  const popup = errorToPopup(error, onRetry);
-  return showPopup(popup, {
-    dedupeKey: `${popup.type}::${error.code ?? error.status}::${popup.message}`,
-  });
+/** Maps an AdminApiError status to a popup for unexpected failures (5xx, network). */
+export function emitAdminErrorPopup(
+  status: number,
+  message: string,
+  code?: string,
+  onRetry?: () => void,
+) {
+  let type: PopupType = "error";
+  if (status === 404) type = "info";
+  else if (status === 400 || status === 409) type = "warning";
+
+  const isRetryable = status === 0 || status >= 500 || status === 408 || status === 429;
+  const actions: PopupAction[] | undefined =
+    onRetry && isRetryable
+      ? [{ label: "Retry", action: onRetry, isRetry: true }, { label: "Dismiss" }]
+      : undefined;
+
+  return showAdminPopup(
+    {
+      type,
+      title: code || (type === "error" ? "Request Failed" : "Notice"),
+      message: message || "An unexpected error occurred.",
+      code,
+      ...(actions ? { actions } : {}),
+    },
+    { dedupeKey: `${type}::${code ?? status}::${message}` },
+  );
 }

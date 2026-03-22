@@ -3,13 +3,14 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { notify } from "@/lib/notify";
 import { getMySparePartListings } from "@/api/user/sparePartListings";
 import type { SparePartListing } from "@/api/user/sparePartListings";
+import { markAsSold } from "@/api/user/ads";
 import { queryKeys } from "@/queries/queryKeys";
 import type { User } from "@/types/User";
 import logger from "@/lib/logger";
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "@/api/routes";
 
-export type MySparePartsStatus = "live" | "pending" | "rejected" | "expired" | "deactivated";
+export type MySparePartsStatus = "live" | "pending" | "rejected" | "expired" | "sold" | "deactivated";
 
 export function useMySpare(
     activeTab: string,
@@ -28,10 +29,7 @@ export function useMySpare(
         queryKey: [...queryKeys.spare.all, statusFilter],
         queryFn: async () => {
             const listings = await getMySparePartListings();
-            // Client-side filter by status until backend supports query param
-            return statusFilter === "live"
-                ? listings
-                : listings.filter((l) => l.status === statusFilter);
+            return listings.filter((l) => l.status === statusFilter);
         },
         enabled: isEnabled,
         staleTime: 30_000,
@@ -56,11 +54,29 @@ export function useMySpare(
         },
     });
 
+    const { mutateAsync: markSoldSpare } = useMutation({
+        mutationFn: async ({ id, soldReason }: { id: string; soldReason?: "sold_on_platform" | "sold_outside" | "no_longer_available" }) => {
+            const result = await markAsSold(id, soldReason);
+            if (!result) throw new Error("Failed to mark as sold");
+            return id;
+        },
+        onSuccess: () => {
+            invalidateAll();
+            notify.success("Spare part marked as sold.");
+        },
+        onError: (error) => {
+            logger.error("Mark spare part sold error:", error);
+            notify.error("Failed to mark spare part as sold.");
+        },
+    });
+
     return {
         mySpare,
         loadingSpare,
         spareError,
         fetchMySpare,
         handleDeleteSpare: (id: string) => handleDeleteSpare(id),
+        handleMarkSoldSpare: (id: string, soldReason?: "sold_on_platform" | "sold_outside" | "no_longer_available") =>
+            markSoldSpare({ id, soldReason }),
     };
 }
