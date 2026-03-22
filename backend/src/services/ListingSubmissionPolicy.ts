@@ -1,7 +1,9 @@
 import type { ClientSession } from 'mongoose';
 import { AdSlotService, type AdPostingSlotSource } from './AdSlotService';
+import { type ListingTypeValue } from '../../../shared/enums/listingType';
 
-export type SubmissionListingType = 'ad' | 'service' | 'spare_part';
+/** @deprecated Use ListingTypeValue from shared/enums/listingType */
+export type SubmissionListingType = ListingTypeValue;
 
 export type ListingSubmissionReservation = {
     source: AdPostingSlotSource | 'admin_bypass';
@@ -9,7 +11,7 @@ export type ListingSubmissionReservation = {
 
 export type ListingSubmissionPolicyInput = {
     userId: string;
-    listingType: SubmissionListingType;
+    listingType: ListingTypeValue;
     listingId?: string;
     session?: ClientSession;
     actor: 'user' | 'admin';

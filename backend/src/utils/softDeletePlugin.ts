@@ -77,9 +77,12 @@ const softDeletePlugin = (schema: Schema) => {
     });
 
     // Soft Delete Instance Method
+    // Also sets isActive=false if the field exists, preventing the
+    // isActive=true + isDeleted=true data integrity corruption.
     schema.methods.softDelete = function () {
         this.isDeleted = true;
         this.deletedAt = new Date();
+        if ('isActive' in this) this.isActive = false;
         return this.save();
     };
 

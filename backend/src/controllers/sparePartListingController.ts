@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { z } from 'zod';
 import mongoose from 'mongoose';
 import AdModel from '../models/Ad';
 // NOTE: SparePart and Category are registered on getAdminConnection() — direct import IS the
@@ -14,12 +13,17 @@ import { generateUniqueSlug } from '../utils/slugGenerator';
 import { processImages } from '../utils/imageProcessor';
 import { INVENTORY_STATUS } from '../../../shared/enums/inventoryStatus';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
+import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../shared/schemas/sparePartPayload.schema';
 import * as adService from '../services/AdService';
 import { ListingSubmissionPolicy } from '../services/ListingSubmissionPolicy';
 import { getUserConnection } from '../config/db';
 import { mutateStatus } from '../services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../shared/enums/actor';
 import { respond } from '../utils/respond';
+import { getSellerPhone } from '../services/ContactRevealService';
+import { getSingleParam } from '../utils/requestParams';
+import type { ApiResponse, ContactResponse } from '../../../shared/types/Api';
 
 // --------------- local helpers ---------------
 const normalizeImageTokens = (value: unknown): string[] => {
@@ -35,33 +39,19 @@ const toImageUrls = (value: Array<{ url: string; hash: string }>): string[] =>
         .filter((item): item is string => typeof item === 'string' && item.length > 0);
 // ---------------------------------------------
 
-const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format');
-
-const sparePartListingCreateSchema = z.object({
-    categoryId: objectIdSchema,
-    sparePartId: objectIdSchema,
-    compatibleModels: z.array(objectIdSchema).optional(),
-    brandId: objectIdSchema.optional(),
-    title: z.string().trim().min(5).max(120),
-    description: z.string().trim().min(10).max(2000),
-    price: z.number().min(0),
-    condition: z.enum(['new', 'used', 'refurbished']).default('used'),
-    stock: z.coerce.number().int().min(1).default(1),
-    warranty: z.string().optional(),
-    images: z.array(z.string()).optional(),
-    locationId: objectIdSchema.optional(),
-    location: z.object({
-        address: z.string().optional(),
-        city: z.string().optional(),
-        state: z.string().optional(),
-        country: z.string().optional(),
-        display: z.string().optional(),
-        coordinates: z.object({
-            type: z.literal('Point'),
-            coordinates: z.array(z.number()).length(2)
-        }).optional()
-    }).optional()
-}).strict();
+// Schemas imported from shared — single source of truth with frontend
+const sparePartListingCreateSchema = SparePartPayloadSchema;
+// ── update schema: only content fields; category/part/location cannot change ──
+const sparePartListingUpdateSchema = PartialSparePartPayloadSchema.pick({
+    title: true,
+    description: true,
+    price: true,
+    condition: true,
+    stock: true,
+    warranty: true,
+    images: true,
+    compatibleModels: true,
+});
 
 /**
  * Create a new Spare Part Listing
@@ -78,7 +68,7 @@ export const createSparePartListing = async (req: Request, res: Response) => {
 
         const parsed = sparePartListingCreateSchema.safeParse(req.body);
         if (!parsed.success) {
-            return sendContractErrorResponse(req, res, 400, 'Validation failed', { details: parsed.error.errors });
+            return sendContractErrorResponse(req, res, 400, 'Validation failed', { details: parsed.error.issues });
         }
 
         const {
@@ -93,9 +83,12 @@ export const createSparePartListing = async (req: Request, res: Response) => {
             stock,
             warranty,
             images,
-            locationId,
+            locationId: topLevelLocationId,
             location
         } = parsed.data;
+
+        // Accept locationId from top-level field OR nested inside location object
+        const locationId = topLevelLocationId || location?.locationId;
 
         // Explicit check after optional parse — user-friendly error message
         if (!locationId) {
@@ -128,14 +121,14 @@ export const createSparePartListing = async (req: Request, res: Response) => {
             await dbSession.withTransaction(async () => {
                 await ListingSubmissionPolicy.reserveSlot({
                     userId: userId.toString(),
-                    listingType: 'spare_part',
+                    listingType: LISTING_TYPE.SPARE_PART,
                     listingId: listingId.toString(),
                     session: dbSession,
                     actor: 'user',
                 });
                 [listing] = await AdModel.create([{
                     _id: listingId,
-                    listingType: 'spare_part',
+                    listingType: LISTING_TYPE.SPARE_PART,
                     categoryId,
                     sparePartId,
                     compatibleModels: compatibleModels ?? [],
@@ -183,7 +176,7 @@ export const getSparePartListings = async (req: Request, res: Response) => {
         // Redirect to unified AdQueryService
         const result = await adService.getAds(
             {
-                listingType: 'spare_part',
+                listingType: LISTING_TYPE.SPARE_PART,
                 categoryId: categoryId as string,
                 sparePartId: typeId as string,
                 status: (status as any) || AD_STATUS.LIVE
@@ -222,7 +215,7 @@ export const getSparePartListing = async (req: Request, res: Response) => {
 
         if (!mongoose.Types.ObjectId.isValid(idOrSlug)) {
             // Resolve slug via Ad model
-            const resolvedId = await adService.getAdIdBySlug(idOrSlug, { listingType: 'spare_part', isDeleted: { $ne: true } });
+            const resolvedId = await adService.getAdIdBySlug(idOrSlug, { listingType: LISTING_TYPE.SPARE_PART, isDeleted: { $ne: true } });
             if (!resolvedId) {
                 return sendContractErrorResponse(req, res, 404, 'Listing not found');
             }
@@ -257,12 +250,12 @@ export const getMySparePartListings = async (req: Request, res: Response) => {
         }
 
         const { status } = req.query;
-        const query: any = { sellerBusinessId: businessId, listingType: 'spare_part', isDeleted: false };
+        const query: any = { businessId: businessId, listingType: LISTING_TYPE.SPARE_PART, isDeleted: false };
         if (status) query.status = status;
 
         const items = await AdModel.find(query)
             .populate({ path: 'categoryId', model: Category, select: 'name slug' })
-            .populate({ path: 'sparePartIds', model: SparePart, select: 'name slug' }) // Note: plural field in Ad model
+            .populate({ path: 'sparePartId', model: SparePart, select: 'name slug' })
             .sort({ createdAt: -1 });
 
         res.json(respond({ success: true, data: { items, total: items.length } }));
@@ -270,18 +263,6 @@ export const getMySparePartListings = async (req: Request, res: Response) => {
         sendContractErrorResponse(req, res, 500, 'Failed to fetch your listings');
     }
 };
-
-// ── update schema: only content fields; category/part/location cannot change ──
-const sparePartListingUpdateSchema = z.object({
-    title: z.string().trim().min(5).max(120).optional(),
-    description: z.string().trim().min(10).max(2000).optional(),
-    price: z.number().min(0).optional(),
-    condition: z.enum(['new', 'used', 'refurbished']).optional(),
-    stock: z.coerce.number().int().min(1).optional(),
-    warranty: z.string().optional(),
-    images: z.array(z.string()).optional(),
-    compatibleModels: z.array(objectIdSchema).optional(),
-}).strict();
 
 /**
  * Update a Spare Part Listing (Owner only)
@@ -297,7 +278,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
         const listingId = req.params.id as string;
         const listing = await AdModel.findOne({
             _id: listingId,
-            listingType: 'spare_part',
+            listingType: LISTING_TYPE.SPARE_PART,
             businessId: businessId,
             isDeleted: false,
         });
@@ -308,7 +289,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
 
         const parsed = sparePartListingUpdateSchema.safeParse(req.body);
         if (!parsed.success) {
-            return sendContractErrorResponse(req, res, 400, 'Validation failed', { details: parsed.error.errors });
+            return sendContractErrorResponse(req, res, 400, 'Validation failed', { details: parsed.error.issues });
         }
 
         const updates: Record<string, unknown> = { ...parsed.data };
@@ -363,7 +344,7 @@ export const deleteSparePartListing = async (req: Request, res: Response) => {
         const listingId = req.params.id as string;
         const listing = await AdModel.findOne({
             _id: listingId,
-            listingType: 'spare_part',
+            listingType: LISTING_TYPE.SPARE_PART,
             businessId: businessId,
             isDeleted: false,
         });
@@ -376,5 +357,29 @@ export const deleteSparePartListing = async (req: Request, res: Response) => {
         res.status(200).json({ success: true, data: null, message: 'Spare part listing deleted.' });
     } catch (error) {
         sendContractErrorResponse(req, res, 500, 'Failed to delete spare part listing');
+    }
+};
+
+export const getSparePartPhone = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const id = getSingleParam(req, res, 'id', { error: 'Invalid Spare Part ID' });
+        if (!id) return;
+        const requesterId = req.user?._id?.toString();
+        const metadata = {
+            ip: req.ip || req.socket.remoteAddress,
+            device: req.headers['user-agent'] as string | undefined
+        };
+        // Spare parts live in the Ad collection (listingType: 'spare_part')
+        const result = await getSellerPhone(id, 'ad', requesterId, metadata);
+        if (!result || result.error) {
+            sendContractErrorResponse(req, res, 404, result?.error || 'Phone number not found');
+            return;
+        }
+        res.json(respond<ApiResponse<ContactResponse>>({
+            success: true,
+            data: result as unknown as ContactResponse
+        }));
+    } catch (error) {
+        sendContractErrorResponse(req, res, 500, 'Failed to reveal phone number');
     }
 };

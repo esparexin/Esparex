@@ -48,7 +48,7 @@ export class CategoryQueryBuilder {
         const value = this.getFilterValue();
         if (value === undefined) return {};
         const fieldName = this.field === CategoryFieldType.SINGULAR ? 'categoryId' : 'categoryIds';
-        return Object.freeze({ [fieldName]: value });
+        return { [fieldName]: value };
     }
 
     /** 

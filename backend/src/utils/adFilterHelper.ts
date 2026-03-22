@@ -59,10 +59,17 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
     }
 
     const { hasGeo } = normalizeGeoInput(criteria.lat, criteria.lng);
+    const normalizedLevel = typeof criteria.level === 'string'
+        ? criteria.level.toLowerCase() as AdFilterCriteria['level']
+        : undefined;
+
+    // Region-level selections (state/country) must not be overridden by
+    // client-provided coordinates. Coordinates are still accepted for other levels.
+    const shouldUseGeoOnly = hasGeo && normalizedLevel !== 'state' && normalizedLevel !== 'country';
 
     // Location Filtering Strategy
-    // Priority 1: LAT/LNG present -> Use GEO SEARCH ONLY (regex skipped)
-    if (hasGeo) {
+    // Priority 1: LAT/LNG present for non-region levels -> GEO SEARCH ONLY
+    if (shouldUseGeoOnly) {
         // Skip all string/ID location logic, $geoNear bounds the search instead.
     }
     // Priority 2: Canonical locationId present -> STRUCTURED INDEXED SEARCH ONLY
@@ -73,7 +80,24 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
             { 'location.locationId': locationObjectId }
         ];
     }
-    // Priority 3: Fuzzy string-based search is removed to enforce strict geo-queries and prevent full collection scans.
+    // Priority 3: Hierarchy fallback (strict equality only; no broad regex scans).
+    const explicitState = typeof criteria.state === 'string' ? criteria.state.trim() : '';
+    const explicitCountry = typeof criteria.country === 'string' ? criteria.country.trim() : '';
+    const locationName = typeof criteria.location === 'string' ? criteria.location.trim() : '';
+
+    if (explicitState || normalizedLevel === 'state') {
+        const stateFilter = explicitState || locationName;
+        if (stateFilter) {
+            match['location.state'] = stateFilter;
+        }
+    }
+
+    if (explicitCountry || normalizedLevel === 'country') {
+        const countryFilter = explicitCountry || locationName;
+        if (countryFilter) {
+            match['location.country'] = countryFilter;
+        }
+    }
 
     // Seller
     if (criteria.sellerId && mongoose.Types.ObjectId.isValid(criteria.sellerId)) {

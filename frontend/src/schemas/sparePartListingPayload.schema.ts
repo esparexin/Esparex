@@ -1,45 +1,32 @@
+/**
+ * Spare Part Listing — Frontend Form Schema
+ *
+ * Extends BaseSparePartPayloadSchema (shared) with UI-only fields that exist
+ * only in the form and are resolved/stripped before API submission:
+ *   - category    : display name resolved to categoryId
+ *   - brand       : display name resolved to brandId
+ *   - sparePartName : display label resolved to sparePartId
+ *
+ * Fields shared with the backend (title, description, price, images, location,
+ * condition, stock, warranty) must stay in sync with shared/schemas/sparePartPayload.schema.ts.
+ */
+
 import { z } from 'zod';
+import { BaseSparePartPayloadSchema } from '@shared/schemas/sparePartPayload.schema';
 
-// v3-native LocationMeta — avoids Zod v3/v4 version mixing.
-const locationMetaSchema = z.object({
-    locationId: z.string().optional(),
-    parentId: z.string().nullable().optional(),
-    path: z.array(z.string()).optional(),
-    name: z.string().optional(),
-    display: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    country: z.string().optional(),
-    level: z.enum(['country', 'state', 'district', 'city', 'area', 'village']).optional(),
-    isActive: z.boolean().optional(),
-    verificationStatus: z.enum(['pending', 'verified', 'rejected']).optional(),
-    coordinates: z.object({
-        type: z.literal('Point'),
-        coordinates: z.tuple([z.number(), z.number()])
-    }).optional(),
-});
-
-export const SparePartListingPayloadSchema = z.object({
+// UI-only fields: display names that are resolved to IDs before submission
+const uiOnlyFields = z.object({
     category: z.string().min(1, "Category is required"),
-    categoryId: z.string().optional(),
-
     brand: z.string().optional(),
-    brandId: z.string().optional(),
-
-    sparePartId: z.string().min(1, "Spare part is required"),
     sparePartName: z.string().optional(),
-
-    compatibleModels: z.array(z.string()).optional(),
-
-    title: z.string().trim().min(5, "Title must be at least 5 characters").max(120, "Title too long"),
-    description: z.string().trim().min(10, "Description must be at least 10 characters").max(2000, "Description too long"),
-
-    price: z.number().min(0, "Price must be 0 or more"),
-
-    images: z.array(z.string()).min(1, "At least one image is required"),
-
-    location: locationMetaSchema,
-    locationId: z.string().optional(),
 });
+
+export const SparePartListingPayloadSchema = BaseSparePartPayloadSchema
+    .omit({ categoryId: true, sparePartId: true }) // required in base; optional in UI form until resolved
+    .merge(z.object({
+        categoryId: z.string().optional(),
+        sparePartId: z.string().min(1, "Spare part is required"),
+    }))
+    .merge(uiOnlyFields);
 
 export type SparePartListingFormData = z.infer<typeof SparePartListingPayloadSchema>;

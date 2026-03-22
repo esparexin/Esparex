@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { hasValidCoordinateArray } from '@shared/utils/geoUtils';
+import { asString, toTitleCase } from '../services/location/LocationService.helpers';
 
 export const LOCATION_LEVELS = ['country', 'state', 'district', 'city', 'area', 'village'] as const;
 export type LocationLevel = (typeof LOCATION_LEVELS)[number];
@@ -43,31 +44,6 @@ export type NormalizedLocationPersistenceInput = {
     };
     parentId: mongoose.Types.ObjectId | null;
     path: mongoose.Types.ObjectId[];
-};
-
-const asString = (value: unknown): string | undefined => {
-    if (typeof value === 'string') {
-        const trimmed = value.trim();
-        return trimmed.length > 0 ? trimmed : undefined;
-    }
-    if (
-        value &&
-        typeof value === 'object' &&
-        typeof (value as { toString?: () => string }).toString === 'function'
-    ) {
-        const converted = (value as { toString: () => string }).toString().trim();
-        return converted.length > 0 ? converted : undefined;
-    }
-    return undefined;
-};
-
-const toTitleCase = (value?: string): string => {
-    if (!value) return '';
-    return value
-        .split(' ')
-        .filter(Boolean)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-        .join(' ');
 };
 
 export const normalizeLocationLevel = (value: unknown): LocationLevel | undefined => {
