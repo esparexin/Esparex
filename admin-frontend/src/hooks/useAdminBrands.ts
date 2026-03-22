@@ -57,6 +57,7 @@ export function useAdminBrands() {
             status: "all",
         },
         fetchPage: fetchBrandsPage,
+        initialPagination: { limit: 50 },
     });
 
     const extractApiErrorMessage = (err: unknown, fallback: string): string => {

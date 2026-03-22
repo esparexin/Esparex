@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { BarChart3, TrendingUp, Wallet, BadgeIndianRupee, AlertCircle } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { financeTabs } from "@/components/layout/adminModuleTabSets";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
@@ -42,6 +44,7 @@ export default function RevenuePage() {
     <AdminPageShell
       title="Revenue Analytics"
       description="Track monetization performance across plans, invoices, and successful transactions."
+      tabs={<AdminModuleTabs tabs={financeTabs} />}
     >
       {error ? (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-700">

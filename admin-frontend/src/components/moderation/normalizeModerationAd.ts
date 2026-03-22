@@ -1,7 +1,15 @@
 import type { ModerationItem, ModerationStatus } from "./moderationTypes";
+import type { ListingTypeValue } from "@shared/enums/listingType";
+import { LISTING_TYPE_VALUES } from "@shared/enums/listingType";
 
 const asString = (value: unknown): string | undefined =>
     typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+
+const asNumber = (value: unknown): number | undefined => {
+    if (value === null || value === undefined || value === "") return undefined;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+};
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -90,13 +98,17 @@ const normalizeStatus = (value: unknown): ModerationStatus => {
 export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationItem => {
     const seller = normalizeSeller(raw.seller || raw.sellerId);
     if (!seller.sellerId && !seller.sellerName) {
-        console.warn(`[Moderation] Missing seller reference for ad ${raw._id || raw.id}`);
+        console.warn(`[Moderation] Missing seller reference for listing ${raw._id || raw.id}`);
     }
     const category = raw.category && typeof raw.category === "object" ? (raw.category as Record<string, unknown>) : null;
     const brand = raw.brand && typeof raw.brand === "object" ? (raw.brand as Record<string, unknown>) : null;
     const model = raw.model && typeof raw.model === "object" ? (raw.model as Record<string, unknown>) : null;
 
     const status = normalizeStatus(raw.status);
+    const rawListingType = typeof raw.listingType === "string" ? raw.listingType : undefined;
+    const listingType: ListingTypeValue | undefined = (LISTING_TYPE_VALUES as readonly string[]).includes(rawListingType ?? "")
+        ? (rawListingType as ListingTypeValue)
+        : undefined;
     const images = Array.isArray(raw.images)
         ? raw.images.filter((img): img is string => typeof img === "string")
         : [];
@@ -108,6 +120,22 @@ export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationI
         typeof raw.riskScore === "number"
             ? raw.riskScore
             : (typeof raw.fraudScore === "number" ? raw.fraudScore : undefined);
+    const deviceCondition =
+        raw.deviceCondition === "power_on" || raw.deviceCondition === "power_off"
+            ? raw.deviceCondition
+            : undefined;
+    const partCondition =
+        raw.condition === "new" || raw.condition === "used" || raw.condition === "refurbished"
+            ? raw.condition
+            : undefined;
+    const devicePowerOn =
+        typeof raw.devicePowerOn === "boolean"
+            ? raw.devicePowerOn
+            : deviceCondition === "power_on"
+                ? true
+                : deviceCondition === "power_off"
+                    ? false
+                    : undefined;
     const approvedAt = normalizeIsoDate(raw.approvedAt);
     const expiresAt = normalizeIsoDate(raw.expiresAt);
     const updatedAt = normalizeIsoDate(raw.updatedAt);
@@ -116,9 +144,12 @@ export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationI
 
     return {
         id: String(raw.id || raw._id || ""),
-        title: asString(raw.title) || "Untitled ad",
+        title: asString(raw.title) || "Untitled listing",
         description: asString(raw.description),
         price: Number.isFinite(price) ? price : 0,
+        priceMin: asNumber(raw.priceMin),
+        priceMax: asNumber(raw.priceMax),
+        diagnosticFee: asNumber(raw.diagnosticFee),
         currency: asString(raw.currency) || "INR",
         images,
         status,
@@ -136,7 +167,24 @@ export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationI
         sellerPhone: seller.sellerPhone,
         locationLabel: normalizeLocationLabel(raw.location),
         locationCoordinates: normalizeLocationCoordinates(raw.location),
-        devicePowerOn: typeof raw.devicePowerOn === "boolean" ? raw.devicePowerOn : undefined,
+        devicePowerOn,
+        deviceCondition,
+        onsiteService: typeof raw.onsiteService === "boolean" ? raw.onsiteService : undefined,
+        turnaroundTime: asString(raw.turnaroundTime),
+        warranty: asString(raw.warranty),
+        included: asString(raw.included),
+        excluded: asString(raw.excluded),
+        serviceTypeIds: Array.isArray(raw.serviceTypeIds)
+            ? raw.serviceTypeIds.map((value) => String(value)).filter(Boolean)
+            : undefined,
+        sparePartId: raw.sparePartId ? String(raw.sparePartId) : undefined,
+        compatibleModels: Array.isArray(raw.compatibleModels)
+            ? raw.compatibleModels.map((value) => String(value)).filter(Boolean)
+            : undefined,
+        condition: partCondition,
+        stock: asNumber(raw.stock),
+        deviceType: asString(raw.deviceType),
+        listingType,
         reportCount,
         fraudScore,
         riskScore

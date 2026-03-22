@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Search, Download, FileText, AlertCircle } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { financeTabs } from "@/components/layout/adminModuleTabSets";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { adminFetch } from "@/lib/api/adminClient";
 import {
@@ -141,6 +143,7 @@ export default function InvoicesPage() {
     <AdminPageShell
       title="Invoices"
       description="Review generated invoices, GST billing records, and downloadable PDFs."
+      tabs={<AdminModuleTabs tabs={financeTabs} />}
       filters={
         <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row">
           <div className="relative flex-1">

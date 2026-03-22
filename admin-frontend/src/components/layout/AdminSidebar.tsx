@@ -5,7 +5,7 @@ import { Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { SidebarNavigation } from "./SidebarNavigation";
 import { ADMIN_NAV_MODULES } from "./adminNavigation";
-import { fetchAdminModerationSummary, fetchAdminServiceSummary } from "@/lib/api/moderation";
+import { fetchAdminModerationSummary } from "@/lib/api/moderation";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
@@ -47,9 +47,8 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
 
         const run = async () => {
             try {
-                const [moderationSummary, serviceSummary, reportPayload, businessPayload] = await Promise.all([
+                const [moderationSummary, reportPayload, businessPayload] = await Promise.all([
                     fetchAdminModerationSummary().catch(() => null),
-                    fetchAdminServiceSummary().catch(() => null),
                     adminFetch<any>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`).catch(() => null),
                     adminFetch<any>(`${ADMIN_ROUTES.BUSINESS_REQUESTS}?${new URLSearchParams({ status: "pending", page: "1", limit: "1" }).toString()}`).catch(() => null),
                 ]);
@@ -63,7 +62,6 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                     ads: moderationSummary
                         ? `${moderationSummary.total} (P:${moderationSummary.pending}/L:${moderationSummary.live})`
                         : 0,
-                    services: serviceSummary?.pending ?? 0,
                     reports: reportPagination?.total ?? 0,
                     businesses: businessPagination?.total ?? 0,
                 });

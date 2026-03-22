@@ -24,7 +24,6 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 
@@ -63,101 +62,96 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
         <Dialog open={Boolean(business)} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl p-0 flex flex-col" hideClose>
                 {/* Header */}
-                <DialogHeader className="p-6 border-b border-slate-100 flex-row items-center justify-between bg-slate-50/50 space-y-0">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
-                            <Building2 size={28} />
+                <div className="flex items-start justify-between gap-4 p-5 border-b border-slate-100 bg-slate-50/50 shrink-0">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                            <Building2 size={22} />
                         </div>
-                        <div>
-                            <DialogTitle className="text-2xl flex items-center gap-3">
-                                {business.name}
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <DialogTitle className="text-xl font-bold text-slate-900 leading-tight">{business.name}</DialogTitle>
                                 {trustScore < 30 && (
-                                    <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase border border-red-200">
-                                        Low Trust
-                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase border border-red-200 shrink-0">Low Trust</span>
                                 )}
-                            </DialogTitle>
-                            <DialogDescription className="sr-only">Review business profile and verification documents</DialogDescription>
-                            <p className="text-slate-500 text-sm flex items-center gap-1">
-                                <span className="capitalize">{business.status === 'live' ? 'Approved' : business.status}</span> Request • Submitted on {format(new Date(business.createdAt), "PPP")}
-                            </p>
-                            <p className="text-slate-400 text-[11px] flex items-center gap-2 mt-1">
-                                <span>Modified: {format(new Date(business.updatedAt || business.createdAt), "PPP p")}</span>
-                                {business.isDeleted && (
-                                    <span className="flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
-                                        <XCircle size={10} /> DELETED
-                                    </span>
-                                )}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                        {/* Trust Score Mini-Widget */}
-                        <div className="text-right hidden sm:block">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Trust Score</div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                    <div 
-                                        className={`h-full transition-all duration-1000 ${trustScore > 70 ? 'bg-emerald-500' : trustScore > 40 ? 'bg-amber-500' : 'bg-red-500'}`}
-                                        style={{ width: `${trustScore}%` }}
-                                    />
-                                </div>
-                                <span className={`text-sm font-bold ${scoreColor}`}>{trustScore}</span>
+                                {/* Trust Score inline on mobile */}
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${scoreBg} ${scoreColor} shrink-0`}>
+                                    Trust: {trustScore}
+                                </span>
                             </div>
+                            <DialogDescription className="sr-only">Review business profile and verification documents</DialogDescription>
+                            <p className="text-slate-500 text-xs mt-0.5">
+                                <span className="capitalize font-medium">{business.status === 'live' ? 'Approved' : business.status}</span>
+                                {' • '}Submitted {format(new Date(business.createdAt), "PP")}
+                                {business.isDeleted && (
+                                    <span className="ml-2 inline-flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1.5 py-0.5 rounded border border-red-100 text-[10px]">
+                                        <XCircle size={9} /> DELETED
+                                    </span>
+                                )}
+                            </p>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600"
-                        >
-                            <X size={24} />
-                        </button>
                     </div>
-                </DialogHeader>
+                    {/* X button — clear top-right placement */}
+                    <button
+                        onClick={onClose}
+                        className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-slate-200 transition-colors text-slate-400 hover:text-slate-700 shrink-0 mt-0.5"
+                        aria-label="Close"
+                    >
+                        <X size={20} />
+                    </button>
+                </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8">
-                    {/* Basic Info Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Contact Details</div>
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-sm text-slate-700">
-                                    <Mail size={14} className="text-primary" /> {business.email}
+                <div className="flex-1 overflow-y-auto p-5 md:p-8 custom-scrollbar space-y-6">
+                    {/* Basic Info Grid — single row, each card full-width on mobile */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Contact</div>
+                            <div className="space-y-1.5">
+                                <div className="flex items-center gap-2 text-sm text-slate-700 min-w-0">
+                                    <Mail size={13} className="text-primary shrink-0" />
+                                    <span className="truncate text-xs">{business.email}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-sm text-slate-700">
-                                    <Phone size={14} className="text-primary" /> {business.mobile}
+                                    <Phone size={13} className="text-primary shrink-0" />
+                                    <span className="text-xs">{business.mobile}</span>
                                 </div>
                                 {business.website && (
-                                    <div className="flex items-center gap-2 text-sm text-slate-700">
-                                        <Globe size={14} className="text-primary" /> {business.website}
+                                    <div className="flex items-center gap-2 text-sm text-slate-700 min-w-0">
+                                        <Globe size={13} className="text-primary shrink-0" />
+                                        <span className="truncate text-xs">{business.website}</span>
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Identifiers</div>
-                            <div className="space-y-2">
-                                <div className="text-sm font-medium text-slate-700 flex justify-between">
-                                    <span>GST:</span>
-                                    <span className="font-mono text-xs bg-white px-2 py-0.5 rounded border border-slate-200">
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                    <span className="text-xs text-slate-600">GST</span>
+                                    <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
                                         {business.gstNumber || 'N/A'}
                                     </span>
                                 </div>
-                                <div className="text-sm font-medium text-slate-700 flex justify-between">
-                                    <span>Reg No:</span>
-                                    <span className="font-mono text-xs bg-white px-2 py-0.5 rounded border border-slate-200">
+                                <div className="flex items-center justify-between gap-2">
+                                    <span className="text-xs text-slate-600">Reg No</span>
+                                    <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
                                         {business.registrationNumber || 'N/A'}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Location</div>
-                            <div className="text-sm text-slate-700 flex gap-2">
-                                <MapPin size={14} className="text-primary shrink-0 mt-0.5" />
-                                <span>{locationDisplay}</span>
+                            <div className="flex gap-2">
+                                <MapPin size={13} className="text-primary shrink-0 mt-0.5" />
+                                <span className="text-xs text-slate-700 leading-snug">
+                                    {(business as any).locationLabel ||
+                                     (business.location as any)?.city ||
+                                     (business.location as any)?.display ||
+                                     (locationDisplay && !locationDisplay.includes('Lat') && !locationDisplay.includes('Lng') ? locationDisplay : 'Coordinates on file')}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -263,12 +257,12 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex flex-wrap justify-between gap-3">
+                <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex flex-wrap justify-between gap-2">
                     <div className="flex items-center gap-2">
                         {onModify && (
                             <button
                                 onClick={() => onModify(business)}
-                                className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold border border-slate-200 hover:bg-slate-200 transition-all text-sm flex items-center gap-2"
+                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-slate-100 text-slate-700 font-semibold border border-slate-200 hover:bg-slate-200 transition-colors text-sm"
                             >
                                 <Pencil size={15} /> Modify
                             </button>
@@ -276,23 +270,23 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         {onDelete && (
                             <button
                                 onClick={() => onDelete(business.id)}
-                                className="px-4 py-2 rounded-xl bg-red-50 text-red-600 font-semibold border border-red-100 hover:bg-red-100 transition-all text-sm flex items-center gap-2"
+                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-red-50 text-red-600 font-semibold border border-red-100 hover:bg-red-100 transition-colors text-sm"
                             >
                                 <Trash2 size={15} /> Delete
                             </button>
                         )}
                     </div>
-                    <div className="flex gap-3 flex-wrap">
+                    <div className="flex gap-2 flex-wrap">
                         <button
                             onClick={onClose}
-                            className="px-6 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-white transition-all text-sm"
+                            className="inline-flex h-10 items-center px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-white transition-colors text-sm"
                         >
                             Close
                         </button>
                         {business.status === "live" && onSuspend && (
                             <button
                                 onClick={() => onSuspend(business.id)}
-                                className="px-5 py-2 rounded-xl bg-orange-50 text-orange-600 font-semibold border border-orange-100 hover:bg-orange-100 transition-all text-sm flex items-center gap-2"
+                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-orange-50 text-orange-600 font-semibold border border-orange-100 hover:bg-orange-100 transition-colors text-sm"
                             >
                                 <Ban size={15} /> Suspend
                             </button>
@@ -300,7 +294,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         {business.status === "suspended" && onActivate && (
                             <button
                                 onClick={() => onActivate(business.id)}
-                                className="px-5 py-2 rounded-xl bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200 hover:bg-emerald-100 transition-all text-sm flex items-center gap-2"
+                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200 hover:bg-emerald-100 transition-colors text-sm"
                             >
                                 <RotateCcw size={15} /> Reactivate
                             </button>
@@ -309,15 +303,15 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             <>
                                 <button
                                     onClick={() => onReject(business.id)}
-                                    className="px-6 py-2 rounded-xl bg-red-50 text-red-600 font-semibold border border-red-100 hover:bg-red-100 transition-all text-sm flex items-center gap-2"
+                                    className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-red-50 text-red-600 font-semibold border border-red-100 hover:bg-red-100 transition-colors text-sm"
                                 >
-                                    <XCircle size={18} /> Reject Application
+                                    <XCircle size={16} /> Reject
                                 </button>
                                 <button
                                     onClick={() => onApprove(business.id)}
-                                    className="px-6 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-all text-sm flex items-center gap-2"
+                                    className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 shadow-md shadow-emerald-200 transition-colors text-sm"
                                 >
-                                    <CheckCircle2 size={18} /> Approve Business
+                                    <CheckCircle2 size={16} /> Approve
                                 </button>
                             </>
                         )}

@@ -8,6 +8,8 @@ import {
     Database,
     LayoutDashboard,
     Layers,
+    MapPin,
+    MessageSquare,
     Settings,
     ShieldCheck,
     ShieldAlert,
@@ -28,11 +30,13 @@ export type AdminModuleKey =
     | "businessMaster"
     | "reports"
     | "notifications"
+    | "chatModeration"
     | "analytics"
     | "administration"
     | "settings"
     | "masterData"
-    | "partsCatalog";
+    | "partsCatalog"
+    | "locations";
 
 export type AdminModuleItem = {
     key: AdminModuleKey;
@@ -52,36 +56,17 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         icon: LayoutDashboard,
         href: "/dashboard",
         roles: ["all"],
-        aliases: ["/code-health", "/plans", "/locations"],
+        aliases: [],
     },
     {
         key: "ads",
-        label: "Ads",
+        label: "Listings",
         icon: Tag,
-        href: "/ads?status=pending&listingType=ad",
+        href: "/ads?status=pending",
         roles: ["admin", "super_admin", "moderator"],
         section: "Inventory",
         counterKey: "ads",
-        aliases: ["/ads"],
-    },
-    {
-        key: "services",
-        label: "Services",
-        icon: List,
-        href: "/services?status=pending&listingType=service",
-        roles: ["admin", "super_admin", "moderator"],
-        section: "Inventory",
-        counterKey: "services",
-        aliases: ["/services"],
-    },
-    {
-        key: "parts",
-        label: "Spare Parts",
-        icon: Box,
-        href: "/spare-parts?status=pending&listingType=spare_part",
-        roles: ["admin", "super_admin", "moderator"],
-        section: "Inventory",
-        aliases: ["/spare-parts"],
+        aliases: ["/ads", "/services", "/spare-parts"],
     },
     {
         key: "businesses",
@@ -121,6 +106,15 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         aliases: ["/spare-parts-catalog"],
     },
     {
+        key: "locations",
+        label: "Locations",
+        icon: MapPin,
+        href: "/locations",
+        roles: ["admin", "super_admin"],
+        section: "Master Data",
+        aliases: ["/locations", "/locations/analytics", "/locations/geofences"],
+    },
+    {
         key: "users",
         label: "User Management",
         icon: Users,
@@ -130,22 +124,49 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         aliases: ["/users"],
     },
     {
+        key: "notifications",
+        label: "Notifications",
+        icon: Bell,
+        href: "/notifications",
+        roles: ["admin", "super_admin"],
+        section: "Management",
+        aliases: ["/notifications"],
+    },
+    {
+        key: "chatModeration",
+        label: "Chat Moderation",
+        icon: MessageSquare,
+        href: "/chat",
+        roles: ["admin", "super_admin"],
+        section: "Management",
+        aliases: ["/chat"],
+    },
+    {
         key: "analytics",
-        label: "Financial Analytics",
+        label: "Plans & Invoices",
         icon: BarChart3,
         section: "Management",
-        href: "/finance",
+        href: "/plans",
         roles: ["admin", "super_admin"],
-        aliases: ["/finance"],
+        aliases: ["/finance", "/plans", "/invoices", "/revenue"],
     },
     {
         key: "administration",
         label: "System Administration",
-        icon: Settings,
+        icon: ShieldCheck,
         href: "/admin-users",
         roles: ["super_admin"],
         section: "System",
-        aliases: ["/admin-users", "/admin-sessions", "/audit-logs", "/api-keys", "/settings"],
+        aliases: ["/admin-users", "/admin-sessions", "/audit-logs", "/api-keys"],
+    },
+    {
+        key: "settings",
+        label: "Settings",
+        icon: Settings,
+        href: "/settings",
+        roles: ["super_admin"],
+        section: "System",
+        aliases: ["/settings"],
     },
 ];
 

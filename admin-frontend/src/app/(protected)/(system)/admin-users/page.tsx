@@ -13,7 +13,7 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 
 type AdminRole = "super_admin" | "admin" | "moderator";
-type AdminStatus = "active" | "inactive" | "suspended" | "banned";
+type AdminStatus = "live" | "inactive" | "suspended" | "banned";
 
 type ManagedAdmin = {
     id: string;
@@ -43,8 +43,19 @@ const DEFAULT_CREATE_FORM: AdminFormState = {
     email: "",
     password: "",
     role: "moderator",
-    status: "active",
+    status: "live",
     permissionsText: "",
+};
+
+const ROLE_COLORS: Record<string, string> = {
+    super_admin: "bg-purple-100 text-purple-700",
+    admin: "bg-blue-100 text-blue-700",
+    moderator: "bg-amber-100 text-amber-700",
+    user_manager: "bg-teal-100 text-teal-700",
+    finance_manager: "bg-green-100 text-green-700",
+    content_moderator: "bg-orange-100 text-orange-700",
+    editor: "bg-sky-100 text-sky-700",
+    viewer: "bg-slate-100 text-slate-600",
 };
 
 const DEFAULT_EDIT_FORM: Omit<AdminFormState, "password"> = {
@@ -52,7 +63,7 @@ const DEFAULT_EDIT_FORM: Omit<AdminFormState, "password"> = {
     lastName: "",
     email: "",
     role: "moderator",
-    status: "active",
+    status: "live",
     permissionsText: "",
 };
 
@@ -144,7 +155,7 @@ export default function AdminUsersPage() {
             lastName: admin.lastName,
             email: admin.email,
             role: (["super_admin", "admin", "moderator"].includes(admin.role) ? admin.role : "moderator") as AdminRole,
-            status: (["active", "inactive", "suspended", "banned"].includes(admin.status) ? admin.status : "active") as AdminStatus,
+            status: (["live", "inactive", "suspended", "banned"].includes(admin.status) ? admin.status : "live") as AdminStatus,
             permissionsText: admin.permissions.join(", "),
         });
     };
@@ -213,6 +224,83 @@ export default function AdminUsersPage() {
         }
     };
 
+    const permissionsColumns: ColumnDef<ManagedAdmin>[] = useMemo(
+        () => [
+            {
+                header: "Admin",
+                cell: (admin) => (
+                    <div>
+                        <div className="font-semibold text-slate-900">{`${admin.firstName} ${admin.lastName}`.trim() || admin.email}</div>
+                        <div className="text-xs text-slate-500">{admin.email}</div>
+                    </div>
+                ),
+            },
+            {
+                header: "Role",
+                cell: (admin) => (
+                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${ROLE_COLORS[admin.role] ?? "bg-slate-100 text-slate-600"}`}>
+                        {admin.role.replace(/_/g, " ")}
+                    </span>
+                ),
+            },
+            {
+                header: "Permissions",
+                cell: (admin) => {
+                    const isEditing = editingAdminId === admin.id;
+                    if (isEditing) {
+                        return (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    className="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                    value={editForm.permissionsText}
+                                    placeholder="users:read, ads:write, ..."
+                                    onChange={(e) => setEditForm((prev) => ({ ...prev, permissionsText: e.target.value }))}
+                                />
+                                <button
+                                    className="inline-flex items-center gap-1 rounded-md bg-slate-900 px-2 py-1 text-xs font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+                                    disabled={isSaving}
+                                    onClick={() => void onSaveEdit()}
+                                >
+                                    <Save size={12} /> Save
+                                </button>
+                                <button
+                                    className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50"
+                                    onClick={onCancelEdit}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        );
+                    }
+                    return (
+                        <div className="flex flex-wrap gap-1 max-w-[380px]">
+                            {admin.permissions.length > 0
+                                ? admin.permissions.map((p) => (
+                                    <span key={p} className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-700">{p}</span>
+                                ))
+                                : <span className="text-xs italic text-slate-400">No explicit permissions</span>
+                            }
+                        </div>
+                    );
+                },
+            },
+            {
+                header: "Actions",
+                cell: (admin) => (
+                    editingAdminId === admin.id ? null : (
+                        <button
+                            className="rounded-md border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                            onClick={() => onStartEdit(admin)}
+                        >
+                            Edit Permissions
+                        </button>
+                    )
+                ),
+            },
+        ],
+        [editingAdminId, editForm.permissionsText, isSaving]
+    );
+
     const columns: ColumnDef<ManagedAdmin>[] = useMemo(
         () => [
             {
@@ -230,7 +318,20 @@ export default function AdminUsersPage() {
             },
             {
                 header: "Status",
-                cell: (admin) => <span className="text-xs font-semibold uppercase tracking-wide text-slate-700">{admin.status}</span>,
+                cell: (admin) => {
+                    const STATUS_COLORS: Record<string, string> = {
+                        live: "bg-emerald-100 text-emerald-700",
+                        inactive: "bg-slate-100 text-slate-500",
+                        suspended: "bg-amber-100 text-amber-700",
+                        banned: "bg-red-100 text-red-700",
+                    };
+                    const color = STATUS_COLORS[admin.status] ?? "bg-slate-100 text-slate-500";
+                    return (
+                        <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${color}`}>
+                            {admin.status}
+                        </span>
+                    );
+                },
             },
             {
                 header: "Permissions",
@@ -284,6 +385,10 @@ export default function AdminUsersPage() {
             tabs={<AdminModuleTabs tabs={administrationTabs} />}
         >
         <div className="space-y-6">
+
+          {isPermissionsView ? (
+            <DataTable data={admins} columns={permissionsColumns} isLoading={loading} emptyMessage="No admin users found." />
+          ) : (<>
 
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
@@ -378,7 +483,7 @@ export default function AdminUsersPage() {
                             value={editForm.status}
                             onChange={(event) => setEditForm((prev) => ({ ...prev, status: event.target.value as AdminStatus }))}
                         >
-                            <option value="active">active</option>
+                            <option value="live">live</option>
                             <option value="inactive">inactive</option>
                             <option value="suspended">suspended</option>
                             <option value="banned">banned</option>
@@ -409,6 +514,7 @@ export default function AdminUsersPage() {
             )}
 
             <DataTable data={admins} columns={columns} isLoading={loading} emptyMessage="No admin users found." />
+          </>)}
         </div>
         </AdminPageShell>
     );

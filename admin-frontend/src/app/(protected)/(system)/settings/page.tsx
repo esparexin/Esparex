@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
   Bell,
   CheckCircle2,
+  ChevronLeft,
   Cpu,
   CreditCard,
   RefreshCcw,
@@ -19,6 +20,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 
+import Link from "next/link";
 import { getSystemConfig, updateSystemConfig } from "@/lib/api/systemConfig";
 import type { SystemConfig, SystemConfigPatch } from "@/types/systemConfig";
 import { PlatformSettings } from "./components/PlatformSettings";
@@ -34,7 +36,7 @@ import { SearchSettings } from "./components/SearchSettings";
 import { FeatureFlags } from "./components/FeatureFlags";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { settingsTabs } from "@/components/layout/adminModuleTabSets";
+import { platformConfigTabs } from "@/components/layout/adminModuleTabSets";
 
 type SettingsTab =
   | "platform"
@@ -65,6 +67,7 @@ const SETTINGS_TABS: Array<{ key: SettingsTab; label: string; icon: typeof Setti
 
 export default function SettingsPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<SettingsTab>("platform");
   const [config, setConfig] = useState<SystemConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -146,16 +149,24 @@ export default function SettingsPage() {
     <AdminPageShell
       title="Admin Settings"
       description="Centralized platform configuration (single SystemConfig document)."
-      tabs={<AdminModuleTabs tabs={settingsTabs} />}
+      tabs={<AdminModuleTabs tabs={platformConfigTabs} />}
       actions={
-        <button
-          type="button"
-          onClick={() => void loadConfig()}
-          disabled={loading}
-          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <RefreshCcw size={14} /> Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin-users"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          >
+            <ChevronLeft size={14} /> Administration
+          </Link>
+          <button
+            type="button"
+            onClick={() => void loadConfig()}
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <RefreshCcw size={14} /> Refresh
+          </button>
+        </div>
       }
     >
     <div className="space-y-6">
@@ -186,7 +197,7 @@ export default function SettingsPage() {
                   <button
                     key={tab.key}
                     type="button"
-                    onClick={() => setActiveTab(tab.key)}
+                    onClick={() => { setActiveTab(tab.key); router.replace(`/settings?tab=${tab.key}`); }}
                     className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
                       isActive ? "bg-primary text-white" : "text-slate-700 hover:bg-slate-100"
                     }`}

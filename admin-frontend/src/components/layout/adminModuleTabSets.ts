@@ -11,11 +11,23 @@ export const administrationTabs: AdminTabItem[] = [
 ];
 
 
-export const settingsTabs: AdminTabItem[] = [
+export const platformConfigTabs: AdminTabItem[] = [
     { label: "Settings", href: "/settings?tab=platform" },
+];
+
+// Location management pages: /locations, /locations/analytics, /locations/geofences
+export const locationsTabs: AdminTabItem[] = [
     { label: "Locations", href: "/locations" },
+    { label: "Geo Analytics", href: "/locations/analytics" },
+    { label: "Geofences", href: "/locations/geofences" },
+];
+
+// Finance pages: /plans, /invoices, /finance, /revenue
+export const financeTabs: AdminTabItem[] = [
     { label: "Plans", href: "/plans" },
-    { label: "Code Health", href: "/code-health" },
+    { label: "Invoices", href: "/invoices" },
+    { label: "Revenue", href: "/finance" },
+    { label: "Revenue Stats", href: "/revenue" },
 ];
 
 export const catalogManagementTabs: AdminTabItem[] = [
@@ -32,9 +44,9 @@ export const sparePartsMasterTabs: AdminTabItem[] = [
 ];
 
 export const moderationTabs: AdminTabItem[] = [
-    { label: "Ads", href: "/ads?status=pending" },
-    { label: "Services", href: "/services?status=pending" },
-    { label: "Listing Parts", href: "/spare-parts?status=pending" },
+    { label: "Ads", href: "/ads?status=pending", matchPathOnly: true },
+    { label: "Services", href: "/services?status=pending", matchPathOnly: true },
+    { label: "Spare Parts", href: "/spare-parts?status=pending", matchPathOnly: true },
 ];
 
 export const serviceLifecycleTabs: AdminTabItem[] = [
@@ -73,5 +85,4 @@ export const adModerationTabs: AdminTabItem[] = [
 
 export const notificationsTabs: AdminTabItem[] = [
     { label: "Broadcast", href: "/notifications" },
-    { label: "Messages", href: "/messages" },
 ];

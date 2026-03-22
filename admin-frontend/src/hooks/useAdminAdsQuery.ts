@@ -80,7 +80,7 @@ export function useAdminAdsQuery(input: {
                 setState((prev) => ({
                     ...prev,
                     isLoading: false,
-                    error: err instanceof Error ? err.message : "Failed to fetch ads"
+                    error: err instanceof Error ? err.message : "Failed to fetch listings"
                 }));
             }
         };

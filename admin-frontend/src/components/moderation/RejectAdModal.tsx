@@ -22,6 +22,7 @@ const REJECTION_REASONS = [
 type RejectAdModalProps = {
     open: boolean;
     title?: string;
+    entityLabel?: string;
     affectedCount: number;
     isSubmitting?: boolean;
     onClose: () => void;
@@ -31,6 +32,7 @@ type RejectAdModalProps = {
 export function RejectAdModal({
     open,
     title,
+    entityLabel = "listing",
     affectedCount,
     isSubmitting,
     onClose,
@@ -49,9 +51,9 @@ export function RejectAdModal({
         <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
             <DialogContent className="w-[calc(100%-2rem)] max-w-lg p-0">
                 <DialogHeader className="border-b border-slate-100 px-6 py-4">
-                    <DialogTitle>Reject Ad</DialogTitle>
+                    <DialogTitle>{`Reject ${entityLabel.charAt(0).toUpperCase()}${entityLabel.slice(1)}`}</DialogTitle>
                     <DialogDescription className="text-xs text-slate-500">
-                        {title ? `Ad: ${title}` : `${affectedCount} selected ad(s)`}
+                        {title ? `${entityLabel}: ${title}` : `${affectedCount} selected ${entityLabel}(s)`}
                     </DialogDescription>
                 </DialogHeader>
 

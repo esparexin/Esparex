@@ -19,27 +19,28 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={() => onOpenChange(false)}
     >
-      <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={() => onOpenChange(false)}
-      />
-      <div className="relative z-50 w-full">{children}</div>
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+      {children}
     </div>
   );
 }
 
 export function DialogContent({ children, className = "", hideClose: _hideClose }: { children: React.ReactNode; className?: string; hideClose?: boolean }) {
   return (
-    <div className={`relative mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-xl ${className}`}>
+    <div
+      className={`relative z-50 mx-auto w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl ${className}`}
+      onClick={(e) => e.stopPropagation()}
+    >
       {children}
     </div>
   );
 }
 
 export function DialogHeader({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`mb-4 space-y-1 ${className}`}>{children}</div>;
+  return <div className={`mb-4 ${className}`}>{children}</div>;
 }
 
 export function DialogTitle({ children, className = "" }: { children: React.ReactNode; className?: string }) {

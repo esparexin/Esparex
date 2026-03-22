@@ -94,6 +94,10 @@ export async function fetchAdminModerationSummary(listingType?: string): Promise
     };
 }
 
+export async function fetchAdminAdSummary(): Promise<ModerationSummary> {
+    return fetchAdminModerationSummary('ad');
+}
+
 export async function fetchAdminServiceSummary(): Promise<ModerationSummary> {
     return fetchAdminModerationSummary('service');
 }

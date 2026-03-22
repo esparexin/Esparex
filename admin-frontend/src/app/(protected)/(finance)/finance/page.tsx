@@ -21,6 +21,7 @@ import {
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { financeTabs } from "@/components/layout/adminModuleTabSets";
 
 export default function FinancePage() {
     const searchParams = useSearchParams();
@@ -140,12 +141,7 @@ export default function FinancePage() {
             description="Monitor revenue, sales, and transaction audits"
             tabs={
                 <AdminModuleTabs
-                    tabs={[
-                        { label: "Revenue", href: "/finance" },
-                        { label: "Invoices", href: "/invoices" },
-                        { label: "Plans", href: "/plans" },
-                        { label: "Revenue Stats", href: "/revenue" },
-                    ]}
+                    tabs={financeTabs}
                 />
             }
             actions={

@@ -24,6 +24,7 @@ import { catalogManagementTabs } from "@/components/layout/adminModuleTabSets";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { adminCategorySchema } from "@/schemas/admin.schemas";
 import { z } from "zod";
+import { FORM_PLACEMENT_VALUES, type FormPlacement } from "@shared/enums/listingType";
 
 const getIcon = (listingType: string[] = []) => {
     if (listingType.includes('postad')) return <Smartphone size={20} />;
@@ -50,14 +51,13 @@ export default function CategoriesPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [validationError, setValidationError] = useState<string | null>(null);
-    const LISTING_TYPES = ['postad', 'postservice', 'postsparepart'] as const;
-    type ListingTypeValue = 'postad' | 'postservice' | 'postsparepart';
+    const LISTING_TYPES = FORM_PLACEMENT_VALUES;
 
     const [formData, setFormData] = useState({
         name: "",
         isActive: true,
         hasScreenSizes: false,
-        listingType: [] as ListingTypeValue[]
+        listingType: [] as FormPlacement[]
     });
 
 
@@ -81,7 +81,7 @@ export default function CategoriesPage() {
             isActive: cat.isActive,
             hasScreenSizes: cat.hasScreenSizes || false,
             listingType: Array.isArray(cat.listingType)
-                ? cat.listingType.filter((lt): lt is ListingTypeValue => LISTING_TYPES.includes(lt as ListingTypeValue))
+                ? cat.listingType.filter((lt): lt is FormPlacement => LISTING_TYPES.includes(lt as FormPlacement))
                 : []
         });
         setIsModalOpen(true);
@@ -298,11 +298,11 @@ export default function CategoriesPage() {
                                             <input
                                                 type="checkbox"
                                                 className="w-4 h-4 text-primary rounded border-slate-300 focus:ring-primary/20"
-                                                checked={formData.listingType.includes(type.id as ListingTypeValue)}
+                                                checked={formData.listingType.includes(type.id as FormPlacement)}
                                                 onChange={(e) => {
                                                     const current = new Set(formData.listingType);
-                                                    if (e.target.checked) current.add(type.id as ListingTypeValue);
-                                                    else current.delete(type.id as ListingTypeValue);
+                                                    if (e.target.checked) current.add(type.id as FormPlacement);
+                                                    else current.delete(type.id as FormPlacement);
                                                     setFormData(prev => ({ ...prev, listingType: Array.from(current) }));
                                                 }}
                                             />

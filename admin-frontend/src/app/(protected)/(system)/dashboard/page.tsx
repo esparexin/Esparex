@@ -9,7 +9,7 @@ import { TrendsChart } from "@/components/dashboard/TrendsChart";
 import { Users, CheckCircle, Clock, TrendingUp, AlertCircle, Building2, DollarSign } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { fetchAdminModerationSummary } from "@/lib/api/moderation";
+import { fetchAdminAdSummary } from "@/lib/api/moderation";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import type { FinanceStats } from "@/types/transaction";
 
@@ -39,7 +39,7 @@ export default function DashboardPage() {
     const load = async () => {
       try {
         const [moderationSummary, trendsResult, userOverview, reportPayload, businessPayload, financePayload] = await Promise.all([
-          fetchAdminModerationSummary(),
+          fetchAdminAdSummary(),
           adminFetch<any>(ADMIN_ROUTES.ANALYTICS),
           adminFetch<any>(ADMIN_ROUTES.USER_OVERVIEW),
           adminFetch<any>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`),

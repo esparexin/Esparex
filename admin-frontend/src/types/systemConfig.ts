@@ -13,23 +13,42 @@ export type SystemConfig = {
       autoFlag?: boolean;
       autoBlock?: boolean;
       confidenceThreshold?: number;
+      reportAutoHideThreshold?: number;
       thresholds?: Partial<ModerationThresholds>;
+    };
+    seo?: {
+      enableTitleSEO?: boolean;
+      enableDescriptionSEO?: boolean;
+      titleProvider?: "openai" | "local" | "custom";
+      descriptionProvider?: "openai" | "local" | "custom";
+      openaiApiKey?: string;
+      customApiEndpoint?: string;
+      model?: string;
+      temperature?: number;
+      maxTokens?: number;
     };
   };
   platform?: {
     maintenance?: {
       enabled?: boolean;
       message?: string;
+      allowedIps?: string[];
+      scheduledEnd?: string;
+      bypassToken?: string;
     };
     branding?: {
       platformName?: string;
+      tagline?: string;
       primaryColor?: string;
       secondaryColor?: string;
+      logoUrl?: string;
+      faviconUrl?: string;
     };
   };
   security?: {
     twoFactor?: {
       enabled?: boolean;
+      issuer?: string;
     };
     sessionTimeoutMinutes?: number;
     maxLoginAttempts?: number;
@@ -41,6 +60,11 @@ export type SystemConfig = {
       provider?: "smtp" | "sendgrid" | "aws-ses";
       senderName?: string;
       senderEmail?: string;
+      host?: string;
+      port?: number;
+      username?: string;
+      password?: string;
+      encryption?: "none" | "ssl" | "tls";
     };
     push?: {
       enabled?: boolean;
@@ -48,24 +72,57 @@ export type SystemConfig = {
     };
   };
   location?: {
-    enableNearbySearch?: boolean;
+    radiusKm?: number;
+    enableGeolocation?: boolean;
+    defaultCenter?: { type: "Point"; coordinates: [number, number] };
+    mapProvider?: "google" | "mapbox" | "openstreetmap";
+    mapboxAccessToken?: string;
+    distanceUnit?: "km" | "miles";
     defaultSearchRadius?: number;
     maxSearchRadius?: number;
+    geocodingProvider?: "google" | "mapbox" | "nominatim";
+    enableReverseGeocoding?: boolean;
     enableAutoComplete?: boolean;
     autoCompleteMinChars?: number;
-    distanceUnit?: "km" | "miles";
+    requireLocationVerification?: boolean;
+    autoApproveHighConfidence?: boolean;
+    confidenceThreshold?: number;
+    showExactCoordinates?: boolean;
+    blurLocationRadius?: number;
+    allowGpsTracking?: boolean;
+    enableGeofencing?: boolean;
+    enableLocationHistory?: boolean;
+    enableNearbySearch?: boolean;
+    showDistanceInListings?: boolean;
   };
   integrations?: {
+    googleMaps?: {
+      apiKey?: string;
+      enabled?: boolean;
+    };
+    sms?: {
+      provider?: string;
+      apiKey?: string;
+      apiSecret?: string;
+      senderId?: string;
+      rateLimit?: number;
+    };
     payment?: {
       razorpay?: {
         enabled?: boolean;
+        keyId?: string;
+        keySecret?: string;
       };
       stripe?: {
         enabled?: boolean;
+        publishableKey?: string;
+        secretKey?: string;
       };
     };
   };
   featureFlags?: Record<string, boolean>;
+  emailTemplates?: unknown[];
+  notificationTemplates?: unknown[];
 };
 
 export type SystemConfigPatch = Partial<{
@@ -75,7 +132,7 @@ export type SystemConfigPatch = Partial<{
   platform: NonNullable<SystemConfig["platform"]>;
   featureFlags: NonNullable<SystemConfig["featureFlags"]>;
   integrations: NonNullable<SystemConfig["integrations"]>;
+  location: NonNullable<SystemConfig["location"]>;
   emailTemplates: unknown[];
   notificationTemplates: unknown[];
-  location: NonNullable<SystemConfig["location"]>;
 }>;

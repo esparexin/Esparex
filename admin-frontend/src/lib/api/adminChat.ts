@@ -40,28 +40,35 @@ export async function fetchAdminChats(params: {
   if (params.page !== undefined) qs.set('page', String(params.page));
   if (params.limit !== undefined) qs.set('limit', String(params.limit));
   if (params.search) qs.set('search', params.search);
-  const res = await adminFetch<AdminChatListResponse>(`/chat/admin/list?${qs.toString()}`);
+  const res = await adminFetch<AdminChatListResponse>(`/chat/list?${qs.toString()}`);
   return res as unknown as AdminChatListResponse;
 }
 
 export async function fetchAdminChatDetail(id: string): Promise<unknown> {
-  return adminFetch(`/chat/admin/${id}`);
+  return adminFetch(`/chat/${id}`);
 }
 
 export async function adminDeleteChatMessage(msgId: string, reason?: string): Promise<void> {
-  await adminFetch(`/chat/admin/message/${msgId}`, {
+  await adminFetch(`/chat/message/${msgId}`, {
     method: 'DELETE',
     body: { reason },
   });
 }
 
 export async function adminMuteChat(id: string, reason?: string): Promise<void> {
-  await adminFetch(`/chat/admin/mute/${id}`, {
+  await adminFetch(`/chat/mute/${id}`, {
     method: 'POST',
     body: { reason },
   });
 }
 
 export async function adminExportChat(id: string): Promise<unknown> {
-  return adminFetch(`/chat/admin/export/${id}`, { method: 'POST' });
+  return adminFetch(`/chat/export/${id}`, { method: 'POST' });
+}
+
+export async function adminResolveReport(reportId: string, status: 'resolved' | 'dismissed', adminAction?: string): Promise<void> {
+  await adminFetch(`/chat/report/${reportId}`, {
+    method: 'PATCH',
+    body: { status, adminAction },
+  });
 }

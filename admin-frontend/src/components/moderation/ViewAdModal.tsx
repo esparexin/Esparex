@@ -5,17 +5,19 @@ import Link from "next/link";
 import type { ModerationItem } from "./moderationTypes";
 import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "./moderationStatus";
 import { resolveLocationDisplay } from "@/lib/location/display";
+import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
+import type { ListingTypeValue } from "@shared/enums/listingType";
 import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 
 type ViewAdModalProps = {
     open: boolean;
     ad: ModerationItem | null;
+    listingType?: ListingTypeValue;
     loading?: boolean;
     error?: string;
     onClose: () => void;
@@ -31,6 +33,7 @@ const IMAGE_FALLBACK = "https://placehold.co/800x600/png?text=No+Image";
 export function ViewAdModal({
     open,
     ad,
+    listingType,
     loading,
     error,
     onClose,
@@ -48,34 +51,37 @@ export function ViewAdModal({
             emptyText: "Location not provided",
         })
         : "Location not provided";
+    const effectiveListingType = listingType || ad?.listingType;
+    const presentation = getListingPresentation(effectiveListingType);
+    const attribute = ad ? getListingAttribute(ad, effectiveListingType) : null;
 
     return (
         <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
             <DialogContent
-                className="flex w-full md:w-[90vw] lg:w-[900px] h-[100vh] md:h-auto md:max-h-[90vh] lg:max-h-[85vh] flex-col bg-white overflow-y-auto rounded-none md:rounded-2xl border-none p-0"
+                className="max-w-4xl w-full flex max-h-[92dvh] flex-col bg-white overflow-hidden rounded-2xl border-none p-0"
                 hideClose
             >
-                <DialogHeader className="border-b border-slate-100 px-6 py-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Moderation Drawer</p>
-                    <div className="flex items-center justify-between">
-                        <DialogTitle>Ad Details</DialogTitle>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"
-                            aria-label="Close moderation drawer"
-                        >
-                            <X size={18} />
-                        </button>
+                <div className="flex items-center justify-between shrink-0 border-b border-slate-100 px-6 py-4">
+                    <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Moderation</p>
+                        <DialogTitle className="text-lg font-bold text-slate-900 mt-0.5">{presentation.modalTitle}</DialogTitle>
                     </div>
-                    <DialogDescription className="sr-only">Inspect and moderate ad details</DialogDescription>
-                </DialogHeader>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="h-9 w-9 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors shrink-0"
+                        aria-label="Close"
+                    >
+                        <X size={20} />
+                    </button>
+                    <DialogDescription className="sr-only">{presentation.modalDescription}</DialogDescription>
+                </div>
 
-                <div className="flex-1 overflow-y-auto px-6 py-5 relative">
+                <div className="flex-1 overflow-y-auto px-6 py-5 relative min-h-0">
                     {loading && !ad && (
                         <div className="flex flex-col items-center justify-center py-12 text-slate-400">
                             <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-sky-600" />
-                            <p className="text-sm">Fetching ad details...</p>
+                            <p className="text-sm">Fetching listing details...</p>
                         </div>
                     )}
                     {error && <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
@@ -113,7 +119,7 @@ export function ViewAdModal({
                                     {(() => {
                                         const badgeClass = MODERATION_STATUS_BADGES[ad.status];
                                         if (!badgeClass) {
-                                            console.warn(`[Moderation] Unknown ad status encountered: ${ad.status} for ad ${ad.id}`);
+                                            console.warn(`[Moderation] Unknown listing status encountered: ${ad.status} for listing ${ad.id}`);
                                         }
                                         return (
                                             <span
@@ -124,7 +130,7 @@ export function ViewAdModal({
                                         );
                                     })()}
                                     <div className="text-2xl font-bold text-slate-900">
-                                        {ad.currency} {ad.price.toLocaleString()}
+                                        {getListingPriceSummary(ad)}
                                     </div>
                                     <div className="text-sm text-slate-600">{new Date(ad.createdAt).toLocaleString()}</div>
                                     <div className="text-[11px] text-slate-400 mt-1">
@@ -162,8 +168,19 @@ export function ViewAdModal({
                                             <span className="font-semibold">Model:</span> {ad.modelName || "-"}
                                         </div>
                                         <div>
-                                            <span className="font-semibold">Condition:</span> {ad.devicePowerOn === false ? "Power Off" : "Working"}
+                                            <span className="font-semibold">{attribute?.label || presentation.attributeHeader}:</span>{" "}
+                                            {attribute?.value || "Not specified"}
                                         </div>
+                                        {effectiveListingType === "service" && (
+                                            <div>
+                                                <span className="font-semibold">Turnaround:</span> {ad.turnaroundTime || "-"}
+                                            </div>
+                                        )}
+                                        {effectiveListingType === "spare_part" && (
+                                            <div>
+                                                <span className="font-semibold">Stock:</span> {typeof ad.stock === "number" ? ad.stock : "-"}
+                                            </div>
+                                        )}
                                         <div>
                                             <span className="font-semibold">Risk score:</span> {ad.riskScore ?? "Not scored"}
                                         </div>
@@ -173,9 +190,14 @@ export function ViewAdModal({
 
                             <div className="grid grid-cols-1 gap-4 rounded-lg border border-slate-200 p-4 sm:grid-cols-2">
                                 <div className="min-w-0 space-y-2">
-                                    <h3 className="text-sm font-semibold text-slate-900">Ad Information</h3>
+                                    <h3 className="text-sm font-semibold text-slate-900">{presentation.informationHeader}</h3>
                                     <div className="truncate text-lg font-semibold text-slate-900" title={ad.title}>{ad.title}</div>
                                     <p className="text-sm text-slate-700 whitespace-pre-wrap">{ad.description || "No description"}</p>
+                                    {effectiveListingType === "service" && typeof ad.diagnosticFee === "number" && (
+                                        <div className="text-sm text-slate-600">
+                                            <span className="font-semibold">Diagnostic Fee:</span> {ad.currency} {ad.diagnosticFee.toLocaleString()}
+                                        </div>
+                                    )}
                                     <div className="flex items-start gap-2 text-sm text-slate-600">
                                         <MapPin size={15} className="mt-0.5" />
                                         <span>{locationDisplay}</span>
@@ -204,22 +226,22 @@ export function ViewAdModal({
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4 [&>button]:min-w-0 [&>button]:shrink-0">
+                            <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
                                 {ad.status === "pending" && (
                                     <>
                                         <button
                                             type="button"
                                             onClick={() => void onApprove(ad.id)}
-                                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
                                         >
-                                            <Check size={14} /> Approve
+                                            <Check size={15} /> Approve
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => onReject(ad.id)}
-                                            className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
                                         >
-                                            <X size={14} /> Reject
+                                            <X size={15} /> Reject
                                         </button>
                                     </>
                                 )}
@@ -228,15 +250,15 @@ export function ViewAdModal({
                                         <button
                                             type="button"
                                             onClick={() => void onDeactivate(ad.id)}
-                                            className="inline-flex items-center gap-1.5 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-orange-600 px-4 text-sm font-semibold text-white hover:bg-orange-700 transition-colors"
                                         >
-                                            <Pause size={14} /> Deactivate
+                                            <Pause size={15} /> Deactivate
                                         </button>
                                         {ad.sellerId && (
                                             <button
                                                 type="button"
                                                 onClick={() => void onBlockSeller(ad.sellerId!)}
-                                                className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
+                                                className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-semibold text-rose-700 hover:bg-rose-100 transition-colors"
                                             >
                                                 Block Seller
                                             </button>
@@ -247,9 +269,9 @@ export function ViewAdModal({
                                     <button
                                         type="button"
                                         onClick={() => void onActivate(ad.id)}
-                                        className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
+                                        className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors"
                                     >
-                                        <Play size={14} /> Activate
+                                        <Play size={15} /> Activate
                                     </button>
                                 )}
                             </div>

@@ -54,11 +54,8 @@ export function useAdminLocations() {
 
     const fetchStates = useCallback(async () => {
         try {
-            const response = await getDistinctStates();
-            if (response.success) {
-                const parsed = parseAdminResponse<string>(response);
-                setStates(parsed.items);
-            }
+            const states = await getDistinctStates();
+            setStates(states);
         } catch (err) {
             console.error("Failed to fetch states", err);
         }

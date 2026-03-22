@@ -15,11 +15,13 @@ import {
     XCircle,
     Package,
     Users,
-    Activity
+    Activity,
+    Pencil,
 } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { settingsTabs } from "@/components/layout/adminModuleTabSets";
+import { financeTabs } from "@/components/layout/adminModuleTabSets";
+import { PlanFormModal } from "@/components/plans/PlanFormModal";
 
 export default function PlansPage() {
     const [plans, setPlans] = useState<Plan[]>([]);
@@ -27,6 +29,8 @@ export default function PlansPage() {
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
     const [typeFilter, setTypeFilter] = useState("all");
+    const [showModal, setShowModal] = useState(false);
+    const [editPlan, setEditPlan] = useState<Plan | null>(null);
 
     const fetchPlans = async () => {
         setLoading(true);
@@ -141,6 +145,12 @@ export default function PlansPage() {
             cell: (plan) => (
                 <div className="flex items-center gap-2">
                     <button
+                        onClick={() => { setEditPlan(plan); setShowModal(true); }}
+                        className="p-1.5 rounded text-slate-500 hover:bg-slate-100 transition-colors flex items-center gap-1 text-xs font-medium"
+                    >
+                        <Pencil size={13} /> Edit
+                    </button>
+                    <button
                         onClick={() => handleToggleStatus(plan.id)}
                         className={`p-1.5 rounded transition-colors flex items-center gap-1 text-xs font-medium ${plan.active
                                 ? "text-red-600 hover:bg-red-50"
@@ -149,7 +159,6 @@ export default function PlansPage() {
                     >
                         {plan.active ? <><XCircle size={14} /> Disable</> : <><CheckCircle2 size={14} /> Enable</>}
                     </button>
-                    {/* Placeholder for future edit functionality */}
                 </div>
             )
         }
@@ -159,58 +168,67 @@ export default function PlansPage() {
         <AdminPageShell
             title="Plans & Packages"
             description="Manage subscription plans, ad packs, and spotlight credits."
-            tabs={<AdminModuleTabs tabs={settingsTabs} />}
+            tabs={<AdminModuleTabs tabs={financeTabs} />}
             actions={
-                <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+                <button
+                    onClick={() => { setEditPlan(null); setShowModal(true); }}
+                    className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+                >
                     <CreditCard size={18} /> New Plan
                 </button>
             }
             className="h-full overflow-y-auto pr-1"
         >
-        <div className="space-y-6">
+            <div className="space-y-6">
+                <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="relative flex-1 w-full text-black">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search plans by name or code..."
+                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex items-center gap-2 w-full md:w-auto text-black">
+                        <Filter className="text-slate-400" size={18} />
+                        <select
+                            className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black"
+                            value={typeFilter}
+                            onChange={(e) => setTypeFilter(e.target.value)}
+                        >
+                            <option value="all">Every Type</option>
+                            <option value="AD_PACK">Ad Packs</option>
+                            <option value="SPOTLIGHT">Spotlight</option>
+                            <option value="SMART_ALERT">Smart Alerts</option>
+                        </select>
+                    </div>
+                </div>
 
-            <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <div className="relative flex-1 w-full text-black">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search plans by name or code..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
-                <div className="flex items-center gap-2 w-full md:w-auto text-black">
-                    <Filter className="text-slate-400" size={18} />
-                    <select
-                        className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black"
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                    >
-                        <option value="all">Every Type</option>
-                        <option value="AD_PACK">Ad Packs</option>
-                        <option value="SPOTLIGHT">Spotlight</option>
-                        <option value="SMART_ALERT">Smart Alerts</option>
-                    </select>
-                </div>
+                {error && (
+                    <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2 italic text-black">
+                        <AlertCircle size={18} /> {error}
+                    </div>
+                )}
+
+                <DataTable
+                    data={plans}
+                    columns={columns}
+                    isLoading={loading}
+                    emptyMessage="No plans found matching your criteria"
+                    enableColumnVisibility
+                    enableCsvExport
+                    csvFileName="plans.csv"
+                />
             </div>
 
-            {error && (
-                <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2 italic text-black">
-                    <AlertCircle size={18} /> {error}
-                </div>
-            )}
-
-            <DataTable
-                data={plans}
-                columns={columns}
-                isLoading={loading}
-                emptyMessage="No plans found matching your criteria"
-                enableColumnVisibility
-                enableCsvExport
-                csvFileName="plans.csv"
+            <PlanFormModal
+                open={showModal}
+                onClose={() => { setShowModal(false); setEditPlan(null); }}
+                onSaved={() => { void fetchPlans(); }}
+                editPlan={editPlan}
             />
-        </div>
         </AdminPageShell>
     );
 }

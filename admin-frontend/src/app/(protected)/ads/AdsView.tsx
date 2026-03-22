@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, RefreshCcw, Search, X } from "lucide-react";
+import { AlertCircle, RefreshCcw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
 import { AdsTable } from "@/components/moderation/AdsTable";
@@ -26,6 +26,7 @@ import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { moderationTabs, adLifecycleTabs, adModerationTabs, serviceLifecycleTabs, partLifecycleTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminErrorBoundary } from "@/components/common/AdminErrorBoundary";
 import { AdminApiError } from "@/lib/api/adminClient";
+import { getListingPresentation } from "@/components/moderation/listingPresentation";
 
 const SORT_OPTIONS: Array<{ label: string; value: ModerationFilters["sort"] }> = [
     { label: "Newest", value: "newest" },
@@ -42,9 +43,15 @@ type AdsViewProps = {
 export default function AdsView({ mode = "moderation", listingType }: AdsViewProps) {
     const { showToast } = useToast();
     const searchParams = useSearchParams();
-    const basePath = mode === "ads" ? "/ads" : "/moderation";
+    const presentation = getListingPresentation(listingType);
+    const entityLabel = presentation.actionEntityLabel;
+    const entityLabelPlural = presentation.actionEntityLabelPlural;
 
-    const [filters, setFilters] = useState<ModerationFilters>(DEFAULT_FILTERS);
+    const [filters, setFilters] = useState<ModerationFilters>(() => ({
+        ...DEFAULT_FILTERS,
+        status: mode === "ads" ? "live" : "pending",
+        listingType
+    }));
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -194,7 +201,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
             setViewAd(normalizeModerationAd(detail));
         } catch (detailError) {
             if (requestId !== lastRequestId.current) return;
-            setViewError(detailError instanceof Error ? detailError.message : "Failed to load ad details");
+            setViewError(detailError instanceof Error ? detailError.message : `Failed to load ${entityLabel} details`);
         } finally {
             if (requestId === lastRequestId.current) {
                 setViewLoading(false);
@@ -205,8 +212,8 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
     const handleApprove = async (item: ModerationItem) => {
         await withActionGuard(
             () => approveAdminAd(item.id),
-            "Ad approved",
-            "Failed to approve ad"
+            `${entityLabel} approved`,
+            `Failed to approve ${entityLabel}`
         );
     };
 
@@ -228,14 +235,14 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
         setRejectSubmitting(true);
         try {
             await Promise.all(rejectTargetIds.map((id) => rejectAdminAd(id, reason)));
-            showToast(`Rejected ${rejectTargetIds.length} ad(s)`, "success");
+            showToast(`Rejected ${rejectTargetIds.length} ${entityLabel}(s)`, "success");
             setRejectModalOpen(false);
             setRejectTargetIds([]);
             setRejectTitle(undefined);
             setSelectedIds([]);
             refresh();
         } catch (submitError) {
-            const message = submitError instanceof Error ? submitError.message : "Failed to reject ad";
+            const message = submitError instanceof Error ? submitError.message : `Failed to reject ${entityLabel}`;
             showToast(message, "error");
         } finally {
             setRejectSubmitting(false);
@@ -245,26 +252,26 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
     const handleDeactivate = async (item: ModerationItem) => {
         await withActionGuard(
             () => deactivateAdminAd(item.id),
-            "Ad deactivated",
-            "Failed to deactivate ad"
+            `${entityLabel} deactivated`,
+            `Failed to deactivate ${entityLabel}`
         );
     };
 
     const handleActivate = async (item: ModerationItem) => {
         await withActionGuard(
             () => activateAdminAd(item.id),
-            "Ad activated",
-            "Failed to activate ad"
+            `${entityLabel} activated`,
+            `Failed to activate ${entityLabel}`
         );
     };
 
     const handleDelete = async (item: ModerationItem) => {
-        const shouldDelete = window.confirm(`Delete ad \"${item.title}\"?`);
+        const shouldDelete = window.confirm(`Delete ${entityLabel} \"${item.title}\"?`);
         if (!shouldDelete) return;
         await withActionGuard(
             () => deleteAdminAd(item.id),
-            "Ad deleted",
-            "Failed to delete ad"
+            `${entityLabel} deleted`,
+            `Failed to delete ${entityLabel}`
         );
     };
 
@@ -287,14 +294,14 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                 await Promise.all(selectedIds.map((id) => approveAdminAd(id)));
                 setSelectedIds([]);
             },
-            `Approved ${selectedIds.length} ad(s)`,
-            "Failed to bulk approve ads"
+            `Approved ${selectedIds.length} ${entityLabel}(s)`,
+            `Failed to bulk approve ${entityLabelPlural}`
         );
     };
 
     const handleBulkDelete = async () => {
         if (selectedIds.length === 0) return;
-        const shouldDelete = window.confirm(`Delete ${selectedIds.length} selected ad(s)?`);
+        const shouldDelete = window.confirm(`Delete ${selectedIds.length} selected ${entityLabel}(s)?`);
         if (!shouldDelete) return;
 
         await withActionGuard(
@@ -302,8 +309,8 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                 await Promise.all(selectedIds.map((id) => deleteAdminAd(id)));
                 setSelectedIds([]);
             },
-            `Deleted ${selectedIds.length} ad(s)`,
-            "Failed to bulk delete ads"
+            `Deleted ${selectedIds.length} ${entityLabel}(s)`,
+            `Failed to bulk delete ${entityLabelPlural}`
         );
     };
 
@@ -328,14 +335,18 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
     };
 
     const clearFilters = () => {
-        setFilters(DEFAULT_FILTERS);
+        setFilters((prev) => ({
+            ...DEFAULT_FILTERS,
+            status: mode === "ads" ? "live" : "pending",
+            listingType: listingType ?? prev.listingType
+        }));
         setPage(1);
     };
 
     return (
         <AdminPageShell
             headerVariant="compact"
-            title={listingType ? (listingType === 'service' ? "Services" : listingType === 'spare_part' ? "Spare Parts" : "Listings") : (mode === "ads" ? "Listings" : "Moderation")}
+            title={listingType ? presentation.pageTitle : (mode === "ads" ? "Listings" : "Moderation")}
             tabs={
                 <div className="flex flex-col gap-4 mb-2">
                     <AdminModuleTabs tabs={moderationTabs} variant="primary" />
@@ -416,8 +427,9 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                 <div className="min-h-0 flex-1">
                     <AdsTable
                         data={items}
+                        listingType={listingType}
                         isLoading={isLoading}
-                        emptyMessage="No ads matched current moderation filters"
+                        emptyMessage={`No ${entityLabelPlural} matched current moderation filters`}
                         currentPage={page}
                         totalPages={pagination.pages}
                         totalItems={pagination.total}
@@ -475,6 +487,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                     <RejectAdModal
                         open={rejectModalOpen}
                         title={rejectTitle}
+                        entityLabel={entityLabel}
                         affectedCount={rejectTargetIds.length}
                         isSubmitting={rejectSubmitting}
                         onClose={() => {
@@ -488,6 +501,7 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                     <ViewAdModal
                         open={viewModalOpen}
                         ad={viewAd}
+                        listingType={listingType}
                         loading={viewLoading}
                         error={viewError}
                         onClose={() => {
@@ -498,8 +512,8 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                         onApprove={async (adId) => {
                             await withActionGuard(
                                 () => approveAdminAd(adId),
-                                "Ad approved",
-                                "Failed to approve ad"
+                                `${entityLabel} approved`,
+                                `Failed to approve ${entityLabel}`
                             );
                             // Re-fetch so the modal reflects the new status (hides Approve button)
                             try {
@@ -514,8 +528,8 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                         onDeactivate={async (adId) => {
                             await withActionGuard(
                                 () => deactivateAdminAd(adId),
-                                "Ad deactivated",
-                                "Failed to deactivate ad"
+                                `${entityLabel} deactivated`,
+                                `Failed to deactivate ${entityLabel}`
                             );
                             try {
                                 const detail = await fetchAdminAdDetail(adId);
@@ -525,8 +539,8 @@ export default function AdsView({ mode = "moderation", listingType }: AdsViewPro
                         onActivate={async (adId) => {
                             await withActionGuard(
                                 () => activateAdminAd(adId),
-                                "Ad activated",
-                                "Failed to activate ad"
+                                `${entityLabel} activated`,
+                                `Failed to activate ${entityLabel}`
                             );
                             try {
                                 const detail = await fetchAdminAdDetail(adId);

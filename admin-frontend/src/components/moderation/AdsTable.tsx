@@ -1,14 +1,31 @@
 "use client";
 
 import { useMemo } from "react";
-import { Image as ImageIcon, MapPin } from "lucide-react";
+import { Image as ImageIcon, MapPin, ShieldAlert } from "lucide-react";
 import { AdminModerationActions } from "./AdminModerationActions";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { ModerationItem } from "./moderationTypes";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
+import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
+import type { ListingTypeValue } from "@shared/enums/listingType";
+
+// ── Risk badge helpers ────────────────────────────────────────────────────────
+const riskColor = (score: number) => {
+    if (score >= 70) return "bg-red-100 text-red-700";
+    if (score >= 40) return "bg-amber-100 text-amber-700";
+    return "bg-emerald-100 text-emerald-700";
+};
+
+// ── Geo-precision level ───────────────────────────────────────────────────────
+const geoLevel = (item: ModerationItem): { label: string; color: string } => {
+    if (item.locationCoordinates) return { label: "GPS", color: "text-emerald-600" };
+    if (item.locationLabel)       return { label: "Text", color: "text-amber-500" };
+    return                               { label: "None", color: "text-slate-400" };
+};
 
 type AdsTableProps = {
     data: ModerationItem[];
+    listingType?: ListingTypeValue;
     isLoading?: boolean;
     emptyMessage?: string;
     currentPage: number;
@@ -35,6 +52,7 @@ const THUMBNAIL_FALLBACK = "https://placehold.co/120x120/png?text=No+Image";
 
 export function AdsTable({
     data,
+    listingType,
     isLoading,
     emptyMessage,
     currentPage,
@@ -58,6 +76,7 @@ export function AdsTable({
 }: AdsTableProps) {
     const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
     const allSelected = data.length > 0 && data.every((item) => selectedSet.has(item.id));
+    const presentation = getListingPresentation(listingType);
 
     const renderAction = (item: ModerationItem) => (
         <AdminModerationActions
@@ -82,7 +101,7 @@ export function AdsTable({
                         checked={allSelected}
                         onChange={(e) => onToggleSelectAll(e.target.checked)}
                         className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
-                        aria-label="Select all ads"
+                        aria-label={`Select all ${presentation.actionEntityLabelPlural}`}
                     />
                 ),
                 id: "select",
@@ -93,7 +112,7 @@ export function AdsTable({
                         checked={selectedSet.has(item.id)}
                         onChange={(e) => onToggleSelect(item.id, e.target.checked)}
                         className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
-                        aria-label={`Select ${item.title}`}
+                        aria-label={`Select ${presentation.actionEntityLabel} ${item.title}`}
                     />
                 )
             });
@@ -125,13 +144,24 @@ export function AdsTable({
             )
         },
         {
-            header: "Ad Details",
+            header: presentation.tableDetailsHeader,
             id: "details",
             cell: (item) => (
                 <div className="space-y-0.5 min-w-[180px] max-w-[280px]">
                     <div className="font-semibold text-slate-900 text-sm truncate">{item.title}</div>
-                    <div className="text-xs font-semibold text-primary">
-                        {item.currency} {item.price.toLocaleString()}
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-primary">
+                            {getListingPriceSummary(item)}
+                        </span>
+                        {item.listingType && item.listingType !== "ad" && (
+                            <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                                item.listingType === "service"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "bg-violet-100 text-violet-700"
+                            }`}>
+                                {item.listingType === "service" ? "SVC" : "PART"}
+                            </span>
+                        )}
                     </div>
                     <div className="text-[11px] text-slate-400 truncate">
                         {item.categoryName || "-"} / {item.brandName || "-"} / {item.modelName || "-"}
@@ -153,19 +183,54 @@ export function AdsTable({
         {
             header: "Location",
             id: "location",
-            cell: (item) => (
-                <div className="inline-flex items-start gap-1.5 text-xs text-slate-600 min-w-[150px]">
-                    <MapPin size={14} className="mt-0.5 shrink-0" />
-                    <span className="line-clamp-2">{item.locationLabel || "Unknown location"}</span>
-                </div>
-            )
+            cell: (item) => {
+                const geo = geoLevel(item);
+                return (
+                    <div className="space-y-1 min-w-[150px]">
+                        <div className="inline-flex items-start gap-1.5 text-xs text-slate-600">
+                            <MapPin size={14} className="mt-0.5 shrink-0" />
+                            <span className="line-clamp-2">{item.locationLabel || "Unknown location"}</span>
+                        </div>
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${geo.color}`}>
+                            {geo.label}
+                        </span>
+                    </div>
+                );
+            }
         },
         {
-            header: "Condition",
-            id: "condition",
+            header: presentation.attributeHeader,
+            id: "attribute",
+            cell: (item) => {
+                const attribute = getListingAttribute(item, listingType);
+                return (
+                    <div className="text-xs font-semibold text-slate-700">
+                        {attribute.value}
+                    </div>
+                );
+            }
+        },
+        {
+            header: "Risk",
+            id: "risk",
             cell: (item) => (
-                <div className="text-xs font-semibold text-slate-700">
-                    {item.devicePowerOn === false ? "Power Off" : "Working"}
+                <div className="space-y-1.5 min-w-[80px]">
+                    <div className="flex items-center gap-1">
+                        <ShieldAlert size={11} className="text-slate-400 shrink-0" />
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${riskColor(item.fraudScore)}`}>
+                            F {item.fraudScore}
+                        </span>
+                    </div>
+                    {item.riskScore != null && (
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${riskColor(item.riskScore)}`}>
+                            R {item.riskScore}
+                        </span>
+                    )}
+                    {item.reportCount > 0 && (
+                        <span className="text-[10px] text-slate-500 font-medium">
+                            {item.reportCount} report{item.reportCount !== 1 ? "s" : ""}
+                        </span>
+                    )}
                 </div>
             )
         },
@@ -195,16 +260,35 @@ export function AdsTable({
         }
         );
         return cols;
-    }, [showCheckboxes, allSelected, onToggleSelectAll, selectedSet, onToggleSelect, onView, onApprove, onReject, onDeactivate, onActivate, onDelete, onBanSeller]);
+    }, [
+        showCheckboxes,
+        allSelected,
+        onToggleSelectAll,
+        selectedSet,
+        onToggleSelect,
+        onView,
+        onApprove,
+        onReject,
+        onDeactivate,
+        onActivate,
+        onDelete,
+        onBanSeller,
+        presentation.tableDetailsHeader,
+        presentation.attributeHeader,
+        presentation.actionEntityLabel,
+        presentation.actionEntityLabelPlural,
+        listingType,
+    ]);
 
     return (
         <DataTable
             data={data}
             columns={columns}
             isLoading={isLoading}
-            emptyMessage={emptyMessage || "No ads found"}
+            emptyMessage={emptyMessage || "No listings found"}
             selectedCount={selectedSet.size}
             bulkActions={bulkActions}
+            enableColumnVisibility
             pagination={{
                 currentPage,
                 totalPages,

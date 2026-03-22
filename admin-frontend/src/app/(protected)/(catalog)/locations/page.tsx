@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { settingsTabs } from "@/components/layout/adminModuleTabSets";
+import { locationsTabs } from "@/components/layout/adminModuleTabSets";
 
 export default function LocationsPage() {
     const { showToast } = useToast();
@@ -109,7 +109,7 @@ export default function LocationsPage() {
         <AdminPageShell
             title="Location Management"
             description="Manage system-wide master locations and geofences."
-            tabs={<AdminModuleTabs tabs={settingsTabs} />}
+            tabs={<AdminModuleTabs tabs={locationsTabs} />}
             actions={
                 <button
                     className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"

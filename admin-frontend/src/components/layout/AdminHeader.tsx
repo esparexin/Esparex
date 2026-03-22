@@ -12,7 +12,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
         subtitle: "Platform overview, health signals, and moderation velocity.",
     },
     ads: {
-        title: "Ads",
+        title: "Listings",
         subtitle: "Review listings, risk indicators, and live inventory.",
     },
     users: {
@@ -36,9 +36,53 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
         title: "Notifications",
         subtitle: "Coordinate outbound messages, delivery channels, and comms health.",
     },
+    chat: {
+        title: "Chat Moderation",
+        subtitle: "Monitor and moderate buyer-seller conversations across the marketplace.",
+    },
     finance: {
-        title: "Analytics",
+        title: "Plans & Invoices",
         subtitle: "Monitor revenue, payments, and marketplace performance trends.",
+    },
+    invoices: {
+        title: "Plans & Invoices",
+        subtitle: "Review generated invoices, GST billing records, and downloadable PDFs.",
+    },
+    plans: {
+        title: "Plans & Invoices",
+        subtitle: "Manage subscription plans, ad packs, spotlight credits, and smart alerts.",
+    },
+    revenue: {
+        title: "Plans & Invoices",
+        subtitle: "Track monetization performance across plans, invoices, and transactions.",
+    },
+    businesses: {
+        title: "Business Master",
+        subtitle: "View and manage all approved business accounts on the platform.",
+    },
+    locations: {
+        title: "Locations",
+        subtitle: "Manage geographic data, hot zones, and location analytics.",
+    },
+    categories: {
+        title: "Device Taxonomy",
+        subtitle: "Manage device categories, brands, models, and screen sizes.",
+    },
+    brands: {
+        title: "Device Taxonomy",
+        subtitle: "Manage device categories, brands, models, and screen sizes.",
+    },
+    models: {
+        title: "Device Taxonomy",
+        subtitle: "Manage device categories, brands, models, and screen sizes.",
+    },
+    taxonomy: {
+        title: "Device Taxonomy",
+        subtitle: "Manage device categories, brands, models, and screen sizes.",
+    },
+    "spare-parts-catalog": {
+        title: "Spare Parts Master",
+        subtitle: "Manage the spare parts catalog and compatibility matrix.",
     },
     "admin-users": {
         title: "Administration",

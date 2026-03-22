@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type AdminListPagination = {
     page: number;
@@ -41,7 +41,20 @@ export function useAdminCrudList<T, F extends object>({
         ...DEFAULT_PAGINATION,
         ...initialPagination,
     });
-    const [filters, setFilters] = useState<F>(initialFilters);
+    const [filters, setFiltersState] = useState<F>(initialFilters);
+    const isFirstMount = useRef(true);
+
+    // Reset to page 1 whenever filters change (skip the initial mount)
+    const setFilters = useCallback((updater: React.SetStateAction<F>) => {
+        if (!isFirstMount.current) {
+            setPagination(prev => ({ ...prev, page: 1 }));
+        }
+        setFiltersState(updater);
+    }, []);
+
+    useEffect(() => {
+        isFirstMount.current = false;
+    }, []);
 
     const page = pagination.page;
     const limit = pagination.limit;
@@ -51,7 +64,7 @@ export function useAdminCrudList<T, F extends object>({
         setError(null);
         try {
             const result = await fetchPage({
-                filters,
+                filters: filters,
                 pagination: { page, limit, total: 0, totalPages: 0 },
             });
             
