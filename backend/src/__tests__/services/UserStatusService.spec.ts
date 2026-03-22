@@ -9,6 +9,11 @@ jest.mock("../../models/Ad", () => ({
     __esModule: true,
     default: {
         updateMany: jest.fn(),
+        find: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue([]),
+            }),
+        }),
     },
 }));
 

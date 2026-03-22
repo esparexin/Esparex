@@ -80,7 +80,7 @@ describe("adminUsersController.createAdmin", () => {
                 permissions: ["ads:read"],
                 // Regression guard: createAdmin should not pre-hash and re-hash in model.
                 password: "Admin@12345",
-                status: "active",
+                status: "live",
             })
         );
 

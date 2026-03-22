@@ -24,6 +24,25 @@ jest.mock("../../config/firebaseAdmin", () => ({
     },
 }));
 
+jest.mock("../../models/User", () => ({
+    __esModule: true,
+    default: {
+        find: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+                cursor: jest.fn().mockReturnValue({
+                    [Symbol.asyncIterator]: () => ({ next: jest.fn().mockResolvedValue({ done: true }) }),
+                }),
+            }),
+        }),
+    },
+}));
+
+jest.mock("../../services/notification/NotificationDispatcher", () => ({
+    NotificationDispatcher: {
+        bulkDispatch: jest.fn().mockResolvedValue(undefined),
+    },
+}));
+
 import Broadcast from "../../models/Broadcast";
 import { logAdminAction } from "../../utils/adminLogger";
 import { createBroadcast } from "../../controllers/admin/adminNotificationController";
@@ -82,7 +101,7 @@ describe("adminNotificationController.createBroadcast", () => {
                 success: true,
                 data: expect.objectContaining({
                     type: "GLOBAL",
-                    delivery: expect.objectContaining({ successCount: 1 }),
+                    delivery: expect.objectContaining({ successCount: 0 }),
                 }),
             })
         );

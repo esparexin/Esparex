@@ -8,7 +8,14 @@ const mockSession = {
 jest.mock("../../config/db", () => ({
     getUserConnection: () => ({
         startSession: jest.fn().mockResolvedValue(mockSession),
+        models: {},
+        model: jest.fn().mockReturnValue({}),
     }),
+}));
+
+jest.mock("../../models/Business", () => ({
+    __esModule: true,
+    default: {},
 }));
 
 jest.mock("../../models/Transaction", () => ({

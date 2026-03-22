@@ -86,7 +86,7 @@ describe("adminAuth middleware", () => {
         mockValidateAdminSession.mockResolvedValue({ id: "session_1" });
         mockFindById.mockResolvedValue({
             _id: { toString: () => "admin_1" },
-            status: "active",
+            status: "live",
             role: "admin",
             permissions: ["users:read"],
             firstName: "Ops",

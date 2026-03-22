@@ -2,11 +2,35 @@ jest.mock("../../services/AdService", () => ({
     __esModule: true,
     getAds: jest.fn(),
     updateAdStatus: jest.fn(),
+    computeActiveExpiry: jest.fn().mockReturnValue(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
 }));
 
 jest.mock("../../utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock("../../models/Ad", () => ({
+    __esModule: true,
+    default: {
+        findById: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue({
+                    _id: "65fa29c9d2c1f2e165fa29c9",
+                    status: "pending",
+                    reviewVersion: undefined,
+                    listingType: "ad",
+                }),
+            }),
+        }),
+    },
+}));
+
+jest.mock("../../services/StatusMutationService", () => ({
+    mutateStatus: jest.fn().mockResolvedValue({
+        _id: "65fa29c9d2c1f2e165fa29c9",
+        status: "live",
+    }),
 }));
 
 jest.mock("../../utils/redisCache", () => ({
@@ -92,7 +116,7 @@ describe("adminAdsController status normalization", () => {
             body: {},
             originalUrl: "/api/v1/admin/ads/65fa29c9d2c1f2e165fa29c9/approve",
         } as any;
-        const res = { json: jest.fn() } as any;
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
 
         await approveAd(req, res);
 
@@ -101,7 +125,7 @@ describe("adminAdsController status normalization", () => {
             "APPROVE_AD",
             "Ad",
             "65fa29c9d2c1f2e165fa29c9",
-            expect.objectContaining({ status: "approved" })
+            expect.objectContaining({ status: "live" })
         );
         expect(res.json).toHaveBeenCalledWith(
             expect.objectContaining({ success: true })
