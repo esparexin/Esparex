@@ -11,6 +11,7 @@ import AdImage from '../models/AdImage';
 import { deleteFromS3Url } from '../utils/s3';
 import { processSingleImage } from '../utils/imageProcessor';
 import logger from '../utils/logger';
+import { AppError } from '../utils/AppError';
 
 // ─────────────────────────────────────────────────
 // TYPES & CONSTANTS
@@ -63,19 +64,15 @@ export const uploadSingleImage = async (
     session?: ClientSession
 ): Promise<ProcessedImage> => {
     if (!mongoose.Types.ObjectId.isValid(adId)) {
-        throw new Error('Invalid ad ID');
+        throw new AppError('Invalid ad ID', 400, 'INVALID_AD_ID');
     }
 
     if (!isValidImageType(mimeType)) {
-        const err = new Error('Invalid image type. Only JPEG, PNG, and WebP are allowed.');
-        (err as any).statusCode = 400;
-        throw err;
+        throw new AppError('Invalid image type. Only JPEG, PNG, and WebP are allowed.', 400, 'INVALID_IMAGE_TYPE');
     }
 
     if (!isValidImageSize(buffer.length)) {
-        const err = new Error(`Image size exceeds maximum allowed size of ${MAX_IMAGE_SIZE / 1024 / 1024}MB`);
-        (err as any).statusCode = 400;
-        throw err;
+        throw new AppError(`Image size exceeds maximum allowed size of ${MAX_IMAGE_SIZE / 1024 / 1024}MB`, 400, 'IMAGE_TOO_LARGE');
     }
 
     const id = new mongoose.Types.ObjectId(adId);
@@ -96,7 +93,7 @@ export const uploadSingleImage = async (
         const result = await processSingleImage(buffer, `ads/${id.toString()}`, mimeType);
 
         if (!result) {
-            throw new Error('Failed to process image');
+            throw new AppError('Failed to process image', 500, 'IMAGE_PROCESS_FAILED');
         }
 
         // Store metadata in AdImage collection for indexing
@@ -144,7 +141,7 @@ export const uploadMultipleImages = async (
 
     // Limit to 10 images per ad
     if (images.length > 10) {
-        throw new Error('Maximum 10 images allowed per ad');
+        throw new AppError('Maximum 10 images allowed per ad', 422, 'MAX_IMAGES_EXCEEDED');
     }
 
     const uploadPromises = images.map(img =>

@@ -11,6 +11,7 @@ import {
 } from '../../services/LocationService';
 import { serializeDoc } from '../../utils/serialize';
 import { GOVERNANCE, MS_IN_DAY } from '../../config/constants';
+import { AppError } from '../../utils/AppError';
 
 export const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';
@@ -76,7 +77,7 @@ export const WalletModel = UserWallet as unknown as {
 export const getRequiredAlertId = (req: Request): string => {
     const id = req.params.id;
     if (typeof id !== 'string' || !id.trim()) {
-        throw new Error('Invalid alert ID');
+        throw new AppError('Invalid alert ID', 400, 'INVALID_ALERT_ID');
     }
     return id;
 };
@@ -122,7 +123,7 @@ export const normalizeSmartAlertLocationPayload = async (
     const effectiveCoords = explicitCoords || normalized?.coordinates;
 
     if (!effectiveCoords || (effectiveCoords.coordinates[0] === 0 && effectiveCoords.coordinates[1] === 0)) {
-        throw new Error("Valid map coordinates are required for Smart Alerts.");
+        throw new AppError('Valid map coordinates are required for Smart Alerts.', 400, 'INVALID_COORDINATES');
     }
 
     payload.coordinates = effectiveCoords;

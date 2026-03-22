@@ -69,6 +69,10 @@ function normalizeBusiness(
     return {
         ...apiBusiness,
         businessName: apiBusiness.name, // Keep for backward compatibility with UI components
+        // Canonicalize mobile/phone/contactNumber — model stores as `mobile`, expose all aliases
+        mobile: apiBusiness.mobile || (apiBusiness as any).phone || "",
+        phone: apiBusiness.mobile || (apiBusiness as any).phone || "",
+        contactNumber: apiBusiness.mobile || (apiBusiness as any).phone || (apiBusiness as any).contactNumber || "",
         isVerified: !!apiBusiness.isVerified || !!(apiBusiness as any).verified,
         verified: !!apiBusiness.isVerified || !!(apiBusiness as any).verified,
         status: normalizedStatus as ApiBusiness['status'],

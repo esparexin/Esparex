@@ -43,7 +43,8 @@ export class AdDuplicateService {
             payload.brandId ? String(payload.brandId) : undefined,
             payload.modelId ? String(payload.modelId) : undefined,
             undefined,
-            session
+            session,
+            payload.listingType
         );
 
         if (selfDuplicate) {

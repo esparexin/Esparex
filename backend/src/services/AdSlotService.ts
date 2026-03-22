@@ -1,6 +1,7 @@
 import mongoose, { ClientSession } from 'mongoose';
 import UserWallet from '../models/UserWallet';
 import { recordTransaction, consumeCredit } from './WalletService';
+import { AppError } from '../utils/AppError';
 
 export type AdPostingSlotSource = 'free_slot' | 'ad_credit' | 'idempotency_hit';
 
@@ -158,7 +159,7 @@ export class AdSlotService {
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             if (message.includes('Insufficient')) {
-                throw new Error('No ad posting slots available. Buy Ad Pack credits or wait for monthly reset.');
+                throw new AppError('No ad posting slots available. Buy Ad Pack credits or wait for monthly reset.', 422, 'QUOTA_EXCEEDED');
             }
             throw error;
         }

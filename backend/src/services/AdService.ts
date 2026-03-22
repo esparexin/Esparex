@@ -375,7 +375,7 @@ export const promoteAd = async (
         await session.withTransaction(async () => {
             if (!isAdmin) {
                 const promotionCost = Math.abs(Math.floor(days));
-                if (promotionCost === 0) throw new Error('Promotion cost cannot be zero');
+                if (promotionCost === 0) throw new AppError('Promotion cost cannot be zero', 400, 'INVALID_PROMOTION_COST');
 
                 try {
                     await consumeCredit({

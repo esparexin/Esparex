@@ -1,4 +1,5 @@
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import type {
     ModerationListingType,
     ModerationStatus,
@@ -18,7 +19,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const normalizeListingType = (value: unknown): ModerationListingType => {
     const raw = typeof value === 'string' ? value.trim().toLowerCase() : '';
-    if (raw === 'ad' || raw === 'service' || raw === 'spare_part') return raw;
+    if (raw === LISTING_TYPE.AD || raw === LISTING_TYPE.SERVICE || raw === LISTING_TYPE.SPARE_PART) return raw;
 
     const err = new Error('Lifecycle contract violation (listing_type): missing/invalid listingType');
     (err as Error & { statusCode?: number; code?: string }).statusCode = 500;

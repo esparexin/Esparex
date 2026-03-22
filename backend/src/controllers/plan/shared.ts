@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import Plan from '../../models/Plan';
 import UserPlan from '../../models/UserPlan';
+import { AppError } from '../../utils/AppError';
 
 export const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';
@@ -11,7 +12,7 @@ export const isAdminUser = (req: Request): boolean =>
 export const getRequiredPlanId = (req: Request): string => {
     const rawId = req.params.id;
     if (typeof rawId !== 'string' || !rawId.trim()) {
-        throw new Error('Invalid plan ID');
+        throw new AppError('Invalid plan ID', 400, 'INVALID_PLAN_ID');
     }
     return rawId;
 };

@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import { USER_STATUS } from '../../../shared/enums/userStatus';
 import { Role } from '../../../shared/enums/roles';
 import { hashPassword } from '../utils/auth';
+import { AppError } from '../utils/AppError';
 
 export interface UserFilters {
     search?: string;
@@ -161,7 +162,7 @@ export const createAdminUser = async (data: any, actorId: string) => {
 
     const exists = await User.findOne({ $or: [{ mobile }, ...(email ? [{ email }] : [])] });
     if (exists) {
-        throw new Error('User with this mobile or email already exists');
+        throw new AppError('User with this mobile or email already exists', 409, 'USER_ALREADY_EXISTS');
     }
 
     const userData: Record<string, any> = {
@@ -197,7 +198,7 @@ export const updateAdminUser = async (userId: string, data: any, actorId: string
         if (query.$or.length > 0) {
             const exists = await User.findOne(query);
             if (exists) {
-                throw new Error('Email or Mobile already in use by another user');
+                throw new AppError('Email or Mobile already in use by another user', 409, 'USER_ALREADY_EXISTS');
             }
         }
     }
@@ -217,7 +218,7 @@ export const updateAdminUser = async (userId: string, data: any, actorId: string
     ).select('-password');
 
     if (!user) {
-        throw new Error('User not found');
+        throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
     return user;

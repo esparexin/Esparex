@@ -9,6 +9,7 @@ import { requirePermission, requireSuperAdmin } from '../../middleware/adminAuth
 import { otpIpLimiter, searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
 import { validateRequest } from '../../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
+import { PlanPayloadSchema, PartialPlanPayloadSchema } from '../../../../shared/schemas/planPayload.schema';
 
 import * as usersController from '../../controllers/admin/adminUsersController';
 import * as businessController from '../../controllers/admin/adminBusinessController';
@@ -132,8 +133,8 @@ router.delete('/admin-users/:id', requireSuperAdmin, adminMutationLimiter, valid
 // PLANS
 // ============================================
 router.get('/plans', searchLimiter, planController.getPlans);
-router.post('/plans', adminMutationLimiter, planController.createPlan);
-router.put('/plans/:id', adminMutationLimiter, validateObjectId, planController.updatePlan);
+router.post('/plans', adminMutationLimiter, validateRequest(PlanPayloadSchema as unknown as ZodTypeAny), planController.createPlan);
+router.put('/plans/:id', adminMutationLimiter, validateObjectId, validateRequest(PartialPlanPayloadSchema as unknown as ZodTypeAny), planController.updatePlan);
 router.patch('/plans/:id/toggle', adminMutationLimiter, validateObjectId, planController.togglePlan);
 
 // ============================================

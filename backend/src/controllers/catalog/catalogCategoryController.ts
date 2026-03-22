@@ -18,6 +18,7 @@ import ServiceType from '../../models/ServiceType';
 import ScreenSize from '../../models/ScreenSize';
 import Ad from '../../models/Ad';
 import { logAdminAction } from '../../utils/adminLogger';
+import { AppError } from '../../utils/AppError';
 import { sendSuccessResponse } from '../admin/adminBaseController';
 // import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
@@ -320,13 +321,13 @@ export const deleteCategory = async (req: Request, res: Response) => {
 
     try {
         if (!hasAdminAccess(req)) { 
-            throw new Error('Admin access required'); 
+            throw new AppError('Admin access required', 403, 'FORBIDDEN');
         }
         
         const categoryId = req.params.id;
         const category = await Category.findById(categoryId).session(session);
         if (!category) {
-            throw new Error('Category not found');
+            throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
         }
 
         category.isDeleted = true;

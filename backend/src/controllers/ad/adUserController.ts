@@ -15,6 +15,7 @@ import { ApiResponse, PaginatedResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { IAuthUser } from '../../types/auth';
 import { validateTransition } from '../../services/LifecycleGuard';
+import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
 
 const sendClientError = (
     req: Request,
@@ -53,7 +54,8 @@ export const getMyAds = async (req: Request, res: Response, next: NextFunction) 
         const result = await adService.getAds(
             {
                 sellerId: (req.user as IAuthUser)._id.toString(),
-                status: req.query.status ? (req.query.status as string) : undefined
+                status: req.query.status ? (req.query.status as string) : undefined,
+                listingType: req.query.listingType ? (req.query.listingType as ListingTypeValue) : undefined,
             },
             { page, limit }
         );
@@ -82,7 +84,8 @@ export const getMyAds = async (req: Request, res: Response, next: NextFunction) 
 export const getMyAdsStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const counts = await (adService.getAdCounts as any)({
-            sellerId: (req.user as IAuthUser)._id.toString()
+            sellerId: (req.user as IAuthUser)._id.toString(),
+            listingType: LISTING_TYPE.AD,
         });
 
         const response = respond({

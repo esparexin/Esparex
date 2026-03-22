@@ -22,6 +22,7 @@ import { mutateStatus, mutateStatuses } from '../../services/StatusMutationServi
 import { BUSINESS_STATUS } from '../../../../shared/enums/businessStatus';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 
 const sendBusinessAdminError = (req: Request, res: Response, error: unknown) => {
     const message = error instanceof Error ? error.message : 'Admin business operation failed';
@@ -140,7 +141,7 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
 
         if (listings.length > 0) {
             await mutateStatuses(listings.map(l => ({
-                domain: (l.listingType === 'service' ? 'service' : (l.listingType === 'spare_part' ? 'spare_part_listing' : 'ad')) as any,
+                domain: (l.listingType === LISTING_TYPE.SERVICE ? LISTING_TYPE.SERVICE : (l.listingType === LISTING_TYPE.SPARE_PART ? 'spare_part_listing' : LISTING_TYPE.AD)) as any,
                 entityId: l._id,
                 toStatus: AD_STATUS.EXPIRED,
                 actor,
@@ -305,7 +306,7 @@ export const deleteBusinessAccount = async (req: Request, res: Response) => {
 
         if (listings.length > 0) {
             await mutateStatuses(listings.map(l => ({
-                domain: (l.listingType === 'service' ? 'service' : (l.listingType === 'spare_part' ? 'spare_part_listing' : 'ad')) as any,
+                domain: (l.listingType === LISTING_TYPE.SERVICE ? LISTING_TYPE.SERVICE : (l.listingType === LISTING_TYPE.SPARE_PART ? 'spare_part_listing' : LISTING_TYPE.AD)) as any,
                 entityId: l._id,
                 toStatus: AD_STATUS.EXPIRED,
                 actor,

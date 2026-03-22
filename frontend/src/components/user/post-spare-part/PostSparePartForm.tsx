@@ -3,7 +3,6 @@
 import React from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -19,28 +18,7 @@ import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
 import { createSparePartListing, getSparePartListingDetail, updateSparePartListing } from "@/api/user/sparePartListings";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
 import type { ListingImage } from "@/types/listing";
-
-// ─── Schema ─────────────────────────────────────────────────────────────────
-const PostSparePartSchema = z.object({
-    title: z.string().min(10, "Title must be at least 10 characters").max(60, "Title too long"),
-    categoryId: z.string().min(1, "Please select a category"),
-    brandId: z.string().optional(),
-    sparePartTypeId: z.string().min(1, "Please select a spare part type"),
-    price: z.number({ invalid_type_error: "Enter a valid price" }).min(0, "Price must be at least 0"),
-    description: z.string().min(20, "Description must be at least 20 characters").max(2000, "Description too long"),
-    location: z.object({
-        city: z.string(),
-        state: z.string(),
-        display: z.string().optional(), // stripped by useListingSubmission before validation
-        coordinates: z.object({
-            type: z.literal("Point"),
-            coordinates: z.tuple([z.number(), z.number()]),
-        }),
-        locationId: z.string().optional(),
-    }).optional(),
-});
-
-type PostSparePartValues = z.infer<typeof PostSparePartSchema>;
+import { PostSparePartFormSchema, type PostSparePartFormValues } from "@/schemas/postSparePartForm.schema";
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function PostSparePartForm({ editSparePartId }: { editSparePartId?: string }) {
@@ -48,13 +26,13 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
     const { user } = useAuth();
     const { businessData } = useBusiness(user);
 
-    const form = useForm<PostSparePartValues>({
-        resolver: zodResolver(PostSparePartSchema),
+    const form = useForm<PostSparePartFormValues>({
+        resolver: zodResolver(PostSparePartFormSchema),
         defaultValues: {
             title: "",
             categoryId: "",
             brandId: "",
-            sparePartTypeId: "",
+            sparePartId: "",
             price: 0,
             description: "",
         },
@@ -62,7 +40,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
 
     const { register, watch, setValue, handleSubmit, formState: { errors } } = form;
     const categoryId = watch("categoryId");
-    const sparePartTypeId = watch("sparePartTypeId");
+    const sparePartId = watch("sparePartId");
 
     // ─── Catalog ───────────────────────────────────────────────────────────
     const {
@@ -106,7 +84,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                         title: payload.title || "",
                         categoryId: typeof payload.categoryId === 'string' ? payload.categoryId : payload.categoryId?.id || "",
                         brandId: payload.brandId || "",
-                        sparePartTypeId: typeof payload.sparePartId === 'string' ? payload.sparePartId : payload.sparePartId?.id || "",
+                        sparePartId: typeof payload.sparePartId === 'string' ? payload.sparePartId : payload.sparePartId?.id || "",
                         price: payload.price || 0,
                         description: payload.description || "",
                         location: payload.location as any
@@ -145,7 +123,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
     const handleCategorySelect = async (id: string) => {
         setValue("categoryId", id);
         setValue("brandId", "");
-        setValue("sparePartTypeId", "");
+        setValue("sparePartId", "");
         await Promise.all([loadBrandsForCategory(id), loadSparePartsForCategory(id)]);
     };
 
@@ -157,7 +135,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         listingImages: images,
         isEditMode,
         editId: editSparePartId,
-        schema: PostSparePartSchema,
+        schema: PostSparePartFormSchema,
         submitFn: async (payload) => {
             if (isEditMode && editSparePartId) {
                 // Update schema is .strict() — only send allowed content fields
@@ -168,11 +146,10 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                     images: payload.images,
                 });
             }
-            // Create: map sparePartTypeId → sparePartId (backend field name)
             // Also hoist locationId to top-level — backend controller requires it there
             return createSparePartListing({
                 categoryId: payload.categoryId,
-                sparePartId: payload.sparePartTypeId,
+                sparePartId: payload.sparePartId,
                 brandId: payload.brandId || undefined,
                 condition: "new",
                 title: payload.title,
@@ -305,7 +282,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                             {/* Spare Part Type */}
                             {categoryId && (
                                 <section className="space-y-3">
-                                    <Field label="Spare Part" error={errors.sparePartTypeId?.message}>
+                                    <Field label="Spare Part" error={errors.sparePartId?.message}>
                                         {isLoadingSpareParts ? (
                                             <div className="grid grid-cols-3 gap-2">
                                                 {[1,2,3,4,5,6].map(i => (
@@ -316,12 +293,12 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                                             <div className="grid grid-cols-3 gap-2">
                                                 {availableSpareParts.map(part => {
                                                     const id = part.id || (part as { _id?: string })._id || "";
-                                                    const selected = sparePartTypeId === id;
+                                                    const selected = sparePartId === id;
                                                     return (
                                                         <button
                                                             key={id}
                                                             type="button"
-                                                            onClick={() => setValue("sparePartTypeId", id, { shouldValidate: true })}
+                                                            onClick={() => setValue("sparePartId", id, { shouldValidate: true })}
                                                             disabled={isEditMode}
                                                             className={cn(
                                                                 "py-2.5 px-2 rounded-xl border text-xs font-bold transition-all",

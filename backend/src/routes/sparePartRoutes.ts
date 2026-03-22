@@ -6,6 +6,9 @@ import * as sparePartListingController from '../controllers/sparePartListingCont
 import { duplicateCooldownMiddleware } from '../middlewares/duplicateCooldownMiddleware';
 import { createListingValidator } from '../validators/listing.validator';
 import { phoneRevealLimiter } from '../middleware/rateLimiter';
+import { validateRequest } from '../middleware/validateRequest';
+import type { ZodTypeAny } from 'zod';
+import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../shared/schemas/sparePartPayload.schema';
 
 const router = Router();
 
@@ -19,19 +22,21 @@ router.post(
     protect,
     requireBusinessApproved,
     duplicateCooldownMiddleware('spare_part'),
+    validateRequest(SparePartPayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
     sparePartListingController.createSparePartListing
 );
 
 /**
  * @route   GET /api/v1/spare-part-listings/my-listings
- * @desc    Get listings for the authenticated business (Private)
- * @access  Private (Business)
+ * @desc    Get listings owned by the authenticated user (Private)
+ * @access  Private — owner only, no business approval required
+ * Note: requireBusinessApproved intentionally omitted — users must always be
+ * able to view their own listings even if their business is later revoked.
  */
 router.get(
     '/my-listings',
     protect,
-    requireBusinessApproved,
     sparePartListingController.getMySparePartListings
 );
 
@@ -66,18 +71,18 @@ router.put(
     protect,
     requireBusinessApproved,
     validateObjectId,
+    validateRequest(PartialSparePartPayloadSchema as unknown as ZodTypeAny),
     sparePartListingController.updateSparePartListing
 );
 
 /**
  * @route   DELETE /api/v1/spare-part-listings/:id
- * @desc    Delete (soft) a spare part listing (Owner only)
- * @access  Private (Business)
+ * @desc    Soft-delete own spare part listing (Owner only)
+ * @access  Private — ownership verified in controller, no business approval required
  */
 router.delete(
     '/:id',
     protect,
-    requireBusinessApproved,
     validateObjectId,
     sparePartListingController.deleteSparePartListing
 );

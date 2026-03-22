@@ -9,6 +9,7 @@ import { USER_STATUS, UserStatusValue } from '../../../shared/enums/userStatus';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../shared/enums/actor';
 import { mutateStatuses } from './StatusMutationService';
+import { AppError } from '../utils/AppError';
 
 export type { UserStatusValue as UserStatus };
 
@@ -54,7 +55,7 @@ export const updateUserStatus = async (
             { ...updateData, $inc: { tokenVersion: 1 } },
             { new: true }
         );
-        if (!user) throw new Error('User not found');
+        if (!user) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
 
         // Also delete the Redis status cache for immediate enforcement.
         // Without this, authMiddleware would serve the stale 'active' status

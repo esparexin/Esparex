@@ -2,10 +2,13 @@ import { z } from 'zod';
 import { LocationMetaSchema } from './location.schema';
 import { validatedTextSchema } from './text.schema';
 import {
-    MAX_AD_DESCRIPTION_CHARS,
-    MAX_AD_IMAGES,
-    MAX_AD_SPARE_PARTS,
     MIN_AD_IMAGES,
+    MAX_AD_IMAGES,
+    MIN_AD_TITLE_CHARS,
+    MAX_AD_TITLE_CHARS,
+    MIN_AD_DESCRIPTION_CHARS,
+    MAX_AD_DESCRIPTION_CHARS,
+    MAX_AD_SPARE_PARTS,
 } from '../constants/adLimits';
 import { LISTING_TYPE_VALUES } from '../enums/listingType';
 
@@ -37,7 +40,7 @@ const optionalTrimmedString = z.preprocess(
 /* ────────────────────────────────────────────── */
 export const BaseAdPayloadSchema = z.object({
     categoryId: optionalObjectId, // Canonical
-    sparePartTypeId: optionalObjectId, // Canonical
+    sparePartId: optionalObjectId, // Canonical — matches Ad.sparePartId model field
     brandId: optionalObjectId, // Canonical
     modelId: optionalObjectId, // Canonical
 
@@ -48,8 +51,8 @@ export const BaseAdPayloadSchema = z.object({
     // Uses centralized text validation (bans profanity, gibberish, etc.)
     title: validatedTextSchema({
         fieldName: 'Title',
-        minLength: 10,
-        maxLength: 60,
+        minLength: MIN_AD_TITLE_CHARS,
+        maxLength: MAX_AD_TITLE_CHARS,
         strictMode: true,
         checkBannedWords: true,
         checkGibberish: true,
@@ -59,7 +62,7 @@ export const BaseAdPayloadSchema = z.object({
     // Uses centralized text validation (bans profanity, gibberish, etc.)
     description: validatedTextSchema({
         fieldName: 'Description',
-        minLength: 20,
+        minLength: MIN_AD_DESCRIPTION_CHARS,
         maxLength: MAX_AD_DESCRIPTION_CHARS,
         strictMode: false,
         checkBannedWords: true,

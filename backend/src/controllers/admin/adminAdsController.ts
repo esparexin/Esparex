@@ -1,4 +1,5 @@
 import logger from '../../utils/logger';
+import { AppError } from '../../utils/AppError';
 import { env } from '../../config/env';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
@@ -640,11 +641,11 @@ export const createPostAd = async (req: Request, res: Response) => {
             allowQuotaBypass: true,
         });
         if (!ad) {
-            throw new Error('Failed to create ad');
+            throw new AppError('Failed to create ad', 500, 'AD_CREATE_FAILED');
         }
         const createdAdId = ((ad as unknown as { _id?: unknown })._id ?? '').toString();
         if (!createdAdId) {
-            throw new Error('Created ad id is missing');
+            throw new AppError('Created ad id is missing', 500, 'AD_CREATE_FAILED');
         }
 
         await logAdminAction(req, 'CREATE_AD', 'Ad', createdAdId, {

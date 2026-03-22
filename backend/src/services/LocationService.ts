@@ -9,6 +9,7 @@ import { formatLocationResponse } from '../lib/location/formatLocation';
 import { toGeoPoint } from '../../../shared/utils/geoUtils';
 export { toGeoPoint };
 import { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../utils/redisCache';
+import { AppError } from '../utils/AppError';
 import {
     asString,
     buildDisplay,
@@ -157,12 +158,12 @@ const resolveLocationFromDb = async (input: unknown): Promise<NormalizedLocation
     const rawLocationId = extractObjectIdString(normalized);
     if (rawLocationId) {
         if (!mongoose.Types.ObjectId.isValid(rawLocationId)) {
-            throw new Error('Invalid location ID format');
+            throw new AppError('Invalid location ID format', 400, 'INVALID_LOCATION_ID');
         }
 
         const loc = await Location.findOne({ _id: rawLocationId, isActive: true }).lean();
         if (!loc) {
-            throw new Error('Invalid or inactive location');
+            throw new AppError('Invalid or inactive location', 404, 'LOCATION_NOT_FOUND');
         }
         return buildNormalizedFromLocationDoc(loc);
     }
@@ -225,14 +226,14 @@ export const normalizeLocation = async (
     }
 
     if (options.requireLocationId && !rawLocationId) {
-        throw new Error('Valid location selection is required');
+        throw new AppError('Valid location selection is required', 400, 'LOCATION_REQUIRED');
     }
 
     const fromDb = await resolveLocationFromDb(normalizedInput);
     const parsedCoords = normalizeCoordinates(normalizedInput) || fromDb?.coordinates;
 
     if (options.requireLocationId && !fromDb?.locationId) {
-        throw new Error('Valid location selection is required');
+        throw new AppError('Valid location selection is required', 400, 'LOCATION_REQUIRED');
     }
 
     const hasCanonicalLocationId = Boolean(rawLocationId && fromDb?.locationId);
@@ -286,7 +287,7 @@ export const normalizeLocation = async (
         : normalizeLocationLevel(normalizedInput.level) || normalizeLocationLevel(fromDb?.level);
 
     if (!city && options.requireLocationId) {
-        throw new Error('Location city is required');
+        throw new AppError('Location city is required', 400, 'LOCATION_REQUIRED');
     }
 
     const display =
@@ -467,7 +468,7 @@ export const logLocationEvent = async (payload: unknown) => {
     if (locationId && type) {
         const location = await getActiveLocationById(locationId);
         if (!location) {
-            throw new Error('Invalid or inactive location');
+            throw new AppError('Invalid or inactive location', 404, 'LOCATION_NOT_FOUND');
         }
         await touchLocationAnalytics(locationId, type, 1);
     }
@@ -487,7 +488,7 @@ export const ingestLocation = async (payload: {
     if (payload.coordinates?.coordinates) {
         const [lng, lat] = payload.coordinates.coordinates;
         if (lng === 0 && lat === 0) {
-            throw new Error("Invalid null-island coordinate");
+            throw new AppError('Invalid null-island coordinate', 400, 'INVALID_COORDINATES');
         }
     }
 
@@ -556,7 +557,7 @@ export const ingestLocation = async (payload: {
             const createdObject = created[0].toObject();
             return mapToLocationResponse(buildNormalizedFromLocationDoc(createdObject as LocationInputObject));
         }
-        throw new Error('Failed to create location document');
+        throw new AppError('Failed to create location document', 500, 'LOCATION_CREATE_FAILED');
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
@@ -877,7 +878,7 @@ export const getCitiesByStateId = async (
     stateId: string
 ): Promise<NormalizedLocationResponse[]> => {
     if (!mongoose.Types.ObjectId.isValid(stateId)) {
-        throw new Error('Invalid stateId');
+        throw new AppError('Invalid stateId', 400, 'INVALID_LOCATION_ID');
     }
 
     const stateAnchor = await Location.findOne({
@@ -970,7 +971,7 @@ export const getAreasByCityId = async (
     cityId: string
 ): Promise<NormalizedLocationResponse[]> => {
     if (!mongoose.Types.ObjectId.isValid(cityId)) {
-        throw new Error('Invalid cityId');
+        throw new AppError('Invalid cityId', 400, 'INVALID_LOCATION_ID');
     }
 
     const cityAnchor = await Location.findOne({
@@ -1029,13 +1030,13 @@ export const getNearbyLocations = async (
     radiusKm: number
 ): Promise<NormalizedLocationResponse[]> => {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-        throw new Error('Invalid coordinates');
+        throw new AppError('Invalid coordinates', 400, 'INVALID_COORDINATES');
     }
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-        throw new Error('Coordinates out of range');
+        throw new AppError('Coordinates out of range', 400, 'INVALID_COORDINATES');
     }
     if (lat === 0 && lng === 0) {
-        throw new Error('Null-island coordinates are not allowed');
+        throw new AppError('Null-island coordinates are not allowed', 400, 'INVALID_COORDINATES');
     }
 
     const safeRadiusKm = Math.min(Math.max(Number(radiusKm) || 10, 1), 500);
@@ -1084,13 +1085,13 @@ export const reverseGeocode = async (
     lng: number
 ): Promise<NormalizedLocationResponse | null> => {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-        throw new Error('Invalid coordinates');
+        throw new AppError('Invalid coordinates', 400, 'INVALID_COORDINATES');
     }
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-        throw new Error('Coordinates out of range');
+        throw new AppError('Coordinates out of range', 400, 'INVALID_COORDINATES');
     }
     if (lat === 0 && lng === 0) {
-        throw new Error('Null-island coordinates are not allowed');
+        throw new AppError('Null-island coordinates are not allowed', 400, 'INVALID_COORDINATES');
     }
 
     const cacheKey = buildReverseGeocodeCacheKey(lat, lng);

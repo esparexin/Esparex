@@ -2,6 +2,7 @@ import { ClientSession } from 'mongoose';
 import UserWallet from '../models/UserWallet';
 import Transaction from '../models/Transaction';
 import { getUserConnection } from '../config/db';
+import { AppError } from '../utils/AppError';
 
 export interface WalletAmount {
     adCredits?: number;
@@ -122,7 +123,7 @@ export const credit = async ({
         if (amount.smartAlertSlots) incrementPayload.smartAlertSlots = amount.smartAlertSlots;
 
         if (Object.keys(incrementPayload).length === 0) {
-            throw new Error('No valid credit amounts provided.');
+            throw new AppError('No valid credit amounts provided.', 400, 'INVALID_WALLET_OPERATION');
         }
 
         const updatedWallet = await UserWallet.findOneAndUpdate(
@@ -157,27 +158,27 @@ export const debit = async ({
     return withTransaction(session, async (activeSession) => {
         const wallet = await UserWallet.findOne({ userId }).session(activeSession);
         if (!wallet) {
-            throw new Error('Wallet not found for deduction.');
+            throw new AppError('Wallet not found for deduction.', 404, 'WALLET_NOT_FOUND');
         }
 
         const decrementPayload: Record<string, number> = {};
 
         // Validation checks
         if (amount.adCredits) {
-            if (wallet.adCredits < amount.adCredits) throw new Error('Insufficient Ad Credits.');
+            if (wallet.adCredits < amount.adCredits) throw new AppError('Insufficient Ad Credits.', 422, 'INSUFFICIENT_CREDITS');
             decrementPayload.adCredits = -Math.abs(amount.adCredits);
         }
         if (amount.spotlightCredits) {
-            if (wallet.spotlightCredits < amount.spotlightCredits) throw new Error('Insufficient Spotlight Credits.');
+            if (wallet.spotlightCredits < amount.spotlightCredits) throw new AppError('Insufficient Spotlight Credits.', 422, 'INSUFFICIENT_CREDITS');
             decrementPayload.spotlightCredits = -Math.abs(amount.spotlightCredits);
         }
         if (amount.smartAlertSlots) {
-            if (wallet.smartAlertSlots < amount.smartAlertSlots) throw new Error('Insufficient Smart Alert Slots.');
+            if (wallet.smartAlertSlots < amount.smartAlertSlots) throw new AppError('Insufficient Smart Alert Slots.', 422, 'INSUFFICIENT_CREDITS');
             decrementPayload.smartAlertSlots = -Math.abs(amount.smartAlertSlots);
         }
 
         if (Object.keys(decrementPayload).length === 0) {
-            throw new Error('No valid debit amounts provided.');
+            throw new AppError('No valid debit amounts provided.', 400, 'INVALID_WALLET_OPERATION');
         }
 
         const updatedWallet = await UserWallet.findOneAndUpdate(
@@ -219,7 +220,7 @@ export const consumeCredit = async ({
     session?: ClientSession;
 }) => {
     if (!Number.isFinite(amount) || amount <= 0) {
-        throw new Error('Credit consumption amount must be a positive number.');
+        throw new AppError('Credit consumption amount must be a positive number.', 400, 'INVALID_WALLET_OPERATION');
     }
 
     return debit({

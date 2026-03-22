@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { logAdminAction } from '../../utils/adminLogger';
 import { respond } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
+import { AppError } from '../../utils/AppError';
 import { buildPlanPayload, getErrorMessage, getRequiredPlanId, isAdminUser, PlanModel } from './shared';
 
 export const createPlan = async (req: Request, res: Response) => {
@@ -61,7 +62,7 @@ export const togglePlan = async (req: Request, res: Response) => {
         }
         const planId = getRequiredPlanId(req);
         const plan = await PlanModel.findById(planId);
-        if (!plan) throw new Error('Plan not found');
+        if (!plan) throw new AppError('Plan not found', 404, 'PLAN_NOT_FOUND');
         plan.active = !plan.active;
         await plan.save();
         await logAdminAction(req, 'TOGGLE_PLAN_STATUS', 'Plan', planId, { isActive: plan.active });

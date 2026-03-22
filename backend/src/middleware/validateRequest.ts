@@ -194,11 +194,10 @@ export const commonSchemas = {
     }),
 
     /**
-     * Mobile number validation (Indian format)
+     * Mobile number validation (Indian format, 10-digit storage — no prefix added)
      */
     mobile: z.string()
-        .regex(/^[6-9]\d{9}$/, 'Invalid phone number format')
-        .transform(val => `+91${val}`),
+        .regex(/^[6-9]\d{9}$/, 'Invalid phone number format'),
 
     /**
      * Email validation

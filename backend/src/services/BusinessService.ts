@@ -1,4 +1,5 @@
 import logger from '../utils/logger';
+import { AppError } from '../utils/AppError';
 import Business from '../models/Business';
 import mongoose from 'mongoose';
 import User from '../models/User';
@@ -196,7 +197,7 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
         else if (existingChecks.gstNumber === normalizedGst) field = 'GST number';
         else if (existingChecks.registrationNumber === normalizedRegistration) field = 'Registration number';
 
-        throw new Error(`${field} is already registered with another business account.`);
+        throw new AppError(`${field} is already registered with another business account.`, 409, 'BUSINESS_ALREADY_EXISTS');
     }
 
     // 5. Image & Doc Processing
@@ -331,7 +332,7 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
             else if (existingChecks.gstNumber === normalizedGst) field = 'GST number';
             else if (existingChecks.registrationNumber === normalizedRegistration) field = 'Registration number';
 
-            throw new Error(`${field} is already registered with another business account.`);
+            throw new AppError(`${field} is already registered with another business account.`, 409, 'BUSINESS_ALREADY_EXISTS');
         }
     }
 

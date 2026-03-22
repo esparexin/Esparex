@@ -2,6 +2,7 @@ import Admin, { IAdmin } from '../models/Admin';
 import { comparePassword, generateAdminToken } from '../utils/auth';
 import { USER_STATUS } from '@shared/enums/userStatus';
 import logger from '../utils/logger';
+import { AppError } from '../utils/AppError';
 
 interface AdminLoginResult {
     token: string;
@@ -63,7 +64,7 @@ export const loginAdmin = async (email: string, password: string): Promise<Admin
 
     if (admin) {
         if (admin.status !== USER_STATUS.LIVE) {
-            throw new Error('Account is inactive');
+            throw new AppError('Account is inactive', 403, 'ACCOUNT_INACTIVE');
         }
         if (admin.password) {
             isMatch = await comparePassword(password, admin.password);

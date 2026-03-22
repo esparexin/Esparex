@@ -36,7 +36,8 @@ router.put(
     validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
     serviceController.updateService
 );
-router.delete('/:id', protect, requireBusinessApproved, validateObjectId, serviceController.deleteService);
+// Ownership verified in controller — no business approval needed to delete own listing
+router.delete('/:id', protect, validateObjectId, serviceController.deleteService);
 
 import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 

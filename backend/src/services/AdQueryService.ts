@@ -20,6 +20,7 @@ import { buildAdFilterFromCriteria, AdFilterCriteria } from '../utils/adFilterHe
 import { getCache, setCache, CACHE_TTLS } from '../utils/redisCache';
 import type { HomeAdsResponse } from '../../../shared/types/Api';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
+import { type ListingTypeValue } from '../../../shared/enums/listingType';
 import logger from '../utils/logger';
 import RankingTelemetry from '../models/RankingTelemetry';
 import { v4 as uuidv4 } from 'uuid';
@@ -76,9 +77,8 @@ export interface AdFilters {
     priceMin?: number;
     priceMax?: number;
     onsiteService?: boolean;
-    /** Filter by Ad record listingType: 'ad' | 'service' | 'spare_part'
-     *  Use the `categoryEnumToRecord` helper if mapping from Category capability enums. */
-    listingType?: 'ad' | 'service' | 'spare_part' | ('ad' | 'service' | 'spare_part')[];
+    /** Filter by Ad record listingType. Use the `categoryEnumToRecord` helper if mapping from Category capability enums. */
+    listingType?: ListingTypeValue | ListingTypeValue[];
 }
 
 export interface PaginationOptions {

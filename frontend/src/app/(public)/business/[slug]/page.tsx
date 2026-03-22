@@ -105,7 +105,7 @@ export default async function BusinessProfilePage({ params }: Props) {
         "name": business.name,
         "description": business.description,
         "image": business.logo || (business.images?.[0]),
-        "telephone": business.phone,
+        "telephone": business.mobile || business.phone,
         "url": `https://esparex.com/business/${canonicalParam}`
     } : null;
 

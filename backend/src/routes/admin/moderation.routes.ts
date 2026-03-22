@@ -7,6 +7,8 @@ import express, { type RequestHandler } from 'express';
 import { validateObjectId } from '../../middleware/validateObjectId';
 import { requirePermission } from '../../middleware/adminAuth';
 import { searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
+import { validateRequest, commonSchemas } from '../../middleware/validateRequest';
+import { z } from 'zod';
 import { lifecyclePolicyHttpGuard } from '../../middleware/lifecyclePolicyGuard';
 import logger from '../../utils/logger';
 import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
@@ -70,13 +72,30 @@ const retiredLegacyMutation = (message: string, canonicalPath: string): RequestH
     });
 };
 
+const adminListingsQuerySchema = z.object({
+    ...commonSchemas.pagination.shape,
+    listingType: z.enum(['ad', 'service', 'spare_part']).optional(),
+    status: z.string().optional(),
+    sellerId: z.string().optional(),
+    categoryId: z.string().optional(),
+    brandId: z.string().optional(),
+    modelId: z.string().optional(),
+    location: z.string().optional(),
+    search: z.string().max(200).optional(),
+    minPrice: z.string().optional(),
+    maxPrice: z.string().optional(),
+    createdAfter: z.string().optional(),
+    createdBefore: z.string().optional(),
+    sortBy: z.string().optional(),
+});
+
 const router = express.Router();
 
 // ============================================
 // CANONICAL LISTINGS MODERATION API (SSOT)
 // ============================================
 router.get('/listings/counts', requirePermission('ads:read'), listingsController.adminGetListingCounts);
-router.get('/listings', requirePermission('ads:read'), listingsController.adminListListings);
+router.get('/listings', requirePermission('ads:read'), validateRequest(adminListingsQuerySchema, 'query'), listingsController.adminListListings);
 router.get('/listings/:id', requirePermission('ads:read'), validateObjectId, listingsController.adminGetListingById);
 
 router.post('/listings/:id/approve', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, lifecyclePolicyHttpGuard, listingsController.adminApproveListing);

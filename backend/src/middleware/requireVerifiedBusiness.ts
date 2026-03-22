@@ -3,6 +3,7 @@ import Business from '../models/Business';
 import { isBusinessPublishedStatus } from '../utils/businessStatus';
 import { sendErrorResponse } from '../utils/errorResponse';
 import logger from '../utils/logger';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
 
 /**
  * Resolve businessStatus for the current request user.
@@ -77,7 +78,7 @@ export const requireVerifiedBusinessForServiceParts = async (
 ): Promise<void> => {
     const listingType: string | undefined = req.body?.listingType;
 
-    if (listingType === 'service' || listingType === 'spare_part') {
+    if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
         return requireVerifiedBusiness(req, res, next);
     }
 

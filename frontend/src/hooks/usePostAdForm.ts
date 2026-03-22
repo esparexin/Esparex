@@ -13,7 +13,7 @@ export function usePostAdForm() {
         defaultValues: {
             category: "",
             categoryId: "",
-            sparePartTypeId: "",
+            sparePartId: "",
             brand: "",
             brandId: "",
             model: "",

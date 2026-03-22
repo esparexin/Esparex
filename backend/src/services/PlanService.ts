@@ -10,6 +10,7 @@ import {
     getAdPostingBalance as adSlotGetBalance
 } from './AdSlotService';
 import type { ClientSession } from 'mongoose';
+import { AppError } from '../utils/AppError';
 import { calculateUserPlan } from './PlanEngine';
 import UserWallet from '../models/UserWallet';
 import { withUserPostingLock } from './AdSlotService'; // Import the lock
@@ -79,8 +80,10 @@ export const checkPostLimit = async (
     if (type === 'ad') {
         const balance = await getAdPostingBalance(userId, session);
         if (balance.totalRemaining <= 0) {
-            throw new Error(
-                'No ad posting slots available this month. Buy Ad Pack credits or wait for monthly reset.'
+            throw new AppError(
+                'No ad posting slots available this month. Buy Ad Pack credits or wait for monthly reset.',
+                422,
+                'QUOTA_EXCEEDED'
             );
         }
         return true;
@@ -116,8 +119,10 @@ export const checkPostLimit = async (
 
     // 6. Enforce
     if (currentCount >= limit) {
-        throw new Error(
-            `Active slot limit reached (${currentCount}/${limit}). Upgrade your plan or buy "Ad Packs" to increase capacity.`
+        throw new AppError(
+            `Active slot limit reached (${currentCount}/${limit}). Upgrade your plan or buy "Ad Packs" to increase capacity.`,
+            422,
+            'QUOTA_EXCEEDED'
         );
     }
 

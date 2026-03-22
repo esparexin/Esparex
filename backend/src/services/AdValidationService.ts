@@ -24,6 +24,7 @@ type DuplicatePayload = {
     condition?: unknown;
     screenSize?: unknown;
     images?: unknown;
+    listingType?: string; // 'ad' | 'service' | 'spare_part' — used to scope duplicate checks per type
     location?: {
         locationId?: unknown;
         city?: unknown;
@@ -212,6 +213,7 @@ export const buildDuplicateFingerprint = (
     }
 
     const fingerprintBase = [
+        `type:${normalizeToken(payload.listingType || 'ad')}`,
         `seller:${normalizedFields.sellerId}`,
         `category:${normalizedFields.category}`,
         `brand:${normalizedFields.brand || 'na'}`,
@@ -307,7 +309,8 @@ export const findExistingSelfDuplicate = async (
     brandId?: string,
     modelId?: string,
     excludeAdId?: string,
-    session?: ClientSession
+    session?: ClientSession,
+    listingType?: string
 ): Promise<DuplicateLookupResult | null> => {
     if (!locationId) return null;
 
@@ -317,6 +320,8 @@ export const findExistingSelfDuplicate = async (
         isDeleted: { $ne: true },
         categoryId: new mongoose.Types.ObjectId(categoryId),
         'location.locationId': new mongoose.Types.ObjectId(locationId),
+        // Scope check to the same listing type — prevents a service from matching an ad
+        listingType: listingType || 'ad',
     };
 
     if (typeof price === 'number' && Number.isFinite(price) && price > 0) {

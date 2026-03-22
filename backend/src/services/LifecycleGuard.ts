@@ -1,4 +1,5 @@
 import { LIFECYCLE_STATUS, type LifecycleStatus } from '../../../shared/enums/lifecycle';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
 
 /**
  * Ad Transitions
@@ -67,8 +68,8 @@ export type ValidDomain = 'ad' | 'user' | 'business' | 'service' | 'catalog_part
  */
 export function resolveLifecycleDomain(entityDomain: string, listingType?: string): ValidDomain {
     if (entityDomain === 'ad') {
-        if (listingType === 'service') return 'service';
-        if (listingType === 'spare_part') return 'spare_part_listing';
+        if (listingType === LISTING_TYPE.SERVICE) return 'service';
+        if (listingType === LISTING_TYPE.SPARE_PART) return 'spare_part_listing';
         return 'ad';
     }
     return entityDomain as ValidDomain;

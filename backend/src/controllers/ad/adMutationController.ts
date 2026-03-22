@@ -17,6 +17,7 @@ import { Ad } from '../../../../shared/schemas/ad.schema';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { IAuthUser } from '../../types/auth';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 
 const sendClientError = (
     req: Request,
@@ -39,7 +40,7 @@ export const createAd = async (req: Request, res: Response, next: NextFunction) 
         const authUserId = (req.user as IAuthUser)._id.toString();
         const sellerId = req.body.sellerId || req.body.userId || authUserId;
 
-        if (req.body.listingType === 'service') {
+        if (req.body.listingType === LISTING_TYPE.SERVICE) {
             const business = await Business.findOne({ userId: authUserId });
             if (!business || !isBusinessPublishedStatus(business.status)) {
                 return sendClientError(req, res, 403, 'Approved Business Account Required', 'BUSINESS_NOT_APPROVED', {
@@ -90,7 +91,7 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
             delete req.body[field];
         }
 
-        if (req.body.listingType === 'service') {
+        if (req.body.listingType === LISTING_TYPE.SERVICE) {
             const business = await Business.findOne({ userId: authUserId });
             if (!business || !isBusinessPublishedStatus(business.status)) {
                 return sendClientError(req, res, 403, 'Approved Business Account Required', 'BUSINESS_NOT_APPROVED', {
