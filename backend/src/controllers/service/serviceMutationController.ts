@@ -18,6 +18,7 @@ import { sendErrorResponse } from '../../utils/errorResponse';
 import { processImages } from '../../utils/imageProcessor';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { SERVICE_STATUS } from '../../../../shared/enums/serviceStatus';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { mutateStatus } from '../../services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import { resolveServiceTypes, toServiceTypeObjectId as toObjectId } from '../../utils/serviceTypeResolver';
@@ -198,14 +199,14 @@ export const createService = async (req: Request, res: Response) => {
             await dbSession.withTransaction(async () => {
                 await ListingSubmissionPolicy.reserveSlot({
                     userId: user._id.toString(),
-                    listingType: 'service',
+                    listingType: LISTING_TYPE.SERVICE,
                     listingId: serviceId.toString(),
                     session: dbSession,
                     actor: 'user',
                 });
                 const adDoc = {
                     _id: serviceId,
-                    listingType: 'service' as const,
+                    listingType: LISTING_TYPE.SERVICE,
                     listingQualityScore,
                     serviceTypeIds: resolvedServiceTypes.serviceTypeIds,
                     categoryId,
@@ -281,7 +282,7 @@ export const updateService = async (req: Request, res: Response) => {
 
         const existingService = await AdModel.findOne({
             _id: id,
-            listingType: 'service',
+            listingType: LISTING_TYPE.SERVICE,
             businessId: business?._id || { $exists: false },
             sellerId: user._id
         }).select('images status approvedAt categoryId brandId').lean();
@@ -392,7 +393,7 @@ export const updateService = async (req: Request, res: Response) => {
 
         // 🔒 Ensure service belongs to this business
         const service = await AdModel.findOneAndUpdate(
-            { _id: id, listingType: 'service', businessId: business?._id || { $exists: false }, sellerId: user._id },
+            { _id: id, listingType: LISTING_TYPE.SERVICE, businessId: business?._id || { $exists: false }, sellerId: user._id },
             updates,
             { new: true }
         );
@@ -473,7 +474,7 @@ export const deleteService = async (req: Request, res: Response) => {
         // 🛡️ Find first to ensure ownership and existence
         const service = await AdModel.findOne({
             _id: id,
-            listingType: 'service',
+            listingType: LISTING_TYPE.SERVICE,
             sellerId: user._id
         });
 

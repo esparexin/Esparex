@@ -14,6 +14,7 @@ import { promoteAdSchema } from "../validators/promotion.validator";
 import { markAsSoldSchema } from "../validators/ad.validator";
 import { duplicateCooldownMiddleware } from "../middlewares/duplicateCooldownMiddleware";
 import { createListingValidator } from "../validators/listing.validator";
+import { requireVerifiedBusinessForServiceParts } from "../middleware/requireVerifiedBusiness";
 
 const router = express.Router();
 
@@ -61,6 +62,7 @@ router.post(
     "/",
     protect,
     adPostLimiter,
+    requireVerifiedBusinessForServiceParts,
     duplicateCooldownMiddleware('ad'),
     fraudMiddleware,
     validateRequest(AdPayloadSchema as unknown as ZodTypeAny),

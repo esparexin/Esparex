@@ -18,8 +18,12 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const normalizeListingType = (value: unknown): ModerationListingType => {
     const raw = typeof value === 'string' ? value.trim().toLowerCase() : '';
-    if (raw === 'service' || raw === 'spare_part') return raw;
-    return 'ad';
+    if (raw === 'ad' || raw === 'service' || raw === 'spare_part') return raw;
+
+    const err = new Error('Lifecycle contract violation (listing_type): missing/invalid listingType');
+    (err as Error & { statusCode?: number; code?: string }).statusCode = 500;
+    (err as Error & { statusCode?: number; code?: string }).code = 'LISTING_CONTRACT_VIOLATION';
+    throw err;
 };
 
 const assertLifecycleStatus = (status: unknown, context: string): ModerationStatus => {

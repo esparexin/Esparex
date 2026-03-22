@@ -9,6 +9,7 @@ import { requirePermission } from '../../middleware/adminAuth';
 import { searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
 import { lifecyclePolicyHttpGuard } from '../../middleware/lifecyclePolicyGuard';
 import logger from '../../utils/logger';
+import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
 import AdminMetrics from '../../models/AdminMetrics';
 import * as listingsController from '../../controllers/admin/adminListingsController';
 import * as legacyReportsController from '../../controllers/admin/adminAdsController';
@@ -50,7 +51,7 @@ const legacyAlias = (successorPath: string): RequestHandler => (req, res, next) 
     next();
 };
 
-const withForcedListingType = (listingType: 'service' | 'spare_part'): RequestHandler => (req, _res, next) => {
+const withForcedListingType = (listingType: Exclude<ListingTypeValue, 'ad'>): RequestHandler => (req, _res, next) => {
     req.query = { ...req.query, listingType };
     next();
 };
