@@ -5,6 +5,7 @@ import Ad from '../models/Ad';
 import AdminMetrics from '../models/AdminMetrics';
 import { connectDB, getUserConnection } from '../config/db';
 import logger from '../utils/logger';
+import { inferListingType, type ListingTypeIntegrityInput } from '../utils/listingTypeIntegrity';
 
 type ListingTypeValue = 'ad' | 'service' | 'spare_part';
 type ScriptMode = 'dry-run' | 'apply';
@@ -59,14 +60,16 @@ type AdBackfillCandidate = {
     listingType?: ListingTypeValue | null;
     sparePartId?: Types.ObjectId;
     sparePartIds?: Types.ObjectId[];
+    compatibleModels?: Types.ObjectId[];
     stock?: number;
-    condition?: string;
-    businessId?: Types.ObjectId;
     priceMin?: number;
     priceMax?: number;
     serviceTypeIds?: Types.ObjectId[];
     onsiteService?: boolean;
     diagnosticFee?: number;
+    turnaroundTime?: string;
+    included?: string;
+    excluded?: string;
 };
 
 type InferenceResult = {
@@ -155,41 +158,6 @@ const sleep = async (ms: number): Promise<void> => {
     await new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-const isNumber = (value: unknown): value is number =>
-    typeof value === 'number' && Number.isFinite(value);
-
-const inferListingType = (ad: AdBackfillCandidate): InferenceResult => {
-    const hasSpareSignals = Boolean(ad.sparePartId)
-        || (Array.isArray(ad.sparePartIds) && ad.sparePartIds.length > 0)
-        || isNumber(ad.stock)
-        || typeof ad.condition === 'string';
-
-    const hasServiceSignals = Boolean(ad.businessId)
-        || isNumber(ad.priceMin)
-        || isNumber(ad.priceMax)
-        || (Array.isArray(ad.serviceTypeIds) && ad.serviceTypeIds.length > 0)
-        || typeof ad.onsiteService === 'boolean'
-        || isNumber(ad.diagnosticFee);
-
-    if (hasSpareSignals && hasServiceSignals) {
-        return {
-            listingType: 'ad',
-            reason: 'conflicting_spare_and_service_signals',
-            conflict: true
-        };
-    }
-
-    if (hasSpareSignals) {
-        return { listingType: 'spare_part', reason: 'spare_part_signals', conflict: false };
-    }
-
-    if (hasServiceSignals) {
-        return { listingType: 'service', reason: 'service_signals', conflict: false };
-    }
-
-    return { listingType: 'ad', reason: 'default_fallback_ad', conflict: false };
-};
-
 const buildMissingListingTypeFilter = (lastProcessedId?: Types.ObjectId): MissingListingTypeFilter => {
     const filter: MissingListingTypeFilter = {
         $or: [
@@ -202,6 +170,21 @@ const buildMissingListingTypeFilter = (lastProcessedId?: Types.ObjectId): Missin
     }
     return filter;
 };
+
+const toIntegrityInput = (doc: AdBackfillCandidate): ListingTypeIntegrityInput => ({
+    sparePartId: doc.sparePartId,
+    sparePartIds: doc.sparePartIds,
+    compatibleModels: doc.compatibleModels,
+    stock: doc.stock,
+    serviceTypeIds: doc.serviceTypeIds,
+    priceMin: doc.priceMin,
+    priceMax: doc.priceMax,
+    diagnosticFee: doc.diagnosticFee,
+    onsiteService: doc.onsiteService,
+    turnaroundTime: doc.turnaroundTime,
+    included: doc.included,
+    excluded: doc.excluded,
+});
 
 const getDriftSnapshot = async (): Promise<{ missingListingType: number; invalidListingType: number }> => {
     const [missingListingType, invalidListingType] = await Promise.all([
@@ -351,7 +334,7 @@ export const runAdListingTypeBackfill = async (): Promise<void> => {
         const batch = await Ad.find(batchFilter)
             .sort({ _id: 1 })
             .limit(options.batchSize)
-            .select('_id listingType sparePartId sparePartIds stock condition businessId priceMin priceMax serviceTypeIds onsiteService diagnosticFee')
+            .select('_id listingType sparePartId sparePartIds compatibleModels stock priceMin priceMax serviceTypeIds onsiteService diagnosticFee turnaroundTime included excluded')
             .lean<AdBackfillCandidate[]>();
 
         if (batch.length === 0) {
@@ -361,7 +344,12 @@ export const runAdListingTypeBackfill = async (): Promise<void> => {
         const bulkOps: Parameters<typeof Ad.bulkWrite>[0] = [];
 
         for (const doc of batch) {
-            const inferred = inferListingType(doc);
+            const inferredResult = inferListingType(toIntegrityInput(doc));
+            const inferred: InferenceResult = {
+                listingType: inferredResult.listingType,
+                reason: inferredResult.reason,
+                conflict: inferredResult.confidence === 'conflict'
+            };
             report.summary.inferred[inferred.listingType] += 1;
             checkpoint.docsScanned += 1;
 

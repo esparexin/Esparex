@@ -14,6 +14,7 @@ import { processImages } from '../utils/imageProcessor';
 import { sanitizePersistedImageUrls } from '../utils/s3';
 import { AdContext } from '../types/ad.types';
 import { computeActiveExpiry } from './adStatusService';
+import { LISTING_TYPE, type ListingTypeValue } from '../../../shared/enums/listingType';
 import { FeatureFlag, isEnabled } from '../config/featureFlags';
 import { computeListingQualityScore } from '../utils/adQualityScorer';
 import { 
@@ -214,7 +215,7 @@ export class AdCreationService {
             payload.status = context.actor === 'ADMIN' ? LIFECYCLE_STATUS.LIVE : LIFECYCLE_STATUS.PENDING;
             payload.moderationStatus = context.actor === 'ADMIN' ? 'auto_approved' : 'held_for_review';
             payload.isFree = payload.price === 0 || payload.isFree === true;
-            payload.expiresAt = context.actor === 'ADMIN' ? computeActiveExpiry(source.listingType as string || 'ad') : undefined;
+            payload.expiresAt = context.actor === 'ADMIN' ? computeActiveExpiry((source.listingType as ListingTypeValue) || LISTING_TYPE.AD) : undefined;
         }
 
         // --- Compute Lightweight Listing Quality Score ---

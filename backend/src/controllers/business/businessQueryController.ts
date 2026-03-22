@@ -9,6 +9,7 @@ import { Service as SharedService } from '../../../../shared/types/Service';
 import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { isBusinessPublishedStatus } from '../../utils/businessStatus';
 import {
     BusinessStatsPayload,
@@ -86,7 +87,7 @@ export const getBusinessServices = async (req: Request, res: Response) => {
 
         const services = await Ad.find({
             sellerId: business.userId,
-            listingType: 'service',
+            listingType: LISTING_TYPE.SERVICE,
             status: AD_STATUS.LIVE,
             isDeleted: { $ne: true }
         }).sort({ createdAt: -1 }).lean();
@@ -99,6 +100,52 @@ export const getBusinessServices = async (req: Request, res: Response) => {
         res.json(response);
     } catch {
         sendErrorResponse(req, res, 500, 'Failed to fetch business services');
+    }
+};
+
+export const getBusinessAds = async (req: Request, res: Response) => {
+    try {
+        const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID' });
+        if (!id) return;
+        const business = await findBusinessByIdentifier(id);
+        if (!business) {
+            sendErrorResponse(req, res, 404, 'Business not found');
+            return;
+        }
+
+        const ads = await Ad.find({
+            sellerId: business.userId,
+            listingType: LISTING_TYPE.AD,
+            status: AD_STATUS.LIVE,
+            isDeleted: { $ne: true }
+        }).sort({ createdAt: -1 }).lean();
+
+        res.json(respond<ApiResponse<unknown[]>>({ success: true, data: ads }));
+    } catch {
+        sendErrorResponse(req, res, 500, 'Failed to fetch business ads');
+    }
+};
+
+export const getBusinessSpareParts = async (req: Request, res: Response) => {
+    try {
+        const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID' });
+        if (!id) return;
+        const business = await findBusinessByIdentifier(id);
+        if (!business) {
+            sendErrorResponse(req, res, 404, 'Business not found');
+            return;
+        }
+
+        const parts = await Ad.find({
+            sellerId: business.userId,
+            listingType: LISTING_TYPE.SPARE_PART,
+            status: AD_STATUS.LIVE,
+            isDeleted: { $ne: true }
+        }).sort({ createdAt: -1 }).lean();
+
+        res.json(respond<ApiResponse<unknown[]>>({ success: true, data: parts }));
+    } catch {
+        sendErrorResponse(req, res, 500, 'Failed to fetch business spare parts');
     }
 };
 
@@ -115,9 +162,9 @@ export const getBusinessStatsById = async (req: Request, res: Response) => {
 
         const userId = business.userId.toString();
         const [totalServices, approvedServices, pendingServices] = await Promise.all([
-            Ad.countDocuments({ sellerId: userId, listingType: 'service' }),
-            Ad.countDocuments({ sellerId: userId, listingType: 'service', status: AD_STATUS.LIVE }),
-            Ad.countDocuments({ sellerId: userId, listingType: 'service', status: 'pending' })
+            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE }),
+            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE }),
+            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE, status: 'pending' })
         ]);
 
         const response = respond<ApiResponse<BusinessStatsPayload>>({

@@ -68,4 +68,10 @@ router.patch('/:id', validateObjectId, protect, mutationLimiter, validateRequest
 // GET /api/v1/businesses/:id/services - Get business services (Public)
 router.get('/:id/services', validateIdOrSlug('id'), businessController.getBusinessServices);
 
+// GET /api/v1/businesses/:id/ads - Get business ads (Public)
+router.get('/:id/ads', validateIdOrSlug('id'), businessController.getBusinessAds);
+
+// GET /api/v1/businesses/:id/spare-parts - Get business spare part listings (Public)
+router.get('/:id/spare-parts', validateIdOrSlug('id'), businessController.getBusinessSpareParts);
+
 export default router;

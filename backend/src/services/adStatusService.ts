@@ -1,4 +1,5 @@
 import { LIFECYCLE_STATUS, type LifecycleStatus } from '../../../shared/enums/lifecycle';
+import { LISTING_TYPE, type ListingTypeValue } from '../../../shared/enums/listingType';
 
 export type AdStatus = LifecycleStatus;
 
@@ -82,10 +83,10 @@ export const restoreAd = async (id: string, actorId?: string, actorType: 'user' 
     });
 };
 
-export const computeActiveExpiry = (listingType: string = 'ad'): Date => {
+export const computeActiveExpiry = (listingType: ListingTypeValue = LISTING_TYPE.AD): Date => {
     let days = GOVERNANCE.AD.EXPIRY_DAYS; // Default 30
 
-    if (listingType === 'service' || listingType === 'spare_part') {
+    if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
         days = GOVERNANCE.CONTENT.EXPIRY_DAYS; // Also 30, but isolated for policy flexibility
     }
 

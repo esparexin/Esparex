@@ -391,19 +391,76 @@ export async function reportConversation(
    ADMIN SERVICES
    ============================================================================ */
 
+export interface AdminConvSummary {
+  id: string;
+  buyerName: string;
+  sellerName: string;
+  adTitle: string;
+  lastMessage?: string;
+  lastMessageAt?: string;
+  isBlocked: boolean;
+  isAdClosed: boolean;
+  unreadBuyer: number;
+  unreadSeller: number;
+  updatedAt: string;
+}
+
+// Inline types for the populated sub-documents returned by .lean()
+interface PopulatedUser { name?: string; mobile?: string }
+interface PopulatedAd  { title?: string }
+interface PopulatedConv {
+  _id: unknown;
+  buyerId: PopulatedUser | null;
+  sellerId: PopulatedUser | null;
+  adId: PopulatedAd | null;
+  lastMessage?: string | { text?: string } | null;
+  lastMessageAt?: Date | string;
+  isBlocked?: boolean;
+  isAdClosed?: boolean;
+  unreadBuyer?: number;
+  unreadSeller?: number;
+  updatedAt?: Date | string;
+}
+
+function toIso(v?: Date | string): string | undefined {
+  if (!v) return undefined;
+  return v instanceof Date ? v.toISOString() : v;
+}
+
+function extractLastMessage(raw?: string | { text?: string } | null): string | undefined {
+  if (!raw) return undefined;
+  if (typeof raw === 'string') return raw;
+  return raw.text ?? undefined;
+}
+
+function shapeConv(c: PopulatedConv): AdminConvSummary {
+  return {
+    id: String(c._id),
+    buyerName: c.buyerId?.name ?? c.buyerId?.mobile ?? 'Unknown',
+    sellerName: c.sellerId?.name ?? c.sellerId?.mobile ?? 'Unknown',
+    adTitle: c.adId?.title ?? 'Untitled',
+    lastMessage: extractLastMessage(c.lastMessage),
+    lastMessageAt: toIso(c.lastMessageAt),
+    isBlocked: Boolean(c.isBlocked),
+    isAdClosed: Boolean(c.isAdClosed),
+    unreadBuyer: Number(c.unreadBuyer ?? 0),
+    unreadSeller: Number(c.unreadSeller ?? 0),
+    updatedAt: toIso(c.updatedAt) ?? '',
+  };
+}
+
 export async function adminListConversations(
   filter: string,
   riskMin: number,
   page: number,
   limit: number,
   search: string
-) {
+): Promise<{ convs: AdminConvSummary[]; total: number }> {
   const query: Record<string, unknown> = {};
 
   if (filter === 'blocked') query.isBlocked = true;
   if (filter === 'closed') query.isAdClosed = true;
   if (filter === 'high_risk') {
-    // Flag conversations that have at least one high-risk message
     const highRiskMsgConvIds = await ChatMessage.distinct('conversationId', {
       riskScore: { $gte: riskMin },
     });
@@ -415,7 +472,7 @@ export async function adminListConversations(
   }
 
   const skip = (page - 1) * limit;
-  const [convs, total] = await Promise.all([
+  const [rawConvs, total] = await Promise.all([
     Conversation.find(query)
       .sort({ updatedAt: -1 })
       .skip(skip)
@@ -423,11 +480,11 @@ export async function adminListConversations(
       .populate('buyerId', 'name mobile')
       .populate('sellerId', 'name mobile')
       .populate('adId', 'title')
-      .lean(),
+      .lean() as Promise<PopulatedConv[]>,
     Conversation.countDocuments(query),
   ]);
 
-  return { convs, total };
+  return { convs: rawConvs.map(shapeConv), total };
 }
 
 export async function adminGetConversation(conversationId: string) {

@@ -57,6 +57,7 @@ import { moderateContent } from './ModerationService';
 import { processImages } from '../utils/imageProcessor';
 import { deleteFromS3Url, sanitizePersistedImageUrls } from '../utils/s3';
 import { computeActiveExpiry, normalizeAdStatus, type StatusTransitionData, type AdStatus } from './adStatusService';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
 import {
     checkPostLimit,
@@ -313,7 +314,7 @@ export const promoteAd = async (
 
     // 🛡️ Phase 2: listingType Guard for Spotlight
     // Only 'ad' and 'service' types are eligible for spotlight.
-    if (ad.listingType === 'spare_part') {
+    if (ad.listingType === LISTING_TYPE.SPARE_PART) {
         const err: any = new Error('Spare parts are not eligible for Spotlight promotion.');
         err.statusCode = 403;
         throw err;

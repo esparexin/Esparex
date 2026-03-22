@@ -5,6 +5,7 @@ import { validateObjectId } from '../middleware/validateObjectId';
 import * as sparePartListingController from '../controllers/sparePartListingController';
 import { duplicateCooldownMiddleware } from '../middlewares/duplicateCooldownMiddleware';
 import { createListingValidator } from '../validators/listing.validator';
+import { phoneRevealLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -40,6 +41,13 @@ router.get(
  * @access  Public
  */
 router.get('/', sparePartListingController.getSparePartListings);
+
+/**
+ * @route   GET /api/v1/spare-part-listings/:id/phone
+ * @desc    Reveal seller phone for a spare part listing
+ * @access  Private
+ */
+router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, sparePartListingController.getSparePartPhone);
 
 /**
  * @route   GET /api/v1/spare-part-listings/:idOrSlug

@@ -72,7 +72,7 @@ export class EmailService {
                     <p><strong>Risk Level:</strong> <span style="color: ${color}; font-weight: bold;">${stats.riskLevel}</span></p>
                 </div>
 
-                <p>Please review the issues in the <a href="${process.env.ADMIN_URL || 'http://localhost:3000'}/admin/system/code-health">Code Health Dashboard</a>.</p>
+                <p>Please review the issues in the <a href="${process.env.ADMIN_URL || 'http://localhost:3000'}/admin/system">Admin Dashboard</a>.</p>
             </div>
         `;
     }

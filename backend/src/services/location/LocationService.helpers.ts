@@ -1,4 +1,3 @@
-import { isValidLatitude, isValidLongitude } from '../../../../shared/utils/geoUtils';
 import { normalizeToGeoJSON } from '../../utils/GeoUtils';
 
 export interface LocationInputObject {

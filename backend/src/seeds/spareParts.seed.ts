@@ -77,7 +77,6 @@ export async function seedSpareParts() {
         try {
             await SparePartModel.create({
                 name: part.name,
-                type: part.type,
                 categoryIds,
                 slug,
                 status: CATALOG_STATUS.ACTIVE,

@@ -13,6 +13,7 @@ import { handlePaginatedContent } from '../../utils/contentHandler';
 import { hydrateServiceRefs, type ServiceRecord } from '../../utils/serviceRefResolver';
 import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from '../../utils/errorResponse';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 
 type ServiceAnalyticsPayload = {
@@ -36,10 +37,10 @@ export const getMyServices = async (req: Request, res: Response) => {
 
     // Unified: use AdModel with listingType guard
     return handlePaginatedContent(req, res, asModel(AdModel), {
-        adminQuery: { sellerId: user._id, listingType: 'service' },
-        publicQuery: { sellerId: user._id, listingType: 'service' },
+        adminQuery: { sellerId: user._id, listingType: LISTING_TYPE.SERVICE },
+        publicQuery: { sellerId: user._id, listingType: LISTING_TYPE.SERVICE },
         populate: [
-            { path: 'locationId', select: 'name city state' }
+            { path: 'location.locationId', select: 'name city state' }
         ],
         transformResponse: (items: unknown[]) => hydrateServiceRefs(items as ServiceRecord[]),
         defaultSort: { createdAt: -1 }
@@ -51,20 +52,24 @@ export const getMyServices = async (req: Request, res: Response) => {
 --------------------------------------------------- */
 export const getServices = async (req: Request, res: Response) => {
     try {
-        const { categoryId, brandId, locationId, level, search, page, limit, lat, lng, radiusKm, minPrice, maxPrice, cursor } = req.query;
+        const { categoryId, brandId, locationId, level, location, search, page, limit, lat, lng, radiusKm, minPrice, maxPrice, cursor } = req.query;
+        const parsedLat = typeof lat === 'string' ? Number(lat) : undefined;
+        const parsedLng = typeof lng === 'string' ? Number(lng) : undefined;
+        const parsedRadiusKm = typeof radiusKm === 'string' ? Number(radiusKm) : undefined;
 
         // Redirect to unified AdQueryService
         const result = await adService.getAds(
             {
-                listingType: 'service',
+                listingType: LISTING_TYPE.SERVICE,
                 categoryId: categoryId as string,
                 brandId: brandId as string,
                 locationId: locationId as string,
                 level: level as any,
+                location: location as string,
                 search: search as string,
-                lat: lat as any,
-                lng: lng as any,
-                radiusKm: Number(radiusKm) || 50,
+                lat: Number.isFinite(parsedLat) ? parsedLat : undefined,
+                lng: Number.isFinite(parsedLng) ? parsedLng : undefined,
+                radiusKm: Number.isFinite(parsedRadiusKm) ? parsedRadiusKm : undefined,
                 minPrice: Number(minPrice),
                 maxPrice: Number(maxPrice),
                 status: AD_STATUS.LIVE
@@ -118,7 +123,7 @@ export const getServiceById = async (req: Request, res: Response) => {
         if (!mongoose.Types.ObjectId.isValid(idOrSlug)) {
             const foundService = await AdModel.findOne({
                 seoSlug: idOrSlug, // Unified uses 'seoSlug'
-                listingType: 'service',
+                listingType: LISTING_TYPE.SERVICE,
                 status: AD_STATUS.LIVE
             }).select('_id').exec();
 
@@ -167,8 +172,8 @@ export const incrementServiceView = async (req: Request, res: Response) => {
         if (!idOrSlug) return;
 
         const lookup = mongoose.Types.ObjectId.isValid(idOrSlug)
-            ? { _id: idOrSlug, status: AD_STATUS.LIVE, listingType: 'service' }
-            : { seoSlug: idOrSlug, status: AD_STATUS.LIVE, listingType: 'service' };
+            ? { _id: idOrSlug, status: AD_STATUS.LIVE, listingType: LISTING_TYPE.SERVICE }
+            : { seoSlug: idOrSlug, status: AD_STATUS.LIVE, listingType: LISTING_TYPE.SERVICE };
 
         await AdModel.exists(lookup);
         // Note: Views are tracked via incrementAdView which is called by AdEngagementService usually
@@ -219,9 +224,9 @@ export const getServicePhone = async (req: Request, res: Response) => {
 --------------------------------------------------- */
 export const getServiceAnalytics = async (req: Request, res: Response) => {
     try {
-        const totalServices = await AdModel.countDocuments({ listingType: 'service' });
-        const pendingServices = await AdModel.countDocuments({ listingType: 'service', status: 'pending' });
-        const activeServices = await AdModel.countDocuments({ listingType: 'service', status: AD_STATUS.LIVE });
+        const totalServices = await AdModel.countDocuments({ listingType: LISTING_TYPE.SERVICE });
+        const pendingServices = await AdModel.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: 'pending' });
+        const activeServices = await AdModel.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE });
 
         // Simple mock growth data for now (or aggregation if needed)
         const growth = 12; // Mock +12%

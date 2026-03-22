@@ -6,6 +6,7 @@ import { Request, Response } from 'express';
 import * as businessService from '../../services/BusinessService';
 import Ad from '../../models/Ad';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import BusinessModel from '../../models/Business';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { BusinessStatsPayload } from './shared';
@@ -53,9 +54,9 @@ export const getMyBusinessStats = async (req: Request, res: Response) => {
         }
 
         const [totalServices, approvedServices, pendingServices] = await Promise.all([
-            Ad.countDocuments({ sellerId: userId, listingType: 'service' }),
-            Ad.countDocuments({ sellerId: userId, listingType: 'service', status: AD_STATUS.LIVE }),
-            Ad.countDocuments({ sellerId: userId, listingType: 'service', status: AD_STATUS.PENDING })
+            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE }),
+            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE }),
+            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.PENDING })
         ]);
 
         const response = respond<ApiResponse<BusinessStatsPayload>>({

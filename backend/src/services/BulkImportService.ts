@@ -279,12 +279,21 @@ export const bulkImportService = {
         const categoryMap: Record<string, mongoose.Types.ObjectId> = {};
 
         for (const type of types) {
-            // Slug handling
-            let slug = type.toLowerCase().endsWith('s') ? type.toLowerCase() : `${type.toLowerCase()}s`;
-            if (type.toLowerCase() === 'laptop') slug = 'laptops';
-            if (type.toLowerCase() === 'tv') slug = 'smart-tv';
-
-            const name = type.charAt(0).toUpperCase() + type.slice(1) + (type.toLowerCase().endsWith('s') ? '' : 's');
+            // Slug handling — map seed type names to canonical existing category slugs
+            const slugMap: Record<string, string> = {
+                smartphone: 'mobiles',
+                tablet: 'tablets',
+                laptop: 'laptops',
+                tv: 'led-tvs',
+            };
+            const nameMap: Record<string, string> = {
+                smartphone: 'Mobiles',
+                tablet: 'Tablets',
+                laptop: 'Laptops',
+                tv: 'LED TVs',
+            };
+            const slug = slugMap[type.toLowerCase()] ?? (type.toLowerCase().endsWith('s') ? type.toLowerCase() : `${type.toLowerCase()}s`);
+            const name = nameMap[type.toLowerCase()] ?? (type.charAt(0).toUpperCase() + type.slice(1) + (type.toLowerCase().endsWith('s') ? '' : 's'));
 
             const cat = await Category.findOneAndUpdate(
                 { slug },
@@ -299,12 +308,14 @@ export const bulkImportService = {
                 const catId = categoryMap[device.type.toLowerCase()];
                 if (!catId) throw new Error(`Invalid device type: ${device.type}`);
 
-                // 2. Upsert Brand mapped to this single category
+                // 2. Upsert Brand — accumulate all categories (addToSet prevents overwrite for cross-category brands)
+                // slug is required by the Brand model — generate from name on insert to satisfy the (categoryIds, slug) unique index
+                const brandSlug = device.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                 const brand = await Brand.findOneAndUpdate(
                     { name: { $regex: new RegExp(`^${device.brand}$`, 'i') } },
                     {
-                        $setOnInsert: { name: device.brand, isActive: true },
-                        $set: { categoryIds: [catId] }
+                        $setOnInsert: { name: device.brand, slug: brandSlug, isActive: true, status: CATALOG_STATUS.ACTIVE },
+                        $addToSet: { categoryIds: catId }
                     },
                     { upsert: true, new: true }
                 );

@@ -5,7 +5,6 @@ import Ad from '../models/Ad';
 import Boost from '../models/Boost';
 import { buildAdMatchStage, buildHomeFeedPipeline, type AdFilters } from './AdQueryService';
 import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';
-import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 import { buildGeoNearStage, normalizeGeoInput } from '../utils/GeoUtils';
 import { CACHE_TTLS, getCache, setCache } from '../utils/redisCache';
 import type { HomeFeedResponse } from '../../../shared/types/Api';
@@ -344,7 +343,6 @@ const buildHomeFeed = async (
     
     // 1. Resolve Match Criteria
     const baseFilters: AdFilters = {
-        ...buildPublicAdFilter(),
         sortBy: 'newest',
         ...(typeof input.location === 'string' && input.location.trim().length > 0
             ? { location: input.location.trim() }
@@ -360,8 +358,7 @@ const buildHomeFeed = async (
             : {}),
         ...(typeof input.category === 'string' && input.category.trim().length > 0
             ? { category: input.category.trim() }
-            : {}),
-        ...(cursor ? { createdBefore: cursor.createdAt.toISOString() } : {})
+            : {})
     };
 
     const matchStage = await buildAdMatchStage(baseFilters);
@@ -393,13 +390,15 @@ const buildHomeFeed = async (
 
     // 2.5 Resolve Geo Location ($geoNear MUST be the first stage if coordinates are present)
     const { lat, lng, hasGeo } = normalizeGeoInput(input.lat, input.lng);
+    const normalizedLevel = typeof input.level === 'string' ? input.level.toLowerCase() : undefined;
+    const shouldUseGeo = hasGeo && normalizedLevel !== 'state' && normalizedLevel !== 'country';
     // Use user-provided radius, or default to 50km if Geo is used. (Hard-cap at 500km)
-    const safeRadius = hasGeo 
+    const safeRadius = shouldUseGeo 
         ? Math.min(Math.max(Number(input.radiusKm) || 50, 1), 500) 
         : 0;
     
     let geoStage: mongoose.PipelineStage | undefined = undefined;
-    if (hasGeo) {
+    if (shouldUseGeo) {
         geoStage = buildGeoNearStage({
             lng,
             lat,
@@ -411,31 +410,55 @@ const buildHomeFeed = async (
     }
 
     // 3. Unified Aggregation with shared pipeline utility
-    const pipeline = buildHomeFeedPipeline(matchStage, boostedIds, limit, geoStage);
+    const pipeline = buildHomeFeedPipeline(matchStage, boostedIds, limit, geoStage, cursor ?? undefined);
     const [facetResults] = await Ad.aggregate(pipeline);
 
-    const spotlightAds = (facetResults?.spotlight || []).map((ad: any) => ({ ...ad, isBoosted: false }));
-    const boostedAds = (facetResults?.boosted || []).map((ad: any) => ({ ...ad, isBoosted: true }));
-    const organicAds = (facetResults?.organic || []).map((ad: any) => ({ ...ad, isBoosted: false }));
+    const spotlightAds = filterBeforeCursor(
+        (facetResults?.spotlight || []).map((ad: any) => ({
+            ...ad,
+            isSpotlight: true,
+            isBoosted: false
+        })),
+        cursor
+    );
+    const boostedAds = filterBeforeCursor(
+        (facetResults?.boosted || []).map((ad: any) => ({
+            ...ad,
+            isSpotlight: false,
+            isBoosted: true
+        })),
+        cursor
+    );
+    const organicAds = filterBeforeCursor(
+        (facetResults?.organic || []).map((ad: any) => ({
+            ...ad,
+            isSpotlight: false,
+            isBoosted: false
+        })),
+        cursor
+    );
 
     // 4. Merge results using existing logic (to preserve business rules like PROMOTED_RATIO_CAP)
     const merged = mergeRankedFeed(spotlightAds, boostedAds, organicAds, limit);
 
     // 5. Fallback Logic (Reuse existing but slightly optimized)
     let isFallbackResult = false;
-    const isStrictLocation = Boolean(input.locationId || input.location || (input.lat && input.lng));
+    const isStrictLocation = Boolean(input.locationId || input.location || shouldUseGeo);
 
     if (!cursor && merged.ads.length < 4 && isStrictLocation) {
         isFallbackResult = true;
         const seenIds = new Set(merged.ads.map(extractAdId).filter(Boolean));
 
         // PR 7 - FeedDecisionEngine Progressive Expansion
+        // Pass locationId so the engine uses indexed locationPath queries (unified with AdQueryService).
+        // Pass state so regional neighbor expansion works when coordinates are unavailable.
         const engineResult = await FeedDecisionEngine.getFallbackFeed(
-            { 
-                city: typeof input.location === 'string' ? input.location.trim() : undefined, 
-                state: undefined, // State is inferred if input.level == state, but mostly it's derived from resolving locationId prior to this manually
-                lat: input.lat, 
-                lng: input.lng 
+            {
+                locationId: input.locationId,
+                city: typeof input.location === 'string' ? input.location.trim() : undefined,
+                state: input.level === 'state' && typeof input.location === 'string' ? input.location.trim() : undefined,
+                lat: shouldUseGeo ? input.lat : undefined,
+                lng: shouldUseGeo ? input.lng : undefined,
             },
             Array.from(seenIds),
             limit - merged.ads.length,

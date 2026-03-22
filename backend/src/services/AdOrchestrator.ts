@@ -13,6 +13,7 @@ import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { mutateStatus } from './StatusMutationService';
 import { computeActiveExpiry } from './adStatusService';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
 
 export interface AdOrchestrationContext {
     authUserId: string; // The authenticated subject (JWT)
@@ -56,7 +57,7 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
             if (context.actor === 'USER' && !context.allowQuotaBypass) {
                 const slotResult = await ListingSubmissionPolicy.reserveSlot({
                     userId: context.sellerId,
-                    listingType: 'ad',
+                    listingType: LISTING_TYPE.AD,
                     listingId: adId.toString(),
                     session,
                     actor: 'user',

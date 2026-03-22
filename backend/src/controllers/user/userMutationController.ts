@@ -114,7 +114,7 @@ export const updateMe = async (
         updates.location = {
           city: locationData.city,
           state: locationData.state,
-          coordinates: locationData.coordinates as [number, number] | undefined
+          coordinates: locationData.coordinates
         };
 
       }

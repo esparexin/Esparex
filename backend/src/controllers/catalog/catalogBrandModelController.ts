@@ -114,9 +114,9 @@ export const getBrands = async (req: Request, res: Response) => {
     const adminCategoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryId }).build();
 
     return handlePaginatedContent(req, res, asModel(Brand), {
-        populate: isAdminView ? undefined : undefined,
         publicQuery: {
             isActive: true,
+            isDeleted: { $ne: true },
             $or: [
                 { status: CATALOG_STATUS.ACTIVE },
                 { status: { $exists: false } }
@@ -234,25 +234,21 @@ export const updateBrand = async (req: Request, res: Response) => {
 };
 
 /**
- * Toggle brand active status
+ * Toggle brand active status (auto-flips current isActive — no body required)
  */
 export const toggleBrandStatus = async (req: Request, res: Response) => {
     try {
         if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const parsed = brandStatusToggleSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
 
-        const { isActive } = parsed.data;
+        const current = await Brand.findById(req.params.id);
+        if (!current) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }
+
+        const isActive = !current.isActive;
         const updates: Record<string, unknown> = {
             isActive,
-            status: isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.REJECTED
+            status: isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.REJECTED,
         };
-        if (isActive) {
-            updates.rejectionReason = null;
-        }
+        if (isActive) updates.rejectionReason = null;
 
         const brand = await Brand.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
         if (!brand) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }

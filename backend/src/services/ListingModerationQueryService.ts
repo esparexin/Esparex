@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Ad from '../models/Ad';
 import { getAds, getAnyAdById } from './AdService';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
+import { LISTING_TYPE_VALUES, ListingTypeValue } from '../../../shared/enums/listingType';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 
 export const MODERATION_STATUSES = [
@@ -13,10 +14,11 @@ export const MODERATION_STATUSES = [
     AD_STATUS.DEACTIVATED,
 ] as const;
 
-export const MODERATION_LISTING_TYPES = ['ad', 'service', 'spare_part'] as const;
+/** @deprecated Use LISTING_TYPE_VALUES from shared/enums/listingType */
+export const MODERATION_LISTING_TYPES = LISTING_TYPE_VALUES;
 
 export type ModerationStatus = (typeof MODERATION_STATUSES)[number];
-export type ModerationListingType = (typeof MODERATION_LISTING_TYPES)[number];
+export type ModerationListingType = ListingTypeValue;
 
 export type ListingModerationFilters = {
     status?: string | string[];

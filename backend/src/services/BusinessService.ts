@@ -508,14 +508,15 @@ export const approveBusiness = async (id: string, moderatorId: string = 'SYSTEM'
         domain: 'business',
         entityId: id,
         toStatus: BUSINESS_STATUS.LIVE,
-        actor: { 
-            type: isSystem ? ACTOR_TYPE.SYSTEM : ACTOR_TYPE.ADMIN, 
-            id: isSystem ? undefined : moderatorId 
+        actor: {
+            type: isSystem ? ACTOR_TYPE.SYSTEM : ACTOR_TYPE.ADMIN,
+            id: isSystem ? undefined : moderatorId
         },
         reason: 'Business profile approval',
         patch: {
             approvedAt: new Date(),
-            expiresAt
+            expiresAt,
+            isVerified: true
         }
     });
 
@@ -529,21 +530,30 @@ export const approveBusiness = async (id: string, moderatorId: string = 'SYSTEM'
 };
 
 export const rejectBusiness = async (id: string, reason: string, moderatorId: string = 'SYSTEM') => {
+    // Capture userId before mutation for post-reject user sync
+    const existing = await Business.findById(id).select('userId').lean();
+
     const isSystem = moderatorId === 'SYSTEM' || !mongoose.Types.ObjectId.isValid(moderatorId);
 
     const business = await mutateStatus({
         domain: 'business',
         entityId: id,
         toStatus: BUSINESS_STATUS.REJECTED,
-        actor: { 
-            type: isSystem ? ACTOR_TYPE.SYSTEM : ACTOR_TYPE.ADMIN, 
-            id: isSystem ? undefined : moderatorId 
+        actor: {
+            type: isSystem ? ACTOR_TYPE.SYSTEM : ACTOR_TYPE.ADMIN,
+            id: isSystem ? undefined : moderatorId
         },
         reason,
         patch: {
-            rejectionReason: reason
+            rejectionReason: reason,
+            isVerified: false
         }
     });
+
+    // Revoke the business role — rejected owners revert to regular users
+    if (existing?.userId) {
+        await User.findByIdAndUpdate(existing.userId, { role: 'user' });
+    }
 
     return business;
 };
@@ -557,19 +567,27 @@ export const renewBusiness = async (id: string, expiresAt: Date, moderatorId: st
 
     if (wasInactive) {
         const isSystem = moderatorId === 'SYSTEM' || !mongoose.Types.ObjectId.isValid(moderatorId);
-        return await mutateStatus({
+        const renewed = await mutateStatus({
             domain: 'business',
             entityId: id,
             toStatus: BUSINESS_STATUS.LIVE,
-            actor: { 
-                type: isSystem ? ACTOR_TYPE.SYSTEM : ACTOR_TYPE.ADMIN, 
-                id: isSystem ? undefined : moderatorId 
+            actor: {
+                type: isSystem ? ACTOR_TYPE.SYSTEM : ACTOR_TYPE.ADMIN,
+                id: isSystem ? undefined : moderatorId
             },
             reason: 'Business renewal and restoration',
-            patch: { expiresAt }
+            patch: { expiresAt, isVerified: true }
         });
+
+        // Restore business role for the owner
+        if (renewed) {
+            await User.findByIdAndUpdate(businessData.userId, { role: 'business' });
+        }
+
+        return renewed;
     }
 
+    // Simple expiry extension — already live, just bump the date
     businessData.expiresAt = expiresAt;
     await businessData.save();
 

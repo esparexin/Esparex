@@ -24,13 +24,13 @@ describe('getModerationCounts', () => {
     it('uses public visibility for live counts and spotlight active checks', async () => {
         mockedAdModel.aggregate
             .mockResolvedValueOnce([
+                { _id: 'ad', count: 6 },
+                { _id: 'service', count: 2 },
+            ])
+            .mockResolvedValueOnce([
                 { _id: { listingType: 'ad', status: AD_STATUS.LIVE }, count: 10 },
                 { _id: { listingType: 'ad', status: AD_STATUS.PENDING }, count: 3 },
                 { _id: { listingType: 'service', status: AD_STATUS.LIVE }, count: 4 },
-            ])
-            .mockResolvedValueOnce([
-                { _id: 'ad', count: 6 },
-                { _id: 'service', count: 2 },
             ]);
         mockedAdModel.countDocuments.mockResolvedValueOnce(5);
 
@@ -48,21 +48,21 @@ describe('getModerationCounts', () => {
         expect(mockedAdModel.aggregate).toHaveBeenCalledTimes(2);
         expect(mockedAdModel.countDocuments).toHaveBeenCalledTimes(1);
 
-        const rawStatusPipeline = mockedAdModel.aggregate.mock.calls[0][0];
-        expect(rawStatusPipeline[0]).toEqual({
-            $match: {
-                isDeleted: { $ne: true },
-                status: { $in: [...MODERATION_STATUSES] },
-            },
-        });
-
-        const livePipeline = mockedAdModel.aggregate.mock.calls[1][0];
+        const livePipeline = mockedAdModel.aggregate.mock.calls[0][0];
         expect(livePipeline[0]).toEqual({
             $match: {
                 status: AD_STATUS.LIVE,
                 isDeleted: { $ne: true },
                 expiresAt: { $gt: expect.any(Date) },
                 moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] },
+            },
+        });
+
+        const rawStatusPipeline = mockedAdModel.aggregate.mock.calls[1][0];
+        expect(rawStatusPipeline[0]).toEqual({
+            $match: {
+                isDeleted: { $ne: true },
+                status: { $in: [...MODERATION_STATUSES] },
             },
         });
 
@@ -79,10 +79,12 @@ describe('getModerationCounts', () => {
     it('applies listingType to live and spotlight filters when provided', async () => {
         mockedAdModel.aggregate
             .mockResolvedValueOnce([
+                { _id: 'service', count: 3 }
+            ])
+            .mockResolvedValueOnce([
                 { _id: { listingType: 'service', status: AD_STATUS.PENDING }, count: 4 },
                 { _id: { listingType: 'service', status: AD_STATUS.LIVE }, count: 6 },
-            ])
-            .mockResolvedValueOnce([{ _id: 'service', count: 3 }]);
+            ]);
         mockedAdModel.countDocuments.mockResolvedValueOnce(2);
 
         const counts = await getModerationCounts('service');
@@ -92,7 +94,7 @@ describe('getModerationCounts', () => {
         expect(mockedAdModel.aggregate).toHaveBeenCalledTimes(2);
         expect(mockedAdModel.countDocuments).toHaveBeenCalledTimes(1);
 
-        const livePipeline = mockedAdModel.aggregate.mock.calls[1][0];
+        const livePipeline = mockedAdModel.aggregate.mock.calls[0][0];
         expect(livePipeline[0]).toEqual({
             $match: {
                 status: AD_STATUS.LIVE,

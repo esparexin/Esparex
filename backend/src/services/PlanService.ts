@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import UserPlan from '../models/UserPlan';
 import { SERVICE_STATUS } from '../../../shared/enums/serviceStatus';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { INVENTORY_STATUS } from '../../../shared/enums/inventoryStatus';
 import AdModel from '../models/Ad';
 import { 
@@ -96,7 +97,7 @@ export const checkPostLimit = async (
     if (type === 'service') {
         let serviceQuery = AdModel.countDocuments({
             sellerId: userId,
-            listingType: 'service',
+            listingType: LISTING_TYPE.SERVICE,
             status: { $in: [SERVICE_STATUS.LIVE, SERVICE_STATUS.PENDING] },
             isDeleted: false
         });
@@ -105,7 +106,7 @@ export const checkPostLimit = async (
     } else if (type === 'spare_part_listing') {
         let splQuery = AdModel.countDocuments({
             sellerId: userId,
-            listingType: 'spare_part',
+            listingType: LISTING_TYPE.SPARE_PART,
             status: { $in: [INVENTORY_STATUS.LIVE, INVENTORY_STATUS.PENDING] },
             isDeleted: false
         });

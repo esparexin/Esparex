@@ -392,7 +392,6 @@ export const getAds = async (
         filters.coordinates ? filters.coordinates.coordinates[1] : filters.lat,
         filters.coordinates ? filters.coordinates.coordinates[0] : filters.lng
     );
-    const shouldSkipExactCount = hasGeo && !isCursorMode;
     const normalizedLevel = typeof filters.level === 'string'
         ? filters.level.toLowerCase()
         : undefined;
@@ -402,6 +401,7 @@ export const getAds = async (
     // e.g. New Delhi should NOT be used when the user selected "India" as country.
     const isRegionLevel = normalizedLevel === 'country' || normalizedLevel === 'state';
     const shouldUseGeo = hasGeo && !isRegionLevel;
+    const shouldSkipExactCount = shouldUseGeo && !isCursorMode;
 
     const shouldUseRankScore = isTrendingSort || (shouldUseGeo && !filters.sortBy);
 
@@ -413,6 +413,21 @@ export const getAds = async (
         : 0;
 
     const effectiveFilters: AdFilters = { ...filters };
+    const locationLabel = typeof filters.location === 'string' ? filters.location.trim() : '';
+
+    if (normalizedLevel === 'state' && !effectiveFilters.state && locationLabel.length > 0) {
+        effectiveFilters.state = locationLabel;
+    }
+    if (normalizedLevel === 'country' && !effectiveFilters.country && locationLabel.length > 0) {
+        effectiveFilters.country = locationLabel;
+    }
+    if (!shouldUseGeo) {
+        delete effectiveFilters.lat;
+        delete effectiveFilters.lng;
+        delete effectiveFilters.radiusKm;
+        delete effectiveFilters.coordinates;
+    }
+
     const allowLegacyListingTypeNullCompat = await isEnabled(FeatureFlag.ENABLE_AD_LISTINGTYPE_NULL_COMPAT);
 
     const pipeline: AggregationStage[] = [];
@@ -548,7 +563,16 @@ export const getAds = async (
                         100
                     ]
                 },
-                spotlightScore: { $cond: ['$isSpotlight', 100, 0] },
+                spotlightScore: { 
+                    $cond: [
+                        { $and: [
+                            { $eq: ['$isSpotlight', true] },
+                            { $gt: ['$spotlightExpiresAt', new Date()] }
+                        ]}, 
+                        100, 
+                        0
+                    ] 
+                },
                 engagementScore: {
                     $min: [
                         { $divide: [{ $ifNull: ['$views.total', 0] }, 10] },
@@ -582,7 +606,7 @@ export const getAds = async (
 
     const sort = shouldUseRankScore
         ? ({ rankScore: -1, createdAt: -1 } as SortStage)
-        : buildAdSortStage({ ...effectiveFilters, search: hasGeo ? undefined : effectiveFilters.search });
+        : buildAdSortStage({ ...effectiveFilters, search: shouldUseGeo ? undefined : effectiveFilters.search });
     pipeline.push({ $sort: sort });
 
     if (!isCursorMode && !shouldSkipExactCount) {
@@ -683,6 +707,9 @@ export const getAds = async (
         $project: {
             title: 1,
             price: 1,
+            priceMin: 1,
+            priceMax: 1,
+            diagnosticFee: 1,
             images: 1,
             description: 1,
             location: 1,
@@ -706,12 +733,25 @@ export const getAds = async (
             fraudScore: 1,
             moderationStatus: 1,
             distance: 1,
+            distanceKm: { $cond: [{ $ifNull: ['$distance', false] }, { $divide: ['$distance', 1000] }, null] },
             rankScore: 1,
             distanceScore: 1,
             freshnessScore: 1,
             popularityScore: 1,
             sellerTrustSnapshot: 1,
             listingQualityScore: 1,
+            onsiteService: 1,
+            turnaroundTime: 1,
+            warranty: 1,
+            included: 1,
+            excluded: 1,
+            serviceTypeIds: 1,
+            sparePartId: 1,
+            compatibleModels: 1,
+            condition: 1,
+            stock: 1,
+            deviceType: 1,
+            deviceCondition: 1,
             sparePartsSnapshot: 1,
             sparePartIds: 1,
             // Include populated fields (if lookups were performed)
@@ -904,7 +944,7 @@ export const getAds = async (
     const finalResponse = {
         data,
         meta: {
-            effectiveRadiusKm: hasGeo ? safeRadius : undefined,
+            effectiveRadiusKm: shouldUseGeo ? safeRadius : undefined,
         },
         pagination: {
             page,
@@ -1288,9 +1328,23 @@ export const buildHomeFeedPipeline = (
     matchStage: UnknownRecord,
     boostedIds: mongoose.Types.ObjectId[],
     limit: number,
-    geoStage?: mongoose.PipelineStage
+    geoStage?: mongoose.PipelineStage,
+    cursor?: { createdAt: Date; id?: string | null }
 ): mongoose.PipelineStage[] => {
     const pipeline: mongoose.PipelineStage[] = [];
+    const now = new Date();
+    const effectiveSpotlightMatch: UnknownRecord = {
+        isSpotlight: true,
+        spotlightExpiresAt: { $gt: now }
+    };
+    const nonSpotlightFallbackMatch: UnknownRecord = {
+        $or: [
+            { isSpotlight: { $ne: true } },
+            { spotlightExpiresAt: { $exists: false } },
+            { spotlightExpiresAt: null },
+            { spotlightExpiresAt: { $lte: now } }
+        ]
+    };
 
     if (geoStage) {
         pipeline.push(geoStage);
@@ -1299,21 +1353,50 @@ export const buildHomeFeedPipeline = (
     // SSOT Pipeline Protection
     const visibilityMatch = { ...buildPublicAdFilter(), ...matchStage };
     pipeline.push({ $match: visibilityMatch as any });
+    if (cursor?.id && mongoose.Types.ObjectId.isValid(cursor.id)) {
+        pipeline.push({
+            $match: {
+                $or: [
+                    { createdAt: { $lt: cursor.createdAt } },
+                    {
+                        createdAt: cursor.createdAt,
+                        _id: { $lt: new mongoose.Types.ObjectId(cursor.id) }
+                    }
+                ]
+            }
+        });
+    } else if (cursor) {
+        pipeline.push({
+            $match: {
+                createdAt: { $lt: cursor.createdAt }
+            }
+        });
+    }
 
     pipeline.push(
-        { $sort: { createdAt: -1 } },
+        { $sort: { createdAt: -1, _id: -1 } },
         {
             $facet: {
                 spotlight: [
-                    { $match: { isSpotlight: true } },
+                    { $match: effectiveSpotlightMatch as any },
                     { $limit: limit * 2 }
                 ],
                 boosted: [
-                    { $match: { _id: { $in: boostedIds }, isSpotlight: { $ne: true } } },
+                    {
+                        $match: {
+                            _id: { $in: boostedIds },
+                            ...nonSpotlightFallbackMatch
+                        } as any
+                    },
                     { $limit: limit * 2 }
                 ],
                 organic: [
-                    { $match: { _id: { $nin: boostedIds }, isSpotlight: { $ne: true } } },
+                    {
+                        $match: {
+                            _id: { $nin: boostedIds },
+                            ...nonSpotlightFallbackMatch
+                        } as any
+                    },
                     { $limit: limit * 2 }
                 ]
             }

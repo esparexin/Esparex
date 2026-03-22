@@ -1,7 +1,7 @@
 /**
  * SYSTEM ROUTES
  * Domain: Users, Admin Users, API Keys, Sessions, Audit, Notifications,
- *         Locations, Geofences, Code Health, System Config, Plans, Business
+ *         Locations, Geofences, System Config, Plans, Business
  */
 import { Router } from 'express';
 import { validateObjectId } from '../../middleware/validateObjectId';
@@ -19,7 +19,6 @@ import * as apiKeyController from '../../controllers/admin/adminApiKeyController
 import * as adminSessionController from '../../controllers/admin/adminSessionController';
 import * as notificationController from '../../controllers/admin/adminNotificationController';
 import * as planController from '../../controllers/plan';
-import * as codeHealthController from '../../controllers/admin/adminCodeHealthController';
 import * as aiController from '../../controllers/ai';
 import * as adminRevealController from '../../controllers/admin/adminRevealController';
 import * as twoFAController from '../../controllers/admin/admin2FAController';
@@ -27,6 +26,14 @@ import { aiGenerateSchema } from '../../validators/ai.validator';
 import { walletAdjustmentSchema } from '../../validators/wallet.validator';
 import * as walletController from '../../controllers/wallet';
 import importRoutes from '../importRoutes';
+import {
+    adminListChats,
+    adminGetChat,
+    adminDeleteMsg,
+    adminMuteChat,
+    adminExportChat,
+    adminResolveReport,
+} from '../../controllers/chat/chatAdminController';
 import {
     getAllLocations,
     createAreaLocation,
@@ -211,15 +218,6 @@ router.post('/system/scan', adminMutationLimiter, systemController.runSystemScan
 router.post('/system/fix', adminMutationLimiter, systemController.applySystemFix);
 router.get('/cache/health', adminMutationLimiter, systemController.getCacheHealth);
 
-router.get('/code-health', codeHealthController.getCodeHealth);
-router.post('/code-health/scan', adminMutationLimiter, codeHealthController.runCodeHealthScan);
-router.get('/code-health/report', codeHealthController.getDeadCodeReport);
-router.post('/code-health/approve', adminMutationLimiter, codeHealthController.approveDeadCodeRemoval);
-router.post('/code-health/remove', adminMutationLimiter, codeHealthController.removeApprovedDeadCode);
-router.get('/code-health/history', codeHealthController.getScanHistory);
-router.get('/code-health/whitelist', codeHealthController.getWhitelist);
-router.post('/code-health/whitelist', adminMutationLimiter, codeHealthController.addToWhitelist);
-router.delete('/code-health/whitelist/:id', adminMutationLimiter, validateObjectId, codeHealthController.removeFromWhitelist);
 
 // ============================================
 // SYSTEM CONFIG / SETTINGS
@@ -234,7 +232,17 @@ router.put('/system/config', requirePermission('system:config'), adminMutationLi
 
 
 router.post('/system/config/reset', requirePermission('system:config'), adminMutationLimiter, resetSystemConfig);
-router.post('/system/config/test-email', adminMutationLimiter, testEmailConnection);
+router.post('/system/config/test-email', requirePermission('system:config'), adminMutationLimiter, testEmailConnection);
+
+// ============================================
+// CHAT MODERATION (admin access via /api/v1/admin/chat/*)
+// ============================================
+router.get('/chat/list', adminListChats);
+router.get('/chat/:id', adminGetChat);
+router.delete('/chat/message/:msgId', adminDeleteMsg);
+router.post('/chat/mute/:id', adminMutationLimiter, adminMuteChat);
+router.post('/chat/export/:id', adminExportChat);
+router.patch('/chat/report/:id', adminMutationLimiter, adminResolveReport);
 
 // ============================================
 // BULK IMPORT

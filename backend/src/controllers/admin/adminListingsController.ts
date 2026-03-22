@@ -10,6 +10,7 @@ import { mutateStatus } from '../../services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { computeActiveExpiry } from '../../services/adStatusService';
+import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
 import {
     getModerationCounts,
     getModerationListingById,
@@ -204,7 +205,7 @@ export const adminApproveListing = async (req: Request, res: Response) => {
         }
 
         const approvedAt = new Date();
-        const expiresAt = computeActiveExpiry(listing.listingType || 'ad');
+        const expiresAt = computeActiveExpiry((listing.listingType as ListingTypeValue) || LISTING_TYPE.AD);
 
         const updated = await mutateStatus({
             domain: 'ad',

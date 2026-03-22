@@ -53,15 +53,15 @@ const SERVICE_TYPE_SEED_DATA: ServiceTypeEntry[] = [
     { name: "Other",                 categorySlugOrName: "Laptops" },
 
     // ── Led-TV ────────────────────────────────────────────────────────────────
-    { name: "Screen Replacement",    categorySlugOrName: "Led-TV" },
-    { name: "Power Board Repair",    categorySlugOrName: "Led-TV" },
-    { name: "Backlight Repair",      categorySlugOrName: "Led-TV" },
-    { name: "Panel Repair",          categorySlugOrName: "Led-TV" },
-    { name: "HDMI Port Repair",      categorySlugOrName: "Led-TV" },
-    { name: "Speaker Repair",        categorySlugOrName: "Led-TV" },
-    { name: "Software Issue",        categorySlugOrName: "Led-TV" },
-    { name: "Remote Control Issue",  categorySlugOrName: "Led-TV" },
-    { name: "Other",                 categorySlugOrName: "Led-TV" },
+    { name: "Screen Replacement",    categorySlugOrName: "LED TVs" },
+    { name: "Power Board Repair",    categorySlugOrName: "LED TVs" },
+    { name: "Backlight Repair",      categorySlugOrName: "LED TVs" },
+    { name: "Panel Repair",          categorySlugOrName: "LED TVs" },
+    { name: "HDMI Port Repair",      categorySlugOrName: "LED TVs" },
+    { name: "Speaker Repair",        categorySlugOrName: "LED TVs" },
+    { name: "Software Issue",        categorySlugOrName: "LED TVs" },
+    { name: "Remote Control Issue",  categorySlugOrName: "LED TVs" },
+    { name: "Other",                 categorySlugOrName: "LED TVs" },
 ];
 
 export async function seedServiceTypes() {
@@ -97,7 +97,7 @@ export async function seedServiceTypes() {
 
         const existing = await ServiceType.findOne({
             name: { $regex: new RegExp(`^${entry.name}$`, "i") },
-            categoryId,
+            categoryIds: categoryId,
         });
 
         if (existing) {
@@ -107,7 +107,7 @@ export async function seedServiceTypes() {
 
         await ServiceType.create({
             name: entry.name,
-            categoryId,
+            categoryIds: [categoryId],
             isActive: true,
         });
         created++;

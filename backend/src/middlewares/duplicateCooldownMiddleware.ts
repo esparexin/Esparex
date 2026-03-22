@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import redis from '../config/redis';
 import logger from '../utils/logger';
+import { type ListingTypeValue, LISTING_TYPE } from '../../../shared/enums/listingType';
 
-export const duplicateCooldownMiddleware = (listingType: 'ad' | 'spare_part' | 'service' = 'ad') => {
+export const duplicateCooldownMiddleware = (listingType: ListingTypeValue = LISTING_TYPE.AD) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const sellerId = (req as any).user?.id || (req as any).user?._id;

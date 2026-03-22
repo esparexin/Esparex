@@ -177,8 +177,7 @@ export const getDistinctStates = async (req: Request, res: Response) => {
             return sendJson(res, 200, respond({ success: true, data: cachedStates }));
         }
 
-        const states = await Location.distinct('state', { isActive: true })
-            .hint({ isActive: 1, state: 1 });
+        const states = await Location.distinct('state', { isActive: true });
         const sorted = (states as string[])
             .filter((value): value is string => typeof value === 'string' && value.length > 0)
             .sort((a, b) => a.localeCompare(b));

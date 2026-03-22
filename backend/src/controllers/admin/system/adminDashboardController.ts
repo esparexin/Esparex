@@ -24,10 +24,12 @@ import AdminLog from '../../../models/AdminLog';
 import { redis } from '../../../lib/redis';
 import { scanKeysByPattern } from '../../../utils/redisCache';
 import { AD_STATUS } from '../../../../../shared/enums/adStatus';
+import { LISTING_TYPE } from '../../../../../shared/enums/listingType';
 import { BUSINESS_STATUS } from '../../../../../shared/enums/businessStatus';
 import { CATALOG_STATUS } from '../../../../../shared/enums/catalogStatus';
 import { REPORT_STATUS } from '../../../../../shared/enums/reportStatus';
 import { USER_STATUS } from '../../../../../shared/enums/userStatus';
+import { buildPublicAdFilter } from '../../../utils/FeedVisibilityGuard';
 
 import * as adminAnalyticsController from '../adminAnalyticsController';
 
@@ -41,6 +43,11 @@ const sendDashboardError = (req: Request, res: Response, error: unknown) => {
  */
 export const getStats = async (req: Request, res: Response) => {
     try {
+        // publicAdFilter mirrors exactly what users see on the homepage:
+        // status=live + not expired + not deleted + not moderation-hidden.
+        // This is the SSOT from FeedVisibilityGuard — must not be inlined here.
+        const publicAdFilter = buildPublicAdFilter();
+
         const [
             totalUsers, unifiedStats,
             pendingModels, openReports, pendingBusinesses, totalRevenueAgg
@@ -49,13 +56,13 @@ export const getStats = async (req: Request, res: Response) => {
             Ad.aggregate([
                 {
                     $facet: {
-                        totalAds: [{ $match: { listingType: 'ad' } }, { $count: "count" }],
-                        activeAds: [{ $match: { listingType: 'ad', status: AD_STATUS.LIVE } }, { $count: "count" }],
-                        pendingAds: [{ $match: { listingType: 'ad', status: AD_STATUS.PENDING } }, { $count: "count" }],
-                        totalServices: [{ $match: { listingType: 'service' } }, { $count: "count" }],
-                        activeServices: [{ $match: { listingType: 'service', status: AD_STATUS.LIVE } }, { $count: "count" }],
-                        pendingServices: [{ $match: { listingType: 'service', status: AD_STATUS.PENDING } }, { $count: "count" }],
-                        rejectedServices: [{ $match: { listingType: 'service', status: AD_STATUS.REJECTED } }, { $count: "count" }]
+                        totalAds:        [{ $match: { listingType: LISTING_TYPE.AD } }, { $count: "count" }],
+                        activeAds:       [{ $match: { listingType: LISTING_TYPE.AD,      ...publicAdFilter } }, { $count: "count" }],
+                        pendingAds:      [{ $match: { listingType: LISTING_TYPE.AD,      status: AD_STATUS.PENDING } }, { $count: "count" }],
+                        totalServices:   [{ $match: { listingType: LISTING_TYPE.SERVICE } }, { $count: "count" }],
+                        activeServices:  [{ $match: { listingType: LISTING_TYPE.SERVICE, ...publicAdFilter } }, { $count: "count" }],
+                        pendingServices: [{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.PENDING } }, { $count: "count" }],
+                        rejectedServices:[{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.REJECTED } }, { $count: "count" }]
                     }
                 }
             ]),
@@ -104,6 +111,10 @@ export const getStats = async (req: Request, res: Response) => {
  */
 export const getDashboardStats = async (req: Request, res: Response) => {
     try {
+        // publicAdFilter: same visibility rules the homepage feed uses.
+        // live = status:live AND not expired AND not deleted AND not moderation-hidden.
+        const publicAdFilter = buildPublicAdFilter();
+
         const [
             totalUsers, adStats,
             totalReports,
@@ -114,8 +125,8 @@ export const getDashboardStats = async (req: Request, res: Response) => {
             Ad.aggregate([
                 {
                     $facet: {
-                        live: [{ $match: { status: AD_STATUS.LIVE } }, { $count: "count" }],
-                        pending: [{ $match: { status: AD_STATUS.PENDING } }, { $count: "count" }]
+                        live:    [{ $match: { listingType: LISTING_TYPE.AD, ...publicAdFilter } }, { $count: "count" }],
+                        pending: [{ $match: { listingType: LISTING_TYPE.AD, status: AD_STATUS.PENDING } }, { $count: "count" }]
                     }
                 }
             ]),
@@ -328,7 +339,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
 
             // Ads by Region
             Ad.aggregate([
-                { $match: { status: AD_STATUS.LIVE } },
+                { $match: { status: AD_STATUS.LIVE, "location.state": { $exists: true, $ne: null } } },
                 { $group: { _id: "$location.state", count: { $sum: 1 } } },
                 { $sort: { count: -1 } }
             ]),
@@ -431,36 +442,40 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
             });
         }
 
-        const colors = ['#16a34a', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
-
         sendSuccessResponse(res, {
-            stats: [
-                { id: 1, metric: 'Total Active Locations', value: totalLocations.toLocaleString(), change: getChange(totalLocations, oldLocations), trend: getTrend(totalLocations, oldLocations) },
-                { id: 2, metric: 'Active Ads', value: totalAds.toLocaleString(), change: getChange(totalAds, oldAds), trend: getTrend(totalAds, oldAds) },
-                { id: 3, metric: 'Active Users', value: totalUsers.toLocaleString(), change: getChange(totalUsers, oldUsers), trend: getTrend(totalUsers, oldUsers) },
-                { id: 4, metric: 'New Requests', value: (totalLocations - oldLocations).toString(), change: 'Last 30 days', trend: 'up' }
-            ],
+            // Top-level counts — matches LocationAnalyticsData frontend type
+            totalLocations,
+            totalAds,
+            totalUsers,
+            // Shaped to match frontend type: { _id, city, state, adsCount }
             topCities: topCitiesAgg.map(c => ({
-                city: c._id.city,
-                state: c._id.state,
-                ads: c.ads,
-                users: Math.floor(c.ads * 0.8), // Heuristic if user data per city is not directly linked in Ads
-                growth: Math.floor(Math.random() * 15) + 2
+                _id: `${c._id.city ?? ''}-${c._id.state ?? ''}`,
+                city: c._id.city ?? '',
+                state: c._id.state ?? '',
+                adsCount: c.ads,
             })),
-            adsByRegion: adsByStateAgg.map((s, i) => ({
-                name: s._id,
-                value: s.count,
-                color: colors[i % colors.length]
+            // Shaped to match frontend type: { _id, count }
+            adsByState: adsByStateAgg.map(s => ({
+                _id: s._id ?? 'Unknown',
+                count: s.count,
             })),
-            monthlyTrends: trends,
-            topHotZones,
-            distanceDistribution: [
-                { range: "0-5km", count: 450 },
-                { range: "5-10km", count: 850 },
-                { range: "10-25km", count: 1200 },
-                { range: "25-50km", count: 600 },
-                { range: "50km+", count: 200 }
-            ]
+            // Shaped to match frontend type: { _id, city, state, popularityScore, isHotZone }
+            hotZones: topHotZonesRaw.map(zone => {
+                const location = hotZoneLocationMap.get(String(zone.locationId));
+                return {
+                    _id: String(zone.locationId),
+                    city: location?.city ?? '',
+                    state: location?.state ?? '',
+                    popularityScore: zone.popularityScore ?? 0,
+                    isHotZone: true,
+                };
+            }),
+            // Shaped to match frontend type: { month, ads, users }
+            monthlyTrends: trends.map(t => ({
+                month: t.month,
+                ads: t.adsPosted,
+                users: t.activeUsers,
+            })),
         });
     } catch (error) {
         sendDashboardError(req, res, error);
