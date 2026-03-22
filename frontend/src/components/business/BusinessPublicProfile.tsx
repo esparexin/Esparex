@@ -1,9 +1,10 @@
 /**
  * Business Public Profile Component
- * Read-only public-facing business profile display
+ * Read-only public-facing business profile display with listing tabs.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -17,9 +18,19 @@ import {
   Star,
   Share2,
   Heart,
+  Briefcase,
+  CircuitBoard,
+  LayoutGrid,
 } from 'lucide-react';
 import { useBusiness } from '../../hooks/useBusiness';
 import { Separator } from '../ui/separator';
+import { AdCardGrid } from '../user/ad-card';
+import { getBusinessServices, getBusinessAds, getBusinessSpareParts } from '../../api/user/businesses';
+import { generateAdSlug } from '@/utils/slug';
+import type { Ad } from '@/schemas/ad.schema';
+import type { Service } from '@/api/user/businesses';
+
+type ListingTab = 'ads' | 'services' | 'spare-parts';
 
 interface BusinessPublicProfileProps {
   businessId: string;
@@ -33,6 +44,17 @@ interface BusinessPublicProfileProps {
   currentUser?: unknown;
 }
 
+const buildListingHref = (item: Ad | Service): string => {
+  const record = item as Record<string, unknown>;
+  const id = String(record.id || record._id || '');
+  if (!id) return '/search';
+  const listingType = String(record.listingType || 'ad');
+  const slug = String(record.seoSlug || generateAdSlug(String(record.title || 'listing')));
+  if (listingType === 'service') return `/services/${slug}-${id}`;
+  if (listingType === 'spare_part') return `/spare-part-listings/${slug}-${id}`;
+  return `/ads/${slug}-${id}`;
+};
+
 export function BusinessPublicProfile({
   businessId,
   onContact,
@@ -40,16 +62,52 @@ export function BusinessPublicProfile({
   onLike,
 }: BusinessPublicProfileProps) {
   const { businessData: business, isLoading } = useBusiness(null, businessId);
+  const [activeTab, setActiveTab] = useState<ListingTab>('ads');
+
+  const { data: ads = [] } = useQuery({
+    queryKey: ['business-ads', businessId],
+    queryFn: () => getBusinessAds(businessId),
+    enabled: !!businessId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: services = [] } = useQuery({
+    queryKey: ['business-services', businessId],
+    queryFn: () => getBusinessServices(businessId),
+    enabled: !!businessId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: spareParts = [] } = useQuery({
+    queryKey: ['business-spare-parts', businessId],
+    queryFn: () => getBusinessSpareParts(businessId),
+    enabled: !!businessId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const allTabs: { key: ListingTab; label: string; icon: React.ReactNode; count: number }[] = [
+    { key: 'ads', label: 'Listings', icon: <LayoutGrid size={15} />, count: ads.length },
+    { key: 'services', label: 'Services', icon: <Briefcase size={15} />, count: services.length },
+    { key: 'spare-parts', label: 'Spare Parts', icon: <CircuitBoard size={15} />, count: spareParts.length },
+  ];
+  const tabs = allTabs.filter(t => t.count > 0);
+
+  const activeItems: (Ad | Service)[] = useMemo(() => {
+    if (activeTab === 'services') return services as Service[];
+    if (activeTab === 'spare-parts') return spareParts;
+    return ads;
+  }, [activeTab, ads, services, spareParts]);
+
   const mapData = useMemo(() => {
     if (!business) return null;
 
     const businessRecord = business as unknown as Record<string, unknown>;
     const locationRecord =
-      businessRecord.location && typeof businessRecord.location === "object"
+      businessRecord.location && typeof businessRecord.location === 'object'
         ? (businessRecord.location as Record<string, unknown>)
         : null;
     const point =
-      locationRecord?.coordinates && typeof locationRecord.coordinates === "object"
+      locationRecord?.coordinates && typeof locationRecord.coordinates === 'object'
         ? (locationRecord.coordinates as Record<string, unknown>)
         : null;
     const rawCoordinates = Array.isArray(point?.coordinates) ? point?.coordinates : null;
@@ -64,14 +122,13 @@ export function BusinessPublicProfile({
       business.location?.state,
       business.location?.pincode,
     ].filter(Boolean);
-    const addressQuery = addressParts.join(", ");
+    const addressQuery = addressParts.join(', ');
 
     if (hasCoordinates) {
       const delta = 0.02;
       const bbox = [lng - delta, lat - delta, lng + delta, lat + delta]
-        .map((value) => value.toFixed(6))
-        .join("%2C");
-
+        .map(v => v.toFixed(6))
+        .join('%2C');
       return {
         embedUrl: `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat.toFixed(6)}%2C${lng.toFixed(6)}`,
         externalUrl: `https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lng.toFixed(6)}#map=15/${lat.toFixed(6)}/${lng.toFixed(6)}`,
@@ -117,7 +174,7 @@ export function BusinessPublicProfile({
     <div className="p-6 space-y-6">
       {/* Hero Section */}
       <Card className="overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 h-32"></div>
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 h-32" />
         <CardContent className="pt-0">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-[-60px] relative">
             {/* Logo/Avatar */}
@@ -150,20 +207,18 @@ export function BusinessPublicProfile({
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">{business.businessType}</Badge>
                   {business.verified && (
-                    <Badge className="bg-green-100 text-green-800">✓ Verified</Badge>
+                    <Badge className="bg-green-100 text-green-800">✓ Verified Business</Badge>
                   )}
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  {business.rating && (
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span>
-                        {business.rating.toFixed(1)} ({business.totalReviews || 0} reviews)
-                      </span>
-                    </div>
-                  )}
-                </div>
+                {business.rating ? (
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span>
+                      {business.rating.toFixed(1)} ({business.totalReviews || 0} reviews)
+                    </span>
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
@@ -171,119 +226,91 @@ export function BusinessPublicProfile({
       </Card>
 
       {/* About Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>About</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground leading-relaxed">{business.description}</p>
-          {business.website && (
-            <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              <a
-                href={business.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                {business.website}
-              </a>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {business.description ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>About</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground leading-relaxed">{business.description}</p>
+            {business.website && (
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                <a
+                  href={business.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  {business.website}
+                </a>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Separator />
 
       {/* Contact Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Primary Contact */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Business Contact</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Business Contact</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {business.contactNumber ? (
               <div className="flex items-start gap-3">
-                <Phone className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
+                <Phone className="h-5 w-5 text-blue-600 mt-1 shrink-0" />
                 <div>
                   <p className="text-sm text-muted-foreground">Phone</p>
-                  <a
-                    href={`tel:${business.contactNumber}`}
-                    className="text-lg font-semibold hover:text-blue-600"
-                  >
+                  <a href={`tel:${business.contactNumber}`} className="font-semibold hover:text-blue-600">
                     {business.contactNumber}
                   </a>
                 </div>
               </div>
+            ) : null}
 
-              {business.whatsappNumber && (
-                <div className="flex items-start gap-3">
-                  <MessageCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">WhatsApp</p>
-                    <a
-                      href={`https://wa.me/${business.whatsappNumber.replace(/\D/g, '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-lg font-semibold hover:text-green-600"
-                    >
-                      {business.whatsappNumber}
-                    </a>
-                  </div>
-                </div>
-              )}
-
+            {business.whatsappNumber ? (
               <div className="flex items-start gap-3">
-                <Mail className="h-5 w-5 text-red-600 mt-1 flex-shrink-0" />
+                <MessageCircle className="h-5 w-5 text-green-600 mt-1 shrink-0" />
+                <div>
+                  <p className="text-sm text-muted-foreground">WhatsApp</p>
+                  <a
+                    href={`https://wa.me/${business.whatsappNumber.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold hover:text-green-600"
+                  >
+                    {business.whatsappNumber}
+                  </a>
+                </div>
+              </div>
+            ) : null}
+
+            {business.email ? (
+              <div className="flex items-start gap-3">
+                <Mail className="h-5 w-5 text-red-600 mt-1 shrink-0" />
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <a
-                    href={`mailto:${business.email}`}
-                    className="text-lg font-semibold hover:text-red-600"
-                  >
+                  <a href={`mailto:${business.email}`} className="font-semibold hover:text-red-600">
                     {business.email}
                   </a>
                 </div>
               </div>
-            </div>
+            ) : null}
+          </div>
 
-            <Button
-              onClick={() => onContact?.(businessId)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Get in Touch
-            </Button>
-          </CardContent>
-        </Card>
+          <Button
+            onClick={() => onContact?.(businessId)}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Get in Touch
+          </Button>
+        </CardContent>
+      </Card>
 
-        {/* Owner Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Owner Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Phone className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
-                <div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Mail className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
-                <div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Location Information */}
+      {/* Location */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -292,23 +319,15 @@ export function BusinessPublicProfile({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Address</p>
-              <address className="text-muted-foreground not-italic">
-                {business.location?.address}
-                <br />
-                {business.location?.city}, {business.location?.state} {business.location?.pincode}
-              </address>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Service Area</p>
-              <div className="flex flex-wrap gap-2">
-              </div>
-            </div>
-          </div>
+          {mapData?.addressQuery ? (
+            <address className="text-muted-foreground not-italic text-sm">
+              {business.location?.address && <>{business.location.address}<br /></>}
+              {[business.location?.city, business.location?.state, business.location?.pincode]
+                .filter(Boolean).join(', ')}
+            </address>
+          ) : null}
 
-          <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+          <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
             {mapData?.embedUrl ? (
               <iframe
                 title={`${business.businessName} location map`}
@@ -323,16 +342,18 @@ export function BusinessPublicProfile({
                 <div className="space-y-1">
                   <p className="font-semibold text-slate-900">Open business location in maps</p>
                   <p className="text-sm text-muted-foreground">
-                    {mapData?.addressQuery || "Address details are available above."}
+                    {mapData?.addressQuery || 'Address details are available above.'}
                   </p>
                 </div>
               </div>
             )}
 
-            {mapData?.externalUrl && (
+            {mapData?.externalUrl ? (
               <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3">
                 <p className="text-sm text-muted-foreground">
-                  {mapData.hasCoordinates ? "Interactive map preview loaded from OpenStreetMap." : "Open the full map in a new tab."}
+                  {mapData.hasCoordinates
+                    ? 'Interactive map preview loaded from OpenStreetMap.'
+                    : 'Open the full map in a new tab.'}
                 </p>
                 <a
                   href={mapData.externalUrl}
@@ -343,17 +364,62 @@ export function BusinessPublicProfile({
                   Open in Maps <ExternalLink className="h-4 w-4" />
                 </a>
               </div>
-            )}
+            ) : null}
           </div>
         </CardContent>
       </Card>
 
+      {/* Listings Tabs */}
+      {tabs.length > 0 && (
+        <div className="space-y-4">
+          {/* Tab bar */}
+          <div className="flex gap-1 border-b border-slate-200">
+            {tabs.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                  activeTab === tab.key
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+                <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  activeTab === tab.key ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
+                }`}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
 
+          {/* Grid */}
+          {activeItems.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+              {activeItems.map(item => {
+                const record = item as Record<string, unknown>;
+                const id = String(record.id || record._id || '');
+                return (
+                  <AdCardGrid
+                    key={id}
+                    ad={item as Ad}
+                    href={buildListingHref(item)}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <p className="py-10 text-center text-sm text-slate-400">
+              No {activeTab === 'ads' ? 'listings' : activeTab === 'services' ? 'services' : 'spare parts'} available.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
-
-// Icon components
 
 function MessageCircle({ className }: { className?: string }) {
   return (

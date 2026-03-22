@@ -15,7 +15,7 @@ export interface SparePartListing {
     images: string[];
     status: string;
     seoSlug: string;
-    sellerBusinessId: string | object;
+    businessId: string | object;
     location?: {
         city?: string;
         state?: string;
@@ -34,9 +34,10 @@ const normalizeSparePartListing = (listing: SparePartListing): SparePartListing 
 export const createSparePartListing = async (
     data: SparePartListingPayload
 ): Promise<SparePartListing | null> => {
-    const { data: listing } = await toApiResult<SparePartListing>(
+    const { data: listing, error } = await toApiResult<SparePartListing>(
         apiClient.post(API_ROUTES.USER.SPARE_PART_LISTINGS, data)
     );
+    if (error) throw new Error(error.userMessage || error.technicalMessage || "Failed to create spare part listing");
     return listing ? normalizeSparePartListing(listing) : null;
 };
 
@@ -53,5 +54,16 @@ export const getSparePartListingDetail = async (
     const { data: listing } = await toApiResult<SparePartListing>(
         apiClient.get(API_ROUTES.USER.SPARE_PART_LISTING_DETAIL(id))
     );
+    return listing ? normalizeSparePartListing(listing) : null;
+};
+
+export const updateSparePartListing = async (
+    id: string,
+    data: SparePartListingPayload
+): Promise<SparePartListing | null> => {
+    const { data: listing, error } = await toApiResult<SparePartListing>(
+        apiClient.put(API_ROUTES.USER.SPARE_PART_LISTING_DETAIL(id), data)
+    );
+    if (error) throw new Error(error.userMessage || error.technicalMessage || "Failed to update spare part listing");
     return listing ? normalizeSparePartListing(listing) : null;
 };

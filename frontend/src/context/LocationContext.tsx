@@ -43,6 +43,8 @@ export type LocationStateContextType = {
     shouldShowFirstVisitPrompt: boolean;
     isPermissionBlocked: boolean;
     showPermissionBlockedModal: boolean;
+    /** True when a previously saved location was silently cleared due to TTL expiry. */
+    locationExpired: boolean;
 };
 
 export type LocationDispatchContextType = {
@@ -116,6 +118,7 @@ export function LocationProvider({
     const [showPermissionBlockedModal, setShowPermissionBlockedModal] = useState(false);
     const [isPermissionBlocked, setIsPermissionBlocked] = useState(false);
     const [shouldShowPromptAfterDelay, setShouldShowPromptAfterDelay] = useState(false);
+    const [locationExpired, setLocationExpired] = useState(false);
 
     const initializedRef = useRef(false);
     const detectingRef = useRef(false);
@@ -427,10 +430,15 @@ export function LocationProvider({
                 setIsPermissionBlocked(permBlocked);
             }
 
+            const hadStoredRaw = typeof window !== "undefined" && Boolean(localStorage.getItem(SEARCH_LOCATION_STORAGE_KEY));
             const storedLocation = readStoredLocation();
             if (storedLocation) {
                 applyResolvedLocation(storedLocation, true);
                 return;
+            }
+            // If there was saved data but readStoredLocation returned null, the TTL expired
+            if (hadStoredRaw) {
+                setLocationExpired(true);
             }
 
             const profileLocation = await hydrateProfileLocation();
@@ -597,11 +605,13 @@ export function LocationProvider({
             shouldShowFirstVisitPrompt,
             isPermissionBlocked,
             showPermissionBlockedModal,
+            locationExpired,
         }),
         [
             detectError,
             isPermissionBlocked,
             location,
+            locationExpired,
             shouldShowFirstVisitPrompt,
             showPermissionBlockedModal,
             status,

@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "../routes";
 import logger from "@/lib/logger";
+import type { FormPlacement } from "@shared/enums/listingType";
 
 /**
  * Category Data API
@@ -163,7 +164,7 @@ export async function getServiceTypes(categoryId?: string): Promise<ServiceType[
 
 export async function getSpareParts(
     categoryId?: string,
-    placement?: 'postad' | 'postsparepart'
+    placement?: Extract<FormPlacement, 'postad' | 'postsparepart'>
 ): Promise<SparePart[]> {
     try {
         const response = await apiClient.get(API_ROUTES.USER.SPARE_PARTS_BASE, {

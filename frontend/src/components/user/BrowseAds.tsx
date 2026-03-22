@@ -1,9 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { PackageOpen, RefreshCw, BellPlus } from "lucide-react";
 
 import { type AdFilters, type Ad, type AdPageResult } from "@/api/user/ads";
@@ -78,24 +77,6 @@ export function BrowseAds({
   const [view, setView] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
 
-  const [lanes, setLanes] = useState(4);
-  const parentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (view === "list") {
-      setLanes(1);
-      return;
-    }
-    const updateLanes = () => {
-      if (window.innerWidth >= 1024) setLanes(4);
-      else if (window.innerWidth >= 768) setLanes(3);
-      else setLanes(2);
-    };
-    updateLanes();
-    window.addEventListener("resize", updateLanes);
-    return () => window.removeEventListener("resize", updateLanes);
-  }, [view]);
-
   const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
 
   // Derived brand list from returned ads for filter sidebar
@@ -157,6 +138,14 @@ export function BrowseAds({
     if (priceRange[1] < 200000) nextFilters.maxPrice = priceRange[1];
 
     if (location) {
+      const isRegionLevel = location.level === "state" || location.level === "country";
+      const regionLocationLabel =
+        location.level === "state"
+          ? (location.state || location.city || undefined)
+          : location.level === "country"
+            ? (location.country || location.state || location.city || undefined)
+            : undefined;
+
       if (location.locationId) {
         nextFilters.locationId = location.locationId;
       }
@@ -165,10 +154,12 @@ export function BrowseAds({
       }
       const lat = getLatitude(location);
       const lng = getLongitude(location);
-      if (lat != null && lng != null) {
+      if (!isRegionLevel && lat != null && lng != null) {
         nextFilters.lat = lat;
         nextFilters.lng = lng;
         nextFilters.radiusKm = radiusKm;
+      } else if (regionLocationLabel) {
+        nextFilters.location = regionLocationLabel;
       } else if (location.city) {
         nextFilters.location = location.city;
       }
@@ -203,14 +194,6 @@ export function BrowseAds({
   const ads = data?.data ?? [];
   const total = data?.pagination.total ?? (ads.length > 0 ? ads.length : 0);
   const hasMore = data?.pagination.hasMore ?? false;
-
-  const rowVirtualizer = useVirtualizer({
-    count: ads.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => (view === "list" ? 180 : 320),
-    overscan: 5,
-    lanes: view === "list" ? 1 : lanes,
-  });
 
   // Extract unique brands from results for filter sidebar (page 1)
   useEffect(() => {
@@ -376,44 +359,29 @@ export function BrowseAds({
 
             {/* ── Ads Grid / List ──────────────────────────────────────── */}
             {ads.length > 0 && (
-              <div ref={parentRef} className="max-h-[800px] overflow-auto custom-scrollbar w-full pb-8">
-                <div
-                  className={
-                    view === "list"
-                      ? "flex flex-col gap-3"
-                      : "grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
-                  }
-                >
-                  {rowVirtualizer.getVirtualItems().length > 0 && Array.from({ length: rowVirtualizer.getVirtualItems()[0]?.index ?? 0 }).map((_, i) => (
-                    <div key={`spacer-before-${i}`} style={{ height: view === 'list' ? 180 : 320 }} />
-                  ))}
-
-                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                    const ad = ads[virtualRow.index];
-                    if (!ad) return null;
-                    if (view === "list") {
-                      return (
-                        <AdCardList
-                          key={ad.id}
-                          ad={ad}
-                          href={`/ads/${generateAdSlug(ad.title)}-${ad.id}`}
-                        />
-                      );
-                    }
-                    return (
-                      <AdCardGrid
-                        key={ad.id}
-                        ad={ad}
-                        href={`/ads/${generateAdSlug(ad.title)}-${ad.id}`}
-                        priority={virtualRow.index < 4}
-                      />
-                    );
-                  })}
-
-                  {rowVirtualizer.getVirtualItems().length > 0 && Array.from({ length: Math.max(0, ads.length - 1 - (rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]?.index ?? 0)) }).map((_, i) => (
-                    <div key={`spacer-after-${i}`} style={{ height: view === 'list' ? 180 : 320 }} />
-                  ))}
-                </div>
+              <div
+                className={
+                  view === "list"
+                    ? "flex flex-col gap-3"
+                    : "grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
+                }
+              >
+                {ads.map((ad, index) =>
+                  view === "list" ? (
+                    <AdCardList
+                      key={ad.id}
+                      ad={ad}
+                      href={`/ads/${generateAdSlug(ad.title)}-${ad.id}`}
+                    />
+                  ) : (
+                    <AdCardGrid
+                      key={ad.id}
+                      ad={ad}
+                      href={`/ads/${generateAdSlug(ad.title)}-${ad.id}`}
+                      priority={index < 4}
+                    />
+                  )
+                )}
               </div>
             )}
 

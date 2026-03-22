@@ -19,6 +19,8 @@ export const ROUTES = {
     PROFILE_SETTINGS: "profile-settings",
     PUBLIC_PROFILE: "public-profile",
     EDIT_AD: "edit-ad",
+    EDIT_SERVICE: "edit-service",
+    EDIT_SPARE_PART: "edit-spare-part",
 } as const satisfies Record<string, UserPage>;
 
 export type RouteKey = typeof ROUTES[keyof typeof ROUTES];

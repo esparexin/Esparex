@@ -38,6 +38,7 @@ export default function ListingDetailsFields() {
         removeImage,
         listingImages,
         setLocation: setContextLocation,
+        isEditMode,
     } = usePostAd();
 
     // Watch values for UI logic
@@ -239,7 +240,7 @@ export default function ListingDetailsFields() {
                                 <button
                                     type="button"
                                     onClick={() => removeImage(idx)}
-                                    className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
@@ -289,6 +290,7 @@ export default function ListingDetailsFields() {
                             onLocationSelect={handleSelectLocation} 
                             currentDisplay={locationVal?.display}
                             className="h-14 font-bold rounded-2xl border-2"
+                            disabled={isEditMode}
                         />
                         <p className="text-[11px] text-slate-400 text-center font-medium">Use GPS auto-detect or search manually for your city.</p>
                     </div>

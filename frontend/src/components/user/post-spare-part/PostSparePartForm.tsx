@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Field } from "@/components/ui/field";
 import { cn } from "@/components/ui/utils";
 import { Loader2, Upload, X, Check, CircuitBoard, MapPin } from "@/icons/IconRegistry";
+import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
 import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
@@ -168,15 +169,18 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                 });
             }
             // Create: map sparePartTypeId → sparePartId (backend field name)
+            // Also hoist locationId to top-level — backend controller requires it there
             return createSparePartListing({
                 categoryId: payload.categoryId,
                 sparePartId: payload.sparePartTypeId,
                 brandId: payload.brandId || undefined,
+                condition: "new",
                 title: payload.title,
                 description: payload.description,
                 price: payload.price,
                 images: payload.images,
                 location: payload.location,
+                locationId: (payload.location as any)?.locationId || businessData?.location?.locationId,
             });
         },
         onSuccess: () => router.push(isEditMode ? "/my-ads?tab=pending" : "/post-spare-part-success"),
@@ -287,30 +291,13 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                             {categoryId && availableBrands.length > 0 && (
                                 <section className="space-y-3">
                                     <Field label="Brand" error={errors.brandId?.message}>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {availableBrands.map(brandName => {
-                                                const id = brandMap[brandName]?.id || brandName;
-                                                const selected = watch("brandId") === id;
-                                                return (
-                                                    <button
-                                                        key={brandName}
-                                                        type="button"
-                                                        onClick={() => setValue("brandId", selected ? "" : id, { shouldValidate: true })}
-                                                        disabled={isEditMode}
-                                                        className={cn(
-                                                            "py-2.5 px-2 rounded-xl border text-xs font-bold transition-all",
-                                                            selected
-                                                                ? "bg-primary border-primary text-white shadow-sm"
-                                                                : "bg-white border-slate-100 text-slate-600 hover:border-slate-200",
-                                                            isEditMode && !selected ? "opacity-40" : ""
-                                                        )}
-                                                    >
-                                                        {selected && <Check className="w-3 h-3 inline mr-1" />}
-                                                        {brandName}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
+                                        <BrandSearchSelect
+                                            brands={availableBrands}
+                                            brandMap={brandMap}
+                                            value={watch("brandId") || ""}
+                                            onChange={(id) => setValue("brandId", id || "", { shouldValidate: true })}
+                                            disabled={isEditMode}
+                                        />
                                     </Field>
                                 </section>
                             )}

@@ -35,6 +35,9 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
     pathname === "/post-ad" ||
     pathname.startsWith("/edit-ad") ||
     pathname === "/post-service" ||
+    pathname.startsWith("/edit-service") ||
+    pathname === "/post-spare-part-listing" ||
+    pathname.startsWith("/edit-spare-part") ||
     pathname === "/account/business/apply" ||
     pathname === "/login" ||
     pathname === "/register"

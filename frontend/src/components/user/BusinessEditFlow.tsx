@@ -191,7 +191,16 @@ export function BusinessEditFlow({
                 throw new Error("Update failed");
             }
 
-            notify.success(TOAST_MESSAGES.UPDATE_SUCCESS);
+            // If critical fields changed the backend resets status to PENDING for re-review
+            if (updated.status === 'pending') {
+                notify.success("Changes saved. Your profile is under admin review again.");
+            } else {
+                notify.success(TOAST_MESSAGES.UPDATE_SUCCESS);
+            }
+
+            // Trigger session refresh to sync businessStatus in sidebar/navigation
+            window.dispatchEvent(new CustomEvent("esparex_auth_update"));
+
             if (onComplete) {
                 onComplete();
             } else {

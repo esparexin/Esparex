@@ -11,17 +11,9 @@ import {
 } from "@/lib/location/coordinates";
 
 const GEOLOCATION_TIMEOUT_MS = 12000;
-export const MONGOOSE_OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
-
-export function sanitizeMongoObjectId(value: unknown): string | undefined {
-    if (typeof value !== "string" && typeof value !== "number") return undefined;
-    const trimmed = String(value).trim();
-    if (!trimmed || !MONGOOSE_OBJECT_ID_REGEX.test(trimmed)) return undefined;
-    return trimmed;
-}
 
 const normalizeSource = (value: unknown): AppLocationSource => {
     if (value === "auto" || value === "ip" || value === "manual" || value === "default") {

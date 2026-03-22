@@ -67,7 +67,7 @@ export const AdCardGrid = memo(function AdCardGrid({
   return (
     <Wrapper>
       <Card
-        className={`overflow-hidden hover:shadow-2xl transition-all duration-300 group cursor-pointer border-border/40 bg-card/50 backdrop-blur-sm hover:-translate-y-1 ${ad.isSpotlight ? 'ring-2 ring-yellow-500 ring-offset-2' : ''} ${className || ''}`}
+        className={`overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border border-slate-200 bg-white hover:-translate-y-0.5 rounded-xl ${ad.isSpotlight ? 'ring-2 ring-yellow-500 ring-offset-2' : ''} ${className || ''}`}
         onClick={useDeclarativeLink ? undefined : handleCardClick}
       >
         {/* Cover Section */}

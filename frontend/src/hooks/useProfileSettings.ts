@@ -12,7 +12,7 @@ import type { SmartAlert } from "@/hooks/useSmartAlerts";
 import { SmartAlertCreateSchema } from "@shared/schemas/smartAlert.schema";
 import type { SmartAlertCreatePayload } from "@shared/schemas/smartAlert.schema";
 import type { Location as AppLocation } from "@/api/user/locations";
-import { sanitizeMongoObjectId } from "@/lib/location/locationService";
+import { sanitizeMongoObjectId } from "@shared/listingUtils/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 
 /* ---- Local Types (re-exported for the sidebar to use) ---- */

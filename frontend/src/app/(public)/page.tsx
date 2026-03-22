@@ -7,6 +7,7 @@ import { getHomeAds } from "@/api/user/ads";
 import { HomeFeed } from "@/components/home/HomeFeed";
 import { HomeBannerAd } from "@/components/home/HomeBannerAd";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { BusinessQuickActionsShell } from "@/components/home/BusinessQuickActionsShell";
 
 const CategoryBrowser = nextDynamic(
     () => import("@/components/home/CategoryBrowser").then((mod) => mod.CategoryBrowser),
@@ -92,6 +93,8 @@ export default async function Home() {
 
             <section data-primary className="flex flex-col">
                 <CategoryBrowser categories={categories} />
+                <BusinessQuickActionsShell />
+
                 <HomeFeed initialData={initialHomeAds} />
                 <HomeBannerAd />
             </section>

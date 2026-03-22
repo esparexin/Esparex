@@ -126,7 +126,7 @@ export function MyAdsTab({
                 />
 
                 {/* Tabs for Ad Status */}
-                <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-hide px-4 md:px-6">
                     {(["live", "pending", "sold", "expired", "rejected", "deactivated"] as const).map((tab) => (
                         <button
                             key={tab}

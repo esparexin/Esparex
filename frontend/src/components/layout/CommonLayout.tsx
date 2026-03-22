@@ -9,6 +9,11 @@ import { HeaderWrapper } from '@/app/HeaderWrapper';
 import { ClientChromeLoader } from '@/components/layout/ClientChromeLoader';
 import { ScrollSentinel } from '@/components/common/ScrollSentinel';
 
+const BusinessPostFAB = dynamic(
+    () => import('@/components/layout/BusinessPostFAB').then(m => m.BusinessPostFAB),
+    { ssr: false }
+);
+
 const DeferredFooter = dynamic(
     () => import('@/components/common/Footer').then((mod) => mod.Footer),
     { ssr: true, loading: () => null }
@@ -48,6 +53,7 @@ export function CommonLayout({
                     <main className="flex-1 pb-20 md:pb-0">
                         {children}
                     </main>
+                    <BusinessPostFAB />
                     <DeferredFooter />
                 </div>
             </BottomBarProvider>

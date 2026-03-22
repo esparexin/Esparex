@@ -1,17 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo, type CSSProperties } from "react";
+import { useLayoutEffect } from "react";
 import { usePostAd } from "../PostAdContext";
-import { Check, CircuitBoard } from "@/icons/IconRegistry";
+import { CircuitBoard } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import {
     Select,
@@ -21,47 +13,40 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Field } from "@/components/ui/field";
+import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
 
 export default function DeviceIdentityFields() {
     const {
-        // Data
         dynamicCategories,
         availableBrands,
         availableSizes,
-
-        // RHF
         register,
         watch,
         setValue,
         errors,
-
-        // Logic
         handleCategoryChange,
         handleBrandChange,
         toggleSparePart,
-        // Error management
-        setFormError,
-
         availableSpareParts,
         isLoadingSpareParts,
         requiresScreenSize,
     } = usePostAd();
 
-    // Watch values for UI logic
     const categoryId = String(watch("category") || "");
-    const brandName = String(watch("brand") || "");
+    // Use brand name (not ID) as value for BrandSearchSelect since PostAd
+    // context maps names → IDs internally via handleBrandChange
+    const brandNameValue = String(watch("brand") || "");
     const screenSize = String(watch("screenSize") || "");
     const spareParts = watch("spareParts") || [];
+    const deviceCondition = watch("deviceCondition");
 
-    const [brandSearch, setBrandSearch] = useState("");
-    const [isEditingBrand, setIsEditingBrand] = useState(false);
+    // PostAd tracks brand as name string in form "brand" field.
+    // BrandSearchSelect matches by id — use name as id so selection round-trips correctly.
+    const brandMapForSelect = Object.fromEntries(
+        availableBrands.map((name) => [name, { id: name }])
+    );
 
-    const brandInputRef = useRef<HTMLInputElement>(null);
-    const brandContainerRef = useRef<HTMLDivElement>(null);
-    const [brandDropdownStyle, setBrandDropdownStyle] = useState<CSSProperties>({});
-
-    // Register fields for RHF
-    useEffect(() => {
+    useLayoutEffect(() => {
         register("category");
         register("brand");
         register("brandId");
@@ -69,59 +54,12 @@ export default function DeviceIdentityFields() {
         register("deviceCondition");
     }, [register]);
 
-    // Fixed-position brand dropdown — avoids overflow-y:auto clipping on desktop modal layout.
-    useEffect(() => {
-        if (!brandSearch) {
-            setBrandDropdownStyle({});
-            return;
-        }
-        const updateBrandPosition = () => {
-            const container = brandContainerRef.current;
-            if (!container) return;
-            const rect = container.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - rect.bottom;
-            const dropdownMaxH = 280;
-            setBrandDropdownStyle({
-                position: "fixed",
-                top: rect.bottom + 4,
-                left: rect.left,
-                width: rect.width,
-                zIndex: 9999,
-                maxHeight: Math.min(dropdownMaxH, Math.max(spaceBelow - 8, 80)),
-            });
-        };
-        updateBrandPosition();
-        window.addEventListener("scroll", updateBrandPosition, true);
-        window.addEventListener("resize", updateBrandPosition);
-        return () => {
-            window.removeEventListener("scroll", updateBrandPosition, true);
-            window.removeEventListener("resize", updateBrandPosition);
-        };
-    }, [brandSearch]);
-
-    // Clear search input when brand is selected
-    useEffect(() => {
-        if (brandName) setBrandSearch("");
-    }, [brandName]);
-
-    const filteredBrands = useMemo(
-        () =>
-            brandSearch
-                ? availableBrands.filter((b) =>
-                    b.toLowerCase().includes(brandSearch.toLowerCase())
-                )
-                : availableBrands,
-        [availableBrands, brandSearch]
-    );
-
-    const deviceCondition = watch("deviceCondition");
-
     return (
         <div className="space-y-6" data-testid="device-identity-fields">
 
             {/* Category */}
             <section className="space-y-4">
-                <Field error={errors.category?.message} label="Select Category">
+                <Field error={errors.categoryId?.message ?? errors.category?.message} label="Select Category">
                     <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                         {dynamicCategories.map((cat) => {
                             const Icon = cat.icon || CircuitBoard;
@@ -150,85 +88,16 @@ export default function DeviceIdentityFields() {
                 </Field>
             </section>
 
-            {/* Brand & Screen Size (shown for LED-TV / monitor categories) */}
+            {/* Brand & Screen Size */}
             <section className="space-y-4">
                 <div className="flex flex-col gap-4">
-                    <Field label="Brand" error={errors.brand?.message}>
-                        {brandName && !isEditingBrand ? (
-                            <div className="flex items-center justify-between border-2 rounded-xl px-3 h-12 bg-slate-50/50 border-slate-100">
-                                <div className="flex items-center gap-1.5 overflow-hidden">
-                                    <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                                    <span className="font-bold text-slate-900 text-sm truncate">{brandName}</span>
-                                </div>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setIsEditingBrand(true)}
-                                    className="text-primary hover:bg-primary/5 font-bold h-8 px-2 text-xs"
-                                >
-                                    Edit
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                <div className="flex gap-1.5 items-start">
-                                    <div className="relative flex-1" ref={brandContainerRef}>
-                                        <Command className="border-2 rounded-xl border-slate-200 overflow-visible bg-white focus-within:border-primary transition-colors">
-                                            <CommandInput
-                                                ref={brandInputRef}
-                                                value={brandSearch}
-                                                onValueChange={(val) => {
-                                                    setBrandSearch(val);
-                                                    setFormError(null);
-                                                }}
-                                                placeholder="Search brand"
-                                                className="h-10 border-none focus:ring-0 font-bold text-slate-900 text-sm"
-                                            />
-                                            {brandSearch && (
-                                                <>
-                                                    <div
-                                                        className="fixed inset-0 z-[9998] bg-transparent"
-                                                        onMouseDown={() => setBrandSearch("")}
-                                                    />
-                                                    <div
-                                                        style={brandDropdownStyle}
-                                                        className="bg-white border-2 rounded-xl shadow-xl border-slate-100 overflow-y-auto"
-                                                    >
-                                                        <CommandList>
-                                                            {filteredBrands.length === 0 ? (
-                                                                <CommandEmpty>
-                                                                    <div className="py-6 px-4 text-center">
-                                                                        <span className="text-sm text-slate-400">No brands found for "{brandSearch}"</span>
-                                                                    </div>
-                                                                </CommandEmpty>
-                                                            ) : (
-                                                                <CommandGroup>
-                                                                    {filteredBrands.slice(0, 8).map((b) => (
-                                                                        <CommandItem
-                                                                            key={b}
-                                                                            value={b}
-                                                                            onSelect={() => {
-                                                                                handleBrandChange(b);
-                                                                                setBrandSearch("");
-                                                                                setIsEditingBrand(false);
-                                                                            }}
-                                                                            className="py-2.5 px-3 aria-selected:bg-primary/5 aria-selected:text-primary cursor-pointer text-sm"
-                                                                        >
-                                                                            <span className="font-medium">{b}</span>
-                                                                        </CommandItem>
-                                                                    ))}
-                                                                </CommandGroup>
-                                                            )}
-                                                        </CommandList>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </Command>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                    <Field label="Brand" error={errors.brand?.message ?? errors.brandId?.message}>
+                        <BrandSearchSelect
+                            brands={availableBrands}
+                            brandMap={brandMapForSelect}
+                            value={brandNameValue}
+                            onChange={(_id, name) => handleBrandChange(name)}
+                        />
                     </Field>
 
                     {/* Screen Size — only for LED-TV / monitor categories */}
@@ -238,7 +107,7 @@ export default function DeviceIdentityFields() {
                                 value={screenSize}
                                 onValueChange={(val) => setValue("screenSize", val, { shouldValidate: true })}
                             >
-                                <SelectTrigger className="h-12 rounded-xl border-2 border-slate-200 bg-white font-bold text-slate-900 focus:border-primary transition-colors px-3 text-sm">
+                                <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-bold text-slate-900 focus:border-primary transition-colors px-3 text-sm">
                                     <SelectValue placeholder="Select size" />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-xl border-2 border-slate-100 shadow-xl">
@@ -261,7 +130,6 @@ export default function DeviceIdentityFields() {
                         Working Spare Parts
                     </label>
                     {isLoadingSpareParts ? (
-                        /* Loading skeleton */
                         <div className="grid grid-cols-3 gap-2">
                             {Array.from({ length: 6 }).map((_, i) => (
                                 <div key={i} className="h-10 rounded-xl bg-slate-100 animate-pulse" />
@@ -297,38 +165,29 @@ export default function DeviceIdentityFields() {
                 </section>
             )}
 
-            {/* Device Condition */}
-            <section className="space-y-4">
+            {/* Device Condition — compact inline toggles */}
+            <section className="space-y-3">
                 <Field label="Device Condition" error={errors.deviceCondition?.message}>
-                    <div className="grid grid-cols-2 gap-4">
-                        <Button
-                            type="button"
-                            variant={deviceCondition === "power_on" ? "default" : "outline"}
-                            onClick={() => setValue("deviceCondition", "power_on", { shouldValidate: true })}
-                            className={cn(
-                                "h-20 rounded-2xl flex flex-col gap-2 font-bold transition-all",
-                                deviceCondition === "power_on"
-                                    ? "bg-green-600 hover:bg-green-700 border-green-600 text-white shadow-lg"
-                                    : "bg-white border-2 border-slate-100 hover:border-slate-200 text-slate-600"
-                            )}
-                        >
-                            <div className={cn("w-3 h-3 rounded-full", deviceCondition === "power_on" ? "bg-white" : "bg-green-500")} />
-                            <span>power on</span>
-                        </Button>
-                        <Button
-                            type="button"
-                            variant={deviceCondition === "power_off" ? "default" : "outline"}
-                            onClick={() => setValue("deviceCondition", "power_off", { shouldValidate: true })}
-                            className={cn(
-                                "h-20 rounded-2xl flex flex-col gap-2 font-bold transition-all",
-                                deviceCondition === "power_off"
-                                    ? "bg-red-600 hover:bg-red-700 border-red-600 text-white shadow-lg"
-                                    : "bg-white border-2 border-slate-100 hover:border-slate-200 text-slate-600"
-                            )}
-                        >
-                            <div className={cn("w-3 h-3 rounded-full", deviceCondition === "power_off" ? "bg-white" : "bg-red-500")} />
-                            <span>power off</span>
-                        </Button>
+                    <div className="flex gap-2 flex-wrap">
+                        {[
+                            { value: "power_on", label: "Power On", dot: "bg-green-500", active: "bg-green-600 text-white border-green-600 shadow-sm" },
+                            { value: "power_off", label: "Power Off", dot: "bg-red-500", active: "bg-red-600 text-white border-red-600 shadow-sm" },
+                        ].map(({ value, label, dot, active }) => (
+                            <button
+                                key={value}
+                                type="button"
+                                onClick={() => setValue("deviceCondition", value as any, { shouldValidate: true })}
+                                className={cn(
+                                    "flex items-center gap-2 h-10 px-4 rounded-xl border-2 text-sm font-bold transition-all",
+                                    deviceCondition === value
+                                        ? active
+                                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                                )}
+                            >
+                                <div className={cn("w-2.5 h-2.5 rounded-full shrink-0", deviceCondition === value ? "bg-white/80" : dot)} />
+                                {label}
+                            </button>
+                        ))}
                     </div>
                 </Field>
             </section>

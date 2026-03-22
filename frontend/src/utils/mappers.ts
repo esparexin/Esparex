@@ -1,17 +1,4 @@
-import { toSafeImageSrc } from '@/lib/image/imageUrl';
-
-export interface BackendAd {
-    title: string;
-    price: number;
-    currency?: string;
-    images?: string[];
-    location?: { city?: string; state?: string };
-    isSpotlight?: boolean;
-    brand?: string;
-    model?: string;
-    category?: string;
-    [key: string]: unknown;
-}
+import type { ListingTypeValue } from "@shared/enums/listingType";
 
 export interface UiAd {
     id: string;
@@ -19,28 +6,27 @@ export interface UiAd {
     slug?: string;
     price: number;
     currency: string;
-    image: string;
+    /** Primary display image (single, pre-resolved URL). */
+    image?: string;
+    /** Full gallery. Components prefer this over image when available. */
+    images?: string[];
     location: string;
     isSpotlight?: boolean;
+    isBoosted?: boolean;
+    isBusiness?: boolean;
+    verified?: boolean;
+    sellerId?: string;
     brand?: string;
     model?: string;
     category?: string;
+    description?: string;
+    spareParts?: string[];
+    deviceCondition?: "power_on" | "power_off";
+    /** ISO date string — used by AdCardMeta dashboard variant. */
+    createdAt?: string;
+    /** Pre-formatted display string (e.g. "2 days ago"). */
+    time?: string;
+    views?: number | { total: number; unique: number; lastViewedAt?: string };
+    listingType?: ListingTypeValue;
     planType?: string;
 }
-
-export const mapBackendAdToUiAd = (ad: BackendAd): UiAd => {
-    return {
-        id: String(ad.id || ""),
-        title: ad.title || "Untitled Ad",
-        slug: ad.title ? ad.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : "",
-        price: ad.price || 0,
-        currency: ad.currency || "INR",
-        image: toSafeImageSrc(ad.images?.[0], ""),
-        location: ad.location?.city || "Unknown",
-        isSpotlight: ad.isSpotlight,
-        brand: ad.brand,
-        model: ad.model,
-        category: ad.category,
-        planType: ad.isSpotlight ? 'Spotlight' : undefined
-    };
-};

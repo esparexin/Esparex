@@ -4,12 +4,11 @@ import { useState, useCallback } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useNavigation } from "@/context/NavigationContext";
 import logger from "@/lib/logger";
-import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from "@/api/routes";
 import { notify } from "@/lib/notify";
 import type { ListingImage } from "@/types/listing";
 import { sanitizeMongoObjectId } from "@/utils/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
+import { fileToBase64 } from "@/components/user/business-registration/utils";
 
 import { generateIdempotencyKey } from "@/utils/listings/submissionUtils";
 
@@ -23,7 +22,6 @@ interface UseListingSubmissionProps<TFieldValues extends Record<string, any>> {
     submitFn: (payload: any, options?: { idempotencyKey?: string }) => Promise<any>;
     onSuccess?: (result: any) => void;
     onError?: (error: string) => void;
-    folder?: string;
 }
 
 /**
@@ -39,7 +37,6 @@ export function useListingSubmission<T extends Record<string, any>>({
     submitFn,
     onSuccess,
     onError,
-    folder = "ads"
 }: UseListingSubmissionProps<T>) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [idempotencyKey, setIdempotencyKey] = useState(generateIdempotencyKey);
@@ -61,20 +58,11 @@ export function useListingSubmission<T extends Record<string, any>>({
                 }
                 if (!img.file) continue;
 
-                const formData = new FormData();
-                formData.append("file", img.file);
-                formData.append("folder", isEditMode ? folder : "staging");
-                if (isEditMode && editId) formData.append("id", editId);
-
-                const uploadResponse = await apiClient.post<{ data: { url: string } }>(
-                    API_ROUTES.USER.USERS_UPLOAD,
-                    formData,
-                    { headers: { 'Content-Type': 'multipart/form-data' } }
-                );
-
-                const url = uploadResponse.data?.url;
-                if (url) finalImageUrls.push(url);
-                else throw new Error("Image upload failed: no URL returned");
+                // Convert to base64 (with compression) — the backend processImages()
+                // pipeline for services and spare parts accepts base64 data URLs
+                // and uploads them to S3 directly during the create/update call.
+                const base64 = await fileToBase64(img.file);
+                finalImageUrls.push(base64);
             }
 
             // 2. Payload Construction
@@ -127,7 +115,7 @@ export function useListingSubmission<T extends Record<string, any>>({
         }
         return null;
     }, [
-        listingImages, isEditMode, editId, folder, schema, partialSchema, 
+        listingImages, isEditMode, editId, schema, partialSchema, 
         submitFn, onSuccess, onError, idempotencyKey, setIsDirty
     ]);
 

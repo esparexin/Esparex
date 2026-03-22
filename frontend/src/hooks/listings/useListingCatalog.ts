@@ -11,8 +11,7 @@ import logger from "@/lib/logger";
 import { TOAST_MESSAGES } from "@/constants/toastMessages";
 import { normalizeOptionalObjectId } from "@/utils/listings/locationUtils";
 import { useCategoriesQuery } from "@/queries/useCategoriesQuery";
-
-const FALLBACK_SERVICE_TYPES = ["General Service", "Repair", "Installation"];
+import type { FormPlacement } from "@shared/enums/listingType";
 
 interface CategorySchemaType {
     categoryId: string;
@@ -21,7 +20,7 @@ interface CategorySchemaType {
 }
 
 interface UseListingCatalogProps {
-    listingType: 'postad' | 'postsparepart' | 'postservice';
+    listingType: FormPlacement;
     onError?: (msg: string) => void;
 }
 
@@ -132,10 +131,10 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
                         .filter((name): name is string => typeof name === "string" && name.length > 0)
                 )
             );
-            setAvailableServiceTypes(names.length > 0 ? names : [...FALLBACK_SERVICE_TYPES]);
+            setAvailableServiceTypes(names);
         } catch (err) {
             logger.error(`[Catalog] Failed to load service types for ${categoryId}:`, err);
-            setAvailableServiceTypes([...FALLBACK_SERVICE_TYPES]);
+            setAvailableServiceTypes([]);
         }
     }, []);
 

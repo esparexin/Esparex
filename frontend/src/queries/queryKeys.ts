@@ -45,4 +45,13 @@ export const queryKeys = {
         detail: (id: string | number) => [...queryKeys.services.details(), id] as const,
         myServices: (status?: string) => [...queryKeys.services.all, 'mine', { status }] as const,
     },
+
+    // Spare Parts
+    spare: {
+        all: ['spare-parts'] as const,
+        details: () => [...queryKeys.spare.all, 'detail'] as const,
+        detail: (id: string) => [...queryKeys.spare.details(), id] as const,
+        myListings: (status?: string) => [...queryKeys.spare.all, 'mine', { status }] as const,
+    },
 };
+

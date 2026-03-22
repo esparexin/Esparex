@@ -16,6 +16,20 @@ export function useBusiness(user: User | null, businessId?: string) {
     const [error, setError] = useState<any>(null);
 
     useEffect(() => {
+        if (!isFetched || !businessData || !user) return;
+
+        const currentStatus = businessData.status?.toLowerCase();
+        const userStatus = user.businessStatus?.toLowerCase();
+
+        // If backend says live but user session still says pending/none
+        // Trigger a refresh of the AuthContext/User profile
+        if (currentStatus === "live" && (userStatus === "pending" || !userStatus)) {
+            logger.info("[useBusiness] Status change detected (live), triggering session refresh...");
+            window.dispatchEvent(new CustomEvent("esparex_auth_update"));
+        }
+    }, [businessData, user, isFetched]);
+
+    useEffect(() => {
         const fetchBusiness = async () => {
             setIsLoading(true);
             setError(null);
@@ -43,6 +57,7 @@ export function useBusiness(user: User | null, businessId?: string) {
             } catch (e) {
                 logger.error("Failed to load business", e);
                 setError(e);
+                setIsFetched(true); // Mark as fetched even on error so pages don't hang
             } finally {
                 setIsLoading(false);
             }

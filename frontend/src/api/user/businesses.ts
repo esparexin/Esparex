@@ -10,6 +10,7 @@ import {
 
 import type { Business as SharedBusiness } from '@shared/types/Business';
 import type { Service as SharedService } from '@shared/types/Service';
+import type { Ad } from '@/schemas/ad.schema';
 
 // Re-export shared types for local use, adding any frontend-specific extensions if needed
 export type ApiBusiness = SharedBusiness;
@@ -266,6 +267,30 @@ export const getBusinessServices = async (
     } catch (e) {
         logger.error('Failed to load business services', e);
         throw e;
+    }
+};
+
+export const getBusinessAds = async (id: string): Promise<Ad[]> => {
+    try {
+        const { data: result } = await toApiResult<Ad[]>(
+            apiClient.get(API_ROUTES.USER.BUSINESS_ADS(id))
+        );
+        return Array.isArray(result) ? result : [];
+    } catch (e) {
+        logger.error('Failed to load business ads', e);
+        return [];
+    }
+};
+
+export const getBusinessSpareParts = async (id: string): Promise<Ad[]> => {
+    try {
+        const { data: result } = await toApiResult<Ad[]>(
+            apiClient.get(API_ROUTES.USER.BUSINESS_SPARE_PARTS(id))
+        );
+        return Array.isArray(result) ? result : [];
+    } catch (e) {
+        logger.error('Failed to load business spare parts', e);
+        return [];
     }
 };
 

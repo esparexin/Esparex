@@ -1,12 +1,8 @@
+import React from "react";
 import { useMyServices, MyServicesStatus } from "./MyServicesTab.hook";
 import { Loader } from "./Loader";
 import { ErrorBanner } from "./ErrorBanner";
 import { ServiceCard } from "./ServiceCard";
-// ...existing code...
-
-// Business logic moved to hook
-
-// ...existing code...
 
 export interface MyServicesTabProps {
     user: any;
@@ -22,7 +18,6 @@ export function MyServicesTab({
     activeTab,
     statusFilter,
 }: MyServicesTabProps) {
-    // Hook-driven architecture: destructure only used values
     const {
         myServices,
         loadingServices,
@@ -30,9 +25,8 @@ export function MyServicesTab({
         handleDeleteService,
     } = useMyServices(activeTab, user, statusFilter);
 
-    // UI wiring
     if (loadingServices) return <Loader />;
-    if (servicesError) return <ErrorBanner message={typeof servicesError === 'string' ? servicesError : servicesError?.message || 'An error occurred.'} />;
+    if (servicesError) return <ErrorBanner message={typeof servicesError === 'string' ? servicesError : (servicesError as any)?.message || 'An error occurred.'} />;
 
     return (
         <div>
@@ -45,7 +39,4 @@ export function MyServicesTab({
             ))}
         </div>
     );
-// ...existing code...
-
-    // ...UI code remains, but use myServices, loadingServices, fetchMyServices, handleDeleteService from hook
 }

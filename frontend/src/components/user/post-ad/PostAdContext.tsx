@@ -239,19 +239,20 @@ export function PostAdProvider({
         loadCategorySchema 
     } = catalogHook;
 
+    // Reactive category value — calling watch() inside useMemo is not reactive
+    // (watch reference is stable). Subscribe at render scope instead.
+    const selectedCategoryId = String(watch("category") || "");
     const requiresScreenSize = useMemo(() => {
-        const categoryId = String(watch("category") || "");
-        const category = categoryMap[categoryId];
+        const category = categoryMap[selectedCategoryId];
         if (!category) return false;
         const name = category.name?.toLowerCase() || "";
         const slug = category.slug?.toLowerCase() || "";
-        
-        return Boolean(category.hasScreenSizes) || 
-               slug.includes("tv") || 
-               slug.includes("monitor") || 
-               name.includes("tv") || 
+        return Boolean(category.hasScreenSizes) ||
+               slug.includes("tv") ||
+               slug.includes("monitor") ||
+               name.includes("tv") ||
                name.includes("monitor");
-    }, [watch, categoryMap]);
+    }, [selectedCategoryId, categoryMap]);
 
     // Destructure validation hook
     const { formError, setFormError } = validationHook;

@@ -23,6 +23,8 @@ export type UserPage =
     | "business-profile"  // Business profile page
     | "purchases"
     | "edit-ad"  // Edit ad page
+    | "edit-service"  // Edit service page
+    | "edit-spare-part"  // Edit spare part listing page
     | "edit-business"  // Edit business profile page
     | "ad-submission-success"
     | "post-service"  // Service posting form
@@ -170,11 +172,15 @@ export const PROTECTED_USER_PAGE_KEYS = [
     "business-entry",
     "my-business",
     "edit-ad",
+    "edit-service",
+    "edit-spare-part",
     "post-service",
 ] as const;
 
 const PROTECTED_PAGE_ROUTE_OVERRIDES: Partial<Record<UserPage, string>> = {
     "edit-ad": "/edit-ad",
+    "edit-service": "/edit-service",
+    "edit-spare-part": "/edit-spare-part",
 };
 
 export const PROTECTED_ROUTE_PREFIXES = Object.freeze(
@@ -246,6 +252,8 @@ export const getPageRoute = (
                 ? `/business/${encodeURIComponent(String(params.businessId))}`
                 : "/account/business";
         case "edit-ad": return params?.adId ? `/edit-ad/${params.adId}` : "/account/ads";
+        case "edit-service": return params?.adId ? `/edit-service/${params.adId}` : "/account/ads";
+        case "edit-spare-part": return params?.adId ? `/edit-spare-part/${params.adId}` : "/account/ads";
 
         case "post-service":
             return params?.serviceId ? `/post-service?serviceId=${params.serviceId}` : "/post-service";

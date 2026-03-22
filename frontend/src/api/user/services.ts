@@ -145,6 +145,7 @@ export const getMyServices = async (): Promise<Service[]> => {
 export interface ServiceFilters {
     categoryId?: string;
     search?: string;
+    location?: string;
     minPrice?: number;
     maxPrice?: number;
     brands?: string;
@@ -171,6 +172,7 @@ export const getServicesPage = async (
     const params = new URLSearchParams();
     if (filters.categoryId) params.append('categoryId', filters.categoryId);
     if (filters.search) params.append('search', filters.search);
+    if (filters.location) params.append('location', filters.location);
     if (filters.minPrice) params.append('minPrice', String(filters.minPrice));
     if (filters.maxPrice) params.append('maxPrice', String(filters.maxPrice));
     if (filters.brands) params.append('brands', filters.brands);

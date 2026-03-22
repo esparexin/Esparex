@@ -45,7 +45,7 @@ export function SimilarAds({ currentAdId, category }: SimilarAdsProps) {
             </div>
 
             <div className="relative group">
-                <div className="flex gap-4 overflow-x-auto pb-8 no-scrollbar px-4 md:px-0 scroll-smooth">
+                <div className="flex gap-4 overflow-x-auto pb-8 scrollbar-hide px-4 md:px-0 scroll-smooth">
                     {loading ? (
                         Array(4).fill(0).map((_, i) => (
                             <div key={i} className="flex-shrink-0 w-64 h-80 bg-slate-100 rounded-[2rem] animate-pulse" />

@@ -118,19 +118,31 @@ export function BrowseServices({
 
     // Geo filter — use canonical helpers from lib/location/utils
     if (location) {
+      const isRegionLevel = location.level === "state" || location.level === "country";
+      const regionLocationLabel =
+        location.level === "state"
+          ? (location.state || location.city || undefined)
+          : location.level === "country"
+            ? (location.country || location.state || location.city || undefined)
+            : undefined;
+
       if (location.locationId) {
         filters.locationId = location.locationId;
         if (location.level) {
           filters.level = location.level;
         }
-        filters.radiusKm = DEFAULT_SERVICE_RADIUS_KM;
+        if (regionLocationLabel) {
+          filters.location = regionLocationLabel;
+        }
       }
       const lat = getLatitude(location);
       const lng = getLongitude(location);
-      if (lat != null && lng != null && !filters.locationId) {
+      if (!isRegionLevel && lat != null && lng != null && !filters.locationId) {
         filters.lat = lat;
         filters.lng = lng;
         filters.radiusKm = DEFAULT_SERVICE_RADIUS_KM;
+      } else if (regionLocationLabel) {
+        filters.location = regionLocationLabel;
       }
     }
 

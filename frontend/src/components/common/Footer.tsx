@@ -62,14 +62,14 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
     return (
         <footer
             className={cn(
-                "py-12 border-t mt-auto w-full",
+                "py-6 md:py-12 border-t mt-auto w-full",
                 isDark ? "bg-slate-950 border-slate-900 text-slate-400" : "bg-slate-50 border-slate-200 text-slate-600",
                 className
             )}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Main Footer Content */}
-                <div className="grid grid-cols-3 md:grid-cols-4 gap-8 md:gap-10 mb-10">
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-10 mb-6 md:mb-10">
                     {/* Brand & Social */}
                     <div className="space-y-4 text-center md:text-left col-span-3 md:col-span-1 order-last md:order-first">
                         <div className="flex items-center gap-3 justify-center md:justify-start">
@@ -98,8 +98,8 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
 
                     {/* Company Links */}
                     <div className="text-center md:text-left col-span-1">
-                        <h3 className={cn("mb-4 font-semibold uppercase tracking-wider text-xs", isDark ? "text-slate-300" : "text-slate-900")}>Company</h3>
-                        <ul className="space-y-2 text-sm">
+                        <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[10px] md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>Company</h3>
+                        <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                             <li>{renderLink("About Us", "/about", "about")}</li>
                             <li>{renderLink("Contact", "/contact", "contact")}</li>
                             <li>{renderLink("Careers", "/faq", "faq")}</li>
@@ -109,8 +109,8 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
 
                     {/* Support Links */}
                     <div className="text-center md:text-left col-span-1">
-                        <h3 className={cn("mb-4 font-semibold uppercase tracking-wider text-xs", isDark ? "text-slate-300" : "text-slate-900")}>Support</h3>
-                        <ul className="space-y-2 text-sm">
+                        <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[10px] md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>Support</h3>
+                        <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                             <li>{renderLink("Help Center", "/faq", "faq")}</li>
                             <li>{renderLink("Safety Tips", "/safety-tips", "safety-tips")}</li>
                             <li>{renderLink("Posting Rules", "/safety-tips", "safety-tips")}</li>
@@ -120,8 +120,8 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
 
                     {/* Legal Links */}
                     <div className="text-center md:text-left col-span-1">
-                        <h3 className={cn("mb-4 font-semibold uppercase tracking-wider text-xs", isDark ? "text-slate-300" : "text-slate-900")}>Legal</h3>
-                        <ul className="space-y-2 text-sm">
+                        <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[10px] md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>Legal</h3>
+                        <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                             <li>{renderLink("Terms of Service", "/terms", "terms")}</li>
                             <li>{renderLink("Privacy Policy", "/privacy", "privacy")}</li>
                             <li>{renderLink("Cookie Policy", "/privacy", "privacy")}</li>
@@ -132,8 +132,8 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
 
                 <Separator className={cn("mb-8", isDark ? "bg-slate-900" : "bg-slate-200")} />
 
-                {/* Contact Info Bar */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                {/* Contact Info Bar — hidden on mobile to reduce scroll */}
+                <div className="hidden md:grid md:grid-cols-3 gap-6 mb-8">
                     <div className={cn(
                         "flex items-center gap-4 p-4 rounded-2xl border transition-all group",
                         isDark ? "bg-slate-900/50 border-slate-800/50 hover:border-primary/20" : "bg-white border-slate-100 hover:border-green-200"

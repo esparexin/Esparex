@@ -47,6 +47,7 @@ import { PhotoOptionsDialog } from "./profile/dialogs/PhotoOptionsDialog";
 import { PersonalTab } from "./profile/tabs/PersonalTab";
 import { MyAdsTab } from "./profile/tabs/MyAdsTab";
 import { MyServicesTab } from "./profile/tabs/MyServicesTab";
+import { MySparePartsTab } from "./profile/tabs/MySparePartsTab";
 import { PlansTab } from "./profile/tabs/PlansTab";
 import { SettingsTab } from "./profile/tabs/SettingsTab";
 import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
@@ -219,6 +220,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
       );
       case "myads": return <MyAdsTab ads={myAds} adCounts={adCounts} loadingAds={loadingAds} myAdsTab={myAdsTab} setMyAdsTab={setMyAdsTab} navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} getStatusBadge={getStatusBadge} fetchMyAds={fetchMyAds} formatDate={formatDate} handleDeleteAd={handleDeleteAdForTab} handleMarkAsSold={handleMarkAsSoldForTab} />;
       case "services": return <MyServicesTab user={user} activeTab={activeTab} statusFilter={myServicesTab} navigateTo={(page, adId, category, businessId, serviceId) => navigateTo(page as UserPage, adId, category, businessId, serviceId)} getStatusBadge={getStatusBadge} formatDate={formatDate} />;
+      case "spare-parts": return <MySparePartsTab user={user} activeTab={activeTab} statusFilter="live" getStatusBadge={getStatusBadge} formatDate={formatDate} />;
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
       case "plans": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
       case "business": return <BusinessTab businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} showBusinessEditForm={showBusinessEditForm} setShowBusinessEditForm={setShowBusinessEditForm} user={user} onUpdateUser={onUpdateUser} navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)} setActiveTab={setActiveTabFromChild} />;
@@ -269,14 +271,14 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
 
   return (
     <div className="bg-gray-50">
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-4 pb-24 md:pb-12">
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-3 pb-20 md:pb-10">
         {/* DESKTOP HEADER */}
         <div className="mb-6 hidden md:block">
           <AccountHeader />
         </div>
 
-        {/* MOBILE STICKY HEADER */}
-        <div className="sticky top-0 z-30 bg-gray-50/95 backdrop-blur-md border-b border-gray-100 py-3 -mx-4 px-4 mb-4 md:hidden transition-all shadow-sm">
+        {/* MOBILE STICKY HEADER — sits below the 100px MobileHeader */}
+        <div className="sticky top-[100px] z-30 bg-gray-50/95 backdrop-blur-md border-b border-gray-100 py-2.5 -mx-4 px-4 mb-3 md:hidden transition-all shadow-sm">
           {isMobileMenuView ? (
             <div className="flex items-center gap-2">
               <AccountHeader mobile className="w-full" />
@@ -298,10 +300,13 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           {/* LEFT SIDEBAR (Desktop Only) */}
           <aside className="hidden md:block space-y-1">
             <Card className="p-2 border-0 shadow-sm bg-white/80 backdrop-blur">
-              {PROFILE_TAB_ITEMS.filter(() => {
+              {PROFILE_TAB_ITEMS.filter((item) => {
                 if (!user) return false;
                 const allowedRoles = ["user", "business", "admin", "super_admin", "moderator", "editor", "viewer", "user_manager", "finance_manager", "content_moderator", "custom"];
-                return allowedRoles.includes(user.role);
+                if (!allowedRoles.includes(user.role)) return false;
+                // Business-only tabs require a verified (live) business
+                if (item.businessOnly) return businessData?.status === 'live';
+                return true;
               }).map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.value;
@@ -335,7 +340,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           </aside>
 
           {/* MAIN CONTENT AREA */}
-          <main className="min-h-[500px]">
+          <main className="min-h-0">
             <div className="md:hidden">
               {isMobileMenuView ? (
                 <div className="space-y-3 animate-in fade-in slide-in-from-left-4 duration-300">
@@ -347,18 +352,21 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
                     </div>
                   </div>
                   <Card className="p-2 border-0 shadow-sm">
-                    {PROFILE_TAB_ITEMS.filter(() => {
+                    {PROFILE_TAB_ITEMS.filter((item) => {
                       if (!user) return false;
                       const allowedRoles = ["user", "business", "admin", "super_admin", "moderator", "editor", "viewer", "user_manager", "finance_manager", "content_moderator", "custom"];
-                      return allowedRoles.includes(user.role);
+                      if (!allowedRoles.includes(user.role)) return false;
+                      // Business-only tabs require a verified (live) business
+                      if (item.businessOnly) return businessData?.status === 'live';
+                      return true;
                     }).map((item) => (
-                      <button key={item.value} onClick={() => handleMobileTabClick(item.value)} className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-left transition-colors active:bg-gray-100 text-slate-700 border-b border-gray-50 last:border-0">
-                        <div className="p-2 bg-gray-100 rounded-lg text-gray-500"><item.icon className="h-5 w-5" /></div>
+                      <button key={item.value} onClick={() => handleMobileTabClick(item.value)} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-slate-700 border-b border-gray-50 last:border-0">
+                        <div className="p-1.5 bg-gray-100 rounded-lg text-gray-500"><item.icon className="h-4.5 w-4.5" /></div>
                         <span className="text-sm font-semibold flex-1">{item.label}</span><ChevronRight className="h-4 w-4 text-gray-400" />
                       </button>
                     ))}
                     <Separator className="my-1" />
-                    <button onClick={onLogout} className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-left active:bg-red-50 text-red-600">
+                    <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left active:bg-red-50 text-red-600">
                       <div className="p-2 bg-red-50 rounded-lg"><LogOut className="h-5 w-5" /></div><span className="text-sm font-semibold">Logout</span>
                     </button>
                   </Card>

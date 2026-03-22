@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { FieldPath, UseFormReturn } from "react-hook-form";
-import { sanitizeMongoObjectId } from "@/lib/location/locationService";
+import { sanitizeMongoObjectId } from "@shared/listingUtils/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { useNavigation } from "@/context/NavigationContext";
 

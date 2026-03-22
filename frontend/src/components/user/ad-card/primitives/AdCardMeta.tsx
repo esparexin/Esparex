@@ -23,6 +23,15 @@ export const AdCardMeta = memo(function AdCardMeta({
   variant = "default",
 }: AdCardMetaProps) {
   const adRecord = ad as Record<string, unknown>;
+
+  // Listing type pill
+  const listingType = adRecord.listingType as string | undefined;
+  const listingTypeConfig = listingType === 'service'
+    ? { label: 'Service', className: 'bg-emerald-50 text-emerald-700 border-emerald-100' }
+    : listingType === 'spare_part'
+    ? { label: 'Spare Part', className: 'bg-violet-50 text-violet-700 border-violet-100' }
+    : { label: 'Device', className: 'bg-blue-50 text-blue-700 border-blue-100' };
+
   const rawViews = adRecord.views;
   const dashboardViews =
     typeof rawViews === "number"
@@ -43,8 +52,18 @@ export const AdCardMeta = memo(function AdCardMeta({
         {ad.title}
       </h3>
 
-      <div className={cn("font-bold", isDashboard ? "text-primary text-lg mt-2" : "text-green-600 text-sm md:text-base")}>
-        {ad.price === 0 ? "Free" : formatPrice(ad.price)}
+      <div className="flex items-center justify-between gap-2 mt-1">
+        <span className={cn("font-bold", isDashboard ? "text-primary text-lg" : "text-green-600 text-sm md:text-base")}>
+          {ad.price === 0 ? "Free" : formatPrice(ad.price)}
+        </span>
+        {!isDashboard && (
+          <span className={cn(
+            "shrink-0 text-[9px] md:text-[10px] font-semibold px-1.5 py-0.5 rounded border leading-tight",
+            listingTypeConfig.className
+          )}>
+            {listingTypeConfig.label}
+          </span>
+        )}
       </div>
 
       <div className={cn(

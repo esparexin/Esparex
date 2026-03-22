@@ -96,7 +96,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                 {/* Thumbnail Carousel */}
                 {safeImages.length > 1 && (
                     <div className="px-4 py-4 bg-transparent">
-                        <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
+                        <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
                             {safeImages.map((image: string, index: number) => (
                                 <button
                                     key={index}

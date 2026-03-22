@@ -31,6 +31,21 @@ export function resolveCanonicalLocationId(location: any): string | undefined {
 }
 
 /**
+ * Formats a location object or string for display in the UI.
+ * Returns the most descriptive available string (display > city > city, state).
+ */
+export function formatLocationDisplay(location: unknown): string {
+    if (!location) return "";
+    if (typeof location === "string") return location;
+    const loc = location as Record<string, unknown>;
+    if (typeof loc.display === "string" && loc.display) return loc.display;
+    const parts = [loc.city, loc.state].filter(
+        (v): v is string => typeof v === "string" && (v as string).trim().length > 0
+    );
+    return parts.join(", ");
+}
+
+/**
  * Normalizes a raw location into a stable structure for the UI.
  * Ensures `locationId` is always present if a valid ID exists.
  */

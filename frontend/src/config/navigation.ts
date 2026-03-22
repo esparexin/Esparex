@@ -11,6 +11,7 @@ import {
   Sparkles,
   Wrench,
   CreditCard,
+  CircuitBoard,
 } from "lucide-react";
 import {
   type UserPage,
@@ -50,6 +51,7 @@ export type ProfileTabValue =
   | "personal"
   | "myads"
   | "services"
+  | "spare-parts"
   | "saved"
   | "business"
   | "plans"
@@ -61,10 +63,13 @@ export const PROFILE_TAB_ITEMS: Array<{
   value: ProfileTabValue;
   label: string;
   icon: LucideIcon;
+  /** When true, this tab is only shown to admin-verified business accounts */
+  businessOnly?: boolean;
 }> = [
     { value: "personal", label: "Account", icon: UserIcon },
     { value: "myads", label: "My Ads", icon: Package },
-    { value: "services", label: "My Services", icon: Wrench },
+    { value: "services", label: "My Services", icon: Wrench, businessOnly: true },
+    { value: "spare-parts", label: "My Spare Parts", icon: CircuitBoard, businessOnly: true },
     { value: "saved", label: "Saved Ads", icon: Heart },
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
@@ -213,6 +218,16 @@ export function getNavigationRole(user: AppUser | null): NavigationRole {
   const businessStatus = normalizeBusinessStatus(user.businessStatus, "pending");
   const isBusiness = businessStatus === "live";
   return isBusiness ? "business" : "user";
+}
+
+/**
+ * Canonical helper to determine if the current user has an admin-verified business.
+ * Use this instead of repeating the same logic inline across components.
+ */
+export function isBusinessVerified(user: AppUser | null): boolean {
+  if (!user) return false;
+  const status = normalizeBusinessStatus(user.businessStatus, "pending");
+  return status === "live";
 }
 
 function resolveBusinessItem(

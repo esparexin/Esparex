@@ -50,8 +50,8 @@ export function SearchResultsHeader({
     }, []);
 
     return (
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-100">
-            <div className="flex items-center justify-between gap-4 px-4 py-3 md:px-0">
+        <div className="sticky top-[100px] md:top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-100">
+            <div className="flex items-center justify-between gap-4 px-4 py-2.5 md:px-0 md:py-3">
                 {/* LEFT: Result count */}
                 <div className="flex items-center gap-2">
                     <span className="hidden sm:block size-2 rounded-full bg-green-500 animate-pulse" />
