@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import logger from "@/lib/logger";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -122,7 +123,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                     }
                 }
             } catch (e) {
-                console.error("Failed to load spare part", e);
+                logger.error("Failed to load spare part", e);
             } finally {
                 if (isMounted) setIsFetchingData(false);
             }

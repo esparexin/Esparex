@@ -265,7 +265,13 @@ export const adminUpdateAd = async (req: Request, res: Response) => {
             'SLOT_QUOTA_BYPASS',
             'Ad',
             id,
-            { via: 'adminUpdateAd', reason: 'Admin bypass allowed' }
+            {
+                via: 'adminUpdateAd',
+                reason: 'Admin quota bypass — admin actor',
+                adminId,
+                allowDuplicateBypass,
+                duplicateBypassReason: allowDuplicateBypass ? duplicateBypassReason : undefined,
+            }
         );
 
         res.json(respond({ success: true, data: updatedAd }));
@@ -659,7 +665,13 @@ export const createPostAd = async (req: Request, res: Response) => {
             'SLOT_QUOTA_BYPASS',
             'Ad',
             createdAdId,
-            { via: 'createPostAd', reason: 'Admin bypass allowed' }
+            {
+                via: 'createPostAd',
+                reason: 'Admin quota bypass — admin actor',
+                adminId,
+                allowDuplicateBypass,
+                duplicateBypassReason: allowDuplicateBypass ? duplicateBypassReason : undefined,
+            }
         );
 
         if ((ad as { status?: string }).status === AD_STATUS.LIVE) {

@@ -163,7 +163,6 @@ export default function LocationSelectorCore({
         try {
             const canonicalGeoJSONPoint = toGeoPoint(loc.coordinates);
             if (!canonicalGeoJSONPoint) {
-                console.warn("[LocationSelector] No coordinates for:", loc.name, "- location cannot be selected");
                 searchApi.setSearchError({
                     type: "unknown",
                     message: "This location doesn't have map coordinates yet. Please search for a nearby city or area.",

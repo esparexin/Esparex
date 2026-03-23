@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import logger from "@/lib/logger";
 import Image from "next/image";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -115,7 +116,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                     }
                 }
             } catch (e) {
-                console.error("Failed to load service", e);
+                logger.error("Failed to load service", e);
             } finally {
                 if (isMounted) setIsFetchingData(false);
             }

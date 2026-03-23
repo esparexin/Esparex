@@ -240,8 +240,8 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           handleDeleteAlert={(id) => {
             void toggleSmartAlertStatus(id);
           }}
-          handleDeleteSavedSearch={() => {
-            void deleteSavedSearch();
+          handleDeleteSavedSearch={(id) => {
+            void deleteSavedSearch(id);
           }}
           handleViewAlertMatches={(alert) => {
             const params = new URLSearchParams();

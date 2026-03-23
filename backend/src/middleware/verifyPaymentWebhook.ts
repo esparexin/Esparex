@@ -65,8 +65,12 @@ export function verifyPaymentWebhook(secret: string) {
             return sendErrorResponse(req, res, 403, "Origin validation failed");
         }
 
-        // 🛡️ DEV BYPASS: Allow mock signature if in development mode
-        if (process.env.NODE_ENV === 'development' && signature === 'mock_verif_bypass') {
+        // 🛡️ DEV BYPASS: Allow mock signature only in local development (not CI/staging)
+        if (
+            process.env.NODE_ENV === 'development' &&
+            process.env.CI !== 'true' &&
+            signature === 'mock_verif_bypass'
+        ) {
             logger.warn('⚠️ Webhook Signature Check BYPASSED (Development Mode)');
             return next();
         }

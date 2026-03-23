@@ -26,7 +26,7 @@ export function useMyServices(
     } = useMyServicesQuery(statusFilter, { enabled: isEnabled });
 
     if (servicesError) {
-        console.error("MyServices query failed:", servicesError);
+        logger.error("MyServices query failed:", servicesError);
     }
 
     const invalidateAll = useCallback(() => {

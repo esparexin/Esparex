@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { listSavedSearches } from "@/api/user/savedSearches";
-import { toggleSmartAlertStatus } from "@/api/user/smartAlerts";
+import { listSavedSearches, removeSavedSearch } from "@/api/user/savedSearches";
+import { fetchSmartAlerts, createSmartAlert as createSmartAlertApi, toggleSmartAlertStatus } from "@/api/user/smartAlerts";
 import type { SavedSearch } from "@/api/user/savedSearches";
+import type { SmartAlertCreatePayload } from "@shared/schemas/smartAlert.schema";
 // SmartAlert type should be imported from API or defined here
 export interface SmartAlert {
     id: string;
@@ -23,8 +24,6 @@ export interface SmartAlert {
     [key: string]: unknown;
 }
 
-import { fetchSmartAlerts } from "@/api/user/smartAlerts";
-
 export function useSmartAlerts() {
     const [smartAlerts, setSmartAlerts] = useState<SmartAlert[]>([]);
     const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
@@ -42,10 +41,16 @@ export function useSmartAlerts() {
         }).finally(() => setLoading(false));
     }, []);
 
-    // Create smart alert (stub)
-    const createSmartAlert = useCallback(async () => {
-        // TODO: Implement real create logic
-        // Example: await api call, update state
+    // Create smart alert
+    const createSmartAlert = useCallback(async (payload: SmartAlertCreatePayload): Promise<{ success: boolean; error?: string }> => {
+        try {
+            const created = await createSmartAlertApi(payload);
+            if (!created) return { success: false, error: 'Failed to create alert' };
+            setSmartAlerts(prev => [...prev, created]);
+            return { success: true };
+        } catch (err) {
+            return { success: false, error: err instanceof Error ? err.message : 'Failed to create alert' };
+        }
     }, []);
 
     // Toggle smart alert status
@@ -83,11 +88,14 @@ export function useSmartAlerts() {
     }, [smartAlerts]);
 
     // Delete saved search
-    const deleteSavedSearch = useCallback(async () => {
+    const deleteSavedSearch = useCallback(async (id: string) => {
         setLoading(true);
-        // TODO: Implement real delete logic (API call)
-        // Example: await api call, update state
-        setLoading(false);
+        try {
+            await removeSavedSearch(id);
+            setSavedSearches(prev => prev.filter(s => s.id !== id));
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     return {
