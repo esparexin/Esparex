@@ -28,12 +28,50 @@ describe('LifecycleGuard', () => {
         expect(isValidLifecycleTransition('ad', AD_STATUS.SOLD, AD_STATUS.LIVE)).toBe(false);
     });
 
-    // Terminal status check logic moved to shared enums or specific service helpers if needed
-    // isTerminalLifecycleStatus was removed from LifecycleGuard
-
     it('throws for invalid transitions', () => {
         expect(() => validateTransition('ad', AD_STATUS.PENDING, AD_STATUS.SOLD)).toThrow(
             'Invalid lifecycle transition in ad domain: pending → sold'
         );
+    });
+
+    describe('service domain', () => {
+        it('allows standard transitions', () => {
+            expect(isValidLifecycleTransition('service', 'pending', 'live')).toBe(true);
+            expect(isValidLifecycleTransition('service', 'pending', 'rejected')).toBe(true);
+            expect(isValidLifecycleTransition('service', 'live', 'sold')).toBe(true);
+            expect(isValidLifecycleTransition('service', 'live', 'expired')).toBe(true);
+            expect(isValidLifecycleTransition('service', 'live', 'deactivated')).toBe(true);
+            expect(isValidLifecycleTransition('service', 'rejected', 'pending')).toBe(true);
+            expect(isValidLifecycleTransition('service', 'deactivated', 'live')).toBe(true);
+        });
+
+        it('allows EXPIRED → PENDING for seller repost', () => {
+            expect(isValidLifecycleTransition('service', 'expired', 'pending')).toBe(true);
+        });
+
+        it('rejects invalid service transitions', () => {
+            expect(isValidLifecycleTransition('service', 'pending', 'sold')).toBe(false);
+            expect(isValidLifecycleTransition('service', 'sold', 'live')).toBe(false);
+            expect(isValidLifecycleTransition('service', 'sold', 'pending')).toBe(false);
+        });
+    });
+
+    describe('spare_part_listing domain', () => {
+        it('allows standard transitions', () => {
+            expect(isValidLifecycleTransition('spare_part_listing', 'pending', 'live')).toBe(true);
+            expect(isValidLifecycleTransition('spare_part_listing', 'live', 'sold')).toBe(true);
+            expect(isValidLifecycleTransition('spare_part_listing', 'live', 'deactivated')).toBe(true);
+            expect(isValidLifecycleTransition('spare_part_listing', 'rejected', 'pending')).toBe(true);
+            expect(isValidLifecycleTransition('spare_part_listing', 'deactivated', 'live')).toBe(true);
+        });
+
+        it('allows EXPIRED → PENDING for seller repost', () => {
+            expect(isValidLifecycleTransition('spare_part_listing', 'expired', 'pending')).toBe(true);
+        });
+
+        it('disallows transitions from SOLD', () => {
+            expect(isValidLifecycleTransition('spare_part_listing', 'sold', 'live')).toBe(false);
+            expect(isValidLifecycleTransition('spare_part_listing', 'sold', 'pending')).toBe(false);
+        });
     });
 });

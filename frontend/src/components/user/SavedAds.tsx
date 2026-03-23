@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -40,11 +41,37 @@ import { PageStateGuard, PageState } from "../ui/PageStateGuard";
 import { Skeleton } from "../ui/skeleton";
 
 interface SavedAdsProps {
-  navigateTo: (page: UserPage, adId?: string | number, context?: unknown) => void;
+  navigateTo?: (page: UserPage, adId?: string | number, context?: unknown) => void;
 }
 
 type ViewMode = "grid" | "list";
 type SortOption = "newest" | "oldest" | "price-low" | "price-high" | "location";
+
+/** Returns the correct detail URL for any listing type */
+const getDetailUrl = (ad: Ad): string => {
+  switch (ad.listingType) {
+    case "service":
+      return `/services/${ad.seoSlug || ad.id}`;
+    case "spare_part":
+      return ad.seoSlug ? `/spare-part-listings/${ad.seoSlug}` : `/spare-part-listings/${ad.id}`;
+    default:
+      return ad.seoSlug ? `/ads/${ad.seoSlug}` : `/ads/${ad.id}`;
+  }
+};
+
+const getListingTypeLabel = (ad: Ad): string => {
+  switch (ad.listingType) {
+    case "service":    return "SERVICE";
+    case "spare_part": return "SPARE PART";
+    default:           return getCategoryLabelRaw(ad);
+  }
+};
+
+const getCategoryLabelRaw = (ad: Ad): string => {
+  if (typeof ad.category === "string" && ad.category.trim()) return ad.category;
+  if (typeof ad.categoryId === "string" && ad.categoryId.trim()) return ad.categoryId;
+  return "General";
+};
 
 // Statuses where the ad is no longer publicly accessible
 const UNAVAILABLE_STATUSES = new Set(["deactivated", "rejected", "expired", "deleted"]);
@@ -62,8 +89,9 @@ const getUnavailableLabel = (status: string): string => {
   }
 };
 
-export function SavedAds({ navigateTo }: SavedAdsProps) {
+export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { status } = useAuth();
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
@@ -90,11 +118,7 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
     },
   });
 
-  const getCategoryLabel = (ad: Ad) => {
-    if (typeof ad.category === "string" && ad.category.trim()) return ad.category;
-    if (typeof ad.categoryId === "string" && ad.categoryId.trim()) return ad.categoryId;
-    return "General";
-  };
+  const getCategoryLabel = (ad: Ad) => getListingTypeLabel(ad);
 
   const sortAds = (ads: Ad[]) =>
     [...ads].sort((a, b) => {
@@ -160,12 +184,7 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
           ? "opacity-60 cursor-default"
           : "hover:shadow-2xl hover:-translate-y-1 cursor-pointer group"
       }`}
-      onClick={unavailable ? undefined : () =>
-        navigateTo("ad-detail", ad.id, {
-          returnPage: "saved-ads",
-          returnScrollPosition: window.scrollY,
-        })
-      }
+      onClick={unavailable ? undefined : () => router.push(getDetailUrl(ad))}
     >
       <div className="relative aspect-square bg-gray-100 overflow-hidden">
         <Image
@@ -238,7 +257,7 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
       className={`overflow-hidden rounded-xl border-slate-100 transition-all ${
         unavailable ? "opacity-60 cursor-default" : "hover:shadow-xl cursor-pointer"
       }`}
-      onClick={unavailable ? undefined : () => navigateTo("ad-detail", ad.id)}
+      onClick={unavailable ? undefined : () => router.push(getDetailUrl(ad))}
     >
       <CardContent className="p-0">
         <div className="flex gap-2 md:gap-4">
@@ -314,9 +333,9 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
       <div className="w-full px-4 md:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-4 md:mb-6">
-            <h1 className="text-2xl font-bold">Saved Ads</h1>
+            <h1 className="text-2xl font-bold">Saved Listings</h1>
             <p className="text-muted-foreground mt-1 text-sm md:text-base">
-              Your favorite listings ({available.length} available
+              Your saved ads, services & spare parts ({available.length} available
               {unavailable.length > 0 ? `, ${unavailable.length} unavailable` : ""})
             </p>
           </div>
@@ -341,9 +360,9 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
               <Card>
                 <CardContent className="p-0">
                   <StateEmptyShell>
-                    <p className="text-lg font-semibold">No saved ads</p>
+                    <p className="text-lg font-semibold">No saved listings</p>
                     <p className="text-sm text-muted-foreground">
-                      Save ads to view them later by clicking the heart icon
+                      Save ads, services, or spare parts to view them later by clicking the heart icon
                     </p>
                   </StateEmptyShell>
                 </CardContent>
@@ -360,7 +379,7 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
               {/* Sort + View controls */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
                 <div className="text-xs md:text-sm text-muted-foreground">
-                  Showing {available.length} {available.length === 1 ? "ad" : "ads"}
+                  Showing {available.length} {available.length === 1 ? "listing" : "listings"}
                   {unavailable.length > 0 && ` · ${unavailable.length} unavailable`}
                 </div>
 

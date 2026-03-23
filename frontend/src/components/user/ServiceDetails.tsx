@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
@@ -9,6 +10,7 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
+  Heart,
   IndianRupee,
   Calendar,
   Wrench,
@@ -19,10 +21,13 @@ import { BackButton } from "@/components/common/BackButton";
 
 import { PlaceholderImage } from "../common/PlaceholderImage";
 import { getServicePhone, type Service } from "@/api/user/services";
+import { saveAd, unsaveAd } from "@/api/user/users";
 import { notify } from "@/lib/notify";
 import type { User } from "@/types/User";
 import { normalizeLocation as normalizeAppLocation } from "@/lib/location/locationService";
 import { useServiceDetailQuery } from "@/queries";
+import { useSavedAdsQuery } from "@/queries/useAdsQuery";
+import { queryKeys } from "@/queries/queryKeys";
 import { formatPrice } from "@/utils/formatters";
 const ServiceRelatedBusinessesSection = dynamic(
   () => import("./service-detail/ServiceRelatedBusinessesSection").then((mod) => mod.ServiceRelatedBusinessesSection),
@@ -149,6 +154,35 @@ export function ServiceDetails({
     };
     checkPendingReveal();
   }, [user, service, serviceId, handleRevealPhone]);
+
+  const queryClient = useQueryClient();
+  const { data: savedAds = [] } = useSavedAdsQuery({ enabled: !!user });
+
+  const isSaved = useMemo(
+    () => savedAds.some((saved) => String(saved.id) === String(serviceId)),
+    [savedAds, serviceId]
+  );
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      if (!serviceId) return;
+      if (isSaved) {
+        await unsaveAd(serviceId);
+      } else {
+        await saveAd(serviceId);
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.ads.saved() });
+      notify.success(isSaved ? "Removed from saved" : "Service saved");
+    },
+    onError: () => notify.error("Failed to update saved listing"),
+  });
+
+  const handleSaveToggle = () => {
+    if (!user) { onShowLogin?.(); return; }
+    saveMutation.mutate();
+  };
 
   const nextImage = () => {
     if (images.length === 0) return;
@@ -315,8 +349,18 @@ export function ServiceDetails({
                           )}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground mb-1">{service.priceType ?? ""}</p>
+                      <div className="flex flex-col items-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={`h-9 w-9 rounded-full ${isSaved ? "text-red-500 hover:text-red-600" : "text-slate-400 hover:text-red-400"}`}
+                          onClick={handleSaveToggle}
+                          disabled={saveMutation.isPending}
+                          title={isSaved ? "Remove from saved" : "Save service"}
+                        >
+                          <Heart className={`h-5 w-5 ${isSaved ? "fill-red-500" : ""}`} />
+                        </Button>
+                        <p className="text-xs text-muted-foreground">{service.priceType ?? ""}</p>
                         <p className="text-xl md:text-2xl font-bold text-green-600 flex items-center gap-1">
                           <IndianRupee className="h-5 w-5" />
                           {service.priceMin ? formatPrice(service.priceMin).replace("₹", "") : "Quote"}
