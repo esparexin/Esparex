@@ -91,7 +91,7 @@ export function SearchResultsHeader({
                 {/* 2. Count Row */}
                 <div className="px-4 py-4">
                     <p className="text-sm text-slate-900">
-                        {total} ads found
+                        {total} listing{total === 1 ? "" : "s"} found
                     </p>
                 </div>
             </div>
