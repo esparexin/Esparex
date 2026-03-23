@@ -1,8 +1,9 @@
 import { Schema, Document, Model, Types } from 'mongoose';
+import { NOTIFICATION_TYPE_VALUES, NotificationTypeValue } from '@shared/enums/notificationType';
 
 export interface INotification extends Document {
     userId: Types.ObjectId;
-    type: 'SMART_ALERT' | 'ORDER_UPDATE' | 'AD_STATUS' | 'BUSINESS_STATUS' | 'SYSTEM' | 'PRICE_DROP';
+    type: NotificationTypeValue;
     title: string;
     message: string;
     data?: Record<string, unknown>; // Flexible payload (e.g., adId, orderId)
@@ -24,7 +25,7 @@ const NotificationSchema: Schema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     type: {
         type: String,
-        enum: ['SMART_ALERT', 'ORDER_UPDATE', 'AD_STATUS', 'BUSINESS_STATUS', 'SYSTEM', 'PRICE_DROP'],
+        enum: NOTIFICATION_TYPE_VALUES,
         required: true
     },
     title: { type: String, required: true },

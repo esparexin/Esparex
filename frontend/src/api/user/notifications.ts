@@ -1,10 +1,11 @@
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "../routes";
+import type { NotificationTypeValue } from "@shared/enums/notificationType";
 
 export interface Notification {
     id: string;
     userId: string;
-    type: 'SMART_ALERT' | 'ORDER_UPDATE' | 'AD_STATUS' | 'BUSINESS_STATUS' | 'SYSTEM' | 'PRICE_DROP';
+    type: NotificationTypeValue;
     title: string;
     message: string;
     data?: Record<string, unknown>;
@@ -38,7 +39,7 @@ interface BackendNotificationEnvelope {
 const normalizeNotification = (raw: Record<string, unknown>): Notification => ({
     id: String(raw.id || raw._id || ''),
     userId: String(raw.userId || ''),
-    type: (raw.type as Notification['type']) || 'SYSTEM',
+    type: (raw.type as NotificationTypeValue) || 'SYSTEM',
     title: String(raw.title || ''),
     message: String(raw.message || ''),
     data: typeof raw.data === 'object' && raw.data !== null

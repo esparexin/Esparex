@@ -95,6 +95,10 @@ export async function startServer() {
         // 3️⃣ CREATE HTTP SERVER
         const server = createServer(app);
 
+        // 4️⃣ ATTACH SOCKET.IO (must happen before listen so the upgrade is available)
+        const { initIO } = await import('./config/socket');
+        initIO(server);
+
         // 5️⃣ START LISTENER WITH DETERMINISTIC BIND ERROR HANDLING
         await new Promise<void>((resolve, reject) => {
             const onError = (err: NodeJS.ErrnoException) => {

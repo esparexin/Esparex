@@ -1,101 +1,176 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { listSavedSearches } from "@/api/user/savedSearches";
-import { toggleSmartAlertStatus } from "@/api/user/smartAlerts";
+import { notify } from "@/lib/notify";
+import {
+  fetchSmartAlerts,
+  createSmartAlert as apiCreateSmartAlert,
+  deleteSmartAlert as apiDeleteSmartAlert,
+  toggleSmartAlertStatus,
+} from "@/api/user/smartAlerts";
+import {
+  listSavedSearches,
+  createSavedSearch as apiCreateSavedSearch,
+  removeSavedSearch,
+} from "@/api/user/savedSearches";
 import type { SavedSearch } from "@/api/user/savedSearches";
-// SmartAlert type should be imported from API or defined here
+import type { SmartAlertCreatePayload } from "@shared/schemas/smartAlert.schema";
+import type { SavedSearchCreatePayload } from "@shared/schemas/savedSearch.schema";
+
 export interface SmartAlert {
-    id: string;
-    active?: boolean;
+  id: string;
+  active?: boolean;
+  isActive?: boolean;
+  radiusKm?: number;
+  notificationChannels?: string[];
+  name?: string;
+  criteria?: {
+    keywords?: string;
+    category?: string;
+    location?: string;
+    locationId?: string;
     radiusKm?: number;
-    notificationChannels?: string[];
-    name?: string;
-    criteria?: {
-        keywords?: string;
-        category?: string;
-        location?: string;
-        locationId?: string;
-        radiusKm?: number;
-    };
-    lastMatch?: string;
-    totalMatches?: number;
-    [key: string]: unknown;
+    minPrice?: number;
+    maxPrice?: number;
+  };
+  lastMatch?: string;
+  totalMatches?: number;
+  [key: string]: unknown;
 }
 
-import { fetchSmartAlerts } from "@/api/user/smartAlerts";
-
 export function useSmartAlerts() {
-    const [smartAlerts, setSmartAlerts] = useState<SmartAlert[]>([]);
-    const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
-    const [loading, setLoading] = useState(false);
+  const [smartAlerts, setSmartAlerts] = useState<SmartAlert[]>([]);
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const [loading, setLoading] = useState(false);
 
-    // Fetch alerts and saved searches on mount
-    useEffect(() => {
-        setLoading(true);
-        Promise.all([
-            fetchSmartAlerts(),
-            listSavedSearches()
-        ]).then(([alerts, searches]) => {
-            setSmartAlerts(alerts);
-            setSavedSearches(searches);
-        }).finally(() => setLoading(false));
-    }, []);
+  // ── Initial fetch ─────────────────────────────────────────────────────────
 
-    // Create smart alert (stub)
-    const createSmartAlert = useCallback(async () => {
-        // TODO: Implement real create logic
-        // Example: await api call, update state
-    }, []);
+  const refresh = useCallback(() => {
+    setLoading(true);
+    Promise.all([fetchSmartAlerts(), listSavedSearches()])
+      .then(([alerts, searches]) => {
+        setSmartAlerts(alerts);
+        setSavedSearches(searches);
+      })
+      .catch(() => notify.error("Failed to load alerts"))
+      .finally(() => setLoading(false));
+  }, []);
 
-    // Toggle smart alert status
-    const handleToggleSmartAlertStatus = useCallback(async (smartAlertId: string) => {
-        setLoading(true);
-        const prevAlerts = [...smartAlerts];
-        const idx = smartAlerts.findIndex(a => a.id === smartAlertId);
-        if (idx === -1) {
-            setLoading(false);
-            return;
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  // ── Smart Alert mutations ─────────────────────────────────────────────────
+
+  const createSmartAlert = useCallback(
+    async (payload: SmartAlertCreatePayload) => {
+      setLoading(true);
+      try {
+        const created = await apiCreateSmartAlert(payload);
+        if (created) {
+          setSmartAlerts((prev) => [created, ...prev]);
+          notify.success("Smart alert created");
         }
-        // Optimistically toggle
-        if (smartAlerts[idx]) {
-            const prevStatus = typeof smartAlerts[idx].active === "boolean" ? smartAlerts[idx].active : true;
-            const updatedAlerts = [...smartAlerts];
-            updatedAlerts[idx] = {
-                ...updatedAlerts[idx],
-                active: !prevStatus,
-                id: smartAlerts[idx].id ?? "",
-            };
-            setSmartAlerts(updatedAlerts);
-        }
-        try {
-            const updated = await toggleSmartAlertStatus(smartAlertId);
-            if (updated) {
-                setSmartAlerts(alerts => alerts.map(a => a.id === smartAlertId ? { ...a, ...updated } : a));
-            } else {
-                setSmartAlerts(prevAlerts);
-            }
-        } catch {
-            setSmartAlerts(prevAlerts);
-        } finally {
-            setLoading(false);
-        }
-    }, [smartAlerts]);
-
-    // Delete saved search
-    const deleteSavedSearch = useCallback(async () => {
-        setLoading(true);
-        // TODO: Implement real delete logic (API call)
-        // Example: await api call, update state
+        return created;
+      } catch {
+        notify.error("Failed to create smart alert");
+        return null;
+      } finally {
         setLoading(false);
-    }, []);
+      }
+    },
+    []
+  );
 
-    return {
-        smartAlerts,
-        savedSearches,
-        loading,
-        createSmartAlert,
-        toggleSmartAlertStatus: handleToggleSmartAlertStatus,
-        deleteSavedSearch,
-    };
+  const handleToggleSmartAlertStatus = useCallback(
+    async (smartAlertId: string) => {
+      // Optimistic update
+      setSmartAlerts((prev) =>
+        prev.map((a) =>
+          a.id === smartAlertId
+            ? { ...a, active: !a.active, isActive: !a.isActive }
+            : a
+        )
+      );
+      try {
+        const updated = await toggleSmartAlertStatus(smartAlertId);
+        if (updated) {
+          setSmartAlerts((prev) =>
+            prev.map((a) => (a.id === smartAlertId ? { ...a, ...updated } : a))
+          );
+        }
+      } catch {
+        // Revert on error
+        setSmartAlerts((prev) =>
+          prev.map((a) =>
+            a.id === smartAlertId
+              ? { ...a, active: !a.active, isActive: !a.isActive }
+              : a
+          )
+        );
+        notify.error("Failed to update alert");
+      }
+    },
+    []
+  );
+
+  const deleteSmartAlert = useCallback(async (id: string) => {
+    const prev = [...smartAlerts]; // capture for rollback
+    setSmartAlerts((alerts) => alerts.filter((a) => a.id !== id));
+    try {
+      await apiDeleteSmartAlert(id);
+      notify.success("Smart alert deleted");
+    } catch {
+      setSmartAlerts(prev);
+      notify.error("Failed to delete smart alert");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [smartAlerts]);
+
+  // ── Saved Search mutations ────────────────────────────────────────────────
+
+  const createSavedSearch = useCallback(
+    async (payload: SavedSearchCreatePayload) => {
+      setLoading(true);
+      try {
+        const created = await apiCreateSavedSearch(payload);
+        if (created) {
+          setSavedSearches((prev) => [created, ...prev]);
+          notify.success("Search saved");
+        }
+        return created;
+      } catch {
+        notify.error("Failed to save search");
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const deleteSavedSearch = useCallback(async (id: string) => {
+    const prev = [...savedSearches];
+    setSavedSearches((searches) => searches.filter((s) => s.id !== id));
+    try {
+      await removeSavedSearch(id);
+      notify.success("Saved search removed");
+    } catch {
+      setSavedSearches(prev);
+      notify.error("Failed to remove saved search");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedSearches]);
+
+  return {
+    smartAlerts,
+    savedSearches,
+    loading,
+    refresh,
+    createSmartAlert,
+    createSavedSearch,
+    toggleSmartAlertStatus: handleToggleSmartAlertStatus,
+    deleteSmartAlert,
+    deleteSavedSearch,
+  };
 }

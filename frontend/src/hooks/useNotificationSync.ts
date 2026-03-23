@@ -1,59 +1,104 @@
+"use client";
+
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { io, Socket } from 'socket.io-client';
+import { queryKeys } from '@/queries/queryKeys';
 
-// STUB: Replace with actual socket.io client import once socket gateway is exposed to Next.js
-export const socket = {
-    on: (event: string, callback: any) => {
-        if (typeof window !== 'undefined') {
-            window.addEventListener(`ws_${event}`, (e: any) => callback(e.detail));
-        }
-    },
-    off: (event: string, callback: any) => {
-        if (typeof window !== 'undefined') {
-            window.removeEventListener(`ws_${event}`, callback);
-        }
-    }
-};
+interface InboxUpdatedPayload {
+    userId: string;
+    version: number;
+    delta: number;
+}
 
 interface UseNotificationSyncOptions {
+    /** Only connect when the user is authenticated */
     enabled?: boolean;
 }
 
+// Derive the socket server origin from the API URL env var.
+// The API lives at http://host:port/api/v1 — socket.io is at http://host:port
+const SOCKET_ORIGIN = (() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5001/api/v1';
+    try {
+        const u = new URL(apiUrl);
+        return `${u.protocol}//${u.host}`;
+    } catch {
+        return 'http://localhost:5001';
+    }
+})();
+
 /**
- * 🚀 Central Notification Synchronization Hook
- * 
- * Replaces aggressive legacy HTTP polling with passive WebSocket observation.
- * Intelligently drops duplicate broadcast versions and batches updates via 200ms debounce.
+ * 🔌 Central Notification Synchronisation Hook
+ *
+ * Maintains a single socket.io connection per authenticated session.
+ * On `inbox_updated` the notification query cache is invalidated so the
+ * bell badge and inbox page both refresh without any HTTP polling.
+ *
+ * Version guard: duplicate broadcast bursts (same or older version) are
+ * silently dropped. A 200 ms debounce coalesces rapid-fire updates into
+ * a single React Query invalidation.
  */
 export const useNotificationSync = ({ enabled = true }: UseNotificationSyncOptions = {}) => {
     const queryClient = useQueryClient();
+    const socketRef = useRef<Socket | null>(null);
     const localVersion = useRef<number>(0);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
-        if (!enabled) return;
+        if (!enabled || typeof window === 'undefined') return;
 
-        const handleInboxUpdate = (payload: { userId: string, version: number, delta: number }) => {
-            // Compare serverVersion vs localVersion stringently
+        // Reuse an existing connection if the hook is remounted (e.g. HMR)
+        if (!socketRef.current) {
+            socketRef.current = io(SOCKET_ORIGIN, {
+                // Send cookies automatically so the server auth middleware
+                // can validate the user without an explicit token.
+                withCredentials: true,
+                transports: ['websocket', 'polling'],
+                // Reconnection strategy: back off up to 10 s
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 10_000,
+                reconnectionAttempts: Infinity,
+                // Only connect when this effect runs, not at import time
+                autoConnect: false,
+            });
+        }
+
+        const socket = socketRef.current;
+
+        const handleInboxUpdated = (payload: InboxUpdatedPayload) => {
+            // Ignore stale or duplicate broadcasts
             if (payload.version <= localVersion.current) return;
-            
             localVersion.current = payload.version;
 
-            // Debounce refresh (200ms) to guard against burst alert spam
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-
-            timeoutRef.current = setTimeout(() => {
-                queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            // Debounce: coalesce burst alerts into one invalidation
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+            debounceRef.current = setTimeout(() => {
+                void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
             }, 200);
         };
 
-        socket.on('inbox_updated', handleInboxUpdate);
-        
+        socket.on('inbox_updated', handleInboxUpdated);
+
+        if (!socket.connected) {
+            socket.connect();
+        }
+
         return () => {
-            socket.off('inbox_updated', handleInboxUpdate);
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            socket.off('inbox_updated', handleInboxUpdated);
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+            // Disconnect when the component tree is fully unmounted
+            // (not on every re-render — the socket is reused while the
+            //  user is logged in)
         };
     }, [enabled, queryClient]);
+
+    // Disconnect on logout (enabled flips to false)
+    useEffect(() => {
+        if (!enabled && socketRef.current?.connected) {
+            socketRef.current.disconnect();
+            socketRef.current = null;
+            localVersion.current = 0;
+        }
+    }, [enabled]);
 };

@@ -18,6 +18,14 @@ export const gracefulShutdown = async ({ server, worker, workers, redisClient, m
     }, 10000).unref(); // unref so it doesn't block event loop if not needed
 
     try {
+        // Close socket.io before the HTTP server so in-flight WS frames are drained
+        try {
+            const { closeIO } = await import('../config/socket');
+            await closeIO();
+        } catch {
+            // Socket may not have been initialised (e.g. test environment)
+        }
+
         if (server) {
             await new Promise<void>((resolve, reject) => {
                 server.close((err) => {

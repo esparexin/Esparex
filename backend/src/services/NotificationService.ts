@@ -2,6 +2,9 @@ import User from '../models/User';
 import admin from '../config/firebaseAdmin';
 import logger from '../utils/logger';
 import Notification from '../models/Notification';
+import { NotificationTypeValue } from '@shared/enums/notificationType';
+import { NotificationDispatcher } from './notification/NotificationDispatcher';
+import { NotificationIntent } from '../domain/NotificationIntent';
 
 interface TokenResponse {
     success: boolean;
@@ -121,36 +124,31 @@ export const sendNotification = async (userId: string, title: string, body: stri
 };
 
 /**
- * Create an In-App Notification and optional FCM
+ * Create an In-App Notification (and optional FCM push).
+ *
+ * Thin wrapper around NotificationDispatcher so all writes go through
+ * the single gateway: DB save → version increment → WebSocket emit → FCM.
  */
 export const createInAppNotification = async (
     userId: string,
-    type: 'SMART_ALERT' | 'ORDER_UPDATE' | 'AD_STATUS' | 'BUSINESS_STATUS' | 'SYSTEM' | 'PRICE_DROP' | 'CHAT',
+    type: NotificationTypeValue,
     title: string,
     message: string,
     data: Record<string, unknown> = {}
-) => {
+): Promise<void> => {
     try {
-        // 1. Create DB Record
-        const notification = await Notification.create({
+        const intent = new NotificationIntent({
             userId,
             type,
-            title,
-            message,
-            data,
-            isRead: false
+            entityRef: { domain: 'system', id: userId },
+            message: { title, body: message, data },
+            channels: ['in-app', 'push'],
+            priority: 'normal',
         });
-
-        // 2. Trigger FCM (Fire & Forget)
-        sendNotification(userId, title, message, {
-            ...data,
-            notificationId: notification._id.toString(),
-            type
-        });
-
-        return notification;
+        await NotificationDispatcher.dispatch(intent);
     } catch (error) {
-        logger.error('Failed to create in-app notification', { error: error instanceof Error ? error.message : String(error) });
-        return null;
+        logger.error('Failed to create in-app notification', {
+            error: error instanceof Error ? error.message : String(error),
+        });
     }
 };
