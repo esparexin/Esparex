@@ -697,13 +697,38 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * POST /admin/system/locations/migrate-paths
+ * Trigger the path-population migration for Location documents.
+ * Pass { apply: true } in body to persist; omit for dry-run.
+ * Prerequisites: all locations must have correct parentId chains.
+ * Remove after Sprint 3 deprecation of city/state fields is complete.
+ */
+export const runLocationPathMigration = async (req: Request, res: Response) => {
+    const applyMode = req.body?.apply === true;
+    try {
+        logger.info('[AdminLocationController] Location path migration requested', { applyMode });
+        const { runLocationPathMigrationJob } = await import('../../scripts/migrations/migrate_location_path_population_job');
+        const result = await runLocationPathMigrationJob({ apply: applyMode });
+        await logAdminAction(req, 'LOCATION_PATH_MIGRATION', 'System', 'Location', { applyMode, ...result });
+        return sendJson(res, 200, respond({
+            success: true,
+            message: applyMode ? 'Path migration applied' : 'Dry run complete — pass { apply: true } to persist',
+            data: result,
+        }));
+    } catch (error: unknown) {
+        logger.error('Location path migration failed', { error: error instanceof Error ? error.message : String(error) });
+        return sendAdminError(req, res, 500, 'Location path migration failed');
+    }
+};
+
 export const refreshLocationStats = async (req: Request, res: Response) => {
     try {
         // Fire-and-forget async update to prevent timeout
         runStatsUpdate('manual').catch(err =>
             logger.error('Location stats update failed', { error: err instanceof Error ? err.message : String(err) })
         );
-        await logAdminAction(req, 'REFRESH_STATS', 'System', 'LocationStats', {});
+        await logAdminAction(req, 'REFRESH_STATS', 'System', 'LocationAnalytics', {});
         return sendJson(res, 200, respond({
             success: true,
             message: 'Location statistics update queued successfully'

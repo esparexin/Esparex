@@ -3,7 +3,12 @@ import { getUserConnection } from '../config/db';
 
 export interface ILocationAnalytics {
     locationId: Types.ObjectId;
+    /** Total ads in this location (all statuses) */
     adsCount: number;
+    /** Live ads only */
+    activeAdsCount: number;
+    /** Registered users with this locationId */
+    usersCount: number;
     searchCount: number;
     viewCount: number;
     popularityScore: number;
@@ -21,6 +26,8 @@ const LocationAnalyticsSchema = new Schema<ILocationAnalytics>(
             required: true
         },
         adsCount: { type: Number, default: 0 },
+        activeAdsCount: { type: Number, default: 0 },
+        usersCount: { type: Number, default: 0 },
         searchCount: { type: Number, default: 0 },
         viewCount: { type: Number, default: 0 },
         popularityScore: { type: Number, default: 0 },
