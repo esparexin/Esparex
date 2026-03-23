@@ -84,7 +84,7 @@ export const serializeModerationDetailResponse = (raw: unknown) => ({
 });
 
 export const serializeLifecycleActionResponse = (params: {
-    action: 'approved' | 'rejected' | 'deactivated' | 'expired' | 'deleted' | 'report_resolved';
+    action: 'approved' | 'rejected' | 'deactivated' | 'expired' | 'extended' | 'deleted' | 'report_resolved';
     listing: unknown;
     message: string;
     metadata?: Record<string, unknown>;
