@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { notify } from "@/lib/notify";
-import { deleteService, markServiceAsSold, deactivateService } from "@/api/user/services";
+import { deleteService, markServiceAsSold, deactivateService, repostService } from "@/api/user/services";
 import { useMyServicesQuery } from "@/queries/useServicesQuery";
 import { queryKeys } from "@/queries/queryKeys";
 import type { User } from "@/types/User";
@@ -83,6 +83,22 @@ export function useMyServices(
         },
     });
 
+    const { mutateAsync: handleRepostService } = useMutation({
+        mutationFn: async (id: string) => {
+            const success = await repostService(id);
+            if (!success) throw new Error("Failed to repost service");
+            return id;
+        },
+        onSuccess: () => {
+            invalidateAll();
+            notify.success("Service reposted — under review");
+        },
+        onError: (error) => {
+            logger.error("Repost service error:", error);
+            notify.error("Failed to repost service");
+        },
+    });
+
     return {
         myServices,
         loadingServices,
@@ -92,5 +108,6 @@ export function useMyServices(
         handleMarkSoldService: (id: string, soldReason?: "sold_on_platform" | "sold_outside" | "no_longer_available") =>
             handleMarkSoldService({ id, soldReason }),
         handleDeactivateService: (id: string) => handleDeactivateService(id),
+        handleRepostService: (id: string) => handleRepostService(id),
     };
 }

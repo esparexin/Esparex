@@ -26,7 +26,7 @@ export const BrowseServicesCard = memo(function BrowseServicesCard({ service }: 
         : "Contact for price";
 
   return (
-    <Link href={`/services/${service.id}`} className="block h-full">
+    <Link href={`/services/${service.seoSlug || service.id}`} className="block h-full">
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border-slate-100 rounded-xl">
         <div className="relative aspect-square overflow-hidden bg-slate-100">
           {imageUrl ? (

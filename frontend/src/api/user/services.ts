@@ -55,7 +55,8 @@ export interface Service {
     priceMax?: number;
     diagnosticFee?: number;
     serviceTypeIds?: string[];
-    status: 'pending' | 'live' | 'rejected' | 'expired' | 'deactivated';
+    status: 'pending' | 'live' | 'sold' | 'rejected' | 'expired' | 'deactivated';
+    seoSlug?: string;
     serviceTypes: string[];
     images: string[];
     location: {
@@ -260,5 +261,10 @@ export const markServiceAsSold = async (
 
 export const deactivateService = async (id: string): Promise<boolean> => {
     const { data } = await toApiResult<unknown>(apiClient.patch(API_ROUTES.USER.SERVICE_DEACTIVATE(id)));
+    return !!data;
+};
+
+export const repostService = async (id: string): Promise<boolean> => {
+    const { data } = await toApiResult<unknown>(apiClient.post(API_ROUTES.USER.SERVICE_REPOST(id)));
     return !!data;
 };

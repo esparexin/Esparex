@@ -519,6 +519,48 @@ export const deactivateService = async (req: Request, res: Response) => {
 };
 
 /* ---------------------------------------------------
+   Repost Service (Owner Only) — EXPIRED/REJECTED → PENDING
+--------------------------------------------------- */
+export const repostService = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) { sendErrorResponse(req, res, 401, 'Unauthorized'); return; }
+
+        const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
+        if (!id) return;
+
+        const service = await AdModel.findOne({
+            _id: id,
+            listingType: LISTING_TYPE.SERVICE,
+            sellerId: user._id,
+            isDeleted: false,
+        }).select('status');
+
+        if (!service) { sendErrorResponse(req, res, 404, 'Service not found or unauthorized'); return; }
+
+        const currentStatus = service.status as string;
+        if (currentStatus !== AD_STATUS.EXPIRED && currentStatus !== AD_STATUS.REJECTED) {
+            sendErrorResponse(req, res, 400, 'Only expired or rejected services can be reposted');
+            return;
+        }
+
+        const updated = await mutateStatus({
+            domain: 'service',
+            entityId: id,
+            toStatus: AD_STATUS.PENDING,
+            actor: { type: ACTOR_TYPE.USER, id: user._id.toString() },
+            reason: 'Reposted by seller for review',
+            metadata: { action: 'repost' },
+        });
+
+        res.json(respond<ApiResponse<Service>>({ success: true, data: updated as unknown as Service, message: 'Service reposted and under review' }));
+    } catch (error) {
+        logger.error('Repost Service Error:', error);
+        sendErrorResponse(req, res, 500, 'Failed to repost service');
+    }
+};
+
+/* ---------------------------------------------------
    Delete Service (Owner Only)
 --------------------------------------------------- */
 export const deleteService = async (req: Request, res: Response) => {

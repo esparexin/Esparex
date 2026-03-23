@@ -40,6 +40,7 @@ router.put(
 router.delete('/:id', protect, validateObjectId, serviceController.deleteService);
 router.patch('/:id/sold', protect, validateObjectId, serviceController.markServiceAsSold);
 router.patch('/:id/deactivate', protect, validateObjectId, serviceController.deactivateService);
+router.post('/:id/repost', protect, validateObjectId, serviceController.repostService);
 
 import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 

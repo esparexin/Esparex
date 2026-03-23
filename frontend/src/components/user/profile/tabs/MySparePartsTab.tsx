@@ -6,7 +6,7 @@ import { useMySpare } from "./MySparePartsTab.hook";
 import type { MySparePartsStatus } from "./MySparePartsTab.hook";
 import type { SparePartListing } from "@/api/user/sparePartListings";
 import type { User } from "@/types/User";
-import { CircuitBoard, Trash2, Edit, CheckSquare, Lock, PowerOff } from "lucide-react";
+import { CircuitBoard, Trash2, Edit, CheckSquare, Lock, PowerOff, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -46,7 +46,7 @@ export function MySparePartsTab({
     onRegisterBusiness,
 }: MySparePartsTabProps) {
     const [currentStatus, setCurrentStatus] = useState<MySparePartsStatus>(statusFilter);
-    const { mySpare, loadingSpare, spareError, handleDeleteSpare, handleMarkSoldSpare, handleDeactivateSpare } = useMySpare(
+    const { mySpare, loadingSpare, spareError, handleDeleteSpare, handleMarkSoldSpare, handleDeactivateSpare, handleRepostSpare } = useMySpare(
         activeTab,
         user,
         currentStatus
@@ -157,6 +157,7 @@ export function MySparePartsTab({
                                 setIsSoldOpen(true);
                             }}
                             onDeactivate={() => handleDeactivateSpare(listing.id)}
+                            onRepost={() => handleRepostSpare(listing.id)}
                         />
                     ))}
                 </div>
@@ -214,12 +215,14 @@ function SparePartCard({
     onDelete,
     onMarkSold,
     onDeactivate,
+    onRepost,
 }: {
     listing: SparePartListing;
     getStatusBadge: (status: string) => React.ReactNode;
     onDelete: () => void;
     onMarkSold: () => void;
     onDeactivate?: () => void;
+    onRepost?: () => void;
 }) {
     const timeAgo = listing.createdAt
         ? formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })
@@ -227,6 +230,7 @@ function SparePartCard({
 
     const thumbnail = listing.images?.[0];
     const isLive = listing.status === "live";
+    const isRepostable = listing.status === "expired" || listing.status === "rejected";
 
     return (
         <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
@@ -274,6 +278,17 @@ function SparePartCard({
                         title="Deactivate"
                     >
                         <PowerOff className="h-4 w-4" />
+                    </Button>
+                )}
+                {isRepostable && onRepost && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                        onClick={onRepost}
+                        title="Renew / Repost"
+                    >
+                        <RefreshCw className="h-4 w-4" />
                     </Button>
                 )}
                 <Link href={`/edit-spare-part/${listing.id}`}>

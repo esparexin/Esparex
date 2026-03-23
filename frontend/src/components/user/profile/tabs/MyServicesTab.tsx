@@ -52,6 +52,7 @@ export function MyServicesTab({
         handleDeleteService,
         handleMarkSoldService,
         handleDeactivateService,
+        handleRepostService,
     } = useMyServices(activeTab, user, currentStatus);
 
     const [serviceToSell, setServiceToSell] = useState<any | null>(null);
@@ -158,6 +159,7 @@ export function MyServicesTab({
                                 setIsSoldOpen(true);
                             }}
                             onDeactivate={() => handleDeactivateService(service.id)}
+                            onRepost={() => handleRepostService(service.id)}
                             getStatusBadge={getStatusBadge}
                         />
                     ))}

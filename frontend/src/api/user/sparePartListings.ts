@@ -145,3 +145,8 @@ export const deactivateSparePartListing = async (id: string): Promise<boolean> =
     const { data } = await toApiResult<unknown>(apiClient.patch(API_ROUTES.USER.SPARE_PART_DEACTIVATE(id)));
     return !!data;
 };
+
+export const repostSparePartListing = async (id: string): Promise<boolean> => {
+    const { data } = await toApiResult<unknown>(apiClient.post(API_ROUTES.USER.SPARE_PART_REPOST(id)));
+    return !!data;
+};

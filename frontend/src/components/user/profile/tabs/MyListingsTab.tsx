@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
     Package, Wrench, CircuitBoard, PlusCircle, Lock,
-    Eye, Heart, Clock, Edit2, Trash2, CheckSquare,
+    Eye, Heart, Clock, Edit2, Trash2, CheckSquare, RefreshCw,
     AlertTriangle, MapPin, Timer, Home, Wifi,
 } from "lucide-react";
 import {
@@ -76,11 +76,11 @@ export function MyListingsTab({
     const [spareStatus, setSpareStatus] = useState<MySparePartsStatus>("live");
 
     // Services — only enabled when that sub-tab is active
-    const { myServices, loadingServices, servicesError, handleDeleteService, fetchMyServices } =
+    const { myServices, loadingServices, servicesError, handleDeleteService, handleRepostService, fetchMyServices } =
         useMyServices(subTab === "services" ? "services" : "", user, servicesStatus);
 
     // Spare parts — only enabled when that sub-tab is active
-    const { mySpare, loadingSpare, spareError, handleDeleteSpare, fetchMySpare } =
+    const { mySpare, loadingSpare, spareError, handleDeleteSpare, handleRepostSpare, fetchMySpare } =
         useMySpare(subTab === "spare-parts" ? "spare-parts" : "", user, spareStatus);
 
     // Ad delete state
@@ -370,6 +370,7 @@ export function MyListingsTab({
                                             service={service}
                                             getStatusBadge={getStatusBadge}
                                             onDelete={() => handleDeleteService(service.id)}
+                                            onRepost={() => handleRepostService(service.id)}
                                         />
                                     ))}
                                 </div>
@@ -433,6 +434,7 @@ export function MyListingsTab({
                                                 setSparesSoldReason(null);
                                                 setIsSparesSoldOpen(true);
                                             }}
+                                            onRepost={() => handleRepostSpare(listing.id)}
                                         />
                                     ))}
                                 </div>
@@ -521,11 +523,12 @@ export function MyListingsTab({
 
 // ── Service Card ──────────────────────────────────────────────────────────────
 function ServiceCard({
-    service, getStatusBadge, onDelete,
+    service, getStatusBadge, onDelete, onRepost,
 }: {
     service: Service;
     getStatusBadge: (status: string) => React.ReactNode;
     onDelete: () => void;
+    onRepost?: () => void;
 }) {
     const thumbnail = service.images?.[0];
     const timeAgo = service.createdAt
@@ -606,6 +609,13 @@ function ServiceCard({
 
                 {/* Actions */}
                 <div className="flex items-center justify-end gap-2 mt-2">
+                    {(service.status === "expired" || service.status === "rejected") && onRepost && (
+                        <Button variant="outline" size="sm" className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                            onClick={onRepost}
+                        >
+                            <RefreshCw className="h-3 w-3 mr-1" /> Renew
+                        </Button>
+                    )}
                     <Link href={`/edit-service/${service.id}`}>
                         <Button variant="outline" size="sm" className="h-7 text-xs">
                             <Edit2 className="h-3 w-3 mr-1" /> Edit
@@ -625,12 +635,13 @@ function ServiceCard({
 
 // ── Spare Part Card ───────────────────────────────────────────────────────────
 function SparePartCard({
-    listing, getStatusBadge, onDelete, onMarkSold,
+    listing, getStatusBadge, onDelete, onMarkSold, onRepost,
 }: {
     listing: SparePartListing;
     getStatusBadge: (status: string) => React.ReactNode;
     onDelete: () => void;
     onMarkSold: () => void;
+    onRepost?: () => void;
 }) {
     const thumbnail = listing.images?.[0];
     const timeAgo = listing.createdAt
@@ -698,6 +709,14 @@ function SparePartCard({
                             onClick={onMarkSold}
                         >
                             <CheckSquare className="h-3 w-3 mr-1" /> Mark Sold
+                        </Button>
+                    )}
+                    {(listing.status === "expired" || listing.status === "rejected") && onRepost && (
+                        <Button size="sm" variant="outline"
+                            className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                            onClick={onRepost}
+                        >
+                            <RefreshCw className="h-3 w-3 mr-1" /> Renew
                         </Button>
                     )}
                     <Link href={`/edit-spare-part/${listing.id}`}>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Wrench, Edit, Trash2, CheckSquare, PowerOff } from "lucide-react";
+import { Wrench, Edit, Trash2, CheckSquare, PowerOff, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 
@@ -8,12 +8,14 @@ export function ServiceCard({
     onDelete,
     onMarkSold,
     onDeactivate,
+    onRepost,
     getStatusBadge,
 }: {
     service: any;
     onDelete: () => void;
     onMarkSold?: () => void;
     onDeactivate?: () => void;
+    onRepost?: () => void;
     getStatusBadge?: (status: string) => React.ReactNode;
 }) {
     const timeAgo = service.createdAt
@@ -22,6 +24,7 @@ export function ServiceCard({
 
     const thumbnail = service.images?.[0];
     const isLive = service.status === "live";
+    const isRepostable = service.status === "expired" || service.status === "rejected";
 
     return (
         <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
@@ -73,6 +76,17 @@ export function ServiceCard({
                         title="Deactivate"
                     >
                         <PowerOff className="h-4 w-4" />
+                    </Button>
+                )}
+                {isRepostable && onRepost && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                        onClick={onRepost}
+                        title="Renew / Repost"
+                    >
+                        <RefreshCw className="h-4 w-4" />
                     </Button>
                 )}
                 <Link href={`/edit-service/${service.id}`}>

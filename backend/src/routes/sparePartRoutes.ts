@@ -88,5 +88,6 @@ router.delete(
 );
 
 router.patch('/:id/deactivate', protect, validateObjectId, sparePartListingController.deactivateSparePartListing);
+router.post('/:id/repost', protect, validateObjectId, sparePartListingController.repostSparePartListing);
 
 export default router;

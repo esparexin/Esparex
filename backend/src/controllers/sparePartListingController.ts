@@ -398,6 +398,48 @@ export const deactivateSparePartListing = async (req: Request, res: Response) =>
     }
 };
 
+/**
+ * Repost (Renew) a Spare Part Listing — EXPIRED/REJECTED → PENDING
+ * POST /api/v1/spare-part-listings/:id/repost
+ */
+export const repostSparePartListing = async (req: Request, res: Response) => {
+    try {
+        if (!req.user) {
+            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
+        }
+
+        const listingId = req.params.id as string;
+        const listing = await AdModel.findOne({
+            _id: listingId,
+            listingType: LISTING_TYPE.SPARE_PART,
+            sellerId: req.user._id,
+            isDeleted: false,
+        }).select('status');
+
+        if (!listing) {
+            return sendContractErrorResponse(req, res, 404, 'Spare part listing not found or access denied');
+        }
+
+        const currentStatus = listing.status as string;
+        if (currentStatus !== AD_STATUS.EXPIRED && currentStatus !== AD_STATUS.REJECTED) {
+            return sendContractErrorResponse(req, res, 400, 'Only expired or rejected listings can be reposted');
+        }
+
+        const updated = await mutateStatus({
+            domain: 'spare_part_listing',
+            entityId: listingId,
+            toStatus: AD_STATUS.PENDING,
+            actor: { type: ACTOR_TYPE.USER, id: (req.user as any)?._id?.toString() },
+            reason: 'Reposted by seller for review',
+            metadata: { action: 'repost' },
+        });
+
+        res.status(200).json({ success: true, data: updated, message: 'Spare part listing reposted and under review.' });
+    } catch (error) {
+        sendContractErrorResponse(req, res, 500, 'Failed to repost spare part listing');
+    }
+};
+
 export const getSparePartPhone = async (req: Request, res: Response): Promise<void> => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Spare Part ID' });
