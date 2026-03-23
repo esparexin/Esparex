@@ -77,7 +77,7 @@ export function PersonalTab({
 
             <Card className="border-0 shadow-sm md:border md:shadow-sm">
                 <CardHeader className="pb-2 px-4 md:px-6">
-                    <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                    <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                         <User className="h-5 w-5 text-blue-600" />
                         Personal Information
                     </CardTitle>
@@ -86,7 +86,7 @@ export function PersonalTab({
                 <CardContent className="space-y-4 px-4 md:px-6 pb-6">
                     {/* Profile Photo Section */}
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium">Profile Photo</Label>
+                        <Label className="text-lg font-medium">Profile Photo</Label>
                         <div className="flex items-center gap-4">
                             <div className="relative">
                                 <div className="h-16 w-16 md:h-20 md:w-20 rounded-full border-2 border-slate-100 overflow-hidden bg-slate-50 flex items-center justify-center shadow-inner">
@@ -156,7 +156,7 @@ export function PersonalTab({
                                     if (profileErrors?.name) clearProfileError?.("name");
                                     setFormData({ ...formData, name: e.target.value });
                                 }}
-                                className={`h-9 md:h-10 ${profileErrors?.name ? "border-red-500" : ""}`}
+                                className={`h-12 md:h-11 ${profileErrors?.name ? "border-red-500" : ""}`}
                                 aria-invalid={!!profileErrors?.name}
                                 aria-describedby={profileErrors?.name ? "profile-name-error" : undefined}
                                 autoComplete="name"
@@ -176,7 +176,7 @@ export function PersonalTab({
                                     if (profileErrors?.email) clearProfileError?.("email");
                                     setFormData({ ...formData, email: e.target.value });
                                 }}
-                                className={`h-9 md:h-10 ${profileErrors?.email ? "border-red-500" : ""}`}
+                                className={`h-12 md:h-11 ${profileErrors?.email ? "border-red-500" : ""}`}
                                 aria-invalid={!!profileErrors?.email}
                                 aria-describedby={profileErrors?.email ? "profile-email-error" : undefined}
                                 autoComplete="email"
@@ -218,7 +218,7 @@ export function PersonalTab({
                                             if (profileErrors?.businessName) clearProfileError?.("businessName");
                                             setFormData({ ...formData, businessName: e.target.value });
                                         }}
-                                        className={`h-9 bg-white ${profileErrors?.businessName ? "border-red-500" : ""}`}
+                                        className={`h-12 md:h-11 bg-white ${profileErrors?.businessName ? "border-red-500" : ""}`}
                                         aria-invalid={!!profileErrors?.businessName}
                                         aria-describedby={profileErrors?.businessName ? "profile-business-name-error" : undefined}
                                         autoComplete="organization"
@@ -236,7 +236,7 @@ export function PersonalTab({
                                             if (profileErrors?.gstNumber) clearProfileError?.("gstNumber");
                                             setFormData({ ...formData, gstNumber: e.target.value });
                                         }}
-                                        className={`h-9 bg-white ${profileErrors?.gstNumber ? "border-red-500" : ""}`}
+                                        className={`h-12 md:h-11 bg-white ${profileErrors?.gstNumber ? "border-red-500" : ""}`}
                                         aria-invalid={!!profileErrors?.gstNumber}
                                         aria-describedby={profileErrors?.gstNumber ? "profile-gst-number-error" : undefined}
                                         autoComplete="off"
@@ -253,7 +253,7 @@ export function PersonalTab({
                             <Button
                                 onClick={handleSaveProfile}
                                 disabled={isSavingProfile}
-                                className="mt-1 w-full md:w-auto bg-blue-600 hover:bg-blue-700 h-10 md:h-11 rounded-xl shadow-lg shadow-blue-200/50 text-white border-0 disabled:opacity-70"
+                                className="mt-1 w-full md:w-auto bg-blue-600 hover:bg-blue-700 h-12 md:h-11 rounded-[10px] shadow-lg shadow-blue-200/50 text-white border-0 disabled:opacity-70"
                             >
                                 <Save className="h-4 w-4 mr-2" />
                                 {isSavingProfile ? "Saving..." : "Save Changes"}

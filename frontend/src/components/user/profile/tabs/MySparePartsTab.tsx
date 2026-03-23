@@ -6,7 +6,7 @@ import { useMySpare } from "./MySparePartsTab.hook";
 import type { MySparePartsStatus } from "./MySparePartsTab.hook";
 import type { SparePartListing } from "@/api/user/sparePartListings";
 import type { User } from "@/types/User";
-import { CircuitBoard, Trash2, Edit, CheckSquare } from "lucide-react";
+import { CircuitBoard, Trash2, Edit, CheckSquare, Lock, PowerOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -33,6 +33,8 @@ export interface MySparePartsTabProps {
     statusFilter?: MySparePartsStatus;
     getStatusBadge: (status: string) => React.ReactNode;
     formatDate: (date: string | Date) => string;
+    isBusinessApproved?: boolean;
+    onRegisterBusiness?: () => void;
 }
 
 export function MySparePartsTab({
@@ -40,9 +42,11 @@ export function MySparePartsTab({
     activeTab,
     statusFilter = "live",
     getStatusBadge,
+    isBusinessApproved,
+    onRegisterBusiness,
 }: MySparePartsTabProps) {
     const [currentStatus, setCurrentStatus] = useState<MySparePartsStatus>(statusFilter);
-    const { mySpare, loadingSpare, spareError, handleDeleteSpare, handleMarkSoldSpare } = useMySpare(
+    const { mySpare, loadingSpare, spareError, handleDeleteSpare, handleMarkSoldSpare, handleDeactivateSpare } = useMySpare(
         activeTab,
         user,
         currentStatus
@@ -71,11 +75,22 @@ export function MySparePartsTab({
             <div className="space-y-3 mb-3">
                 <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-slate-900">My Spare Parts</h2>
-                    <Link href="/post-spare-part-listing">
-                        <Button size="sm" variant="outline" className="rounded-full px-4 gap-2">
-                            <CircuitBoard className="h-4 w-4" /> Post New
+                    {isBusinessApproved ? (
+                        <Link href="/post-spare-part-listing">
+                            <Button size="sm" variant="outline" className="rounded-full px-4 gap-2">
+                                <CircuitBoard className="h-4 w-4" /> Post New
+                            </Button>
+                        </Link>
+                    ) : (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full px-4 gap-2 text-slate-400 border-slate-200 cursor-not-allowed"
+                            onClick={onRegisterBusiness}
+                        >
+                            <Lock className="h-3.5 w-3.5" /> Post New
                         </Button>
-                    </Link>
+                    )}
                 </div>
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                     {STATUS_TABS.map((tab) => (
@@ -108,13 +123,24 @@ export function MySparePartsTab({
             ) : mySpare.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-4">
                     <CircuitBoard className="w-12 h-12 opacity-30" />
-                    <p className="text-sm font-medium">No {currentStatus} spare part listings.</p>
-                    {currentStatus === "live" && (
-                        <Link href="/post-spare-part-listing">
-                            <Button size="sm" className="rounded-full px-5">
-                                <CircuitBoard className="h-4 w-4 mr-2" /> Post Spare Part
+                    {!isBusinessApproved ? (
+                        <>
+                            <p className="text-sm font-medium text-center">Register an approved business to post spare parts.</p>
+                            <Button size="sm" className="rounded-full px-5" onClick={onRegisterBusiness}>
+                                Register Business
                             </Button>
-                        </Link>
+                        </>
+                    ) : (
+                        <>
+                            <p className="text-sm font-medium">No {currentStatus} spare part listings.</p>
+                            {currentStatus === "live" && (
+                                <Link href="/post-spare-part-listing">
+                                    <Button size="sm" className="rounded-full px-5">
+                                        <CircuitBoard className="h-4 w-4 mr-2" /> Post Spare Part
+                                    </Button>
+                                </Link>
+                            )}
+                        </>
                     )}
                 </div>
             ) : (
@@ -130,6 +156,7 @@ export function MySparePartsTab({
                                 setSoldReason(null);
                                 setIsSoldOpen(true);
                             }}
+                            onDeactivate={() => handleDeactivateSpare(listing.id)}
                         />
                     ))}
                 </div>
@@ -186,11 +213,13 @@ function SparePartCard({
     getStatusBadge,
     onDelete,
     onMarkSold,
+    onDeactivate,
 }: {
     listing: SparePartListing;
     getStatusBadge: (status: string) => React.ReactNode;
     onDelete: () => void;
     onMarkSold: () => void;
+    onDeactivate?: () => void;
 }) {
     const timeAgo = listing.createdAt
         ? formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })
@@ -234,6 +263,17 @@ function SparePartCard({
                         title="Mark as Sold"
                     >
                         <CheckSquare className="h-4 w-4" />
+                    </Button>
+                )}
+                {isLive && onDeactivate && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                        onClick={onDeactivate}
+                        title="Deactivate"
+                    >
+                        <PowerOff className="h-4 w-4" />
                     </Button>
                 )}
                 <Link href={`/edit-spare-part/${listing.id}`}>

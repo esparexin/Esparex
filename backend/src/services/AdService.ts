@@ -163,6 +163,13 @@ export const updateAd = async (
             if (ad.status === LIFECYCLE_STATUS.SOLD || ad.status === LIFECYCLE_STATUS.EXPIRED || ad.status === LIFECYCLE_STATUS.REJECTED || ad.status === LIFECYCLE_STATUS.DEACTIVATED)
                 throw new AppError('This ad can no longer be edited in its current status.', 400);
 
+            // 🔒 LOCATION LOCK: Location is a trust signal — once an ad reaches pending/live
+            // it cannot be silently changed. Prevents location gaming and buyer trust breaks.
+            if (context.actor === 'USER' && (ad.status === AD_STATUS.LIVE || ad.status === AD_STATUS.PENDING)) {
+                delete (data as any).location;
+                delete (data as any).locationId;
+            }
+
             if (context.actor === 'USER' && !context.allowSuspendedUser) {
                 const User = (await import('../models/User')).default;
                 const user = await User.findById(context.authUserId).select('isSuspended').lean();

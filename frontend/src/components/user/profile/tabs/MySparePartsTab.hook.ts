@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { notify } from "@/lib/notify";
-import { getMySparePartListings } from "@/api/user/sparePartListings";
+import { getMySparePartListings, deactivateSparePartListing } from "@/api/user/sparePartListings";
 import type { SparePartListing } from "@/api/user/sparePartListings";
 import { markAsSold } from "@/api/user/ads";
 import { queryKeys } from "@/queries/queryKeys";
@@ -70,6 +70,22 @@ export function useMySpare(
         },
     });
 
+    const { mutateAsync: handleDeactivateSpare } = useMutation({
+        mutationFn: async (id: string) => {
+            const success = await deactivateSparePartListing(id);
+            if (!success) throw new Error("Failed to deactivate spare part listing");
+            return id;
+        },
+        onSuccess: () => {
+            invalidateAll();
+            notify.success("Spare part listing deactivated.");
+        },
+        onError: (error) => {
+            logger.error("Deactivate spare part error:", error);
+            notify.error("Failed to deactivate spare part listing.");
+        },
+    });
+
     return {
         mySpare,
         loadingSpare,
@@ -78,5 +94,6 @@ export function useMySpare(
         handleDeleteSpare: (id: string) => handleDeleteSpare(id),
         handleMarkSoldSpare: (id: string, soldReason?: "sold_on_platform" | "sold_outside" | "no_longer_available") =>
             markSoldSpare({ id, soldReason }),
+        handleDeactivateSpare: (id: string) => handleDeactivateSpare(id),
     };
 }

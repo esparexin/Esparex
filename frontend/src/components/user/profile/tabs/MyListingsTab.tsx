@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-    Package, Wrench, CircuitBoard, PlusCircle,
+    Package, Wrench, CircuitBoard, PlusCircle, Lock,
     Eye, Heart, Clock, Edit2, Trash2, CheckSquare,
     AlertTriangle, MapPin, Timer, Home, Wifi,
 } from "lucide-react";
@@ -60,6 +60,8 @@ export interface MyListingsTabProps {
     navigateTo: (page: string, adId?: string | number, category?: string, businessId?: string, serviceId?: string) => void;
     getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
     formatDate: (date: string | Date) => string;
+    isBusinessApproved?: boolean;
+    onRegisterBusiness?: () => void;
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
@@ -67,6 +69,7 @@ export function MyListingsTab({
     ads, adCounts, loadingAds, myAdsStatusTab, setMyAdsStatusTab,
     handleDeleteAd, handleMarkAsSold,
     user, navigateTo, getStatusBadge, formatDate,
+    isBusinessApproved, onRegisterBusiness,
 }: MyListingsTabProps) {
     const [subTab, setSubTab] = useState<ListingSubTab>("ads");
     const [servicesStatus, setServicesStatus] = useState<MyServicesStatus>("live");
@@ -151,18 +154,30 @@ export function MyListingsTab({
                             <Package className="h-5 w-5 text-blue-600" />
                             My Listings
                         </h2>
-                        <Button
-                            onClick={() => {
-                                if (subTab === "ads") navigateTo("post-ad");
-                                else if (subTab === "services") navigateTo("post-service");
-                                else navigateTo("post-spare-part-listing");
-                            }}
-                            size="sm"
-                            className={`${postBtnClass} text-white text-xs h-8 px-3`}
-                        >
-                            <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
-                            {subTab === "ads" ? "Post Ad" : subTab === "services" ? "Post Service" : "Post Spare Part"}
-                        </Button>
+                        {(subTab === "ads" || isBusinessApproved) ? (
+                            <Button
+                                onClick={() => {
+                                    if (subTab === "ads") navigateTo("post-ad");
+                                    else if (subTab === "services") navigateTo("post-service");
+                                    else navigateTo("post-spare-part-listing");
+                                }}
+                                size="sm"
+                                className={`${postBtnClass} text-white text-xs h-8 px-3`}
+                            >
+                                <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
+                                {subTab === "ads" ? "Post Ad" : subTab === "services" ? "Post Service" : "Post Spare Part"}
+                            </Button>
+                        ) : (
+                            <Button
+                                onClick={onRegisterBusiness}
+                                size="sm"
+                                variant="outline"
+                                className="text-xs h-8 px-3 text-slate-400 border-slate-200"
+                            >
+                                <Lock className="h-3 w-3 mr-1.5" />
+                                {subTab === "services" ? "Post Service" : "Post Spare Part"}
+                            </Button>
+                        )}
                     </div>
 
                     {/* ── Sub-tab Pills ── */}
@@ -228,7 +243,7 @@ export function MyListingsTab({
                             ) : (
                                 <div className="grid grid-cols-1 gap-3">
                                     {ads.map(ad => {
-                                        const canEdit = ad.status === "live";
+                                        const canEdit = ["live", "pending", "rejected"].includes(ad.status);
                                         const isActive = ad.status === "live";
                                         return (
                                             <div
@@ -336,9 +351,15 @@ export function MyListingsTab({
                                             : `${servicesStatus.charAt(0).toUpperCase() + servicesStatus.slice(1)} services will appear here.`
                                     }
                                     cta={servicesStatus === "live" ? (
-                                        <Button variant="outline" size="sm" onClick={() => navigateTo("post-service")}>
-                                            <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> Post a Service
-                                        </Button>
+                                        isBusinessApproved ? (
+                                            <Button variant="outline" size="sm" onClick={() => navigateTo("post-service")}>
+                                                <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> Post a Service
+                                            </Button>
+                                        ) : (
+                                            <Button variant="outline" size="sm" onClick={onRegisterBusiness}>
+                                                Register Business to Post Services
+                                            </Button>
+                                        )
                                     ) : undefined}
                                 />
                             ) : (
@@ -388,9 +409,15 @@ export function MyListingsTab({
                                             : `${spareStatus.charAt(0).toUpperCase() + spareStatus.slice(1)} listings will appear here.`
                                     }
                                     cta={spareStatus === "live" ? (
-                                        <Button variant="outline" size="sm" onClick={() => navigateTo("post-spare-part-listing")}>
-                                            <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> Post Spare Part
-                                        </Button>
+                                        isBusinessApproved ? (
+                                            <Button variant="outline" size="sm" onClick={() => navigateTo("post-spare-part-listing")}>
+                                                <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> Post Spare Part
+                                            </Button>
+                                        ) : (
+                                            <Button variant="outline" size="sm" onClick={onRegisterBusiness}>
+                                                Register Business to Post Spare Parts
+                                            </Button>
+                                        )
                                     ) : undefined}
                                 />
                             ) : (

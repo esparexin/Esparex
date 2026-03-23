@@ -76,7 +76,7 @@ export const AdCardGrid = memo(function AdCardGrid({
           imageUrl={imageUrl}
           priority={priority}
           showBusinessBadge={showBusinessBadge}
-          className="aspect-[4/3] w-full"
+          className="aspect-square w-full"
         >
           {onToggleSave && (
             <AdCardActions

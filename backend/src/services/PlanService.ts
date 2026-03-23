@@ -90,8 +90,7 @@ export const checkPostLimit = async (
     } else if (type === 'service') {
         limit = (permissions.maxServices || 100);
     } else if (type === 'spare_part_listing') {
-        // SPL has its own independent quota pool, capped at the same plan limit as services.
-        limit = (permissions.maxServices || 100);
+        limit = (permissions.maxParts || 100);
     }
 
     // 5. Count Current Usage (Active Inventory)

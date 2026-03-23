@@ -2,7 +2,6 @@ import { useRef, useState } from "react";
 import { useSparePartListing } from "../SparePartListingContext";
 import { cn } from "@/components/ui/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Field } from "@/components/ui/field";
 import { Check, CircuitBoard } from "@/icons/IconRegistry";
 import {
@@ -18,12 +17,9 @@ export default function Step1PartDetails({ isActive }: { isActive: boolean }) {
     const {
         categories,
         brands,
-        models,
         spareParts,
-        selectedCompatibleModels,
         handleCategoryChange,
         handleBrandChange,
-        toggleCompatibleModel,
         form: { watch, setValue, formState: { errors } },
     } = useSparePartListing();
 
@@ -44,7 +40,7 @@ export default function Step1PartDetails({ isActive }: { isActive: boolean }) {
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold">Part Details</h2>
                 <p className="text-muted-foreground">
-                    Select the category, the spare part you are selling, and optionally specify compatible device models.
+                    Select the category, brand, and the spare part you are selling.
                 </p>
             </div>
 
@@ -127,10 +123,10 @@ export default function Step1PartDetails({ isActive }: { isActive: boolean }) {
                 </section>
             )}
 
-            {/* Brand (for filtering compatible models) */}
+            {/* Brand */}
             {categoryId && spareParts.length > 0 && (
                 <section className="space-y-3">
-                    <Field label="Compatible with Brand (optional)">
+                    <Field label="Brand (optional)">
                         <Command className="border rounded-lg">
                             <CommandInput
                                 ref={brandInputRef}
@@ -161,51 +157,6 @@ export default function Step1PartDetails({ isActive }: { isActive: boolean }) {
                 </section>
             )}
 
-            {/* Compatible Models */}
-            {models.length > 0 && (
-                <section className="space-y-3">
-                    <Field label="Compatible Models (optional)">
-                        <p className="text-xs text-muted-foreground mb-2">Select device models this part is compatible with.</p>
-                        <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
-                            {models.map(model => {
-                                const id = model.id;
-                                const isSelected = selectedCompatibleModels.some(m => m.id === id);
-                                return (
-                                    <button
-                                        key={id}
-                                        type="button"
-                                        onClick={() => id && toggleCompatibleModel({ id, name: model.name })}
-                                        className={cn(
-                                            "px-3 py-1.5 rounded-full text-sm border transition-colors",
-                                            isSelected
-                                                ? "bg-blue-600 text-white border-blue-600"
-                                                : "bg-background hover:bg-muted/50 border-border"
-                                        )}
-                                    >
-                                        {model.name}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        {selectedCompatibleModels.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-1">
-                                {selectedCompatibleModels.map(m => (
-                                    <Badge key={m.id} variant="secondary" className="gap-1">
-                                        {m.name}
-                                        <button
-                                            type="button"
-                                            onClick={() => toggleCompatibleModel(m)}
-                                            className="ml-1 hover:text-destructive"
-                                        >
-                                            ×
-                                        </button>
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
-                    </Field>
-                </section>
-            )}
         </div>
     );
 }

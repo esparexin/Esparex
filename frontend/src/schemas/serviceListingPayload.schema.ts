@@ -38,6 +38,7 @@ export const ServiceListingPayloadSchema = BaseServicePayloadSchema
         brandId: true,
         modelId: true,
         serviceTypeIds: true,
+        priceMin: true,
     })
     .merge(z.object({
         location: locationMetaSchema,
@@ -47,6 +48,8 @@ export const ServiceListingPayloadSchema = BaseServicePayloadSchema
         modelId: stringId,
         // serviceTypeIds uses ObjectIdSchema (z.preprocess → unknown output); override with plain string[]
         serviceTypeIds: z.array(z.string()).optional(),
+        // Single price field — mapped to priceMin on submit (backend expects priceMin)
+        price: z.number({ invalid_type_error: 'Enter a valid price' }).min(0, 'Price must be at least 0'),
     }));
 
 export type ServiceListingFormData = z.infer<typeof ServiceListingPayloadSchema>;

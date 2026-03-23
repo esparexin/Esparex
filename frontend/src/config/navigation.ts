@@ -12,6 +12,7 @@ import {
   Sparkles,
   Wrench,
   CreditCard,
+  CircuitBoard,
 } from "lucide-react";
 import {
   type UserPage,
@@ -130,6 +131,16 @@ const BASE_NAVIGATION: NavigationItem[] = [
     showIn: ["mobile-drawer"],
     section: "main",
     page: "browse-services",
+  },
+  {
+    id: "browse-spare-parts",
+    label: "Browse Spare Parts",
+    slug: "browse-spare-parts",
+    icon: CircuitBoard,
+    roles: ["guest", "user", "business"],
+    showIn: ["mobile-drawer"],
+    section: "main",
+    page: "browse-spare-parts",
   },
   {
     id: "profile",

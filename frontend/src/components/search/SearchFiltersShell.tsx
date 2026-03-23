@@ -62,7 +62,7 @@ export function SearchFiltersShell({
                     className="hidden lg:block w-72 shrink-0 border border-slate-100 rounded-2xl bg-white p-5 h-fit sticky top-24 shadow-sm"
                 >
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-base font-bold text-slate-900">Filters</h3>
+                        <h3 className="text-xl font-bold text-slate-900">Filters</h3>
                         <SlidersHorizontal className="size-4 text-slate-400" />
                     </div>
                     <div className="space-y-3">
@@ -72,57 +72,53 @@ export function SearchFiltersShell({
                     </div>
                 </aside>
             ) : isMobile ? (
-                <div className="lg:hidden" role="region" aria-label="Search Filters">
-                    <div className="sticky bottom-20 z-30 flex justify-center w-full pointer-events-none pb-4">
-                        <div className="pointer-events-auto">
-                            <Drawer
-                                title="Filter Products"
-                                open={mobileDrawerOpen}
-                                onOpenChange={setMobileDrawerOpen}
-                                trigger={
-                                    <Button size="lg" className="rounded-full shadow-2xl bg-slate-900 hover:bg-slate-800 gap-2 px-6 h-12 border border-slate-700">
-                                        <SlidersHorizontal className="size-4" />
-                                        Filter & Sort
-                                    </Button>
-                                }
-                            >
-                                <div className="pb-10 pt-2 h-full">
-                                    {mobileDrawerOpen && (
-                                        <SearchFiltersPanel
-                                            selectedCategory={selectedCategory}
-                                            priceRange={priceRange}
-                                            setPriceRange={setPriceRange}
-                                            selectedBrands={selectedBrands}
-                                            setSelectedBrands={setSelectedBrands}
-                                            availableBrands={availableBrands}
-                                            categoryFilters={categoryFilters}
-                                            setCategoryFilters={setCategoryFilters}
-                                            radiusKm={radiusKm}
-                                            setRadiusKm={setRadiusKm}
-                                            dynamicSpecificFilters={dynamicSpecificFilters}
-                                            onApply={() => {
-                                                haptics.tap();
-                                                onApply?.();
-                                            }}
-                                            onReset={() => {
-                                                haptics.impact();
-                                                onReset();
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                                {onApply && (
-                                    <MobileStickyCTA
-                                        label="Apply Filters"
-                                        onClick={() => {
-                                            haptics.tap();
-                                            onApply();
-                                        }}
-                                    />
-                                )}
-                            </Drawer>
+                <div className="lg:hidden w-full flex-1" role="region" aria-label="Search Filters">
+                    <Drawer
+                        title="Filter Products"
+                        open={mobileDrawerOpen}
+                        onOpenChange={setMobileDrawerOpen}
+                        trigger={
+                            <Button variant="ghost" className="h-10 px-0 gap-2 text-blue-600 hover:text-blue-700 hover:bg-transparent font-medium text-base">
+                                <SlidersHorizontal className="size-5" />
+                                Filters
+                            </Button>
+                        }
+                    >
+                        <div className="pb-10 pt-2 h-full">
+                            {mobileDrawerOpen && (
+                                <SearchFiltersPanel
+                                    selectedCategory={selectedCategory}
+                                    priceRange={priceRange}
+                                    setPriceRange={setPriceRange}
+                                    selectedBrands={selectedBrands}
+                                    setSelectedBrands={setSelectedBrands}
+                                    availableBrands={availableBrands}
+                                    categoryFilters={categoryFilters}
+                                    setCategoryFilters={setCategoryFilters}
+                                    radiusKm={radiusKm}
+                                    setRadiusKm={setRadiusKm}
+                                    dynamicSpecificFilters={dynamicSpecificFilters}
+                                    onApply={() => {
+                                        haptics.tap();
+                                        onApply?.();
+                                    }}
+                                    onReset={() => {
+                                        haptics.impact();
+                                        onReset();
+                                    }}
+                                />
+                            )}
                         </div>
-                    </div>
+                        {onApply && (
+                            <MobileStickyCTA
+                                label="Apply Filters"
+                                onClick={() => {
+                                    haptics.tap();
+                                    onApply();
+                                }}
+                            />
+                        )}
+                    </Drawer>
                 </div>
             ) : (
                 <aside
@@ -131,7 +127,7 @@ export function SearchFiltersShell({
                     className="w-72 shrink-0 border border-slate-100 rounded-2xl bg-white p-5 h-fit sticky top-24 shadow-sm"
                 >
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-base font-bold text-slate-900">Filters</h3>
+                        <h3 className="text-xl font-bold text-slate-900">Filters</h3>
                         <SlidersHorizontal className="size-4 text-slate-400" />
                     </div>
                     <SearchFiltersPanel

@@ -6,10 +6,10 @@ import { adminFetch } from "@/lib/api/adminClient";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { TrendsChart } from "@/components/dashboard/TrendsChart";
-import { Users, CheckCircle, Clock, TrendingUp, AlertCircle, Building2, DollarSign } from "lucide-react";
+import { Users, CheckCircle, Clock, TrendingUp, AlertCircle, Building2, DollarSign, Wrench, Package } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { fetchAdminAdSummary } from "@/lib/api/moderation";
+import { fetchAdminAdSummary, fetchAdminServiceSummary, fetchAdminSparePartSummary } from "@/lib/api/moderation";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import type { FinanceStats } from "@/types/transaction";
 
@@ -31,6 +31,8 @@ export default function DashboardPage() {
     rejected: 0,
     expired: 0
   });
+  const [pendingServices, setPendingServices] = useState(0);
+  const [pendingSpareParts, setPendingSpareParts] = useState(0);
   const [reportCount, setReportCount] = useState(0);
   const [businessRequestCount, setBusinessRequestCount] = useState(0);
   const [error, setError] = useState("");
@@ -38,8 +40,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [moderationSummary, trendsResult, userOverview, reportPayload, businessPayload, financePayload] = await Promise.all([
+        const [moderationSummary, serviceSummary, sparePartSummary, trendsResult, userOverview, reportPayload, businessPayload, financePayload] = await Promise.all([
           fetchAdminAdSummary(),
+          fetchAdminServiceSummary(),
+          fetchAdminSparePartSummary(),
           adminFetch<any>(ADMIN_ROUTES.ANALYTICS),
           adminFetch<any>(ADMIN_ROUTES.USER_OVERVIEW),
           adminFetch<any>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`),
@@ -59,6 +63,8 @@ export default function DashboardPage() {
         setFinanceStats((parseAdminResponse<never, FinanceStats>(financePayload).data || null) as FinanceStats | null);
         setTrends(parseAdminResponse<any>(trendsResult).items || parseAdminResponse<any, any>(trendsResult).data || []);
         setModerationCounts(moderationSummary);
+        setPendingServices(serviceSummary.pending);
+        setPendingSpareParts(sparePartSummary.pending);
         setReportCount(Number(reportPagination?.total || 0));
         setBusinessRequestCount(Number(businessPagination?.total || 0));
       } catch (err) {
@@ -140,6 +146,23 @@ export default function DashboardPage() {
           icon={DollarSign}
           className="border-sky-100 bg-sky-50/5"
           href="/finance"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <DashboardCard
+          title="Pending Services"
+          value={pendingServices}
+          icon={Wrench}
+          className="border-indigo-100 bg-indigo-50/5"
+          href="/ads?listingType=service&status=pending"
+        />
+        <DashboardCard
+          title="Pending Spare Parts"
+          value={pendingSpareParts}
+          icon={Package}
+          className="border-teal-100 bg-teal-50/5"
+          href="/ads?listingType=spare_part&status=pending"
         />
       </div>
 

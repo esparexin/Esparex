@@ -40,11 +40,20 @@ export interface ListingExpiredBulkEvent {
     source: string;
 }
 
+export interface ListingRejectedEvent {
+    listingId: string;
+    listingType: string;
+    rejectionReason?: string;
+    actorType: string;
+    actorId?: string;
+}
+
 export interface LifecycleEventMap {
     'ad.lifecycle.changed': AdStatusChangedEvent;
     'ad.expired.bulk': AdExpiredBulkEvent;
     'ad.spotlight.expired': AdSpotlightExpiredEvent;
     'listing.approved': ListingApprovedEvent;
+    'listing.rejected': ListingRejectedEvent;
     'listing.expired.bulk': ListingExpiredBulkEvent;
 }
 
@@ -54,6 +63,7 @@ type EventHandler<K extends EventKey> = (payload: LifecycleEventMap[K]) => Promi
 const PROTECTED_EVENT_SOURCE_MARKERS: Partial<Record<EventKey, string[]>> = {
     'ad.lifecycle.changed': ['StatusMutationService.ts', 'StatusMutationService.js'],
     'listing.approved': ['StatusMutationService.ts', 'StatusMutationService.js'],
+    'listing.rejected': ['StatusMutationService.ts', 'StatusMutationService.js'],
     'ad.expired.bulk': ['StatusMutationService.ts', 'StatusMutationService.js'],
     'listing.expired.bulk': ['ListingExpiryService.ts', 'ListingExpiryService.js'],
     'ad.spotlight.expired': ['adStatusService.ts', 'adStatusService.js'],

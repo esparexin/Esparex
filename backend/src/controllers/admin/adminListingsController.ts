@@ -427,6 +427,55 @@ export const adminExpireListing = async (req: Request, res: Response) => {
     }
 };
 
+export const adminExtendListing = async (req: Request, res: Response) => {
+    try {
+        const id = resolveListingId(req, res);
+        if (!id) return;
+
+        const listing = await getListingForMutation(req, res, id);
+        if (!listing) return;
+
+        const newExpiresAt = computeActiveExpiry((listing.listingType as ListingTypeValue) || LISTING_TYPE.AD);
+        const now = new Date();
+        const isExpired = listing.status === AD_STATUS.EXPIRED;
+
+        const patch: Record<string, unknown> = {
+            expiresAt: newExpiresAt,
+            $push: {
+                timeline: {
+                    status: isExpired ? AD_STATUS.LIVE : listing.status,
+                    timestamp: now,
+                    reason: 'Expiry extended by admin',
+                },
+            },
+        };
+
+        // Expired listings are restored to live on extend
+        if (isExpired) {
+            patch.status = AD_STATUS.LIVE;
+            patch.isChatLocked = false;
+        }
+
+        const updated = await Ad.findByIdAndUpdate(id, patch, { new: true });
+
+        await logAdminAction(req, 'LISTING_EXTEND', 'Ad', id, { expiresAt: newExpiresAt });
+
+        res.json(
+            respond({
+                success: true,
+                data: serializeLifecycleActionResponse({
+                    action: 'extended',
+                    listing: updated,
+                    message: 'Listing expiry extended successfully',
+                }),
+            })
+        );
+    } catch (error: unknown) {
+        const resolved = resolveControllerError(error, 'Failed to extend listing');
+        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
+    }
+};
+
 export const adminSoftDeleteListing = async (req: Request, res: Response) => {
     try {
         const id = resolveListingId(req, res);

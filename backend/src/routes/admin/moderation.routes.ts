@@ -102,6 +102,7 @@ router.post('/listings/:id/approve', requirePermission('ads:write'), adminMutati
 router.post('/listings/:id/reject', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, lifecyclePolicyHttpGuard, listingsController.adminRejectListing);
 router.post('/listings/:id/deactivate', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, lifecyclePolicyHttpGuard, listingsController.adminDeactivateListing);
 router.post('/listings/:id/expire', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, lifecyclePolicyHttpGuard, listingsController.adminExpireListing);
+router.post('/listings/:id/extend', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, listingsController.adminExtendListing);
 router.post('/listings/:id/report-resolve', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, lifecyclePolicyHttpGuard, listingsController.adminResolveListingReport);
 router.delete('/listings/:id', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, lifecyclePolicyHttpGuard, listingsController.adminSoftDeleteListing);
 

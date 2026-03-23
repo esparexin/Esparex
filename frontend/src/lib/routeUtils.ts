@@ -33,6 +33,7 @@ export type UserPage =
     | "business-entry" // Canonical business entry point
     | "post-spare-part-listing" // Canonical spare part creation
     | "spare-part-listing" // Canonical spare part gallery view
+    | "browse-spare-parts" // Public spare parts browse page
 
     | "notifications" // Notifications page
 
@@ -88,6 +89,7 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     home: "/",
     browse: "/search",
     "browse-services": "/browse-services",
+    "browse-spare-parts": "/browse-spare-parts",
     "post-ad": "/post-ad",
     login: "/login",
     // ── /account/* namespace (SSOT for all private account pages) ──

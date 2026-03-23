@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, MapPin, Pause, Phone, Play, User, X } from "lucide-react";
+import { Check, ExternalLink, MapPin, Pause, Phone, Play, RefreshCw, User, X } from "lucide-react";
 import Link from "next/link";
 import type { ModerationItem } from "./moderationTypes";
 import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "./moderationStatus";
@@ -26,6 +26,7 @@ type ViewAdModalProps = {
     onDeactivate: (adId: string) => Promise<void> | void;
     onActivate: (adId: string) => Promise<void> | void;
     onBlockSeller: (sellerId: string) => Promise<void> | void;
+    onExtend?: (adId: string) => Promise<void> | void;
 };
 
 const IMAGE_FALLBACK = "https://placehold.co/800x600/png?text=No+Image";
@@ -41,7 +42,8 @@ export function ViewAdModal({
     onReject,
     onDeactivate,
     onActivate,
-    onBlockSeller
+    onBlockSeller,
+    onExtend,
 }: ViewAdModalProps) {
     const locationDisplay = ad
         ? resolveLocationDisplay({
@@ -171,16 +173,35 @@ export function ViewAdModal({
                                             <span className="font-semibold">{attribute?.label || presentation.attributeHeader}:</span>{" "}
                                             {attribute?.value || "Not specified"}
                                         </div>
-                                        {effectiveListingType === "service" && (
+                                        {effectiveListingType === "service" && (<>
                                             <div>
                                                 <span className="font-semibold">Turnaround:</span> {ad.turnaroundTime || "-"}
                                             </div>
-                                        )}
-                                        {effectiveListingType === "spare_part" && (
+                                            <div>
+                                                <span className="font-semibold">Onsite:</span>{" "}
+                                                {typeof ad.onsiteService === "boolean" ? (ad.onsiteService ? "Yes" : "No") : "-"}
+                                            </div>
+                                            {ad.warranty && (
+                                                <div>
+                                                    <span className="font-semibold">Warranty:</span> {ad.warranty}
+                                                </div>
+                                            )}
+                                        </>)}
+                                        {effectiveListingType === "spare_part" && (<>
                                             <div>
                                                 <span className="font-semibold">Stock:</span> {typeof ad.stock === "number" ? ad.stock : "-"}
                                             </div>
-                                        )}
+                                            {ad.deviceType && (
+                                                <div>
+                                                    <span className="font-semibold">Device Type:</span> {ad.deviceType}
+                                                </div>
+                                            )}
+                                            {Array.isArray(ad.compatibleModels) && ad.compatibleModels.length > 0 && (
+                                                <div>
+                                                    <span className="font-semibold">Compatible:</span> {ad.compatibleModels.join(", ")}
+                                                </div>
+                                            )}
+                                        </>)}
                                         <div>
                                             <span className="font-semibold">Risk score:</span> {ad.riskScore ?? "Not scored"}
                                         </div>
@@ -193,11 +214,23 @@ export function ViewAdModal({
                                     <h3 className="text-sm font-semibold text-slate-900">{presentation.informationHeader}</h3>
                                     <div className="truncate text-lg font-semibold text-slate-900" title={ad.title}>{ad.title}</div>
                                     <p className="text-sm text-slate-700 whitespace-pre-wrap">{ad.description || "No description"}</p>
-                                    {effectiveListingType === "service" && typeof ad.diagnosticFee === "number" && (
-                                        <div className="text-sm text-slate-600">
-                                            <span className="font-semibold">Diagnostic Fee:</span> {ad.currency} {ad.diagnosticFee.toLocaleString()}
-                                        </div>
-                                    )}
+                                    {effectiveListingType === "service" && (<>
+                                        {typeof ad.diagnosticFee === "number" && (
+                                            <div className="text-sm text-slate-600">
+                                                <span className="font-semibold">Diagnostic Fee:</span> {ad.currency} {ad.diagnosticFee.toLocaleString()}
+                                            </div>
+                                        )}
+                                        {ad.included && (
+                                            <div className="text-sm text-slate-600">
+                                                <span className="font-semibold">Included:</span> {ad.included}
+                                            </div>
+                                        )}
+                                        {ad.excluded && (
+                                            <div className="text-sm text-slate-600">
+                                                <span className="font-semibold">Excluded:</span> {ad.excluded}
+                                            </div>
+                                        )}
+                                    </>)}
                                     <div className="flex items-start gap-2 text-sm text-slate-600">
                                         <MapPin size={15} className="mt-0.5" />
                                         <span>{locationDisplay}</span>
@@ -272,6 +305,15 @@ export function ViewAdModal({
                                         className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors"
                                     >
                                         <Play size={15} /> Activate
+                                    </button>
+                                )}
+                                {(ad.status === "live" || ad.status === "expired") && onExtend && (
+                                    <button
+                                        type="button"
+                                        onClick={() => void onExtend(ad.id)}
+                                        className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50 px-4 text-sm font-semibold text-sky-700 hover:bg-sky-100 transition-colors"
+                                    >
+                                        <RefreshCw size={15} /> {ad.status === "expired" ? "Restore & Extend" : "Extend Expiry"}
                                     </button>
                                 )}
                             </div>

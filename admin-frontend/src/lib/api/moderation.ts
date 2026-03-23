@@ -98,6 +98,14 @@ export async function fetchAdminAdSummary(): Promise<ModerationSummary> {
     return fetchAdminModerationSummary('ad');
 }
 
+export async function fetchAdminServiceSummary(): Promise<ModerationSummary> {
+    return fetchAdminModerationSummary('service');
+}
+
+export async function fetchAdminSparePartSummary(): Promise<ModerationSummary> {
+    return fetchAdminModerationSummary('spare_part');
+}
+
 
 export async function fetchAdminAdDetail(adId: string): Promise<UnknownRecord> {
     const payload = await adminFetch<unknown>(ADMIN_ROUTES.LISTING_BY_ID(adId));
@@ -137,6 +145,10 @@ export async function activateAdminAd(adId: string): Promise<void> {
 
 export async function deleteAdminAd(adId: string): Promise<void> {
     await adminFetch(ADMIN_ROUTES.LISTING_DELETE(adId), { method: "DELETE" });
+}
+
+export async function extendAdminListing(adId: string): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_EXTEND(adId), { method: "POST" });
 }
 
 export async function blockAdminSeller(sellerId: string, reason: string): Promise<void> {

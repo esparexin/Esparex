@@ -151,7 +151,6 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                 categoryId: payload.categoryId,
                 sparePartId: payload.sparePartId,
                 brandId: payload.brandId || undefined,
-                condition: "new",
                 title: payload.title,
                 description: payload.description,
                 price: payload.price,

@@ -249,3 +249,16 @@ export const getServicePhone = async (id: string): Promise<{ mobile: string } | 
     const { data } = await toApiResult<{ mobile: string }>(apiClient.get(API_ROUTES.USER.SERVICE_PHONE(id)));
     return data;
 };
+
+export const markServiceAsSold = async (
+    id: string,
+    soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available'
+): Promise<boolean> => {
+    const { data } = await toApiResult<unknown>(apiClient.patch(API_ROUTES.USER.SERVICE_SOLD(id), soldReason ? { soldReason } : {}));
+    return !!data;
+};
+
+export const deactivateService = async (id: string): Promise<boolean> => {
+    const { data } = await toApiResult<unknown>(apiClient.patch(API_ROUTES.USER.SERVICE_DEACTIVATE(id)));
+    return !!data;
+};

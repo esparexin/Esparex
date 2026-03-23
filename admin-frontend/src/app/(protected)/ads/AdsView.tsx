@@ -16,6 +16,7 @@ import {
     blockAdminSeller,
     deactivateAdminAd,
     deleteAdminAd,
+    extendAdminListing,
     fetchAdminAdDetail,
     rejectAdminAd
 } from "@/lib/api/moderation";
@@ -549,6 +550,17 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
                                 "Seller blocked",
                                 "Failed to block seller"
                             );
+                        }}
+                        onExtend={async (adId) => {
+                            await withActionGuard(
+                                () => extendAdminListing(adId),
+                                `${entityLabel} expiry extended`,
+                                `Failed to extend ${entityLabel}`
+                            );
+                            try {
+                                const detail = await fetchAdminAdDetail(adId);
+                                setViewAd(normalizeModerationAd(detail));
+                            } catch { /* table already refreshed */ }
                         }}
                     />
                 </AdminErrorBoundary>

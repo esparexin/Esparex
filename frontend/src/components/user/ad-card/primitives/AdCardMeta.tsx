@@ -48,9 +48,9 @@ export const AdCardMeta = memo(function AdCardMeta({
 
   return (
     <div className={cn("flex flex-col", className)}>
-      <h3 className="font-semibold line-clamp-2 text-xs md:text-sm leading-snug min-h-[2.5rem] text-gray-900">
+      <div className="font-semibold line-clamp-2 text-sm leading-snug min-h-[2.5rem] text-slate-800">
         {ad.title}
-      </h3>
+      </div>
 
       <div className="flex items-center justify-between gap-2 mt-1">
         <span className={cn("font-bold", isDashboard ? "text-primary text-lg" : "text-green-600 text-sm md:text-base")}>

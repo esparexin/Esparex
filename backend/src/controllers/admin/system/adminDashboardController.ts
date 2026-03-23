@@ -59,10 +59,13 @@ export const getStats = async (req: Request, res: Response) => {
                         totalAds:        [{ $match: { listingType: LISTING_TYPE.AD } }, { $count: "count" }],
                         activeAds:       [{ $match: { listingType: LISTING_TYPE.AD,      ...publicAdFilter } }, { $count: "count" }],
                         pendingAds:      [{ $match: { listingType: LISTING_TYPE.AD,      status: AD_STATUS.PENDING } }, { $count: "count" }],
-                        totalServices:   [{ $match: { listingType: LISTING_TYPE.SERVICE } }, { $count: "count" }],
-                        activeServices:  [{ $match: { listingType: LISTING_TYPE.SERVICE, ...publicAdFilter } }, { $count: "count" }],
-                        pendingServices: [{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.PENDING } }, { $count: "count" }],
-                        rejectedServices:[{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.REJECTED } }, { $count: "count" }]
+                        totalServices:    [{ $match: { listingType: LISTING_TYPE.SERVICE } }, { $count: "count" }],
+                        activeServices:   [{ $match: { listingType: LISTING_TYPE.SERVICE, ...publicAdFilter } }, { $count: "count" }],
+                        pendingServices:  [{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.PENDING } }, { $count: "count" }],
+                        rejectedServices: [{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.REJECTED } }, { $count: "count" }],
+                        totalSpareParts:  [{ $match: { listingType: LISTING_TYPE.SPARE_PART } }, { $count: "count" }],
+                        activeSpareParts: [{ $match: { listingType: LISTING_TYPE.SPARE_PART, ...publicAdFilter } }, { $count: "count" }],
+                        pendingSpareParts:[{ $match: { listingType: LISTING_TYPE.SPARE_PART, status: AD_STATUS.PENDING } }, { $count: "count" }]
                     }
                 }
             ]),
@@ -82,6 +85,10 @@ export const getStats = async (req: Request, res: Response) => {
         const pendingServices = stats.pendingServices[0]?.count || 0;
         const rejectedServices = stats.rejectedServices[0]?.count || 0;
 
+        const totalSpareParts = stats.totalSpareParts[0]?.count || 0;
+        const activeSpareParts = stats.activeSpareParts[0]?.count || 0;
+        const pendingSpareParts = stats.pendingSpareParts[0]?.count || 0;
+
         const totalRevenue = totalRevenueAgg[0]?.total || 0;
         sendSuccessResponse(res, {
             totalUsers,
@@ -92,6 +99,9 @@ export const getStats = async (req: Request, res: Response) => {
             activeServices,
             pendingServices,
             rejectedServices,
+            totalSpareParts,
+            activeSpareParts,
+            pendingSpareParts,
             notifications: {
                 pendingModels,
                 reportedAds: openReports,

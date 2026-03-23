@@ -34,14 +34,7 @@ const SERVICE_ALLOWED_FIELDS = [
     'serviceTypeIds',
     'serviceTypes', // frontend sends names; resolveServiceTypes handles both names and ObjectIds
     'deviceType',
-    'priceMin',
-    'priceMax',
-    'diagnosticFee',
-    'onsiteService',
-    'turnaroundTime',
-    'warranty',
-    'included',
-    'excluded'
+    'priceMin'
 ] as const;
 const SERVICE_TAXONOMY_FIELDS = ['categoryId', 'brandId', 'modelId'] as const;
 
@@ -450,6 +443,78 @@ export const updateService = async (req: Request, res: Response) => {
     } catch (error) {
         logger.error('Update Service Error:', error);
         sendErrorResponse(req, res, 500, 'Failed to update service');
+    }
+};
+
+/* ---------------------------------------------------
+   Mark Service as Sold (Owner Only)
+--------------------------------------------------- */
+export const markServiceAsSold = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) { sendErrorResponse(req, res, 401, 'Unauthorized'); return; }
+
+        const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
+        if (!id) return;
+
+        const service = await AdModel.findOne({
+            _id: id,
+            listingType: LISTING_TYPE.SERVICE,
+            sellerId: user._id,
+            isDeleted: false,
+        }).select('status');
+
+        if (!service) { sendErrorResponse(req, res, 404, 'Service not found or unauthorized'); return; }
+        if (service.status !== 'live') { sendErrorResponse(req, res, 400, 'Only live services can be marked as sold'); return; }
+
+        const updated = await mutateStatus({
+            domain: 'service',
+            entityId: id,
+            toStatus: 'sold',
+            actor: { type: ACTOR_TYPE.USER, id: user._id.toString() },
+            reason: req.body.soldReason || 'Marked as sold by seller',
+            patch: { soldReason: req.body.soldReason, soldAt: new Date() },
+        });
+
+        res.json(respond<ApiResponse<Service>>({ success: true, data: updated as unknown as Service, message: 'Service marked as sold' }));
+    } catch (error) {
+        logger.error('Mark Service Sold Error:', error);
+        sendErrorResponse(req, res, 500, 'Failed to mark service as sold');
+    }
+};
+
+/* ---------------------------------------------------
+   Deactivate Service (Owner Only) — LIVE → DEACTIVATED
+--------------------------------------------------- */
+export const deactivateService = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) { sendErrorResponse(req, res, 401, 'Unauthorized'); return; }
+
+        const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
+        if (!id) return;
+
+        const service = await AdModel.findOne({
+            _id: id,
+            listingType: LISTING_TYPE.SERVICE,
+            sellerId: user._id,
+            isDeleted: false,
+        }).select('status');
+
+        if (!service) { sendErrorResponse(req, res, 404, 'Service not found or unauthorized'); return; }
+
+        const updated = await mutateStatus({
+            domain: 'service',
+            entityId: id,
+            toStatus: 'deactivated',
+            actor: { type: ACTOR_TYPE.USER, id: user._id.toString() },
+            reason: 'Deactivated by seller',
+        });
+
+        res.json(respond<ApiResponse<Service>>({ success: true, data: updated as unknown as Service, message: 'Service deactivated' }));
+    } catch (error) {
+        logger.error('Deactivate Service Error:', error);
+        sendErrorResponse(req, res, 500, 'Failed to deactivate service');
     }
 };
 

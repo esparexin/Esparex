@@ -64,6 +64,7 @@ export const ADMIN_ROUTES = {
   LISTING_REJECT: (id: string) => `/listings/${id}/reject`,
   LISTING_DEACTIVATE: (id: string) => `/listings/${id}/deactivate`,
   LISTING_EXPIRE: (id: string) => `/listings/${id}/expire`,
+  LISTING_EXTEND: (id: string) => `/listings/${id}/extend`,
   LISTING_COUNTS: "/listings/counts",
   LISTING_DELETE: (id: string) => `/listings/${id}`,
   LISTING_REPORT_RESOLVE: (id: string) => `/listings/${id}/report-resolve`,

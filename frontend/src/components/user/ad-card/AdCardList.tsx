@@ -98,7 +98,7 @@ export const AdCardList = memo(function AdCardList({
     <Wrapper>
       <Card
         className={cn(
-          "overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border-slate-100 rounded-2xl group",
+          "overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border-slate-100 rounded-xl group",
           ad.isSpotlight ? 'ring-2 ring-yellow-500 ring-offset-2' : '',
           className
         )}
@@ -132,12 +132,14 @@ export const AdCardList = memo(function AdCardList({
             <div className="flex-1 flex flex-col justify-between py-1">
               <div>
                 <div className="flex justify-between items-start gap-2">
-                  <h3 className="font-semibold text-slate-900 leading-snug line-clamp-2">{ad.title}</h3>
+                  <div className="text-xl font-bold text-green-600">
+                    {ad.price === 0 ? "Free" : formatPrice(ad.price)}
+                  </div>
                   {onToggleSave && (
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-11 w-11 rounded-full hover:bg-slate-100 -mt-1 -mr-1"
+                      className="h-11 w-11 rounded-full hover:bg-slate-100 -mt-2 -mr-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -150,9 +152,7 @@ export const AdCardList = memo(function AdCardList({
                     </Button>
                   )}
                 </div>
-                <div className="text-xl font-bold text-green-600 mt-1">
-                  {ad.price === 0 ? "Free" : formatPrice(ad.price)}
-                </div>
+                <h3 className="font-semibold text-slate-900 leading-snug line-clamp-2 mt-1">{ad.title}</h3>
               </div>
               
               <div className="flex items-center gap-3 text-xs text-slate-400">

@@ -38,6 +38,8 @@ router.put(
 );
 // Ownership verified in controller — no business approval needed to delete own listing
 router.delete('/:id', protect, validateObjectId, serviceController.deleteService);
+router.patch('/:id/sold', protect, validateObjectId, serviceController.markServiceAsSold);
+router.patch('/:id/deactivate', protect, validateObjectId, serviceController.deactivateService);
 
 import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 

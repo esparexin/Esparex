@@ -108,6 +108,7 @@ export interface PostAdContextType {
     isUploadingImages: boolean;
     isSubmitting: boolean;
     isEditMode: boolean;
+    isLocationLocked: boolean;
     userHasInteracted: boolean;
     setUserHasInteracted: (val: boolean) => void;
     formError: string | null;
@@ -212,6 +213,12 @@ export function PostAdProvider({
     // Navigation State for 9-Step Flow
     const isEditMode = !!editAdId;
     const [currentStep, setCurrentStep] = useState(isEditMode ? 2 : 1);
+
+    // Track the original ad status loaded during edit preload
+    const [originalAdStatus, setOriginalAdStatus] = useState<string | null>(null);
+
+    // Location is locked once ad reaches pending or live — trust signal, cannot be silently changed
+    const isLocationLocked = isEditMode && (originalAdStatus === 'live' || originalAdStatus === 'pending');
 
     // State for spare parts and pending states
     const [spareParts, setSpareParts] = useState<string[]>([]);
@@ -320,6 +327,7 @@ export function PostAdProvider({
         isEditMode,
         setIsLoading,
         setFormError,
+        setOriginalAdStatus,
         setValue,
         setSpareParts,
         setAdImages: setListingImages,
@@ -511,6 +519,7 @@ export function PostAdProvider({
         isUploadingImages: imagesHook.isUploadingImages,
         isSubmitting,
         isEditMode,
+        isLocationLocked,
         userHasInteracted,
         formError,
         imageUploadError: imagesHook.imageUploadError,
@@ -538,6 +547,7 @@ export function PostAdProvider({
         imagesHook.isUploadingImages,
         isSubmitting,
         isEditMode,
+        isLocationLocked,
         userHasInteracted,
         formError,
         imagesHook.imageUploadError,

@@ -81,6 +81,7 @@ export const mutateStatus = async (request: MutationRequest) => {
 
     const startTime = Date.now();
     let fromStatus = 'unknown';
+    let resolvedListingType: string | undefined;
 
     try {
         let result = null;
@@ -96,6 +97,7 @@ export const mutateStatus = async (request: MutationRequest) => {
 
             fromStatus = (doc as any).status;
             const listingType = (doc as any).listingType;
+            resolvedListingType = listingType;
 
             // 2. Lifecycle Validation (Type-aware for unified ad model)
             const resolvedDomain = resolveLifecycleDomain(domain, listingType);
@@ -227,6 +229,21 @@ export const mutateStatus = async (request: MutationRequest) => {
                 source: actor.type,
                 reason
             });
+
+            if (
+                toStatus === 'rejected'
+                && String(metadata?.action || '').trim().toLowerCase() === 'moderation_reject'
+            ) {
+                await lifecycleEvents.dispatch('listing.rejected', {
+                    listingId: entityId.toString(),
+                    listingType: resolvedListingType || 'ad',
+                    rejectionReason: typeof (patch as Record<string, unknown> | undefined)?.rejectionReason === 'string'
+                        ? String((patch as Record<string, unknown>).rejectionReason)
+                        : undefined,
+                    actorType: actor.type,
+                    actorId: actor.id,
+                });
+            }
 
             if (
                 toStatus === 'live'

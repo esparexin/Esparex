@@ -62,10 +62,6 @@ export interface SparePartListingContextType {
     handleCategoryChange: (id: string) => Promise<void>;
     handleBrandChange: (name: string) => Promise<void>;
 
-    // Compatible models
-    selectedCompatibleModels: { id: string; name: string }[];
-    toggleCompatibleModel: (model: { id: string; name: string }) => void;
-
     // Images
     listingImages: ListingImage[];
     addImages: (files: File[]) => void;
@@ -87,7 +83,6 @@ export function SparePartListingProvider({ children }: { children: ReactNode }) 
     const { setIsDirty } = useNavigation();
 
     const [currentStep, setCurrentStep] = useState(1);
-    const [selectedCompatibleModels, setSelectedCompatibleModels] = useState<{ id: string; name: string }[]>([]);
 
     const [businessLocationDisplay, setBusinessLocationDisplay] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -100,7 +95,6 @@ export function SparePartListingProvider({ children }: { children: ReactNode }) 
             description: "",
             price: 0,
             images: [],
-            compatibleModels: [],
         },
     });
 
@@ -178,8 +172,6 @@ export function SparePartListingProvider({ children }: { children: ReactNode }) 
         setValue("brandId", "");
         setValue("sparePartId", "");
         setValue("sparePartName", "");
-        setSelectedCompatibleModels([]);
-        setValue("compatibleModels", []);
     };
 
     const handleBrandChange = async (name: string) => {
@@ -191,15 +183,6 @@ export function SparePartListingProvider({ children }: { children: ReactNode }) 
         } else {
             setValue("brandId", "");
         }
-    };
-
-    const toggleCompatibleModel = (model: { id: string; name: string }) => {
-        setSelectedCompatibleModels(prev => {
-            const exists = prev.some(m => m.id === model.id);
-            const updated = exists ? prev.filter(m => m.id !== model.id) : [...prev, model];
-            setValue("compatibleModels", updated.map(m => m.id), { shouldValidate: false });
-            return updated;
-        });
     };
 
     const nextStep = async () => {
@@ -256,8 +239,6 @@ export function SparePartListingProvider({ children }: { children: ReactNode }) 
         spareParts,
         handleCategoryChange,
         handleBrandChange,
-        selectedCompatibleModels,
-        toggleCompatibleModel,
         listingImages,
         addImages,
         removeImage,

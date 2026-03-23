@@ -46,11 +46,7 @@ const sparePartListingUpdateSchema = PartialSparePartPayloadSchema.pick({
     title: true,
     description: true,
     price: true,
-    condition: true,
-    stock: true,
-    warranty: true,
     images: true,
-    compatibleModels: true,
 });
 
 /**
@@ -74,14 +70,10 @@ export const createSparePartListing = async (req: Request, res: Response) => {
         const {
             categoryId,
             sparePartId,
-            compatibleModels,
             brandId,
             title,
             description,
             price,
-            condition,
-            stock,
-            warranty,
             images,
             locationId: topLevelLocationId,
             location
@@ -131,14 +123,10 @@ export const createSparePartListing = async (req: Request, res: Response) => {
                     listingType: LISTING_TYPE.SPARE_PART,
                     categoryId,
                     sparePartId,
-                    compatibleModels: compatibleModels ?? [],
                     brandId,
                     title,
                     description,
                     price,
-                    condition,
-                    stock,
-                    warranty,
                     images: processedImageUrls,
                     sellerId: userId,
                     sellerType: 'business',
@@ -171,7 +159,7 @@ export const createSparePartListing = async (req: Request, res: Response) => {
  */
 export const getSparePartListings = async (req: Request, res: Response) => {
     try {
-        const { categoryId, typeId, status, page, limit, cursor } = req.query;
+        const { categoryId, typeId, status, page, limit, cursor, search, locationId, lat, lng, radiusKm } = req.query;
 
         // Redirect to unified AdQueryService
         const result = await adService.getAds(
@@ -179,7 +167,12 @@ export const getSparePartListings = async (req: Request, res: Response) => {
                 listingType: LISTING_TYPE.SPARE_PART,
                 categoryId: categoryId as string,
                 sparePartId: typeId as string,
-                status: (status as any) || AD_STATUS.LIVE
+                status: (status as any) || AD_STATUS.LIVE,
+                ...(search ? { search: search as string } : {}),
+                ...(locationId ? { locationId: locationId as string } : {}),
+                ...(lat ? { lat: lat as string } : {}),
+                ...(lng ? { lng: lng as string } : {}),
+                ...(radiusKm ? { radiusKm: Number(radiusKm) } : {}),
             },
             {
                 page: Number(page) || 1,
@@ -366,6 +359,42 @@ export const deleteSparePartListing = async (req: Request, res: Response) => {
         res.status(200).json({ success: true, data: null, message: 'Spare part listing deleted.' });
     } catch (error) {
         sendContractErrorResponse(req, res, 500, 'Failed to delete spare part listing');
+    }
+};
+
+/**
+ * Deactivate a Spare Part Listing (Owner only) — LIVE → DEACTIVATED
+ * PATCH /api/v1/spare-part-listings/:id/deactivate
+ */
+export const deactivateSparePartListing = async (req: Request, res: Response) => {
+    try {
+        if (!req.user) {
+            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
+        }
+
+        const listingId = req.params.id as string;
+        const listing = await AdModel.findOne({
+            _id: listingId,
+            listingType: LISTING_TYPE.SPARE_PART,
+            sellerId: req.user._id,
+            isDeleted: false,
+        }).select('status');
+
+        if (!listing) {
+            return sendContractErrorResponse(req, res, 404, 'Spare part listing not found or access denied');
+        }
+
+        const updated = await mutateStatus({
+            domain: 'spare_part_listing',
+            entityId: listingId,
+            toStatus: 'deactivated',
+            actor: { type: ACTOR_TYPE.USER, id: (req.user as any)?._id?.toString() },
+            reason: 'Deactivated by seller',
+        });
+
+        res.status(200).json({ success: true, data: updated, message: 'Spare part listing deactivated.' });
+    } catch (error) {
+        sendContractErrorResponse(req, res, 500, 'Failed to deactivate spare part listing');
     }
 };
 

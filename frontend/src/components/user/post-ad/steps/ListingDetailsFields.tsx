@@ -38,7 +38,7 @@ export default function ListingDetailsFields() {
         removeImage,
         listingImages,
         setLocation: setContextLocation,
-        isEditMode,
+        isLocationLocked,
     } = usePostAd();
 
     // Watch values for UI logic
@@ -284,15 +284,21 @@ export default function ListingDetailsFields() {
             <section className="space-y-4">
                 <Field label="Where are you located?" error={errors.location?.display?.message}>
                     <div className="space-y-3">
-                        <LocationSelector 
+                        <LocationSelector
                             variant="inline"
-                            mode="postAd" 
-                            onLocationSelect={handleSelectLocation} 
+                            mode="postAd"
+                            onLocationSelect={handleSelectLocation}
                             currentDisplay={locationVal?.display}
                             className="h-14 font-bold rounded-2xl border-2"
-                            disabled={isEditMode}
+                            disabled={isLocationLocked}
                         />
-                        <p className="text-[11px] text-slate-400 text-center font-medium">Use GPS auto-detect or search manually for your city.</p>
+                        {isLocationLocked ? (
+                            <p className="text-[11px] text-amber-600 text-center font-medium">
+                                Location cannot be changed once an ad is live or under review.
+                            </p>
+                        ) : (
+                            <p className="text-[11px] text-slate-400 text-center font-medium">Use GPS auto-detect or search manually for your city.</p>
+                        )}
                     </div>
                 </Field>
             </section>

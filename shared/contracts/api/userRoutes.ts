@@ -89,11 +89,14 @@ export const USER_ROUTES = {
   SERVICE_VIEW: (id: string) => `services/${encodeURIComponent(id)}/view`,
   MY_SERVICES: "services/my-services",
   SERVICE_PHONE: (id: string) => `services/${id}/phone`,
+  SERVICE_SOLD: (id: string) => `services/${id}/sold`,
+  SERVICE_DEACTIVATE: (id: string) => `services/${id}/deactivate`,
 
   // Spare Part Listings
   SPARE_PART_LISTINGS: "spare-part-listings",
   SPARE_PART_LISTING_DETAIL: (id: string) => `spare-part-listings/${encodeURIComponent(id)}`,
   MY_SPARE_PART_LISTINGS: "spare-part-listings/my-listings",
+  SPARE_PART_DEACTIVATE: (id: string) => `spare-part-listings/${id}/deactivate`,
 
   // Users
   USERS: "users",

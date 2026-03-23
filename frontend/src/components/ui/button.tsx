@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
 const base =
-  "inline-flex items-center justify-center rounded-lg text-base font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none";
+  "inline-flex items-center justify-center rounded-[10px] text-base font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none";
 
 const variants = {
   default: "bg-primary text-primary-foreground hover:bg-primary/90", // Backwards compatibility

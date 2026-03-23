@@ -3,6 +3,7 @@ import { registerCacheInvalidationListener } from './listeners/CacheInvalidation
 import { registerSearchIndexListener } from './listeners/SearchIndexListener';
 import { registerWebsocketNotifierListener } from './listeners/WebsocketNotifierListener';
 import { registerNotificationTriggerListener } from './listeners/NotificationTriggerListener';
+import { registerSellerListingNotificationListener } from './listeners/SellerListingNotificationListener';
 
 /**
  * Initializes the Central Lifecycle Event System
@@ -14,6 +15,7 @@ export const initializeEventDispatcher = () => {
         registerSearchIndexListener();
         registerWebsocketNotifierListener();
         registerNotificationTriggerListener();
+        registerSellerListingNotificationListener();
         
         logger.info('🎯 [LifecycleEventSystem] Successfully initialized all dispatch listeners.');
     } catch (error) {

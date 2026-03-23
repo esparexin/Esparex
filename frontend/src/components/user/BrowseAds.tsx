@@ -250,7 +250,7 @@ export function BrowseAds({
     <div className="grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="space-y-3">
-          <Skeleton className="aspect-[4/3] w-full rounded-xl" />
+          <Skeleton className="aspect-square w-full rounded-xl" />
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
         </div>
@@ -258,34 +258,38 @@ export function BrowseAds({
     </div>
   );
 
+  const filterProps = {
+    selectedCategory,
+    setSelectedCategory: (val: string | null) => {
+      setSelectedCategory(val);
+      const params = new URLSearchParams(searchParams.toString());
+      if (val) params.set("category", val);
+      else params.delete("category");
+      router.replace(`/search?${params.toString()}`, { scroll: false });
+    },
+    priceRange,
+    setPriceRange,
+    selectedBrands,
+    setSelectedBrands,
+    categories,
+    availableBrands,
+    categoryFilters,
+    setCategoryFilters,
+    radiusKm,
+    setRadiusKm,
+    onReset: handleReset,
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/40">
       {/* ── Main Layout ────────────────────────────────────────────────────── */}
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
-        <div className="flex gap-6 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
 
           {/* ── Filters Sidebar ──────────────────────────────────────────── */}
-          <SearchFilters
-            selectedCategory={selectedCategory}
-            setSelectedCategory={(val) => {
-              setSelectedCategory(val);
-              const params = new URLSearchParams(searchParams.toString());
-              if (val) params.set("category", val);
-              else params.delete("category");
-              router.replace(`/search?${params.toString()}`, { scroll: false });
-            }}
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
-            selectedBrands={selectedBrands}
-            setSelectedBrands={setSelectedBrands}
-            categories={categories}
-            availableBrands={availableBrands}
-            categoryFilters={categoryFilters}
-            setCategoryFilters={setCategoryFilters}
-            radiusKm={radiusKm}
-            setRadiusKm={setRadiusKm}
-            onReset={handleReset}
-          />
+          <div className="hidden lg:block">
+            <SearchFilters {...filterProps} />
+          </div>
 
           {/* ── Results Column ───────────────────────────────────────────── */}
           <div className="flex-1 min-w-0 space-y-4">
@@ -296,6 +300,7 @@ export function BrowseAds({
               view={view}
               onSortChange={setSort}
               onViewChange={setView}
+              filterNode={<SearchFilters {...filterProps} />}
             />
 
             {/* ── Error state ──────────────────────────────────────────── */}

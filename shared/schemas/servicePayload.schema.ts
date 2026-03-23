@@ -50,26 +50,6 @@ const servicePayloadShape = {
         .min(0, 'Minimum price must be at least 0')
         .optional(),
 
-    priceMax: z.number()
-        .min(0, 'Maximum price must be at least 0')
-        .optional(),
-
-    diagnosticFee: z.number()
-        .min(0, 'Diagnostic fee must be at least 0')
-        .optional(),
-
-    onsiteService: z.boolean().optional(),
-
-    turnaroundTime: z.string()
-        .min(1, 'Turnaround time is required')
-        .max(50, 'Turnaround time must be less than 50 characters')
-        .optional(),
-
-    warranty: z.string()
-        .min(1, 'Warranty information is required')
-        .max(100, 'Warranty must be less than 100 characters')
-        .optional(),
-
     // Uses centralized text validation (bans profanity, gibberish, etc.)
     description: validatedTextSchema({
         fieldName: 'Description',
@@ -80,14 +60,6 @@ const servicePayloadShape = {
         checkGibberish: true,
         checkQuality: true
     }),
-
-    included: z.string()
-        .max(1000, 'Included services must be less than 1000 characters')
-        .optional(),
-
-    excluded: z.string()
-        .max(1000, 'Excluded services must be less than 1000 characters')
-        .optional(),
 
     images: z.array(z.string())
         .min(1, 'At least one image is required')
@@ -108,16 +80,6 @@ export const BaseServicePayloadSchema = z.object(servicePayloadShape).passthroug
  * at-least-one serviceType enforcement.
  */
 export const ServicePayloadSchema = BaseServicePayloadSchema
-    .refine((data) => {
-        // Validate price range logic
-        if (data.priceMax != null && data.priceMin != null) {
-            return data.priceMax >= data.priceMin;
-        }
-        return true;
-    }, {
-        message: 'Maximum price must be greater than or equal to minimum price',
-        path: ['priceMax']
-    })
     .refine((data) => {
         return Boolean(
             (Array.isArray(data.serviceTypes) && data.serviceTypes.length > 0)

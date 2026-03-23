@@ -87,4 +87,6 @@ router.delete(
     sparePartListingController.deleteSparePartListing
 );
 
+router.patch('/:id/deactivate', protect, validateObjectId, sparePartListingController.deactivateSparePartListing);
+
 export default router;

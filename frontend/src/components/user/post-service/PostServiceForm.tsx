@@ -42,7 +42,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             categoryId: "",
             brandId: "",
             serviceTypes: [],
-            priceMin: 0,
+            price: 0,
             description: "",
         },
     });
@@ -95,7 +95,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                         categoryId: payload.category?.id || "",
                         brandId: payload.brand?.id || "",
                         serviceTypes: payload.serviceTypeIds || [],
-                        priceMin: payload.priceMin || payload.price || 0,
+                        price: payload.priceMin || payload.price || 0,
                         description: payload.description || "",
                         location: payload.location,
                     });
@@ -159,8 +159,10 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         editId: editServiceId,
         schema: PostServiceSchema,
         submitFn: async (payload) => {
-            if (isEditMode && editServiceId) return updateService(editServiceId, payload);
-            return createService(payload);
+            // Backend expects priceMin, not price — map here so the schema can use "price"
+            const backendPayload = { ...payload, priceMin: (payload as any).price };
+            if (isEditMode && editServiceId) return updateService(editServiceId, backendPayload);
+            return createService(backendPayload);
         },
         onSuccess: () => router.push(isEditMode ? "/my-ads?tab=pending" : "/post-service-success"),
     });
@@ -325,12 +327,12 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                             </Field>
 
                             {/* Price */}
-                            <Field label="Price (₹)" error={errors.priceMin?.message}>
+                            <Field label="Price (₹)" error={errors.price?.message}>
                                 <div className="relative">
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm pointer-events-none">₹</span>
                                     <Input
                                         type="number"
-                                        {...register("priceMin", { valueAsNumber: true })}
+                                        {...register("price", { valueAsNumber: true })}
                                         placeholder="0"
                                         min={0}
                                         className="h-12 rounded-xl border-2 border-slate-200 bg-white text-sm font-medium focus:border-primary pl-8"

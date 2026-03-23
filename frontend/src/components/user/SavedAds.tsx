@@ -155,7 +155,7 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
   const renderGridCard = (ad: Ad, unavailable = false) => (
     <Card
       key={ad.id}
-      className={`overflow-hidden rounded-2xl border-slate-100 transition-all duration-300 ${
+      className={`overflow-hidden rounded-xl border-slate-100 transition-all duration-300 ${
         unavailable
           ? "opacity-60 cursor-default"
           : "hover:shadow-2xl hover:-translate-y-1 cursor-pointer group"
@@ -167,7 +167,7 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
         })
       }
     >
-      <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
+      <div className="relative aspect-square bg-gray-100 overflow-hidden">
         <Image
           src={toSafeImageSrc(ad.images?.[0], DEFAULT_IMAGE_PLACEHOLDER)}
           alt={ad.title}
@@ -204,7 +204,7 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
       </div>
 
       <CardContent className="p-3 space-y-1.5">
-        <h3 className={`font-semibold line-clamp-2 text-sm leading-tight ${unavailable ? "text-gray-400" : ""}`}>
+        <h3 className={`font-semibold line-clamp-2 text-base leading-tight ${unavailable ? "text-gray-400" : ""}`}>
           {ad.title}
         </h3>
         <div className={`text-xl font-extrabold ${unavailable ? "text-gray-400" : "text-blue-600"}`}>
@@ -235,7 +235,7 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
   const renderListCard = (ad: Ad, unavailable = false) => (
     <Card
       key={ad.id}
-      className={`overflow-hidden rounded-2xl border-slate-100 transition-all ${
+      className={`overflow-hidden rounded-xl border-slate-100 transition-all ${
         unavailable ? "opacity-60 cursor-default" : "hover:shadow-xl cursor-pointer"
       }`}
       onClick={unavailable ? undefined : () => navigateTo("ad-detail", ad.id)}
@@ -284,12 +284,12 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
               >
                 {getCategoryLabel(ad).toUpperCase()}
               </Badge>
-              <h3 className={`font-semibold line-clamp-2 text-xs md:text-base leading-tight ${unavailable ? "text-gray-400" : ""}`}>
-                {ad.title}
-              </h3>
               <div className={`text-lg md:text-2xl font-extrabold ${unavailable ? "text-gray-400" : "text-blue-600"}`}>
                 {formatPrice(ad.price)}
               </div>
+              <h3 className={`font-semibold line-clamp-2 text-xs md:text-base leading-tight ${unavailable ? "text-gray-400" : ""}`}>
+                {ad.title}
+              </h3>
             </div>
             <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-1 md:gap-4 text-[10px] md:text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
@@ -314,7 +314,7 @@ export function SavedAds({ navigateTo }: SavedAdsProps) {
       <div className="w-full px-4 md:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-4 md:mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold">Saved Ads</h1>
+            <h1 className="text-2xl font-bold">Saved Ads</h1>
             <p className="text-muted-foreground mt-1 text-sm md:text-base">
               Your favorite listings ({available.length} available
               {unavailable.length > 0 ? `, ${unavailable.length} unavailable` : ""})

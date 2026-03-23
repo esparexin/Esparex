@@ -19,6 +19,7 @@ interface UsePostAdPreloadProps {
     setLocation: any;
     loadBrandsForCategory: (id: string) => Promise<void>;
     loadSparePartsForCategory: (id: string) => Promise<void>;
+    setOriginalAdStatus?: (status: string) => void;
 }
 
 export function usePostAdPreload({
@@ -32,6 +33,7 @@ export function usePostAdPreload({
     setLocation,
     loadBrandsForCategory,
     loadSparePartsForCategory,
+    setOriginalAdStatus,
 }: UsePostAdPreloadProps) {
     const loadedAdIdRef = useRef<string | null>(null);
 
@@ -52,7 +54,12 @@ export function usePostAdPreload({
                 const data = await getAdById(editAdId);
                 if (data) {
                     const adData = data as Ad;
-                    
+
+                    // 0. Capture original status for location lock
+                    if (setOriginalAdStatus && adData.status) {
+                        setOriginalAdStatus(adData.status);
+                    }
+
                     // 1. Resolve Category ID
                     const catId = normalizeOptionalObjectId(
                         (adData.category as any)?.id || 
