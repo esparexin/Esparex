@@ -2,10 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 const projectRoot = process.cwd();
-const moderationRowActionsPath = path.join(projectRoot, "src", "components", "moderation", "ModerationRowActions.tsx");
+const moderationActionsPath = path.join(projectRoot, "src", "components", "moderation", "AdminModerationActions.tsx");
 const moderationTypesPath = path.join(projectRoot, "src", "components", "moderation", "moderationTypes.ts");
 const moderationApiPath = path.join(projectRoot, "src", "lib", "api", "moderation.ts");
-const moderationHubPath = path.join(projectRoot, "src", "app", "(protected)", "moderation", "ModerationHub.tsx");
+const moderationHubPath = path.join(projectRoot, "src", "app", "(protected)", "ads", "AdsView.tsx");
 const failures = [];
 
 function readFile(filePath) {
@@ -22,41 +22,41 @@ function assertPattern(content, pattern, message) {
     }
 }
 
-const rowActions = readFile(moderationRowActionsPath);
+const moderationActions = readFile(moderationActionsPath);
 const moderationTypes = readFile(moderationTypesPath);
 const moderationApi = readFile(moderationApiPath);
 const moderationHub = readFile(moderationHubPath);
 
 // Action visibility regression guards
 assertPattern(
-    rowActions,
-    /const showApprove = status === "pending";/,
-    'ModerationRowActions regression: pending -> approve action mapping changed.'
+    moderationActions,
+    /const showApprove = status === "pending" && Boolean\(onApprove\);/,
+    'AdminModerationActions regression: pending -> approve action mapping changed.'
 );
 assertPattern(
-    rowActions,
-    /const showReject = status === "pending";/,
-    'ModerationRowActions regression: pending -> reject action mapping changed.'
+    moderationActions,
+    /const showReject = status === "pending" && Boolean\(onReject\);/,
+    'AdminModerationActions regression: pending -> reject action mapping changed.'
 );
 assertPattern(
-    rowActions,
-    /const showDeactivate = status === "pending" \|\| status === "active";/,
-    'ModerationRowActions regression: deactivate visibility mapping changed.'
+    moderationActions,
+    /const showDeactivate = status === "live" && Boolean\(onDeactivate\);/,
+    'AdminModerationActions regression: live -> deactivate action mapping changed.'
 );
 assertPattern(
-    rowActions,
-    /const showActivate = status === "deactivated";/,
-    'ModerationRowActions regression: deactivated -> activate mapping changed.'
+    moderationActions,
+    /const showActivate = status === "deactivated" && Boolean\(onActivate\);/,
+    'AdminModerationActions regression: deactivated -> activate mapping changed.'
 );
 assertPattern(
-    rowActions,
-    /const showDelete = status === "active" \|\| status === "deactivated" \|\| status === "rejected";/,
-    'ModerationRowActions regression: delete visibility mapping changed.'
+    moderationActions,
+    /const showDelete = \(status === "deactivated" \|\| status === "rejected" \|\| status === "expired"\) && Boolean\(onDelete\);/,
+    'AdminModerationActions regression: delete visibility mapping changed.'
 );
 assertPattern(
-    rowActions,
-    /const showBlockSeller = status === "active" && Boolean\(onBlockSeller\);/,
-    'ModerationRowActions regression: block seller visibility mapping changed.'
+    moderationActions,
+    /const showBlockSeller = status === "live" && Boolean\(onBlockSeller\);/,
+    'AdminModerationActions regression: live -> block seller visibility mapping changed.'
 );
 
 // "All status" behavior regression guards
@@ -77,7 +77,7 @@ assertPattern(
 );
 assertPattern(
     moderationHub,
-    /const allowed = new Set\(\["pending", "active", "rejected", "deactivated", "sold", "expired", "all"\]\);/,
+    /const allowed = new Set\(\["pending", "live", "rejected", "deactivated", "sold", "expired", "all"\]\);/,
     'Moderation hub regression: query-param allowed status set changed unexpectedly.'
 );
 

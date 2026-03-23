@@ -2,10 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const pagePath = path.join(root, "src", "app", "(protected)", "settings", "page.tsx");
+const pagePath = path.join(root, "src", "app", "(protected)", "(system)", "settings", "page.tsx");
 const apiPath = path.join(root, "src", "lib", "api", "systemConfig.ts");
 
-const componentDir = path.join(root, "src", "app", "(protected)", "settings", "components");
+const componentDir = path.join(root, "src", "app", "(protected)", "(system)", "settings", "components");
 const componentExpectations = [
     "PlatformSettings.tsx",
     "AdsSettings.tsx",
@@ -100,4 +100,3 @@ if (failures.length > 0) {
 }
 
 console.log("Settings regression guard passed.");
-

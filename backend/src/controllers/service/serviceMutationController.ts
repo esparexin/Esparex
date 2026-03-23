@@ -380,7 +380,9 @@ export const updateService = async (req: Request, res: Response) => {
             updates.images = toImageUrls(await processImages(incomingImages, `services/${id}`));
         }
 
-        delete updates.location;
+        // Keep normalized location updates when provided.
+        // A previous cleanup step removed this field and silently dropped
+        // valid location edits from the persisted update payload.
 
         // 🛡️ Fix 3: Recalculate Quality Score on Update
         // Note: Merge existing and updates to get the full picture
