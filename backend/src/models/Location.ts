@@ -54,8 +54,17 @@ const LocationSchema = new Schema<ILocation>(
         slug: { type: String, trim: true },
         normalizedName: { type: String, trim: true },
 
-        // LEGACY DENORMALIZED FIELDS (kept for backward compatibility)
+        /**
+         * @deprecated Use parentId + path hierarchy instead.
+         * Kept for backward-compat until path migration completes (Sprint 3).
+         * Do NOT add new queries against these fields.
+         */
         city: { type: String, trim: true, select: false },
+        /**
+         * @deprecated Use parentId + path hierarchy instead.
+         * Kept for backward-compat until path migration completes (Sprint 3).
+         * Do NOT add new queries against these fields.
+         */
         state: { type: String, trim: true, select: false },
         country: { type: String, default: "Unknown", trim: true },
 

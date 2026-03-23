@@ -61,8 +61,10 @@ export interface NormalizedLocationResponse {
     parentId?: string | null;
     path?: string[];
     name?: string;
+    /** @deprecated Use `display` instead */
     displayName?: string;
     display: string;
+    /** @deprecated Use `display` instead */
     formattedAddress: string;
     address?: string;
     city: string;

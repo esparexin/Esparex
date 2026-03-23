@@ -91,38 +91,4 @@ export function hasCoordinates(location: AppLocation): boolean {
     return getLatitude(location) != null && getLongitude(location) != null;
 }
 
-export function calculateDistance(
-    from: Pick<AppLocation, "coordinates">,
-    to: Pick<AppLocation, "coordinates">
-): number {
-    const fromLat = getLatitude(from);
-    const fromLng = getLongitude(from);
-    const toLat = getLatitude(to);
-    const toLng = getLongitude(to);
-
-    if (
-        fromLat == null ||
-        fromLng == null ||
-        toLat == null ||
-        toLng == null
-    ) {
-        return NaN;
-    }
-
-    const earthRadiusKm = 6371;
-    const lat1 = (fromLat * Math.PI) / 180;
-    const lon1 = (fromLng * Math.PI) / 180;
-    const lat2 = (toLat * Math.PI) / 180;
-    const lon2 = (toLng * Math.PI) / 180;
-    const dLat = lat2 - lat1;
-    const dLon = lon2 - lon1;
-
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1) *
-            Math.cos(lat2) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-
-    return earthRadiusKm * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
+// calculateDistance (Haversine) removed — use @turf/distance if needed

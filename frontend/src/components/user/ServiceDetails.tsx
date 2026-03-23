@@ -21,7 +21,7 @@ import { PlaceholderImage } from "../common/PlaceholderImage";
 import { getServicePhone, type Service } from "@/api/user/services";
 import { notify } from "@/lib/notify";
 import type { User } from "@/types/User";
-import { normalizeLocation as normalizeAppLocation } from "@/lib/location/locationService";
+import { normalizeToAppLocation as normalizeAppLocation } from "@/lib/location/locationService";
 import { useServiceDetailQuery } from "@/queries";
 import { formatPrice } from "@/utils/formatters";
 const ServiceRelatedBusinessesSection = dynamic(

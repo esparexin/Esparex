@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Location from '../models/Location';
 import { escapeRegExp } from './stringUtils';
 import { LOCATION_LEVELS, type LocationLevel } from './locationInputNormalizer';
+import logger from './logger';
 
 export const HIERARCHY_LEVELS = LOCATION_LEVELS;
 export type HierarchyLevel = LocationLevel;
@@ -106,6 +107,7 @@ export const resolveParentLocation = async (params: {
 
     let parentQuery: Record<string, unknown> | null = null;
 
+    // TODO(location-migration): Deprecated flat fields — migrate to parentId/path in Sprint 2
     if (level === 'state') {
         if (!country) return null;
         parentQuery = {
@@ -119,6 +121,7 @@ export const resolveParentLocation = async (params: {
         };
     } else if (level === 'district') {
         if (!state) return null;
+        // TODO(location-migration): Deprecated flat fields — migrate to parentId/path in Sprint 2
         parentQuery = {
             ...baseQuery,
             level: 'state',
@@ -127,6 +130,7 @@ export const resolveParentLocation = async (params: {
         };
     } else if (level === 'city') {
         if (!district && !state) return null;
+        // TODO(location-migration): Deprecated flat fields — migrate to parentId/path in Sprint 2
         parentQuery = district
             ? {
                 ...baseQuery,
@@ -143,6 +147,7 @@ export const resolveParentLocation = async (params: {
             };
     } else if (level === 'area') {
         if (!city) return null;
+        // TODO(location-migration): Deprecated flat fields — migrate to parentId/path in Sprint 2
         parentQuery = {
             ...baseQuery,
             level: 'city',
@@ -152,6 +157,7 @@ export const resolveParentLocation = async (params: {
         };
     } else if (level === 'village') {
         if (!city) return null;
+        // TODO(location-migration): Deprecated flat fields — migrate to parentId/path in Sprint 2
         parentQuery = {
             ...baseQuery,
             level: 'area',
@@ -195,7 +201,10 @@ export const resolveLocationPathIds = async (
 
     while (currentParentId) {
         const key = String(currentParentId);
-        if (visited.has(key)) break;
+        if (visited.has(key)) {
+            logger.error('Location hierarchy cycle detected', { locationId: currentParentId, visitedChain: Array.from(visited) });
+            throw new Error(`Location hierarchy cycle detected at locationId: ${currentParentId}`);
+        }
         visited.add(key);
 
         const parent = await Location.findById(currentParentId)

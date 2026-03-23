@@ -10,6 +10,12 @@ interface CacheEntry<T> {
     version: string;
 }
 
+/**
+ * Bump this version whenever the AppLocation schema changes.
+ * Old clients will have their cached location cleared on next load.
+ * Coordinate with backend deploy if locationId format changes.
+ * Current version: v2 (upgraded from v1 when coordinates moved to GeoJSON Point)
+ */
 const CACHE_VERSION = "v2";
 const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 const CACHE_KEY_PREFIX = "esparex_location_";

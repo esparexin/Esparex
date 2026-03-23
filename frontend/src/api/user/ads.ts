@@ -38,7 +38,7 @@ export interface AdFilters {
 
 // --- Helpers ---
 
-import { normalizeLocation } from '@/lib/location/locationService';
+import { normalizeToAppLocation as normalizeLocation } from '@/lib/location/locationService';
 import logger from "@/lib/logger";
 
 const USER_API_BASE_URL =

@@ -17,16 +17,15 @@ export function sanitizeMongoObjectId(value: unknown): string | undefined {
 
 /**
  * Ensures a location object has a canonical `locationId`.
- * Prioritizes `locationId`, then falls back to `placeId` or `id`.
+ * Prioritizes `locationId`, then falls back to `id`.
  */
 export function resolveCanonicalLocationId(location: any): string | undefined {
     if (!location || typeof location !== "object") return undefined;
-    
-    const candidate = 
-        location.locationId || 
-        location.placeId || 
+
+    const candidate =
+        location.locationId ??
         location.id;
-        
+
     return sanitizeMongoObjectId(candidate);
 }
 
