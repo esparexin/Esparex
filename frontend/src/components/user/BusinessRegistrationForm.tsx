@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
-import { registerBusiness, uploadBusinessImage, type CreateBusinessDTO } from "@/api/user/businesses";
-import { mapErrorToMessage } from "@/utils/errorMapper";
+import { registerBusiness, uploadBusinessImage, type CreateBusinessDTO } from "@/lib/api/user/businesses";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 import type { User } from "@/types/User";
 
 import { Button } from "@/components/ui/button";

@@ -7,7 +7,7 @@ import imageCompression from 'browser-image-compression';
 import { notify } from "@/lib/notify";
 import logger from "@/lib/logger";
 
-import { generateFileHash, LISTING_IMAGE_COMPRESSION_OPTIONS } from "@/utils/listings/imageUtils";
+import { generateFileHash, LISTING_IMAGE_COMPRESSION_OPTIONS } from "@/lib/listings/imageUtils";
 
 interface UseListingImagesProps {
     maxImages?: number;

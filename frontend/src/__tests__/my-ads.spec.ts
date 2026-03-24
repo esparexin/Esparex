@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getMyAds, deleteAd } from '@/api/user/ads';
+import { getMyAds, deleteAd } from "@/lib/api/user/ads";
 import { apiClient } from '@/lib/api/client';
-import { EsparexError, ErrorCategory, ErrorSeverity } from '@/utils/errorHandler';
+import { EsparexError, ErrorCategory, ErrorSeverity } from "@/lib/errorHandler";
 
 // We mock the API Client since it's the layer right below our ads api service
 vi.mock('@/lib/api/client', () => {

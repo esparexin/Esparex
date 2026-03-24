@@ -1,7 +1,7 @@
 "use client";
 
-import { API_ROUTES } from "@/api/routes";
-import { getMe } from "@/api/user/users";
+import { API_ROUTES } from "@/lib/api/routes";
+import { getMe } from "@/lib/api/user/users";
 import {
     createContext,
     useContext,

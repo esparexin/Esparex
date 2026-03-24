@@ -6,7 +6,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import type { Service } from "@/api/user/services";
+import type { Service } from "@/lib/api/user/services";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
 import { Button } from "@/components/ui/button";

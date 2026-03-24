@@ -30,7 +30,7 @@ const HAPTIC_PATTERNS: Record<HapticPattern, number | number[]> = {
  * 
  * @example
  * ```tsx
- * import { haptic } from '@/utils/haptics';
+ * import { haptic } from "@/lib/haptics";
  * 
  * const handleSave = () => {
  *   haptic('success');
@@ -98,7 +98,7 @@ export const haptics = {
  * 
  * @example
  * ```tsx
- * import { useHaptics } from '@/utils/haptics';
+ * import { useHaptics } from "@/lib/haptics";
  * 
  * function MyButton() {
  *   const { tap, success } = useHaptics();

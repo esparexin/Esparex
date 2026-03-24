@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { notify } from "@/lib/notify";
-import { deleteAd, markAsSold } from "@/api/user/ads";
-import { useMyAdsQuery, useMyAdsStatsQuery } from "@/queries/useAdsQuery";
-import { queryKeys } from "@/queries/queryKeys";
+import { deleteAd, markAsSold } from "@/lib/api/user/ads";
+import { useMyAdsQuery, useMyAdsStatsQuery } from "@/hooks/queries/useAdsQuery";
+import { queryKeys } from "@/hooks/queries/queryKeys";
 import type { User } from "@/types/User";
 // Local type definition for MyAdsStatus
 type MyAdsStatus = "live" | "pending" | "sold" | "deleted" | "rejected" | "suspended" | "expired" | "deactivated";

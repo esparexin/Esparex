@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { notificationApi } from "@/api/user/notifications";
+import { notificationApi } from "@/lib/api/user/notifications";
 import { queryKeys } from "./queryKeys";
 
 interface UseNotificationsQueryOptions {

@@ -2,7 +2,7 @@
  
 import { useState, useCallback, useMemo } from "react";
 import type { ListingLocation } from "@/types/listing";
-import { normalizeListingLocation } from "@/utils/listings/locationUtils";
+import { normalizeListingLocation } from "@/lib/listings/locationUtils";
 import type { GeoJSONPoint } from "@/types/location";
  
 interface UseListingLocationProps {

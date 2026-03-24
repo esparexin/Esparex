@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-import { getBusinesses } from "@/api/user/businesses";
+import { getBusinesses } from "@/lib/api/user/businesses";
 import type { UserPage } from "@/lib/routeUtils";
 import logger from "@/lib/logger";
 import { ROUTES } from "@/lib/logic/routes";

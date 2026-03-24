@@ -1,4 +1,4 @@
-import { mapErrorToMessage } from "@/utils/errorMapper";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 
 export const OTP_LENGTH = 6;
 export const RESEND_COOLDOWN_SECONDS = 30;

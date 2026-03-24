@@ -1,5 +1,5 @@
 
-import { ErrorCategory } from '../../utils/errorHandler';
+import { ErrorCategory } from "../../lib/errorHandler";
 
 export interface NormalizedApiError {
     response?: {

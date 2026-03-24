@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { type Business, type BusinessStats } from "@/api/user/businesses";
+import { type Business, type BusinessStats } from "@/lib/api/user/businesses";
 import type { User } from "@/types/User";
 import logger from "@/lib/logger";
 
@@ -34,7 +34,7 @@ export function useBusiness(user: User | null, businessId?: string) {
             setIsLoading(true);
             setError(null);
             try {
-                const { getMyBusiness, getMyBusinessStats, getBusinessById, getBusinessStats } = await import('@/api/user/businesses');
+                const { getMyBusiness, getMyBusinessStats, getBusinessById, getBusinessStats } = await import("@/lib/api/user/businesses");
                 
                 let data: Business | null;
                 let stats: BusinessStats;

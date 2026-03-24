@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getUserProfile } from "@/api/user/users";
+import { getUserProfile } from "@/lib/api/user/users";
 import { SellerProfilePage } from "@/components/user/SellerProfilePage";
 
 type SellerProfileRouteProps = {

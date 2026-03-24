@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 
 import type { Ad } from "@/schemas/ad.schema";
-import { getBusinessById, type Business } from "@/api/user/businesses";
+import { getBusinessById, type Business } from "@/lib/api/user/businesses";
 
 import type { UserPage } from "@/lib/routeUtils";
 

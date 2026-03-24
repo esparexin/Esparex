@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { BrowseServices } from '@/components/user/BrowseServices';
 import { Metadata } from 'next';
-import { getServicesPage } from '@/api/user/services';
-import { getCategories } from '@/api/user/categories';
+import { getServicesPage } from "@/lib/api/user/services";
+import { getCategories } from "@/lib/api/user/categories";
 
 export const revalidate = 60;
 

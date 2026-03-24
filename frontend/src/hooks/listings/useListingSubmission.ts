@@ -6,12 +6,12 @@ import { useNavigation } from "@/context/NavigationContext";
 import logger from "@/lib/logger";
 import { notify } from "@/lib/notify";
 import type { ListingImage } from "@/types/listing";
-import { sanitizeMongoObjectId } from "@/utils/listings/locationUtils";
+import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { fileToBase64 } from "@/components/user/business-registration/utils";
 
-import { generateIdempotencyKey } from "@/utils/listings/submissionUtils";
-import { injectApiErrors } from "@/utils/injectApiErrors";
+import { generateIdempotencyKey } from "@/lib/listings/submissionUtils";
+import { injectApiErrors } from "@/lib/injectApiErrors";
 
 interface UseListingSubmissionProps<TFieldValues extends Record<string, any>> {
     form: UseFormReturn<TFieldValues>;

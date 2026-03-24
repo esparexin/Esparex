@@ -1,4 +1,4 @@
-import type { Ad } from "@/api/user/ads";
+import type { Ad } from "@/lib/api/user/ads";
 
 const getAdId = (ad: Ad): string => {
     const value = ad?.id;

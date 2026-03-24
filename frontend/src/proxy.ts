@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { CANONICAL_SLUG_MAPPING } from "@/lib/seo/canonicalSlugs";
 import { isProtectedPath } from "@/config/protectedRoutes";
-import { ADMIN_API_V1_BASE_PATH } from "@/api/routes";
+import { ADMIN_API_V1_BASE_PATH } from "@/lib/api/routes";
 import logger from "@/lib/logger";
 
 /**

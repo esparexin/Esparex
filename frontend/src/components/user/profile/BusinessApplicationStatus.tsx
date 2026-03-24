@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { AlertTriangle, Clock, AlertCircle, Edit2, XCircle, CheckCircle2, Trash2 } from "lucide-react";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
-import { type Business, withdrawBusiness } from "@/api/user/businesses";
+import { type Business, withdrawBusiness } from "@/lib/api/user/businesses";
 import { notify } from "@/lib/notify";
 import { useState } from "react";
 

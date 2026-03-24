@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatPrice } from "@/utils/formatters";
+import { formatPrice } from "@/lib/formatters";
 import { formatLocation } from "@/lib/location/locationService";
 import { type Ad } from "@/schemas/ad.schema";
 import type { UserPage } from "@/lib/routeUtils";

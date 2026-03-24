@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { BrowseSpareParts } from '@/components/user/BrowseSpareParts';
 import { Metadata } from 'next';
-import { getSparePartListingsPage } from '@/api/user/sparePartListings';
-import { getCategories } from '@/api/user/categories';
+import { getSparePartListingsPage } from "@/lib/api/user/sparePartListings";
+import { getCategories } from "@/lib/api/user/categories";
 
 export const revalidate = 60;
 

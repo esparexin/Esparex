@@ -25,10 +25,10 @@ import {
 import { useBusiness } from '../../hooks/useBusiness';
 import { Separator } from '../ui/separator';
 import { AdCardGrid } from '../user/ad-card';
-import { getBusinessServices, getBusinessAds, getBusinessSpareParts } from '../../api/user/businesses';
-import { generateAdSlug } from '@/utils/slug';
+import { getBusinessServices, getBusinessAds, getBusinessSpareParts } from "@/lib/api/user/businesses";
+import { generateAdSlug } from "@/lib/slug";
 import type { Ad } from '@/schemas/ad.schema';
-import type { Service } from '@/api/user/businesses';
+import type { Service } from "@/lib/api/user/businesses";
 import { PlaceholderImage } from '../common/PlaceholderImage';
 
 type ListingTab = 'ads' | 'services' | 'spare-parts';

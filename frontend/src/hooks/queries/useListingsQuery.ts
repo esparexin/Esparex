@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from './queryKeys';
-import { getListingById } from '@/api/user/ads';
+import { getListingById } from "@/lib/api/user/ads";
 
 /**
  * Enterprise Unified Listing Detail Query

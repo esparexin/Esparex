@@ -5,8 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Clock, MapPin, CircuitBoard } from "lucide-react";
 
-import type { SparePartListing } from "@/api/user/sparePartListings";
-import { formatPrice, formatStableDate } from "@/utils/formatters";
+import type { SparePartListing } from "@/lib/api/user/sparePartListings";
+import { formatPrice, formatStableDate } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";

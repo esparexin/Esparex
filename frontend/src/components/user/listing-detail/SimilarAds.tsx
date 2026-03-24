@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSimilarAds } from "@/api/user/ads";
-import type { Ad } from "@/api/user/ads";
+import { getSimilarAds } from "@/lib/api/user/ads";
+import type { Ad } from "@/lib/api/user/ads";
 import { AdCardGrid } from "@/components/user/ad-card";
-import { generateAdSlug } from "@/utils/slug";
+import { generateAdSlug } from "@/lib/slug";
 
 interface SimilarAdsProps {
     currentAdId: string | number;

@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 
 import { CANONICAL_SLUG_MAPPING, getCanonicalCategorySlug } from '@/lib/seo/canonicalSlugs';
-import { getAdsPage } from '@/api/user/ads';
-import { getCategories } from '@/api/user/categories';
+import { getAdsPage } from "@/lib/api/user/ads";
+import { getCategories } from "@/lib/api/user/categories";
 import { ClientCategoryWrapper } from './ClientCategoryWrapper';
 
 type Props = {

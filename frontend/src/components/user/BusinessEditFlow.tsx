@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { notify } from "@/lib/notify";
-import { TOAST_MESSAGES } from "@/constants/toastMessages";
+import { TOAST_MESSAGES } from "@/config/toastMessages";
 import { useRouter } from "next/navigation";
-import { mapErrorToMessage } from "@/utils/errorMapper";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 
 import { User } from "@/types/User";
-import { getMyBusiness, updateBusiness, CreateBusinessDTO } from "@/api/user/businesses";
+import { getMyBusiness, updateBusiness, CreateBusinessDTO } from "@/lib/api/user/businesses";
 
 import { Button } from "../ui/button";
 import { ArrowLeft } from "@/icons/IconRegistry";
@@ -22,7 +22,7 @@ import { StepDocuments } from "./business-registration/StepDocuments";
 import { StepReview } from "./business-registration/StepReview";
 import logger from "@/lib/logger";
 import { businessEditSchema, type BusinessEditFormData, type BusinessEditFormInput } from "@/schemas/businessEditPayload.schema";
-import { injectApiErrors } from "@/utils/injectApiErrors";
+import { injectApiErrors } from "@/lib/injectApiErrors";
 
 interface BusinessEditFlowProps {
     user: User | null;

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Login } from "@/components/user/Login";
 import { useAuth } from "@/context/AuthContext";
-import { normalizeAuthCallbackUrl } from "@/utils/authHelpers";
+import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
 interface LoginFlowProps {
   callbackUrl?: string | null;

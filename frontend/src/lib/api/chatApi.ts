@@ -3,7 +3,7 @@
  * Thin wrapper over apiClient that maps to backend chat routes.
  */
 import { apiClient } from '@/lib/api/client';
-import { USER_ROUTES } from '@/api/routes';
+import { USER_ROUTES } from "@/lib/api/routes";
 import type {
   IChatStartResponse,
   IConversationListResponse,

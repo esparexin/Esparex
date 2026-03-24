@@ -20,13 +20,13 @@ import {
     Dialog, DialogContent, DialogHeader,
     DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import type { Ad } from "@/api/user/ads";
-import type { Service } from "@/api/user/services";
-import type { SparePartListing } from "@/api/user/sparePartListings";
+import type { Ad } from "@/lib/api/user/ads";
+import type { Service } from "@/lib/api/user/services";
+import type { SparePartListing } from "@/lib/api/user/sparePartListings";
 import type { User } from "@/types/User";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
-import { formatPrice } from "@/utils/formatters";
-import { markAsSold } from "@/api/user/ads";
+import { formatPrice } from "@/lib/formatters";
+import { markAsSold } from "@/lib/api/user/ads";
 import { useMyServices, type MyServicesStatus } from "./MyServicesTab.hook";
 import { useMySpare, type MySparePartsStatus } from "./MySparePartsTab.hook";
 

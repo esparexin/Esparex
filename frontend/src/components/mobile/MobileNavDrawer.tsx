@@ -4,7 +4,7 @@ import { useMobileNavDrawer } from "./MobileNavDrawerProvider";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { LogOut, LogIn } from "lucide-react";
-import { getUserInitials } from "@/utils/headerUtils";
+import { getUserInitials } from "@/lib/headerUtils";
 import { useRouter } from "next/navigation";
 import { getNavigationItems, getNavigationSections, type ResolvedNavigationItem } from "@/config/navigation";
 import type { User } from "@/types/User";

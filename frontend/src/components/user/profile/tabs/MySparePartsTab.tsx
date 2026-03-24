@@ -4,7 +4,7 @@ import { ErrorBanner } from "./ErrorBanner";
 import { formatDistanceToNow } from "date-fns";
 import { useMySpare } from "./MySparePartsTab.hook";
 import type { MySparePartsStatus } from "./MySparePartsTab.hook";
-import type { SparePartListing } from "@/api/user/sparePartListings";
+import type { SparePartListing } from "@/lib/api/user/sparePartListings";
 import type { User } from "@/types/User";
 import { CircuitBoard, Trash2, Edit, CheckSquare, Lock, PowerOff, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";

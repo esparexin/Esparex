@@ -7,7 +7,7 @@ import type { User } from "@/types/User";
 import { notify } from "@/lib/notify";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ListingDetailShell } from "./listing-detail/AdDetailShell";
-import { formatPrice } from "@/utils/formatters";
+import { formatPrice } from "@/lib/formatters";
 import dynamic from "next/dynamic";
 
 const ListingBottomActions = dynamic(
@@ -30,10 +30,10 @@ const ListingRelatedBusinessesSection = dynamic(
   { ssr: false }
 );
 import { BackButton } from "@/components/common/BackButton";
-import { deleteAd, markListingAsSold } from "@/api/user/ads";
-import { chatApi } from "@/api/chatApi";
+import { deleteAd, markListingAsSold } from "@/lib/api/user/ads";
+import { chatApi } from "@/lib/api/chatApi";
 import { type Ad } from "@/schemas/ad.schema";
-import { saveAd, unsaveAd } from "@/api/user/users";
+import { saveAd, unsaveAd } from "@/lib/api/user/users";
 
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
 import { AdTitlePriceCard } from "./listing-detail/AdTitlePriceCard";
@@ -48,8 +48,8 @@ import { isAdSold, getSoldDetails } from "../../lib/logic/soldStatus";
 import { canUserPerformAction } from "../../lib/logic/ownership";
 import { getActionBarVariant } from "../../lib/logic/bottomBarActions";
 import { ROUTES } from "../../lib/logic/routes";
-import { useListingDetailQuery, useSavedAdsQuery } from "@/queries";
-import { queryKeys } from "@/queries/queryKeys";
+import { useListingDetailQuery, useSavedAdsQuery } from "@/hooks/queries";
+import { queryKeys } from "@/hooks/queries/queryKeys";
 import { useAuth } from "@/context/AuthContext";
 import logger from "@/lib/logger";
 import { adDetailUiReducer, initialAdDetailUiState } from "./listing-detail/adDetailUiState";

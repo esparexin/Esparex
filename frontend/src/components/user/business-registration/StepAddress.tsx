@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import logger from "@/lib/logger";
 import { normalizeCoordinates } from "@/lib/location/utils";
 import { useLocationDispatch } from "@/context/LocationContext";
-import type { Location } from "@/api/user/locations";
+import type { Location } from "@/lib/api/user/locations";
 
 interface StepAddressProps extends StepBaseProps { }
 
@@ -69,7 +69,7 @@ export function StepAddress({
                 const pincodeSnapshot = formData.pincode;
                 setLastFetchedPincode(pincodeSnapshot);
                 try {
-                    const { searchLocations } = await import('@/api/user/locations');
+                    const { searchLocations } = await import("@/lib/api/user/locations");
                     const results = await searchLocations(pincodeSnapshot);
 
                     if (results && results.length > 0) {

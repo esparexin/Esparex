@@ -1,4 +1,4 @@
-import { apiClient } from '../../lib/api/client';
+import { apiClient } from "@/lib/api/client";
 import { toApiResult, toPaginatedApiResult, type PaginationEnvelope } from '@/lib/api/result';
 import { API_ROUTES, API_V1_BASE_PATH, DEFAULT_LOCAL_API_ORIGIN } from '../routes';
 import { toSafeImageArray } from '@/lib/image/imageUrl';

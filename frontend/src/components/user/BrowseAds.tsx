@@ -5,17 +5,17 @@ import { startTransition, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PackageOpen, RefreshCw, BellPlus } from "lucide-react";
 
-import { type AdFilters, type Ad, type AdPageResult } from "@/api/user/ads";
-import { getCategories } from "@/api/user/categories";
-import type { Category } from "@/api/user/categories";
-import { useAdsListQuery } from "@/queries";
+import { type AdFilters, type Ad, type AdPageResult } from "@/lib/api/user/ads";
+import { getCategories } from "@/lib/api/user/categories";
+import type { Category } from "@/lib/api/user/categories";
+import { useAdsListQuery } from "@/hooks/queries";
 
 import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocationState } from "@/context/LocationContext";
-import { generateAdSlug } from "@/utils/slug";
+import { generateAdSlug } from "@/lib/slug";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 
 const PAGE_SIZE = 20;

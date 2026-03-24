@@ -15,15 +15,15 @@ import {
 } from "lucide-react";
 
 import { notify } from "@/lib/notify";
-import { notificationApi, type Notification, type NotificationResponse } from "@/api/user/notifications";
-import { queryKeys, useNotificationsQuery } from "@/queries";
+import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
+import { queryKeys, useNotificationsQuery } from "@/hooks/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageStateGuard, PageState } from "@/components/ui/PageStateGuard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/context/AuthContext";
 import { useMounted } from "@/hooks/useMounted";
-import { formatStableDate } from "@/utils/formatters";
+import { formatStableDate } from "@/lib/formatters";
 
 export function Notifications() {
     const { status } = useAuth();

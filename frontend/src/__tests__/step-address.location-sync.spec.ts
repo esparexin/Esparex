@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { applyResolvedPincodeLocation } from "@/components/user/business-registration/StepAddress";
 import { initialStepData } from "@/components/user/business-registration/types";
-import type { Location } from "@/api/user/locations";
+import type { Location } from "@/lib/api/user/locations";
 
 describe("StepAddress location sync regression", () => {
     it("syncs resolved pincode result into form state and LocationContext", () => {

@@ -1,7 +1,7 @@
 "use client";
 import { HeaderLocation } from "../layout/HeaderLocation";
 import { User } from "@/types/User";
-import { getUserInitials } from "@/utils/headerUtils";
+import { getUserInitials } from "@/lib/headerUtils";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -57,7 +57,7 @@ import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
-import { useNotificationsQuery } from "@/queries";
+import { useNotificationsQuery } from "@/hooks/queries";
 import { useNotificationSync } from "@/hooks/useNotificationSync";
 import { useLocationState, useLocationDispatch } from "@/context/LocationContext";
 

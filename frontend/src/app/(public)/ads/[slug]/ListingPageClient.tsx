@@ -2,7 +2,7 @@
 import { useParams, notFound } from 'next/navigation';
 import { ListingDetail } from '@/components/user/ListingDetail';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
-import { isValidAdIdentifier } from '@/api/user/ads';
+import { isValidAdIdentifier } from "@/lib/api/user/ads";
 import { useLoginCallback } from '@/hooks/useLoginCallback';
 import type { Ad } from '@/schemas';
 

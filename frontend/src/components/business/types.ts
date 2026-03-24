@@ -3,7 +3,7 @@
  * Shared types for business management
  */
 
-import { type Business as ApiBusiness } from '@/api/user/businesses';
+import { type Business as ApiBusiness } from "@/lib/api/user/businesses";
 
 /**
  * Complete Business Data Model

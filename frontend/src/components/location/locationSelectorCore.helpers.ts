@@ -1,5 +1,5 @@
 import { toGeoPoint as parseGeoPoint } from "@shared/utils/geoUtils";
-import type { Location } from "@/api/user/locations";
+import type { Location } from "@/lib/api/user/locations";
 
 export type ErrorType = "network" | "timeout" | "server" | "not_found" | "unknown";
 export type SelectorVariant = "inline" | "panel";

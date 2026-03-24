@@ -1,4 +1,4 @@
-import { EsparexError, ErrorCategory, ErrorSeverity } from "@/utils/errorHandler";
+import { EsparexError, ErrorCategory, ErrorSeverity } from "@/lib/errorHandler";
 
 export interface ApiResult<T> {
   data: T | null;

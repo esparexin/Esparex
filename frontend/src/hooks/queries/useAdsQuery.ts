@@ -9,8 +9,8 @@ import {
     type AdFilters,
     type HomeAdsPayload,
     type HomeAdsRequestParams,
-} from '@/api/user/ads';
-import { getSavedAds } from '@/api/user/users';
+} from "@/lib/api/user/ads";
+import { getSavedAds } from "@/lib/api/user/users";
 
 /**
  * Hook to fetch paginated ads based on filters.

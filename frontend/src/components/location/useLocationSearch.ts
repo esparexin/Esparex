@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { searchLocations, type Location } from "@/api/user/locations";
+import { searchLocations, type Location } from "@/lib/api/user/locations";
 import { getCurrentLocationResult } from "@/lib/location/locationService";
-import { getSearchCacheKey, getCacheEntry, setCacheEntry, isCacheAvailable } from "@/utils/locationCache";
+import { getSearchCacheKey, getCacheEntry, setCacheEntry, isCacheAvailable } from "@/lib/locationCache";
 import { useLocationState, useLocationDispatch } from "@/context/LocationContext";
 import {
     type DetectedLocationShape,

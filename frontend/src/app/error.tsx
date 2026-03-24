@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Home, RefreshCcw, Mail } from 'lucide-react';
-import { mapErrorToMessage } from '@/utils/errorMapper';
+import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
 
 export default function Error({

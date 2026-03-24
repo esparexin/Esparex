@@ -6,9 +6,9 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
-import { useSavedAdsQuery } from "@/queries/useAdsQuery";
-import { queryKeys } from "@/queries/queryKeys";
-import { useNotificationsQuery } from "@/queries/useNotificationsQuery";
+import { useSavedAdsQuery } from "@/hooks/queries/useAdsQuery";
+import { queryKeys } from "@/hooks/queries/queryKeys";
+import { useNotificationsQuery } from "@/hooks/queries/useNotificationsQuery";
 import type { User } from "@/types/User";
 
 export function AppBootstrapProvider({ children }: { children: ReactNode }) {

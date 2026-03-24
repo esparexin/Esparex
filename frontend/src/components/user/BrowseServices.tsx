@@ -4,9 +4,9 @@ import { startTransition, useState, useEffect, useCallback, useMemo, useRef } fr
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 
-import { getServicesPage, type ServiceFilters, type Service, type ServicePageResult } from "@/api/user/services";
-import { getCategories } from "@/api/user/categories";
-import type { Category } from "@/api/user/categories";
+import { getServicesPage, type ServiceFilters, type Service, type ServicePageResult } from "@/lib/api/user/services";
+import { getCategories } from "@/lib/api/user/categories";
+import type { Category } from "@/lib/api/user/categories";
 
 import { BrowseServicesFilters } from "@/components/user/BrowseServicesFilters";
 import type { SortOption } from "@/components/search/SearchResultsHeader";

@@ -3,15 +3,15 @@
 import { useState, useEffect } from "react";
 import { notify } from "@/lib/notify";
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from "@/api/routes";
+import { API_ROUTES } from "@/lib/api/routes";
 import type { User } from "@/types/User";
-import { mapErrorToMessage } from "@/utils/errorMapper";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
-import { updateProfile } from "@/api/user/users";
+import { updateProfile } from "@/lib/api/user/users";
 import type { SmartAlert } from "@/hooks/useSmartAlerts";
 import { SmartAlertCreateSchema } from "@shared/schemas/smartAlert.schema";
 import type { SmartAlertCreatePayload } from "@shared/schemas/smartAlert.schema";
-import type { Location as AppLocation } from "@/api/user/locations";
+import type { Location as AppLocation } from "@/lib/api/user/locations";
 import { sanitizeMongoObjectId } from "@shared/listingUtils/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 

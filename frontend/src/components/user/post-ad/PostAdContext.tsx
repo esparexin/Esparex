@@ -11,10 +11,10 @@ import {
 } from "react";
 import { notify } from "@/lib/notify";
 import logger from "@/lib/logger";
-import { generateAIContent } from "@/api/user/ai";
-import type { SparePart } from "@/api/user/masterData";
-import { suppressGoogleMapsRetryErrors } from "@/utils/suppress-google-maps-errors";
-import { normalizeOptionalObjectId } from "@/utils/normalizeOptionalObjectId";
+import { generateAIContent } from "@/lib/api/user/ai";
+import type { SparePart } from "@/lib/api/user/masterData";
+import { suppressGoogleMapsRetryErrors } from "@/lib/suppress-google-maps-errors";
+import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
 // FORM imports
 import { useNavigation } from "@/context/NavigationContext";
@@ -39,7 +39,7 @@ import {
     AdPayloadSchema as postAdSchema,
     PartialAdPayloadSchema as partialAdSchema
 } from "@/schemas/adPayload.schema";
-import { createAd, updateAd } from "@/api/user/ads";
+import { createAd, updateAd } from "@/lib/api/user/ads";
 
 /* ===================== CONTEXT TYPE ===================== */
 

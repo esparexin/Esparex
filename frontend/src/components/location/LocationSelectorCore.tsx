@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocationState, useLocationDispatch } from "@/context/LocationContext";
 import { Search, MapPin, Target, X, Loader2, AlertCircle, RefreshCw } from "lucide-react";
-import type { Location } from "@/api/user/locations";
+import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
 import { cn } from "@/components/ui/utils";
 import LocationSkeleton from "./LocationSkeleton";

@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Ad } from "@/schemas/ad.schema";
-import type { SellerProfilePayload } from "@/api/user/users";
-import { formatStableDate } from "@/utils/formatters";
-import { generateAdSlug } from "@/utils/slug";
+import type { SellerProfilePayload } from "@/lib/api/user/users";
+import { formatStableDate } from "@/lib/formatters";
+import { generateAdSlug } from "@/lib/slug";
 import { formatLocationDisplay } from "@/lib/location/locationService";
 
 interface SellerProfilePageProps {

@@ -16,7 +16,7 @@ import { useLocationState, useLocationDispatch } from "@/context/LocationContext
 import type { UserPage } from "@/lib/routeUtils";
 import { usePathname } from "next/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
-import { useNotificationsQuery } from "@/queries";
+import { useNotificationsQuery } from "@/hooks/queries";
 import { useNotificationSync } from "@/hooks/useNotificationSync";
 interface MobileHeaderProps {
     navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string) => void;

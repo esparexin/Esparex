@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { io, Socket } from 'socket.io-client';
-import { queryKeys } from '@/queries/queryKeys';
+import { queryKeys } from "@/hooks/queries/queryKeys";
 
 interface InboxUpdatedPayload {
     userId: string;

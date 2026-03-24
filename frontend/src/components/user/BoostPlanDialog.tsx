@@ -20,12 +20,12 @@ import {
   CheckCircle2,
   Sparkles,
 } from "lucide-react";
-import { formatPrice } from "@/utils/formatters";
+import { formatPrice } from "@/lib/formatters";
 import { notify } from "@/lib/notify";
-import { getPlans, type Plan as ApiPlan } from "@/api/user/plans";
+import { getPlans, type Plan as ApiPlan } from "@/lib/api/user/plans";
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from "@/api/routes";
-import { mapErrorToMessage } from "@/utils/errorMapper";
+import { API_ROUTES } from "@/lib/api/routes";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
 

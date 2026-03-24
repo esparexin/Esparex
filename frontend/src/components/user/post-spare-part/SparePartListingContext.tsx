@@ -23,8 +23,8 @@ import {
     SparePartListingPayloadSchema,
     SparePartListingFormData,
 } from "@/schemas/sparePartListingPayload.schema";
-import { getMyBusiness } from "@/api/user/businesses";
-import { createSparePartListing } from "@/api/user/sparePartListings";
+import { getMyBusiness } from "@/lib/api/user/businesses";
+import { createSparePartListing } from "@/lib/api/user/sparePartListings";
 import { useNavigation } from "@/context/NavigationContext";
 import logger from "@/lib/logger";
 
@@ -33,8 +33,8 @@ import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
 import { useListingImages } from "@/hooks/listings/useListingImages";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
 import { ListingImage, ListingCategory } from "@/types/listing";
-import { resolveCanonicalLocationId } from "@/utils/listings/locationUtils";
-import { DeviceModel, SparePart } from "@/api/user/masterData";
+import { resolveCanonicalLocationId } from "@/lib/listings/locationUtils";
+import { DeviceModel, SparePart } from "@/lib/api/user/masterData";
 
 /* ===================== TYPES ===================== */
 

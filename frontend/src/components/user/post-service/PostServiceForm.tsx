@@ -21,8 +21,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
-import { getListingById } from "@/api/user/ads";
-import { createService, updateService } from "@/api/user/services";
+import { getListingById } from "@/lib/api/user/ads";
+import { createService, updateService } from "@/lib/api/user/services";
 import type { ListingImage } from "@/types/listing";
 
 // Schema imported from shared base — keeps frontend validation aligned with backend.

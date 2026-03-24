@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import { LoginFlow } from "@/components/auth/LoginFlow";
 import { Button } from "@/components/ui/button";
-import { normalizeAuthCallbackUrl } from "@/utils/authHelpers";
+import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 import { Dialog, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
 import * as RadixDialog from "@radix-ui/react-dialog";
 

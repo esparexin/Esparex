@@ -9,7 +9,7 @@
  */
 
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from "@/api/routes";
+import { API_ROUTES } from "@/lib/api/routes";
 import { toApiResult } from "@/lib/api/result";
 import type { GeoJSONPoint } from "@/types/location";
 

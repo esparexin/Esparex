@@ -8,13 +8,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Sparkles } from "lucide-react";
-import { haptics } from "@/utils/haptics";
-import { formatPrice } from "@/utils/formatters";
+import { haptics } from "@/lib/haptics";
+import { formatPrice } from "@/lib/formatters";
 import { formatLocation } from "@/lib/location/locationService";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { cn } from "@/components/ui/utils";
 import type { AdData } from "@/types/home";
-import type { UiAd } from "@/utils/mappers";
+import type { UiAd } from "@/lib/mappers";
 import type { Ad } from "@/schemas/ad.schema";
 
 type AdCardData = AdData | UiAd | Ad;

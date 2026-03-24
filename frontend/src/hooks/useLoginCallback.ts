@@ -13,7 +13,7 @@
 
 import { useMemo } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { normalizeAuthCallbackUrl } from "@/utils/authHelpers";
+import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
 export interface UseLoginCallbackReturn {
     /** The return URL to embed in `/login?callbackUrl=…` (current page, callbackUrl stripped) */

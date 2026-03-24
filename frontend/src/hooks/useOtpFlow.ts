@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { authApi } from "@/api/auth";
+import { authApi } from "@/lib/api/auth";
 import { useAuth } from "@/context/AuthContext";
 import { useOtpInput } from "@/hooks/useOtpInput";
-import { haptics } from "@/utils/haptics";
-import { formatPhoneForAPI, validateIndianMobile } from "@/utils/validation";
+import { haptics } from "@/lib/haptics";
+import { formatPhoneForAPI, validateIndianMobile } from "@/lib/validation";
 import { useStateMachine } from "@/state-machines/useStateMachine";
 import { otpAuthMachine } from "@/state-machines/otpAuthMachine";
 
@@ -25,7 +25,7 @@ import {
     isOtpExpired,
     isRateLimitedError,
     appendRateLimitCountdown
-} from "@/utils/otpHelpers";
+} from "@/lib/otpHelpers";
 
 // Re-export constants to avoid breaking consuming components
 export { OTP_LENGTH, RESEND_COOLDOWN_SECONDS };

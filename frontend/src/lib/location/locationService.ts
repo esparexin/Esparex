@@ -3,8 +3,8 @@ import { DEFAULT_APP_LOCATION } from "@/types/location";
 import {
     reverseGeocode as reverseGeocodeApi,
     ingestLocation as ingestLocationApi,
-} from "@/api/user/locations";
-import { detectLocationByIP } from "@/services/ipGeolocation";
+} from "@/lib/api/user/locations";
+import { detectLocationByIP } from "@/lib/api/ipGeolocation";
 import {
     createPoint,
     toCanonicalGeoPoint,

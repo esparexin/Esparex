@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useLocationState } from "@/context/LocationContext";
 import LocationSelector from "@/components/location/LocationSelector";
-import type { Location } from "@/api/user/locations";
+import type { Location } from "@/lib/api/user/locations";
 import { cn } from "@/components/ui/utils";
 
 

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, FileText, CreditCard, Crown } from "lucide-react";
 import { notify } from "@/lib/notify";
-import type { Transaction } from "@/api/user/transactions";
+import type { Transaction } from "@/lib/api/user/transactions";
 
 interface PurchasesTabProps {
     purchaseHistory: Transaction[];
@@ -121,7 +121,7 @@ export function PurchasesTab({
                                                 className="h-7 text-xs gap-1"
                                                 onClick={async () => {
                                                     try {
-                                                        const { downloadInvoice } = await import('@/api/user/payments');
+                                                        const { downloadInvoice } = await import("@/lib/api/user/payments");
                                                         await downloadInvoice(purchase.id);
                                                         notify.success("Invoice opened!");
                                                     } catch {

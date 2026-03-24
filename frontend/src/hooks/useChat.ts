@@ -9,7 +9,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { chatApi } from '@/api/chatApi';
+import { chatApi } from "@/lib/api/chatApi";
 import type { IMessageDTO } from '@shared/contracts/chat.contracts';
 
 const POLL_INTERVAL_MS = 4000;

@@ -5,7 +5,7 @@ import { usePostAd } from "./PostAdContext";
 import { PostAdFormSkeleton } from "./loading/PostAdFormSkeleton";
 import { AlertCircle, RefreshCcw, WifiOff } from "@/icons/IconRegistry";
 import { useBackendStatus } from "@/context/BackendStatusContext";
-import { mapErrorToMessage } from "@/utils/errorMapper";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 
 /**
  * 🧱 PostAdShell

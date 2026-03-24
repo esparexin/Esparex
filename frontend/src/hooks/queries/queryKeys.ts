@@ -1,5 +1,5 @@
 // src/queries/queryKeys.ts
-import type { AdFilters, HomeAdsRequestParams } from '@/api/user/ads';
+import type { AdFilters, HomeAdsRequestParams } from "@/lib/api/user/ads";
 
 export const queryKeys = {
     // Ads

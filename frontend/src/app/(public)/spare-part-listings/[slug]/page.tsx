@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ListingPageClient } from '@/app/(public)/ads/[slug]/ListingPageClient';
-import { getListingById } from '@/api/user/ads';
+import { getListingById } from "@/lib/api/user/ads";
 import { toSafeJsonLd } from '@/lib/seo/jsonLd';
 
 type Props = {

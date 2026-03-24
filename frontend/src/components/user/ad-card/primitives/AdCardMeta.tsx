@@ -2,11 +2,11 @@
 
 import { memo } from "react";
 import { Eye, Clock, MapPin } from "lucide-react";
-import { formatPrice, formatStableDate } from "@/utils/formatters";
+import { formatPrice, formatStableDate } from "@/lib/formatters";
 import { formatLocation } from "@/lib/location/locationService";
 import { cn } from "@/components/ui/utils";
 import type { AdData } from "@/types/home";
-import type { UiAd } from "@/utils/mappers";
+import type { UiAd } from "@/lib/mappers";
 import type { Ad } from "@/schemas/ad.schema";
 
 type AdCardData = AdData | UiAd | Ad;

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createSmartAlert, deleteSmartAlert, fetchSmartAlerts } from '@/api/user/smartAlerts';
-import { removeSavedSearch } from '@/api/user/savedSearches';
+import { createSmartAlert, deleteSmartAlert, fetchSmartAlerts } from "@/lib/api/user/smartAlerts";
+import { removeSavedSearch } from "@/lib/api/user/savedSearches";
 import { apiClient } from '@/lib/api/client';
 
 vi.mock('@/lib/api/client', () => ({

@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, Pencil, Smartphone } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useOtpFlow } from "@/hooks/useOtpFlow";
-import { formatSeconds } from "@/utils/otpHelpers";
+import { formatSeconds } from "@/lib/otpHelpers";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";

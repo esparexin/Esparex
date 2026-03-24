@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { notify } from "@/lib/notify";
-import { deleteService } from "@/api/user/services";
-import { useMyServicesQuery } from "@/queries/useServicesQuery";
-import { queryKeys } from "@/queries/queryKeys";
+import { deleteService } from "@/lib/api/user/services";
+import { useMyServicesQuery } from "@/hooks/queries/useServicesQuery";
+import { queryKeys } from "@/hooks/queries/queryKeys";
 import type { User } from "@/types/User";
 import logger from "@/lib/logger";
 

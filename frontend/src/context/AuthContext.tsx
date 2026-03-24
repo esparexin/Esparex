@@ -15,7 +15,7 @@ import type { User } from "@/types/User";
 
 import { apiClient } from "@/lib/api/client";
 import { normalizeError } from "@/lib/api/normalizeError";
-import { authApi } from "@/api/auth";
+import { authApi } from "@/lib/api/auth";
 import { emitAppError } from "@/components/common/AppErrorBanner";
 import logger from "@/lib/logger";
 

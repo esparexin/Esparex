@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { listSavedSearches, removeSavedSearch } from "@/api/user/savedSearches";
-import { fetchSmartAlerts, createSmartAlert as createSmartAlertApi, toggleSmartAlertStatus } from "@/api/user/smartAlerts";
-import type { SavedSearch } from "@/api/user/savedSearches";
+import { listSavedSearches, removeSavedSearch } from "@/lib/api/user/savedSearches";
+import { fetchSmartAlerts, createSmartAlert as createSmartAlertApi, toggleSmartAlertStatus } from "@/lib/api/user/smartAlerts";
+import type { SavedSearch } from "@/lib/api/user/savedSearches";
 import type { SmartAlertCreatePayload } from "@shared/schemas/smartAlert.schema";
 // SmartAlert type should be imported from API or defined here
 export interface SmartAlert {

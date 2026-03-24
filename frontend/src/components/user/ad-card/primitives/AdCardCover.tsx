@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Building2 } from "lucide-react";
 import { cn } from "@/components/ui/utils";
 import type { AdData } from "@/types/home";
-import type { UiAd } from "@/utils/mappers";
+import type { UiAd } from "@/lib/mappers";
 import type { Ad } from "@/schemas/ad.schema";
 
 type AdCardData = AdData | UiAd | Ad;

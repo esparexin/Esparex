@@ -6,7 +6,7 @@ import { notify } from "@/lib/notify";
 import { ROUTES } from "@/lib/logic/routes";
 import type { UserPage } from "@/lib/routeUtils";
 import type { Ad } from "@/schemas/ad.schema";
-import { formatStableDate } from "@/utils/formatters";
+import { formatStableDate } from "@/lib/formatters";
 
 type BusinessCardDetails = {
     businessName?: string;

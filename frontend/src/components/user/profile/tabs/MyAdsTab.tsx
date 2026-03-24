@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageStateGuard, PageState } from "@/components/ui/PageStateGuard";
 import { Package, PlusCircle, AlertTriangle, Eye, Heart, Clock, Edit2, Trash2, CheckSquare } from "lucide-react";
-import type { Ad } from "@/api/user/ads";
+import type { Ad } from "@/lib/api/user/ads";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import FeatureCard from '@/components/user/FeatureCard';
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
-import { formatPrice } from "@/utils/formatters";
+import { formatPrice } from "@/lib/formatters";
 import { LISTING_TYPE } from "@shared/enums/listingType";
 import type { UserPage } from "@/lib/routeUtils";
 

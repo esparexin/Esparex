@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from './queryKeys';
-import { getCategories, getCategoryById, getCategorySchema } from '@/api/user/categories';
+import { getCategories, getCategoryById, getCategorySchema } from "@/lib/api/user/categories";
 
 /**
  * Hook to fetch all top-level categories

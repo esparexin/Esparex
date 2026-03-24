@@ -2,15 +2,15 @@
 
 import { useState, useCallback, useEffect, useMemo } from "react";
 import type { ListingCategory } from "@/types/listing";
-import type { Brand, SparePart, ScreenSize, DeviceModel, ServiceType } from "@/api/user/masterData";
-import { getCategorySchema } from "@/api/user/categories";
+import type { Brand, SparePart, ScreenSize, DeviceModel, ServiceType } from "@/lib/api/user/masterData";
+import { getCategorySchema } from "@/lib/api/user/categories";
 import type { CategoryFilter } from "@shared/schemas/catalog.schema";
 import { IconRegistry } from "@/icons/IconRegistry";
 import type { LucideIcon } from "lucide-react";
 import logger from "@/lib/logger";
-import { TOAST_MESSAGES } from "@/constants/toastMessages";
-import { normalizeOptionalObjectId } from "@/utils/listings/locationUtils";
-import { useCategoriesQuery } from "@/queries/useCategoriesQuery";
+import { TOAST_MESSAGES } from "@/config/toastMessages";
+import { normalizeOptionalObjectId } from "@/lib/listings/locationUtils";
+import { useCategoriesQuery } from "@/hooks/queries/useCategoriesQuery";
 import type { FormPlacement } from "@shared/enums/listingType";
 
 interface CategorySchemaType {
@@ -100,7 +100,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         if (!categoryId) return;
         setActiveCategoryId(categoryId);
         try {
-            const { getBrands, getScreenSizes } = await import('@/api/user/masterData');
+            const { getBrands, getScreenSizes } = await import("@/lib/api/user/masterData");
             const brandsData = await getBrands(categoryId);
 
             const map: Record<string, Brand> = {};
@@ -135,7 +135,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
             return;
         }
         try {
-            const { getModels } = await import('@/api/user/masterData');
+            const { getModels } = await import("@/lib/api/user/masterData");
             const models = await getModels(brandId, categoryId);
             setAvailableModels(models);
         } catch (err) {
@@ -147,7 +147,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
 
     const loadServiceTypes = useCallback(async (categoryId?: string): Promise<ServiceType[]> => {
         try {
-            const { getServiceTypes } = await import('@/api/user/masterData');
+            const { getServiceTypes } = await import("@/lib/api/user/masterData");
             const serviceTypes = await getServiceTypes(categoryId);
             const seen = new Set<string>();
             const normalized = serviceTypes
@@ -177,7 +177,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         if (!categoryId) return;
         setIsLoadingSpareParts(true);
         try {
-            const { getSpareParts } = await import('@/api/user/masterData');
+            const { getSpareParts } = await import("@/lib/api/user/masterData");
             // Spare parts for 'postservice' use the same catalog slot as 'postad' (handled by listingTypeMap)
             const resolvedPlacement = listingType === 'postservice' ? 'postad' : listingType;
             const parts = await getSpareParts(categoryId, resolvedPlacement as 'postad' | 'postsparepart');

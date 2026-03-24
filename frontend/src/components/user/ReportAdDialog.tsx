@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from "@/api/routes";
+import { API_ROUTES } from "@/lib/api/routes";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { notify } from "@/lib/notify";
 import { AlertTriangle } from "lucide-react";
 import { FormError } from "../ui/FormError";
-import { mapErrorToMessage } from "@/utils/errorMapper";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 
 interface ReportAdDialogProps {
   adId: string | number;

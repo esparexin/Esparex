@@ -35,7 +35,7 @@ import { useDynamicPlans } from "@/hooks/useDynamicPlans";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
 import { usePurchases } from "@/hooks/usePurchases";
-import { formatPrice, formatDate } from "@/utils/formatters";
+import { formatPrice, formatDate } from "@/lib/formatters";
 
 // Dialogs
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";

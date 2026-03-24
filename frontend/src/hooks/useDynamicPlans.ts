@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getPlans } from "@/api/user/plans";
+import { getPlans } from "@/lib/api/user/plans";
 // Local type definitions for ProfilePlan and ProfilePlanType
 type ProfilePlanType = "More Ads" | "Spotlight" | "Alert Slots";
 interface ProfilePlan {

@@ -11,8 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Bell, Eye, Edit2, Trash2, Crown, Save } from "lucide-react";
 import LocationSelector from "@/components/location/LocationSelector";
-import type { Location } from "@/api/user/locations";
-import type { SavedSearch } from "@/api/user/savedSearches";
+import type { Location } from "@/lib/api/user/locations";
+import type { SavedSearch } from "@/lib/api/user/savedSearches";
 import type {
     SmartAlertListItem,
     SmartAlertPreferences,

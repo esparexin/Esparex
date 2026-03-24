@@ -16,14 +16,14 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { unsaveAd } from "@/api/user/users";
+import { unsaveAd } from "@/lib/api/user/users";
 import { useAuth } from "@/context/AuthContext";
 import { notify } from "@/lib/notify";
 import type { Ad } from "@/schemas/ad.schema";
 import type { UserPage } from "@/lib/routeUtils";
-import { queryKeys } from "@/queries/queryKeys";
-import { useSavedAdsQuery } from "@/queries/useAdsQuery";
-import { formatPrice, formatStableDate } from "@/utils/formatters";
+import { queryKeys } from "@/hooks/queries/queryKeys";
+import { useSavedAdsQuery } from "@/hooks/queries/useAdsQuery";
+import { formatPrice, formatStableDate } from "@/lib/formatters";
 import { formatLocation, normalizeToAppLocation as normalizeAppLocation } from "@/lib/location/locationService";
 import { toSafeImageSrc, DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";
 

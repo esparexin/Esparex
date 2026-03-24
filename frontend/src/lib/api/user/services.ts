@@ -1,4 +1,4 @@
-import { apiClient } from '../../lib/api/client';
+import { apiClient } from "@/lib/api/client";
 import {
     API_ROUTES,
     API_V1_BASE_PATH,

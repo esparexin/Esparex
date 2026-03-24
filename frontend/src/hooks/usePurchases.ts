@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from "@/api/routes";
-import type { Transaction } from "@/api/user/transactions";
+import { API_ROUTES } from "@/lib/api/routes";
+import type { Transaction } from "@/lib/api/user/transactions";
 import logger from "@/lib/logger";
 
 export function usePurchases() {

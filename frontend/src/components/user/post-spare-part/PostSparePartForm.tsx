@@ -17,8 +17,8 @@ import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
 import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
-import { createSparePartListing, updateSparePartListing } from "@/api/user/sparePartListings";
-import { getListingById } from "@/api/user/ads";
+import { createSparePartListing, updateSparePartListing } from "@/lib/api/user/sparePartListings";
+import { getListingById } from "@/lib/api/user/ads";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
 import type { ListingImage } from "@/types/listing";
 

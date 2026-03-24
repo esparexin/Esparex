@@ -5,7 +5,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { chatApi } from '@/api/chatApi';
+import { chatApi } from "@/lib/api/chatApi";
 import type { IConversationDTO } from '@shared/contracts/chat.contracts';
 
 const POLL_INTERVAL_MS = 10_000;

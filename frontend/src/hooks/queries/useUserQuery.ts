@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from './queryKeys';
-import { getMe } from '@/api/user/users';
+import { getMe } from "@/lib/api/user/users";
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 /**

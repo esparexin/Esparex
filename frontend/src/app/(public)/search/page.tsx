@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { BrowseAds } from '@/components/user/BrowseAds';
 import { Metadata } from 'next';
-import { getAdsPage } from '@/api/user/ads';
-import { getCategories } from '@/api/user/categories';
+import { getAdsPage } from "@/lib/api/user/ads";
+import { getCategories } from "@/lib/api/user/categories";
 
 export const revalidate = 60;
 

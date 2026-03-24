@@ -1,8 +1,8 @@
 import { ListingPageClient } from '../../ads/[slug]/ListingPageClient';
 import { Metadata, ResolvingMetadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { generateAdSlug } from '@/utils/slug';
-import { getListingById } from "@/api/user/ads";
+import { generateAdSlug } from "@/lib/slug";
+import { getListingById } from "@/lib/api/user/ads";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 
 type Props = {

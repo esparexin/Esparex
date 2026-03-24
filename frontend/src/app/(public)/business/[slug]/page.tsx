@@ -1,13 +1,13 @@
 import { BusinessPageClient } from './BusinessPageClient';
 import { Metadata, ResolvingMetadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { generateAdSlug } from '@/utils/slug';
+import { generateAdSlug } from "@/lib/slug";
 import logger from "@/lib/logger";
 import {
     API_ROUTES,
     API_V1_BASE_PATH,
     DEFAULT_LOCAL_API_ORIGIN,
-} from "@/api/routes";
+} from "@/lib/api/routes";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 
 type Props = {

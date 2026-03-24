@@ -9,9 +9,9 @@ import {
   type SparePartListingFilters,
   type SparePartListing,
   type SparePartListingPageResult,
-} from "@/api/user/sparePartListings";
-import { getCategories } from "@/api/user/categories";
-import type { Category } from "@/api/user/categories";
+} from "@/lib/api/user/sparePartListings";
+import { getCategories } from "@/lib/api/user/categories";
+import type { Category } from "@/lib/api/user/categories";
 
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { useLocationState } from "@/context/LocationContext";

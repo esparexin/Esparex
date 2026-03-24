@@ -1,5 +1,5 @@
 import type { User } from "@/types/User";
-import type { Business } from "@/api/user/businesses";
+import type { Business } from "@/lib/api/user/businesses";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 
 /**

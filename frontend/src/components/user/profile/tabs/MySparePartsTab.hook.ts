@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { notify } from "@/lib/notify";
-import { getMySparePartListings, deactivateSparePartListing, repostSparePartListing } from "@/api/user/sparePartListings";
-import type { SparePartListing } from "@/api/user/sparePartListings";
-import { markAsSold } from "@/api/user/ads";
-import { queryKeys } from "@/queries/queryKeys";
+import { getMySparePartListings, deactivateSparePartListing, repostSparePartListing } from "@/lib/api/user/sparePartListings";
+import type { SparePartListing } from "@/lib/api/user/sparePartListings";
+import { markAsSold } from "@/lib/api/user/ads";
+import { queryKeys } from "@/hooks/queries/queryKeys";
 import type { User } from "@/types/User";
 import logger from "@/lib/logger";
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from "@/api/routes";
+import { API_ROUTES } from "@/lib/api/routes";
 
 export type MySparePartsStatus = "live" | "pending" | "rejected" | "expired" | "sold" | "deactivated";
 

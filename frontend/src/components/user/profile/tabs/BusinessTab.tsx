@@ -19,7 +19,7 @@ import {
     ArrowRight,
 } from "lucide-react";
 import { BusinessEditFlow } from "../../BusinessEditFlow";
-import { type Business } from "@/api/user/businesses";
+import { type Business } from "@/lib/api/user/businesses";
 import type { User } from "@/types/User";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { BusinessApplicationStatus } from "../BusinessApplicationStatus";

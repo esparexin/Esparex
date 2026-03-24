@@ -1,6 +1,6 @@
 "use client";
 import { useQuery } from '@tanstack/react-query';
-import { getPopularLocations, type Location } from '@/api/user/locations';
+import { getPopularLocations, type Location } from "@/lib/api/user/locations";
 
 export type PopularLocation = Location;
 

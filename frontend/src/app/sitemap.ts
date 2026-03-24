@@ -4,7 +4,7 @@ import {
     API_ROUTES,
     API_V1_BASE_PATH,
     DEFAULT_LOCAL_API_ORIGIN,
-} from "@/api/routes";
+} from "@/lib/api/routes";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

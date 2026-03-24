@@ -3,12 +3,12 @@
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, PackageOpen } from "lucide-react";
 
-import { type Ad, type HomeAdsPayload } from "@/api/user/ads";
+import { type Ad, type HomeAdsPayload } from "@/lib/api/user/ads";
 import { useLocationState } from "@/context/LocationContext";
-import { useHomeAdsQuery } from "@/queries/useAdsQuery";
+import { useHomeAdsQuery } from "@/hooks/queries/useAdsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { Button } from "@/components/ui/button";
-import { generateAdSlug } from "@/utils/slug";
+import { generateAdSlug } from "@/lib/slug";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 

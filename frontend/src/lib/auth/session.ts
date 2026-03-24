@@ -3,7 +3,7 @@ import {
   API_ROUTES,
   API_V1_BASE_PATH,
   DEFAULT_LOCAL_API_ORIGIN,
-} from '@/api/routes';
+} from "@/lib/api/routes";
 
 type SessionUser = {
   id: string;

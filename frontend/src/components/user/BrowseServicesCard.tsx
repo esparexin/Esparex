@@ -5,8 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Clock, MapPin, Wrench } from "lucide-react";
 
-import type { Service } from "@/api/user/services";
-import { formatPrice, formatStableDate } from "@/utils/formatters";
+import type { Service } from "@/lib/api/user/services";
+import { formatPrice, formatStableDate } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";

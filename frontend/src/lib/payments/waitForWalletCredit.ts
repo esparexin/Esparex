@@ -1,4 +1,4 @@
-import { getWalletSummary, type WalletSummary } from "@/api/user/users";
+import { getWalletSummary, type WalletSummary } from "@/lib/api/user/users";
 
 type WalletCreditField = keyof Pick<WalletSummary, "adCredits" | "spotlightCredits" | "smartAlertSlots">;
 

@@ -4,7 +4,7 @@ import { memo } from "react";
 import { usePathname } from "next/navigation";
 import { Search } from "lucide-react";
 
-import type { Category } from "@/api/user/categories";
+import type { Category } from "@/lib/api/user/categories";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {

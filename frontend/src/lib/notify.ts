@@ -1,4 +1,4 @@
-import { mapErrorToMessage } from '@/utils/errorMapper';
+import { mapErrorToMessage } from "@/lib/errorMapper";
 import { hidePopup, showPopup } from '@/lib/popup/popupEvents';
 import type { PopupAction } from '@/lib/popup/popupEvents';
 

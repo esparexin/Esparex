@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { chatApi } from '@/api/chatApi';
+import { chatApi } from "@/lib/api/chatApi";
 import { CHAT_REPORT_REASON } from '@shared/enums/chatStatus';
 import type { ChatReportReasonValue } from '@shared/enums/chatStatus';
 import { BlockChatDialog } from './BlockChatDialog';

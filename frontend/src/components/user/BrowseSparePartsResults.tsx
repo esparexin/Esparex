@@ -1,7 +1,7 @@
 "use client";
 
 import { PackageOpen, RefreshCw } from "lucide-react";
-import type { SparePartListing } from "@/api/user/sparePartListings";
+import type { SparePartListing } from "@/lib/api/user/sparePartListings";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
 import { Button } from "@/components/ui/button";

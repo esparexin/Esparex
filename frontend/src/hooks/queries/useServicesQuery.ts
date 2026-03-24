@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getMyServices } from "@/api/user/services";
+import { getMyServices } from "@/lib/api/user/services";
 import { queryKeys } from "./queryKeys";
 
 

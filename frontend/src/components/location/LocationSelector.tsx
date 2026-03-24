@@ -1,6 +1,6 @@
 "use client";
 
-import type { Location } from "@/api/user/locations";
+import type { Location } from "@/lib/api/user/locations";
 import LocationSelectorCore from "./LocationSelectorCore";
 
 interface LocationSelectorProps {

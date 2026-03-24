@@ -14,7 +14,7 @@ import type {
     MobileVisibility,
     ProfileFormData,
 } from "../types";
-import { type Business } from "@/api/user/businesses";
+import { type Business } from "@/lib/api/user/businesses";
 import { BusinessApplicationStatus } from "../BusinessApplicationStatus";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 
