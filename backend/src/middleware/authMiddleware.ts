@@ -150,7 +150,8 @@ export const protect = async (
       );
     }
 
-    if (userStatus !== 'active') {
+    const isActive = userStatus === 'active' || userStatus === 'live';
+    if (!isActive) {
       sendErrorResponse(req, res, 403, "Account restricted", {
         message: `Your account is currently ${userStatus}. Please contact support.`,
         type: userStatus.toUpperCase(),

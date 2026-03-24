@@ -1,14 +1,11 @@
 import crypto from 'crypto';
+import { env } from '../config/env';
 
 const getOtpHashSecret = (): string => {
-    const secret = process.env.OTP_HASH_SECRET || process.env.JWT_SECRET;
+    const secret = env.OTP_HASH_SECRET || env.JWT_SECRET;
 
-    if (process.env.NODE_ENV === 'production' && !process.env.OTP_HASH_SECRET) {
+    if (env.NODE_ENV === 'production' && !env.OTP_HASH_SECRET) {
         throw new Error('OTP_HASH_SECRET must be configured in production');
-    }
-
-    if (!secret) {
-        throw new Error('OTP hash secret is not configured');
     }
 
     return secret;

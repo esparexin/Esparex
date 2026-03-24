@@ -7,9 +7,11 @@ import { respond } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { SendOtpResult, VerifyOtpResult } from '../../services/AuthService';
 
+import { env } from '../../config/env';
+
 const getAuthCookieOptions = (maxAge: number) => ({
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
     sameSite: 'lax' as const,
     path: '/',
     maxAge

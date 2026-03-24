@@ -18,8 +18,8 @@ export interface IUser extends Document {
   isEmailVerified: boolean;
   isVerified: boolean;
 
-  role: 'user' | 'business' | 'admin' | 'superadmin';
-  status: 'active' | 'suspended' | 'banned' | 'deleted';
+  role: 'user' | 'business' | 'admin' | 'superadmin' | 'super_admin';
+  status: 'active' | 'suspended' | 'banned' | 'deleted' | 'live';
   statusChangedAt?: Date;
   statusReason?: string;
 
@@ -47,7 +47,7 @@ export interface IUser extends Document {
   }>;
   notificationSettings?: Record<string, any>;
 
-  mobileVisibility: 'public' | 'contacts' | 'private';
+  mobileVisibility: 'public' | 'contacts' | 'private' | 'show';
 
   isDeleted: boolean;
   deletedAt?: Date;
@@ -138,12 +138,12 @@ const UserSchema: Schema = new Schema({
 
   role: {
     type: String,
-    enum: ['user', 'business', 'admin', 'superadmin'],
+    enum: ['user', 'business', 'admin', 'superadmin', 'super_admin'],
     default: 'user',
   },
   status: {
     type: String,
-    enum: ['active', 'suspended', 'banned', 'deleted'],
+    enum: ['active', 'suspended', 'banned', 'deleted', 'live'],
     default: 'active',
   },
   statusChangedAt: { type: Date },
@@ -184,7 +184,7 @@ const UserSchema: Schema = new Schema({
 
   mobileVisibility: {
     type: String,
-    enum: ['public', 'contacts', 'private'],
+    enum: ['public', 'contacts', 'private', 'show'],
     default: 'public',
   },
 
