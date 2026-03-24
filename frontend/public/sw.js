@@ -1,5 +1,5 @@
-const CACHE_NAME = 'temporary-v2-static';
-const DYNAMIC_CACHE_NAME = 'temporary-v2-dynamic';
+const CACHE_NAME = 'temporary-v3-static';
+const DYNAMIC_CACHE_NAME = 'temporary-v3-dynamic';
 
 // Static assets to cache immediately
 const STATIC_ASSETS = [
@@ -7,8 +7,11 @@ const STATIC_ASSETS = [
     '/icons/icon-512x512.png'
 ];
 
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+
 // URLs to NEVER cache
 const BLACKLIST = [
+    '/_next/',
     '/api/',
     '/auth/',
     '/admin/',
@@ -17,7 +20,8 @@ const BLACKLIST = [
     '/chat',
     '/payments',
     '/post-ad',
-    '/login'
+    '/login',
+    '/sw.js'
 ];
 
 // Helper to check if URL is blacklisted
@@ -25,7 +29,14 @@ const isBlacklisted = (url) => {
     return BLACKLIST.some((path) => url.includes(path));
 };
 
+const isLocalhost = () => LOCAL_HOSTS.has(self.location.hostname);
+
 self.addEventListener('install', (event) => {
+    if (isLocalhost()) {
+        self.skipWaiting();
+        return;
+    }
+
     console.log('[Service Worker] Installing...');
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
@@ -40,6 +51,17 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
+    if (isLocalhost()) {
+        event.waitUntil(
+            caches.keys()
+                .then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))))
+                .then(() => self.registration.unregister())
+                .then(() => self.clients.matchAll({ type: 'window' }))
+                .then((clients) => Promise.all(clients.map((client) => client.navigate(client.url))))
+        );
+        return;
+    }
+
     console.log('[Service Worker] Activating...');
     event.waitUntil(
         caches.keys().then((keyList) => {
@@ -58,6 +80,10 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    if (isLocalhost()) {
+        return;
+    }
+
     if (event.request.method !== 'GET') {
         return;
     }
@@ -73,6 +99,10 @@ self.addEventListener('fetch', (event) => {
     // Never intercept cross-origin requests (e.g. S3 images).
     // This avoids CSP/connect-src violations inside SW fetch() for external origins.
     if (requestUrl.origin !== self.location.origin) {
+        return;
+    }
+
+    if (event.request.mode === 'navigate') {
         return;
     }
 

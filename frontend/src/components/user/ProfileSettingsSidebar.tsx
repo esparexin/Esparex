@@ -216,6 +216,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           navigateToBusinessTab={() => setActiveTabFromChild("business")}
         />
       );
+      case "listings":
       case "mylistings": return (
         <AllListingsTab 
           adsProps={{ ads: myAds, adCounts, loadingAds, myAdsTab, setMyAdsTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, fetchMyAds, formatDate, handleDeleteAd: handleDeleteAdForTab, handleMarkAsSold: handleMarkAsSoldForTab }}

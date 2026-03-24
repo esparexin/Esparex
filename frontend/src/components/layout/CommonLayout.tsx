@@ -1,23 +1,14 @@
 "use client";
 
 import { ReactNode, Suspense } from 'react';
-import dynamic from 'next/dynamic';
 import { BottomBarProvider } from '@/context/BottomBarContext';
 import { RouteScrollReset } from '@/components/common/RouteScrollReset';
+import { Footer } from '@/components/common/Footer';
+import { BusinessPostFAB } from '@/components/layout/BusinessPostFAB';
 import { UserAppProviders } from '@/components/providers/UserAppProviders';
 import { HeaderWrapper } from '@/app/HeaderWrapper';
 import { ClientChromeLoader } from '@/components/layout/ClientChromeLoader';
 import { ScrollSentinel } from '@/components/common/ScrollSentinel';
-
-const BusinessPostFAB = dynamic(
-    () => import('@/components/layout/BusinessPostFAB').then(m => m.BusinessPostFAB),
-    { ssr: false }
-);
-
-const DeferredFooter = dynamic(
-    () => import('@/components/common/Footer').then((mod) => mod.Footer),
-    { ssr: true, loading: () => null }
-);
 
 interface CommonLayoutProps {
     children: ReactNode;
@@ -54,7 +45,7 @@ export function CommonLayout({
                         {children}
                     </main>
                     <BusinessPostFAB />
-                    <DeferredFooter />
+                    <Footer />
                 </div>
             </BottomBarProvider>
         </UserAppProviders>

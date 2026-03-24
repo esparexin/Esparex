@@ -1,18 +1,13 @@
 import { Metadata } from "next";
-import nextDynamic from "next/dynamic";
 import logger from "@/lib/logger";
 import { API_ROUTES } from "@/api/routes";
 import type { Category } from "@/schemas";
 import { getHomeAds } from "@/api/user/ads";
 import { HomeFeed } from "@/components/home/HomeFeed";
 import { HomeBannerAd } from "@/components/home/HomeBannerAd";
+import { CategoryBrowser } from "@/components/home/CategoryBrowser";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { BusinessQuickActionsShell } from "@/components/home/BusinessQuickActionsShell";
-
-const CategoryBrowser = nextDynamic(
-    () => import("@/components/home/CategoryBrowser").then((mod) => mod.CategoryBrowser),
-    { ssr: true, loading: () => <div className="min-h-[200px] animate-pulse bg-slate-50" /> }
-);
 
 async function getHomeCategories(): Promise<Category[]> {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;

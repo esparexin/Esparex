@@ -9,7 +9,10 @@ import {
     useCallback,
     useMemo
 } from "react";
+import { API_ROUTES } from "@/api/routes";
+import { apiClient } from "@/lib/api/client";
 import { notify } from "@/lib/notify";
+import logger from "@/lib/logger";
 import { generateAIContent } from "@/api/user/ai";
 import type { SparePart } from "@/api/user/masterData";
 import { suppressGoogleMapsRetryErrors } from "@/utils/suppress-google-maps-errors";
@@ -192,13 +195,15 @@ export function PostAdProvider({
         onError: validationHook.setFormError 
     });
 
+    const handleImagesChange = useCallback((images: ListingImage[]) => {
+        setValue("images", images.map(img => img.preview), { 
+            shouldValidate: true, 
+            shouldDirty: true 
+        });
+    }, [setValue]);
+
     const imagesHook = useListingImages({
-        onImagesChange: (images) => {
-            setValue("images", images.map(img => img.preview), { 
-                shouldValidate: true, 
-                shouldDirty: true 
-            });
-        }
+        onImagesChange: handleImagesChange
     });
 
     const locationHook = useListingLocation({
@@ -267,6 +272,12 @@ export function PostAdProvider({
     // Submission logic in dedicated hook
     const { setIsDirty } = useNavigation();
 
+    const submitAdApiCall = useCallback((payload: any, options?: { idempotencyKey?: string }) => {
+        return (isEditMode && editAdId) 
+            ? updateAd(editAdId, payload)
+            : createAd(payload, options);
+    }, [isEditMode, editAdId]);
+
     const { onValidSubmit, isSubmitting } = useListingSubmission({
         form,
         listingImages,
@@ -274,9 +285,7 @@ export function PostAdProvider({
         editId: editAdId,
         schema: postAdSchema,
         partialSchema: partialAdSchema,
-        submitFn: (payload, options) => (isEditMode && editAdId) 
-            ? updateAd(editAdId, payload)
-            : createAd(payload, options),
+        submitFn: submitAdApiCall,
         onSuccess: (ad) => setSubmittedAd(ad),
         onError: setFormError
     });
@@ -487,14 +496,64 @@ export function PostAdProvider({
 
     // Stable reference: handleSubmit from RHF is stable; onValidSubmit is useCallback-wrapped.
     // Without useCallback here, a new fn is created each render and ends up in the useMemo deps
+    const [isInternalUploading, setIsInternalUploading] = useState(false);
+
     const submitAd = useCallback(
         () => handleSubmit(async (data: PostAdFormData) => {
-            const ad = await onValidSubmit(data);
-            if (ad) {
-                setSubmittedAd(ad);
+            setIsInternalUploading(true);
+            try {
+                // 1. Identify and Upload Local Images to S3 first
+                // This prevents large base64 payloads and UI hangs.
+                const updatedImages = [...listingImages];
+                const uploadPromises = updatedImages.map(async (img, idx) => {
+                    if (img.isRemote || !img.file) return;
+
+                    const formData = new FormData();
+                    formData.append("file", img.file);
+                    formData.append("folder", "ads"); // Dedicated folder for Ads
+
+                    try {
+                        const response = await apiClient.post<{ 
+                            success: boolean; 
+                            data: { url: string } 
+                        }>(API_ROUTES.USER.USERS_UPLOAD, formData);
+
+                        if (response.success && response.data.url) {
+                            updatedImages[idx] = {
+                                ...img,
+                                preview: response.data.url,
+                                isRemote: true
+                            };
+                        }
+                    } catch (uploadErr) {
+                        logger.error("[PostAdSubmit] Image upload failed:", uploadErr);
+                        throw new Error(`Failed to upload image ${idx + 1}. Please try again.`);
+                    }
+                });
+
+                await Promise.all(uploadPromises);
+                
+                // Update local state so it matches the remote reality
+                setListingImages(updatedImages);
+
+                // 2. Proceed with Final Submission (now contains only remote URLs)
+                // We use a small timeout to let the state update propagate if needed, 
+                // though onValidSubmit uses the closure's listingImages which we just modified 
+                // but wait, onValidSubmit was created with the OLD listingImages.
+                // Re-running it manually with the new payload is safer.
+                const ad = await onValidSubmit(data);
+                if (ad) {
+                   setSubmittedAd(ad);
+                }
+            } catch (err: any) {
+                logger.error("[PostAdSubmit] Overall submission failed:", err);
+                setFormError(err.message || "Submission failed. Please try again.");
+                notify.error(err.message || "Failed to post ad.");
+            } finally {
+                setIsInternalUploading(false);
             }
         })(),
-        [handleSubmit, onValidSubmit, setSubmittedAd]
+        [handleSubmit, onValidSubmit, setSubmittedAd, listingImages, setListingImages, setFormError]
     );
 
     // Destructure stable function refs from images hook
@@ -520,7 +579,7 @@ export function PostAdProvider({
         categorySchema,
         isLoading,
         isUploadingImages: imagesHook.isUploadingImages,
-        isSubmitting,
+        isSubmitting: isSubmitting || isInternalUploading,
         isEditMode,
         isLocationLocked,
         userHasInteracted,
@@ -549,6 +608,7 @@ export function PostAdProvider({
         isLoading,
         imagesHook.isUploadingImages,
         isSubmitting,
+        isInternalUploading, // Added to dependencies
         isEditMode,
         isLocationLocked,
         userHasInteracted,

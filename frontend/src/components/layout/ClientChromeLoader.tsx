@@ -1,28 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
+import { BottomActionsBar } from "@/components/BottomActionsBar";
+import { BackendStatusBanner } from "@/components/common/BackendStatusBanner";
+import { ConnectivityBanner } from "@/components/common/ConnectivityBanner";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
-
-const DeferredMobileBottomNav = dynamic(
-    () => import("@/components/mobile/MobileBottomNav").then((mod) => mod.MobileBottomNav),
-    { ssr: false, loading: () => null }
-);
-
-const DeferredBottomActionsBar = dynamic(
-    () => import("@/components/BottomActionsBar").then((mod) => mod.BottomActionsBar),
-    { ssr: false, loading: () => null }
-);
-
-const DeferredBackendStatusBanner = dynamic(
-    () => import("@/components/common/BackendStatusBanner").then((mod) => mod.BackendStatusBanner),
-    { ssr: false, loading: () => null }
-);
-
-const DeferredConnectivityBanner = dynamic(
-    () => import("@/components/common/ConnectivityBanner").then((mod) => mod.ConnectivityBanner),
-    { ssr: false, loading: () => null }
-);
 
 interface ClientChromeLoaderProps {
     apiUnavailable?: boolean;
@@ -36,10 +19,10 @@ export function ClientChromeLoader({
 
     return (
         <>
-            <DeferredBackendStatusBanner />
-            <DeferredConnectivityBanner apiUnavailable={apiUnavailable} />
-            <DeferredMobileBottomNav enabled={policy.showMobileBottomNav} />
-            <DeferredBottomActionsBar />
+            <BackendStatusBanner />
+            <ConnectivityBanner apiUnavailable={apiUnavailable} />
+            <MobileBottomNav enabled={policy.showMobileBottomNav} />
+            <BottomActionsBar />
         </>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
  
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { ListingLocation } from "@/types/listing";
 import { normalizeListingLocation } from "@/utils/listings/locationUtils";
 import type { GeoJSONPoint } from "@/types/location";
@@ -38,7 +38,7 @@ export function useListingLocation({ onLocationChange }: UseListingLocationProps
         onLocationChange?.(null);
     }, [onLocationChange]);
  
-    return {
+    return useMemo(() => ({
         listingLocation,
         setListingLocation,
         setLocation,
@@ -46,5 +46,5 @@ export function useListingLocation({ onLocationChange }: UseListingLocationProps
         locationId: listingLocation?.locationId,
         locationDisplay: listingLocation?.display,
         coordinates: listingLocation?.coordinates
-    };
+    }), [listingLocation, setListingLocation, setLocation, clearLocation]);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import type { ListingImage } from "@/types/listing";
 import { MAX_AD_IMAGES, MAX_AD_IMAGE_BYTES } from "@shared/constants/adLimits";
 import imageCompression from 'browser-image-compression';
@@ -137,7 +137,7 @@ export function useListingImages({
         };
     }, []);
 
-    return {
+    return useMemo(() => ({
         listingImages,
         setListingImages,
         isUploadingImages,
@@ -146,5 +146,14 @@ export function useListingImages({
         addImages,
         removeImage,
         clearImages,
-    };
+    }), [
+        listingImages, 
+        setListingImages, 
+        isUploadingImages, 
+        imageUploadError, 
+        setImageUploadError, 
+        addImages, 
+        removeImage, 
+        clearImages
+    ]);
 }

@@ -58,11 +58,16 @@ export function useListingSubmission<T extends Record<string, any>>({
                     finalImageUrls.push(img.preview);
                     continue;
                 }
+                
+                // If it is a string and starts with http, it is already a URL (fallback)
+                if (typeof img.preview === 'string' && img.preview.startsWith('http')) {
+                    finalImageUrls.push(img.preview);
+                    continue;
+                }
+
                 if (!img.file) continue;
 
-                // Convert to base64 (with compression) — the backend processImages()
-                // pipeline for services and spare parts accepts base64 data URLs
-                // and uploads them to S3 directly during the create/update call.
+                // Only convert to base64 if it's a local file and NOT already remote
                 const base64 = await fileToBase64(img.file);
                 finalImageUrls.push(base64);
             }
