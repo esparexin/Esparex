@@ -54,8 +54,6 @@ router.get("/suggestions", searchLimiter, adController.getSuggestions);
 // Similar ads by source listing
 router.get("/:id/similar", validateObjectId, searchLimiter, adController.getSimilarAds);
 
-// Get single ad (SEO-safe, public, optionally authenticated for owners)
-router.get("/:id", validateIdOrSlug('id'), extractUser, adController.getPublicAdById);
 
 // Create ad
 router.post(

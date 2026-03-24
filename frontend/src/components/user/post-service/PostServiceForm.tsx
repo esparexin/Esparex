@@ -21,7 +21,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
-import { createService, getServiceById, updateService } from "@/api/user/services";
+import { getListingById } from "@/api/user/ads";
+import { createService, updateService } from "@/api/user/services";
 import type { ListingImage } from "@/types/listing";
 
 // Schema imported from shared base — keeps frontend validation aligned with backend.
@@ -130,7 +131,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         let isMounted = true;
         const load = async () => {
             try {
-                const payload = await getServiceById(editServiceId);
+                const payload = await getListingById(editServiceId);
                 if (isMounted && payload) {
                     const categoryId = extractEntityId(payload.category || payload.categoryId);
                     const brandId = extractEntityId(payload.brand || payload.brandId);
@@ -140,7 +141,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                         categoryId,
                         brandId,
                         serviceTypeIds: serviceTypeTokens,
-                        price: payload.priceMin || payload.price || 0,
+                        price: typeof payload.price === 'number' ? payload.price : (Number((payload as any).priceMin) || 0),
                         description: payload.description || "",
                         location: payload.location,
                     });
@@ -155,7 +156,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                         }
                     }
                     if (payload.images?.length) {
-                        setImages(payload.images.map(url => ({
+                        setImages(payload.images.map((url: string) => ({
                             id: Math.random().toString(36).substring(7),
                             preview: url,
                             file: null as any,

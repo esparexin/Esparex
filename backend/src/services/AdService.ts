@@ -78,7 +78,6 @@ import { AdCreationService } from './AdCreationService';
 import { mutateStatus } from './StatusMutationService';
 export {
     getAds,
-    getPublicAdById,
     getListingDetailById,
     getAdCounts,
     computeModerationSummaryByType,

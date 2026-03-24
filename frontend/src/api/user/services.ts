@@ -255,24 +255,13 @@ export const getServicesPage = async (
     };
 };
 
-import { isValidAdIdentifier, normalizeAdIdentifier } from './ads';
 
 export const getServices = async (filters: ServiceFilters = {}): Promise<Service[]> => {
     const result = await getServicesPage(filters);
     return result.data;
 };
 
-export const getServiceById = async (id: string): Promise<Service | null> => {
-    const normalizedIdentifier = normalizeAdIdentifier(id);
-    if (!isValidAdIdentifier(normalizedIdentifier)) {
-        return null;
-    }
-    const endpoint = `${API_ROUTES.USER.SERVICES}/${id}`;
-    const { data: service } = typeof window === 'undefined'
-        ? await toApiResult<Service>(fetchUserApiJson(endpoint))
-        : await toApiResult<Service>(apiClient.get(endpoint));
-    return service ? normalizeService(service) : null;
-};
+
 
 export const trackServiceView = async (id: string): Promise<void> => {
     try {

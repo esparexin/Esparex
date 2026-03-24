@@ -12,7 +12,9 @@ const API_BASE_URL = (
 ).replace(/\/$/, "");
 
 const ALLOWED_FOLDERS = new Set(["ads", "businesses", "profiles", "documents", "services"]);
-const normalizeFolder = (folder: string): string => {
+
+const normalizeFolder = (folder: string, options: { adId?: string } = {}): string => {
+    if (folder === "ads" && !options.adId) return "staging";
     if (folder === "profiles") return "avatars";
     if (folder === "services") return "service";
     if (folder === "businesses") return "business";
@@ -27,7 +29,7 @@ const toDataUrl = async (file: File): Promise<string> => {
 export async function POST(req: Request) {
     try {
         const incoming = await req.formData();
-        const file = incoming.get("image");
+        const file = incoming.get("image") || incoming.get("file");
         const folder = String(incoming.get("folder") || "ads").trim().toLowerCase();
         const adId = String(incoming.get("adId") || "").trim();
         const businessId = String(incoming.get("businessId") || "").trim();
@@ -74,7 +76,7 @@ export async function POST(req: Request) {
 
         const forward = new FormData();
         forward.set("file", file);
-        forward.set("folder", normalizeFolder(folder));
+        forward.set("folder", normalizeFolder(folder, { adId }));
         if (adId) forward.set("adId", adId);
         if (businessId) forward.set("businessId", businessId);
         if (serviceId) forward.set("serviceId", serviceId);

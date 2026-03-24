@@ -26,6 +26,7 @@ const envSchema = z.object({
     // Node Environment
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     PORT: z.string().transform(Number).pipe(z.number().min(1000).max(65535)).default('5001'),
+    CI: z.string().transform(val => val === 'true').default('false'),
 
     // Database
     MONGODB_URI: z.string().url('Invalid MongoDB URI'),
@@ -37,6 +38,8 @@ const envSchema = z.object({
         .regex(/^[A-Za-z0-9+/=_-]+$/, 'JWT_SECRET contains invalid characters'),
     JWT_EXPIRES_IN: z.string().default('7d'),
     JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
+    ADMIN_JWT_SECRET: z.string().optional(),
+    REFRESH_TOKEN_SECRET: z.string().optional(),
 
     // CORS
     CORS_ORIGIN: z.string().default('http://localhost:3000'),
@@ -44,15 +47,20 @@ const envSchema = z.object({
     AWS_ACCESS_KEY_ID: z.string().optional(),
     AWS_SECRET_ACCESS_KEY: z.string().optional(),
     AWS_REGION: z.string().optional(),
+    AWS_S3_BUCKET: z.string().optional(),
     S3_BUCKET_NAME: z.string().optional(),
 
     FIREBASE_PROJECT_ID: z.string().optional(),
     FIREBASE_CLIENT_EMAIL: z.string().email().optional(),
     FIREBASE_PRIVATE_KEY: z.string().optional(),
+    FIREBASE_SERVICE_ACCOUNT_JSON: z.string().optional(),
 
     MSG91_AUTH_KEY: z.string().optional(),
     MSG91_SENDER_ID: z.string().optional(),
+    MSG91_TEMPLATE_ID: z.string().optional(),
     AUTH_BYPASS_OTP_LOCK: z.string().optional(),
+    USE_DEFAULT_OTP: z.string().transform(val => val === 'true').default('false'),
+    DEV_STATIC_OTP: z.string().default('123456'),
 
     GEMINI_API_KEY: z.string().optional(),
 
@@ -81,12 +89,21 @@ const envSchema = z.object({
     SENTRY_DSN: z.string().url().optional(),
     SENTRY_ENVIRONMENT: z.string().optional(),
 
+    // Backups (Optional)
+    BACKUP_DIR: z.string().default('./backups'),
+    BACKUP_RETENTION_DAYS: z.string().transform(Number).default('30'),
+    BACKUP_CRON_SCHEDULE: z.string().default('0 2 * * *'),
+    ENABLE_AUTO_BACKUPS: z.string().transform(val => val === 'true').default('false'),
+
     // Feature Flags
     ENABLE_SWAGGER: z.string().transform(val => val === 'true').default('true'),
     ENABLE_RATE_LIMITING: z.string().transform(val => val === 'true').default('true'),
     ENABLE_MAINTENANCE_MODE: z.string().transform(val => val === 'true').default('false'),
     RUN_SCHEDULERS: z.string().transform(val => val === 'true').default('true'),
+    ENABLE_SCHEDULER: z.string().transform(val => val === 'true').default('true'),
+    ENABLE_LEGACY_MODERATION_ALIASES: z.string().transform(val => val === 'true').default('false'),
     PROCESS_ROLE: z.enum(['api', 'scheduler']).default('api'),
+    TZ: z.string().default('UTC'),
 });
 
 /**

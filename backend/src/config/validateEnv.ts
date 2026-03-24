@@ -30,11 +30,10 @@ export function validateS3BucketEnvAliasOrThrow(sourceEnv: NodeJS.ProcessEnv): v
 
     if (legacyBucket && !canonicalBucket) {
         bootstrapLogger.warn(
-            '⚠️ Deprecated env var detected: AWS_S3_BUCKET. Use S3_BUCKET_NAME instead.'
+            '⚠️ Deprecated env var detected: AWS_S3_BUCKET. Mirroring it to S3_BUCKET_NAME for backward compatibility.'
         );
-        throw new Error(
-            'Invalid S3 configuration: AWS_S3_BUCKET is deprecated. Rename AWS_S3_BUCKET to S3_BUCKET_NAME.'
-        );
+        sourceEnv.S3_BUCKET_NAME = legacyBucket;
+        return;
     }
 
     if (legacyBucket && canonicalBucket && legacyBucket !== canonicalBucket) {

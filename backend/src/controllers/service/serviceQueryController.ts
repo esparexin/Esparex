@@ -118,76 +118,7 @@ export const getServices = async (req: Request, res: Response) => {
     }
 };
 
-/* ---------------------------------------------------
-   Get Service By ID (Public with Status Guard)
---------------------------------------------------- */
-export const getServiceById = async (req: Request, res: Response) => {
-    try {
-        const idOrSlug = getSingleParam(req, res, 'id', { error: 'Invalid Service ID or Slug' });
-        if (!idOrSlug) return;
-        const viewerId = (req.user as any)?._id;
 
-        let serviceId = idOrSlug;
-
-        // 1. If it's NOT an ObjectId, it must be a slug
-        if (!mongoose.Types.ObjectId.isValid(idOrSlug)) {
-            const foundService = await AdModel.findOne(
-                viewerId
-                    ? {
-                        seoSlug: idOrSlug, // Unified uses 'seoSlug'
-                        listingType: LISTING_TYPE.SERVICE,
-                        isDeleted: { $ne: true },
-                        $or: [
-                            { status: AD_STATUS.LIVE },
-                            { sellerId: viewerId }
-                        ]
-                    }
-                    : {
-                        seoSlug: idOrSlug, // Unified uses 'seoSlug'
-                        listingType: LISTING_TYPE.SERVICE,
-                        status: AD_STATUS.LIVE,
-                        isDeleted: { $ne: true }
-                    }
-            ).select('_id').exec();
-
-            if (!foundService) {
-                sendErrorResponse(req, res, 404, 'Service not found');
-                return;
-            }
-            serviceId = foundService._id.toString();
-        }
-
-        // 2. Fetch full service details using the resolved ID
-        const viewerIdString = (req.user as any)?._id?.toString();
-        const viewerRole = (req.user as any)?.role;
-        const viewer = viewerIdString ? { userId: viewerIdString, role: viewerRole } : undefined;
-
-        const service = await adService.getPublicAdById(serviceId, viewer) as (Service & { restricted?: boolean }) | null;
-
-        if (!service) {
-            sendErrorResponse(req, res, 404, 'Service not found');
-            return;
-        }
-
-        // Map unified fields for legacy compatibility
-        const mappedService = {
-            ...service,
-            priceMin: (service as any).price,
-            priceMax: (service as any).price,
-            id: (service as any).id || (service as any)._id?.toString()
-        };
-
-        const response = respond<ApiResponse<Service>>({
-            success: true,
-            data: mappedService as unknown as Service
-        });
-
-        res.json(response);
-    } catch (error) {
-        logger.error('Get Service Error:', error);
-        sendErrorResponse(req, res, 500, 'Failed to fetch service');
-    }
-};
 
 export const incrementServiceView = async (req: Request, res: Response) => {
     try {

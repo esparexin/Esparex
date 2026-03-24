@@ -289,68 +289,7 @@ export const getSimilarAds = async (req: Request, res: Response, next: NextFunct
     }
 };
 
-/**
- * Get single ad by ID or slug (public view)
- */
-export const getPublicAdById = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const idOrSlug = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID or Slug' });
-        if (!idOrSlug) return;
 
-        const viewerId = (req.user as IAuthUser)?._id?.toString();
-        const viewerRole = (req.user as IAuthUser)?.role;
-        const isAdminViewer = Boolean(
-            (req.user as IAuthUser)?.isAdmin ||
-            viewerRole === 'admin' ||
-            viewerRole === 'super_admin'
-        );
-        const viewer = viewerId
-            ? { userId: viewerId, role: viewerRole, isAdmin: isAdminViewer }
-            : undefined;
-        let adId: string | null = null;
-
-        // 1. If it looks like an ObjectId, use it directly
-        if (idOrSlug.match(/^[0-9a-fA-F]{24}$/) && mongoose.Types.ObjectId.isValid(idOrSlug)) {
-            adId = idOrSlug;
-        }
-
-        // 2. Otherwise, resolve by slug via service layer
-        if (!adId) {
-            let visibilityFilter: Record<string, unknown> = {};
-            if (!isAdminViewer) {
-                if (viewerId && mongoose.Types.ObjectId.isValid(viewerId)) {
-                    visibilityFilter.$or = [
-                        buildPublicAdFilter(),
-                        {
-                            sellerId: new mongoose.Types.ObjectId(viewerId),
-                            isDeleted: { $ne: true }
-                        }
-                    ];
-                } else {
-                    visibilityFilter = buildPublicAdFilter();
-                }
-            } else {
-                visibilityFilter.isDeleted = { $ne: true };
-            }
-            adId = await adService.getAdIdBySlug(idOrSlug, visibilityFilter);
-        }
-
-        const ad = adId ? await (adService.getPublicAdById as any)(adId, viewer) : null;
-
-        if (!ad) {
-            return sendErrorResponse(req, res, 404, 'Ad not found');
-        }
-
-        const response = respond<ApiResponse<Ad>>({
-            success: true,
-            data: ad as unknown as Ad
-        });
-
-        res.json(response);
-    } catch (error: unknown) {
-        next(error);
-    }
-};
 
 /**
  * Get any ad by ID regardless of status (admin only)

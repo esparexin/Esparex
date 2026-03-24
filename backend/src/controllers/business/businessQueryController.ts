@@ -11,6 +11,7 @@ import { sendErrorResponse } from '../../utils/errorResponse';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { isBusinessPublishedStatus } from '../../utils/businessStatus';
+import { normalizeAdImagesForResponse } from '../../services/adQuery/AdQueryHelpers';
 import {
     BusinessStatsPayload,
     findBusinessByIdentifier,
@@ -91,10 +92,11 @@ export const getBusinessServices = async (req: Request, res: Response) => {
             status: AD_STATUS.LIVE,
             isDeleted: { $ne: true }
         }).sort({ createdAt: -1 }).lean();
+        const sanitizedServices = services.map((service) => normalizeAdImagesForResponse(service as unknown as Record<string, unknown>));
 
         const response = respond<ApiResponse<SharedService[]>>({
             success: true,
-            data: services as unknown as SharedService[]
+            data: sanitizedServices as unknown as SharedService[]
         });
 
         res.json(response);
@@ -119,8 +121,9 @@ export const getBusinessAds = async (req: Request, res: Response) => {
             status: AD_STATUS.LIVE,
             isDeleted: { $ne: true }
         }).sort({ createdAt: -1 }).lean();
+        const sanitizedAds = ads.map((ad) => normalizeAdImagesForResponse(ad as unknown as Record<string, unknown>));
 
-        res.json(respond<ApiResponse<unknown[]>>({ success: true, data: ads }));
+        res.json(respond<ApiResponse<unknown[]>>({ success: true, data: sanitizedAds }));
     } catch {
         sendErrorResponse(req, res, 500, 'Failed to fetch business ads');
     }
@@ -142,8 +145,9 @@ export const getBusinessSpareParts = async (req: Request, res: Response) => {
             status: AD_STATUS.LIVE,
             isDeleted: { $ne: true }
         }).sort({ createdAt: -1 }).lean();
+        const sanitizedParts = parts.map((part) => normalizeAdImagesForResponse(part as unknown as Record<string, unknown>));
 
-        res.json(respond<ApiResponse<unknown[]>>({ success: true, data: parts }));
+        res.json(respond<ApiResponse<unknown[]>>({ success: true, data: sanitizedParts }));
     } catch {
         sendErrorResponse(req, res, 500, 'Failed to fetch business spare parts');
     }

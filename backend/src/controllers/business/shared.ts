@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import BusinessModel from '../../models/Business';
+import { sanitizePersistedImageUrls } from '../../utils/s3';
 
 type DuplicateError = {
     code?: number;
@@ -41,6 +42,40 @@ export const sanitizeBusinessForPublic = (value: unknown): Record<string, unknow
             : (value as Record<string, unknown>);
 
     const sanitized = { ...asObject };
+    const sanitizeImageField = (candidate: unknown): string | undefined =>
+        sanitizePersistedImageUrls(
+            typeof candidate === 'string' ? [candidate] : [],
+            { fallbackToPlaceholder: false, allowPlaceholder: false }
+        )[0];
+
+    sanitized.images = sanitizePersistedImageUrls(
+        Array.isArray(sanitized.images) ? sanitized.images.filter((image): image is string => typeof image === 'string') : [],
+        { fallbackToPlaceholder: false, allowPlaceholder: false }
+    );
+
+    if ('shopImages' in sanitized) {
+        sanitized.shopImages = sanitizePersistedImageUrls(
+            Array.isArray(sanitized.shopImages) ? sanitized.shopImages.filter((image): image is string => typeof image === 'string') : [],
+            { fallbackToPlaceholder: false, allowPlaceholder: false }
+        );
+    }
+
+    if ('gallery' in sanitized) {
+        sanitized.gallery = sanitizePersistedImageUrls(
+            Array.isArray(sanitized.gallery) ? sanitized.gallery.filter((image): image is string => typeof image === 'string') : [],
+            { fallbackToPlaceholder: false, allowPlaceholder: false }
+        );
+    }
+
+    const safeLogo = sanitizeImageField(sanitized.logo);
+    const safeCoverImage = sanitizeImageField(sanitized.coverImage);
+
+    if (safeLogo) sanitized.logo = safeLogo;
+    else delete sanitized.logo;
+
+    if (safeCoverImage) sanitized.coverImage = safeCoverImage;
+    else delete sanitized.coverImage;
+
     delete sanitized.documents;
     return sanitized;
 };

@@ -6,7 +6,7 @@ import User from '../models/User';
 import { getUserConnection } from '../config/db';
 
 import { processImages } from '../utils/imageProcessor';
-import { deleteFromS3Url } from '../utils/s3';
+import { deleteFromS3Url, sanitizeStoredImageUrls } from '../utils/s3';
 import { normalizeLocation, normalizeLocationResponse, toGeoPoint } from './LocationService';
 import { serializeDoc } from '../utils/serialize';
 import { publishedBusinessStatusQuery } from '../utils/businessStatus';
@@ -94,9 +94,7 @@ const toStringArray = (value: unknown): string[] =>
         : [];
 
 const toImageUrls = (value: Array<{ url: string; hash: string }>): string[] =>
-    value
-        .map((item) => item.url)
-        .filter((item): item is string => typeof item === 'string' && item.length > 0);
+    sanitizeStoredImageUrls(value.map((item) => item.url));
 
 const cleanupRemovedS3Objects = async (previous: unknown, next: unknown) => {
     const previousUrls = Array.isArray(previous)
@@ -147,6 +145,9 @@ const normalizeDocuments = async (
     const upload = async (urls: string[] | undefined, type: IBusinessDocument['type']) => {
         if (!urls || urls.length === 0) return;
         const processed = toImageUrls(await processImages(toStringArray(urls), `businesses/${businessId}`));
+        if (processed.length === 0) {
+            throw new AppError(`Failed to upload ${type.replace(/_/g, ' ')}. Please retry.`, 502);
+        }
         processed.forEach(url => {
             newDocs.push({
                 type,
@@ -203,10 +204,13 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     // 5. Image & Doc Processing
     const bId = business?._id?.toString() || new mongoose.Types.ObjectId().toString();
     const shopImagesInput = toStringArray(data.images);
-    const shopImages =
+    const resolvedShopImages =
         shopImagesInput.length > 0
             ? toImageUrls(await processImages(shopImagesInput, `businesses/${bId}`))
             : toStringArray(businessView.images);
+    if (shopImagesInput.length > 0 && resolvedShopImages.length === 0) {
+        throw new AppError('Business image upload failed. Please retry.', 502);
+    }
 
     const documents = await normalizeDocuments(data.documents, bId, businessView.documents);
 
@@ -247,7 +251,7 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     }
 
     // 6. Image & Doc Processing
-    safePayload.images = shopImages;
+    safePayload.images = resolvedShopImages;
     safePayload.documents = documents;
 
     // 7. Taxonomy & Location IDs
@@ -273,7 +277,7 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
 
     if (business) {
         await Promise.all([
-            cleanupRemovedS3Objects(businessView.images, shopImages),
+            cleanupRemovedS3Objects(businessView.images, resolvedShopImages),
             cleanupRemovedS3Objects(businessView.documents, documents),
         ]);
     }
@@ -369,7 +373,11 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
     }
 
     if (data.images !== undefined) {
-        safeUpdate.images = toImageUrls(await processImages(toStringArray(data.images), `businesses/${id}`));
+        const incomingImages = toStringArray(data.images);
+        safeUpdate.images = toImageUrls(await processImages(incomingImages, `businesses/${id}`));
+        if (incomingImages.length > 0 && (!Array.isArray(safeUpdate.images) || safeUpdate.images.length === 0)) {
+            throw new AppError('Business image upload failed. Please retry.', 502);
+        }
     }
 
     if (data.documents !== undefined) {

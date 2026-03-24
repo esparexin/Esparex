@@ -22,7 +22,7 @@ const dotenv = require('dotenv');
 
 dotenv.config({ path: '.env' });
 
-const bucket = (process.env.S3_BUCKET_NAME || '').trim();
+const bucket = (process.env.S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || '').trim();
 const region = (process.env.AWS_REGION || '').trim();
 const accessKeyId = (process.env.AWS_ACCESS_KEY_ID || '').trim();
 const secretAccessKey = (process.env.AWS_SECRET_ACCESS_KEY || '').trim();
@@ -142,4 +142,3 @@ run().catch((error) => {
   fail('Unhandled', error);
   process.exit(1);
 });
-

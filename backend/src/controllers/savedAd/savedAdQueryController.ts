@@ -38,7 +38,7 @@ export const getSavedAds = async (req: Request, res: Response) => {
                     ...adRecord,
                     images: sanitizePersistedImageUrls(
                         rawImages.filter((image): image is string => typeof image === 'string'),
-                        false
+                        { fallbackToPlaceholder: false, allowPlaceholder: false }
                     ),
                     // When the user saved this ad — separate from ad's own createdAt
                     _savedAt: (s as any).createdAt,

@@ -19,6 +19,7 @@ const normalizeMimeType = (contentType: string): string =>
 const S3_PUBLIC_HOST_REGEX = new RegExp(imageDomainRegistry.s3PublicHostPattern, 'i');
 const S3_PATH_STYLE_HOST_REGEX = new RegExp(imageDomainRegistry.s3PathStyleHostPattern, 'i');
 const IMAGE_PLACEHOLDER_URL = imageDomainRegistry.placeholderImageUrl;
+const PLACEHOLDER_HOSTS = new Set(['placehold.co']);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURATION UNIFICATION
@@ -41,7 +42,24 @@ export const s3Client = new S3Client({
 });
 
 export function getBucketName(): string {
-    return (process.env.S3_BUCKET_NAME || '').trim();
+    return (process.env.S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || '').trim();
+}
+
+export function getMissingS3UploadConfigKeys(): string[] {
+    const requiredConfig = {
+        AWS_ACCESS_KEY_ID: (process.env.AWS_ACCESS_KEY_ID || '').trim(),
+        AWS_SECRET_ACCESS_KEY: (process.env.AWS_SECRET_ACCESS_KEY || '').trim(),
+        AWS_REGION: (process.env.AWS_REGION || '').trim(),
+        S3_BUCKET_NAME: getBucketName(),
+    };
+
+    return Object.entries(requiredConfig)
+        .filter(([, value]) => !value)
+        .map(([key]) => key);
+}
+
+export function isS3UploadConfigured(): boolean {
+    return getMissingS3UploadConfigKeys().length === 0;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -165,11 +183,51 @@ export function isValidPersistedImageUrl(url: string): boolean {
     return isValidS3PublicImageUrl(trimmed);
 }
 
-export function sanitizePersistedImageUrls(urls: string[], fallbackToPlaceholder: boolean = true): string[] {
+export function isPlaceholderImageUrl(url: string): boolean {
+    if (!url || typeof url !== 'string') return false;
+
+    try {
+        const parsed = new URL(url.trim());
+        return PLACEHOLDER_HOSTS.has(parsed.hostname.toLowerCase());
+    } catch {
+        return false;
+    }
+}
+
+type SanitizePersistedImageOptions = {
+    fallbackToPlaceholder?: boolean;
+    allowPlaceholder?: boolean;
+};
+
+const normalizeSanitizeOptions = (
+    options: boolean | SanitizePersistedImageOptions | undefined
+): Required<SanitizePersistedImageOptions> => {
+    if (typeof options === 'boolean') {
+        return {
+            fallbackToPlaceholder: options,
+            allowPlaceholder: true,
+        };
+    }
+
+    return {
+        fallbackToPlaceholder: options?.fallbackToPlaceholder ?? true,
+        allowPlaceholder: options?.allowPlaceholder ?? true,
+    };
+};
+
+export function sanitizePersistedImageUrls(
+    urls: string[],
+    options: boolean | SanitizePersistedImageOptions = true
+): string[] {
+    const { fallbackToPlaceholder, allowPlaceholder } = normalizeSanitizeOptions(options);
     const sanitized = urls
         .filter((url): url is string => typeof url === 'string')
         .map((url) => url.trim())
         .filter((url) => {
+            if (!allowPlaceholder && isPlaceholderImageUrl(url)) {
+                logger.warn('Filtered placeholder image URL from persistence payload', { url });
+                return false;
+            }
             const allowed = isValidPersistedImageUrl(url);
             if (!allowed) {
                 logger.warn('Filtered invalid image URL from persistence payload', { url });
@@ -180,6 +238,12 @@ export function sanitizePersistedImageUrls(urls: string[], fallbackToPlaceholder
     if (sanitized.length > 0) return sanitized;
     return fallbackToPlaceholder ? [IMAGE_PLACEHOLDER_URL] : [];
 }
+
+export const sanitizeStoredImageUrls = (urls: string[]): string[] =>
+    sanitizePersistedImageUrls(urls, {
+        fallbackToPlaceholder: false,
+        allowPlaceholder: false,
+    });
 
 export async function getSignedFileUrl(key: string, expiresInSeconds: number = 3600): Promise<string> {
     const activeBucket = getBucketName();

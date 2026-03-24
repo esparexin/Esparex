@@ -11,7 +11,7 @@ import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { CATALOG_STATUS } from '../../../shared/enums/catalogStatus';
 import { resolveLocationPathIds } from '../utils/locationHierarchy';
 import { processImages } from '../utils/imageProcessor';
-import { sanitizePersistedImageUrls } from '../utils/s3';
+import { sanitizeStoredImageUrls } from '../utils/s3';
 import { AdContext } from '../types/ad.types';
 import { computeActiveExpiry } from './adStatusService';
 import { LISTING_TYPE, type ListingTypeValue } from '../../../shared/enums/listingType';
@@ -203,8 +203,14 @@ export class AdCreationService {
         if (Array.isArray(payload.images) && payload.images.length > 0) {
             const targetAdId = adId || new mongoose.Types.ObjectId().toString();
             const processed = (await processImages(payload.images, `ads/${targetAdId}`)) as any[];
-            payload.images = sanitizePersistedImageUrls(processed.map((img: any) => img.url));
-            payload.imageHashes = processed.map((img: any) => img.hash);
+            payload.images = sanitizeStoredImageUrls(processed.map((img: any) => img.url));
+            payload.imageHashes = processed
+                .filter((img: any) => payload.images?.includes(img.url))
+                .map((img: any) => img.hash);
+
+            if (processed.length > 0 && (!payload.images || payload.images.length === 0)) {
+                throw new AppError('Image upload failed. Please retry.', 502);
+            }
         }
 
         if (payload.title && !partial) payload.seoSlug = await generateUniqueSlug(Ad, payload.title);

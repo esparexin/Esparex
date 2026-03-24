@@ -549,64 +549,6 @@ export const getSearchSuggestions = async (query: string): Promise<string[]> => 
     }
 };
 
-export const getAdById = async (
-    id: string | number,
-    headers?: Record<string, string>
-): Promise<Ad | null> => {
-    const normalizedIdentifier = normalizeAdIdentifier(id);
-    if (!isValidAdIdentifier(normalizedIdentifier)) {
-        return null;
-    }
-
-    try {
-        if (typeof window === 'undefined') {
-            const base = USER_API_BASE_URL.endsWith('/') ? USER_API_BASE_URL : `${USER_API_BASE_URL}/`;
-            const endpoint = API_ROUTES.USER.AD_DETAIL(normalizedIdentifier).replace(/^\//, '');
-            const requestUrl = new URL(endpoint, base).toString();
-            const response = await fetch(requestUrl, {
-                method: 'GET',
-                cache: 'no-store',
-                headers: {
-                    Accept: 'application/json',
-                    ...(headers || {})
-                }
-            });
-
-            if (response.status === 400 || response.status === 404) {
-                return null;
-            }
-            if (!response.ok) {
-                throw new Error(`Failed to load ad: ${response.status}`);
-            }
-
-            const json = (await response.json().catch(() => null)) as unknown;
-            const payload = unwrapApiPayload(json);
-            if (!payload) return null;
-            return normalizeAd(payload);
-        }
-
-        const config = {
-            ...(headers ? { headers } : {}),
-            // Invalid/missing slugs are handled by route 404 UI, not console error spam.
-            silent: true,
-        };
-        const { data: result, statusCode } = await toApiResult<Ad>(
-            apiClient.get(API_ROUTES.USER.AD_DETAIL(normalizedIdentifier), config)
-        );
-        if (statusCode === 400 || statusCode === 404) return null;
-        if (!result) return null;
-        return normalizeAd(result);
-    } catch (e) {
-        const status =
-            (e as { context?: { statusCode?: number } })?.context?.statusCode ??
-            (e as { response?: { status?: number } })?.response?.status;
-        if (status === 400 || status === 404) {
-            return null;
-        }
-        logger.error('Failed to load ad', e);
-        throw e;
-    }
-};
 
 export const getListingById = async (
     id: string | number,

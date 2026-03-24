@@ -1,4 +1,4 @@
-import { uploadToS3 } from './s3';
+import { getBucketName, uploadToS3 } from './s3';
 import crypto from 'crypto';
 import sharp from 'sharp';
 import logger from './logger';
@@ -95,7 +95,7 @@ export const processSingleImage = async (
     inputMimeType: string = 'image/jpeg'
 ): Promise<{ url: string; hash: string }> => {
     // SECURITY: Prevent MongoDB BSON Size Limit (16MB) Crash
-    if (!process.env.S3_BUCKET_NAME) {
+    if (!getBucketName()) {
         warnMissingS3BucketOncePerTestRun(folder);
         return {
             url: imageDomainRegistry.placeholderImageUrl,

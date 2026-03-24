@@ -17,7 +17,8 @@ import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
 import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
-import { createSparePartListing, getSparePartListingDetail, updateSparePartListing } from "@/api/user/sparePartListings";
+import { createSparePartListing, updateSparePartListing } from "@/api/user/sparePartListings";
+import { getListingById } from "@/api/user/ads";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
 import type { ListingImage } from "@/types/listing";
 
@@ -108,15 +109,15 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         let isMounted = true;
         const loadListing = async () => {
             try {
-                const payload = await getSparePartListingDetail(editSparePartId);
+                const payload = await getListingById(editSparePartId);
                 if (isMounted && payload) {
-                    const resolvedCategoryId = typeof payload.categoryId === 'string' ? payload.categoryId : payload.categoryId?.id || "";
+                    const resolvedCategoryId = typeof payload.categoryId === 'string' ? payload.categoryId : ((payload.categoryId as any)?.id || "");
                     form.reset({
                         title: payload.title || "",
                         categoryId: resolvedCategoryId,
                         brandId: payload.brandId || "",
-                        sparePartTypeId: typeof payload.sparePartId === 'string' ? payload.sparePartId : payload.sparePartId?.id || "",
-                        price: payload.price || 0,
+                        sparePartTypeId: typeof payload.sparePartId === 'string' ? payload.sparePartId : ((payload.sparePartId as any)?.id || ""),
+                        price: typeof payload.price === 'number' ? payload.price : 0,
                         description: payload.description || "",
                         location: payload.location as any
                     });
@@ -128,7 +129,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                     }
 
                     if (payload.images && Array.isArray(payload.images)) {
-                        setImages(payload.images.map(url => ({
+                        setImages(payload.images.map((url: string) => ({
                             id: Math.random().toString(36).substring(7),
                             preview: url,
                             file: null as any,

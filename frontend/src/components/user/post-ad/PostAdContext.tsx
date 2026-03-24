@@ -9,8 +9,6 @@ import {
     useCallback,
     useMemo
 } from "react";
-import { API_ROUTES } from "@/api/routes";
-import { apiClient } from "@/lib/api/client";
 import { notify } from "@/lib/notify";
 import logger from "@/lib/logger";
 import { generateAIContent } from "@/api/user/ai";
@@ -509,19 +507,26 @@ export function PostAdProvider({
                     if (img.isRemote || !img.file) return;
 
                     const formData = new FormData();
-                    formData.append("file", img.file);
-                    formData.append("folder", "staging"); // Use staging folder for new Ads
+                    formData.append("image", img.file);
+                    formData.append("folder", "ads");
 
                     try {
-                        const response = await apiClient.post<{ 
-                            success: boolean; 
-                            data: { url: string } 
-                        }>(API_ROUTES.USER.BUSINESSES_UPLOAD, formData);
+                        const response = await fetch("/api/upload/ad-image", {
+                            method: "POST",
+                            body: formData,
+                            credentials: "include",
+                        });
+                        const payload = await response.json().catch(() => ({} as { success?: boolean; url?: string; error?: string }));
+                        const remoteUrl = typeof payload?.url === "string" ? payload.url : "";
 
-                        if (response.success && response.data.url) {
+                        if (!response.ok || !remoteUrl) {
+                            throw new Error(payload?.error || "Image upload failed. Please try again.");
+                        }
+
+                        if (payload.success) {
                             updatedImages[idx] = {
                                 ...img,
-                                preview: response.data.url,
+                                preview: remoteUrl,
                                 isRemote: true
                             };
                         }

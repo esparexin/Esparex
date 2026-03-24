@@ -1,31 +1,12 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import dotenv from 'dotenv';
 import { randomBytes } from 'crypto';
-
-dotenv.config({ quiet: true });
-
-const RAW_JWT_SECRET = process.env.JWT_SECRET;
-if (!RAW_JWT_SECRET && process.env.NODE_ENV === 'production') {
-    throw new Error('JWT_SECRET is not set in production');
-}
-const TEST_JWT_SECRET = 'test_jwt_secret_do_not_use_in_prod';
-const JWT_SECRET =
-    RAW_JWT_SECRET ||
-    (process.env.NODE_ENV === 'test'
-        ? TEST_JWT_SECRET
-        : randomBytes(48).toString('hex'));
-const RAW_ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET;
-if (!RAW_ADMIN_JWT_SECRET && process.env.NODE_ENV === 'production') {
-    throw new Error('ADMIN_JWT_SECRET is not set in production');
-}
-const ADMIN_JWT_SECRET =
-    RAW_ADMIN_JWT_SECRET ||
-    (process.env.NODE_ENV === 'test'
-        ? `${TEST_JWT_SECRET}_admin`
-        : randomBytes(48).toString('hex'));
-
+import { env } from '../config/env';
 import { Types } from 'mongoose';
+
+const JWT_SECRET = env.JWT_SECRET;
+const ADMIN_JWT_SECRET = env.ADMIN_JWT_SECRET || env.JWT_SECRET;
+
 
 /* -------------------------------------------------------------------------- */
 /* JWT Payload Type                                                           */
@@ -64,7 +45,7 @@ export const generateToken = (payload: { id: Types.ObjectId | string; role: stri
         role: payload.role,
         ...(payload.tokenVersion !== undefined && { tokenVersion: payload.tokenVersion })
     };
-    const userTokenTtl = (process.env.JWT_EXPIRES_IN || '7d') as jwt.SignOptions['expiresIn'];
+    const userTokenTtl = env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'];
     return jwt.sign(tokenPayload, JWT_SECRET, {
         expiresIn: userTokenTtl,
         issuer: 'esparex-api',
@@ -80,7 +61,7 @@ export const generateAdminToken = (payload: { id: Types.ObjectId | string; role:
         role: payload.role
     };
     return jwt.sign(tokenPayload, ADMIN_JWT_SECRET, {
-        expiresIn: (process.env.ADMIN_JWT_EXPIRES_IN || '8h') as jwt.SignOptions['expiresIn'],
+        expiresIn: '8h' as jwt.SignOptions['expiresIn'],
         issuer: 'esparex-api',
         audience: 'esparex-client',
         subject: payload.id.toString(),
@@ -89,7 +70,7 @@ export const generateAdminToken = (payload: { id: Types.ObjectId | string; role:
 };
 
 export const verifyToken = (token: string) => {
-    if (token && token.startsWith('mock_token_') && process.env.NODE_ENV === 'test') {
+    if (token && token.startsWith('mock_token_') && env.NODE_ENV === 'test') {
         return { id: 'admin_001', role: 'admin', jti: 'mock_jti' };
     }
     try {
@@ -109,7 +90,7 @@ export const verifyToken = (token: string) => {
 };
 
 export const verifyAdminToken = (token: string) => {
-    if (token && token.startsWith('mock_token_') && process.env.NODE_ENV === 'test') {
+    if (token && token.startsWith('mock_token_') && env.NODE_ENV === 'test') {
         return { id: 'admin_001', role: 'admin', jti: 'mock_jti' };
     }
     try {

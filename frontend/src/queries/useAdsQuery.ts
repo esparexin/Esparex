@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from './queryKeys';
 import {
     getAdsPage,
-    getAdById,
     getHomeAds,
     getMyAds,
     getMyAdsStats,
@@ -30,21 +29,6 @@ export const useAdsListQuery = (
     });
 };
 
-/**
- * Hook to fetch a single ad by ID or Slug
- */
-export const useAdDetailQuery = (
-    id: string | number,
-    options?: { enabled?: boolean; initialData?: Awaited<ReturnType<typeof getAdById>> }
-) => {
-    return useQuery({
-        queryKey: queryKeys.ads.detail(id),
-        queryFn: () => getAdById(id),
-        enabled: !!id && (options?.enabled ?? true),
-        staleTime: 10 * 60 * 1000, // 10 minutes
-        initialData: options?.initialData,
-    });
-};
 
 /**
  * Hook to fetch home ads based on location parameters.

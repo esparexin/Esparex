@@ -7,7 +7,7 @@ export const normalizeAdImagesForResponse = <T extends Record<string, unknown>>(
     const rawImages = Array.isArray(ad.images) ? ad.images : [];
     const images = sanitizePersistedImageUrls(
         rawImages.filter((image): image is string => typeof image === 'string'),
-        false
+        { fallbackToPlaceholder: false, allowPlaceholder: false }
     );
 
     return {

@@ -41,15 +41,14 @@ describe('validateProductionEnvOrThrow', () => {
 });
 
 describe('validateS3BucketEnvAliasOrThrow', () => {
-    it('throws when AWS_S3_BUCKET is set without S3_BUCKET_NAME', () => {
+    it('mirrors AWS_S3_BUCKET into S3_BUCKET_NAME when canonical env is missing', () => {
         const env: NodeJS.ProcessEnv = {
             NODE_ENV: 'development',
             AWS_S3_BUCKET: 'legacy-bucket',
         };
 
-        expect(() => validateS3BucketEnvAliasOrThrow(env)).toThrow(
-            /AWS_S3_BUCKET is deprecated/
-        );
+        expect(() => validateS3BucketEnvAliasOrThrow(env)).not.toThrow();
+        expect(env.S3_BUCKET_NAME).toBe('legacy-bucket');
     });
 
     it('does not throw when S3_BUCKET_NAME is used', () => {
@@ -59,6 +58,20 @@ describe('validateS3BucketEnvAliasOrThrow', () => {
         };
 
         expect(() => validateS3BucketEnvAliasOrThrow(env)).not.toThrow();
+    });
+});
+
+describe('validateProductionEnvOrThrow with AWS_S3_BUCKET alias', () => {
+    it('accepts AWS_S3_BUCKET when canonical name is not provided', () => {
+        const env = {
+            ...baseProductionEnv,
+            AWS_S3_BUCKET: 'legacy-bucket',
+        };
+        delete env.S3_BUCKET_NAME;
+
+        expect(() => validateS3BucketEnvAliasOrThrow(env)).not.toThrow();
+        expect(() => validateProductionEnvOrThrow(env)).not.toThrow();
+        expect(env.S3_BUCKET_NAME).toBe('legacy-bucket');
     });
 });
 

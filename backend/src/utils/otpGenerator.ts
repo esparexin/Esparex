@@ -1,14 +1,13 @@
 import { randomInt } from 'crypto';
+import { env } from '../config/env';
 
 /**
  * Generate a cryptographically secure 6-digit OTP.
  * Uses Node.js crypto.randomInt which is CSPRNG.
  */
 export const generateSecureOtp = (): string => {
-    const isDev = process.env.NODE_ENV === 'development';
-
-    if (isDev && process.env.USE_DEFAULT_OTP === 'true') {
-        return process.env.DEV_STATIC_OTP || '123456';
+    if (env.NODE_ENV === 'development' && env.USE_DEFAULT_OTP) {
+        return env.DEV_STATIC_OTP;
     }
 
     return randomInt(100000, 1000000).toString();

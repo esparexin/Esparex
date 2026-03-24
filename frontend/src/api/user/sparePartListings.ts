@@ -121,14 +121,7 @@ export const getMySparePartListings = async (): Promise<SparePartListing[]> => {
     return Array.isArray(res) ? res.map(normalizeSparePartListing) : [];
 };
 
-export const getSparePartListingDetail = async (
-    id: string
-): Promise<SparePartListing | null> => {
-    const { data: listing } = await toApiResult<SparePartListing>(
-        apiClient.get(API_ROUTES.USER.SPARE_PART_LISTING_DETAIL(id))
-    );
-    return listing ? normalizeSparePartListing(listing) : null;
-};
+
 
 export const updateSparePartListing = async (
     id: string,

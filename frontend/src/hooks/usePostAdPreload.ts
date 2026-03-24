@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getAdById, type Ad } from "@/api/user/ads";
+import { getListingById, type Ad } from "@/api/user/ads";
 import { normalizeOptionalObjectId, resolveCanonicalLocationId } from "@/utils/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { TOAST_MESSAGES } from "@/constants/toastMessages";
@@ -51,7 +51,7 @@ export function usePostAdPreload({
         const loadAdData = async () => {
             setIsLoading(true);
             try {
-                const data = await getAdById(editAdId);
+                const data = await getListingById(editAdId);
                 if (data) {
                     const adData = data as Ad;
 

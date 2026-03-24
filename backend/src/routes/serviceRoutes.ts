@@ -47,7 +47,7 @@ import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 // Public Get
 router.get('/', searchLimiter, serviceController.getServices);
 router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), serviceController.incrementServiceView);
-router.get('/:id', validateIdOrSlug('id'), extractUser, serviceController.getServiceById);
+
 router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, serviceController.getServicePhone);
 
 export default router;

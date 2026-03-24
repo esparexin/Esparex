@@ -49,7 +49,7 @@ const LOCK_DURATION_MS =
 const INDIA_COUNTRY_PREFIX = '+91';
 const isLocalOtpLockBypass =
     env.NODE_ENV === 'development' &&
-    process.env.CI !== 'true' &&
+    !env.CI &&
     env.AUTH_BYPASS_OTP_LOCK === 'true';
 
 const createFailure = (
@@ -127,7 +127,7 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
     if (env.NODE_ENV === 'test') return;
 
     // Dev fallback: allow static OTP bypass only in development (not staging/preview)
-    if (env.NODE_ENV === 'development' && process.env.USE_DEFAULT_OTP === 'true') {
+    if (env.NODE_ENV === 'development' && env.USE_DEFAULT_OTP) {
         logger.info('Dev OTP fallback active — skipping SMS dispatch', { phone: mobile.slice(-4) });
         return;
     }
@@ -142,7 +142,7 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
         const response = await axios.post(
             'https://api.msg91.com/api/v5/otp',
             {
-                template_id: process.env.MSG91_TEMPLATE_ID,
+                template_id: env.MSG91_TEMPLATE_ID,
                 mobile: mobile.startsWith('+91') ? mobile.slice(1) : `91${mobile.replace(/\D/g, '').slice(-10)}`,
                 authkey: env.MSG91_AUTH_KEY,
                 otp
@@ -176,7 +176,7 @@ export class AuthService {
     static clearUserSession(res: import('express').Response): void {
         res.clearCookie('esparex_auth', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/'
         });
@@ -269,8 +269,8 @@ export class AuthService {
             // DEV GRACE: If using default OTP in dev, allow expired records to persist for manual testing
             const isDevDefaultOtp = 
                 env.NODE_ENV === 'development' && 
-                process.env.USE_DEFAULT_OTP === 'true' && 
-                otp === (process.env.DEV_STATIC_OTP || '123456');
+                env.USE_DEFAULT_OTP && 
+                otp === env.DEV_STATIC_OTP;
 
             if (!isDevDefaultOtp) {
                 await Otp.deleteOne({ _id: otpRecord._id });

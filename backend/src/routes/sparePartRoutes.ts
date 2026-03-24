@@ -54,12 +54,7 @@ router.get('/', sparePartListingController.getSparePartListings);
  */
 router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, sparePartListingController.getSparePartPhone);
 
-/**
- * @route   GET /api/v1/spare-part-listings/:idOrSlug
- * @desc    Get single spare part listing (Public)
- * @access  Public
- */
-router.get('/:idOrSlug', extractUser, sparePartListingController.getSparePartListing);
+
 
 /**
  * @route   PUT /api/v1/spare-part-listings/:id

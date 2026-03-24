@@ -5,7 +5,12 @@ import User, { IUser } from '../../models/User';
 import Business from '../../models/Business';
 import BlockedUser from '../../models/BlockedUser';
 import * as userService from '../../services/UserService';
-import { deleteFromS3Url } from '../../utils/s3';
+import {
+  deleteFromS3Url,
+  getMissingS3UploadConfigKeys,
+  isPlaceholderImageUrl,
+  isS3UploadConfigured
+} from '../../utils/s3';
 import { processSingleImage } from '../../utils/imageProcessor';
 import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
@@ -55,6 +60,16 @@ export const updateMe = async (
 
     const file = getUploadedFile(req);
     if (file) {
+      if (!isS3UploadConfigured()) {
+        logger.error('[Avatar Upload] Missing S3 upload configuration', {
+          missingConfig: getMissingS3UploadConfigKeys(),
+        });
+        if (process.env.NODE_ENV !== 'development') {
+            sendErrorResponse(req, res, 503, 'Image upload service is not configured on this environment.');
+            return;
+        }
+      }
+
       try {
         const diskBuffer = await fs.readFile(file.path);
         const { url: s3Url } = await processSingleImage(
@@ -64,6 +79,13 @@ export const updateMe = async (
         );
 
         if (file.path) await fs.unlink(file.path).catch(err => logger.error("Disk cleanup error", err));
+
+        if (!s3Url || isPlaceholderImageUrl(s3Url)) {
+          if (process.env.NODE_ENV !== 'development') {
+              sendErrorResponse(req, res, 502, 'Profile photo upload failed. Please retry.');
+              return;
+          }
+        }
 
         if (oldAvatarUrl && oldAvatarUrl !== s3Url) {
           try {
@@ -196,6 +218,17 @@ export const uploadFile = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (!isS3UploadConfigured()) {
+      logger.error('[Upload] Missing S3 upload configuration', {
+        missingConfig: getMissingS3UploadConfigKeys(),
+        url: req.originalUrl,
+      });
+      if (process.env.NODE_ENV !== 'development') {
+          sendErrorResponse(req, res, 503, 'Image upload service is not configured on this environment.');
+          return;
+      }
+    }
+
     if (!req.user) {
       sendErrorResponse(req, res, 401, 'Unauthorized');
       return;
@@ -261,6 +294,11 @@ export const uploadFile = async (
         file.mimetype
       );
       if (file.path) await fs.unlink(file.path).catch(err => logger.error("Disk cleanup error", err));
+      if (!result.url || isPlaceholderImageUrl(result.url)) {
+        if (process.env.NODE_ENV !== 'development') {
+            throw new Error('UPLOAD_PLACEHOLDER_RESULT');
+        }
+      }
       const urlParts = result.url.split('/');
       const fileName = urlParts[urlParts.length - 1];
       return { ...result, key: `${keyFolder}/${fileName}` };
@@ -276,6 +314,10 @@ export const uploadFile = async (
       }
     }));
   } catch (err) {
+    if (err instanceof Error && err.message === 'UPLOAD_PLACEHOLDER_RESULT') {
+      sendErrorResponse(req, res, 502, 'File upload failed. Please retry.');
+      return;
+    }
     next(err);
   }
 };

@@ -11,6 +11,7 @@ import { sendSuccessResponse } from './admin/adminBaseController';
 import { sendErrorResponse as sendContractErrorResponse } from '../utils/errorResponse';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 import { processImages } from '../utils/imageProcessor';
+import { sanitizeStoredImageUrls } from '../utils/s3';
 import { INVENTORY_STATUS } from '../../../shared/enums/inventoryStatus';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
@@ -34,9 +35,7 @@ const normalizeImageTokens = (value: unknown): string[] => {
 };
 
 const toImageUrls = (value: Array<{ url: string; hash: string }>): string[] =>
-    value
-        .map((item) => item.url)
-        .filter((item): item is string => typeof item === 'string' && item.length > 0);
+    sanitizeStoredImageUrls(value.map((item) => item.url));
 // ---------------------------------------------
 
 // Schemas imported from shared — single source of truth with frontend
@@ -105,6 +104,9 @@ export const createSparePartListing = async (req: Request, res: Response) => {
         const processedImageUrls = incomingImages.length > 0
             ? toImageUrls(await processImages(incomingImages, `spare-part-listings/${listingId.toString()}`))
             : [];
+        if (incomingImages.length > 0 && processedImageUrls.length === 0) {
+            return sendContractErrorResponse(req, res, 502, 'Image upload failed. Please retry.');
+        }
 
         // 🛡️ SEC: Atomic slot reservation + create in a single transaction to prevent TOCTOU race.
         const dbSession = await getUserConnection().startSession();
@@ -197,39 +199,7 @@ export const getSparePartListings = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Get single Spare Part Listing by slug or ID
- * GET /api/v1/spare-parts/:idOrSlug
- */
-export const getSparePartListing = async (req: Request, res: Response) => {
-    try {
-        const idOrSlug = req.params.idOrSlug as string;
-        let adId = idOrSlug;
 
-        if (!mongoose.Types.ObjectId.isValid(idOrSlug)) {
-            // Resolve slug via Ad model
-            const resolvedId = await adService.getAdIdBySlug(idOrSlug, { listingType: LISTING_TYPE.SPARE_PART, isDeleted: { $ne: true } });
-            if (!resolvedId) {
-                return sendContractErrorResponse(req, res, 404, 'Listing not found');
-            }
-            adId = resolvedId;
-        }
-
-        const viewerId = (req.user as any)?._id?.toString();
-        const viewerRole = (req.user as any)?.role;
-        const viewer = viewerId ? { userId: viewerId, role: viewerRole } : undefined;
-
-        const listing = await adService.getPublicAdById(adId, viewer);
-
-        if (!listing) {
-            return sendContractErrorResponse(req, res, 404, 'Listing not found');
-        }
-
-        res.json(respond({ success: true, data: listing }));
-    } catch (error) {
-        sendContractErrorResponse(req, res, 500, 'Failed to fetch listing');
-    }
-};
 
 /**
  * Get My Spare Part Listings (Authenticated Business)
@@ -301,6 +271,9 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
             const incomingImages = normalizeImageTokens(parsed.data.images);
             if (incomingImages.length > 0) {
                 updates.images = toImageUrls(await processImages(incomingImages, `spare-part-listings/${listingId}`));
+                if (!Array.isArray(updates.images) || updates.images.length === 0) {
+                    return sendContractErrorResponse(req, res, 502, 'Image upload failed. Please retry.');
+                }
             }
         }
 

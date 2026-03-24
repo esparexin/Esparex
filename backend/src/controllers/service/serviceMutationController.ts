@@ -11,7 +11,7 @@ import { ApiResponse } from '../../../../shared/types/Api';
 import { respond } from '../../utils/respond';
 import { ListingSubmissionPolicy } from '../../services/ListingSubmissionPolicy';
 import { getSingleParam } from '../../utils/requestParams';
-import { deleteFromS3Url } from '../../utils/s3';
+import { deleteFromS3Url, sanitizeStoredImageUrls } from '../../utils/s3';
 import { normalizeLocation } from '../../services/LocationService';
 import { isBusinessPublishedStatus } from '../../utils/businessStatus';
 import { sendErrorResponse } from '../../utils/errorResponse';
@@ -72,9 +72,7 @@ const normalizeImageTokens = (value: unknown): string[] => {
 };
 
 const toImageUrls = (value: Array<{ url: string; hash: string }>): string[] =>
-    value
-        .map((item) => item.url)
-        .filter((item): item is string => typeof item === 'string' && item.length > 0);
+    sanitizeStoredImageUrls(value.map((item) => item.url));
 
 /* ---------------------------------------------------
    Create Service (Business User)
@@ -186,6 +184,10 @@ export const createService = async (req: Request, res: Response) => {
         const incomingImages = normalizeImageTokens(safeBody.images);
         if (incomingImages.length > 0) {
             safeBody.images = toImageUrls(await processImages(incomingImages, `services/${serviceId.toString()}`));
+            if (!Array.isArray(safeBody.images) || safeBody.images.length === 0) {
+                sendErrorResponse(req, res, 502, 'Image upload failed. Please retry.');
+                return;
+            }
         }
 
         // 🛡️ Fix 3: Compute Initial Quality Score
@@ -384,6 +386,10 @@ export const updateService = async (req: Request, res: Response) => {
         if (updates.images !== undefined) {
             const incomingImages = normalizeImageTokens(updates.images);
             updates.images = toImageUrls(await processImages(incomingImages, `services/${id}`));
+            if (incomingImages.length > 0 && (!Array.isArray(updates.images) || updates.images.length === 0)) {
+                sendErrorResponse(req, res, 502, 'Image upload failed. Please retry.');
+                return;
+            }
         }
 
         // Keep normalized location updates when provided.
