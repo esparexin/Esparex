@@ -219,8 +219,8 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
       case "mylistings": return (
         <AllListingsTab 
           adsProps={{ ads: myAds, adCounts, loadingAds, myAdsTab, setMyAdsTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, fetchMyAds, formatDate, handleDeleteAd: handleDeleteAdForTab, handleMarkAsSold: handleMarkAsSoldForTab }}
-          servicesProps={{ user, activeTab, statusFilter: myServicesTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, formatDate }}
-          sparePartsProps={{ user, activeTab, statusFilter: "live", getStatusBadge, formatDate }}
+          servicesProps={{ user, activeTab, statusFilter: myServicesTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, formatDate, isBusinessApproved: businessData?.status === "live", onRegisterBusiness: () => setShowBusinessEditForm(true) }}
+          sparePartsProps={{ user, activeTab, statusFilter: "live", getStatusBadge, formatDate, isBusinessApproved: businessData?.status === "live", onRegisterBusiness: () => setShowBusinessEditForm(true) }}
         />
       );
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
