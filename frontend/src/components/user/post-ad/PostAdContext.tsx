@@ -510,13 +510,13 @@ export function PostAdProvider({
 
                     const formData = new FormData();
                     formData.append("file", img.file);
-                    formData.append("folder", "ads"); // Dedicated folder for Ads
+                    formData.append("folder", "staging"); // Use staging folder for new Ads
 
                     try {
                         const response = await apiClient.post<{ 
                             success: boolean; 
                             data: { url: string } 
-                        }>(API_ROUTES.USER.USERS_UPLOAD, formData);
+                        }>(API_ROUTES.USER.BUSINESSES_UPLOAD, formData);
 
                         if (response.success && response.data.url) {
                             updatedImages[idx] = {
