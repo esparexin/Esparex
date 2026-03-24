@@ -104,9 +104,9 @@ const PlanSchema = new Schema<IPlan>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-PlanSchema.index({ code: 1 }, { name: 'plan_code_unique_idx', unique: true });
-PlanSchema.index({ type: 1 }, { name: 'plan_type_idx' });
-PlanSchema.index({ createdByAdmin: 1 }, { name: 'plan_createdByAdmin_idx' });
+PlanSchema.index({ code: 1 }, { name: 'idx_plan_code_unique_idx', unique: true });
+PlanSchema.index({ type: 1 }, { name: 'idx_plan_type_idx' });
+PlanSchema.index({ createdByAdmin: 1 }, { name: 'idx_plan_createdByAdmin_idx' });
 
 const connection = getUserConnection();
 export const Plan: Model<IPlan> =

@@ -31,8 +31,8 @@ const ScheduledNotificationSchema = new Schema<IScheduledNotification>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-ScheduledNotificationSchema.index({ status: 1, sendAt: 1 }, { name: 'schednotif_status_sendAt_idx' });
-ScheduledNotificationSchema.index({ sentBy: 1, createdAt: -1 }, { name: 'schednotif_sender_freshness_idx' });
+ScheduledNotificationSchema.index({ status: 1, sendAt: 1 }, { name: 'idx_schedulednotification_status_sendAt_idx' });
+ScheduledNotificationSchema.index({ sentBy: 1, createdAt: -1 }, { name: 'idx_schedulednotification_sender_freshness_idx' });
 
 // toJSON Transform - Convert _id to id
 ScheduledNotificationSchema.set('toJSON', {

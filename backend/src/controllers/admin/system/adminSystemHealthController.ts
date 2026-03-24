@@ -7,6 +7,8 @@
 import { Request, Response } from 'express';
 import { respond, sendSuccessResponse } from '../adminBaseController';
 import { connectDB, getUserConnection, getAdminConnection } from '../../../config/db';
+import logger from '../../../utils/logger';
+import { version as appVersion } from '../../../../package.json';
 import {
     clearCachePattern,
     getCacheStats,
@@ -30,11 +32,8 @@ export const getCacheHealth = async (req: Request, res: Response) => {
         const total = stats.metrics.hits + stats.metrics.misses;
         const hitRate = total > 0 ? (stats.metrics.hits / total) * 100 : 0;
         const missRate = total > 0 ? (stats.metrics.misses / total) * 100 : 0;
-        let topPredictedCities: string[] = [];
-        try {
-            const topCities = await import('../../../models/CityPopularity').then(m => m.default.find().sort({ rank: 1 }).limit(5).select('city'));
-            topPredictedCities = topCities.map(c => c.city);
-        } catch { }
+        // CityPopularity removed — use LocationAnalytics.popularityScore instead
+        const topPredictedCities: string[] = [];
         sendSuccessResponse(res, { ...stats, hitRate: parseFloat(hitRate.toFixed(2)), missRate: parseFloat(missRate.toFixed(2)), predictiveWarmStatus: stats.memoryPressureStatus === 'critical' ? 'paused' : 'active', topPredictedCities });
     } catch (error: unknown) {
         sendHealthError(req, res, error);
@@ -67,7 +66,7 @@ export const getSystemHealth = async (req: Request, res: Response) => {
                 redisPingLatencyMs: redisHealth.latencyMs,
                 redis: redisHealth,
                 apiReady: true,
-                version: '1.0.0'
+                version: appVersion
             }
         }));
     } catch (error: unknown) {

@@ -49,9 +49,8 @@ export const deleteSmartAlert = async (id: string): Promise<void> => {
 export const toggleSmartAlertStatus = async (
   smartAlertId: string
 ): Promise<SmartAlert | null> => {
-  const response = await apiClient.put<unknown>(
-    API_ROUTES.USER.SMART_ALERT_DETAIL(smartAlertId),
-    { toggleStatus: true }
+  const response = await apiClient.patch<unknown>(
+    API_ROUTES.USER.SMART_ALERT_TOGGLE_STATUS(smartAlertId)
   );
   const data = (response as Record<string, unknown>)?.data ?? response;
   return normalizeSmartAlert(data);

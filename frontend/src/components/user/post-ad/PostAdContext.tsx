@@ -195,7 +195,7 @@ export function PostAdProvider({
     const imagesHook = useListingImages({
         onImagesChange: (images) => {
             setValue("images", images.map(img => img.preview), { 
-                shouldValidate: userHasInteracted, 
+                shouldValidate: true, 
                 shouldDirty: true 
             });
         }
@@ -204,7 +204,7 @@ export function PostAdProvider({
     const locationHook = useListingLocation({
         onLocationChange: (location) => {
             setValue("location", location as any, { 
-                shouldValidate: userHasInteracted, 
+                shouldValidate: true, 
                 shouldDirty: true 
             });
         }
@@ -459,7 +459,10 @@ export function PostAdProvider({
             // Step 1: Device identity — backend requires categoryId (ObjectId) and deviceCondition.
             // 'brand' / 'brandId' are optional on the backend but we gate on brand display name
             // so the user always selects one before proceeding.
-            case 1: fieldsToValidate = ["categoryId", "brand", "deviceCondition"]; break;
+            case 1: 
+                fieldsToValidate = ["categoryId", "brand", "deviceCondition"];
+                if (requiresScreenSize) fieldsToValidate.push("screenSize");
+                break;
             // Step 2: Listing details — backend requires title, description, price and a fully
             // populated location object (locationId + city + state + coordinates).
             case 2: fieldsToValidate = ["title", "description", "price", "location"]; break;

@@ -30,9 +30,9 @@ const BroadcastSchema = new Schema<IBroadcast>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-BroadcastSchema.index({ type: 1 }, { name: 'broadcast_type_idx' });
-BroadcastSchema.index({ createdBy: 1 }, { name: 'broadcast_createdBy_idx' });
-BroadcastSchema.index({ type: 1, createdAt: -1 }, { name: 'broadcast_type_freshness_idx' });
+BroadcastSchema.index({ type: 1 }, { name: 'idx_broadcast_type_idx' });
+BroadcastSchema.index({ createdBy: 1 }, { name: 'idx_broadcast_createdBy_idx' });
+BroadcastSchema.index({ type: 1, createdAt: -1 }, { name: 'idx_broadcast_type_freshness_idx' });
 
 BroadcastSchema.set('toJSON', {
     virtuals: true,

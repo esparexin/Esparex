@@ -12,7 +12,6 @@ import './AdminLog';
 import './AdminSession';
 import './ApiKey';
 import './Broadcast';
-import './CityPopularity';
 import './Counter';
 import './JobLog';
 import './LocationEvent';

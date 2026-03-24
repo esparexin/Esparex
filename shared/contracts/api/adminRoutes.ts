@@ -68,17 +68,6 @@ export const ADMIN_ROUTES = {
   LISTING_COUNTS: "/listings/counts",
   LISTING_DELETE: (id: string) => `/listings/${id}`,
   LISTING_REPORT_RESOLVE: (id: string) => `/listings/${id}/report-resolve`,
-  ADS: "/ads",
-  AD_BY_ID: (id: string) => `/ads/${id}`,
-  AD_STATUS: (id: string) => `/ads/${id}/status`,
-  APPROVE_AD: (id: string) => `/ads/${id}/approve`,
-  REJECT_AD: (id: string) => `/ads/${id}/reject`,
-  AD_EXTEND: (id: string) => `/ads/${id}/extend`,
-  AD_PROMOTE: (id: string) => `/ads/${id}/promote`,
-  AD_RESTORE: (id: string) => `/ads/${id}/restore`,
-  AD_REVIEW_QUEUE: "/ad-review/queue",
-  AD_REVIEW_STATS: "/ads/summary",
-  AD_APPROVAL_STATS: "/ads/summary",
   // Legacy report aliases mapped to canonical reports surface
   REPORTED_ADS: "/reports",
   REPORTED_AD_DETAIL: (id: string) => `/reports/${id}`,
@@ -103,13 +92,6 @@ export const ADMIN_ROUTES = {
   REJECT_MODEL: (id: string) => `/models/${id}/reject`,
   SPARE_PARTS: "/spare-parts",
   SPARE_PART_BY_ID: (id: string) => `/spare-parts/${id}`,
-
-  // Spare Part Listings (Moderation)
-  SPARE_PART_LISTINGS: "/spare-part-listings",
-  SPARE_PART_LISTINGS_SUMMARY: "/spare-part-listings/summary",
-  APPROVE_SPARE_PART_LISTING: (id: string) => `/spare-part-listings/${id}/approve`,
-  REJECT_SPARE_PART_LISTING: (id: string) => `/spare-part-listings/${id}/reject`,
-  DEACTIVATE_SPARE_PART_LISTING: (id: string) => `/spare-part-listings/${id}/deactivate`,
 
   SERVICE_TYPES: "/service-types",
   SERVICE_TYPE_BY_ID: (id: string) => `/service-types/${id}`,
@@ -157,13 +139,6 @@ export const ADMIN_ROUTES = {
   SUPPORT_CONTACT_STATUS: (id: string) => `/support/contact/${id}/status`,
 
   // Other
-  SERVICES: "/services",
-  SERVICE_BY_ID: (id: string) => `/services/${id}`,
-  SERVICE_STATUS: (id: string) => `/services/${id}/status`,
-  APPROVE_SERVICE: (id: string) => `/services/${id}/approve`,
-  REJECT_SERVICE: (id: string) => `/services/${id}/reject`,
-  SERVICE_MODERATION_SUMMARY: "/services/summary",
-  SERVICE_ANALYTICS: "/services/analytics",
   IMPORT_BULK: "/import/bulk",
 
   IMPORT_SEED: "/import/seed-devices",

@@ -4,7 +4,7 @@ import {
     API_V1_BASE_PATH,
     DEFAULT_LOCAL_API_ORIGIN,
 } from '../routes';
-import { toApiResult, toPaginatedApiResult, type PaginationEnvelope, type ApiResult } from '@/lib/api/result';
+import { toApiResult, toPaginatedApiResult, type PaginationEnvelope } from '@/lib/api/result';
 import { normalizeServiceStatus } from '@/lib/status/statusNormalization';
 import { toSafeImageArray } from '@/lib/image/imageUrl';
 import type { GeoJSONPoint, LocationLevel } from '@/types/location';
@@ -55,9 +55,9 @@ export interface Service {
     priceMax?: number;
     diagnosticFee?: number;
     serviceTypeIds?: string[];
-    status: 'pending' | 'live' | 'sold' | 'rejected' | 'expired' | 'deactivated';
-    seoSlug?: string;
-    serviceTypes: string[];
+    status: 'pending' | 'live' | 'rejected' | 'expired' | 'deactivated';
+    /** @deprecated Prefer serviceTypeIds. */
+    serviceTypes?: string[];
     images: string[];
     location: {
         address?: string;
@@ -68,6 +68,9 @@ export interface Service {
     category: { id: string; name: string; slug: string };
     brand?: { id: string; name: string };
     model?: { id: string; name: string };
+    categoryId?: string | { id?: string; _id?: string; name?: string; slug?: string };
+    brandId?: string | { id?: string; _id?: string; name?: string };
+    modelId?: string | { id?: string; _id?: string; name?: string };
     createdAt: string;
     expiresAt?: string;
     rejectionReason?: string;
@@ -91,6 +94,31 @@ export interface Service {
 
 const normalizeService = (service: Service): Service => ({
     ...service,
+    category:
+        service.category ||
+        (service.categoryId && typeof service.categoryId === "object"
+            ? {
+                id: extractId(service.categoryId) || "",
+                name: String((service.categoryId as Record<string, unknown>).name || ""),
+                slug: String((service.categoryId as Record<string, unknown>).slug || ""),
+            }
+            : undefined),
+    brand:
+        service.brand ||
+        (service.brandId && typeof service.brandId === "object"
+            ? {
+                id: extractId(service.brandId) || "",
+                name: String((service.brandId as Record<string, unknown>).name || ""),
+            }
+            : undefined),
+    model:
+        service.model ||
+        (service.modelId && typeof service.modelId === "object"
+            ? {
+                id: extractId(service.modelId) || "",
+                name: String((service.modelId as Record<string, unknown>).name || ""),
+            }
+            : undefined),
     status: normalizeServiceStatus(service?.status),
     images: toSafeImageArray(service?.images),
 });
@@ -128,14 +156,26 @@ function stripEmptyObjectIdFields<T extends Record<string, unknown>>(payload: T)
     return cleaned as T;
 }
 
-export const createService = async (data: ServiceMutationPayload, options?: any): Promise<ApiResult<Service>> => {
+export const createService = async (data: ServiceMutationPayload, options?: any): Promise<Service | null> => {
     const payload = stripEmptyObjectIdFields(data);
-    return await toApiResult<Service>(apiClient.post(API_ROUTES.USER.SERVICES, payload, { silent: true, ...options }));
+    const { data: service, error } = await toApiResult<Service>(
+        apiClient.post(API_ROUTES.USER.SERVICES, payload, { silent: true, ...options })
+    );
+    if (error) {
+        throw new Error(error.userMessage || error.technicalMessage || "Failed to create service");
+    }
+    return service ? normalizeService(service) : null;
 };
 
-export const updateService = async (id: string, data: ServiceMutationPayload, options?: any): Promise<ApiResult<Service>> => {
+export const updateService = async (id: string, data: ServiceMutationPayload, options?: any): Promise<Service | null> => {
     const payload = stripEmptyObjectIdFields(data);
-    return await toApiResult<Service>(apiClient.put(`${API_ROUTES.USER.SERVICES}/${id}`, payload, { silent: true, ...options }));
+    const { data: service, error } = await toApiResult<Service>(
+        apiClient.put(`${API_ROUTES.USER.SERVICES}/${id}`, payload, { silent: true, ...options })
+    );
+    if (error) {
+        throw new Error(error.userMessage || error.technicalMessage || "Failed to update service");
+    }
+    return service ? normalizeService(service) : null;
 };
 
 export const getMyServices = async (): Promise<Service[]> => {
@@ -249,22 +289,4 @@ export const deleteService = async (id: string): Promise<boolean> => {
 export const getServicePhone = async (id: string): Promise<{ mobile: string } | null> => {
     const { data } = await toApiResult<{ mobile: string }>(apiClient.get(API_ROUTES.USER.SERVICE_PHONE(id)));
     return data;
-};
-
-export const markServiceAsSold = async (
-    id: string,
-    soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available'
-): Promise<boolean> => {
-    const { data } = await toApiResult<unknown>(apiClient.patch(API_ROUTES.USER.SERVICE_SOLD(id), soldReason ? { soldReason } : {}));
-    return !!data;
-};
-
-export const deactivateService = async (id: string): Promise<boolean> => {
-    const { data } = await toApiResult<unknown>(apiClient.patch(API_ROUTES.USER.SERVICE_DEACTIVATE(id)));
-    return !!data;
-};
-
-export const repostService = async (id: string): Promise<boolean> => {
-    const { data } = await toApiResult<unknown>(apiClient.post(API_ROUTES.USER.SERVICE_REPOST(id)));
-    return !!data;
 };

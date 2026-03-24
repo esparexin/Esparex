@@ -53,6 +53,15 @@ router.put(
     smartAlertController.updateSmartAlert
 );
 
+// PATCH /api/v1/smart-alerts/:id/toggle-status
+router.patch(
+    '/:id/toggle-status',
+    protect,
+    validateObjectId,
+    mutationLimiter,
+    smartAlertController.toggleSmartAlertStatus
+);
+
 // DELETE /api/v1/smart-alerts/:id
 router.delete('/:id', protect, validateObjectId, smartAlertController.deleteSmartAlert);
 

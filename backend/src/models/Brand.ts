@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types, Model, CallbackWithoutResultAndOptionalError } from 'mongoose'
+import { Schema, Document, Types, Model } from 'mongoose'
 import { ISoftDeleteDocument } from '../utils/softDeletePlugin'
 import softDeletePlugin from '../utils/softDeletePlugin'
 import { CATALOG_STATUS } from '../../../shared/enums/catalogStatus'
@@ -48,9 +48,9 @@ const BrandSchema = new Schema<IBrand>({
 BrandSchema.plugin(softDeletePlugin);
 
 // 🚀 CORE INDEXES (Aligned with Atlas ground truth in migrations)
-BrandSchema.index({ categoryIds: 1 }, { name: 'brand_categoryIds_idx' })
-BrandSchema.index({ status: 1 }, { name: 'brand_status_idx' })
-BrandSchema.index({ isDeleted: 1 }, { name: 'brand_isDeleted_idx' })
+BrandSchema.index({ categoryIds: 1 }, { name: 'idx_brand_categoryIds_idx' })
+BrandSchema.index({ status: 1 }, { name: 'idx_brand_status_idx' })
+BrandSchema.index({ isDeleted: 1 }, { name: 'idx_brand_isDeleted_idx' })
 
 BrandSchema.index(
   { categoryIds: 1, name: 1 },

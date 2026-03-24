@@ -52,7 +52,7 @@ const RevenueAnalyticsSchema = new Schema<IRevenueAnalytics>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-RevenueAnalyticsSchema.index({ date: 1 }, { name: 'revanalytics_date_unique_idx', unique: true });
+RevenueAnalyticsSchema.index({ date: 1 }, { name: 'idx_revenueanalytics_date_unique_idx', unique: true });
 
 const connection = getAdminConnection();
 export const RevenueAnalytics: Model<IRevenueAnalytics> =

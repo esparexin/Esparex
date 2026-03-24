@@ -261,7 +261,7 @@ export const getScreenSizes = async (req: Request, res: Response) => {
                 { status: CATALOG_STATUS.ACTIVE },
                 { status: { $exists: false } }
             ],
-            categoryId: { $in: activeCategoryIds }
+            categoryIds: { $in: activeCategoryIds }
         }).select('_id').lean()
         : [];
     const activeBrandIds = activeBrands.map((brand) => String(brand._id));

@@ -209,7 +209,7 @@ const nextConfig = {
             },
             {
                 source: '/messages',
-                destination: '/account/messages',
+                destination: '/chat',
                 permanent: true,
             },
             {

@@ -42,7 +42,7 @@ export default function SparePartsCatalogPage() {
         name: "",
         categoryIds: [] as string[],
         listingType: ["postsparepart"] as string[],
-        status: "live" as ISparePartAdmin['status']
+        isActive: true
     });
 
     const openCreateModal = () => {
@@ -51,7 +51,7 @@ export default function SparePartsCatalogPage() {
             name: "",
             categoryIds: [],
             listingType: ["postsparepart"],
-            status: "live"
+            isActive: true
         });
         setIsModalOpen(true);
     };
@@ -62,7 +62,7 @@ export default function SparePartsCatalogPage() {
             name: part.name,
             categoryIds: part.categoryIds || [],
             listingType: part.listingType || ["postsparepart"],
-            status: part.status
+            isActive: part.isActive !== false
         });
         setIsModalOpen(true);
     };
@@ -187,11 +187,9 @@ export default function SparePartsCatalogPage() {
             header: "Status",
             cell: (part) => (
                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                    part.status === 'live' || part.status === 'approved' ? "bg-emerald-100 text-emerald-700" :
-                    part.status === 'pending' ? "bg-amber-100 text-amber-700" :
-                        "bg-red-100 text-red-700"
+                    part.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700"
                     }`}>
-                    {part.status === 'approved' ? 'live' : part.status}
+                    {part.isActive ? 'Active' : 'Inactive (Hidden)'}
                 </span>
             )
         },
@@ -263,13 +261,12 @@ export default function SparePartsCatalogPage() {
                 <div className="flex items-center gap-2">
                     <select
                         className="flex-1 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none"
-                        value={filters.status}
-                        onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value as any }))}
+                        value={filters.isActive as string}
+                        onChange={(e) => setFilters(prev => ({ ...prev, isActive: e.target.value }))}
                     >
                         <option value="all">All Status</option>
-                        <option value="live">Live</option>
-                        <option value="pending">Pending</option>
-                        <option value="rejected">Rejected</option>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive (Hidden)</option>
                     </select>
                 </div>
             </div>
@@ -391,16 +388,15 @@ export default function SparePartsCatalogPage() {
 
                             <div className="space-y-1.5">
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Approval Status
+                                    Status
                                 </label>
                                 <select
                                     className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
-                                    value={formData.status}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                                    value={String(formData.isActive)}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.value === 'true' }))}
                                 >
-                                    <option value="live">Live</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="rejected">Rejected</option>
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive (Hidden)</option>
                                 </select>
                             </div>
 

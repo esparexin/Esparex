@@ -84,25 +84,25 @@ const ChatReportSchema = new Schema<IChatReport>(
 /** Admin moderation queue — open reports, newest first */
 ChatReportSchema.index(
   { status: 1, createdAt: -1 },
-  { name: 'chatreport_status_date_idx' }
+  { name: 'idx_chatreport_status_date_idx' }
 );
 
 /** Lookup by conversation (e.g. is this convo reported?) */
 ChatReportSchema.index(
   { conversationId: 1 },
-  { name: 'chatreport_conv_idx' }
+  { name: 'idx_chatreport_conv_idx' }
 );
 
 /** Reporter dedup check (one active report per reporter per conversation) */
 ChatReportSchema.index(
   { conversationId: 1, reporterId: 1 },
-  { name: 'chatreport_conv_reporter_idx' }
+  { name: 'idx_chatreport_conv_reporter_idx' }
 );
 
 /** Admin lookup by reported user */
 ChatReportSchema.index(
   { reportedUserId: 1, status: 1 },
-  { name: 'chatreport_reporteduser_status_idx' }
+  { name: 'idx_chatreport_reporteduser_status_idx' }
 );
 
 /* -------------------------------------------------------------------------- */

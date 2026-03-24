@@ -35,7 +35,7 @@ const PageContentSchema = new Schema<IPageContent>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-PageContentSchema.index({ slug: 1 }, { name: 'pagecontent_slug_unique_idx', unique: true });
+PageContentSchema.index({ slug: 1 }, { name: 'idx_pagecontent_slug_unique_idx', unique: true });
 
 const connection = getAdminConnection();
 const PageContent: Model<IPageContent> =

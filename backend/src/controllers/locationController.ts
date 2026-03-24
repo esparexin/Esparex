@@ -206,6 +206,11 @@ export const ipLocate = async (req: Request, res: Response) => {
             return res.json(respond({ success: false, data: null }));
         }
 
+        // ipapi.co returns the state/province as `region` (not `state`)
+        if (!data || !data.city || !data.region) {
+            return sendErrorResponse(req, res, 422, 'IP geolocation returned incomplete location data');
+        }
+
         const lat = Number(data.latitude);
         const lng = Number(data.longitude);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
@@ -243,6 +248,9 @@ export const logLocationEvent = async (req: Request, res: Response) => {
     try {
         const { source, city, state, lat, lng, reason, eventType, locationId } = req.body;
 
+        // Extract userId if authenticated (optional — events logged for both anon and authed users)
+        const userId = (req as any).user?._id ?? (req as any).user?.id ?? undefined;
+
         if (typeof locationId === 'string' && locationId.length > 0 && typeof eventType === 'string' && eventType.length > 0) {
             try {
                 await logLocationAnalyticsEvent({ locationId, eventType });
@@ -261,7 +269,8 @@ export const logLocationEvent = async (req: Request, res: Response) => {
             city,
             state,
             coordinates: (lat != null && lng != null) ? { type: 'Point', coordinates: [Number(lng), Number(lat)] } : undefined,
-            reason
+            reason,
+            userId,
         });
         return res.json(respond({ success: true }));
     } catch {
@@ -278,6 +287,13 @@ export const geocode = async (req: Request, res: Response) => {
         const lng = Number(req.query.lng);
 
         if (Number.isNaN(lat) || Number.isNaN(lng)) return sendErrorResponse(req, res, 400, "Invalid coordinates");
+
+        if (lat < -90 || lat > 90) {
+            return sendErrorResponse(req, res, 400, 'Latitude must be between -90 and 90');
+        }
+        if (lng < -180 || lng > 180) {
+            return sendErrorResponse(req, res, 400, 'Longitude must be between -180 and 180');
+        }
 
         const best = await reverseGeocodeService(lat, lng);
         return res.json(respond({ success: true, data: best }));

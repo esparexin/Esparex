@@ -31,6 +31,7 @@ const ListingRelatedBusinessesSection = dynamic(
 );
 import { BackButton } from "@/components/common/BackButton";
 import { deleteAd, markListingAsSold } from "@/api/user/ads";
+import { chatApi } from "@/api/chatApi";
 import { type Ad } from "@/schemas/ad.schema";
 import { saveAd, unsaveAd } from "@/api/user/users";
 
@@ -269,14 +270,25 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     notify.info("Viewing detailed analytics...");
   };
 
-  const handleChatWithSeller = () => {
+  const handleChatWithSeller = async () => {
     if (!user) {
       if (!isAuthResolved) return;
       notify.info("Please login to chat with the seller");
       navigateTo(ROUTES.LOGIN);
       return;
     }
-    navigateTo(ROUTES.MESSAGES);
+
+    if (!ad?.id) {
+      notify.error("Chat is unavailable for this listing right now");
+      return;
+    }
+
+    try {
+      const result = await chatApi.start(String(ad.id));
+      window.location.assign(`/chat/${encodeURIComponent(result.conversationId)}`);
+    } catch (chatError) {
+      notify.error(chatError instanceof Error ? chatError.message : "Failed to start chat");
+    }
   };
 
   // Mock multiple images (in real app, this would come from ad data)

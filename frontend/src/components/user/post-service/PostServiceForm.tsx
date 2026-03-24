@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import logger from "@/lib/logger";
 import Image from "next/image";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,8 +42,8 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             title: "",
             categoryId: "",
             brandId: "",
-            serviceTypes: [],
-            price: 0,
+            serviceTypeIds: [],
+            priceMin: 0,
             description: "",
         },
     });
@@ -50,7 +51,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
     const { register, watch, setValue, handleSubmit, formState: { errors } } = form;
     const categoryId = watch("categoryId");
     const brandId = watch("brandId");
-    const selectedServiceTypes = watch("serviceTypes") || [];
+    const selectedServiceTypes = watch("serviceTypeIds") || [];
     const titleVal = watch("title") || "";
     const descVal = watch("description") || "";
 
@@ -82,6 +83,47 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
     const [images, setImages] = React.useState<ListingImage[]>([]);
     const [isFetchingData, setIsFetchingData] = React.useState(!!editServiceId);
 
+    const extractEntityId = React.useCallback((value: unknown): string => {
+        if (typeof value === "string") return value;
+        if (value && typeof value === "object") {
+            const record = value as Record<string, unknown>;
+            const candidate = record.id || record._id;
+            if (typeof candidate === "string") return candidate;
+        }
+        return "";
+    }, []);
+
+    const normalizeServiceTypeTokens = React.useCallback((value: unknown): string[] => {
+        if (!Array.isArray(value)) return [];
+        return value
+            .map((entry) => {
+                if (typeof entry === "string") return entry.trim();
+                if (entry && typeof entry === "object") return extractEntityId(entry).trim();
+                return "";
+            })
+            .filter((token) => token.length > 0);
+    }, [extractEntityId]);
+
+    const resolveServiceTypeIds = React.useCallback((
+        tokens: string[],
+        types: Array<{ id?: string; name?: string }>
+    ): string[] => {
+        if (tokens.length === 0) return [];
+        const byName = new Map<string, string>();
+        const validIds = new Set<string>();
+        types.forEach((typeItem) => {
+            const id = typeItem.id?.trim();
+            const name = typeItem.name?.trim().toLowerCase();
+            if (!id) return;
+            validIds.add(id);
+            if (name) byName.set(name, id);
+        });
+        return Array.from(new Set(tokens.map((token) => {
+            if (validIds.has(token)) return token;
+            return byName.get(token.toLowerCase()) || token;
+        })));
+    }, []);
+
     // ─── Load existing service for edit ────────────────────────────────────
     React.useEffect(() => {
         if (!editServiceId) return;
@@ -90,20 +132,27 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             try {
                 const payload = await getServiceById(editServiceId);
                 if (isMounted && payload) {
+                    const categoryId = extractEntityId(payload.category || payload.categoryId);
+                    const brandId = extractEntityId(payload.brand || payload.brandId);
+                    const serviceTypeTokens = normalizeServiceTypeTokens(payload.serviceTypeIds || payload.serviceTypes);
                     form.reset({
                         title: payload.title || "",
-                        categoryId: payload.category?.id || "",
-                        brandId: payload.brand?.id || "",
-                        serviceTypes: payload.serviceTypeIds || [],
-                        price: payload.priceMin || payload.price || 0,
+                        categoryId,
+                        brandId,
+                        serviceTypeIds: serviceTypeTokens,
+                        priceMin: payload.priceMin || payload.price || 0,
                         description: payload.description || "",
                         location: payload.location,
                     });
-                    if (payload.category?.id) {
-                        await Promise.all([
-                            loadBrandsForCategory(payload.category.id),
-                            loadServiceTypes(payload.category.id),
+                    if (categoryId) {
+                        const [, serviceTypes] = await Promise.all([
+                            loadBrandsForCategory(categoryId),
+                            loadServiceTypes(categoryId),
                         ]);
+                        const resolvedIds = resolveServiceTypeIds(serviceTypeTokens, serviceTypes);
+                        if (resolvedIds.length > 0) {
+                            setValue("serviceTypeIds", resolvedIds, { shouldValidate: true });
+                        }
                     }
                     if (payload.images?.length) {
                         setImages(payload.images.map(url => ({
@@ -115,28 +164,28 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                     }
                 }
             } catch (e) {
-                console.error("Failed to load service", e);
+                logger.error("Failed to load service", e);
             } finally {
                 if (isMounted) setIsFetchingData(false);
             }
         };
         load();
         return () => { isMounted = false; };
-    }, [editServiceId, form, loadBrandsForCategory, loadServiceTypes]);
+    }, [editServiceId, extractEntityId, form, loadBrandsForCategory, loadServiceTypes, normalizeServiceTypeTokens, resolveServiceTypeIds, setValue]);
 
     // ─── Handlers ─────────────────────────────────────────────────────────
     const handleCategorySelect = async (id: string) => {
         setValue("categoryId", id);
         setValue("brandId", "");
-        setValue("serviceTypes", []);
+        setValue("serviceTypeIds", []);
         await Promise.all([loadBrandsForCategory(id), loadServiceTypes(id)]);
     };
 
-    const toggleServiceType = (name: string) => {
-        const next = selectedServiceTypes.includes(name)
-            ? selectedServiceTypes.filter(s => s !== name)
-            : [...selectedServiceTypes, name];
-        setValue("serviceTypes", next, { shouldValidate: true });
+    const toggleServiceType = (id: string) => {
+        const next = selectedServiceTypes.includes(id)
+            ? selectedServiceTypes.filter(serviceTypeId => serviceTypeId !== id)
+            : [...selectedServiceTypes, id];
+        setValue("serviceTypeIds", next, { shouldValidate: true });
     };
 
     const handleImageUpload = (files: File[]) => {
@@ -159,12 +208,10 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         editId: editServiceId,
         schema: PostServiceSchema,
         submitFn: async (payload) => {
-            // Backend expects priceMin, not price — map here so the schema can use "price"
-            const backendPayload = { ...payload, priceMin: (payload as any).price };
-            if (isEditMode && editServiceId) return updateService(editServiceId, backendPayload);
-            return createService(backendPayload);
+            if (isEditMode && editServiceId) return updateService(editServiceId, payload);
+            return createService(payload);
         },
-        onSuccess: () => router.push(isEditMode ? "/my-ads?tab=pending" : "/post-service-success"),
+        onSuccess: () => router.push(isEditMode ? "/account/ads" : "/post-service-success"),
     });
 
     const locationDisplay =
@@ -283,16 +330,18 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
 
                             {/* Service Types */}
                             {categoryId && availableServiceTypes.length > 0 && (
-                                <Field label="Service Types" error={errors.serviceTypes?.message}>
+                                <Field label="Service Types" error={errors.serviceTypeIds?.message}>
                                     <p className="text-xs text-slate-500 -mt-1 mb-2">Select all that apply</p>
                                     <div className="grid grid-cols-2 gap-2">
-                                        {availableServiceTypes.map(typeName => {
-                                            const selected = selectedServiceTypes.includes(typeName);
+                                        {availableServiceTypes.map((serviceType) => {
+                                            const typeId = serviceType.id || serviceType._id || serviceType.name;
+                                            if (!typeId) return null;
+                                            const selected = selectedServiceTypes.includes(typeId);
                                             return (
                                                 <button
-                                                    key={typeName}
+                                                    key={typeId}
                                                     type="button"
-                                                    onClick={() => toggleServiceType(typeName)}
+                                                    onClick={() => toggleServiceType(typeId)}
                                                     className={cn(
                                                         "py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-left",
                                                         selected
@@ -301,7 +350,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                                                     )}
                                                 >
                                                     {selected && <Check className="w-3 h-3 inline mr-1" />}
-                                                    {typeName}
+                                                    {serviceType.name}
                                                 </button>
                                             );
                                         })}
@@ -327,12 +376,12 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                             </Field>
 
                             {/* Price */}
-                            <Field label="Price (₹)" error={errors.price?.message}>
+                            <Field label="Price (₹)" error={errors.priceMin?.message}>
                                 <div className="relative">
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm pointer-events-none">₹</span>
                                     <Input
                                         type="number"
-                                        {...register("price", { valueAsNumber: true })}
+                                        {...register("priceMin", { valueAsNumber: true })}
                                         placeholder="0"
                                         min={0}
                                         className="h-12 rounded-xl border-2 border-slate-200 bg-white text-sm font-medium focus:border-primary pl-8"

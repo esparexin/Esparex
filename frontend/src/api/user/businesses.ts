@@ -49,7 +49,7 @@ export interface CreateBusinessDTO {
 
 // --- Helpers ---
 
-import { normalizeLocation } from '@/lib/location/locationService';
+import { normalizeToAppLocation as normalizeLocation } from '@/lib/location/locationService';
 import logger from "@/lib/logger";
 import { toSafeImageArray } from '@/lib/image/imageUrl';
 

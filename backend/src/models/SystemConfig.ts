@@ -271,7 +271,7 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-SystemConfigSchema.index({ singletonKey: 1 }, { name: 'sysconfig_singletonKey_unique_idx', unique: true });
+SystemConfigSchema.index({ singletonKey: 1 }, { name: 'idx_systemconfig_singletonKey_unique_idx', unique: true });
 
 const connection = getAdminConnection();
 const SystemConfig: Model<ISystemConfig> =

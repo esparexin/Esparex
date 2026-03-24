@@ -12,7 +12,7 @@ export function useAdminSpareParts() {
             filters,
             pagination,
         }: {
-            filters: { search: string; categoryId: string; status: string };
+            filters: { search: string; categoryId: string; isActive: string };
             pagination: { page: number; limit: number };
         }) => {
             const query: any = {
@@ -21,7 +21,7 @@ export function useAdminSpareParts() {
             };
             if (filters.search) query.search = filters.search;
             if (filters.categoryId !== 'all') query.categoryId = filters.categoryId;
-            if (filters.status !== 'all') query.status = filters.status;
+            if (filters.isActive !== 'all') query.isActive = filters.isActive;
 
             const response = await getSpareParts(query);
             if (response.success) {
@@ -50,11 +50,11 @@ export function useAdminSpareParts() {
         setFilters,
         setPage,
         refresh: fetchParts,
-    } = useAdminCrudList<ISparePartAdmin, { search: string; categoryId: string; status: string }>({
+    } = useAdminCrudList<ISparePartAdmin, { search: string; categoryId: string; isActive: string }>({
         initialFilters: {
             search: "",
             categoryId: "all",
-            status: "all",
+            isActive: "all",
         },
         fetchPage: fetchPartsPage,
     });

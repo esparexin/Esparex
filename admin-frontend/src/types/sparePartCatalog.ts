@@ -7,8 +7,6 @@ export interface ISparePartAdmin {
     listingType: string[];
     categoryIds: string[];
     isActive: boolean;
-    /** CatalogStatusValue + 'approved' (spare-part-specific transition state) */
-    status: CatalogStatusValue | 'approved';
     isDeleted: boolean;
     createdAt?: string;
     updatedAt?: string;

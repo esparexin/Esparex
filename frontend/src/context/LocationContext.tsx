@@ -17,8 +17,10 @@ import type { AppLocation, GeoJSONPoint } from "@/types/location";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import {
     getCurrentLocationResult,
-    normalizeLocation,
+    normalizeToAppLocation as normalizeLocation,
 } from "@/lib/location/locationService";
+import { appLocationSchema } from "@/schemas/location.schema";
+import logger from "@/lib/logger";
 
 /* -------------------------------------------------------------------------- */
 /* TYPES */
@@ -245,7 +247,14 @@ export function LocationProvider({
             const raw = localStorage.getItem(SEARCH_LOCATION_STORAGE_KEY);
             if (!raw) return null;
 
-            const stored = JSON.parse(raw) as AppLocation & { detectedAt?: number };
+            const parsed = appLocationSchema.safeParse(JSON.parse(raw));
+            if (!parsed.success) {
+                // Stale or invalid schema — clear and use default
+                logger.warn('Stale location data cleared from storage', { error: parsed.error.flatten() });
+                clearStoredLocation();
+                return DEFAULT_APP_LOCATION;
+            }
+            const stored = parsed.data as AppLocation & { detectedAt?: number };
             const ttl = stored.source === "manual" ? TTL_MANUAL_MS : TTL_AUTO_MS;
             const age = Date.now() - (stored.detectedAt ?? 0);
 
@@ -565,7 +574,7 @@ export function LocationProvider({
                     state: normalized.state || "Unknown",
                     reason: "manual_override",
                     eventType: "location_search",
-                    locationId: normalized.locationId || normalized.placeId,
+                    locationId: normalized.locationId,
                 });
             }
         },

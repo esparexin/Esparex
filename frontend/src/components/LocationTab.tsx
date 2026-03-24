@@ -24,8 +24,8 @@ export function LocationTab({
     if (!appLocation?.city || appLocation.source === 'default') return null;
     const fallbackId = `manual-${appLocation.city.toLowerCase().replace(/\s+/g, '-')}`;
     return {
-      id: appLocation.locationId || appLocation.placeId || appLocation.id || fallbackId,
-      slug: appLocation.locationId || appLocation.placeId || appLocation.id || fallbackId,
+      id: appLocation.locationId ?? appLocation.id ?? fallbackId,
+      slug: appLocation.locationId ?? appLocation.id ?? fallbackId,
       name: appLocation.name || appLocation.city,
       display: appLocation.formattedAddress || appLocation.display || appLocation.city,
       city: appLocation.city,

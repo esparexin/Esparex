@@ -46,7 +46,7 @@ export const startChat = async (req: Request, res: Response): Promise<void> => {
       return;
     }
     const result = await startConversation(parsed.data.adId, userId);
-    res.status(parsed.data ? 200 : 201).json(respond({ success: true, ...result }));
+    res.status(result.isNew ? 201 : 200).json(respond({ success: true, ...result }));
   } catch (err: unknown) {
     const e = err as { message?: string; status?: number };
     logger.error('[Chat] startChat error', err);

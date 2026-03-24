@@ -33,7 +33,6 @@ export const toGeoPoint = (coords: unknown): { type: "Point"; coordinates: [numb
 };
 
 export type DetectedLocationShape = Partial<Location> & {
-    placeId?: string;
     formattedAddress?: string;
 };
 
@@ -42,7 +41,6 @@ export const toDetectedSelection = (detected: DetectedLocationShape): Location |
 
     const detectedId =
         detected.locationId ||
-        detected.placeId ||
         detected.id ||
         [detected.city, detected.state]
             .filter(Boolean)

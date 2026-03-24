@@ -34,12 +34,12 @@ const ApiKeySchema = new Schema<IApiKey>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-ApiKeySchema.index({ keyHash: 1 }, { name: 'apikey_keyHash_unique_idx', unique: true });
-ApiKeySchema.index({ keyPrefix: 1 }, { name: 'apikey_keyPrefix_idx' });
-ApiKeySchema.index({ status: 1 }, { name: 'apikey_status_idx' });
-ApiKeySchema.index({ createdBy: 1 }, { name: 'apikey_createdBy_idx' });
-ApiKeySchema.index({ status: 1, createdAt: -1 }, { name: 'apikey_status_createdAt_idx' });
-ApiKeySchema.index({ keyPrefix: 1, status: 1 }, { name: 'apikey_prefix_status_idx' });
+ApiKeySchema.index({ keyHash: 1 }, { name: 'idx_apikey_keyHash_unique_idx', unique: true });
+ApiKeySchema.index({ keyPrefix: 1 }, { name: 'idx_apikey_keyPrefix_idx' });
+ApiKeySchema.index({ status: 1 }, { name: 'idx_apikey_status_idx' });
+ApiKeySchema.index({ createdBy: 1 }, { name: 'idx_apikey_createdBy_idx' });
+ApiKeySchema.index({ status: 1, createdAt: -1 }, { name: 'idx_apikey_status_createdAt_idx' });
+ApiKeySchema.index({ keyPrefix: 1, status: 1 }, { name: 'idx_apikey_prefix_status_idx' });
 
 ApiKeySchema.set('toJSON', {
     virtuals: true,

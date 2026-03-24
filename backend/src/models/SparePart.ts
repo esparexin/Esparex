@@ -11,7 +11,7 @@ export interface ISparePart extends Document {
     sortOrder: number;
     usageCount: number;
     filters?: unknown[];
-    status: CatalogStatusValue;
+    isActive: boolean;
     rejectionReason?: string;
     needsReview?: boolean; // Flag for data audit/migration
     createdBy?: mongoose.Types.ObjectId;
@@ -20,7 +20,6 @@ export interface ISparePart extends Document {
     softDelete(): Promise<this>;
     restore(): Promise<this>;
 }
-
 
 const SparePartSchema = new Schema(
     {
@@ -43,7 +42,7 @@ const SparePartSchema = new Schema(
         sortOrder: { type: Number, default: 0 },
         usageCount: { type: Number, default: 0 },
         filters: { type: Array, default: [] },
-        status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
+        isActive: { type: Boolean, default: true },
         rejectionReason: { type: String },
         needsReview: { type: Boolean, default: false },
         createdBy: { type: Schema.Types.ObjectId, ref: 'Admin' }
@@ -69,8 +68,8 @@ SparePartSchema.index({ slug: 1 }, {
     partialFilterExpression: { isDeleted: false }
 });
 SparePartSchema.index({ categoryIds: 1 }, { name: 'idx_sparepart_categoryIds' });
-SparePartSchema.index({ status: 1 }, { name: 'idx_sparepart_status' });
-SparePartSchema.index({ categoryIds: 1, status: 1 }, { name: 'idx_sparepart_categoryIds_status' });
+SparePartSchema.index({ isActive: 1 }, { name: 'idx_sparepart_isActive' });
+SparePartSchema.index({ categoryIds: 1, isActive: 1 }, { name: 'idx_sparepart_categoryIds_active' });
 SparePartSchema.index({ brandId: 1, modelId: 1 }, { name: 'idx_sparepart_brand_model' });
 SparePartSchema.index({ sortOrder: 1 }, { name: 'idx_sparepart_sortOrder' });
 SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });

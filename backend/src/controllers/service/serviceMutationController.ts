@@ -85,6 +85,12 @@ export const createService = async (req: Request, res: Response) => {
         const business = req.business; // 🔒 FROM MIDDLEWARE
         const body = req.body as Record<string, unknown>;
         const safeBody = pickAllowedFields(body, SERVICE_ALLOWED_FIELDS, { allowUndefined: true });
+        const createServiceTypeTokens = safeBody.serviceTypeIds ?? safeBody.serviceTypes;
+        if (safeBody.serviceTypes !== undefined && safeBody.serviceTypeIds === undefined) {
+            logger.warn('Legacy serviceTypes payload detected; prefer serviceTypeIds', {
+                route: 'createService'
+            });
+        }
 
         const resolvedCategory = resolveCategoryId(body.categoryId || body.category);
         const resIds = await resolveMasterDataIds({
@@ -120,7 +126,7 @@ export const createService = async (req: Request, res: Response) => {
         }
 
         const resolvedServiceTypes = await resolveServiceTypes(
-            safeBody.serviceTypeIds ?? safeBody.serviceTypes,
+            createServiceTypeTokens,
             categoryId
         );
 
@@ -135,7 +141,7 @@ export const createService = async (req: Request, res: Response) => {
         }
 
         if (!resolvedServiceTypes || resolvedServiceTypes.serviceTypeIds.length === 0) {
-            logger.warn('No service types resolved in service creation', { categoryId, rawTypes: safeBody.serviceTypeIds ?? safeBody.serviceTypes });
+            logger.warn('No service types resolved in service creation', { categoryId, rawTypes: createServiceTypeTokens });
             sendErrorResponse(req, res, 400, 'At least one valid service type is required for this category');
             return;
         }
@@ -303,14 +309,21 @@ export const updateService = async (req: Request, res: Response) => {
         if (modelId) updates.modelId = modelId;
 
         if (updates.serviceTypeIds !== undefined || body.serviceTypes !== undefined) {
+            const updateServiceTypeTokens = body.serviceTypeIds ?? body.serviceTypes;
+            if (body.serviceTypes !== undefined && body.serviceTypeIds === undefined) {
+                logger.warn('Legacy serviceTypes payload detected; prefer serviceTypeIds', {
+                    route: 'updateService',
+                    serviceId: id
+                });
+            }
             const categoryForServiceType = categoryId || existingService.categoryId;
             const resolvedServiceTypes = await resolveServiceTypes(
-                body.serviceTypeIds ?? body.serviceTypes,
+                updateServiceTypeTokens,
                 categoryForServiceType
             );
 
             if (resolvedServiceTypes.serviceTypeIds.length === 0) {
-                logger.warn('No service types resolved in service update', { categoryId: categoryForServiceType, rawTypes: body.serviceTypeIds ?? body.serviceTypes });
+                logger.warn('No service types resolved in service update', { categoryId: categoryForServiceType, rawTypes: updateServiceTypeTokens });
                 sendErrorResponse(req, res, 400, 'At least one valid service type is required for this category');
                 return;
             }
@@ -373,7 +386,9 @@ export const updateService = async (req: Request, res: Response) => {
             updates.images = toImageUrls(await processImages(incomingImages, `services/${id}`));
         }
 
-        delete updates.location;
+        // Keep normalized location updates when provided.
+        // A previous cleanup step removed this field and silently dropped
+        // valid location edits from the persisted update payload.
 
         // 🛡️ Fix 3: Recalculate Quality Score on Update
         // Note: Merge existing and updates to get the full picture
@@ -424,13 +439,20 @@ export const updateService = async (req: Request, res: Response) => {
         let finalServiceData: unknown = service;
         const prevStatus = existingService.status;
         if (prevStatus === AD_STATUS.LIVE || prevStatus === SERVICE_STATUS.REJECTED) {
-            finalServiceData = await mutateStatus({
-                domain: 'service',
-                entityId: id,
-                toStatus: SERVICE_STATUS.PENDING,
-                actor: { type: ACTOR_TYPE.USER, id: user._id.toString() },
-                reason: 'Seller edited service — re-review required'
-            });
+            try {
+                finalServiceData = await mutateStatus({
+                    domain: 'service',
+                    entityId: id,
+                    toStatus: SERVICE_STATUS.PENDING,
+                    actor: { type: ACTOR_TYPE.USER, id: user._id.toString() },
+                    reason: 'Seller edited service — re-review required'
+                });
+            } catch (statusError) {
+                logger.error('Service status transition failed after update', {
+                    serviceId: id,
+                    error: statusError instanceof Error ? statusError.message : String(statusError)
+                });
+            }
         }
 
         const response = respond<ApiResponse<Service>>({

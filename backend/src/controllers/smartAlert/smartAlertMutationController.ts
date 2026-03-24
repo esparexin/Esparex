@@ -19,6 +19,17 @@ import {
 import { consumeCredit, credit as creditWallet } from '../../services/WalletService';
 import { PLAN_STATUS } from '../../../../shared/enums/planStatus';
 
+const resolvePlanLimit = async (userId: string) => {
+    const activePlanIds = await UserPlanModel.find({
+        userId,
+        status: PLAN_STATUS.ACTIVE,
+        $or: [{ endDate: { $gte: new Date() } }, { endDate: null }]
+    }).lean();
+    const plans = await PlanModel.find({ _id: { $in: activePlanIds.map((up) => up.planId) } }).lean();
+    const userRights = calculateUserPlan(plans);
+    return userRights.smartAlerts || 0;
+};
+
 export const createSmartAlert = async (req: Request, res: Response) => {
     try {
         const user = req.user;
@@ -168,6 +179,58 @@ export const updateSmartAlert = async (req: Request, res: Response) => {
 export const deleteSmartAlert = async (req: Request, res: Response) => {
     try {
         const user = req.user;
+        const admin = (req as Request & { admin?: { id?: string; _id?: string } }).admin;
+        if (!user && !admin) {
+            sendErrorResponse(req, res, 401, 'Unauthorized');
+            return;
+        }
+
+        const id = getRequiredAlertId(req);
+        const alert = await SmartAlertModel.findById(id);
+        if (!alert) {
+            sendErrorResponse(req, res, 404, 'Alert not found');
+            return;
+        }
+
+        const requestUserId = user ? (user.id || user._id).toString() : null;
+        const isAdminRequest = Boolean(admin);
+
+        if (!isAdminRequest && requestUserId && alert.userId.toString() !== requestUserId) {
+            sendErrorResponse(req, res, 403, 'Unauthorized');
+            return;
+        }
+
+        const ownerId = alert.userId.toString();
+        const activeAlertCount = await SmartAlertModel.countDocuments({
+            userId: ownerId,
+            isActive: true
+        });
+        const planLimit = await resolvePlanLimit(ownerId);
+
+        if (alert.isActive) {
+            await creditWallet({
+                userId: ownerId,
+                amount: { smartAlertSlots: 1 },
+                reason: 'Smart Alert slot restored',
+                metadata: { action: 'delete_smart_alert', alertId: id }
+            });
+        }
+
+        await (SmartAlertModel as unknown as { findByIdAndDelete: (alertId: string) => Promise<unknown> }).findByIdAndDelete(id);
+
+        res.json(respond<ApiResponse<unknown>>({
+            success: true,
+            message: 'Alert deleted successfully',
+            data: { id, deleted: true }
+        }));
+    } catch (error: unknown) {
+        sendErrorResponse(req, res, 400, getErrorMessage(error));
+    }
+};
+
+export const toggleSmartAlertStatus = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
         if (!user) {
             sendErrorResponse(req, res, 401, 'Unauthorized');
             return;
@@ -180,30 +243,32 @@ export const deleteSmartAlert = async (req: Request, res: Response) => {
             return;
         }
 
-        if (alert.userId.toString() !== (user.id || user._id).toString()) {
+        const userId = (user.id || user._id).toString();
+        if (alert.userId.toString() !== userId) {
             sendErrorResponse(req, res, 403, 'Unauthorized');
             return;
         }
 
         const activeAlertCount = await SmartAlertModel.countDocuments({
-            userId: user.id || user._id,
+            userId,
             isActive: true
         });
-        const activePlanIds = await UserPlanModel.find({
-            userId: user.id || user._id,
-            status: PLAN_STATUS.ACTIVE,
-            $or: [{ endDate: { $gte: new Date() } }, { endDate: null }]
-        }).lean();
-        const plans = await PlanModel.find({ _id: { $in: activePlanIds.map((up) => up.planId) } }).lean();
-        const userRights = calculateUserPlan(plans);
-        const planLimit = userRights.smartAlerts || 0;
+        const planLimit = await resolvePlanLimit(userId);
 
         if (alert.isActive) {
             alert.isActive = false;
+            if (activeAlertCount > planLimit) {
+                await creditWallet({
+                    userId,
+                    amount: { smartAlertSlots: 1 },
+                    reason: 'Smart Alert slot restored',
+                    metadata: { action: 'deactivate_smart_alert', alertId: id }
+                });
+            }
         } else {
             if (activeAlertCount >= planLimit) {
                 await consumeCredit({
-                    userId: (user.id || user._id).toString(),
+                    userId,
                     creditType: 'smartAlertSlots',
                     amount: 1,
                     reason: 'Smart Alert slot consumed',
@@ -213,19 +278,11 @@ export const deleteSmartAlert = async (req: Request, res: Response) => {
             alert.isActive = true;
         }
 
-        if (!alert.isActive && activeAlertCount > planLimit) {
-            await creditWallet({
-                userId: (user.id || user._id).toString(),
-                amount: { smartAlertSlots: 1 },
-                reason: 'Smart Alert slot restored',
-                metadata: { action: 'deactivate_smart_alert', alertId: id }
-            });
-        }
         await alert.save();
 
         res.json(respond<ApiResponse<unknown>>({
             success: true,
-            message: 'Alert status toggled',
+            message: `Alert ${alert.isActive ? 'activated' : 'deactivated'} successfully`,
             data: toAlertContract(alert)
         }));
     } catch (error: unknown) {

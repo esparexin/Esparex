@@ -40,7 +40,7 @@ router.get('/brands', searchLimiter, catalogController.getBrands);
 router.get('/brands/:id', searchLimiter, validateObjectId, catalogController.getBrandById);
 router.post('/brands', requireAdmin, requirePermission('catalog:write'), validateRequest(Validators.brandCreateSchema), catalogController.createBrand);
 router.put('/brands/:id', requireAdmin, validateObjectId, validateRequest(Validators.brandUpdateSchema), catalogController.updateBrand);
-router.patch('/brands/:id/status', requireAdmin, validateObjectId, validateRequest(Validators.brandStatusToggleSchema), catalogController.toggleBrandStatus);
+router.patch('/brands/:id/status', requireAdmin, validateObjectId, catalogController.toggleBrandStatus);
 router.patch('/brands/:id/approve', requireAdmin, validateObjectId, catalogController.approveBrand);
 router.patch('/brands/:id/reject', requireAdmin, validateObjectId, validateRequest(Validators.rejectionSchema), catalogController.rejectBrand);
 router.delete('/brands/:id', requireAdmin, validateObjectId, catalogController.deleteBrand);

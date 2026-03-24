@@ -212,11 +212,11 @@ const UserSchema: Schema = new Schema({
 });
 
 // Indexes
-UserSchema.index({ mobile: 1 }, { unique: true, name: 'user_mobile_unique_idx' });
-UserSchema.index({ email: 1 }, { unique: true, sparse: true, name: 'user_email_unique_idx' });
-UserSchema.index({ role: 1, status: 1 }, { name: 'user_role_status_idx' });
-UserSchema.index({ isDeleted: 1 }, { name: 'user_deletedAt_idx' });
-UserSchema.index({ 'location.coordinates': '2dsphere' }, { sparse: true, name: 'user_location_coordinates_2dsphere' });
+UserSchema.index({ mobile: 1 }, { unique: true, name: 'idx_user_mobile_unique_idx' });
+UserSchema.index({ email: 1 }, { unique: true, sparse: true, name: 'idx_user_email_unique_idx' });
+UserSchema.index({ role: 1, status: 1 }, { name: 'idx_user_role_status_idx' });
+UserSchema.index({ isDeleted: 1 }, { name: 'idx_user_deletedAt_idx' });
+UserSchema.index({ 'location.coordinates': '2dsphere' }, { sparse: true, name: 'idx_user_location_coordinates_2dsphere' });
 
 UserSchema.pre('save', function (this: IUser) {
   this.location = normalizeUserLocation(this.location) as IUser['location'];

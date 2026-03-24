@@ -19,8 +19,11 @@ import {
 // UI Components
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
+  Crown,
   ChevronRight,
+  LogOut,
 } from "@/components/ui/icons";
 
 // Types & Constants
@@ -42,20 +45,18 @@ import { PhotoOptionsDialog } from "./profile/dialogs/PhotoOptionsDialog";
 
 // Modular Tab Components
 import { PersonalTab } from "./profile/tabs/PersonalTab";
-import { MyServicesTab } from "./profile/tabs/MyServicesTab";
-import { MySparePartsTab } from "./profile/tabs/MySparePartsTab";
-import { MyListingsTab } from "./profile/tabs/MyListingsTab";
 import { PlansTab } from "./profile/tabs/PlansTab";
 import { SettingsTab } from "./profile/tabs/SettingsTab";
 import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
 import { BusinessTab } from "./profile/tabs/BusinessTab";
 import { PurchasesTab } from "./profile/tabs/PurchasesTab";
+import { AllListingsTab } from "./profile/tabs/AllListingsTab";
 import { SavedAds } from "./SavedAds";
 import AccountHeader from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
 
 interface ProfileSettingsProps {
-  navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string) => void;
+  navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => void;
   user: ProfileUser | null;
   onUpdateUser: (userData: User) => void;
   onLogout: () => void;
@@ -71,8 +72,9 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
   const [myAdsTab, setMyAdsTab] = useState<"live" | "pending" | "rejected" | "sold" | "expired" | "deactivated">("live");
   const [myServicesTab] = useState<MyServicesStatus>("live");
 
+  // Custom Hooks for Data Fetching
   const {
-    myAds, adCounts, loadingAds,
+    myAds, adCounts, loadingAds, fetchMyAds,
     handleDeleteAd, handleMarkAsSold
   } = useMyAds(activeTab, user, myAdsTab);
 
@@ -214,19 +216,13 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           navigateToBusinessTab={() => setActiveTabFromChild("business")}
         />
       );
-      case "listings": return (
-        <MyListingsTab
-          ads={myAds} adCounts={adCounts} loadingAds={loadingAds}
-          myAdsStatusTab={myAdsTab} setMyAdsStatusTab={setMyAdsTab}
-          handleDeleteAd={handleDeleteAdForTab} handleMarkAsSold={handleMarkAsSoldForTab}
-          user={user} navigateTo={(page, adId, cat, bid, sid) => navigateTo(page as UserPage, adId, cat, bid, sid)}
-          getStatusBadge={getStatusBadge} formatDate={formatDate}
-          isBusinessApproved={businessData?.status === 'live'}
-          onRegisterBusiness={() => setActiveTabFromChild("business")}
+      case "mylistings": return (
+        <AllListingsTab 
+          adsProps={{ ads: myAds, adCounts, loadingAds, myAdsTab, setMyAdsTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, fetchMyAds, formatDate, handleDeleteAd: handleDeleteAdForTab, handleMarkAsSold: handleMarkAsSoldForTab }}
+          servicesProps={{ user, activeTab, statusFilter: myServicesTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, formatDate }}
+          sparePartsProps={{ user, activeTab, statusFilter: "live", getStatusBadge, formatDate }}
         />
       );
-      case "services": return <MyServicesTab user={user} activeTab={activeTab} statusFilter={myServicesTab} navigateTo={(page, adId, category, businessId, serviceId) => navigateTo(page as UserPage, adId, category, businessId, serviceId)} getStatusBadge={getStatusBadge} formatDate={formatDate} isBusinessApproved={businessData?.status === 'live'} onRegisterBusiness={() => setActiveTabFromChild("business")} />;
-      case "spare-parts": return <MySparePartsTab user={user} activeTab={activeTab} statusFilter="live" getStatusBadge={getStatusBadge} formatDate={formatDate} isBusinessApproved={businessData?.status === 'live'} onRegisterBusiness={() => setActiveTabFromChild("business")} />;
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
       case "plans": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
       case "business": return <BusinessTab businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} showBusinessEditForm={showBusinessEditForm} setShowBusinessEditForm={setShowBusinessEditForm} user={user} onUpdateUser={onUpdateUser} navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)} setActiveTab={setActiveTabFromChild} />;
@@ -246,7 +242,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           handleDeleteAlert={(id) => {
             void toggleSmartAlertStatus(id);
           }}
-          handleDeleteSavedSearch={(id: string) => {
+          handleDeleteSavedSearch={(id) => {
             void deleteSavedSearch(id);
           }}
           handleViewAlertMatches={(alert) => {
@@ -328,8 +324,21 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
                   </button>
                 );
               })}
-
+              <Separator className="my-2" />
+              <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors hover:bg-red-50 text-red-600 font-medium text-sm">
+                <LogOut className="h-4.5 w-4.5 flex-shrink-0" />
+                <span>Logout</span>
+              </button>
             </Card>
+
+            <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-2 opacity-10"><Crown className="w-16 h-16" /></div>
+              <p className="text-xs font-semibold text-blue-100 uppercase tracking-wider mb-1">Current Plan</p>
+              <p className="text-lg font-bold flex items-center gap-2"><Crown className="h-4 w-4 text-amber-400 fill-amber-400" />{user?.plan || "Free"}</p>
+              {(!user?.plan || user.plan === "Free") && (
+                <Button onClick={() => setActiveTab("plans")} size="sm" className="w-full mt-3 bg-white/10 hover:bg-white/20 border-0 text-white text-xs h-8">Upgrade</Button>
+              )}
+            </div>
           </aside>
 
           {/* MAIN CONTENT AREA */}
@@ -337,6 +346,13 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
             <div className="md:hidden">
               {isMobileMenuView ? (
                 <div className="space-y-3 animate-in fade-in slide-in-from-left-4 duration-300">
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-3 opacity-10"><Crown className="w-20 h-20" /></div>
+                    <div className="relative z-10 flex justify-between items-center">
+                      <div><p className="text-xs text-blue-100 font-medium mb-1">Your Plan</p><p className="text-xl font-bold flex items-center gap-2">{user?.plan || "Free"} <Crown className="h-4 w-4 text-amber-300 fill-amber-300" /></p></div>
+                      {(!user?.plan || user.plan === "Free") && <Button onClick={() => handleMobileTabClick("plans")} size="sm" className="bg-white text-blue-700 hover:bg-blue-50 text-xs font-bold px-4 h-8 rounded-full">Upgrade</Button>}
+                    </div>
+                  </div>
                   <Card className="p-2 border-0 shadow-sm">
                     {PROFILE_TAB_ITEMS.filter((item) => {
                       if (!user) return false;
@@ -351,6 +367,10 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
                         <span className="text-sm font-semibold flex-1">{item.label}</span><ChevronRight className="h-4 w-4 text-gray-400" />
                       </button>
                     ))}
+                    <Separator className="my-1" />
+                    <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left active:bg-red-50 text-red-600">
+                      <div className="p-2 bg-red-50 rounded-lg"><LogOut className="h-5 w-5" /></div><span className="text-sm font-semibold">Logout</span>
+                    </button>
                   </Card>
                 </div>
               ) : (

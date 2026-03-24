@@ -28,9 +28,9 @@ const FraudScoreSchema = new Schema<IFraudScore>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-FraudScoreSchema.index({ userId: 1 }, { name: 'fraudscore_userId_unique_idx', unique: true });
-FraudScoreSchema.index({ riskLevel: 1 }, { name: 'fraudscore_riskLevel_idx' });
-FraudScoreSchema.index({ autoActioned: 1, currentScore: -1 }, { name: 'fraudscore_autoaction_score_idx' });
+FraudScoreSchema.index({ userId: 1 }, { name: 'idx_fraudscore_userId_unique_idx', unique: true });
+FraudScoreSchema.index({ riskLevel: 1 }, { name: 'idx_fraudscore_riskLevel_idx' });
+FraudScoreSchema.index({ autoActioned: 1, currentScore: -1 }, { name: 'idx_fraudscore_autoaction_score_idx' });
 
 const userConnection = getUserConnection();
 const FraudScore: Model<IFraudScore> =

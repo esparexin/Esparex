@@ -82,21 +82,9 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
         if (!id) return;
 
         const user = req.user as IAuthUser;
-        const listing = await Ad.findById(id);
 
-        if (!listing) return sendErrorResponse(req, res, 404, 'Listing not found');
-        
-        // Ownership Guard
-        if (listing.sellerId.toString() !== user._id.toString()) {
-            return sendErrorResponse(req, res, 403, 'Unauthorized: You do not own this listing');
-        }
-
-        // Lifecycle Guard: Block edit if sold
-        if (listing.status === AD_STATUS.SOLD) {
-            return sendErrorResponse(req, res, 400, 'Cannot edit a sold listing');
-        }
-
-        // Enterprise Rule: No category/brand/model change in edit mode
+        // Enterprise Rule: No category/brand/model/identity change in edit mode.
+        // Keep this controller aligned with the canonical ad update mutation contract.
         const protectedFields = [
             'categoryId',
             'brandId',
@@ -109,6 +97,7 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
             'approvedBy',
             'isDeleted',
             'deletedAt',
+            'expiresAt',
         ];
         protectedFields.forEach(field => {
             if (Object.prototype.hasOwnProperty.call(req.body, field)) {
@@ -116,48 +105,19 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
             }
         });
 
-        // Enterprise Rule: KEEP expiresAt immutable during edit.
-        const updatePayload = {
-            ...req.body,
-            updatedAt: new Date()
-        };
-        delete updatePayload.expiresAt; // CRITICAL: Never reset monetization expiry on edit
+        const updatedListing = await adService.updateAd(id, req.body, {
+            actor: 'USER',
+            authUserId: user._id.toString(),
+            sellerId: user._id.toString()
+        });
 
-        let updatedListing = await Ad.findByIdAndUpdate(id, { $set: updatePayload }, { new: true }).lean<Record<string, unknown> | null>();
-
-        // Route status transitions through the mutation engine only.
-        if (listing.status !== AD_STATUS.PENDING) {
-            updatedListing = await mutateStatus({
-                domain: 'ad',
-                entityId: id,
-                toStatus: AD_STATUS.PENDING,
-                actor: {
-                    type: ACTOR_TYPE.USER,
-                    id: user._id.toString(),
-                    ip: req.ip,
-                    userAgent: req.headers['user-agent'],
-                },
-                reason: 'Re-submitted for review after edit',
-                metadata: {
-                    action: 'listing_edit',
-                    sourceRoute: '/api/v1/listings/:id/edit',
-                },
-                patch: {
-                    moderationStatus: 'held_for_review',
-                    $push: {
-                        timeline: {
-                            status: AD_STATUS.PENDING,
-                            timestamp: new Date(),
-                            reason: 'Re-submitted for review after edit',
-                        },
-                    },
-                },
-            }) as unknown as Record<string, unknown>;
+        if (!updatedListing) {
+            return sendErrorResponse(req, res, 404, 'Listing not found');
         }
 
         return res.json(respond({
             success: true,
-            message: 'Listing updated and pending review',
+            message: 'Listing updated successfully',
             data: updatedListing
         }));
     } catch (error) {

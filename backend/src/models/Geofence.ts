@@ -53,7 +53,7 @@ const GeofenceSchema = new Schema<IGeofence>(
     }
 );
 
-GeofenceSchema.index({ "coordinates": "2dsphere" }, { name: 'geofence_geo_2dsphere' });
+GeofenceSchema.index({ "coordinates": "2dsphere" }, { name: 'idx_geofence_geo_2dsphere' });
 
 const connection = getUserConnection();
 const Geofence: Model<IGeofence> =

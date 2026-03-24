@@ -438,25 +438,54 @@ export const adminExtendListing = async (req: Request, res: Response) => {
         const newExpiresAt = computeActiveExpiry((listing.listingType as ListingTypeValue) || LISTING_TYPE.AD);
         const now = new Date();
         const isExpired = listing.status === AD_STATUS.EXPIRED;
+        let updated: unknown;
 
-        const patch: Record<string, unknown> = {
-            expiresAt: newExpiresAt,
-            $push: {
-                timeline: {
-                    status: isExpired ? AD_STATUS.LIVE : listing.status,
-                    timestamp: now,
-                    reason: 'Expiry extended by admin',
-                },
-            },
-        };
-
-        // Expired listings are restored to live on extend
         if (isExpired) {
-            patch.status = AD_STATUS.LIVE;
-            patch.isChatLocked = false;
+            // Expired -> live must go through governed status mutation so policy,
+            // history, and moderation audit are consistently enforced.
+            const actorId = getActorId(req);
+            updated = await mutateStatus({
+                domain: 'ad',
+                entityId: id,
+                toStatus: AD_STATUS.LIVE,
+                actor: buildAdminActor(req),
+                reason: 'Expiry extended by admin',
+                metadata: {
+                    action: 'moderation_approve',
+                    sourceRoute: '/api/v1/admin/listings/:id/extend',
+                    listingType: listing.listingType || 'ad',
+                },
+                patch: {
+                    approvedAt: now,
+                    approvedBy: actorId,
+                    expiresAt: newExpiresAt,
+                    isChatLocked: false,
+                    moderationStatus: 'manual_approved',
+                    $push: {
+                        timeline: {
+                            status: AD_STATUS.LIVE,
+                            timestamp: now,
+                            reason: 'Expiry extended by admin',
+                        },
+                    },
+                },
+            });
+        } else {
+            updated = await Ad.findByIdAndUpdate(
+                id,
+                {
+                    expiresAt: newExpiresAt,
+                    $push: {
+                        timeline: {
+                            status: listing.status,
+                            timestamp: now,
+                            reason: 'Expiry extended by admin',
+                        },
+                    },
+                },
+                { new: true }
+            );
         }
-
-        const updated = await Ad.findByIdAndUpdate(id, patch, { new: true });
 
         await logAdminAction(req, 'LISTING_EXTEND', 'Ad', id, { expiresAt: newExpiresAt });
 
@@ -475,7 +504,6 @@ export const adminExtendListing = async (req: Request, res: Response) => {
         sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
     }
 };
-
 export const adminSoftDeleteListing = async (req: Request, res: Response) => {
     try {
         const id = resolveListingId(req, res);

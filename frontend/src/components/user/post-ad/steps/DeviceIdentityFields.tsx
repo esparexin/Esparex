@@ -104,13 +104,13 @@ export default function DeviceIdentityFields() {
                     {requiresScreenSize && (
                         <Field label="Screen Size" error={errors.screenSize?.message}>
                             <Select
-                                value={screenSize}
-                                onValueChange={(val) => setValue("screenSize", val, { shouldValidate: true })}
+                                value={screenSize || undefined}
+                                onValueChange={(val) => setValue("screenSize", val, { shouldValidate: true, shouldDirty: true })}
                             >
                                 <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-bold text-slate-900 focus:border-primary transition-colors px-3 text-sm">
                                     <SelectValue placeholder="Select size" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-2 border-slate-100 shadow-xl">
+                                <SelectContent className="rounded-xl border-2 border-slate-100 shadow-xl z-[99999]">
                                     {availableSizes.map((size) => (
                                         <SelectItem key={size} value={size} className="font-medium py-2.5 px-3 text-sm">
                                             {size}

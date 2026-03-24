@@ -6,13 +6,11 @@ import {
   Heart,
   Home,
   Package,
-  ShoppingBag,
   Search,
   Settings,
   Sparkles,
   Wrench,
   CreditCard,
-  CircuitBoard,
 } from "lucide-react";
 import {
   type UserPage,
@@ -50,10 +48,7 @@ export interface ResolvedNavigationItem extends NavigationItem {
 
 export type ProfileTabValue =
   | "personal"
-  | "listings"
-  | "myads"
-  | "services"
-  | "spare-parts"
+  | "mylistings"
   | "saved"
   | "business"
   | "plans"
@@ -69,11 +64,11 @@ export const PROFILE_TAB_ITEMS: Array<{
   businessOnly?: boolean;
 }> = [
     { value: "personal", label: "Account", icon: UserIcon },
-    { value: "listings", label: "My Listings", icon: Package },
+    { value: "mylistings", label: "My Listings", icon: Package },
     { value: "saved", label: "Saved Ads", icon: Heart },
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
-    { value: "purchases", label: "My Purchases", icon: ShoppingBag },
+    { value: "purchases", label: "My Purchases", icon: Package },
     { value: "plans", label: "Plans", icon: CreditCard },
     { value: "settings", label: "Settings", icon: Settings },
   ];
@@ -82,8 +77,7 @@ export const PROFILE_TAB_PAGE_ROUTES: Partial<Record<ProfileTabValue, UserPage>>
   Object.freeze({
     personal: "profile",
     settings: "profile-settings",
-    listings: "my-ads",
-    myads: "my-ads",
+    mylistings: "my-ads",
     saved: "saved-ads",
     smartalerts: "smart-alerts",
     plans: "plans-payments",
@@ -133,16 +127,6 @@ const BASE_NAVIGATION: NavigationItem[] = [
     page: "browse-services",
   },
   {
-    id: "browse-spare-parts",
-    label: "Browse Spare Parts",
-    slug: "browse-spare-parts",
-    icon: CircuitBoard,
-    roles: ["guest", "user", "business"],
-    showIn: ["mobile-drawer"],
-    section: "main",
-    page: "browse-spare-parts",
-  },
-  {
     id: "profile",
     label: "Profile",
     slug: "profile-settings",
@@ -153,8 +137,8 @@ const BASE_NAVIGATION: NavigationItem[] = [
     page: "profile-settings",
   },
   {
-    id: "my-ads",
-    label: "My Ads",
+    id: "my-listings",
+    label: "My Listings",
     slug: "my-ads",
     icon: Package,
     roles: ["user", "business"],
@@ -163,7 +147,7 @@ const BASE_NAVIGATION: NavigationItem[] = [
     page: "my-ads",
   },
   {
-    id: "saved-ads",
+    id: "favorites",
     label: "Favorites",
     slug: "saved-ads",
     icon: Heart,

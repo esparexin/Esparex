@@ -77,10 +77,11 @@ export async function handlePaginatedContent<T extends Document>(
             const { page, limit, skip } = getPaginationParams(req);
             const rawSearch = Array.isArray(effectiveQuery.search) ? effectiveQuery.search[0] : effectiveQuery.search;
             const search = typeof rawSearch === 'string' ? rawSearch.trim() : '';
+            const includeDeleted = effectiveQuery.includeDeleted === 'true';
 
             const query: Record<string, unknown> = { ...adminQuery };
 
-            if (effectiveQuery.includeDeleted !== 'true' && !('isDeleted' in query)) {
+            if (!includeDeleted && !('isDeleted' in query)) {
                 query.isDeleted = { $ne: true };
             }
 
@@ -120,6 +121,9 @@ export async function handlePaginatedContent<T extends Document>(
             const adminSort = parseSortQuery(rawAdminSort, { createdAt: -1 });
 
             const findQuery = model.find(query).skip(skip).limit(limit).sort(adminSort);
+            if (includeDeleted) {
+                findQuery.setOptions({ withDeleted: true });
+            }
             if (populate) {
                 (findQuery as unknown as {
                     populate: (arg: unknown) => void;
@@ -129,9 +133,14 @@ export async function handlePaginatedContent<T extends Document>(
                 findQuery.select(select);
             }
 
+            const countQuery = model.countDocuments(query);
+            if (includeDeleted) {
+                countQuery.setOptions({ withDeleted: true });
+            }
+
             const [items, total] = await Promise.all([
                 findQuery,
-                model.countDocuments(query)
+                countQuery
             ]);
 
             const resolvedItems = transformResponse

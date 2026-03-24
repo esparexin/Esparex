@@ -1,8 +1,6 @@
-// import { connectDB } from "../config/db";
 import Ad from "../models/Ad";
 import User from "../models/User";
 import Location from "../models/Location";
-import LocationStats from "../models/LocationStats";
 import LocationAnalytics from "../models/LocationAnalytics";
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import logger from '../utils/logger';
@@ -24,10 +22,16 @@ export const runLocationAnalyticsJob = async () => {
     );
 };
 
+/**
+ * Refreshes LocationAnalytics for all active locations.
+ * Computes adsCount, activeAdsCount, usersCount, searchCount, viewCount,
+ * popularityScore, and isHotZone in a single consolidated write.
+ *
+ * Previously also wrote to LocationStats (now removed — merged here).
+ */
 export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron') => {
-    logger.info('Updating location stats...', { triggeredBy });
+    logger.info('Updating location analytics...', { triggeredBy });
 
-    // Create JobLog entry
     let jobLog;
     try {
         const JobLogStart = (await import('../models/JobLog')).default;
@@ -44,14 +48,9 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
     const startTime = Date.now();
 
     try {
-        // Ensure DB is connected (though should be by the time worker starts)
-        // await connectDB(); 
-
-        const locations = await Location.find({ isActive: true }).select('city state _id').lean();
-        const locationIds = locations.map((location) => location._id);
-
-        const bulkOps: Parameters<typeof LocationStats.bulkWrite>[0] = [];
-        const analyticsBulkOps: Parameters<typeof LocationAnalytics.bulkWrite>[0] = [];
+        // Only need _id — city/state were only required for the removed LocationStats writes
+        const locations = await Location.find({ isActive: true }).select('_id').lean();
+        const locationIds = locations.map((loc) => loc._id);
 
         const [adCountsAgg, userCountsAgg, existingAnalyticsDocs] = await Promise.all([
             Ad.aggregate<{
@@ -65,9 +64,7 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
                         _id: '$location.locationId',
                         adsCount: { $sum: 1 },
                         activeAdsCount: {
-                            $sum: {
-                                $cond: [{ $eq: ['$status', AD_STATUS.LIVE] }, 1, 0]
-                            }
+                            $sum: { $cond: [{ $eq: ['$status', AD_STATUS.LIVE] }, 1, 0] }
                         }
                     }
                 }
@@ -99,11 +96,9 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
                 activeAdsCount: Number(item.activeAdsCount || 0)
             });
         }
-
         for (const item of userCountsAgg) {
             userCountByLocationId.set(String(item._id), Number(item.usersCount || 0));
         }
-
         for (const item of existingAnalyticsDocs) {
             analyticsByLocationId.set(String(item.locationId), {
                 searchCount: Number((item as { searchCount?: number }).searchCount || 0),
@@ -111,42 +106,20 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
             });
         }
 
+        const analyticsBulkOps: Parameters<typeof LocationAnalytics.bulkWrite>[0] = [];
+
         for (const loc of locations) {
             const locationKey = String(loc._id);
             const adCounts = adCountByLocationId.get(locationKey);
-            const adsCount = adCounts?.adsCount || 0;
-            const activeAdsCount = adCounts?.activeAdsCount || 0;
-            const usersCount = userCountByLocationId.get(locationKey) || 0;
+            const adsCount = adCounts?.adsCount ?? 0;
+            const activeAdsCount = adCounts?.activeAdsCount ?? 0;
+            const usersCount = userCountByLocationId.get(locationKey) ?? 0;
             const existingAnalytics = analyticsByLocationId.get(locationKey);
+            const searchCount = existingAnalytics?.searchCount ?? 0;
+            const viewCount = existingAnalytics?.viewCount ?? 0;
 
-            if (adsCount > 0 || usersCount > 0) {
-                bulkOps.push({
-                    updateOne: {
-                        filter: { locationId: loc._id },
-                        update: {
-                            $set: {
-                                locationId: loc._id,
-                                city: loc.city,
-                                state: loc.state,
-                                adsCount,
-                                activeAdsCount,
-                                usersCount,
-                                lastUpdated: new Date()
-                            }
-                        },
-                        upsert: true
-                    }
-                });
-            }
-
-            const searchCount = Number(existingAnalytics?.searchCount || 0);
-            const viewCount = Number(existingAnalytics?.viewCount || 0);
             const popularityScore = Number(
-                (
-                    adsCount * 0.4 +
-                    searchCount * 0.3 +
-                    viewCount * 0.3
-                ).toFixed(2)
+                (adsCount * 0.4 + searchCount * 0.3 + viewCount * 0.3).toFixed(2)
             );
             const isHotZone = searchCount >= 100 || adsCount >= 50;
 
@@ -157,6 +130,8 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
                         $set: {
                             locationId: loc._id,
                             adsCount,
+                            activeAdsCount,
+                            usersCount,
                             searchCount,
                             viewCount,
                             popularityScore,
@@ -170,33 +145,26 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
         }
 
         let updateCount = 0;
-        if (bulkOps.length > 0) {
-            const res = await LocationStats.bulkWrite(bulkOps);
-            updateCount = res.modifiedCount + res.upsertedCount;
-            logger.info(`Updated stats for ${bulkOps.length} locations.`, { updateCount });
-        } else {
-            logger.info('No location stats to update.');
-        }
-
         if (analyticsBulkOps.length > 0) {
-            await LocationAnalytics.bulkWrite(analyticsBulkOps);
-            logger.info(`Updated analytics for ${analyticsBulkOps.length} locations.`);
+            const result = await LocationAnalytics.bulkWrite(analyticsBulkOps);
+            updateCount = result.modifiedCount + result.upsertedCount;
+            logger.info(`Updated analytics for ${analyticsBulkOps.length} locations.`, { updateCount });
+        } else {
+            logger.info('No location analytics to update.');
         }
 
-        // Update JobLog on success
         if (jobLog) {
             jobLog.status = 'success';
             jobLog.completedAt = new Date();
             jobLog.durationMs = Date.now() - startTime;
-            jobLog.result = { processedLocations: locations.length, updatedStats: updateCount };
+            jobLog.result = { processedLocations: locations.length, updatedAnalytics: updateCount };
             await jobLog.save();
         }
 
     } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        logger.error('Error updating location stats:', { error: err });
+        logger.error('Error updating location analytics:', { error: err });
 
-        // Update JobLog on failure
         if (jobLog) {
             jobLog.status = 'failed';
             jobLog.completedAt = new Date();
@@ -204,6 +172,6 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
             jobLog.error = errorMessage;
             await jobLog.save();
         }
-        throw err; // Re-throw to ensure caller knows about failure
+        throw err;
     }
 };

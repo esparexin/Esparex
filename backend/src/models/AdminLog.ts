@@ -29,10 +29,10 @@ const AdminLogSchema = new Schema<IAdminLog>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-AdminLogSchema.index({ adminId: 1 }, { name: 'adminlog_adminId_idx' });
-AdminLogSchema.index({ action: 1 }, { name: 'adminlog_action_idx' });
-AdminLogSchema.index({ targetId: 1 }, { name: 'adminlog_targetId_idx' });
-AdminLogSchema.index({ createdAt: 1 }, { name: 'adminlog_createdAt_ttl_idx', expireAfterSeconds: 31536000 });
+AdminLogSchema.index({ adminId: 1 }, { name: 'idx_adminlog_adminId_idx' });
+AdminLogSchema.index({ action: 1 }, { name: 'idx_adminlog_action_idx' });
+AdminLogSchema.index({ targetId: 1 }, { name: 'idx_adminlog_targetId_idx' });
+AdminLogSchema.index({ createdAt: 1 }, { name: 'idx_adminlog_createdAt_ttl_idx', expireAfterSeconds: 31536000 });
 
 // 🔒 IMMUTABILITY ENFORCEMENT
 // Prevent document-level modifications

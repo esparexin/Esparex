@@ -73,7 +73,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
               </Button>
               <Button
                 variant="outline"
-                onClick={() => navigateTo("my-ads", undefined, "?tab=pending")}
+                onClick={() => navigateTo("my-ads")}
                 className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold h-12 rounded-xl"
               >
                 View Pending Ads
@@ -237,4 +237,3 @@ export function PostAdWizard({ navigateTo, editAdId }: PostAdWizardProps) {
     </FormProvider>
   )
 }
-

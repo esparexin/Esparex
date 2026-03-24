@@ -1,5 +1,4 @@
 export {
-    calculateDistance,
     createPoint,
     getLatitude,
     getLongitude,

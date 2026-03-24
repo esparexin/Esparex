@@ -12,7 +12,7 @@ import type {
  *
  * The previous 3-member union ([lng,lat] | {lat,lng} | GeoJSON) is collapsed.
  * Legacy data from localStorage/API is normalized at ingestion via
- * normalizeLocation() in locationService.ts before being stored here.
+ * normalizeToAppLocation() in locationService.ts before being stored here.
  *
  * Consumers must use getLatitude() / getLongitude() from:
  *   @/lib/location/utils
@@ -35,7 +35,6 @@ export interface AppLocation extends Partial<Pick<SharedLocation, "locationId" |
     pincode?: string;
     source: AppLocationSource;
     locationId?: string;
-    placeId?: string;
     level?: LocationLevel;
     // Backward-compatible aliases used by existing screens.
     id?: string;

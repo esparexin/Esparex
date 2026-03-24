@@ -24,7 +24,7 @@ import type { UserPage } from "@/lib/routeUtils";
 import { queryKeys } from "@/queries/queryKeys";
 import { useSavedAdsQuery } from "@/queries/useAdsQuery";
 import { formatPrice, formatStableDate } from "@/utils/formatters";
-import { formatLocation, normalizeLocation as normalizeAppLocation } from "@/lib/location/locationService";
+import { formatLocation, normalizeToAppLocation as normalizeAppLocation } from "@/lib/location/locationService";
 import { toSafeImageSrc, DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";
 
 import { Badge } from "../ui/badge";

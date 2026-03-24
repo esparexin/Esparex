@@ -57,6 +57,11 @@ const toGeoPoint = (value: LocationCoordinateShape): { type: "Point"; coordinate
     return undefined;
 };
 
+/**
+ * COORDINATE CONTRACT: All location responses MUST return coordinates as GeoJSON Point.
+ * Format: { type: 'Point', coordinates: [longitude, latitude] }
+ * Consumers must NOT assume lat/lng as separate fields.
+ */
 export const formatLocationResponse = (loc: LocationResponseLike) => {
     const resolvedId = toIdString(loc._id) || loc.id;
     const resolvedCoordinates = toGeoPoint(loc.coordinates);
@@ -77,6 +82,8 @@ export const formatLocationResponse = (loc: LocationResponseLike) => {
         loc.city ||
         "Unknown Location";
 
+    const formattedDisplay = display;
+
     return {
         id: resolvedId,
         locationId: loc.locationId || resolvedId,
@@ -84,9 +91,11 @@ export const formatLocationResponse = (loc: LocationResponseLike) => {
         path: resolvedPath,
         slug: loc.slug,
         name: loc.name || loc.displayName || loc.city,
-        displayName: loc.displayName || loc.name || loc.city,
-        display,
-        formattedAddress: loc.formattedAddress || loc.address || display,
+        display: formattedDisplay,
+        /** @deprecated Use `display` instead */
+        displayName: formattedDisplay,
+        /** @deprecated Use `display` instead */
+        formattedAddress: formattedDisplay,
         address: loc.address,
         city: loc.city || loc.name || "",
         district: loc.district,

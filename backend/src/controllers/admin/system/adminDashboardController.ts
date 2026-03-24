@@ -38,6 +38,103 @@ const sendDashboardError = (req: Request, res: Response, error: unknown) => {
     sendErrorResponse(req, res, 500, message);
 };
 
+type LocationIdLike = { toString: () => string } | string;
+
+type HotZoneLocationDoc = {
+    _id: LocationIdLike;
+    name: string;
+    country?: string;
+    level?: string;
+    parentId?: LocationIdLike | null;
+    path?: LocationIdLike[];
+};
+
+type HierarchyLocationDoc = {
+    _id: LocationIdLike;
+    name?: string;
+    level?: string;
+    country?: string;
+};
+
+const toLocationIdString = (value: LocationIdLike | null | undefined): string | undefined => {
+    if (!value) return undefined;
+    if (typeof value === 'string') return value;
+    return value.toString();
+};
+
+const buildHotZoneLocationSummary = (
+    location: HotZoneLocationDoc | undefined,
+    hierarchyMap: Map<string, HierarchyLocationDoc>
+) => {
+    if (!location) return undefined;
+
+    const locationId = toLocationIdString(location._id);
+    const ownName = location.name || '';
+    const currentLevel = location.level || '';
+    const hierarchyTrail = Array.isArray(location.path)
+        ? location.path
+            .map((entry) => toLocationIdString(entry))
+            .filter((entry): entry is string => Boolean(entry))
+            .map((entry) => hierarchyMap.get(entry))
+            .filter((entry): entry is HierarchyLocationDoc => Boolean(entry))
+        : [];
+
+    const findHierarchyName = (level: string): string =>
+        hierarchyTrail.find((entry) => entry.level === level)?.name || '';
+
+    let city = findHierarchyName('city');
+    if (!city) {
+        if (currentLevel === 'city' || currentLevel === 'district' || currentLevel === 'state' || currentLevel === 'country') {
+            city = ownName;
+        } else if (currentLevel === 'area' || currentLevel === 'village') {
+            city = findHierarchyName('district') || ownName;
+        } else {
+            city = ownName;
+        }
+    }
+
+    let state = findHierarchyName('state');
+    if (!state && currentLevel === 'state') {
+        state = ownName;
+    }
+
+    const country = location.country || findHierarchyName('country') || '';
+
+    return {
+        id: locationId || '',
+        name: ownName,
+        city,
+        state,
+        country,
+        level: currentLevel
+    };
+};
+
+const normalizeStateLabel = (value: unknown): string => {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : 'Unknown';
+    }
+
+    if (value && typeof value === 'object') {
+        const obj = value as { state?: unknown; name?: unknown; toString?: () => string };
+        if (typeof obj.state === 'string' && obj.state.trim().length > 0) {
+            return obj.state.trim();
+        }
+        if (typeof obj.name === 'string' && obj.name.trim().length > 0) {
+            return obj.name.trim();
+        }
+        if (typeof obj.toString === 'function') {
+            const str = obj.toString().trim();
+            if (str.length > 0 && str !== '[object Object]') {
+                return str;
+            }
+        }
+    }
+
+    return 'Unknown';
+};
+
 /**
  * Get dashboard overview statistics
  */
@@ -398,26 +495,46 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
         const hotZoneLocationIds = topHotZonesRaw.map((zone) => zone.locationId);
         const hotZoneLocations = hotZoneLocationIds.length > 0
             ? await Location.find({ _id: { $in: hotZoneLocationIds } })
-                .select('_id name city district state country level')
+                .select('_id name country level parentId path')
                 .lean()
             : [];
+        const hierarchyLocationIds = new Set<string>();
+        for (const location of hotZoneLocations) {
+            const currentId = toLocationIdString(location._id);
+            if (currentId) {
+                hierarchyLocationIds.add(currentId);
+            }
+            for (const entry of location.path || []) {
+                const entryId = toLocationIdString(entry);
+                if (entryId) {
+                    hierarchyLocationIds.add(entryId);
+                }
+            }
+            const parentId = toLocationIdString(location.parentId);
+            if (parentId) {
+                hierarchyLocationIds.add(parentId);
+            }
+        }
+        const hierarchyLocations = hierarchyLocationIds.size > 0
+            ? await Location.find({ _id: { $in: Array.from(hierarchyLocationIds) } })
+                .select('_id name level country')
+                .lean()
+            : [];
+        const hotZoneHierarchyMap = new Map(
+            hierarchyLocations.map((location) => [String(location._id), location])
+        );
         const hotZoneLocationMap = new Map(
             hotZoneLocations.map((location) => [String(location._id), location])
         );
-        const topHotZones = topHotZonesRaw.map((zone) => {
+        const hotZones = topHotZonesRaw.map((zone) => {
             const location = hotZoneLocationMap.get(String(zone.locationId));
+            const summary = buildHotZoneLocationSummary(location, hotZoneHierarchyMap);
             return {
-                ...zone,
-                location: location
-                    ? {
-                        id: String(location._id),
-                        name: location.name,
-                        city: location.city,
-                        state: location.state,
-                        country: location.country,
-                        level: location.level
-                    }
-                    : undefined
+                _id: String(zone.locationId),
+                city: summary?.city ?? '',
+                state: summary?.state ?? '',
+                popularityScore: zone.popularityScore ?? 0,
+                isHotZone: true,
             };
         });
 
@@ -452,6 +569,20 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
             });
         }
 
+        const adsByStateMap = new Map<string, { _id: string; count: number }>();
+        for (const entry of adsByStateAgg) {
+            const stateLabel = normalizeStateLabel(entry?._id);
+            const stateKey = stateLabel.toLowerCase();
+            const count = typeof entry?.count === 'number' ? entry.count : Number(entry?.count || 0);
+            const existing = adsByStateMap.get(stateKey);
+            if (existing) {
+                existing.count += count;
+                continue;
+            }
+            adsByStateMap.set(stateKey, { _id: stateLabel, count });
+        }
+        const adsByState = Array.from(adsByStateMap.values()).sort((a, b) => b.count - a.count);
+
         sendSuccessResponse(res, {
             // Top-level counts — matches LocationAnalyticsData frontend type
             totalLocations,
@@ -465,21 +596,9 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
                 adsCount: c.ads,
             })),
             // Shaped to match frontend type: { _id, count }
-            adsByState: adsByStateAgg.map(s => ({
-                _id: s._id ?? 'Unknown',
-                count: s.count,
-            })),
+            adsByState,
             // Shaped to match frontend type: { _id, city, state, popularityScore, isHotZone }
-            hotZones: topHotZonesRaw.map(zone => {
-                const location = hotZoneLocationMap.get(String(zone.locationId));
-                return {
-                    _id: String(zone.locationId),
-                    city: location?.city ?? '',
-                    state: location?.state ?? '',
-                    popularityScore: zone.popularityScore ?? 0,
-                    isHotZone: true,
-                };
-            }),
+            hotZones,
             // Shaped to match frontend type: { month, ads, users }
             monthlyTrends: trends.map(t => ({
                 month: t.month,

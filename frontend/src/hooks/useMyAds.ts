@@ -24,7 +24,7 @@ export function useMyAds(activeTab: string, user: User | null, statusFilter: MyA
     } = useMyAdsQuery(statusFilter, { enabled: isEnabled });
 
     if (adsError) {
-        console.error("MyAds query failed:", adsError);
+        logger.error("MyAds query failed:", adsError);
     }
 
     // Fetch Stats using TanStack Query

@@ -2,19 +2,18 @@ import mongoose from 'mongoose';
 import Location from '../models/Location';
 import { escapeRegExp } from './stringUtils';
 import { LOCATION_LEVELS, type LocationLevel } from './locationInputNormalizer';
+import logger from './logger';
 
 export const HIERARCHY_LEVELS = LOCATION_LEVELS;
 export type HierarchyLevel = LocationLevel;
 
 type HierarchyLocationNode = {
     _id: mongoose.Types.ObjectId;
+    name?: string;
     level?: string;
     parentId?: mongoose.Types.ObjectId | null;
     path?: mongoose.Types.ObjectId[];
     country?: string;
-    state?: string;
-    district?: string;
-    city?: string;
 };
 
 const asString = (value: unknown): string | undefined => {
@@ -104,6 +103,8 @@ export const resolveParentLocation = async (params: {
         baseQuery._id = { $ne: excludeId };
     }
 
+    // All queries now use `name` (the location's own name field) + `level` instead of
+    // the removed deprecated `city`/`state` flat fields.
     let parentQuery: Record<string, unknown> | null = null;
 
     if (level === 'state') {
@@ -114,7 +115,6 @@ export const resolveParentLocation = async (params: {
             $or: [
                 { name: toExactRegex(country) },
                 { country: toExactRegex(country) },
-                { city: toExactRegex(country) },
             ],
         };
     } else if (level === 'district') {
@@ -122,7 +122,7 @@ export const resolveParentLocation = async (params: {
         parentQuery = {
             ...baseQuery,
             level: 'state',
-            state: toExactRegex(state),
+            name: toExactRegex(state),
             ...(country ? { country: toExactRegex(country) } : {}),
         };
     } else if (level === 'city') {
@@ -132,31 +132,30 @@ export const resolveParentLocation = async (params: {
                 ...baseQuery,
                 level: 'district',
                 name: toExactRegex(district),
-                ...(state ? { state: toExactRegex(state) } : {}),
                 ...(country ? { country: toExactRegex(country) } : {}),
             }
             : {
                 ...baseQuery,
                 level: 'state',
-                state: toExactRegex(state || ''),
+                name: toExactRegex(state || ''),
                 ...(country ? { country: toExactRegex(country) } : {}),
             };
     } else if (level === 'area') {
         if (!city) return null;
+        // Parent of an area is a city; `name` on a city-level doc IS the city name
         parentQuery = {
             ...baseQuery,
             level: 'city',
-            city: toExactRegex(city),
-            ...(state ? { state: toExactRegex(state) } : {}),
+            name: toExactRegex(city),
             ...(country ? { country: toExactRegex(country) } : {}),
         };
     } else if (level === 'village') {
         if (!city) return null;
+        // Parent of a village is an area; `name` on an area-level doc IS the area/city name
         parentQuery = {
             ...baseQuery,
             level: 'area',
-            city: toExactRegex(city),
-            ...(state ? { state: toExactRegex(state) } : {}),
+            name: toExactRegex(city),
             ...(country ? { country: toExactRegex(country) } : {}),
         };
     }
@@ -164,7 +163,7 @@ export const resolveParentLocation = async (params: {
     if (!parentQuery) return null;
 
     const parent = await Location.findOne(parentQuery)
-        .select('_id level parentId path country state district city priority isPopular createdAt')
+        .select('_id name level parentId path country priority isPopular createdAt')
         .sort({ isPopular: -1, priority: -1, createdAt: 1 })
         .lean<HierarchyLocationNode | null>();
 
@@ -195,7 +194,10 @@ export const resolveLocationPathIds = async (
 
     while (currentParentId) {
         const key = String(currentParentId);
-        if (visited.has(key)) break;
+        if (visited.has(key)) {
+            logger.error('Location hierarchy cycle detected', { locationId: currentParentId, visitedChain: Array.from(visited) });
+            throw new Error(`Location hierarchy cycle detected at locationId: ${currentParentId}`);
+        }
         visited.add(key);
 
         const parent = await Location.findById(currentParentId)

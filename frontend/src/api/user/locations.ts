@@ -5,12 +5,18 @@ import { API_ROUTES } from "@/api/routes";
 export { type Location, type IngestLocationParams } from '@/../../shared/types/Location';
 import { Location, IngestLocationParams } from '@/../../shared/types/Location';
 import logger from "@/lib/logger";
+import { ingestLocationSchema } from "@/schemas/location.schema";
 
 /* -------------------------------------------------------------------------- */
 /* INGEST (JIT CREATION)                                                      */
 /* -------------------------------------------------------------------------- */
 
 export const ingestLocation = async (params: IngestLocationParams): Promise<Location | null> => {
+    const parseResult = ingestLocationSchema.safeParse(params);
+    if (!parseResult.success) {
+        logger.warn('[locations] ingestLocation: invalid params', { errors: parseResult.error.flatten() });
+        return null;
+    }
     const { data } = await toApiResult<Location>(
         apiClient.post(API_ROUTES.USER.LOCATIONS_INGEST, params)
     );

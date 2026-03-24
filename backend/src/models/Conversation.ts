@@ -74,31 +74,31 @@ const ConversationSchema = new Schema<IConversation>(
 /** One chat per buyer per ad — core business rule */
 ConversationSchema.index(
   { adId: 1, buyerId: 1 },
-  { unique: true, name: 'conv_ad_buyer_unique_idx' }
+  { unique: true, name: 'idx_conversation_ad_buyer_unique_idx' }
 );
 
 /** Seller inbox — newest first */
 ConversationSchema.index(
   { sellerId: 1, lastMessageAt: -1 },
-  { name: 'conv_seller_inbox_idx' }
+  { name: 'idx_conversation_seller_inbox_idx' }
 );
 
 /** Buyer inbox — newest first */
 ConversationSchema.index(
   { buyerId: 1, lastMessageAt: -1 },
-  { name: 'conv_buyer_inbox_idx' }
+  { name: 'idx_conversation_buyer_inbox_idx' }
 );
 
 /** Admin moderation queue — blocked conversations */
 ConversationSchema.index(
   { isBlocked: 1, updatedAt: -1 },
-  { name: 'conv_blocked_moderation_idx' }
+  { name: 'idx_conversation_blocked_moderation_idx' }
 );
 
 /** Admin moderation — closed conversations */
 ConversationSchema.index(
   { isAdClosed: 1, updatedAt: -1 },
-  { name: 'conv_adclosed_idx' }
+  { name: 'idx_conversation_adclosed_idx' }
 );
 
 /* -------------------------------------------------------------------------- */

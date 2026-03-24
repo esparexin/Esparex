@@ -97,19 +97,19 @@ const ChatMessageSchema = new Schema<IChatMessage>(
 /** Primary query: all messages in a conversation, newest first (reverse scroll) */
 ChatMessageSchema.index(
   { conversationId: 1, createdAt: -1 },
-  { name: 'msg_conv_date_idx' }
+  { name: 'idx_chatmessage_conv_date_idx' }
 );
 
 /** Read-receipt batch update: unread messages for a receiver in a conversation */
 ChatMessageSchema.index(
   { conversationId: 1, receiverId: 1, readAt: 1 },
-  { name: 'msg_read_receipt_idx' }
+  { name: 'idx_chatmessage_read_receipt_idx' }
 );
 
 /** Admin high-risk filter */
 ChatMessageSchema.index(
   { riskScore: -1, createdAt: -1 },
-  { name: 'msg_risk_score_idx' }
+  { name: 'idx_chatmessage_risk_score_idx' }
 );
 
 /* -------------------------------------------------------------------------- */

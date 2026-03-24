@@ -61,7 +61,7 @@ const sendEmptyPublicList = (res: Response) => res.status(200).json(respond({
  */
 export const getSpareParts = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
-    const { status } = req.query;
+    const { isActive } = req.query;
     const categoryParam = (req.query.categoryId || req.query.category) as string | undefined;
 
     let categoryObjectId: string | undefined = categoryParam;
@@ -119,10 +119,10 @@ export const getSpareParts = async (req: Request, res: Response) => {
     const activeModelIds = activeModelsRaw.map((model) => String(model._id));
 
     const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build();
-    if (status) adminQuery.status = status;
+    if (isActive !== undefined) adminQuery.isActive = isActive === 'true';
 
     const publicQuery: QueryRecord = { 
-        status: CATALOG_STATUS.ACTIVE,
+        isActive: true,
         ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build()
     };
     publicQuery.$and = [
@@ -190,7 +190,7 @@ export const createSparePart = async (req: Request, res: Response) => {
             categoryIds,
             sortOrder = 0,
             filters = [],
-            status,
+            isActive = true,
             rejectionReason,
             brandId,
             modelId
@@ -230,7 +230,7 @@ export const createSparePart = async (req: Request, res: Response) => {
             ...(modelId ? { modelId } : {}),
             sortOrder,
             filters,
-            status: (status && Object.values(CATALOG_STATUS).includes(status as any)) ? status : CATALOG_STATUS.ACTIVE,
+            isActive,
             ...(rejectionReason ? { rejectionReason } : {}),
             usageCount: 0,
             createdBy: adminId

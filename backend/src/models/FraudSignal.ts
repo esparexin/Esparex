@@ -25,11 +25,11 @@ const FraudSignalSchema = new Schema<IFraudSignal>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-FraudSignalSchema.index({ ip: 1 }, { name: 'fraudsignal_ip_idx' });
-FraudSignalSchema.index({ userId: 1 }, { name: 'fraudsignal_userId_idx' });
-FraudSignalSchema.index({ deviceFingerprint: 1 }, { name: 'fraudsignal_deviceFingerprint_idx' });
-FraudSignalSchema.index({ adId: 1 }, { name: 'fraudsignal_adId_idx' });
-FraudSignalSchema.index({ createdAt: 1 }, { name: 'fraudsignal_ttl_idx' }); // Existing expires
+FraudSignalSchema.index({ ip: 1 }, { name: 'idx_fraudsignal_ip_idx' });
+FraudSignalSchema.index({ userId: 1 }, { name: 'idx_fraudsignal_userId_idx' });
+FraudSignalSchema.index({ deviceFingerprint: 1 }, { name: 'idx_fraudsignal_deviceFingerprint_idx' });
+FraudSignalSchema.index({ adId: 1 }, { name: 'idx_fraudsignal_adId_idx' });
+FraudSignalSchema.index({ createdAt: 1 }, { name: 'idx_fraudsignal_ttl_idx' }); // Existing expires
 
 const userConnection = getUserConnection();
 const FraudSignal: Model<IFraudSignal> =

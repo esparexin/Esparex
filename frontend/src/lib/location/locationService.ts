@@ -30,7 +30,7 @@ function buildAppLocation(params: {
     pincode?: string;
     coordinates?: GeoJSONPoint;
     source?: AppLocationSource;
-    placeId?: string;
+    locationId?: string;
     name?: string;
     level?: AppLocation["level"];
 }): AppLocation {
@@ -44,7 +44,7 @@ function buildAppLocation(params: {
         city ||
         DEFAULT_APP_LOCATION.formattedAddress;
 
-    const placeId = params.placeId;
+    const locationId = params.locationId;
     const now = Date.now();
 
     return {
@@ -54,10 +54,9 @@ function buildAppLocation(params: {
         country,
         pincode: params.pincode,
         source,
-        locationId: placeId,
-        placeId,
+        locationId,
         level: params.level,
-        id: placeId,
+        id: locationId,
         display: formattedAddress,
         coordinates: params.coordinates,
         detectedAt: now,
@@ -65,7 +64,7 @@ function buildAppLocation(params: {
     };
 }
 
-export function normalizeLocation(
+export function normalizeToAppLocation(
     rawLocation: unknown,
     sourceOverride?: AppLocationSource
 ): AppLocation | null {
@@ -112,8 +111,7 @@ export function normalizeLocation(
         (typeof rawLocation.name === "string" && rawLocation.name) ||
         city;
 
-    const placeId =
-        (typeof rawLocation.placeId === "string" && rawLocation.placeId) ||
+    const locationId =
         (typeof rawLocation.locationId === "string" && rawLocation.locationId) ||
         (typeof rawLocation.id === "string" && rawLocation.id) ||
         undefined;
@@ -139,7 +137,7 @@ export function normalizeLocation(
         pincode,
         coordinates,
         source,
-        placeId,
+        locationId,
         level,
         name:
             (typeof rawLocation.name === "string" && rawLocation.name) || city,
@@ -152,7 +150,7 @@ export async function reverseGeocode(
 ): Promise<AppLocation | null> {
     const location = await reverseGeocodeApi(latitude, longitude);
     if (!location) return null;
-    return normalizeLocation(location, "auto");
+    return normalizeToAppLocation(location, "auto");
 }
 
 type CurrentLocationOptions = {
@@ -222,7 +220,7 @@ const reverseGeocodeWithSource = async (
 ): Promise<AppLocation | null> => {
     const location = await reverseGeocodeApi(latitude, longitude);
     if (!location) return null;
-    return normalizeLocation(location, source);
+    return normalizeToAppLocation(location, source);
 };
 
 /**
@@ -236,7 +234,7 @@ const autoDetectLocationWithAutoCreate = async (
     // Try reverse geocoding first
     const existing = await reverseGeocodeApi(latitude, longitude);
     if (existing) {
-        return normalizeLocation(existing, "auto");
+        return normalizeToAppLocation(existing, "auto");
     }
 
     // If not found, try to create it
@@ -254,7 +252,7 @@ const autoDetectLocationWithAutoCreate = async (
         });
 
         if (created) {
-            return normalizeLocation(created, "auto");
+            return normalizeToAppLocation(created, "auto");
         }
     } catch {
         // If auto-create fails, fall back to fallback location
@@ -442,7 +440,7 @@ export function toLocationPayload(location: AppLocation): {
         coordinates: [number, number];
     };
 } {
-    const locationId = location.locationId || location.placeId || location.id;
+    const locationId = location.locationId ?? location.id;
     return {
         locationId,
         city: location.city,

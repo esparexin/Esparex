@@ -2,6 +2,7 @@ import { uploadToS3 } from './s3';
 import crypto from 'crypto';
 import sharp from 'sharp';
 import logger from './logger';
+import imageDomainRegistry from '@shared/constants/image-domain-registry.json';
 
 let hasWarnedMissingS3InTest = false;
 const MAX_IMAGE_DIMENSION = 1600;
@@ -97,7 +98,7 @@ export const processSingleImage = async (
     if (!process.env.S3_BUCKET_NAME) {
         warnMissingS3BucketOncePerTestRun(folder);
         return {
-            url: `https://placehold.co/600x400/png?text=Local+Dev+Image`,
+            url: imageDomainRegistry.placeholderImageUrl,
             hash: `dev-hash`
         };
     }
@@ -147,7 +148,7 @@ export const processSingleImage = async (
     } catch (error) {
         logger.error("Image Processing Error:", error);
         return {
-            url: `https://placehold.co/600x400/png?text=Processing+Failed`,
+            url: imageDomainRegistry.placeholderImageUrl,
             hash: "error"
         };
     }

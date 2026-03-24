@@ -22,9 +22,9 @@ const AdImageSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-AdImageSchema.index({ adId: 1 }, { name: 'adimage_adId_idx' });
-AdImageSchema.index({ imageHash: 1 }, { name: 'adimage_imageHash_idx' });
-AdImageSchema.index({ adId: 1, imageHash: 1 }, { name: 'adimage_adId_hash_unique_idx', unique: true });
+AdImageSchema.index({ adId: 1 }, { name: 'idx_adimage_adId_idx' });
+AdImageSchema.index({ imageHash: 1 }, { name: 'idx_adimage_imageHash_idx' });
+AdImageSchema.index({ adId: 1, imageHash: 1 }, { name: 'idx_adimage_adId_hash_unique_idx', unique: true });
 
 const AdImage: Model<IAdImage> = getUserConnection().models.AdImage || getUserConnection().model<IAdImage>('AdImage', AdImageSchema);
 

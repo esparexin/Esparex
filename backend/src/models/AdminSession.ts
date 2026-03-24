@@ -31,12 +31,12 @@ const AdminSessionSchema = new Schema<IAdminSession>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-AdminSessionSchema.index({ adminId: 1 }, { name: 'adminsess_adminId_idx' });
-AdminSessionSchema.index({ tokenHash: 1 }, { name: 'adminsess_tokenHash_unique_idx', unique: true });
-AdminSessionSchema.index({ tokenId: 1 }, { name: 'adminsess_tokenId_idx' });
+AdminSessionSchema.index({ adminId: 1 }, { name: 'idx_adminsession_adminId_idx' });
+AdminSessionSchema.index({ tokenHash: 1 }, { name: 'idx_adminsession_tokenHash_unique_idx', unique: true });
+AdminSessionSchema.index({ tokenId: 1 }, { name: 'idx_adminsession_tokenId_idx' });
 // TTL index handles both expiry and lookup
-AdminSessionSchema.index({ expiresAt: 1 }, { name: 'adminsess_expiresAt_ttl_idx', expireAfterSeconds: 0 });
-AdminSessionSchema.index({ adminId: 1, tokenId: 1, revokedAt: 1 }, { name: 'adminsess_admin_token_revoked_idx' });
+AdminSessionSchema.index({ expiresAt: 1 }, { name: 'idx_adminsession_expiresAt_ttl_idx', expireAfterSeconds: 0 });
+AdminSessionSchema.index({ adminId: 1, tokenId: 1, revokedAt: 1 }, { name: 'idx_adminsession_admin_token_revoked_idx' });
 
 AdminSessionSchema.set('toJSON', {
     virtuals: true,

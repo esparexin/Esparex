@@ -64,11 +64,9 @@ const SmartAlertSchema = new Schema<ISmartAlert>({
   toObject: { virtuals: true, versionKey: false }
 })
 
-SmartAlertSchema.index({ userId: 1 }, { name: 'smartalert_userId_idx' })
-SmartAlertSchema.index({ coordinates: '2dsphere' }, { name: 'smartalert_geo_2dsphere' })
-SmartAlertSchema.index({ isActive: 1, expiresAt: 1 }, { name: 'smartalert_user_active_idx' })
-// TTL: automatically remove alerts once their expiresAt has passed
-SmartAlertSchema.index({ expiresAt: 1 }, { name: 'smartalert_ttl_idx', expireAfterSeconds: 0, sparse: true })
+SmartAlertSchema.index({ userId: 1 }, { name: 'idx_smartalert_userId_idx' })
+SmartAlertSchema.index({ coordinates: '2dsphere' }, { name: 'idx_smartalert_geo_2dsphere' })
+SmartAlertSchema.index({ isActive: 1, expiresAt: 1 }, { name: 'idx_smartalert_user_active_idx' })
 
 export const SmartAlert: Model<ISmartAlert> = (getUserConnection().models.SmartAlert as Model<ISmartAlert>) || getUserConnection().model<ISmartAlert>(
   'SmartAlert', SmartAlertSchema

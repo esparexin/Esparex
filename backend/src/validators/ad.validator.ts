@@ -13,7 +13,6 @@ import {
     PartialAdPayloadSchema as SharedPartialAdPayloadSchema
 } from '../../../shared/schemas/adPayload.schema';
 import { AD_STATUS_VALUES } from '../../../shared/enums/adStatus';
-import { REPORT_REASON_VALUES } from '../../../shared/enums/reportReason';
 import { coordinatesSchema } from '../../../shared/schemas/coordinates.schema';
 
 /**
@@ -107,20 +106,10 @@ export const markAsSoldSchema = z.object({
     soldReason: z.enum(['sold_on_platform', 'sold_outside', 'no_longer_available']).optional(),
 }).strict().default({});
 
-/**
- * Report Ad Schema
- */
-export const reportAdSchema = z.object({
-    reason: z.enum(REPORT_REASON_VALUES),
-    description: z.string().max(500).transform(val => val.replace(/<[^>]*>/g, '').trim()).optional(),
-}).strict();
-
-
 export default {
     createAdSchema,
     updateAdSchema,
     getAdsQuerySchema,
     adIdParamSchema,
     markAsSoldSchema,
-    reportAdSchema,
 };

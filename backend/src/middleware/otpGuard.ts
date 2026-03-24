@@ -93,9 +93,10 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         }
 
         if (authBypassOtpLock === 'true') {
-            const bypassWarning = '⚠️  WARNING: AUTH_BYPASS_OTP_LOCK=true in production. This should NEVER be enabled in production for security.';
-            otpGuardState.warnings.push(bypassWarning);
-            bootstrapLogger.warn(bypassWarning);
+            throw new Error(
+                'SECURITY: AUTH_BYPASS_OTP_LOCK=true is set in a production environment. ' +
+                'This bypass must never be enabled in production. Remove it from your environment configuration.'
+            );
         }
 
         bootstrapLogger.info('✅ OTP Guard: Production SMS provider configured and validated');

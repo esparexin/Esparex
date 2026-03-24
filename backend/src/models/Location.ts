@@ -13,10 +13,6 @@ export interface ILocation extends ISoftDeleteDocument {
 
     name: string;
     slug: string; // URL-safe unique identifier
-    /** @deprecated Legacy denormalized field. Hierarchy SSOT uses parentId/path. */
-    city?: string;
-    /** @deprecated Legacy denormalized field. Hierarchy SSOT uses parentId/path. */
-    state?: string;
     country: string;
     softDelete(): Promise<this>;
     restore(): Promise<this>;
@@ -54,9 +50,6 @@ const LocationSchema = new Schema<ILocation>(
         slug: { type: String, trim: true },
         normalizedName: { type: String, trim: true },
 
-        // LEGACY DENORMALIZED FIELDS (kept for backward compatibility)
-        city: { type: String, trim: true, select: false },
-        state: { type: String, trim: true, select: false },
         country: { type: String, default: "Unknown", trim: true },
 
         level: {
@@ -130,9 +123,8 @@ LocationSchema.pre("save", async function () {
         this.normalizedName = normalizeLocationNameForSearch(this.name);
     }
     if (!this.slug) {
-        const cityPart = this.city || this.name;
-        const statePart = this.state || this.country || "unknown";
-        this.slug = buildLocationSlug(this.name, cityPart, statePart);
+        // Use name + country only — city/state are deprecated flat fields (Sprint 3 removal)
+        this.slug = buildLocationSlug(this.name, this.name, this.country || "unknown");
     }
 });
 
@@ -162,15 +154,14 @@ LocationSchema.pre("findOneAndUpdate", function () {
 
     const target = update.$set && typeof update.$set === "object" ? update.$set : update;
     const nextName = typeof target.name === "string" ? target.name : undefined;
-    const nextCity = typeof target.city === "string" ? target.city : undefined;
-    const nextState = typeof target.state === "string" ? target.state : undefined;
     const nextCountry = typeof target.country === "string" ? target.country : undefined;
 
     if (nextName) {
         target.normalizedName = normalizeLocationNameForSearch(nextName);
     }
-    if (!target.slug && (nextName || nextCity || nextState || nextCountry)) {
-        target.slug = buildLocationSlug(nextName || nextCity, nextCity || nextName, nextState || nextCountry || "Unknown");
+    // Slug uses name + country only — city/state are deprecated flat fields (Sprint 3 removal)
+    if (!target.slug && nextName) {
+        target.slug = buildLocationSlug(nextName, nextName, nextCountry || "Unknown");
     }
 });
 
@@ -183,10 +174,10 @@ LocationSchema.plugin(softDeletePlugin);
 // Geo index (MANDATORY for $geoNear)
 LocationSchema.index({ coordinates: "2dsphere" }, { name: 'idx_location_geo_coordinates_2dsphere' });
 
-// Text index for broad keyword matching (support for "Mumbai Maharashtra")
+// Text index for broad keyword matching (city/state fields removed in Sprint 3)
 LocationSchema.index(
-    { name: "text", city: "text", state: "text", aliases: "text" }, 
-    { name: 'idx_location_text_search' }
+    { name: "text", normalizedName: "text", aliases: "text" },
+    { name: 'idx_location_text_search_v2' }
 );
 
 // Standalone indexes for efficient Regex Autocomplete (/^query/)

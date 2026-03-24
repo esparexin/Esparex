@@ -126,8 +126,8 @@ const getUserAuthFailure = (
 const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
     if (env.NODE_ENV === 'test') return;
 
-    // Dev fallback: allow static OTP bypass only in non-production
-    if (env.NODE_ENV !== 'production' && process.env.USE_DEFAULT_OTP === 'true') {
+    // Dev fallback: allow static OTP bypass only in development (not staging/preview)
+    if (env.NODE_ENV === 'development' && process.env.USE_DEFAULT_OTP === 'true') {
         logger.info('Dev OTP fallback active — skipping SMS dispatch', { phone: mobile.slice(-4) });
         return;
     }
