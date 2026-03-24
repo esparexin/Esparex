@@ -11,7 +11,6 @@ import {
   Sparkles,
   Wrench,
   CreditCard,
-  CircuitBoard,
 } from "lucide-react";
 import {
   type UserPage,
@@ -49,9 +48,7 @@ export interface ResolvedNavigationItem extends NavigationItem {
 
 export type ProfileTabValue =
   | "personal"
-  | "myads"
-  | "services"
-  | "spare-parts"
+  | "mylistings"
   | "saved"
   | "business"
   | "plans"
@@ -67,9 +64,7 @@ export const PROFILE_TAB_ITEMS: Array<{
   businessOnly?: boolean;
 }> = [
     { value: "personal", label: "Account", icon: UserIcon },
-    { value: "myads", label: "My Ads", icon: Package },
-    { value: "services", label: "My Services", icon: Wrench, businessOnly: true },
-    { value: "spare-parts", label: "My Spare Parts", icon: CircuitBoard, businessOnly: true },
+    { value: "mylistings", label: "My Listings", icon: Package },
     { value: "saved", label: "Saved Ads", icon: Heart },
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
@@ -82,7 +77,7 @@ export const PROFILE_TAB_PAGE_ROUTES: Partial<Record<ProfileTabValue, UserPage>>
   Object.freeze({
     personal: "profile",
     settings: "profile-settings",
-    myads: "my-ads",
+    mylistings: "my-ads",
     saved: "saved-ads",
     smartalerts: "smart-alerts",
     plans: "plans-payments",
@@ -142,8 +137,8 @@ const BASE_NAVIGATION: NavigationItem[] = [
     page: "profile-settings",
   },
   {
-    id: "my-ads",
-    label: "My Ads",
+    id: "my-listings",
+    label: "My Listings",
     slug: "my-ads",
     icon: Package,
     roles: ["user", "business"],

@@ -23,10 +23,8 @@ export function AccountPageShell({ tab }: AccountPageShellProps) {
     const queryTab = searchParams.get("tab");
     const allowedTabs = new Set([
         "personal",
-        "myads",
-        "services",
+        "mylistings",
         "saved",
-        "messages",
         "business",
         "plans",
         "settings",

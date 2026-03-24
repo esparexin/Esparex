@@ -45,20 +45,18 @@ import { PhotoOptionsDialog } from "./profile/dialogs/PhotoOptionsDialog";
 
 // Modular Tab Components
 import { PersonalTab } from "./profile/tabs/PersonalTab";
-import { MyAdsTab } from "./profile/tabs/MyAdsTab";
-import { MyServicesTab } from "./profile/tabs/MyServicesTab";
-import { MySparePartsTab } from "./profile/tabs/MySparePartsTab";
 import { PlansTab } from "./profile/tabs/PlansTab";
 import { SettingsTab } from "./profile/tabs/SettingsTab";
 import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
 import { BusinessTab } from "./profile/tabs/BusinessTab";
 import { PurchasesTab } from "./profile/tabs/PurchasesTab";
+import { AllListingsTab } from "./profile/tabs/AllListingsTab";
 import { SavedAds } from "./SavedAds";
 import AccountHeader from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
 
 interface ProfileSettingsProps {
-  navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string) => void;
+  navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => void;
   user: ProfileUser | null;
   onUpdateUser: (userData: User) => void;
   onLogout: () => void;
@@ -218,9 +216,13 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           navigateToBusinessTab={() => setActiveTabFromChild("business")}
         />
       );
-      case "myads": return <MyAdsTab ads={myAds} adCounts={adCounts} loadingAds={loadingAds} myAdsTab={myAdsTab} setMyAdsTab={setMyAdsTab} navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} getStatusBadge={getStatusBadge} fetchMyAds={fetchMyAds} formatDate={formatDate} handleDeleteAd={handleDeleteAdForTab} handleMarkAsSold={handleMarkAsSoldForTab} />;
-      case "services": return <MyServicesTab user={user} activeTab={activeTab} statusFilter={myServicesTab} navigateTo={(page, adId, category, businessId, serviceId) => navigateTo(page as UserPage, adId, category, businessId, serviceId)} getStatusBadge={getStatusBadge} formatDate={formatDate} />;
-      case "spare-parts": return <MySparePartsTab user={user} activeTab={activeTab} statusFilter="live" getStatusBadge={getStatusBadge} formatDate={formatDate} />;
+      case "mylistings": return (
+        <AllListingsTab 
+          adsProps={{ ads: myAds, adCounts, loadingAds, myAdsTab, setMyAdsTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, fetchMyAds, formatDate, handleDeleteAd: handleDeleteAdForTab, handleMarkAsSold: handleMarkAsSoldForTab }}
+          servicesProps={{ user, activeTab, statusFilter: myServicesTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, formatDate }}
+          sparePartsProps={{ user, activeTab, statusFilter: "live", getStatusBadge, formatDate }}
+        />
+      );
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
       case "plans": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
       case "business": return <BusinessTab businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} showBusinessEditForm={showBusinessEditForm} setShowBusinessEditForm={setShowBusinessEditForm} user={user} onUpdateUser={onUpdateUser} navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)} setActiveTab={setActiveTabFromChild} />;
