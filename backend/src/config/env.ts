@@ -40,6 +40,7 @@ const envSchema = z.object({
     JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
     ADMIN_JWT_SECRET: z.string().optional(),
     REFRESH_TOKEN_SECRET: z.string().optional(),
+    OTP_HASH_SECRET: z.string().optional(),
 
     // CORS
     CORS_ORIGIN: z.string().default('http://localhost:3000'),
@@ -67,7 +68,6 @@ const envSchema = z.object({
     RAZORPAY_KEY_ID: z.string().optional(),
     RAZORPAY_KEY_SECRET: z.string().optional(),
     RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
-    OTP_HASH_SECRET: z.string().optional(),
 
     // External APIs (Optional)
     IPAPI_KEY: z.string().optional(),

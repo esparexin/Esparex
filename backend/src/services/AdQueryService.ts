@@ -12,6 +12,7 @@ import Brand from '../models/Brand';
 import ProductModel from '../models/Model';
 import Report from '../models/Report';
 import BlockedUser from '../models/BlockedUser';
+import SparePart from '../models/SparePart';
 import { serializeDoc } from '../utils/serialize';
 import { normalizeLocationResponse, touchLocationSearchAnalytics } from './LocationService';
 import { buildGeoNearStage, normalizeGeoInput } from '../utils/GeoUtils';
@@ -372,6 +373,68 @@ export const buildAdSortStage = (filters: AdFilters): SortStage => buildAdSortSt
 // COMPLEX SEARCH (Full aggregation with geo support)
 // ─────────────────────────────────────────────────
 
+/**
+ * Hydrates a list of ad documents with metadata from the Admin database.
+ * This performs application-level joins for Category, Brand, Model, and SparePart
+ * collections that reside on the Admin connection, bypassing MongoDB $lookup limitations.
+ */
+async function hydrateAdMetadata(ads: any[]) {
+    if (!ads || ads.length === 0) return ads;
+
+    const categoryIds = new Set<string>();
+    const brandIds = new Set<string>();
+    const modelIds = new Set<string>();
+    const sparePartIds = new Set<string>();
+
+    ads.forEach(ad => {
+        if (ad.categoryId) categoryIds.add(ad.categoryId.toString());
+        if (ad.brandId) brandIds.add(ad.brandId.toString());
+        if (ad.modelId) modelIds.add(ad.modelId.toString());
+        if (Array.isArray(ad.sparePartIds)) {
+            ad.sparePartIds.forEach((id: any) => sparePartIds.add(id.toString()));
+        }
+    });
+
+    const [categories, brands, models, spareParts] = await Promise.all([
+        categoryIds.size > 0 
+            ? Category.find({ _id: { $in: Array.from(categoryIds) } }).select('name slug').lean() 
+            : Promise.resolve([]),
+        brandIds.size > 0 
+            ? Brand.find({ _id: { $in: Array.from(brandIds) } }).select('name slug').lean() 
+            : Promise.resolve([]),
+        modelIds.size > 0 
+            ? ProductModel.find({ _id: { $in: Array.from(modelIds) } }).select('name slug').lean() 
+            : Promise.resolve([]),
+        sparePartIds.size > 0 
+            ? SparePart.find({ _id: { $in: Array.from(sparePartIds) } }).lean() 
+            : Promise.resolve([])
+    ]);
+
+    const categoryMap = new Map(categories.map((c: any) => [String(c._id), c]));
+    const brandMap = new Map(brands.map((b: any) => [String(b._id), b]));
+    const modelMap = new Map(models.map((m: any) => [String(m._id), m]));
+    const sparePartMap = new Map(spareParts.map((s: any) => [String(s._id), s]));
+
+    ads.forEach(ad => {
+        if (ad.categoryId) {
+            ad.category = categoryMap.get(String(ad.categoryId));
+        }
+        if (ad.brandId) {
+            ad.brand = brandMap.get(String(ad.brandId));
+        }
+        if (ad.modelId) {
+            ad.model = modelMap.get(String(ad.modelId));
+        }
+        if (Array.isArray(ad.sparePartIds)) {
+            ad.spareParts = ad.sparePartIds
+                .map((id: any) => sparePartMap.get(String(id)))
+                .filter(Boolean);
+        }
+    });
+
+    return ads;
+}
+
 export const getAds = async (
     filters: AdFilters,
     pagination: PaginationOptions,
@@ -623,51 +686,7 @@ export const getAds = async (
     const isLightweightListing = await isEnabled(FeatureFlag.ENABLE_LIGHTWEIGHT_LISTING);
 
     if (!isLightweightListing) {
-        // Populate Category
-        pipeline.push({
-            $lookup: {
-                from: 'categories',
-                let: { refId: '$categoryId' },
-                pipeline: [
-                    { $match: { $expr: { $eq: ['$_id', '$$refId'] } } },
-                    { $project: { name: 1, slug: 1 } }
-                ],
-                as: 'category'
-            }
-        });
-        pipeline.push({ $unwind: { path: '$category', preserveNullAndEmptyArrays: true } });
-    }
-
-    if (!isLightweightListing) {
-        // Populate Brand
-        pipeline.push({
-            $lookup: {
-                from: 'brands',
-                let: { refId: '$brandId' },
-                pipeline: [
-                    { $match: { $expr: { $eq: ['$_id', '$$refId'] } } },
-                    { $project: { name: 1, slug: 1 } }
-                ],
-                as: 'brand'
-            }
-        });
-        pipeline.push({ $unwind: { path: '$brand', preserveNullAndEmptyArrays: true } });
-
-        // Populate Model
-        pipeline.push({
-            $lookup: {
-                from: 'models',
-                let: { refId: '$modelId' },
-                pipeline: [
-                    { $match: { $expr: { $eq: ['$_id', '$$refId'] } } },
-                    { $project: { name: 1, slug: 1 } }
-                ],
-                as: 'model'
-            }
-        });
-        pipeline.push({ $unwind: { path: '$model', preserveNullAndEmptyArrays: true } });
-
-        // Populate Seller
+        // Populate Seller (User DB - Safe for native lookup)
         pipeline.push({
             $lookup: {
                 from: 'users',
@@ -687,18 +706,6 @@ export const getAds = async (
                 'seller.password': '$$REMOVE',
                 'seller.otp': '$$REMOVE',
                 'seller.otpExpiry': '$$REMOVE' as unknown
-            }
-        });
-    }
-
-    // Spare Part Hydration — Hydrate the array of spare part documents
-    if (filters.listingType === 'spare_part' || (Array.isArray(filters.listingType) && filters.listingType.includes('spare_part'))) {
-        pipeline.push({
-            $lookup: {
-                from: 'spareparts', // Verified collection name is 'spareparts'
-                localField: 'sparePartIds',
-                foreignField: '_id',
-                as: 'spareParts'
             }
         });
     }
@@ -773,6 +780,13 @@ export const getAds = async (
     const useCursorStyleMeta = isCursorMode || shouldSkipExactCount;
     const hasMore = useCursorStyleMeta ? rawResults.length > limit : false;
     const results = useCursorStyleMeta ? rawResults.slice(0, limit) : rawResults;
+
+    // --- HYDRATION: Application-level joins for cross-database metadata ---
+    // We always hydrate for non-public (admin/moderation) queries even if lightweight mode is on.
+    const shouldHydrateMetadata = !isLightweightListing || !options.enforcePublicVisibility;
+    if (shouldHydrateMetadata) {
+        await hydrateAdMetadata(results);
+    }
     const nextCursor =
         useCursorStyleMeta && hasMore && results.length > 0
             ? String(results[results.length - 1]?._id || '')

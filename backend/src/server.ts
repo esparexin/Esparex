@@ -10,6 +10,7 @@ import Admin from './models/Admin';
 import { USER_STATUS } from '@shared/enums/userStatus';
 import { createServer } from 'http';
 import { initializeEventDispatcher } from './events';
+import { validateMetadataHealth } from './utils/startupValidator';
 
 const PORT = env.PORT;
 
@@ -48,9 +49,11 @@ export async function startServer() {
             }
         }
 
-        // CONNECT DATABASE FIRST
         await connectDB();
         logger.info('MongoDB connected successfully');
+        
+        // Validate Metadata Integrity (Split-Safe Check)
+        await validateMetadataHealth();
         
         // Initialize Core Subsystems
         initializeEventDispatcher();

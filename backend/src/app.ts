@@ -151,6 +151,13 @@ const corsOptions: cors.CorsOptions = {
         // Allow server-to-server, curl, mobile apps
         if (!origin) return callback(null, true);
 
+        // 🛡️ AUTOMATIC LOCAL DEV ALLOWANCE
+        // In development, automatically allow localhost/127.0.0.1 on any port.
+        if (env.NODE_ENV === 'development') {
+            const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+            if (isLocal) return callback(null, true);
+        }
+
         const allowedOrigins = env.CORS_ORIGIN
             ? env.CORS_ORIGIN.split(",").map(o => o.trim())
             : [];

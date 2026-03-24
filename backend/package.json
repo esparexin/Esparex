@@ -15,7 +15,7 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint src --ext .ts --fix",
-    "db:seed": "ts-node src/seeds/runSeeds.ts",
+    "db:seed": "ts-node -r tsconfig-paths/register src/seeds/runSeeds.ts",
     "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/seed-admin.ts",
     "backup": "ts-node src/scripts/backup-database.ts",
     "restore": "ts-node src/scripts/restore-database.ts",
