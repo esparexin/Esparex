@@ -185,7 +185,8 @@ export const bulkImportService = {
 
                 // Auto-derive category if missing
                 if (!categoryId) {
-                    const derivedId = await CatalogOrchestrator.resolveCategoryIdFromBrand(brandId.toString());
+                    const derivedIds = await CatalogOrchestrator.resolveCategoryIdsFromBrand(brandId.toString());
+                    const derivedId = derivedIds[0];
                     if (derivedId) {
                         categoryId = new mongoose.Types.ObjectId(derivedId);
                     }
@@ -210,6 +211,7 @@ export const bulkImportService = {
                         name: item.name,
                         brandId: brandId,
                         categoryId: categoryId,
+                        categoryIds: [categoryId],
                         isActive: true,
                         status: CATALOG_STATUS.ACTIVE
                     },
@@ -353,6 +355,7 @@ export const bulkImportService = {
                         name: device.name,
                         brandId: brand._id,
                         categoryId: catId,
+                        categoryIds: [catId],
                         isActive: true,
                         status: CATALOG_STATUS.ACTIVE,
                         specifications: device.specs || {}

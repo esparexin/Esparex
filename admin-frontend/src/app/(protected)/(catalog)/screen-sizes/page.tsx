@@ -6,7 +6,7 @@ import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminScreenSizes } from "@/hooks/useAdminScreenSizes";
 import { useToast } from "@/context/ToastContext";
 import { ScreenSize } from "@/types/screenSize";
-import { filterAssignableCategories, assignableCategoryIdSet } from "@/lib/utils/categoryFilters";
+import { useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { Monitor, Search, Filter, Trash2, Plus, Edit, X } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
@@ -37,9 +37,11 @@ export default function ScreenSizesPage() {
         handleUpdate,
     } = useAdminScreenSizes();
 
-    // D4: shared utility replaces inline duplicate filter
-    const assignableCategories = filterAssignableCategories(categories);
-    const assignableCatIds = assignableCategoryIdSet(categories);
+    // Refactored to use shared assignable categories hook
+    const { assignableCategories, assignableCategoryIdSet: assignableCatIds } = useAssignableCategories(
+        categories,
+        (cat) => cat.hasScreenSizes === true
+    );
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingScreenSize, setEditingScreenSize] = useState<ScreenSize | null>(null);

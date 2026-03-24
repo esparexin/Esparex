@@ -3,7 +3,6 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IServiceType extends Document {
     name: string;
     categoryIds: mongoose.Types.ObjectId[];
-    categoryId?: mongoose.Types.ObjectId; // Legacy support
     filters?: unknown[];
     isActive: boolean;
     isDeleted: boolean;

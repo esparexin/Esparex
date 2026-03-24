@@ -178,9 +178,6 @@ export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationI
             ? raw.serviceTypeIds.map((value) => String(value)).filter(Boolean)
             : undefined,
         sparePartId: raw.sparePartId ? String(raw.sparePartId) : undefined,
-        compatibleModels: Array.isArray(raw.compatibleModels)
-            ? raw.compatibleModels.map((value) => String(value)).filter(Boolean)
-            : undefined,
         condition: partCondition,
         stock: asNumber(raw.stock),
         deviceType: asString(raw.deviceType),

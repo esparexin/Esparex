@@ -257,16 +257,6 @@ export class CatalogOrchestrator {
         return result;
     }
 
-    /**
-     * Resolve CategoryID from a BrandID (Helper)
-     * Returns the first category if multiple exist (Legacy compatibility)
-     */
-    static async resolveCategoryIdFromBrand(brandId: string): Promise<string | null> {
-        const brand = await Brand.findById(brandId).select('categoryIds').lean();
-        if (!brand || !brand.categoryIds || brand.categoryIds.length === 0) return null;
-        const firstCategoryId = brand.categoryIds[0];
-        return firstCategoryId ? firstCategoryId.toString() : null;
-    }
 
     /**
      * Resolve all CategoryIDs from a BrandID

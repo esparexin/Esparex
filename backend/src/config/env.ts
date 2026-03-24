@@ -101,7 +101,6 @@ const envSchema = z.object({
     ENABLE_MAINTENANCE_MODE: z.string().transform(val => val === 'true').default('false'),
     RUN_SCHEDULERS: z.string().transform(val => val === 'true').default('true'),
     ENABLE_SCHEDULER: z.string().transform(val => val === 'true').default('true'),
-    ENABLE_LEGACY_MODERATION_ALIASES: z.string().transform(val => val === 'true').default('false'),
     PROCESS_ROLE: z.enum(['api', 'scheduler']).default('api'),
     TZ: z.string().default('UTC'),
 });

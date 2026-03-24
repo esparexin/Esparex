@@ -196,11 +196,6 @@ export function ViewAdModal({
                                                     <span className="font-semibold">Device Type:</span> {ad.deviceType}
                                                 </div>
                                             )}
-                                            {Array.isArray(ad.compatibleModels) && ad.compatibleModels.length > 0 && (
-                                                <div>
-                                                    <span className="font-semibold">Compatible:</span> {ad.compatibleModels.join(", ")}
-                                                </div>
-                                            )}
                                         </>)}
                                         <div>
                                             <span className="font-semibold">Risk score:</span> {ad.riskScore ?? "Not scored"}

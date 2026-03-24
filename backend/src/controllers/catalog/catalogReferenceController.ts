@@ -24,8 +24,12 @@ import {
     sendCatalogError,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
+    ACTIVE_BRAND_QUERY,
     validateActiveCategories,
-    getActiveCategoryIds
+    getActiveCategoryIds,
+    sendValidationError,
+    sendEmptyPublicList,
+    isDuplicateKeyError
 } from './shared';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { validateScreenSizeRelations } from '../../services/catalog/CatalogValidationService';
@@ -39,22 +43,6 @@ import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 
 // Local schemas replaced by centralized catalog.validator.ts
 
-const sendValidationError = (req: Request, res: Response, error: ZodError) => {
-    sendContractErrorResponse(req, res, 400, 'Validation failed', {
-        details: error.issues.map((issue) => ({
-            field: issue.path.join('.'),
-            message: issue.message
-        }))
-    });
-};
-
-const sendEmptyPublicList = (res: Response) => res.status(200).json(respond({
-    success: true,
-    data: {
-        items: [],
-        total: 0
-    }
-}));
 
 /* ==========================================================
    SERVICE TYPES
@@ -108,19 +96,13 @@ export const createServiceType = async (req: Request, res: Response) => {
     try {
         if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
 
-        let { name, categoryIds, categoryId } = req.body;
+    const { name, categoryIds } = req.body;
         
-        // Backward compatibility mapping
-        if (!categoryIds && categoryId) {
-            categoryIds = [categoryId];
-        }
-
-        if (!name || (!categoryIds && !categoryId)) {
-            sendContractErrorResponse(req, res, 400, 'Name and Categories are required');
+        if (!name || !categoryIds || categoryIds.length === 0) {
+            sendContractErrorResponse(req, res, 400, 'Name and at least one Category are required');
             return;
         }
 
-        // DUPLICATE CHECK: names should be unique within a category
         const existing = await ServiceType.findOne({
             name: { $regex: new RegExp(`^${escapeRegExp(name)}$`, 'i') },
             ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds }).build(),
@@ -133,8 +115,10 @@ export const createServiceType = async (req: Request, res: Response) => {
         }
 
         const serviceType = await ServiceType.create({
-            ...req.body,
-            categoryIds
+            name,
+            categoryIds,
+            filters: req.body.filters,
+            isActive: req.body.isActive !== false
         });
         sendSuccessResponse(res, serviceType, 'Service type created successfully');
     } catch (error) {
@@ -150,10 +134,7 @@ export const updateServiceType = async (req: Request, res: Response) => {
         if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
         const payload = { ...req.body };
         
-        // Backward compatibility mapping
-        if (!payload.categoryIds && payload.categoryId) {
-            payload.categoryIds = [payload.categoryId];
-        }
+        // Remove legacy categoryId if present in body
         delete payload.categoryId;
 
         const serviceType = await ServiceType.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
@@ -174,11 +155,6 @@ export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
         if (!serviceType) { sendContractErrorResponse(req, res, 404, 'Service type not found'); return; }
         serviceType.isActive = !serviceType.isActive;
         
-        // Repair legacy mapping before save
-        if ((!serviceType.categoryIds || serviceType.categoryIds.length === 0) && serviceType.categoryId) {
-            serviceType.categoryIds = [serviceType.categoryId];
-        }
-
         await serviceType.save();
         sendSuccessResponse(res, serviceType, 'Service type status toggled');
     } catch (error) {
@@ -233,47 +209,47 @@ export const getScreenSizes = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
     const { categoryId } = req.query;
 
-    let categoryObjectId: string | mongoose.Types.ObjectId | undefined = categoryId as string | undefined;
-    if (!isAdminView && categoryId) {
-        if (!mongoose.Types.ObjectId.isValid(categoryId as string)) {
-            const cat = await Category.findOne({ slug: categoryId as string, ...ACTIVE_CATEGORY_QUERY });
-            if (cat) categoryObjectId = cat._id;
-        }
-    }
-    if (!isAdminView && categoryObjectId) {
-        const activeCategoryValidation = await validateActiveCategories([String(categoryObjectId)]);
-        if (!activeCategoryValidation.ok) {
-            return sendEmptyPublicList(res);
-        }
+    // 1. Resolve Category ID (Slug support for public API)
+    let resolvedCategoryId: string | undefined = categoryId as string | undefined;
+    if (!isAdminView && categoryId && !mongoose.Types.ObjectId.isValid(categoryId as string)) {
+        const cat = await Category.findOne({ slug: categoryId as string, ...ACTIVE_CATEGORY_QUERY }).select('_id').lean();
+        resolvedCategoryId = cat?._id?.toString();
     }
 
-    const activeCategoryIds = !isAdminView
-        ? (categoryObjectId ? [String(categoryObjectId)] : await getActiveCategoryIds())
-        : [];
-    if (!isAdminView && activeCategoryIds.length === 0) {
-        return sendEmptyPublicList(res);
+    // 2. Validate Category state for public view
+    if (!isAdminView && resolvedCategoryId) {
+        const validation = await validateActiveCategories([resolvedCategoryId]);
+        if (!validation.ok) return sendEmptyPublicList(res);
     }
-    const activeBrands = !isAdminView
-        ? await Brand.find({
-            isActive: true,
-            isDeleted: { $ne: true },
-            $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
-            ],
+
+    // 3. Assemble Active Context for Public Filter
+    let activeBrandIds: string[] = [];
+    let activeCategoryIds: string[] = [];
+    
+    if (!isAdminView) {
+        activeCategoryIds = resolvedCategoryId ? [resolvedCategoryId] : await getActiveCategoryIds();
+        if (activeCategoryIds.length === 0) return sendEmptyPublicList(res);
+        
+        const brands = await Brand.find({
+            ...ACTIVE_BRAND_QUERY,
             categoryIds: { $in: activeCategoryIds }
-        }).select('_id').lean()
-        : [];
-    const activeBrandIds = activeBrands.map((brand) => String(brand._id));
+        }).select('_id').lean();
+        activeBrandIds = brands.map(b => b._id.toString());
+    }
 
-    const adminQuery: QueryRecord = CategoryQueryBuilder.forSingular().withFilters({ categoryId: categoryId as string }).build();
+    // 4. Build Queries
+    const adminQuery = CategoryQueryBuilder.forSingular()
+        .withFilters({ categoryId: categoryId as string })
+        .build();
 
-    const publicQuery: QueryRecord = { 
+    const publicQuery = {
         isActive: true,
-        ...CategoryQueryBuilder.forSingular().withFilters({ 
-            categoryId: categoryObjectId ? String(categoryObjectId) : undefined, 
-            categoryIds: activeCategoryIds 
-        }).build(),
+        ...CategoryQueryBuilder.forSingular()
+            .withFilters({ 
+                categoryId: resolvedCategoryId,
+                categoryIds: activeCategoryIds 
+            })
+            .build(),
         $or: [
             { brandId: { $exists: false } },
             { brandId: null },

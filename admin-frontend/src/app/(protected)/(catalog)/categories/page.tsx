@@ -107,15 +107,11 @@ export default function CategoriesPage() {
             return;
         }
 
-        const allowedListingTypes = ['postad', 'postservice', 'postsparepart'];
-        // Bug #1 fix: use the filtered list in the payload
-        const filteredListingType = formData.listingType.filter(lt => allowedListingTypes.includes(lt));
-
         const payload = {
             name: formData.name,
             isActive: formData.isActive,
             hasScreenSizes: formData.hasScreenSizes,
-            listingType: filteredListingType
+            listingType: formData.listingType
         };
         const success = editingCategory
             ? await handleUpdate(editingCategory.id, payload)
@@ -304,25 +300,23 @@ export default function CategoriesPage() {
                                     Listing Types (Placement)
                                 </label>
                                 <div className="grid grid-cols-1 gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                                    {[
-                                        { id: 'postad', label: 'Post Ad (Devices)' },
-                                        { id: 'postservice', label: 'Post Service' },
-                                        { id: 'postsparepart', label: 'Post Spare Part' }
-                                    ].map(type => (
-                                        <label key={type.id} className="flex items-center gap-3 cursor-pointer group">
+                                    {FORM_PLACEMENT_VALUES.map(type => (
+                                        <label key={type} className="flex items-center gap-3 cursor-pointer group">
                                             <input
                                                 type="checkbox"
                                                 className="w-4 h-4 text-primary rounded border-slate-300 focus:ring-primary/20"
-                                                checked={formData.listingType.includes(type.id as FormPlacement)}
+                                                checked={formData.listingType.includes(type)}
                                                 onChange={(e) => {
                                                     const current = new Set(formData.listingType);
-                                                    if (e.target.checked) current.add(type.id as FormPlacement);
-                                                    else current.delete(type.id as FormPlacement);
+                                                    if (e.target.checked) current.add(type);
+                                                    else current.delete(type);
                                                     setFormData(prev => ({ ...prev, listingType: Array.from(current) }));
                                                 }}
                                             />
                                             <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">
-                                                {type.label}
+                                                {type === 'postad' ? 'Post Ad (Devices)' : 
+                                                 type === 'postservice' ? 'Post Service' : 
+                                                 'Post Spare Part'}
                                             </span>
                                         </label>
                                     ))}

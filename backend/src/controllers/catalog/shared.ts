@@ -71,3 +71,37 @@ export const sendCatalogError = (req: Request, res: Response, error: unknown) =>
     sendContractErrorResponse(req, res, 500, message);
 };
 
+/**
+ * Send Zod validation error response mapping issues to field-level details
+ */
+export const sendValidationError = (req: Request, res: Response, error: { issues: Array<{ path: Array<string | number>; message: string }> }) => {
+    sendContractErrorResponse(req, res, 400, 'Validation failed', {
+        details: error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message
+        }))
+    });
+};
+
+/**
+ * Send an empty paginated list response (common for invalid public filters)
+ */
+export const sendEmptyPublicList = (res: Response) => {
+    const { respond } = require('../../utils/respond');
+    res.status(200).json(respond({
+        success: true,
+        data: {
+            items: [],
+            total: 0
+        }
+    }));
+};
+/**
+ * Check if a mongo error is a duplicate key error
+ */
+export const isDuplicateKeyError = (error: unknown): boolean => {
+    if (!error || typeof error !== 'object') return false;
+    const candidate = error as { code?: unknown; message?: unknown };
+    return candidate.code === 11000 || (typeof candidate.message === 'string' && candidate.message.includes('E11000'));
+};
+

@@ -22,13 +22,16 @@ import { sendSuccessResponse } from '../admin/adminBaseController';
 import { escapeRegExp } from '../../utils/stringUtils';
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import {
-    hasAdminAccess,
-    sendCatalogError,
     asModel,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
     validateActiveCategories,
-    getActiveCategoryIds
+    getActiveCategoryIds,
+    sendValidationError,
+    sendEmptyPublicList,
+    hasAdminAccess,
+    sendCatalogError,
+    isDuplicateKeyError
 } from './shared';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { validateBrandSuggestion, validateModelSuggestion } from '../../utils/suggestionValidation';
@@ -43,34 +46,6 @@ import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 
 // Local schemas replaced by centralized catalog.validator.ts
 
-const sendValidationError = (req: Request, res: Response, error: ZodError) => {
-    sendContractErrorResponse(req, res, 400, 'Validation failed', {
-        details: error.issues.map((issue) => ({
-            field: issue.path.join('.'),
-            message: issue.message
-        }))
-    });
-};
-
-const sendEmptyPublicList = (res: Response) => res.status(200).json(respond({
-    success: true,
-    data: {
-        items: [],
-        total: 0
-    }
-}));
-
-const isDuplicateKeyError = (error: unknown): boolean => {
-    if (!error || typeof error !== 'object') return false;
-    const candidate = error as { code?: unknown; message?: unknown };
-    if (candidate.code === 11000) return true;
-    if (typeof candidate.message === 'string' && candidate.message.includes('E11000')) return true;
-    return false;
-};
-
-const ensureCategoriesAreActive = async (categoryIds: string[]): Promise<{ ok: boolean; invalidCategoryIds: string[] }> => {
-    return validateActiveCategories(categoryIds);
-};
 
 const uniqueObjectIds = (ids: Array<string | mongoose.Types.ObjectId>): mongoose.Types.ObjectId[] => {
     const deduped = new Map<string, mongoose.Types.ObjectId>();
@@ -177,7 +152,7 @@ export const createBrand = async (req: Request, res: Response) => {
         delete payload.categoryId;
 
         const incomingCategoryIds = ((payload.categoryIds as string[] | undefined) || []).map(String);
-        const categoryValidation = await ensureCategoriesAreActive(incomingCategoryIds);
+        const categoryValidation = await validateActiveCategories(incomingCategoryIds);
         if (!categoryValidation.ok) {
             sendContractErrorResponse(req, res, 400, 'One or more provided categoryIds are invalid or inactive', {
                 invalidCategoryIds: categoryValidation.invalidCategoryIds
@@ -248,7 +223,7 @@ export const updateBrand = async (req: Request, res: Response) => {
         delete payload.categoryId;
 
         const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : (oldBrand.categoryIds || []).map(String);
-        const categoryValidation = await ensureCategoriesAreActive(nextCategoryIds);
+        const categoryValidation = await validateActiveCategories(nextCategoryIds);
         if (!categoryValidation.ok) {
             sendContractErrorResponse(req, res, 400, 'One or more provided categoryIds are invalid or inactive', {
                 invalidCategoryIds: categoryValidation.invalidCategoryIds
@@ -390,7 +365,7 @@ export const getModels = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = {};
     if (brandId) adminQuery.brandId = brandId;
     if (categoryId) {
-        Object.assign(adminQuery, CategoryQueryBuilder.forSingular().withFilters({ categoryId }).build());
+        Object.assign(adminQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryId }).build());
     }
 
     const publicQuery: QueryRecord = {
@@ -401,12 +376,12 @@ export const getModels = async (req: Request, res: Response) => {
         ]
     };
     if (!isAdminView) {
-        publicQuery.categoryId = { $in: activeCategoryIds };
+        publicQuery.categoryIds = { $in: activeCategoryIds };
         publicQuery.brandId = { $in: activeBrandIds };
     }
     if (brandObjectId) publicQuery.brandId = brandObjectId;
     if (categoryObjectId) {
-        Object.assign(publicQuery, CategoryQueryBuilder.forSingular().withFilters({ categoryId: categoryObjectId }).build());
+        Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build());
     }
 
     if (!isAdminView && brandObjectId) {
@@ -460,7 +435,8 @@ export const createModel = async (req: Request, res: Response) => {
         
         // Auto-derive categoryId if missing
         if (!payload.categoryId) {
-            const derivedId = await CatalogOrchestrator.resolveCategoryIdFromBrand(payload.brandId);
+            const derivedIds = await CatalogOrchestrator.resolveCategoryIdsFromBrand(payload.brandId);
+            const derivedId = derivedIds[0];
             if (!derivedId) {
                 sendContractErrorResponse(req, res, 400, 'Invalid brandId: cannot resolve parent category');
                 return;

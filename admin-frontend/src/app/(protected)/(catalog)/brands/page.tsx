@@ -22,6 +22,7 @@ import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { catalogManagementTabs } from "@/components/layout/adminModuleTabSets";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { adminBrandSchema } from "@/schemas/admin.schemas";
+import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 
 export default function BrandsPage() {
     const { showToast } = useToast();
@@ -54,7 +55,10 @@ export default function BrandsPage() {
     });
 
     // Single source of active categories for assignment/editing
-    const { assignableCategories, assignableCategoryIdSet } = useAssignableCategories(categories);
+    const { assignableCategories, assignableCategoryIdSet } = useAssignableCategories(
+        categories,
+        (cat) => cat.listingType?.includes('postad') || false
+    );
 
     const getBrandCategoryIds = (brand: Brand) => (
         brand.categoryIds?.length
@@ -130,9 +134,10 @@ export default function BrandsPage() {
                 return (
                     <div className="flex flex-wrap gap-1 max-w-[200px]">
                         {brandCats.map(cid => {
-                            const cat = categories.find(c => c.id === cid);
+                            const normalizedCid = normalizeObjectIdLike(cid);
+                            const cat = categories.find(c => c.id === normalizedCid);
                             return (
-                                <span key={cid} className="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
+                                <span key={normalizedCid} className="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
                                     {cat?.name || "Archived"}
                                 </span>
                             );

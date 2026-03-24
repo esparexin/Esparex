@@ -62,6 +62,7 @@ export interface MyListingsTabProps {
     formatDate: (date: string | Date) => string;
     isBusinessApproved?: boolean;
     onRegisterBusiness?: () => void;
+    initialSubTab?: ListingSubTab;
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
@@ -70,8 +71,9 @@ export function MyListingsTab({
     handleDeleteAd, handleMarkAsSold,
     user, navigateTo, getStatusBadge, formatDate,
     isBusinessApproved, onRegisterBusiness,
+    initialSubTab = "ads",
 }: MyListingsTabProps) {
-    const [subTab, setSubTab] = useState<ListingSubTab>("ads");
+    const [subTab, setSubTab] = useState<ListingSubTab>(initialSubTab);
     const [servicesStatus, setServicesStatus] = useState<MyServicesStatus>("live");
     const [spareStatus, setSpareStatus] = useState<MySparePartsStatus>("live");
 
@@ -648,11 +650,6 @@ function SparePartCard({
         ? formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })
         : "";
 
-    const compatibleNames = (listing.compatibleModels ?? []).map((m) => {
-        if (typeof m === "string") return m;
-        return (m as any).name ?? String(m);
-    });
-
     return (
         <div className="flex gap-3 p-3 rounded-xl border bg-white hover:border-teal-200 hover:shadow-sm transition-all group">
             {/* Thumbnail */}
@@ -683,22 +680,6 @@ function SparePartCard({
                             <Clock className="h-3 w-3" /> {timeAgo}
                         </span>
                     </div>
-
-                    {/* Compatible models */}
-                    {compatibleNames.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                            {compatibleNames.slice(0, 3).map((name, i) => (
-                                <span key={i} className="px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-medium border border-teal-100">
-                                    {name}
-                                </span>
-                            ))}
-                            {compatibleNames.length > 3 && (
-                                <span className="px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 text-[10px] font-medium border border-slate-100">
-                                    +{compatibleNames.length - 3} more
-                                </span>
-                            )}
-                        </div>
-                    )}
                 </div>
 
                 {/* Actions */}

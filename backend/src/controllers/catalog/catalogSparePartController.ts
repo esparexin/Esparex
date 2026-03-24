@@ -18,12 +18,14 @@ import Ad from '../../models/Ad';
 import { sendSuccessResponse } from '../admin/adminBaseController';
 import { resolveEquivalentActiveCategoryIds } from '../../utils/categoryCanonical';
 import {
+    getActiveCategoryIds,
+    sendValidationError,
+    sendEmptyPublicList,
     hasAdminAccess,
     sendCatalogError,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
-    validateActiveCategories,
-    getActiveCategoryIds
+    validateActiveCategories
 } from './shared';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { normalizeObjectIdLike } from '../../utils/idUtils';
@@ -39,22 +41,6 @@ import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 
 // Local schemas replaced by centralized catalog.validator.ts
 
-const sendValidationError = (req: Request, res: Response, error: ZodError) => {
-    sendContractErrorResponse(req, res, 400, 'Validation failed', {
-        details: error.issues.map((issue) => ({
-            field: issue.path.join('.'),
-            message: issue.message
-        }))
-    });
-};
-
-const sendEmptyPublicList = (res: Response) => res.status(200).json(respond({
-    success: true,
-    data: {
-        items: [],
-        total: 0
-    }
-}));
 
 /**
  * Get all spare parts (with optional category filter and status)
@@ -111,7 +97,7 @@ export const getSpareParts = async (req: Request, res: Response) => {
                     { status: CATALOG_STATUS.ACTIVE },
                     { status: { $exists: false } }
                 ],
-                categoryId: { $in: activeCategoryIds }
+                categoryIds: { $in: activeCategoryIds }
             }).select('_id').lean()
         ])
         : [[], []];

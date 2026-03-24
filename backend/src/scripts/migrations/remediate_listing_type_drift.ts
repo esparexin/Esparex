@@ -42,8 +42,7 @@ function inferListingType(doc: Record<string, unknown>): string {
     // Spare part signals
     if (
         doc.partCondition !== undefined ||
-        doc.partNumber !== undefined ||
-        doc.compatibleModels !== undefined
+        doc.partNumber !== undefined
     ) {
         return 'spare_part';
     }

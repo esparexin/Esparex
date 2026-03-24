@@ -44,7 +44,6 @@ export type ModerationItem = {
     excluded?: string;
     serviceTypeIds?: string[];
     sparePartId?: string;
-    compatibleModels?: string[];
     condition?: "new" | "used" | "refurbished";
     stock?: number;
     deviceType?: string;

@@ -11,7 +11,6 @@ export type ListingTypeCapability = {
 export type ListingTypeIntegrityInput = {
     sparePartId?: unknown;
     sparePartIds?: unknown;
-    compatibleModels?: unknown;
     stock?: unknown;
     serviceTypeIds?: unknown;
     priceMin?: unknown;
@@ -82,7 +81,6 @@ const collectSparePartSignals = (input: ListingTypeIntegrityInput): string[] => 
 
     if (input.sparePartId) signals.push('sparePartId');
     if (hasNonEmptyArray(input.sparePartIds)) signals.push('sparePartIds');
-    if (hasNonEmptyArray(input.compatibleModels)) signals.push('compatibleModels');
     if (hasFiniteNumber(input.stock)) signals.push('stock');
 
     return signals;

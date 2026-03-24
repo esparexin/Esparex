@@ -8,9 +8,9 @@ import mongoose from 'mongoose';
  */
 
 export enum CategoryFieldType {
-    /** Entity uses singular field 'categoryId' (e.g., Model, Ad, ScreenSize) */
+    /** Entity uses singular field 'categoryId' (e.g., Ad, ScreenSize) */
     SINGULAR = 'categoryId',
-    /** Entity uses plural field 'categoryIds' array (e.g., Brand, ServiceType, SparePart) */
+    /** Entity uses plural field 'categoryIds' array (e.g., Model, Brand, ServiceType, SparePart) */
     PLURAL = 'categoryIds'
 }
 

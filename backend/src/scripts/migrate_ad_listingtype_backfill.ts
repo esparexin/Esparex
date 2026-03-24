@@ -60,7 +60,6 @@ type AdBackfillCandidate = {
     listingType?: ListingTypeValue | null;
     sparePartId?: Types.ObjectId;
     sparePartIds?: Types.ObjectId[];
-    compatibleModels?: Types.ObjectId[];
     stock?: number;
     priceMin?: number;
     priceMax?: number;
@@ -174,7 +173,6 @@ const buildMissingListingTypeFilter = (lastProcessedId?: Types.ObjectId): Missin
 const toIntegrityInput = (doc: AdBackfillCandidate): ListingTypeIntegrityInput => ({
     sparePartId: doc.sparePartId,
     sparePartIds: doc.sparePartIds,
-    compatibleModels: doc.compatibleModels,
     stock: doc.stock,
     serviceTypeIds: doc.serviceTypeIds,
     priceMin: doc.priceMin,
@@ -334,7 +332,7 @@ export const runAdListingTypeBackfill = async (): Promise<void> => {
         const batch = await Ad.find(batchFilter)
             .sort({ _id: 1 })
             .limit(options.batchSize)
-            .select('_id listingType sparePartId sparePartIds compatibleModels stock priceMin priceMax serviceTypeIds onsiteService diagnosticFee turnaroundTime included excluded')
+            .select('_id listingType sparePartId sparePartIds stock priceMin priceMax serviceTypeIds onsiteService diagnosticFee turnaroundTime included excluded')
             .lean<AdBackfillCandidate[]>();
 
         if (batch.length === 0) {

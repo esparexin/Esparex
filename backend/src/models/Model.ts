@@ -4,7 +4,7 @@ import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../..
 export interface IModel extends Document {
     name: string;
     brandId: mongoose.Types.ObjectId;
-    categoryId: mongoose.Types.ObjectId;
+    categoryId?: mongoose.Types.ObjectId;
     categoryIds: mongoose.Types.ObjectId[];
     isActive: boolean;
     status: CatalogStatusValue;
@@ -19,7 +19,7 @@ export interface IModel extends Document {
 const ModelSchema: Schema = new Schema({
     name: { type: String, required: true },
     brandId: { type: Schema.Types.ObjectId, ref: 'Brand', required: true },
-    categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
+    categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
     categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
     isActive: { type: Boolean, default: true },
     status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
@@ -42,13 +42,11 @@ const ModelSchema: Schema = new Schema({
 
 // INDEXES
 ModelSchema.index(
-    { categoryId: 1, brandId: 1, name: 1 },
+    { categoryIds: 1, brandId: 1, name: 1 },
     {
-        name: 'idx_model_category_brand_name',
+        name: 'idx_model_categories_brand_name',
         unique: true,
         collation: { locale: 'en', strength: 2 },
-        // Same partial-index strategy as Brand: only enforce uniqueness on active/pending models.
-        // MongoDB partial indexes do not support $ne; use positive $in instead.
         partialFilterExpression: { isDeleted: false, status: { $in: [CATALOG_STATUS.ACTIVE, CATALOG_STATUS.PENDING] } }
     }
 );

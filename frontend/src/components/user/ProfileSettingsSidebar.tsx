@@ -31,7 +31,6 @@ import type { UserPage } from "@/lib/routeUtils";
 
 // Hooks
 import { useMyAds } from "@/hooks/useMyAds";
-import type { MyServicesStatus } from "@/hooks/useMyServices";
 import { useDynamicPlans } from "@/hooks/useDynamicPlans";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
@@ -50,9 +49,7 @@ import { SettingsTab } from "./profile/tabs/SettingsTab";
 import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
 import { BusinessTab } from "./profile/tabs/BusinessTab";
 import { PurchasesTab } from "./profile/tabs/PurchasesTab";
-import { MyAdsTab } from "./profile/tabs/MyAdsTab";
-import { MyServicesTab } from "./profile/tabs/MyServicesTab";
-import { MySparePartsTab } from "./profile/tabs/MySparePartsTab";
+import { MyListingsTab } from "./profile/tabs/MyListingsTab";
 import { SavedAds } from "./SavedAds";
 import AccountHeader from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
@@ -72,11 +69,10 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
 
   // Custom Hooks for Data Fetching
   const [myAdsTab, setMyAdsTab] = useState<"live" | "pending" | "rejected" | "sold" | "expired" | "deactivated">("live");
-  const [myServicesTab] = useState<MyServicesStatus>("live");
 
   // Custom Hooks for Data Fetching
   const {
-    myAds, adCounts, loadingAds, fetchMyAds,
+    myAds, adCounts, loadingAds,
     handleDeleteAd, handleMarkAsSold
   } = useMyAds(activeTab, user, myAdsTab);
 
@@ -219,42 +215,24 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
         />
       );
       case "listings":
-      case "mylistings": return (
-        <MyAdsTab
+      case "mylistings":
+      case "services":
+      case "spareparts": return (
+        <MyListingsTab
           ads={myAds}
           adCounts={adCounts}
           loadingAds={loadingAds}
-          myAdsTab={myAdsTab}
-          setMyAdsTab={setMyAdsTab}
-          navigateTo={(page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId)}
-          getStatusBadge={getStatusBadge}
-          fetchMyAds={fetchMyAds}
-          formatDate={formatDate}
+          myAdsStatusTab={myAdsTab}
+          setMyAdsStatusTab={setMyAdsTab}
           handleDeleteAd={handleDeleteAdForTab}
           handleMarkAsSold={handleMarkAsSoldForTab}
-        />
-      );
-      case "services": return (
-        <MyServicesTab
-          user={user}
-          activeTab={activeTab}
-          statusFilter={myServicesTab}
-          navigateTo={(page: string, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page as UserPage, adId, category, businessId, serviceId)}
+          user={user as any}
+          navigateTo={(page, adId, category, businessId, serviceId) => navigateTo(page as UserPage, adId, category, businessId as string, serviceId as string)}
           getStatusBadge={getStatusBadge}
           formatDate={formatDate}
           isBusinessApproved={businessData?.status === "live"}
           onRegisterBusiness={() => setShowBusinessEditForm(true)}
-        />
-      );
-      case "spareparts": return (
-        <MySparePartsTab
-          user={user}
-          activeTab={activeTab}
-          statusFilter="live"
-          getStatusBadge={getStatusBadge}
-          formatDate={formatDate}
-          isBusinessApproved={businessData?.status === "live"}
-          onRegisterBusiness={() => setShowBusinessEditForm(true)}
+          initialSubTab={activeTab === "services" ? "services" : activeTab === "spareparts" ? "spare-parts" : "ads"}
         />
       );
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;

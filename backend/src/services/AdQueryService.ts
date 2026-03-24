@@ -378,24 +378,29 @@ export const buildAdSortStage = (filters: AdFilters): SortStage => buildAdSortSt
  * This performs application-level joins for Category, Brand, Model, and SparePart
  * collections that reside on the Admin connection, bypassing MongoDB $lookup limitations.
  */
-async function hydrateAdMetadata(ads: any[]) {
+export async function hydrateAdMetadata(ads: any[]) {
     if (!ads || ads.length === 0) return ads;
 
     const categoryIds = new Set<string>();
     const brandIds = new Set<string>();
     const modelIds = new Set<string>();
     const sparePartIds = new Set<string>();
+    const serviceTypeIds = new Set<string>();
 
     ads.forEach(ad => {
         if (ad.categoryId) categoryIds.add(ad.categoryId.toString());
         if (ad.brandId) brandIds.add(ad.brandId.toString());
         if (ad.modelId) modelIds.add(ad.modelId.toString());
+        if (ad.sparePartId) sparePartIds.add(ad.sparePartId.toString());
         if (Array.isArray(ad.sparePartIds)) {
             ad.sparePartIds.forEach((id: any) => sparePartIds.add(id.toString()));
         }
+        if (Array.isArray(ad.serviceTypeIds)) {
+            ad.serviceTypeIds.forEach((id: any) => serviceTypeIds.add(id.toString()));
+        }
     });
 
-    const [categories, brands, models, spareParts] = await Promise.all([
+    const [categories, brands, models, spareParts, serviceTypes] = await Promise.all([
         categoryIds.size > 0 
             ? Category.find({ _id: { $in: Array.from(categoryIds) } }).select('name slug').lean() 
             : Promise.resolve([]),
@@ -407,6 +412,9 @@ async function hydrateAdMetadata(ads: any[]) {
             : Promise.resolve([]),
         sparePartIds.size > 0 
             ? SparePart.find({ _id: { $in: Array.from(sparePartIds) } }).lean() 
+            : Promise.resolve([]),
+        serviceTypeIds.size > 0
+            ? (await import('../models/ServiceType')).default.find({ _id: { $in: Array.from(serviceTypeIds) } }).select('name').lean()
             : Promise.resolve([])
     ]);
 
@@ -414,6 +422,7 @@ async function hydrateAdMetadata(ads: any[]) {
     const brandMap = new Map(brands.map((b: any) => [String(b._id), b]));
     const modelMap = new Map(models.map((m: any) => [String(m._id), m]));
     const sparePartMap = new Map(spareParts.map((s: any) => [String(s._id), s]));
+    const serviceTypeMap = new Map(serviceTypes.map((st: any) => [String(st._id), st]));
 
     ads.forEach(ad => {
         if (ad.categoryId) {
@@ -425,9 +434,17 @@ async function hydrateAdMetadata(ads: any[]) {
         if (ad.modelId) {
             ad.model = modelMap.get(String(ad.modelId));
         }
+        if (ad.sparePartId) {
+            ad.sparePart = sparePartMap.get(String(ad.sparePartId));
+        }
         if (Array.isArray(ad.sparePartIds)) {
             ad.spareParts = ad.sparePartIds
                 .map((id: any) => sparePartMap.get(String(id)))
+                .filter(Boolean);
+        }
+        if (Array.isArray(ad.serviceTypeIds)) {
+            ad.serviceTypes = ad.serviceTypeIds
+                .map((id: any) => serviceTypeMap.get(String(id)))
                 .filter(Boolean);
         }
     });
@@ -754,7 +771,6 @@ export const getAds = async (
             excluded: 1,
             serviceTypeIds: 1,
             sparePartId: 1,
-            compatibleModels: 1,
             condition: 1,
             stock: 1,
             deviceType: 1,

@@ -76,6 +76,7 @@ import { resolveLocationPathIds } from '../utils/locationHierarchy';
 import type { DuplicatePayload } from './AdValidationService';
 import { AdCreationService } from './AdCreationService';
 import { mutateStatus } from './StatusMutationService';
+import { hydrateAdMetadata } from './AdQueryService';
 export {
     getAds,
     getListingDetailById,
@@ -84,7 +85,8 @@ export {
     getReportedAdsAggregation,
     getAdSuggestions,
     getAdsByStatus,
-    getAdIdBySlug
+    getAdIdBySlug,
+    hydrateAdMetadata
 } from './AdQueryService';
 export { updateAdStatus, expireOutdatedAds, expireBoosts, computeActiveExpiry, extendAdExpiry, deleteAd, restoreAd } from './adStatusService';
 export { incrementAdView } from './AdEngagementService';
@@ -106,12 +108,12 @@ export const getAnyAdById = async (
         const ad = await Ad.findOne({ _id: id })
             .setOptions({ withDeleted: true })
             .populate('sellerId', 'name avatar isVerified role trustScore')
-            .populate({ path: 'categoryId', select: 'name slug', model: Category })
-            .populate({ path: 'brandId', select: 'name', model: Brand })
-            .populate({ path: 'modelId', select: 'name', model: ProductModel })
             .lean();
 
         if (!ad) return null;
+
+        // Perform Split-DB hydration for catalog references
+        await hydrateAdMetadata([ad]);
 
         // Use DTO/interface for ad
         const result = { ...ad } as Partial<IAd>;

@@ -10,7 +10,9 @@ import { CategoryTypeEnum, ObjectIdSchema } from '../../../shared/schemas/catalo
 export const adminCategorySchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be 50 characters or fewer'),
     slug: z.string().min(2, 'Slug must be at least 2 characters').regex(/^[a-z0-9-]+$/, 'Slug must only contain lowercase letters, numbers, and hyphens'),
-    status: z.enum(['live', 'inactive', 'pending', 'rejected']).optional()
+    status: z.enum(['live', 'inactive', 'pending', 'rejected']).optional(),
+    listingType: z.array(z.enum(['postad', 'postservice', 'postsparepart'])).optional(),
+    hasScreenSizes: z.boolean().optional()
 });
 
 export const adminBusinessApprovalSchema = z.object({
@@ -31,6 +33,7 @@ export const adminBrandSchema = z.object({
 export const adminModelSchema = z.object({
     name: z.string().min(1, 'Model name is required').max(100, 'Model name too long'),
     brandId: ObjectIdSchema,
-    categoryId: ObjectIdSchema,
+    categoryId: ObjectIdSchema.optional(),
+    categoryIds: z.array(ObjectIdSchema).min(1, 'At least one category is required'),
     status: z.enum(['live', 'pending', 'rejected']).optional()
 });

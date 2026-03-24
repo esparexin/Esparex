@@ -145,18 +145,20 @@ describe("locationService regression", () => {
     });
 
     it("getStateLocations returns grouped state records", async () => {
-        // Service first queries for level:'state' anchors — return empty to fall through to aggregate
-        mockLocationModel.find.mockReturnValueOnce(mockFindChain([]));
-        mockLocationModel.aggregate.mockResolvedValueOnce([
-            {
-                id: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f607182930"),
-                state: "Andhra Pradesh",
-                country: "India",
-                coordinates: { type: "Point", coordinates: [79.44, 16.48] },
-                isPopular: true,
-                isActive: true,
-            },
-        ]);
+        // Sprint 3: queries for level:'state' anchors directly
+        mockLocationModel.find.mockReturnValueOnce(
+            mockFindChain([
+                {
+                    _id: "65f0a1b2c3d4e5f607182930",
+                    name: "Andhra Pradesh",
+                    country: "India",
+                    level: "state",
+                    coordinates: { type: "Point", coordinates: [79.44, 16.48] },
+                    isPopular: true,
+                    isActive: true,
+                },
+            ])
+        );
 
         const states = await getStateLocations();
         expect(states).toHaveLength(1);
@@ -165,24 +167,32 @@ describe("locationService regression", () => {
     });
 
     it("getCitiesByStateId resolves cities for a state anchor", async () => {
-        mockLocationModel.findOne
-            .mockReturnValueOnce(
-                mockFindOneResult({
+        // First call: findById for state anchor resolution
+        mockLocationModel.findById.mockReturnValueOnce({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue({
+                    _id: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f607182930"),
+                    name: "Andhra Pradesh",
+                    level: "state",
+                    country: "India"
+                })
+            })
+        });
+
+        // Second call: find for cities under that state anchor
+        mockLocationModel.find.mockReturnValueOnce(
+            mockFindChain([
+                {
+                    _id: "65f0a1b2c3d4e5f607182931",
+                    name: "Macherla",
+                    city: "Macherla",
                     state: "Andhra Pradesh",
                     country: "India",
-                })
-            );
-        // Second call: findById for hierarchy level check — null skips hierarchy path → falls to aggregate
-        mockLocationModel.findById.mockReturnValueOnce(mockFindByIdResult(null));
-        mockLocationModel.aggregate.mockResolvedValueOnce([
-            {
-                id: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f607182931"),
-                city: "Macherla",
-                state: "Andhra Pradesh",
-                country: "India",
-                coordinates: { type: "Point", coordinates: [79.44, 16.48] },
-            },
-        ]);
+                    level: "city",
+                    coordinates: { type: "Point", coordinates: [79.44, 16.48] },
+                },
+            ])
+        );
 
         const cities = await getCitiesByStateId("65f0a1b2c3d4e5f607182930");
         expect(cities).toHaveLength(1);
@@ -191,20 +201,21 @@ describe("locationService regression", () => {
     });
 
     it("getAreasByCityId returns area-level rows for a city anchor", async () => {
-        mockLocationModel.findOne
-            .mockReturnValueOnce(
-                mockFindOneResult({
-                    city: "Macherla",
-                    state: "Andhra Pradesh",
-                    country: "India",
+        // First call: findById for city anchor resolution
+        mockLocationModel.findById.mockReturnValueOnce({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue({
+                    _id: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f607182931"),
+                    name: "Macherla",
+                    level: "city",
+                    country: "India"
                 })
-            );
-        // findById for hierarchy level check — null skips hierarchy path → falls to Location.find
-        mockLocationModel.findById.mockReturnValueOnce(mockFindByIdResult(null));
+            })
+        });
 
-        const areaChain = {
-            sort: jest.fn().mockReturnThis(),
-            lean: jest.fn().mockResolvedValue([
+        // Second call: find for areas under that city anchor
+        mockLocationModel.find.mockReturnValueOnce(
+            mockFindChain([
                 {
                     _id: "65f0a1b2c3d4e5f607182932",
                     name: "Old Town",
@@ -217,11 +228,8 @@ describe("locationService regression", () => {
                     isPopular: false,
                     verificationStatus: "verified",
                 },
-            ]),
-        };
-        mockLocationModel.find.mockReturnValueOnce({
-            select: jest.fn().mockReturnValue(areaChain),
-        });
+            ])
+        );
 
         const areas = await getAreasByCityId("65f0a1b2c3d4e5f607182931");
         expect(areas).toHaveLength(1);

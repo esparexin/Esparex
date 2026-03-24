@@ -91,7 +91,6 @@ export interface IAd extends Document, ISoftDeleteDocument {
     excluded?: string;
     serviceTypeIds?: Types.ObjectId[];
     sparePartId?: Types.ObjectId;
-    compatibleModels?: Types.ObjectId[];
     condition?: 'new' | 'used' | 'refurbished';
     stock?: number;
     deviceType?: string;
@@ -227,7 +226,6 @@ const AdSchema: Schema = new Schema({
     excluded: { type: String },
     serviceTypeIds: [{ type: Schema.Types.ObjectId, ref: 'ServiceType' }],
     sparePartId: { type: Schema.Types.ObjectId, ref: 'SparePart' },
-    compatibleModels: [{ type: Schema.Types.ObjectId, ref: 'Model' }],
     condition: { type: String, enum: ['new', 'used', 'refurbished'] },
     stock: { type: Number },
     deviceType: { type: String }

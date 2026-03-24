@@ -19,6 +19,9 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { catalogManagementTabs } from "@/components/layout/adminModuleTabSets";
 import { adminModelSchema } from "@/schemas/admin.schemas";
+import { useAssignableCategories } from "@/hooks/useAssignableCategories";
+import { CatalogModal } from "@/components/catalog/CatalogModal";
+import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 
 export default function ModelsPage() {
     const { showToast } = useToast();
@@ -37,39 +40,43 @@ export default function ModelsPage() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingModel, setEditingModel] = useState<Model | null>(null);
+    const [archivedCategoryCount, setArchivedCategoryCount] = useState(0);
     const [formData, setFormData] = useState({
         name: "",
         brandId: "",
-        categoryId: "",
+        categoryIds: [] as string[],
         status: "live" as Model['status']
     });
 
-    const normalizeObjectIdLike = (value: unknown): string => {
-        if (typeof value === "string") return value;
-        if (value && typeof value === "object") {
-            const record = value as { id?: string; _id?: string };
-            return record.id || record._id || "";
-        }
-        return "";
-    };
+    const getModelCategoryIds = (model: Model) => (
+        model.categoryIds?.length
+            ? model.categoryIds
+            : (model.categoryId ? [model.categoryId] : [])
+    );
 
     const openCreateModal = () => {
         setEditingModel(null);
+        setArchivedCategoryCount(0);
         setFormData({
             name: "",
             brandId: "",
-            categoryId: "",
+            categoryIds: [],
             status: "live"
         });
         setIsModalOpen(true);
     };
 
     const openEditModal = (model: Model) => {
+        const categoryIds = Array.from(new Set(getModelCategoryIds(model)));
+        const activeCategoryIds = categoryIds.filter((id) => assignableCategoryIdSet.has(id));
+        const archivedCount = categoryIds.length - activeCategoryIds.length;
+
         setEditingModel(model);
+        setArchivedCategoryCount(archivedCount);
         setFormData({
             name: model.name,
             brandId: normalizeObjectIdLike(model.brandId),
-            categoryId: normalizeObjectIdLike(model.categoryId),
+            categoryIds: activeCategoryIds,
             status: model.status
         });
         setIsModalOpen(true);
@@ -85,14 +92,20 @@ export default function ModelsPage() {
             return;
         }
 
-        if (!assignableCategoryIds.has(formData.categoryId)) {
-            showToast("Inactive category cannot be assigned to model", "error");
+        if (formData.categoryIds.length === 0) {
+            showToast("At least one category is required", "error");
             return;
         }
+
         const selectedBrand = brands.find((brand) => brand.id === formData.brandId);
-        if (selectedBrand && selectedBrand.categoryId !== formData.categoryId) {
-            showToast("Selected brand is not mapped to selected category", "error");
-            return;
+        if (selectedBrand) {
+            const brandCats = selectedBrand.categoryIds?.length ? selectedBrand.categoryIds : (selectedBrand.categoryId ? [selectedBrand.categoryId] : []);
+            const hasCommonCategory = formData.categoryIds.some(cid => brandCats.includes(cid));
+            if (!hasCommonCategory) {
+                showToast("Selected brand is not mapped to any of the selected categories", "error");
+                // Allow proceeding but warn? No, strict validation is safer.
+                return;
+            }
         }
 
         const success = editingModel
@@ -106,12 +119,13 @@ export default function ModelsPage() {
 
     const { brands } = useAdminBrands();
     const { categories } = useAdminCategories();
-    const assignableCategories = categories.filter((category) =>
-        category.isActive && category.status !== "inactive" && category.status !== "rejected"
-    );
-    const assignableCategoryIds = new Set(assignableCategories.map((category) => category.id));
-    const formBrands = formData.categoryId
-        ? brands.filter((brand) => !brand.categoryId || brand.categoryId === formData.categoryId)
+    const { assignableCategories, assignableCategoryIdSet } = useAssignableCategories(categories);
+
+    const formBrands = formData.categoryIds.length > 0
+        ? brands.filter((brand) => {
+            const brandCats = brand.categoryIds?.length ? brand.categoryIds : (brand.categoryId ? [brand.categoryId] : []);
+            return brandCats.some(cid => formData.categoryIds.includes(cid));
+        })
         : brands;
 
     const columns: ColumnDef<Model>[] = [
@@ -127,14 +141,23 @@ export default function ModelsPage() {
             )
         },
         {
-            header: "Brand / Category",
+            header: "Brand / Categories",
             cell: (model) => {
                 const brand = brands.find(b => b.id === normalizeObjectIdLike(model.brandId));
-                const cat = categories.find(c => c.id === normalizeObjectIdLike(model.categoryId));
+                const modelCats = getModelCategoryIds(model);
                 return (
-                    <div className="text-xs space-y-1">
-                        <div className="text-slate-900 font-semibold">{brand?.name || "Unknown Brand"}</div>
-                        <div className="text-slate-500">{cat?.name || "Unknown Category"}</div>
+                    <div className="text-xs space-y-1.5">
+                        <div className="text-slate-900 font-bold">{brand?.name || "Unknown Brand"}</div>
+                        <div className="flex flex-wrap gap-1">
+                            {modelCats.map(cid => {
+                                const cat = categories.find(c => c.id === cid);
+                                return (
+                                    <span key={cid} className="px-1.5 py-0.5 rounded-[4px] bg-slate-100 text-[9px] text-slate-500 font-medium">
+                                        {cat?.name || "Archived"}
+                                    </span>
+                                );
+                            })}
+                        </div>
                     </div>
                 );
             }
@@ -265,22 +288,12 @@ export default function ModelsPage() {
             />
 
             {/* Model Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-                            <h2 className="text-xl font-bold text-slate-900">
-                                {editingModel ? "Edit Model" : "Add New Model"}
-                            </h2>
-                            <button
-                                onClick={() => setIsModalOpen(false)}
-                                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <CatalogModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={editingModel ? "Edit Model" : "Add New Model"}
+            >
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div className="space-y-1.5">
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                                     Model Name
@@ -295,37 +308,42 @@ export default function ModelsPage() {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                        Category
-                                    </label>
-                                    <select
-                                        required
-                                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
-                                        value={formData.categoryId}
-                                        onChange={(e) =>
-                                            setFormData(prev => {
-                                                const nextCategoryId = e.target.value;
-                                                const currentBrand = brands.find((brand) => brand.id === prev.brandId);
-                                                const brandMatchesCategory = Boolean(
-                                                    !currentBrand?.categoryId || currentBrand.categoryId === nextCategoryId
-                                                );
-                                                return {
-                                                    ...prev,
-                                                    categoryId: nextCategoryId,
-                                                    brandId: brandMatchesCategory ? prev.brandId : ""
-                                                };
-                                            })
-                                        }
-                                    >
-                                        <option value="">Select Category</option>
-                                        {assignableCategories.map(cat => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                        ))}
-                                    </select>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    Assigned Categories
+                                </label>
+                                {archivedCategoryCount > 0 && (
+                                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                                        {archivedCategoryCount} archived category link{archivedCategoryCount === 1 ? "" : "s"} {archivedCategoryCount === 1 ? "was" : "were"} removed from this editor.
+                                    </div>
+                                )}
+                                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                                    {assignableCategories.map(cat => (
+                                        <label key={cat.id} className="flex items-center gap-2 cursor-pointer group">
+                                            <input
+                                                type="checkbox"
+                                                className="w-4 h-4 text-primary rounded border-slate-300 focus:ring-primary/20"
+                                                checked={formData.categoryIds.includes(cat.id || "")}
+                                                onChange={(e) => {
+                                                    const checked = e.target.checked;
+                                                    const catId = cat.id;
+                                                    if (!catId) return;
+                                                    
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        categoryIds: checked 
+                                                            ? [...prev.categoryIds, catId]
+                                                            : prev.categoryIds.filter(id => id !== catId)
+                                                    }));
+                                                }}
+                                            />
+                                            <span className="text-sm text-slate-700 group-hover:text-primary transition-colors">{cat.name}</span>
+                                        </label>
+                                    ))}
                                 </div>
+                            </div>
 
+                            <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                                         Brand
@@ -337,26 +355,26 @@ export default function ModelsPage() {
                                         onChange={(e) => setFormData(prev => ({ ...prev, brandId: e.target.value }))}
                                     >
                                         <option value="">Select Brand</option>
-                                        {formBrands.map(brand => (
+                                        {brands.map(brand => (
                                             <option key={brand.id} value={brand.id}>{brand.name}</option>
                                         ))}
                                     </select>
                                 </div>
-                            </div>
 
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Status
-                                </label>
-                                <select
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
-                                    value={formData.status}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
-                                >
-                                    <option value="live">Live</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="rejected">Rejected</option>
-                                </select>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                        Status
+                                    </label>
+                                    <select
+                                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                                        value={formData.status}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                                    >
+                                        <option value="live">Live</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div className="pt-4 flex gap-3">
@@ -376,9 +394,7 @@ export default function ModelsPage() {
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            )}
+            </CatalogModal>
         </div>
         </>
         </AdminPageShell>

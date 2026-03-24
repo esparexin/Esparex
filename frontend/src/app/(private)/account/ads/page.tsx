@@ -1,5 +1,5 @@
 import { AccountPageShell } from "../_shell/AccountPageShell";
 
 export default function AccountAdsPage() {
-    return <AccountPageShell tab="listings" />;
+    return <AccountPageShell tab="mylistings" />;
 }

@@ -14,9 +14,6 @@ export const MODERATION_STATUSES = [
     AD_STATUS.DEACTIVATED,
 ] as const;
 
-/** @deprecated Use LISTING_TYPE_VALUES from shared/enums/listingType */
-export const MODERATION_LISTING_TYPES = LISTING_TYPE_VALUES;
-
 export type ModerationStatus = (typeof MODERATION_STATUSES)[number];
 export type ModerationListingType = ListingTypeValue;
 
@@ -178,74 +175,74 @@ export const getModerationCounts = async (listingType?: ModerationListingType) =
         const type = row._id.listingType;
         const status = row._id.status;
 
-        if (!MODERATION_LISTING_TYPES.includes(type)) return;
-        if (!isModerationStatus(status)) return;
+        if (!LISTING_TYPE_VALUES.includes(type)) return;
+    if (!isModerationStatus(status)) return;
 
-        byListingType[type][status] += row.count;
-        byListingType[type].total += row.count;
+    byListingType[type][status] += row.count;
+    byListingType[type].total += row.count;
 
-        byStatus[status] += row.count;
-        total += row.count;
-    });
+    byStatus[status] += row.count;
+    total += row.count;
+});
 
-    byStatus.live = publicLiveCounts.total;
-    for (const type of MODERATION_LISTING_TYPES) {
-        byListingType[type].live = publicLiveCounts.byListingType[type];
-    }
+byStatus.live = publicLiveCounts.total;
+for (const type of LISTING_TYPE_VALUES) {
+    byListingType[type].live = publicLiveCounts.byListingType[type];
+}
 
-    return {
-        total,
-        ...byStatus,
-        spotlight,
-        byStatus,
-        byListingType,
-    };
+return {
+    total,
+    ...byStatus,
+    spotlight,
+    byStatus,
+    byListingType,
+};
 };
 
 type PublicLiveAggregationRow = {
-    _id: ModerationListingType;
-    count: number;
+_id: ModerationListingType;
+count: number;
 };
 
 export const getPublicLiveListingCounts = async (listingType?: ModerationListingType): Promise<PublicLiveListingCounts> => {
-    const match: Record<string, unknown> = {
-        ...buildPublicAdFilter(),
-    };
+const match: Record<string, unknown> = {
+    ...buildPublicAdFilter(),
+};
 
-    if (listingType) {
-        match.listingType = listingType;
-    }
+if (listingType) {
+    match.listingType = listingType;
+}
 
-    const rows = await Ad.aggregate<PublicLiveAggregationRow>([
-        {
-            $match: match,
+const rows = await Ad.aggregate<PublicLiveAggregationRow>([
+    {
+        $match: match,
+    },
+    {
+        $group: {
+            _id: { $ifNull: ['$listingType', 'ad'] },
+            count: { $sum: 1 },
         },
-        {
-            $group: {
-                _id: { $ifNull: ['$listingType', 'ad'] },
-                count: { $sum: 1 },
-            },
-        },
-    ]);
+    },
+]);
 
-    const byListingType = createEmptyListingTypeCounts();
-    let total = 0;
+const byListingType = createEmptyListingTypeCounts();
+let total = 0;
 
-    for (const row of rows) {
-        if (!MODERATION_LISTING_TYPES.includes(row._id)) {
-            continue;
-        }
-        byListingType[row._id] += row.count;
-        total += row.count;
+for (const row of rows) {
+    if (!LISTING_TYPE_VALUES.includes(row._id)) {
+        continue;
     }
+    byListingType[row._id] += row.count;
+    total += row.count;
+}
 
-    return {
-        total,
-        byListingType,
-    };
+return {
+    total,
+    byListingType,
+};
 };
 
 export const isValidListingType = (value: unknown): value is ModerationListingType =>
-    typeof value === 'string' && MODERATION_LISTING_TYPES.includes(value as ModerationListingType);
+typeof value === 'string' && LISTING_TYPE_VALUES.includes(value as ModerationListingType);
 
 export const isValidObjectId = (id: string) => mongoose.Types.ObjectId.isValid(id);

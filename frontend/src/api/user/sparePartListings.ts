@@ -45,7 +45,6 @@ export interface SparePartListing {
     price: number;
     categoryId: string | { id: string; name: string; slug: string };
     sparePartId: string | { id: string; name: string; slug: string };
-    compatibleModels?: Array<string | { id: string; name: string; slug: string }>;
     brandId?: string;
     images: string[];
     status: string;

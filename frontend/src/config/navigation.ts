@@ -67,9 +67,7 @@ export const PROFILE_TAB_ITEMS: Array<{
   businessOnly?: boolean;
 }> = [
     { value: "personal", label: "Account", icon: UserIcon },
-    { value: "listings", label: "My Ads", icon: Package },
-    { value: "services", label: "My Services", icon: Wrench, businessOnly: true },
-    { value: "spareparts", label: "Spare Parts", icon: Package, businessOnly: true },
+    { value: "mylistings", label: "My Listings", icon: Package },
     { value: "saved", label: "Saved Ads", icon: Heart },
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
@@ -82,9 +80,7 @@ export const PROFILE_TAB_PAGE_ROUTES: Partial<Record<ProfileTabValue, UserPage>>
   Object.freeze({
     personal: "profile",
     settings: "profile-settings",
-    listings: "my-ads",
-    services: "my-services",
-    spareparts: "spare-parts",
+    mylistings: "my-ads",
     saved: "saved-ads",
     smartalerts: "smart-alerts",
     plans: "plans-payments",
