@@ -23,6 +23,32 @@ const dynamicS3BucketPattern = s3BucketName
         },
     ]
     : [];
+const regionalS3RemotePatterns = [
+    {
+        protocol: 'https',
+        hostname: `*.s3.${s3Region}.amazonaws.com`,
+        port: '',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
+        hostname: `s3.${s3Region}.amazonaws.com`,
+        port: '',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
+        hostname: '*.s3.amazonaws.com',
+        port: '',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
+        hostname: 's3.amazonaws.com',
+        port: '',
+        pathname: '/**',
+    },
+];
 const dynamicApiRemotePattern = (() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) return [];
@@ -96,6 +122,7 @@ const nextConfig = {
     },
     images: {
         remotePatterns: [
+            ...regionalS3RemotePatterns,
             ...dynamicS3BucketPattern,
             ...dynamicApiRemotePattern,
             ...staticRemotePatterns,

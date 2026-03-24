@@ -29,6 +29,7 @@ import { getBusinessServices, getBusinessAds, getBusinessSpareParts } from '../.
 import { generateAdSlug } from '@/utils/slug';
 import type { Ad } from '@/schemas/ad.schema';
 import type { Service } from '@/api/user/businesses';
+import { PlaceholderImage } from '../common/PlaceholderImage';
 
 type ListingTab = 'ads' | 'services' | 'spare-parts';
 
@@ -97,6 +98,9 @@ export function BusinessPublicProfile({
     if (activeTab === 'spare-parts') return spareParts;
     return ads;
   }, [activeTab, ads, services, spareParts]);
+
+  const heroImage = business?.coverImage || business?.images?.[0] || business?.logo || null;
+  const logoImage = business?.logo || business?.images?.[0] || business?.coverImage || null;
 
   const mapData = useMemo(() => {
     if (!business) return null;
@@ -170,13 +174,32 @@ export function BusinessPublicProfile({
     <div className="p-6 space-y-6">
       {/* Hero Section */}
       <Card className="overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 h-32" />
+        <div className="relative h-32">
+          <PlaceholderImage
+            src={heroImage}
+            alt={business.businessName}
+            containerClassName="h-32 w-full rounded-none"
+            className="object-cover"
+            text="Business cover"
+            fallbackIcon={<Building2 className="h-10 w-10 opacity-50" />}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/55 via-blue-900/35 to-blue-700/25" />
+        </div>
         <CardContent className="pt-0">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-[-60px] relative">
             {/* Logo/Avatar */}
             <div className="md:col-span-1">
-              <div className="bg-white rounded-lg p-4 shadow-md w-fit">
-                <Building2 className="h-24 w-24 text-blue-600" />
+              <div className="bg-white rounded-2xl p-3 shadow-md w-fit">
+                <div className="h-24 w-24 overflow-hidden rounded-xl">
+                  <PlaceholderImage
+                    src={logoImage}
+                    alt={`${business.businessName} logo`}
+                    containerClassName="h-24 w-24 rounded-xl"
+                    className="object-cover"
+                    text="Logo"
+                    fallbackIcon={<Building2 className="h-12 w-12 text-blue-600" />}
+                  />
+                </div>
               </div>
             </div>
 

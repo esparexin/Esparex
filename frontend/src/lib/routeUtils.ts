@@ -20,6 +20,7 @@ export type UserPage =
     | "service-detail"
     | "my-business"
     | "my-services"  // My services page
+    | "spare-parts"  // My spare parts page
     | "business-profile"  // Business profile page
     | "purchases"
     | "edit-ad"  // Edit ad page
@@ -95,6 +96,8 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     // ── /account/* namespace (SSOT for all private account pages) ──
     account: "/account",
     "my-ads": "/account/ads",
+    "my-services": "/account/services",
+    "spare-parts": "/account/spare-parts",
     "saved-ads": "/account/saved",
     messages: "/chat",
     profile: "/account/profile",
@@ -106,7 +109,6 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     purchases: "/account/plans?tab=purchases",
     notifications: "/notifications",
     "ad-submission-success": "/ad-submission-success",
-    "my-services": "/account/business",
     "post-spare-part-listing": "/post-spare-part-listing",
     about: "/about",
     faq: "/faq",

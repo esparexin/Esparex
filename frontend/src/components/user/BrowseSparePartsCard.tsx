@@ -27,6 +27,7 @@ export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({ listing
               src={imageUrl}
               alt={listing.title}
               fill
+              unoptimized
               className="object-cover group-hover:scale-105 transition-transform duration-500"
               sizes="(max-width: 768px) 50vw, 33vw"
             />

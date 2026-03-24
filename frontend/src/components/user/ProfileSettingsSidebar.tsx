@@ -50,7 +50,9 @@ import { SettingsTab } from "./profile/tabs/SettingsTab";
 import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
 import { BusinessTab } from "./profile/tabs/BusinessTab";
 import { PurchasesTab } from "./profile/tabs/PurchasesTab";
-import { AllListingsTab } from "./profile/tabs/AllListingsTab";
+import { MyAdsTab } from "./profile/tabs/MyAdsTab";
+import { MyServicesTab } from "./profile/tabs/MyServicesTab";
+import { MySparePartsTab } from "./profile/tabs/MySparePartsTab";
 import { SavedAds } from "./SavedAds";
 import AccountHeader from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
@@ -218,10 +220,41 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
       );
       case "listings":
       case "mylistings": return (
-        <AllListingsTab 
-          adsProps={{ ads: myAds, adCounts, loadingAds, myAdsTab, setMyAdsTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, fetchMyAds, formatDate, handleDeleteAd: handleDeleteAdForTab, handleMarkAsSold: handleMarkAsSoldForTab }}
-          servicesProps={{ user, activeTab, statusFilter: myServicesTab, navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId), getStatusBadge, formatDate, isBusinessApproved: businessData?.status === "live", onRegisterBusiness: () => setShowBusinessEditForm(true) }}
-          sparePartsProps={{ user, activeTab, statusFilter: "live", getStatusBadge, formatDate, isBusinessApproved: businessData?.status === "live", onRegisterBusiness: () => setShowBusinessEditForm(true) }}
+        <MyAdsTab
+          ads={myAds}
+          adCounts={adCounts}
+          loadingAds={loadingAds}
+          myAdsTab={myAdsTab}
+          setMyAdsTab={setMyAdsTab}
+          navigateTo={(page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page, adId, category, businessId, serviceId)}
+          getStatusBadge={getStatusBadge}
+          fetchMyAds={fetchMyAds}
+          formatDate={formatDate}
+          handleDeleteAd={handleDeleteAdForTab}
+          handleMarkAsSold={handleMarkAsSoldForTab}
+        />
+      );
+      case "services": return (
+        <MyServicesTab
+          user={user}
+          activeTab={activeTab}
+          statusFilter={myServicesTab}
+          navigateTo={(page: string, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => navigateTo(page as UserPage, adId, category, businessId, serviceId)}
+          getStatusBadge={getStatusBadge}
+          formatDate={formatDate}
+          isBusinessApproved={businessData?.status === "live"}
+          onRegisterBusiness={() => setShowBusinessEditForm(true)}
+        />
+      );
+      case "spareparts": return (
+        <MySparePartsTab
+          user={user}
+          activeTab={activeTab}
+          statusFilter="live"
+          getStatusBadge={getStatusBadge}
+          formatDate={formatDate}
+          isBusinessApproved={businessData?.status === "live"}
+          onRegisterBusiness={() => setShowBusinessEditForm(true)}
         />
       );
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;

@@ -79,7 +79,7 @@ export async function POST(req: Request) {
         if (businessId) forward.set("businessId", businessId);
         if (serviceId) forward.set("serviceId", serviceId);
 
-        const response = await fetch(`${API_BASE_URL}/${API_ROUTES.USER.USERS_UPLOAD}`, {
+        const response = await fetch(`${API_BASE_URL}/${API_ROUTES.USER.BUSINESSES_UPLOAD}`, {
             method: "POST",
             headers: cookie ? { cookie } : undefined,
             body: forward,

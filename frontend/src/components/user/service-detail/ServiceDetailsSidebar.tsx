@@ -98,6 +98,7 @@ export function ServiceDetailsSidebar({
                           src={toSafeImageSrc(business.avatar, DEFAULT_IMAGE_PLACEHOLDER)}
                           alt={business.businessName || "Business"}
                           fill
+                          unoptimized
                           className="object-cover"
                           sizes="56px"
                         />

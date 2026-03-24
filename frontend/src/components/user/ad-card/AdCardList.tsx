@@ -113,6 +113,7 @@ export const AdCardList = memo(function AdCardList({
                   src={imageUrl}
                   alt={ad.title}
                   fill
+                  unoptimized
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   sizes="(max-width: 768px) 100px, 150px"
                 />

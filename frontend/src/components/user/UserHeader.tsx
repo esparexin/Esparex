@@ -304,6 +304,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
                         alt={user?.name || "Profile"}
                         width={32}
                         height={32}
+                        unoptimized
                         className="h-8 w-8 rounded-full object-cover"
                         onError={() => setAvatarSrc(DEFAULT_IMAGE_PLACEHOLDER)}
                       />

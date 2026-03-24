@@ -257,6 +257,7 @@ export function MyAdsTab({
                                                 src={toSafeImageSrc(ad.images?.[0] || ad.image, DEFAULT_IMAGE_PLACEHOLDER)}
                                                 alt={ad.title}
                                                 fill
+                                                unoptimized
                                                 className="object-cover transition-transform group-hover:scale-105"
                                                 sizes="80px"
                                             />

@@ -191,6 +191,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
           src={toSafeImageSrc(ad.images?.[0], DEFAULT_IMAGE_PLACEHOLDER)}
           alt={ad.title}
           fill
+          unoptimized
           className={`object-cover ${unavailable ? "" : "group-hover:scale-105 transition-transform duration-300"}`}
           sizes="(max-width: 768px) 50vw, 33vw"
         />
@@ -266,6 +267,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
               src={toSafeImageSrc(ad.images?.[0], DEFAULT_IMAGE_PLACEHOLDER)}
               alt={ad.title}
               fill
+              unoptimized
               className="object-cover"
               sizes="(max-width: 640px) 100px, (max-width: 768px) 150px, 200px"
             />

@@ -256,7 +256,7 @@ export function MyListingsTab({
                                                 <div className="relative h-20 w-20 shrink-0 rounded-lg overflow-hidden bg-slate-100">
                                                     <Image
                                                         src={toSafeImageSrc(ad.images?.[0] ?? ad.image, DEFAULT_IMAGE_PLACEHOLDER)}
-                                                        alt={ad.title} fill className="object-cover group-hover:scale-105 transition-transform" sizes="80px"
+                                                        alt={ad.title} fill unoptimized className="object-cover group-hover:scale-105 transition-transform" sizes="80px"
                                                     />
                                                 </div>
                                                 <div className="flex flex-1 flex-col justify-between">

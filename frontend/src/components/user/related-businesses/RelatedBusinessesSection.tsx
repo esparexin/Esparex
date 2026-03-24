@@ -157,6 +157,7 @@ export function RelatedBusinessesSection({
                 src={toSafeImageSrc(business.coverImage, DEFAULT_IMAGE_PLACEHOLDER)}
                 alt={business.businessName}
                 fill
+                unoptimized
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 300px"
               />
@@ -217,6 +218,7 @@ export function RelatedBusinessesSection({
                       src={image}
                       alt={`${business.businessName} shop ${index + 1}`}
                       fill
+                      unoptimized
                       className="object-cover"
                       sizes="100px"
                     />
