@@ -9,10 +9,8 @@ type CategoryLite = {
 
 const ACTIVE_CATEGORY_QUERY = {
     isActive: true,
-    $or: [
-        { status: 'active' },
-        { status: { $exists: false } }
-    ]
+    isDeleted: { $ne: true },
+    status: 'live'
 };
 
 const CACHE_TTL_MS = 60 * 1000;

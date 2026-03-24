@@ -20,7 +20,7 @@ async function getHomeCategories(): Promise<Category[]> {
         // SSR exception documented in docs/api-ssr-fetch-exceptions.md
         const response = await fetch(
             `${baseUrl}/${API_ROUTES.USER.CATEGORIES}?isActive=true&limit=20`,
-            { next: { revalidate: 3600 } }
+            { next: { revalidate: 60 } }
         );
 
         if (!response.ok) {

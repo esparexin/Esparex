@@ -79,7 +79,6 @@ export async function seedSpareParts() {
                 name: part.name,
                 categoryIds,
                 slug,
-                status: CATALOG_STATUS.ACTIVE,
                 usageCount: 0,
                 sortOrder: 0,
                 createdBy: new mongoose.Types.ObjectId() // system seed
