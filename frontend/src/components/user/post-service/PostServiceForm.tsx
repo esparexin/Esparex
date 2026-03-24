@@ -43,7 +43,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             categoryId: "",
             brandId: "",
             serviceTypeIds: [],
-            priceMin: 0,
+            price: 0,
             description: "",
         },
     });
@@ -140,7 +140,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                         categoryId,
                         brandId,
                         serviceTypeIds: serviceTypeTokens,
-                        priceMin: payload.priceMin || payload.price || 0,
+                        price: payload.priceMin || payload.price || 0,
                         description: payload.description || "",
                         location: payload.location,
                     });
@@ -376,12 +376,12 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                             </Field>
 
                             {/* Price */}
-                            <Field label="Price (₹)" error={errors.priceMin?.message}>
+                            <Field label="Price (₹)" error={errors.price?.message}>
                                 <div className="relative">
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm pointer-events-none">₹</span>
                                     <Input
                                         type="number"
-                                        {...register("priceMin", { valueAsNumber: true })}
+                                        {...register("price", { valueAsNumber: true })}
                                         placeholder="0"
                                         min={0}
                                         className="h-12 rounded-xl border-2 border-slate-200 bg-white text-sm font-medium focus:border-primary pl-8"

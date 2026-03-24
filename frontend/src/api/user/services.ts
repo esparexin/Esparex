@@ -56,6 +56,7 @@ export interface Service {
     diagnosticFee?: number;
     serviceTypeIds?: string[];
     status: 'pending' | 'live' | 'rejected' | 'expired' | 'deactivated';
+    seoSlug?: string;
     /** @deprecated Prefer serviceTypeIds. */
     serviceTypes?: string[];
     images: string[];
@@ -289,4 +290,22 @@ export const deleteService = async (id: string): Promise<boolean> => {
 export const getServicePhone = async (id: string): Promise<{ mobile: string } | null> => {
     const { data } = await toApiResult<{ mobile: string }>(apiClient.get(API_ROUTES.USER.SERVICE_PHONE(id)));
     return data;
+};
+
+export const markServiceAsSold = async (
+    id: string,
+    soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available'
+): Promise<boolean> => {
+    const { data } = await toApiResult<unknown>(apiClient.patch(`${API_ROUTES.USER.SERVICES}/${id}/sold`, soldReason ? { soldReason } : {}));
+    return !!data;
+};
+
+export const deactivateService = async (id: string): Promise<boolean> => {
+    const { data } = await toApiResult<unknown>(apiClient.patch(`${API_ROUTES.USER.SERVICES}/${id}/deactivate`));
+    return !!data;
+};
+
+export const repostService = async (id: string): Promise<boolean> => {
+    const { data } = await toApiResult<unknown>(apiClient.post(`${API_ROUTES.USER.SERVICES}/${id}/repost`));
+    return !!data;
 };
