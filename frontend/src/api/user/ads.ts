@@ -617,6 +617,19 @@ export const getListingById = async (
 
     try {
         const endpoint = API_ROUTES.USER.LISTING_DETAIL(normalizedIdentifier);
+        if (typeof window === 'undefined') {
+            const json = await fetchUserApiJson(endpoint, {
+                cache: 'no-store',
+                headers: {
+                    Accept: 'application/json',
+                    ...(headers || {})
+                }
+            });
+            const payload = unwrapApiPayload(json);
+            if (!payload) return null;
+            return normalizeAd(payload);
+        }
+
         const { data: result, statusCode } = await toApiResult<Ad>(
             apiClient.get(endpoint, { headers, silent: true })
         );
@@ -624,26 +637,14 @@ export const getListingById = async (
         if (!result) return null;
         return normalizeAd(result);
     } catch (e) {
+        const status =
+            (e as { context?: { statusCode?: number } })?.context?.statusCode ??
+            (e as { response?: { status?: number } })?.response?.status;
+        if (status === 404) {
+            return null;
+        }
         logger.error('Failed to load listing', e);
         return null;
-    }
-};
-
-export const updateListing = async (
-    id: string | number,
-    listingData: Partial<Ad>
-): Promise<Ad | null> => {
-    try {
-        const endpoint = API_ROUTES.USER.LISTING_EDIT(id);
-        const sanitizedPayload = stripEmptyObjectIdFields(listingData as Record<string, unknown>);
-        const { data: result } = await toApiResult<Ad>(
-            apiClient.put(endpoint, sanitizedPayload)
-        );
-        if (!result) return null;
-        return normalizeAd(result);
-    } catch (e) {
-        logger.error('Failed to update listing', e);
-        throw e;
     }
 };
 

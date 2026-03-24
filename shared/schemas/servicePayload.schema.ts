@@ -125,7 +125,7 @@ export const ServicePayloadSchema = BaseServicePayloadSchema
         );
     }, {
         message: 'At least one service type is required',
-        path: ['serviceTypes']
+        path: ['serviceTypeIds']
     });
 
 /**

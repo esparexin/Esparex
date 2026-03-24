@@ -57,7 +57,7 @@ const CategorySchema = new Schema<ICategory>({
 /* -------------------------------------------------------------------------- */
 
 CategorySchema.index({ slug: 1 }, { 
-    name: 'category_slug_unique_idx', 
+    name: 'idx_category_slug_unique_idx', 
     unique: true,
     background: true,
     partialFilterExpression: { isDeleted: false }

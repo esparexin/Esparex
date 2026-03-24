@@ -15,7 +15,7 @@ const SavedAdSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-SavedAdSchema.index({ userId: 1, adId: 1 }, { name: 'savedad_user_ad_unique_idx', unique: true });
+SavedAdSchema.index({ userId: 1, adId: 1 }, { name: 'idx_savedad_user_ad_unique_idx', unique: true });
 
 // toJSON Transform - Convert _id to id
 SavedAdSchema.set('toJSON', {

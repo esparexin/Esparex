@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from "react";
 import type { ListingCategory } from "@/types/listing";
-import type { Brand, SparePart, ScreenSize, DeviceModel } from "@/api/user/masterData";
+import type { Brand, SparePart, ScreenSize, DeviceModel, ServiceType } from "@/api/user/masterData";
 import { getCategorySchema } from "@/api/user/categories";
 import type { CategoryFilter } from "@shared/schemas/catalog.schema";
 import { IconRegistry } from "@/icons/IconRegistry";
@@ -24,6 +24,25 @@ interface UseListingCatalogProps {
     onError?: (msg: string) => void;
 }
 
+const screenSizeSortValue = (raw: string): number => {
+    const numeric = Number(raw.replace(/[^\d.]/g, ""));
+    return Number.isFinite(numeric) ? numeric : Number.POSITIVE_INFINITY;
+};
+
+const normalizeScreenSizeOptions = (sizes: ScreenSize[]): string[] => {
+    const seen = new Set<string>();
+    return sizes
+        .map((item) => (item.size || item.name || "").trim())
+        .filter((value) => value.length > 0)
+        .filter((value) => {
+            const key = value.toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        })
+        .sort((a, b) => screenSizeSortValue(a) - screenSizeSortValue(b));
+};
+
 /**
  * 📚 Unified Catalog Hook for Listings
  * Manages category, brand, model, and spare part data.
@@ -34,7 +53,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
     const [availableModels, setAvailableModels] = useState<DeviceModel[]>([]);
     const [availableSizes, setAvailableSizes] = useState<string[]>([]);
     const [availableSpareParts, setAvailableSpareParts] = useState<SparePart[]>([]);
-    const [availableServiceTypes, setAvailableServiceTypes] = useState<string[]>([]);
+    const [availableServiceTypes, setAvailableServiceTypes] = useState<ServiceType[]>([]);
     const [isLoadingSpareParts, setIsLoadingSpareParts] = useState(false);
     const [categorySchema, setCategorySchema] = useState<CategorySchemaType | null>(null);
     const [activeCategoryId, setActiveCategoryId] = useState<string>("");
@@ -90,9 +109,15 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
             setAvailableBrands(brandsData.map((b: Brand) => b.name));
 
             const catObj = categoryMap[categoryId];
-            if (catObj?.hasScreenSizes) {
+            const normalizedCategoryText = `${catObj?.slug ?? ""} ${catObj?.name ?? ""}`.toLowerCase();
+            const shouldLoadScreenSizes =
+                Boolean(catObj?.hasScreenSizes) ||
+                normalizedCategoryText.includes("tv") ||
+                normalizedCategoryText.includes("monitor");
+
+            if (shouldLoadScreenSizes) {
                 const sizes: ScreenSize[] = await getScreenSizes(categoryId);
-                setAvailableSizes(sizes.map((s) => s.size || s.name || ""));
+                setAvailableSizes(normalizeScreenSizeOptions(sizes));
             } else {
                 setAvailableSizes([]);
             }
@@ -120,21 +145,31 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         }
     }, [onError]);
 
-    const loadServiceTypes = useCallback(async (categoryId?: string) => {
+    const loadServiceTypes = useCallback(async (categoryId?: string): Promise<ServiceType[]> => {
         try {
             const { getServiceTypes } = await import('@/api/user/masterData');
             const serviceTypes = await getServiceTypes(categoryId);
-            const names = Array.from(
-                new Set(
-                    serviceTypes
-                        .map((item) => item.name?.trim())
-                        .filter((name): name is string => typeof name === "string" && name.length > 0)
-                )
-            );
-            setAvailableServiceTypes(names);
+            const seen = new Set<string>();
+            const normalized = serviceTypes
+                .map((item) => {
+                    const id = normalizeOptionalObjectId(item.id ?? item._id);
+                    const name = item.name?.trim();
+                    if (!id || !name) return null;
+                    if (seen.has(id)) return null;
+                    seen.add(id);
+                    return {
+                        ...item,
+                        id,
+                        name
+                    } as ServiceType;
+                })
+                .filter((item): item is ServiceType => Boolean(item));
+            setAvailableServiceTypes(normalized);
+            return normalized;
         } catch (err) {
             logger.error(`[Catalog] Failed to load service types for ${categoryId}:`, err);
             setAvailableServiceTypes([]);
+            return [];
         }
     }, []);
 

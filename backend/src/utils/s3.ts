@@ -141,6 +141,27 @@ export function isValidPersistedImageUrl(url: string): boolean {
         return true;
     }
 
+    // Unify frontend/backend whitelists by allowing explicitly defined remote patterns
+    try {
+        const parsed = new URL(trimmed);
+        const host = parsed.hostname.toLowerCase();
+        
+        const isWhitelistedRemotePattern = imageDomainRegistry.nextRemotePatterns.some(pattern => {
+            const patternHost = pattern.hostname.toLowerCase();
+            if (patternHost === host) return true;
+            if (patternHost.startsWith('**.')) {
+                return host.endsWith(patternHost.slice(3)) || host === patternHost.slice(3);
+            }
+            return false;
+        });
+
+        if (isWhitelistedRemotePattern) {
+            return true;
+        }
+    } catch {
+        // Ignore parsing errors and fallback to strictly checked S3 regexes below
+    }
+
     return isValidS3PublicImageUrl(trimmed);
 }
 

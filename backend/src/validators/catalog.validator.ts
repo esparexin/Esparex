@@ -93,15 +93,6 @@ export const brandUpdateSchema = brandBaseSchema
     .strict()
     .refine((payload) => Object.keys(payload).length > 0, 'At least one field is required');
 
-export const brandStatusToggleSchema = z.object({
-    isActive: z.boolean()
-}).strict();
-
-export const suggestBrandSchema = z.object({
-    name: z.string().trim().min(1).max(120),
-    ...categoryFields
-}).refine(categoryRefine, categoryRefineMsg);
-
 export const modelCreateSchema = z.object({
     name: z.string().trim().min(1).max(120),
     brandId: requiredObjectIdSchema,
@@ -117,11 +108,6 @@ export const modelUpdateSchema = modelCreateSchema
     .partial()
     .strict()
     .refine((payload) => Object.keys(payload).length > 0, 'At least one field is required');
-
-export const suggestModelSchema = z.object({
-    name: z.string().trim().min(1).max(120),
-    brandId: requiredObjectIdSchema
-});
 
 export const ensureModelSchema = z.object({
     categoryId: requiredObjectIdSchema,
@@ -140,7 +126,6 @@ const sparePartBaseSchema = z.object({
     ...categoryFields,
     sortOrder: z.number().int().min(0).optional(),
     filters: z.array(z.unknown()).optional(),
-    status: z.enum([CATALOG_STATUS.PENDING, CATALOG_STATUS.ACTIVE, CATALOG_STATUS.INACTIVE, CATALOG_STATUS.REJECTED]).optional(),
     isActive: z.boolean().optional(),
     rejectionReason: z.string().trim().max(500).optional(),
     brandId: objectIdSchema.optional(),

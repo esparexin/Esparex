@@ -29,10 +29,10 @@ const AdStatusHistorySchema = new Schema<IAdStatusHistory>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-AdStatusHistorySchema.index({ adId: 1 }, { name: 'adstatushistory_adId_idx' });
-AdStatusHistorySchema.index({ actorType: 1 }, { name: 'adstatushistory_actorType_idx' });
-AdStatusHistorySchema.index({ adId: 1, createdAt: -1 }, { name: 'adstatushistory_ad_freshness_idx' });
-AdStatusHistorySchema.index({ actorType: 1, createdAt: -1 }, { name: 'adstatushistory_actor_freshness_idx' });
+AdStatusHistorySchema.index({ adId: 1 }, { name: 'idx_adstatushistory_adId_idx' });
+AdStatusHistorySchema.index({ actorType: 1 }, { name: 'idx_adstatushistory_actorType_idx' });
+AdStatusHistorySchema.index({ adId: 1, createdAt: -1 }, { name: 'idx_adstatushistory_ad_freshness_idx' });
+AdStatusHistorySchema.index({ actorType: 1, createdAt: -1 }, { name: 'idx_adstatushistory_actor_freshness_idx' });
 
 const connection = getUserConnection();
 const AdStatusHistory: Model<IAdStatusHistory> =

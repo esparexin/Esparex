@@ -49,10 +49,10 @@ const AdminBoundarySchema = new Schema<IAdminBoundary>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-AdminBoundarySchema.index({ level: 1 }, { name: 'adminboundary_level_idx' });
-AdminBoundarySchema.index({ locationId: 1 }, { name: 'adminboundary_locationId_idx' });
-AdminBoundarySchema.index({ geometry: '2dsphere' }, { name: 'adminboundary_geo_2dsphere' });
-AdminBoundarySchema.index({ locationId: 1, level: 1 }, { name: 'adminboundary_location_level_unique_idx', unique: true });
+AdminBoundarySchema.index({ level: 1 }, { name: 'idx_adminboundary_level_idx' });
+AdminBoundarySchema.index({ locationId: 1 }, { name: 'idx_adminboundary_locationId_idx' });
+AdminBoundarySchema.index({ geometry: '2dsphere' }, { name: 'idx_adminboundary_geo_2dsphere' });
+AdminBoundarySchema.index({ locationId: 1, level: 1 }, { name: 'idx_adminboundary_location_level_unique_idx', unique: true });
 
 const connection = getUserConnection();
 

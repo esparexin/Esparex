@@ -16,7 +16,7 @@ import Brand from '../../models/Brand';
 import Model from '../../models/Model';
 import Ad from '../../models/Ad';
 import SparePart from '../../models/SparePart';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES } from '../../../../shared/enums/catalogStatus';
+import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { logAdminAction } from '../../utils/adminLogger';
 import { sendSuccessResponse } from '../admin/adminBaseController';
 import { escapeRegExp } from '../../utils/stringUtils';
@@ -35,7 +35,6 @@ import { validateBrandSuggestion, validateModelSuggestion } from '../../utils/su
 import { 
     brandCreateSchema, 
     brandUpdateSchema, 
-    brandStatusToggleSchema, 
     modelCreateSchema, 
     modelUpdateSchema, 
     rejectionSchema 
@@ -71,6 +70,23 @@ const isDuplicateKeyError = (error: unknown): boolean => {
 
 const ensureCategoriesAreActive = async (categoryIds: string[]): Promise<{ ok: boolean; invalidCategoryIds: string[] }> => {
     return validateActiveCategories(categoryIds);
+};
+
+const uniqueObjectIds = (ids: Array<string | mongoose.Types.ObjectId>): mongoose.Types.ObjectId[] => {
+    const deduped = new Map<string, mongoose.Types.ObjectId>();
+    for (const id of ids) {
+        const value = typeof id === 'string' ? id : id.toString();
+        if (!mongoose.Types.ObjectId.isValid(value)) continue;
+        if (!deduped.has(value)) {
+            deduped.set(value, new mongoose.Types.ObjectId(value));
+        }
+    }
+    return Array.from(deduped.values());
+};
+
+const findBrandByNameIncludingDeleted = async (name: string) => {
+    const brandRegex = new RegExp(`^${escapeRegExp(name)}$`, 'i');
+    return Brand.findOne({ name: { $regex: brandRegex } }).setOptions({ withDeleted: true });
 };
 
 
@@ -160,13 +176,40 @@ export const createBrand = async (req: Request, res: Response) => {
         }
         delete payload.categoryId;
 
-        const categoryValidation = await ensureCategoriesAreActive((payload.categoryIds as string[]).map(String));
+        const incomingCategoryIds = ((payload.categoryIds as string[] | undefined) || []).map(String);
+        const categoryValidation = await ensureCategoriesAreActive(incomingCategoryIds);
         if (!categoryValidation.ok) {
             sendContractErrorResponse(req, res, 400, 'One or more provided categoryIds are invalid or inactive', {
                 invalidCategoryIds: categoryValidation.invalidCategoryIds
             });
             return;
         }
+
+        const existingBrand = await findBrandByNameIncludingDeleted(String(payload.name));
+        if (existingBrand) {
+            const mergedCategoryIds = uniqueObjectIds([
+                ...(existingBrand.categoryIds || []),
+                ...incomingCategoryIds
+            ]);
+
+            existingBrand.categoryIds = mergedCategoryIds;
+            existingBrand.isDeleted = false;
+            existingBrand.deletedAt = undefined;
+            existingBrand.isActive = payload.isActive ?? true;
+            existingBrand.status = (payload.status as typeof existingBrand.status | undefined) ?? CATALOG_STATUS.ACTIVE;
+            if (payload.rejectionReason !== undefined) {
+                existingBrand.rejectionReason = payload.rejectionReason as string | undefined;
+            }
+            if (!existingBrand.slug || String(existingBrand.slug).trim().length === 0) {
+                existingBrand.slug = slugify(String(payload.name), { lower: true, strict: true, trim: true }) + '-' + nanoid(5);
+            }
+
+            await existingBrand.save();
+
+            sendSuccessResponse(res, existingBrand, 'Brand already existed; categories merged without duplicates');
+            return;
+        }
+
         const payloadWithSlug = {
             ...payload,
             slug: slugify(payload.name as string, { lower: true, strict: true, trim: true }) + '-' + nanoid(5)
@@ -292,88 +335,6 @@ export const deleteBrand = async (req: Request, res: Response) => {
         await brand.softDelete();
         sendSuccessResponse(res, null, 'Brand deleted successfully');
     } catch (error) {
-        sendCatalogError(req, res, error);
-    }
-};
-
-/**
- * Suggest a new brand (User interaction)
- */
-export const suggestBrand = async (req: Request, res: Response) => {
-    try {
-        const userId = (req as any).user?.id || (req as any).user?._id;
-        if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
-
-        const { name, categoryIds } = req.body;
-        const validation = validateBrandSuggestion(name || '');
-        if (!validation.isValid) { return sendContractErrorResponse(req, res, 400, validation.error || 'Invalid name'); }
-
-        if (!categoryIds || !mongoose.Types.ObjectId.isValid(categoryIds)) {
-            return sendContractErrorResponse(req, res, 400, 'Valid categoryIds is required');
-        }
-        const categoryExists = await Category.exists({ _id: categoryIds, ...ACTIVE_CATEGORY_QUERY });
-        if (!categoryExists) {
-            return sendContractErrorResponse(req, res, 400, 'categoryIds must reference an active category');
-        }
-
-        const cleanName = validation.cleanName;
-
-        // Check for existing active brand
-        const existing = await Brand.findOne({
-            name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
-            status: CATALOG_STATUS.ACTIVE
-        }).lean();
-
-        if (existing) {
-            const typedExisting = existing as { _id: unknown; categoryIds?: unknown };
-            const alreadyHasCategory = String(typedExisting.categoryIds) === categoryIds;
-
-            if (alreadyHasCategory) {
-                // Brand is active and already covers this category — user should select from dropdown
-                return sendContractErrorResponse(req, res, 409, `"${cleanName}" already exists in this category. Select it from the dropdown.`);
-            }
-
-            // Brand is already admin-approved in another category.
-            // Under the new taxonomy model, a Brand strictly belongs to ONE category.
-            // If they suggest the same name in a different category, we must create a new record.
-            // Let it fall through to create a new Brand record.
-        }
-
-        // Check for pending from same user
-        const alreadyPending = await Brand.findOne({
-            name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
-            status: CATALOG_STATUS.PENDING,
-            categoryIds: categoryIds,
-            suggestedBy: userId
-        }).lean();
-
-        if (alreadyPending) {
-            return res.status(409).json(respond({
-                success: false,
-                message: 'You already have a pending suggestion for this brand.',
-                data: alreadyPending
-            }));
-        }
-
-        const brand = await Brand.create({
-            name: cleanName,
-            slug: slugify(cleanName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
-            categoryIds: [categoryIds],
-            status: CATALOG_STATUS.PENDING,
-            isActive: false,
-            suggestedBy: userId
-        });
-
-        res.status(201).json(respond({
-            success: true,
-            message: 'Brand suggestion submitted for review.',
-            data: brand
-        }));
-    } catch (error) {
-        if (isDuplicateKeyError(error)) {
-            sendContractErrorResponse(req, res, 409, `"${req.body?.name || 'Brand'}" already exists. Select it from the dropdown.`);
-            return;
-        }
         sendCatalogError(req, res, error);
     }
 };
@@ -685,77 +646,6 @@ export const rejectModel = async (req: Request, res: Response) => {
 };
 
 /**
- * Suggest a new model (User interaction)
- */
-export const suggestModel = async (req: Request, res: Response) => {
-    try {
-        const userId = (req as any).user?.id || (req as any).user?._id;
-        if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
-
-        const { name, brandId } = req.body;
-        const validation = validateModelSuggestion(name || '');
-        if (!validation.isValid) { return sendContractErrorResponse(req, res, 400, validation.error || 'Invalid name'); }
-
-        if (!brandId || !mongoose.Types.ObjectId.isValid(brandId)) {
-            return sendContractErrorResponse(req, res, 400, 'Valid brandId is required');
-        }
-
-        const brandActive = await Brand.exists({ _id: brandId, isActive: true, isDeleted: { $ne: true } });
-        if (!brandActive) {
-            return sendContractErrorResponse(req, res, 400, 'brandId must reference an active brand');
-        }
-
-        const cleanName = validation.cleanName;
-
-        // Existing check
-        const existing = await Model.findOne({
-            name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
-            brandId,
-            status: CATALOG_STATUS.ACTIVE
-        }).lean();
-
-        if (existing) {
-            return sendContractErrorResponse(req, res, 409, `"${cleanName}" already exists. Select it from the dropdown.`);
-        }
-
-        const alreadyPending = await Model.findOne({
-            name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
-            status: CATALOG_STATUS.PENDING,
-            brandId,
-            suggestedBy: userId
-        }).lean();
-
-        if (alreadyPending) {
-            return res.status(409).json(respond({
-                success: false,
-                message: 'You already have a pending suggestion for this model.',
-                data: alreadyPending
-            }));
-        }
-
-        const model = await Model.create({
-            name: cleanName,
-            brandId,
-            status: CATALOG_STATUS.PENDING,
-            isActive: false,
-            suggestedBy: userId
-        });
-
-        res.status(201).json(respond({
-            success: true,
-            message: 'Model suggestion submitted for review.',
-            data: model
-        }));
-    } catch (error) {
-        if (isDuplicateKeyError(error)) {
-            sendContractErrorResponse(req, res, 409, `"${req.body?.name || 'Model'}" already exists. Select it from the dropdown.`);
-            return;
-        }
-        sendCatalogError(req, res, error);
-    }
-};
-
-/**
  * Ensure model exists (create brand + model if needed)
  */
 export const ensureModel = async (req: Request, res: Response) => {
@@ -777,7 +667,7 @@ export const ensureModel = async (req: Request, res: Response) => {
         const brandRegex = new RegExp(`^${escapeRegExp(brandName)}$`, 'i');
         const modelRegex = new RegExp(`^${escapeRegExp(modelName)}$`, 'i');
 
-        let brand = await Brand.findOne({ name: { $regex: brandRegex }, categoryIds: categoryId });
+        let brand = await Brand.findOne({ name: { $regex: brandRegex } }).setOptions({ withDeleted: true });
         if (!brand) {
             const brandVal = validateBrandSuggestion(brandName);
             brand = await Brand.create({
@@ -788,6 +678,14 @@ export const ensureModel = async (req: Request, res: Response) => {
                 status: CATALOG_STATUS.PENDING,
                 suggestedBy: userId
             });
+        } else {
+            const mergedCategoryIds = uniqueObjectIds([...(brand.categoryIds || []), categoryId]);
+            brand.categoryIds = mergedCategoryIds;
+            if (brand.isDeleted) {
+                brand.isDeleted = false;
+                brand.deletedAt = undefined;
+            }
+            await brand.save();
         }
 
         const brandId = String(brand._id);

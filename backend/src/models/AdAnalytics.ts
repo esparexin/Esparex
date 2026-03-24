@@ -24,8 +24,8 @@ const AdAnalyticsSchema = new Schema<IAdAnalytics>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-AdAnalyticsSchema.index({ adId: 1 }, { name: 'adanalytics_adId_unique_idx', unique: true });
-AdAnalyticsSchema.index({ score: -1 }, { name: 'adanalytics_score_idx' });
+AdAnalyticsSchema.index({ adId: 1 }, { name: 'idx_adanalytics_adId_unique_idx', unique: true });
+AdAnalyticsSchema.index({ score: -1 }, { name: 'idx_adanalytics_score_idx' });
 
 const connection = getUserConnection();
 const AdAnalytics: Model<IAdAnalytics> =

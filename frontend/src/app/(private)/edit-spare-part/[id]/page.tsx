@@ -1,10 +1,16 @@
 "use client";
 
-import { use } from "react";
+import { useParams } from "next/navigation";
 import PostSparePartForm from "@/components/user/post-spare-part/PostSparePartForm";
+import { withGuard } from "@/guards/withGuard";
+import { requireBusinessAuth } from "@/guards/routeGuards";
 
-export default function EditSparePartPageWrapper({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
+function EditSparePartPageWrapper() {
+    const params = useParams();
+    const id = params?.id as string;
 
+    if (!id) return null;
     return <PostSparePartForm editSparePartId={id} />;
 }
+
+export default withGuard(EditSparePartPageWrapper, requireBusinessAuth);

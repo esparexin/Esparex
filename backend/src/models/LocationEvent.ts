@@ -45,7 +45,7 @@ const LocationEventSchema: Schema = new Schema(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-LocationEventSchema.index({ userId: 1, createdAt: -1 }, { name: 'locevent_user_freshness_idx' });
+LocationEventSchema.index({ userId: 1, createdAt: -1 }, { name: 'idx_locationevent_user_freshness_idx' });
 
 const LocationEvent: Model<ILocationEvent> =
     getUserConnection().models.LocationEvent ||

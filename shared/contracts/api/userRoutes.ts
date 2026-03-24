@@ -21,8 +21,6 @@ export const USER_ROUTES = {
   SPARE_PARTS: (categoryId: string) => `catalog/spare-parts?categoryId=${categoryId}`,
   SERVICE_TYPES: "catalog/service-types",
   SCREEN_SIZES: "catalog/screen-sizes",
-  CATALOG_BRAND_SUGGEST: "catalog/brands/suggest",
-  CATALOG_MODEL_SUGGEST: "catalog/models/suggest",
 
   // Ads
   ADS: "ads",

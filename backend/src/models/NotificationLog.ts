@@ -32,7 +32,7 @@ const NotificationLogSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-NotificationLogSchema.index({ sentBy: 1, createdAt: -1 }, { name: 'notiflog_sender_freshness_idx' });
+NotificationLogSchema.index({ sentBy: 1, createdAt: -1 }, { name: 'idx_notificationlog_sender_freshness_idx' });
 
 import { getAdminConnection } from '../config/db';
 // toJSON Transform - Convert _id to id

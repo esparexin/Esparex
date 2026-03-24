@@ -41,11 +41,11 @@ const LocationAnalyticsSchema = new Schema<ILocationAnalytics>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-LocationAnalyticsSchema.index({ locationId: 1 }, { name: 'locanalytics_locationId_unique_idx', unique: true });
-LocationAnalyticsSchema.index({ isHotZone: 1 }, { name: 'locanalytics_isHotZone_idx' });
-LocationAnalyticsSchema.index({ popularityScore: -1 }, { name: 'locanalytics_popularityScore_idx' });
-LocationAnalyticsSchema.index({ isHotZone: 1, popularityScore: -1 }, { name: 'locanalytics_hotzone_popularity_idx' });
-LocationAnalyticsSchema.index({ popularityScore: -1, lastUpdated: -1 }, { name: 'locanalytics_popularity_freshness_idx' });
+LocationAnalyticsSchema.index({ locationId: 1 }, { name: 'idx_locanalytics_locationId_unique_idx', unique: true });
+LocationAnalyticsSchema.index({ isHotZone: 1 }, { name: 'idx_locanalytics_isHotZone_idx' });
+LocationAnalyticsSchema.index({ popularityScore: -1 }, { name: 'idx_locanalytics_popularityScore_idx' });
+LocationAnalyticsSchema.index({ isHotZone: 1, popularityScore: -1 }, { name: 'idx_locanalytics_hotzone_popularity_idx' });
+LocationAnalyticsSchema.index({ popularityScore: -1, lastUpdated: -1 }, { name: 'idx_locanalytics_popularity_freshness_idx' });
 
 const LocationAnalytics: Model<ILocationAnalytics> =
     getUserConnection().models.LocationAnalytics ||

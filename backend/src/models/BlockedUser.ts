@@ -28,9 +28,9 @@ BlockedUserSchema.pre('validate', function () {
 
 BlockedUserSchema.index(
     { blockerId: 1, blockedId: 1 },
-    { unique: true, name: 'blockeduser_blocker_blocked_unique_idx' }
+    { unique: true, name: 'idx_blockeduser_blocker_blocked_unique_idx' }
 );
-BlockedUserSchema.index({ blockedId: 1 }, { name: 'blockeduser_blocked_idx' });
+BlockedUserSchema.index({ blockedId: 1 }, { name: 'idx_blockeduser_blocked_idx' });
 
 BlockedUserSchema.set('toJSON', {
     virtuals: true,

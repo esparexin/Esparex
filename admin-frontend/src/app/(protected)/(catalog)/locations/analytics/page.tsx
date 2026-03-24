@@ -30,6 +30,27 @@ export default function LocationAnalyticsPage() {
             .finally(() => setLoading(false));
     }, [filters]);
 
+    const adsByStateRows = (() => {
+        const merged = new Map<string, { key: string; label: string; count: number }>();
+        for (const row of data?.adsByState ?? []) {
+            const rawLabel = typeof row?._id === "string" ? row._id : String(row?._id ?? "");
+            const label = rawLabel.trim().replace(/\s+/g, " ") || "Unknown";
+            const key = label.toLowerCase();
+            const parsedCount = Number(row?.count ?? 0);
+            const count = Number.isFinite(parsedCount) ? parsedCount : 0;
+            const existing = merged.get(key);
+            if (existing) {
+                existing.count += count;
+                continue;
+            }
+            merged.set(key, { key, label, count });
+        }
+        return Array.from(merged.values()).sort((a, b) => b.count - a.count);
+    })();
+    const maxStateAdsCount = adsByStateRows.length
+        ? Math.max(...adsByStateRows.map((row) => row.count), 1)
+        : 1;
+
     return (
         <AdminPageShell
             title="Geo Analytics"
@@ -123,16 +144,16 @@ export default function LocationAnalyticsPage() {
                                     <h3 className="font-bold text-slate-900">Ads by State</h3>
                                 </div>
                                 <div className="divide-y divide-slate-50">
-                                    {data.adsByState?.length ? data.adsByState.map((row) => (
-                                        <div key={row._id} className="flex items-center justify-between px-5 py-3">
-                                            <span className="text-sm font-medium text-slate-700">{row._id || "Unknown"}</span>
+                                    {adsByStateRows.length ? adsByStateRows.map((row) => (
+                                        <div key={row.key} className="flex items-center justify-between px-5 py-3">
+                                            <span className="text-sm font-medium text-slate-700">{row.label}</span>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
                                                     <div
                                                         className="h-full bg-primary rounded-full"
                                                         style={{
                                                             width: `${Math.min(100, Math.round(
-                                                                (row.count / Math.max(...data.adsByState.map(r => r.count), 1)) * 100
+                                                                (row.count / maxStateAdsCount) * 100
                                                             ))}%`
                                                         }}
                                                     />

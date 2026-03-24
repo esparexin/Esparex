@@ -33,7 +33,7 @@ const UserWalletSchema = new Schema<IUserWallet>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-UserWalletSchema.index({ userId: 1 }, { name: 'userwallet_userId_unique_idx', unique: true });
+UserWalletSchema.index({ userId: 1 }, { name: 'idx_userwallet_userId_unique_idx', unique: true });
 
 const connection = getUserConnection();
 const UserWallet: Model<IUserWallet> = (connection.models.UserWallet as Model<IUserWallet>) ||

@@ -42,7 +42,6 @@ export function useAdminBrands() {
 
     const {
         items: brands,
-        setItems: setBrands,
         loading,
         error,
         pagination,

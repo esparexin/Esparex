@@ -29,7 +29,6 @@ export {
     deleteBrand,
     approveBrand,
     rejectBrand,
-    suggestBrand,
     getModels,
     getModelById,
     createModel,
@@ -37,7 +36,6 @@ export {
     deleteModel,
     approveModel,
     rejectModel,
-    suggestModel,
     ensureModel
 } from './catalogBrandModelController';
 

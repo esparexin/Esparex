@@ -33,13 +33,13 @@ const StatusHistorySchema = new Schema<IStatusHistory>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-StatusHistorySchema.index({ domain: 1 }, { name: 'statushistory_domain_idx' });
-StatusHistorySchema.index({ entityId: 1 }, { name: 'statushistory_entityId_idx' });
-StatusHistorySchema.index({ actorType: 1 }, { name: 'statushistory_actorType_idx' });
-StatusHistorySchema.index({ actorId: 1 }, { name: 'statushistory_actorId_idx' });
-StatusHistorySchema.index({ entityId: 1, domain: 1, createdAt: -1 }, { name: 'statushistory_entity_domain_freshness_idx' });
-StatusHistorySchema.index({ domain: 1, toStatus: 1, createdAt: -1 }, { name: 'statushistory_domain_status_freshness_idx' });
-StatusHistorySchema.index({ actorId: 1, createdAt: -1 }, { name: 'statushistory_actor_freshness_idx' });
+StatusHistorySchema.index({ domain: 1 }, { name: 'idx_statushistory_domain_idx' });
+StatusHistorySchema.index({ entityId: 1 }, { name: 'idx_statushistory_entityId_idx' });
+StatusHistorySchema.index({ actorType: 1 }, { name: 'idx_statushistory_actorType_idx' });
+StatusHistorySchema.index({ actorId: 1 }, { name: 'idx_statushistory_actorId_idx' });
+StatusHistorySchema.index({ entityId: 1, domain: 1, createdAt: -1 }, { name: 'idx_statushistory_entity_domain_freshness_idx' });
+StatusHistorySchema.index({ domain: 1, toStatus: 1, createdAt: -1 }, { name: 'idx_statushistory_domain_status_freshness_idx' });
+StatusHistorySchema.index({ actorId: 1, createdAt: -1 }, { name: 'idx_statushistory_actor_freshness_idx' });
 
 const connection = getUserConnection();
 const StatusHistory: Model<IStatusHistory> =

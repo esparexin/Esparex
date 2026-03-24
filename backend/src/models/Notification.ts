@@ -52,9 +52,9 @@ const NotificationSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-NotificationSchema.index({ userId: 1, isRead: 1, createdAt: -1 }, { name: 'notif_user_read_freshness_idx' });
-NotificationSchema.index({ userId: 1, dedupKey: 1 }, { unique: true, partialFilterExpression: { dedupKey: { $exists: true } }, name: 'notif_dedup_idempotency_idx' });
-NotificationSchema.index({ createdAt: 1 }, { name: 'notif_createdAt_ttl_idx', expireAfterSeconds: 7776000 }); // 90 days
+NotificationSchema.index({ userId: 1, isRead: 1, createdAt: -1 }, { name: 'idx_notification_user_read_freshness_idx' });
+NotificationSchema.index({ userId: 1, dedupKey: 1 }, { unique: true, partialFilterExpression: { dedupKey: { $exists: true } }, name: 'idx_notification_dedup_idempotency_idx' });
+NotificationSchema.index({ createdAt: 1 }, { name: 'idx_notification_createdAt_ttl_idx', expireAfterSeconds: 7776000 }); // 90 days
 
 import { getUserConnection } from '../config/db';
 // toJSON Transform - Convert _id to id

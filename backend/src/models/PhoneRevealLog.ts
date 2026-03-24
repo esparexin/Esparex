@@ -26,9 +26,9 @@ const PhoneRevealLogSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-PhoneRevealLogSchema.index({ buyerId: 1 }, { name: 'phonereveal_buyerId_idx' });
-PhoneRevealLogSchema.index({ sellerId: 1 }, { name: 'phonereveal_sellerId_idx' });
-PhoneRevealLogSchema.index({ entityId: 1 }, { name: 'phonereveal_entityId_idx' });
-PhoneRevealLogSchema.index({ revealedAt: -1 }, { name: 'phonereveal_revealedAt_idx' });
+PhoneRevealLogSchema.index({ buyerId: 1 }, { name: 'idx_phonereveal_buyerId_idx' });
+PhoneRevealLogSchema.index({ sellerId: 1 }, { name: 'idx_phonereveal_sellerId_idx' });
+PhoneRevealLogSchema.index({ entityId: 1 }, { name: 'idx_phonereveal_entityId_idx' });
+PhoneRevealLogSchema.index({ revealedAt: -1 }, { name: 'idx_phonereveal_revealedAt_idx' });
 
 export default mongoose.model<IPhoneRevealLog>('PhoneRevealLog', PhoneRevealLogSchema, 'phone_reveal_logs');

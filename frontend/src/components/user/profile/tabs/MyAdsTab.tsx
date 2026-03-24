@@ -27,6 +27,8 @@ import {
 import FeatureCard from '@/components/user/FeatureCard';
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
 import { formatPrice } from "@/utils/formatters";
+import { LISTING_TYPE } from "@shared/enums/listingType";
+import type { UserPage } from "@/lib/routeUtils";
 
 type SoldReason = 'sold_on_platform' | 'sold_outside' | 'no_longer_available';
 type MyAd = Ad;
@@ -37,7 +39,13 @@ interface MyAdsTabProps {
     loadingAds: boolean;
     myAdsTab: "live" | "pending" | "sold" | "expired" | "rejected" | "deactivated";
     setMyAdsTab: (tab: "live" | "pending" | "sold" | "expired" | "rejected" | "deactivated") => void;
-    navigateTo: (page: string, adId?: string | number) => void;
+    navigateTo: (
+        page: UserPage,
+        adId?: string | number,
+        category?: string,
+        businessId?: string,
+        serviceId?: string | number
+    ) => void;
     getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
     fetchMyAds: () => void;
     formatDate: (date: string | Date) => string;
@@ -206,18 +214,41 @@ export function MyAdsTab({
                                 const canEdit = EDITABLE_STATUSES.has(ad.status || '');
                                 const isRejected = ad.status === 'rejected';
                                 const isActive = ad.status === 'live';
+                                const listingType = String((ad as { listingType?: string }).listingType || LISTING_TYPE.AD);
+                                const openDetail = () => {
+                                    if (listingType === LISTING_TYPE.SERVICE) {
+                                        navigateTo("service-detail", undefined, undefined, undefined, ad.id);
+                                        return;
+                                    }
+                                    if (listingType === LISTING_TYPE.SPARE_PART) {
+                                        navigateTo("spare-part-listing", ad.id);
+                                        return;
+                                    }
+                                    navigateTo("ad-detail", ad.id);
+                                };
+                                const openEdit = () => {
+                                    if (listingType === LISTING_TYPE.SERVICE) {
+                                        navigateTo("edit-service", undefined, undefined, undefined, ad.id);
+                                        return;
+                                    }
+                                    if (listingType === LISTING_TYPE.SPARE_PART) {
+                                        navigateTo("edit-spare-part", ad.id);
+                                        return;
+                                    }
+                                    navigateTo("edit-ad", ad.id);
+                                };
 
                                 return (
                                     <div
                                         key={ad.id}
                                         className="flex gap-3 p-3 rounded-xl border bg-white hover:border-blue-200 hover:shadow-sm transition-all group cursor-pointer"
-                                        onClick={() => navigateTo("ad-detail", ad.id)}
+                                        onClick={openDetail}
                                         role="button"
                                         tabIndex={0}
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter" || e.key === " ") {
                                                 e.preventDefault();
-                                                navigateTo("ad-detail", ad.id);
+                                                openDetail();
                                             }
                                         }}
                                     >
@@ -292,7 +323,7 @@ export function MyAdsTab({
                                                             className="h-7 text-xs"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                navigateTo("edit-ad", ad.id);
+                                                                openEdit();
                                                             }}
                                                         >
                                                             <Edit2 className="h-3 w-3 mr-1" /> Edit

@@ -94,7 +94,7 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     account: "/account",
     "my-ads": "/account/ads",
     "saved-ads": "/account/saved",
-    messages: "/account/messages",
+    messages: "/chat",
     profile: "/account/profile",
     "profile-settings": "/account/settings",
     "profile-settings-business": "/business/edit",
@@ -252,11 +252,17 @@ export const getPageRoute = (
                 ? `/business/${encodeURIComponent(String(params.businessId))}`
                 : "/account/business";
         case "edit-ad": return params?.adId ? `/edit-ad/${params.adId}` : "/account/ads";
-        case "edit-service": return params?.adId ? `/edit-service/${params.adId}` : "/account/ads";
-        case "edit-spare-part": return params?.adId ? `/edit-spare-part/${params.adId}` : "/account/ads";
+        case "edit-service":
+            return params?.serviceId
+                ? `/edit-service/${params.serviceId}`
+                : (params?.adId ? `/edit-service/${params.adId}` : "/account/ads");
+        case "edit-spare-part":
+            return params?.partId
+                ? `/edit-spare-part/${params.partId}`
+                : (params?.adId ? `/edit-spare-part/${params.adId}` : "/account/ads");
 
         case "post-service":
-            return params?.serviceId ? `/post-service?serviceId=${params.serviceId}` : "/post-service";
+            return "/post-service";
 
         case "service-detail":
             if (params?.slug) return `/services/${toSlugId(params.slug, params?.serviceId)}`;
@@ -264,6 +270,8 @@ export const getPageRoute = (
 
         case "spare-part-listing":
             if (params?.slug) return `/spare-part-listings/${params.slug}`;
+            if (params?.partId) return `/spare-part-listings/${params.partId}`;
+            if (params?.adId) return `/spare-part-listings/${params.adId}`;
             return "/search";
 
         default:

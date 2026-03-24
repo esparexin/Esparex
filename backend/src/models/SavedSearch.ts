@@ -28,10 +28,10 @@ const SavedSearchSchema = new Schema<ISavedSearch>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-SavedSearchSchema.index({ userId: 1 }, { name: 'savedsearch_userId_idx' });
-SavedSearchSchema.index({ categoryId: 1 }, { name: 'savedsearch_categoryId_idx' });
-SavedSearchSchema.index({ locationId: 1 }, { name: 'savedsearch_locationId_idx' });
-SavedSearchSchema.index({ userId: 1, createdAt: -1 }, { name: 'savedsearch_user_freshness_idx' });
+SavedSearchSchema.index({ userId: 1 }, { name: 'idx_savedsearch_userId_idx' });
+SavedSearchSchema.index({ categoryId: 1 }, { name: 'idx_savedsearch_categoryId_idx' });
+SavedSearchSchema.index({ locationId: 1 }, { name: 'idx_savedsearch_locationId_idx' });
+SavedSearchSchema.index({ userId: 1, createdAt: -1 }, { name: 'idx_savedsearch_user_freshness_idx' });
 
 SavedSearchSchema.set('toJSON', {
     virtuals: true,

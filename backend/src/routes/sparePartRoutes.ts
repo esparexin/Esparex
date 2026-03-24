@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { protect } from '../middleware/authMiddleware';
+import { protect, extractUser } from '../middleware/authMiddleware';
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import * as sparePartListingController from '../controllers/sparePartListingController';
@@ -54,7 +54,7 @@ router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, sparePar
  * @desc    Get single spare part listing (Public)
  * @access  Public
  */
-router.get('/:idOrSlug', sparePartListingController.getSparePartListing);
+router.get('/:idOrSlug', extractUser, sparePartListingController.getSparePartListing);
 
 /**
  * @route   PUT /api/v1/spare-part-listings/:id

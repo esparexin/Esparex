@@ -27,13 +27,13 @@ const PhoneRequestSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-PhoneRequestSchema.index({ buyerId: 1 }, { name: 'phonereq_buyerId_idx' });
-PhoneRequestSchema.index({ sellerId: 1 }, { name: 'phonereq_sellerId_idx' });
-PhoneRequestSchema.index({ entityId: 1 }, { name: 'phonereq_entityId_idx' });
-PhoneRequestSchema.index({ status: 1 }, { name: 'phonereq_status_idx' });
+PhoneRequestSchema.index({ buyerId: 1 }, { name: 'idx_phonereq_buyerId_idx' });
+PhoneRequestSchema.index({ sellerId: 1 }, { name: 'idx_phonereq_sellerId_idx' });
+PhoneRequestSchema.index({ entityId: 1 }, { name: 'idx_phonereq_entityId_idx' });
+PhoneRequestSchema.index({ status: 1 }, { name: 'idx_phonereq_status_idx' });
 PhoneRequestSchema.index(
     { buyerId: 1, sellerId: 1, entityId: 1 }, 
-    { name: 'phonereq_buyer_seller_entity_unique_idx', unique: true }
+    { name: 'idx_phonereq_buyer_seller_entity_unique_idx', unique: true }
 );
 
 // toJSON Transform - Convert _id to id

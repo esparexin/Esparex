@@ -184,7 +184,7 @@ export function ServiceDetailsSidebar({
                     className="w-full gap-2 justify-start"
                     onClick={() =>
                       serviceId &&
-                      navigateTo("post-service", undefined, undefined, undefined, serviceId)
+                      navigateTo("edit-service", undefined, undefined, undefined, serviceId)
                     }
                   >
                     <Edit2 className="h-4 w-4" />

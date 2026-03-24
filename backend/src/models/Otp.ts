@@ -23,10 +23,10 @@ const OtpSchema = new Schema<IOtp>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-OtpSchema.index({ mobile: 1 }, { name: 'otp_mobile_idx' });
+OtpSchema.index({ mobile: 1 }, { name: 'idx_otp_mobile_idx' });
 
-OtpSchema.index({ expiresAt: 1 }, { name: 'otp_expiresAt_ttl_idx', expireAfterSeconds: 0 });
-OtpSchema.index({ mobile: 1, createdAt: -1 }, { name: 'otp_mobile_createdAt_idx' });
+OtpSchema.index({ expiresAt: 1 }, { name: 'idx_otp_expiresAt_ttl_idx', expireAfterSeconds: 0 });
+OtpSchema.index({ mobile: 1, createdAt: -1 }, { name: 'idx_otp_mobile_createdAt_idx' });
 // toJSON Transform - Convert _id to id
 OtpSchema.set('toJSON', {
     virtuals: true,

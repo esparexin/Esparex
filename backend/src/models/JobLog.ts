@@ -29,9 +29,9 @@ const JobLogSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-JobLogSchema.index({ jobName: 1 }, { name: 'joblog_name_idx' });
-JobLogSchema.index({ status: 1 }, { name: 'joblog_status_idx' });
-JobLogSchema.index({ startedAt: -1 }, { name: 'joblog_startedAt_idx' });
+JobLogSchema.index({ jobName: 1 }, { name: 'idx_joblog_name_idx' });
+JobLogSchema.index({ status: 1 }, { name: 'idx_joblog_status_idx' });
+JobLogSchema.index({ startedAt: -1 }, { name: 'idx_joblog_startedAt_idx' });
 
 // toJSON Transform - Convert _id to id
 JobLogSchema.set('toJSON', {

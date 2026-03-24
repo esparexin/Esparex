@@ -32,11 +32,11 @@ const BoostSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-BoostSchema.index({ entityId: 1 }, { name: 'boost_entityId_idx' });
-BoostSchema.index({ startsAt: 1 }, { name: 'boost_startsAt_idx' });
-BoostSchema.index({ isActive: 1 }, { name: 'boost_isActive_idx' });
-BoostSchema.index({ endsAt: 1 }, { name: 'boost_endsAt_idx', expireAfterSeconds: 0 });
-BoostSchema.index({ transactionId: 1 }, { name: 'boost_transactionId_idx' });
+BoostSchema.index({ entityId: 1 }, { name: 'idx_boost_entityId_idx' });
+BoostSchema.index({ startsAt: 1 }, { name: 'idx_boost_startsAt_idx' });
+BoostSchema.index({ isActive: 1 }, { name: 'idx_boost_isActive_idx' });
+BoostSchema.index({ endsAt: 1 }, { name: 'idx_boost_endsAt_idx', expireAfterSeconds: 0 });
+BoostSchema.index({ transactionId: 1 }, { name: 'idx_boost_transactionId_idx' });
 
 import { getUserConnection } from '../config/db';
 

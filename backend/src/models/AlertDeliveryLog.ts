@@ -18,7 +18,7 @@ const AlertDeliveryLogSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-AlertDeliveryLogSchema.index({ deliveredAt: 1 }, { name: 'alertlog_deliveredAt_ttl_idx', expireAfterSeconds: 60 * 60 * 24 * 7 });
-AlertDeliveryLogSchema.index({ alertId: 1, adId: 1 }, { name: 'alertlog_alert_ad_unique_idx', unique: true });
+AlertDeliveryLogSchema.index({ deliveredAt: 1 }, { name: 'idx_alertlog_deliveredAt_ttl_idx', expireAfterSeconds: 60 * 60 * 24 * 7 });
+AlertDeliveryLogSchema.index({ alertId: 1, adId: 1 }, { name: 'idx_alertlog_alert_ad_unique_idx', unique: true });
 
 export default getUserConnection().models.AlertDeliveryLog || getUserConnection().model<IAlertDeliveryLog>('AlertDeliveryLog', AlertDeliveryLogSchema);

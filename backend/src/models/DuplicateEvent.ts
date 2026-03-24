@@ -38,14 +38,14 @@ const DuplicateEventSchema = new Schema<IDuplicateEvent>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-DuplicateEventSchema.index({ sellerId: 1 }, { name: 'dupevent_sellerId_idx' });
-DuplicateEventSchema.index({ action: 1 }, { name: 'dupevent_action_idx' });
-DuplicateEventSchema.index({ duplicateFingerprint: 1 }, { name: 'dupevent_fingerprint_idx' });
-DuplicateEventSchema.index({ createdAt: -1 }, { name: 'dupevent_createdAt_idx' });
-DuplicateEventSchema.index({ sellerId: 1, createdAt: -1 }, { name: 'dupevent_seller_date_idx' });
-DuplicateEventSchema.index({ action: 1, createdAt: -1 }, { name: 'dupevent_action_date_idx' });
-DuplicateEventSchema.index({ adId: 1, createdAt: -1 }, { name: 'dupevent_adId_idx' });
-DuplicateEventSchema.index({ matchedAdId: 1, createdAt: -1 }, { name: 'dupevent_matchedAdId_idx' });
+DuplicateEventSchema.index({ sellerId: 1 }, { name: 'idx_duplicateevent_sellerId_idx' });
+DuplicateEventSchema.index({ action: 1 }, { name: 'idx_duplicateevent_action_idx' });
+DuplicateEventSchema.index({ duplicateFingerprint: 1 }, { name: 'idx_duplicateevent_fingerprint_idx' });
+DuplicateEventSchema.index({ createdAt: -1 }, { name: 'idx_duplicateevent_createdAt_idx' });
+DuplicateEventSchema.index({ sellerId: 1, createdAt: -1 }, { name: 'idx_duplicateevent_seller_date_idx' });
+DuplicateEventSchema.index({ action: 1, createdAt: -1 }, { name: 'idx_duplicateevent_action_date_idx' });
+DuplicateEventSchema.index({ adId: 1, createdAt: -1 }, { name: 'idx_duplicateevent_adId_idx' });
+DuplicateEventSchema.index({ matchedAdId: 1, createdAt: -1 }, { name: 'idx_duplicateevent_matchedAdId_idx' });
 
 const DuplicateEvent =
     getUserConnection().models.DuplicateEvent ||

@@ -315,13 +315,18 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
         let finalData: unknown = listing;
         const prevStatus = listing.status;
         if (prevStatus === INVENTORY_STATUS.LIVE || prevStatus === INVENTORY_STATUS.REJECTED) {
-            finalData = await mutateStatus({
-                domain: 'spare_part_listing',
-                entityId: listing._id,
-                toStatus: INVENTORY_STATUS.PENDING,
-                actor: { type: ACTOR_TYPE.USER, id: (req.user as any)?._id?.toString() },
-                reason: 'Seller edited listing — re-review required'
-            });
+            try {
+                finalData = await mutateStatus({
+                    domain: 'spare_part_listing',
+                    entityId: listing._id,
+                    toStatus: INVENTORY_STATUS.PENDING,
+                    actor: { type: ACTOR_TYPE.USER, id: (req.user as any)?._id?.toString() },
+                    reason: 'Seller edited listing — re-review required'
+                });
+            } catch {
+                // Keep edit success response based on persisted listing update.
+                finalData = listing;
+            }
         }
 
         res.status(200).json({ success: true, data: finalData, message: 'Spare part listing updated.' });

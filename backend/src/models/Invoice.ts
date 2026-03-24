@@ -99,12 +99,12 @@ const InvoiceSchema = new Schema<IInvoice>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-InvoiceSchema.index({ invoiceNumber: 1 }, { name: 'invoice_number_unique_idx', unique: true });
-InvoiceSchema.index({ userId: 1 }, { name: 'invoice_userId_idx' });
-InvoiceSchema.index({ transactionId: 1 }, { name: 'invoice_transactionId_idx' });
-InvoiceSchema.index({ status: 1 }, { name: 'invoice_status_idx' });
-InvoiceSchema.index({ createdAt: -1 }, { name: 'invoice_createdAt_idx' });
-InvoiceSchema.index({ issuedAt: -1 }, { name: 'invoice_issuedAt_idx' });
+InvoiceSchema.index({ invoiceNumber: 1 }, { name: 'idx_invoice_number_unique_idx', unique: true });
+InvoiceSchema.index({ userId: 1 }, { name: 'idx_invoice_userId_idx' });
+InvoiceSchema.index({ transactionId: 1 }, { name: 'idx_invoice_transactionId_idx' });
+InvoiceSchema.index({ status: 1 }, { name: 'idx_invoice_status_idx' });
+InvoiceSchema.index({ createdAt: -1 }, { name: 'idx_invoice_createdAt_idx' });
+InvoiceSchema.index({ issuedAt: -1 }, { name: 'idx_invoice_issuedAt_idx' });
 
 const connection = getUserConnection();
 export const Invoice: Model<IInvoice> =

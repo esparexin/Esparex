@@ -40,6 +40,13 @@ const PostSparePartSchema = z.object({
         locationId: z.string().optional(),
     }).optional(),
 });
+const EditSparePartSchema = PostSparePartSchema.pick({
+    title: true,
+    description: true,
+    price: true,
+}).extend({
+    images: z.array(z.string()).min(1, "At least one image is required").max(10, "Maximum 10 images allowed"),
+});
 
 type PostSparePartValues = z.infer<typeof PostSparePartSchema>;
 
@@ -103,15 +110,22 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
             try {
                 const payload = await getSparePartListingDetail(editSparePartId);
                 if (isMounted && payload) {
+                    const resolvedCategoryId = typeof payload.categoryId === 'string' ? payload.categoryId : payload.categoryId?.id || "";
                     form.reset({
                         title: payload.title || "",
-                        categoryId: typeof payload.categoryId === 'string' ? payload.categoryId : payload.categoryId?.id || "",
+                        categoryId: resolvedCategoryId,
                         brandId: payload.brandId || "",
                         sparePartTypeId: typeof payload.sparePartId === 'string' ? payload.sparePartId : payload.sparePartId?.id || "",
                         price: payload.price || 0,
                         description: payload.description || "",
                         location: payload.location as any
                     });
+                    if (resolvedCategoryId) {
+                        await Promise.all([
+                            loadBrandsForCategory(resolvedCategoryId),
+                            loadSparePartsForCategory(resolvedCategoryId),
+                        ]);
+                    }
 
                     if (payload.images && Array.isArray(payload.images)) {
                         setImages(payload.images.map(url => ({
@@ -130,7 +144,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         };
         loadListing();
         return () => { isMounted = false; };
-    }, [editSparePartId, form]);
+    }, [editSparePartId, form, loadBrandsForCategory, loadSparePartsForCategory]);
     const handleImageUpload = (files: File[]) => {
         const newImgs: ListingImage[] = files.map(f => ({
             id: `${f.name}-${Date.now()}`,
@@ -159,6 +173,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         isEditMode,
         editId: editSparePartId,
         schema: PostSparePartSchema,
+        partialSchema: EditSparePartSchema,
         submitFn: async (payload) => {
             if (isEditMode && editSparePartId) {
                 // Update schema is .strict() — only send allowed content fields
@@ -184,7 +199,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                 locationId: (payload.location as any)?.locationId || businessData?.location?.locationId,
             });
         },
-        onSuccess: () => router.push(isEditMode ? "/my-ads?tab=pending" : "/post-spare-part-success"),
+        onSuccess: () => router.push(isEditMode ? "/account/ads" : "/post-spare-part-success"),
         onError: (msg) => setFormError(msg),
     });
 

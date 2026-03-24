@@ -121,9 +121,10 @@ let hasWarnedAtlasSearchFallback = false;
 const buildNormalizedFromLocationDoc = (loc: LocationInputObject): NormalizedLocation => {
     const coords = normalizeCoordinates(loc?.coordinates);
 
-    const city = toTitleCase(asString(loc?.city) || asString(loc?.name) || '');
+    // city/state flat fields removed from schema (Sprint 3). Derive from name + level.
+    const city = toTitleCase(asString(loc?.name) || '');
     const district = toTitleCase(asString((loc as { district?: unknown })?.district) || '');
-    const state = toTitleCase(asString(loc?.state) || '');
+    const state = toTitleCase(asString((loc as { state?: unknown })?.state) || asString(loc?.country) || '');
     const country = toTitleCase(asString(loc?.country) || '');
     const fallbackDisplay = asString(loc?.name) || asString(loc?.display);
     const rawId = asString(loc?._id);
@@ -184,13 +185,13 @@ const resolveLocationFromDb = async (input: unknown): Promise<NormalizedLocation
         ? new RegExp(`^${stateCandidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
         : undefined;
 
+    // city/state flat fields removed in Sprint 3 — query by name + level
     const loc = await Location.findOne({
         isActive: true,
         $or: [
             { normalizedName: normalizedCityCandidate },
-            { city: cityRegex }
+            { name: cityRegex }
         ],
-        ...(stateRegex ? { state: stateRegex } : {}),
     })
         .sort({ priority: -1, createdAt: 1 })
         .lean();
@@ -374,7 +375,7 @@ const getActiveLocationById = async (locationId: unknown) => {
     if (!objectId) return null;
 
     return Location.findOne({ _id: objectId, isActive: true })
-        .select('name city state country level coordinates isPopular isActive verificationStatus parentId path')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .lean();
 };
 
@@ -503,10 +504,10 @@ export const ingestLocation = async (payload: {
             defaultCountry: 'Unknown'
         });
 
+        // Dedup by normalizedName + level + parentId (state field removed Sprint 3)
         let existing = await Location.findOne({
             isActive: true,
             normalizedName: normalizedPayload.normalizedName,
-            state: normalizedPayload.state,
             level: normalizedPayload.level,
             ...(normalizedPayload.parentId ? { parentId: normalizedPayload.parentId } : {})
         }).session(session).lean();
@@ -534,13 +535,12 @@ export const ingestLocation = async (payload: {
             return mapToLocationResponse(buildNormalizedFromLocationDoc(existing as LocationInputObject));
         }
 
+        // city/state flat fields omitted — use parentId/path hierarchy (Sprint 3)
         const [created] = await Location.create([{
             _id: normalizedPayload.documentId,
             name: normalizedPayload.name,
             normalizedName: normalizedPayload.normalizedName,
             slug: normalizedPayload.slug,
-            city: normalizedPayload.city,
-            state: normalizedPayload.state,
             country: normalizedPayload.country,
             level: normalizedPayload.level,
             parentId: normalizedPayload.parentId,
@@ -813,65 +813,17 @@ export const getPopularLocations = async (): Promise<NormalizedLocationResponse[
 };
 
 export const getStateLocations = async (): Promise<NormalizedLocationResponse[]> => {
+    // Sprint 3: query by level='state' directly — no longer uses deprecated state field
     const stateAnchors = await Location.find({
         isActive: true,
         level: 'state',
-        state: { $type: 'string', $ne: '' }
     })
-        .select('name city state country level coordinates isPopular isActive verificationStatus')
-        .sort({ isPopular: -1, priority: -1, state: 1, name: 1 })
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
+        .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
 
-    if (stateAnchors.length > 0) {
-        return stateAnchors.map((state) =>
-            mapToLocationResponse(buildNormalizedFromLocationDoc(state as LocationInputObject))
-        );
-    }
-
-    const states = await Location.aggregate<{
-        id: mongoose.Types.ObjectId;
-        state: string;
-        country?: string;
-        coordinates?: { type: 'Point'; coordinates: [number, number] };
-        isPopular?: boolean;
-        isActive?: boolean;
-    }>([
-        {
-            $match: {
-                isActive: true,
-                state: { $type: 'string', $ne: '' }
-            }
-        },
-        { $sort: { isPopular: -1, priority: -1, createdAt: 1 } },
-        {
-            $group: {
-                _id: { $toLower: '$state' },
-                id: { $first: '$_id' },
-                state: { $first: '$state' },
-                country: { $first: '$country' },
-                coordinates: { $first: '$coordinates' },
-                isPopular: { $first: '$isPopular' },
-                isActive: { $first: '$isActive' }
-            }
-        },
-        { $sort: { state: 1 } }
-    ]);
-
-    return states.map((state) =>
-        formatLocationResponse({
-            _id: state.id,
-            locationId: state.id?.toString(),
-            name: state.state,
-            displayName: state.state,
-            display: state.state,
-            city: state.state,
-            state: state.state,
-            country: state.country || 'Unknown',
-            level: 'state',
-            coordinates: state.coordinates,
-            isPopular: Boolean(state.isPopular),
-            isActive: state.isActive !== false
-        })
+    return stateAnchors.map((loc) =>
+        mapToLocationResponse(buildNormalizedFromLocationDoc(loc as LocationInputObject))
     );
 };
 
@@ -882,89 +834,27 @@ export const getCitiesByStateId = async (
         throw new Error('Invalid stateId');
     }
 
-    const stateAnchor = await Location.findOne({
-        _id: new mongoose.Types.ObjectId(stateId),
-        isActive: true
-    })
-        .select('state country')
-        .lean<{ state?: string; country?: string } | null>();
-
-    if (!stateAnchor?.state) return [];
-
     const stateAnchorDoc = await Location.findById(new mongoose.Types.ObjectId(stateId))
-        .select('_id level')
-        .lean<{ _id: mongoose.Types.ObjectId; level?: string } | null>();
+        .select('_id name level country')
+        .lean<{ _id: mongoose.Types.ObjectId; name?: string; level?: string; country?: string } | null>();
 
-    if (stateAnchorDoc?.level === 'state') {
-        const citiesFromHierarchy = await Location.find({
-            isActive: true,
-            level: 'city',
-            $or: [
-                { parentId: stateAnchorDoc._id },
-                { path: stateAnchorDoc._id }
-            ]
-        })
-            .select('name city state country level coordinates isPopular isActive verificationStatus')
-            .sort({ isPopular: -1, priority: -1, city: 1, name: 1 })
-            .lean();
+    if (!stateAnchorDoc) return [];
 
-        if (citiesFromHierarchy.length > 0) {
-            return citiesFromHierarchy.map((city) =>
-                mapToLocationResponse(buildNormalizedFromLocationDoc(city as LocationInputObject))
-            );
-        }
-    }
-
-    const stateName = toTitleCase(stateAnchor.state);
-
-    const cities = await Location.aggregate<{
-        id: mongoose.Types.ObjectId;
-        city: string;
-        state: string;
-        country?: string;
-        coordinates?: { type: 'Point'; coordinates: [number, number] };
-        isPopular?: boolean;
-        isActive?: boolean;
-    }>([
-        {
-            $match: {
-                isActive: true,
-                state: new RegExp(`^${escapeRegExp(stateName)}$`, 'i'),
-                city: { $type: 'string', $ne: '' }
-            }
-        },
-        { $sort: { isPopular: -1, priority: -1, createdAt: 1 } },
-        {
-            $group: {
-                _id: { $toLower: '$city' },
-                id: { $first: '$_id' },
-                city: { $first: '$city' },
-                district: { $first: '$district' },
-                state: { $first: '$state' },
-                country: { $first: '$country' },
-                coordinates: { $first: '$coordinates' },
-                isPopular: { $first: '$isPopular' },
-                isActive: { $first: '$isActive' }
-            }
-        },
-        { $sort: { city: 1 } }
-    ]);
+    // Sprint 3: query entirely via parentId/path hierarchy — no deprecated city/state fields
+    const cities = await Location.find({
+        isActive: true,
+        level: 'city',
+        $or: [
+            { parentId: stateAnchorDoc._id },
+            { path: stateAnchorDoc._id }
+        ]
+    })
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
+        .sort({ isPopular: -1, priority: -1, name: 1 })
+        .lean();
 
     return cities.map((city) =>
-        formatLocationResponse({
-            _id: city.id,
-            locationId: city.id?.toString(),
-            name: city.city,
-            displayName: city.city,
-            display: `${city.city}, ${city.state}`,
-            city: city.city,
-            state: city.state,
-            country: city.country || stateAnchor.country || 'Unknown',
-            level: 'city',
-            coordinates: city.coordinates,
-            isPopular: Boolean(city.isPopular),
-            isActive: city.isActive !== false
-        })
+        mapToLocationResponse(buildNormalizedFromLocationDoc(city as LocationInputObject))
     );
 };
 
@@ -975,48 +865,22 @@ export const getAreasByCityId = async (
         throw new Error('Invalid cityId');
     }
 
-    const cityAnchor = await Location.findOne({
-        _id: new mongoose.Types.ObjectId(cityId),
-        isActive: true
-    })
-        .select('city state country')
-        .lean<{ city?: string; state?: string; country?: string } | null>();
-
-    if (!cityAnchor?.city) return [];
-
     const cityAnchorDoc = await Location.findById(new mongoose.Types.ObjectId(cityId))
-        .select('_id level')
-        .lean<{ _id: mongoose.Types.ObjectId; level?: string } | null>();
-    if (cityAnchorDoc?.level === 'city') {
-        const areasFromHierarchy = await Location.find({
-            isActive: true,
-            level: 'area',
-            $or: [
-                { parentId: cityAnchorDoc._id },
-                { path: cityAnchorDoc._id }
-            ]
-        })
-            .select('name city state country level coordinates isPopular isActive verificationStatus')
-            .sort({ isPopular: -1, priority: -1, name: 1 })
-            .lean();
+        .select('_id name level country')
+        .lean<{ _id: mongoose.Types.ObjectId; name?: string; level?: string; country?: string } | null>();
 
-        if (areasFromHierarchy.length > 0) {
-            return areasFromHierarchy.map((area) =>
-                mapToLocationResponse(buildNormalizedFromLocationDoc(area as LocationInputObject))
-            );
-        }
-    }
+    if (!cityAnchorDoc) return [];
 
-    const cityName = toTitleCase(cityAnchor.city);
-    const stateName = toTitleCase(cityAnchor.state || '');
-
+    // Sprint 3: query entirely via parentId/path hierarchy — no deprecated city/state fields
     const areas = await Location.find({
         isActive: true,
         level: 'area',
-        city: new RegExp(`^${escapeRegExp(cityName)}$`, 'i'),
-        ...(stateName ? { state: new RegExp(`^${escapeRegExp(stateName)}$`, 'i') } : {})
+        $or: [
+            { parentId: cityAnchorDoc._id },
+            { path: cityAnchorDoc._id }
+        ]
     })
-        .select('name city state country level coordinates isPopular isActive verificationStatus')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
 

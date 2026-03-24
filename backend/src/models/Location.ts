@@ -13,10 +13,6 @@ export interface ILocation extends ISoftDeleteDocument {
 
     name: string;
     slug: string; // URL-safe unique identifier
-    /** @deprecated Legacy denormalized field. Hierarchy SSOT uses parentId/path. */
-    city?: string;
-    /** @deprecated Legacy denormalized field. Hierarchy SSOT uses parentId/path. */
-    state?: string;
     country: string;
     softDelete(): Promise<this>;
     restore(): Promise<this>;
@@ -54,18 +50,6 @@ const LocationSchema = new Schema<ILocation>(
         slug: { type: String, trim: true },
         normalizedName: { type: String, trim: true },
 
-        /**
-         * @deprecated Use parentId + path hierarchy instead.
-         * Kept for backward-compat until path migration completes (Sprint 3).
-         * Do NOT add new queries against these fields.
-         */
-        city: { type: String, trim: true, select: false },
-        /**
-         * @deprecated Use parentId + path hierarchy instead.
-         * Kept for backward-compat until path migration completes (Sprint 3).
-         * Do NOT add new queries against these fields.
-         */
-        state: { type: String, trim: true, select: false },
         country: { type: String, default: "Unknown", trim: true },
 
         level: {
@@ -190,10 +174,10 @@ LocationSchema.plugin(softDeletePlugin);
 // Geo index (MANDATORY for $geoNear)
 LocationSchema.index({ coordinates: "2dsphere" }, { name: 'idx_location_geo_coordinates_2dsphere' });
 
-// Text index for broad keyword matching (support for "Mumbai Maharashtra")
+// Text index for broad keyword matching (city/state fields removed in Sprint 3)
 LocationSchema.index(
-    { name: "text", city: "text", state: "text", aliases: "text" }, 
-    { name: 'idx_location_text_search' }
+    { name: "text", normalizedName: "text", aliases: "text" },
+    { name: 'idx_location_text_search_v2' }
 );
 
 // Standalone indexes for efficient Regex Autocomplete (/^query/)

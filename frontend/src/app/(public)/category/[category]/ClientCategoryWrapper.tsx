@@ -16,7 +16,7 @@ export function ClientCategoryWrapper({
     initialResults,
     initialCategories,
 }: ClientCategoryWrapperProps) {
-    // Optional: Validate category exists here if needed using categorySpecificFilters
+    // Optional: validate category existence from initialCategories if needed.
 
     return (
         <Suspense fallback={<div>Loading marketplace...</div>}>

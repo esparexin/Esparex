@@ -22,9 +22,9 @@ const AdminMetricsSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-AdminMetricsSchema.index({ metricModule: 1 }, { name: 'adminmetrics_module_idx' });
-AdminMetricsSchema.index({ aggregationDate: 1 }, { name: 'adminmetrics_date_idx' });
-AdminMetricsSchema.index({ metricModule: 1, aggregationDate: -1 }, { name: 'adminmetrics_module_date_idx' });
+AdminMetricsSchema.index({ metricModule: 1 }, { name: 'idx_adminmetrics_module_idx' });
+AdminMetricsSchema.index({ aggregationDate: 1 }, { name: 'idx_adminmetrics_date_idx' });
+AdminMetricsSchema.index({ metricModule: 1, aggregationDate: -1 }, { name: 'idx_adminmetrics_module_date_idx' });
 
 export const AdminMetrics = getAdminConnection().model<IAdminMetrics>('AdminMetrics', AdminMetricsSchema);
 export default AdminMetrics;

@@ -19,7 +19,6 @@ import ScreenSize from '../../models/ScreenSize';
 import Ad from '../../models/Ad';
 import { logAdminAction } from '../../utils/adminLogger';
 import { sendSuccessResponse } from '../admin/adminBaseController';
-// import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import { clearCategoryCanonicalCache } from '../../utils/categoryCanonical';
 import { hasAdminAccess, sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY } from './shared';
@@ -340,7 +339,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
         await session.commitTransaction();
         clearCategoryCanonicalCache();
         
-        sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
+        sendSuccessResponse(res, null, 'Category deleted and dependent catalog records reconciled successfully');
     } catch (e: any) {
         await session.abortTransaction();
         if (e.message === 'Admin access required') {

@@ -24,9 +24,9 @@ const UserPlanSchema = new mongoose.Schema<IUserPlan>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-UserPlanSchema.index({ userId: 1 }, { name: 'userplan_userId_idx' });
-UserPlanSchema.index({ planId: 1 }, { name: 'userplan_planId_idx' });
-UserPlanSchema.index({ status: 1 }, { name: 'userplan_status_idx' });
+UserPlanSchema.index({ userId: 1 }, { name: 'idx_userplan_userId_idx' });
+UserPlanSchema.index({ planId: 1 }, { name: 'idx_userplan_planId_idx' });
+UserPlanSchema.index({ status: 1 }, { name: 'idx_userplan_status_idx' });
 
 const connection = getUserConnection();
 const UserPlan: Model<IUserPlan> =

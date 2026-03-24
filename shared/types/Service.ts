@@ -41,7 +41,8 @@ export interface Service {
         coordinates?: CanonicalGeoPoint;
     };
     serviceTypeIds?: string[];
-    serviceTypes: string[];
+    /** @deprecated Prefer serviceTypeIds. */
+    serviceTypes?: string[];
     priceMin?: number;
     priceMax?: number;
     diagnosticFee?: number;

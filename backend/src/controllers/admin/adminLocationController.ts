@@ -47,6 +47,99 @@ const sendAdminError = (
 const ADMIN_STATES_CACHE_KEY = 'admin:locations:states';
 const ADMIN_STATES_CACHE_TTL_SECONDS = 300;
 const LOCATION_LIST_HINT = { isActive: 1, state: 1, level: 1, isPopular: -1, createdAt: -1 } as const;
+let hasWarnedLocationListHintFailure = false;
+
+type LocationIdLike = { toString: () => string } | string;
+
+type CanonicalLocationDoc = {
+    _id?: LocationIdLike;
+    name?: string;
+    country?: string;
+    level?: string;
+    parentId?: LocationIdLike | null;
+    path?: LocationIdLike[];
+};
+
+const toLocationIdString = (value: LocationIdLike | null | undefined): string | undefined => {
+    if (!value) return undefined;
+    if (typeof value === 'string') return value;
+    return value.toString();
+};
+
+const buildLocationSummary = (
+    location: CanonicalLocationDoc,
+    hierarchyMap: Map<string, CanonicalLocationDoc>
+) => {
+    const ownName = resolveStringField(location.name) || '';
+    const currentLevel = resolveStringField(location.level) || '';
+    const hierarchyTrail = Array.isArray(location.path)
+        ? location.path
+            .map((entry) => toLocationIdString(entry))
+            .filter((entry): entry is string => Boolean(entry))
+            .map((entry) => hierarchyMap.get(entry))
+            .filter((entry): entry is CanonicalLocationDoc => Boolean(entry))
+        : [];
+
+    const findHierarchyName = (level: string): string =>
+        hierarchyTrail.find((entry) => entry.level === level)?.name || '';
+
+    let city = findHierarchyName('city');
+    if (!city) {
+        if (currentLevel === 'city' || currentLevel === 'district' || currentLevel === 'state' || currentLevel === 'country') {
+            city = ownName;
+        } else if (currentLevel === 'area' || currentLevel === 'village') {
+            city = findHierarchyName('district') || ownName;
+        } else {
+            city = ownName;
+        }
+    }
+
+    let state = findHierarchyName('state');
+    if (!state && currentLevel === 'state') {
+        state = ownName;
+    }
+
+    const country = resolveStringField(location.country) || findHierarchyName('country') || '';
+
+    return {
+        name: ownName,
+        city,
+        state,
+        country,
+        level: currentLevel,
+    };
+};
+
+const resolveLocationSummary = async (location: CanonicalLocationDoc | null | undefined) => {
+    if (!location) return null;
+
+    const hierarchyIds = new Set<string>();
+    const currentId = toLocationIdString(location._id);
+    if (currentId) {
+        hierarchyIds.add(currentId);
+    }
+    for (const entry of location.path || []) {
+        const entryId = toLocationIdString(entry);
+        if (entryId) {
+            hierarchyIds.add(entryId);
+        }
+    }
+    const parentId = toLocationIdString(location.parentId);
+    if (parentId) {
+        hierarchyIds.add(parentId);
+    }
+
+    const hierarchyLocations = hierarchyIds.size > 0
+        ? await Location.find({ _id: { $in: Array.from(hierarchyIds) } })
+            .select('_id name country level')
+            .lean<CanonicalLocationDoc[]>()
+        : [];
+    const hierarchyMap = new Map(
+        hierarchyLocations.map((entry) => [String(entry._id), entry])
+    );
+
+    return buildLocationSummary(location, hierarchyMap);
+};
 
 const invalidateLocationStateCache = async () => {
     try {
@@ -109,9 +202,10 @@ export const createCityLocation = async (req: Request, res: Response) => {
     }
 
     const stateAnchor = await Location.findById(stateId)
-        .select('state country')
-        .lean<{ state?: string; country?: string } | null>();
-    if (!stateAnchor?.state) {
+        .select('_id name country level parentId path')
+        .lean<CanonicalLocationDoc | null>();
+    const stateSummary = await resolveLocationSummary(stateAnchor);
+    if (!stateSummary?.state) {
         return sendAdminError(req, res, 404, 'State not found.');
     }
 
@@ -119,8 +213,8 @@ export const createCityLocation = async (req: Request, res: Response) => {
         ...req.body,
         name: cityName,
         city: cityName,
-        state: stateAnchor.state,
-        country: resolveStringField(req.body?.country) || stateAnchor.country || 'Unknown',
+        state: stateSummary.state,
+        country: resolveStringField(req.body?.country) || stateSummary.country || 'Unknown',
         level: 'city',
         parentId: stateId,
         district: undefined
@@ -146,18 +240,19 @@ export const createAreaLocation = async (req: Request, res: Response) => {
     }
 
     const cityAnchor = await Location.findById(cityId)
-        .select('city state country')
-        .lean<{ city?: string; state?: string; country?: string } | null>();
-    if (!cityAnchor?.city || !cityAnchor?.state) {
+        .select('_id name country level parentId path')
+        .lean<CanonicalLocationDoc | null>();
+    const citySummary = await resolveLocationSummary(cityAnchor);
+    if (!citySummary?.city || !citySummary?.state) {
         return sendAdminError(req, res, 404, 'City not found.');
     }
 
     req.body = {
         ...req.body,
         name: areaName,
-        city: cityAnchor.city,
-        state: cityAnchor.state,
-        country: resolveStringField(req.body?.country) || cityAnchor.country || 'Unknown',
+        city: citySummary.city,
+        state: citySummary.state,
+        country: resolveStringField(req.body?.country) || citySummary.country || 'Unknown',
         level: 'area',
         parentId: cityId,
         district: undefined
@@ -177,9 +272,12 @@ export const getDistinctStates = async (req: Request, res: Response) => {
             return sendJson(res, 200, respond({ success: true, data: cachedStates }));
         }
 
-        const states = await Location.distinct('state', { isActive: true });
-        const sorted = (states as string[])
-            .filter((value): value is string => typeof value === 'string' && value.length > 0)
+        const states = await Location.find({ isActive: true, level: 'state' })
+            .select('name')
+            .lean<Array<{ name?: string }>>();
+        const sorted = states
+            .map((entry) => resolveStringField(entry.name))
+            .filter((value): value is string => Boolean(value))
             .sort((a, b) => a.localeCompare(b));
 
         await setCache(ADMIN_STATES_CACHE_KEY, sorted, ADMIN_STATES_CACHE_TTL_SECONDS);
@@ -226,33 +324,56 @@ export const getAllLocations = async (req: Request, res: Response) => {
         if (isPopular === 'false') query.isPopular = false;
 
         const hasAnyFilter = Object.keys(query).length > 0;
+        const shouldAttemptHint = !hasSearchFilter && hasAnyFilter;
+
+        const buildLocationsQuery = () =>
+            Location.find(query)
+                .select('_id name slug city district state country level coordinates isActive isPopular verificationStatus createdAt updatedAt')
+                .lean()
+                .sort({ isPopular: -1, createdAt: -1 })
+                .skip((page - 1) * limit)
+                .limit(limit);
 
         const totalPromise = (async () => {
             if (!hasAnyFilter) {
                 return Location.estimatedDocumentCount();
             }
-            if (!hasSearchFilter) {
+            if (shouldAttemptHint) {
                 try {
                     return await Location.countDocuments(query).hint(LOCATION_LIST_HINT);
-                } catch {
-                    // Fallback when planner cannot satisfy forced hint
+                } catch (error) {
+                    if (!hasWarnedLocationListHintFailure) {
+                        hasWarnedLocationListHintFailure = true;
+                        logger.warn('Location count hint unavailable; retrying without hint', {
+                            error: error instanceof Error ? error.message : String(error),
+                            hint: LOCATION_LIST_HINT
+                        });
+                    }
                 }
             }
             return Location.countDocuments(query);
         })();
 
-        let locationsQuery = Location.find(query)
-            .select('_id name slug city district state country level coordinates isActive isPopular verificationStatus createdAt updatedAt')
-            .lean()
-            .sort({ isPopular: -1, createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
+        const locationsPromise = (async () => {
+            if (!shouldAttemptHint) {
+                return buildLocationsQuery();
+            }
 
-        if (!hasSearchFilter && hasAnyFilter) {
-            locationsQuery = locationsQuery.hint(LOCATION_LIST_HINT);
-        }
+            try {
+                return await buildLocationsQuery().hint(LOCATION_LIST_HINT);
+            } catch (error) {
+                if (!hasWarnedLocationListHintFailure) {
+                    hasWarnedLocationListHintFailure = true;
+                    logger.warn('Location list hint unavailable; retrying without hint', {
+                        error: error instanceof Error ? error.message : String(error),
+                        hint: LOCATION_LIST_HINT
+                    });
+                }
+                return buildLocationsQuery();
+            }
+        })();
 
-        const [total, locations] = await Promise.all([totalPromise, locationsQuery]);
+        const [total, locations] = await Promise.all([totalPromise, locationsPromise]);
         const items = (locations as unknown[])
             .map((location) => normalizeLocationResponse(location))
             .filter((location): location is NonNullable<ReturnType<typeof normalizeLocationResponse>> => Boolean(location));
@@ -337,9 +458,9 @@ export const createLocation = async (req: Request, res: Response) => {
         // Check duplicate
         const existing = await Location.findOne({
             name: { $regex: new RegExp(`^${escapeRegExp(displayName)}$`, 'i') },
-            city: { $regex: new RegExp(`^${escapeRegExp(city)}$`, 'i') },
-            state: { $regex: new RegExp(`^${escapeRegExp(state)}$`, 'i') },
-            level: finalLevel
+            country: country || 'Unknown',
+            level: finalLevel,
+            parentId: parentLocation?._id || null
         });
 
         if (existing) {
@@ -350,8 +471,6 @@ export const createLocation = async (req: Request, res: Response) => {
         const location = await Location.create({
             _id: locationId,
             name: displayName,
-            city,
-            state,
             country: country || 'Unknown',
             coordinates: coords,
             level: finalLevel,
@@ -386,15 +505,16 @@ export const updateLocation = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { city, state, country, latitude, longitude, isActive, isPopular, level, district, name } = req.body;
+        const nextCity = resolveStringField(city);
+        const nextState = resolveStringField(state);
+        const nextCountry = resolveStringField(country);
+        const nextName = resolveStringField(name);
 
         const location = await Location.findById(id);
         if (!location) {
             return sendAdminError(req, res, 404, 'Location not found');
         }
 
-        if (city) location.city = city;
-        if (state) location.state = state;
-        if (country) location.country = country;
         if (level) {
             const normalizedLevel = resolveStringField(level)?.toLowerCase();
             if (
@@ -408,7 +528,15 @@ export const updateLocation = async (req: Request, res: Response) => {
                 location.level = normalizedLevel;
             }
         }
-        if (name) location.name = name;
+        if (nextCountry) location.country = nextCountry;
+        if (nextName) {
+            location.name = nextName;
+        } else if (
+            nextCity &&
+            (location.level === 'country' || location.level === 'state' || location.level === 'city')
+        ) {
+            location.name = nextCity;
+        }
 
         const parentIdFromBody = req.body?.parentId;
         const hasParentMutation = parentIdFromBody !== undefined;
@@ -443,17 +571,6 @@ export const updateLocation = async (req: Request, res: Response) => {
 
         // Regenerate slug if Name/City/State changes
         if (city || state || name || level || hasParentMutation) {
-            const cityName = location.city || location.name || '';
-            const stateName = location.state || location.country || 'unknown';
-            const hierarchyName = location.name || cityName;
-            if (location.level === 'country' || location.level === 'state' || location.level === 'city') {
-                location.name = cityName;
-                location.slug = safeSlugify(`${cityName}-${stateName}`);
-            } else {
-                location.name = hierarchyName;
-                location.slug = safeSlugify(`${hierarchyName}-${cityName}-${stateName}`);
-            }
-
             let parentLocation = null;
             if (location.parentId) {
                 parentLocation = await Location.findById(location.parentId)
@@ -464,14 +581,21 @@ export const updateLocation = async (req: Request, res: Response) => {
                 parentLocation = await resolveParentLocation({
                     level: location.level,
                     country: location.country,
-                    state: location.state,
+                    state: nextState,
                     district: resolveStringField(req.body?.district) || undefined,
-                    city: location.city,
+                    city: nextCity,
                     excludeId: location._id
                 });
                 location.parentId = parentLocation?._id || null;
             }
             location.path = buildHierarchyPath(location._id as any, parentLocation as any) as any;
+
+            const slugParts = [
+                location.name,
+                nextCity && nextCity !== location.name ? nextCity : undefined,
+                nextState || location.country || 'unknown'
+            ].filter((part): part is string => Boolean(part));
+            location.slug = safeSlugify(slugParts.join('-'));
         }
 
         await location.save();
@@ -525,19 +649,23 @@ export const deleteLocation = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 404, 'Location not found');
         }
 
+        const locationSummary = await resolveLocationSummary(location.toObject());
+
         // 🛡️ DEPENDENCY CHECK: Check if any Ads or Users are using this location
         const adUsageQuery = {
             $or: [
-                { 'location.locationId': id },
-                { 'location.city': location.city, 'location.state': location.state }
-            ]
+                { 'location.locationId': id }
+            ] as Array<Record<string, unknown>>
         };
         const userUsageQuery = {
             $or: [
-                { locationId: id },
-                { 'location.city': location.city, 'location.state': location.state }
-            ]
+                { locationId: id }
+            ] as Array<Record<string, unknown>>
         };
+        if (locationSummary?.city && locationSummary?.state) {
+            adUsageQuery.$or.push({ 'location.city': locationSummary.city, 'location.state': locationSummary.state });
+            userUsageQuery.$or.push({ 'location.city': locationSummary.city, 'location.state': locationSummary.state });
+        }
         const [adsCount, usersCount] = await Promise.all([
             Ad.countDocuments(adUsageQuery),
             User.countDocuments(userUsageQuery)
@@ -548,14 +676,18 @@ export const deleteLocation = async (req: Request, res: Response) => {
                 req,
                 res,
                 409,
-                `Cannot delete location "${location.city}". It is currently used by ${adsCount} ads and ${usersCount} users. Consider deactivating it instead.`,
+                `Cannot delete location "${locationSummary?.name || location.name}". It is currently used by ${adsCount} ads and ${usersCount} users. Consider deactivating it instead.`,
                 { dependencies: { ads: adsCount, users: usersCount } }
             );
         }
 
         await location.softDelete();
         await invalidateLocationStateCache();
-        await logAdminAction(req, 'DELETE_LOCATION', 'Location', id, { city: location.city, state: location.state });
+        await logAdminAction(req, 'DELETE_LOCATION', 'Location', id, {
+            name: locationSummary?.name || location.name,
+            city: locationSummary?.city,
+            state: locationSummary?.state
+        });
 
         return sendJson(res, 200, respond({ success: true, message: 'Location deleted successfully' }));
 
@@ -658,6 +790,7 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
 
         const location = await Location.findById(id);
         if (!location) return sendAdminError(req, res, 404, 'Location not found');
+        const locationSummary = await resolveLocationSummary(location.toObject());
 
         location.verificationStatus = status;
         if (status === LOCATION_STATUS.VERIFIED) location.isActive = true;
@@ -672,8 +805,8 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
             import('../../services/NotificationService').then(({ createInAppNotification }) => {
                 const title = status === LOCATION_STATUS.VERIFIED ? 'Location Request Approved' : 'Location Request Rejected';
                 const message = status === LOCATION_STATUS.VERIFIED
-                    ? `Your location request for "${location.city}" has been approved.`
-                    : `Your location request for "${location.city}" has been rejected. Reason: ${reason}`;
+                    ? `Your location request for "${locationSummary?.name || location.name}" has been approved.`
+                    : `Your location request for "${locationSummary?.name || location.name}" has been rejected. Reason: ${reason}`;
 
                 createInAppNotification(
                     userId,

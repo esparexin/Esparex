@@ -26,8 +26,8 @@ const SellerReputationSchema = new Schema<ISellerReputation>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-SellerReputationSchema.index({ userId: 1 }, { name: 'sellerreput_userId_unique_idx', unique: true });
-SellerReputationSchema.index({ score: -1 }, { name: 'sellerreput_score_idx' });
+SellerReputationSchema.index({ userId: 1 }, { name: 'idx_sellerreputation_userId_unique_idx', unique: true });
+SellerReputationSchema.index({ score: -1 }, { name: 'idx_sellerreputation_score_idx' });
 
 const connection = getUserConnection();
 const SellerReputation: Model<ISellerReputation> =

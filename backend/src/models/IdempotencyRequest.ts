@@ -34,8 +34,8 @@ const IdempotencyRequestSchema = new Schema<IIdempotencyRequest>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-IdempotencyRequestSchema.index({ userId: 1, scope: 1, key: 1 }, { name: 'idemp_user_scope_key_unique_idx', unique: true });
-IdempotencyRequestSchema.index({ expiresAt: 1 }, { name: 'idemp_expiresAt_ttl_idx', expireAfterSeconds: 0 });
+IdempotencyRequestSchema.index({ userId: 1, scope: 1, key: 1 }, { name: 'idx_idempotencyrequest_user_scope_key_unique_idx', unique: true });
+IdempotencyRequestSchema.index({ expiresAt: 1 }, { name: 'idx_idempotencyrequest_expiresAt_ttl_idx', expireAfterSeconds: 0 });
 
 const connection = getUserConnection();
 const IdempotencyRequest: Model<IIdempotencyRequest> =

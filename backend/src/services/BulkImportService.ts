@@ -2,6 +2,8 @@ import Category, { ICategory } from '../models/Category';
 import Brand from '../models/Brand';
 import ProductModel from '../models/Model';
 import mongoose from 'mongoose';
+import slugify from 'slugify';
+import { nanoid } from 'nanoid';
 import CatalogOrchestrator from './catalog/CatalogOrchestrator';
 import { normalizeLocationInput } from '../utils/locationInputNormalizer';
 import { CATALOG_STATUS } from '../../../shared/enums/catalogStatus';
@@ -39,6 +41,19 @@ interface DeviceSeedInput {
     name: string;
     specs?: Record<string, unknown>;
 }
+
+const dedupeObjectIds = (ids: Array<string | mongoose.Types.ObjectId | undefined | null>): mongoose.Types.ObjectId[] => {
+    const deduped = new Map<string, mongoose.Types.ObjectId>();
+    for (const rawId of ids) {
+        if (!rawId) continue;
+        const id = typeof rawId === 'string' ? rawId : rawId.toString();
+        if (!mongoose.Types.ObjectId.isValid(id)) continue;
+        if (!deduped.has(id)) {
+            deduped.set(id, new mongoose.Types.ObjectId(id));
+        }
+    }
+    return Array.from(deduped.values());
+};
 
 export const bulkImportService = {
     /**
@@ -108,18 +123,29 @@ export const bulkImportService = {
                     throw new Error(`No valid categories found for brand '${item.name}'`);
                 }
 
-                // Upsert based on name
-                await Brand.findOneAndUpdate(
-                    { name: item.name },
-                    {
+                const nameRegex = new RegExp(`^${item.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+                const existingBrand = await Brand.findOne({ name: { $regex: nameRegex } }).setOptions({ withDeleted: true });
+                if (existingBrand) {
+                    existingBrand.categoryIds = dedupeObjectIds([
+                        ...(existingBrand.categoryIds || []),
+                        ...categoryIds
+                    ]);
+                    existingBrand.isDeleted = false;
+                    existingBrand.deletedAt = undefined;
+                    existingBrand.isActive = true;
+                    existingBrand.status = CATALOG_STATUS.ACTIVE;
+                    await existingBrand.save();
+                } else {
+                    await Brand.create({
                         name: item.name,
-                        categoryIds: categoryIds,
-                        isActive: true
-                    },
-                    { upsert: true, new: true }
-                );
+                        slug: slugify(item.name, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
+                        categoryIds: dedupeObjectIds(categoryIds),
+                        isActive: true,
+                        status: CATALOG_STATUS.ACTIVE
+                    });
+                }
                 if (categoryIds.length > 1) {
-                    result.errors.push(`Warning: Brand '${item.name}' was imported with ${categoryIds.length} categories. Only the first ('${item.categories[0]}') was applied. Brand schema supports one category only.`);
+                    result.errors.push(`Info: Brand '${item.name}' mapped to ${categoryIds.length} categories (deduplicated merge applied).`);
                 }
                 result.success++;
             } catch (error: unknown) {

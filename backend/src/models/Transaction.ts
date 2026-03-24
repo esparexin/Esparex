@@ -66,13 +66,13 @@ const TransactionSchema = new Schema<ITransaction>(
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-TransactionSchema.index({ userId: 1 }, { name: 'transaction_userId_idx' });
-TransactionSchema.index({ planId: 1 }, { name: 'transaction_planId_idx' });
-TransactionSchema.index({ gatewayPaymentId: 1 }, { name: 'transaction_gatewayPaymentId_unique_idx', unique: true, sparse: true });
-TransactionSchema.index({ gatewayOrderId: 1 }, { name: 'transaction_gatewayOrderId_idx' });
-TransactionSchema.index({ status: 1 }, { name: 'transaction_status_idx' });
-TransactionSchema.index({ status: 1, createdAt: 1 }, { name: 'transaction_status_createdAt_idx' });
-TransactionSchema.index({ createdAt: -1 }, { name: 'transaction_createdAt_idx' });
+TransactionSchema.index({ userId: 1 }, { name: 'idx_transaction_userId_idx' });
+TransactionSchema.index({ planId: 1 }, { name: 'idx_transaction_planId_idx' });
+TransactionSchema.index({ gatewayPaymentId: 1 }, { name: 'idx_transaction_gatewayPaymentId_unique_idx', unique: true, sparse: true });
+TransactionSchema.index({ gatewayOrderId: 1 }, { name: 'idx_transaction_gatewayOrderId_idx' });
+TransactionSchema.index({ status: 1 }, { name: 'idx_transaction_status_idx' });
+TransactionSchema.index({ status: 1, createdAt: 1 }, { name: 'idx_transaction_status_createdAt_idx' });
+TransactionSchema.index({ createdAt: -1 }, { name: 'idx_transaction_createdAt_idx' });
 
 const connection = getUserConnection();
 export const Transaction: Model<ITransaction> =

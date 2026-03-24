@@ -125,13 +125,9 @@ export function BusinessPublicProfile({
     const addressQuery = addressParts.join(', ');
 
     if (hasCoordinates) {
-      const delta = 0.02;
-      const bbox = [lng - delta, lat - delta, lng + delta, lat + delta]
-        .map(v => v.toFixed(6))
-        .join('%2C');
       return {
-        embedUrl: `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat.toFixed(6)}%2C${lng.toFixed(6)}`,
-        externalUrl: `https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lng.toFixed(6)}#map=15/${lat.toFixed(6)}/${lng.toFixed(6)}`,
+        embedUrl: null,
+        externalUrl: `https://www.google.com/maps/search/?api=1&query=${lat.toFixed(6)},${lng.toFixed(6)}`,
         hasCoordinates: true,
         addressQuery,
       };
@@ -140,7 +136,7 @@ export function BusinessPublicProfile({
     return {
       embedUrl: null,
       externalUrl: addressQuery
-        ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(addressQuery)}`
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`
         : null,
       hasCoordinates: false,
       addressQuery,
@@ -351,9 +347,7 @@ export function BusinessPublicProfile({
             {mapData?.externalUrl ? (
               <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3">
                 <p className="text-sm text-muted-foreground">
-                  {mapData.hasCoordinates
-                    ? 'Interactive map preview loaded from OpenStreetMap.'
-                    : 'Open the full map in a new tab.'}
+                  Open the full map in a new tab.
                 </p>
                 <a
                   href={mapData.externalUrl}

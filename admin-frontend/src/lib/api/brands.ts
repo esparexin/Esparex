@@ -1,14 +1,3 @@
-import { z } from "zod";
-export const BrandDataSchema = z.object({
-    id: z.string().optional(),
-    name: z.string(),
-    categoryId: z.string().optional(),
-    categoryIds: z.array(z.string()).optional(),
-    status: z.string().optional(),
-    isActive: z.boolean().optional(),
-    slug: z.string().optional(),
-});
-
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 
@@ -16,7 +5,7 @@ export interface BrandFilters {
     search?: string;
     categoryId?: string;
     status?: string;
-    [key: string]: string | undefined;
+    [key: string]: string | number | boolean | undefined;
 }
 
 export interface BrandData {
@@ -29,7 +18,22 @@ export interface BrandData {
 }
 
 export async function getBrands(filters?: BrandFilters) {
-    const query = new URLSearchParams(filters as Record<string, string>).toString();
+    const query = new URLSearchParams(
+        Object.entries(filters ?? {}).reduce<Record<string, string>>((acc, [key, value]) => {
+            if (value === undefined || value === null) {
+                return acc;
+            }
+            if (typeof value === "string" && value.length === 0) {
+                return acc;
+            }
+            if (typeof value === "boolean") {
+                acc[key] = value ? "true" : "false";
+            } else {
+                acc[key] = String(value);
+            }
+            return acc;
+        }, {})
+    ).toString();
     return adminFetch<BrandData[]>(`${ADMIN_ROUTES.BRANDS}?${query}`);
 }
 

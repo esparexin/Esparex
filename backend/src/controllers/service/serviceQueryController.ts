@@ -116,16 +116,30 @@ export const getServiceById = async (req: Request, res: Response) => {
     try {
         const idOrSlug = getSingleParam(req, res, 'id', { error: 'Invalid Service ID or Slug' });
         if (!idOrSlug) return;
+        const viewerId = (req.user as any)?._id;
 
         let serviceId = idOrSlug;
 
         // 1. If it's NOT an ObjectId, it must be a slug
         if (!mongoose.Types.ObjectId.isValid(idOrSlug)) {
-            const foundService = await AdModel.findOne({
-                seoSlug: idOrSlug, // Unified uses 'seoSlug'
-                listingType: LISTING_TYPE.SERVICE,
-                status: AD_STATUS.LIVE
-            }).select('_id').exec();
+            const foundService = await AdModel.findOne(
+                viewerId
+                    ? {
+                        seoSlug: idOrSlug, // Unified uses 'seoSlug'
+                        listingType: LISTING_TYPE.SERVICE,
+                        isDeleted: { $ne: true },
+                        $or: [
+                            { status: AD_STATUS.LIVE },
+                            { sellerId: viewerId }
+                        ]
+                    }
+                    : {
+                        seoSlug: idOrSlug, // Unified uses 'seoSlug'
+                        listingType: LISTING_TYPE.SERVICE,
+                        status: AD_STATUS.LIVE,
+                        isDeleted: { $ne: true }
+                    }
+            ).select('_id').exec();
 
             if (!foundService) {
                 sendErrorResponse(req, res, 404, 'Service not found');
@@ -135,9 +149,9 @@ export const getServiceById = async (req: Request, res: Response) => {
         }
 
         // 2. Fetch full service details using the resolved ID
-        const viewerId = (req.user as any)?._id?.toString();
+        const viewerIdString = (req.user as any)?._id?.toString();
         const viewerRole = (req.user as any)?.role;
-        const viewer = viewerId ? { userId: viewerId, role: viewerRole } : undefined;
+        const viewer = viewerIdString ? { userId: viewerIdString, role: viewerRole } : undefined;
 
         const service = await adService.getPublicAdById(serviceId, viewer) as (Service & { restricted?: boolean }) | null;
 

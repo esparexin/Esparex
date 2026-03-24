@@ -12,7 +12,6 @@ import {
     Filter,
     Trash2,
     Plus,
-    X,
     Edit,
     CheckCircle,
     XCircle
@@ -47,14 +46,30 @@ export default function BrandsPage() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
+    const [archivedCategoryCount, setArchivedCategoryCount] = useState(0);
     const [formData, setFormData] = useState({
         name: "",
         categoryIds: [] as string[],
         isActive: true
     });
 
+    // Single source of active categories for assignment/editing
+    const { assignableCategories, assignableCategoryIdSet } = useAssignableCategories(categories);
+
+    const getBrandCategoryIds = (brand: Brand) => (
+        brand.categoryIds?.length
+            ? brand.categoryIds
+            : (brand.categoryId ? [brand.categoryId] : [])
+    );
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setArchivedCategoryCount(0);
+    };
+
     const openCreateModal = () => {
         setEditingBrand(null);
+        setArchivedCategoryCount(0);
         setFormData({
             name: "",
             categoryIds: [],
@@ -64,10 +79,15 @@ export default function BrandsPage() {
     };
 
     const openEditModal = (brand: Brand) => {
+        const categoryIds = Array.from(new Set(getBrandCategoryIds(brand)));
+        const activeCategoryIds = categoryIds.filter((id) => assignableCategoryIdSet.has(id));
+        const archivedCount = categoryIds.length - activeCategoryIds.length;
+
         setEditingBrand(brand);
+        setArchivedCategoryCount(archivedCount);
         setFormData({
             name: brand.name,
-            categoryIds: brand.categoryIds || [],
+            categoryIds: activeCategoryIds,
             isActive: brand.isActive
         });
         setIsModalOpen(true);
@@ -87,12 +107,9 @@ export default function BrandsPage() {
             : await handleCreate(formData);
 
         if (success) {
-            setIsModalOpen(false);
+            closeModal();
         }
     };
-
-    // D4: shared utility replaces inline duplicate filter
-    const { assignableCategories, assignableCategoryIdSet } = useAssignableCategories(categories);
 
     const columns: ColumnDef<Brand>[] = [
         {
@@ -109,14 +126,14 @@ export default function BrandsPage() {
         {
             header: "Categories",
             cell: (brand) => {
-                const brandCats = brand.categoryIds || [];
+                const brandCats = getBrandCategoryIds(brand);
                 return (
                     <div className="flex flex-wrap gap-1 max-w-[200px]">
                         {brandCats.map(cid => {
                             const cat = categories.find(c => c.id === cid);
                             return (
                                 <span key={cid} className="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
-                                    {cat?.name || "Unknown"}
+                                    {cat?.name || "Archived"}
                                 </span>
                             );
                         })}
@@ -129,57 +146,77 @@ export default function BrandsPage() {
         },
         {
             header: "Status",
-            cell: (brand) => (
-                <button
-                    onClick={() => void handleToggleStatus(brand.id)}
-                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${brand.isActive ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-red-100 text-red-700 hover:bg-red-200"
-                        }`}>
-                    {brand.isActive ? "Active" : "Inactive"}
-                </button>
-            )
+            cell: (brand) => {
+                if (brand.isDeleted) {
+                    return (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700">
+                            Deleted
+                        </span>
+                    );
+                }
+
+                return (
+                    <button
+                        onClick={() => void handleToggleStatus(brand.id)}
+                        className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${brand.isActive ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-red-100 text-red-700 hover:bg-red-200"
+                            }`}>
+                        {brand.isActive ? "Active" : "Inactive"}
+                    </button>
+                );
+            }
         },
         {
             header: "Actions",
             className: "text-right",
-            cell: (brand) => (
-                <div className="flex items-center justify-end gap-2">
-                    {brand.status === 'pending' && (
-                        <>
-                            <button
-                                onClick={() => void handleApprove(brand.id)}
-                                className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-                                title="Approve"
-                            >
-                                <CheckCircle size={18} />
-                            </button>
-                            <button
-                                onClick={() => {
-                                    const reason = prompt("Reason for rejection:");
-                                    if (reason) void handleReject(brand.id, reason);
-                                }}
-                                className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
-                                title="Reject"
-                            >
-                                <XCircle size={18} />
-                            </button>
-                        </>
-                    )}
-                    <button
-                        onClick={() => openEditModal(brand)}
-                        className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
-                        title="Edit"
-                    >
-                        <Edit size={18} />
-                    </button>
-                    <button
-                        onClick={() => void handleDelete(brand.id)}
-                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                        title="Delete"
-                    >
-                        <Trash2 size={18} />
-                    </button>
-                </div>
-            )
+            cell: (brand) => {
+                if (brand.isDeleted) {
+                    return (
+                        <div className="text-xs font-medium text-slate-400">
+                            Hidden record
+                        </div>
+                    );
+                }
+
+                return (
+                    <div className="flex items-center justify-end gap-2">
+                        {brand.status === 'pending' && (
+                            <>
+                                <button
+                                    onClick={() => void handleApprove(brand.id)}
+                                    className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                                    title="Approve"
+                                >
+                                    <CheckCircle size={18} />
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        const reason = prompt("Reason for rejection:");
+                                        if (reason) void handleReject(brand.id, reason);
+                                    }}
+                                    className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
+                                    title="Reject"
+                                >
+                                    <XCircle size={18} />
+                                </button>
+                            </>
+                        )}
+                        <button
+                            onClick={() => openEditModal(brand)}
+                            className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+                            title="Edit"
+                        >
+                            <Edit size={18} />
+                        </button>
+                        <button
+                            onClick={() => void handleDelete(brand.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            title="Delete"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    </div>
+                );
+            }
         }
     ];
 
@@ -201,7 +238,7 @@ export default function BrandsPage() {
         >
         <>
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
@@ -223,6 +260,19 @@ export default function BrandsPage() {
                         {categories.map(cat => (
                             <option key={cat.id} value={cat.id}>{cat.name}</option>
                         ))}
+                    </select>
+                </div>
+                <div className="flex items-center gap-2">
+                    <select
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none"
+                        value={filters.status}
+                        onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                    >
+                        <option value="all">All Status</option>
+                        <option value="live">Live Only</option>
+                        <option value="inactive">Inactive Only</option>
+                        <option value="pending">Pending Only</option>
+                        <option value="rejected">Rejected Only</option>
                     </select>
                 </div>
             </div>
@@ -252,7 +302,7 @@ export default function BrandsPage() {
 
             <CatalogModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                onClose={closeModal}
                 title={editingBrand ? "Edit Brand" : "Add New Brand"}
             >
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -274,6 +324,12 @@ export default function BrandsPage() {
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                                     Assigned Categories
                                 </label>
+                                {archivedCategoryCount > 0 && (
+                                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                                        {archivedCategoryCount} archived category link{archivedCategoryCount === 1 ? "" : "s"} {archivedCategoryCount === 1 ? "was" : "were"} removed from this editor.
+                                        Select active categories and save to clean up the brand.
+                                    </div>
+                                )}
                                 <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-3 bg-slate-50 border border-slate-200 rounded-lg">
                                     {assignableCategories.map(cat => (
                                         <label key={cat.id} className="flex items-center gap-2 cursor-pointer group">
@@ -313,7 +369,7 @@ export default function BrandsPage() {
                             <div className="pt-4 flex gap-3">
                                 <button
                                     type="button"
-                                    onClick={() => setIsModalOpen(false)}
+                                    onClick={closeModal}
                                     className="flex-1 px-4 py-2.5 rounded-lg font-bold text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all"
                                 >
                                     Cancel

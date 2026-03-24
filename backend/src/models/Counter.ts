@@ -17,7 +17,7 @@ const CounterSchema = new Schema<ICounter>({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-CounterSchema.index({ key: 1 }, { name: 'counter_key_unique_idx', unique: true });
+CounterSchema.index({ key: 1 }, { name: 'idx_counter_key_unique_idx', unique: true });
 
 const connection = getUserConnection();
 export const Counter: Model<ICounter> =
