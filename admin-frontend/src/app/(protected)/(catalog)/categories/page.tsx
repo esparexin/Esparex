@@ -142,12 +142,27 @@ export default function CategoriesPage() {
             )
         },
         {
-            header: "Features",
+            header: "Listing Types",
             cell: (cat) => (
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5">
+                    {cat.listingType?.includes('postad') && (
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-blue-50 text-blue-600 border border-blue-100 font-bold flex items-center gap-1">
+                            <Smartphone size={10} /> Devices
+                        </span>
+                    )}
+                    {cat.listingType?.includes('postservice') && (
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-purple-50 text-purple-600 border border-purple-100 font-bold flex items-center gap-1">
+                            <Wrench size={10} /> Services
+                        </span>
+                    )}
+                    {cat.listingType?.includes('postsparepart') && (
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-orange-50 text-orange-600 border border-orange-100 font-bold flex items-center gap-1">
+                            <Box size={10} /> Spare Parts
+                        </span>
+                    )}
                     {cat.hasScreenSizes && (
-                        <span className="px-2 py-0.5 rounded text-[10px] bg-blue-50 text-blue-600 border border-blue-100">
-                            Screen Sizes
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-500 border border-slate-200 font-bold">
+                            + Screen Sizes
                         </span>
                     )}
                 </div>
