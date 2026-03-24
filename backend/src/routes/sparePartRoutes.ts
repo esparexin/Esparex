@@ -3,7 +3,7 @@ import { protect, extractUser } from '../middleware/authMiddleware';
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import * as sparePartListingController from '../controllers/sparePartListingController';
-import { duplicateCooldownMiddleware } from '../middlewares/duplicateCooldownMiddleware';
+import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
 import { createListingValidator } from '../validators/listing.validator';
 import { phoneRevealLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';

@@ -12,6 +12,7 @@ export interface ISparePart extends Document {
     usageCount: number;
     filters?: unknown[];
     isActive: boolean;
+    status: CatalogStatusValue;
     rejectionReason?: string;
     needsReview?: boolean; // Flag for data audit/migration
     createdBy?: mongoose.Types.ObjectId;
@@ -43,6 +44,7 @@ const SparePartSchema = new Schema(
         usageCount: { type: Number, default: 0 },
         filters: { type: Array, default: [] },
         isActive: { type: Boolean, default: true },
+        status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
         rejectionReason: { type: String },
         needsReview: { type: Boolean, default: false },
         createdBy: { type: Schema.Types.ObjectId, ref: 'Admin' }
@@ -70,6 +72,7 @@ SparePartSchema.index({ slug: 1 }, {
 SparePartSchema.index({ categoryIds: 1 }, { name: 'idx_sparepart_categoryIds' });
 SparePartSchema.index({ isActive: 1 }, { name: 'idx_sparepart_isActive' });
 SparePartSchema.index({ categoryIds: 1, isActive: 1 }, { name: 'idx_sparepart_categoryIds_active' });
+SparePartSchema.index({ status: 1 }, { name: 'idx_sparepart_status' });
 SparePartSchema.index({ brandId: 1, modelId: 1 }, { name: 'idx_sparepart_brand_model' });
 SparePartSchema.index({ sortOrder: 1 }, { name: 'idx_sparepart_sortOrder' });
 SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });

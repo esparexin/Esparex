@@ -9,7 +9,7 @@ import type { ZodTypeAny } from 'zod';
 import { createListingValidator } from '../validators/listing.validator';
 
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
-import { duplicateCooldownMiddleware } from '../middlewares/duplicateCooldownMiddleware';
+import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
 
 const router = express.Router();
 

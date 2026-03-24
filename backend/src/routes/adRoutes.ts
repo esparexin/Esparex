@@ -12,7 +12,7 @@ import type { ZodTypeAny } from "zod";
 import { validateIdOrSlug } from "../middleware/validateIdOrSlug";
 import { promoteAdSchema } from "../validators/promotion.validator";
 import { markAsSoldSchema } from "../validators/ad.validator";
-import { duplicateCooldownMiddleware } from "../middlewares/duplicateCooldownMiddleware";
+import { duplicateCooldownMiddleware } from "../middleware/duplicateCooldownMiddleware";
 import { createListingValidator } from "../validators/listing.validator";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/requireVerifiedBusiness";
 
@@ -21,18 +21,6 @@ const router = express.Router();
 /* -------------------------------------------------------------------------- */
 /* Public Routes                                                              */
 /* -------------------------------------------------------------------------- */
-
-// DEPRECATED: /ads/public/home — use /ads/home instead.
-// Left in place to return 410 so any lingering clients get an explicit
-// signal rather than a silent 404 or stale 200.
-router.get("/public/home", searchLimiter, (req, res) => {
-    res.set("Link", `<${req.baseUrl}/home>; rel="successor-version"`);
-    res.status(410).json({
-        success: false,
-        message: "This endpoint has been retired. Use GET /ads/home instead.",
-        canonical: "/api/v1/ads/home",
-    });
-});
 router.get("/home", searchLimiter, adController.getHomeFeedAds);
 router.get("/trending", searchLimiter, adController.getTrendingAds);
 

@@ -54,12 +54,6 @@ export async function seedSpareParts() {
     for (const part of SPARE_PARTS_SEED) {
         const slug = slugify(part.name, { lower: true });
 
-        const exists = await SparePartModel.findOne({ slug });
-        if (exists) {
-            logger.warn(`⚠️  Skipped (exists): ${part.name}`);
-            continue;
-        }
-
         // Resolve category IDs from slugs
         const categoryIds = [];
         for (const catSlug of part.categories) {
@@ -75,15 +69,24 @@ export async function seedSpareParts() {
         }
 
         try {
-            await SparePartModel.create({
-                name: part.name,
-                categoryIds,
-                slug,
-                usageCount: 0,
-                sortOrder: 0,
-                createdBy: new mongoose.Types.ObjectId() // system seed
-            });
-            logger.info(`✅ Inserted: ${part.name}`);
+            await SparePartModel.findOneAndUpdate(
+                { slug },
+                {
+                    $set: {
+                        name: part.name,
+                        categoryIds,
+                        listingType: ['postad', 'postsparepart'], // Ensure visibility in Post Ad flow
+                        status: CATALOG_STATUS.LIVE,
+                        isActive: true,
+                        isDeleted: false,
+                        usageCount: 0,
+                        sortOrder: 0,
+                        createdBy: new mongoose.Types.ObjectId() // system seed
+                    }
+                },
+                { upsert: true, new: true }
+            );
+            logger.info(`✅ Synced: ${part.name}`);
         } catch (error: unknown) {
             const duplicateKey = typeof error === 'object'
                 && error !== null

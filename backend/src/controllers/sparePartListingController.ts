@@ -25,6 +25,7 @@ import { respond } from '../utils/respond';
 import { getSellerPhone } from '../services/ContactRevealService';
 import { getSingleParam } from '../utils/requestParams';
 import type { ApiResponse, ContactResponse } from '../../../shared/types/Api';
+import { ListingMutationService } from '../services/ListingMutationService';
 
 // --------------- local helpers ---------------
 const normalizeImageTokens = (value: unknown): string[] => {
@@ -108,42 +109,32 @@ export const createSparePartListing = async (req: Request, res: Response) => {
             return sendContractErrorResponse(req, res, 502, 'Image upload failed. Please retry.');
         }
 
-        // 🛡️ SEC: Atomic slot reservation + create in a single transaction to prevent TOCTOU race.
-        const dbSession = await getUserConnection().startSession();
-        let listing: unknown;
-        try {
-            await dbSession.withTransaction(async () => {
-                await ListingSubmissionPolicy.reserveSlot({
-                    userId: userId.toString(),
-                    listingType: LISTING_TYPE.SPARE_PART,
-                    listingId: listingId.toString(),
-                    session: dbSession,
-                    actor: 'user',
-                });
-                [listing] = await AdModel.create([{
-                    _id: listingId,
-                    listingType: LISTING_TYPE.SPARE_PART,
-                    categoryId,
-                    sparePartId,
-                    brandId,
-                    title,
-                    description,
-                    price,
-                    images: processedImageUrls,
-                    sellerId: userId,
-                    sellerType: 'business',
-                    businessId, // Linked to businessId field in Ad model
-                    location: {
-                        ...location,
-                        locationId
-                    },
-                    status: INVENTORY_STATUS.PENDING,
-                    seoSlug
-                }], { session: dbSession });
-            });
-        } finally {
-            await dbSession.endSession();
-        }
+        // 🛡️ SEC: Atomic slot reservation + create executed via Unified Service
+        const listing = await ListingMutationService.executeCreationTransaction({
+            userId: userId.toString(),
+            listingType: LISTING_TYPE.SPARE_PART,
+            listingId: listingId.toString(),
+            adDoc: {
+                _id: listingId,
+                listingType: LISTING_TYPE.SPARE_PART,
+                categoryId,
+                sparePartId,
+                brandId,
+                title,
+                description,
+                price,
+                images: processedImageUrls,
+                sellerId: userId,
+                sellerType: 'business',
+                businessId, // Linked to businessId field in Ad model
+                location: {
+                    ...location,
+                    locationId
+                },
+                status: INVENTORY_STATUS.PENDING,
+                seoSlug
+            }
+        });
 
         res.status(201).json({
             success: true,

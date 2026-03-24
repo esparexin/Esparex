@@ -313,19 +313,23 @@ export const bulkImportService = {
                 tablet: 'tablets',
                 laptop: 'laptops',
                 tv: 'led-tvs',
+                monitor: 'monitors',
             };
             const nameMap: Record<string, string> = {
                 smartphone: 'Mobiles',
                 tablet: 'Tablets',
                 laptop: 'Laptops',
                 tv: 'LED TVs',
+                monitor: 'Monitors',
             };
             const slug = slugMap[type.toLowerCase()] ?? (type.toLowerCase().endsWith('s') ? type.toLowerCase() : `${type.toLowerCase()}s`);
             const name = nameMap[type.toLowerCase()] ?? (type.charAt(0).toUpperCase() + type.slice(1) + (type.toLowerCase().endsWith('s') ? '' : 's'));
 
+            const hasScreenSizes = ['tv', 'monitor'].includes(type.toLowerCase());
+
             const cat = await Category.findOneAndUpdate(
                 { slug },
-                { name, slug, isActive: true },
+                { name, slug, isActive: true, hasScreenSizes },
                 { upsert: true, new: true }
             );
             categoryMap[type.toLowerCase()] = cat._id;

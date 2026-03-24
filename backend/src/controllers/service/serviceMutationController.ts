@@ -24,6 +24,7 @@ import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import { resolveServiceTypes, toServiceTypeObjectId as toObjectId } from '../../utils/serviceTypeResolver';
 import * as CatalogValidationService from '../../services/catalog/CatalogValidationService';
 import { resolveCategoryId } from '../../../../shared/utils/resolveCategoryId';
+import { ListingMutationService } from '../../services/ListingMutationService';
 
 const SERVICE_ALLOWED_FIELDS = [
     'title',
@@ -193,49 +194,38 @@ export const createService = async (req: Request, res: Response) => {
         // 🛡️ Fix 3: Compute Initial Quality Score
         const listingQualityScore = calculateServiceQuality(safeBody, business);
 
-        // 🛡️ SEC-3: Atomic slot reservation + create in a single transaction to prevent TOCTOU race.
-        const dbSession = await getUserConnection().startSession();
-        let service: unknown;
-        try {
-            await dbSession.withTransaction(async () => {
-                await ListingSubmissionPolicy.reserveSlot({
-                    userId: user._id.toString(),
-                    listingType: LISTING_TYPE.SERVICE,
-                    listingId: serviceId.toString(),
-                    session: dbSession,
-                    actor: 'user',
-                });
-                const adDoc = {
-                    _id: serviceId,
-                    listingType: LISTING_TYPE.SERVICE,
-                    listingQualityScore,
-                    serviceTypeIds: resolvedServiceTypes.serviceTypeIds,
-                    categoryId,
-                    brandId,
-                    modelId,
-                    location: {
-                        locationId: locId
-                    },
-                    sellerId: user._id,
-                    sellerType: 'business' as const,
-                    businessId: business._id, // 🔒 LINKED TO BUSINESS
-                    status: 'pending' as const,        // 🔒 ALWAYS PENDING
-                    expiresAt: undefined,     // 🔒 NO EXPIRY YET
-                    price: (safeBody.priceMin as number) || 0, // Use priceMin as the main price for the unified record
-                    title: safeBody.title as string,
-                    description: safeBody.description as string,
-                    images: safeBody.images as string[],
-                    attributes: {
-                        ...safeBody,
-                    }
-                };
+        // 🛡️ SEC-3: Atomic slot reservation + create executed via Unified Service
+        const adDoc = {
+            _id: serviceId,
+            listingType: LISTING_TYPE.SERVICE,
+            listingQualityScore,
+            serviceTypeIds: resolvedServiceTypes.serviceTypeIds,
+            categoryId,
+            brandId,
+            modelId,
+            location: {
+                locationId: locId
+            },
+            sellerId: user._id,
+            sellerType: 'business' as const,
+            businessId: business._id, // 🔒 LINKED TO BUSINESS
+            status: 'pending' as const,        // 🔒 ALWAYS PENDING
+            expiresAt: undefined,     // 🔒 NO EXPIRY YET
+            price: (safeBody.priceMin as number) || 0, // Use priceMin as the main price for the unified record
+            title: safeBody.title as string,
+            description: safeBody.description as string,
+            images: safeBody.images as string[],
+            attributes: {
+                ...safeBody,
+            }
+        };
 
-                const created = await AdModel.create([adDoc], { session: dbSession });
-                service = created[0];
-            });
-        } finally {
-            await dbSession.endSession();
-        }
+        const service = await ListingMutationService.executeCreationTransaction({
+            userId: user._id.toString(),
+            listingType: LISTING_TYPE.SERVICE,
+            listingId: serviceId.toString(),
+            adDoc
+        });
 
         const response = respond<ApiResponse<Service>>({
             success: true,

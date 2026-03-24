@@ -4,6 +4,7 @@ import { connectDB } from "../config/db";
 import { seedSpareParts } from "./spareParts.seed";
 import { seedDevices } from "./devices.seed";
 import { seedServiceTypes } from "./serviceTypes.seed";
+import { seedScreenSizes } from "./screenSizes.seed";
 import logger from "../utils/logger";
 
 // Load env vars
@@ -15,6 +16,7 @@ async function run() {
     logger.info("Connected.");
 
     await seedDevices();
+    await seedScreenSizes();
     await seedSpareParts();
     await seedServiceTypes();
 
