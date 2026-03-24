@@ -163,7 +163,7 @@ export function isValidPersistedImageUrl(url: string): boolean {
     try {
         const parsed = new URL(trimmed);
         const host = parsed.hostname.toLowerCase();
-        
+
         const isWhitelistedRemotePattern = imageDomainRegistry.nextRemotePatterns.some(pattern => {
             const patternHost = pattern.hostname.toLowerCase();
             if (patternHost === host) return true;
@@ -239,11 +239,15 @@ export function sanitizePersistedImageUrls(
     return fallbackToPlaceholder ? [IMAGE_PLACEHOLDER_URL] : [];
 }
 
-export const sanitizeStoredImageUrls = (urls: string[]): string[] =>
-    sanitizePersistedImageUrls(urls, {
-        fallbackToPlaceholder: false,
-        allowPlaceholder: false,
+export const sanitizeStoredImageUrls = (urls: string[]): string[] => {
+    // Dynamically fallback to placeholders if S3 is actively missing configuration (Local Dev)
+    // This prevents the 502 AppError 'Image upload failed' when starting the app without AWS keys.
+    const s3Configured = isS3UploadConfigured();
+    return sanitizePersistedImageUrls(urls, {
+        fallbackToPlaceholder: !s3Configured,
+        allowPlaceholder: !s3Configured,
     });
+};
 
 export async function getSignedFileUrl(key: string, expiresInSeconds: number = 3600): Promise<string> {
     const activeBucket = getBucketName();
