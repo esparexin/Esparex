@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, RefreshCcw } from "lucide-react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { AlertCircle, RefreshCcw, EyeOff, ChevronDown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
 import { AdsTable } from "@/components/moderation/AdsTable";
@@ -56,6 +56,21 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
     const [refreshKey, setRefreshKey] = useState(0);
+
+    const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>({
+        select: true,
+        image: true,
+        details: true,
+        seller: true,
+        location: true,
+        attribute: true,
+        risk: true,
+        status: true,
+        created: true,
+        actions: true
+    });
+    const [showColumnMenu, setShowColumnMenu] = useState(false);
+    const columnMenuRef = useRef<HTMLDivElement>(null);
 
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -163,6 +178,29 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
     }, [moduleTabs]);
 
     const refresh = () => setRefreshKey((value) => value + 1);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (columnMenuRef.current && !columnMenuRef.current.contains(event.target as Node)) {
+                setShowColumnMenu(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const columnOptions = useMemo(() => [
+        { id: "select", label: "Checkboxes" },
+        { id: "image", label: "Image" },
+        { id: "details", label: "Details" },
+        { id: "seller", label: "Seller" },
+        { id: "location", label: "Location" },
+        { id: "attribute", label: presentation.attributeHeader },
+        { id: "risk", label: "Risk" },
+        { id: "status", label: "Status" },
+        { id: "created", label: "Created" },
+        { id: "actions", label: "Actions" },
+    ], [presentation.attributeHeader]);
 
     const withActionGuard = async (operation: () => Promise<void>, successMessage: string, fallbackError: string) => {
         try {
@@ -351,13 +389,57 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
                 </div>
             }
             actions={
-                <button
-                    type="button"
-                    onClick={refresh}
-                    className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                >
-                    <RefreshCcw size={14} /> Refresh
-                </button>
+                <div className="flex items-center gap-2">
+                    <div className="relative" ref={columnMenuRef}>
+                        <button
+                            type="button"
+                            onClick={() => setShowColumnMenu(!showColumnMenu)}
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all active:scale-95"
+                        >
+                            <EyeOff size={14} /> 
+                            <span>Columns</span>
+                            <ChevronDown size={12} className={`transition-transform duration-200 ${showColumnMenu ? "rotate-180" : ""}`} />
+                        </button>
+                        
+                        {showColumnMenu && (
+                            <div className="absolute right-0 top-full z-40 mt-2 min-w-[200px] rounded-xl border border-slate-200 bg-white p-2 shadow-xl animate-in fade-in zoom-in duration-200">
+                                <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                    Toggle Columns
+                                </div>
+                                <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                                    {columnOptions.map((opt) => (
+                                        <label
+                                            key={opt.id}
+                                            className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-200 cursor-pointer"
+                                                checked={columnVisibility[opt.id] !== false}
+                                                onChange={(e) => {
+                                                    setColumnVisibility(prev => ({
+                                                        ...prev,
+                                                        [opt.id]: e.target.checked
+                                                    }));
+                                                }}
+                                            />
+                                            <span className="font-medium">{opt.label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={refresh}
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all active:scale-95"
+                    >
+                        <RefreshCcw size={14} /> 
+                        <span>Refresh</span>
+                    </button>
+                </div>
             }
         >
             <div className="flex min-h-0 flex-1 flex-col gap-3">
@@ -447,6 +529,9 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
                         onDelete={(item) => void handleDelete(item)}
                         onBanSeller={(item) => void handleBanSeller(item)}
                         showCheckboxes={filters.status === 'pending'}
+                        columnVisibility={columnVisibility}
+                        onColumnVisibilityChange={setColumnVisibility}
+                        hideColumnVisibilityButton={true}
                         bulkActions={
                             filters.status === 'pending' ? (
                                 <>

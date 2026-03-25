@@ -49,6 +49,9 @@ interface DataTableProps<T> {
     onExportCsv?: () => void;
     sortState?: { columnId: string; direction: "asc" | "desc" } | null;
     onSortChange?: (columnId: string) => void;
+    columnVisibility?: Record<string, boolean>;
+    onColumnVisibilityChange?: (visibility: Record<string, boolean>) => void;
+    hideColumnVisibilityButton?: boolean;
 }
 
 export function DataTable<T extends { id: string | number }>({
@@ -68,6 +71,9 @@ export function DataTable<T extends { id: string | number }>({
     onExportCsv,
     sortState,
     onSortChange,
+    columnVisibility: controlledColumnVisibility,
+    onColumnVisibilityChange,
+    hideColumnVisibilityButton = false,
 }: DataTableProps<T>) {
     const loadingRows = [1, 2, 3, 4, 5];
 
@@ -76,7 +82,7 @@ export function DataTable<T extends { id: string | number }>({
     const endItem = Math.min(currentPage * pageSize, totalItems);
 
     const parentRef = useRef<HTMLDivElement>(null);
-    const [columnVisibility, setColumnVisibility] = React.useState<Record<string, boolean>>(() =>
+    const [internalColumnVisibility, setInternalColumnVisibility] = React.useState<Record<string, boolean>>(() =>
         Object.fromEntries(
             columns.map((column, index) => [
                 column.id || String(column.accessorKey || index),
@@ -84,6 +90,17 @@ export function DataTable<T extends { id: string | number }>({
             ])
         )
     );
+
+    const columnVisibility = controlledColumnVisibility ?? internalColumnVisibility;
+    const setColumnVisibility = (updater: Record<string, boolean> | ((prev: Record<string, boolean>) => Record<string, boolean>)) => {
+        if (onColumnVisibilityChange) {
+            const nextValue = typeof updater === "function" ? updater(columnVisibility) : updater;
+            onColumnVisibilityChange(nextValue);
+        } else {
+            setInternalColumnVisibility(updater);
+        }
+    };
+
     const [showColumnsMenu, setShowColumnsMenu] = React.useState(false);
 
     const rowVirtualizer = useVirtualizer({
@@ -155,7 +172,7 @@ export function DataTable<T extends { id: string | number }>({
                                 )}
                             </div>
                             <div className="flex items-center gap-2">
-                                {enableColumnVisibility && (
+                                {enableColumnVisibility && !hideColumnVisibilityButton && (
                                     <div className="relative">
                                         <button
                                             type="button"

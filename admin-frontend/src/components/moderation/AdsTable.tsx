@@ -46,6 +46,9 @@ type AdsTableProps = {
     onBanSeller: (ad: ModerationItem) => void;
     bulkActions?: React.ReactNode;
     showCheckboxes?: boolean;
+    columnVisibility?: Record<string, boolean>;
+    onColumnVisibilityChange?: (visibility: Record<string, boolean>) => void;
+    hideColumnVisibilityButton?: boolean;
 };
 
 const THUMBNAIL_FALLBACK = "https://placehold.co/120x120/png?text=No+Image";
@@ -72,7 +75,10 @@ export function AdsTable({
     onDelete,
     onBanSeller,
     bulkActions,
-    showCheckboxes = true
+    showCheckboxes = true,
+    columnVisibility,
+    onColumnVisibilityChange,
+    hideColumnVisibilityButton
 }: AdsTableProps) {
     const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
     const allSelected = data.length > 0 && data.every((item) => selectedSet.has(item.id));
@@ -289,6 +295,9 @@ export function AdsTable({
             selectedCount={selectedSet.size}
             bulkActions={bulkActions}
             enableColumnVisibility
+            hideColumnVisibilityButton={hideColumnVisibilityButton}
+            columnVisibility={columnVisibility}
+            onColumnVisibilityChange={onColumnVisibilityChange}
             pagination={{
                 currentPage,
                 totalPages,
