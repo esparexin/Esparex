@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getLocations, getDistinctStates, toggleLocationStatus, deleteLocation } from "@/lib/api/locations";
+import { getLocations, getDistinctStates, toggleLocationStatus, togglePopularStatus, deleteLocation } from "@/lib/api/locations";
 import { Location, LocationFilters } from "@/types/location";
 import { useToast } from "@/context/ToastContext";
 import { useAdminCrudList } from "@/hooks/useAdminCrudList";
@@ -78,7 +78,21 @@ export function useAdminLocations() {
             showToast(err instanceof Error ? err.message : "Failed to toggle status", "error");
         }
     };
-
+ 
+    const handleTogglePopular = async (id: string) => {
+        try {
+            const response = await togglePopularStatus(id);
+            if (response.success) {
+                setLocations(prev => prev.map(loc => loc.id === id ? { ...loc, isPopular: !loc.isPopular } : loc));
+                showToast("Location popular status updated", "success");
+            } else {
+                showToast(response.message || "Failed to toggle popular status", "error");
+            }
+        } catch (err) {
+            showToast(err instanceof Error ? err.message : "Failed to toggle popular status", "error");
+        }
+    };
+ 
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this location? This action might fail if the location is in use.")) return;
         try {
@@ -105,6 +119,7 @@ export function useAdminLocations() {
         setPage,
         refresh: fetchLocations,
         handleToggleStatus,
+        handleTogglePopular,
         handleDelete
     };
 }

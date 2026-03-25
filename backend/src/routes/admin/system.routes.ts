@@ -43,6 +43,7 @@ import {
     createStateLocation,
     updateLocation,
     toggleLocationStatus,
+    togglePopularStatus,
     deleteLocation,
     getGeofences,
     createGeofence,
@@ -193,6 +194,7 @@ router.post('/locations/cities', adminMutationLimiter, createCityLocation);
 router.post('/locations/areas', adminMutationLimiter, createAreaLocation);
 router.post('/locations', adminMutationLimiter, createLocation);
 router.patch('/locations/:id/toggle', validateObjectId, toggleLocationStatus);
+router.patch('/locations/:id/popular', validateObjectId, togglePopularStatus);
 router.post('/locations/:id/verify', adminMutationLimiter, validateObjectId, approveRejectLocation);
 
 // ✅ PARAM LAST

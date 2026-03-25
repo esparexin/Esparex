@@ -475,7 +475,7 @@ export function getHeaderLocationText(location: {
         location.name || location.formattedAddress || location.city
     );
 
-    const headerText = location.source === "default" ? "Select Location" : normalizedName;
+    const headerText = normalizedName;
 
     return {
         headerText,

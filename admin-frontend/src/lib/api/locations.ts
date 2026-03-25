@@ -67,6 +67,12 @@ export const toggleLocationStatus = async (id: string) => {
     });
 };
 
+export const togglePopularStatus = async (id: string) => {
+    return adminFetch<Location>(`${BASE_PATH}/${id}/popular`, {
+        method: "PATCH",
+    });
+};
+
 export const deleteLocation = async (id: string) => {
     return adminFetch(`${BASE_PATH}/${id}`, {
         method: "DELETE",

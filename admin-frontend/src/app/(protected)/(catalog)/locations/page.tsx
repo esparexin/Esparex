@@ -35,6 +35,7 @@ export default function LocationsPage() {
         filters,
         setFilters,
         handleToggleStatus,
+        handleTogglePopular,
         handleDelete,
         pagination,
         setPage,
@@ -84,12 +85,14 @@ export default function LocationsPage() {
                 },
                 {
                     header: "Popular",
-                    cell: (location) =>
-                        location.isPopular ? (
-                            <span className="flex items-center gap-1 text-amber-600 font-bold text-xs">
-                                <TrendingUp size={14} /> Popular
-                            </span>
-                        ) : null,
+                    cell: (location) => (
+                        <CatalogActiveToggleButton
+                            isActive={location.isPopular}
+                            onClick={() => void handleTogglePopular(location.id)}
+                            activeLabel="Popular"
+                            inactiveLabel="Regular"
+                        />
+                    ),
                 },
                 {
                     header: "Stats",

@@ -551,6 +551,32 @@ export const toggleLocationStatus = async (req: Request, res: Response) => {
 };
 
 /**
+ * Toggle Popular status for a location
+ */
+export const togglePopularStatus = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const location = await Location.findById(id);
+
+        if (!location) {
+            return sendAdminError(req, res, 404, 'Location not found');
+        }
+
+        location.isPopular = !location.isPopular;
+        await location.save();
+        await invalidateLocationStateCache(); // Popular status affects hierarchy & search caches
+
+        return sendJson(res, 200, respond({ success: true, data: normalizeLocationResponse(location) }));
+
+    } catch (error: unknown) {
+        logger.error('Error toggling location popular status', {
+            error: error instanceof Error ? error.message : String(error)
+        });
+        return sendAdminError(req, res, 500, 'Internal Server Error');
+    }
+};
+
+/**
  * Delete a location
  */
 export const deleteLocation = async (req: Request, res: Response) => {
