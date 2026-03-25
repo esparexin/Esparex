@@ -1,5 +1,6 @@
 import { Schema, Document, Model, Types } from 'mongoose';
 import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export type BroadcastType = 'GLOBAL' | 'SEGMENT' | 'USER';
 
@@ -34,19 +35,7 @@ BroadcastSchema.index({ type: 1 }, { name: 'idx_broadcast_type_idx' });
 BroadcastSchema.index({ createdBy: 1 }, { name: 'idx_broadcast_createdBy_idx' });
 BroadcastSchema.index({ type: 1, createdAt: -1 }, { name: 'idx_broadcast_type_freshness_idx' });
 
-BroadcastSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        const rawId = json._id;
-        if (typeof rawId === 'string' || (rawId && typeof (rawId as { toString?: () => string }).toString === 'function')) {
-            json.id = rawId.toString();
-        }
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(BroadcastSchema);
 
 const connection = getAdminConnection();
 const Broadcast: Model<IBroadcast> =

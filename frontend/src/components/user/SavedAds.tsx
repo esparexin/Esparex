@@ -47,6 +47,16 @@ interface SavedAdsProps {
 type ViewMode = "grid" | "list";
 type SortOption = "newest" | "oldest" | "price-low" | "price-high" | "location";
 
+const SORT_LABELS: Record<SortOption, string> = {
+  newest: "Newest First",
+  oldest: "Oldest First",
+  "price-low": "Price: Low to High",
+  "price-high": "Price: High to Low",
+  location: "Location",
+};
+
+const SORT_OPTIONS = Object.keys(SORT_LABELS) as SortOption[];
+
 /** Returns the correct detail URL for any listing type */
 const getDetailUrl = (ad: Ad): string => {
   switch (ad.listingType) {
@@ -88,6 +98,104 @@ const getUnavailableLabel = (status: string): string => {
     default:            return "Unavailable";
   }
 };
+
+function SavedAdStatusOverlay({ status }: { status?: string }) {
+  return (
+    <div className="absolute inset-0 bg-gray-900/40 flex items-center justify-center">
+      <Badge className="bg-gray-800 text-white text-[10px] font-bold border-0 gap-1">
+        <AlertCircle className="h-3 w-3" />
+        {getUnavailableLabel(status ?? "")}
+      </Badge>
+    </div>
+  );
+}
+
+function SavedAdRemoveButton({
+  unavailable,
+  onClick,
+  className,
+  iconClassName,
+}: {
+  unavailable: boolean;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  className: string;
+  iconClassName: string;
+}) {
+  return (
+    <Button
+      size="icon"
+      variant="secondary"
+      className={className}
+      onClick={onClick}
+      title="Remove from saved"
+    >
+      {unavailable ? (
+        <Trash2 className={`${iconClassName} text-red-500`} />
+      ) : (
+        <Heart className={`${iconClassName} fill-red-500 text-red-500`} />
+      )}
+    </Button>
+  );
+}
+
+function SavedAdTypeBadge({
+  label,
+  unavailable,
+  className,
+}: {
+  label: string;
+  unavailable: boolean;
+  className?: string;
+}) {
+  return (
+    <Badge
+      variant="secondary"
+      className={`text-[10px] font-bold border-0 ${unavailable ? "bg-gray-100 text-gray-400" : "bg-blue-50 text-blue-600"} ${className ?? ""}`}
+    >
+      {label.toUpperCase()}
+    </Badge>
+  );
+}
+
+function SavedAdImageFrame({
+  ad,
+  unavailable,
+  containerClassName,
+  imageClassName,
+  imageSizes,
+  removeButtonClassName,
+  removeIconClassName,
+  onRemove,
+}: {
+  ad: Ad;
+  unavailable: boolean;
+  containerClassName: string;
+  imageClassName: string;
+  imageSizes: string;
+  removeButtonClassName: string;
+  removeIconClassName: string;
+  onRemove: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}) {
+  return (
+    <div className={containerClassName}>
+      <Image
+        src={toSafeImageSrc(ad.images?.[0], DEFAULT_IMAGE_PLACEHOLDER)}
+        alt={ad.title}
+        fill
+        unoptimized
+        className={imageClassName}
+        sizes={imageSizes}
+      />
+      {unavailable && <SavedAdStatusOverlay status={ad.status} />}
+      <SavedAdRemoveButton
+        unavailable={unavailable}
+        onClick={onRemove}
+        className={removeButtonClassName}
+        iconClassName={removeIconClassName}
+      />
+    </div>
+  );
+}
 
 export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const queryClient = useQueryClient();
@@ -155,17 +263,6 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
     unsaveMutation.mutate(adId);
   };
 
-  const getSortLabel = () => {
-    switch (sortBy) {
-      case "newest":     return "Newest First";
-      case "oldest":     return "Oldest First";
-      case "price-low":  return "Price: Low to High";
-      case "price-high": return "Price: High to Low";
-      case "location":   return "Location";
-      default:           return "Sort By";
-    }
-  };
-
   const pageState: PageState = isLoading
     ? "loading"
     : isError
@@ -186,42 +283,18 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
       }`}
       onClick={unavailable ? undefined : () => router.push(getDetailUrl(ad))}
     >
-      <div className="relative aspect-square bg-gray-100 overflow-hidden">
-        <Image
-          src={toSafeImageSrc(ad.images?.[0], DEFAULT_IMAGE_PLACEHOLDER)}
-          alt={ad.title}
-          fill
-          unoptimized
-          className={`object-cover ${unavailable ? "" : "group-hover:scale-105 transition-transform duration-300"}`}
-          sizes="(max-width: 768px) 50vw, 33vw"
-        />
-
-        {/* Unavailable overlay */}
-        {unavailable && (
-          <div className="absolute inset-0 bg-gray-900/40 flex items-center justify-center">
-            <Badge className="bg-gray-800 text-white text-[10px] font-bold border-0 gap-1">
-              <AlertCircle className="h-3 w-3" />
-              {getUnavailableLabel(ad.status ?? "")}
-            </Badge>
-          </div>
-        )}
-
-        {/* Remove button */}
-        <Button
-          size="icon"
-          variant="secondary"
-          className={`absolute top-2 right-2 h-7 w-7 rounded-full hover:bg-white hover:scale-110 transition-all ${
-            unavailable ? "bg-red-50 border border-red-200" : ""
-          }`}
-          onClick={(e) => handleUnsave(ad.id, e)}
-          title="Remove from saved"
-        >
-          {unavailable
-            ? <Trash2 className="h-3.5 w-3.5 text-red-500" />
-            : <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
-          }
-        </Button>
-      </div>
+      <SavedAdImageFrame
+        ad={ad}
+        unavailable={unavailable}
+        containerClassName="relative aspect-square bg-gray-100 overflow-hidden"
+        imageClassName={`object-cover ${unavailable ? "" : "group-hover:scale-105 transition-transform duration-300"}`}
+        imageSizes="(max-width: 768px) 50vw, 33vw"
+        removeButtonClassName={`absolute top-2 right-2 h-7 w-7 rounded-full hover:bg-white hover:scale-110 transition-all ${
+          unavailable ? "bg-red-50 border border-red-200" : ""
+        }`}
+        removeIconClassName="h-3.5 w-3.5"
+        onRemove={(e) => handleUnsave(ad.id, e)}
+      />
 
       <CardContent className="p-3 space-y-1.5">
         <h3 className={`font-semibold line-clamp-2 text-base leading-tight ${unavailable ? "text-gray-400" : ""}`}>
@@ -235,14 +308,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
           <span className="truncate">{formatLocation(ad.location)}</span>
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-1.5 border-t">
-          <Badge
-            variant="secondary"
-            className={`text-[10px] font-bold border-0 ${
-              unavailable ? "bg-gray-100 text-gray-400" : "bg-blue-50 text-blue-600"
-            }`}
-          >
-            {getCategoryLabel(ad).toUpperCase()}
-          </Badge>
+          <SavedAdTypeBadge label={getCategoryLabel(ad)} unavailable={unavailable} />
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
             {formatStableDate(ad.createdAt)}
@@ -262,49 +328,22 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
     >
       <CardContent className="p-0">
         <div className="flex gap-2 md:gap-4">
-          <div className="relative w-24 sm:w-32 md:w-48 h-24 sm:h-28 md:h-36 flex-shrink-0 bg-gray-100 overflow-hidden">
-            <Image
-              src={toSafeImageSrc(ad.images?.[0], DEFAULT_IMAGE_PLACEHOLDER)}
-              alt={ad.title}
-              fill
-              unoptimized
-              className="object-cover"
-              sizes="(max-width: 640px) 100px, (max-width: 768px) 150px, 200px"
-            />
-            {unavailable && (
-              <div className="absolute inset-0 bg-gray-900/40 flex items-center justify-center">
-                <Badge className="bg-gray-800 text-white text-[10px] font-bold border-0 gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {getUnavailableLabel(ad.status ?? "")}
-                </Badge>
-              </div>
-            )}
-            <Button
-              size="icon"
-              variant="secondary"
-              className={`absolute top-1 right-1 md:top-2 md:right-2 h-6 w-6 md:h-7 md:w-7 rounded-full hover:bg-white ${
-                unavailable ? "bg-red-50 border border-red-200" : ""
-              }`}
-              onClick={(e) => handleUnsave(ad.id, e)}
-              title="Remove from saved"
-            >
-              {unavailable
-                ? <Trash2 className="h-3 w-3 md:h-3.5 md:w-3.5 text-red-500" />
-                : <Heart className="h-3 w-3 md:h-3.5 md:w-3.5 fill-red-500 text-red-500" />
-              }
-            </Button>
-          </div>
+          <SavedAdImageFrame
+            ad={ad}
+            unavailable={unavailable}
+            containerClassName="relative w-24 sm:w-32 md:w-48 h-24 sm:h-28 md:h-36 flex-shrink-0 bg-gray-100 overflow-hidden"
+            imageClassName="object-cover"
+            imageSizes="(max-width: 640px) 100px, (max-width: 768px) 150px, 200px"
+            removeButtonClassName={`absolute top-1 right-1 md:top-2 md:right-2 h-6 w-6 md:h-7 md:w-7 rounded-full hover:bg-white ${
+              unavailable ? "bg-red-50 border border-red-200" : ""
+            }`}
+            removeIconClassName="h-3 w-3 md:h-3.5 md:w-3.5"
+            onRemove={(e) => handleUnsave(ad.id, e)}
+          />
 
           <div className="flex-1 py-2 pr-2 md:py-4 md:pr-4 min-w-0">
             <div className="flex flex-col gap-1.5 md:gap-2 mb-1.5 md:mb-2">
-              <Badge
-                variant="secondary"
-                className={`text-[10px] font-bold border-0 w-fit ${
-                  unavailable ? "bg-gray-100 text-gray-400" : "bg-blue-50 text-blue-600"
-                }`}
-              >
-                {getCategoryLabel(ad).toUpperCase()}
-              </Badge>
+              <SavedAdTypeBadge label={getCategoryLabel(ad)} unavailable={unavailable} className="w-fit" />
               <div className={`text-lg md:text-2xl font-extrabold ${unavailable ? "text-gray-400" : "text-blue-600"}`}>
                 {formatPrice(ad.price)}
               </div>
@@ -327,6 +366,22 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
       </CardContent>
     </Card>
   );
+
+  const renderListingCollection = (adsToRender: Ad[], unavailable: boolean) => {
+    if (viewMode === "grid") {
+      return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+          {adsToRender.map((ad) => renderGridCard(ad, unavailable))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {adsToRender.map((ad) => renderListCard(ad, unavailable))}
+      </div>
+    );
+  };
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
@@ -390,19 +445,19 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" className="gap-1.5 md:gap-2 h-8 md:h-9 text-xs md:text-sm">
                         <ArrowUpDown className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                        <span className="hidden sm:inline">{getSortLabel()}</span>
+                        <span className="hidden sm:inline">{SORT_LABELS[sortBy]}</span>
                         <span className="sm:hidden">Sort</span>
                         <ChevronDown className="h-3.5 w-3.5 md:h-4 md:w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
-                      {(["newest", "oldest", "price-low", "price-high", "location"] as SortOption[]).map((opt) => (
+                      {SORT_OPTIONS.map((opt) => (
                         <DropdownMenuItem
                           key={opt}
                           onClick={() => setSortBy(opt)}
                           className={sortBy === opt ? "bg-blue-50 text-blue-600 font-bold" : ""}
                         >
-                          {{ newest: "Newest First", oldest: "Oldest First", "price-low": "Price: Low to High", "price-high": "Price: High to Low", location: "Location" }[opt]}
+                          {SORT_LABELS[opt]}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -431,18 +486,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
 
               {/* Available ads */}
               {available.length > 0 && (
-                <>
-                  {viewMode === "grid" && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-                      {available.map((ad) => renderGridCard(ad, false))}
-                    </div>
-                  )}
-                  {viewMode === "list" && (
-                    <div className="space-y-3">
-                      {available.map((ad) => renderListCard(ad, false))}
-                    </div>
-                  )}
-                </>
+                renderListingCollection(available, false)
               )}
 
               {/* Unavailable ads section */}
@@ -457,16 +501,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                   <p className="text-xs text-muted-foreground mb-4">
                     These ads were deactivated, expired, or removed. Click the trash icon to remove them from your saved list.
                   </p>
-                  {viewMode === "grid" && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-                      {unavailable.map((ad) => renderGridCard(ad, true))}
-                    </div>
-                  )}
-                  {viewMode === "list" && (
-                    <div className="space-y-3">
-                      {unavailable.map((ad) => renderListCard(ad, true))}
-                    </div>
-                  )}
+                  {renderListingCollection(unavailable, true)}
                 </div>
               )}
 

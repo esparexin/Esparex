@@ -1,5 +1,6 @@
 import { Schema, Document, Model } from 'mongoose';
 import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IOtp extends Document {
     mobile: string;
@@ -27,17 +28,7 @@ OtpSchema.index({ mobile: 1 }, { name: 'idx_otp_mobile_idx' });
 
 OtpSchema.index({ expiresAt: 1 }, { name: 'idx_otp_expiresAt_ttl_idx', expireAfterSeconds: 0 });
 OtpSchema.index({ mobile: 1, createdAt: -1 }, { name: 'idx_otp_mobile_createdAt_idx' });
-// toJSON Transform - Convert _id to id
-OtpSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as unknown as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(OtpSchema);
 
 const connection = getUserConnection();
 const Otp: Model<IOtp> =

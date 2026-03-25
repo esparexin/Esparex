@@ -33,8 +33,7 @@ import {
 } from "@/config/navigation";
 
 import LocationSelector from "../location/LocationSelector";
-import LocationFirstVisitPrompt from "../location/LocationFirstVisitPrompt";
-import LocationPermissionBlockedModal from "../location/LocationPermissionBlockedModal";
+import { HeaderLocationPrompts } from "../location/HeaderLocationPrompts";
 
 
 interface UserHeaderProps {
@@ -50,21 +49,14 @@ interface UserHeaderProps {
 
 const recentSearches = ["iPhone 14 Pro", "Samsung Galaxy", "MacBook Pro", "iPad Air"];
 
-
-import { useLocationSelector } from "@/hooks/useLocationSelector";
-import { useHeaderSearch } from "@/hooks/useHeaderSearch";
+import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
-import { useNotificationsQuery } from "@/hooks/queries";
-import { useNotificationSync } from "@/hooks/useNotificationSync";
-import { useLocationState, useLocationDispatch } from "@/context/LocationContext";
 
 export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLogout, user, onSearch, onShowLogin }: UserHeaderProps) {
   const router = useRouter();
-  const { shouldShowFirstVisitPrompt, showPermissionBlockedModal } = useLocationState();
-  const { detectLocation, dismissFirstVisitPrompt, dismissPermissionBlockedModal } = useLocationDispatch();
   const businessStatus = normalizeBusinessStatus(user?.businessStatus, "pending");
   const shouldShowPendingReview = businessStatus === "pending" && Boolean(user?.businessId);
   const canRegister = Boolean(user && canRegisterBusiness(user));
@@ -77,26 +69,6 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
   useEffect(() => {
     setAvatarSrc(safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
   }, [safeProfilePhoto]);
-
-  // Use shared hooks
-  const {
-    showLocationSelector,
-    setShowLocationSelector,
-    locationDropdownRef
-  } = useLocationSelector({ mode: "header" });
-
-  const {
-    searchQuery,
-    setSearchQuery,
-    showSearchDropdown,
-    setShowSearchDropdown,
-    searchRef,
-    handleSearch,
-    handleSearchFocus
-  } = useHeaderSearch({
-    onSearch,
-    navigateTo: (page) => navigateTo(page as UserPage)
-  });
 
   const { isBackendUp, handlePostAdClick } = usePostAdNavigation({
     navigateTo: (path) => {
@@ -111,15 +83,24 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
     !pathname.startsWith("/account/business/apply") &&
     !pathname.startsWith("/business/edit");
 
-  const { data: notificationsData } = useNotificationsQuery({
-    page: 1,
-    limit: 20,
-    enabled: shouldFetchHeaderNotifications,
+  const {
+    notifUnreadCount,
+    showLocationSelector,
+    setShowLocationSelector,
+    locationDropdownRef,
+    searchQuery,
+    setSearchQuery,
+    showSearchDropdown,
+    setShowSearchDropdown,
+    searchRef,
+    handleSearch,
+    handleSearchFocus
+  } = useSharedHeaderLogic({
+    isLoggedIn,
+    onSearch,
+    navigateTo: (page) => navigateTo(page as UserPage),
+    disableNotificationsFetch: !shouldFetchHeaderNotifications
   });
-  const notifUnreadCount = typeof notificationsData?.unreadCount === 'number' ? notificationsData.unreadCount : 0;
-
-  // Phase-4 Realtime Sync
-  useNotificationSync({ enabled: shouldFetchHeaderNotifications });
 
   const { account: profileMenuItems } = getNavigationSections(
     getNavigationItems("profile-dropdown", { isLoggedIn, user })
@@ -162,25 +143,13 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
           <div className="relative" ref={locationDropdownRef}>
             <HeaderLocation onClick={() => { setShowLocationSelector(!showLocationSelector); setShowSearchDropdown(false); }} />
 
-            {shouldShowFirstVisitPrompt && !showLocationSelector && (
-              <div className="absolute left-0 top-full z-[105] mt-3 w-[360px]">
-                <LocationFirstVisitPrompt
-                  onUseCurrentLocation={() => {
-                    void detectLocation(true, true).then((detected) => {
-                      if (!detected) {
-                        setShowLocationSelector(true);
-                      }
-                    });
-                  }}
-                  onChooseManually={() => {
-                    dismissFirstVisitPrompt();
-                    setShowLocationSelector(true);
-                    setShowSearchDropdown(false);
-                  }}
-                  onDismiss={dismissFirstVisitPrompt}
-                />
-              </div>
-            )}
+            <HeaderLocationPrompts
+                isMounted={true}
+                showLocationSelector={showLocationSelector}
+                setShowLocationSelector={setShowLocationSelector}
+                setShowSearchDropdown={setShowSearchDropdown}
+                firstVisitWrapperClassName="absolute left-0 top-full z-[105] mt-3 w-[360px]"
+            />
 
             {/* Location Dropdown */}
             <div
@@ -367,19 +336,6 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
       {/* Mobile Location Search Overlay - Removed in favor of MobileHeader's LocationSelector */}
 
       {/* Mobile Location Search Overlay - Removed in favor of MobileHeader's LocationSelector */}
-
-      {/* Location Permission Blocked Modal */}
-      <LocationPermissionBlockedModal
-        isOpen={showPermissionBlockedModal}
-        onDismiss={dismissPermissionBlockedModal}
-        onUseManualLocation={() => {
-          setShowLocationSelector(true);
-          setShowSearchDropdown(false);
-        }}
-        onOpenBrowserSettings={() => {
-          dismissPermissionBlockedModal();
-        }}
-      />
     </>
   );
 }

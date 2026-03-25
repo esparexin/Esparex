@@ -45,17 +45,8 @@ import softDeletePlugin from '../utils/softDeletePlugin';
 ScreenSizeSchema.plugin(softDeletePlugin);
 
 import { getAdminConnection } from '../config/db';
-// toJSON Transform - Convert _id to id
-ScreenSizeSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+import { applyToJSONTransform } from '../utils/schemaOptions';
+applyToJSONTransform(ScreenSizeSchema);
 
 const adminConnection = getAdminConnection();
 

@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { adminFetch } from "@/lib/api/adminClient";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { useToast } from "@/context/ToastContext";
 import type { AdminSessionItem } from "@/types/adminSession";
-import { AlertCircle, Power } from "lucide-react";
+import { Power } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
+import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
+import { useAdminStatusFilteredList } from "@/hooks/useAdminStatusFilteredList";
 
 const normalizeAdminSession = (raw: Record<string, unknown>): AdminSessionItem => ({
   id: String(raw.id || raw._id || ""),
@@ -27,33 +27,19 @@ const normalizeAdminSession = (raw: Record<string, unknown>): AdminSessionItem =
 
 export default function AdminSessionsPage() {
   const { showToast } = useToast();
-  const [sessions, setSessions] = useState<AdminSessionItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [statusFilter, setStatusFilter] = useState("active");
-
-  const fetchSessions = async () => {
-    setLoading(true);
-    try {
-      const query = new URLSearchParams({
-        status: statusFilter,
-        page: "1",
-        limit: "50",
-      }).toString();
-      const response = await adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.ADMIN_SESSIONS}?${query}`);
-      const parsed = parseAdminResponse<Record<string, unknown>>(response);
-      setSessions(parsed.items.map(normalizeAdminSession));
-      setError("");
-    } catch (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : "Failed to load admin sessions");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void fetchSessions();
-  }, [statusFilter]);
+  const {
+    items: sessions,
+    loading,
+    error,
+    statusFilter,
+    setStatusFilter,
+    refresh: fetchSessions,
+  } = useAdminStatusFilteredList<AdminSessionItem>({
+    route: ADMIN_ROUTES.ADMIN_SESSIONS,
+    initialStatus: "active",
+    errorMessage: "Failed to load admin sessions",
+    normalizeItem: normalizeAdminSession,
+  });
 
   const revokeSession = async (id: string) => {
     try {
@@ -152,11 +138,7 @@ export default function AdminSessionsPage() {
         ]}
       />
 
-      {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">
-          <AlertCircle size={16} /> {error}
-        </div>
-      )}
+      <AdminInlineAlert message={error} />
 
       <DataTable
         data={sessions}

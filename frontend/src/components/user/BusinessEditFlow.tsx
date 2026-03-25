@@ -11,15 +11,9 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
 import { User } from "@/types/User";
 import { getMyBusiness, updateBusiness, CreateBusinessDTO } from "@/lib/api/user/businesses";
 
-import { Button } from "../ui/button";
-import { ArrowLeft } from "@/icons/IconRegistry";
-import { FormError } from "@/components/ui/FormError";
-
 import { fileToBase64 } from "./business-registration/utils";
-import { StepBasicDetails } from "./business-registration/StepBasicDetails";
-import { StepAddress } from "./business-registration/StepAddress";
-import { StepDocuments } from "./business-registration/StepDocuments";
-import { StepReview } from "./business-registration/StepReview";
+import { BusinessProfileWizard } from "./business-registration/BusinessProfileWizard";
+import { getBusinessWizardFieldsForStep, useBusinessWizardBridge } from "./business-registration/useBusinessWizardBridge";
 import logger from "@/lib/logger";
 import { businessEditSchema, type BusinessEditFormData, type BusinessEditFormInput } from "@/schemas/businessEditPayload.schema";
 import { injectApiErrors } from "@/lib/injectApiErrors";
@@ -67,42 +61,11 @@ export function BusinessEditFlow({
 
     const { handleSubmit, trigger, watch, setValue, reset, formState: { errors, isSubmitting } } = form;
     const formData = watch();
-
-    const resolveErrorMessage = (fieldError: unknown): string => {
-        const err = fieldError as any;
-        if (!err) return "Invalid field";
-        if (typeof err.message === "string" && err.message.trim()) return err.message;
-        if (typeof err?.root?.message === "string" && err.root.message.trim()) return err.root.message;
-        if (Array.isArray(err)) {
-            const nested = err.find((item: any) => typeof item?.message === "string" && item.message.trim());
-            if (nested?.message) return nested.message;
-        }
-        if (err && typeof err === "object") {
-            for (const value of Object.values(err)) {
-                if (value && typeof (value as any).message === "string" && (value as any).message.trim()) {
-                    return (value as any).message;
-                }
-            }
-        }
-        return "Invalid field";
-    };
-
-    // Bridge watch() results back to the legacy StepData shape the step components expect
-    const legacyFormData = {
-        ...formData,
-        deviceCategories: [],
-        errors: Object.keys(errors).reduce((acc, key) => {
-            acc[key as keyof BusinessEditFormData] = resolveErrorMessage((errors as any)[key]);
-            return acc;
-        }, {} as any)
-    };
-
-    const setLegacyFormData = (updater: any) => {
-        const next = typeof updater === "function" ? updater(formData) : updater;
-        Object.entries(next).forEach(([key, val]) => {
-            setValue(key as any, val, { shouldDirty: true });
-        });
-    };
+    const { legacyFormData, setLegacyFormData } = useBusinessWizardBridge({
+        formData,
+        errors,
+        setValue,
+    });
 
     /* -------------------------------------------------------------------------- */
     /* Load Existing Data                                                         */
@@ -159,12 +122,9 @@ export function BusinessEditFlow({
     /* -------------------------------------------------------------------------- */
 
     const validateStep = async (): Promise<boolean> => {
-        let fieldsToValidate: (keyof BusinessEditFormData)[] = [];
-        if (currentStep === 0) fieldsToValidate = ["businessName", "businessDescription", "contactNumber", "email", "shopImages"];
-        if (currentStep === 1) fieldsToValidate = ["shopNo", "street", "city", "state", "pincode"];
-        if (currentStep === 2) fieldsToValidate = []; // Documents optional on edit
-
-        return trigger(fieldsToValidate);
+        return trigger(
+            getBusinessWizardFieldsForStep(currentStep, { requireDocuments: false }) as Array<keyof BusinessEditFormData>,
+        );
     };
 
     const handleNext = async () => {
@@ -264,69 +224,22 @@ export function BusinessEditFlow({
     /* -------------------------------------------------------------------------- */
 
     return (
-        <div className="bg-gray-50 py-8">
-            <div className="bg-white border-b mb-8">
-                <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() =>
-                            currentStep > 0 ? setCurrentStep(s => s - 1) : void router.push('/account/business')
-                        }
-                    >
-                        <ArrowLeft />
-                    </Button>
-                    <h1 className="font-bold text-xl">Edit Business Profile</h1>
-                </div>
-            </div>
-
-            <form
-                className="max-w-4xl mx-auto px-4 space-y-4"
-                onSubmit={handleSubmit(onValidSubmit as unknown as Parameters<typeof handleSubmit>[0])}
-                noValidate
-            >
-                <FormError message={formError} className="mb-2" />
-
-                <StepBasicDetails
-                    formData={legacyFormData as any}
-                    setFormData={setLegacyFormData}
-                    user={user}
-                    onNext={handleNext}
-                    onBack={() => void router.push('/account/business')}
-                    isActive={currentStep === 0}
-                    isCompleted={currentStep > 0}
-                    onEdit={() => setCurrentStep(0)}
-                />
-
-                <StepAddress
-                    formData={legacyFormData as any}
-                    setFormData={setLegacyFormData}
-                    onNext={handleNext}
-                    onBack={() => setCurrentStep(0)}
-                    isActive={currentStep === 1}
-                    isCompleted={currentStep > 1}
-                    onEdit={() => setCurrentStep(1)}
-                />
-
-                <StepDocuments
-                    formData={legacyFormData as any}
-                    setFormData={setLegacyFormData}
-                    onNext={handleNext}
-                    onBack={() => setCurrentStep(1)}
-                    isActive={currentStep === 2}
-                    isCompleted={currentStep > 2}
-                    onEdit={() => setCurrentStep(2)}
-                />
-
-                <StepReview
-                    formData={legacyFormData as any}
-                    onBack={() => setCurrentStep(2)}
-                    isActive={currentStep === 3}
-                    onEditStep={setCurrentStep}
-                    isSubmitting={isSubmitting}
-                    submitLabel="Save Changes"
-                />
-            </form>
-        </div>
+        <BusinessProfileWizard
+            headerVariant="edit"
+            title="Edit Business Profile"
+            user={user}
+            currentStep={currentStep}
+            formData={legacyFormData}
+            setFormData={setLegacyFormData}
+            formError={formError}
+            isSubmitting={isSubmitting}
+            submitLabel="Save Changes"
+            onNext={handleNext}
+            onHeaderBack={() => {
+                void router.push("/account/business");
+            }}
+            onStepChange={setCurrentStep}
+            onSubmit={handleSubmit(onValidSubmit as unknown as Parameters<typeof handleSubmit>[0])}
+        />
     );
 }

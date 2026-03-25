@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../types';
+import { connectOpsDb } from './commandUtils';
 
 type ReportStatus = 'open' | 'pending' | 'reviewed' | 'dismissed' | string;
 
@@ -26,26 +27,15 @@ interface CaseSamples {
 const ACTIVE_STATUSES: ReportStatus[] = ['open', 'pending', 'reviewed'];
 const BATCH_SIZE = 300;
 
-const getMongoUri = (): string => {
-  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
-  if (!uri) throw new Error('Missing MONGODB_URI (or MONGO_URI)');
-  return uri;
-};
-
 export const orphanReportRemediateCommand: OpsCommand = {
   name: 'report-orphan-remediate',
   description: 'Classify and remediate orphan ad-target reports with safe dismiss/repair actions.',
   blastRadius: 'high',
   run: async (context: OpsExecutionContext): Promise<OpsCommandResult> => {
-    const mongoUri = getMongoUri();
     const now = new Date();
     const resolutionNote = `orphan target cleanup (${now.toISOString()})`;
 
-    await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 20000 });
-    const db = mongoose.connection.db;
-    if (!db) {
-      throw new Error('Mongo connection established without database handle');
-    }
+    const db = await connectOpsDb();
     const reports = db.collection<ReportDoc>('reports');
     const ads = db.collection<AdDoc>('ads');
 

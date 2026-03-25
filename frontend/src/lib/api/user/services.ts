@@ -1,48 +1,13 @@
 import { apiClient } from "@/lib/api/client";
 import {
     API_ROUTES,
-    API_V1_BASE_PATH,
-    DEFAULT_LOCAL_API_ORIGIN,
 } from '../routes';
 import { toApiResult, toPaginatedApiResult, type PaginationEnvelope } from '@/lib/api/result';
 import { normalizeServiceStatus } from '@/lib/status/statusNormalization';
 import { toSafeImageArray } from '@/lib/image/imageUrl';
 import type { GeoJSONPoint, LocationLevel } from '@/types/location';
-
-type ServerFetchOptions = RequestInit & {
-    next?: {
-        revalidate?: number;
-        tags?: string[];
-    };
-};
-
-const USER_API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
-
-const buildUserApiUrl = (endpoint: string): string => {
-    const base = USER_API_BASE_URL.endsWith('/') ? USER_API_BASE_URL : `${USER_API_BASE_URL}/`;
-    return new URL(endpoint.replace(/^\//, ''), base).toString();
-};
-
-const fetchUserApiJson = async (
-    endpoint: string,
-    fetchOptions?: ServerFetchOptions
-): Promise<unknown> => {
-    const response = await fetch(buildUserApiUrl(endpoint), {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-            ...((fetchOptions?.headers as Record<string, string> | undefined) ?? {}),
-        },
-        ...fetchOptions,
-    });
-
-    if (!response.ok) {
-        throw new Error(`Failed to load ${endpoint}: ${response.status}`);
-    }
-
-    return response.json().catch(() => null);
-};
+import { createEmptyPageResult, stripEmptyObjectIdFields } from './listingsShared';
+import { fetchUserApiJson, type ServerFetchOptions } from './server';
 
 export interface Service {
     id: string;
@@ -135,30 +100,8 @@ function extractId(value: unknown): string | undefined {
     return undefined;
 }
 
-function stripEmptyObjectIdFields<T extends Record<string, unknown>>(payload: T): T {
-    const cleaned = { ...payload } as Record<string, unknown>;
-    const objectIdFields = ["categoryId", "brandId", "modelId", "locationId"];
-
-    for (const field of objectIdFields) {
-        const value = cleaned[field];
-        if (typeof value === "string" && value.trim() === "") {
-            delete cleaned[field];
-            continue;
-        }
-        if (value && typeof value === "object") {
-            const extractedId = extractId(value);
-            if (typeof extractedId === "string" && extractedId.trim().length > 0) {
-                cleaned[field] = extractedId;
-            } else {
-                delete cleaned[field];
-            }
-        }
-    }
-    return cleaned as T;
-}
-
 export const createService = async (data: ServiceMutationPayload, options?: any): Promise<Service | null> => {
-    const payload = stripEmptyObjectIdFields(data);
+    const payload = stripEmptyObjectIdFields(data, { extractId });
     const { data: service, error } = await toApiResult<Service>(
         apiClient.post(API_ROUTES.USER.SERVICES, payload, { silent: true, ...options })
     );
@@ -169,7 +112,7 @@ export const createService = async (data: ServiceMutationPayload, options?: any)
 };
 
 export const updateService = async (id: string, data: ServiceMutationPayload, options?: any): Promise<Service | null> => {
-    const payload = stripEmptyObjectIdFields(data);
+    const payload = stripEmptyObjectIdFields(data, { extractId });
     const { data: service, error } = await toApiResult<Service>(
         apiClient.put(`${API_ROUTES.USER.SERVICES}/${id}`, payload, { silent: true, ...options })
     );
@@ -239,14 +182,7 @@ export const getServicesPage = async (
             )
             : await toPaginatedApiResult<Service>(apiClient.get(endpoint));
     if (!result) {
-        return {
-            data: [],
-            pagination: {
-                page: Number(filters.page || 1),
-                limit: Number(filters.limit || 20),
-                hasMore: false,
-            },
-        };
+        return createEmptyPageResult<Service>(filters);
     }
 
     return {

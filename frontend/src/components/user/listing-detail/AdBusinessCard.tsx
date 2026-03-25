@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, Store, MapPin, Calendar, ExternalLink } from "lucide-react";
 import { notify } from "@/lib/notify";
 import { ROUTES } from "@/lib/logic/routes";
-import type { UserPage } from "@/lib/routeUtils";
+import type { AdDetailNavigateFn } from "@/lib/routeUtils";
 import type { Ad } from "@/schemas/ad.schema";
 import { formatStableDate } from "@/lib/formatters";
 
@@ -20,15 +20,7 @@ type BusinessCardDetails = {
 interface AdBusinessCardProps {
     businessDetails: BusinessCardDetails | null;
     ad: Ad;
-    navigateTo: (
-        page: UserPage,
-        adId?: string | number,
-        category?: string,
-        sellerIdOrBusinessId?: string,
-        serviceId?: string,
-        sellerId?: string,
-        sellerType?: "business" | "individual"
-    ) => void;
+    navigateTo: AdDetailNavigateFn;
 }
 
 export function AdBusinessCard({ businessDetails, ad, navigateTo }: AdBusinessCardProps) {
@@ -55,43 +47,26 @@ export function AdBusinessCard({ businessDetails, ad, navigateTo }: AdBusinessCa
                     </div>
                 </div>
 
-                {/* Business Details Grid */}
                 <div className="grid grid-cols-1 gap-4 text-[11px]">
-                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/50 border border-slate-100/50">
-                        <div className="h-8 w-8 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                            <Store className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div>
-                            <p className="text-[9px] uppercase font-bold text-slate-300 tracking-wider">Category</p>
-                            <p className="font-bold text-slate-700">{businessDetails.businessCategory}</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/50 border border-slate-100/50">
-                        <div className="h-8 w-8 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                            <MapPin className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div>
-                            <p className="text-[9px] uppercase font-bold text-slate-300 tracking-wider">Location</p>
-                            <p className="font-bold text-slate-700">
-                                {businessDetails.city}, {businessDetails.state}
-                            </p>
-                        </div>
-                    </div>
-
-                    {businessDetails.expiresAt && (
-                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/50 border border-slate-100/50">
-                            <div className="h-8 w-8 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                                <Calendar className="h-4 w-4 text-blue-600" />
+                    {[
+                        { icon: Store, label: "Category", value: businessDetails.businessCategory },
+                        { icon: MapPin, label: "Location", value: `${businessDetails.city}, ${businessDetails.state}` },
+                        businessDetails.expiresAt && { icon: Calendar, label: "Membership", value: `Valid until ${formatStableDate(businessDetails.expiresAt)}` }
+                    ].filter(Boolean).map((detail, idx) => {
+                        if (!detail) return null;
+                        const Icon = detail.icon;
+                        return (
+                            <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/50 border border-slate-100/50">
+                                <div className="h-8 w-8 rounded-xl bg-white flex items-center justify-center shadow-sm shrink-0">
+                                    <Icon className="h-4 w-4 text-blue-600" />
+                                </div>
+                                <div>
+                                    <p className="text-[9px] uppercase font-bold text-slate-300 tracking-wider">{detail.label}</p>
+                                    <p className="font-bold text-slate-700">{detail.value}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-[9px] uppercase font-bold text-slate-300 tracking-wider">Membership</p>
-                                <p className="font-bold text-slate-700">
-                                    Valid until {formatStableDate(businessDetails.expiresAt)}
-                                </p>
-                            </div>
-                        </div>
-                    )}
+                        );
+                    })}
                 </div>
 
                 {/* View All Products Button */}

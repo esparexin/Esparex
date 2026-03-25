@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IBlockedUser extends Document {
     blockerId: mongoose.Types.ObjectId;
@@ -32,16 +33,7 @@ BlockedUserSchema.index(
 );
 BlockedUserSchema.index({ blockedId: 1 }, { name: 'idx_blockeduser_blocked_idx' });
 
-BlockedUserSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    },
-});
+applyToJSONTransform(BlockedUserSchema);
 
 const BlockedUser: Model<IBlockedUser> =
     (getUserConnection().models.BlockedUser as Model<IBlockedUser>) ||

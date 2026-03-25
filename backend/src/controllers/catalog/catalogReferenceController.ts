@@ -202,6 +202,12 @@ export const deleteServiceType = async (req: Request, res: Response) => {
    SCREEN SIZES
    ========================================================== */
 
+const applyScreenSizeNameDefault = (payload: Record<string, unknown>): void => {
+    if (!payload.name && payload.size) {
+        payload.name = `${payload.size} Screen Size`;
+    }
+};
+
 /**
  * Get all screen sizes (with optional category filter)
  */
@@ -290,9 +296,7 @@ export const createScreenSize = async (req: Request, res: Response) => {
             return;
         }
         const payload = { ...parsed.data };
-        if (!payload.name && payload.size) {
-            payload.name = `${payload.size} Screen Size`;
-        }
+        applyScreenSizeNameDefault(payload);
         const relation = await validateScreenSizeRelations({ categoryId: payload.categoryId, brandId: payload.brandId });
         if (!relation.ok) {
             sendContractErrorResponse(req, res, 400, relation.reason || 'Invalid relation');
@@ -321,9 +325,7 @@ export const updateScreenSize = async (req: Request, res: Response) => {
             return;
         }
         const payload = { ...parsed.data };
-        if (!payload.name && payload.size) {
-            payload.name = `${payload.size} Screen Size`;
-        }
+        applyScreenSizeNameDefault(payload);
         const nextCategoryId = payload.categoryId || String(existingSize.categoryId);
         const nextBrandId = payload.brandId ?? (existingSize.brandId ? String(existingSize.brandId) : undefined);
         const relation = await validateScreenSizeRelations({ categoryId: nextCategoryId, brandId: nextBrandId });

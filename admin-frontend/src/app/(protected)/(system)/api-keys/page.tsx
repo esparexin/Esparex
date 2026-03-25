@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { useToast } from "@/context/ToastContext";
 import type { ApiKeyItem } from "@/types/adminSession";
-import { AlertCircle, Plus, ShieldCheck } from "lucide-react";
+import { Plus, ShieldCheck } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
+import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
+import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
+import { StatusChip } from "@/components/ui/StatusChip";
+import { useAdminStatusFilteredList } from "@/hooks/useAdminStatusFilteredList";
 
 const normalizeApiKey = (raw: Record<string, unknown>): ApiKeyItem => ({
   id: String(raw.id || raw._id || ""),
@@ -28,32 +32,22 @@ const normalizeApiKey = (raw: Record<string, unknown>): ApiKeyItem => ({
 
 export default function ApiKeysPage() {
   const { showToast } = useToast();
-  const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [name, setName] = useState("");
   const [scopes, setScopes] = useState("");
   const [newKey, setNewKey] = useState<string | null>(null);
-
-  const fetchApiKeys = async () => {
-    setLoading(true);
-    try {
-      const query = new URLSearchParams({ status: statusFilter, page: "1", limit: "50" }).toString();
-      const response = await adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.API_KEYS}?${query}`);
-      const parsed = parseAdminResponse<Record<string, unknown>>(response);
-      setApiKeys(parsed.items.map(normalizeApiKey));
-      setError("");
-    } catch (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : "Failed to load API keys");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void fetchApiKeys();
-  }, [statusFilter]);
+  const {
+    items: apiKeys,
+    loading,
+    error,
+    statusFilter,
+    setStatusFilter,
+    refresh: fetchApiKeys,
+  } = useAdminStatusFilteredList<ApiKeyItem>({
+    route: ADMIN_ROUTES.API_KEYS,
+    initialStatus: "all",
+    errorMessage: "Failed to load API keys",
+    normalizeItem: normalizeApiKey,
+  });
 
   const createKey = async () => {
     if (!name.trim()) {
@@ -114,7 +108,7 @@ export default function ApiKeysPage() {
     },
     {
       header: "Status",
-      cell: (item) => <span className="text-xs font-semibold uppercase tracking-wide text-slate-700">{item.status}</span>,
+      cell: (item) => <StatusChip status={item.status} />,
     },
     {
       header: "Created",
@@ -182,23 +176,20 @@ export default function ApiKeysPage() {
         )}
       </div>
 
-      <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <select
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
-          className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
-        >
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="revoked">Revoked</option>
-        </select>
-      </div>
+      <AdminFilterToolbar
+        search=""
+        onSearchChange={() => {}}
+        searchPlaceholder="API key search not supported"
+        status={statusFilter}
+        onStatusChange={(value) => setStatusFilter(value)}
+        statusOptions={[
+          { value: "all", label: "All" },
+          { value: "active", label: "Active" },
+          { value: "revoked", label: "Revoked" },
+        ]}
+      />
 
-      {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">
-          <AlertCircle size={16} /> {error}
-        </div>
-      )}
+      <AdminInlineAlert message={error} />
 
       <DataTable
         data={apiKeys}

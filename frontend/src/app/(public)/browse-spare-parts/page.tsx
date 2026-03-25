@@ -1,55 +1,36 @@
-import { Suspense } from 'react';
-import { BrowseSpareParts } from '@/components/user/BrowseSpareParts';
-import { Metadata } from 'next';
-import { getSparePartListingsPage } from "@/lib/api/user/sparePartListings";
-import { getCategories } from "@/lib/api/user/categories";
+import type { Metadata } from "next";
 
-export const revalidate = 60;
+import { BrowseSpareParts } from "@/components/user/BrowseSpareParts";
+import {
+    getSparePartListingsPage,
+    type SparePartListingFilters,
+    type SparePartListingPageResult,
+} from "@/lib/api/user/sparePartListings";
+import {
+    buildStandardCategorySearchFilters,
+    buildBrowsePageMetadata,
+    loadBrowsePageData,
+    renderBrowsePage,
+    type BrowsePageProps,
+} from "@/lib/listings/browseServerPage";
 
-export async function generateMetadata(
-    props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
-): Promise<Metadata> {
-    const searchParams = await props.searchParams;
-    const hasFilters = Object.keys(searchParams).some(k =>
-        ['q', 'page', 'sort', 'category'].includes(k)
-    );
+export const revalidate = 60; // Hardcoded to satisfy Next.js segment config
 
-    return {
-        title: 'Browse Spare Parts | Esparex',
-        description: 'Find spare parts for mobiles and laptops on Esparex. Quality parts from verified sellers.',
-        alternates: {
-            canonical: 'https://esparex.com/browse-spare-parts',
-        },
-        robots: hasFilters ? { index: false, follow: true } : { index: true, follow: true },
-    };
+export async function generateMetadata(props: BrowsePageProps): Promise<Metadata> {
+    return buildBrowsePageMetadata(props, {
+        title: "Browse Spare Parts | Esparex",
+        description: "Find spare parts for mobiles and laptops on Esparex. Quality parts from verified sellers.",
+        canonicalUrl: "https://esparex.com/browse-spare-parts",
+        noIndexFilterKeys: ["q", "page", "sort", "category"],
+    });
 }
 
-export default async function BrowseSparePartsPage(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-    const searchParams = await props.searchParams;
-    const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
-    const query = typeof searchParams.q === 'string' ? searchParams.q : undefined;
+export default async function BrowseSparePartsPage(props: BrowsePageProps) {
+    const data = await loadBrowsePageData<SparePartListingFilters, SparePartListingPageResult>({
+        searchParams: props.searchParams,
+        buildFilters: buildStandardCategorySearchFilters,
+        fetchPage: getSparePartListingsPage,
+    });
 
-    const [initialResults, initialCategories] = await Promise.all([
-        getSparePartListingsPage(
-            {
-                page: 1,
-                limit: 20,
-                ...(query ? { search: query } : {}),
-                ...(category ? { categoryId: category } : {}),
-            },
-            { fetchOptions: { next: { revalidate: 60 } } }
-        ),
-        getCategories({ fetchOptions: { next: { revalidate: 3600 } } }),
-    ]);
-
-    return (
-        <Suspense fallback={null}>
-            <BrowseSpareParts
-                initialCategory={category}
-                initialSearchQuery={query}
-                initialResults={initialResults}
-                initialCategories={initialCategories}
-            />
-        </Suspense>
-    );
+    return renderBrowsePage(BrowseSpareParts, data);
 }

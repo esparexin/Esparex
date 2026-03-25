@@ -3,24 +3,21 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
-import { adminFetch } from "@/lib/api/adminClient";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { AdminLog } from "@/types/audit";
+import { fetchAuditLogs } from "@/lib/api/auditLogs";
 import {
-    Search,
-    Filter,
     Shield,
     User,
     Activity,
     Database,
-    AlertCircle,
     Calendar,
     Terminal
 } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
+import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
+import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
 
 export default function AuditLogsPage() {
     const searchParams = useSearchParams();
@@ -40,16 +37,14 @@ export default function AuditLogsPage() {
     const fetchLogs = async () => {
         setLoading(true);
         try {
-            const query = new URLSearchParams({
-                search,
-                action: actionFilter,
-                page: "1",
-                limit: "50"
-            }).toString();
-
-            const response = await adminFetch<any>(`${ADMIN_ROUTES.AUDIT_LOGS}?${query}`);
-            const parsed = parseAdminResponse<AdminLog>(response);
-            setLogs(parsed.items);
+            setLogs(
+                await fetchAuditLogs({
+                    search,
+                    action: actionFilter,
+                    page: 1,
+                    limit: 50,
+                })
+            );
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to load audit logs");
         } finally {
@@ -149,39 +144,23 @@ export default function AuditLogsPage() {
         >
         <div className="space-y-6">
 
-            <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <div className="relative flex-1 w-full text-black">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search by Action, Admin or ID..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
-                <div className="flex items-center gap-2 w-full md:w-auto text-black">
-                    <Filter className="text-slate-400" size={18} />
-                    <select
-                        className="flex-1 md:w-56 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black"
-                        value={actionFilter}
-                        onChange={(e) => setActionFilter(e.target.value)}
-                    >
-                        <option value="all">Every Action</option>
-                        <option value="LOGIN">Logins</option>
-                        <option value="ADJUST_WALLET">Wallet Changes</option>
-                        <option value="APPROVE_AD">Ad Approvals</option>
-                        <option value="BAN_USER">User Bans</option>
-                        <option value="UPDATE_SYSTEM_CONFIG">Config Changes</option>
-                    </select>
-                </div>
-            </div>
+            <AdminFilterToolbar
+                search={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Search by Action, Admin or ID..."
+                status={actionFilter}
+                onStatusChange={setActionFilter}
+                statusOptions={[
+                    { value: "all", label: "Every Action" },
+                    { value: "LOGIN", label: "Logins" },
+                    { value: "ADJUST_WALLET", label: "Wallet Changes" },
+                    { value: "APPROVE_AD", label: "Ad Approvals" },
+                    { value: "BAN_USER", label: "User Bans" },
+                    { value: "UPDATE_SYSTEM_CONFIG", label: "Config Changes" },
+                ]}
+            />
 
-            {error && (
-                <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2 italic text-black">
-                    <AlertCircle size={18} /> {error}
-                </div>
-            )}
+            <AdminInlineAlert message={error} />
 
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2 text-black">

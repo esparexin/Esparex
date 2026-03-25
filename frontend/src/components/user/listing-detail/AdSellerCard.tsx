@@ -35,63 +35,47 @@ export function AdSellerCard({
         ? `/seller/${encodeURIComponent(sellerProfileId)}`
         : null;
 
+    const isInteractive = ad.isBusiness || !!sellerProfileHref;
+    const panelClassName = `items-center p-2.5 rounded-[1.5rem] border border-transparent ${
+        isInteractive ? "hover:bg-slate-50 group hover:border-slate-100" : ""
+    }`;
+
+    const renderAvatar = () => {
+        if (ad.isBusiness) {
+            return (
+                <div className={`h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center flex-shrink-0 shadow-sm ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
+                    <Building2 className="h-7 w-7 text-white" />
+                </div>
+            );
+        }
+        return (
+            <div className={`h-14 w-14 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 shadow-sm ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
+                <span className="font-bold text-slate-600 text-lg">
+                    {ad.sellerName?.charAt(0) || sellerDisplayName.charAt(0) || 'E'}
+                </span>
+            </div>
+        );
+    };
 
     return (
         <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-[2rem] border border-slate-100/50">
             <CardContent className="p-6 space-y-5">
-                {ad.isBusiness ? (
-                    <SellerIdentityPanel
-                        onClick={() => {
-                            if (ad.businessId) {
-                                navigateTo(ROUTES.PUBLIC_PROFILE, undefined, undefined, ad.businessId);
-                            }
-                        }}
-                        className="items-center p-2.5 rounded-[1.5rem] hover:bg-slate-50 group border border-transparent hover:border-slate-100"
-                        avatar={(
-                            <div className={`h-14 w-14 rounded-${ad.isBusiness ? '2xl' : 'full'} ${ad.isBusiness ? 'bg-slate-900' : 'bg-slate-100'} flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform`}>
-                            <Building2 className="h-7 w-7 text-white" />
-                            </div>
-                        )}
-                        name={sellerDisplayName}
-                        badge={
-                            ad.verified ? (
-                                <Badge className="bg-blue-600 text-white text-[9px] h-4 px-1.5 rounded-md border-none font-bold">
-                                    PRO
-                                </Badge>
-                            ) : undefined
-                        }
-                        subtitle={<p className="text-xs text-slate-400 font-medium">Verified Business Account</p>}
-                        trailing={<ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />}
-                    />
-                ) : sellerProfileHref ? (
-                    <SellerIdentityPanel
-                        href={sellerProfileHref}
-                        className="items-center p-2.5 rounded-[1.5rem] hover:bg-slate-50 group border border-transparent hover:border-slate-100"
-                        avatar={(
-                            <div className={`h-14 w-14 rounded-${ad.isBusiness ? '2xl' : 'full'} ${ad.isBusiness ? 'bg-slate-900' : 'bg-slate-100'} flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform`}>
-                                <span className="font-bold text-slate-600 text-lg">
-                                    {ad.sellerName?.charAt(0) || sellerDisplayName.charAt(0) || 'E'}
-                                </span>
-                            </div>
-                        )}
-                        name={sellerDisplayName}
-                        subtitle={<p className="text-xs text-slate-400 font-medium">Registered Member</p>}
-                        trailing={<ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />}
-                    />
-                ) : (
-                    <SellerIdentityPanel
-                        className="items-center p-2.5 rounded-[1.5rem] border border-transparent"
-                        avatar={(
-                            <div className={`h-14 w-14 rounded-${ad.isBusiness ? '2xl' : 'full'} ${ad.isBusiness ? 'bg-slate-900' : 'bg-slate-100'} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-                                <span className="font-bold text-slate-600 text-lg">
-                                    {ad.sellerName?.charAt(0) || sellerDisplayName.charAt(0) || 'E'}
-                                </span>
-                            </div>
-                        )}
-                        name={sellerDisplayName}
-                        subtitle={<p className="text-xs text-slate-400 font-medium">Registered Member</p>}
-                    />
-                )}
+                <SellerIdentityPanel
+                    onClick={ad.isBusiness && ad.businessId ? () => navigateTo(ROUTES.PUBLIC_PROFILE, undefined, undefined, ad.businessId) : undefined}
+                    href={!ad.isBusiness && sellerProfileHref ? sellerProfileHref : undefined}
+                    className={panelClassName}
+                    avatar={renderAvatar()}
+                    name={sellerDisplayName}
+                    subtitle={
+                        <p className="text-xs text-slate-400 font-medium">
+                            {ad.isBusiness ? "Verified Business Account" : "Registered Member"}
+                        </p>
+                    }
+                    badge={ad.isBusiness && ad.verified ? (
+                        <Badge className="bg-blue-600 text-white text-[9px] h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
+                    ) : undefined}
+                    trailing={isInteractive ? <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" /> : undefined}
+                />
 
                 {isChatLocked && (
                     <div className="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">

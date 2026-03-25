@@ -45,6 +45,107 @@ const STATUS_PILL_TABS_ADS = ["live", "pending", "sold", "expired", "rejected", 
 const STATUS_PILL_TABS_SERVICES = ["live", "pending", "expired", "rejected", "deactivated"] as const;
 const STATUS_PILL_TABS_SPARE = ["live", "pending", "sold", "expired", "rejected", "deactivated"] as const;
 
+const formatStatusLabel = (status: string) =>
+    status.charAt(0).toUpperCase() + status.slice(1);
+
+interface StatusPillTabsProps<TStatus extends string> {
+    tabs: readonly TStatus[];
+    selected: TStatus;
+    onSelect: (status: TStatus) => void;
+    getCount?: (status: TStatus) => number;
+}
+
+function StatusPillTabs<TStatus extends string>({
+    tabs,
+    selected,
+    onSelect,
+    getCount,
+}: StatusPillTabsProps<TStatus>) {
+    return (
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-3">
+            {tabs.map((status) => (
+                <button
+                    key={status}
+                    onClick={() => onSelect(status)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${selected === status
+                        ? "bg-slate-900 text-white shadow"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                >
+                    {formatStatusLabel(status)}
+                    {getCount ? (
+                        <span className="ml-1.5 text-[10px] opacity-60">
+                            {getCount(status)}
+                        </span>
+                    ) : null}
+                </button>
+            ))}
+        </div>
+    );
+}
+
+interface ListingSectionProps<TStatus extends string, TItem> {
+    statusTabs: readonly TStatus[];
+    selectedStatus: TStatus;
+    onStatusChange: (status: TStatus) => void;
+    loading: boolean;
+    error?: unknown;
+    errorMessage: string;
+    onRetry?: () => void;
+    items: TItem[];
+    getItemKey: (item: TItem) => string | number;
+    renderItem: (item: TItem) => React.ReactNode;
+    emptyState: {
+        icon: React.ReactNode;
+        title: string;
+        description: string;
+        cta?: React.ReactNode;
+    };
+}
+
+function ListingSection<TStatus extends string, TItem>({
+    statusTabs,
+    selectedStatus,
+    onStatusChange,
+    loading,
+    error,
+    errorMessage,
+    onRetry,
+    items,
+    getItemKey,
+    renderItem,
+    emptyState,
+}: ListingSectionProps<TStatus, TItem>) {
+    return (
+        <>
+            <StatusPillTabs
+                tabs={statusTabs}
+                selected={selectedStatus}
+                onSelect={onStatusChange}
+            />
+
+            {loading ? (
+                <LoadingSkeleton />
+            ) : error ? (
+                <ErrorState message={errorMessage} onRetry={onRetry} />
+            ) : items.length === 0 ? (
+                <EmptyState
+                    icon={emptyState.icon}
+                    title={emptyState.title}
+                    description={emptyState.description}
+                    cta={emptyState.cta}
+                />
+            ) : (
+                <div className="grid grid-cols-1 gap-3">
+                    {items.map((item) => (
+                        <div key={getItemKey(item)}>{renderItem(item)}</div>
+                    ))}
+                </div>
+            )}
+        </>
+    );
+}
+
 // ── Props ─────────────────────────────────────────────────────────────────────
 export interface MyListingsTabProps {
     // Ads data — fetched in parent (useMyAds)
@@ -128,6 +229,26 @@ export function MyListingsTab({
         }
     };
 
+    const buildBusinessListingCta = (options: {
+        postLabel: string;
+        lockedLabel: string;
+        onPost: () => void;
+    }) => {
+        if (isBusinessApproved) {
+            return (
+                <Button variant="outline" size="sm" onClick={options.onPost}>
+                    <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> {options.postLabel}
+                </Button>
+            );
+        }
+
+        return (
+            <Button variant="outline" size="sm" onClick={onRegisterBusiness}>
+                {options.lockedLabel}
+            </Button>
+        );
+    };
+
     const SUB_TABS: { value: ListingSubTab; label: string; icon: React.ReactNode; color: string }[] = [
         { value: "ads", label: "Ads", icon: <Package className="h-4 w-4" />, color: "blue" },
         { value: "services", label: "Services", icon: <Wrench className="h-4 w-4" />, color: "violet" },
@@ -206,22 +327,12 @@ export function MyListingsTab({
                     {/* ════════════════════ ADS ════════════════════ */}
                     {subTab === "ads" && (
                         <>
-                            {/* Status filter pills */}
-                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-3">
-                                {STATUS_PILL_TABS_ADS.map(s => (
-                                    <button
-                                        key={s}
-                                        onClick={() => setMyAdsStatusTab(s)}
-                                        className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${myAdsStatusTab === s
-                                            ? "bg-slate-900 text-white shadow"
-                                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                                            }`}
-                                    >
-                                        {s.charAt(0).toUpperCase() + s.slice(1)}
-                                        <span className="ml-1.5 opacity-60 text-[10px]">{adCounts[s] ?? 0}</span>
-                                    </button>
-                                ))}
-                            </div>
+                            <StatusPillTabs
+                                tabs={STATUS_PILL_TABS_ADS}
+                                selected={myAdsStatusTab}
+                                onSelect={setMyAdsStatusTab}
+                                getCount={(status) => adCounts[status] ?? 0}
+                            />
 
                             {/* Content */}
                             {loadingAds ? (
@@ -323,125 +434,81 @@ export function MyListingsTab({
 
                     {/* ════════════════════ SERVICES ════════════════════ */}
                     {subTab === "services" && (
-                        <>
-                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-3">
-                                {STATUS_PILL_TABS_SERVICES.map(s => (
-                                    <button
-                                        key={s}
-                                        onClick={() => setServicesStatus(s as MyServicesStatus)}
-                                        className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${servicesStatus === s
-                                            ? "bg-slate-900 text-white shadow"
-                                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                                            }`}
-                                    >
-                                        {s.charAt(0).toUpperCase() + s.slice(1)}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {loadingServices ? (
-                                <LoadingSkeleton />
-                            ) : servicesError ? (
-                                <ErrorState message="Failed to load services." onRetry={fetchMyServices} />
-                            ) : myServices.length === 0 ? (
-                                <EmptyState
-                                    icon={<Wrench className="h-12 w-12 text-slate-300" />}
-                                    title={`No ${servicesStatus} services`}
-                                    description={
-                                        servicesStatus === "live"
-                                            ? "List your repair or maintenance services to attract customers."
-                                            : `${servicesStatus.charAt(0).toUpperCase() + servicesStatus.slice(1)} services will appear here.`
-                                    }
-                                    cta={servicesStatus === "live" ? (
-                                        isBusinessApproved ? (
-                                            <Button variant="outline" size="sm" onClick={() => navigateTo("post-service")}>
-                                                <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> Post a Service
-                                            </Button>
-                                        ) : (
-                                            <Button variant="outline" size="sm" onClick={onRegisterBusiness}>
-                                                Register Business to Post Services
-                                            </Button>
-                                        )
-                                    ) : undefined}
+                        <ListingSection
+                            statusTabs={STATUS_PILL_TABS_SERVICES}
+                            selectedStatus={servicesStatus}
+                            onStatusChange={setServicesStatus}
+                            loading={loadingServices}
+                            error={servicesError}
+                            errorMessage="Failed to load services."
+                            onRetry={fetchMyServices}
+                            items={myServices}
+                            getItemKey={(service) => service.id}
+                            renderItem={(service) => (
+                                <ServiceCard
+                                    service={service}
+                                    getStatusBadge={getStatusBadge}
+                                    onDelete={() => handleDeleteService(service.id)}
+                                    onRepost={() => handleRepostService(service.id)}
                                 />
-                            ) : (
-                                <div className="grid grid-cols-1 gap-3">
-                                    {myServices.map((service: Service) => (
-                                        <ServiceCard
-                                            key={service.id}
-                                            service={service}
-                                            getStatusBadge={getStatusBadge}
-                                            onDelete={() => handleDeleteService(service.id)}
-                                            onRepost={() => handleRepostService(service.id)}
-                                        />
-                                    ))}
-                                </div>
                             )}
-                        </>
+                            emptyState={{
+                                icon: <Wrench className="h-12 w-12 text-slate-300" />,
+                                title: `No ${servicesStatus} services`,
+                                description: servicesStatus === "live"
+                                    ? "List your repair or maintenance services to attract customers."
+                                    : `${formatStatusLabel(servicesStatus)} services will appear here.`,
+                                cta: servicesStatus === "live"
+                                    ? buildBusinessListingCta({
+                                        postLabel: "Post a Service",
+                                        lockedLabel: "Register Business to Post Services",
+                                        onPost: () => navigateTo("post-service"),
+                                    })
+                                    : undefined,
+                            }}
+                        />
                     )}
 
                     {/* ════════════════════ SPARE PARTS ════════════════════ */}
                     {subTab === "spare-parts" && (
-                        <>
-                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-3">
-                                {STATUS_PILL_TABS_SPARE.map(s => (
-                                    <button
-                                        key={s}
-                                        onClick={() => setSpareStatus(s as MySparePartsStatus)}
-                                        className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${spareStatus === s
-                                            ? "bg-slate-900 text-white shadow"
-                                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                                            }`}
-                                    >
-                                        {s.charAt(0).toUpperCase() + s.slice(1)}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {loadingSpare ? (
-                                <LoadingSkeleton />
-                            ) : spareError ? (
-                                <ErrorState message="Failed to load spare parts." onRetry={fetchMySpare} />
-                            ) : mySpare.length === 0 ? (
-                                <EmptyState
-                                    icon={<CircuitBoard className="h-12 w-12 text-slate-300" />}
-                                    title={`No ${spareStatus} spare part listings`}
-                                    description={
-                                        spareStatus === "live"
-                                            ? "List spare parts to sell to repair shops and customers."
-                                            : `${spareStatus.charAt(0).toUpperCase() + spareStatus.slice(1)} listings will appear here.`
-                                    }
-                                    cta={spareStatus === "live" ? (
-                                        isBusinessApproved ? (
-                                            <Button variant="outline" size="sm" onClick={() => navigateTo("post-spare-part-listing")}>
-                                                <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> Post Spare Part
-                                            </Button>
-                                        ) : (
-                                            <Button variant="outline" size="sm" onClick={onRegisterBusiness}>
-                                                Register Business to Post Spare Parts
-                                            </Button>
-                                        )
-                                    ) : undefined}
+                        <ListingSection
+                            statusTabs={STATUS_PILL_TABS_SPARE}
+                            selectedStatus={spareStatus}
+                            onStatusChange={setSpareStatus}
+                            loading={loadingSpare}
+                            error={spareError}
+                            errorMessage="Failed to load spare parts."
+                            onRetry={fetchMySpare}
+                            items={mySpare}
+                            getItemKey={(listing) => listing.id}
+                            renderItem={(listing) => (
+                                <SparePartCard
+                                    listing={listing}
+                                    getStatusBadge={getStatusBadge}
+                                    onDelete={() => handleDeleteSpare(listing.id)}
+                                    onMarkSold={() => {
+                                        setSpareToSell(listing);
+                                        setSparesSoldReason(null);
+                                        setIsSparesSoldOpen(true);
+                                    }}
+                                    onRepost={() => handleRepostSpare(listing.id)}
                                 />
-                            ) : (
-                                <div className="grid grid-cols-1 gap-3">
-                                    {mySpare.map((listing: SparePartListing) => (
-                                        <SparePartCard
-                                            key={listing.id}
-                                            listing={listing}
-                                            getStatusBadge={getStatusBadge}
-                                            onDelete={() => handleDeleteSpare(listing.id)}
-                                            onMarkSold={() => {
-                                                setSpareToSell(listing);
-                                                setSparesSoldReason(null);
-                                                setIsSparesSoldOpen(true);
-                                            }}
-                                            onRepost={() => handleRepostSpare(listing.id)}
-                                        />
-                                    ))}
-                                </div>
                             )}
-                        </>
+                            emptyState={{
+                                icon: <CircuitBoard className="h-12 w-12 text-slate-300" />,
+                                title: `No ${spareStatus} spare part listings`,
+                                description: spareStatus === "live"
+                                    ? "List spare parts to sell to repair shops and customers."
+                                    : `${formatStatusLabel(spareStatus)} listings will appear here.`,
+                                cta: spareStatus === "live"
+                                    ? buildBusinessListingCta({
+                                        postLabel: "Post Spare Part",
+                                        lockedLabel: "Register Business to Post Spare Parts",
+                                        onPost: () => navigateTo("post-spare-part-listing"),
+                                    })
+                                    : undefined,
+                            }}
+                        />
                     )}
                 </CardContent>
             </Card>
@@ -465,60 +532,28 @@ export function MyListingsTab({
             </AlertDialog>
 
             {/* ── Mark as Sold Modal (Ads) ── */}
-            <Dialog open={isSoldOpen} onOpenChange={setIsSoldOpen}>
-                <DialogContent className="max-w-sm">
-                    <DialogHeader><DialogTitle>Mark as Sold</DialogTitle></DialogHeader>
-                    <p className="text-sm text-slate-500 mb-3">How was this ad sold?</p>
-                    <div className="space-y-2">
-                        {SOLD_REASON_OPTIONS.map(opt => (
-                            <label
-                                key={opt.value}
-                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${soldReason === opt.value ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-slate-300"}`}
-                            >
-                                <input type="radio" name="soldReason" value={opt.value}
-                                    checked={soldReason === opt.value} onChange={() => setSoldReason(opt.value)}
-                                    className="accent-blue-600"
-                                />
-                                <span className="text-sm">{opt.label}</span>
-                            </label>
-                        ))}
-                    </div>
-                    <DialogFooter className="mt-4">
-                        <Button variant="outline" onClick={() => setIsSoldOpen(false)} disabled={isSelling}>Cancel</Button>
-                        <Button onClick={confirmSold} disabled={!soldReason || isSelling} className="bg-green-600 hover:bg-green-700 text-white">
-                            {isSelling ? "Updating…" : "Confirm"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <SoldReasonDialog
+                open={isSoldOpen}
+                onOpenChange={setIsSoldOpen}
+                description="How was this ad sold?"
+                inputName="soldReason"
+                selectedReason={soldReason}
+                onReasonChange={setSoldReason}
+                isSubmitting={isSelling}
+                onConfirm={confirmSold}
+            />
 
             {/* ── Mark as Sold Modal (Spare Parts) ── */}
-            <Dialog open={isSparesSoldOpen} onOpenChange={setIsSparesSoldOpen}>
-                <DialogContent className="max-w-sm">
-                    <DialogHeader><DialogTitle>Mark as Sold</DialogTitle></DialogHeader>
-                    <p className="text-sm text-slate-500 mb-3">How was this spare part sold?</p>
-                    <div className="space-y-2">
-                        {SOLD_REASON_OPTIONS.map(opt => (
-                            <label
-                                key={opt.value}
-                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${sparesSoldReason === opt.value ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-slate-300"}`}
-                            >
-                                <input type="radio" name="sparesSoldReason" value={opt.value}
-                                    checked={sparesSoldReason === opt.value} onChange={() => setSparesSoldReason(opt.value)}
-                                    className="accent-blue-600"
-                                />
-                                <span className="text-sm">{opt.label}</span>
-                            </label>
-                        ))}
-                    </div>
-                    <DialogFooter className="mt-4">
-                        <Button variant="outline" onClick={() => setIsSparesSoldOpen(false)} disabled={isSpareSelling}>Cancel</Button>
-                        <Button onClick={confirmSoldSpare} disabled={!sparesSoldReason || isSpareSelling} className="bg-green-600 hover:bg-green-700 text-white">
-                            {isSpareSelling ? "Updating…" : "Confirm"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <SoldReasonDialog
+                open={isSparesSoldOpen}
+                onOpenChange={setIsSparesSoldOpen}
+                description="How was this spare part sold?"
+                inputName="sparesSoldReason"
+                selectedReason={sparesSoldReason}
+                onReasonChange={setSparesSoldReason}
+                isSubmitting={isSpareSelling}
+                onConfirm={confirmSoldSpare}
+            />
         </div>
     );
 }
@@ -547,14 +582,12 @@ function ServiceCard({
 
     return (
         <div className="flex gap-3 p-3 rounded-xl border bg-white hover:border-violet-200 hover:shadow-sm transition-all group">
-            {/* Thumbnail */}
-            <div className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-violet-50 flex items-center justify-center">
-                {thumbnail ? (
-                    <img src={thumbnail} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                ) : (
-                    <Wrench className="w-8 h-8 text-violet-300" />
-                )}
-            </div>
+            <SimpleListingThumbnail
+                thumbnail={thumbnail}
+                title={service.title}
+                className="bg-violet-50"
+                fallbackIcon={<Wrench className="w-8 h-8 text-violet-300" />}
+            />
 
             {/* Details */}
             <div className="flex flex-1 flex-col justify-between min-w-0">
@@ -610,26 +643,12 @@ function ServiceCard({
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-end gap-2 mt-2">
-                    {(service.status === "expired" || service.status === "rejected") && onRepost && (
-                        <Button variant="outline" size="sm" className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
-                            onClick={onRepost}
-                        >
-                            <RefreshCw className="h-3 w-3 mr-1" /> Renew
-                        </Button>
-                    )}
-                    <Link href={`/edit-service/${service.id}`}>
-                        <Button variant="outline" size="sm" className="h-7 text-xs">
-                            <Edit2 className="h-3 w-3 mr-1" /> Edit
-                        </Button>
-                    </Link>
-                    <Button variant="ghost" size="sm"
-                        className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={onDelete}
-                    >
-                        <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                </div>
+                <ListingManagementActions
+                    showRenew={service.status === "expired" || service.status === "rejected"}
+                    onRenew={onRepost}
+                    editHref={`/edit-service/${service.id}`}
+                    onDelete={onDelete}
+                />
             </div>
         </div>
     );
@@ -652,14 +671,12 @@ function SparePartCard({
 
     return (
         <div className="flex gap-3 p-3 rounded-xl border bg-white hover:border-teal-200 hover:shadow-sm transition-all group">
-            {/* Thumbnail */}
-            <div className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-teal-50 flex items-center justify-center">
-                {thumbnail ? (
-                    <img src={thumbnail} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                ) : (
-                    <CircuitBoard className="w-8 h-8 text-teal-300" />
-                )}
-            </div>
+            <SimpleListingThumbnail
+                thumbnail={thumbnail}
+                title={listing.title}
+                className="bg-teal-50"
+                fallbackIcon={<CircuitBoard className="w-8 h-8 text-teal-300" />}
+            />
 
             {/* Details */}
             <div className="flex flex-1 flex-col justify-between min-w-0">
@@ -683,41 +700,95 @@ function SparePartCard({
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-end gap-2 mt-2">
-                    {listing.status === "live" && (
+                <ListingManagementActions
+                    leadingAction={listing.status === "live" ? (
                         <Button size="sm" variant="outline"
                             className="h-7 text-xs text-green-700 border-green-200 hover:bg-green-50"
                             onClick={onMarkSold}
                         >
                             <CheckSquare className="h-3 w-3 mr-1" /> Mark Sold
                         </Button>
-                    )}
-                    {(listing.status === "expired" || listing.status === "rejected") && onRepost && (
-                        <Button size="sm" variant="outline"
-                            className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
-                            onClick={onRepost}
-                        >
-                            <RefreshCw className="h-3 w-3 mr-1" /> Renew
-                        </Button>
-                    )}
-                    <Link href={`/edit-spare-part/${listing.id}`}>
-                        <Button variant="outline" size="sm" className="h-7 text-xs">
-                            <Edit2 className="h-3 w-3 mr-1" /> Edit
-                        </Button>
-                    </Link>
-                    <Button variant="ghost" size="sm"
-                        className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={onDelete}
-                    >
-                        <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                </div>
+                    ) : null}
+                    showRenew={listing.status === "expired" || listing.status === "rejected"}
+                    onRenew={onRepost}
+                    editHref={`/edit-spare-part/${listing.id}`}
+                    onDelete={onDelete}
+                />
             </div>
         </div>
     );
 }
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
+function SimpleListingThumbnail({
+    thumbnail,
+    title,
+    className,
+    fallbackIcon,
+}: {
+    thumbnail?: string;
+    title: string;
+    className: string;
+    fallbackIcon: React.ReactNode;
+}) {
+    return (
+        <div className={`relative w-20 h-20 shrink-0 rounded-lg overflow-hidden flex items-center justify-center ${className}`}>
+            {thumbnail ? (
+                <img
+                    src={thumbnail}
+                    alt={title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
+            ) : (
+                fallbackIcon
+            )}
+        </div>
+    );
+}
+
+function ListingManagementActions({
+    leadingAction,
+    showRenew,
+    onRenew,
+    editHref,
+    onDelete,
+}: {
+    leadingAction?: React.ReactNode;
+    showRenew?: boolean;
+    onRenew?: () => void;
+    editHref: string;
+    onDelete: () => void;
+}) {
+    return (
+        <div className="flex items-center justify-end gap-2 mt-2">
+            {leadingAction}
+            {showRenew && onRenew ? (
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                    onClick={onRenew}
+                >
+                    <RefreshCw className="h-3 w-3 mr-1" /> Renew
+                </Button>
+            ) : null}
+            <Link href={editHref}>
+                <Button variant="outline" size="sm" className="h-7 text-xs">
+                    <Edit2 className="h-3 w-3 mr-1" /> Edit
+                </Button>
+            </Link>
+            <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                onClick={onDelete}
+            >
+                <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+        </div>
+    );
+}
+
 function LoadingSkeleton() {
     return (
         <div className="space-y-3">
@@ -757,5 +828,58 @@ function ErrorState({ message, onRetry }: { message: string; onRetry?: () => voi
                 <Button onClick={onRetry} variant="outline" size="sm" className="mt-4">Retry</Button>
             )}
         </div>
+    );
+}
+
+function SoldReasonDialog({
+    open,
+    onOpenChange,
+    description,
+    inputName,
+    selectedReason,
+    onReasonChange,
+    isSubmitting,
+    onConfirm,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    description: string;
+    inputName: string;
+    selectedReason: SoldReason | null;
+    onReasonChange: (reason: SoldReason) => void;
+    isSubmitting: boolean;
+    onConfirm: () => void;
+}) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-sm">
+                <DialogHeader><DialogTitle>Mark as Sold</DialogTitle></DialogHeader>
+                <p className="text-sm text-slate-500 mb-3">{description}</p>
+                <div className="space-y-2">
+                    {SOLD_REASON_OPTIONS.map((option) => (
+                        <label
+                            key={option.value}
+                            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${selectedReason === option.value ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-slate-300"}`}
+                        >
+                            <input
+                                type="radio"
+                                name={inputName}
+                                value={option.value}
+                                checked={selectedReason === option.value}
+                                onChange={() => onReasonChange(option.value)}
+                                className="accent-blue-600"
+                            />
+                            <span className="text-sm">{option.label}</span>
+                        </label>
+                    ))}
+                </div>
+                <DialogFooter className="mt-4">
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>Cancel</Button>
+                    <Button onClick={onConfirm} disabled={!selectedReason || isSubmitting} className="bg-green-600 hover:bg-green-700 text-white">
+                        {isSubmitting ? "Updating…" : "Confirm"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

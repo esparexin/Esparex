@@ -3,10 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
-import { adminFetch } from "@/lib/api/adminClient";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { Transaction, FinanceStats } from "@/types/transaction";
+import { fetchFinanceStats, fetchFinanceTransactions } from "@/lib/api/finance";
 import {
     DollarSign,
     Search,
@@ -35,21 +33,17 @@ export default function FinancePage() {
     const fetchFinanceData = async () => {
         setLoading(true);
         try {
-            const query = new URLSearchParams({
-                search,
-                status: statusFilter,
-                page: "1",
-                limit: "20"
-            }).toString();
-
-            const [transRes, statsRes] = await Promise.all([
-                adminFetch<any>(`${ADMIN_ROUTES.FINANCE_TRANSACTIONS}?${query}`),
-                adminFetch<any>(ADMIN_ROUTES.FINANCE_STATS)
+            const [transactionsData, statsData] = await Promise.all([
+                fetchFinanceTransactions({
+                    search,
+                    status: statusFilter,
+                    page: 1,
+                    limit: 20,
+                }),
+                fetchFinanceStats(),
             ]);
-            const parsedTransactions = parseAdminResponse<Transaction>(transRes);
-            const parsedStats = parseAdminResponse<never, FinanceStats>(statsRes);
-            setTransactions(parsedTransactions.items);
-            setStats(parsedStats.data);
+            setTransactions(transactionsData);
+            setStats(statsData);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to load finance data");
         } finally {

@@ -1,5 +1,6 @@
 import { Schema, Document, Model } from 'mongoose';
 import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 import {
     LOCATION_EVENT_REASONS,
     LOCATION_EVENT_SOURCES,
@@ -51,16 +52,6 @@ const LocationEvent: Model<ILocationEvent> =
     getUserConnection().models.LocationEvent ||
     getUserConnection().model<ILocationEvent>('LocationEvent', LocationEventSchema);
 
-// toJSON Transform - Convert _id to id
-LocationEventSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(LocationEventSchema);
 
 export default LocationEvent;

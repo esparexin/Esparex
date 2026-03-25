@@ -1,5 +1,6 @@
 import { Schema, Document } from 'mongoose';
 import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IJobLog extends Document {
     jobName: string;
@@ -33,16 +34,6 @@ JobLogSchema.index({ jobName: 1 }, { name: 'idx_joblog_name_idx' });
 JobLogSchema.index({ status: 1 }, { name: 'idx_joblog_status_idx' });
 JobLogSchema.index({ startedAt: -1 }, { name: 'idx_joblog_startedAt_idx' });
 
-// toJSON Transform - Convert _id to id
-JobLogSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        json.id = String(json._id);
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(JobLogSchema);
 
 export default getAdminConnection().models.JobLog || getAdminConnection().model<IJobLog>('JobLog', JobLogSchema);

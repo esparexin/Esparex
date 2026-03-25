@@ -23,7 +23,14 @@ export type SpecificFilter = {
   options?: SpecificFilterOption[];
 };
 
-interface SearchFiltersPanelProps {
+type FilterCheckboxOption = {
+  id: string;
+  label: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+};
+
+export interface SearchFiltersPanelSharedProps {
   selectedCategory: string | null;
   priceRange: [number, number];
   setPriceRange: (val: [number, number]) => void;
@@ -37,6 +44,33 @@ interface SearchFiltersPanelProps {
   dynamicSpecificFilters?: SpecificFilter[];
   onApply?: () => void;
   onReset: () => void;
+}
+
+interface SearchFiltersPanelProps extends SearchFiltersPanelSharedProps {}
+
+function FilterCheckboxList({
+  options,
+  className = "space-y-2 max-h-56 overflow-y-auto pr-2 scrollbar-hide",
+}: {
+  options: FilterCheckboxOption[];
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      {options.map((option) => (
+        <div key={option.id} className="flex items-center space-x-2">
+          <Checkbox
+            id={option.id}
+            checked={option.checked}
+            onCheckedChange={(checked) => option.onCheckedChange(checked === true)}
+          />
+          <label htmlFor={option.id} className="text-sm font-medium leading-none cursor-pointer">
+            {option.label}
+          </label>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function SearchFiltersPanel({
@@ -73,36 +107,23 @@ export function SearchFiltersPanel({
               </Label>
 
               {filter.type === "checkbox" && filter.options && (
-                <div className="space-y-2 max-h-40 overflow-y-auto pr-2 scrollbar-hide">
-                  {filter.options.map((option) => (
-                    <div key={option.value} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`${filter.name}-${option.value}`}
-                        checked={categoryFilters[filter.name]?.includes(option.value) || false}
-                        onCheckedChange={(checked) => {
-                          const currentValues = categoryFilters[filter.name] || [];
-                          if (checked) {
-                            setCategoryFilters({
-                              ...categoryFilters,
-                              [filter.name]: [...currentValues, option.value],
-                            });
-                          } else {
-                            setCategoryFilters({
-                              ...categoryFilters,
-                              [filter.name]: currentValues.filter((v) => v !== option.value),
-                            });
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor={`${filter.name}-${option.value}`}
-                        className="text-sm font-medium leading-none cursor-pointer"
-                      >
-                        {option.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+                <FilterCheckboxList
+                  className="space-y-2 max-h-40 overflow-y-auto pr-2 scrollbar-hide"
+                  options={filter.options.map((option) => ({
+                    id: `${filter.name}-${option.value}`,
+                    label: option.label,
+                    checked: categoryFilters[filter.name]?.includes(option.value) || false,
+                    onCheckedChange: (checked) => {
+                      const currentValues = categoryFilters[filter.name] || [];
+                      setCategoryFilters({
+                        ...categoryFilters,
+                        [filter.name]: checked
+                          ? [...currentValues, option.value]
+                          : currentValues.filter((value) => value !== option.value),
+                      });
+                    },
+                  }))}
+                />
               )}
             </div>
           ))}
@@ -148,25 +169,21 @@ export function SearchFiltersPanel({
                 <span className="font-semibold text-sm">Brands</span>
               </div>
             </AccordionTrigger>
-            <AccordionContent className="space-y-2 max-h-56 overflow-y-auto pr-2 scrollbar-hide">
-              {availableBrands.map((brand) => (
-                <div key={brand} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`brand-${brand}`}
-                    checked={selectedBrands.includes(brand)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedBrands([...selectedBrands, brand]);
-                      } else {
-                        setSelectedBrands(selectedBrands.filter((b) => b !== brand));
-                      }
-                    }}
-                  />
-                  <label htmlFor={`brand-${brand}`} className="text-sm font-medium leading-none cursor-pointer">
-                    {brand}
-                  </label>
-                </div>
-              ))}
+            <AccordionContent>
+              <FilterCheckboxList
+                options={availableBrands.map((brand) => ({
+                  id: `brand-${brand}`,
+                  label: brand,
+                  checked: selectedBrands.includes(brand),
+                  onCheckedChange: (checked) => {
+                    setSelectedBrands(
+                      checked
+                        ? [...selectedBrands, brand]
+                        : selectedBrands.filter((selectedBrand) => selectedBrand !== brand)
+                    );
+                  },
+                }))}
+              />
             </AccordionContent>
           </AccordionItem>
         )}

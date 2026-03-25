@@ -19,6 +19,33 @@ import {
 import { consumeCredit, credit as creditWallet } from '../../services/WalletService';
 import { PLAN_STATUS } from '../../../../shared/enums/planStatus';
 
+const requireOwnedAlert = async (req: Request, res: Response, options: { allowAdmin?: boolean } = {}) => {
+    const user = req.user;
+    const admin = options.allowAdmin ? (req as Request & { admin?: { id?: string; _id?: string } }).admin : undefined;
+    
+    if (!user && !admin) {
+        sendErrorResponse(req, res, 401, 'Unauthorized');
+        return null;
+    }
+
+    const id = getRequiredAlertId(req);
+    const alert = await SmartAlertModel.findById(id);
+    if (!alert) {
+        sendErrorResponse(req, res, 404, 'Alert not found');
+        return null;
+    }
+
+    const requestUserId = user ? (user.id || user._id).toString() : null;
+    const isAdminRequest = Boolean(admin);
+
+    if (!isAdminRequest && requestUserId && alert.userId.toString() !== requestUserId) {
+        sendErrorResponse(req, res, 403, 'Unauthorized');
+        return null;
+    }
+
+    return { alert, id, ownerId: alert.userId.toString() };
+};
+
 const resolvePlanLimit = async (userId: string) => {
     const activePlanIds = await UserPlanModel.find({
         userId,
@@ -121,23 +148,9 @@ export const createSmartAlert = async (req: Request, res: Response) => {
 
 export const updateSmartAlert = async (req: Request, res: Response) => {
     try {
-        const user = req.user;
-        if (!user) {
-            sendErrorResponse(req, res, 401, 'Unauthorized');
-            return;
-        }
-
-        const id = getRequiredAlertId(req);
-        const alert = await SmartAlertModel.findById(id);
-        if (!alert) {
-            sendErrorResponse(req, res, 404, 'Alert not found');
-            return;
-        }
-
-        if (alert.userId.toString() !== (user.id || user._id).toString()) {
-            sendErrorResponse(req, res, 403, 'Unauthorized');
-            return;
-        }
+        const auth = await requireOwnedAlert(req, res);
+        if (!auth) return;
+        const { alert } = auth;
 
         const allowedFields = ['criteria', 'frequency', 'name', 'coordinates', 'radiusKm', 'notificationChannels'];
         const safeBody: SmartAlertPayload = {};
@@ -178,29 +191,9 @@ export const updateSmartAlert = async (req: Request, res: Response) => {
 
 export const deleteSmartAlert = async (req: Request, res: Response) => {
     try {
-        const user = req.user;
-        const admin = (req as Request & { admin?: { id?: string; _id?: string } }).admin;
-        if (!user && !admin) {
-            sendErrorResponse(req, res, 401, 'Unauthorized');
-            return;
-        }
-
-        const id = getRequiredAlertId(req);
-        const alert = await SmartAlertModel.findById(id);
-        if (!alert) {
-            sendErrorResponse(req, res, 404, 'Alert not found');
-            return;
-        }
-
-        const requestUserId = user ? (user.id || user._id).toString() : null;
-        const isAdminRequest = Boolean(admin);
-
-        if (!isAdminRequest && requestUserId && alert.userId.toString() !== requestUserId) {
-            sendErrorResponse(req, res, 403, 'Unauthorized');
-            return;
-        }
-
-        const ownerId = alert.userId.toString();
+        const auth = await requireOwnedAlert(req, res, { allowAdmin: true });
+        if (!auth) return;
+        const { alert, id, ownerId } = auth;
         const activeAlertCount = await SmartAlertModel.countDocuments({
             userId: ownerId,
             isActive: true
@@ -230,24 +223,9 @@ export const deleteSmartAlert = async (req: Request, res: Response) => {
 
 export const toggleSmartAlertStatus = async (req: Request, res: Response) => {
     try {
-        const user = req.user;
-        if (!user) {
-            sendErrorResponse(req, res, 401, 'Unauthorized');
-            return;
-        }
-
-        const id = getRequiredAlertId(req);
-        const alert = await SmartAlertModel.findById(id);
-        if (!alert) {
-            sendErrorResponse(req, res, 404, 'Alert not found');
-            return;
-        }
-
-        const userId = (user.id || user._id).toString();
-        if (alert.userId.toString() !== userId) {
-            sendErrorResponse(req, res, 403, 'Unauthorized');
-            return;
-        }
+        const auth = await requireOwnedAlert(req, res);
+        if (!auth) return;
+        const { alert, id, ownerId: userId } = auth;
 
         const activeAlertCount = await SmartAlertModel.countDocuments({
             userId,

@@ -1,5 +1,15 @@
 export type SellerType = "business" | "individual";
 
+export type AdDetailNavigateFn = (
+    page: UserPage,
+    adId?: string | number,
+    category?: string,
+    sellerIdOrBusinessId?: string,
+    serviceId?: string,
+    sellerId?: string,
+    sellerType?: SellerType
+) => void;
+
 export type UserPage =
     | "home"
     | "browse"

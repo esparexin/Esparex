@@ -1,49 +1,17 @@
-import { useCallback } from "react";
-import { getModels, deleteModel, createModel, updateModel } from "@/lib/api/models";
+import { createModel, deleteModel, getModels, updateModel, type ModelData } from "@/lib/api/models";
+import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import { Model } from "@/types/model";
-import { useToast } from "@/context/ToastContext";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import { useAdminCrudList } from "@/hooks/useAdminCrudList";
+
+type ModelMutationData = {
+    name: string;
+    brandId: string;
+    categoryIds: string[];
+    status?: Model["status"];
+};
 
 export function useAdminModels() {
-    const { showToast } = useToast();
-    const fetchModelsPage = useCallback(
-        async ({
-            filters,
-            pagination,
-        }: {
-            filters: { search: string; brandId: string; categoryId: string; status: string };
-            pagination: { page: number; limit: number };
-        }) => {
-            const query: any = {
-                page: pagination.page,
-                limit: pagination.limit
-            };
-            if (filters.search) query.search = filters.search;
-            if (filters.brandId !== 'all') query.brandId = filters.brandId;
-            if (filters.categoryId !== 'all') query.categoryId = filters.categoryId;
-            if (filters.status !== 'all') query.status = filters.status;
-
-            const response = await getModels(query);
-            if (response.success) {
-                const parsed = parseAdminResponse<Model>(response);
-                const items = parsed.items;
-                return {
-                    items,
-                    pagination: parsed.pagination || { page: 1, total: items.length, totalPages: 1 },
-                };
-            }
-            return {
-                items: [],
-                error: response.message || "Failed to fetch models",
-            };
-        },
-        []
-    );
-
     const {
         items: models,
-        setItems: setModels,
         loading,
         error,
         pagination,
@@ -51,64 +19,41 @@ export function useAdminModels() {
         setFilters,
         setPage,
         refresh: fetchModels,
-    } = useAdminCrudList<Model, { search: string; brandId: string; categoryId: string; status: string }>({
+        handleDelete,
+        handleCreate,
+        handleUpdate,
+    } = useAdminCatalogCollection<
+        Model,
+        { search: string; brandId: string; categoryId: string; status: string },
+        ModelMutationData
+    >({
         initialFilters: {
             search: "",
             brandId: "all",
             categoryId: "all",
             status: "all",
         },
-        fetchPage: fetchModelsPage,
+        fetchList: getModels,
+        listErrorMessage: "Failed to fetch models",
+        createItem: (data) =>
+            createModel({
+                ...data,
+                categoryId: data.categoryIds[0] || "",
+            } as ModelData),
+        createSuccessMessage: "Model created successfully",
+        createErrorMessage: "Failed to create model",
+        updateItem: (id, data) =>
+            updateModel(id, {
+                ...data,
+                categoryId: data.categoryIds[0] || "",
+            } as ModelData),
+        updateSuccessMessage: "Model updated successfully",
+        updateErrorMessage: "Failed to update model",
+        deleteItem: deleteModel,
+        deleteSuccessMessage: "Model deleted successfully",
+        deleteErrorMessage: "Failed to delete model",
+        deleteConfirmMessage: "Are you sure you want to delete this model?",
     });
-
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this model?")) return;
-        try {
-            const response = await deleteModel(id);
-            if (response.success) {
-                setModels(prev => prev.filter(m => m.id !== id));
-                showToast("Model deleted successfully", "success");
-            } else {
-                showToast(response.message || "Failed to delete model", "error");
-            }
-        } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to delete model", "error");
-        }
-    };
-
-    const handleCreate = async (data: any) => {
-        try {
-            const response = await createModel(data);
-            if (response.success) {
-                showToast("Model created successfully", "success");
-                void fetchModels();
-                return true;
-            } else {
-                showToast(response.message || "Failed to create model", "error");
-                return false;
-            }
-        } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to create model", "error");
-            return false;
-        }
-    };
-
-    const handleUpdate = async (id: string, data: any) => {
-        try {
-            const response = await updateModel(id, data);
-            if (response.success) {
-                showToast("Model updated successfully", "success");
-                void fetchModels();
-                return true;
-            } else {
-                showToast(response.message || "Failed to update model", "error");
-                return false;
-            }
-        } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to update model", "error");
-            return false;
-        }
-    };
 
     return {
         models,
@@ -121,6 +66,6 @@ export function useAdminModels() {
         refresh: fetchModels,
         handleDelete,
         handleCreate,
-        handleUpdate
+        handleUpdate,
     };
 }

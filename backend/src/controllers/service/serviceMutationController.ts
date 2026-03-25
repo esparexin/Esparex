@@ -75,6 +75,56 @@ const normalizeImageTokens = (value: unknown): string[] => {
 const toImageUrls = (value: Array<{ url: string; hash: string }>): string[] =>
     sanitizeStoredImageUrls(value.map((item) => item.url));
 
+const resolveTaxonomyIds = async (body: Record<string, unknown>, opts: { includeDeviceModel?: boolean } = {}) => {
+    const resolvedCategory = resolveCategoryId(body.categoryId || body.category);
+    const modelField = opts.includeDeviceModel
+        ? (body.modelId || body.model || body.deviceModel) as string
+        : (body.modelId || body.model) as string;
+    const resIds = await resolveMasterDataIds({
+        category: resolvedCategory,
+        brand: (body.brandId || body.brand) as string,
+        model: modelField
+    });
+    const categoryId = mongoose.Types.ObjectId.isValid(body.categoryId as string)
+        ? new mongoose.Types.ObjectId(body.categoryId as string)
+        : resIds.categoryId;
+    const brandId = mongoose.Types.ObjectId.isValid(body.brandId as string)
+        ? new mongoose.Types.ObjectId(body.brandId as string)
+        : resIds.brandId;
+    const modelId = mongoose.Types.ObjectId.isValid(body.modelId as string)
+        ? new mongoose.Types.ObjectId(body.modelId as string)
+        : resIds.modelId;
+    return { categoryId, brandId, modelId };
+};
+
+const requireOwnedService = async (req: Request, res: Response, fetchFull = false) => {
+    const user = req.user;
+    if (!user) {
+        sendErrorResponse(req, res, 401, 'Unauthorized');
+        return null;
+    }
+
+    const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
+    if (!id) return null;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        sendErrorResponse(req, res, 400, 'Invalid Service ID');
+        return null;
+    }
+
+    const query = fetchFull 
+        ? AdModel.findOne({ _id: id, listingType: LISTING_TYPE.SERVICE, sellerId: user._id })
+        : AdModel.findOne({ _id: id, listingType: LISTING_TYPE.SERVICE, sellerId: user._id, isDeleted: false }).select('status');
+
+    const service = await query;
+    if (!service) {
+        sendErrorResponse(req, res, 404, 'Service not found or unauthorized');
+        return null;
+    }
+
+    return { service, user, id };
+};
+
 /* ---------------------------------------------------
    Create Service (Business User)
 --------------------------------------------------- */
@@ -91,22 +141,7 @@ export const createService = async (req: Request, res: Response) => {
             });
         }
 
-        const resolvedCategory = resolveCategoryId(body.categoryId || body.category);
-        const resIds = await resolveMasterDataIds({
-            category: resolvedCategory,
-            brand: (body.brandId || body.brand) as string,
-            model: (body.modelId || body.model || body.deviceModel) as string
-        });
-
-        const categoryId = mongoose.Types.ObjectId.isValid(body.categoryId as string)
-            ? new mongoose.Types.ObjectId(body.categoryId as string)
-            : resIds.categoryId;
-        const brandId = mongoose.Types.ObjectId.isValid(body.brandId as string)
-            ? new mongoose.Types.ObjectId(body.brandId as string)
-            : resIds.brandId;
-        const modelId = mongoose.Types.ObjectId.isValid(body.modelId as string)
-            ? new mongoose.Types.ObjectId(body.modelId as string)
-            : resIds.modelId;
+        const { categoryId, brandId, modelId } = await resolveTaxonomyIds(body, { includeDeviceModel: true });
 
         if (!user || !business || !isBusinessPublishedStatus(business.status)) {
             sendErrorResponse(req, res, 403, 'Approved Business Account Required');
@@ -262,14 +297,7 @@ export const updateService = async (req: Request, res: Response) => {
 
         const updates = pickAllowedFields(body, [...SERVICE_ALLOWED_FIELDS, 'deviceModel'], { allowUndefined: false });
 
-        const categoryIdInput = body.categoryId || body.category;
-        const rawCategoryId = categoryIdInput ? resolveCategoryId(categoryIdInput) : undefined;
-        
-        const resIds = await resolveMasterDataIds({
-            category: rawCategoryId,
-            brand: (body.brandId || body.brand) as string,
-            model: (body.modelId || body.model || body.deviceModel) as string
-        });
+        const { categoryId: resolvedCategoryId, brandId: resolvedBrandId, modelId: resolvedModelId } = await resolveTaxonomyIds(body, { includeDeviceModel: true });
 
         const existingService = await AdModel.findOne({
             _id: id,
@@ -283,15 +311,9 @@ export const updateService = async (req: Request, res: Response) => {
             return;
         }
 
-        const categoryId = mongoose.Types.ObjectId.isValid(body.categoryId as string)
-            ? new mongoose.Types.ObjectId(body.categoryId as string)
-            : resIds.categoryId;
-        const brandId = mongoose.Types.ObjectId.isValid(body.brandId as string)
-            ? new mongoose.Types.ObjectId(body.brandId as string)
-            : resIds.brandId;
-        const modelId = mongoose.Types.ObjectId.isValid(body.modelId as string)
-            ? new mongoose.Types.ObjectId(body.modelId as string)
-            : resIds.modelId;
+        const categoryId = resolvedCategoryId;
+        const brandId = resolvedBrandId;
+        const modelId = resolvedModelId;
 
         const hasTaxonomyUpdate = (categoryId && categoryId.toString() !== existingService.categoryId?.toString())
             || (brandId && brandId.toString() !== existingService.brandId?.toString());
@@ -469,20 +491,10 @@ export const updateService = async (req: Request, res: Response) => {
 --------------------------------------------------- */
 export const markServiceAsSold = async (req: Request, res: Response) => {
     try {
-        const user = req.user;
-        if (!user) { sendErrorResponse(req, res, 401, 'Unauthorized'); return; }
+        const auth = await requireOwnedService(req, res);
+        if (!auth) return;
+        const { service, user, id } = auth;
 
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
-        if (!id) return;
-
-        const service = await AdModel.findOne({
-            _id: id,
-            listingType: LISTING_TYPE.SERVICE,
-            sellerId: user._id,
-            isDeleted: false,
-        }).select('status');
-
-        if (!service) { sendErrorResponse(req, res, 404, 'Service not found or unauthorized'); return; }
         if (service.status !== 'live') { sendErrorResponse(req, res, 400, 'Only live services can be marked as sold'); return; }
 
         const updated = await mutateStatus({
@@ -506,20 +518,9 @@ export const markServiceAsSold = async (req: Request, res: Response) => {
 --------------------------------------------------- */
 export const deactivateService = async (req: Request, res: Response) => {
     try {
-        const user = req.user;
-        if (!user) { sendErrorResponse(req, res, 401, 'Unauthorized'); return; }
-
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
-        if (!id) return;
-
-        const service = await AdModel.findOne({
-            _id: id,
-            listingType: LISTING_TYPE.SERVICE,
-            sellerId: user._id,
-            isDeleted: false,
-        }).select('status');
-
-        if (!service) { sendErrorResponse(req, res, 404, 'Service not found or unauthorized'); return; }
+        const auth = await requireOwnedService(req, res);
+        if (!auth) return;
+        const { user, id } = auth;
 
         const updated = await mutateStatus({
             domain: 'service',
@@ -541,20 +542,9 @@ export const deactivateService = async (req: Request, res: Response) => {
 --------------------------------------------------- */
 export const repostService = async (req: Request, res: Response) => {
     try {
-        const user = req.user;
-        if (!user) { sendErrorResponse(req, res, 401, 'Unauthorized'); return; }
-
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
-        if (!id) return;
-
-        const service = await AdModel.findOne({
-            _id: id,
-            listingType: LISTING_TYPE.SERVICE,
-            sellerId: user._id,
-            isDeleted: false,
-        }).select('status');
-
-        if (!service) { sendErrorResponse(req, res, 404, 'Service not found or unauthorized'); return; }
+        const auth = await requireOwnedService(req, res);
+        if (!auth) return;
+        const { service, user, id } = auth;
 
         const currentStatus = service.status as string;
         if (currentStatus !== AD_STATUS.EXPIRED && currentStatus !== AD_STATUS.REJECTED) {
@@ -583,30 +573,9 @@ export const repostService = async (req: Request, res: Response) => {
 --------------------------------------------------- */
 export const deleteService = async (req: Request, res: Response) => {
     try {
-        const user = req.user;
-        if (!user) {
-            sendErrorResponse(req, res, 401, 'Unauthorized');
-            return;
-        }
-
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
-        if (!id) return;
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            sendErrorResponse(req, res, 400, 'Invalid Service ID');
-            return;
-        }
-
-        // 🛡️ Find first to ensure ownership and existence
-        const service = await AdModel.findOne({
-            _id: id,
-            listingType: LISTING_TYPE.SERVICE,
-            sellerId: user._id
-        });
-
-        if (!service) {
-            sendErrorResponse(req, res, 404, 'Service not found or unauthorized');
-            return;
-        }
+        const auth = await requireOwnedService(req, res, true);
+        if (!auth) return;
+        const { service } = auth;
 
         // 🛡️ Soft Delete
         await (service as unknown as { softDelete: () => Promise<void> }).softDelete();

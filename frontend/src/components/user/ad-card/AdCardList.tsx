@@ -1,8 +1,6 @@
 "use client";
 
 import { memo } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,13 +9,12 @@ import { Heart, Sparkles } from "lucide-react";
 import { haptics } from "@/lib/haptics";
 import { formatPrice } from "@/lib/formatters";
 import { formatLocation } from "@/lib/location/locationService";
-import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { cn } from "@/components/ui/utils";
-import type { AdData } from "@/types/home";
-import type { UiAd } from "@/lib/mappers";
-import type { Ad } from "@/schemas/ad.schema";
-
-type AdCardData = AdData | UiAd | Ad;
+import {
+  AdCardLinkWrapper,
+  type AdCardData,
+  useAdCardBase,
+} from "./shared";
 
 export interface AdCardListProps {
   ad: AdCardData;
@@ -36,37 +33,13 @@ export const AdCardList = memo(function AdCardList({
   href,
   className,
 }: AdCardListProps) {
-  const router = useRouter();
-  const useDeclarativeLink = Boolean(href && !onClick && !onToggleSave);
-
-  const handleCardClick = () => {
-    if (onClick) {
-      onClick();
-      return;
-    }
-    if (href) {
-      void router.push(href);
-    }
-  };
-
-  const adRecord = ad as Record<string, unknown>;
-  const candidateImage =
-    (typeof adRecord.image === "string" ? adRecord.image : undefined) ||
-    (Array.isArray(adRecord.images) && typeof adRecord.images[0] === "string"
-      ? adRecord.images[0]
-      : undefined);
-  const imageUrl = toSafeImageSrc(candidateImage, "");
-  const adIdStr = String(adRecord.id || adRecord._id || "");
+  const { adRecord, imageUrl, adId, useDeclarativeLink, handleCardClick } = useAdCardBase({
+    ad,
+    href,
+    onClick,
+    disableDeclarativeLink: Boolean(onToggleSave),
+  });
   const isBoosted = adRecord.isBoosted === true;
-
-  const Wrapper = ({ children }: { children: React.ReactNode }) => {
-    if (!useDeclarativeLink || !href) return children;
-    return (
-      <Link href={href} className="block w-full">
-        {children}
-      </Link>
-    );
-  };
 
   const getPlanBadge = () => {
     if (ad.price === 0) {
@@ -95,7 +68,7 @@ export const AdCardList = memo(function AdCardList({
   };
 
   return (
-    <Wrapper>
+    <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
       <Card
         className={cn(
           "overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border-slate-100 rounded-xl group",
@@ -145,7 +118,7 @@ export const AdCardList = memo(function AdCardList({
                         e.stopPropagation();
                         e.preventDefault();
                         haptics.toggle();
-                        onToggleSave(adIdStr, e);
+                        onToggleSave(adId, e);
                       }}
                       aria-label={isSaved ? "Remove from favorites" : "Add to favorites"}
                     >
@@ -169,7 +142,7 @@ export const AdCardList = memo(function AdCardList({
           </div>
         </CardContent>
       </Card>
-    </Wrapper>
+    </AdCardLinkWrapper>
   );
 });
 

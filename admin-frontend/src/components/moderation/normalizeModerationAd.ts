@@ -1,6 +1,7 @@
 import type { ModerationItem, ModerationStatus } from "./moderationTypes";
 import type { ListingTypeValue } from "@shared/enums/listingType";
 import { LISTING_TYPE_VALUES } from "@shared/enums/listingType";
+import { toGeoPoint } from "@/lib/location/display";
 
 const asString = (value: unknown): string | undefined =>
     typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
@@ -61,23 +62,7 @@ const normalizeLocationCoordinates = (
 ): { type: "Point"; coordinates: [number, number] } | undefined => {
     if (!value || typeof value !== "object") return undefined;
     const record = value as Record<string, unknown>;
-    const coordinatesValue = record.coordinates;
-    if (!coordinatesValue || typeof coordinatesValue !== "object") return undefined;
-    const point = coordinatesValue as Record<string, unknown>;
-    if (point.type !== "Point" || !Array.isArray(point.coordinates) || point.coordinates.length !== 2) {
-        return undefined;
-    }
-
-    const lng = Number(point.coordinates[0]);
-    const lat = Number(point.coordinates[1]);
-    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return undefined;
-    if (lng < -180 || lng > 180 || lat < -90 || lat > 90) return undefined;
-    if (lng === 0 && lat === 0) return undefined;
-
-    return {
-        type: "Point",
-        coordinates: [lng, lat],
-    };
+    return toGeoPoint(record.coordinates);
 };
 
 const normalizeStatus = (value: unknown): ModerationStatus => {

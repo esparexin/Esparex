@@ -1,16 +1,13 @@
 "use client";
 
 import { memo } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { AdCardCover, AdCardMeta, AdCardActions } from "./primitives";
-import type { AdData } from "@/types/home";
-import type { UiAd } from "@/lib/mappers";
-import type { Ad } from "@/schemas/ad.schema";
-
-type AdCardData = AdData | UiAd | Ad;
+import {
+  AdCardLinkWrapper,
+  type AdCardData,
+  useAdCardBase,
+} from "./shared";
 
 export interface AdCardGridProps {
   ad: AdCardData;
@@ -33,39 +30,15 @@ export const AdCardGrid = memo(function AdCardGrid({
   href,
   className,
 }: AdCardGridProps) {
-  const router = useRouter();
-  const useDeclarativeLink = Boolean(href && !onClick && !onToggleSave);
-
-  const handleCardClick = () => {
-    if (onClick) {
-      onClick();
-      return;
-    }
-    if (href) {
-      void router.push(href);
-    }
-  };
-
-  const adRecord = ad as Record<string, unknown>;
-  const candidateImage =
-    (typeof adRecord.image === "string" ? adRecord.image : undefined) ||
-    (Array.isArray(adRecord.images) && typeof adRecord.images[0] === "string"
-      ? adRecord.images[0]
-      : undefined);
-  const imageUrl = toSafeImageSrc(candidateImage, "");
-  const adIdStr = String(adRecord.id || adRecord._id || "");
-
-  const Wrapper = ({ children }: { children: React.ReactNode }) => {
-    if (!useDeclarativeLink || !href) return children;
-    return (
-      <Link href={href} className="block w-full">
-        {children}
-      </Link>
-    );
-  };
+  const { adRecord, imageUrl, adId, useDeclarativeLink, handleCardClick } = useAdCardBase({
+    ad,
+    href,
+    onClick,
+    disableDeclarativeLink: Boolean(onToggleSave),
+  });
 
   return (
-    <Wrapper>
+    <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
       <Card
         className={`overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border border-slate-200 bg-white hover:-translate-y-0.5 rounded-xl ${ad.isSpotlight ? 'ring-2 ring-yellow-500 ring-offset-2' : ''} ${className || ''}`}
         onClick={useDeclarativeLink ? undefined : handleCardClick}
@@ -80,7 +53,7 @@ export const AdCardGrid = memo(function AdCardGrid({
         >
           {onToggleSave && (
             <AdCardActions
-              adId={adIdStr}
+              adId={adId}
               isSaved={isSaved}
               onToggleSave={onToggleSave}
               isBusiness={'isBusiness' in adRecord ? Boolean(adRecord.isBusiness) : false}
@@ -95,7 +68,7 @@ export const AdCardGrid = memo(function AdCardGrid({
           <AdCardMeta ad={ad} variant="default" />
         </CardContent>
       </Card>
-    </Wrapper>
+    </AdCardLinkWrapper>
   );
 });
 

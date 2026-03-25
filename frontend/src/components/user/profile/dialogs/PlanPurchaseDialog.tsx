@@ -11,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Crown, CheckCircle2, AlertCircle } from "@/components/ui/icons";
+import { Crown, AlertCircle } from "@/components/ui/icons";
+import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
 import { notify } from "@/lib/notify";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
@@ -107,14 +108,7 @@ export function PlanPurchaseDialog({
                             <Separator />
                             <div>
                                 <p className="text-xs text-muted-foreground mb-2">Features:</p>
-                                <ul className="space-y-1">
-                                    {plan.features.map((feature: string, idx: number) => (
-                                        <li key={idx} className="flex items-start gap-2 text-xs">
-                                            <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 mt-0.5 flex-shrink-0" />
-                                            <span className="text-slate-600">{feature}</span>
-                                        </li>
-                                    ))}
-                                </ul>
+                                <PlanFeatureList features={plan.features} className="space-y-1" />
                             </div>
                             <Separator />
                             <div className="flex items-center justify-between">

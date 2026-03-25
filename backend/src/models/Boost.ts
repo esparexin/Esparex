@@ -39,19 +39,10 @@ BoostSchema.index({ endsAt: 1 }, { name: 'idx_boost_endsAt_idx', expireAfterSeco
 BoostSchema.index({ transactionId: 1 }, { name: 'idx_boost_transactionId_idx' });
 
 import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 const Boost: Model<IBoost> = getUserConnection().models.Boost || getUserConnection().model<IBoost>('Boost', BoostSchema);
 
-// toJSON Transform - Convert _id to id
-BoostSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(BoostSchema);
 
 export default Boost;

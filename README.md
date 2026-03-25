@@ -84,6 +84,8 @@ A Next.js application that handles:
 
 ## Development Guidelines
 
+For contribution rules and duplication-prevention guardrails, see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 1. **API Calls**:
    - Frontend components should **NEVER** use `axios` or `fetch` directly.
    - Always use or create a service in `frontend/src/services` to communicate with the API.

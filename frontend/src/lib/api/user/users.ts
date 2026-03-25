@@ -1,10 +1,11 @@
 import { apiClient, EsparexRequestConfig } from '@/lib/api/client';
 import { toApiResult } from '@/lib/api/result';
-import { API_ROUTES, API_V1_BASE_PATH, DEFAULT_LOCAL_API_ORIGIN } from '../routes';
+import { API_ROUTES } from '../routes';
 import { type Ad } from '@/schemas';
 import { User } from "@/types/User";
 import { toSafeImageSrc } from '@/lib/image/imageUrl';
 import { normalizeAd } from './ads';
+import { fetchUserApiJson, type ServerFetchOptions } from './server';
 
 // --- Types ---
 
@@ -65,41 +66,6 @@ export type SellerProfilePayload = {
     ads: Ad[];
 };
 
-type ServerFetchOptions = RequestInit & {
-    next?: {
-        revalidate?: number;
-        tags?: string[];
-    };
-};
-
-const USER_API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
-
-const buildUserApiUrl = (endpoint: string): string => {
-    const base = USER_API_BASE_URL.endsWith('/') ? USER_API_BASE_URL : `${USER_API_BASE_URL}/`;
-    return new URL(endpoint.replace(/^\//, ''), base).toString();
-};
-
-const fetchUserApiJson = async (
-    endpoint: string,
-    fetchOptions?: ServerFetchOptions
-): Promise<unknown> => {
-    const response = await fetch(buildUserApiUrl(endpoint), {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-            ...((fetchOptions?.headers as Record<string, string> | undefined) ?? {}),
-        },
-        ...fetchOptions,
-    });
-
-    if (!response.ok) {
-        return null;
-    }
-
-    return response.json().catch(() => null);
-};
-
 export const getWalletSummary = async (): Promise<WalletSummary | null> => {
     const { data } = await toApiResult<WalletSummary>(apiClient.get(API_ROUTES.USER.USERS_WALLET));
     return data || null;
@@ -120,7 +86,7 @@ export const getUserProfile = async (
     const { data } =
         typeof window === 'undefined'
             ? await toApiResult<{ user?: SellerPublicUser; reputation?: SellerReputation; ads?: unknown[] }>(
-                Promise.resolve(fetchUserApiJson(route, options?.fetchOptions))
+                Promise.resolve(fetchUserApiJson(route, options?.fetchOptions, { returnNullOnHttpError: true }))
             )
             : await toApiResult<{ user?: SellerPublicUser; reputation?: SellerReputation; ads?: unknown[] }>(
                 apiClient.get(route, { silent: true })

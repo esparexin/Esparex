@@ -1,28 +1,12 @@
 import { apiClient } from "@/lib/api/client";
 import {
     API_ROUTES,
-    API_V1_BASE_PATH,
-    DEFAULT_LOCAL_API_ORIGIN,
 } from "../routes";
 import { toApiResult } from "@/lib/api/result";
 import type { Category } from "@/schemas";
+import { fetchUserApiJson, type ServerFetchOptions } from "./server";
 
 export type { Category };
-
-type ServerFetchOptions = RequestInit & {
-    next?: {
-        revalidate?: number;
-        tags?: string[];
-    };
-};
-
-const USER_API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
-
-const buildUserApiUrl = (endpoint: string): string => {
-    const base = USER_API_BASE_URL.endsWith('/') ? USER_API_BASE_URL : `${USER_API_BASE_URL}/`;
-    return new URL(endpoint.replace(/^\//, ''), base).toString();
-};
 
 /**
  * Get all categories
@@ -32,19 +16,7 @@ export const getCategories = async (options?: { fetchOptions?: ServerFetchOption
     const { data: result } =
         typeof window === 'undefined'
             ? await toApiResult<Category[]>(
-                fetch(buildUserApiUrl(API_ROUTES.USER.CATEGORIES), {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        ...((options?.fetchOptions?.headers as Record<string, string> | undefined) ?? {}),
-                    },
-                    ...options?.fetchOptions,
-                }).then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to load categories: ${response.status}`);
-                    }
-                    return response.json().catch(() => null);
-                })
+                Promise.resolve(fetchUserApiJson(API_ROUTES.USER.CATEGORIES, options?.fetchOptions))
             )
             : await toApiResult<Category[]>(
                 apiClient.get(API_ROUTES.USER.CATEGORIES)

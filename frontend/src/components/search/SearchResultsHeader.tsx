@@ -27,6 +27,97 @@ const SORT_LABELS: Record<SortOption, string> = {
     price_high_low: "Price: High → Low",
 };
 
+const SORT_OPTIONS = Object.keys(SORT_LABELS) as SortOption[];
+
+type SortDropdownTriggerProps = {
+    open: boolean;
+    sort: SortOption;
+    onToggle: () => void;
+    mobile?: boolean;
+};
+
+function SortDropdownTrigger({
+    open,
+    sort,
+    onToggle,
+    mobile = false,
+}: SortDropdownTriggerProps) {
+    if (mobile) {
+        return (
+            <Button
+                variant="outline"
+                onClick={onToggle}
+                aria-haspopup="listbox"
+                aria-expanded={open}
+                aria-label="Sort listings"
+                className="gap-2 h-9 rounded-full border-slate-900 px-4 font-medium text-slate-900 text-sm shadow-none bg-white hover:bg-slate-50"
+            >
+                <span>Sort By</span>
+                <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
+            </Button>
+        );
+    }
+
+    return (
+        <Button
+            variant="outline"
+            size="sm"
+            onClick={onToggle}
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            aria-label="Sort listings"
+            className="gap-2 h-10 border-slate-200 hover:bg-slate-50 rounded-lg px-3 bg-white shadow-sm"
+        >
+            <SortAsc className="size-4 text-slate-400" />
+            <span className="font-semibold text-slate-700 text-sm">{SORT_LABELS[sort]}</span>
+            <ChevronDown className={cn("size-4 text-slate-400 transition-transform", open && "rotate-180")} />
+        </Button>
+    );
+}
+
+type SortDropdownMenuProps = {
+    open: boolean;
+    sort: SortOption;
+    onSelect: (value: SortOption) => void;
+    mobile?: boolean;
+};
+
+function SortDropdownMenu({
+    open,
+    sort,
+    onSelect,
+    mobile = false,
+}: SortDropdownMenuProps) {
+    if (!open) {
+        return null;
+    }
+
+    return (
+        <ul
+            role="listbox"
+            className={cn(
+                "absolute mt-2 rounded-xl border border-slate-100 bg-white shadow-xl overflow-hidden z-50 p-1 animate-in fade-in-0 zoom-in-95",
+                mobile ? "left-0 w-48" : "right-0 w-52"
+            )}
+        >
+            {SORT_OPTIONS.map((key) => (
+                <li key={key}>
+                    <button
+                        aria-selected={sort === key}
+                        onClick={() => onSelect(key)}
+                        className={cn(
+                            "w-full px-3 py-2 text-left text-sm rounded-lg transition-colors",
+                            sort === key ? "bg-slate-900 text-white font-medium" : "text-slate-600 hover:bg-slate-50"
+                        )}
+                    >
+                        {SORT_LABELS[key]}
+                    </button>
+                </li>
+            ))}
+        </ul>
+    );
+}
+
 export function SearchResultsHeader({
     total,
     sort,
@@ -62,28 +153,21 @@ export function SearchResultsHeader({
                     </div>
                     <div className="flex-shrink-0">
                         <div className="relative" ref={dropdownRef}>
-                            <Button
-                                variant="outline"
-                                onClick={() => setOpen((v) => !v)}
-                                aria-haspopup="listbox"
-                                aria-expanded={open}
-                                aria-label="Sort listings"
-                                className="gap-2 h-9 rounded-full border-slate-900 px-4 font-medium text-slate-900 text-sm shadow-none bg-white hover:bg-slate-50"
-                            >
-                                <span>Sort By</span>
-                                <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
-                            </Button>
-                            {open && (
-                                <ul role="listbox" className="absolute left-0 mt-2 w-48 rounded-xl border border-slate-100 bg-white shadow-xl overflow-hidden z-50 p-1 animate-in fade-in-0 zoom-in-95">
-                                    {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
-                                        <li key={key}>
-                                            <button aria-selected={sort === key} onClick={() => { onSortChange(key); setOpen(false); }} className={cn("w-full px-3 py-2 text-left text-sm rounded-lg transition-colors", sort === key ? "bg-slate-900 text-white font-medium" : "text-slate-600 hover:bg-slate-50")}>
-                                                {SORT_LABELS[key]}
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                            <SortDropdownTrigger
+                                mobile
+                                open={open}
+                                sort={sort}
+                                onToggle={() => setOpen((v) => !v)}
+                            />
+                            <SortDropdownMenu
+                                mobile
+                                open={open}
+                                sort={sort}
+                                onSelect={(value) => {
+                                    onSortChange(value);
+                                    setOpen(false);
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
@@ -110,30 +194,19 @@ export function SearchResultsHeader({
                 <div className="flex items-center gap-2">
                     {/* Sort Dropdown */}
                     <div className="relative" ref={dropdownRef}>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setOpen((v) => !v)}
-                            aria-haspopup="listbox"
-                            aria-expanded={open}
-                            aria-label="Sort listings"
-                            className="gap-2 h-10 border-slate-200 hover:bg-slate-50 rounded-lg px-3 bg-white shadow-sm"
-                        >
-                            <SortAsc className="size-4 text-slate-400" />
-                            <span className="font-semibold text-slate-700 text-sm">{SORT_LABELS[sort]}</span>
-                            <ChevronDown className={cn("size-4 text-slate-400 transition-transform", open && "rotate-180")} />
-                        </Button>
-                        {open && (
-                            <ul role="listbox" className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-100 bg-white shadow-xl overflow-hidden z-50 p-1 animate-in fade-in-0 zoom-in-95">
-                                {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
-                                    <li key={key}>
-                                        <button aria-selected={sort === key} onClick={() => { onSortChange(key); setOpen(false); }} className={cn("w-full px-3 py-2 text-left text-sm rounded-lg transition-colors", sort === key ? "bg-slate-900 text-white font-medium" : "text-slate-600 hover:bg-slate-50")}>
-                                            {SORT_LABELS[key]}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                        <SortDropdownTrigger
+                            open={open}
+                            sort={sort}
+                            onToggle={() => setOpen((v) => !v)}
+                        />
+                        <SortDropdownMenu
+                            open={open}
+                            sort={sort}
+                            onSelect={(value) => {
+                                onSortChange(value);
+                                setOpen(false);
+                            }}
+                        />
                     </div>
 
                     <div className="h-4 w-px bg-slate-100 mx-1" />

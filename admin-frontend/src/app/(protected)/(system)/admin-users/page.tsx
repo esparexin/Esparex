@@ -11,88 +11,44 @@ import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
+import { StatusChip } from "@/components/ui/StatusChip";
+import { useAdminMutation } from "@/hooks/useAdminMutation";
+import { AdminUserFormCard } from "@/components/system/adminUsers/AdminUserFormCard";
+import { AdminUserIdentityCell } from "@/components/system/adminUsers/AdminUserIdentityCell";
+import { AdminUserRoleBadge } from "@/components/system/adminUsers/AdminUserRoleBadge";
+import {
+    DEFAULT_CREATE_FORM,
+    DEFAULT_EDIT_FORM,
+    getAdminStatusPresentation,
+    normalizeAdmin,
+    type AdminFormState,
+    type AdminRole,
+    type AdminStatus,
+    type AdminUserFormValues,
+    type EditableAdminFormState,
+    type ManagedAdmin,
+} from "@/components/system/adminUsers/adminUsers";
 
-type AdminRole = "super_admin" | "admin" | "moderator";
-type AdminStatus = "live" | "inactive" | "suspended" | "banned";
-
-type ManagedAdmin = {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-    status: string;
-    permissions: string[];
-    lastLogin?: string;
-    createdAt?: string;
-};
-
-type AdminFormState = {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    role: AdminRole;
-    status: AdminStatus;
-    permissionsText: string;
-};
-
-const DEFAULT_CREATE_FORM: AdminFormState = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    role: "moderator",
-    status: "live",
-    permissionsText: "",
-};
-
-const ROLE_COLORS: Record<string, string> = {
-    super_admin: "bg-purple-100 text-purple-700",
-    admin: "bg-blue-100 text-blue-700",
-    moderator: "bg-amber-100 text-amber-700",
-    user_manager: "bg-teal-100 text-teal-700",
-    finance_manager: "bg-green-100 text-green-700",
-    content_moderator: "bg-orange-100 text-orange-700",
-    editor: "bg-sky-100 text-sky-700",
-    viewer: "bg-slate-100 text-slate-600",
-};
-
-const DEFAULT_EDIT_FORM: Omit<AdminFormState, "password"> = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    role: "moderator",
-    status: "live",
-    permissionsText: "",
-};
-
-function normalizeAdmin(raw: Record<string, unknown>): ManagedAdmin {
-    const id = String(raw.id || raw._id || "");
-    return {
-        id,
-        firstName: String(raw.firstName || ""),
-        lastName: String(raw.lastName || ""),
-        email: String(raw.email || ""),
-        role: String(raw.role || "admin"),
-        status: String(raw.status || "active"),
-        permissions: Array.isArray(raw.permissions)
-            ? raw.permissions.filter((item): item is string => typeof item === "string")
-            : [],
-        lastLogin: typeof raw.lastLogin === "string" ? raw.lastLogin : undefined,
-        createdAt: typeof raw.createdAt === "string" ? raw.createdAt : undefined,
-    };
-}
+const ADMIN_IDENTITY_COLUMNS: ColumnDef<ManagedAdmin>[] = [
+    {
+        header: "Admin",
+        cell: (admin) => <AdminUserIdentityCell admin={admin} />,
+    },
+    {
+        header: "Role",
+        cell: (admin) => <AdminUserRoleBadge role={admin.role} />,
+    },
+];
 
 export default function AdminUsersPage() {
     const searchParams = useSearchParams();
     const { showToast } = useToast();
+    const { isPending: isSaving, runMutation } = useAdminMutation();
     const [admins, setAdmins] = useState<ManagedAdmin[]>([]);
     const [loading, setLoading] = useState(true);
     const [createForm, setCreateForm] = useState<AdminFormState>(DEFAULT_CREATE_FORM);
-    const [editForm, setEditForm] = useState<Omit<AdminFormState, "password">>(DEFAULT_EDIT_FORM);
+    const [editForm, setEditForm] = useState<EditableAdminFormState>(DEFAULT_EDIT_FORM);
     const [editingAdminId, setEditingAdminId] = useState<string | null>(null);
-    const [isSaving, setIsSaving] = useState(false);
     const isPermissionsView = searchParams.get("view") === "permissions";
 
     const loadAdmins = async () => {
@@ -114,6 +70,14 @@ export default function AdminUsersPage() {
 
     const resetCreateForm = () => setCreateForm(DEFAULT_CREATE_FORM);
 
+    const updateCreateForm = (field: keyof AdminUserFormValues, value: string) => {
+        setCreateForm((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const updateEditForm = (field: keyof AdminUserFormValues, value: string) => {
+        setEditForm((prev) => ({ ...prev, [field]: value }));
+    };
+
     const onCreate = async () => {
         const name = `${createForm.firstName} ${createForm.lastName}`.trim();
         if (!name || !createForm.email || !createForm.password) {
@@ -121,31 +85,32 @@ export default function AdminUsersPage() {
             return;
         }
 
-        setIsSaving(true);
-        try {
-            await adminFetch(ADMIN_ROUTES.ADMIN_USERS, {
-                method: "POST",
-                body: {
-                    firstName: createForm.firstName.trim(),
-                    lastName: createForm.lastName.trim(),
-                    name,
-                    email: createForm.email.trim(),
-                    password: createForm.password,
-                    role: createForm.role,
-                    permissions: createForm.permissionsText
-                        .split(",")
-                        .map((value) => value.trim())
-                        .filter(Boolean),
+        await runMutation(
+            () =>
+                adminFetch(ADMIN_ROUTES.ADMIN_USERS, {
+                    method: "POST",
+                    body: {
+                        firstName: createForm.firstName.trim(),
+                        lastName: createForm.lastName.trim(),
+                        name,
+                        email: createForm.email.trim(),
+                        password: createForm.password,
+                        role: createForm.role,
+                        permissions: createForm.permissionsText
+                            .split(",")
+                            .map((value) => value.trim())
+                            .filter(Boolean),
+                    },
+                }),
+            {
+                successMessage: "Admin created successfully",
+                failureMessage: "Failed to create admin",
+                onSuccess: async () => {
+                    resetCreateForm();
+                    await loadAdmins();
                 },
-            });
-            showToast("Admin created successfully", "success");
-            resetCreateForm();
-            await loadAdmins();
-        } catch (error) {
-            showToast(error instanceof Error ? error.message : "Failed to create admin", "error");
-        } finally {
-            setIsSaving(false);
-        }
+            }
+        );
     };
 
     const onStartEdit = (admin: ManagedAdmin) => {
@@ -167,82 +132,69 @@ export default function AdminUsersPage() {
 
     const onSaveEdit = async () => {
         if (!editingAdminId) return;
-        setIsSaving(true);
-        try {
-            await adminFetch(ADMIN_ROUTES.ADMIN_USER_BY_ID(editingAdminId), {
-                method: "PATCH",
-                body: {
-                    firstName: editForm.firstName.trim(),
-                    lastName: editForm.lastName.trim(),
-                    email: editForm.email.trim(),
-                    role: editForm.role,
-                    status: editForm.status,
-                    permissions: editForm.permissionsText
-                        .split(",")
-                        .map((value) => value.trim())
-                        .filter(Boolean),
+
+        await runMutation(
+            () =>
+                adminFetch(ADMIN_ROUTES.ADMIN_USER_BY_ID(editingAdminId), {
+                    method: "PATCH",
+                    body: {
+                        firstName: editForm.firstName.trim(),
+                        lastName: editForm.lastName.trim(),
+                        email: editForm.email.trim(),
+                        role: editForm.role,
+                        status: editForm.status,
+                        permissions: editForm.permissionsText
+                            .split(",")
+                            .map((value) => value.trim())
+                            .filter(Boolean),
+                    },
+                }),
+            {
+                successMessage: "Admin updated successfully",
+                failureMessage: "Failed to update admin",
+                onSuccess: async () => {
+                    onCancelEdit();
+                    await loadAdmins();
                 },
-            });
-            showToast("Admin updated successfully", "success");
-            onCancelEdit();
-            await loadAdmins();
-        } catch (error) {
-            showToast(error instanceof Error ? error.message : "Failed to update admin", "error");
-        } finally {
-            setIsSaving(false);
-        }
+            }
+        );
     };
 
     const onDeactivate = async (admin: ManagedAdmin) => {
-        setIsSaving(true);
-        try {
-            await adminFetch(ADMIN_ROUTES.ADMIN_USER_DEACTIVATE(admin.id), {
-                method: "PATCH",
-                body: {},
-            });
-            showToast(`Deactivated ${admin.email}`, "success");
-            await loadAdmins();
-        } catch (error) {
-            showToast(error instanceof Error ? error.message : "Failed to deactivate admin", "error");
-        } finally {
-            setIsSaving(false);
-        }
+        await runMutation(
+            () =>
+                adminFetch(ADMIN_ROUTES.ADMIN_USER_DEACTIVATE(admin.id), {
+                    method: "PATCH",
+                    body: {},
+                }),
+            {
+                successMessage: `Deactivated ${admin.email}`,
+                failureMessage: "Failed to deactivate admin",
+                onSuccess: async () => {
+                    await loadAdmins();
+                },
+            }
+        );
     };
 
     const onDelete = async (admin: ManagedAdmin) => {
         if (!window.confirm(`Delete admin ${admin.email}?`)) return;
 
-        setIsSaving(true);
-        try {
-            await adminFetch(ADMIN_ROUTES.ADMIN_USER_BY_ID(admin.id), { method: "DELETE" });
-            showToast(`Deleted ${admin.email}`, "success");
-            await loadAdmins();
-        } catch (error) {
-            showToast(error instanceof Error ? error.message : "Failed to delete admin", "error");
-        } finally {
-            setIsSaving(false);
-        }
+        await runMutation(
+            () => adminFetch(ADMIN_ROUTES.ADMIN_USER_BY_ID(admin.id), { method: "DELETE" }),
+            {
+                successMessage: `Deleted ${admin.email}`,
+                failureMessage: "Failed to delete admin",
+                onSuccess: async () => {
+                    await loadAdmins();
+                },
+            }
+        );
     };
 
     const permissionsColumns: ColumnDef<ManagedAdmin>[] = useMemo(
         () => [
-            {
-                header: "Admin",
-                cell: (admin) => (
-                    <div>
-                        <div className="font-semibold text-slate-900">{`${admin.firstName} ${admin.lastName}`.trim() || admin.email}</div>
-                        <div className="text-xs text-slate-500">{admin.email}</div>
-                    </div>
-                ),
-            },
-            {
-                header: "Role",
-                cell: (admin) => (
-                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${ROLE_COLORS[admin.role] ?? "bg-slate-100 text-slate-600"}`}>
-                        {admin.role.replace(/_/g, " ")}
-                    </span>
-                ),
-            },
+            ...ADMIN_IDENTITY_COLUMNS,
             {
                 header: "Permissions",
                 cell: (admin) => {
@@ -303,34 +255,12 @@ export default function AdminUsersPage() {
 
     const columns: ColumnDef<ManagedAdmin>[] = useMemo(
         () => [
-            {
-                header: "Admin",
-                cell: (admin) => (
-                    <div>
-                        <div className="font-semibold text-slate-900">{`${admin.firstName} ${admin.lastName}`.trim() || admin.email}</div>
-                        <div className="text-xs text-slate-500">{admin.email}</div>
-                    </div>
-                ),
-            },
-            {
-                header: "Role",
-                cell: (admin) => <span className="text-xs font-semibold uppercase tracking-wide text-slate-700">{admin.role}</span>,
-            },
+            ...ADMIN_IDENTITY_COLUMNS,
             {
                 header: "Status",
                 cell: (admin) => {
-                    const STATUS_COLORS: Record<string, string> = {
-                        live: "bg-emerald-100 text-emerald-700",
-                        inactive: "bg-slate-100 text-slate-500",
-                        suspended: "bg-amber-100 text-amber-700",
-                        banned: "bg-red-100 text-red-700",
-                    };
-                    const color = STATUS_COLORS[admin.status] ?? "bg-slate-100 text-slate-500";
-                    return (
-                        <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${color}`}>
-                            {admin.status}
-                        </span>
-                    );
+                    const { status, label } = getAdminStatusPresentation(admin.status);
+                    return <StatusChip status={status} label={label} />;
                 },
             },
             {
@@ -390,127 +320,35 @@ export default function AdminUsersPage() {
             <DataTable data={admins} columns={permissionsColumns} isLoading={loading} emptyMessage="No admin users found." />
           ) : (<>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-                    <input
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                        placeholder="First name"
-                        value={createForm.firstName}
-                        onChange={(event) => setCreateForm((prev) => ({ ...prev, firstName: event.target.value }))}
-                    />
-                    <input
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                        placeholder="Last name"
-                        value={createForm.lastName}
-                        onChange={(event) => setCreateForm((prev) => ({ ...prev, lastName: event.target.value }))}
-                    />
-                    <input
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                        placeholder="Email"
-                        value={createForm.email}
-                        onChange={(event) => setCreateForm((prev) => ({ ...prev, email: event.target.value }))}
-                    />
-                    <input
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                        placeholder="Password"
-                        type="password"
-                        value={createForm.password}
-                        onChange={(event) => setCreateForm((prev) => ({ ...prev, password: event.target.value }))}
-                    />
-                    <select
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                        value={createForm.role}
-                        onChange={(event) => setCreateForm((prev) => ({ ...prev, role: event.target.value as AdminRole }))}
-                    >
-                        <option value="moderator">moderator</option>
-                        <option value="admin">admin</option>
-                        <option value="super_admin">super_admin</option>
-                    </select>
-                    <input
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm md:col-span-5"
-                        placeholder="Permissions, comma separated (example: users:read, ads:write)"
-                        value={createForm.permissionsText}
-                        onChange={(event) => setCreateForm((prev) => ({ ...prev, permissionsText: event.target.value }))}
-                    />
-                </div>
-                <div className="mt-3 flex items-center gap-2">
-                    <button
-                        className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
-                        disabled={isSaving}
-                        onClick={() => void onCreate()}
-                    >
-                        <UserPlus size={14} /> Create Admin
-                    </button>
-                    <button
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                        onClick={resetCreateForm}
-                    >
-                        <XCircle size={14} /> Clear
-                    </button>
-                </div>
-            </div>
+            <AdminUserFormCard
+                values={createForm}
+                submitLabel="Create Admin"
+                secondaryLabel="Clear"
+                submitIcon={UserPlus}
+                secondaryIcon={XCircle}
+                isSubmitting={isSaving}
+                showPassword
+                permissionsPlaceholder="Permissions, comma separated (example: users:read, ads:write)"
+                onChange={updateCreateForm}
+                onSubmit={() => void onCreate()}
+                onSecondary={resetCreateForm}
+            />
 
             {editingAdminId && (
-                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <h2 className="mb-3 text-base font-semibold text-slate-900">Edit Admin</h2>
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-                        <input
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                            value={editForm.firstName}
-                            onChange={(event) => setEditForm((prev) => ({ ...prev, firstName: event.target.value }))}
-                        />
-                        <input
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                            value={editForm.lastName}
-                            onChange={(event) => setEditForm((prev) => ({ ...prev, lastName: event.target.value }))}
-                        />
-                        <input
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                            value={editForm.email}
-                            onChange={(event) => setEditForm((prev) => ({ ...prev, email: event.target.value }))}
-                        />
-                        <select
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                            value={editForm.role}
-                            onChange={(event) => setEditForm((prev) => ({ ...prev, role: event.target.value as AdminRole }))}
-                        >
-                            <option value="moderator">moderator</option>
-                            <option value="admin">admin</option>
-                            <option value="super_admin">super_admin</option>
-                        </select>
-                        <select
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                            value={editForm.status}
-                            onChange={(event) => setEditForm((prev) => ({ ...prev, status: event.target.value as AdminStatus }))}
-                        >
-                            <option value="live">live</option>
-                            <option value="inactive">inactive</option>
-                            <option value="suspended">suspended</option>
-                            <option value="banned">banned</option>
-                        </select>
-                        <input
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm md:col-span-5"
-                            value={editForm.permissionsText}
-                            onChange={(event) => setEditForm((prev) => ({ ...prev, permissionsText: event.target.value }))}
-                            placeholder="Permissions, comma separated"
-                        />
-                    </div>
-                    <div className="mt-3 flex items-center gap-2">
-                        <button
-                            className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
-                            disabled={isSaving}
-                            onClick={() => void onSaveEdit()}
-                        >
-                            <Save size={14} /> Save
-                        </button>
-                        <button
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                            onClick={onCancelEdit}
-                        >
-                            <XCircle size={14} /> Cancel
-                        </button>
-                    </div>
-                </div>
+                <AdminUserFormCard
+                    title="Edit Admin"
+                    values={editForm}
+                    submitLabel="Save"
+                    secondaryLabel="Cancel"
+                    submitIcon={Save}
+                    secondaryIcon={XCircle}
+                    isSubmitting={isSaving}
+                    showStatus
+                    permissionsPlaceholder="Permissions, comma separated"
+                    onChange={updateEditForm}
+                    onSubmit={() => void onSaveEdit()}
+                    onSecondary={onCancelEdit}
+                />
             )}
 
             <DataTable data={admins} columns={columns} isLoading={loading} emptyMessage="No admin users found." />

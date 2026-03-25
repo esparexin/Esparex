@@ -17,6 +17,31 @@ const sendAdminNotificationError = (req: Request, res: Response, error: unknown)
     sendErrorResponse(req, res, 500, message);
 };
 
+/** Stream all users and bulk-dispatch notifications in batches of 500. */
+const dispatchToAllUsers = async (
+    broadcastId: string,
+    title: string,
+    body: string,
+    type: 'admin_push' | 'admin_broadcast'
+): Promise<{ successCount: number }> => {
+    let successCount = 0;
+    const cursor = User.find({}).select('_id').cursor();
+    let batch: NotificationIntent[] = [];
+    for await (const user of cursor) {
+        batch.push(NotificationIntent.fromAdminBroadcast(user._id.toString(), broadcastId, title, body, type));
+        if (batch.length >= 500) {
+            await NotificationDispatcher.bulkDispatch(batch);
+            successCount += batch.length;
+            batch = [];
+        }
+    }
+    if (batch.length > 0) {
+        await NotificationDispatcher.bulkDispatch(batch);
+        successCount += batch.length;
+    }
+    return { successCount };
+};
+
 /**
  * Send Admin Notification
  * POST /api/v1/admin/notifications/send
@@ -70,20 +95,7 @@ export const sendNotification = [
 
             // 1. Topic / Broadcast
             if (targetType === 'topic' || targetType === 'all') {
-                const cursor = User.find({}).select('_id').cursor();
-                let batch: NotificationIntent[] = [];
-                for await (const user of cursor) {
-                    batch.push(NotificationIntent.fromAdminBroadcast(user._id.toString(), broadcastId, title, body, 'admin_push'));
-                    if (batch.length >= 500) {
-                        await NotificationDispatcher.bulkDispatch(batch);
-                        successCount += batch.length;
-                        batch = [];
-                    }
-                }
-                if (batch.length > 0) {
-                    await NotificationDispatcher.bulkDispatch(batch);
-                    successCount += batch.length;
-                }
+                ({ successCount } = await dispatchToAllUsers(broadcastId, title, body, 'admin_push'));
             }
             // 2. Specific Users
             else if (targetType === 'users') {
@@ -193,20 +205,7 @@ export const createBroadcast = async (req: Request, res: Response) => {
         const broadcastIdText = broadcast._id.toString();
 
         if (type === 'GLOBAL' || type === 'SEGMENT') {
-            const cursor = User.find({}).select('_id').cursor();
-            let batch: NotificationIntent[] = [];
-            for await (const user of cursor) {
-                batch.push(NotificationIntent.fromAdminBroadcast(user._id.toString(), broadcastIdText, title, message, 'admin_broadcast'));
-                if (batch.length >= 500) {
-                    await NotificationDispatcher.bulkDispatch(batch);
-                    successCount += batch.length;
-                    batch = [];
-                }
-            }
-            if (batch.length > 0) {
-                await NotificationDispatcher.bulkDispatch(batch);
-                successCount += batch.length;
-            }
+            ({ successCount } = await dispatchToAllUsers(broadcastIdText, title, message, 'admin_broadcast'));
         } else {
             const intents = targetUsers.map((uid: string) => 
                 NotificationIntent.fromAdminBroadcast(uid, broadcastIdText, title, message, 'admin_broadcast')

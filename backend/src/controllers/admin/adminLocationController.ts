@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Location from '../../models/Location';
 import Ad from '../../models/Ad';
 import User from '../../models/User';
@@ -24,7 +25,13 @@ import {
     toGeoPoint,
     normalizeCoordinates
 } from '../../services/LocationService';
-import { buildHierarchyPath, resolveParentLocation } from '../../utils/locationHierarchy';
+import {
+    buildHierarchyPath,
+    resolveParentLocation,
+    resolveLocationSummary,
+    asString as resolveStringField,
+    CanonicalLocationDoc
+} from '../../utils/locationHierarchy';
 
 const safeSlugify = (text: string): string => {
     return slugify(text, { lower: true, strict: true, trim: true });
@@ -49,97 +56,7 @@ const ADMIN_STATES_CACHE_TTL_SECONDS = 300;
 const LOCATION_LIST_HINT = { isActive: 1, state: 1, level: 1, isPopular: -1, createdAt: -1 } as const;
 let hasWarnedLocationListHintFailure = false;
 
-type LocationIdLike = { toString: () => string } | string;
 
-type CanonicalLocationDoc = {
-    _id?: LocationIdLike;
-    name?: string;
-    country?: string;
-    level?: string;
-    parentId?: LocationIdLike | null;
-    path?: LocationIdLike[];
-};
-
-const toLocationIdString = (value: LocationIdLike | null | undefined): string | undefined => {
-    if (!value) return undefined;
-    if (typeof value === 'string') return value;
-    return value.toString();
-};
-
-const buildLocationSummary = (
-    location: CanonicalLocationDoc,
-    hierarchyMap: Map<string, CanonicalLocationDoc>
-) => {
-    const ownName = resolveStringField(location.name) || '';
-    const currentLevel = resolveStringField(location.level) || '';
-    const hierarchyTrail = Array.isArray(location.path)
-        ? location.path
-            .map((entry) => toLocationIdString(entry))
-            .filter((entry): entry is string => Boolean(entry))
-            .map((entry) => hierarchyMap.get(entry))
-            .filter((entry): entry is CanonicalLocationDoc => Boolean(entry))
-        : [];
-
-    const findHierarchyName = (level: string): string =>
-        hierarchyTrail.find((entry) => entry.level === level)?.name || '';
-
-    let city = findHierarchyName('city');
-    if (!city) {
-        if (currentLevel === 'city' || currentLevel === 'district' || currentLevel === 'state' || currentLevel === 'country') {
-            city = ownName;
-        } else if (currentLevel === 'area' || currentLevel === 'village') {
-            city = findHierarchyName('district') || ownName;
-        } else {
-            city = ownName;
-        }
-    }
-
-    let state = findHierarchyName('state');
-    if (!state && currentLevel === 'state') {
-        state = ownName;
-    }
-
-    const country = resolveStringField(location.country) || findHierarchyName('country') || '';
-
-    return {
-        name: ownName,
-        city,
-        state,
-        country,
-        level: currentLevel,
-    };
-};
-
-const resolveLocationSummary = async (location: CanonicalLocationDoc | null | undefined) => {
-    if (!location) return null;
-
-    const hierarchyIds = new Set<string>();
-    const currentId = toLocationIdString(location._id);
-    if (currentId) {
-        hierarchyIds.add(currentId);
-    }
-    for (const entry of location.path || []) {
-        const entryId = toLocationIdString(entry);
-        if (entryId) {
-            hierarchyIds.add(entryId);
-        }
-    }
-    const parentId = toLocationIdString(location.parentId);
-    if (parentId) {
-        hierarchyIds.add(parentId);
-    }
-
-    const hierarchyLocations = hierarchyIds.size > 0
-        ? await Location.find({ _id: { $in: Array.from(hierarchyIds) } })
-            .select('_id name country level')
-            .lean<CanonicalLocationDoc[]>()
-        : [];
-    const hierarchyMap = new Map(
-        hierarchyLocations.map((entry) => [String(entry._id), entry])
-    );
-
-    return buildLocationSummary(location, hierarchyMap);
-};
 
 const invalidateLocationStateCache = async () => {
     try {
@@ -154,11 +71,7 @@ const invalidateLocationStateCache = async () => {
     }
 };
 
-const resolveStringField = (value: unknown): string | undefined => {
-    if (typeof value !== 'string') return undefined;
-    const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : undefined;
-};
+
 
 /**
  * Create a state anchor location.
@@ -197,7 +110,7 @@ export const createCityLocation = async (req: Request, res: Response) => {
 
     if (!stateId) return sendAdminError(req, res, 400, 'stateId is required.');
     if (!cityName) return sendAdminError(req, res, 400, 'City name is required.');
-    if (!/^[a-f\d]{24}$/i.test(stateId)) {
+    if (!mongoose.Types.ObjectId.isValid(stateId)) {
         return sendAdminError(req, res, 400, 'Invalid stateId.');
     }
 
@@ -235,7 +148,7 @@ export const createAreaLocation = async (req: Request, res: Response) => {
 
     if (!cityId) return sendAdminError(req, res, 400, 'cityId is required.');
     if (!areaName) return sendAdminError(req, res, 400, 'Area name is required.');
-    if (!/^[a-f\d]{24}$/i.test(cityId)) {
+    if (!mongoose.Types.ObjectId.isValid(cityId)) {
         return sendAdminError(req, res, 400, 'Invalid cityId.');
     }
 

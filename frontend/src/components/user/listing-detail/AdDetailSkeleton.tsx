@@ -1,6 +1,23 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 
+function TitleAndMetricsSkeleton({ isDesktop = false }: { isDesktop?: boolean }) {
+    return (
+        <>
+            <div className="flex gap-2">
+                <Skeleton className="h-5 w-20 rounded-full" />
+                <Skeleton className="h-5 w-20 rounded-full" />
+            </div>
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className={isDesktop ? "h-12 w-1/2" : "h-10 w-1/2"} />
+            <div className="grid grid-cols-2 gap-2 pt-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+            </div>
+        </>
+    );
+}
+
 export function AdDetailSkeleton() {
     return (
         <div className="bg-gray-50 pb-20 md:pb-6">
@@ -32,16 +49,7 @@ export function AdDetailSkeleton() {
                         {/* Mobile Title Skeleton */}
                         <Card className="md:hidden rounded-none border-x-0">
                             <CardContent className="p-4 space-y-3">
-                                <div className="flex gap-2">
-                                    <Skeleton className="h-5 w-20 rounded-full" />
-                                    <Skeleton className="h-5 w-20 rounded-full" />
-                                </div>
-                                <Skeleton className="h-8 w-3/4" />
-                                <Skeleton className="h-10 w-1/2" />
-                                <div className="grid grid-cols-2 gap-2 pt-2">
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-full" />
-                                </div>
+                                <TitleAndMetricsSkeleton />
                             </CardContent>
                         </Card>
 
@@ -64,16 +72,7 @@ export function AdDetailSkeleton() {
                         {/* Desktop Title & Actions Skeleton */}
                         <Card className="hidden md:block">
                             <CardContent className="p-5 space-y-4">
-                                <div className="flex gap-2">
-                                    <Skeleton className="h-5 w-20 rounded-full" />
-                                    <Skeleton className="h-5 w-20 rounded-full" />
-                                </div>
-                                <Skeleton className="h-8 w-3/4" />
-                                <Skeleton className="h-12 w-1/2" />
-                                <div className="grid grid-cols-2 gap-2 pt-2">
-                                    <Skeleton className="h-4 w-full" />
-                                    <Skeleton className="h-4 w-full" />
-                                </div>
+                                <TitleAndMetricsSkeleton isDesktop />
                                 <Skeleton className="h-12 w-full rounded-lg" />
                             </CardContent>
                         </Card>

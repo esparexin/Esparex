@@ -1,5 +1,6 @@
 import mongoose, { Model, Types } from "mongoose";
 import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IUserPlan {
     userId: Types.ObjectId;
@@ -33,16 +34,6 @@ const UserPlan: Model<IUserPlan> =
     (connection.models.UserPlan as Model<IUserPlan>) ||
     connection.model<IUserPlan>("UserPlan", UserPlanSchema);
 
-// toJSON Transform - Convert _id to id
-UserPlanSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as unknown as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(UserPlanSchema);
 
 export default UserPlan;

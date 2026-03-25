@@ -19,6 +19,17 @@ type AdminSidebarProps = {
     setIsMinified: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+function SidebarFooterMeta({ role }: { role?: string }) {
+    return (
+        <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">v2.0.0-rc</span>
+            <span className="rounded-full bg-slate-800/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-600">
+                {role?.replace("_", " ")}
+            </span>
+        </div>
+    );
+}
+
 export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsMinified }: AdminSidebarProps) {
     const { admin } = useAdminAuth();
     const [counts, setCounts] = useState<SidebarCounters>({});
@@ -136,12 +147,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                 </div>
 
                 <div className="border-t border-slate-800 px-4 py-4">
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-500">v2.0.0-rc</span>
-                        <span className="rounded-full bg-slate-800/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                            {admin?.role?.replace("_", " ")}
-                        </span>
-                    </div>
+                    <SidebarFooterMeta role={admin?.role} />
                 </div>
             </aside>
 
@@ -197,12 +203,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
 
                 <div className={`border-t border-slate-800 px-4 py-4 ${isMinified ? "text-center" : ""}`}>
                     {!isMinified ? (
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium text-slate-500">v2.0.0-rc</span>
-                            <span className="rounded-full bg-slate-800/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                                {admin?.role?.replace("_", " ")}
-                            </span>
-                        </div>
+                        <SidebarFooterMeta role={admin?.role} />
                     ) : (
                         <span className="select-none text-[10px] font-bold tracking-widest text-slate-500">v2</span>
                     )}

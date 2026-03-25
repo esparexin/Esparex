@@ -1,5 +1,6 @@
 import { Schema, Document, Model } from 'mongoose';
 import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface ISystemConfig extends Document {
     singletonKey?: string;
@@ -278,19 +279,6 @@ const SystemConfig: Model<ISystemConfig> =
     (connection.models.SystemConfig as Model<ISystemConfig>) ||
     connection.model<ISystemConfig>('SystemConfig', SystemConfigSchema);
 
-// toJSON Transform - Convert _id to id
-SystemConfigSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        const rawId = json._id;
-        if (typeof rawId === 'string' || (rawId && typeof (rawId as { toString?: () => string }).toString === 'function')) {
-            json.id = rawId.toString();
-        }
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(SystemConfigSchema);
 
 export default SystemConfig;

@@ -78,19 +78,10 @@ SparePartSchema.index({ sortOrder: 1 }, { name: 'idx_sparepart_sortOrder' });
 SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });
 SparePartSchema.index({ isDeleted: 1 }, { name: 'idx_sparepart_isDeleted' });
 
-// toJSON Transform — MUST be before model() registration
-SparePartSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        json.id = String(json._id);
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(SparePartSchema);
 
 import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 export const SparePartModel: Model<ISparePart> =
     getAdminConnection().models.SparePart ||
     getAdminConnection().model<ISparePart>('SparePart', SparePartSchema);

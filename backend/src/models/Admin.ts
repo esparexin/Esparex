@@ -3,6 +3,7 @@ import { getAdminConnection } from "../config/db";
 import softDeletePlugin from '../utils/softDeletePlugin';
 import bcrypt from 'bcryptjs';
 import { USER_STATUS, USER_STATUS_VALUES, UserStatusValue } from "@shared/enums/userStatus";
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IAdmin extends Document {
     firstName: string;
@@ -118,22 +119,7 @@ AdminSchema.virtual('name').get(function () {
     return `${this.firstName} ${this.lastName}`.trim();
 });
 
-// toJSON Transform - Convert _id to id
-AdminSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as unknown as Record<string, unknown>;
-        const rawId = json._id;
-        if (typeof rawId === 'string' || (rawId && typeof (rawId as { toString?: () => string }).toString === 'function')) {
-            json.id = rawId.toString();
-        }
-        delete json._id;
-        // Remove password from JSON output
-        delete json.password;
-        return json;
-    }
-});
+applyToJSONTransform(AdminSchema);
 
 // Prevent recompilation in dev
 const Admin: Model<IAdmin> =

@@ -18,6 +18,35 @@ import {
     sanitizeBusinessForPublic
 } from './shared';
 
+const requireBusiness = async (req: Request, res: Response, errorMsg = 'Invalid Business ID') => {
+    const id = getSingleParam(req, res, 'id', { error: errorMsg });
+    if (!id) return null;
+
+    const business = await findBusinessByIdentifier(id);
+    if (!business) {
+        sendErrorResponse(req, res, 404, 'Business not found');
+        return null;
+    }
+    return business;
+};
+
+const getBusinessListings = async (sellerId: any, listingType: string) => {
+    const listings = await Ad.find({
+        sellerId,
+        listingType,
+        status: AD_STATUS.LIVE,
+        isDeleted: { $ne: true }
+    }).sort({ createdAt: -1 }).lean();
+    return listings.map((listing) => normalizeAdImagesForResponse(listing as unknown as Record<string, unknown>));
+};
+
+const sendListingResponse = async (req: Request, res: Response, listingType: string): Promise<void> => {
+    const business = await requireBusiness(req, res);
+    if (!business) return;
+    const data = await getBusinessListings(business.userId, listingType);
+    res.json(respond<ApiResponse<unknown[]>>({ success: true, data }));
+};
+
 export const getBusinesses = async (req: Request, res: Response) => {
     try {
         const { city, category, limit } = req.query;
@@ -41,14 +70,8 @@ export const getBusinesses = async (req: Request, res: Response) => {
 
 export const getBusinessById = async (req: Request, res: Response) => {
     try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID format' });
-        if (!id) return;
-
-        const business = await findBusinessByIdentifier(id);
-        if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
-        }
+        const business = await requireBusiness(req, res, 'Invalid Business ID format');
+        if (!business) return;
 
         const user = req.user;
         const isOwner = user && business.userId.toString() === user._id.toString();
@@ -78,28 +101,7 @@ export const getBusinessById = async (req: Request, res: Response) => {
 
 export const getBusinessServices = async (req: Request, res: Response) => {
     try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID' });
-        if (!id) return;
-        const business = await findBusinessByIdentifier(id);
-        if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
-        }
-
-        const services = await Ad.find({
-            sellerId: business.userId,
-            listingType: LISTING_TYPE.SERVICE,
-            status: AD_STATUS.LIVE,
-            isDeleted: { $ne: true }
-        }).sort({ createdAt: -1 }).lean();
-        const sanitizedServices = services.map((service) => normalizeAdImagesForResponse(service as unknown as Record<string, unknown>));
-
-        const response = respond<ApiResponse<SharedService[]>>({
-            success: true,
-            data: sanitizedServices as unknown as SharedService[]
-        });
-
-        res.json(response);
+        await sendListingResponse(req, res, LISTING_TYPE.SERVICE);
     } catch {
         sendErrorResponse(req, res, 500, 'Failed to fetch business services');
     }
@@ -107,23 +109,7 @@ export const getBusinessServices = async (req: Request, res: Response) => {
 
 export const getBusinessAds = async (req: Request, res: Response) => {
     try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID' });
-        if (!id) return;
-        const business = await findBusinessByIdentifier(id);
-        if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
-        }
-
-        const ads = await Ad.find({
-            sellerId: business.userId,
-            listingType: LISTING_TYPE.AD,
-            status: AD_STATUS.LIVE,
-            isDeleted: { $ne: true }
-        }).sort({ createdAt: -1 }).lean();
-        const sanitizedAds = ads.map((ad) => normalizeAdImagesForResponse(ad as unknown as Record<string, unknown>));
-
-        res.json(respond<ApiResponse<unknown[]>>({ success: true, data: sanitizedAds }));
+        await sendListingResponse(req, res, LISTING_TYPE.AD);
     } catch {
         sendErrorResponse(req, res, 500, 'Failed to fetch business ads');
     }
@@ -131,23 +117,7 @@ export const getBusinessAds = async (req: Request, res: Response) => {
 
 export const getBusinessSpareParts = async (req: Request, res: Response) => {
     try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID' });
-        if (!id) return;
-        const business = await findBusinessByIdentifier(id);
-        if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
-        }
-
-        const parts = await Ad.find({
-            sellerId: business.userId,
-            listingType: LISTING_TYPE.SPARE_PART,
-            status: AD_STATUS.LIVE,
-            isDeleted: { $ne: true }
-        }).sort({ createdAt: -1 }).lean();
-        const sanitizedParts = parts.map((part) => normalizeAdImagesForResponse(part as unknown as Record<string, unknown>));
-
-        res.json(respond<ApiResponse<unknown[]>>({ success: true, data: sanitizedParts }));
+        await sendListingResponse(req, res, LISTING_TYPE.SPARE_PART);
     } catch {
         sendErrorResponse(req, res, 500, 'Failed to fetch business spare parts');
     }
@@ -155,14 +125,8 @@ export const getBusinessSpareParts = async (req: Request, res: Response) => {
 
 export const getBusinessStatsById = async (req: Request, res: Response) => {
     try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID' });
-        if (!id) return;
-
-        const business = await findBusinessByIdentifier(id);
-        if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
-        }
+        const business = await requireBusiness(req, res);
+        if (!business) return;
 
         const userId = business.userId.toString();
         const [totalServices, approvedServices, pendingServices] = await Promise.all([

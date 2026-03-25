@@ -28,6 +28,32 @@ import {
   toSharedUser
 } from './shared';
 
+const resolveBlockerEntities = (req: Request, res: Response) => {
+    if (!req.user) {
+        sendErrorResponse(req, res, 401, 'Unauthorized');
+        return null;
+    }
+
+    const blockerId = getStorageSafeId(req.user);
+    if (!blockerId) {
+        sendErrorResponse(req, res, 401, 'Invalid session');
+        return null;
+    }
+
+    const blockedUserId = String(req.params.id || '').trim();
+    if (!mongoose.Types.ObjectId.isValid(blockedUserId)) {
+        sendErrorResponse(req, res, 400, 'Invalid user id');
+        return null;
+    }
+
+    if (blockedUserId === blockerId) {
+        sendErrorResponse(req, res, 400, 'You cannot block yourself');
+        return null;
+    }
+
+    return { blockerId, blockedUserId };
+};
+
 export const updateMe = async (
   req: Request,
   res: Response,
@@ -328,26 +354,9 @@ export const blockUser = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.user) {
-      sendErrorResponse(req, res, 401, 'Unauthorized');
-      return;
-    }
-
-    const blockerId = getStorageSafeId(req.user);
-    if (!blockerId) {
-      sendErrorResponse(req, res, 401, 'Invalid session');
-      return;
-    }
-
-    const blockedUserId = String(req.params.id || '').trim();
-    if (!mongoose.Types.ObjectId.isValid(blockedUserId)) {
-      sendErrorResponse(req, res, 400, 'Invalid user id');
-      return;
-    }
-    if (blockedUserId === blockerId) {
-      sendErrorResponse(req, res, 400, 'You cannot block yourself');
-      return;
-    }
+    const entities = resolveBlockerEntities(req, res);
+    if (!entities) return;
+    const { blockerId, blockedUserId } = entities;
 
     const blockedUserExists = await User.exists({
       _id: new mongoose.Types.ObjectId(blockedUserId),
@@ -395,22 +404,9 @@ export const unblockUser = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.user) {
-      sendErrorResponse(req, res, 401, 'Unauthorized');
-      return;
-    }
-
-    const blockerId = getStorageSafeId(req.user);
-    if (!blockerId) {
-      sendErrorResponse(req, res, 401, 'Invalid session');
-      return;
-    }
-
-    const blockedUserId = String(req.params.id || '').trim();
-    if (!mongoose.Types.ObjectId.isValid(blockedUserId)) {
-      sendErrorResponse(req, res, 400, 'Invalid user id');
-      return;
-    }
+    const entities = resolveBlockerEntities(req, res);
+    if (!entities) return;
+    const { blockerId, blockedUserId } = entities;
 
     await BlockedUser.deleteOne({
       blockerId: new mongoose.Types.ObjectId(blockerId),

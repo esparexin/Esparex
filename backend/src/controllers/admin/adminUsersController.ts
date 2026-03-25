@@ -32,6 +32,18 @@ const ADMIN_ROLE_RANK: Record<string, number> = {
     super_admin: 100
 };
 
+const ALLOWED_ADMIN_ROLES = new Set([
+    Role.SUPER_ADMIN,
+    Role.ADMIN,
+    Role.MODERATOR,
+    'user_manager',
+    'finance_manager',
+    'content_moderator',
+    'editor',
+    'viewer',
+    'custom'
+]);
+
 const getRoleRank = (role: string | undefined): number => ADMIN_ROLE_RANK[role || ''] || 0;
 
 const ensureRoleAssignmentAllowed = (actorRole: string | undefined, targetRole: string): boolean => {
@@ -267,20 +279,8 @@ export const createAdmin = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 409, 'Admin with this email already exists');
         }
 
-        const allowedRoles = new Set([
-            Role.SUPER_ADMIN,
-            Role.ADMIN,
-            Role.MODERATOR,
-            'user_manager',
-            'finance_manager',
-            'content_moderator',
-            'editor',
-            'viewer',
-            'custom'
-        ]);
-
         const normalizedRole =
-            typeof role === 'string' && allowedRoles.has(role)
+            typeof role === 'string' && ALLOWED_ADMIN_ROLES.has(role)
                 ? role
                 : Role.ADMIN;
 
@@ -346,19 +346,8 @@ export const updateAdmin = async (req: Request, res: Response) => {
         if (mobile) updateData.mobile = mobile;
         if (permissions) updateData.permissions = permissions;
         if (status) updateData.status = status;
-        const allowedRoles = new Set([
-            Role.SUPER_ADMIN,
-            Role.ADMIN,
-            Role.MODERATOR,
-            'user_manager',
-            'finance_manager',
-            'content_moderator',
-            'editor',
-            'viewer',
-            'custom'
-        ]);
         if (role) {
-            if (typeof role !== 'string' || !allowedRoles.has(role)) {
+            if (typeof role !== 'string' || !ALLOWED_ADMIN_ROLES.has(role)) {
                 return sendErrorResponse(req, res, 400, 'Invalid admin role');
             }
             const actorRole = (req.user as IAuthUser | undefined)?.role;

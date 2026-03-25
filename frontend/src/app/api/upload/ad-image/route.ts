@@ -26,6 +26,18 @@ const toDataUrl = async (file: File): Promise<string> => {
     return `data:${file.type || "application/octet-stream"};base64,${bytes.toString("base64")}`;
 };
 
+const handleUploadResponse = async (response: Response) => {
+    const payload = await response.json().catch(() => ({}));
+    const url = payload?.data?.url;
+    if (!response.ok || typeof url !== "string") {
+        return NextResponse.json(
+            { error: payload?.message || payload?.error || "Upload failed" },
+            { status: response.status || 500 }
+        );
+    }
+    return NextResponse.json({ success: true, url });
+};
+
 export async function POST(req: Request) {
     try {
         const incoming = await req.formData();
@@ -62,16 +74,7 @@ export async function POST(req: Request) {
                 cache: "no-store",
             });
 
-            const payload = await response.json().catch(() => ({}));
-            const url = payload?.data?.url;
-            if (!response.ok || typeof url !== "string") {
-                return NextResponse.json(
-                    { error: payload?.message || payload?.error || "Upload failed" },
-                    { status: response.status || 500 }
-                );
-            }
-
-            return NextResponse.json({ success: true, url });
+            return handleUploadResponse(response);
         }
 
         const forward = new FormData();
@@ -88,16 +91,7 @@ export async function POST(req: Request) {
             cache: "no-store",
         });
 
-        const payload = await response.json().catch(() => ({}));
-        const url = payload?.data?.url;
-        if (!response.ok || typeof url !== "string") {
-            return NextResponse.json(
-                { error: payload?.message || payload?.error || "Upload failed" },
-                { status: response.status || 500 }
-            );
-        }
-
-        return NextResponse.json({ success: true, url });
+        return handleUploadResponse(response);
     } catch (error) {
         const message = error instanceof Error ? error.message : "Internal server error during upload";
         return NextResponse.json({ error: message }, { status: 500 });

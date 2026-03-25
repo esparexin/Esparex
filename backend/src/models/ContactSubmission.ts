@@ -1,5 +1,6 @@
 import { Schema, Document, Model } from 'mongoose';
 import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IContactSubmission extends Document {
     name: string;
@@ -22,17 +23,7 @@ const ContactSubmissionSchema = new Schema<IContactSubmission>({
     message: { type: String, required: true },
     status: { type: String, enum: ['new', 'read', 'replied'], default: 'new' }
 }, { timestamps: true });
-// toJSON Transform - Convert _id to id
-ContactSubmissionSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as unknown as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(ContactSubmissionSchema);
 
 const connection = getUserConnection();
 const ContactSubmission: Model<IContactSubmission> =

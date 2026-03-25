@@ -1,5 +1,6 @@
 import { Schema, Model, Types, Document } from 'mongoose';
 import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface ISavedSearch extends Document {
     userId: Types.ObjectId;
@@ -33,16 +34,7 @@ SavedSearchSchema.index({ categoryId: 1 }, { name: 'idx_savedsearch_categoryId_i
 SavedSearchSchema.index({ locationId: 1 }, { name: 'idx_savedsearch_locationId_idx' });
 SavedSearchSchema.index({ userId: 1, createdAt: -1 }, { name: 'idx_savedsearch_user_freshness_idx' });
 
-SavedSearchSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as unknown as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(SavedSearchSchema);
 
 const connection = getUserConnection();
 const SavedSearch: Model<ISavedSearch> =

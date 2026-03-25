@@ -2,8 +2,8 @@ import { apiClient } from "@/lib/api/client";
 import type { EsparexRequestConfig } from "@/lib/api/client";
 import { toApiResult } from "@/lib/api/result";
 import { API_ROUTES } from "@/lib/api/routes";
-export { type Location, type IngestLocationParams } from '@/../../shared/types/Location';
-import { Location, IngestLocationParams } from '@/../../shared/types/Location';
+export type { Location, IngestLocationParams } from '@shared/types/Location';
+import type { Location, IngestLocationParams } from '@shared/types/Location';
 import logger from "@/lib/logger";
 import { ingestLocationSchema } from "@/schemas/location.schema";
 

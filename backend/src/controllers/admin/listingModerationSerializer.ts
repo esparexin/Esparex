@@ -17,23 +17,24 @@ const MODERATION_STATUS_SET = new Set<ModerationStatus>([
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
+const throwContractError = (message: string, code = 'LISTING_CONTRACT_VIOLATION'): never => {
+    const err = new Error(message) as Error & { statusCode?: number; code?: string };
+    err.statusCode = 500;
+    err.code = code;
+    throw err;
+};
+
 const normalizeListingType = (value: unknown): ModerationListingType => {
     const raw = typeof value === 'string' ? value.trim().toLowerCase() : '';
     if (raw === LISTING_TYPE.AD || raw === LISTING_TYPE.SERVICE || raw === LISTING_TYPE.SPARE_PART) return raw;
 
-    const err = new Error('Lifecycle contract violation (listing_type): missing/invalid listingType');
-    (err as Error & { statusCode?: number; code?: string }).statusCode = 500;
-    (err as Error & { statusCode?: number; code?: string }).code = 'LISTING_CONTRACT_VIOLATION';
-    throw err;
+    return throwContractError('Lifecycle contract violation (listing_type): missing/invalid listingType');
 };
 
 const assertLifecycleStatus = (status: unknown, context: string): ModerationStatus => {
     const normalized = typeof status === 'string' ? status.trim().toLowerCase() : '';
     if (!MODERATION_STATUS_SET.has(normalized as ModerationStatus)) {
-        const err = new Error(`Lifecycle contract violation (${context}): missing/invalid status`);
-        (err as Error & { statusCode?: number; code?: string }).statusCode = 500;
-        (err as Error & { statusCode?: number; code?: string }).code = 'LISTING_CONTRACT_VIOLATION';
-        throw err;
+        return throwContractError(`Lifecycle contract violation (${context}): missing/invalid status`);
     }
 
     return normalized as ModerationStatus;
@@ -46,17 +47,15 @@ const pickId = (source: Record<string, unknown>): string => {
 
 export const serializeModerationListing = (raw: unknown) => {
     if (!isRecord(raw)) {
-        const err = new Error('Listing serialization failure: expected object payload');
-        (err as Error & { statusCode?: number; code?: string }).statusCode = 500;
-        (err as Error & { statusCode?: number; code?: string }).code = 'LISTING_SERIALIZATION_FAILED';
-        throw err;
+        return throwContractError('Listing serialization failure: expected object payload', 'LISTING_SERIALIZATION_FAILED');
     }
 
+    const rec = raw;
     return {
-        ...raw,
-        id: pickId(raw),
-        status: assertLifecycleStatus(raw.status, 'list_item'),
-        listingType: normalizeListingType(raw.listingType),
+        ...rec,
+        id: pickId(rec),
+        status: assertLifecycleStatus(rec.status, 'list_item'),
+        listingType: normalizeListingType(rec.listingType),
     };
 };
 

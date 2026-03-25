@@ -3,6 +3,7 @@ import { Schema, Document, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
 import type { Model } from "mongoose";
 import { PAYMENT_STATUS, PAYMENT_STATUS_VALUES, PaymentStatusValue } from "../../../shared/enums/paymentStatus";
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IInvoice extends Document {
     invoiceNumber: string;
@@ -110,16 +111,6 @@ const connection = getUserConnection();
 export const Invoice: Model<IInvoice> =
     (connection.models.Invoice as Model<IInvoice>) ||
     connection.model<IInvoice>("Invoice", InvoiceSchema);
-// toJSON Transform - Convert _id to id
-InvoiceSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        json.id = String(json._id);
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(InvoiceSchema);
 
 export default Invoice;

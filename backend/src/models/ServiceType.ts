@@ -44,18 +44,9 @@ import softDeletePlugin from '../utils/softDeletePlugin';
 ServiceTypeSchema.plugin(softDeletePlugin);
 
 import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 const ServiceType: Model<IServiceType> = getAdminConnection().models.ServiceType || getAdminConnection().model<IServiceType>('ServiceType', ServiceTypeSchema);
 
-// toJSON Transform - Convert _id to id
-ServiceTypeSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        json.id = String(json._id);
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(ServiceTypeSchema);
 
 export default ServiceType;

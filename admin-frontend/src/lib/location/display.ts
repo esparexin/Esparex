@@ -9,7 +9,7 @@ const asString = (value: unknown): string | undefined => {
     return trimmed.length > 0 ? trimmed : undefined;
 };
 
-const toGeoPoint = (value: unknown): { type: "Point"; coordinates: [number, number] } | undefined => {
+export const toGeoPoint = (value: unknown): { type: "Point"; coordinates: [number, number] } | undefined => {
     if (!value || typeof value !== "object") return undefined;
     const point = value as GeoJSONPoint;
     if (point.type !== "Point") return undefined;

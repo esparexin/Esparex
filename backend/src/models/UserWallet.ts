@@ -1,6 +1,7 @@
 // backend/src/models/UserWallet.ts
 import { Schema, Model, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IUserWallet {
     userId: Types.ObjectId;
@@ -38,16 +39,6 @@ UserWalletSchema.index({ userId: 1 }, { name: 'idx_userwallet_userId_unique_idx'
 const connection = getUserConnection();
 const UserWallet: Model<IUserWallet> = (connection.models.UserWallet as Model<IUserWallet>) ||
     connection.model<IUserWallet>("UserWallet", UserWalletSchema);
-// toJSON Transform - Convert _id to id
-UserWalletSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as unknown as { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(UserWalletSchema);
 
 export default UserWallet;

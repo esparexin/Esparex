@@ -32,7 +32,7 @@
     "check:s3-images": "npx ts-node --compiler-options '{\"moduleResolution\":\"NodeNext\"}' scripts/check-s3-images.ts",
     "lint": "node scripts/run-eslint-changed.js",
     "guard:unused-imports": "node scripts/enforce-no-new-unused-imports.js",
-    "guard:duplication": "npx jscpd --threshold 3 frontend backend admin-frontend",
+    "guard:duplication": "npx jscpd --config .jscpd.json",
     "guard:api-surface": "node scripts/enforce-api-surface-guard.js"
   },
   "dependencies": {},

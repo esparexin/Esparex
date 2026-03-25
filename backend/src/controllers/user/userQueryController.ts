@@ -10,6 +10,15 @@ import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from 
 import { getSellerReputation } from '../../services/SellerTrustSignalsService';
 import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '../../services/UserProfileService';
 
+const resolveUserId = (req: Request, res: Response): string | null => {
+  const userId = typeof req.params.id === 'string' ? req.params.id : '';
+  if (!userId) {
+    sendErrorResponse(req, res, 400, 'Invalid user id');
+    return null;
+  }
+  return userId;
+};
+
 export const getMe = async (
   req: Request,
   res: Response,
@@ -73,11 +82,8 @@ export const getUserReputationById = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = typeof req.params.id === 'string' ? req.params.id : '';
-    if (!userId) {
-      sendErrorResponse(req, res, 400, 'Invalid user id');
-      return;
-    }
+    const userId = resolveUserId(req, res);
+    if (!userId) return;
 
     const reputation = await getSellerReputation(userId);
 
@@ -99,11 +105,8 @@ export const getUserProfileById = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = typeof req.params.id === 'string' ? req.params.id : '';
-    if (!userId) {
-      sendErrorResponse(req, res, 400, 'Invalid user id');
-      return;
-    }
+    const userId = resolveUserId(req, res);
+    if (!userId) return;
 
     const profile = await getPublicUserProfileById(userId);
     if (!profile) {

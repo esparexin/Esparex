@@ -16,10 +16,128 @@ type HierarchyLocationNode = {
     country?: string;
 };
 
-const asString = (value: unknown): string | undefined => {
+export const asString = (value: unknown): string | undefined => {
     if (typeof value !== 'string') return undefined;
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : undefined;
+};
+
+export type LocationIdLike = { toString: () => string } | string;
+
+export type CanonicalLocationDoc = {
+    _id?: LocationIdLike;
+    name?: string;
+    country?: string;
+    level?: string;
+    parentId?: LocationIdLike | null;
+    path?: LocationIdLike[];
+};
+
+export const toLocationIdString = (value: LocationIdLike | null | undefined): string | undefined => {
+    if (!value) return undefined;
+    if (typeof value === 'string') return value;
+    return value.toString();
+};
+
+export const buildLocationSummary = (
+    location: CanonicalLocationDoc,
+    hierarchyMap: Map<string, CanonicalLocationDoc>
+) => {
+    const ownName = asString(location.name) || '';
+    const currentLevel = asString(location.level) || '';
+    const hierarchyTrail = Array.isArray(location.path)
+        ? location.path
+            .map((entry) => toLocationIdString(entry))
+            .filter((entry): entry is string => Boolean(entry))
+            .map((entry) => hierarchyMap.get(entry))
+            .filter((entry): entry is CanonicalLocationDoc => Boolean(entry))
+        : [];
+
+    const findHierarchyName = (level: string): string =>
+        hierarchyTrail.find((entry) => entry.level === level)?.name || '';
+
+    let city = findHierarchyName('city');
+    if (!city) {
+        if (currentLevel === 'city' || currentLevel === 'district' || currentLevel === 'state' || currentLevel === 'country') {
+            city = ownName;
+        } else if (currentLevel === 'area' || currentLevel === 'village') {
+            city = findHierarchyName('district') || ownName;
+        } else {
+            city = ownName;
+        }
+    }
+
+    let state = findHierarchyName('state');
+    if (!state && currentLevel === 'state') {
+        state = ownName;
+    }
+
+    const country = asString(location.country) || findHierarchyName('country') || '';
+
+    return {
+        id: toLocationIdString(location._id) || '',
+        name: ownName,
+        city,
+        state,
+        country,
+        level: currentLevel,
+    };
+};
+
+export const resolveLocationSummary = async (location: CanonicalLocationDoc | null | undefined) => {
+    if (!location) return null;
+
+    const hierarchyIds = new Set<string>();
+    const currentId = toLocationIdString(location._id);
+    if (currentId) {
+        hierarchyIds.add(currentId);
+    }
+    for (const entry of location.path || []) {
+        const entryId = toLocationIdString(entry);
+        if (entryId) {
+            hierarchyIds.add(entryId);
+        }
+    }
+    const parentId = toLocationIdString(location.parentId);
+    if (parentId) {
+        hierarchyIds.add(parentId);
+    }
+
+    const hierarchyLocations = hierarchyIds.size > 0
+        ? await Location.find({ _id: { $in: Array.from(hierarchyIds) } })
+            .select('_id name country level')
+            .lean<CanonicalLocationDoc[]>()
+        : [];
+    const hierarchyMap = new Map(
+        hierarchyLocations.map((entry) => [String(entry._id), entry])
+    );
+
+    return buildLocationSummary(location, hierarchyMap);
+};
+
+export const normalizeStateLabel = (value: unknown): string => {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : 'Unknown';
+    }
+
+    if (value && typeof value === 'object') {
+        const obj = value as { state?: unknown; name?: unknown; toString?: () => string };
+        if (typeof obj.state === 'string' && obj.state.trim().length > 0) {
+            return obj.state.trim();
+        }
+        if (typeof obj.name === 'string' && obj.name.trim().length > 0) {
+            return obj.name.trim();
+        }
+        if (typeof obj.toString === 'function') {
+            const str = obj.toString().trim();
+            if (str.length > 0 && str !== '[object Object]') {
+                return str;
+            }
+        }
+    }
+
+    return 'Unknown';
 };
 
 const toTitleCase = (value?: string): string => {

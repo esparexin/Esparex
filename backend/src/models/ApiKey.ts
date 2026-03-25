@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IApiKey extends Document {
     name: string;
@@ -41,20 +42,7 @@ ApiKeySchema.index({ createdBy: 1 }, { name: 'idx_apikey_createdBy_idx' });
 ApiKeySchema.index({ status: 1, createdAt: -1 }, { name: 'idx_apikey_status_createdAt_idx' });
 ApiKeySchema.index({ keyPrefix: 1, status: 1 }, { name: 'idx_apikey_prefix_status_idx' });
 
-ApiKeySchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        const rawId = json._id;
-        if (typeof rawId === 'string' || (rawId && typeof (rawId as { toString?: () => string }).toString === 'function')) {
-            json.id = rawId.toString();
-        }
-        delete json._id;
-        delete json.keyHash;
-        return json;
-    }
-});
+applyToJSONTransform(ApiKeySchema);
 
 const connection = getAdminConnection();
 const ApiKey: Model<IApiKey> =

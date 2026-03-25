@@ -4,16 +4,22 @@ import React from "react";
 import logger from "@/lib/logger";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Field } from "@/components/ui/field";
 import { cn } from "@/components/ui/utils";
-import { Loader2, Upload, X, Check, CircuitBoard, MapPin } from "@/icons/IconRegistry";
+import { Loader2, Check, CircuitBoard } from "@/icons/IconRegistry";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
+import { ListingImagesField, ListingLocationField, ListingTitleField, ListingPriceField, ListingDescriptionField, CategorySelectorGrid } from "@/components/user/shared/ListingFormFields";
+import {
+    appendListingImages,
+    createRemoteListingImages,
+    extractEntityId,
+    getBusinessLocationDisplay,
+    removeListingImageById,
+    toListingLocationFromBusiness,
+} from "@/components/user/shared/listingFormShared";
+import { ListingModalLayout, ListingModalBody, ListingModalFooter, ListingModalLoading } from "@/components/user/shared/ListingModalLayout";
 import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
@@ -21,35 +27,11 @@ import { createSparePartListing, updateSparePartListing } from "@/lib/api/user/s
 import { getListingById } from "@/lib/api/user/ads";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
 import type { ListingImage } from "@/types/listing";
-
-// ─── Schema ─────────────────────────────────────────────────────────────────
-const PostSparePartSchema = z.object({
-    title: z.string().min(10, "Title must be at least 10 characters").max(60, "Title too long"),
-    categoryId: z.string().min(1, "Please select a category"),
-    brandId: z.string().optional(),
-    sparePartTypeId: z.string().min(1, "Please select a spare part type"),
-    price: z.number({ invalid_type_error: "Enter a valid price" }).min(0, "Price must be at least 0"),
-    description: z.string().min(20, "Description must be at least 20 characters").max(2000, "Description too long"),
-    location: z.object({
-        city: z.string(),
-        state: z.string(),
-        display: z.string().optional(), // stripped by useListingSubmission before validation
-        coordinates: z.object({
-            type: z.literal("Point"),
-            coordinates: z.tuple([z.number(), z.number()]),
-        }),
-        locationId: z.string().optional(),
-    }).optional(),
-});
-const EditSparePartSchema = PostSparePartSchema.pick({
-    title: true,
-    description: true,
-    price: true,
-}).extend({
-    images: z.array(z.string()).min(1, "At least one image is required").max(10, "Maximum 10 images allowed"),
-});
-
-type PostSparePartValues = z.infer<typeof PostSparePartSchema>;
+import {
+    EditPostSparePartFormSchema,
+    PostSparePartFormSchema,
+    type PostSparePartFormValues,
+} from "@/schemas/postSparePartForm.schema";
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function PostSparePartForm({ editSparePartId }: { editSparePartId?: string }) {
@@ -57,8 +39,8 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
     const { user } = useAuth();
     const { businessData } = useBusiness(user);
 
-    const form = useForm<PostSparePartValues>({
-        resolver: zodResolver(PostSparePartSchema),
+    const form = useForm<PostSparePartFormValues>({
+        resolver: zodResolver(PostSparePartFormSchema),
         defaultValues: {
             title: "",
             categoryId: "",
@@ -86,16 +68,9 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
 
     // ─── Pre-fill location ─────────────────────────────────────────────────
     React.useEffect(() => {
-        if (businessData?.location && !editSparePartId) {
-            const loc = businessData.location;
-            form.setValue("location", {
-                city: loc.city || "",
-                state: loc.state || "",
-                display: loc.display || [loc.city, loc.state].filter(Boolean).join(", "),
-                coordinates: loc.coordinates || { type: "Point", coordinates: [0, 0] },
-                locationId: loc.locationId,
-            });
-        }
+        if (!businessData?.location || editSparePartId) return;
+        const location = toListingLocationFromBusiness(businessData.location);
+        if (location) form.setValue("location", location);
     }, [businessData, form, editSparePartId]);
 
     // ─── Images (local) ────────────────────────────────────────────────────
@@ -111,12 +86,12 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
             try {
                 const payload = await getListingById(editSparePartId);
                 if (isMounted && payload) {
-                    const resolvedCategoryId = typeof payload.categoryId === 'string' ? payload.categoryId : ((payload.categoryId as any)?.id || "");
+                    const resolvedCategoryId = extractEntityId(payload.categoryId || payload.category);
                     form.reset({
                         title: payload.title || "",
                         categoryId: resolvedCategoryId,
-                        brandId: payload.brandId || "",
-                        sparePartTypeId: typeof payload.sparePartId === 'string' ? payload.sparePartId : ((payload.sparePartId as any)?.id || ""),
+                        brandId: extractEntityId(payload.brandId || payload.brand),
+                        sparePartTypeId: extractEntityId(payload.sparePartId || (payload as { sparePartTypeId?: unknown }).sparePartTypeId),
                         price: typeof payload.price === 'number' ? payload.price : 0,
                         description: payload.description || "",
                         location: payload.location as any
@@ -129,12 +104,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                     }
 
                     if (payload.images && Array.isArray(payload.images)) {
-                        setImages(payload.images.map((url: string) => ({
-                            id: Math.random().toString(36).substring(7),
-                            preview: url,
-                            file: null as any,
-                            isRemote: true
-                        })));
+                        setImages(createRemoteListingImages(payload.images));
                     }
                 }
             } catch (e) {
@@ -146,16 +116,11 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         loadListing();
         return () => { isMounted = false; };
     }, [editSparePartId, form, loadBrandsForCategory, loadSparePartsForCategory]);
-    const handleImageUpload = (files: File[]) => {
-        const newImgs: ListingImage[] = files.map(f => ({
-            id: `${f.name}-${Date.now()}`,
-            file: f,
-            preview: URL.createObjectURL(f),
-            isRemote: false,
-        }));
-        setImages(prev => [...prev, ...newImgs].slice(0, 10));
-    };
-    const removeImage = (id: string) => setImages(prev => prev.filter(i => i.id !== id));
+    const handleImageUpload = (files: File[]) =>
+        setImages((prev) => appendListingImages(prev, files));
+
+    const removeImage = (id: string) =>
+        setImages((prev) => removeListingImageById(prev, id));
 
     // ─── Handlers ─────────────────────────────────────────────────────────
     const handleCategorySelect = async (id: string) => {
@@ -173,8 +138,8 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         listingImages: images,
         isEditMode,
         editId: editSparePartId,
-        schema: PostSparePartSchema,
-        partialSchema: EditSparePartSchema,
+        schema: PostSparePartFormSchema,
+        partialSchema: EditPostSparePartFormSchema,
         submitFn: async (payload) => {
             if (isEditMode && editSparePartId) {
                 // Update schema is .strict() — only send allowed content fields
@@ -204,68 +169,21 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         onError: (msg) => setFormError(msg),
     });
 
-    const locationDisplay = businessData?.location?.display ||
-        [businessData?.location?.city, businessData?.location?.state].filter(Boolean).join(", ");
+    const locationDisplay = form.watch("location.display") || getBusinessLocationDisplay(businessData?.location);
 
     if (isFetchingData) {
-        return (
-            <div
-                className="fixed inset-0 z-[1001] flex flex-col bg-white overflow-hidden font-inter
-                           sm:bg-slate-900/40 sm:backdrop-blur-md
-                           sm:items-center sm:justify-center sm:p-6"
-            >
-                <div
-                    className="flex flex-col bg-white flex-1 overflow-hidden sm:flex-none sm:w-full
-                               sm:max-w-lg sm:max-h-[90dvh] sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-900/10"
-                >
-                    <div className="flex-1 flex items-center justify-center text-slate-500 text-sm">
-                        Loading spare part details...
-                    </div>
-                </div>
-            </div>
-        );
+        return <ListingModalLoading />;
     }
 
     // ─── Render ──────────────────────────────────────────────────────────
     return (
         <FormProvider {...form}>
             {/* Overlay — full-screen mobile, centred modal on desktop */}
-            <div
-                onClick={() => router.back()}
-                className="fixed inset-0 z-[1001] flex flex-col bg-white overflow-hidden font-inter
-                           sm:bg-slate-900/40 sm:backdrop-blur-md
-                           sm:items-center sm:justify-center sm:p-6 sm:cursor-pointer"
+            <ListingModalLayout
+                title={isEditMode ? "Edit Spare Part" : "Post Spare Part"}
+                onClose={() => router.back()}
             >
-                {/* Modal card */}
-                <div
-                    onClick={e => e.stopPropagation()}
-                    className="flex flex-col bg-white flex-1 overflow-hidden sm:cursor-default
-                               sm:flex-none sm:w-full sm:max-w-lg sm:max-h-[90dvh]
-                               sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-900/10"
-                >
-                    {/* Header — X left, title centred mobile / left desktop */}
-                    <header className="shrink-0 bg-white border-b border-slate-200 flex items-center px-4 h-14 sm:gap-3 sm:px-5 sm:h-auto sm:py-4">
-                        <div className="sm:contents flex items-center w-full">
-                            <div className="w-10 sm:w-auto flex items-center justify-start shrink-0">
-                                <button
-                                    type="button"
-                                    onClick={() => router.back()}
-                                    aria-label="Close"
-                                    className="h-9 w-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <h1 className="font-bold text-slate-900 text-base leading-none flex-1 text-center sm:flex-none sm:text-left">
-                                {isEditMode ? "Edit Spare Part" : "Post Spare Part"}
-                            </h1>
-                            {/* Spacer to centre title on mobile only */}
-                            <div className="w-10 sm:hidden" />
-                        </div>
-                    </header>
-
-                    {/* Scrollable body */}
-                    <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
+                <ListingModalBody>
                         <form id="post-spare-part-form" onSubmit={handleSubmit(onValidSubmit)} className="space-y-6">
 
                             {formError && (
@@ -277,30 +195,13 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                             {/* Category */}
                             <section className="space-y-3">
                                 <Field label="Select Category" error={errors.categoryId?.message}>
-                                    <div className="grid grid-cols-4 gap-2">
-                                        {dynamicCategories.map(cat => {
-                                            const Icon = cat.icon || CircuitBoard;
-                                            const selected = cat.id === categoryId;
-                                            return (
-                                                <button
-                                                    key={cat.id}
-                                                    type="button"
-                                                    onClick={() => handleCategorySelect(cat.id || "")}
-                                                    disabled={isEditMode}
-                                                    className={cn(
-                                                        "flex flex-col items-center gap-1 py-3 px-1 rounded-xl border-2 transition-all text-center",
-                                                        selected
-                                                            ? "bg-primary border-primary text-white"
-                                                            : "bg-white border-slate-100 text-slate-600 hover:border-slate-200",
-                                                        isEditMode && !selected ? "opacity-40" : ""
-                                                    )}
-                                                >
-                                                    <Icon className={cn("w-5 h-5", selected ? "text-white" : "text-slate-400")} />
-                                                    <span className="text-[10px] font-bold leading-tight truncate w-full px-1">{cat.name}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
+                                    <CategorySelectorGrid
+                                        categories={dynamicCategories}
+                                        selectedCategoryId={categoryId}
+                                        onSelect={handleCategorySelect}
+                                        disabled={isEditMode}
+                                        defaultIcon={CircuitBoard}
+                                    />
                                 </Field>
                             </section>
 
@@ -362,125 +263,60 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                             )}
 
                             {/* Title */}
-                            <Field label="Part Title" error={errors.title?.message}>
-                                <div className="relative">
-                                    <Input
-                                        {...register("title")}
-                                        placeholder="e.g. iPhone 14 OEM Display Screen"
-                                        className="h-12 rounded-xl border-2 border-slate-200 bg-white text-sm font-medium focus:border-primary pr-16"
-                                    />
-                                    <span className={cn(
-                                        "absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium tabular-nums pointer-events-none",
-                                        (watch("title") || "").length > 55 ? "text-red-400" : "text-slate-400"
-                                    )}>
-                                        {(watch("title") || "").length}/60
-                                    </span>
-                                </div>
-                            </Field>
+                            <ListingTitleField
+                                label="Part Title"
+                                error={errors.title?.message}
+                                registerProps={register("title")}
+                                placeholder="e.g. iPhone 14 OEM Display Screen"
+                                valueLength={(watch("title") || "").length}
+                            />
 
                             {/* Price */}
-                            <Field label="Price (₹)" error={errors.price?.message}>
-                                <Input
-                                    type="number"
-                                    {...register("price", { valueAsNumber: true })}
-                                    placeholder="0"
-                                    min={0}
-                                    className="h-12 rounded-xl border-2 border-slate-200 bg-white text-sm font-medium focus:border-primary"
-                                />
-                            </Field>
+                            <ListingPriceField
+                                label="Price (₹)"
+                                error={errors.price?.message}
+                                registerProps={register("price", { valueAsNumber: true })}
+                            />
 
                             {/* Description */}
-                            <Field label="Description" error={errors.description?.message}>
-                                <div className="relative">
-                                    <Textarea
-                                        {...register("description")}
-                                        placeholder="Describe origin, quality, compatibility notes..."
-                                        className="min-h-[120px] rounded-xl border-2 border-slate-200 bg-white text-sm pb-6"
-                                    />
-                                    <span className={cn(
-                                        "absolute right-3 bottom-2 text-[11px] font-medium tabular-nums pointer-events-none",
-                                        (watch("description") || "").length > 1900 ? "text-red-400" : "text-slate-400"
-                                    )}>
-                                        {(watch("description") || "").length}/2000
-                                    </span>
-                                </div>
-                            </Field>
+                            <ListingDescriptionField
+                                label="Description"
+                                error={errors.description?.message}
+                                registerProps={register("description")}
+                                placeholder="Describe origin, quality, compatibility notes..."
+                                valueLength={(watch("description") || "").length}
+                            />
 
-                            {/* Images */}
-                            <Field label="Photos (up to 10)">
-                                <div className="space-y-3">
-                                    <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
-                                        <Upload className="w-6 h-6 text-slate-400 mb-1" />
-                                        <span className="text-xs text-slate-500">Tap to add photos</span>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            multiple
-                                            className="hidden"
-                                            onChange={e => {
-                                                if (e.target.files) {
-                                                    handleImageUpload(Array.from(e.target.files));
-                                                    e.target.value = "";
-                                                }
-                                            }}
-                                        />
-                                    </label>
-                                    {images.length > 0 && (
-                                        <div className="grid grid-cols-4 gap-2">
-                                            {images.map((img, i) => (
-                                                <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-100 group">
-                                                    <Image
-                                                        src={img.preview}
-                                                        alt={`Photo ${i + 1}`}
-                                                        fill
-                                                        unoptimized
-                                                        sizes="25vw"
-                                                        className="object-cover"
-                                                    />
-                                                    {i === 0 && (
-                                                        <span className="absolute bottom-0 left-0 right-0 text-center text-[9px] font-bold bg-primary text-white py-0.5">MAIN</span>
-                                                    )}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeImage(img.id)}
-                                                        className="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-                                                    >
-                                                        <X className="w-3 h-3" />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </Field>
+                            <ListingImagesField
+                                images={images}
+                                onUpload={handleImageUpload}
+                                onRemove={removeImage}
+                                firstImageBadgeLabel="MAIN"
+                            />
 
-                            {/* Location (read-only from business) */}
-                            <Field label="Listing Location">
-                                <div className="flex items-center gap-2 h-12 px-3 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm text-slate-700">
-                                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                                    <span className="truncate">{form.watch("location.display") || locationDisplay || "Loading business location..."}</span>
-                                    <span className="ml-auto text-[10px] text-slate-500 bg-slate-200 px-2 py-0.5 rounded uppercase font-bold shrink-0">Fixed Address</span>
-                                </div>
-                            </Field>
+                            <ListingLocationField
+                                display={locationDisplay}
+                                placeholder="Loading business location..."
+                                fixedLabel="Fixed Address"
+                            />
 
                         </form>
-                    </div>
+                </ListingModalBody>
 
-                    {/* Footer — inside modal card, NOT viewport-fixed */}
-                    <footer className="shrink-0 bg-white border-t border-slate-100 p-4 sm:px-5 sm:py-4">
-                        <Button
-                            type="submit"
-                            form="post-spare-part-form"
-                            disabled={isSubmitting}
-                            className="w-full h-12 rounded-2xl font-bold text-base bg-primary text-white shadow-lg disabled:opacity-70"
-                        >
-                            {isSubmitting ? (
-                                <span className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</span>
-                            ) : (isEditMode ? "Save Changes →" : "Submit Spare Part →")}
-                        </Button>
-                    </footer>
-                </div>
-            </div>
+                {/* Footer — inside modal card, NOT viewport-fixed */}
+                <ListingModalFooter>
+                    <Button
+                        type="submit"
+                        form="post-spare-part-form"
+                        disabled={isSubmitting}
+                        className="w-full h-12 rounded-2xl font-bold text-base bg-primary text-white shadow-lg disabled:opacity-70"
+                    >
+                        {isSubmitting ? (
+                            <span className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</span>
+                        ) : (isEditMode ? "Save Changes →" : "Submit Spare Part →")}
+                    </Button>
+                </ListingModalFooter>
+            </ListingModalLayout>
         </FormProvider>
     );
 }

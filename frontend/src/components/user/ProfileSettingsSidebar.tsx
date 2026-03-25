@@ -76,7 +76,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
     handleDeleteAd, handleMarkAsSold
   } = useMyAds(activeTab, user, myAdsTab);
 
-  // useMyServices is now wired directly in MyServicesTab
+  // Service data is now handled through the consolidated MyListingsTab flow.
   const { dynamicPlans } = useDynamicPlans(activeTab);
   const { businessData, businessStats, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(user);
   const {
@@ -142,6 +142,38 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
       window.history.pushState({}, '', newUrl);
     }
   };
+
+  const visibleProfileTabItems = PROFILE_TAB_ITEMS.filter((item) => {
+    if (!user) return false;
+    const allowedRoles = [
+      "user",
+      "business",
+      "admin",
+      "super_admin",
+      "moderator",
+      "editor",
+      "viewer",
+      "user_manager",
+      "finance_manager",
+      "content_moderator",
+      "custom",
+    ];
+    if (!allowedRoles.includes(user.role)) return false;
+    if (item.businessOnly) return businessData?.status === "live";
+    return true;
+  });
+  const activeTabLabel =
+    visibleProfileTabItems.find((item) => item.value === activeTab)?.label
+    ?? PROFILE_TAB_ITEMS.find((item) => item.value === activeTab)?.label;
+  const businessStatusBanner = user?.businessStatus ? (
+    <BusinessStatusBanner
+      status={user.businessStatus}
+      onAction={user.businessStatus === "rejected"
+        ? () => navigateTo("business-register")
+        : () => handleTabChange("business")
+      }
+    />
+  ) : null;
 
   // Helper Functions
 
@@ -303,7 +335,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
                 <ChevronRight className="h-5 w-5 rotate-180 text-slate-700" />
               </Button>
               <h1 className="text-lg font-bold text-slate-900">
-                {PROFILE_TAB_ITEMS.find(item => item.value === activeTab)?.label}
+                {activeTabLabel}
               </h1>
             </div>
           )}
@@ -314,14 +346,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           {/* LEFT SIDEBAR (Desktop Only) */}
           <aside className="hidden md:block space-y-1">
             <Card className="p-2 border-0 shadow-sm bg-white/80 backdrop-blur">
-              {PROFILE_TAB_ITEMS.filter((item) => {
-                if (!user) return false;
-                const allowedRoles = ["user", "business", "admin", "super_admin", "moderator", "editor", "viewer", "user_manager", "finance_manager", "content_moderator", "custom"];
-                if (!allowedRoles.includes(user.role)) return false;
-                // Business-only tabs require a verified (live) business
-                if (item.businessOnly) return businessData?.status === 'live';
-                return true;
-              }).map((item) => {
+              {visibleProfileTabItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.value;
                 return (
@@ -366,14 +391,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
                     </div>
                   </div>
                   <Card className="p-2 border-0 shadow-sm">
-                    {PROFILE_TAB_ITEMS.filter((item) => {
-                      if (!user) return false;
-                      const allowedRoles = ["user", "business", "admin", "super_admin", "moderator", "editor", "viewer", "user_manager", "finance_manager", "content_moderator", "custom"];
-                      if (!allowedRoles.includes(user.role)) return false;
-                      // Business-only tabs require a verified (live) business
-                      if (item.businessOnly) return businessData?.status === 'live';
-                      return true;
-                    }).map((item) => (
+                    {visibleProfileTabItems.map((item) => (
                       <button key={item.value} onClick={() => handleMobileTabClick(item.value)} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-slate-700 border-b border-gray-50 last:border-0">
                         <div className="p-1.5 bg-gray-100 rounded-lg text-gray-500"><item.icon className="h-4.5 w-4.5" /></div>
                         <span className="text-sm font-semibold flex-1">{item.label}</span><ChevronRight className="h-4 w-4 text-gray-400" />
@@ -387,29 +405,13 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
                 </div>
               ) : (
                 <div className="animate-in fade-in slide-in-from-right-8 duration-300">
-                  {user?.businessStatus && (
-                    <BusinessStatusBanner 
-                      status={user.businessStatus}
-                      onAction={user.businessStatus === 'rejected'
-                        ? () => navigateTo("business-register")
-                        : () => handleTabChange("business")
-                      }
-                    />
-                  )}
+                  {businessStatusBanner}
                   {renderContent()}
                 </div>
               )}
             </div>
             <div className="hidden md:block">
-              {user?.businessStatus && (
-                <BusinessStatusBanner 
-                  status={user.businessStatus}
-                  onAction={user.businessStatus === 'rejected'
-                    ? () => navigateTo("business-register")
-                    : () => handleTabChange("business")
-                  }
-                />
-              )}
+              {businessStatusBanner}
               {renderContent()}
             </div>
           </main>

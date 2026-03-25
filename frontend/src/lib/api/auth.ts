@@ -2,11 +2,11 @@ import { apiClient } from "@/lib/api/client";
 import { User } from "@/types/User";
 import { API_ROUTES } from "./routes";
 
-export interface AuthResponse {
-    success: boolean;
+export interface AuthPayloadFields {
     user?: User;
     token?: string;
     error?: string;
+    message?: string;
     code?: string;
     isNewUser?: boolean;
     otpExpiresIn?: number;
@@ -15,30 +15,14 @@ export interface AuthResponse {
     lockUntil?: string;
 }
 
-type AuthApiRawResponse = {
+export interface AuthResponse extends AuthPayloadFields {
+    success: boolean;
+}
+
+type AuthApiRawResponse = Partial<AuthPayloadFields> & {
     success?: boolean;
-    error?: string;
-    message?: string;
-    code?: string;
-    token?: string;
-    user?: User;
-    isNewUser?: boolean;
-    otpExpiresIn?: number;
-    name?: string;
-    attemptsLeft?: number;
-    lockUntil?: string;
-    data?: {
+    data?: Partial<AuthPayloadFields> & {
         success?: boolean;
-        error?: string;
-        message?: string;
-        code?: string;
-        token?: string;
-        user?: User;
-        isNewUser?: boolean;
-        otpExpiresIn?: number;
-        name?: string;
-        attemptsLeft?: number;
-        lockUntil?: string;
     };
 };
 

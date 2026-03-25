@@ -1,23 +1,18 @@
 "use client";
-import { getHeaderLocationText } from "@/lib/location/locationService";
 import { Menu, MapPin, Bell, Search, LogIn, ChevronDown } from "lucide-react";
 import { useEffect } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import LocationSelector from "@/components/location/LocationSelector";
-import LocationFirstVisitPrompt from "@/components/location/LocationFirstVisitPrompt";
-import LocationPermissionBlockedModal from "@/components/location/LocationPermissionBlockedModal";
+import { HeaderLocationPrompts } from "@/components/location/HeaderLocationPrompts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLocationSelector } from "@/hooks/useLocationSelector";
-import { useHeaderSearch } from "@/hooks/useHeaderSearch";
 import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider";
 import { useMounted } from "@/hooks/useMounted";
-import { useLocationState, useLocationDispatch } from "@/context/LocationContext";
+
 import type { UserPage } from "@/lib/routeUtils";
 import { usePathname } from "next/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
-import { useNotificationsQuery } from "@/hooks/queries";
-import { useNotificationSync } from "@/hooks/useNotificationSync";
+import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 interface MobileHeaderProps {
     navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string) => void;
     isLoggedIn: boolean;
@@ -31,31 +26,18 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
     const pathname = usePathname();
     const { isOpen, setIsOpen } = useMobileNavDrawer();
     const isMounted = useMounted();
-    const { shouldShowFirstVisitPrompt, showPermissionBlockedModal } = useLocationState();
-    const { detectLocation, dismissFirstVisitPrompt, dismissPermissionBlockedModal } = useLocationDispatch();
     const chromePolicy = getMobileChromePolicy(pathname);
 
-    const { data: notificationsData } = useNotificationsQuery({ enabled: isLoggedIn });
-    const notifUnreadCount = typeof notificationsData?.unreadCount === 'number' ? notificationsData.unreadCount : 0;
-    
-    useNotificationSync({ enabled: isLoggedIn });
-
-    // Use shared hooks
     const {
+        notifUnreadCount,
         showLocationSelector,
         setShowLocationSelector,
-        globalLocation: location
-    } = useLocationSelector({ mode: "header" });
-    const resolvedHeaderLocation = getHeaderLocationText(location).headerText || "Select Location";
-
-    const {
+        globalLocation: location,
+        resolvedHeaderLocation,
         searchQuery,
         setSearchQuery,
-        handleSearch
-    } = useHeaderSearch({
-        onSearch,
-        // Mobile uses handleSearchSubmit from form, which manually calls this
-    });
+        handleSearchSubmit,
+    } = useSharedHeaderLogic({ isLoggedIn, onSearch });
 
     // Handle mobile back button
     useEffect(() => {
@@ -66,11 +48,6 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
     }, [isOpen, showLocationSelector, setShowLocationSelector, setIsOpen]);
-
-    const handleSearchSubmit = (e?: React.FormEvent) => {
-        e?.preventDefault();
-        handleSearch();
-    };
 
     return (
         <>
@@ -107,24 +84,12 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                     </button>
                 </div>
 
-                {isMounted && shouldShowFirstVisitPrompt && !showLocationSelector && (
-                    <div className="border-b bg-background px-3 py-3">
-                        <LocationFirstVisitPrompt
-                            onUseCurrentLocation={() => {
-                                void detectLocation(true, true).then((detected) => {
-                                    if (!detected) {
-                                        setShowLocationSelector(true);
-                                    }
-                                });
-                            }}
-                            onChooseManually={() => {
-                                dismissFirstVisitPrompt();
-                                setShowLocationSelector(true);
-                            }}
-                            onDismiss={dismissFirstVisitPrompt}
-                        />
-                    </div>
-                )}
+                <HeaderLocationPrompts
+                    isMounted={isMounted}
+                    showLocationSelector={showLocationSelector}
+                    setShowLocationSelector={setShowLocationSelector}
+                    firstVisitWrapperClassName="border-b bg-background px-3 py-3"
+                />
 
                 {/* 2. Main Header (56px) - Menu, Search, Bell */}
                 <div className={`h-14 flex items-center px-3 bg-background ${chromePolicy.showStickySearch ? "justify-between" : "gap-3"}`}>
@@ -192,18 +157,6 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                         <LocationSelector onClose={() => setShowLocationSelector(false)} />
                     </SheetContent>
                 </Sheet>
-
-                {/* Location Permission Blocked Modal */}
-                <LocationPermissionBlockedModal
-                    isOpen={showPermissionBlockedModal}
-                    onDismiss={dismissPermissionBlockedModal}
-                    onUseManualLocation={() => {
-                        setShowLocationSelector(true);
-                    }}
-                    onOpenBrowserSettings={() => {
-                        dismissPermissionBlockedModal();
-                    }}
-                />
             </header>
 
 

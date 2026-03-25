@@ -10,6 +10,13 @@ const SCAN_DIRS = [
   'admin-frontend/src',
   'shared'
 ];
+const PACKAGE_MANIFESTS = [
+  { manifest: 'package.json', root: '' },
+  { manifest: 'backend/package.json', root: 'backend' },
+  { manifest: 'frontend/package.json', root: 'frontend' },
+  { manifest: 'admin-frontend/package.json', root: 'admin-frontend' }
+];
+const SCRIPT_ENTRY_PATTERN = /((?:\.\.\/)?(?:backend\/src|frontend\/src|admin-frontend\/src|shared|src)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs))/g;
 const VALID_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
 const SOURCE_ENTRY_PATTERNS = [
   /[\\/]app[\\/](?:.*[\\/])?(page|layout|route|loading|error|global-error|not-found|template|sitemap|robots)\.(ts|tsx|js|jsx)$/,
@@ -108,6 +115,12 @@ const resolveAlias = (specifier, importer) => {
     const base = isAdminImporter ? 'admin-frontend/src' : 'frontend/src';
     return resolveWithExtensions(path.join(ROOT, base, specifier.slice(2)));
   }
+  if (specifier === '@shared') {
+    return resolveWithExtensions(path.join(ROOT, 'shared', 'index'));
+  }
+  if (specifier.startsWith('@shared/')) {
+    return resolveWithExtensions(path.join(ROOT, 'shared', specifier.slice('@shared/'.length)));
+  }
   if (specifier.startsWith('shared/')) {
     return resolveWithExtensions(path.join(ROOT, specifier));
   }
@@ -156,6 +169,43 @@ const buildGraph = (files) => {
   return graph;
 };
 
+const collectPackageScriptRoots = (files) => {
+  const fileSet = new Set(files);
+  const roots = new Set();
+
+  for (const { manifest, root } of PACKAGE_MANIFESTS) {
+    const manifestPath = path.join(ROOT, manifest);
+    if (!fs.existsSync(manifestPath)) continue;
+
+    let pkg;
+    try {
+      pkg = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    } catch {
+      continue;
+    }
+
+    const scripts = pkg && typeof pkg === 'object' ? pkg.scripts : null;
+    if (!scripts || typeof scripts !== 'object') continue;
+
+    for (const command of Object.values(scripts)) {
+      if (typeof command !== 'string') continue;
+
+      SCRIPT_ENTRY_PATTERN.lastIndex = 0;
+      let match;
+      while ((match = SCRIPT_ENTRY_PATTERN.exec(command)) !== null) {
+        const entry = match[1];
+        if (!entry) continue;
+
+        const absPath = path.resolve(ROOT, root, entry);
+        const relPath = normalizePath(path.relative(ROOT, absPath));
+        if (fileSet.has(relPath)) roots.add(relPath);
+      }
+    }
+  }
+
+  return [...roots];
+};
+
 const isRootFile = (filePath) => {
   if (filePath === 'backend/src/index.ts') return true;
   if (filePath === 'backend/src/server.ts') return true;
@@ -199,7 +249,11 @@ const main = () => {
   const generatedAt = new Date().toISOString();
   const files = collectFiles();
   const graph = buildGraph(files);
-  const roots = files.filter((filePath) => isRootFile(filePath) || isAlwaysKeep(filePath));
+  const packageScriptRoots = collectPackageScriptRoots(files);
+  const roots = [...new Set([
+    ...files.filter((filePath) => isRootFile(filePath) || isAlwaysKeep(filePath)),
+    ...packageScriptRoots
+  ])];
   const reachable = reachableFromRoots(graph, roots);
 
   const orphanFiles = files.filter((f) => !reachable.has(f));
@@ -224,9 +278,10 @@ const main = () => {
 
   const report = {
     generatedAt,
-    method: 'import-graph (ts-prune unavailable in offline environment)',
+    method: 'import-graph with package-script roots (ts-prune unavailable in offline environment)',
     scannedFiles: files.length,
     rootCount: roots.length,
+    packageScriptRootCount: packageScriptRoots.length,
     orphanCount: orphanFiles.length,
     orphanFilesByProject,
     safeDeleteCandidateCount: safeDeleteCandidates.length,
@@ -235,7 +290,7 @@ const main = () => {
 
   const safe = {
     generatedAt,
-    method: 'import-graph tiering',
+    method: 'import-graph tiering with package-script roots',
     tierA,
     tierB,
     tierC,

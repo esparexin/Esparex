@@ -89,19 +89,10 @@ ReportSchema.index(
     }
 );
 
-// toJSON Transform - Convert _id to id
-ReportSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(ReportSchema);
 
 import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 const Report: Model<IReport> = getUserConnection().models.Report || getUserConnection().model<IReport>('Report', ReportSchema);
 
 export default Report;

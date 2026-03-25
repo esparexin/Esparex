@@ -31,108 +31,18 @@ import { REPORT_STATUS } from '../../../../../shared/enums/reportStatus';
 import { USER_STATUS } from '../../../../../shared/enums/userStatus';
 import { buildPublicAdFilter } from '../../../utils/FeedVisibilityGuard';
 
+import {
+    buildLocationSummary,
+    CanonicalLocationDoc,
+    normalizeStateLabel,
+    toLocationIdString
+} from '../../../utils/locationHierarchy';
+
 import * as adminAnalyticsController from '../adminAnalyticsController';
 
 const sendDashboardError = (req: Request, res: Response, error: unknown) => {
     const message = error instanceof Error ? error.message : 'Dashboard operation failed';
     sendErrorResponse(req, res, 500, message);
-};
-
-type LocationIdLike = { toString: () => string } | string;
-
-type HotZoneLocationDoc = {
-    _id: LocationIdLike;
-    name: string;
-    country?: string;
-    level?: string;
-    parentId?: LocationIdLike | null;
-    path?: LocationIdLike[];
-};
-
-type HierarchyLocationDoc = {
-    _id: LocationIdLike;
-    name?: string;
-    level?: string;
-    country?: string;
-};
-
-const toLocationIdString = (value: LocationIdLike | null | undefined): string | undefined => {
-    if (!value) return undefined;
-    if (typeof value === 'string') return value;
-    return value.toString();
-};
-
-const buildHotZoneLocationSummary = (
-    location: HotZoneLocationDoc | undefined,
-    hierarchyMap: Map<string, HierarchyLocationDoc>
-) => {
-    if (!location) return undefined;
-
-    const locationId = toLocationIdString(location._id);
-    const ownName = location.name || '';
-    const currentLevel = location.level || '';
-    const hierarchyTrail = Array.isArray(location.path)
-        ? location.path
-            .map((entry) => toLocationIdString(entry))
-            .filter((entry): entry is string => Boolean(entry))
-            .map((entry) => hierarchyMap.get(entry))
-            .filter((entry): entry is HierarchyLocationDoc => Boolean(entry))
-        : [];
-
-    const findHierarchyName = (level: string): string =>
-        hierarchyTrail.find((entry) => entry.level === level)?.name || '';
-
-    let city = findHierarchyName('city');
-    if (!city) {
-        if (currentLevel === 'city' || currentLevel === 'district' || currentLevel === 'state' || currentLevel === 'country') {
-            city = ownName;
-        } else if (currentLevel === 'area' || currentLevel === 'village') {
-            city = findHierarchyName('district') || ownName;
-        } else {
-            city = ownName;
-        }
-    }
-
-    let state = findHierarchyName('state');
-    if (!state && currentLevel === 'state') {
-        state = ownName;
-    }
-
-    const country = location.country || findHierarchyName('country') || '';
-
-    return {
-        id: locationId || '',
-        name: ownName,
-        city,
-        state,
-        country,
-        level: currentLevel
-    };
-};
-
-const normalizeStateLabel = (value: unknown): string => {
-    if (typeof value === 'string') {
-        const trimmed = value.trim();
-        return trimmed.length > 0 ? trimmed : 'Unknown';
-    }
-
-    if (value && typeof value === 'object') {
-        const obj = value as { state?: unknown; name?: unknown; toString?: () => string };
-        if (typeof obj.state === 'string' && obj.state.trim().length > 0) {
-            return obj.state.trim();
-        }
-        if (typeof obj.name === 'string' && obj.name.trim().length > 0) {
-            return obj.name.trim();
-        }
-        if (typeof obj.toString === 'function') {
-            const str = obj.toString().trim();
-            if (str.length > 0 && str !== '[object Object]') {
-                return str;
-            }
-        }
-    }
-
-    return 'Unknown';
 };
 
 /**
@@ -528,7 +438,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
         );
         const hotZones = topHotZonesRaw.map((zone) => {
             const location = hotZoneLocationMap.get(String(zone.locationId));
-            const summary = buildHotZoneLocationSummary(location, hotZoneHierarchyMap);
+            const summary = location ? buildLocationSummary(location as any, hotZoneHierarchyMap as any) : undefined;
             return {
                 _id: String(zone.locationId),
                 city: summary?.city ?? '',

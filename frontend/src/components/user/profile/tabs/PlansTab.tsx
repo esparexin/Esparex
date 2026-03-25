@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Crown, CheckCircle2, Package } from "lucide-react";
+import { Crown, Package } from "lucide-react";
+import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
 import type { ProfilePlan, ProfilePlanType } from "../types";
 
 type PlanCard = Omit<ProfilePlan, "type"> & { type: string };
@@ -56,14 +57,7 @@ export function PlansTab({
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            <ul className="space-y-1.5">
-                                {plan.features.map((feature: string, idx: number) => (
-                                    <li key={idx} className="flex items-start gap-2 text-xs">
-                                        <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 mt-0.5 flex-shrink-0" />
-                                        <span className="text-slate-600">{feature}</span>
-                                    </li>
-                                ))}
-                            </ul>
+                            <PlanFeatureList features={plan.features} />
                             <Button
                                 onClick={() => {
                                     setSelectedPlan(plan.id);

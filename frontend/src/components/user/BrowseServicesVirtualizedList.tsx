@@ -7,7 +7,7 @@ import type { Service } from "@/lib/api/user/services";
 import { BrowseServicesCard } from "@/components/user/BrowseServicesCard";
 
 interface BrowseServicesVirtualizedListProps {
-  services: Service[];
+  items: Service[];
   view: "grid" | "list";
 }
 
@@ -15,7 +15,7 @@ const LIST_ITEM_HEIGHT = 180;
 const GRID_ITEM_HEIGHT = 280;
 
 export default function BrowseServicesVirtualizedList({
-  services,
+  items,
   view,
 }: BrowseServicesVirtualizedListProps) {
   const [lanes, setLanes] = useState(4);
@@ -39,7 +39,7 @@ export default function BrowseServicesVirtualizedList({
   }, [view]);
 
   const rowVirtualizer = useVirtualizer({
-    count: services.length,
+    count: items.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => (view === "list" ? LIST_ITEM_HEIGHT : GRID_ITEM_HEIGHT),
     overscan: 5,
@@ -64,7 +64,7 @@ export default function BrowseServicesVirtualizedList({
           ))}
 
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-          const service = services[virtualRow.index];
+          const service = items[virtualRow.index];
           if (!service) return null;
           return <BrowseServicesCard key={service.id} service={service} />;
         })}
@@ -73,7 +73,7 @@ export default function BrowseServicesVirtualizedList({
           Array.from({
             length: Math.max(
               0,
-              services.length -
+              items.length -
                 1 -
                 (rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1]?.index ?? 0),
             ),

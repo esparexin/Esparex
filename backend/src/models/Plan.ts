@@ -2,6 +2,7 @@
 import { Schema, Document } from "mongoose";
 import { getUserConnection } from "../config/db";
 import type { Model } from "mongoose";
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IPlan extends Document {
     code: string;
@@ -112,16 +113,6 @@ const connection = getUserConnection();
 export const Plan: Model<IPlan> =
     (connection.models.Plan as Model<IPlan>) ||
     connection.model<IPlan>("Plan", PlanSchema);
-// toJSON Transform - Convert _id to id
-PlanSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as unknown as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(PlanSchema);
 
 export default Plan;

@@ -64,6 +64,37 @@ const findBrandByNameIncludingDeleted = async (name: string) => {
     return Brand.findOne({ name: { $regex: brandRegex } }).setOptions({ withDeleted: true });
 };
 
+const approveItem = async (
+    req: Request,
+    res: Response,
+    DocModel: typeof Brand | typeof Model,
+    actionName: string,
+    label: string
+) => {
+    if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
+    const doc = await (DocModel as any).findByIdAndUpdate(req.params.id, { status: CATALOG_STATUS.ACTIVE, isActive: true }, { new: true });
+    if (!doc) { sendContractErrorResponse(req, res, 404, `${label} not found`); return; }
+    await logAdminAction(req, actionName as any, label as any, doc._id, { name: (doc as any).name });
+    sendSuccessResponse(res, doc, `${label} approved`);
+};
+
+const rejectItem = async (
+    req: Request,
+    res: Response,
+    DocModel: typeof Brand | typeof Model,
+    actionName: string,
+    label: string
+) => {
+    if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
+    const parsed = rejectionSchema.safeParse(req.body);
+    if (!parsed.success) { sendValidationError(req, res, parsed.error); return; }
+    const { reason } = parsed.data;
+    const doc = await (DocModel as any).findByIdAndUpdate(req.params.id, { status: CATALOG_STATUS.REJECTED, isActive: false, rejectionReason: reason }, { new: true });
+    if (!doc) { sendContractErrorResponse(req, res, 404, `${label} not found`); return; }
+    await logAdminAction(req, actionName as any, label as any, doc._id, { name: (doc as any).name, reason });
+    sendSuccessResponse(res, doc, `${label} rejected`);
+};
+
 
 /* ==========================================================
    BRANDS
@@ -549,76 +580,32 @@ export const deleteModel = async (req: Request, res: Response) => {
     }
 };
 
+
 /**
  * Approve pending brand
  */
 export const approveBrand = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const brand = await Brand.findByIdAndUpdate(req.params.id, { status: CATALOG_STATUS.ACTIVE, isActive: true }, { new: true });
-        if (!brand) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }
-        await logAdminAction(req, 'APPROVE_BRAND', 'Brand', brand._id, { name: brand.name });
-        sendSuccessResponse(res, brand, 'Brand approved');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+        await approveItem(req, res, Brand, 'APPROVE_BRAND', 'Brand');
+    } catch (error) { sendCatalogError(req, res, error); }
 };
 
-/**
- * Reject pending brand
- */
 export const rejectBrand = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const parsed = rejectionSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
-        const { reason } = parsed.data;
-        const brand = await Brand.findByIdAndUpdate(req.params.id, { status: CATALOG_STATUS.REJECTED, isActive: false, rejectionReason: reason }, { new: true });
-        if (!brand) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }
-        await logAdminAction(req, 'REJECT_BRAND', 'Brand', brand._id, { name: brand.name, reason });
-        sendSuccessResponse(res, brand, 'Brand rejected');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+        await rejectItem(req, res, Brand, 'REJECT_BRAND', 'Brand');
+    } catch (error) { sendCatalogError(req, res, error); }
 };
 
-/**
- * Approve pending model
- */
 export const approveModel = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const model = await Model.findByIdAndUpdate(req.params.id, { status: CATALOG_STATUS.ACTIVE, isActive: true }, { new: true });
-        if (!model) { sendContractErrorResponse(req, res, 404, 'Model not found'); return; }
-        await logAdminAction(req, 'APPROVE_MODEL', 'Model', model._id, { name: model.name });
-        sendSuccessResponse(res, model, 'Model approved');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+        await approveItem(req, res, Model, 'APPROVE_MODEL', 'Model');
+    } catch (error) { sendCatalogError(req, res, error); }
 };
 
-/**
- * Reject pending model
- */
 export const rejectModel = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const parsed = rejectionSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
-        const { reason } = parsed.data;
-        const model = await Model.findByIdAndUpdate(req.params.id, { status: CATALOG_STATUS.REJECTED, isActive: false, rejectionReason: reason }, { new: true });
-        if (!model) { sendContractErrorResponse(req, res, 404, 'Model not found'); return; }
-        await logAdminAction(req, 'REJECT_MODEL', 'Model', model._id, { name: model.name, reason });
-        sendSuccessResponse(res, model, 'Model rejected');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+        await rejectItem(req, res, Model, 'REJECT_MODEL', 'Model');
+    } catch (error) { sendCatalogError(req, res, error); }
 };
 
 /**

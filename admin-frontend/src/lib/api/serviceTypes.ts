@@ -5,15 +5,11 @@ export interface ServiceTypeDTO {
     status?: string;
 }
 import { adminFetch } from "./adminClient";
+import { buildQueryString } from "./queryParams";
 import { ADMIN_ROUTES } from "./routes";
 
 export async function getServiceTypes(filters?: Record<string, string | number>) {
-    const query = new URLSearchParams(
-        Object.entries(filters || {}).reduce<Record<string, string>>((acc, [key, value]) => {
-            acc[key] = String(value);
-            return acc;
-        }, {})
-    ).toString();
+    const query = buildQueryString(filters);
     return adminFetch<ServiceTypeDTO[]>(`${ADMIN_ROUTES.SERVICE_TYPES}?${query}`);
 }
 

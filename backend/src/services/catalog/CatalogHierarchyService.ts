@@ -22,6 +22,16 @@ import SparePartModel, { ISparePart } from '../../models/SparePart';
 import ScreenSize, { IScreenSize } from '../../models/ScreenSize';
 import { getActiveCategoryIds } from './CatalogValidationService';
 
+type WithId = { _id: unknown };
+
+const buildActivateOps = <T extends WithId>(
+    docs: T[],
+    predicate: (doc: T) => boolean
+): AnyBulkWriteOperation[] =>
+    docs
+        .filter(predicate)
+        .map((doc) => ({ updateOne: { filter: { _id: doc._id }, update: { $set: { isActive: true } } } }));
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface HierarchyIssue {
@@ -369,9 +379,10 @@ export async function activateValidRecords(): Promise<{
         categoryIds: { $exists: true, $not: { $size: 0 } },
     }).select('_id categoryIds').lean();
 
-    const activateBrandOps = inactiveBrands
-        .filter((b) => ((b as any).categoryIds ?? []).some((id: any) => validCatIds.has(String(id))))
-        .map((b) => ({ updateOne: { filter: { _id: b._id }, update: { $set: { isActive: true } } } }));
+    const activateBrandOps = buildActivateOps(
+        inactiveBrands,
+        (b) => ((b as any).categoryIds ?? []).some((id: any) => validCatIds.has(String(id)))
+    );
 
     if (activateBrandOps.length) await Brand.bulkWrite(activateBrandOps, { ordered: false });
 
@@ -384,9 +395,10 @@ export async function activateValidRecords(): Promise<{
         categoryIds: { $exists: true, $not: { $size: 0 } },
     }).select('_id categoryIds').lean();
 
-    const activatePartOps = inactiveParts
-        .filter((p) => ((p as any).categoryIds ?? []).some((id: any) => validCatIds.has(String(id))))
-        .map((p) => ({ updateOne: { filter: { _id: p._id }, update: { $set: { isActive: true } } } }));
+    const activatePartOps = buildActivateOps(
+        inactiveParts,
+        (p) => ((p as any).categoryIds ?? []).some((id: any) => validCatIds.has(String(id)))
+    );
 
     if (activatePartOps.length) await SparePartModel.bulkWrite(activatePartOps, { ordered: false });
 
@@ -396,9 +408,10 @@ export async function activateValidRecords(): Promise<{
         isActive: false,
     }).select('_id categoryId').lean();
 
-    const activateSizeOps = inactiveSizes
-        .filter((ss) => ss.categoryId && validCatIds.has(String(ss.categoryId)))
-        .map((ss) => ({ updateOne: { filter: { _id: ss._id }, update: { $set: { isActive: true } } } }));
+    const activateSizeOps = buildActivateOps(
+        inactiveSizes,
+        (ss) => !!(ss.categoryId && validCatIds.has(String(ss.categoryId)))
+    );
 
     if (activateSizeOps.length) await ScreenSize.bulkWrite(activateSizeOps, { ordered: false });
 

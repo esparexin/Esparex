@@ -1,15 +1,12 @@
 "use client";
 
 import { memo } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Clock, MapPin, CircuitBoard } from "lucide-react";
+import { CircuitBoard } from "lucide-react";
 
+import { BrowseListingCard } from "@/components/user/BrowseListingCard";
 import type { SparePartListing } from "@/lib/api/user/sparePartListings";
-import { formatPrice, formatStableDate } from "@/lib/formatters";
+import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 
 export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({ listing }: { listing: SparePartListing }) {
   const imageUrl = toSafeImageSrc(listing.images?.[0], "");
@@ -19,55 +16,17 @@ export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({ listing
       : String(listing.location ?? "");
 
   return (
-    <Link href={`/spare-part-listings/${listing.seoSlug || listing.id}`} className="block h-full">
-      <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border-slate-100 rounded-xl">
-        <div className="relative aspect-square overflow-hidden bg-slate-100">
-          {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt={listing.title}
-              fill
-              unoptimized
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width: 768px) 50vw, 33vw"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <CircuitBoard className="h-10 w-10 text-slate-200" />
-            </div>
-          )}
-          <Badge className="absolute top-2 left-2 bg-teal-600 text-white border-0 text-[10px]">
-            SPARE PART
-          </Badge>
-        </div>
-
-        <CardContent className="p-3 md:p-4 space-y-2">
-          <div className="text-sm font-bold text-teal-700">{formatPrice(listing.price)}</div>
-          <h3 className="font-semibold text-sm line-clamp-2 text-slate-900 leading-snug min-h-[2.5rem]">
-            {listing.title}
-          </h3>
-          <div className="flex items-center justify-between text-[10px] md:text-xs text-slate-400 pt-1.5 border-t">
-            {location && (
-              <div className="flex items-center gap-1 min-w-0">
-                <MapPin className="h-2.5 w-2.5 shrink-0" />
-                <span className="truncate">{location}</span>
-              </div>
-            )}
-            {listing.createdAt && (
-              <div className="flex items-center gap-1 shrink-0 ml-1">
-                <Clock className="h-2.5 w-2.5" />
-                <span>
-                  {formatStableDate(listing.createdAt, {
-                    day: "numeric",
-                    month: "short",
-                    year: undefined,
-                  })}
-                </span>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+    <BrowseListingCard
+      href={`/spare-part-listings/${listing.seoSlug || listing.id}`}
+      imageUrl={imageUrl}
+      title={listing.title}
+      priceLabel={formatPrice(listing.price)}
+      priceClassName="text-teal-700"
+      badgeLabel="SPARE PART"
+      badgeClassName="bg-teal-600 text-white"
+      location={location}
+      createdAt={listing.createdAt}
+      fallbackIcon={CircuitBoard}
+    />
   );
 });

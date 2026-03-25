@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ComponentType } from "react";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
 import {
@@ -21,6 +22,57 @@ interface FooterProps {
     onNavigate?: (page: string) => void;
     className?: string;
 }
+
+type FooterLinkSection = {
+    title: string;
+    links: Array<{
+        label: string;
+        href: string;
+        pageKey: string;
+    }>;
+};
+
+type FooterContactItem = {
+    title: string;
+    value: string;
+    icon: ComponentType<{ className?: string }>;
+};
+
+const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
+    {
+        title: "Company",
+        links: [
+            { label: "About Us", href: "/about", pageKey: "about" },
+            { label: "Contact", href: "/contact", pageKey: "contact" },
+            { label: "Careers", href: "/faq", pageKey: "faq" },
+            { label: "Press", href: "/about", pageKey: "about" },
+        ],
+    },
+    {
+        title: "Support",
+        links: [
+            { label: "Help Center", href: "/faq", pageKey: "faq" },
+            { label: "Safety Tips", href: "/safety-tips", pageKey: "safety-tips" },
+            { label: "Posting Rules", href: "/safety-tips", pageKey: "safety-tips" },
+            { label: "How It Works", href: "/how-it-works", pageKey: "how-it-works" },
+        ],
+    },
+    {
+        title: "Legal",
+        links: [
+            { label: "Terms of Service", href: "/terms", pageKey: "terms" },
+            { label: "Privacy Policy", href: "/privacy", pageKey: "privacy" },
+            { label: "Cookie Policy", href: "/privacy", pageKey: "privacy" },
+            { label: "Refund Policy", href: "/terms", pageKey: "terms" },
+        ],
+    },
+];
+
+const FOOTER_CONTACT_ITEMS: FooterContactItem[] = [
+    { title: "Email Support", value: "support@esparex.com", icon: MailOpen },
+    { title: "Headquarters", value: "Hyderabad, Telangana", icon: MapPin },
+    { title: "Support Hours", value: "Mon–Sat, 9 AM – 7 PM", icon: Phone },
+];
 
 export function Footer({ theme = "light", onNavigate, className }: FooterProps) {
     const pathname = usePathname();
@@ -96,91 +148,48 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                         </div>
                     </div>
 
-                    {/* Company Links */}
-                    <div className="text-center md:text-left col-span-1">
-                        <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[10px] md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>Company</h3>
-                        <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                            <li>{renderLink("About Us", "/about", "about")}</li>
-                            <li>{renderLink("Contact", "/contact", "contact")}</li>
-                            <li>{renderLink("Careers", "/faq", "faq")}</li>
-                            <li>{renderLink("Press", "/about", "about")}</li>
-                        </ul>
-                    </div>
-
-                    {/* Support Links */}
-                    <div className="text-center md:text-left col-span-1">
-                        <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[10px] md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>Support</h3>
-                        <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                            <li>{renderLink("Help Center", "/faq", "faq")}</li>
-                            <li>{renderLink("Safety Tips", "/safety-tips", "safety-tips")}</li>
-                            <li>{renderLink("Posting Rules", "/safety-tips", "safety-tips")}</li>
-                            <li>{renderLink("How It Works", "/how-it-works", "how-it-works")}</li>
-                        </ul>
-                    </div>
-
-                    {/* Legal Links */}
-                    <div className="text-center md:text-left col-span-1">
-                        <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[10px] md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>Legal</h3>
-                        <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                            <li>{renderLink("Terms of Service", "/terms", "terms")}</li>
-                            <li>{renderLink("Privacy Policy", "/privacy", "privacy")}</li>
-                            <li>{renderLink("Cookie Policy", "/privacy", "privacy")}</li>
-                            <li>{renderLink("Refund Policy", "/terms", "terms")}</li>
-                        </ul>
-                    </div>
+                    {FOOTER_LINK_SECTIONS.map((section) => (
+                        <div key={section.title} className="text-center md:text-left col-span-1">
+                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[10px] md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>
+                                {section.title}
+                            </h3>
+                            <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
+                                {section.links.map((link) => (
+                                    <li key={link.label}>{renderLink(link.label, link.href, link.pageKey)}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
                 </div>
 
                 <Separator className={cn("mb-8", isDark ? "bg-slate-900" : "bg-slate-200")} />
 
                 {/* Contact Info Bar — hidden on mobile to reduce scroll */}
                 <div className="hidden md:grid md:grid-cols-3 gap-6 mb-8">
-                    <div className={cn(
-                        "flex items-center gap-4 p-4 rounded-2xl border transition-all group",
-                        isDark ? "bg-slate-900/50 border-slate-800/50 hover:border-primary/20" : "bg-white border-slate-100 hover:border-green-200"
-                    )}>
-                        <div className={cn(
-                            "h-10 w-10 rounded-xl flex items-center justify-center transition-all",
-                            isDark ? "bg-slate-800 text-primary group-hover:bg-primary group-hover:text-white" : "bg-green-50 text-green-600 group-hover:bg-green-600 group-hover:text-white"
-                        )}>
-                            <MailOpen className="h-5 w-5" />
+                    {FOOTER_CONTACT_ITEMS.map(({ title, value, icon: Icon }) => (
+                        <div
+                            key={title}
+                            className={cn(
+                                "flex items-center gap-4 p-4 rounded-2xl border transition-all group",
+                                isDark ? "bg-slate-900/50 border-slate-800/50 hover:border-primary/20" : "bg-white border-slate-100 hover:border-green-200"
+                            )}
+                        >
+                            <div
+                                className={cn(
+                                    "h-10 w-10 rounded-xl flex items-center justify-center transition-all",
+                                    isDark ? "bg-slate-800 text-primary group-hover:bg-primary group-hover:text-white" : "bg-green-50 text-green-600 group-hover:bg-green-600 group-hover:text-white"
+                                )}
+                            >
+                                <Icon className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <div className={cn("text-xs font-bold uppercase tracking-wider mb-0.5", isDark ? "text-white" : "text-slate-900")}>
+                                    {title}
+                                </div>
+                                <div className="text-sm">{value}</div>
+                            </div>
                         </div>
-                        <div>
-                            <div className={cn("text-xs font-bold uppercase tracking-wider mb-0.5", isDark ? "text-white" : "text-slate-900")}>Email Support</div>
-                            <div className="text-sm">support@esparex.com</div>
-                        </div>
-                    </div>
-
-                    <div className={cn(
-                        "flex items-center gap-4 p-4 rounded-2xl border transition-all group",
-                        isDark ? "bg-slate-900/50 border-slate-800/50 hover:border-primary/20" : "bg-white border-slate-100 hover:border-green-200"
-                    )}>
-                        <div className={cn(
-                            "h-10 w-10 rounded-xl flex items-center justify-center transition-all",
-                            isDark ? "bg-slate-800 text-primary group-hover:bg-primary group-hover:text-white" : "bg-green-50 text-green-600 group-hover:bg-green-600 group-hover:text-white"
-                        )}>
-                            <MapPin className="h-5 w-5" />
-                        </div>
-                        <div>
-                            <div className={cn("text-xs font-bold uppercase tracking-wider mb-0.5", isDark ? "text-white" : "text-slate-900")}>Headquarters</div>
-                            <div className="text-sm">Hyderabad, Telangana</div>
-                        </div>
-                    </div>
-
-                    <div className={cn(
-                        "flex items-center gap-4 p-4 rounded-2xl border transition-all group",
-                        isDark ? "bg-slate-900/50 border-slate-800/50 hover:border-primary/20" : "bg-white border-slate-100 hover:border-green-200"
-                    )}>
-                        <div className={cn(
-                            "h-10 w-10 rounded-xl flex items-center justify-center transition-all",
-                            isDark ? "bg-slate-800 text-primary group-hover:bg-primary group-hover:text-white" : "bg-green-50 text-green-600 group-hover:bg-green-600 group-hover:text-white"
-                        )}>
-                            <Phone className="h-5 w-5" />
-                        </div>
-                        <div>
-                            <div className={cn("text-xs font-bold uppercase tracking-wider mb-0.5", isDark ? "text-white" : "text-slate-900")}>Support Hours</div>
-                            <div className="text-sm">Mon–Sat, 9 AM – 7 PM</div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
                 {/* Bottom Bar */}

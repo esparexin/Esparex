@@ -43,29 +43,32 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
     const half = Math.floor(navItems.length / 2);
     const leftItems = navItems.slice(0, half);
     const rightItems = navItems.slice(half);
+    const renderNavItems = (items: typeof navItems) =>
+        items.map((item) => {
+            const href = item.href ?? (item.page ? `/${item.page}` : "/");
+            const isActive = pathname === href;
+            const Icon = item.icon;
+
+            return (
+                <Link
+                    key={item.id}
+                    href={href}
+                    className={cn(
+                        "flex flex-col items-center justify-center w-full h-full space-y-1",
+                        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    )}
+                >
+                    <Icon className={cn("w-6 h-6", isActive && "fill-current")} />
+                    <span className="text-[10px] font-medium">{item.label}</span>
+                </Link>
+            );
+        });
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 pb-safe">
             <div className="flex justify-around items-center h-16">
                 {/* Left nav items */}
-                {leftItems.map((item) => {
-                    const href = item.href ?? (item.page ? `/${item.page}` : "/");
-                    const isActive = pathname === href;
-                    const Icon = item.icon;
-                    return (
-                        <Link
-                            key={item.id}
-                            href={href}
-                            className={cn(
-                                "flex flex-col items-center justify-center w-full h-full space-y-1",
-                                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            <Icon className={cn("w-6 h-6", isActive && "fill-current")} />
-                            <span className="text-[10px] font-medium">{item.label}</span>
-                        </Link>
-                    );
-                })}
+                {renderNavItems(leftItems)}
 
                 {/* Center: Post Ad Button (special-cased, not from config) */}
                 <button
@@ -97,24 +100,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                 </button>
 
                 {/* Right nav items */}
-                {rightItems.map((item) => {
-                    const href = item.href ?? (item.page ? `/${item.page}` : "/");
-                    const isActive = pathname === href;
-                    const Icon = item.icon;
-                    return (
-                        <Link
-                            key={item.id}
-                            href={href}
-                            className={cn(
-                                "flex flex-col items-center justify-center w-full h-full space-y-1",
-                                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            <Icon className={cn("w-6 h-6", isActive && "fill-current")} />
-                            <span className="text-[10px] font-medium">{item.label}</span>
-                        </Link>
-                    );
-                })}
+                {renderNavItems(rightItems)}
             </div>
         </div>
     );

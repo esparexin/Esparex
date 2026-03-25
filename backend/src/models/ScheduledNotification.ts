@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IScheduledNotification extends Document {
     title: string;
@@ -34,17 +35,7 @@ const ScheduledNotificationSchema = new Schema<IScheduledNotification>({
 ScheduledNotificationSchema.index({ status: 1, sendAt: 1 }, { name: 'idx_schedulednotification_status_sendAt_idx' });
 ScheduledNotificationSchema.index({ sentBy: 1, createdAt: -1 }, { name: 'idx_schedulednotification_sender_freshness_idx' });
 
-// toJSON Transform - Convert _id to id
-ScheduledNotificationSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as unknown as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(ScheduledNotificationSchema);
 
 const connection = getAdminConnection();
 const ScheduledNotification: Model<IScheduledNotification> =

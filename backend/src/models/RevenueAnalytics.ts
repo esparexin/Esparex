@@ -2,6 +2,7 @@
 import { Schema, Document } from "mongoose";
 import { getAdminConnection } from "../config/db";
 import type { Model } from "mongoose";
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IRevenueAnalytics extends Document {
     date: string; // YYYY-MM-DD
@@ -58,16 +59,6 @@ const connection = getAdminConnection();
 export const RevenueAnalytics: Model<IRevenueAnalytics> =
     (connection.models.RevenueAnalytics as Model<IRevenueAnalytics>) ||
     connection.model<IRevenueAnalytics>("RevenueAnalytics", RevenueAnalyticsSchema);
-// toJSON Transform - Convert _id to id
-RevenueAnalyticsSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as unknown as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(RevenueAnalyticsSchema);
 
 export default RevenueAnalytics;

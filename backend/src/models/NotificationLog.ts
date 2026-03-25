@@ -35,16 +35,7 @@ const NotificationLogSchema: Schema = new Schema({
 NotificationLogSchema.index({ sentBy: 1, createdAt: -1 }, { name: 'idx_notificationlog_sender_freshness_idx' });
 
 import { getAdminConnection } from '../config/db';
-// toJSON Transform - Convert _id to id
-NotificationLogSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+import { applyToJSONTransform } from '../utils/schemaOptions';
+applyToJSONTransform(NotificationLogSchema);
 
 export default getAdminConnection().models.NotificationLog || getAdminConnection().model<INotificationLog>('NotificationLog', NotificationLogSchema);

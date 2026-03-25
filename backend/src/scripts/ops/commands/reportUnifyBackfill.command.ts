@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../types';
+import { connectOpsDb } from './commandUtils';
 
 interface ReportDoc {
   _id: mongoose.Types.ObjectId;
@@ -36,24 +37,12 @@ const countMissingField = async (collection: mongoose.mongo.Collection<ReportDoc
     $or: [{ [field]: { $exists: false } }, { [field]: null }, { [field]: '' }],
   });
 
-const getMongoUri = (): string => {
-  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
-  if (!uri) throw new Error('Missing MONGODB_URI (or MONGO_URI)');
-  return uri;
-};
-
 export const reportUnifyBackfillCommand: OpsCommand = {
   name: 'report-unify-backfill',
   description: 'Backfill canonical report fields: targetType, targetId, reporterId, description.',
   blastRadius: 'high',
   run: async (context: OpsExecutionContext): Promise<OpsCommandResult> => {
-    const mongoUri = getMongoUri();
-
-    await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 20000 });
-    const db = mongoose.connection.db;
-    if (!db) {
-      throw new Error('Mongo connection established without database handle');
-    }
+    const db = await connectOpsDb();
     const reports = db.collection<ReportDoc>('reports');
 
     try {

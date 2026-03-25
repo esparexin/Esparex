@@ -35,6 +35,17 @@ const fallbackError = (error: unknown): EsparexError => {
   });
 };
 
+export const createApiErrorResult = (error: unknown) => {
+  const normalized = fallbackError(error);
+  return {
+    data: null,
+    error: normalized,
+    statusCode:
+      (normalized.context as { statusCode?: number } | undefined)?.statusCode ??
+      (normalized as unknown as { response?: { status?: number } })?.response?.status,
+  };
+};
+
 export const unwrapApiPayload = <T>(response: unknown): T | null => {
   if (response === null || response === undefined) return null;
 
@@ -118,14 +129,7 @@ export const toApiResult = async <T>(apiCall: Promise<unknown>): Promise<ApiResu
     const response = await apiCall;
     return { data: unwrapApiPayload<T>(response), error: null };
   } catch (error) {
-    const normalized = fallbackError(error);
-    return {
-      data: null,
-      error: normalized,
-      statusCode:
-        (normalized.context as { statusCode?: number } | undefined)?.statusCode ??
-        (normalized as unknown as { response?: { status?: number } })?.response?.status,
-    };
+    return createApiErrorResult(error);
   }
 };
 
@@ -149,13 +153,6 @@ export const toPaginatedApiResult = async <T>(
       error: null,
     };
   } catch (error) {
-    const normalized = fallbackError(error);
-    return {
-      data: null,
-      error: normalized,
-      statusCode:
-        (normalized.context as { statusCode?: number } | undefined)?.statusCode ??
-        (normalized as unknown as { response?: { status?: number } })?.response?.status,
-    };
+    return createApiErrorResult(error);
   }
 };

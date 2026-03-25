@@ -1,18 +1,15 @@
 "use client";
 
 import { memo } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { AdCardCover, AdCardMeta } from "./primitives";
-import type { AdData } from "@/types/home";
-import type { UiAd } from "@/lib/mappers";
-import type { Ad } from "@/schemas/ad.schema";
 import { cn } from "@/components/ui/utils";
-
-type AdCardData = AdData | UiAd | Ad;
+import {
+  AdCardLinkWrapper,
+  type AdCardData,
+  useAdCardBase,
+} from "./shared";
 
 export interface AdCardDashboardProps {
   ad: AdCardData;
@@ -35,38 +32,15 @@ export const AdCardDashboard = memo(function AdCardDashboard({
   href,
   className,
 }: AdCardDashboardProps) {
-  const router = useRouter();
-  const useDeclarativeLink = Boolean(href && !onClick && !actions);
-
-  const handleCardClick = () => {
-    if (onClick) {
-      onClick();
-      return;
-    }
-    if (href) {
-      void router.push(href);
-    }
-  };
-
-  const adRecord = ad as Record<string, unknown>;
-  const candidateImage =
-    (typeof adRecord.image === "string" ? adRecord.image : undefined) ||
-    (Array.isArray(adRecord.images) && typeof adRecord.images[0] === "string"
-      ? adRecord.images[0]
-      : undefined);
-  const imageUrl = toSafeImageSrc(candidateImage, "");
-
-  const Wrapper = ({ children }: { children: React.ReactNode }) => {
-    if (!useDeclarativeLink || !href) return children;
-    return (
-      <Link href={href} className="block w-full">
-        {children}
-      </Link>
-    );
-  };
+  const { imageUrl, useDeclarativeLink, handleCardClick } = useAdCardBase({
+    ad,
+    href,
+    onClick,
+    disableDeclarativeLink: Boolean(actions),
+  });
 
   return (
-    <Wrapper>
+    <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
       <Card
         className={cn(
           "overflow-hidden hover:shadow-2xl transition-all duration-300 group cursor-pointer border-border/40 bg-card/50 backdrop-blur-sm hover:-translate-y-1",
@@ -98,7 +72,7 @@ export const AdCardDashboard = memo(function AdCardDashboard({
           <AdCardMeta ad={ad} variant="dashboard" />
         </CardContent>
       </Card>
-    </Wrapper>
+    </AdCardLinkWrapper>
   );
 });
 

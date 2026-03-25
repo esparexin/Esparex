@@ -1,35 +1,50 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import { useToast } from "@/context/ToastContext";
-import { User } from "@/types/user";
 import {
     User as UserIcon,
     Mail,
-    Shield,
-    CheckCircle2,
-    AlertCircle,
-    Search,
-    Filter,
-    MoreVertical,
-    Eye,
-    Ban,
-    PlayCircle,
-    X,
 } from "lucide-react";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
+import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
+import { StatusChip } from "@/components/ui/StatusChip";
+import { useAdminMutation } from "@/hooks/useAdminMutation";
+import { UserActionDialog } from "@/components/system/users/UserActionDialog";
+import { UserActionMenu } from "@/components/system/users/UserActionMenu";
+import { UserQuickDetailsPanel } from "@/components/system/users/UserQuickDetailsPanel";
+import {
+    DEFAULT_USER_ACTION_STATE,
+    getUserStatusPresentation,
+    type ManagedUser,
+    type UserActionState,
+    type UserActionType,
+} from "@/components/system/users/userManagement";
+
+const USER_STATUS_OPTIONS = [
+    { value: "all", label: "All Status" },
+    { value: "active", label: "Active" },
+    { value: "suspended", label: "Suspended" },
+    { value: "banned", label: "Banned" },
+];
+
+const USER_ROLE_COLORS: Record<string, string> = {
+    super_admin: "bg-purple-100 text-purple-700",
+    admin: "bg-blue-100 text-blue-700",
+    business: "bg-amber-100 text-amber-700",
+};
 
 export default function UsersPage() {
-    const { showToast } = useToast();
     const searchParams = useSearchParams();
-    const [users, setUsers] = useState<User[]>([]);
+    const { isPending: isActionLoading, runMutation } = useAdminMutation();
+    const [users, setUsers] = useState<ManagedUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
@@ -48,21 +63,15 @@ export default function UsersPage() {
         verifiedUsers: 0
     });
 
-    // NEW STATE: Details & Actions
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    const [actionModal, setActionModal] = useState<{
-        isOpen: boolean;
-        type: 'suspend' | 'ban' | 'activate' | 'verify' | 'unverify';
-        user: User | null;
-    }>({ isOpen: false, type: 'suspend', user: null });
-    const [actionReason, setActionReason] = useState("");
-    const [isActionLoading, setIsActionLoading] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<ManagedUser | null>(null);
+    const [actionModal, setActionModal] = useState<UserActionState>(DEFAULT_USER_ACTION_STATE);
     const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const fetchUsers = async () => {
         setLoading(true);
+        setError("");
         try {
             const queryParams = new URLSearchParams({
                 search,
@@ -79,7 +88,7 @@ export default function UsersPage() {
                 adminFetch<any>(`${ADMIN_ROUTES.USERS}?${query}`),
                 adminFetch<any>(ADMIN_ROUTES.USER_OVERVIEW)
             ]);
-            const parsed = parseAdminResponse<User>(response);
+            const parsed = parseAdminResponse<ManagedUser>(response);
             setUsers(parsed.items);
             if (parsed.pagination) {
                 setPagination({
@@ -148,36 +157,47 @@ export default function UsersPage() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const executeAction = async () => {
-        if (!actionModal.user) return;
-        setIsActionLoading(true);
-        try {
-            if (['suspend', 'ban', 'activate'].includes(actionModal.type)) {
-                const newStatus = actionModal.type === 'activate' ? 'active' : actionModal.type === 'suspend' ? 'suspended' : 'banned';
-                await adminFetch(ADMIN_ROUTES.USER_STATUS(actionModal.user.id), {
-                    method: 'PATCH',
-                    body: { status: newStatus, reason: actionReason }
-                });
-            } else if (['verify', 'unverify'].includes(actionModal.type)) {
-                const isVerified = actionModal.type === 'verify';
-                await adminFetch(ADMIN_ROUTES.USER_VERIFY(actionModal.user.id), {
-                    method: 'PATCH',
-                    body: { isVerified }
-                });
-            }
-            showToast(`User ${actionModal.type} action completed successfully`, 'success' as const);
-            setActionModal({ isOpen: false, type: 'suspend', user: null });
-            setActionReason("");
-            setSelectedUser(null);
-            void fetchUsers();
-        } catch (err) {
-            showToast(err instanceof Error ? err.message : `Failed to ${actionModal.type} user`, 'error' as const);
-        } finally {
-            setIsActionLoading(false);
-        }
+    const openActionModal = (type: UserActionType, user: ManagedUser) => {
+        setActionModal({ isOpen: true, type, user });
     };
 
-    const columns: ColumnDef<User>[] = [
+    const closeActionModal = () => {
+        setActionModal(DEFAULT_USER_ACTION_STATE);
+    };
+
+    const executeAction = async (reason: string) => {
+        const { type, user } = actionModal;
+        if (!user) return;
+
+        await runMutation(
+            async () => {
+                if (["suspend", "ban", "activate"].includes(type)) {
+                    const newStatus =
+                        type === "activate" ? "active" : type === "suspend" ? "suspended" : "banned";
+                    return adminFetch(ADMIN_ROUTES.USER_STATUS(user.id), {
+                        method: "PATCH",
+                        body: { status: newStatus, reason },
+                    });
+                }
+
+                return adminFetch(ADMIN_ROUTES.USER_VERIFY(user.id), {
+                    method: "PATCH",
+                    body: { isVerified: type === "verify" },
+                });
+            },
+            {
+                successMessage: `User ${type} action completed successfully`,
+                failureMessage: `Failed to ${type} user`,
+                onSuccess: async () => {
+                    closeActionModal();
+                    setSelectedUser(null);
+                    await fetchUsers();
+                },
+            }
+        );
+    };
+
+    const columns: ColumnDef<ManagedUser>[] = [
         {
             header: "User Name",
             cell: (user) => (
@@ -212,26 +232,21 @@ export default function UsersPage() {
         {
             header: "Role",
             cell: (user) => (
-                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${user.role === 'super_admin' ? "bg-purple-100 text-purple-700" :
-                    user.role === 'admin' ? "bg-blue-100 text-blue-700" :
-                        user.role === 'business' ? "bg-amber-100 text-amber-700" :
-                            "bg-slate-100 text-slate-600"
-                    }`}>
+                <span
+                    className={`rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                        USER_ROLE_COLORS[user.role] ?? "bg-slate-100 text-slate-600"
+                    }`}
+                >
                     {user.role}
                 </span>
             )
         },
         {
             header: "Status",
-            cell: (user) => (
-                <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${user.status === 'active' ? "bg-emerald-500" :
-                        user.status === 'suspended' ? "bg-amber-500" :
-                            "bg-red-500"
-                        }`} />
-                    <span className="capitalize text-xs font-medium">{user.status}</span>
-                </div>
-            )
+            cell: (user) => {
+                const { status, label } = getUserStatusPresentation(user.status);
+                return <StatusChip status={status} label={label} />;
+            }
         },
         {
             header: "Joined Date",
@@ -241,79 +256,23 @@ export default function UsersPage() {
             header: "Total Ads Posted",
             cell: (user) => (
                 <span className="text-xs font-semibold text-slate-700">
-                    {Number((user as any).totalAdsPosted || 0)}
+                    {Number(user.totalAdsPosted ?? user.totalAds ?? 0)}
                 </span>
             )
         },
         {
             header: "",
             cell: (user) => (
-                <div className="relative flex justify-end">
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setDropdownOpen(dropdownOpen === user.id ? null : user.id);
-                        }}
-                        className="p-1 hover:bg-slate-100 rounded-lg transition-colors text-slate-400"
-                    >
-                        <MoreVertical size={20} />
-                    </button>
-
-                    {dropdownOpen === user.id && (
-                        <div
-                            ref={dropdownRef}
-                            className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-100 py-1 z-50 text-sm font-medium"
-                        >
-                            <Link
-                                href={`/users/${encodeURIComponent(user.id)}`}
-                                onClick={() => setDropdownOpen(null)}
-                                className="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2 block"
-                            >
-                                <Eye size={16} /> View Profile
-                            </Link>
-                            <Link
-                                href={`/moderation?sellerId=${encodeURIComponent(user.id)}`}
-                                onClick={() => setDropdownOpen(null)}
-                                className="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2 block"
-                            >
-                                <Search size={16} /> View Ads
-                            </Link>
-                            <button
-                                onClick={() => { setSelectedUser(user); setDropdownOpen(null); }}
-                                className="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2"
-                            >
-                                <UserIcon size={16} /> Quick Details
-                            </button>
-                            <button
-                                onClick={() => { setActionModal({ isOpen: true, type: user.isVerified ? 'unverify' : 'verify', user }); setDropdownOpen(null); }}
-                                className="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2"
-                            >
-                                <Shield size={16} /> {user.isVerified ? 'Revoke Verification' : 'Verify User'}
-                            </button>
-
-                            <hr className="my-1 border-slate-100" />
-
-                            {user.status === 'active' ? (
-                                <>
-                                    <button
-                                        onClick={() => { setActionModal({ isOpen: true, type: 'ban', user }); setDropdownOpen(null); }}
-                                        className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-700 flex items-center gap-2"
-                                    >
-                                        <Ban size={16} /> Block User
-                                    </button>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={() => { setActionModal({ isOpen: true, type: 'activate', user }); setDropdownOpen(null); }}
-                                    className="w-full text-left px-4 py-2 hover:bg-emerald-50 text-emerald-700 flex items-center gap-2"
-                                >
-                                    <PlayCircle size={16} /> Reactivate Account
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )
+                <UserActionMenu
+                    user={user}
+                    isOpen={dropdownOpen === user.id}
+                    menuRef={dropdownRef}
+                    onToggle={() => setDropdownOpen(dropdownOpen === user.id ? null : user.id)}
+                    onClose={() => setDropdownOpen(null)}
+                    onOpenDetails={setSelectedUser}
+                    onOpenAction={openActionModal}
+                />
+            ),
         }
     ];
 
@@ -357,39 +316,29 @@ export default function UsersPage() {
                         </Link>
                     </div>
 
-                    {/* Filters */}
-                    <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <div className="relative flex-1 w-full">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                            <input
-                                type="text"
-                                placeholder="Search by name, email or mobile..."
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
-                        </div>
-                        <div className="flex items-center gap-2 w-full md:w-auto">
-                            <Filter className="text-slate-400" size={18} />
+                    <AdminFilterToolbar
+                        search={search}
+                        onSearchChange={setSearch}
+                        searchPlaceholder="Search by name, email or mobile..."
+                        status={statusFilter}
+                        onStatusChange={setStatusFilter}
+                        statusOptions={USER_STATUS_OPTIONS}
+                        extraFilters={
                             <select
-                                className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                value={verifiedFilter}
+                                onChange={(event) =>
+                                    setVerifiedFilter(event.target.value as "all" | "true" | "false")
+                                }
                             >
-                                <option value="all">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="suspended">Suspended</option>
-                                <option value="banned">Banned</option>
+                                <option value="all">All Verification</option>
+                                <option value="true">Verified</option>
+                                <option value="false">Unverified</option>
                             </select>
-                        </div>
-                    </div>
+                        }
+                    />
 
-
-                    {error && (
-                        <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2 italic">
-                            <AlertCircle size={18} /> {error}
-                        </div>
-                    )}
+                    <AdminInlineAlert message={error} />
 
                     <div className="min-h-0 flex-1">
                         <DataTable
@@ -409,145 +358,18 @@ export default function UsersPage() {
                 </div>
             </div>
 
-            {/* Slide-over User Details Panel */}
-            {selectedUser && (
-                <div className="w-[400px] border-l border-slate-200 bg-white shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.05)] h-full absolute right-0 top-0 overflow-y-auto z-10">
-                    <div className="p-6 space-y-6">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-slate-900">User Details</h2>
-                            <button onClick={() => setSelectedUser(null)} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
+            {selectedUser ? (
+                <UserQuickDetailsPanel user={selectedUser} onClose={() => setSelectedUser(null)} />
+            ) : null}
 
-                        <div className="flex flex-col items-center bg-slate-50 p-6 rounded-xl border border-slate-100">
-                            <div className="w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 mb-4">
-                                <UserIcon size={40} />
-                            </div>
-                            <h3 className="text-lg font-bold text-slate-900">{selectedUser.name || "Unknown"}</h3>
-                            <div className={`mt-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${selectedUser.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                                selectedUser.status === 'suspended' ? 'bg-amber-100 text-amber-700' :
-                                    'bg-red-100 text-red-700'
-                                }`}>
-                                {selectedUser.status}
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest text-slate-500 border-b border-slate-100 pb-2">Identity</h4>
-
-                            <div>
-                                <div className="text-xs text-slate-500 mb-1">Mobile Number</div>
-                                <div className="font-semibold text-slate-900 flex items-center gap-2">
-                                    {selectedUser.mobile} {selectedUser.isPhoneVerified && <CheckCircle2 size={14} className="text-emerald-500" />}
-                                </div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-1">Email Address</div>
-                                <div className="font-semibold text-slate-900 flex items-center gap-2">
-                                    {selectedUser.email || "N/A"} {selectedUser.isEmailVerified && <CheckCircle2 size={14} className="text-emerald-500" />}
-                                </div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-1">Overall Verification</div>
-                                <div className="font-semibold text-slate-900">
-                                    {selectedUser.isVerified ? <span className="text-emerald-600">Verified</span> : <span className="text-slate-400">Unverified</span>}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4 pt-4">
-                            <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest text-slate-500 border-b border-slate-100 pb-2">Business & Status</h4>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-1">Role</div>
-                                <div className="font-semibold text-slate-900 capitalize">{selectedUser.role}</div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-1">Business Status</div>
-                                <div className="font-semibold text-slate-900 capitalize">{selectedUser.businessStatus || "None"}</div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-1">Account Created</div>
-                                <div className="font-semibold text-slate-900">{new Date(selectedUser.createdAt as string).toLocaleString()}</div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-3 pt-2">
-                            <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest text-slate-500 border-b border-slate-100 pb-2">Quick Access</h4>
-                            <div className="flex flex-col gap-2">
-                                <Link href={`/moderation?sellerId=${encodeURIComponent(selectedUser.id)}`} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-                                    View User Ads
-                                </Link>
-                                <Link href={`/reports?search=${encodeURIComponent(selectedUser.id)}`} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-                                    View User Reports
-                                </Link>
-                                <Link href={`/finance?search=${encodeURIComponent(selectedUser.id)}`} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-                                    View User Payments
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Action Confirmation Modal */}
-            {actionModal.isOpen && actionModal.user && (
-                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className={`p-6 border-b ${['ban'].includes(actionModal.type) ? 'bg-red-50 border-red-100 text-red-900' :
-                            ['suspend'].includes(actionModal.type) ? 'bg-amber-50 border-amber-100 text-amber-900' :
-                                'bg-emerald-50 border-emerald-100 text-emerald-900'
-                            }`}>
-                            <h3 className="text-lg font-bold capitalize flex items-center gap-2">
-                                {actionModal.type === 'ban' ? <Ban size={20} /> : actionModal.type === 'suspend' ? <Shield size={20} /> : <Shield size={20} />}
-                                Confirm {actionModal.type}
-                            </h3>
-                            <p className="text-sm mt-1 opacity-80">
-                                You are about to {actionModal.type} <strong>{actionModal.user.name || actionModal.user.mobile}</strong>.
-                            </p>
-                        </div>
-
-                        <div className="p-6">
-                            {['suspend', 'ban'].includes(actionModal.type) && (
-                                <div className="mb-4">
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Reason for Action (Required)</label>
-                                    <textarea
-                                        className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[100px]"
-                                        placeholder="Explain why this account is being actioned to maintain the audit log..."
-                                        value={actionReason}
-                                        onChange={(e) => setActionReason(e.target.value)}
-                                    ></textarea>
-                                </div>
-                            )}
-
-                            <p className="text-sm text-slate-500 mb-6">
-                                Are you sure you wish to proceed? This will be logged permanently in the system audit trail.
-                            </p>
-
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => setActionModal({ isOpen: false, type: 'suspend', user: null })}
-                                    className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors"
-                                    disabled={isActionLoading}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={executeAction}
-                                    disabled={isActionLoading || (['suspend', 'ban'].includes(actionModal.type) && !actionReason.trim())}
-                                    className={`flex-1 px-4 py-2 font-bold rounded-lg transition-colors text-white ${isActionLoading ? 'opacity-50 cursor-not-allowed' : ''
-                                        } ${['ban'].includes(actionModal.type) ? 'bg-red-600 hover:bg-red-700' :
-                                            ['suspend'].includes(actionModal.type) ? 'bg-amber-600 hover:bg-amber-700' :
-                                                'bg-emerald-600 hover:bg-emerald-700'
-                                        }`}
-                                >
-                                    {isActionLoading ? 'Processing...' : `Confirm ${actionModal.type}`}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <UserActionDialog
+                open={actionModal.isOpen}
+                user={actionModal.user}
+                actionType={actionModal.type}
+                isSubmitting={isActionLoading}
+                onClose={closeActionModal}
+                onConfirm={executeAction}
+            />
         </div>
         </AdminPageShell>
     );

@@ -2,6 +2,7 @@
 import { Schema, Document } from "mongoose";
 import { getUserConnection } from "../config/db";
 import type { Model } from "mongoose";
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface ICounter extends Document {
     key: string;
@@ -23,16 +24,6 @@ const connection = getUserConnection();
 export const Counter: Model<ICounter> =
     (connection.models.Counter as Model<ICounter>) ||
     connection.model<ICounter>("Counter", CounterSchema);
-// toJSON Transform - Convert _id to id
-CounterSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as unknown as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(CounterSchema);
 
 export default Counter;

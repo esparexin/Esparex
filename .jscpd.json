@@ -1,0 +1,25 @@
+{
+  "threshold": 1.1,
+  "minLines": 8,
+  "minTokens": 100,
+  "languages": ["typescript", "tsx"],
+  "path": [
+    "backend/src",
+    "frontend/src",
+    "admin-frontend/src"
+  ],
+  "ignore": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/*.d.ts",
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ],
+  "reporters": ["console", "json"],
+  "output": ".jscpd-report"
+}

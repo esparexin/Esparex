@@ -1,25 +1,9 @@
 import { apiClient } from "@/lib/api/client";
 import { toApiResult, toPaginatedApiResult, type PaginationEnvelope } from '@/lib/api/result';
-import { API_ROUTES, API_V1_BASE_PATH, DEFAULT_LOCAL_API_ORIGIN } from '../routes';
+import { API_ROUTES } from '../routes';
 import { toSafeImageArray } from '@/lib/image/imageUrl';
-
-const USER_API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
-
-const fetchSparePartApiJson = async (
-    endpoint: string,
-    fetchOptions?: RequestInit & { next?: { revalidate?: number } }
-): Promise<unknown> => {
-    const base = USER_API_BASE_URL.endsWith('/') ? USER_API_BASE_URL : `${USER_API_BASE_URL}/`;
-    const url = new URL(endpoint.replace(/^\//, ''), base).toString();
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: { Accept: 'application/json', ...((fetchOptions?.headers as Record<string, string>) ?? {}) },
-        ...fetchOptions,
-    });
-    if (!response.ok) throw new Error(`Failed to load ${endpoint}: ${response.status}`);
-    return response.json().catch(() => null);
-};
+import { createEmptyPageResult } from './listingsShared';
+import { fetchUserApiJson, type ServerFetchOptions } from './server';
 
 export interface SparePartListingFilters {
     page?: number;
@@ -65,7 +49,7 @@ const normalizeSparePartListing = (listing: SparePartListing): SparePartListing 
     images: toSafeImageArray(listing.images),
 });
 
-type FetchOptions = { fetchOptions?: RequestInit & { next?: { revalidate?: number } } };
+type FetchOptions = { fetchOptions?: ServerFetchOptions };
 
 export const getSparePartListingsPage = async (
     filters: SparePartListingFilters = {},
@@ -86,15 +70,12 @@ export const getSparePartListingsPage = async (
 
     const { data: result } = typeof window === 'undefined'
         ? await toPaginatedApiResult<SparePartListing>(
-            Promise.resolve(fetchSparePartApiJson(endpoint, fetchOptions))
+            Promise.resolve(fetchUserApiJson(endpoint, fetchOptions))
           )
         : await toPaginatedApiResult<SparePartListing>(apiClient.get(endpoint));
 
     if (!result) {
-        return {
-            data: [],
-            pagination: { page: filters.page ?? 1, limit: filters.limit ?? 20, hasMore: false },
-        };
+        return createEmptyPageResult<SparePartListing>(filters);
     }
 
     return {

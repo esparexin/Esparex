@@ -1,14 +1,14 @@
 import { apiClient } from "@/lib/api/client";
 import {
     API_ROUTES,
-    API_V1_BASE_PATH,
-    DEFAULT_LOCAL_API_ORIGIN,
 } from '../routes';
 import { type Ad, AdSchema } from '@shared/schemas/ad.schema';
 import { toApiResult, toPaginatedApiResult, unwrapApiPayload, type PaginationEnvelope } from '@/lib/api/result';
 import { normalizeAdStatus } from '@/lib/status/statusNormalization';
 import { toSafeImageArray, toSafeImageSrc } from '@/lib/image/imageUrl';
 import type { LocationLevel } from '@/types/location';
+import { createEmptyPageResult, stripEmptyObjectIdFields as stripSharedObjectIdFields } from './listingsShared';
+import { fetchUserApiJson, type ServerFetchOptions } from './server';
 export type { Ad };
 
 export interface AdFilters {
@@ -41,8 +41,6 @@ export interface AdFilters {
 import { normalizeToAppLocation as normalizeLocation } from '@/lib/location/locationService';
 import logger from "@/lib/logger";
 
-const USER_API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 const AD_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const RESERVED_AD_IDENTIFIERS = new Set([
@@ -57,38 +55,6 @@ const RESERVED_AD_IDENTIFIERS = new Set([
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === 'object' && value !== null;
-
-type ServerFetchOptions = RequestInit & {
-    next?: {
-        revalidate?: number;
-        tags?: string[];
-    };
-};
-
-const buildUserApiUrl = (endpoint: string): string => {
-    const base = USER_API_BASE_URL.endsWith('/') ? USER_API_BASE_URL : `${USER_API_BASE_URL}/`;
-    return new URL(endpoint.replace(/^\//, ''), base).toString();
-};
-
-const fetchUserApiJson = async (
-    endpoint: string,
-    fetchOptions?: ServerFetchOptions
-): Promise<unknown> => {
-    const response = await fetch(buildUserApiUrl(endpoint), {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-            ...((fetchOptions?.headers as Record<string, string> | undefined) ?? {}),
-        },
-        ...fetchOptions,
-    });
-
-    if (!response.ok) {
-        throw new Error(`Failed to load ${endpoint}: ${response.status}`);
-    }
-
-    return response.json().catch(() => null);
-};
 
 export function normalizeAdIdentifier(value: string | number): string {
     const raw = String(value).trim();
@@ -348,24 +314,7 @@ export function normalizeAd(data: unknown): Ad {
 // --- API Functions ---
 
 function stripEmptyObjectIdFields<T extends Record<string, unknown>>(payload: T): T {
-    const cleaned = { ...payload } as Record<string, unknown>;
-    const objectIdFields = ["categoryId", "brandId", "modelId", "locationId"];
-
-    for (const field of objectIdFields) {
-        const value = cleaned[field];
-        if (typeof value === "string" && value.trim() === "") {
-            delete cleaned[field];
-            continue;
-        }
-        if (value && typeof value === "object") {
-            const extractedId = extractId(value);
-            if (typeof extractedId === "string" && extractedId.trim().length > 0) {
-                cleaned[field] = extractedId;
-            } else {
-                delete cleaned[field];
-            }
-        }
-    }
+    const cleaned = stripSharedObjectIdFields(payload, { extractId }) as Record<string, unknown>;
 
     if (
         cleaned.location &&
@@ -390,6 +339,53 @@ function stripEmptyObjectIdFields<T extends Record<string, unknown>>(payload: T)
     }
 
     return cleaned as T;
+}
+
+function appendPositiveLimitParam(params: URLSearchParams, limit?: number): void {
+    if (typeof limit === 'number' && Number.isFinite(limit) && limit > 0) {
+        params.append('limit', String(Math.floor(limit)));
+    }
+}
+
+function appendQueryString(baseUrl: string, params: URLSearchParams): string {
+    const queryString = params.toString();
+    return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+}
+
+async function fetchUserApiResult<T>(
+    url: string,
+    options?: { fetchOptions?: ServerFetchOptions }
+): Promise<T | null> {
+    const { data } =
+        typeof window === 'undefined'
+            ? await toApiResult<T>(Promise.resolve(fetchUserApiJson(url, options?.fetchOptions)))
+            : await toApiResult<T>(apiClient.get(url));
+
+    return data ?? null;
+}
+
+async function executeAdMutationRequest(
+    request: Promise<unknown>,
+    failureMessage: string
+): Promise<Ad | null> {
+    const response = await request;
+    const record = response as Record<string, unknown>;
+
+    if (
+        record &&
+        (record.error ||
+            record.status === "error" ||
+            (typeof record.statusCode === "number" && record.statusCode >= 400))
+    ) {
+        throw new Error(typeof record.message === "string" ? record.message : failureMessage);
+    }
+
+    const payload = unwrapAdPayload(response);
+    if (!payload) {
+        throw new Error(failureMessage);
+    }
+
+    return normalizeAd(payload);
 }
 
 export const isValidAdIdentifier = (value: string | number): boolean => {
@@ -463,14 +459,7 @@ export const getAdsPage = async (
                 );
 
         if (!result) {
-            return {
-                data: [],
-                pagination: {
-                    page: Number(filters?.page || 1),
-                    limit: Number(filters?.limit || 20),
-                    hasMore: false,
-                },
-            };
+            return createEmptyPageResult<Ad>(filters ?? {});
         }
 
         return {
@@ -478,14 +467,7 @@ export const getAdsPage = async (
             pagination: result.pagination,
         };
     } catch {
-        return {
-            data: [],
-            pagination: {
-                page: Number(filters?.page || 1),
-                limit: Number(filters?.limit || 20),
-                hasMore: false,
-            },
-        };
+        return createEmptyPageResult<Ad>(filters ?? {});
     }
 };
 
@@ -496,14 +478,7 @@ export const getAds = async (filters?: AdFilters): Promise<Ad[]> => {
 
 export const getNearbyAdsPage = async (filters: Pick<AdFilters, "lat" | "lng" | "radiusKm" | "categoryId" | "page" | "limit">): Promise<AdPageResult> => {
     if (typeof filters.lat !== "number" || typeof filters.lng !== "number") {
-        return {
-            data: [],
-            pagination: {
-                page: Number(filters.page || 1),
-                limit: Number(filters.limit || 20),
-                hasMore: false,
-            },
-        };
+        return createEmptyPageResult<Ad>(filters);
     }
 
     const params = new URLSearchParams();
@@ -521,14 +496,7 @@ export const getNearbyAdsPage = async (filters: Pick<AdFilters, "lat" | "lng" | 
     );
 
     if (!result) {
-        return {
-            data: [],
-            pagination: {
-                page: Number(filters.page || 1),
-                limit: Number(filters.limit || 20),
-                hasMore: false,
-            },
-        };
+        return createEmptyPageResult<Ad>(filters);
     }
 
     return {
@@ -672,59 +640,33 @@ export const createAd = async (
     adData: Partial<Ad>,
     options?: { idempotencyKey?: string }
 ): Promise<Ad | null> => {
-    try {
-        const sanitizedPayload = stripEmptyObjectIdFields(adData as Record<string, unknown>);
-        const headers =
-            options?.idempotencyKey && options.idempotencyKey.trim().length > 0
-                ? { 'Idempotency-Key': options.idempotencyKey.trim() }
-                : undefined;
-        const response = await apiClient.post<unknown>(API_ROUTES.USER.ADS, sanitizedPayload, {
+    const sanitizedPayload = stripEmptyObjectIdFields(adData as Record<string, unknown>);
+    const headers =
+        options?.idempotencyKey && options.idempotencyKey.trim().length > 0
+            ? { 'Idempotency-Key': options.idempotencyKey.trim() }
+            : undefined;
+
+    return executeAdMutationRequest(
+        apiClient.post<unknown>(API_ROUTES.USER.ADS, sanitizedPayload, {
             silent: true,
             ...(headers ? { headers } : {}),
-        });
-
-        const record = response as Record<string, unknown>;
-        if (record && (record.error || record.status === "error" || (typeof record.statusCode === "number" && record.statusCode >= 400))) {
-            throw new Error(typeof record.message === "string" ? record.message : "Failed to create ad");
-        }
-
-        const payload = unwrapAdPayload(response);
-
-        if (!payload) {
-            throw new Error('Failed to create ad');
-        }
-
-        return normalizeAd(payload);
-    } catch (e) {
-        throw e;
-    }
+        }),
+        "Failed to create ad"
+    );
 };
 
 export const updateAd = async (
     id: string | number,
     adData: Partial<Ad>
 ): Promise<Ad | null> => {
-    try {
-        const sanitizedPayload = stripEmptyObjectIdFields(adData as Record<string, unknown>);
-        const response = await apiClient.put<unknown>(API_ROUTES.USER.LISTING_EDIT(id), sanitizedPayload, {
+    const sanitizedPayload = stripEmptyObjectIdFields(adData as Record<string, unknown>);
+
+    return executeAdMutationRequest(
+        apiClient.put<unknown>(API_ROUTES.USER.LISTING_EDIT(id), sanitizedPayload, {
             silent: true,
-        });
-
-        const record = response as Record<string, unknown>;
-        if (record && (record.error || record.status === "error" || (typeof record.statusCode === "number" && record.statusCode >= 400))) {
-            throw new Error(typeof record.message === "string" ? record.message : "Failed to update ad");
-        }
-
-        const payload = unwrapAdPayload(response);
-
-        if (!payload) {
-            throw new Error('Failed to update ad');
-        }
-
-        return normalizeAd(payload);
-    } catch (e) {
-        throw e;
-    }
+        }),
+        "Failed to update ad"
+    );
 };
 
 export const deleteAd = async (
@@ -820,7 +762,7 @@ export const getHomeAds = async (
     );
     try {
         const effectiveParams = paramsInput ?? {};
-        let url = API_ROUTES.USER.HOME_FEED;
+        let url: string = API_ROUTES.USER.HOME_FEED;
         const params = new URLSearchParams();
 
         if (typeof effectiveParams.cursor === 'string' && effectiveParams.cursor.trim().length > 0) {
@@ -848,23 +790,13 @@ export const getHomeAds = async (
         if (typeof effectiveParams.radiusKm === 'number' && Number.isFinite(effectiveParams.radiusKm)) {
             params.append('radiusKm', String(effectiveParams.radiusKm));
         }
-        if (typeof effectiveParams.limit === 'number' && Number.isFinite(effectiveParams.limit) && effectiveParams.limit > 0) {
-            params.append('limit', String(Math.floor(effectiveParams.limit)));
-        }
+        appendPositiveLimitParam(params, effectiveParams.limit);
+        url = appendQueryString(url, params);
 
-        const queryString = params.toString();
-        if (queryString) {
-            url += `?${queryString}`;
-        }
-
-        const { data: result } =
-            typeof window === 'undefined'
-                ? await toApiResult<{ ads: unknown[]; nextCursor?: { createdAt?: string; id?: string } | string | null; hasMore?: boolean }>(
-                    Promise.resolve(fetchUserApiJson(url, options?.fetchOptions))
-                )
-                : await toApiResult<{ ads: unknown[]; nextCursor?: { createdAt?: string; id?: string } | string | null; hasMore?: boolean }>(
-                    apiClient.get(url)
-                );
+        const result = await fetchUserApiResult<{ ads: unknown[]; nextCursor?: { createdAt?: string; id?: string } | string | null; hasMore?: boolean }>(
+            url,
+            options
+        );
 
         if (!result) {
             return { ads: [], nextCursor: fallbackCursor, hasMore: false };
@@ -898,30 +830,17 @@ export const getTrendingAds = async (
 ): Promise<TrendingAdsPayload> => {
     try {
         const effectiveParams = paramsInput ?? {};
-        let url = API_ROUTES.USER.ADS_TRENDING;
+        let url: string = API_ROUTES.USER.ADS_TRENDING;
         const params = new URLSearchParams();
 
         if (effectiveParams.location) params.append('location', effectiveParams.location);
         if (effectiveParams.locationId) params.append('locationId', effectiveParams.locationId);
         if (effectiveParams.category) params.append('category', effectiveParams.category);
         if (effectiveParams.categoryId) params.append('categoryId', effectiveParams.categoryId);
-        if (typeof effectiveParams.limit === 'number' && Number.isFinite(effectiveParams.limit) && effectiveParams.limit > 0) {
-            params.append('limit', String(Math.floor(effectiveParams.limit)));
-        }
+        appendPositiveLimitParam(params, effectiveParams.limit);
+        url = appendQueryString(url, params);
 
-        const queryString = params.toString();
-        if (queryString) {
-            url += `?${queryString}`;
-        }
-
-        const { data: result } =
-            typeof window === 'undefined'
-                ? await toApiResult<{ ads: unknown[] }>(
-                    Promise.resolve(fetchUserApiJson(url, options?.fetchOptions))
-                )
-                : await toApiResult<{ ads: unknown[] }>(
-                    apiClient.get(url)
-                );
+        const result = await fetchUserApiResult<{ ads: unknown[] }>(url, options);
 
         if (!result) return { ads: [] };
 
@@ -944,15 +863,10 @@ export const getSimilarAds = async (
     }
 
     try {
-        let url = API_ROUTES.USER.AD_SIMILAR(normalizedIdentifier);
+        let url: string = API_ROUTES.USER.AD_SIMILAR(normalizedIdentifier);
         const params = new URLSearchParams();
-        if (typeof paramsInput?.limit === 'number' && Number.isFinite(paramsInput.limit) && paramsInput.limit > 0) {
-            params.append('limit', String(Math.floor(paramsInput.limit)));
-        }
-        const query = params.toString();
-        if (query) {
-            url += `?${query}`;
-        }
+        appendPositiveLimitParam(params, paramsInput?.limit);
+        url = appendQueryString(url, params);
 
         const { data: result } = await toApiResult<{ ads: unknown[] }>(
             apiClient.get(url, { silent: true })

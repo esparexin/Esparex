@@ -44,6 +44,37 @@ export const applyResolvedPincodeLocation = ({
     }
 };
 
+const AddressField = ({ 
+    id, label, placeholder, value, error, onChange, isAutoDetected 
+}: { 
+    id: keyof StepAddressProps["formData"]; 
+    label: string | React.ReactNode; 
+    placeholder: string; 
+    value: string; 
+    error?: string; 
+    onChange: (val: string) => void;
+    isAutoDetected?: boolean;
+}) => (
+    <div className="space-y-2">
+        <Label htmlFor={id as string} className="flex items-center gap-1.5">
+            {label}
+            {isAutoDetected && (
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+            )}
+        </Label>
+        <Input
+            id={id as string}
+            placeholder={placeholder}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className={error ? "border-red-500" : "border-slate-200"}
+        />
+        {error && (
+            <p className="text-xs text-red-500 mt-1">{error}</p>
+        )}
+    </div>
+);
+
 export function StepAddress({
     formData,
     setFormData,
@@ -124,32 +155,22 @@ export function StepAddress({
             <Card className="shadow-sm">
                 <CardContent className="p-6 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="shopNo">Shop No. / Building Name *</Label>
-                            <Input
-                                id="shopNo"
-                                placeholder="e.g. Shop 12, A-Block"
-                                value={formData.shopNo}
-                                onChange={e => setFormData({ ...formData, shopNo: e.target.value })}
-                                className={formData.errors?.shopNo ? "border-red-500" : ""}
-                            />
-                            {formData.errors?.shopNo && (
-                                <p className="text-xs text-red-500 mt-1">{formData.errors.shopNo}</p>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="street">Street / Colony / Area *</Label>
-                            <Input
-                                id="street"
-                                placeholder="e.g. Main Road, Gandhi Nagar"
-                                value={formData.street}
-                                onChange={e => setFormData({ ...formData, street: e.target.value })}
-                                className={formData.errors?.street ? "border-red-500" : ""}
-                            />
-                            {formData.errors?.street && (
-                                <p className="text-xs text-red-500 mt-1">{formData.errors.street}</p>
-                            )}
-                        </div>
+                        <AddressField
+                            id="shopNo"
+                            label="Shop No. / Building Name *"
+                            placeholder="e.g. Shop 12, A-Block"
+                            value={formData.shopNo}
+                            onChange={v => setFormData({ ...formData, shopNo: v })}
+                            error={formData.errors?.shopNo}
+                        />
+                        <AddressField
+                            id="street"
+                            label="Street / Colony / Area *"
+                            placeholder="e.g. Main Road, Gandhi Nagar"
+                            value={formData.street}
+                            onChange={v => setFormData({ ...formData, street: v })}
+                            error={formData.errors?.street}
+                        />
                     </div>
 
                     <div className="space-y-2">
@@ -177,42 +198,24 @@ export function StepAddress({
                                 <p className="text-xs text-red-500 mt-1">{formData.pincodeError}</p>
                             )}
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="city" className="flex items-center gap-1.5">
-                                City
-                                {!formData.pincodeError && Boolean(formData.city) && (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                                )}
-                            </Label>
-                            <Input
-                                id="city"
-                                placeholder={!formData.city ? "Enter city name" : "Auto-detected from pincode"}
-                                value={formData.city}
-                                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                className={`${formData.errors?.city ? "border-red-500" : "border-slate-200"}`}
-                            />
-                            {formData.errors?.city && (
-                                <p className="text-xs text-red-500 mt-1">{formData.errors.city}</p>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="state" className="flex items-center gap-1.5">
-                                State
-                                {!formData.pincodeError && Boolean(formData.state) && (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                                )}
-                            </Label>
-                            <Input
-                                id="state"
-                                placeholder={!formData.state ? "Enter state name" : "Auto-detected from pincode"}
-                                value={formData.state}
-                                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                                className={`${formData.errors?.state ? "border-red-500" : "border-slate-200"}`}
-                            />
-                            {formData.errors?.state && (
-                                <p className="text-xs text-red-500 mt-1">{formData.errors.state}</p>
-                            )}
-                        </div>
+                        <AddressField
+                            id="city"
+                            label="City"
+                            placeholder={!formData.city ? "Enter city name" : "Auto-detected from pincode"}
+                            value={formData.city}
+                            onChange={v => setFormData({ ...formData, city: v })}
+                            error={formData.errors?.city}
+                            isAutoDetected={!formData.pincodeError && Boolean(formData.city)}
+                        />
+                        <AddressField
+                            id="state"
+                            label="State"
+                            placeholder={!formData.state ? "Enter state name" : "Auto-detected from pincode"}
+                            value={formData.state}
+                            onChange={v => setFormData({ ...formData, state: v })}
+                            error={formData.errors?.state}
+                            isAutoDetected={!formData.pincodeError && Boolean(formData.state)}
+                        />
                     </div>
                 </CardContent>
             </Card>

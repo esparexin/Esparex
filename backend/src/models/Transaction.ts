@@ -3,6 +3,7 @@ import { Schema, Document, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
 import type { Model } from "mongoose";
 import { PAYMENT_STATUS, PAYMENT_STATUS_VALUES, PaymentStatusValue } from "../../../shared/enums/paymentStatus";
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface ITransaction extends Document {
     userId: Types.ObjectId | string;
@@ -78,16 +79,6 @@ const connection = getUserConnection();
 export const Transaction: Model<ITransaction> =
     (connection.models.Transaction as Model<ITransaction>) ||
     connection.model<ITransaction>("Transaction", TransactionSchema);
-// toJSON Transform - Convert _id to id
-TransactionSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        json.id = String(json._id);
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(TransactionSchema);
 
 export default Transaction;

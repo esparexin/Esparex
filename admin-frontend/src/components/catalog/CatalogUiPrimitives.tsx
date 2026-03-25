@@ -1,0 +1,405 @@
+"use client";
+
+import type { Dispatch, ReactNode, SetStateAction } from "react";
+import { CheckCircle, Edit, Filter, Search, Trash2, XCircle } from "lucide-react";
+
+export type SelectOption = {
+    value: string;
+    label: string;
+};
+
+type NamedEntityOption = {
+    id?: string;
+    name: string;
+};
+
+export function CatalogSearchInput({
+    value,
+    onChange,
+    placeholder,
+    className = "",
+}: {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder: string;
+    className?: string;
+}) {
+    return (
+        <div className={`relative ${className}`.trim()}>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input
+                type="text"
+                placeholder={placeholder}
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                value={value}
+                onChange={(event) => onChange(event.target.value)}
+            />
+        </div>
+    );
+}
+
+export function CatalogSelectFilter({
+    value,
+    onChange,
+    options,
+    withFilterIcon = false,
+    className = "",
+}: {
+    value: string;
+    onChange: (value: string) => void;
+    options: SelectOption[];
+    withFilterIcon?: boolean;
+    className?: string;
+}) {
+    return (
+        <div className={`flex items-center gap-2 ${className}`.trim()}>
+            {withFilterIcon ? <Filter className="text-slate-400" size={16} /> : null}
+            <select
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none"
+                value={value}
+                onChange={(event) => onChange(event.target.value)}
+            >
+                {options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                        {option.label}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
+}
+
+export function CatalogCategoryFilter({
+    categories,
+    value,
+    onChange,
+    withFilterIcon = false,
+    allLabel = "All Categories",
+}: {
+    categories: NamedEntityOption[];
+    value: string;
+    onChange: (value: string) => void;
+    withFilterIcon?: boolean;
+    allLabel?: string;
+}) {
+    return (
+        <CatalogSelectFilter
+            withFilterIcon={withFilterIcon}
+            value={value}
+            onChange={onChange}
+            options={[
+                { value: "all", label: allLabel },
+                ...categories.flatMap((category) =>
+                    category.id ? [{ value: category.id, label: category.name }] : []
+                ),
+            ]}
+        />
+    );
+}
+
+export function CatalogActiveStatusFilter({
+    value,
+    onChange,
+    withFilterIcon = false,
+}: {
+    value: string;
+    onChange: (value: string) => void;
+    withFilterIcon?: boolean;
+}) {
+    return (
+        <CatalogSelectFilter
+            withFilterIcon={withFilterIcon}
+            value={value}
+            onChange={onChange}
+            options={[
+                { value: "all", label: "All Status" },
+                { value: "active", label: "Active Only" },
+                { value: "inactive", label: "Inactive Only" },
+            ]}
+        />
+    );
+}
+
+const toneClasses: Record<"success" | "danger" | "warning" | "neutral", string> = {
+    success: "bg-emerald-100 text-emerald-700",
+    danger: "bg-red-100 text-red-700",
+    warning: "bg-amber-100 text-amber-700",
+    neutral: "bg-slate-100 text-slate-700",
+};
+
+export function CatalogStatusBadge({
+    label,
+    tone,
+}: {
+    label: string;
+    tone: "success" | "danger" | "warning" | "neutral";
+}) {
+    return (
+        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${toneClasses[tone]}`}>
+            {label}
+        </span>
+    );
+}
+
+export function CatalogActiveToggleButton({
+    isActive,
+    onClick,
+    activeLabel = "Active",
+    inactiveLabel = "Inactive",
+}: {
+    isActive: boolean;
+    onClick: () => void;
+    activeLabel?: string;
+    inactiveLabel?: string;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                isActive ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-red-100 text-red-700 hover:bg-red-200"
+            }`}
+        >
+            {isActive ? <CheckCircle size={12} /> : <XCircle size={12} />}
+            {isActive ? activeLabel : inactiveLabel}
+        </button>
+    );
+}
+
+export function CatalogActionIconButton({
+    onClick,
+    icon,
+    title,
+    className,
+}: {
+    onClick: () => void;
+    icon: ReactNode;
+    title: string;
+    className: string;
+}) {
+    return (
+        <button type="button" onClick={onClick} className={className} title={title}>
+            {icon}
+        </button>
+    );
+}
+
+export function CatalogActionsRow({ children }: { children: ReactNode }) {
+    return <div className="flex items-center justify-end gap-2">{children}</div>;
+}
+
+export function CatalogEditDeleteActions({
+    onEdit,
+    onDelete,
+    editTitle = "Edit",
+    deleteTitle = "Delete",
+}: {
+    onEdit: () => void;
+    onDelete: () => void;
+    editTitle?: string;
+    deleteTitle?: string;
+}) {
+    return (
+        <CatalogActionsRow>
+            <CatalogEditDeleteActionPair
+                onEdit={onEdit}
+                onDelete={onDelete}
+                editTitle={editTitle}
+                deleteTitle={deleteTitle}
+            />
+        </CatalogActionsRow>
+    );
+}
+
+export function CatalogEditDeleteActionPair({
+    onEdit,
+    onDelete,
+    editTitle = "Edit",
+    deleteTitle = "Delete",
+}: {
+    onEdit: () => void;
+    onDelete: () => void;
+    editTitle?: string;
+    deleteTitle?: string;
+}) {
+    return (
+        <>
+            <CatalogActionIconButton
+                onClick={onEdit}
+                className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+                title={editTitle}
+                icon={<Edit size={18} />}
+            />
+            <CatalogActionIconButton
+                onClick={onDelete}
+                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                title={deleteTitle}
+                icon={<Trash2 size={18} />}
+            />
+        </>
+    );
+}
+
+export function CatalogSearchAndCategoryFilters({
+    searchValue,
+    onSearchChange,
+    searchPlaceholder,
+    categories,
+    categoryValue,
+    onCategoryChange,
+    withCategoryFilterIcon = false,
+}: {
+    searchValue: string;
+    onSearchChange: (value: string) => void;
+    searchPlaceholder: string;
+    categories: NamedEntityOption[];
+    categoryValue: string;
+    onCategoryChange: (value: string) => void;
+    withCategoryFilterIcon?: boolean;
+}) {
+    return (
+        <>
+            <CatalogSearchInput
+                value={searchValue}
+                placeholder={searchPlaceholder}
+                onChange={onSearchChange}
+            />
+            <CatalogCategoryFilter
+                withFilterIcon={withCategoryFilterIcon}
+                categories={categories}
+                value={categoryValue}
+                onChange={onCategoryChange}
+            />
+        </>
+    );
+}
+
+export function CatalogBoundSearchCategoryFilters<TFilters extends { search: string; categoryId: string }>({
+    filters,
+    setFilters,
+    searchPlaceholder,
+    categories,
+    withCategoryFilterIcon = false,
+}: {
+    filters: TFilters;
+    setFilters: Dispatch<SetStateAction<TFilters>>;
+    searchPlaceholder: string;
+    categories: NamedEntityOption[];
+    withCategoryFilterIcon?: boolean;
+}) {
+    return (
+        <CatalogSearchAndCategoryFilters
+            searchValue={filters.search}
+            onSearchChange={(search) => setFilters((prev) => ({ ...prev, search }))}
+            searchPlaceholder={searchPlaceholder}
+            withCategoryFilterIcon={withCategoryFilterIcon}
+            categories={categories}
+            categoryValue={filters.categoryId}
+            onCategoryChange={(categoryId) => setFilters((prev) => ({ ...prev, categoryId }))}
+        />
+    );
+}
+
+export function CatalogEntityCell({
+    icon,
+    iconClassName,
+    title,
+    subtitle,
+}: {
+    icon: ReactNode;
+    iconClassName: string;
+    title: ReactNode;
+    subtitle?: ReactNode;
+}) {
+    return (
+        <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconClassName}`}>{icon}</div>
+            <div>
+                <div className="font-bold text-slate-900">{title}</div>
+                {subtitle ? <div className="text-xs text-slate-500">{subtitle}</div> : null}
+            </div>
+        </div>
+    );
+}
+
+export function CatalogTextInputField({
+    label,
+    value,
+    onChange,
+    placeholder,
+    required = true,
+    maxLength,
+}: {
+    label: ReactNode;
+    value: string;
+    onChange: (value: string) => void;
+    placeholder: string;
+    required?: boolean;
+    maxLength?: number;
+}) {
+    return (
+        <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{label}</label>
+            <input
+                required={required}
+                type="text"
+                maxLength={maxLength}
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder={placeholder}
+                value={value}
+                onChange={(event) => onChange(event.target.value)}
+            />
+        </div>
+    );
+}
+
+export function CatalogCheckboxCard({
+    checked,
+    onChange,
+    label,
+}: {
+    checked: boolean;
+    onChange: (checked: boolean) => void;
+    label: ReactNode;
+}) {
+    return (
+        <label className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg cursor-pointer hover:bg-white hover:border-primary/50 transition-all">
+            <input
+                type="checkbox"
+                className="w-4 h-4 text-primary rounded border-slate-300 focus:ring-primary/20"
+                checked={checked}
+                onChange={(event) => onChange(event.target.checked)}
+            />
+            <span className="text-sm font-semibold text-slate-700">{label}</span>
+        </label>
+    );
+}
+
+export function CatalogActiveCheckboxField({
+    checked,
+    onChange,
+    label = "Active",
+}: {
+    checked: boolean;
+    onChange: (checked: boolean) => void;
+    label?: ReactNode;
+}) {
+    return <CatalogCheckboxCard checked={checked} onChange={onChange} label={label} />;
+}
+
+export function CatalogArchivedCategoryNotice({
+    archivedCategoryCount,
+    suffix,
+}: {
+    archivedCategoryCount: number;
+    suffix?: ReactNode;
+}) {
+    if (archivedCategoryCount <= 0) return null;
+    return (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            {archivedCategoryCount} archived category link{archivedCategoryCount === 1 ? "" : "s"}{" "}
+            {archivedCategoryCount === 1 ? "was" : "were"} removed from this editor.
+            {suffix ? <> {suffix}</> : null}
+        </div>
+    );
+}

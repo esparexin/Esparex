@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { Schema, Document, Model, Types } from 'mongoose';
 import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IAdminSession extends Document {
     adminId: Types.ObjectId;
@@ -38,20 +39,7 @@ AdminSessionSchema.index({ tokenId: 1 }, { name: 'idx_adminsession_tokenId_idx' 
 AdminSessionSchema.index({ expiresAt: 1 }, { name: 'idx_adminsession_expiresAt_ttl_idx', expireAfterSeconds: 0 });
 AdminSessionSchema.index({ adminId: 1, tokenId: 1, revokedAt: 1 }, { name: 'idx_adminsession_admin_token_revoked_idx' });
 
-AdminSessionSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        const rawId = json._id;
-        if (typeof rawId === 'string' || (rawId && typeof (rawId as { toString?: () => string }).toString === 'function')) {
-            json.id = rawId.toString();
-        }
-        delete json._id;
-        delete json.tokenHash;
-        return json;
-    }
-});
+applyToJSONTransform(AdminSessionSchema);
 
 export const hashAdminSessionToken = (token: string): string =>
     crypto.createHash('sha256').update(token).digest('hex');

@@ -58,17 +58,8 @@ NotificationSchema.index({ userId: 1, dedupKey: 1 }, { unique: true, partialFilt
 NotificationSchema.index({ createdAt: 1 }, { name: 'idx_notification_createdAt_ttl_idx', expireAfterSeconds: 7776000 }); // 90 days
 
 import { getUserConnection } from '../config/db';
-// toJSON Transform - Convert _id to id
-NotificationSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        json.id = String(json._id);
-        delete json._id;
-        return json;
-    }
-});
+import { applyToJSONTransform } from '../utils/schemaOptions';
+applyToJSONTransform(NotificationSchema);
 
 const Notification: Model<INotification> =
     getUserConnection().models.Notification || getUserConnection().model<INotification>('Notification', NotificationSchema);

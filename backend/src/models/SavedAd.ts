@@ -17,19 +17,10 @@ const SavedAdSchema: Schema = new Schema({
 
 SavedAdSchema.index({ userId: 1, adId: 1 }, { name: 'idx_savedad_user_ad_unique_idx', unique: true });
 
-// toJSON Transform - Convert _id to id
-SavedAdSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc, ret) {
-        const json = ret as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
-        json.id = json._id?.toString();
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(SavedAdSchema);
 
 import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 const SavedAd: Model<ISavedAd> = getUserConnection().models.SavedAd || getUserConnection().model<ISavedAd>('SavedAd', SavedAdSchema);
 
 export default SavedAd;

@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IAdminLog extends Document {
     adminId: mongoose.Types.ObjectId;
@@ -53,16 +54,6 @@ const AdminLog: Model<IAdminLog> =
     (connection.models.AdminLog as Model<IAdminLog>) ||
     connection.model<IAdminLog>('AdminLog', AdminLogSchema);
 
-// toJSON Transform - Convert _id to id
-AdminLogSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (_doc: unknown, ret: unknown) {
-        const json = ret as Record<string, unknown>;
-        json.id = String(json._id);
-        delete json._id;
-        return json;
-    }
-});
+applyToJSONTransform(AdminLogSchema);
 
 export default AdminLog;

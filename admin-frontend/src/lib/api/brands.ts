@@ -1,5 +1,6 @@
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
+import { buildQueryString } from "./queryParams";
 
 export interface BrandFilters {
     search?: string;
@@ -18,22 +19,7 @@ export interface BrandData {
 }
 
 export async function getBrands(filters?: BrandFilters) {
-    const query = new URLSearchParams(
-        Object.entries(filters ?? {}).reduce<Record<string, string>>((acc, [key, value]) => {
-            if (value === undefined || value === null) {
-                return acc;
-            }
-            if (typeof value === "string" && value.length === 0) {
-                return acc;
-            }
-            if (typeof value === "boolean") {
-                acc[key] = value ? "true" : "false";
-            } else {
-                acc[key] = String(value);
-            }
-            return acc;
-        }, {})
-    ).toString();
+    const query = buildQueryString(filters);
     return adminFetch<BrandData[]>(`${ADMIN_ROUTES.BRANDS}?${query}`);
 }
 

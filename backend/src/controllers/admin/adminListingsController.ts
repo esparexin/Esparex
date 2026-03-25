@@ -46,6 +46,11 @@ const asNumber = (value: unknown): number | undefined => {
     return Number.isFinite(parsed) ? parsed : undefined;
 };
 
+const sendListingMutationError = (req: Request, res: Response, error: unknown, fallback: string): void => {
+    const resolved = resolveControllerError(error, fallback);
+    sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
+};
+
 const resolveListingTypeFilter = (value: unknown): ModerationListingType | undefined => {
     if (!asString(value)) return undefined;
     if (!isValidListingType(value)) return undefined;
@@ -117,6 +122,20 @@ const buildAdminActor = (req: Request) => ({
     type: ACTOR_TYPE.ADMIN,
     id: getActorId(req),
 });
+
+const sendLifecycleResponse = (
+    res: Response,
+    action: 'approved' | 'rejected' | 'deactivated' | 'expired' | 'extended' | 'deleted' | 'report_resolved',
+    listing: unknown,
+    message: string
+) => {
+    res.json(
+        respond({
+            success: true,
+            data: serializeLifecycleActionResponse({ action, listing, message }),
+        })
+    );
+};
 
 export const adminListListings = async (req: Request, res: Response) => {
     try {
@@ -237,19 +256,9 @@ export const adminApproveListing = async (req: Request, res: Response) => {
 
         await logAdminAction(req, 'LISTING_APPROVE', 'Ad', id, { status: AD_STATUS.LIVE });
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeLifecycleActionResponse({
-                    action: 'approved',
-                    listing: updated,
-                    message: 'Listing approved successfully',
-                }),
-            })
-        );
+        sendLifecycleResponse(res, 'approved', updated, 'Listing approved successfully');
     } catch (error: unknown) {
-        const resolved = resolveControllerError(error, 'Failed to approve listing');
-        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
+        sendListingMutationError(req, res, error, 'Failed to approve listing');
     }
 };
 
@@ -293,19 +302,9 @@ export const adminRejectListing = async (req: Request, res: Response) => {
 
         await logAdminAction(req, 'LISTING_REJECT', 'Ad', id, { rejectionReason });
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeLifecycleActionResponse({
-                    action: 'rejected',
-                    listing: updated,
-                    message: 'Listing rejected successfully',
-                }),
-            })
-        );
+        sendLifecycleResponse(res, 'rejected', updated, 'Listing rejected successfully');
     } catch (error: unknown) {
-        const resolved = resolveControllerError(error, 'Failed to reject listing');
-        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
+        sendListingMutationError(req, res, error, 'Failed to reject listing');
     }
 };
 
@@ -320,19 +319,15 @@ export const adminDeactivateListing = async (req: Request, res: Response) => {
         if (listing.status === AD_STATUS.DEACTIVATED) {
             const currentListing = await getModerationListingById(id);
 
-            res.json(
-                respond({
-                    success: true,
-                    data: serializeLifecycleActionResponse({
-                        action: 'deactivated',
-                        listing: currentListing || {
-                            id,
-                            status: AD_STATUS.DEACTIVATED,
-                            listingType: listing.listingType || 'ad',
-                        },
-                        message: 'Listing is already deactivated',
-                    }),
-                })
+            sendLifecycleResponse(
+                res,
+                'deactivated',
+                currentListing || {
+                    id,
+                    status: AD_STATUS.DEACTIVATED,
+                    listingType: listing.listingType || 'ad',
+                },
+                'Listing is already deactivated'
             );
             return;
         }
@@ -362,19 +357,9 @@ export const adminDeactivateListing = async (req: Request, res: Response) => {
 
         await logAdminAction(req, 'LISTING_DEACTIVATE', 'Ad', id, {});
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeLifecycleActionResponse({
-                    action: 'deactivated',
-                    listing: updated,
-                    message: 'Listing deactivated successfully',
-                }),
-            })
-        );
+        sendLifecycleResponse(res, 'deactivated', updated, 'Listing deactivated successfully');
     } catch (error: unknown) {
-        const resolved = resolveControllerError(error, 'Failed to deactivate listing');
-        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
+        sendListingMutationError(req, res, error, 'Failed to deactivate listing');
     }
 };
 
@@ -411,19 +396,9 @@ export const adminExpireListing = async (req: Request, res: Response) => {
 
         await logAdminAction(req, 'LISTING_EXPIRE', 'Ad', id, {});
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeLifecycleActionResponse({
-                    action: 'expired',
-                    listing: updated,
-                    message: 'Listing expired successfully',
-                }),
-            })
-        );
+        sendLifecycleResponse(res, 'expired', updated, 'Listing expired successfully');
     } catch (error: unknown) {
-        const resolved = resolveControllerError(error, 'Failed to expire listing');
-        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
+        sendListingMutationError(req, res, error, 'Failed to expire listing');
     }
 };
 
@@ -489,19 +464,9 @@ export const adminExtendListing = async (req: Request, res: Response) => {
 
         await logAdminAction(req, 'LISTING_EXTEND', 'Ad', id, { expiresAt: newExpiresAt });
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeLifecycleActionResponse({
-                    action: 'extended',
-                    listing: updated,
-                    message: 'Listing expiry extended successfully',
-                }),
-            })
-        );
+        sendLifecycleResponse(res, 'extended', updated, 'Listing expiry extended successfully');
     } catch (error: unknown) {
-        const resolved = resolveControllerError(error, 'Failed to extend listing');
-        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
+        sendListingMutationError(req, res, error, 'Failed to extend listing');
     }
 };
 export const adminSoftDeleteListing = async (req: Request, res: Response) => {
@@ -520,20 +485,16 @@ export const adminSoftDeleteListing = async (req: Request, res: Response) => {
         if (listing.isDeleted) {
             const currentListing = await getModerationListingById(id);
 
-            res.json(
-                respond({
-                    success: true,
-                    data: serializeLifecycleActionResponse({
-                        action: 'deleted',
-                        listing: currentListing || {
-                            id,
-                            status: listing.status,
-                            listingType: listing.listingType || 'ad',
-                            isDeleted: true,
-                        },
-                        message: 'Listing is already deleted',
-                    }),
-                })
+            sendLifecycleResponse(
+                res,
+                'deleted',
+                currentListing || {
+                    id,
+                    status: listing.status,
+                    listingType: listing.listingType || 'ad',
+                    isDeleted: true,
+                },
+                'Listing is already deleted'
             );
             return;
         }
@@ -565,19 +526,9 @@ export const adminSoftDeleteListing = async (req: Request, res: Response) => {
 
         await logAdminAction(req, 'LISTING_SOFT_DELETE', 'Ad', id, { isDeleted: true });
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeLifecycleActionResponse({
-                    action: 'deleted',
-                    listing: updated,
-                    message: 'Listing soft deleted successfully',
-                }),
-            })
-        );
+        sendLifecycleResponse(res, 'deleted', updated, 'Listing soft deleted successfully');
     } catch (error: unknown) {
-        const resolved = resolveControllerError(error, 'Failed to delete listing');
-        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
+        sendListingMutationError(req, res, error, 'Failed to delete listing');
     }
 };
 
@@ -661,8 +612,7 @@ export const adminResolveListingReport = async (req: Request, res: Response) => 
             })
         );
     } catch (error: unknown) {
-        const resolved = resolveControllerError(error, 'Failed to resolve listing reports');
-        sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
+        sendListingMutationError(req, res, error, 'Failed to resolve listing reports');
     }
 };
 
