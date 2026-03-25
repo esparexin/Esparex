@@ -51,8 +51,8 @@ const makeRes = (): Response => {
 
 const makeReq = (overrides: Partial<Request> = {}): Request =>
     ({
-        user: { _id: 'user1', toString: () => 'user1' },
-        params: { id: 'listing1' },
+        user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1', toString: () => '65f0a1b2c3d4e5f6a7b8c9d1' },
+        params: { id: '65f0a1b2c3d4e5f6a7b8c9d0' },
         body: {},
         ...overrides,
     } as unknown as Request);
@@ -88,7 +88,7 @@ describe('repostService', () => {
 
     it('calls mutateStatus with pending for expired service', async () => {
         mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'expired' }) });
-        mockedMutate.mockResolvedValue({ id: 'listing1', status: 'pending' });
+        mockedMutate.mockResolvedValue({ id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' });
         const req = makeReq();
         const res = makeRes();
         await repostService(req, res);
@@ -100,7 +100,7 @@ describe('repostService', () => {
 
     it('calls mutateStatus with pending for rejected service', async () => {
         mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'rejected' }) });
-        mockedMutate.mockResolvedValue({ id: 'listing1', status: 'pending' });
+        mockedMutate.mockResolvedValue({ id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' });
         const req = makeReq();
         const res = makeRes();
         await repostService(req, res);
@@ -129,7 +129,7 @@ describe('repostSparePartListing', () => {
 
     it('calls mutateStatus with pending for expired spare part', async () => {
         mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'expired' }) });
-        mockedMutate.mockResolvedValue({ id: 'listing1', status: 'pending' });
+        mockedMutate.mockResolvedValue({ id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' });
         const req = makeReq();
         const res = makeRes();
         await repostSparePartListing(req, res);

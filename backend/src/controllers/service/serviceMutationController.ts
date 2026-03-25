@@ -113,8 +113,8 @@ const requireOwnedService = async (req: Request, res: Response, fetchFull = fals
     }
 
     const query = fetchFull 
-        ? AdModel.findOne({ _id: id, listingType: LISTING_TYPE.SERVICE, sellerId: user._id })
-        : AdModel.findOne({ _id: id, listingType: LISTING_TYPE.SERVICE, sellerId: user._id, isDeleted: false }).select('status');
+        ? AdModel.findOne({ _id: new mongoose.Types.ObjectId(id), listingType: LISTING_TYPE.SERVICE, sellerId: user._id })
+        : AdModel.findOne({ _id: new mongoose.Types.ObjectId(id), listingType: LISTING_TYPE.SERVICE, sellerId: user._id, isDeleted: false }).select('status');
 
     const service = await query;
     if (!service) {

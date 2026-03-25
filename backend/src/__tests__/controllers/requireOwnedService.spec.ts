@@ -24,7 +24,20 @@ jest.mock('../../services/StatusMutationService', () => ({
 }));
 
 jest.mock('../../utils/requestParams', () => ({
-    getSingleParam: jest.fn((req: any, _res: any, key: string) => req.params?.[key] ?? ''),
+    getSingleParam: jest.fn((req: any, res: any, key: string, options: any = {}) => {
+        const val = req.params?.[key];
+        if (!val && options?.error) {
+            res.status(400).json({ error: options.error });
+            return null;
+        }
+        return val ?? '';
+    }),
+}));
+
+jest.mock('../../utils/errorResponse', () => ({
+    sendErrorResponse: jest.fn((req: any, res: any, status: number, msg: string) => {
+        res.status(status).json({ error: msg });
+    }),
 }));
 
 jest.mock('../../utils/logger', () => ({
@@ -71,9 +84,16 @@ const makeRes = () => {
 describe('requireOwnedService (via deactivateService)', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        // Default: getSingleParam returns the valid ID from params
+        // Default: match real getSingleParam behavior including error side-effect
         mockedGetSingleParam.mockImplementation(
-            (req: any, _res: any, key: string) => req.params?.[key] ?? ''
+            (req: any, res: any, key: string, options: any = {}) => {
+                const val = req.params?.[key];
+                if (!val && options?.error) {
+                    res.status(400).json({ error: options.error });
+                    return null;
+                }
+                return val ?? '';
+            }
         );
     });
 
@@ -87,8 +107,6 @@ describe('requireOwnedService (via deactivateService)', () => {
     });
 
     it('returns 400 when :id is missing', async () => {
-        // getSingleParam returns empty string → helper sends 400
-        mockedGetSingleParam.mockReturnValue('');
         const req = makeReq({ params: { id: '' } }) as any;
         const res = makeRes() as any;
 
