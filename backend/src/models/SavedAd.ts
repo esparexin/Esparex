@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface ISavedAd extends Document {
     userId: mongoose.Types.ObjectId;
@@ -20,7 +21,6 @@ SavedAdSchema.index({ userId: 1, adId: 1 }, { name: 'idx_savedad_user_ad_unique_
 applyToJSONTransform(SavedAdSchema);
 
 import { getUserConnection } from '../config/db';
-import { applyToJSONTransform } from '../utils/schemaOptions';
 const SavedAd: Model<ISavedAd> = getUserConnection().models.SavedAd || getUserConnection().model<ISavedAd>('SavedAd', SavedAdSchema);
 
 export default SavedAd;

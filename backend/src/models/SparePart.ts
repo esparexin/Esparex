@@ -78,10 +78,10 @@ SparePartSchema.index({ sortOrder: 1 }, { name: 'idx_sparepart_sortOrder' });
 SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });
 SparePartSchema.index({ isDeleted: 1 }, { name: 'idx_sparepart_isDeleted' });
 
-applyToJSONTransform(SparePartSchema);
-
 import { getAdminConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
+
+applyToJSONTransform(SparePartSchema);
 export const SparePartModel: Model<ISparePart> =
     getAdminConnection().models.SparePart ||
     getAdminConnection().model<ISparePart>('SparePart', SparePartSchema);

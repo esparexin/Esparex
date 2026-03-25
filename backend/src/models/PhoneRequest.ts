@@ -36,10 +36,10 @@ PhoneRequestSchema.index(
     { name: 'idx_phonereq_buyer_seller_entity_unique_idx', unique: true }
 );
 
-applyToJSONTransform(PhoneRequestSchema);
-
 import { getUserConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
+
+applyToJSONTransform(PhoneRequestSchema);
 const PhoneRequest: Model<IPhoneRequest> = getUserConnection().models.PhoneRequest || getUserConnection().model<IPhoneRequest>('PhoneRequest', PhoneRequestSchema);
 
 export default PhoneRequest;
