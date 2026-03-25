@@ -463,27 +463,10 @@ export function LocationProvider({
             setDetectError(null);
             autoDetectedRef.current = false;
 
-            // PR 7 — Silent IP pre-detection.
-            // On first visit we try an IP-based approximate location with a
-            // 3-second timeout. If it succeeds the feed updates silently and
-            // the first-visit prompt is suppressed entirely.
-            // If it fails or times out we fall through and show the prompt
-            // immediately (no extra 5-second wait).
-            const IP_DETECT_TIMEOUT_MS = 3000;
-            const ipDetectPromise = detectApproximateLocation(true, false);
-            const timeoutPromise = new Promise<boolean>((resolve) =>
-                setTimeout(() => resolve(false), IP_DETECT_TIMEOUT_MS)
-            );
-
-            const ipDetected = await Promise.race([ipDetectPromise, timeoutPromise]);
-            if (cancelled) return;
-
-            if (!ipDetected) {
-                // IP detection failed or timed out — show first-visit prompt immediately.
-                setShouldShowPromptAfterDelay(true);
-            }
-            // If ipDetected === true, applyResolvedLocation was already called
-            // inside detectApproximateLocation, no prompt needed.
+            // IP pre-detection is intentionally bypassed.
+            // Show the first-visit prompt immediately on first boot so users 
+            // can manually select or explicitly approve GPS.
+            setShouldShowPromptAfterDelay(true);
         };
 
         void initLocation();
