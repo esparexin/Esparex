@@ -702,7 +702,10 @@ export const getAds = async (
     // Join only the final result set for performance.
     const isLightweightListing = await isEnabled(FeatureFlag.ENABLE_LIGHTWEIGHT_LISTING);
 
-    if (!isLightweightListing) {
+    // Always join the seller for internal/admin queries regardless of the public feature flag
+    const shouldJoinSeller = !isLightweightListing || !options.enforcePublicVisibility;
+
+    if (shouldJoinSeller) {
         // Populate Seller (User DB - Safe for native lookup)
         pipeline.push({
             $lookup: {
