@@ -6,6 +6,7 @@ echo "🔍 Checking middleware governance..."
 # Rule 1: No legacy folder
 if [ -d "backend/src/middlewares" ]; then
   echo "❌ Forbidden directory: backend/src/middlewares"
+  echo "[HINT] Middleware folder must be named 'backend/src/middleware' (singular)."
   exit 1
 fi
 
@@ -13,6 +14,7 @@ fi
 # Check for strictly global usage "app.use(middleware)"
 if grep -E "app\.use\(authMiddleware\)" backend/src/app.ts; then
   echo "❌ authMiddleware must NOT be global"
+  echo "[HINT] Apply auth/governance middlewares at the router level, not globally in app.ts."
   exit 1
 fi
 
@@ -29,6 +31,7 @@ fi
 # Rule 3: No DB models in middleware
 if grep -R "models/" backend/src/middleware; then
   echo "❌ DB models imported inside middleware"
+  echo "[HINT] Middleware should not interact directly with DB models. Move logic to Services."
   exit 1
 fi
 

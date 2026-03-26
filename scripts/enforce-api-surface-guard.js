@@ -92,6 +92,8 @@ function main() {
       `  Duplicate API detected. Use canonical ${v.replacement} endpoint.`
     );
   }
+  console.error("\n💡 HINT: Forbidden API surface patterns detected. Ensure you are using canonical versioned routes (e.g., /api/v1/...).");
+  console.error("   Directly accessing /api/admin/ is deprecated. Update the caller to use the version-prefixed endpoint.");
   process.exit(1);
 }
 

@@ -109,6 +109,8 @@ function main() {
       const rel = toUnixPath(path.relative(repoRoot, violation.filePath));
       console.error(`- ${rel}:${violation.line} -> "${violation.literal}"`);
     }
+    console.error(`\n💡 HINT: Raw API string literals are prohibited in the frontend to prevent breakage during URL refactoring.`);
+    console.error(`   Action: Centralize this endpoint in @shared/contracts/api and import the constant instead.`);
     process.exit(1);
   }
 

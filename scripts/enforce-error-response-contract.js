@@ -29,7 +29,9 @@ if (firstApiMountIndex === -1) {
 }
 
 if (middlewareIndex > firstApiMountIndex) {
-  console.error('enforceErrorResponseContract must run before API routes are mounted.');
+  console.error('❌ enforceErrorResponseContract must run before API routes are mounted.');
+  console.error('\n💡 HINT: The error envelope middleware must be placed BEFORE any API route definitions in backend/src/app.ts');
+  console.error('   to ensure consistency in error handling across all endpoints.');
   process.exit(1);
 }
 

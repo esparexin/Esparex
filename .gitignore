@@ -116,6 +116,8 @@ walkthrough_*.md
 home_ads_*.json
 category_usage_report.md
 cookies.txt
+.claude/
+.jscpd-report/
 
 # Keep only example/template env files — never real values
 # *.env.example and *.env.*.example are intentionally tracked

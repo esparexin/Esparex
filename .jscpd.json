@@ -6,7 +6,8 @@
   "path": [
     "backend/src",
     "frontend/src",
-    "admin-frontend/src"
+    "admin-frontend/src",
+    "shared"
   ],
   "ignore": [
     "**/node_modules/**",
@@ -17,6 +18,11 @@
     "**/*.d.ts",
     "**/__tests__/**",
     "**/__mocks__/**",
+    "**/.claude/**",
+    ".claude/**",
+    "**/.jscpd-report/**",
+    ".jscpd-report/**",
+    "**/scripts/**",
     "**/*.test.ts",
     "**/*.spec.ts"
   ],

@@ -74,6 +74,9 @@ function main() {
   for (const violation of violations) {
     console.error(`- ${violation.file}:${violation.line} ${violation.source}`);
   }
+  console.error("\n[HINT] Direct deletion of Ad documents is forbidden to maintain audit trails.");
+  console.error("1. Use 'lifecycleStatus' updates (e.g., 'deactivated', 'expired') instead of removal.");
+  console.error("2. If you need to hide an ad, update its status using soft-delete patterns.\n");
   process.exit(1);
 }
 

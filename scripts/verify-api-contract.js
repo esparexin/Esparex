@@ -278,6 +278,10 @@ function printReport(reports) {
       console.error(
         `Checked ${report.checked} ${report.groupName} route keys, failed ${report.failures.length}.`
       );
+      console.error(`\n[HINT] The frontend ${report.groupName}_ROUTES constant has drifted from the backend implementation.`);
+      console.error("1. Check if the route is actually mounted in 'backend/src/app.ts' or relevant sub-routers.");
+      console.error("2. Ensure the path string in the frontend contract exactly matches the backend path.");
+      console.error("3. If this is a new route, verify it is properly versioned under /api/v1/.\n");
     } else {
       console.log(
         `✅ ${report.groupName} API contract check passed. Checked ${report.checked} ${report.groupName} route keys.`

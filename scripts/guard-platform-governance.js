@@ -114,6 +114,9 @@ const main = () => {
     for (const failure of failures) {
       console.error(`\n${failure}`);
     }
+    console.error('\n💡 HINT: JS-based database mutations outside of backend/migrations/ bypass audit trails and lifecycle hooks.');
+    console.error('   Action: Move logic to a Mongoose migration. If this is a one-off repair, add the script to the allowlist');
+    console.error('   in scripts/policy/legacy-js-risk-allowlist.json ONLY after senior review.');
     process.exit(1);
   }
 

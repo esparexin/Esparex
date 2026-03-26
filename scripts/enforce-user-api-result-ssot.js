@@ -9,7 +9,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = process.cwd();
-const USER_API_DIR = path.join(ROOT, "frontend", "src", "api", "user");
+const USER_API_DIR = path.join(ROOT, "frontend", "src", "lib", "api", "user");
 const DISALLOWED = [
   "@/lib/api/safeWrapper",
   "../lib/api/safeWrapper",
@@ -61,6 +61,9 @@ function main() {
     for (const file of offending) {
       console.error(`   - ${file}`);
     }
+    console.error("\n[HINT] Platform standard requires the new Result/Error envelope pattern.");
+    console.error("1. Remove 'safeWrapper' and use the centralized 'withResult' or direct fetches.");
+    console.error("2. Ensure the API response reflects the SSOT contract defined in @shared/contracts.\n");
     process.exit(1);
   }
 

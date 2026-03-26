@@ -108,6 +108,10 @@ function main() {
   for (const failure of failures) {
     console.error(`- ${failure}`);
   }
+  console.error("\n[HINT] Ad schema and moderation routes must follow canonical SSOT standards.");
+  console.error("1. Ensure 'sellerId' is used for listing ownership, NOT 'userId'.");
+  console.error("2. Moderation API MUST use ADMIN_ROUTES constants from @shared/contracts.");
+  console.error("3. Coordinates MUST be GeoJSON Point [longitude, latitude].\n");
   process.exit(1);
 }
 

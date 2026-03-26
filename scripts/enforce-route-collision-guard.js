@@ -276,6 +276,9 @@ function main() {
     }
   }
 
+  console.error("\n💡 HINT: Next.js routing priority favors static segments. Dynamic segments starting with [param] may be shadowed by reserved paths like /create or /edit.");
+  console.error("   Action: Rename the static segment if it conflicts with a dynamic parameter, or use a Route Group (parentheses) to adjust visibility.");
+
   process.exit(1);
 }
 

@@ -111,6 +111,10 @@ function main() {
     }
   }
 
+  console.error("\n[HINT] Do not use hardcoded status strings in Admin views.");
+  console.error("1. Import ADMIN_STATUS from '@/lib/status/adminStatusConstants'.");
+  console.error("2. Use constants like ADMIN_STATUS.ACTIVE instead of 'active'.\n");
+
   process.exit(1);
 }
 
