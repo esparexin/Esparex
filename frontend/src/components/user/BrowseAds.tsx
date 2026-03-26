@@ -377,6 +377,7 @@ export function BrowseAds({
                       key={ad.id}
                       ad={ad}
                       href={`/ads/${generateAdSlug(ad.title)}-${ad.id}`}
+                      priority={index < 4}
                     />
                   ) : (
                     <AdCardGrid

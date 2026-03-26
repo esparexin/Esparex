@@ -21,6 +21,8 @@ import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
 
+import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
+
 export default function FinancePage() {
     const searchParams = useSearchParams();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -130,14 +132,14 @@ export default function FinancePage() {
     ];
 
     return (
-        <AdminPageShell
+        <FinancePageTemplate<Transaction>
             title="Finance Management"
             description="Monitor revenue, sales, and transaction audits"
-            tabs={
-                <AdminModuleTabs
-                    tabs={financeTabs}
-                />
-            }
+            data={transactions}
+            columns={columns}
+            isLoading={loading}
+            error={error}
+            emptyMessage="No transaction history found"
             actions={
                 <div className="flex gap-2">
                     <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
@@ -148,77 +150,63 @@ export default function FinancePage() {
                     </button>
                 </div>
             }
-        >
-        <div className="space-y-6">
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <DashboardCard
-                    title="Total Revenue"
-                    value={`₹${stats?.totalRevenue.toLocaleString() || '0'}`}
-                    icon={DollarSign}
-                    trend={{ value: 12.5, isUp: true }}
-                    description="Success Transactions"
-                />
-                <DashboardCard
-                    title="Today's Revenue"
-                    value={`₹${stats?.todayRevenue.toLocaleString() || '0'}`}
-                    icon={TrendingUp}
-                    trend={{ value: 4.2, isUp: true }}
-                    description="Last 24 hours"
-                />
-                <DashboardCard
-                    title="Total Sales"
-                    value={stats?.totalSales.toString() || '0'}
-                    icon={CreditCard}
-                    description="Plan Subscriptions"
-                />
-                <DashboardCard
-                    title="This Month"
-                    value={`₹${stats?.thisMonthRevenue.toLocaleString() || '0'}`}
-                    icon={Calendar}
-                    description="MTD Earnings"
-                />
-            </div>
-
-            <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <div className="relative flex-1 w-full text-black">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search by Payment ID, User or description..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+            stats={
+                <>
+                    <DashboardCard
+                        title="Total Revenue"
+                        value={`₹${stats?.totalRevenue.toLocaleString() || '0'}`}
+                        icon={DollarSign}
+                        trend={{ value: 12.5, isUp: true }}
+                        description="Success Transactions"
                     />
-                </div>
-                <div className="flex items-center gap-2 w-full md:w-auto text-black">
-                    <Filter className="text-slate-400" size={18} />
-                    <select
-                        className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black"
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                        <option value="All">All Status</option>
-                        <option value="SUCCESS">Success</option>
-                        <option value="FAILED">Failed</option>
-                        <option value="INITIATED">Initiated</option>
-                    </select>
-                </div>
-            </div>
-
-            {error && (
-                <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2 italic">
-                    <AlertCircle size={18} /> {error}
-                </div>
-            )}
-
-            <DataTable
-                data={transactions}
-                columns={columns}
-                isLoading={loading}
-                emptyMessage="No transaction history found"
-            />
-        </div>
-        </AdminPageShell>
+                    <DashboardCard
+                        title="Today's Revenue"
+                        value={`₹${stats?.todayRevenue.toLocaleString() || '0'}`}
+                        icon={TrendingUp}
+                        trend={{ value: 4.2, isUp: true }}
+                        description="Last 24 hours"
+                    />
+                    <DashboardCard
+                        title="Total Sales"
+                        value={stats?.totalSales.toString() || '0'}
+                        icon={CreditCard}
+                        description="Plan Subscriptions"
+                    />
+                    <DashboardCard
+                        title="This Month"
+                        value={`₹${stats?.thisMonthRevenue.toLocaleString() || '0'}`}
+                        icon={Calendar}
+                        description="MTD Earnings"
+                    />
+                </>
+            }
+            filters={
+                <>
+                    <div className="relative flex-1 w-full text-black">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search by Payment ID, User or description..."
+                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex items-center gap-2 w-full md:w-auto text-black">
+                        <Filter className="text-slate-400" size={18} />
+                        <select
+                            className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black outline-none"
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                            <option value="All">All Status</option>
+                            <option value="SUCCESS">Success</option>
+                            <option value="FAILED">Failed</option>
+                            <option value="INITIATED">Initiated</option>
+                        </select>
+                    </div>
+                </>
+            }
+        />
     );
 }

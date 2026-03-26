@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Download, FileText, AlertCircle } from "lucide-react";
-import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { financeTabs } from "@/components/layout/adminModuleTabSets";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { Search, Download, FileText } from "lucide-react";
+import { type ColumnDef } from "@/components/ui/DataTable";
 import { adminFetch } from "@/lib/api/adminClient";
 import {
   ADMIN_ROUTES,
@@ -13,6 +10,7 @@ import {
   DEFAULT_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
+import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
 
 type AdminInvoice = {
   id: string;
@@ -140,12 +138,17 @@ export default function InvoicesPage() {
   ];
 
   return (
-    <AdminPageShell
+    <FinancePageTemplate<AdminInvoice>
       title="Invoices"
       description="Review generated invoices, GST billing records, and downloadable PDFs."
-      tabs={<AdminModuleTabs tabs={financeTabs} />}
+      data={items}
+      columns={columns}
+      isLoading={loading}
+      error={error}
+      emptyMessage="No invoices found"
+      csvFileName="invoices.csv"
       filters={
-        <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row">
+        <>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
@@ -166,15 +169,8 @@ export default function InvoicesPage() {
             <option value="FAILED">Failed</option>
             <option value="CANCELLED">Cancelled</option>
           </select>
-        </div>
+        </>
       }
-    >
-      {error ? (
-        <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-700">
-          <AlertCircle size={16} /> {error}
-        </div>
-      ) : null}
-      <DataTable data={items} columns={columns} isLoading={loading} emptyMessage="No invoices found" />
-    </AdminPageShell>
+    />
   );
 }

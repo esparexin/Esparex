@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getLocations, getDistinctStates, toggleLocationStatus, togglePopularStatus, deleteLocation } from "@/lib/api/locations";
+import { getLocations, getDistinctStates, toggleLocationStatus, togglePopularStatus, deleteLocation, createState, createCity, createArea, updateLocation, createLocation } from "@/lib/api/locations";
 import { Location, LocationFilters } from "@/types/location";
 import { useToast } from "@/context/ToastContext";
 import { useAdminCrudList } from "@/hooks/useAdminCrudList";
@@ -93,6 +93,56 @@ export function useAdminLocations() {
         }
     };
  
+    const handleCreate = async (data: Partial<Location>) => {
+        try {
+            let response;
+            const level = data.level;
+
+            if (level === "state") {
+                response = await createState({ name: data.name || "", ...data });
+            } else if (level === "city") {
+                const parentId = data.parentId;
+                if (!parentId) throw new Error("State (Parent) is required for City creation");
+                response = await createCity({ name: data.name || "", stateId: parentId, ...data });
+            } else if (level === "area") {
+                const parentId = data.parentId;
+                if (!parentId) throw new Error("City (Parent) is required for Area creation");
+                response = await createArea({ name: data.name || "", cityId: parentId, ...data });
+            } else {
+                response = await createLocation(data);
+            }
+
+            if (response.success && response.data) {
+                setLocations(prev => [response.data!, ...prev]);
+                showToast("Location created successfully", "success");
+                return true;
+            } else {
+                showToast(response.message || "Failed to create location", "error");
+                return false;
+            }
+        } catch (err) {
+            showToast(err instanceof Error ? err.message : "Failed to create location", "error");
+            return false;
+        }
+    };
+
+    const handleUpdate = async (id: string, data: Partial<Location>) => {
+        try {
+            const response = await updateLocation(id, data);
+            if (response.success && response.data) {
+                setLocations(prev => prev.map(loc => loc.id === id ? { ...loc, ...response.data } : loc));
+                showToast("Location updated successfully", "success");
+                return true;
+            } else {
+                showToast(response.message || "Failed to update location", "error");
+                return false;
+            }
+        } catch (err) {
+            showToast(err instanceof Error ? err.message : "Failed to update location", "error");
+            return false;
+        }
+    };
+
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this location? This action might fail if the location is in use.")) return;
         try {
@@ -100,11 +150,14 @@ export function useAdminLocations() {
             if (response.success) {
                 setLocations(prev => prev.filter(loc => loc.id !== id));
                 showToast("Location deleted successfully", "success");
+                return true;
             } else {
                 showToast(response.message || "Failed to delete location", "error");
+                return false;
             }
         } catch (err) {
             showToast(err instanceof Error ? err.message : "Failed to delete location", "error");
+            return false;
         }
     };
 
@@ -120,6 +173,8 @@ export function useAdminLocations() {
         refresh: fetchLocations,
         handleToggleStatus,
         handleTogglePopular,
-        handleDelete
+        handleDelete,
+        handleCreate,
+        handleUpdate
     };
 }

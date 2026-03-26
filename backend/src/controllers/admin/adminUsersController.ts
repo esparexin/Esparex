@@ -6,9 +6,13 @@ import { logAdminAction } from '../../utils/adminLogger';
 import * as userStatusService from '../../services/UserStatusService';
 import { recalculateTrustScore } from '../../services/TrustService';
 import { hashPassword } from '../../utils/auth';
-import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse } from './adminBaseController';
+import {
+    sendSuccessResponse,
+    getPaginationParams,
+    sendPaginatedResponse,
+    sendAdminError
+} from './adminBaseController';
 import { IAuthUser } from '../../types/auth';
-import { sendErrorResponse } from '../../utils/errorResponse';
 import { Role } from '../../../../shared/enums/roles';
 import { revokeAdminSessionsForAdmin } from '../../services/AdminSessionService';
 import { USER_STATUS } from '../../../../shared/enums/userStatus';
@@ -16,10 +20,7 @@ import * as adminUsersService from '../../services/AdminUsersService';
 
 type UserQuery = Record<string, unknown> & { $or?: Array<Record<string, unknown>> };
 
-const sendUsersAdminError = (req: Request, res: Response, error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Admin user operation failed';
-    sendErrorResponse(req, res, 500, message);
-};
+// Local helper removed, using centralized sendAdminError.
 
 const ADMIN_ROLE_RANK: Record<string, number> = {
     viewer: 10,
@@ -83,7 +84,7 @@ export const getUsers = async (req: Request, res: Response) => {
 
         sendPaginatedResponse(res, data, total, page, limit);
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -94,7 +95,7 @@ export const getUserManagementOverview = async (req: Request, res: Response) => 
         const summary = await adminUsersService.getUserManagementOverview();
         sendSuccessResponse(res, summary);
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -103,7 +104,7 @@ export const getAdmins = async (req: Request, res: Response) => {
         const admins = await Admin.find().select('-password');
         sendSuccessResponse(res, admins);
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -111,12 +112,11 @@ export const getAdminById = async (req: Request, res: Response) => {
     try {
         const admin = await Admin.findById(req.params.id).select('-password');
         if (!admin) {
-            sendErrorResponse(req, res, 404, 'Admin not found');
-            return;
+            return sendAdminError(req, res, 'Admin not found', 404);
         }
         sendSuccessResponse(res, admin);
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -124,12 +124,11 @@ export const getUserById = async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id).select('-password');
         if (!user) {
-            sendErrorResponse(req, res, 404, 'User not found');
-            return;
+            return sendAdminError(req, res, 'User not found', 404);
         }
         sendSuccessResponse(res, user);
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -137,7 +136,7 @@ export const verifyUser = async (req: Request, res: Response) => {
     try {
         const verifiedInput = req.body.verified ?? req.body.isVerified;
         if (typeof verifiedInput !== 'boolean') {
-            return sendErrorResponse(req, res, 400, 'Invalid verification payload. "verified" must be boolean.');
+            return sendAdminError(req, res, 'Invalid verification payload. "verified" must be boolean.', 400);
         }
 
         const verified = verifiedInput;
@@ -148,8 +147,7 @@ export const verifyUser = async (req: Request, res: Response) => {
         ).select('-password');
 
         if (!user) {
-            sendErrorResponse(req, res, 404, 'User not found');
-            return;
+            return sendAdminError(req, res, 'User not found', 404);
         }
 
         await logAdminAction(req, 'VERIFY_USER', 'User', String(req.params.id), { isVerified: verified });
@@ -159,7 +157,7 @@ export const verifyUser = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, user, 'User verification updated');
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -170,7 +168,7 @@ export const createUser = async (req: Request, res: Response) => {
         const { name, email, mobile, password, isVerified } = req.body;
 
         if (!mobile || !name) {
-            return sendErrorResponse(req, res, 400, 'Name and Mobile are required');
+            return sendAdminError(req, res, 'Name and Mobile are required', 400);
         }
 
         const userObj = await adminUsersService.createAdminUser(
@@ -182,7 +180,7 @@ export const createUser = async (req: Request, res: Response) => {
         sendSuccessResponse(res, userObj, 'User created successfully');
 
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -190,7 +188,7 @@ export const updateUser = async (req: Request, res: Response) => {
     try {
         const { id: userId } = req.params;
         if (!userId || typeof userId !== 'string') {
-            return sendErrorResponse(req, res, 400, 'Invalid user id');
+            return sendAdminError(req, res, 'Invalid user id', 400);
         }
 
         const user = await adminUsersService.updateAdminUser(
@@ -202,7 +200,7 @@ export const updateUser = async (req: Request, res: Response) => {
         await logAdminAction(req, 'UPDATE_USER', 'User', userId, { changes: Object.keys(req.body) });
         sendSuccessResponse(res, user, 'User updated successfully');
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -212,11 +210,11 @@ export const updateUserStatus = async (req: Request, res: Response) => {
         const { id: userId } = req.params;
 
         if (![USER_STATUS.ACTIVE, USER_STATUS.SUSPENDED, USER_STATUS.BANNED].includes(status as any)) {
-            return sendErrorResponse(req, res, 400, 'Invalid status');
+            return sendAdminError(req, res, 'Invalid status', 400);
         }
 
         if (!userId || typeof userId !== 'string') {
-            return sendErrorResponse(req, res, 400, 'Invalid user id');
+            return sendAdminError(req, res, 'Invalid user id', 400);
         }
 
         const user = await userStatusService.updateUserStatus(userId, status, {
@@ -227,7 +225,7 @@ export const updateUserStatus = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, user, `User status updated to ${status}`);
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -270,13 +268,13 @@ export const createAdmin = async (req: Request, res: Response) => {
                 : '';
 
         if (!derivedFirstName || !derivedLastName || !normalizedEmail || !normalizedPassword) {
-            return sendErrorResponse(req, res, 400, 'Name, email, and password are required');
+            return sendAdminError(req, res, 'Name, email, and password are required', 400);
         }
 
         // Check if exists
         const exists = await Admin.findOne({ email: normalizedEmail });
         if (exists) {
-            return sendErrorResponse(req, res, 409, 'Admin with this email already exists');
+            return sendAdminError(req, res, 'Admin with this email already exists', 409);
         }
 
         const normalizedRole =
@@ -286,7 +284,7 @@ export const createAdmin = async (req: Request, res: Response) => {
 
         const actorRole = (req.user as IAuthUser | undefined)?.role;
         if (!ensureRoleAssignmentAllowed(actorRole, normalizedRole)) {
-            return sendErrorResponse(req, res, 403, 'Cannot assign a role higher than your own');
+            return sendAdminError(req, res, 'Cannot assign a role higher than your own', 403);
         }
 
         const normalizedPermissions = Array.isArray(permissions)
@@ -315,7 +313,7 @@ export const createAdmin = async (req: Request, res: Response) => {
         sendSuccessResponse(res, adminObj, 'Admin created successfully');
 
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -323,20 +321,20 @@ export const updateAdmin = async (req: Request, res: Response) => {
     try {
         const targetId = typeof req.params.id === 'string' ? req.params.id : '';
         if (!targetId) {
-            return sendErrorResponse(req, res, 400, 'Invalid admin id');
+            return sendAdminError(req, res, 'Invalid admin id', 400);
         }
         const { firstName, lastName, email, mobile, permissions, status, password, role } = req.body;
         const currentId = (req.user as IAuthUser)._id.toString();
 
         if (targetId === currentId && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(status)) {
-            return sendErrorResponse(req, res, 400, 'You cannot suspend/deactivate your own admin account');
+            return sendAdminError(req, res, 'You cannot suspend/deactivate your own admin account', 400);
         }
         if (targetId === currentId && role) {
-            return sendErrorResponse(req, res, 400, 'You cannot change your own role');
+            return sendAdminError(req, res, 'You cannot change your own role', 400);
         }
 
         if (await isLastActiveSuperAdmin(targetId) && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(status)) {
-            return sendErrorResponse(req, res, 400, 'Cannot suspend/deactivate the last active Super Admin');
+            return sendAdminError(req, res, 'Cannot suspend/deactivate the last active Super Admin', 400);
         }
 
         const updateData: Record<string, unknown> = {};
@@ -348,11 +346,11 @@ export const updateAdmin = async (req: Request, res: Response) => {
         if (status) updateData.status = status;
         if (role) {
             if (typeof role !== 'string' || !ALLOWED_ADMIN_ROLES.has(role)) {
-                return sendErrorResponse(req, res, 400, 'Invalid admin role');
+                return sendAdminError(req, res, 'Invalid admin role', 400);
             }
             const actorRole = (req.user as IAuthUser | undefined)?.role;
             if (!ensureRoleAssignmentAllowed(actorRole, role)) {
-                return sendErrorResponse(req, res, 403, 'Cannot assign a role higher than your own');
+                return sendAdminError(req, res, 'Cannot assign a role higher than your own', 403);
             }
             updateData.role = role;
         }
@@ -362,7 +360,7 @@ export const updateAdmin = async (req: Request, res: Response) => {
         }
 
         if (await isLastActiveSuperAdmin(targetId) && role && role !== Role.SUPER_ADMIN) {
-            return sendErrorResponse(req, res, 400, 'Cannot downgrade the last active Super Admin');
+            return sendAdminError(req, res, 'Cannot downgrade the last active Super Admin', 400);
         }
 
         const updatedAdmin = await Admin.findByIdAndUpdate(
@@ -372,7 +370,7 @@ export const updateAdmin = async (req: Request, res: Response) => {
         ).select('-password');
 
         if (!updatedAdmin) {
-            return sendErrorResponse(req, res, 404, 'Admin not found');
+            return sendAdminError(req, res, 'Admin not found', 404);
         }
 
         if (status && [USER_STATUS.INACTIVE, USER_STATUS.SUSPENDED, USER_STATUS.BANNED].includes(status)) {
@@ -383,7 +381,7 @@ export const updateAdmin = async (req: Request, res: Response) => {
         sendSuccessResponse(res, updatedAdmin, 'Admin updated successfully');
 
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -391,21 +389,21 @@ export const deleteAdmin = async (req: Request, res: Response) => {
     try {
         const targetId = typeof req.params.id === 'string' ? req.params.id : '';
         if (!targetId) {
-            return sendErrorResponse(req, res, 400, 'Invalid admin id');
+            return sendAdminError(req, res, 'Invalid admin id', 400);
         }
         const currentId = (req.user as IAuthUser)._id;
 
         if (targetId === currentId.toString()) {
-            return sendErrorResponse(req, res, 400, 'You cannot delete yourself');
+            return sendAdminError(req, res, 'You cannot delete yourself', 400);
         }
 
         if (await isLastActiveSuperAdmin(targetId)) {
-            return sendErrorResponse(req, res, 400, 'Cannot delete the last active Super Admin');
+            return sendAdminError(req, res, 'Cannot delete the last active Super Admin', 400);
         }
 
         const admin = await Admin.findById(targetId);
         if (!admin) {
-            return sendErrorResponse(req, res, 404, 'Admin not found');
+            return sendAdminError(req, res, 'Admin not found', 404);
         }
 
         await admin.softDelete();
@@ -414,7 +412,7 @@ export const deleteAdmin = async (req: Request, res: Response) => {
         await logAdminAction(req, 'DELETE_ADMIN', 'Admin', targetId, { email: admin.email });
         sendSuccessResponse(res, null, 'Admin deleted successfully');
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -422,16 +420,16 @@ export const deactivateAdmin = async (req: Request, res: Response) => {
     try {
         const targetId = typeof req.params.id === 'string' ? req.params.id : '';
         if (!targetId) {
-            return sendErrorResponse(req, res, 400, 'Invalid admin id');
+            return sendAdminError(req, res, 'Invalid admin id', 400);
         }
         const currentId = (req.user as IAuthUser)._id.toString();
 
         if (targetId === currentId) {
-            return sendErrorResponse(req, res, 400, 'You cannot deactivate yourself');
+            return sendAdminError(req, res, 'You cannot deactivate yourself', 400);
         }
 
         if (await isLastActiveSuperAdmin(targetId)) {
-            return sendErrorResponse(req, res, 400, 'Cannot deactivate the last active Super Admin');
+            return sendAdminError(req, res, 'Cannot deactivate the last active Super Admin', 400);
         }
 
         const admin = await Admin.findByIdAndUpdate(
@@ -441,14 +439,14 @@ export const deactivateAdmin = async (req: Request, res: Response) => {
         ).select('-password');
 
         if (!admin) {
-            return sendErrorResponse(req, res, 404, 'Admin not found');
+            return sendAdminError(req, res, 'Admin not found', 404);
         }
 
         await revokeAdminSessionsForAdmin(targetId);
         await logAdminAction(req, 'DEACTIVATE_ADMIN', 'Admin', targetId, { status: 'inactive' });
         sendSuccessResponse(res, admin, 'Admin deactivated successfully');
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -461,7 +459,7 @@ export const deleteUser = async (req: Request, res: Response) => {
         });
         sendSuccessResponse(res, null, 'User deleted successfully (Soft Delete)');
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -495,6 +493,6 @@ export const searchUsers = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, mappedUsers);
     } catch (error: unknown) {
-        sendUsersAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };

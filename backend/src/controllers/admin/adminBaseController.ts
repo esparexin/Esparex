@@ -9,6 +9,8 @@ export { respond } from '../../utils/respond';
  * Supports wildcard (*) for full access.
  */
 import { IAuthUser } from '../../types/auth';
+import { sendErrorResponse } from '../../utils/errorResponse';
+import logger from '../../utils/logger';
 
 /**
  * 🔐 ESPAREX PERMISSION CHECKER
@@ -49,25 +51,29 @@ export const getPaginationParams = (req: Request) => {
     return { page, limit, skip };
 };
 
-export const sendPaginatedResponse = (res: Response, data: unknown[], total: number, page: number, limit: number) => {
-    res.status(200).json(respond({
-        success: true,
-        data: {
-            items: data,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit)
-            }
-        }
-    }));
-};
+export { sendPaginatedResponse, sendSuccessResponse } from '../../utils/respond';
 
-export const sendSuccessResponse = (res: Response, data: unknown, message?: string) => {
-    res.status(200).json(respond({
-        success: true,
-        data,
-        ...(message && { message })
-    }));
+/**
+ * 🛠️ CENTRALIZED ADMIN ERROR HANDLER
+ * Standardizes administrative error responses.
+ */
+export const sendAdminError = (req: Request, res: Response, error: unknown, statusCode = 500) => {
+    const isError = error instanceof Error;
+    const message = isError ? error.message : String(error);
+    const code = (error as { code?: string }).code;
+    const details = (error as { details?: unknown }).details;
+
+    if (statusCode >= 500) {
+        logger.error('ADMIN_CONTROLLER_ERROR', {
+            path: req.path,
+            method: req.method,
+            error: message,
+            stack: isError ? error.stack : undefined
+        });
+    }
+
+    const errorPayload: Record<string, any> = { code };
+    if (details !== undefined) errorPayload.details = details;
+
+    return sendErrorResponse(req, res, statusCode, message, errorPayload);
 };

@@ -10,10 +10,10 @@ import { IAuthUser } from '../../../types/auth';
 import Admin from '../../../models/Admin';
 import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
 import { getAdminCookieOptions, getAuthCookieOptions } from '../../../utils/cookieHelper';
-import { sendErrorResponse } from '../../../utils/errorResponse';
 import logger from '../../../utils/logger';
 import {
-    sendSuccessResponse
+    sendSuccessResponse,
+    sendAdminError
 } from '../adminBaseController';
 
 import crypto from 'crypto';
@@ -31,8 +31,7 @@ import {
 } from '../../../services/AdminSessionService';
 
 const sendAuthError = (req: Request, res: Response, error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Auth operation failed';
-    sendErrorResponse(req, res, 500, message);
+    sendAdminError(req, res, error);
 };
 
 /**
@@ -83,7 +82,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
             admin.resetPasswordToken = undefined;
             admin.resetPasswordExpire = undefined;
             await admin.save();
-            return sendErrorResponse(req, res, 500, 'Email could not be sent');
+            return sendAdminError(req, res, 'Email could not be sent', 500);
         }
 
         sendSuccessResponse(res, { message: 'If that email exists, a reset link has been sent.' });
@@ -102,14 +101,14 @@ export const resetPassword = async (req: Request, res: Response) => {
         if (!token) return;
         const { password } = req.body;
 
-        if (!password) return sendErrorResponse(req, res, 400, 'Password is required');
+        if (!password) return sendAdminError(req, res, 'Password is required', 400);
 
         // 🛡️ SECURITY: Password strength check
         if (password.length < 8) {
-            return sendErrorResponse(req, res, 400, 'Password must be at least 8 characters long');
+            return sendAdminError(req, res, 'Password must be at least 8 characters long', 400);
         }
         if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-            return sendErrorResponse(req, res, 400, 'Password must contain at least one uppercase letter, one lowercase letter, and one number');
+            return sendAdminError(req, res, 'Password must contain at least one uppercase letter, one lowercase letter, and one number', 400);
         }
 
         // Hash token to compare
@@ -124,7 +123,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         });
 
         if (!admin) {
-            return sendErrorResponse(req, res, 400, 'Invalid or expired token');
+            return sendAdminError(req, res, 'Invalid or expired token', 400);
         }
 
         // Model pre-save hook hashes password; setting plaintext here avoids double-hashing.
@@ -151,7 +150,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 export const adminLogin = async (req: Request, res: Response) => {
     try {
         const { email, password, twoFactorCode } = req.body;
-        if (!email || !password) return sendErrorResponse(req, res, 400, 'Email and password are required');
+        if (!email || !password) return sendAdminError(req, res, 'Email and password are required', 400);
 
         // 🛡️ SECURITY AUDIT: Load dynamic security settings
         await getSystemConfigDoc();
@@ -163,7 +162,7 @@ export const adminLogin = async (req: Request, res: Response) => {
 
         if (!admin) {
             logger.warn('Admin login failed: Account not found', { email, ip: req.ip });
-            return sendErrorResponse(req, res, 401, 'Invalid credentials');
+            return sendAdminError(req, res, 'Invalid credentials', 401);
         }
 
         if (admin.status !== USER_STATUS.LIVE) {
@@ -172,12 +171,12 @@ export const adminLogin = async (req: Request, res: Response) => {
                 status: admin.status,
                 ip: req.ip 
             });
-            return sendErrorResponse(req, res, 401, 'Invalid credentials');
+            return sendAdminError(req, res, 'Invalid credentials', 401);
         }
 
         const serviceResult = await adminService.loginAdmin(email, password);
 
-        if (!serviceResult) return sendErrorResponse(req, res, 401, 'Invalid credentials');
+        if (!serviceResult) return sendAdminError(req, res, 'Invalid credentials', 401);
 
         const { admin: adminData } = serviceResult;
         const adminDataWithId = adminData as Partial<typeof adminData> & {
@@ -188,10 +187,11 @@ export const adminLogin = async (req: Request, res: Response) => {
         // 🔐 2FA VERIFICATION
         if (adminRecord?.twoFactorEnabled) {
             if (!twoFactorCode) {
-                return sendErrorResponse(req, res, 403, '2FA code required', {
+                return sendAdminError(req, res, {
+                    message: '2FA code required',
                     code: 'ADMIN_2FA_REQUIRED',
-                    requires2FA: true
-                });
+                    details: { requires2FA: true }
+                }, 403);
             }
 
             // Verify 2FA code
@@ -203,13 +203,13 @@ export const adminLogin = async (req: Request, res: Response) => {
             });
 
             if (!verified) {
-                return sendErrorResponse(req, res, 401, 'Invalid 2FA code');
+                return sendAdminError(req, res, 'Invalid 2FA code', 401);
             }
         }
 
         const tokenId = adminDataWithId._id || adminDataWithId.id;
         if (!tokenId) {
-            return sendErrorResponse(req, res, 500, 'Invalid admin payload');
+            return sendAdminError(req, res, 'Invalid admin payload', 500);
         }
 
         // Use standardized token generation
@@ -286,7 +286,7 @@ export const getMe = async (req: Request, res: Response) => {
         const admin = await Admin.findById(adminId).lean();
 
         if (!admin) {
-            return sendErrorResponse(req, res, 401, "Admin not found");
+            return sendAdminError(req, res, "Admin not found", 401);
         }
 
         sendSuccessResponse(res, {

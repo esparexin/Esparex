@@ -16,31 +16,14 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import { env } from '../config/env';
 import logger from '../utils/logger';
+import env from '../config/env';
+import { parseMongoUri } from '../utils/mongoUtils';
 
 // Backup configuration
 const BACKUP_DIR = process.env.BACKUP_DIR || path.join(process.cwd(), 'backups');
 const RETENTION_DAYS = parseInt(process.env.BACKUP_RETENTION_DAYS || '30', 10);
 
-/**
- * Parse MongoDB URI to extract connection details
- */
-function parseMongoUri(uri: string) {
-    try {
-        const url = new URL(uri);
-        const database = url.pathname.substring(1);
-        const host = url.hostname;
-        const port = url.port || '27017';
-        const username = url.username;
-        const password = url.password;
-
-        return { host, port, database, username, password };
-    } catch (error) {
-        logger.error('Failed to parse MongoDB URI', { error: error instanceof Error ? error.message : String(error) });
-        throw new Error('Invalid MongoDB URI');
-    }
-}
 
 /**
  * Create backup directory if it doesn't exist

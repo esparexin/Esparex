@@ -19,28 +19,34 @@ import ScreenSize from '../../models/ScreenSize';
 import Ad from '../../models/Ad';
 import { logAdminAction } from '../../utils/adminLogger';
 import { AppError } from '../../utils/AppError';
-import { sendSuccessResponse } from '../admin/adminBaseController';
+import { 
+    sendAdminError,
+    sendSuccessResponse 
+} from '../admin/adminBaseController';
+// import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import { clearCategoryCanonicalCache } from '../../utils/categoryCanonical';
-import { hasAdminAccess, sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY } from './shared';
+import {
+    categoryCreateSchema,
+    categoryUpdateSchema,
+    categorySchemaUpdateBodySchema
+} from '../../validators/catalog.validator';
+import {
+    hasAdminAccess,
+    sendCatalogError,
+    asModel,
+    QueryRecord,
+    ACTIVE_CATEGORY_QUERY,
+    sendValidationError,
+    sendEmptyPublicList,
+    handleCatalogToggleStatus
+} from './shared';
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { getCache, setCache, CACHE_TTLS } from '../../utils/redisCache';
 
-import { 
-    categoryCreateSchema, 
-    categoryUpdateSchema, 
-    categorySchemaUpdateBodySchema 
-} from '../../validators/catalog.validator';
-
-const sendValidationError = (req: Request, res: Response, error: ZodError) => {
-    sendContractErrorResponse(req, res, 400, 'Validation failed', {
-        details: error.issues.map((issue) => ({
-            field: issue.path.join('.'),
-            message: issue.message
-        }))
-    });
-};
+// ── Generic CRUD Helpers ───────────────────────────────────────────────────
+// Category operations delegated to shared.ts or CatalogOrchestrator.
 
 /**
  * Get all categories (public paginated)
@@ -107,8 +113,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
     try {
         const category = await Category.findById(req.params.id);
         if (!category) {
-            sendContractErrorResponse(req, res, 404, 'Category not found');
-            return;
+            return sendAdminError(req, res, 'Category not found', 404);
         }
         sendSuccessResponse(res, category);
     } catch (error) {
@@ -124,8 +129,7 @@ export const getCategorySchema = async (req: Request, res: Response) => {
         const { id } = req.params;
         const category = await Category.findById(id);
         if (!category) {
-            sendContractErrorResponse(req, res, 404, 'Category not found');
-            return;
+            return sendAdminError(req, res, 'Category not found', 404);
         }
 
         const mergedFilters = category.filters || [];
@@ -146,8 +150,7 @@ export const getCategorySchema = async (req: Request, res: Response) => {
 export const updateCategorySchema = async (req: Request, res: Response) => {
     try {
         if (!hasAdminAccess(req)) {
-            sendContractErrorResponse(req, res, 403, 'Admin access required');
-            return;
+            return sendAdminError(req, res, 'Admin access required', 403);
         }
 
         const { id } = req.params;
@@ -165,8 +168,7 @@ export const updateCategorySchema = async (req: Request, res: Response) => {
         );
 
         if (!category) {
-            sendContractErrorResponse(req, res, 404, 'Category not found');
-            return;
+            return sendAdminError(req, res, 'Category not found', 404);
         }
 
         await CatalogOrchestrator.invalidateCatalogCache();
@@ -184,29 +186,18 @@ export const updateCategorySchema = async (req: Request, res: Response) => {
  */
 export const createCategory = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
+        if (!hasAdminAccess(req)) return sendAdminError(req, res, 'Admin access required', 403);
         const parsed = categoryCreateSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
+        if (!parsed.success) return sendValidationError(req, res, parsed.error);
 
         const payload = { ...parsed.data };
-        if (payload.slug) {
-            payload.slug = slugify(payload.slug, { lower: true, strict: true });
-        }
-        if (!payload.slug) {
-            payload.slug = slugify(payload.name, { lower: true, strict: true });
-        }
-        if (!payload.slug) {
-            sendContractErrorResponse(req, res, 400, 'Invalid category slug');
-            return;
-        }
+        payload.slug = slugify(payload.slug || payload.name, { lower: true, strict: true });
+        
+        if (!payload.slug) return sendAdminError(req, res, 'Invalid category slug', 400);
+        
         if (payload.parentId) {
-            const parentExists = await Category.exists({ _id: payload.parentId });
-            if (!parentExists) {
-                sendContractErrorResponse(req, res, 400, 'Invalid parent category');
-                return;
+            if (!(await Category.exists({ _id: payload.parentId }))) {
+                return sendAdminError(req, res, 'Invalid parent category', 400);
             }
         }
 
@@ -214,6 +205,7 @@ export const createCategory = async (req: Request, res: Response) => {
             ...payload,
             status: payload.isActive === false ? CATALOG_STATUS.INACTIVE : CATALOG_STATUS.ACTIVE
         } as any);
+
         clearCategoryCanonicalCache();
         sendSuccessResponse(res, category, 'Category created successfully');
     } catch (error) {
@@ -226,55 +218,40 @@ export const createCategory = async (req: Request, res: Response) => {
  */
 export const updateCategory = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
+        if (!hasAdminAccess(req)) return sendAdminError(req, res, 'Admin access required', 403);
         const categoryId = req.params.id;
         const oldCategory = await Category.findById(categoryId);
-        if (!oldCategory) { sendContractErrorResponse(req, res, 404, 'Category not found'); return; }
+        if (!oldCategory) return sendAdminError(req, res, 'Category not found', 404);
 
         const parsed = categoryUpdateSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
+        if (!parsed.success) return sendValidationError(req, res, parsed.error);
+
         const payload = { ...parsed.data };
-        if (payload.slug) {
-            payload.slug = slugify(payload.slug, { lower: true, strict: true });
+        if (payload.name || payload.slug) {
+            payload.slug = slugify(payload.slug || payload.name!, { lower: true, strict: true });
         }
-        if (!payload.slug && payload.name) {
-            payload.slug = slugify(payload.name, { lower: true, strict: true });
-        }
+        
         if (payload.slug !== undefined && payload.slug.length === 0) {
-            sendContractErrorResponse(req, res, 400, 'Invalid category slug');
-            return;
+            return sendAdminError(req, res, 'Invalid category slug', 400);
         }
+
         if (payload.parentId) {
-            if (payload.parentId === categoryId) {
-                sendContractErrorResponse(req, res, 400, 'Category cannot be its own parent');
-                return;
-            }
-            const parentExists = await Category.exists({ _id: payload.parentId });
-            if (!parentExists) {
-                sendContractErrorResponse(req, res, 400, 'Invalid parent category');
-                return;
-            }
+            if (payload.parentId === categoryId) return sendAdminError(req, res, 'Category cannot be its own parent', 400);
+            if (!(await Category.exists({ _id: payload.parentId }))) return sendAdminError(req, res, 'Invalid parent category', 400);
         }
 
         const payloadWithStatus = payload.isActive !== undefined
             ? { ...payload, status: payload.isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE }
             : payload;
+
         const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId as string, payloadWithStatus as any);
-        if (!updatedCategory) { sendContractErrorResponse(req, res, 404, 'Category not found'); return; }
+        if (!updatedCategory) return sendAdminError(req, res, 'Category not found', 404);
 
         clearCategoryCanonicalCache();
 
-        // SafeRename: Removed string field updates logic (Ad.category, Business.category, Service.category) 
-        // as these fields are deprecated. Only ID references remain.
-
-        // AUDIT LOG
         logAdminAction(req, 'CATEGORY_RENAME', 'Category', updatedCategory._id, {
             before: { name: oldCategory.name, slug: oldCategory.slug },
-            after: { name: updatedCategory.name, slug: updatedCategory.slug },
-            impacted: { ads: 0, businesses: 0, services: 0 }
+            after: { name: updatedCategory.name, slug: updatedCategory.slug }
         });
 
         sendSuccessResponse(res, updatedCategory, 'Category updated successfully');
@@ -287,28 +264,9 @@ export const updateCategory = async (req: Request, res: Response) => {
  * Toggle category active status
  */
 export const toggleCategoryStatus = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const category = await Category.findById(req.params.id);
-        if (!category) {
-            sendContractErrorResponse(req, res, 404, 'Category not found');
-            return;
-        }
-        category.isActive = !category.isActive;
-        category.status = category.isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE;
-        
-        // Initialize listingType if missing to avoid downstream capability check failures
-        if (!category.listingType || category.listingType.length === 0) {
-            category.listingType = [];
-        }
-
-        await category.save();
-        await CatalogOrchestrator.invalidateCatalogCache();
-        clearCategoryCanonicalCache();
-        sendSuccessResponse(res, category, 'Category status toggled');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+    return handleCatalogToggleStatus(req, res, asModel(Category) as any, { 
+        auditAction: 'TOGGLE_CATEGORY_STATUS' 
+    });
 };
 
 /**
@@ -340,15 +298,15 @@ export const deleteCategory = async (req: Request, res: Response) => {
         await session.commitTransaction();
         clearCategoryCanonicalCache();
         
-        sendSuccessResponse(res, null, 'Category deleted and dependent catalog records reconciled successfully');
+        sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
     } catch (e: any) {
         await session.abortTransaction();
         if (e.message === 'Admin access required') {
-             sendContractErrorResponse(req, res, 403, e.message);
+             return sendAdminError(req, res, e.message, 403);
         } else if (e.message === 'Category not found') {
-             sendContractErrorResponse(req, res, 404, e.message);
+             return sendAdminError(req, res, e.message, 404);
         } else {
-             sendContractErrorResponse(req, res, 500, e.message);
+             return sendAdminError(req, res, e);
         }
     } finally {
         await session.endSession();

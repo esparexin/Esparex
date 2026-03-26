@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { randomInt } from 'crypto';
+import logger from '../../utils/logger';
 import Invoice from '../../models/Invoice';
 import Transaction from '../../models/Transaction';
 import Plan from '../../models/Plan';
@@ -7,18 +8,15 @@ import User from '../../models/User';
 import UserPlan from '../../models/UserPlan';
 import { logAdminAction } from '../../utils/adminLogger';
 import { escapeRegExp } from '../../utils/stringUtils';
-import logger from '../../utils/logger';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { generateInvoiceNumber } from '../../utils/invoiceNumber';
-import { PAYMENT_STATUS } from '../../../../shared/enums/paymentStatus';
-import { PLAN_STATUS } from '../../../../shared/enums/planStatus';
-
-// Helper for safe JSON responses
-const sendJson = (res: Response, status: number, data: unknown) => {
-    return res.status(status).json(data);
-};
-
 import { respond } from '../../utils/respond';
+import { PAYMENT_STATUS } from '../../../../shared/enums/paymentStatus';
+import { PLAN_STATUS } from '@shared/enums/planStatus';
+import { generateInvoiceNumber } from '../../utils/invoiceNumber';
+import { 
+    sendSuccessResponse, 
+    sendAdminError,
+    sendPaginatedResponse 
+} from './adminBaseController';
 
 /**
  * Get all invoices with pagination and filtering
@@ -58,24 +56,10 @@ export const getAllInvoices = async (req: Request, res: Response) => {
 
         const total = await Invoice.countDocuments(query);
 
-        return sendJson(res, 200, respond({
-            success: true,
-            data: {
-                data: invoices,
-                pagination: {
-                    total,
-                    page,
-                    limit,
-                    totalPages: Math.ceil(total / limit)
-                }
-            }
-        }));
+        return sendPaginatedResponse(res, invoices, total, page, limit);
 
     } catch (error: unknown) {
-        logger.error('Error fetching admin invoices', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendErrorResponse(req, res, 500, 'Internal Server Error');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -86,14 +70,11 @@ export const getInvoiceById = async (req: Request, res: Response) => {
     try {
         const invoice = await Invoice.findById(req.params.id).populate('userId', 'name email mobile');
         if (!invoice) {
-            return sendErrorResponse(req, res, 404, 'Invoice not found');
+            return sendAdminError(req, res, 'Invoice not found', 404);
         }
-        return sendJson(res, 200, respond({
-            success: true,
-            data: invoice
-        }));
-    } catch {
-        return sendErrorResponse(req, res, 500, 'Internal Server Error');
+        return sendSuccessResponse(res, invoice);
+    } catch (error: unknown) {
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -108,14 +89,14 @@ export const createInvoice = async (req: Request, res: Response) => {
         const { customerEmail, planId, amount, currency = 'INR', items, isGstInvoice } = req.body;
 
         if (!customerEmail) {
-            return sendErrorResponse(req, res, 400, 'Customer Email is required.');
+            return sendAdminError(req, res, 'Customer Email is required.', 400);
         }
 
         // 1. Find User
         const user = await User.findOne({ email: customerEmail });
         if (!user) {
             // Option: Create a partial user? For now, strict: User must exist.
-            return sendErrorResponse(req, res, 404, 'User not found with this email.');
+            return sendAdminError(req, res, 'User not found with this email.', 404);
         }
 
         let transactionAmount = 0;
@@ -128,7 +109,7 @@ export const createInvoice = async (req: Request, res: Response) => {
             if (!plan) plan = await Plan.findOne({ code: planId });
 
             if (!plan) {
-                return sendErrorResponse(req, res, 404, 'Plan not found.');
+                return sendAdminError(req, res, 'Plan not found.', 404);
             }
 
             const snapshotPrice = parseFloat(amount) || plan.price;
@@ -161,7 +142,7 @@ export const createInvoice = async (req: Request, res: Response) => {
             transactionDescription = itemsScale.map(i => i.description).join(', ').substring(0, 100);
             if (itemsScale.length > 1) transactionDescription += '...';
         } else {
-            return sendErrorResponse(req, res, 400, 'Either Plan ID or Items are required.');
+            return sendAdminError(req, res, 'Either Plan ID or Items are required.', 400);
         }
 
         // 3. Create Transaction (Record the movement of money)
@@ -243,22 +224,10 @@ export const createInvoice = async (req: Request, res: Response) => {
             amount: transaction.amount
         });
 
-        return sendJson(res, 201, respond({
-            success: true,
-            message: 'Invoice created successfully',
-            data: invoice
-        }));
+        return sendSuccessResponse(res, invoice, 'Invoice created successfully');
 
     } catch (error: unknown) {
-        logger.error('Error creating invoice', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendErrorResponse(
-            req,
-            res,
-            500,
-            error instanceof Error ? error.message : 'Internal Server Error'
-        );
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -269,23 +238,19 @@ export const createInvoice = async (req: Request, res: Response) => {
 export const updateInvoiceStatus = async (req: Request, res: Response) => {
     try {
         const { status, notes } = req.body;
-        const validStatuses = [PAYMENT_STATUS.PENDING, PAYMENT_STATUS.SUCCESS, PAYMENT_STATUS.FAILED, PAYMENT_STATUS.CANCELLED];
+        const validStatuses = ['PENDING', 'SUCCESS' as any, 'FAILED' as any, 'CANCELLED' as any];
 
         if (!status || !validStatuses.includes(status)) {
-            return sendErrorResponse(req, res, 400, 'Invalid status provided.');
+            return sendAdminError(req, res, 'Invalid status provided.', 400);
         }
 
         const invoice = await Invoice.findById(req.params.id);
         if (!invoice) {
-            return sendErrorResponse(req, res, 404, 'Invoice not found.');
+            return sendAdminError(req, res, 'Invoice not found.', 404);
         }
 
         if (invoice.status === status) {
-            return sendJson(res, 200, respond({
-                success: true,
-                message: 'Status is already set to ' + status,
-                data: invoice
-            }));
+            return sendSuccessResponse(res, invoice, 'Status is already set to ' + status);
         }
 
         const oldStatus = invoice.status;
@@ -333,17 +298,10 @@ export const updateInvoiceStatus = async (req: Request, res: Response) => {
             notes
         });
 
-        return sendJson(res, 200, respond({
-            success: true,
-            message: `Invoice status updated to ${status}`,
-            data: invoice
-        }));
+        return sendSuccessResponse(res, invoice, `Invoice status updated to ${status}`);
 
     } catch (error: unknown) {
-        logger.error('Error updating invoice status', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendErrorResponse(req, res, 500, 'Internal Server Error');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -356,7 +314,7 @@ export const getPrintableInvoice = async (req: Request, res: Response) => {
             .populate('userId', 'name email mobile address');
 
         if (!invoice) {
-            return sendErrorResponse(req, res, 404, 'Invoice not found');
+            return sendAdminError(req, res, 'Invoice not found', 404);
         }
 
         const inv = invoice.toObject() as unknown as Record<string, unknown> & {
@@ -453,9 +411,6 @@ export const getPrintableInvoice = async (req: Request, res: Response) => {
         return res.send(html);
 
     } catch (error: unknown) {
-        logger.error('Error generating printable invoice', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendErrorResponse(req, res, 500, 'Internal Server Error');
+        return sendAdminError(req, res, error);
     }
 };

@@ -183,13 +183,17 @@ const corsOptions: cors.CorsOptions = {
         'Idempotency-Key',
         'Cache-Control',
         'x-no-retry',         // ✅ REQUIRED FOR OTP REQUESTS
-        'X-CSRF-Token'        // ✅ REQUIRED FOR CSRF PROTECTION
+        'X-CSRF-Token',       // ✅ REQUIRED FOR CSRF PROTECTION
+        'x-correlation-id',   // ✅ REQUIRED FOR DISTRIBUTED TRACING
+        'x-request-id'        // ✅ REQUIRED FOR LOG CORRELATION
     ],
     exposedHeaders: [
         'X-RateLimit-Limit',
         'X-RateLimit-Remaining',
         'X-RateLimit-Reset',
-        'Retry-After'
+        'Retry-After',
+        'X-Correlation-ID',
+        'X-Request-ID'
     ]
 };
 
@@ -264,26 +268,7 @@ if (env.NODE_ENV !== 'production') {
 /* -------------------------------------------------------------------------- */
 /* HEALTH & ROOT (NO DB GUARD)                                                  */
 /* -------------------------------------------------------------------------- */
-import { getRedisHealthProbe, isConnected as redisConnected } from './utils/redisCache';
-
-const healthCheckHandler = async (_req: express.Request, res: express.Response) => {
-    const mem = process.memoryUsage();
-    const redisHealth = await getRedisHealthProbe();
-    res.status(200).json({
-        success: true,
-        status: 'ok',
-        uptime: process.uptime(),
-        memoryUsage: {
-            heapUsed: `${(mem.heapUsed / 1024 / 1024).toFixed(2)} MB`,
-            rss: `${(mem.rss / 1024 / 1024).toFixed(2)} MB`
-        },
-        redisConnected: redisConnected && redisHealth.pingOk && redisHealth.roundTripOk,
-        redisPingLatencyMs: redisHealth.latencyMs,
-        redisHealth,
-        mongoConnected: isDbReady(),
-        queueStatus: 'running' // BullMQ handles internal reconnections automatically
-    });
-};
+import { healthCheckHandler } from './utils/health';
 
 // app.get('/health', healthCheckHandler); // Handled by rootRoutes under /api/v1
 // app.get('/api/v1/health', healthCheckHandler); // Handled by rootRoutes

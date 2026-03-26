@@ -123,6 +123,29 @@ const getUserAuthFailure = (
     return null;
 };
 
+const handleOtpAttemptFailure = async (
+    mobileDigits: string,
+    user: any,
+    now: Date
+): Promise<AuthFailure> => {
+    const mobileVariants = getMobileVariants(mobileDigits);
+    
+    if (user) {
+        const lockUntil = await lockUserForOtpAbuse(user, now);
+        await Otp.deleteMany({ mobile: { $in: mobileVariants } });
+        return createFailure(423, 'Too many invalid OTP attempts. Account locked temporarily.', {
+            code: 'OTP_LOCKED',
+            lockUntil: lockUntil.toISOString()
+        });
+    }
+
+    await Otp.deleteMany({ mobile: { $in: mobileVariants } });
+    return createFailure(400, 'Invalid OTP', {
+        code: 'OTP_INVALID',
+        attemptsLeft: 0
+    });
+};
+
 const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
     if (env.NODE_ENV === 'test') return;
 
@@ -282,20 +305,7 @@ export class AuthService {
         }
 
         if (!isLocalOtpLockBypass && otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
-            if (userFromMobile) {
-                const lockUntil = await lockUserForOtpAbuse(userFromMobile, now);
-                await Otp.deleteMany({ mobile: { $in: mobileVariants } });
-                return createFailure(423, 'Too many invalid OTP attempts. Account locked temporarily.', {
-                    code: 'OTP_LOCKED',
-                    lockUntil: lockUntil.toISOString()
-                });
-            }
-
-            await Otp.deleteMany({ mobile: { $in: mobileVariants } });
-            return createFailure(400, 'Invalid OTP', {
-                code: 'OTP_INVALID',
-                attemptsLeft: 0
-            });
+            return await handleOtpAttemptFailure(mobileDigits, userFromMobile, now);
         }
 
         const isOtpValid = verifyOtpHash(otp, otpRecord.otpHash);
@@ -325,20 +335,7 @@ export class AuthService {
             }
 
             if (!isLocalOtpLockBypass && otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
-                if (userFromMobile) {
-                    const lockUntil = await lockUserForOtpAbuse(userFromMobile, now);
-                    await Otp.deleteMany({ mobile: { $in: mobileVariants } });
-                    return createFailure(423, 'Too many invalid OTP attempts. Account locked temporarily.', {
-                        code: 'OTP_LOCKED',
-                        lockUntil: lockUntil.toISOString()
-                    });
-                }
-
-                await Otp.deleteMany({ mobile: { $in: mobileVariants } });
-                return createFailure(400, 'Invalid OTP', {
-                    code: 'OTP_INVALID',
-                    attemptsLeft: 0
-                });
+                return await handleOtpAttemptFailure(mobileDigits, userFromMobile, now);
             }
 
             await otpRecord.save();

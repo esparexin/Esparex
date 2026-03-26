@@ -21,8 +21,10 @@ import {
 import {
     CatalogArchivedCategoryNotice,
     CatalogBoundSearchCategoryFilters,
+    CatalogCategoryTags,
     CatalogEntityCell,
     CatalogEditDeleteActions,
+    CatalogSelectField,
     CatalogSelectFilter,
 } from "@/components/catalog/CatalogUiPrimitives";
 
@@ -103,20 +105,13 @@ export default function ModelsPage() {
                     header: "Brand / Categories",
                     cell: (model) => {
                         const brand = brands.find(b => b.id === normalizeObjectIdLike(model.brandId));
-                        const modelCats = getEntityCategoryIds(model);
                         return (
                             <div className="text-xs space-y-1.5">
                                 <div className="text-slate-900 font-bold">{brand?.name || "Unknown Brand"}</div>
-                                <div className="flex flex-wrap gap-1">
-                                    {modelCats.map(cid => {
-                                        const cat = categories.find(c => c.id === cid);
-                                        return (
-                                            <span key={cid} className="px-1.5 py-0.5 rounded-[4px] bg-slate-100 text-[9px] text-slate-500 font-medium">
-                                                {cat?.name || "Archived"}
-                                            </span>
-                                        );
-                                    })}
-                                </div>
+                                <CatalogCategoryTags
+                                    categoryIds={getEntityCategoryIds(model)}
+                                    categories={categories}
+                                />
                             </div>
                         );
                     }
@@ -195,39 +190,26 @@ export default function ModelsPage() {
                         />
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Brand
-                                </label>
-                                <select
-                                    required
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                    value={formData.brandId}
-                                    onChange={(e) => setFormData((prev) => ({ ...prev, brandId: e.target.value }))}
-                                >
-                                    <option value="">Select Brand</option>
-                                    {formBrands.map((brand) => (
-                                        <option key={brand.id} value={brand.id}>
-                                            {brand.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                            <CatalogSelectField
+                                label="Brand"
+                                value={formData.brandId}
+                                onChange={(brandId: string) => setFormData((prev) => ({ ...prev, brandId }))}
+                                options={formBrands.map((brand) => ({ value: brand.id, label: brand.name }))}
+                                placeholder="Select Brand"
+                                required
+                            />
 
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    Status
-                                </label>
-                                <select
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                    value={formData.status}
-                                    onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value as any }))}
-                                >
-                                    <option value="live">Live</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="rejected">Rejected</option>
-                                </select>
-                            </div>
+                            <CatalogSelectField
+                                label="Status"
+                                value={formData.status}
+                                onChange={(status: string) => setFormData((prev) => ({ ...prev, status: status as any }))}
+                                options={[
+                                    { value: "live", label: "Live" },
+                                    { value: "pending", label: "Pending" },
+                                    { value: "rejected", label: "Rejected" },
+                                ]}
+                                placeholder=""
+                            />
                         </div>
                     </>
                 );

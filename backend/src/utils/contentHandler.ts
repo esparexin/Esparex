@@ -3,7 +3,9 @@ import { Model, Document } from 'mongoose';
 import { respond } from './respond';
 import {
     getPaginationParams,
-    sendPaginatedResponse
+    sendPaginatedResponse,
+    sendSuccessResponse,
+    sendAdminError
 } from '../controllers/admin/adminBaseController';
 import { escapeRegExp } from './stringUtils';
 import { sendErrorResponse as sendContractErrorResponse } from './errorResponse';
@@ -147,10 +149,7 @@ export async function handlePaginatedContent<T extends Document>(
                 ? await transformResponse(items as unknown[])
                 : (items as unknown[]);
             if (!Array.isArray(resolvedItems)) {
-                return res.status(200).json(respond({
-                    success: true,
-                    data: resolvedItems
-                }));
+                return sendSuccessResponse(res, resolvedItems);
             }
             return sendPaginatedResponse(res, resolvedItems, total, page, limit);
         }
@@ -198,20 +197,13 @@ export async function handlePaginatedContent<T extends Document>(
         const resolvedItems = transformResponse
             ? await transformResponse(items as unknown[])
             : (items as unknown[]);
-        if (!Array.isArray(resolvedItems)) {
-            return res.status(200).json(respond({
-                success: true,
-                data: resolvedItems
-            }));
-        }
-        const data = { items: resolvedItems, total };
 
-        res.status(200).json(respond({
-            success: true,
-            data
-        }));
+        if (!Array.isArray(resolvedItems)) {
+            return sendSuccessResponse(res, resolvedItems);
+        }
+
+        return sendSuccessResponse(res, { items: resolvedItems, total });
     } catch (error) {
-        const message = error instanceof Error ? error.message : 'Failed to fetch content';
-        sendContractErrorResponse(req, res, 500, message);
+        sendAdminError(req, res, error);
     }
 }

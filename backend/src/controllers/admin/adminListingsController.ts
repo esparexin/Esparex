@@ -2,7 +2,10 @@ import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Ad from '../../models/Ad';
 import Report from '../../models/Report';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { 
+    sendSuccessResponse, 
+    sendAdminError 
+} from './adminBaseController';
 import { respond } from '../../utils/respond';
 import { getSingleParam } from '../../utils/requestParams';
 import { logAdminAction } from '../../utils/adminLogger';
@@ -46,33 +49,18 @@ const asNumber = (value: unknown): number | undefined => {
     return Number.isFinite(parsed) ? parsed : undefined;
 };
 
-const sendListingMutationError = (req: Request, res: Response, error: unknown, fallback: string): void => {
-    const resolved = resolveControllerError(error, fallback);
-    sendErrorResponse(req, res, resolved.statusCode, resolved.message, resolved.code ? { code: resolved.code } : {});
-};
 
-const resolveListingTypeFilter = (value: unknown): ModerationListingType | undefined => {
-    if (!asString(value)) return undefined;
-    if (!isValidListingType(value)) return undefined;
-    return value;
-};
 
-type ControllerError = Error & { statusCode?: number; code?: string };
-
-const toControllerError = (statusCode: number, message: string, code: string): ControllerError => {
-    const error = new Error(message) as ControllerError;
-    error.statusCode = statusCode;
-    error.code = code;
+const toControllerError = (status: number, message: string, code?: string) => {
+    const error = new Error(message);
+    (error as any).status = status;
+    (error as any).code = code;
     return error;
 };
 
-const resolveControllerError = (error: unknown, fallbackMessage: string) => {
-    const typedError = error as ControllerError;
-    return {
-        statusCode: typeof typedError?.statusCode === 'number' ? typedError.statusCode : 500,
-        code: typeof typedError?.code === 'string' ? typedError.code : undefined,
-        message: error instanceof Error ? error.message : fallbackMessage,
-    };
+const resolveListingTypeFilter = (raw: unknown): ListingTypeValue | undefined => {
+    const val = typeof raw === 'string' ? raw.trim().toLowerCase() : undefined;
+    return val && isValidListingType(val) ? (val as ListingTypeValue) : undefined;
 };
 
 const getActorId = (req: Request): string => {
@@ -96,7 +84,7 @@ const resolveListingId = (req: Request, res: Response): string | null => {
     const id = getSingleParam(req, res, 'id', { error: 'Invalid listing id' });
     if (!id) return null;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        sendErrorResponse(req, res, 400, 'Invalid listing id');
+        sendAdminError(req, res, 'Invalid listing id', 400);
         return null;
     }
     return id;
@@ -111,7 +99,7 @@ const getListingForMutation = async (req: Request, res: Response, id: string) =>
     } | null>();
 
     if (!listing) {
-        sendErrorResponse(req, res, 404, 'Listing not found');
+        sendAdminError(req, res, 'Listing not found', 404);
         return null;
     }
 
@@ -129,12 +117,7 @@ const sendLifecycleResponse = (
     listing: unknown,
     message: string
 ) => {
-    res.json(
-        respond({
-            success: true,
-            data: serializeLifecycleActionResponse({ action, listing, message }),
-        })
-    );
+    sendSuccessResponse(res, serializeLifecycleActionResponse({ action, listing, message }));
 };
 
 export const adminListListings = async (req: Request, res: Response) => {
@@ -166,20 +149,15 @@ export const adminListListings = async (req: Request, res: Response) => {
         const total = result.pagination.total || 0;
         const totalPages = result.pagination.totalPages || Math.max(1, Math.ceil(total / Math.max(1, limit)));
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeModerationListResponse({
-                    items: result.data,
-                    page,
-                    limit,
-                    total,
-                    totalPages,
-                }),
-            })
-        );
+        return sendSuccessResponse(res, serializeModerationListResponse({
+            items: result.data,
+            page,
+            limit,
+            total,
+            totalPages,
+        }));
     } catch (error) {
-        sendErrorResponse(req, res, 500, error instanceof Error ? error.message : 'Failed to fetch listings');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -190,18 +168,12 @@ export const adminGetListingById = async (req: Request, res: Response) => {
 
         const listing = await getModerationListingById(id);
         if (!listing) {
-            sendErrorResponse(req, res, 404, 'Listing not found');
-            return;
+            return sendAdminError(req, res, 'Listing not found', 404);
         }
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeModerationDetailResponse(listing),
-            })
-        );
+        return sendSuccessResponse(res, serializeModerationDetailResponse(listing));
     } catch (error) {
-        sendErrorResponse(req, res, 500, error instanceof Error ? error.message : 'Failed to fetch listing');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -219,8 +191,7 @@ export const adminApproveListing = async (req: Request, res: Response) => {
             && typeof listing.reviewVersion === 'number'
             && requestedReviewVersion !== listing.reviewVersion
         ) {
-            sendErrorResponse(req, res, 409, 'Conflict: listing was edited while under review');
-            return;
+            return sendAdminError(req, res, 'Conflict: listing was edited while under review', 409);
         }
 
         const approvedAt = new Date();
@@ -258,7 +229,7 @@ export const adminApproveListing = async (req: Request, res: Response) => {
 
         sendLifecycleResponse(res, 'approved', updated, 'Listing approved successfully');
     } catch (error: unknown) {
-        sendListingMutationError(req, res, error, 'Failed to approve listing');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -269,8 +240,7 @@ export const adminRejectListing = async (req: Request, res: Response) => {
 
         const rejectionReason = asString(req.body?.rejectionReason);
         if (!rejectionReason) {
-            sendErrorResponse(req, res, 400, 'Rejection reason is required');
-            return;
+            return sendAdminError(req, res, 'Rejection reason is required', 400);
         }
 
         const listing = await getListingForMutation(req, res, id);
@@ -304,7 +274,7 @@ export const adminRejectListing = async (req: Request, res: Response) => {
 
         sendLifecycleResponse(res, 'rejected', updated, 'Listing rejected successfully');
     } catch (error: unknown) {
-        sendListingMutationError(req, res, error, 'Failed to reject listing');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -359,7 +329,7 @@ export const adminDeactivateListing = async (req: Request, res: Response) => {
 
         sendLifecycleResponse(res, 'deactivated', updated, 'Listing deactivated successfully');
     } catch (error: unknown) {
-        sendListingMutationError(req, res, error, 'Failed to deactivate listing');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -398,7 +368,7 @@ export const adminExpireListing = async (req: Request, res: Response) => {
 
         sendLifecycleResponse(res, 'expired', updated, 'Listing expired successfully');
     } catch (error: unknown) {
-        sendListingMutationError(req, res, error, 'Failed to expire listing');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -466,7 +436,7 @@ export const adminExtendListing = async (req: Request, res: Response) => {
 
         sendLifecycleResponse(res, 'extended', updated, 'Listing expiry extended successfully');
     } catch (error: unknown) {
-        sendListingMutationError(req, res, error, 'Failed to extend listing');
+        return sendAdminError(req, res, error);
     }
 };
 export const adminSoftDeleteListing = async (req: Request, res: Response) => {
@@ -475,8 +445,7 @@ export const adminSoftDeleteListing = async (req: Request, res: Response) => {
         if (!id) return;
 
         if (req.body?.hardDelete === true) {
-            sendErrorResponse(req, res, 400, 'Hard delete is forbidden. Listings must be soft deleted.');
-            return;
+            return sendAdminError(req, res, 'Hard delete is forbidden. Listings must be soft deleted.', 400);
         }
 
         const listing = await getListingForMutation(req, res, id);
@@ -528,7 +497,7 @@ export const adminSoftDeleteListing = async (req: Request, res: Response) => {
 
         sendLifecycleResponse(res, 'deleted', updated, 'Listing soft deleted successfully');
     } catch (error: unknown) {
-        sendListingMutationError(req, res, error, 'Failed to delete listing');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -544,8 +513,7 @@ export const adminResolveListingReport = async (req: Request, res: Response) => 
         const note = asString(req.body?.note);
 
         if (!['dismiss', 'take_down', 'warn_user'].includes(action)) {
-            sendErrorResponse(req, res, 400, 'Invalid action. Allowed: dismiss, take_down, warn_user');
-            return;
+            return sendAdminError(req, res, 'Invalid action. Allowed: dismiss, take_down, warn_user', 400);
         }
 
         let listingResult: unknown = await getModerationListingById(id);
@@ -597,22 +565,9 @@ export const adminResolveListingReport = async (req: Request, res: Response) => 
             resolvedReports: reportResult.modifiedCount,
         });
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeLifecycleActionResponse({
-                    action: 'report_resolved',
-                    listing: listingResult,
-                    message: 'Listing reports resolved successfully',
-                    metadata: {
-                        resolvedReports: reportResult.modifiedCount,
-                        action,
-                    },
-                }),
-            })
-        );
+        return sendSuccessResponse(res, listingResult, 'Reports resolved successfully');
     } catch (error: unknown) {
-        sendListingMutationError(req, res, error, 'Failed to resolve listing reports');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -621,14 +576,9 @@ export const adminGetListingCounts = async (req: Request, res: Response) => {
         const listingType = resolveListingTypeFilter(req.query.listingType);
         const counts = await getModerationCounts(listingType);
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeListingCountsResponse(counts),
-            })
-        );
+        sendSuccessResponse(res, serializeListingCountsResponse(counts));
     } catch (error) {
-        sendErrorResponse(req, res, 500, error instanceof Error ? error.message : 'Failed to fetch listing counts');
+        sendAdminError(req, res, error, 500);
     }
 };
 
@@ -637,13 +587,8 @@ export const adminGetListingCountsLegacyAdapter = async (req: Request, res: Resp
         const listingType = resolveListingTypeFilter(req.query.listingType);
         const counts = await getModerationCounts(listingType);
 
-        res.json(
-            respond({
-                success: true,
-                data: serializeLegacyCountsAdapter(counts),
-            })
-        );
+        sendSuccessResponse(res, serializeLegacyCountsAdapter(counts));
     } catch (error) {
-        sendErrorResponse(req, res, 500, error instanceof Error ? error.message : 'Failed to fetch listing summary');
+        sendAdminError(req, res, error, 500);
     }
 };

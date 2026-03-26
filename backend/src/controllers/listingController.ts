@@ -3,14 +3,14 @@ import mongoose from 'mongoose';
 import Ad from '../models/Ad';
 import { IAuthUser } from '../types/auth';
 import { sendErrorResponse } from '../utils/errorResponse';
-import { respond } from '../utils/respond';
+import { respond, sendSuccessResponse } from '../utils/respond';
 import { getSingleParam } from '../utils/requestParams';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../shared/enums/actor';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 import * as adService from '../services/AdService';
 import { mutateStatus } from '../services/StatusMutationService';
-
+import { getAndVerifyOwnedListing } from '../utils/controllerUtils';
 /**
  * Enterprise Listing Controller (SSOT)
  * Centralized logic for all listing types (Ads, Services, Spare Parts)
@@ -59,14 +59,7 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
         );
         const isOwner = Boolean(viewerId && sellerId && String(sellerId) === viewerId);
         const adStatus = String((ad as { status?: unknown }).status ?? '');
-        if (adStatus !== AD_STATUS.LIVE && !isOwner && !isAdmin) {
-            return sendErrorResponse(req, res, 403, 'Listing is not publicly available');
-        }
-
-        return res.json(respond({
-            success: true,
-            data: ad
-        }));
+        return sendSuccessResponse(res, ad);
     } catch (error) {
         next(error);
     }
@@ -111,15 +104,7 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
             sellerId: user._id.toString()
         });
 
-        if (!updatedListing) {
-            return sendErrorResponse(req, res, 404, 'Listing not found');
-        }
-
-        return res.json(respond({
-            success: true,
-            message: 'Listing updated successfully',
-            data: updatedListing
-        }));
+        return sendSuccessResponse(res, updatedListing, 'Listing updated successfully');
     } catch (error) {
         next(error);
     }
@@ -131,16 +116,9 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
  */
 export const markListingSold = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
-        if (!id) return;
-
         const user = req.user as IAuthUser;
-        const listing = await Ad.findById(id);
-
-        if (!listing) return sendErrorResponse(req, res, 404, 'Listing not found');
-        if (listing.sellerId.toString() !== user._id.toString()) {
-            return sendErrorResponse(req, res, 403, 'Unauthorized');
-        }
+        const listing = await getAndVerifyOwnedListing(req, res);
+        if (!listing) return;
 
         if (listing.status !== AD_STATUS.LIVE) {
             return sendErrorResponse(req, res, 400, 'Only live listings can be marked as sold');
@@ -148,7 +126,7 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
 
         const updatedListing = await mutateStatus({
             domain: 'ad',
-            entityId: id,
+            entityId: listing._id.toString(),
             toStatus: AD_STATUS.SOLD,
             actor: {
                 type: ACTOR_TYPE.USER,
@@ -175,11 +153,7 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
             },
         });
 
-        return res.json(respond({
-            success: true,
-            message: 'Listing marked as sold',
-            data: updatedListing
-        }));
+        return sendSuccessResponse(res, updatedListing, 'Listing marked as sold');
     } catch (error) {
         next(error);
     }
@@ -191,27 +165,15 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
  */
 export const promoteListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
-        if (!id) return;
-
         const user = req.user as IAuthUser;
-        const listing = await Ad.findById(id);
-
-        if (!listing) return sendErrorResponse(req, res, 404, 'Listing not found');
-        if (listing.sellerId.toString() !== user._id.toString()) {
-            return sendErrorResponse(req, res, 403, 'Unauthorized');
-        }
+        const listing = await getAndVerifyOwnedListing(req, res);
+        if (!listing) return;
 
         if (listing.status !== AD_STATUS.LIVE) {
             return sendErrorResponse(req, res, 400, 'Only live listings can be promoted');
         }
 
-        // Redirect to promotion service / checkout (simplified for now)
-        return res.json(respond({
-            success: true,
-            message: 'Proceed to promotion checkout',
-            data: { listingId: id, currentStatus: listing.status }
-        }));
+        return sendSuccessResponse(res, { listingId: listing._id.toString(), currentStatus: listing.status }, 'Proceed to promotion checkout');
     } catch (error) {
         next(error);
     }
@@ -223,24 +185,14 @@ export const promoteListing = async (req: Request, res: Response, next: NextFunc
  */
 export const getListingAnalytics = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
-        if (!id) return;
-
         const user = req.user as IAuthUser;
-        const listing = await Ad.findById(id).select('sellerId views');
+        const listing = await getAndVerifyOwnedListing(req, res, { select: 'views' });
+        if (!listing) return;
 
-        if (!listing) return sendErrorResponse(req, res, 404, 'Listing not found');
-        if (listing.sellerId.toString() !== user._id.toString()) {
-            return sendErrorResponse(req, res, 403, 'Unauthorized');
-        }
-
-        return res.json(respond({
-            success: true,
-            data: {
-                id: listing._id,
-                views: listing.views
-            }
-        }));
+        return sendSuccessResponse(res, {
+            id: listing._id,
+            views: listing.views
+        });
     } catch (error) {
         next(error);
     }
@@ -259,7 +211,7 @@ export const incrementListingView = async (req: Request, res: Response, next: Ne
             $inc: { 'views.total': 1 }
         });
 
-        return res.json(respond({ success: true }));
+        return sendSuccessResponse(res, { success: true });
     } catch (error) {
         next(error);
     }

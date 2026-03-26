@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { serializeDoc } from './serialize';
 
 /**
@@ -9,3 +10,26 @@ import { serializeDoc } from './serialize';
 export function respond<T>(payload: T): T {
     return serializeDoc(payload);
 }
+
+export const sendSuccessResponse = (res: Response, data: unknown, message?: string, statusCode = 200) => {
+    return res.status(statusCode).json(respond({
+        success: true,
+        data,
+        ...(message && { message })
+    }));
+};
+
+export const sendPaginatedResponse = (res: Response, data: unknown[], total: number, page: number, limit: number) => {
+    return res.status(200).json(respond({
+        success: true,
+        data: {
+            items: data,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        }
+    }));
+};

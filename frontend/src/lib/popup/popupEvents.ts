@@ -1,13 +1,13 @@
 import type { APIError } from "@/lib/api/APIError";
-import { errorToPopup } from "@/lib/errors/errorToPopup";
 import {
-  createPopupBus,
+  createUnifiedPopupBus,
+  emitGenericErrorPopup,
   type PopupAction,
   type PopupState,
   type PopupType,
-} from "@shared/popup/popupCore";
+} from "@shared/popup/popupEvents";
 
-const popupBus = createPopupBus();
+const popupBus = createUnifiedPopupBus();
 
 export type { PopupAction, PopupState, PopupType };
 export const subscribePopupEvents = popupBus.subscribe;
@@ -15,8 +15,10 @@ export const showPopup = popupBus.show;
 export const hidePopup = popupBus.hide;
 
 export function emitErrorPopup(error: APIError, onRetry?: () => void) {
-  const popup = errorToPopup(error, onRetry);
-  return showPopup(popup, {
-    dedupeKey: `${popup.type}::${error.code ?? error.status}::${popup.message}`,
+  return emitGenericErrorPopup(showPopup, {
+    status: error.status,
+    message: error.message,
+    code: error.code,
+    onRetry,
   });
 }

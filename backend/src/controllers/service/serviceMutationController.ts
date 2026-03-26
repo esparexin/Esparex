@@ -25,6 +25,7 @@ import { resolveServiceTypes, toServiceTypeObjectId as toObjectId } from '../../
 import * as CatalogValidationService from '../../services/catalog/CatalogValidationService';
 import { resolveCategoryId } from '../../../../shared/utils/resolveCategoryId';
 import { ListingMutationService } from '../../services/ListingMutationService';
+import { normalizeImageTokens, toImageUrls } from '../../utils/listingUtils';
 
 const SERVICE_ALLOWED_FIELDS = [
     'title',
@@ -65,15 +66,6 @@ const buildLocationInput = (body: Record<string, unknown>) => ({
         : {}),
 });
 
-const normalizeImageTokens = (value: unknown): string[] => {
-    if (!Array.isArray(value)) return [];
-    return value
-        .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
-        .filter((entry) => entry.length > 0);
-};
-
-const toImageUrls = (value: Array<{ url: string; hash: string }>): string[] =>
-    sanitizeStoredImageUrls(value.map((item) => item.url));
 
 const resolveTaxonomyIds = async (body: Record<string, unknown>, opts: { includeDeviceModel?: boolean } = {}) => {
     const resolvedCategory = resolveCategoryId(body.categoryId || body.category);
@@ -546,7 +538,7 @@ export const repostService = async (req: Request, res: Response) => {
         if (!auth) return;
         const { service, user, id } = auth;
 
-        const currentStatus = service.status as string;
+        const currentStatus = (service.status || 'unknown') as string;
         if (currentStatus !== AD_STATUS.EXPIRED && currentStatus !== AD_STATUS.REJECTED) {
             sendErrorResponse(req, res, 400, 'Only expired or rejected services can be reposted');
             return;

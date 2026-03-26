@@ -1,51 +1,11 @@
-import imageDomainRegistry from '@shared/constants/image-domain-registry.json';
+import { 
+    DEFAULT_IMAGE_PLACEHOLDER,
+    isLocalHttpHost, 
+    isAllowedRemoteHost, 
+    isValidS3Host 
+} from '@shared/listingUtils/imageUtils';
 
-export const DEFAULT_IMAGE_PLACEHOLDER = imageDomainRegistry.placeholderImageUrl;
-
-const nextRemotePatterns = Array.isArray(imageDomainRegistry.nextRemotePatterns)
-    ? imageDomainRegistry.nextRemotePatterns
-    : [];
-
-const allowedHostPatterns = nextRemotePatterns
-    .map((pattern) => pattern?.hostname)
-    .filter((hostname): hostname is string => typeof hostname === 'string' && hostname.length > 0);
-
-const wildcardPatternToRegex = (pattern: string): RegExp => {
-    let escaped = '';
-    for (let i = 0; i < pattern.length; i += 1) {
-        const char = pattern[i] ?? '';
-        const next = pattern[i + 1] ?? '';
-        if (char === '*' && next === '*') {
-            escaped += '.*';
-            i += 1;
-            continue;
-        }
-        if (char === '*') {
-            escaped += '[^.]+';
-            continue;
-        }
-        if (/[.+?^${}()|[\]\\]/.test(char)) {
-            escaped += `\\${char}`;
-            continue;
-        }
-        escaped += char;
-    }
-    return new RegExp(`^${escaped}$`, 'i');
-};
-
-const allowedHostRegexes = allowedHostPatterns.map(wildcardPatternToRegex);
-
-const isLocalHttpHost = (hostname: string): boolean =>
-    hostname === 'localhost' || hostname === '127.0.0.1';
-
-const isAllowedRemoteHost = (hostname: string): boolean =>
-    allowedHostRegexes.some((regex) => regex.test(hostname));
-
-const s3PublicHostRegex = new RegExp(imageDomainRegistry.s3PublicHostPattern, 'i');
-const s3PathStyleHostRegex = new RegExp(imageDomainRegistry.s3PathStyleHostPattern, 'i');
-
-const isValidS3Host = (hostname: string): boolean =>
-    s3PublicHostRegex.test(hostname) || s3PathStyleHostRegex.test(hostname);
+export { DEFAULT_IMAGE_PLACEHOLDER };
 
 const resolveApiOrigin = (): string => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;

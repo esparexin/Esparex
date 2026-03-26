@@ -3,6 +3,10 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/components/ui/utils";
+import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import type { AdData } from "@/types/home";
 import type { UiAd } from "@/lib/mappers";
@@ -96,4 +100,45 @@ export function useAdCardBase({
     useDeclarativeLink,
     handleCardClick,
   };
+}
+
+export function getPlanBadge(ad: AdCardData, className?: string) {
+  const adRecord = toAdRecord(ad);
+  const isBoosted = adRecord.isBoosted === true;
+
+  if (ad.price === 0) {
+    return (
+      <Badge className={cn("bg-white/95 text-gray-600 border border-gray-300 text-[10px] md:text-xs shadow-sm", className)}>
+        FREE
+      </Badge>
+    );
+  }
+
+  const badgeClasses = cn("border-0 text-[10px] shadow-lg flex items-center", className);
+  
+  if (ad.isSpotlight) {
+    return (
+      <Badge className={cn("bg-gradient-to-r from-yellow-500 to-orange-500 text-white", badgeClasses)}>
+        <Sparkles className="h-2 w-2 mr-0.5" /> ⭐ Spotlight
+      </Badge>
+    );
+  }
+
+  if (isBoosted) {
+    return (
+      <Badge className={cn("bg-gradient-to-r from-sky-600 to-blue-700 text-white", badgeClasses)}>
+        🚀 Boosted
+      </Badge>
+    );
+  }
+
+  return null;
+}
+
+export function AdCardPriceDisplay({ price, className }: { price: number; className?: string }) {
+  return (
+    <div className={cn("font-bold text-green-600", className)}>
+      {price === 0 ? "Free" : formatPrice(price)}
+    </div>
+  );
 }

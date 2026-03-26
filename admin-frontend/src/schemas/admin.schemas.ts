@@ -37,3 +37,11 @@ export const adminModelSchema = z.object({
     categoryIds: z.array(ObjectIdSchema).min(1, 'At least one category is required'),
     status: z.enum(['live', 'pending', 'rejected']).optional()
 });
+
+export const adminLocationSchema = z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name is too long'),
+    level: z.enum(['state', 'city', 'area']),
+    parentId: ObjectIdSchema.optional().nullable(),
+    longitude: z.string().refine(v => !isNaN(parseFloat(v)), 'Invalid longitude'),
+    latitude: z.string().refine(v => !isNaN(parseFloat(v)), 'Invalid latitude'),
+});

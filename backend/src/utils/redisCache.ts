@@ -386,7 +386,7 @@ export const invalidatePublicAdCache = async (
 
 export const invalidateLocationCaches = async (): Promise<void> => {
     await Promise.all([
-        clearCachePattern(`${CACHE_NAMESPACES.LOCATION}:popular:cities`),
+        delCache(CACHE_KEYS.POPULAR_CITIES),
         clearCachePattern(`${CACHE_NAMESPACES.LOCATION}:search:city:*`)
     ]);
 };

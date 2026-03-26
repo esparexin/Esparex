@@ -85,17 +85,7 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
     const [rejectSubmitting, setRejectSubmitting] = useState(false);
 
     const resolveActionErrorMessage = (actionError: unknown, fallbackMessage: string): string => {
-        if (actionError instanceof AdminApiError) {
-            const payload = actionError.payload as {
-                error?: string;
-                message?: string;
-                code?: string;
-                details?: { message?: string };
-            };
-            const detailMessage = typeof payload.details?.message === "string" ? payload.details.message : undefined;
-            return payload.error || payload.message || detailMessage || fallbackMessage;
-        }
-        return actionError instanceof Error ? actionError.message : fallbackMessage;
+        return AdminApiError.resolveMessage(actionError, fallbackMessage);
     };
 
     useEffect(() => {

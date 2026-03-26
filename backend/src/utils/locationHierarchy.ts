@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
 import Location from '../models/Location';
-import { escapeRegExp } from './stringUtils';
+import { escapeRegExp, toTitleCase } from './stringUtils';
 import { LOCATION_LEVELS, type LocationLevel } from './locationInputNormalizer';
+import { toObjectId } from './idUtils';
+import { buildHierarchyPath } from './locationHierarchyUtils';
+export { buildHierarchyPath };
 import logger from './logger';
 
 export const HIERARCHY_LEVELS = LOCATION_LEVELS;
@@ -140,15 +143,6 @@ export const normalizeStateLabel = (value: unknown): string => {
     return 'Unknown';
 };
 
-const toTitleCase = (value?: string): string => {
-    if (!value) return '';
-    return value
-        .split(' ')
-        .filter(Boolean)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-        .join(' ');
-};
-
 const toExactRegex = (value: string): RegExp =>
     new RegExp(`^${escapeRegExp(value)}$`, 'i');
 
@@ -160,44 +154,9 @@ export const normalizeHierarchyLevel = (value: unknown): HierarchyLevel | undefi
         : undefined;
 };
 
-const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
-    if (!value) return null;
-    if (value instanceof mongoose.Types.ObjectId) return value;
-    if (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value)) {
-        return new mongoose.Types.ObjectId(value);
-    }
-    if (
-        typeof value === 'object' &&
-        typeof (value as { toString?: () => string }).toString === 'function'
-    ) {
-        const maybeId = (value as { toString: () => string }).toString();
-        if (mongoose.Types.ObjectId.isValid(maybeId)) {
-            return new mongoose.Types.ObjectId(maybeId);
-        }
-    }
-    return null;
-};
 
-export const buildHierarchyPath = (
-    selfId: mongoose.Types.ObjectId,
-    parent?: Pick<HierarchyLocationNode, '_id' | 'path'> | null
-): mongoose.Types.ObjectId[] => {
-    const chain = Array.isArray(parent?.path) && parent.path.length > 0
-        ? [...parent.path, selfId]
-        : parent?._id
-            ? [parent._id, selfId]
-            : [selfId];
 
-    const deduped: mongoose.Types.ObjectId[] = [];
-    const seen = new Set<string>();
-    for (const item of chain) {
-        const key = String(item);
-        if (seen.has(key)) continue;
-        seen.add(key);
-        deduped.push(item);
-    }
-    return deduped;
-};
+
 
 export const resolveParentLocation = async (params: {
     level?: unknown;

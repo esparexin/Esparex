@@ -146,7 +146,7 @@ const callOpenAIWithMessages = async (
 
         if (!response.ok) {
             const err = await response.text();
-            logger.error('OpenAI API Error:', response.status, err);
+            logger.error('OpenAI API Error:', { status: response.status, error: err });
             return {
                 ok: false,
                 status: response.status,

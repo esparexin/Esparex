@@ -14,6 +14,7 @@ import { processImages } from '../utils/imageProcessor';
 import { sanitizeStoredImageUrls } from '../utils/s3';
 import { INVENTORY_STATUS } from '../../../shared/enums/inventoryStatus';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
+import { getAndVerifyOwnedListing } from '../utils/controllerUtils';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../shared/schemas/sparePartPayload.schema';
 import * as adService from '../services/AdService';
@@ -27,16 +28,7 @@ import { getSingleParam } from '../utils/requestParams';
 import type { ApiResponse, ContactResponse } from '../../../shared/types/Api';
 import { ListingMutationService } from '../services/ListingMutationService';
 
-// --------------- local helpers ---------------
-const normalizeImageTokens = (value: unknown): string[] => {
-    if (!Array.isArray(value)) return [];
-    return value
-        .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
-        .filter((entry) => entry.length > 0);
-};
-
-const toImageUrls = (value: Array<{ url: string; hash: string }>): string[] =>
-    sanitizeStoredImageUrls(value.map((item) => item.url));
+import { normalizeImageTokens, toImageUrls } from '../utils/listingUtils';
 // ---------------------------------------------
 
 // Schemas imported from shared — single source of truth with frontend
@@ -190,8 +182,6 @@ export const getSparePartListings = async (req: Request, res: Response) => {
     }
 };
 
-
-
 /**
  * Get My Spare Part Listings (Authenticated Business)
  * GET /api/v1/spare-parts/my-listings
@@ -205,8 +195,6 @@ export const getMySparePartListings = async (req: Request, res: Response) => {
         const { status } = req.query;
 
         // Query by sellerId (canonical owner field, works for all users).
-        // businessId is not used here — owners must always be able to see
-        // their own listings regardless of current business approval status.
         const query: Record<string, unknown> = {
             sellerId: req.user._id,
             listingType: LISTING_TYPE.SPARE_PART,
@@ -238,17 +226,13 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
             return sendContractErrorResponse(req, res, 401, 'Business not found');
         }
 
-        const listingId = req.params.id as string;
-        const listing = await AdModel.findOne({
-            _id: listingId,
+        const listing = await getAndVerifyOwnedListing(req, res, {
             listingType: LISTING_TYPE.SPARE_PART,
-            businessId: businessId,
-            isDeleted: false,
+            errorMessage: 'Spare part listing not found or access denied'
         });
+        if (!listing) return;
 
-        if (!listing) {
-            return sendContractErrorResponse(req, res, 404, 'Spare part listing not found or access denied');
-        }
+        const listingId = listing._id.toString();
 
         const parsed = sparePartListingUpdateSchema.safeParse(req.body);
         if (!parsed.success) {
@@ -277,7 +261,6 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
         await listing.save();
 
         // 🛡️ Governance: if the listing was LIVE or REJECTED, route status back to PENDING
-        // so admin re-reviews the updated content. Mirrors serviceMutationController.updateService().
         let finalData: unknown = listing;
         const prevStatus = listing.status;
         if (prevStatus === INVENTORY_STATUS.LIVE || prevStatus === INVENTORY_STATUS.REJECTED) {
@@ -290,7 +273,6 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
                     reason: 'Seller edited listing — re-review required'
                 });
             } catch {
-                // Keep edit success response based on persisted listing update.
                 finalData = listing;
             }
         }
@@ -307,22 +289,11 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
  */
 export const deleteSparePartListing = async (req: Request, res: Response) => {
     try {
-        if (!req.user) {
-            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
-        }
-
-        const listingId = req.params.id as string;
-        // Ownership enforced via sellerId — no business approval required to delete own listing
-        const listing = await AdModel.findOne({
-            _id: listingId,
+        const listing = await getAndVerifyOwnedListing(req, res, {
             listingType: LISTING_TYPE.SPARE_PART,
-            sellerId: req.user._id,
-            isDeleted: false,
+            errorMessage: 'Spare part listing not found or access denied'
         });
-
-        if (!listing) {
-            return sendContractErrorResponse(req, res, 404, 'Spare part listing not found or access denied');
-        }
+        if (!listing) return;
 
         await listing.softDelete();
         res.status(200).json({ success: true, data: null, message: 'Spare part listing deleted.' });
@@ -337,21 +308,14 @@ export const deleteSparePartListing = async (req: Request, res: Response) => {
  */
 export const deactivateSparePartListing = async (req: Request, res: Response) => {
     try {
-        if (!req.user) {
-            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
-        }
-
-        const listingId = req.params.id as string;
-        const listing = await AdModel.findOne({
-            _id: listingId,
+        const listing = await getAndVerifyOwnedListing(req, res, {
             listingType: LISTING_TYPE.SPARE_PART,
-            sellerId: req.user._id,
-            isDeleted: false,
-        }).select('status');
+            errorMessage: 'Spare part listing not found or access denied',
+            select: 'status'
+        });
+        if (!listing) return;
 
-        if (!listing) {
-            return sendContractErrorResponse(req, res, 404, 'Spare part listing not found or access denied');
-        }
+        const listingId = listing._id.toString();
 
         const updated = await mutateStatus({
             domain: 'spare_part_listing',
@@ -373,23 +337,16 @@ export const deactivateSparePartListing = async (req: Request, res: Response) =>
  */
 export const repostSparePartListing = async (req: Request, res: Response) => {
     try {
-        if (!req.user) {
-            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
-        }
-
-        const listingId = req.params.id as string;
-        const listing = await AdModel.findOne({
-            _id: listingId,
+        const listing = await getAndVerifyOwnedListing(req, res, {
             listingType: LISTING_TYPE.SPARE_PART,
-            sellerId: req.user._id,
-            isDeleted: false,
-        }).select('status');
+            errorMessage: 'Spare part listing not found or access denied',
+            select: 'status'
+        });
+        if (!listing) return;
 
-        if (!listing) {
-            return sendContractErrorResponse(req, res, 404, 'Spare part listing not found or access denied');
-        }
+        const listingId = (listing._id || getSingleParam(req, res, 'id')).toString();
 
-        const currentStatus = listing.status as string;
+        const currentStatus = (listing.status || 'unknown') as string;
         if (currentStatus !== AD_STATUS.EXPIRED && currentStatus !== AD_STATUS.REJECTED) {
             return sendContractErrorResponse(req, res, 400, 'Only expired or rejected listings can be reposted');
         }
@@ -418,7 +375,6 @@ export const getSparePartPhone = async (req: Request, res: Response): Promise<vo
             ip: req.ip || req.socket.remoteAddress,
             device: req.headers['user-agent'] as string | undefined
         };
-        // Spare parts live in the Ad collection (listingType: 'spare_part')
         const result = await getSellerPhone(id, 'ad', requesterId, metadata);
         if (!result || result.error) {
             sendContractErrorResponse(req, res, 404, result?.error || 'Phone number not found');

@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { hasValidCoordinateArray } from '@shared/utils/geoUtils';
 import { asString, toTitleCase } from '../services/location/LocationService.helpers';
+import { toObjectId } from './idUtils';
+import { buildHierarchyPath } from './locationHierarchyUtils';
 
 export const LOCATION_LEVELS = ['country', 'state', 'district', 'city', 'area', 'village'] as const;
 export type LocationLevel = (typeof LOCATION_LEVELS)[number];
@@ -77,35 +79,12 @@ export const buildLocationSlug = (...parts: Array<unknown>): string =>
         }
     );
 
-const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
-    const candidate = asString(value);
-    if (!candidate || !mongoose.Types.ObjectId.isValid(candidate)) return null;
-    return new mongoose.Types.ObjectId(candidate);
-};
+
 
 const loadLocationModel = async () => (await import('../models/Location')).default;
 const loadHierarchyUtils = async () => import('./locationHierarchy');
 
-const buildHierarchyPath = (
-    selfId: mongoose.Types.ObjectId,
-    parent?: Pick<{ _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] }, '_id' | 'path'> | null
-): mongoose.Types.ObjectId[] => {
-    const chain = Array.isArray(parent?.path) && parent.path.length > 0
-        ? [...parent.path, selfId]
-        : parent?._id
-            ? [parent._id, selfId]
-            : [selfId];
 
-    const deduped: mongoose.Types.ObjectId[] = [];
-    const seen = new Set<string>();
-    for (const item of chain) {
-        const key = String(item);
-        if (seen.has(key)) continue;
-        seen.add(key);
-        deduped.push(item);
-    }
-    return deduped;
-};
 
 const extractCoordinates = (value: unknown): [number, number] => {
     if (

@@ -1,15 +1,10 @@
 import { Request, Response } from 'express';
 
 import AdminSession from '../../models/AdminSession';
-import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse } from './adminBaseController';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from './adminBaseController';
 import { getSingleParam } from '../../utils/requestParams';
 import { logAdminAction } from '../../utils/adminLogger';
 
-const sendSessionError = (req: Request, res: Response, error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Failed to manage admin sessions';
-    sendErrorResponse(req, res, 500, message);
-};
 
 export const getAdminSessions = async (req: Request, res: Response) => {
     try {
@@ -42,7 +37,7 @@ export const getAdminSessions = async (req: Request, res: Response) => {
 
         sendPaginatedResponse(res, items, total, page, limit);
     } catch (error: unknown) {
-        sendSessionError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -58,7 +53,7 @@ export const revokeAdminSessionById = async (req: Request, res: Response) => {
         );
 
         if (!session) {
-            return sendErrorResponse(req, res, 404, 'Admin session not found');
+            return sendAdminError(req, res, 'Admin session not found', 404);
         }
 
         await logAdminAction(req, 'REVOKE_ADMIN_SESSION', 'Admin', String(session.adminId), {
@@ -68,6 +63,6 @@ export const revokeAdminSessionById = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, session, 'Admin session revoked successfully');
     } catch (error: unknown) {
-        sendSessionError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };

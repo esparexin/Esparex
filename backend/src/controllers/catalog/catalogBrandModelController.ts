@@ -16,84 +16,45 @@ import Brand from '../../models/Brand';
 import Model from '../../models/Model';
 import Ad from '../../models/Ad';
 import SparePart from '../../models/SparePart';
-import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
+import { CATALOG_STATUS, CATALOG_STATUS_VALUES } from '../../../../shared/enums/catalogStatus';
 import { logAdminAction } from '../../utils/adminLogger';
-import { sendSuccessResponse } from '../admin/adminBaseController';
+import { 
+    sendAdminError,
+    sendSuccessResponse 
+} from '../admin/adminBaseController';
 import { escapeRegExp } from '../../utils/stringUtils';
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import {
+    hasAdminAccess,
+    sendCatalogError,
     asModel,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
     validateActiveCategories,
     getActiveCategoryIds,
-    sendValidationError,
-    sendEmptyPublicList,
-    hasAdminAccess,
-    sendCatalogError,
-    isDuplicateKeyError
+    handleCatalogCreate,
+    handleCatalogUpdate,
+    handleCatalogToggleStatus,
+    handleCatalogDelete,
+    handleCatalogReview,
+    isDuplicateKeyError,
+    sendEmptyPublicList
 } from './shared';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { validateBrandSuggestion, validateModelSuggestion } from '../../utils/suggestionValidation';
-import { 
-    brandCreateSchema, 
-    brandUpdateSchema, 
-    modelCreateSchema, 
-    modelUpdateSchema, 
-    rejectionSchema 
+import {
+    brandCreateSchema,
+    brandUpdateSchema,
+    modelCreateSchema,
+    modelUpdateSchema,
+    rejectionSchema
 } from '../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
+import { IBrand } from '../../models/Brand';
+import { IModel } from '../../models/Model';
 
-// Local schemas replaced by centralized catalog.validator.ts
-
-
-const uniqueObjectIds = (ids: Array<string | mongoose.Types.ObjectId>): mongoose.Types.ObjectId[] => {
-    const deduped = new Map<string, mongoose.Types.ObjectId>();
-    for (const id of ids) {
-        const value = typeof id === 'string' ? id : id.toString();
-        if (!mongoose.Types.ObjectId.isValid(value)) continue;
-        if (!deduped.has(value)) {
-            deduped.set(value, new mongoose.Types.ObjectId(value));
-        }
-    }
-    return Array.from(deduped.values());
-};
-
-const findBrandByNameIncludingDeleted = async (name: string) => {
-    const brandRegex = new RegExp(`^${escapeRegExp(name)}$`, 'i');
-    return Brand.findOne({ name: { $regex: brandRegex } }).setOptions({ withDeleted: true });
-};
-
-const approveItem = async (
-    req: Request,
-    res: Response,
-    DocModel: typeof Brand | typeof Model,
-    actionName: string,
-    label: string
-) => {
-    if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-    const doc = await (DocModel as any).findByIdAndUpdate(req.params.id, { status: CATALOG_STATUS.ACTIVE, isActive: true }, { new: true });
-    if (!doc) { sendContractErrorResponse(req, res, 404, `${label} not found`); return; }
-    await logAdminAction(req, actionName as any, label as any, doc._id, { name: (doc as any).name });
-    sendSuccessResponse(res, doc, `${label} approved`);
-};
-
-const rejectItem = async (
-    req: Request,
-    res: Response,
-    DocModel: typeof Brand | typeof Model,
-    actionName: string,
-    label: string
-) => {
-    if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-    const parsed = rejectionSchema.safeParse(req.body);
-    if (!parsed.success) { sendValidationError(req, res, parsed.error); return; }
-    const { reason } = parsed.data;
-    const doc = await (DocModel as any).findByIdAndUpdate(req.params.id, { status: CATALOG_STATUS.REJECTED, isActive: false, rejectionReason: reason }, { new: true });
-    if (!doc) { sendContractErrorResponse(req, res, 404, `${label} not found`); return; }
-    await logAdminAction(req, actionName as any, label as any, doc._id, { name: (doc as any).name, reason });
-    sendSuccessResponse(res, doc, `${label} rejected`);
-};
+// ── Generic CRUD Helpers ───────────────────────────────────────────────────
+// Most brand/model logic now delegated to shared.ts generic handlers.
 
 
 /* ==========================================================
@@ -117,8 +78,7 @@ export const getBrands = async (req: Request, res: Response) => {
 
     // Public view strictly requires categoryId
     if (!isAdminView && !categoryObjectId) {
-        sendContractErrorResponse(req, res, 400, 'categoryId is required');
-        return;
+        return sendAdminError(req, res, 'categoryId is required', 400);
     }
     if (!isAdminView && categoryObjectId) {
         const activeCategoryValidation = await validateActiveCategories([categoryObjectId]);
@@ -156,7 +116,7 @@ export const getBrands = async (req: Request, res: Response) => {
 export const getBrandById = async (req: Request, res: Response) => {
     try {
         const brand = await Brand.findById(req.params.id).populate('categoryIds');
-        if (!brand) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }
+        if (!brand) return sendAdminError(req, res, 'Brand not found', 404);
         sendSuccessResponse(res, brand);
     } catch (error) {
         sendCatalogError(req, res, error);
@@ -167,181 +127,146 @@ export const getBrandById = async (req: Request, res: Response) => {
  * Create new brand
  */
 export const createBrand = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const parsed = brandCreateSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
-        const payload = { ...parsed.data };
-        
-        // Backward compatibility mapping
-        if (!payload.categoryIds && payload.categoryId) {
-            payload.categoryIds = [payload.categoryId];
-        }
-        delete payload.categoryId;
-
-        const incomingCategoryIds = ((payload.categoryIds as string[] | undefined) || []).map(String);
-        const categoryValidation = await validateActiveCategories(incomingCategoryIds);
-        if (!categoryValidation.ok) {
-            sendContractErrorResponse(req, res, 400, 'One or more provided categoryIds are invalid or inactive', {
-                invalidCategoryIds: categoryValidation.invalidCategoryIds
-            });
-            return;
-        }
-
-        const existingBrand = await findBrandByNameIncludingDeleted(String(payload.name));
-        if (existingBrand) {
-            const mergedCategoryIds = uniqueObjectIds([
-                ...(existingBrand.categoryIds || []),
-                ...incomingCategoryIds
-            ]);
-
-            existingBrand.categoryIds = mergedCategoryIds;
-            existingBrand.isDeleted = false;
-            existingBrand.deletedAt = undefined;
-            existingBrand.isActive = payload.isActive ?? true;
-            existingBrand.status = (payload.status as typeof existingBrand.status | undefined) ?? CATALOG_STATUS.ACTIVE;
-            if (payload.rejectionReason !== undefined) {
-                existingBrand.rejectionReason = payload.rejectionReason as string | undefined;
+    return handleCatalogCreate(req, res, asModel<IBrand>(Brand), brandCreateSchema, {
+        auditAction: 'BRAND_CREATE',
+        slugifyName: true,
+        preOp: async (payload) => {
+            // Backward compatibility mapping
+            if (!payload.categoryIds && payload.categoryId) {
+                payload.categoryIds = [payload.categoryId];
             }
-            if (!existingBrand.slug || String(existingBrand.slug).trim().length === 0) {
-                existingBrand.slug = slugify(String(payload.name), { lower: true, strict: true, trim: true }) + '-' + nanoid(5);
+            delete payload.categoryId;
+
+            const categoryValidation = await validateActiveCategories((payload.categoryIds as string[]).map(String));
+            if (!categoryValidation.ok) {
+                throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
             }
-
-            await existingBrand.save();
-
-            sendSuccessResponse(res, existingBrand, 'Brand already existed; categories merged without duplicates');
-            return;
+            return payload;
         }
-
-        const payloadWithSlug = {
-            ...payload,
-            slug: slugify(payload.name as string, { lower: true, strict: true, trim: true }) + '-' + nanoid(5)
-        };
-        const brand = await Brand.create(payloadWithSlug as any);
-        sendSuccessResponse(res, brand, 'Brand created successfully');
-    } catch (error) {
-        if (isDuplicateKeyError(error)) {
-            sendContractErrorResponse(req, res, 409, `"${req.body?.name || 'Brand'}" already exists. Select it from the dropdown.`);
-            return;
-        }
-        sendCatalogError(req, res, error);
-    }
+    });
 };
 
 /**
  * Update existing brand
  */
 export const updateBrand = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const brandId = req.params.id;
-        const oldBrand = await Brand.findById(brandId);
-        if (!oldBrand) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }
-        const parsed = brandUpdateSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
+    return handleCatalogUpdate(req, res, asModel<IBrand>(Brand), brandUpdateSchema, {
+        auditAction: 'BRAND_RENAME',
+        preUpdate: async (id, payload, oldBrand) => {
+            // Backward compatibility mapping
+            if (!payload.categoryIds && payload.categoryId) {
+                payload.categoryIds = [payload.categoryId];
+            }
+            delete payload.categoryId;
+
+            const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : (oldBrand.categoryIds || []).map(String);
+            const categoryValidation = await validateActiveCategories(nextCategoryIds);
+            if (!categoryValidation.ok) {
+                throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
+            }
+            return payload;
         }
-        const payload = { ...parsed.data };
-
-        // Backward compatibility mapping
-        if (!payload.categoryIds && payload.categoryId) {
-            payload.categoryIds = [payload.categoryId];
-        }
-        delete payload.categoryId;
-
-        const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : (oldBrand.categoryIds || []).map(String);
-        const categoryValidation = await validateActiveCategories(nextCategoryIds);
-        if (!categoryValidation.ok) {
-            sendContractErrorResponse(req, res, 400, 'One or more provided categoryIds are invalid or inactive', {
-                invalidCategoryIds: categoryValidation.invalidCategoryIds
-            });
-            return;
-        }
-
-        const updatedBrand = await Brand.findByIdAndUpdate(brandId, payload as any, { new: true, runValidators: true });
-        if (!updatedBrand) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }
-
-        // AUDIT LOG
-        logAdminAction(req, 'BRAND_RENAME', 'Brand', updatedBrand._id, {
-            before: { name: oldBrand.name },
-            after: { name: updatedBrand.name },
-            impacted: { ads: 0, services: 0 }
-        });
-
-        sendSuccessResponse(res, updatedBrand, 'Brand updated successfully');
-    } catch (error) {
-        if (isDuplicateKeyError(error)) {
-            sendContractErrorResponse(req, res, 409, `"${req.body?.name || 'Brand'}" already exists. Select it from the dropdown.`);
-            return;
-        }
-        sendCatalogError(req, res, error);
-    }
+    });
 };
 
 /**
- * Toggle brand active status (auto-flips current isActive — no body required)
+ * Toggle brand active status
  */
 export const toggleBrandStatus = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-
-        const current = await Brand.findById(req.params.id);
-        if (!current) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }
-
-        const isActive = !current.isActive;
-        const updates: Record<string, unknown> = {
-            isActive,
-            status: isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.REJECTED,
-        };
-        if (isActive) updates.rejectionReason = null;
-
-        const brand = await Brand.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
-        if (!brand) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }
-        sendSuccessResponse(res, brand, `Brand ${isActive ? 'activated' : 'deactivated'} successfully`);
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+    return handleCatalogToggleStatus(req, res, asModel<IBrand>(Brand) as any, { auditAction: 'TOGGLE_BRAND_STATUS' });
 };
 
 /**
  * Delete brand (soft delete with dependency check)
  */
 export const deleteBrand = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const brandId = req.params.id;
-        const brand = await Brand.findById(brandId);
-        if (!brand) { sendContractErrorResponse(req, res, 404, 'Brand not found'); return; }
-
+    return handleCatalogDelete(req, res, asModel<IBrand>(Brand) as any, async (id) => {
         const [modelsCount, listingsCount, sparePartsCount] = await Promise.all([
-            Model.countDocuments({ brandId }),
-            Ad.countDocuments({ brandId }),
-            SparePart.countDocuments({ brandId })
+            Model.countDocuments({ brandId: id }),
+            Ad.countDocuments({ brandId: id }),
+            SparePart.countDocuments({ brandId: id })
         ]);
+        return {
+            count: modelsCount + listingsCount + sparePartsCount,
+            details: { models: modelsCount, listings: listingsCount, spareParts: sparePartsCount }
+        };
+    }, { auditAction: 'BRAND_DELETE' });
+};
 
-        const totalDependencies = modelsCount + listingsCount + sparePartsCount;
+/**
+ * Suggest a new brand (User interaction)
+ */
+export const suggestBrand = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user?.id || (req as any).user?._id;
+        if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
 
-        if (totalDependencies > 0) {
-            sendContractErrorResponse(req, res, 409, 'Cannot delete brand', {
-                message: `This brand "${brand.name}" is currently in use and cannot be deleted.`,
-                dependencies: {
-                    models: modelsCount,
-                    listings: listingsCount,
-                    spareParts: sparePartsCount,
-                    total: totalDependencies
-                }
-            });
-            return;
+        const { name, categoryIds } = req.body;
+        const validation = validateBrandSuggestion(name || '');
+        if (!validation.isValid) return sendAdminError(req, res, validation.error || 'Invalid name', 400);
+
+        if (!categoryIds || !mongoose.Types.ObjectId.isValid(categoryIds)) {
+            return sendAdminError(req, res, 'Valid categoryIds is required', 400);
+        }
+        const categoryExists = await Category.exists({ _id: categoryIds, ...ACTIVE_CATEGORY_QUERY });
+        if (!categoryExists) {
+            return sendAdminError(req, res, 'categoryIds must reference an active category', 400);
         }
 
-        await brand.softDelete();
-        sendSuccessResponse(res, null, 'Brand deleted successfully');
+        const cleanName = validation.cleanName;
+
+        // Check for existing active brand
+        const existing = await Brand.findOne({
+            name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
+            status: CATALOG_STATUS.ACTIVE
+        }).lean();
+
+        if (existing) {
+            const typedExisting = existing as { _id: unknown; categoryIds?: unknown };
+            const alreadyHasCategory = String(typedExisting.categoryIds) === categoryIds;
+
+            if (alreadyHasCategory) {
+                // Brand is active and already covers this category — user should select from dropdown
+                return sendAdminError(req, res, `"${cleanName}" already exists in this category. Select it from the dropdown.`, 409);
+            }
+
+            // Brand is already admin-approved in another category.
+            // Under the new taxonomy model, a Brand strictly belongs to ONE category.
+            // If they suggest the same name in a different category, we must create a new record.
+            // Let it fall through to create a new Brand record.
+        }
+
+        // Check for pending from same user
+        const alreadyPending = await Brand.findOne({
+            name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
+            status: CATALOG_STATUS.PENDING,
+            categoryIds: categoryIds,
+            suggestedBy: userId
+        }).lean();
+
+        if (alreadyPending) {
+            return sendAdminError(req, res, 'You already have a pending suggestion for this brand.', 409);
+        }
+
+        const brand = await Brand.create({
+            name: cleanName,
+            slug: slugify(cleanName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
+            categoryIds: [categoryIds],
+            status: CATALOG_STATUS.PENDING,
+            isActive: false,
+            suggestedBy: userId
+        });
+
+        res.status(201).json(respond({
+            success: true,
+            message: 'Brand suggestion submitted for review.',
+            data: brand
+        }));
     } catch (error) {
-        sendCatalogError(req, res, error);
+        if (isDuplicateKeyError(error)) {
+            return sendAdminError(req, res, `"${req.body?.name || 'Brand'}" already exists. Select it from the dropdown.`, 409);
+        }
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -396,7 +321,7 @@ export const getModels = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = {};
     if (brandId) adminQuery.brandId = brandId;
     if (categoryId) {
-        Object.assign(adminQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryId }).build());
+        Object.assign(adminQuery, CategoryQueryBuilder.forSingular().withFilters({ categoryId }).build());
     }
 
     const publicQuery: QueryRecord = {
@@ -407,12 +332,12 @@ export const getModels = async (req: Request, res: Response) => {
         ]
     };
     if (!isAdminView) {
-        publicQuery.categoryIds = { $in: activeCategoryIds };
+        publicQuery.categoryId = { $in: activeCategoryIds };
         publicQuery.brandId = { $in: activeBrandIds };
     }
     if (brandObjectId) publicQuery.brandId = brandObjectId;
     if (categoryObjectId) {
-        Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build());
+        Object.assign(publicQuery, CategoryQueryBuilder.forSingular().withFilters({ categoryId: categoryObjectId }).build());
     }
 
     if (!isAdminView && brandObjectId) {
@@ -444,7 +369,7 @@ export const getModels = async (req: Request, res: Response) => {
 export const getModelById = async (req: Request, res: Response) => {
     try {
         const model = await Model.findById(req.params.id).populate('brandId categoryIds');
-        if (!model) { sendContractErrorResponse(req, res, 404, 'Model not found'); return; }
+        if (!model) return sendAdminError(req, res, 'Model not found', 404);
         sendSuccessResponse(res, model);
     } catch (error) {
         sendCatalogError(req, res, error);
@@ -455,157 +380,157 @@ export const getModelById = async (req: Request, res: Response) => {
  * Create new model
  */
 export const createModel = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const parsed = modelCreateSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
-        const payload: any = { ...parsed.data };
-        
-        // Auto-derive categoryId if missing
-        if (!payload.categoryId) {
-            const derivedIds = await CatalogOrchestrator.resolveCategoryIdsFromBrand(payload.brandId);
-            const derivedId = derivedIds[0];
-            if (!derivedId) {
-                sendContractErrorResponse(req, res, 400, 'Invalid brandId: cannot resolve parent category');
-                return;
+    return handleCatalogCreate(req, res, asModel<IModel>(Model), modelCreateSchema, {
+        auditAction: 'MODEL_CREATE',
+        preOp: async (payload) => {
+            // Auto-derive categoryId if missing
+            if (!payload.categoryId) {
+                const derivedId = await CatalogOrchestrator.resolveCategoryIdFromBrand(payload.brandId);
+                if (!derivedId) throw new Error('Invalid brandId: cannot resolve parent category');
+                payload.categoryId = derivedId.toString();
             }
-            payload.categoryId = derivedId;
-        }
 
-        // Sync categoryId <-> categoryIds for transition period
-        if (payload.categoryId && (!payload.categoryIds || payload.categoryIds.length === 0)) {
-            payload.categoryIds = [payload.categoryId];
-        } else if (payload.categoryIds && payload.categoryIds.length > 0 && !payload.categoryId) {
-            payload.categoryId = payload.categoryIds[0];
-        }
+            // Sync categoryId <-> categoryIds
+            if (payload.categoryId && (!payload.categoryIds || payload.categoryIds.length === 0)) {
+                payload.categoryIds = [payload.categoryId];
+            } else if (payload.categoryIds && payload.categoryIds.length > 0 && !payload.categoryId) {
+                payload.categoryId = payload.categoryIds[0];
+            }
 
-        const brandActive = await Brand.exists({ _id: payload.brandId, isActive: true, isDeleted: { $ne: true } });
-        if (!brandActive) {
-            sendContractErrorResponse(req, res, 400, 'brandId must reference an active, non-deleted brand');
-            return;
+            const brandActive = await Brand.exists({ _id: payload.brandId, isActive: true, isDeleted: { $ne: true } });
+            if (!brandActive) throw new Error('brandId must reference an active, non-deleted brand');
+            
+            return payload;
         }
-        const model = await Model.create(payload as any);
-        sendSuccessResponse(res, model, 'Model created successfully');
-    } catch (error) {
-        if (isDuplicateKeyError(error)) {
-            sendContractErrorResponse(req, res, 409, `"${req.body?.name || 'Model'}" already exists. Select it from the dropdown.`);
-            return;
-        }
-        sendCatalogError(req, res, error);
-    }
+    });
 };
 
 /**
  * Update existing model
  */
 export const updateModel = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const modelId = req.params.id;
-        const oldModel = await Model.findById(modelId);
-        if (!oldModel) { sendContractErrorResponse(req, res, 404, 'Model not found'); return; }
-
-        const parsed = modelUpdateSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
-        const payload = parsed.data;
-        if (payload.brandId) {
-            const brandActive = await Brand.exists({ _id: payload.brandId, isActive: true, isDeleted: { $ne: true } });
-            if (!brandActive) {
-                sendContractErrorResponse(req, res, 400, 'brandId must reference an active, non-deleted brand');
-                return;
+    return handleCatalogUpdate(req, res, asModel<IModel>(Model), modelUpdateSchema, {
+        auditAction: 'MODEL_RENAME',
+        preUpdate: async (id, payload) => {
+            if (payload.brandId) {
+                const brandActive = await Brand.exists({ _id: payload.brandId, isActive: true, isDeleted: { $ne: true } });
+                if (!brandActive) throw new Error('brandId must reference an active, non-deleted brand');
             }
+            // Sync categoryId <-> categoryIds
+            if (payload.categoryId && (!payload.categoryIds || payload.categoryIds.length === 0)) {
+                payload.categoryIds = [payload.categoryId];
+            } else if (payload.categoryIds && payload.categoryIds.length > 0) {
+                payload.categoryId = payload.categoryIds[0];
+            }
+            return payload;
         }
-
-        // Sync categoryId <-> categoryIds for transition period
-        if (payload.categoryId && (!payload.categoryIds || payload.categoryIds.length === 0)) {
-            (payload as any).categoryIds = [payload.categoryId];
-        } else if (payload.categoryIds && payload.categoryIds.length > 0) {
-            (payload as any).categoryId = payload.categoryIds[0];
-        }
-
-        const updatedModel = await Model.findByIdAndUpdate(modelId, payload as any, { new: true, runValidators: true });
-        if (!updatedModel) { sendContractErrorResponse(req, res, 404, 'Model not found'); return; }
-
-        // AUDIT LOG
-        logAdminAction(req, 'MODEL_RENAME', 'Model', updatedModel._id, {
-            before: { name: oldModel.name },
-            after: { name: updatedModel.name },
-            impacted: { ads: 0, services: 0 }
-        });
-        sendSuccessResponse(res, updatedModel, 'Model updated successfully');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+    });
 };
 
 /**
  * Delete model (soft delete with dependency check)
  */
 export const deleteModel = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const modelId = req.params.id;
-        const model = await Model.findById(modelId);
-        if (!model) { sendContractErrorResponse(req, res, 404, 'Model not found'); return; }
-
+    return handleCatalogDelete(req, res, asModel<IModel>(Model) as any, async (id) => {
         const [listingsCount, sparePartsCount] = await Promise.all([
-            Ad.countDocuments({ modelId }),
-            SparePart.countDocuments({ modelId })
+            Ad.countDocuments({ modelId: id }),
+            SparePart.countDocuments({ modelId: id })
         ]);
-
-        const totalDependencies = listingsCount + sparePartsCount;
-
-        if (totalDependencies > 0) {
-            sendContractErrorResponse(req, res, 409, 'Cannot delete model', {
-                message: `This model "${model.name}" is currently in use and cannot be deleted.`,
-                dependencies: {
-                    listings: listingsCount,
-                    spareParts: sparePartsCount,
-                    total: totalDependencies
-                }
-            });
-            return;
-        }
-
-        await model.softDelete();
-        sendSuccessResponse(res, null, 'Model deleted successfully');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+        return {
+            count: listingsCount + sparePartsCount,
+            details: { listings: listingsCount, spareParts: sparePartsCount }
+        };
+    }, { auditAction: 'MODEL_DELETE' });
 };
-
 
 /**
  * Approve pending brand
  */
-export const approveBrand = async (req: Request, res: Response) => {
-    try {
-        await approveItem(req, res, Brand, 'APPROVE_BRAND', 'Brand');
-    } catch (error) { sendCatalogError(req, res, error); }
-};
+export const approveBrand = (req: Request, res: Response) => 
+    handleCatalogReview(req, res, asModel<IBrand>(Brand), 'APPROVE', undefined, { auditAction: 'APPROVE_BRAND' });
 
-export const rejectBrand = async (req: Request, res: Response) => {
-    try {
-        await rejectItem(req, res, Brand, 'REJECT_BRAND', 'Brand');
-    } catch (error) { sendCatalogError(req, res, error); }
-};
+/**
+ * Reject pending brand
+ */
+export const rejectBrand = (req: Request, res: Response) => 
+    handleCatalogReview(req, res, asModel<IBrand>(Brand), 'REJECT', rejectionSchema, { auditAction: 'REJECT_BRAND' });
 
-export const approveModel = async (req: Request, res: Response) => {
-    try {
-        await approveItem(req, res, Model, 'APPROVE_MODEL', 'Model');
-    } catch (error) { sendCatalogError(req, res, error); }
-};
+/**
+ * Approve pending model
+ */
+export const approveModel = (req: Request, res: Response) => 
+    handleCatalogReview(req, res, asModel<IModel>(Model), 'APPROVE', undefined, { auditAction: 'APPROVE_MODEL' });
 
-export const rejectModel = async (req: Request, res: Response) => {
+/**
+ * Reject pending model
+ */
+export const rejectModel = (req: Request, res: Response) => 
+    handleCatalogReview(req, res, asModel<IModel>(Model), 'REJECT', rejectionSchema, { auditAction: 'REJECT_MODEL' });
+
+/**
+ * Suggest a new model (User interaction)
+ */
+export const suggestModel = async (req: Request, res: Response) => {
     try {
-        await rejectItem(req, res, Model, 'REJECT_MODEL', 'Model');
-    } catch (error) { sendCatalogError(req, res, error); }
+        const userId = (req as any).user?.id || (req as any).user?._id;
+        if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
+
+        const { name, brandId } = req.body;
+        const validation = validateModelSuggestion(name || '');
+        if (!validation.isValid) return sendAdminError(req, res, validation.error || 'Invalid name', 400);
+
+        if (!brandId || !mongoose.Types.ObjectId.isValid(brandId)) {
+            return sendAdminError(req, res, 'Valid brandId is required', 400);
+        }
+
+        const brandActive = await Brand.exists({ _id: brandId, isActive: true, isDeleted: { $ne: true } });
+        if (!brandActive) {
+            return sendAdminError(req, res, 'brandId must reference an active brand', 400);
+        }
+
+        const cleanName = validation.cleanName;
+
+        // Existing check
+        const existing = await Model.findOne({
+            name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
+            brandId,
+            status: CATALOG_STATUS.ACTIVE
+        }).lean();
+
+        if (existing) {
+            return sendAdminError(req, res, `"${cleanName}" already exists. Select it from the dropdown.`, 409);
+        }
+
+        const alreadyPending = await Model.findOne({
+            name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
+            status: CATALOG_STATUS.PENDING,
+            brandId,
+            suggestedBy: userId
+        }).lean();
+
+        if (alreadyPending) {
+            return sendAdminError(req, res, 'You already have a pending suggestion for this model.', 409);
+        }
+
+        const model = await Model.create({
+            name: cleanName,
+            brandId,
+            status: CATALOG_STATUS.PENDING,
+            isActive: false,
+            suggestedBy: userId
+        });
+
+        res.status(201).json(respond({
+            success: true,
+            message: 'Model suggestion submitted for review.',
+            data: model
+        }));
+    } catch (error) {
+        if (isDuplicateKeyError(error)) {
+            return sendAdminError(req, res, `"${req.body?.name || 'Model'}" already exists. Select it from the dropdown.`, 409);
+        }
+        return sendAdminError(req, res, error);
+    }
 };
 
 /**
@@ -617,20 +542,18 @@ export const ensureModel = async (req: Request, res: Response) => {
         const userId = (req as any).user?.id || (req as any).user?._id;
 
         if (!categoryId || !brandName || !modelName) {
-            sendContractErrorResponse(req, res, 400, 'Missing fields');
-            return;
+            return sendAdminError(req, res, 'Missing fields', 400);
         }
         const categoryActive = await Category.exists({ _id: categoryId, ...ACTIVE_CATEGORY_QUERY });
         if (!categoryActive) {
-            sendContractErrorResponse(req, res, 400, 'categoryId must reference an active category');
-            return;
+            return sendAdminError(req, res, 'categoryId must reference an active category', 400);
         }
 
         // Optimistically search for Brand and any Model with that name under it
         const brandRegex = new RegExp(`^${escapeRegExp(brandName)}$`, 'i');
         const modelRegex = new RegExp(`^${escapeRegExp(modelName)}$`, 'i');
 
-        let brand = await Brand.findOne({ name: { $regex: brandRegex } }).setOptions({ withDeleted: true });
+        let brand = await Brand.findOne({ name: { $regex: brandRegex }, categoryIds: categoryId });
         if (!brand) {
             const brandVal = validateBrandSuggestion(brandName);
             brand = await Brand.create({
@@ -641,14 +564,6 @@ export const ensureModel = async (req: Request, res: Response) => {
                 status: CATALOG_STATUS.PENDING,
                 suggestedBy: userId
             });
-        } else {
-            const mergedCategoryIds = uniqueObjectIds([...(brand.categoryIds || []), categoryId]);
-            brand.categoryIds = mergedCategoryIds;
-            if (brand.isDeleted) {
-                brand.isDeleted = false;
-                brand.deletedAt = undefined;
-            }
-            await brand.save();
         }
 
         const brandId = String(brand._id);

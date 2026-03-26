@@ -5,6 +5,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { io, Socket } from 'socket.io-client';
 import { queryKeys } from "@/hooks/queries/queryKeys";
 
+import { API_V1_BASE_PATH, DEFAULT_LOCAL_API_ORIGIN } from '@/lib/api/routes';
+
 interface InboxUpdatedPayload {
     userId: string;
     version: number;
@@ -19,7 +21,7 @@ interface UseNotificationSyncOptions {
 // Derive the socket server origin from the API URL env var.
 // The API lives at http://host:port/api/v1 — socket.io is at http://host:port
 const SOCKET_ORIGIN = (() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5001/api/v1';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
     try {
         const u = new URL(apiUrl);
         return `${u.protocol}//${u.host}`;

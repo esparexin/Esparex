@@ -9,17 +9,15 @@ import { logAdminAction } from '../../utils/adminLogger';
 import slugify from 'slugify';
 import { escapeRegExp } from '../../utils/stringUtils';
 import logger from '../../utils/logger';
-import { sendErrorResponse } from '../../utils/errorResponse';
 import { delCache, getCache, setCache, invalidateLocationCaches } from '../../utils/redisCache';
 import { LOCATION_STATUS } from '../../../../shared/enums/locationStatus';
-// If generic slugify not found, I will create a simple local one.
-
-// Helper for safe JSON responses
-const sendJson = (res: Response, status: number, data: unknown) => {
-    return res.status(status).json(data);
-};
-
-import { respond } from '../../utils/respond';
+import {
+    getPaginationParams,
+    sendPaginatedResponse,
+    sendSuccessResponse,
+    sendAdminError as sendBaseAdminError,
+    respond
+} from './adminBaseController';
 import {
     normalizeLocationResponse,
     toGeoPoint,
@@ -43,13 +41,7 @@ const getErrorCode = (error: unknown): number | undefined => {
     return typeof code === 'number' ? code : undefined;
 };
 
-const sendAdminError = (
-    req: Request,
-    res: Response,
-    status: number,
-    message: string,
-    details?: Record<string, unknown>
-) => sendErrorResponse(req, res, status, message, details ? { details } : undefined);
+// Local helper removed, using sendBaseAdminError directly.
 
 const ADMIN_STATES_CACHE_KEY = 'admin:locations:states';
 const ADMIN_STATES_CACHE_TTL_SECONDS = 300;
@@ -83,7 +75,7 @@ export const createStateLocation = async (req: Request, res: Response) => {
         resolveStringField(req.body?.state);
 
     if (!stateName) {
-        return sendAdminError(req, res, 400, 'State name is required.');
+        return sendBaseAdminError(req, res, 'State name is required.', 400);
     }
 
     req.body = {
@@ -108,10 +100,10 @@ export const createCityLocation = async (req: Request, res: Response) => {
         resolveStringField(req.body?.name) ||
         resolveStringField(req.body?.city);
 
-    if (!stateId) return sendAdminError(req, res, 400, 'stateId is required.');
-    if (!cityName) return sendAdminError(req, res, 400, 'City name is required.');
+    if (!stateId) return sendBaseAdminError(req, res, 'stateId is required.', 400);
+    if (!cityName) return sendBaseAdminError(req, res, 'City name is required.', 400);
     if (!mongoose.Types.ObjectId.isValid(stateId)) {
-        return sendAdminError(req, res, 400, 'Invalid stateId.');
+        return sendBaseAdminError(req, res, 'Invalid stateId.', 400);
     }
 
     const stateAnchor = await Location.findById(stateId)
@@ -119,7 +111,7 @@ export const createCityLocation = async (req: Request, res: Response) => {
         .lean<CanonicalLocationDoc | null>();
     const stateSummary = await resolveLocationSummary(stateAnchor);
     if (!stateSummary?.state) {
-        return sendAdminError(req, res, 404, 'State not found.');
+        return sendBaseAdminError(req, res, 'State not found.', 404);
     }
 
     req.body = {
@@ -146,10 +138,10 @@ export const createAreaLocation = async (req: Request, res: Response) => {
         resolveStringField(req.body?.name) ||
         resolveStringField(req.body?.area);
 
-    if (!cityId) return sendAdminError(req, res, 400, 'cityId is required.');
-    if (!areaName) return sendAdminError(req, res, 400, 'Area name is required.');
+    if (!cityId) return sendBaseAdminError(req, res, 'cityId is required.', 400);
+    if (!areaName) return sendBaseAdminError(req, res, 'Area name is required.', 400);
     if (!mongoose.Types.ObjectId.isValid(cityId)) {
-        return sendAdminError(req, res, 400, 'Invalid cityId.');
+        return sendBaseAdminError(req, res, 'Invalid cityId.', 400);
     }
 
     const cityAnchor = await Location.findById(cityId)
@@ -157,7 +149,7 @@ export const createAreaLocation = async (req: Request, res: Response) => {
         .lean<CanonicalLocationDoc | null>();
     const citySummary = await resolveLocationSummary(cityAnchor);
     if (!citySummary?.city || !citySummary?.state) {
-        return sendAdminError(req, res, 404, 'City not found.');
+        return sendBaseAdminError(req, res, 'City not found.', 404);
     }
 
     req.body = {
@@ -182,7 +174,7 @@ export const getDistinctStates = async (req: Request, res: Response) => {
     try {
         const cachedStates = await getCache<string[]>(ADMIN_STATES_CACHE_KEY);
         if (Array.isArray(cachedStates)) {
-            return sendJson(res, 200, respond({ success: true, data: cachedStates }));
+            return sendSuccessResponse(res, cachedStates);
         }
 
         const states = await Location.find({ isActive: true, level: 'state' })
@@ -194,12 +186,9 @@ export const getDistinctStates = async (req: Request, res: Response) => {
             .sort((a, b) => a.localeCompare(b));
 
         await setCache(ADMIN_STATES_CACHE_KEY, sorted, ADMIN_STATES_CACHE_TTL_SECONDS);
-        return sendJson(res, 200, respond({ success: true, data: sorted }));
+        return sendSuccessResponse(res, sorted);
     } catch (error: unknown) {
-        logger.error('Error fetching distinct states', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -208,8 +197,7 @@ export const getDistinctStates = async (req: Request, res: Response) => {
  */
 export const getAllLocations = async (req: Request, res: Response) => {
     try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = Math.min(parseInt(req.query.limit as string) || 20, 100); // Cap at 100
+        const { page, limit, skip } = getPaginationParams(req);
         const search = (req.query.search as string | undefined)?.trim();
         const status = req.query.status as string;
         const state = req.query.state as string;
@@ -244,7 +232,7 @@ export const getAllLocations = async (req: Request, res: Response) => {
                 .select('_id name slug city district state country level coordinates isActive isPopular verificationStatus createdAt updatedAt')
                 .lean()
                 .sort({ isPopular: -1, createdAt: -1 })
-                .skip((page - 1) * limit)
+                .skip(skip)
                 .limit(limit);
 
         const totalPromise = (async () => {
@@ -291,24 +279,10 @@ export const getAllLocations = async (req: Request, res: Response) => {
             .map((location) => normalizeLocationResponse(location))
             .filter((location): location is NonNullable<ReturnType<typeof normalizeLocationResponse>> => Boolean(location));
 
-        return sendJson(res, 200, respond({
-            success: true,
-            data: {
-                items,
-                pagination: {
-                    page,
-                    limit,
-                    total,
-                    totalPages: Math.ceil(total / limit)
-                }
-            }
-        }));
+        return sendPaginatedResponse(res, items, total, page, limit);
 
     } catch (error: unknown) {
-        logger.error('Error fetching locations', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -322,11 +296,11 @@ export const createLocation = async (req: Request, res: Response) => {
         // Use locationService to normalize coordinates and detect Null Island
         const coords = normalizeCoordinates({ lat: latitude, lng: longitude });
         if (!coords || (coords.coordinates[0] === 0 && coords.coordinates[1] === 0)) {
-            return sendAdminError(req, res, 400, 'Valid map coordinates are required.');
+            return sendBaseAdminError(req, res, 'Valid map coordinates are required.', 400);
         }
 
         if (!city || !state) {
-            return sendAdminError(req, res, 400, 'City and State are required.');
+            return sendBaseAdminError(req, res, 'City and State are required.', 400);
         }
 
         const districtName = district || name;
@@ -347,13 +321,13 @@ export const createLocation = async (req: Request, res: Response) => {
 
         if (explicitParentId) {
             if (!/^[a-f\d]{24}$/i.test(explicitParentId)) {
-                return sendAdminError(req, res, 400, 'Invalid parentId.');
+                return sendBaseAdminError(req, res, 'Invalid parentId.', 400);
             }
             parentLocation = await Location.findOne({ _id: explicitParentId, isActive: true })
                 .select('_id level path')
                 .lean();
             if (!parentLocation) {
-                return sendAdminError(req, res, 404, 'Parent location not found.');
+                return sendBaseAdminError(req, res, 'Parent location not found.', 404);
             }
         } else {
             parentLocation = await resolveParentLocation({
@@ -377,7 +351,7 @@ export const createLocation = async (req: Request, res: Response) => {
         });
 
         if (existing) {
-            return sendAdminError(req, res, 400, 'Location already exists in this state.');
+            return sendBaseAdminError(req, res, 'Location already exists in this state.', 400);
         }
 
         const locationId = new Location()._id;
@@ -397,17 +371,13 @@ export const createLocation = async (req: Request, res: Response) => {
 
         await invalidateLocationStateCache();
 
-        return sendJson(res, 201, respond({ success: true, data: normalizeLocationResponse(location) }));
+        return sendSuccessResponse(res, normalizeLocationResponse(location));
 
     } catch (error: unknown) {
-        logger.error('Error creating location', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        // Handle Mongoose duplicate key error specifically if needed, likely covered by check above
         if (getErrorCode(error) === 11000) {
-            return sendAdminError(req, res, 400, 'Duplicate location detected.');
+            return sendBaseAdminError(req, res, 'Duplicate location detected.', 400);
         }
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -425,7 +395,7 @@ export const updateLocation = async (req: Request, res: Response) => {
 
         const location = await Location.findById(id);
         if (!location) {
-            return sendAdminError(req, res, 404, 'Location not found');
+            return sendBaseAdminError(req, res, 'Location not found', 404);
         }
 
         if (level) {
@@ -459,11 +429,11 @@ export const updateLocation = async (req: Request, res: Response) => {
             } else {
                 const parentId = resolveStringField(parentIdFromBody);
                 if (!parentId || !/^[a-f\d]{24}$/i.test(parentId)) {
-                    return sendAdminError(req, res, 400, 'Invalid parentId.');
+                    return sendBaseAdminError(req, res, 'Invalid parentId.', 400);
                 }
                 const parentExists = await Location.exists({ _id: parentId, isActive: true });
                 if (!parentExists) {
-                    return sendAdminError(req, res, 404, 'Parent location not found.');
+                    return sendBaseAdminError(req, res, 'Parent location not found.', 404);
                 }
                 location.parentId = parentId as any;
             }
@@ -472,7 +442,7 @@ export const updateLocation = async (req: Request, res: Response) => {
         if (latitude !== undefined && longitude !== undefined) {
             const coords = normalizeCoordinates({ lat: latitude, lng: longitude });
             if (!coords || (coords.coordinates[0] === 0 && coords.coordinates[1] === 0)) {
-                return sendAdminError(req, res, 400, 'Valid map coordinates are required.');
+                return sendBaseAdminError(req, res, 'Valid map coordinates are required.', 400);
             }
             location.coordinates = coords;
         }
@@ -514,13 +484,10 @@ export const updateLocation = async (req: Request, res: Response) => {
         await location.save();
         await invalidateLocationStateCache();
 
-        return sendJson(res, 200, respond({ success: true, data: normalizeLocationResponse(location) }));
+        return sendSuccessResponse(res, normalizeLocationResponse(location));
 
     } catch (error: unknown) {
-        logger.error('Error updating location', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -533,20 +500,17 @@ export const toggleLocationStatus = async (req: Request, res: Response) => {
         const location = await Location.findById(id);
 
         if (!location) {
-            return sendAdminError(req, res, 404, 'Location not found');
+            return sendBaseAdminError(req, res, 'Location not found', 404);
         }
 
         location.isActive = !location.isActive;
         await location.save();
         await invalidateLocationStateCache();
 
-        return sendJson(res, 200, respond({ success: true, data: normalizeLocationResponse(location) }));
+        return sendSuccessResponse(res, normalizeLocationResponse(location));
 
     } catch (error: unknown) {
-        logger.error('Error toggling location status', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -559,20 +523,17 @@ export const togglePopularStatus = async (req: Request, res: Response) => {
         const location = await Location.findById(id);
 
         if (!location) {
-            return sendAdminError(req, res, 404, 'Location not found');
+            return sendBaseAdminError(req, res, 'Location not found', 404);
         }
 
         location.isPopular = !location.isPopular;
         await location.save();
         await invalidateLocationStateCache(); // Popular status affects hierarchy & search caches
 
-        return sendJson(res, 200, respond({ success: true, data: normalizeLocationResponse(location) }));
+        return sendSuccessResponse(res, normalizeLocationResponse(location));
 
     } catch (error: unknown) {
-        logger.error('Error toggling location popular status', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -585,7 +546,7 @@ export const deleteLocation = async (req: Request, res: Response) => {
         const location = await Location.findById(id);
 
         if (!location) {
-            return sendAdminError(req, res, 404, 'Location not found');
+            return sendBaseAdminError(req, res, 'Location not found', 404);
         }
 
         const locationSummary = await resolveLocationSummary(location.toObject());
@@ -611,12 +572,11 @@ export const deleteLocation = async (req: Request, res: Response) => {
         ]);
 
         if (adsCount > 0 || usersCount > 0) {
-            return sendAdminError(
+            return sendBaseAdminError(
                 req,
                 res,
-                409,
                 `Cannot delete location "${locationSummary?.name || location.name}". It is currently used by ${adsCount} ads and ${usersCount} users. Consider deactivating it instead.`,
-                { dependencies: { ads: adsCount, users: usersCount } }
+                409
             );
         }
 
@@ -628,13 +588,10 @@ export const deleteLocation = async (req: Request, res: Response) => {
             state: locationSummary?.state
         });
 
-        return sendJson(res, 200, respond({ success: true, message: 'Location deleted successfully' }));
+        return sendSuccessResponse(res, null, 'Location deleted successfully');
 
     } catch (error: unknown) {
-        logger.error('Error deleting location', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -645,9 +602,9 @@ export const deleteLocation = async (req: Request, res: Response) => {
 export const getGeofences = async (req: Request, res: Response) => {
     try {
         const geofences = await Geofence.find().sort({ createdAt: -1 });
-        return sendJson(res, 200, respond({ success: true, data: geofences }));
-    } catch {
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendSuccessResponse(res, geofences);
+    } catch (error) {
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -655,9 +612,9 @@ export const createGeofence = async (req: Request, res: Response) => {
     try {
         const geofence = await Geofence.create(req.body);
         await logAdminAction(req, 'CREATE_GEOFENCE', 'Geofence', geofence._id.toString(), { name: geofence.name });
-        return sendJson(res, 201, respond({ success: true, data: geofence }));
-    } catch {
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendSuccessResponse(res, geofence);
+    } catch (error) {
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -665,11 +622,11 @@ export const updateGeofence = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const geofence = await Geofence.findByIdAndUpdate(id, req.body, { new: true });
-        if (!geofence) return sendAdminError(req, res, 404, 'Geofence not found');
+        if (!geofence) return sendBaseAdminError(req, res, 'Geofence not found', 404);
         await logAdminAction(req, 'UPDATE_GEOFENCE', 'Geofence', id, { name: geofence.name });
-        return sendJson(res, 200, respond({ success: true, data: geofence }));
-    } catch {
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendSuccessResponse(res, geofence);
+    } catch (error) {
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -677,11 +634,11 @@ export const deleteGeofence = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const geofence = await Geofence.findByIdAndDelete(id);
-        if (!geofence) return sendAdminError(req, res, 404, 'Geofence not found');
+        if (!geofence) return sendBaseAdminError(req, res, 'Geofence not found', 404);
         await logAdminAction(req, 'DELETE_GEOFENCE', 'Geofence', id, { name: geofence.name });
-        return sendJson(res, 200, respond({ success: true, message: 'Geofence deleted' }));
-    } catch {
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendSuccessResponse(res, null, 'Geofence deleted');
+    } catch (error) {
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -706,15 +663,9 @@ export const getModerationQueue = async (req: Request, res: Response) => {
                 .limit(limit)
         ]);
 
-        return sendJson(res, 200, respond({
-            success: true,
-            data: {
-                items: locations,
-                pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
-            }
-        }));
-    } catch {
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendPaginatedResponse(res, locations, total, page, limit);
+    } catch (error) {
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -724,11 +675,11 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
         const { status, reason } = req.body;
 
         if (![LOCATION_STATUS.VERIFIED, LOCATION_STATUS.REJECTED].includes(status)) {
-            return sendAdminError(req, res, 400, 'Invalid status');
+            return sendBaseAdminError(req, res, 'Invalid status', 400);
         }
 
         const location = await Location.findById(id);
-        if (!location) return sendAdminError(req, res, 404, 'Location not found');
+        if (!location) return sendBaseAdminError(req, res, 'Location not found', 404);
         const locationSummary = await resolveLocationSummary(location.toObject());
 
         location.verificationStatus = status;
@@ -763,9 +714,9 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
             });
         }
 
-        return sendJson(res, 200, respond({ success: true, data: location }));
+        return sendSuccessResponse(res, location);
     } catch {
-        return sendAdminError(req, res, 500, 'Internal Server Error');
+        return sendBaseAdminError(req, res, 'Internal Server Error', 500);
     }
 };
 
@@ -783,14 +734,9 @@ export const runLocationPathMigration = async (req: Request, res: Response) => {
         const { runLocationPathMigrationJob } = await import('../../scripts/migrations/migrate_location_path_population_job');
         const result = await runLocationPathMigrationJob({ apply: applyMode });
         await logAdminAction(req, 'LOCATION_PATH_MIGRATION', 'System', 'Location', { applyMode, ...result });
-        return sendJson(res, 200, respond({
-            success: true,
-            message: applyMode ? 'Path migration applied' : 'Dry run complete — pass { apply: true } to persist',
-            data: result,
-        }));
+        return sendSuccessResponse(res, result, applyMode ? 'Path migration applied' : 'Dry run complete — pass { apply: true } to persist');
     } catch (error: unknown) {
-        logger.error('Location path migration failed', { error: error instanceof Error ? error.message : String(error) });
-        return sendAdminError(req, res, 500, 'Location path migration failed');
+        return sendBaseAdminError(req, res, error);
     }
 };
 
@@ -801,14 +747,8 @@ export const refreshLocationStats = async (req: Request, res: Response) => {
             logger.error('Location stats update failed', { error: err instanceof Error ? err.message : String(err) })
         );
         await logAdminAction(req, 'REFRESH_STATS', 'System', 'LocationAnalytics', {});
-        return sendJson(res, 200, respond({
-            success: true,
-            message: 'Location statistics update queued successfully'
-        }));
+        return sendSuccessResponse(res, null, 'Location statistics update queued successfully');
     } catch (error: unknown) {
-        logger.error('Error queueing location stats refresh', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendAdminError(req, res, 500, 'Failed to queue location statistics update');
+        return sendBaseAdminError(req, res, error);
     }
 };

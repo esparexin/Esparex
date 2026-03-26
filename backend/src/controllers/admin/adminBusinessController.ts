@@ -9,9 +9,9 @@ import { createInAppNotification } from '../../services/NotificationService';
 import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
 import { recalculateTrustScore } from '../../services/TrustService';
 import {
-    sendSuccessResponse
+    sendSuccessResponse,
+    sendAdminError
 } from './adminBaseController';
-import { sendErrorResponse } from '../../utils/errorResponse';
 import { normalizeBusinessStatus } from '../../utils/businessStatus';
 
 import { handlePaginatedContent } from '../../utils/contentHandler';
@@ -24,9 +24,19 @@ import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 
-const sendBusinessAdminError = (req: Request, res: Response, error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Admin business operation failed';
-    sendErrorResponse(req, res, 500, message);
+
+const cascadeExpireListings = async (businessId: any, actor: any, reason: string) => {
+    const listings = await AdModel.find({ businessId, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
+    if (listings.length > 0) {
+        await mutateStatuses(listings.map(l => ({
+            domain: (l.listingType === LISTING_TYPE.SERVICE ? LISTING_TYPE.SERVICE : (l.listingType === LISTING_TYPE.SPARE_PART ? 'spare_part_listing' : LISTING_TYPE.AD)) as any,
+            entityId: l._id,
+            toStatus: AD_STATUS.EXPIRED,
+            actor,
+            reason
+        })));
+        logger.info(`Business Cascade: Expired ${listings.length} listings for business ${businessId}`);
+    }
 };
 
 export const getBusinessOverview = async (req: Request, res: Response) => {
@@ -34,7 +44,7 @@ export const getBusinessOverview = async (req: Request, res: Response) => {
         const overview = await adminBusinessService.getBusinessOverview();
         sendSuccessResponse(res, overview);
     } catch (error: unknown) {
-        sendBusinessAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -67,12 +77,11 @@ export const getBusinessAccountById = async (req: Request, res: Response) => {
     try {
         const business = await Business.findById(req.params.id).populate('userId');
         if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
+            return sendAdminError(req, res, 'Business not found', 404);
         }
         sendSuccessResponse(res, business);
     } catch (error: unknown) {
-        sendBusinessAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -81,8 +90,7 @@ export const approveBusinessAccount = async (req: Request, res: Response) => {
         const business = await businessService.approveBusiness(req.params.id as string, (req.user as any)?.id || (req.user as any)?._id);
 
         if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
+            return sendAdminError(req, res, 'Business not found', 404);
         }
 
         const expiresAt = (business as any).expiresAt;
@@ -102,7 +110,7 @@ export const approveBusinessAccount = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, business, 'Business approved successfully');
     } catch (error: unknown) {
-        sendBusinessAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -110,8 +118,7 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
     try {
         const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : '';
         if (!reason) {
-            sendErrorResponse(req, res, 400, 'Rejection reason is required');
-            return;
+            return sendAdminError(req, res, 'Rejection reason is required', 400);
         }
         const business = await businessService.rejectBusiness(
             req.params.id as string, 
@@ -120,8 +127,7 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
         );
 
         if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
+            return sendAdminError(req, res, 'Business not found', 404);
         }
 
         await logAdminAction(req, 'REJECT_BUSINESS', 'Business', req.params.id, { reason });
@@ -137,23 +143,13 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
 
         // 🛑 CASCADE EXPIRY: Use mutateStatuses for governed termination
         const listings = await AdModel.find({ businessId: business._id, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
+        // 🛑 CASCADE EXPIRY: Use shared helper
         const actor: any = { type: ACTOR_TYPE.ADMIN, id: (req.user as any)?.id || (req.user as any)?._id };
-
-        if (listings.length > 0) {
-            await mutateStatuses(listings.map(l => ({
-                domain: (l.listingType === LISTING_TYPE.SERVICE ? LISTING_TYPE.SERVICE : (l.listingType === LISTING_TYPE.SPARE_PART ? 'spare_part_listing' : LISTING_TYPE.AD)) as any,
-                entityId: l._id,
-                toStatus: AD_STATUS.EXPIRED,
-                actor,
-                reason: `Cascaded from business rejection: ${reason}`
-            })));
-        }
-
-        logger.info(`Business Rejection Cascade: Expired ${listings.length} listings for business ${business._id}`);
+        await cascadeExpireListings(business._id, actor, `Cascaded from business rejection: ${reason}`);
 
         sendSuccessResponse(res, business, 'Business rejected');
     } catch (error: unknown) {
-        sendBusinessAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -163,8 +159,7 @@ export const renewBusinessAccount = async (req: Request, res: Response) => {
         const business = await Business.findById(req.params.id);
 
         if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
+            return sendAdminError(req, res, 'Business not found', 404);
         }
 
         const currentExpiry = business.expiresAt || new Date();
@@ -177,8 +172,7 @@ export const renewBusinessAccount = async (req: Request, res: Response) => {
         );
 
         if (!renewedBusiness) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
+            return sendAdminError(req, res, 'Business not found', 404);
         }
 
         // Sync User.businessStatus back to approved so the owner regains access
@@ -200,7 +194,7 @@ export const renewBusinessAccount = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, renewedBusiness, 'Business renewed successfully');
     } catch (error: unknown) {
-        sendBusinessAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -232,8 +226,7 @@ export const updateBusinessStatus = async (req: Request, res: Response) => {
             });
 
             if (!business) {
-                sendErrorResponse(req, res, 404, 'Business not found');
-                return;
+                return sendAdminError(req, res, 'Business not found', 404);
             }
 
             await logAdminAction(req, 'SUSPEND_BUSINESS', 'Business', req.params.id, {
@@ -243,9 +236,9 @@ export const updateBusinessStatus = async (req: Request, res: Response) => {
             return;
         }
 
-        sendErrorResponse(req, res, 400, `Invalid status. Allowed: ${BUSINESS_STATUS.LIVE}, ${BUSINESS_STATUS.REJECTED}, ${BUSINESS_STATUS.SUSPENDED}`);
+        return sendAdminError(req, res, `Invalid status. Allowed: ${BUSINESS_STATUS.LIVE}, ${BUSINESS_STATUS.REJECTED}, ${BUSINESS_STATUS.SUSPENDED}`, 400);
     } catch (error: unknown) {
-        sendBusinessAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -270,8 +263,7 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
             }
         }
         if (Object.keys(patch).length === 0) {
-            sendErrorResponse(req, res, 400, 'No valid fields provided for update');
-            return;
+            return sendAdminError(req, res, 'No valid fields provided for update', 400);
         }
         const business = await Business.findByIdAndUpdate(
             req.params.id,
@@ -279,13 +271,12 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
             { new: true, runValidators: true }
         ).populate('userId');
         if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
+            return sendAdminError(req, res, 'Business not found', 404);
         }
         await logAdminAction(req, 'UPDATE_BUSINESS', 'Business', req.params.id, { patch });
         sendSuccessResponse(res, business, 'Business updated successfully');
     } catch (error: unknown) {
-        sendBusinessAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -293,34 +284,24 @@ export const deleteBusinessAccount = async (req: Request, res: Response) => {
     try {
         const business = await Business.findById(req.params.id);
         if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
+            return sendAdminError(req, res, 'Business not found', 404);
         }
 
         const businessName = business.name;
         const userId = business.userId.toString();
 
-        // Cascade: use mutateStatuses for governed termination
         const listings = await AdModel.find({ businessId: business._id, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
-        const actor: any = { type: ACTOR_TYPE.ADMIN, id: (req.user as any)?.id || (req.user as any)?._id };
 
-        if (listings.length > 0) {
-            await mutateStatuses(listings.map(l => ({
-                domain: (l.listingType === LISTING_TYPE.SERVICE ? LISTING_TYPE.SERVICE : (l.listingType === LISTING_TYPE.SPARE_PART ? 'spare_part_listing' : LISTING_TYPE.AD)) as any,
-                entityId: l._id,
-                toStatus: AD_STATUS.EXPIRED,
-                actor,
-                reason: `Cascaded from business deletion`
-            })));
-        }
+        // Cascade: use shared helper
+        const actor: any = { type: ACTOR_TYPE.ADMIN, id: (req.user as any)?.id || (req.user as any)?._id };
+        await cascadeExpireListings(business._id, actor, `Cascaded from business deletion`);
 
 
         // Soft delete the business
         const deleted = await businessService.softDeleteBusiness(req.params.id as string);
 
         if (!deleted) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
+            return sendAdminError(req, res, 'Business not found', 404);
         }
 
         await logAdminAction(req, 'DELETE_BUSINESS', 'Business', req.params.id, {
@@ -339,6 +320,6 @@ export const deleteBusinessAccount = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, { deleted: true }, 'Business deleted successfully');
     } catch (error: unknown) {
-        sendBusinessAdminError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };

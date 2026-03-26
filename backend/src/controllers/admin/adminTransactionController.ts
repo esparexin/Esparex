@@ -1,8 +1,10 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
-import { sendPaginatedResponse } from '../admin/adminBaseController';
-import { respond } from '../../utils/respond';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { 
+    sendSuccessResponse, 
+    sendAdminError,
+    sendPaginatedResponse 
+} from '../admin/adminBaseController';
 import * as transactionService from '../../services/TransactionService';
 
 /**
@@ -28,8 +30,7 @@ export const getAllTransactions = async (req: Request, res: Response) => {
 
         sendPaginatedResponse(res, data, total, page, limit);
     } catch (error) {
-        logger.error('Error fetching transactions:', error);
-        sendErrorResponse(req, res, 500, 'Failed to fetch transactions');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -39,12 +40,8 @@ export const getAllTransactions = async (req: Request, res: Response) => {
 export const getTransactionStats = async (req: Request, res: Response) => {
     try {
         const stats = await transactionService.getTransactionStats();
-        res.status(200).json(respond({
-            success: true,
-            data: stats
-        }));
+        sendSuccessResponse(res, stats);
     } catch (error) {
-        logger.error('Error fetching transaction stats:', error);
-        sendErrorResponse(req, res, 500, 'Failed to fetch transaction stats');
+        return sendAdminError(req, res, error);
     }
 };

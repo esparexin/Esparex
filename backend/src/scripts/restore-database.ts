@@ -18,25 +18,8 @@ import * as path from 'path';
 import * as readline from 'readline';
 import { env } from '../config/env';
 import logger from '../utils/logger';
+import { parseMongoUri } from '../utils/mongoUtils';
 
-/**
- * Parse MongoDB URI to extract connection details
- */
-function parseMongoUri(uri: string) {
-    try {
-        const url = new URL(uri);
-        const database = url.pathname.substring(1);
-        const host = url.hostname;
-        const port = url.port || '27017';
-        const username = url.username;
-        const password = url.password;
-
-        return { host, port, database, username, password };
-    } catch (error) {
-        logger.error('Failed to parse MongoDB URI', { error: error instanceof Error ? error.message : String(error) });
-        throw new Error('Invalid MongoDB URI');
-    }
-}
 
 /**
  * Ask for user confirmation

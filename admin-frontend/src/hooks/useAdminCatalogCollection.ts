@@ -45,41 +45,10 @@ interface UseAdminCatalogCollectionOptions<
     initialPagination?: Partial<AdminListPagination>;
 }
 
+import { AdminApiError } from "@/lib/api/adminClient";
+
 export function extractAdminApiErrorMessage(error: unknown, fallback: string): string {
-    if (!error || typeof error !== "object") {
-        return fallback;
-    }
-
-    const candidate = error as {
-        message?: unknown;
-        payload?: {
-            message?: unknown;
-            error?: unknown;
-            details?: Array<{ field?: unknown; message?: unknown }>;
-        };
-    };
-
-    const firstDetail = Array.isArray(candidate.payload?.details)
-        ? candidate.payload.details.find((detail) => typeof detail?.message === "string")
-        : null;
-
-    if (firstDetail && typeof firstDetail.message === "string") {
-        return firstDetail.message;
-    }
-
-    if (typeof candidate.payload?.message === "string" && candidate.payload.message.length > 0) {
-        return candidate.payload.message;
-    }
-
-    if (typeof candidate.payload?.error === "string" && candidate.payload.error.length > 0) {
-        return candidate.payload.error;
-    }
-
-    if (typeof candidate.message === "string" && candidate.message.length > 0) {
-        return candidate.message;
-    }
-
-    return fallback;
+    return AdminApiError.resolveMessage(error, fallback);
 }
 
 export function buildAdminListQuery<F extends AdminCollectionFilters>(

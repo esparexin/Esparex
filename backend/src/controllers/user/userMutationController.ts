@@ -12,7 +12,7 @@ import {
   isS3UploadConfigured
 } from '../../utils/s3';
 import { processSingleImage } from '../../utils/imageProcessor';
-import { respond } from '../../utils/respond';
+import { respond, sendSuccessResponse } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { User as SharedUser } from '../../../../shared/types/User';
 import { normalizeLocation } from '../../services/LocationService';
@@ -190,13 +190,8 @@ export const updateMe = async (
       business?._id?.toString()
     );
 
-    const response = respond<ApiResponse<SharedUser>>({
-      success: true,
-      data: responseData,
-      message: 'Profile updated successfully',
-    });
-
-    res.json(response);
+    sendSuccessResponse(res, responseData, 'Profile updated successfully');
+    return;
   } catch (err) {
     next(err);
   }
@@ -226,13 +221,8 @@ export const deleteMe = async (
 
     AuthService.clearUserSession(res);
 
-    const response = respond<ApiResponse<null>>({
-      success: true,
-      data: null,
-      message: 'Account deleted',
-    });
-
-    res.json(response);
+    sendSuccessResponse(res, null, 'Account deleted');
+    return;
   } catch (err) {
     next(err);
   }
@@ -330,15 +320,13 @@ export const uploadFile = async (
       return { ...result, key: `${keyFolder}/${fileName}` };
     })();
 
-    res.json(respond({
-      success: true,
-      data: {
-        url: s3Url,
-        key: key,
-        mimeType: file.mimetype,
-        size: file.size
-      }
-    }));
+    sendSuccessResponse(res, {
+      url: s3Url,
+      key: key,
+      mimeType: file.mimetype,
+      size: file.size
+    });
+    return;
   } catch (err) {
     if (err instanceof Error && err.message === 'UPLOAD_PLACEHOLDER_RESULT') {
       sendErrorResponse(req, res, 502, 'File upload failed. Please retry.');
@@ -386,13 +374,8 @@ export const blockUser = async (
       blockedUserId
     });
 
-    res.json(
-      respond<ApiResponse<{ blockedUserId: string }>>({
-        success: true,
-        data: { blockedUserId },
-        message: 'User blocked successfully'
-      })
-    );
+    sendSuccessResponse(res, { blockedUserId }, 'User blocked successfully');
+    return;
   } catch (err) {
     next(err);
   }
@@ -418,13 +401,8 @@ export const unblockUser = async (
       blockedUserId
     });
 
-    res.json(
-      respond<ApiResponse<{ blockedUserId: string }>>({
-        success: true,
-        data: { blockedUserId },
-        message: 'User unblocked successfully'
-      })
-    );
+    sendSuccessResponse(res, { blockedUserId }, 'User unblocked successfully');
+    return;
   } catch (err) {
     next(err);
   }

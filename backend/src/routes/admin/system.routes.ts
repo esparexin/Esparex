@@ -172,8 +172,8 @@ router.patch('/api-keys/:id/revoke', requirePermission('system:config'), adminMu
 // ============================================
 // NOTIFICATIONS
 // ============================================
-router.post('/notifications/send', adminMutationLimiter, notificationController.sendNotification);
-router.get('/notifications/history', notificationController.getHistory);
+router.post('/notifications/send', requirePermission('content:write'), adminMutationLimiter, notificationController.sendNotification);
+router.get('/notifications/history', requirePermission('content:read'), notificationController.getHistory);
 router.post('/broadcast', requirePermission('content:write'), adminMutationLimiter, notificationController.createBroadcast);
 
 // ============================================
@@ -182,32 +182,32 @@ router.post('/broadcast', requirePermission('content:write'), adminMutationLimit
 // ✅ STATIC
 router.post('/locations/stats/refresh', requirePermission('system:config'), adminMutationLimiter, refreshLocationStats);
 router.post('/locations/migrate-paths', requirePermission('system:config'), adminMutationLimiter, runLocationPathMigration);
-router.get('/locations/states', searchLimiter, getDistinctStates);
-router.get('/locations/moderation', getModerationQueue);
+router.get('/locations/states', requirePermission('system:config'), searchLimiter, getDistinctStates);
+router.get('/locations/moderation', requirePermission('system:config'), getModerationQueue);
 
 // ✅ FILTER / QUERY
-router.get('/locations', getAllLocations);
+router.get('/locations', requirePermission('system:config'), getAllLocations);
 
 // ✅ ACTIONS
-router.post('/locations/states', adminMutationLimiter, createStateLocation);
-router.post('/locations/cities', adminMutationLimiter, createCityLocation);
-router.post('/locations/areas', adminMutationLimiter, createAreaLocation);
-router.post('/locations', adminMutationLimiter, createLocation);
-router.patch('/locations/:id/toggle', validateObjectId, toggleLocationStatus);
-router.patch('/locations/:id/popular', validateObjectId, togglePopularStatus);
-router.post('/locations/:id/verify', adminMutationLimiter, validateObjectId, approveRejectLocation);
+router.post('/locations/states', requirePermission('system:config'), adminMutationLimiter, createStateLocation);
+router.post('/locations/cities', requirePermission('system:config'), adminMutationLimiter, createCityLocation);
+router.post('/locations/areas', requirePermission('system:config'), adminMutationLimiter, createAreaLocation);
+router.post('/locations', requirePermission('system:config'), adminMutationLimiter, createLocation);
+router.patch('/locations/:id/toggle', requirePermission('system:config'), validateObjectId, toggleLocationStatus);
+router.patch('/locations/:id/popular', requirePermission('system:config'), validateObjectId, togglePopularStatus);
+router.post('/locations/:id/verify', requirePermission('system:config'), adminMutationLimiter, validateObjectId, approveRejectLocation);
 
 // ✅ PARAM LAST
-router.put('/locations/:id', adminMutationLimiter, validateObjectId, updateLocation);
-router.delete('/locations/:id', adminMutationLimiter, validateObjectId, deleteLocation);
+router.put('/locations/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, updateLocation);
+router.delete('/locations/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, deleteLocation);
 
 // ============================================
 // GEOFENCES
 // ============================================
-router.get('/geofences', getGeofences);
-router.post('/geofences', adminMutationLimiter, createGeofence);
-router.put('/geofences/:id', adminMutationLimiter, validateObjectId, updateGeofence);
-router.delete('/geofences/:id', adminMutationLimiter, validateObjectId, deleteGeofence);
+router.get('/geofences', requirePermission('system:config'), getGeofences);
+router.post('/geofences', requirePermission('system:config'), adminMutationLimiter, createGeofence);
+router.put('/geofences/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, updateGeofence);
+router.delete('/geofences/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, deleteGeofence);
 
 // ============================================
 // SUPPORT & FEEDBACK
@@ -218,10 +218,10 @@ router.patch('/support/contact/:id/status', adminMutationLimiter, validateObject
 // ============================================
 // SYSTEM HEALTH & CODE HEALTH
 // ============================================
-router.get('/system/health', adminMutationLimiter, systemController.getSystemHealth);
-router.post('/system/scan', adminMutationLimiter, systemController.runSystemScan);
-router.post('/system/fix', adminMutationLimiter, systemController.applySystemFix);
-router.get('/cache/health', adminMutationLimiter, systemController.getCacheHealth);
+router.get('/system/health', requirePermission('system:config'), adminMutationLimiter, systemController.getSystemHealth);
+router.post('/system/scan', requirePermission('system:config'), adminMutationLimiter, systemController.runSystemScan);
+router.post('/system/fix', requirePermission('system:config'), adminMutationLimiter, systemController.applySystemFix);
+router.get('/cache/health', requirePermission('system:config'), adminMutationLimiter, systemController.getCacheHealth);
 
 
 // ============================================

@@ -9,6 +9,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
+import { TraceContext } from '@shared/observability/trace';
 
 /**
  * Extend Express Request to include requestId
@@ -32,25 +33,23 @@ declare module 'express-serve-static-core' {
  * app.use(requestIdMiddleware);
  */
 export function requestIdMiddleware(req: Request, res: Response, next: NextFunction) {
-    // Check if request ID already exists in headers (from load balancer/proxy)
-    // Express lowercases headers in runtime, but tests may provide mixed-case keys.
-    const existingHeaderValue = Object.entries(req.headers).find(
-        ([headerName, headerValue]) =>
-            headerName.toLowerCase() === 'x-request-id' &&
-            (typeof headerValue === 'string' || Array.isArray(headerValue))
-    )?.[1];
-    const existingId = Array.isArray(existingHeaderValue)
-        ? existingHeaderValue[0]
-        : existingHeaderValue;
+    // 🆔 TRACE CORRELATION
+    // Check for x-correlation-id (standardized across stack) or legacy x-request-id
+    const correlationHeader = req.headers['x-correlation-id'] || req.headers['x-request-id'];
+    const correlationId = Array.isArray(correlationHeader) ? correlationHeader[0] : correlationHeader;
 
-    // Use existing ID or generate new one
-    const requestId = existingId || randomUUID();
+    // Use current ID or generate new one
+    const requestId = correlationId || randomUUID();
 
-    // Attach to request
+    // Sync with TraceContext for specialized loggers
+    TraceContext.setCorrelationId(requestId);
+
+    // Attach to request for legacy consumers
     req.requestId = requestId;
 
-    // Add to response headers
+    // Add to response headers for debugging
     res.setHeader('X-Request-ID', requestId);
+    res.setHeader('X-Correlation-ID', requestId);
 
     next();
 }

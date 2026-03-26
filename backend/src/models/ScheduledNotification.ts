@@ -1,8 +1,8 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
+import { NOTIFICATION_BASE_FIELDS } from './NotificationLog';
 import { getAdminConnection } from '../config/db';
-import { applyToJSONTransform } from '../utils/schemaOptions';
 
-export interface IScheduledNotification extends Document {
+export interface IScheduledNotification extends mongoose.Document {
     title: string;
     body: string;
     type: string;
@@ -16,16 +16,24 @@ export interface IScheduledNotification extends Document {
 }
 
 const ScheduledNotificationSchema = new Schema<IScheduledNotification>({
-    title: { type: String, required: true },
-    body: { type: String, required: true },
-    type: { type: String, default: 'info' },
-    targetType: { type: String, enum: ['all', 'users', 'topic'], required: true },
-    targetValue: { type: String },
-    userIds: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    ...NOTIFICATION_BASE_FIELDS,
     sentBy: { type: Schema.Types.ObjectId, ref: 'Admin', required: true },
     sendAt: { type: Date, required: true },
     status: { type: String, enum: ['pending', 'sent', 'failed', 'cancelled'], default: 'pending' },
     createdAt: { type: Date, default: Date.now },
+}, {
+    timestamps: true,
+    toObject: { virtuals: true, versionKey: false },
+    toJSON: {
+        virtuals: true,
+        versionKey: false,
+        transform: function (_doc, ret) {
+            const json = ret as Record<string, any>;
+            json.id = json._id?.toString();
+            delete json._id;
+            return json;
+        }
+    }
 });
 
 /* -------------------------------------------------------------------------- */
@@ -34,8 +42,6 @@ const ScheduledNotificationSchema = new Schema<IScheduledNotification>({
 
 ScheduledNotificationSchema.index({ status: 1, sendAt: 1 }, { name: 'idx_schedulednotification_status_sendAt_idx' });
 ScheduledNotificationSchema.index({ sentBy: 1, createdAt: -1 }, { name: 'idx_schedulednotification_sender_freshness_idx' });
-
-applyToJSONTransform(ScheduledNotificationSchema);
 
 const connection = getAdminConnection();
 const ScheduledNotification: Model<IScheduledNotification> =

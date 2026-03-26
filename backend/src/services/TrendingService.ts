@@ -6,6 +6,7 @@ import { getCache, setCache } from '../utils/redisCache';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import logger from '../utils/logger';
 import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';
+import { toObjectId } from '../utils/idUtils';
 
 type AnalyticsEventType = 'view' | 'favorite';
 
@@ -53,14 +54,7 @@ const resolveTrendingCacheKey = (input: TrendingInput): string => {
     return `trending:${locationSegment}:${categorySegment}`;
 };
 
-const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
-    if (!value) return null;
-    if (value instanceof mongoose.Types.ObjectId) return value;
-    if (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value)) {
-        return new mongoose.Types.ObjectId(value);
-    }
-    return null;
-};
+
 
 const toFiniteNumber = (value: unknown): number => {
     const parsed = Number(value);

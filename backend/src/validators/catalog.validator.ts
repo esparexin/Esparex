@@ -38,22 +38,8 @@ const categoryRefineMsg = {
 // ==========================================
 // CATEGORIES
 // ==========================================
-export const categoryCreateSchema = z.object({
+const categoryBaseSchema = z.object({
     name: z.string().trim().min(1).max(120),
-    slug: z.string().trim().min(1).max(160).optional(),
-    type: z.enum(CATEGORY_TYPES).optional().default('AD'),
-    icon: z.string().trim().max(255).optional(),
-    description: z.string().trim().max(2000).optional(),
-    parentId: objectIdSchema.optional(),
-    isActive: z.boolean().optional(),
-    hasScreenSizes: z.boolean().optional(),
-    listingType: z.array(z.enum(['postad', 'postservice', 'postsparepart'])).optional(),
-    // supportsSpareParts: z.boolean().optional(),
-    filters: z.array(z.unknown()).optional()
-}).strict();
-
-export const categoryUpdateSchema = z.object({
-    name: z.string().trim().min(1).max(120).optional(),
     slug: z.string().trim().min(1).max(160).optional(),
     type: z.enum(CATEGORY_TYPES).optional(),
     icon: z.string().trim().max(255).optional(),
@@ -62,9 +48,17 @@ export const categoryUpdateSchema = z.object({
     isActive: z.boolean().optional(),
     hasScreenSizes: z.boolean().optional(),
     listingType: z.array(z.enum(['postad', 'postservice', 'postsparepart'])).optional(),
-    // supportsSpareParts: z.boolean().optional(),
     filters: z.array(z.unknown()).optional()
-})
+});
+
+export const categoryCreateSchema = categoryBaseSchema
+    .extend({
+        type: z.enum(CATEGORY_TYPES).optional().default('AD'),
+    })
+    .strict();
+
+export const categoryUpdateSchema = categoryBaseSchema
+    .partial()
     .strict()
     .refine((payload) => Object.keys(payload).length > 0, 'At least one field is required');
 

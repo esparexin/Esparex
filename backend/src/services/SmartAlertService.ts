@@ -5,6 +5,7 @@ import { buildGeoNearStage } from '../utils/GeoUtils';
 import AlertDeliveryLog from '../models/AlertDeliveryLog';
 import { getCache, setCache } from '../utils/redisCache';
 import crypto from 'crypto';
+import { toObjectId } from '../utils/idUtils';
 
 interface MatchableAlert {
     _id: Types.ObjectId;
@@ -28,12 +29,7 @@ type AdMatchCriteria = {
     maxPrice?: unknown;
 };
 
-const toObjectId = (value: unknown): Types.ObjectId | null => {
-    if (!value) return null;
-    if (value instanceof Types.ObjectId) return value;
-    if (typeof value === 'string' && Types.ObjectId.isValid(value)) return new Types.ObjectId(value);
-    return null;
-};
+
 
 const toFiniteNumber = (value: unknown): number | undefined => {
     if (typeof value === 'number' && Number.isFinite(value)) return value;

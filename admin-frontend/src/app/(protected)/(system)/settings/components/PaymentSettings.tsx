@@ -1,52 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { SaveButton, SettingsSection, Toggle } from "./shared";
+import { GenericSettingsSection, type SettingsFieldSchema } from "./GenericSettingsSection";
 import type { SectionProps } from "./types";
 
-export function PaymentSettings({ config, saving, onSave }: SectionProps) {
-  const [razorpayEnabled, setRazorpayEnabled] = useState(false);
-  const [stripeEnabled, setStripeEnabled] = useState(false);
+const FIELDS: SettingsFieldSchema[] = [
+  {
+    type: "toggle",
+    label: "Razorpay",
+    description: "Enable Razorpay gateway for marketplace payments.",
+    path: "payment.razorpay.enabled",
+    default: false,
+  },
+  {
+    type: "toggle",
+    label: "Stripe",
+    description: "Enable Stripe gateway for marketplace payments.",
+    path: "payment.stripe.enabled",
+    default: false,
+  },
+];
 
-  useEffect(() => {
-    setRazorpayEnabled(Boolean(config?.integrations?.payment?.razorpay?.enabled ?? false));
-    setStripeEnabled(Boolean(config?.integrations?.payment?.stripe?.enabled ?? false));
-  }, [config]);
-
+export function PaymentSettings(props: SectionProps) {
   return (
-    <SettingsSection
+    <GenericSettingsSection
+      {...props}
       title="Payments"
       description="Enable or disable supported payment gateways."
-      actions={
-        <SaveButton
-          saving={saving}
-          onClick={() =>
-            void onSave(
-              {
-                integrations: {
-                  payment: {
-                    razorpay: { enabled: razorpayEnabled },
-                    stripe: { enabled: stripeEnabled }
-                  }
-                }
-              },
-              "Payment settings updated"
-            )
-          }
-        />
-      }
-    >
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
-          <span className="text-sm font-medium text-slate-900">Razorpay</span>
-          <Toggle checked={razorpayEnabled} onChange={setRazorpayEnabled} />
-        </div>
-        <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
-          <span className="text-sm font-medium text-slate-900">Stripe</span>
-          <Toggle checked={stripeEnabled} onChange={setStripeEnabled} />
-        </div>
-      </div>
-    </SettingsSection>
+      configPath="integrations"
+      successMessage="Payment settings updated"
+      fields={FIELDS}
+    />
   );
 }
 

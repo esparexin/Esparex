@@ -7,20 +7,41 @@
  */
 
 import { Request, Response } from 'express';
-import { Document, Model as MongooseModel } from 'mongoose';
+import mongoose, { Document, Model as MongooseModel } from 'mongoose';
+import { z } from 'zod';
+import slugify from 'slugify';
+import { nanoid } from 'nanoid';
 import Category from '../../models/Category';
+import { respond } from '../../utils/respond';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
-import { CatalogStatusValue } from '../../../../shared/enums/catalogStatus';
-import { ACTIVE_CATEGORY_QUERY } from '../../services/catalog/CatalogValidationService';
-export type { CatalogStatusValue };
+import { 
+    sendAdminError,
+    sendSuccessResponse 
+} from '../admin/adminBaseController';
+import { CatalogStatusValue, CATALOG_STATUS } from '@shared/enums/catalogStatus';
 
 // Re-export SSOT validation helpers so controllers import from one place.
-export {
+import {
     ACTIVE_CATEGORY_QUERY,
     ACTIVE_BRAND_QUERY,
     getActiveCategoryIds,
     validateActiveCategories,
 } from '../../services/catalog/CatalogValidationService';
+
+import { logAdminAction } from '../../utils/adminLogger';
+import { handlePaginatedContent } from '../../utils/contentHandler';
+
+export type { CatalogStatusValue };
+export { 
+    sendAdminError,
+    sendSuccessResponse,
+    CATALOG_STATUS,
+    ACTIVE_CATEGORY_QUERY,
+    ACTIVE_BRAND_QUERY,
+    getActiveCategoryIds,
+    validateActiveCategories,
+    handlePaginatedContent
+};
 
 export type CatalogRequest = Request & {
     user?: { role?: string; id?: string; _id?: string | { toString: () => string } };
@@ -67,8 +88,7 @@ export const isCategoryActive = async (categoryId: string): Promise<boolean> => 
  * Send standardized catalog error response
  */
 export const sendCatalogError = (req: Request, res: Response, error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Catalog operation failed';
-    sendContractErrorResponse(req, res, 500, message);
+    return sendAdminError(req, res, error);
 };
 
 /**
@@ -87,7 +107,6 @@ export const sendValidationError = (req: Request, res: Response, error: { issues
  * Send an empty paginated list response (common for invalid public filters)
  */
 export const sendEmptyPublicList = (res: Response) => {
-    const { respond } = require('../../utils/respond');
     res.status(200).json(respond({
         success: true,
         data: {
@@ -96,6 +115,7 @@ export const sendEmptyPublicList = (res: Response) => {
         }
     }));
 };
+
 /**
  * Check if a mongo error is a duplicate key error
  */
@@ -105,3 +125,235 @@ export const isDuplicateKeyError = (error: unknown): boolean => {
     return candidate.code === 11000 || (typeof candidate.message === 'string' && candidate.message.includes('E11000'));
 };
 
+/* ======================================================
+   GENERIC CATALOG CRUD HANDLERS
+====================================================== */
+
+/**
+ * GENERIC CREATE
+ */
+export async function handleCatalogCreate<T extends Document>(
+    req: Request,
+    res: Response,
+    model: MongooseModel<T>,
+    schema: z.ZodTypeAny,
+    options: {
+        auditAction?: string;
+        slugifyName?: boolean;
+        preOp?: (payload: any) => Promise<any>;
+        postOp?: () => void;
+    } = {}
+) {
+    try {
+        if (!hasAdminAccess(req)) {
+            return sendContractErrorResponse(req, res, 403, 'Admin access required');
+        }
+
+        let payload = req.body;
+        if (options.preOp) {
+            payload = await options.preOp(payload);
+        }
+
+        const parsed = schema.safeParse(payload);
+        if (!parsed.success) {
+            return sendValidationError(req, res, parsed.error);
+        }
+
+        const data = parsed.data;
+        if (options.slugifyName && data.name) {
+            data.slug = slugify(data.name, { lower: true, strict: true }) + '-' + nanoid(6);
+        }
+
+        const item = await model.create(data);
+
+        if (options.postOp) options.postOp();
+
+        if (options.auditAction) {
+            logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any, { data });
+        }
+
+        return sendSuccessResponse(res, item, `${model.modelName} created successfully`);
+    } catch (error) {
+        if (isDuplicateKeyError(error)) {
+            return sendContractErrorResponse(req, res, 400, `${model.modelName} already exists`);
+        }
+        return sendCatalogError(req, res, error);
+    }
+}
+
+/**
+ * GENERIC UPDATE
+ */
+export async function handleCatalogUpdate<T extends Document>(
+    req: Request,
+    res: Response,
+    model: MongooseModel<T>,
+    schema: z.ZodTypeAny,
+    options: {
+        auditAction?: string;
+        slugifyName?: boolean;
+        preUpdate?: (id: string, payload: any, existing: T) => Promise<any>;
+        postOp?: () => void;
+    } = {}
+) {
+    try {
+        if (!hasAdminAccess(req)) {
+            return sendContractErrorResponse(req, res, 403, 'Admin access required');
+        }
+
+        const id = String(req.params.id);
+        const existing = await model.findById(id);
+        if (!existing) {
+            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+        }
+
+        let payload = req.body;
+        if (options.preUpdate) {
+            payload = await options.preUpdate(id, payload, existing);
+        }
+
+        const parsed = schema.safeParse(payload);
+        if (!parsed.success) {
+            return sendValidationError(req, res, parsed.error);
+        }
+
+        const data = parsed.data;
+        if (options.slugifyName && data.name) {
+            data.slug = slugify(data.name, { lower: true, strict: true });
+        }
+
+        const item = await model.findByIdAndUpdate(id, data, { new: true });
+        
+        if (options.postOp) options.postOp();
+
+        if (options.auditAction) {
+            logAdminAction(req, options.auditAction as any, model.modelName as any, item!._id as any, { updates: data });
+        }
+
+        return sendSuccessResponse(res, item, `${model.modelName} updated successfully`);
+    } catch (error) {
+        if (isDuplicateKeyError(error)) {
+            return sendContractErrorResponse(req, res, 400, `${model.modelName} already exists`);
+        }
+        return sendCatalogError(req, res, error);
+    }
+}
+
+/**
+ * GENERIC TOGGLE STATUS
+ */
+export async function handleCatalogToggleStatus<T extends Document>(
+    req: Request,
+    res: Response,
+    model: MongooseModel<T>,
+    options: { auditAction?: string } = {}
+) {
+    try {
+        if (!hasAdminAccess(req)) {
+            return sendContractErrorResponse(req, res, 403, 'Admin access required');
+        }
+
+        const item = await model.findById(req.params.id);
+        if (!item) {
+            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+        }
+
+        const isActive = !(item as any).isActive;
+        const status = isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE;
+
+        await model.findByIdAndUpdate(req.params.id, { isActive, status });
+
+        if (options.auditAction) {
+            logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any, { isActive, status });
+        }
+
+        return sendSuccessResponse(res, { isActive, status }, `${model.modelName} status updated to ${status}`);
+    } catch (error) {
+        return sendCatalogError(req, res, error);
+    }
+}
+
+/**
+ * GENERIC DELETE
+ */
+export async function handleCatalogDelete<T extends Document>(
+    req: Request,
+    res: Response,
+    model: MongooseModel<T>,
+    checkDependencies?: (id: string) => Promise<{ count: number; details: any }>,
+    options: { auditAction?: string } = {}
+) {
+    try {
+        if (!hasAdminAccess(req)) {
+            return sendContractErrorResponse(req, res, 403, 'Admin access required');
+        }
+
+        const id = String(req.params.id);
+
+        if (checkDependencies) {
+            const deps = await checkDependencies(id);
+            if (deps.count > 0) {
+                return sendContractErrorResponse(req, res, 400, `Cannot delete ${model.modelName} with active dependencies`, { details: deps.details });
+            }
+        }
+
+        const item = await model.findByIdAndUpdate(id, { isDeleted: true, status: CATALOG_STATUS.INACTIVE }, { new: true });
+        if (!item) {
+            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+        }
+
+        if (options.auditAction) {
+            logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any);
+        }
+
+        return sendSuccessResponse(res, null, `${model.modelName} deleted successfully`);
+    } catch (error) {
+        return sendCatalogError(req, res, error);
+    }
+}
+
+/**
+ * GENERIC REVIEW (APPROVE/REJECT)
+ */
+export async function handleCatalogReview<T extends Document>(
+    req: Request,
+    res: Response,
+    model: MongooseModel<T>,
+    action: 'APPROVE' | 'REJECT',
+    schema?: z.ZodTypeAny,
+    options: { auditAction?: string } = {}
+) {
+    try {
+        if (!hasAdminAccess(req)) {
+            return sendContractErrorResponse(req, res, 403, 'Admin access required');
+        }
+
+        let updates: any = {};
+        if (action === 'APPROVE') {
+            updates = { status: CATALOG_STATUS.ACTIVE, isActive: true };
+        } else {
+            const parsed = schema?.safeParse(req.body);
+            if (schema && !parsed?.success) {
+                return sendValidationError(req, res, parsed!.error);
+            }
+            updates = {
+                status: CATALOG_STATUS.REJECTED,
+                isActive: false,
+                rejectionReason: parsed?.data?.reason || req.body.reason
+            };
+        }
+
+        const item = await model.findByIdAndUpdate(req.params.id, updates, { new: true });
+        if (!item) {
+            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+        }
+
+        if (options.auditAction) {
+            logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any, { updates });
+        }
+
+        return sendSuccessResponse(res, item as any, `${model.modelName} ${action.toLowerCase()}d successfully`);
+    } catch (error) {
+        return sendCatalogError(req, res, error);
+    }
+}

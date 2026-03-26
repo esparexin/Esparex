@@ -5,7 +5,7 @@
  */
 
 import { Request, Response } from 'express';
-import { respond, sendSuccessResponse } from '../adminBaseController';
+import { sendSuccessResponse, sendAdminError } from '../adminBaseController';
 import { connectDB, getUserConnection, getAdminConnection } from '../../../config/db';
 import logger from '../../../utils/logger';
 import { version as appVersion } from '../../../../package.json';
@@ -16,11 +16,9 @@ import {
     scanKeysByPattern
 } from '../../../utils/redisCache';
 import { getSystemConfigDoc, ensureSystemConfig } from '../../../utils/systemConfigHelper';
-import { sendErrorResponse } from '../../../utils/errorResponse';
 
 const sendHealthError = (req: Request, res: Response, error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Health check failed';
-    sendErrorResponse(req, res, 500, message);
+    sendAdminError(req, res, error);
 };
 
 /**
@@ -52,23 +50,20 @@ export const getSystemHealth = async (req: Request, res: Response) => {
         const dbHealthy = getUserConnection().readyState === 1 && getAdminConnection().readyState === 1;
         const redisHealthy = redisHealth.pingOk && redisHealth.roundTripOk;
         const isHealthy = dbHealthy && redisHealthy;
-        res.status(isHealthy ? 200 : 503).json(respond({
-            success: isHealthy,
-            data: {
-                status: isHealthy ? 'ok' : 'degraded',
-                timestamp: new Date().toISOString(),
-                uptime: Math.floor(process.uptime()),
-                databases: {
-                    user: { status: userDbStatus },
-                    admin: { status: adminDbStatus }
-                },
-                redisConnected: redisHealthy,
-                redisPingLatencyMs: redisHealth.latencyMs,
-                redis: redisHealth,
-                apiReady: true,
-                version: appVersion
-            }
-        }));
+        sendSuccessResponse(res, {
+            status: isHealthy ? 'ok' : 'degraded',
+            timestamp: new Date().toISOString(),
+            uptime: Math.floor(process.uptime()),
+            databases: {
+                user: { status: userDbStatus },
+                admin: { status: adminDbStatus }
+            },
+            redisConnected: redisHealthy,
+            redisPingLatencyMs: redisHealth.latencyMs,
+            redis: redisHealth,
+            apiReady: true,
+            version: appVersion
+        });
     } catch (error: unknown) {
         sendHealthError(req, res, error);
     }
@@ -159,7 +154,7 @@ export const applySystemFix = async (req: Request, res: Response) => {
                 message = `Cleared ${rlDeleted + legacyRlDeleted} rate limit entries`;
                 break;
             default:
-                return sendErrorResponse(req, res, 400, `Unknown system fix action: ${String(action)}`);
+                return sendAdminError(req, res, `Unknown system fix action: ${String(action)}`, 400);
         }
 
         sendSuccessResponse(res, { message });

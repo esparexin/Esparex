@@ -21,6 +21,7 @@ import {
     CatalogActiveCheckboxField,
     CatalogArchivedCategoryNotice,
     CatalogBoundSearchCategoryFilters,
+    CatalogCategoryTags,
     CatalogEntityCell,
     CatalogEditDeleteActionPair,
     CatalogSelectFilter,
@@ -96,25 +97,12 @@ export default function BrandsPage() {
                 },
                 {
                     header: "Categories",
-                    cell: (brand) => {
-                        const brandCats = getEntityCategoryIds(brand);
-                        return (
-                            <div className="flex flex-wrap gap-1 max-w-[200px]">
-                                {brandCats.map(cid => {
-                                    const normalizedCid = normalizeObjectIdLike(cid);
-                                    const cat = categories.find(c => c.id === normalizedCid);
-                                    return (
-                                        <span key={normalizedCid} className="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
-                                            {cat?.name || "Archived"}
-                                        </span>
-                                    );
-                                })}
-                                {brandCats.length === 0 && (
-                                    <span className="text-[10px] text-red-500 font-medium italic">No Category</span>
-                                )}
-                            </div>
-                        );
-                    }
+                    cell: (brand) => (
+                        <CatalogCategoryTags
+                            categoryIds={getEntityCategoryIds(brand)}
+                            categories={categories}
+                        />
+                    )
                 },
                 {
                     header: "Status",

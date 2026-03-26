@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Ad from '../models/Ad';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import logger from '../utils/logger';
+import { toObjectId } from '../utils/idUtils';
 
 type ReputationSummary = {
     score: number;
@@ -13,13 +14,7 @@ const EMPTY_SIGNALS: ReputationSummary = {
     adsPosted: 0
 };
 
-const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
-    if (value instanceof mongoose.Types.ObjectId) return value;
-    if (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value)) {
-        return new mongoose.Types.ObjectId(value);
-    }
-    return null;
-};
+
 
 const logDeprecatedSignal = (signal: string, userIdInput: string | mongoose.Types.ObjectId): void => {
     logger.debug('Deprecated seller reputation signal ignored', {

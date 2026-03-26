@@ -5,6 +5,7 @@ import { notificationMatchQueue } from '../queues/adQueue';
 import { createInAppNotification } from './NotificationService';
 import redisClient from '../config/redis';
 import logger from '../utils/logger';
+import { toObjectId } from '../utils/idUtils';
 import type { SavedSearchCreatePayload } from '../../../shared/schemas/savedSearch.schema';
 
 type SavedSearchRecord = {
@@ -40,12 +41,7 @@ const USER_ALERT_RATE_KEY_PREFIX = 'saved-search-alerts:rate';
 const USER_AD_DEDUPE_KEY_PREFIX = 'saved-search-alerts:dedupe';
 const USER_AD_DEDUPE_TTL_SECONDS = 24 * 60 * 60;
 
-const toObjectId = (value: unknown): Types.ObjectId | null => {
-    if (!value) return null;
-    if (value instanceof Types.ObjectId) return value;
-    if (typeof value === 'string' && Types.ObjectId.isValid(value)) return new Types.ObjectId(value);
-    return null;
-};
+
 
 const toLocationDisplay = (ad: MinimalAdRecord): string => {
     const location = ad.location;

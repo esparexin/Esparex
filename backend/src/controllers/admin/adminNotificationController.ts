@@ -6,16 +6,11 @@ import { NotificationIntent } from '../../domain/NotificationIntent';
 import { NotificationDispatcher } from '../../services/notification/NotificationDispatcher';
 import mongoose from 'mongoose';
 import User, { IUser } from '../../models/User';
-import { sendSuccessResponse, checkPermission, getPaginationParams, sendPaginatedResponse } from './adminBaseController';
+import { sendSuccessResponse, checkPermission, getPaginationParams, sendPaginatedResponse, sendAdminError } from './adminBaseController';
 import { logAdminAction } from '../../utils/adminLogger';
 import { validateNotificationContent, validateAdminNotificationTarget } from '../../validators/notificationValidators';
-import { sendErrorResponse } from '../../utils/errorResponse';
 
 
-const sendAdminNotificationError = (req: Request, res: Response, error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Admin notification operation failed';
-    sendErrorResponse(req, res, 500, message);
-};
 
 /** Stream all users and bulk-dispatch notifications in batches of 500. */
 const dispatchToAllUsers = async (
@@ -54,20 +49,20 @@ export const sendNotification = [
         try {
             const currentUser = req.user as unknown as IUser;
             if (!checkPermission(currentUser, 'notifications', 'update') && !checkPermission(currentUser, 'settings', 'update')) {
-                return sendErrorResponse(req, res, 403, 'Permission denied: notifications:update required');
+                return sendAdminError(req, res, 'Permission denied: notifications:update required', 403);
             }
 
             const { title, body, targetType, targetValue, userIds, sendAt } = req.body;
 
             if (!title || !body || !targetType) {
-                return sendErrorResponse(req, res, 400, "Missing required fields");
+                return sendAdminError(req, res, 'Missing required fields', 400);
             }
 
             // 0. Handle Scheduling
             if (sendAt) {
                 const date = new Date(sendAt);
                 if (date <= new Date()) {
-                    return sendErrorResponse(req, res, 400, "Scheduled time must be in the future");
+                    return sendAdminError(req, res, 'Scheduled time must be in the future', 400);
                 }
 
                 // Create scheduled notification record.
@@ -100,7 +95,7 @@ export const sendNotification = [
             // 2. Specific Users
             else if (targetType === 'users') {
                 if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
-                    return sendErrorResponse(req, res, 400, "User IDs required");
+                    return sendAdminError(req, res, 'User IDs required', 400);
                 }
 
                 const intents = userIds.map((uid: string) => 
@@ -129,7 +124,7 @@ export const sendNotification = [
 
             sendSuccessResponse(res, log, "Notification sent successfully");
         } catch (error) {
-            sendAdminNotificationError(req, res, error);
+            sendAdminError(req, res, error);
         }
     }
 ];
@@ -142,7 +137,7 @@ export const getHistory = async (req: Request, res: Response) => {
     try {
         const currentUser = req.user as unknown as IUser;
         if (!checkPermission(currentUser, 'notifications', 'read') && !checkPermission(currentUser, 'reports', 'read')) {
-            return sendErrorResponse(req, res, 403, 'Permission denied: notifications:read or reports:read required');
+            return sendAdminError(req, res, 'Permission denied: notifications:read or reports:read required', 403);
         }
 
         const { page, limit, skip } = getPaginationParams(req);
@@ -158,7 +153,7 @@ export const getHistory = async (req: Request, res: Response) => {
 
         sendPaginatedResponse(res, logs, total, page, limit);
     } catch (error) {
-        sendAdminNotificationError(req, res, error);
+        sendAdminError(req, res, error);
     }
 };
 
@@ -179,16 +174,16 @@ export const createBroadcast = async (req: Request, res: Response) => {
         const segment = typeof req.body?.segment === 'string' ? req.body.segment.trim() : '';
 
         if (!['GLOBAL', 'SEGMENT', 'USER'].includes(type)) {
-            return sendErrorResponse(req, res, 400, 'Invalid broadcast type');
+            return sendAdminError(req, res, 'Invalid broadcast type', 400);
         }
         if (!title || !message) {
-            return sendErrorResponse(req, res, 400, 'title and message are required');
+            return sendAdminError(req, res, 'title and message are required', 400);
         }
         if (type === 'USER' && targetUsers.length === 0) {
-            return sendErrorResponse(req, res, 400, 'targetUsers are required for USER broadcast');
+            return sendAdminError(req, res, 'targetUsers are required for USER broadcast', 400);
         }
         if (type === 'SEGMENT' && !segment) {
-            return sendErrorResponse(req, res, 400, 'segment is required for SEGMENT broadcast');
+            return sendAdminError(req, res, 'segment is required for SEGMENT broadcast', 400);
         }
 
         const broadcast = await Broadcast.create({
@@ -230,6 +225,6 @@ export const createBroadcast = async (req: Request, res: Response) => {
             }
         }, 'Broadcast created');
     } catch (error) {
-        return sendAdminNotificationError(req, res, error);
+        return sendAdminError(req, res, error);
     }
 };

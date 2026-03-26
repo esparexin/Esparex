@@ -5,6 +5,7 @@ import { Wrench } from "lucide-react";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import {
     CatalogBoundSearchCategoryFilters,
+    CatalogCategoryTags,
     CatalogEditDeleteActions,
     CatalogEntityCell,
     CatalogSelectFilter,
@@ -96,26 +97,11 @@ export default function SparePartsCatalogPage() {
                 {
                     header: "Categories",
                     cell: (part) => (
-                        <div className="flex flex-wrap gap-1 max-w-[300px]">
-                            {part.categoryIds?.map((categoryId) => {
-                                const category = categories.find((item) => item.id === categoryId);
-                                const isInvalid = !assignableSpareCategoryIds.has(categoryId);
-                                return (
-                                    <span
-                                        key={categoryId}
-                                        className={`px-2 py-0.5 rounded text-[10px] border ${
-                                            isInvalid
-                                                ? "bg-red-50 text-red-600 border-red-100 font-bold"
-                                                : "bg-slate-100 text-slate-600 border-slate-200"
-                                        }`}
-                                        title={isInvalid ? "This category is inactive or invalid for spare parts" : ""}
-                                    >
-                                        {category?.name || "Unknown"}
-                                        {isInvalid ? " (!)" : ""}
-                                    </span>
-                                );
-                            })}
-                        </div>
+                        <CatalogCategoryTags
+                            categoryIds={part.categoryIds || []}
+                            categories={categories}
+                            validateId={(id: string) => assignableSpareCategoryIds.has(id)}
+                        />
                     ),
                 },
                 {

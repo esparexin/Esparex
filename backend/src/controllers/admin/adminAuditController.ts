@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import AdminLog from '../../models/AdminLog';
 import {
     getPaginationParams,
-    sendPaginatedResponse
+    sendPaginatedResponse,
+    sendAdminError
 } from './adminBaseController';
-import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 
 /**
  * GET /api/v1/admin/audit-logs
@@ -40,7 +40,6 @@ export const getAuditLogs = async (req: Request, res: Response) => {
 
         sendPaginatedResponse(res, logs, total, page, limit);
     } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Failed to fetch audit logs';
-        sendContractErrorResponse(req, res, 500, message);
+        sendAdminError(req, res, error);
     }
 };

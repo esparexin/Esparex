@@ -8,6 +8,7 @@ import {
     CatalogActionIconButton,
     CatalogActiveCheckboxField,
     CatalogBoundSearchCategoryFilters,
+    CatalogCategoryTags,
     CatalogEntityCell,
     CatalogStatusBadge,
 } from "@/components/catalog/CatalogUiPrimitives";
@@ -84,27 +85,12 @@ export default function ServiceTypesPage() {
                 },
                 {
                     header: "Categories",
-                    cell: (serviceType) => {
-                        const serviceTypeCategoryIds = serviceType.categoryIds || [];
-                        return (
-                            <div className="flex flex-wrap gap-1 max-w-[200px]">
-                                {serviceTypeCategoryIds.map((categoryId) => {
-                                    const category = categories.find((item) => item.id === categoryId);
-                                    return (
-                                        <span
-                                            key={categoryId}
-                                            className="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 border border-slate-200"
-                                        >
-                                            {category?.name || "Unknown"}
-                                        </span>
-                                    );
-                                })}
-                                {serviceTypeCategoryIds.length === 0 ? (
-                                    <span className="text-sm font-medium italic text-slate-400">All Categories</span>
-                                ) : null}
-                            </div>
-                        );
-                    },
+                    cell: (serviceType) => (
+                        <CatalogCategoryTags
+                            categoryIds={serviceType.categoryIds || []}
+                            categories={categories}
+                        />
+                    ),
                 },
                 {
                     header: "Status",

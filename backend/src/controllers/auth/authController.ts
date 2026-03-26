@@ -3,7 +3,7 @@ import { AuthService } from '../../services/AuthService';
 import User from '../../models/User';
 import { blacklistToken } from '../../utils/redisCache';
 import { verifyToken } from '../../utils/auth';
-import { respond } from '../../utils/respond';
+import { respond, sendSuccessResponse } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { SendOtpResult, VerifyOtpResult } from '../../services/AuthService';
 
@@ -45,7 +45,7 @@ export class AuthController {
                 return;
             }
 
-            res.status(200).json(respond(result));
+            return sendSuccessResponse(res, result);
         } catch (error: unknown) {
             next(error);
         }
@@ -68,7 +68,7 @@ export class AuthController {
                 res.cookie('esparex_auth', result.token, getAuthCookieOptions(cookieMaxAgeMs));
             }
 
-            res.status(200).json(respond(result));
+            return sendSuccessResponse(res, result);
         } catch (error: unknown) {
             next(error);
         }
@@ -79,7 +79,7 @@ export class AuthController {
             const { mobile } = req.body;
             const normalizedPhone = AuthController.normalizePhone(mobile);
             const result = await AuthService.cancelOtpSession(normalizedPhone);
-            res.status(200).json(respond(result));
+            return sendSuccessResponse(res, result);
         } catch (error: unknown) {
             next(error);
         }
@@ -111,7 +111,7 @@ export class AuthController {
             }
 
             res.clearCookie('esparex_auth', getAuthCookieOptions(0));
-            res.status(200).json(respond({ success: true, message: 'Logged out successfully' }));
+            return sendSuccessResponse(res, null, 'Logged out successfully');
         } catch (error) {
             next(error);
         }

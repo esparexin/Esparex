@@ -16,6 +16,7 @@ import {
     API_V1_BASE_PATH,
     DEFAULT_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
+import { TraceContext } from "@shared/observability/trace";
 import logger from "@/lib/logger";
 
 /* ======================================================
@@ -52,6 +53,8 @@ export interface EsparexRequestConfig extends AxiosRequestConfig {
     skipHealthCheck?: boolean;
     silent?: boolean;
     _csrfRetry?: boolean;
+    _retryCount?: number;
+    maxRetries?: number;
 }
 
 /* ======================================================
@@ -163,6 +166,12 @@ class APIClient {
             }
 
             const method = config.method?.toLowerCase();
+            const headers = new AxiosHeaders(config.headers);
+            
+            // 🆔 TRACE CORRELATION
+            headers.set('x-correlation-id', TraceContext.getCorrelationId());
+            config.headers = headers;
+
             const isCsrfBootstrapRequest = config.url?.endsWith(API_ROUTES.USER.CSRF_TOKEN);
             if (!isCsrfBootstrapRequest && this.isStateChangingMethod(method)) {
                 const csrfToken = await this.getCsrfToken();
@@ -336,6 +345,28 @@ class APIClient {
                         ? normalized.response?.data
                         : { technicalMessage: normalized.message };
 
+                // 🔄 AUTOMATIC RETRY FOR TRANSIENT FAILURES
+                const maxRetries = requestConfig?.maxRetries ?? 1;
+                const currentRetryCount = requestConfig?._retryCount ?? 0;
+                const isTransientError =
+                    latestStatus === 0 || // Network error
+                    latestStatus === 408 || // Timeout
+                    latestStatus === 429 || // Too many requests
+                    latestStatus >= 500; // Server error
+
+                if (isTransientError && requestConfig && currentRetryCount < maxRetries) {
+                    const delay = Math.pow(2, currentRetryCount) * 1000;
+                    logger.warn(`[API Client] Transient failure (${latestStatus}). Retrying in ${delay}ms... (Attempt ${currentRetryCount + 1}/${maxRetries})`);
+                    
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    
+                    const retryConfig: EsparexRequestConfig = {
+                        ...requestConfig,
+                        _retryCount: currentRetryCount + 1
+                    };
+                    return this.client.request(retryConfig);
+                }
+
                 const apiError = new APIError({
                         status: statusCode ?? 0,
                         code: source === 'backend' ? responseCode : 'NETWORK_FAILURE',
@@ -352,17 +383,11 @@ class APIClient {
                     });
 
                 if (!requestConfig?.silent) {
-                    // For retryable errors (5xx, network, 408, 429), offer a retry action.
-                    // Re-sending the original config lets the request pipeline run again
-                    // (CSRF refresh, health gate, etc.).
-                    const isRetryable =
-                        latestStatus === 0 ||
-                        latestStatus >= 500 ||
-                        latestStatus === 408 ||
-                        latestStatus === 429;
+                    // For retryable errors that exhausted automatic retries or are not candidate for auto-retry, offer manual retry action.
+                    const isManualRetryable = isTransientError;
                     const onRetry =
-                        isRetryable && requestConfig
-                            ? () => { void this.client.request(requestConfig); }
+                        isManualRetryable && requestConfig
+                            ? () => { void this.client.request({ ...requestConfig, _retryCount: 0 } as EsparexRequestConfig); }
                             : undefined;
                     emitErrorPopup(apiError, onRetry);
                 }

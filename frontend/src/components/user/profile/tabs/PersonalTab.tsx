@@ -95,6 +95,7 @@ export function PersonalTab({
                                             src={safeProfilePhoto}
                                             alt="Profile"
                                             fill
+                                            priority
                                             unoptimized
                                             className="object-cover"
                                             sizes="80px"

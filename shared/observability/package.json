@@ -1,0 +1,15 @@
+{
+  "name": "@shared/observability",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit --esModuleInterop --skipLibCheck"
+  },
+  "private": true,
+  "dependencies": {
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.0"
+  }
+}

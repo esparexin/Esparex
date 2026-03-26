@@ -1,154 +1,39 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-    Package, Wrench, CircuitBoard, PlusCircle, Lock,
-    Eye, Heart, Clock, Edit2, Trash2, CheckSquare, RefreshCw,
-    AlertTriangle, MapPin, Timer, Home, Wifi,
-} from "lucide-react";
+import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "lucide-react";
+import type { Ad } from "@/lib/api/user/ads";
+import type { Service } from "@/lib/api/user/services";
+import type { SparePartListing } from "@/lib/api/user/sparePartListings";
+import type { User } from "@/types/User";
+import { markAsSold as markAdAsSold } from "@/lib/api/user/ads";
+import { useProfileListings } from "./useProfileListings";
+import type { ListingStatus } from "@/hooks/useUserListingManagement";
+import { UserListingsTemplate } from "../../shared/UserListingsTemplate";
+import { ListingItem } from "../../shared/ListingItem";
+import { SoldReasonDialog, type SoldReason } from "../../shared/SoldReasonDialog";
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel,
     AlertDialogContent, AlertDialogDescription,
     AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-    Dialog, DialogContent, DialogHeader,
-    DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
-import type { Ad } from "@/lib/api/user/ads";
-import type { Service } from "@/lib/api/user/services";
-import type { SparePartListing } from "@/lib/api/user/sparePartListings";
-import type { User } from "@/types/User";
-import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
 import { formatPrice } from "@/lib/formatters";
-import { markAsSold } from "@/lib/api/user/ads";
-import { useMyServices, type MyServicesStatus } from "./MyServicesTab.hook";
-import { useMySpare, type MySparePartsStatus } from "./MySparePartsTab.hook";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types & Constants ────────────────────────────────────────────────────────
 type AdsStatus = "live" | "pending" | "sold" | "expired" | "rejected" | "deactivated";
-type SoldReason = "sold_on_platform" | "sold_outside" | "no_longer_available";
 type ListingSubTab = "ads" | "services" | "spare-parts";
-
-const SOLD_REASON_OPTIONS: { value: SoldReason; label: string }[] = [
-    { value: "sold_on_platform", label: "Sold on Esparex" },
-    { value: "sold_outside", label: "Sold outside platform" },
-    { value: "no_longer_available", label: "No longer available" },
-];
 
 const STATUS_PILL_TABS_ADS = ["live", "pending", "sold", "expired", "rejected", "deactivated"] as const;
 const STATUS_PILL_TABS_SERVICES = ["live", "pending", "expired", "rejected", "deactivated"] as const;
 const STATUS_PILL_TABS_SPARE = ["live", "pending", "sold", "expired", "rejected", "deactivated"] as const;
 
-const formatStatusLabel = (status: string) =>
-    status.charAt(0).toUpperCase() + status.slice(1);
-
-interface StatusPillTabsProps<TStatus extends string> {
-    tabs: readonly TStatus[];
-    selected: TStatus;
-    onSelect: (status: TStatus) => void;
-    getCount?: (status: TStatus) => number;
-}
-
-function StatusPillTabs<TStatus extends string>({
-    tabs,
-    selected,
-    onSelect,
-    getCount,
-}: StatusPillTabsProps<TStatus>) {
-    return (
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-3">
-            {tabs.map((status) => (
-                <button
-                    key={status}
-                    onClick={() => onSelect(status)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${selected === status
-                        ? "bg-slate-900 text-white shadow"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                >
-                    {formatStatusLabel(status)}
-                    {getCount ? (
-                        <span className="ml-1.5 text-[10px] opacity-60">
-                            {getCount(status)}
-                        </span>
-                    ) : null}
-                </button>
-            ))}
-        </div>
-    );
-}
-
-interface ListingSectionProps<TStatus extends string, TItem> {
-    statusTabs: readonly TStatus[];
-    selectedStatus: TStatus;
-    onStatusChange: (status: TStatus) => void;
-    loading: boolean;
-    error?: unknown;
-    errorMessage: string;
-    onRetry?: () => void;
-    items: TItem[];
-    getItemKey: (item: TItem) => string | number;
-    renderItem: (item: TItem) => React.ReactNode;
-    emptyState: {
-        icon: React.ReactNode;
-        title: string;
-        description: string;
-        cta?: React.ReactNode;
-    };
-}
-
-function ListingSection<TStatus extends string, TItem>({
-    statusTabs,
-    selectedStatus,
-    onStatusChange,
-    loading,
-    error,
-    errorMessage,
-    onRetry,
-    items,
-    getItemKey,
-    renderItem,
-    emptyState,
-}: ListingSectionProps<TStatus, TItem>) {
-    return (
-        <>
-            <StatusPillTabs
-                tabs={statusTabs}
-                selected={selectedStatus}
-                onSelect={onStatusChange}
-            />
-
-            {loading ? (
-                <LoadingSkeleton />
-            ) : error ? (
-                <ErrorState message={errorMessage} onRetry={onRetry} />
-            ) : items.length === 0 ? (
-                <EmptyState
-                    icon={emptyState.icon}
-                    title={emptyState.title}
-                    description={emptyState.description}
-                    cta={emptyState.cta}
-                />
-            ) : (
-                <div className="grid grid-cols-1 gap-3">
-                    {items.map((item) => (
-                        <div key={getItemKey(item)}>{renderItem(item)}</div>
-                    ))}
-                </div>
-            )}
-        </>
-    );
-}
+const SUB_TABS: { value: ListingSubTab; label: string; icon: React.ReactNode; color: string }[] = [
+    { value: "ads", label: "Ads", icon: <Package className="h-4 w-4" />, color: "blue" },
+    { value: "services", label: "Services", icon: <Wrench className="h-4 w-4" />, color: "violet" },
+    { value: "spare-parts", label: "Spare Parts", icon: <CircuitBoard className="h-4 w-4" />, color: "teal" },
+];
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 export interface MyListingsTabProps {
-    // Ads data — fetched in parent (useMyAds)
     ads: Ad[];
     adCounts: Record<string, number>;
     loadingAds: boolean;
@@ -156,7 +41,6 @@ export interface MyListingsTabProps {
     setMyAdsStatusTab: (tab: AdsStatus) => void;
     handleDeleteAd: (id: string | number) => Promise<void>;
     handleMarkAsSold: (id: string | number, soldReason?: SoldReason) => Promise<void>;
-    // Common
     user: User | null;
     navigateTo: (page: string, adId?: string | number, category?: string, businessId?: string, serviceId?: string) => void;
     getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
@@ -170,36 +54,39 @@ export interface MyListingsTabProps {
 export function MyListingsTab({
     ads, adCounts, loadingAds, myAdsStatusTab, setMyAdsStatusTab,
     handleDeleteAd, handleMarkAsSold,
-    user, navigateTo, getStatusBadge, formatDate,
+    user, navigateTo, getStatusBadge,
     isBusinessApproved, onRegisterBusiness,
     initialSubTab = "ads",
 }: MyListingsTabProps) {
     const [subTab, setSubTab] = useState<ListingSubTab>(initialSubTab);
-    const [servicesStatus, setServicesStatus] = useState<MyServicesStatus>("live");
-    const [spareStatus, setSpareStatus] = useState<MySparePartsStatus>("live");
+    const [servicesStatus, setServicesStatus] = useState<ListingStatus>("live");
+    const [spareStatus, setSpareStatus] = useState<ListingStatus>("live");
 
-    // Services — only enabled when that sub-tab is active
-    const { myServices, loadingServices, servicesError, handleDeleteService, handleRepostService, fetchMyServices } =
-        useMyServices(subTab === "services" ? "services" : "", user, servicesStatus);
+    // Dynamic Data Fetching (Services/Spare Parts)
+    const { 
+        listings: myServices, loading: loadingServices, error: servicesError, 
+        handleDelete: handleDeleteService, handleRepost: handleRepostService, refetch: fetchMyServices 
+    } = useProfileListings("services", subTab, user, servicesStatus);
 
-    // Spare parts — only enabled when that sub-tab is active
-    const { mySpare, loadingSpare, spareError, handleDeleteSpare, handleRepostSpare, fetchMySpare } =
-        useMySpare(subTab === "spare-parts" ? "spare-parts" : "", user, spareStatus);
+    const { 
+        listings: mySpare, loading: loadingSpare, error: spareError, 
+        handleDelete: handleDeleteSpare, handleRepost: handleRepostSpare, refetch: fetchMySpare 
+    } = useProfileListings("spare-parts", subTab, user, spareStatus);
 
-    // Ad delete state
+    // Modal States
     const [adToDelete, setAdToDelete] = useState<Ad | null>(null);
     const [isDeleteAdOpen, setIsDeleteAdOpen] = useState(false);
-    // Mark as sold state (ads)
     const [adToSell, setAdToSell] = useState<Ad | null>(null);
     const [isSoldOpen, setIsSoldOpen] = useState(false);
     const [soldReason, setSoldReason] = useState<SoldReason | null>(null);
     const [isSelling, setIsSelling] = useState(false);
-    // Mark as sold state (spare parts)
+
     const [spareToSell, setSpareToSell] = useState<SparePartListing | null>(null);
     const [isSparesSoldOpen, setIsSparesSoldOpen] = useState(false);
     const [sparesSoldReason, setSparesSoldReason] = useState<SoldReason | null>(null);
     const [isSpareSelling, setIsSpareSelling] = useState(false);
 
+    // Handlers
     const confirmDeleteAd = async () => {
         if (!adToDelete) return;
         await handleDeleteAd(adToDelete.id);
@@ -213,311 +100,165 @@ export function MyListingsTab({
         try { await handleMarkAsSold(adToSell.id, soldReason); }
         finally {
             setIsSelling(false);
-            setIsSoldOpen(false);
             setAdToSell(null);
+            setIsSoldOpen(false);
         }
     };
 
     const confirmSoldSpare = async () => {
         if (!spareToSell || !sparesSoldReason) return;
         setIsSpareSelling(true);
-        try { await markAsSold(spareToSell.id, sparesSoldReason); }
+        try { await markAdAsSold(spareToSell.id, sparesSoldReason); }
         finally {
             setIsSpareSelling(false);
-            setIsSparesSoldOpen(false);
             setSpareToSell(null);
+            setIsSparesSoldOpen(false);
         }
     };
 
-    const buildBusinessListingCta = (options: {
-        postLabel: string;
-        lockedLabel: string;
-        onPost: () => void;
-    }) => {
-        if (isBusinessApproved) {
-            return (
-                <Button variant="outline" size="sm" onClick={options.onPost}>
-                    <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> {options.postLabel}
-                </Button>
-            );
+    // Shared Configuration
+    const currentConfig = {
+        ads: {
+            title: "My Classified Ads",
+            icon: <Package className="h-5 w-5 text-blue-600" />,
+            statusTabs: STATUS_PILL_TABS_ADS,
+            selectedStatus: myAdsStatusTab,
+            onStatusChange: setMyAdsStatusTab as any,
+            getStatusCount: (s: any) => adCounts[s] ?? 0,
+            items: ads,
+            loading: loadingAds,
+            onPost: () => navigateTo("post-ad"),
+            postLabel: "Post Ad",
+            emptyTitle: `No ${myAdsStatusTab} ads`,
+            emptyDesc: "Post your first ad to reach thousands of buyers.",
+            render: (ad: Ad) => (
+                <ListingItem
+                    title={ad.title}
+                    status={ad.status}
+                    thumbnail={ad.images?.[0] ?? ad.image}
+                    priceLabel={formatPrice(ad.price)}
+                    badgeColor="blue"
+                    createdAt={ad.createdAt}
+                    expiresAt={ad.expiresAt}
+                    views={ad.views}
+                    likes={ad.likes}
+                    getStatusBadge={getStatusBadge}
+                    editHref={`/edit-ad/${ad.id}`}
+                    detailHref={`/ad-detail/${ad.id}`}
+                    onDelete={() => { setAdToDelete(ad); setIsDeleteAdOpen(true); }}
+                    onMarkSold={() => { setAdToSell(ad); setSoldReason(null); setIsSoldOpen(true); }}
+                />
+            )
+        },
+        services: {
+            title: "My Professional Services",
+            icon: <Wrench className="h-5 w-5 text-violet-600" />,
+            statusTabs: STATUS_PILL_TABS_SERVICES,
+            selectedStatus: servicesStatus,
+            onStatusChange: setServicesStatus as any,
+            items: myServices,
+            loading: loadingServices,
+            error: servicesError,
+            onRetry: fetchMyServices,
+            onPost: isBusinessApproved ? () => navigateTo("post-service") : onRegisterBusiness,
+            postLabel: isBusinessApproved ? "Post Service" : "Register Business",
+            emptyTitle: `No ${servicesStatus} services`,
+            emptyDesc: "List your repair or maintenance services to attract customers.",
+            render: (service: Service) => (
+                <ListingItem
+                    title={service.title}
+                    status={service.status}
+                    thumbnail={service.images?.[0]}
+                    priceLabel={service.priceMin ? `From ₹${service.priceMin.toLocaleString()}` : "Price on request"}
+                    badgeColor="violet"
+                    createdAt={service.createdAt}
+                    getStatusBadge={getStatusBadge}
+                    editHref={`/edit-service/${service.id}`}
+                    onDelete={() => handleDeleteService(service.id)}
+                    onRenew={() => handleRepostService(service.id)}
+                    metaBadges={[
+                        service.location?.city ? { label: service.location.city, icon: <MapPin className="h-3 w-3" /> } : null,
+                        service.onsiteService !== undefined ? {
+                            label: service.onsiteService ? "On-site" : "Remote",
+                            icon: service.onsiteService ? <Home className="h-3 w-3" /> : <Wifi className="h-3 w-3" />,
+                            className: service.onsiteService ? "text-green-600" : "text-slate-500"
+                        } : null,
+                        service.turnaroundTime ? { label: service.turnaroundTime, icon: <Timer className="h-3 w-3" /> } : null
+                    ].filter(Boolean) as any}
+                    tags={[
+                        service.category?.name ? { label: service.category.name, className: "bg-violet-50 text-violet-700 border-violet-100" } : null,
+                        service.brand?.name ? { label: service.brand.name } : null
+                    ].filter(Boolean) as any}
+                />
+            )
+        },
+        "spare-parts": {
+            title: "My Spare Part Inventory",
+            icon: <CircuitBoard className="h-5 w-5 text-teal-600" />,
+            statusTabs: STATUS_PILL_TABS_SPARE,
+            selectedStatus: spareStatus,
+            onStatusChange: setSpareStatus as any,
+            items: mySpare,
+            loading: loadingSpare,
+            error: spareError,
+            onRetry: fetchMySpare,
+            onPost: isBusinessApproved ? () => navigateTo("post-spare-part-listing") : onRegisterBusiness,
+            postLabel: isBusinessApproved ? "Post Spare Part" : "Register Business",
+            emptyTitle: `No ${spareStatus} listings`,
+            emptyDesc: "List spare parts to sell to repair shops and customers.",
+            render: (listing: SparePartListing) => (
+                <ListingItem
+                    title={listing.title}
+                    status={listing.status}
+                    thumbnail={listing.images?.[0]}
+                    priceLabel={`₹${listing.price.toLocaleString()}`}
+                    badgeColor="teal"
+                    createdAt={listing.createdAt}
+                    getStatusBadge={getStatusBadge}
+                    editHref={`/edit-spare-part/${listing.id}`}
+                    onDelete={() => handleDeleteSpare(listing.id)}
+                    onRenew={() => handleRepostSpare(listing.id)}
+                    onMarkSold={listing.status === "live" ? () => { setSpareToSell(listing); setSparesSoldReason(null); setIsSparesSoldOpen(true); } : undefined}
+                    metaBadges={[
+                        listing.location?.city ? { label: listing.location.city, icon: <MapPin className="h-3 w-3" /> } : null
+                    ].filter(Boolean) as any}
+                />
+            )
         }
-
-        return (
-            <Button variant="outline" size="sm" onClick={onRegisterBusiness}>
-                {options.lockedLabel}
-            </Button>
-        );
-    };
-
-    const SUB_TABS: { value: ListingSubTab; label: string; icon: React.ReactNode; color: string }[] = [
-        { value: "ads", label: "Ads", icon: <Package className="h-4 w-4" />, color: "blue" },
-        { value: "services", label: "Services", icon: <Wrench className="h-4 w-4" />, color: "violet" },
-        { value: "spare-parts", label: "Spare Parts", icon: <CircuitBoard className="h-4 w-4" />, color: "teal" },
-    ];
-
-    const tabColor = SUB_TABS.find(t => t.value === subTab)?.color ?? "blue";
-    const activeTabClass = {
-        blue: "border-blue-600 text-blue-700",
-        violet: "border-violet-600 text-violet-700",
-        teal: "border-teal-600 text-teal-700",
-    }[tabColor];
-    const postBtnClass = {
-        blue: "bg-blue-600 hover:bg-blue-700",
-        violet: "bg-violet-600 hover:bg-violet-700",
-        teal: "bg-teal-600 hover:bg-teal-700",
-    }[tabColor];
+    }[subTab];
 
     return (
         <div className="space-y-4">
-            <Card className="border-0 shadow-sm md:border md:shadow-sm overflow-hidden">
-                {/* ── Header ── */}
-                <div className="px-4 md:px-6 pt-5 pb-0">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                            <Package className="h-5 w-5 text-blue-600" />
-                            My Listings
-                        </h2>
-                        {(subTab === "ads" || isBusinessApproved) ? (
-                            <Button
-                                onClick={() => {
-                                    if (subTab === "ads") navigateTo("post-ad");
-                                    else if (subTab === "services") navigateTo("post-service");
-                                    else navigateTo("post-spare-part-listing");
-                                }}
-                                size="sm"
-                                className={`${postBtnClass} text-white text-xs h-8 px-3`}
-                            >
-                                <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
-                                {subTab === "ads" ? "Post Ad" : subTab === "services" ? "Post Service" : "Post Spare Part"}
-                            </Button>
-                        ) : (
-                            <Button
-                                onClick={onRegisterBusiness}
-                                size="sm"
-                                variant="outline"
-                                className="text-xs h-8 px-3 text-slate-400 border-slate-200"
-                            >
-                                <Lock className="h-3 w-3 mr-1.5" />
-                                {subTab === "services" ? "Post Service" : "Post Spare Part"}
-                            </Button>
-                        )}
-                    </div>
+            <UserListingsTemplate
+                title={currentConfig.title}
+                icon={currentConfig.icon}
+                subTabs={SUB_TABS}
+                activeSubTab={subTab}
+                onSubTabChange={(v) => setSubTab(v as ListingSubTab)}
+                statusTabs={currentConfig.statusTabs}
+                selectedStatus={currentConfig.selectedStatus}
+                onStatusChange={currentConfig.onStatusChange}
+                getStatusCount={currentConfig.getStatusCount}
+                onPost={currentConfig.onPost}
+                postLabel={currentConfig.postLabel}
+                items={currentConfig.items}
+                loading={currentConfig.loading}
+                error={currentConfig.error}
+                onRetry={currentConfig.onRetry}
+                getItemKey={(item) => (item as any).id}
+                renderItem={(item) => currentConfig.render(item as any)}
+                emptyState={{
+                    icon: currentConfig.icon,
+                    title: currentConfig.emptyTitle,
+                    description: currentConfig.emptyDesc,
+                }}
+            />
 
-                    {/* ── Sub-tab Pills ── */}
-                    <div className="flex gap-0 border-b border-slate-100">
-                        {SUB_TABS.map(t => (
-                            <button
-                                key={t.value}
-                                onClick={() => setSubTab(t.value)}
-                                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap
-                                    ${subTab === t.value
-                                        ? activeTabClass
-                                        : "border-transparent text-slate-500 hover:text-slate-700"
-                                    }`}
-                            >
-                                {t.icon}
-                                {t.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <CardContent className="px-3 md:px-6 pt-3 pb-5">
-
-                    {/* ════════════════════ ADS ════════════════════ */}
-                    {subTab === "ads" && (
-                        <>
-                            <StatusPillTabs
-                                tabs={STATUS_PILL_TABS_ADS}
-                                selected={myAdsStatusTab}
-                                onSelect={setMyAdsStatusTab}
-                                getCount={(status) => adCounts[status] ?? 0}
-                            />
-
-                            {/* Content */}
-                            {loadingAds ? (
-                                <LoadingSkeleton />
-                            ) : ads.length === 0 ? (
-                                <EmptyState
-                                    icon={<Package className="h-12 w-12 text-slate-300" />}
-                                    title={`No ${myAdsStatusTab} ads`}
-                                    description={
-                                        myAdsStatusTab === "live" ? "Post your first ad to reach thousands of buyers."
-                                            : myAdsStatusTab === "pending" ? "Pending ads are being reviewed."
-                                                : myAdsStatusTab === "rejected" ? "Rejected ads appear here. Review the reason and repost."
-                                                    : `${myAdsStatusTab.charAt(0).toUpperCase() + myAdsStatusTab.slice(1)} ads will appear here.`
-                                    }
-                                    cta={myAdsStatusTab === "live" ? (
-                                        <Button variant="outline" size="sm" onClick={() => navigateTo("post-ad")}>
-                                            <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> Post an Ad
-                                        </Button>
-                                    ) : undefined}
-                                />
-                            ) : (
-                                <div className="grid grid-cols-1 gap-3">
-                                    {ads.map(ad => {
-                                        const canEdit = ["live", "pending", "rejected"].includes(ad.status);
-                                        const isActive = ad.status === "live";
-                                        return (
-                                            <div
-                                                key={ad.id}
-                                                role="button" tabIndex={0}
-                                                className="flex gap-3 p-3 rounded-xl border bg-white hover:border-blue-200 hover:shadow-sm transition-all group cursor-pointer"
-                                                onClick={() => navigateTo("ad-detail", ad.id)}
-                                                onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigateTo("ad-detail", ad.id); } }}
-                                            >
-                                                <div className="relative h-20 w-20 shrink-0 rounded-lg overflow-hidden bg-slate-100">
-                                                    <Image
-                                                        src={toSafeImageSrc(ad.images?.[0] ?? ad.image, DEFAULT_IMAGE_PLACEHOLDER)}
-                                                        alt={ad.title} fill unoptimized className="object-cover group-hover:scale-105 transition-transform" sizes="80px"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-1 flex-col justify-between">
-                                                    <div>
-                                                        <div className="flex items-start justify-between gap-2">
-                                                            <h3 className="font-medium text-sm line-clamp-1 group-hover:text-blue-600 transition-colors">{ad.title}</h3>
-                                                            {getStatusBadge(ad.status ?? "pending", ad.id)}
-                                                        </div>
-                                                        <p className="text-xs font-semibold text-slate-900 mt-0.5">{formatPrice(ad.price)}</p>
-                                                        {ad.status === "rejected" && (ad as any).rejectionReason && (
-                                                            <p className="text-[10px] text-red-500 mt-0.5 line-clamp-2">Reason: {(ad as any).rejectionReason}</p>
-                                                        )}
-                                                        <div className="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
-                                                            <span className="flex items-center gap-1">
-                                                                <Eye className="h-3 w-3" />
-                                                                {typeof ad.views === "number" ? ad.views : (ad.views as any)?.total ?? 0} views
-                                                            </span>
-                                                            <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {(ad.views as any)?.favorites ?? ad.likes ?? 0}</span>
-                                                            {ad.status === "live" && ad.expiresAt && (
-                                                                <span className="flex items-center gap-1 text-amber-600 font-medium">
-                                                                    <Clock className="h-3 w-3" /> Expires {formatDate(ad.expiresAt)}
-                                                                </span>
-                                                            )}
-                                                            {ad.status !== "live" && (
-                                                                <span className="flex items-center gap-1">
-                                                                    <Clock className="h-3 w-3" /> {formatDate(ad.createdAt ?? new Date())}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <div className="flex items-center justify-end gap-2 mt-2 flex-wrap">
-                                                            {isActive && (
-                                                                <Button size="sm" variant="outline"
-                                                                    className="h-7 text-xs text-green-700 border-green-200 hover:bg-green-50"
-                                                                    onClick={e => { e.stopPropagation(); setAdToSell(ad); setSoldReason(null); setIsSoldOpen(true); }}
-                                                                >
-                                                                    <CheckSquare className="h-3 w-3 mr-1" /> Mark Sold
-                                                                </Button>
-                                                            )}
-                                                            {canEdit && (
-                                                                <Button size="sm" variant="outline" className="h-7 text-xs"
-                                                                    onClick={e => { e.stopPropagation(); navigateTo("edit-ad", ad.id); }}
-                                                                >
-                                                                    <Edit2 className="h-3 w-3 mr-1" /> Edit
-                                                                </Button>
-                                                            )}
-                                                            <Button size="sm" variant="ghost"
-                                                                className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                                                                onClick={e => { e.stopPropagation(); setAdToDelete(ad); setIsDeleteAdOpen(true); }}
-                                                            >
-                                                                <Trash2 className="h-3.5 w-3.5" />
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </>
-                    )}
-
-                    {/* ════════════════════ SERVICES ════════════════════ */}
-                    {subTab === "services" && (
-                        <ListingSection
-                            statusTabs={STATUS_PILL_TABS_SERVICES}
-                            selectedStatus={servicesStatus}
-                            onStatusChange={setServicesStatus}
-                            loading={loadingServices}
-                            error={servicesError}
-                            errorMessage="Failed to load services."
-                            onRetry={fetchMyServices}
-                            items={myServices}
-                            getItemKey={(service) => service.id}
-                            renderItem={(service) => (
-                                <ServiceCard
-                                    service={service}
-                                    getStatusBadge={getStatusBadge}
-                                    onDelete={() => handleDeleteService(service.id)}
-                                    onRepost={() => handleRepostService(service.id)}
-                                />
-                            )}
-                            emptyState={{
-                                icon: <Wrench className="h-12 w-12 text-slate-300" />,
-                                title: `No ${servicesStatus} services`,
-                                description: servicesStatus === "live"
-                                    ? "List your repair or maintenance services to attract customers."
-                                    : `${formatStatusLabel(servicesStatus)} services will appear here.`,
-                                cta: servicesStatus === "live"
-                                    ? buildBusinessListingCta({
-                                        postLabel: "Post a Service",
-                                        lockedLabel: "Register Business to Post Services",
-                                        onPost: () => navigateTo("post-service"),
-                                    })
-                                    : undefined,
-                            }}
-                        />
-                    )}
-
-                    {/* ════════════════════ SPARE PARTS ════════════════════ */}
-                    {subTab === "spare-parts" && (
-                        <ListingSection
-                            statusTabs={STATUS_PILL_TABS_SPARE}
-                            selectedStatus={spareStatus}
-                            onStatusChange={setSpareStatus}
-                            loading={loadingSpare}
-                            error={spareError}
-                            errorMessage="Failed to load spare parts."
-                            onRetry={fetchMySpare}
-                            items={mySpare}
-                            getItemKey={(listing) => listing.id}
-                            renderItem={(listing) => (
-                                <SparePartCard
-                                    listing={listing}
-                                    getStatusBadge={getStatusBadge}
-                                    onDelete={() => handleDeleteSpare(listing.id)}
-                                    onMarkSold={() => {
-                                        setSpareToSell(listing);
-                                        setSparesSoldReason(null);
-                                        setIsSparesSoldOpen(true);
-                                    }}
-                                    onRepost={() => handleRepostSpare(listing.id)}
-                                />
-                            )}
-                            emptyState={{
-                                icon: <CircuitBoard className="h-12 w-12 text-slate-300" />,
-                                title: `No ${spareStatus} spare part listings`,
-                                description: spareStatus === "live"
-                                    ? "List spare parts to sell to repair shops and customers."
-                                    : `${formatStatusLabel(spareStatus)} listings will appear here.`,
-                                cta: spareStatus === "live"
-                                    ? buildBusinessListingCta({
-                                        postLabel: "Post Spare Part",
-                                        lockedLabel: "Register Business to Post Spare Parts",
-                                        onPost: () => navigateTo("post-spare-part-listing"),
-                                    })
-                                    : undefined,
-                            }}
-                        />
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* ── Delete Ad Dialog ── */}
+            {/* Modals */}
             <AlertDialog open={isDeleteAdOpen} onOpenChange={setIsDeleteAdOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete this ad?</AlertDialogTitle>
+                        <AlertDialogTitle>Delete this listing?</AlertDialogTitle>
                         <AlertDialogDescription>
                             This will archive &ldquo;<strong>{adToDelete?.title}</strong>&rdquo;. It will no longer be visible to buyers.
                         </AlertDialogDescription>
@@ -525,13 +266,12 @@ export function MyListingsTab({
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={confirmDeleteAd} className="bg-red-600 hover:bg-red-700 text-white">
-                            Delete Ad
+                            Delete
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
 
-            {/* ── Mark as Sold Modal (Ads) ── */}
             <SoldReasonDialog
                 open={isSoldOpen}
                 onOpenChange={setIsSoldOpen}
@@ -543,7 +283,6 @@ export function MyListingsTab({
                 onConfirm={confirmSold}
             />
 
-            {/* ── Mark as Sold Modal (Spare Parts) ── */}
             <SoldReasonDialog
                 open={isSparesSoldOpen}
                 onOpenChange={setIsSparesSoldOpen}
@@ -555,331 +294,5 @@ export function MyListingsTab({
                 onConfirm={confirmSoldSpare}
             />
         </div>
-    );
-}
-
-// ── Service Card ──────────────────────────────────────────────────────────────
-function ServiceCard({
-    service, getStatusBadge, onDelete, onRepost,
-}: {
-    service: Service;
-    getStatusBadge: (status: string) => React.ReactNode;
-    onDelete: () => void;
-    onRepost?: () => void;
-}) {
-    const thumbnail = service.images?.[0];
-    const timeAgo = service.createdAt
-        ? formatDistanceToNow(new Date(service.createdAt), { addSuffix: true })
-        : "";
-
-    const priceLabel = service.priceType === "range" && service.priceMin != null && service.priceMax != null
-        ? `₹${service.priceMin.toLocaleString()} – ₹${service.priceMax.toLocaleString()}`
-        : service.priceType === "starting_from" && service.priceMin != null
-            ? `From ₹${service.priceMin.toLocaleString()}`
-            : service.price != null
-                ? `₹${service.price.toLocaleString()}`
-                : "Price on request";
-
-    return (
-        <div className="flex gap-3 p-3 rounded-xl border bg-white hover:border-violet-200 hover:shadow-sm transition-all group">
-            <SimpleListingThumbnail
-                thumbnail={thumbnail}
-                title={service.title}
-                className="bg-violet-50"
-                fallbackIcon={<Wrench className="w-8 h-8 text-violet-300" />}
-            />
-
-            {/* Details */}
-            <div className="flex flex-1 flex-col justify-between min-w-0">
-                <div>
-                    <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-medium text-sm line-clamp-1 text-slate-900">{service.title}</h3>
-                        {getStatusBadge(service.status)}
-                    </div>
-                    <p className="text-xs font-bold text-violet-700 mt-0.5">{priceLabel}</p>
-
-                    {service.status === "rejected" && service.rejectionReason && (
-                        <p className="text-[10px] text-red-500 mt-0.5 line-clamp-2">Reason: {service.rejectionReason}</p>
-                    )}
-
-                    {/* Meta badges */}
-                    <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                        {service.location?.city && (
-                            <span className="flex items-center gap-1 text-[10px] text-slate-500">
-                                <MapPin className="h-3 w-3" /> {service.location.city}
-                            </span>
-                        )}
-                        {service.onsiteService !== undefined && (
-                            <span className={`flex items-center gap-1 text-[10px] font-medium ${service.onsiteService ? "text-green-600" : "text-slate-500"}`}>
-                                {service.onsiteService ? <Home className="h-3 w-3" /> : <Wifi className="h-3 w-3" />}
-                                {service.onsiteService ? "On-site" : "Remote"}
-                            </span>
-                        )}
-                        {service.turnaroundTime && (
-                            <span className="flex items-center gap-1 text-[10px] text-slate-500">
-                                <Timer className="h-3 w-3" /> {service.turnaroundTime}
-                            </span>
-                        )}
-                        <span className="flex items-center gap-1 text-[10px] text-slate-400">
-                            <Clock className="h-3 w-3" /> {timeAgo}
-                        </span>
-                    </div>
-
-                    {/* Category / brand tags */}
-                    {(service.category?.name || service.brand?.name) && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                            {service.category?.name && (
-                                <span className="px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 text-[10px] font-medium border border-violet-100">
-                                    {service.category.name}
-                                </span>
-                            )}
-                            {service.brand?.name && (
-                                <span className="px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 text-[10px] font-medium border border-slate-100">
-                                    {service.brand.name}
-                                </span>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Actions */}
-                <ListingManagementActions
-                    showRenew={service.status === "expired" || service.status === "rejected"}
-                    onRenew={onRepost}
-                    editHref={`/edit-service/${service.id}`}
-                    onDelete={onDelete}
-                />
-            </div>
-        </div>
-    );
-}
-
-// ── Spare Part Card ───────────────────────────────────────────────────────────
-function SparePartCard({
-    listing, getStatusBadge, onDelete, onMarkSold, onRepost,
-}: {
-    listing: SparePartListing;
-    getStatusBadge: (status: string) => React.ReactNode;
-    onDelete: () => void;
-    onMarkSold: () => void;
-    onRepost?: () => void;
-}) {
-    const thumbnail = listing.images?.[0];
-    const timeAgo = listing.createdAt
-        ? formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })
-        : "";
-
-    return (
-        <div className="flex gap-3 p-3 rounded-xl border bg-white hover:border-teal-200 hover:shadow-sm transition-all group">
-            <SimpleListingThumbnail
-                thumbnail={thumbnail}
-                title={listing.title}
-                className="bg-teal-50"
-                fallbackIcon={<CircuitBoard className="w-8 h-8 text-teal-300" />}
-            />
-
-            {/* Details */}
-            <div className="flex flex-1 flex-col justify-between min-w-0">
-                <div>
-                    <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-medium text-sm line-clamp-1 text-slate-900">{listing.title}</h3>
-                        {getStatusBadge(listing.status)}
-                    </div>
-                    <p className="text-xs font-bold text-teal-700 mt-0.5">₹{listing.price.toLocaleString()}</p>
-
-                    <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                        {listing.location?.city && (
-                            <span className="flex items-center gap-1 text-[10px] text-slate-500">
-                                <MapPin className="h-3 w-3" /> {listing.location.city}
-                            </span>
-                        )}
-                        <span className="flex items-center gap-1 text-[10px] text-slate-400">
-                            <Clock className="h-3 w-3" /> {timeAgo}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Actions */}
-                <ListingManagementActions
-                    leadingAction={listing.status === "live" ? (
-                        <Button size="sm" variant="outline"
-                            className="h-7 text-xs text-green-700 border-green-200 hover:bg-green-50"
-                            onClick={onMarkSold}
-                        >
-                            <CheckSquare className="h-3 w-3 mr-1" /> Mark Sold
-                        </Button>
-                    ) : null}
-                    showRenew={listing.status === "expired" || listing.status === "rejected"}
-                    onRenew={onRepost}
-                    editHref={`/edit-spare-part/${listing.id}`}
-                    onDelete={onDelete}
-                />
-            </div>
-        </div>
-    );
-}
-
-// ── Shared helpers ────────────────────────────────────────────────────────────
-function SimpleListingThumbnail({
-    thumbnail,
-    title,
-    className,
-    fallbackIcon,
-}: {
-    thumbnail?: string;
-    title: string;
-    className: string;
-    fallbackIcon: React.ReactNode;
-}) {
-    return (
-        <div className={`relative w-20 h-20 shrink-0 rounded-lg overflow-hidden flex items-center justify-center ${className}`}>
-            {thumbnail ? (
-                <img
-                    src={thumbnail}
-                    alt={title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                />
-            ) : (
-                fallbackIcon
-            )}
-        </div>
-    );
-}
-
-function ListingManagementActions({
-    leadingAction,
-    showRenew,
-    onRenew,
-    editHref,
-    onDelete,
-}: {
-    leadingAction?: React.ReactNode;
-    showRenew?: boolean;
-    onRenew?: () => void;
-    editHref: string;
-    onDelete: () => void;
-}) {
-    return (
-        <div className="flex items-center justify-end gap-2 mt-2">
-            {leadingAction}
-            {showRenew && onRenew ? (
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
-                    onClick={onRenew}
-                >
-                    <RefreshCw className="h-3 w-3 mr-1" /> Renew
-                </Button>
-            ) : null}
-            <Link href={editHref}>
-                <Button variant="outline" size="sm" className="h-7 text-xs">
-                    <Edit2 className="h-3 w-3 mr-1" /> Edit
-                </Button>
-            </Link>
-            <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                onClick={onDelete}
-            >
-                <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-        </div>
-    );
-}
-
-function LoadingSkeleton() {
-    return (
-        <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-                <div key={i} className="flex gap-3 p-3 rounded-xl border border-slate-100">
-                    <Skeleton className="h-20 w-20 rounded-lg" />
-                    <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-4 w-1/3" />
-                        <Skeleton className="h-3 w-1/2" />
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
-
-function EmptyState({ icon, title, description, cta }: {
-    icon: React.ReactNode; title: string; description: string; cta?: React.ReactNode;
-}) {
-    return (
-        <div className="text-center py-14 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-            <div className="flex justify-center mb-3">{icon}</div>
-            <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-[240px] mx-auto">{description}</p>
-            {cta && <div className="mt-4">{cta}</div>}
-        </div>
-    );
-}
-
-function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
-    return (
-        <div className="flex flex-col items-center justify-center py-12 text-center text-red-500">
-            <AlertTriangle className="h-10 w-10 mb-2 opacity-50" />
-            <p className="text-sm font-medium">{message}</p>
-            {onRetry && (
-                <Button onClick={onRetry} variant="outline" size="sm" className="mt-4">Retry</Button>
-            )}
-        </div>
-    );
-}
-
-function SoldReasonDialog({
-    open,
-    onOpenChange,
-    description,
-    inputName,
-    selectedReason,
-    onReasonChange,
-    isSubmitting,
-    onConfirm,
-}: {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    description: string;
-    inputName: string;
-    selectedReason: SoldReason | null;
-    onReasonChange: (reason: SoldReason) => void;
-    isSubmitting: boolean;
-    onConfirm: () => void;
-}) {
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-sm">
-                <DialogHeader><DialogTitle>Mark as Sold</DialogTitle></DialogHeader>
-                <p className="text-sm text-slate-500 mb-3">{description}</p>
-                <div className="space-y-2">
-                    {SOLD_REASON_OPTIONS.map((option) => (
-                        <label
-                            key={option.value}
-                            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${selectedReason === option.value ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-slate-300"}`}
-                        >
-                            <input
-                                type="radio"
-                                name={inputName}
-                                value={option.value}
-                                checked={selectedReason === option.value}
-                                onChange={() => onReasonChange(option.value)}
-                                className="accent-blue-600"
-                            />
-                            <span className="text-sm">{option.label}</span>
-                        </label>
-                    ))}
-                </div>
-                <DialogFooter className="mt-4">
-                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>Cancel</Button>
-                    <Button onClick={onConfirm} disabled={!selectedReason || isSubmitting} className="bg-green-600 hover:bg-green-700 text-white">
-                        {isSubmitting ? "Updating…" : "Confirm"}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
     );
 }

@@ -5,6 +5,7 @@ import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import Category from '../models/Category';
 import logger from '../utils/logger';
+import { toObjectId, toObjectIdString } from '../utils/idUtils';
 
 type SimilarAdsOptions = {
     limit?: number;
@@ -22,19 +23,7 @@ const SIMILAR_ADS_MIN_LIMIT = 6;
 const SIMILAR_ADS_MAX_LIMIT = 12;
 const SIMILAR_ADS_DEFAULT_LIMIT = 8;
 
-const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
-    if (!value) return null;
-    if (value instanceof mongoose.Types.ObjectId) return value;
-    if (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value)) {
-        return new mongoose.Types.ObjectId(value);
-    }
-    return null;
-};
 
-const toObjectIdString = (value: unknown): string | null => {
-    const objectId = toObjectId(value);
-    return objectId ? objectId.toHexString() : null;
-};
 
 const normalizeLimit = (value: unknown): number => {
     const parsed = Number(value);

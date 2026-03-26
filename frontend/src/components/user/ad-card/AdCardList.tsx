@@ -4,16 +4,16 @@ import { memo } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Heart, Sparkles } from "lucide-react";
+import { Heart } from "lucide-react";
 import { haptics } from "@/lib/haptics";
-import { formatPrice } from "@/lib/formatters";
 import { formatLocation } from "@/lib/location/locationService";
 import { cn } from "@/components/ui/utils";
 import {
   AdCardLinkWrapper,
   type AdCardData,
   useAdCardBase,
+  getPlanBadge,
+  AdCardPriceDisplay,
 } from "./shared";
 
 export interface AdCardListProps {
@@ -22,6 +22,7 @@ export interface AdCardListProps {
   onToggleSave?: (adId: string | number, e: React.MouseEvent) => void;
   onClick?: () => void;
   href?: string;
+  priority?: boolean;
   className?: string;
 }
 
@@ -31,41 +32,15 @@ export const AdCardList = memo(function AdCardList({
   onToggleSave,
   onClick,
   href,
+  priority = false,
   className,
 }: AdCardListProps) {
-  const { adRecord, imageUrl, adId, useDeclarativeLink, handleCardClick } = useAdCardBase({
+  const { imageUrl, adId, useDeclarativeLink, handleCardClick } = useAdCardBase({
     ad,
     href,
     onClick,
     disableDeclarativeLink: Boolean(onToggleSave),
   });
-  const isBoosted = adRecord.isBoosted === true;
-
-  const getPlanBadge = () => {
-    if (ad.price === 0) {
-      return (
-        <Badge className="bg-white/95 text-gray-600 border border-gray-300 text-[10px] md:text-xs shadow-sm">
-          FREE
-        </Badge>
-      );
-    }
-    const badgeClasses = "border-0 text-[10px] shadow-lg flex items-center";
-    if (ad.isSpotlight) {
-      return (
-        <Badge className={cn("bg-gradient-to-r from-yellow-500 to-orange-500 text-white", badgeClasses)}>
-          <Sparkles className="h-2 w-2 mr-0.5" /> ⭐ Spotlight
-        </Badge>
-      );
-    }
-    if (isBoosted) {
-      return (
-        <Badge className={cn("bg-gradient-to-r from-sky-600 to-blue-700 text-white", badgeClasses)}>
-          🚀 Boosted
-        </Badge>
-      );
-    }
-    return null;
-  };
 
   return (
     <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
@@ -86,6 +61,7 @@ export const AdCardList = memo(function AdCardList({
                   src={imageUrl}
                   alt={ad.title}
                   fill
+                  priority={priority}
                   unoptimized
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   sizes="(max-width: 768px) 100px, 150px"
@@ -95,9 +71,9 @@ export const AdCardList = memo(function AdCardList({
                   <span className="text-[10px]">No Image</span>
                 </div>
               )}
-              {getPlanBadge() && (
+              {getPlanBadge(ad) && (
                 <div className="absolute top-1 left-1 z-10 scale-75 origin-top-left">
-                  {getPlanBadge()}
+                  {getPlanBadge(ad)}
                 </div>
               )}
             </div>
@@ -106,9 +82,7 @@ export const AdCardList = memo(function AdCardList({
             <div className="flex-1 flex flex-col justify-between py-1">
               <div>
                 <div className="flex justify-between items-start gap-2">
-                  <div className="text-xl font-bold text-green-600">
-                    {ad.price === 0 ? "Free" : formatPrice(ad.price)}
-                  </div>
+                  <AdCardPriceDisplay price={ad.price} className="text-xl" />
                   {onToggleSave && (
                     <Button
                       size="icon"

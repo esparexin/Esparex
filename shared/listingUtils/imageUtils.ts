@@ -38,13 +38,13 @@ const wildcardPatternToRegex = (pattern: string): RegExp => {
 
 const allowedHostRegexes = allowedHostPatterns.map(wildcardPatternToRegex);
 
-const isLocalHttpHost = (hostname: string): boolean =>
+export const isLocalHttpHost = (hostname: string): boolean =>
     hostname === 'localhost' || hostname === '127.0.0.1';
 
-const isAllowedRemoteHost = (hostname: string): boolean =>
+export const isAllowedRemoteHost = (hostname: string): boolean =>
     allowedHostRegexes.some((regex) => regex.test(hostname));
 
-const isValidS3Host = (hostname: string): boolean =>
+export const isValidS3Host = (hostname: string): boolean =>
     s3PublicHostRegex.test(hostname) || s3PathStyleHostRegex.test(hostname);
 
 /**

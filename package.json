@@ -5,7 +5,9 @@
   "workspaces": [
     "backend",
     "frontend",
-    "admin-frontend"
+    "admin-frontend",
+    "shared",
+    "shared/observability"
   ],
   "scripts": {
     "build": "npm run build -w backend && npm run build -w frontend && npm run build -w admin-frontend",

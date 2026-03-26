@@ -12,17 +12,13 @@ import {
     CatalogActionIconButton,
     CatalogActiveToggleButton,
     CatalogCheckboxCard,
+    CatalogCheckboxGroupField,
     CatalogEntityCell,
+    CatalogListingTypeBadges,
     CatalogSearchInput,
     CatalogTextInputField,
+    getListingTypeIcon,
 } from "@/components/catalog/CatalogUiPrimitives";
-
-const getIcon = (listingType: string[] = []) => {
-    if (listingType.includes("postad")) return <Smartphone size={20} />;
-    if (listingType.includes("postservice")) return <Briefcase size={20} />;
-    if (listingType.includes("postsparepart")) return <Wrench size={20} />;
-    return <Box size={20} />;
-};
 
 export default function CategoriesPage() {
     const {
@@ -86,7 +82,7 @@ export default function CategoriesPage() {
                     header: "Category",
                     cell: (category) => (
                         <CatalogEntityCell
-                            icon={getIcon(category.listingType)}
+                            icon={getListingTypeIcon(category.listingType?.[0] || "", 20)}
                             iconClassName="bg-slate-100 text-slate-600"
                             title={category.name}
                             subtitle={category.slug}
@@ -95,30 +91,7 @@ export default function CategoriesPage() {
                 },
                 {
                     header: "Listing Types",
-                    cell: (category) => (
-                        <div className="flex flex-wrap gap-1.5">
-                            {category.listingType?.includes("postad") && (
-                                <span className="px-2 py-0.5 rounded text-[10px] bg-blue-50 text-blue-600 border border-blue-100 font-bold flex items-center gap-1">
-                                    <Smartphone size={10} /> Devices
-                                </span>
-                            )}
-                            {category.listingType?.includes("postservice") && (
-                                <span className="px-2 py-0.5 rounded text-[10px] bg-purple-50 text-purple-600 border border-purple-100 font-bold flex items-center gap-1">
-                                    <Wrench size={10} /> Services
-                                </span>
-                            )}
-                            {category.listingType?.includes("postsparepart") && (
-                                <span className="px-2 py-0.5 rounded text-[10px] bg-orange-50 text-orange-600 border border-orange-100 font-bold flex items-center gap-1">
-                                    <Box size={10} /> Spare Parts
-                                </span>
-                            )}
-                            {category.hasScreenSizes && (
-                                <span className="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-500 border border-slate-200 font-bold">
-                                    + Screen Sizes
-                                </span>
-                            )}
-                        </div>
-                    ),
+                    cell: (category) => <CatalogListingTypeBadges types={category.listingType} />,
                 },
                 {
                     header: "Status",
@@ -174,38 +147,20 @@ export default function CategoriesPage() {
                         onChange={(name) => setFormData((prev) => ({ ...prev, name }))}
                     />
 
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Listing Types (Placement)
-                        </label>
-                        <div className="grid grid-cols-1 gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                            {FORM_PLACEMENT_VALUES.map((listingType) => (
-                                <label key={listingType} className="flex items-center gap-3 cursor-pointer group">
-                                    <input
-                                        type="checkbox"
-                                        className="w-4 h-4 text-primary rounded border-slate-300 focus:ring-primary/20"
-                                        checked={formData.listingType.includes(listingType)}
-                                        onChange={(event) => {
-                                            const nextListingTypes = new Set(formData.listingType);
-                                            if (event.target.checked) nextListingTypes.add(listingType);
-                                            else nextListingTypes.delete(listingType);
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                listingType: Array.from(nextListingTypes),
-                                            }));
-                                        }}
-                                    />
-                                    <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">
-                                        {listingType === "postad"
-                                            ? "Post Ad (Devices)"
-                                            : listingType === "postservice"
-                                                ? "Post Service"
-                                                : "Post Spare Part"}
-                                    </span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
+                    <CatalogCheckboxGroupField
+                        label="Listing Types (Placement)"
+                        options={listingTypes.map((lt) => ({
+                            value: lt,
+                            label:
+                                lt === "postad"
+                                    ? "Post Ad (Devices)"
+                                    : lt === "postservice"
+                                        ? "Post Service"
+                                        : "Post Spare Part",
+                        }))}
+                        selectedValues={formData.listingType}
+                        onChange={(listingType) => setFormData((prev) => ({ ...prev, listingType: listingType as FormPlacement[] }))}
+                    />
 
                     <div className="grid grid-cols-2 gap-4">
                         <CatalogCheckboxCard

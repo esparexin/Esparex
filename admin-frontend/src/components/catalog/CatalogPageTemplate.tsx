@@ -15,6 +15,8 @@ export interface CatalogPageTemplateProps<TItem extends { id: string }, TFormDat
     title: string;
     description: string;
     
+    tabs?: import("@/components/layout/AdminModuleTabs").AdminTabItem[];
+    
     items: TItem[];
     loading: boolean;
     error: string | null;
@@ -74,6 +76,7 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
     onModalOpen,
     onModalClose,
     createLabel = "Add Item",
+    tabs,
     modalTitleConfig = { create: "Add New Item", edit: "Edit Item" },
     emptyMessage = "No items found"
 }: CatalogPageTemplateProps<TItem, TFormData>) {
@@ -134,7 +137,7 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
         <CatalogIndexPage
             title={title}
             description={description}
-            tabs={<AdminModuleTabs tabs={catalogManagementTabs} />}
+            tabs={<AdminModuleTabs tabs={tabs || catalogManagementTabs} />}
             actions={
                 <button
                     className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"

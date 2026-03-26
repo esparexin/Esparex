@@ -15,17 +15,26 @@ import Brand from '../../models/Brand';
 import Model from '../../models/Model';
 import SparePart from '../../models/SparePart';
 import Ad from '../../models/Ad';
-import { sendSuccessResponse } from '../admin/adminBaseController';
+import { 
+    sendAdminError,
+    sendSuccessResponse 
+} from '../admin/adminBaseController';
 import { resolveEquivalentActiveCategoryIds } from '../../utils/categoryCanonical';
 import {
-    getActiveCategoryIds,
-    sendValidationError,
-    sendEmptyPublicList,
     hasAdminAccess,
     sendCatalogError,
+    asModel,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
-    validateActiveCategories
+    validateActiveCategories,
+    getActiveCategoryIds,
+    handleCatalogCreate,
+    handleCatalogUpdate,
+    handleCatalogDelete,
+    handleCatalogReview,
+    isDuplicateKeyError,
+    sendEmptyPublicList,
+    getAdminActorId
 } from './shared';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { normalizeObjectIdLike } from '../../utils/idUtils';
@@ -38,16 +47,17 @@ import {
     rejectionSchema
 } from '../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
+import { ISparePart } from '../../models/SparePart';
 
-// Local schemas replaced by centralized catalog.validator.ts
-
+// ── Generic CRUD Helpers ───────────────────────────────────────────────────
+// SparePart CRUD now delegated to shared.ts generic handlers.
 
 /**
  * Get all spare parts (with optional category filter and status)
  */
 export const getSpareParts = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
-    const { isActive } = req.query;
+    const { status } = req.query;
     const categoryParam = (req.query.categoryId || req.query.category) as string | undefined;
 
     let categoryObjectId: string | undefined = categoryParam;
@@ -97,7 +107,7 @@ export const getSpareParts = async (req: Request, res: Response) => {
                     { status: CATALOG_STATUS.ACTIVE },
                     { status: { $exists: false } }
                 ],
-                categoryIds: { $in: activeCategoryIds }
+                categoryId: { $in: activeCategoryIds }
             }).select('_id').lean()
         ])
         : [[], []];
@@ -105,10 +115,10 @@ export const getSpareParts = async (req: Request, res: Response) => {
     const activeModelIds = activeModelsRaw.map((model) => String(model._id));
 
     const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build();
-    if (isActive !== undefined) adminQuery.isActive = isActive === 'true';
+    if (status) adminQuery.status = status;
 
     const publicQuery: QueryRecord = { 
-        isActive: true,
+        status: CATALOG_STATUS.ACTIVE,
         ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build()
     };
     publicQuery.$and = [
@@ -155,158 +165,72 @@ export const getSpareParts = async (req: Request, res: Response) => {
  * Create new spare part (admin only)
  */
 export const createSparePart = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const parsed = sparePartCreateSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
-        const payload = { ...parsed.data };
-        
-        // Backward compatibility mapping
-        if (!payload.categoryIds && payload.categoryId) {
-            payload.categoryIds = [payload.categoryId];
-        }
-        delete payload.categoryId;
+    return handleCatalogCreate(req, res, asModel<ISparePart>(SparePart), sparePartCreateSchema, {
+        auditAction: 'SPARE_PART_CREATE',
+        slugifyName: true,
+        preOp: async (payload) => {
+            // Backward compatibility mapping
+            if (!payload.categoryIds && payload.categoryId) {
+                payload.categoryIds = [payload.categoryId];
+            }
+            delete payload.categoryId;
 
-        const {
-            name,
-            listingType,
-            categoryIds,
-            sortOrder = 0,
-            filters = [],
-            isActive = true,
-            rejectionReason,
-            brandId,
-            modelId
-        } = payload;
-        const userId = req.user?._id ?? req.user?.id;
-        const adminId = typeof userId === 'string' ? userId : (userId && typeof userId.toString === 'function' ? userId.toString() : undefined);
+            const validatedCategoryIds = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: payload.categoryIds }).getRawIds();
+            const relation = await validateSparePartRelations({ categoryIds: validatedCategoryIds, brandId: payload.brandId, modelId: payload.modelId });
+            if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
 
-        const validatedCategoryIds = CategoryQueryBuilder.forPlural().withFilters({ categoryIds }).getRawIds();
-        const relation = await validateSparePartRelations({ categoryIds: validatedCategoryIds, brandId, modelId });
-        if (!relation.ok) {
-            sendContractErrorResponse(req, res, 400, relation.reason || 'Invalid relation');
-            return;
-        }
-
-        const slug = slugify(name, { lower: true });
-        const existingSparePart = await SparePart.findOne({ slug }).select('_id name slug categoryIds brandId modelId');
-        if (existingSparePart) {
-            sendContractErrorResponse(req, res, 409, 'Spare part already exists', {
-                existing: {
-                    id: existingSparePart._id,
-                    name: existingSparePart.name,
-                    slug: existingSparePart.slug,
-                    categoryIds: existingSparePart.categoryIds,
-                    brandId: existingSparePart.brandId,
-                    modelId: existingSparePart.modelId
-                }
-            });
-            return;
-        }
-
-        const sparePart = await SparePart.create({
-            name,
-            slug,
-            listingType: listingType || ['postsparepart'],
-            categoryIds,
-            ...(brandId ? { brandId } : {}),
-            ...(modelId ? { modelId } : {}),
-            sortOrder,
-            filters,
-            isActive,
-            ...(rejectionReason ? { rejectionReason } : {}),
-            usageCount: 0,
-            createdBy: adminId
-        });
-
-        // Patch 3: invalidate taxonomy cache so admin dropdowns reflect new spare part
-        void CatalogOrchestrator.invalidateCatalogCache();
-
-        sendSuccessResponse(res, sparePart, 'Spare part created successfully');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+            payload.createdBy = getAdminActorId(req);
+            payload.listingType = payload.listingType || ['postsparepart'];
+            payload.usageCount = 0;
+            
+            return payload;
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 };
 
 /**
  * Update existing spare part
  */
 export const updateSparePart = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const existingPart = await SparePart.findById(req.params.id).select('categoryIds brandId modelId');
-        if (!existingPart) { sendContractErrorResponse(req, res, 404, 'Spare part not found'); return; }
+    return handleCatalogUpdate(req, res, asModel<ISparePart>(SparePart), sparePartUpdateSchema, {
+        auditAction: 'SPARE_PART_UPDATE',
+        preUpdate: async (id, payload, existingPart) => {
+            // Backward compatibility mapping
+            if (!payload.categoryIds && payload.categoryId) {
+                payload.categoryIds = [payload.categoryId];
+            }
+            delete payload.categoryId;
+            if (payload.name) payload.slug = slugify(payload.name, { lower: true, strict: true });
+            
+            // Use renamed categoryIds from and to payload
+            const nextCategories = payload.categoryIds || (existingPart as any).categoryIds.map((id: any) => String(id));
+            const nextBrandId = payload.brandId ?? (existingPart.brandId ? String(existingPart.brandId) : undefined);
+            const nextModelId = payload.modelId ?? (existingPart.modelId ? String(existingPart.modelId) : undefined);
+            const relation = await validateSparePartRelations({
+                categoryIds: nextCategories,
+                brandId: nextBrandId,
+                modelId: nextModelId
+            });
+            if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
 
-        const parsed = sparePartUpdateSchema.safeParse(req.body);
-        if (!parsed.success) {
-            sendValidationError(req, res, parsed.error);
-            return;
-        }
-        const payload = { ...parsed.data };
-        
-        // Backward compatibility mapping
-        if (!payload.categoryIds && payload.categoryId) {
-            payload.categoryIds = [payload.categoryId];
-        }
-        delete payload.categoryId;
-        if (payload.name) payload.slug = slugify(payload.name, { lower: true, strict: true });
-        
-        // Use renamed categoryIds from and to payload
-        const nextCategories = payload.categoryIds || (existingPart as any).categoryIds.map((id: any) => String(id));
-        const nextBrandId = payload.brandId ?? (existingPart.brandId ? String(existingPart.brandId) : undefined);
-        const nextModelId = payload.modelId ?? (existingPart.modelId ? String(existingPart.modelId) : undefined);
-        const relation = await validateSparePartRelations({
-            categoryIds: nextCategories,
-            brandId: nextBrandId,
-            modelId: nextModelId
-        });
-        if (!relation.ok) {
-            sendContractErrorResponse(req, res, 400, relation.reason || 'Invalid relation');
-            return;
-        }
-
-        const sparePart = await SparePart.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
-        if (!sparePart) { sendContractErrorResponse(req, res, 404, 'Spare part not found'); return; }
-
-        // Patch 3: invalidate taxonomy cache so admin dropdowns reflect updated spare part
-        void CatalogOrchestrator.invalidateCatalogCache();
-
-        sendSuccessResponse(res, sparePart, 'Spare part updated successfully');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+            return payload;
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 };
 
 /**
  * Delete spare part (soft delete with dependency check)
  */
 export const deleteSparePart = async (req: Request, res: Response) => {
-    try {
-        if (!hasAdminAccess(req)) { sendContractErrorResponse(req, res, 403, 'Admin access required'); return; }
-        const sparePartId = req.params.id;
-        const sparePart = await SparePart.findById(sparePartId);
-        if (!sparePart) { sendContractErrorResponse(req, res, 404, 'Spare part not found'); return; }
-
-        const adsCount = await Ad.countDocuments({ sparePartIds: sparePart._id });
-        if (adsCount > 0) {
-            sendContractErrorResponse(req, res, 409, 'Cannot delete spare part', {
-                message: `This spare part "${sparePart.name}" is currently in use.`,
-                dependencies: {
-                    ads: adsCount,
-                    total: adsCount
-                }
-            });
-            return;
-        }
-
-        await sparePart.softDelete();
-        sendSuccessResponse(res, null, 'Spare part deleted successfully');
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
+    return handleCatalogDelete(req, res, asModel<ISparePart>(SparePart) as any, async (id) => {
+        const adsCount = await Ad.countDocuments({ sparePartIds: id });
+        return {
+            count: adsCount,
+            details: { ads: adsCount }
+        };
+    }, { auditAction: 'SPARE_PART_DELETE' });
 };
 
 /**
@@ -315,7 +239,7 @@ export const deleteSparePart = async (req: Request, res: Response) => {
 export const getSparePartById = async (req: Request, res: Response) => {
     try {
         const sparePart = await SparePart.findById(req.params.id);
-        if (!sparePart) { sendContractErrorResponse(req, res, 404, 'Spare part not found'); return; }
+        if (!sparePart) return sendAdminError(req, res, 'Spare part not found', 404);
         sendSuccessResponse(res, sparePart);
     } catch (error) {
         sendCatalogError(req, res, error);

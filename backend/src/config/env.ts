@@ -25,7 +25,7 @@ dotenv.config({ quiet: true });
 const envSchema = z.object({
     // Node Environment
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-    PORT: z.string().transform(Number).pipe(z.number().min(1000).max(65535)).default('5001'),
+    PORT: z.string().default('5001').transform(Number).pipe(z.number().min(1000).max(65535)),
     CI: z.string().transform(val => val === 'true').default('false'),
 
     // Database
@@ -74,7 +74,7 @@ const envSchema = z.object({
 
     // Redis (Optional)
     REDIS_HOST: z.string().default('localhost'),
-    REDIS_PORT: z.string().transform(Number).pipe(z.number()).default('6379'),
+    REDIS_PORT: z.string().default('6379').transform(Number).pipe(z.number()),
     REDIS_PASSWORD: z.string().optional(),
     REDIS_URL: z.string().optional(),
 

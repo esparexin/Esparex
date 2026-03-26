@@ -206,6 +206,7 @@ interface CategorySelectorGridProps {
     onSelect: (id: string) => void;
     disabled?: boolean;
     defaultIcon: LucideIcon;
+    error?: string;
 }
 
 export function CategorySelectorGrid({
@@ -213,10 +214,15 @@ export function CategorySelectorGrid({
     selectedCategoryId,
     onSelect,
     disabled = false,
-    defaultIcon: DefaultIcon
+    defaultIcon: DefaultIcon,
+    error
 }: CategorySelectorGridProps) {
     return (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="space-y-1.5">
+            <div className={cn(
+                "grid grid-cols-4 gap-2 rounded-xl p-1",
+                error ? "ring-2 ring-red-100 bg-red-50/30" : ""
+            )}>
             {categories.map((cat) => {
                 const Icon = cat.icon || DefaultIcon;
                 const selected = cat.id === selectedCategoryId;
@@ -241,6 +247,8 @@ export function CategorySelectorGrid({
                     </button>
                 );
             })}
+            </div>
+            {error && <p className="text-[10px] font-medium text-red-500 px-1">{error}</p>}
         </div>
     );
 }

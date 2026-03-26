@@ -7,6 +7,8 @@ import {
   AdCardLinkWrapper,
   type AdCardData,
   useAdCardBase,
+  getPlanBadge,
+  AdCardPriceDisplay,
 } from "./shared";
 
 export interface AdCardGridProps {
@@ -43,7 +45,6 @@ export const AdCardGrid = memo(function AdCardGrid({
         className={`overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border border-slate-200 bg-white hover:-translate-y-0.5 rounded-xl ${ad.isSpotlight ? 'ring-2 ring-yellow-500 ring-offset-2' : ''} ${className || ''}`}
         onClick={useDeclarativeLink ? undefined : handleCardClick}
       >
-        {/* Cover Section */}
         <AdCardCover
           ad={ad}
           imageUrl={imageUrl}
@@ -51,6 +52,7 @@ export const AdCardGrid = memo(function AdCardGrid({
           showBusinessBadge={showBusinessBadge}
           className="aspect-square w-full"
         >
+          {getPlanBadge(ad, "absolute top-2 left-2 z-10")}
           {onToggleSave && (
             <AdCardActions
               adId={adId}
@@ -65,6 +67,7 @@ export const AdCardGrid = memo(function AdCardGrid({
 
         {/* Content Section */}
         <CardContent className="p-2.5 md:p-4 space-y-1 md:space-y-2">
+          <AdCardPriceDisplay price={ad.price} className="text-emerald-600" />
           <AdCardMeta ad={ad} variant="default" />
         </CardContent>
       </Card>

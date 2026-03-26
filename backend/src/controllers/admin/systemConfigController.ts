@@ -1,33 +1,21 @@
 import logger from '../../utils/logger';
+import nodemailer from 'nodemailer';
 import { Request, Response } from 'express';
 import SystemConfig from '../../models/SystemConfig';
-import { sendSuccessResponse } from './adminBaseController';
-import { logAdminAction } from '../../utils/adminLogger';
-import nodemailer from 'nodemailer';
-import {
-    ensureSystemConfig,
-    invalidateSystemConfigCache,
-    SYSTEM_CONFIG_KEY
-} from '../../utils/systemConfigHelper';
-import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
+import { 
+    sendSuccessResponse, 
+    sendAdminError 
+} from './adminBaseController';
 import {
     getSystemConfigForRead,
     updateSystemConfigSections
 } from '../../services/SystemConfigService';
+import { SYSTEM_CONFIG_KEY, invalidateSystemConfigCache, ensureSystemConfig } from '../../utils/systemConfigHelper';
+import { logAdminAction } from '../../utils/adminLogger';
 
 type AuthenticatedRequest = Request & { user?: { _id?: string } };
 
-const sendSystemConfigError = (req: Request, res: Response, error: unknown) => {
-    const knownError = error as { statusCode?: number; code?: string };
-    if (knownError?.statusCode && knownError.statusCode >= 400 && knownError.statusCode < 500) {
-        const message = error instanceof Error ? error.message : 'Invalid system config payload';
-        return sendContractErrorResponse(req, res, knownError.statusCode, message, {
-            code: knownError.code || 'SYSTEM_CONFIG_BAD_REQUEST'
-        });
-    }
-    const message = error instanceof Error ? error.message : 'System config operation failed';
-    return sendContractErrorResponse(req, res, 500, message);
-};
+
 
 /**
  * Mask sensitive fields in the configuration object
@@ -113,8 +101,7 @@ export const getSystemConfig = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, maskedConfig);
     } catch (error: unknown) {
-        logger.error('❌ CRITICAL: Error fetching system config:', error);
-        sendSystemConfigError(req, res, error);
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -134,8 +121,7 @@ export const updateSystemConfig = async (req: Request, res: Response) => {
         const maskedConfig = maskSecrets(config.toJSON ? config.toJSON() : config);
         sendSuccessResponse(res, maskedConfig, 'System configuration updated successfully');
     } catch (error) {
-        logger.error('Error updating system config:', error);
-        sendSystemConfigError(req, res, error);
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -179,8 +165,7 @@ export const resetSystemConfig = async (req: Request, res: Response) => {
         sendSuccessResponse(res, config, `System configuration sections [${sections.join(', ')}] reset`);
 
     } catch (error) {
-        logger.error('Error resetting system config:', error);
-        sendSystemConfigError(req, res, error);
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -192,7 +177,7 @@ export const testEmailConnection = async (req: Request, res: Response) => {
         const { host, port, username, password, encryption } = req.body;
 
         if (!host || !port || !username || !password) {
-            return sendContractErrorResponse(req, res, 400, 'Missing required SMTP fields');
+            return sendAdminError(req, res, 'Missing required SMTP fields', 400);
         }
 
         const transporter = nodemailer.createTransport({
@@ -213,8 +198,6 @@ export const testEmailConnection = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, null, 'Email connection successful');
     } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Failed to connect to SMTP server';
-        logger.error('Email test failed:', error);
-        sendContractErrorResponse(req, res, 500, message);
+        return sendAdminError(req, res, error);
     }
 };

@@ -11,8 +11,8 @@ import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
 import { env, isProduction, isDevelopment, isTest } from '../config/env';
-
-type LogDetails = Record<string, unknown>;
+import { TraceContext } from '@shared/observability/trace';
+import type { Logger as BaseLogger, LogDetails, LogLevel } from '@shared/observability/types';
 
 const maskPII = winston.format((info) => {
     if (process.env.NODE_ENV !== 'production') return info;
@@ -136,12 +136,81 @@ if (transports.length === 0) {
 /**
  * Winston logger instance
  */
-const logger = winston.createLogger({
+const winstonLogger = winston.createLogger({
     level: loggerLevel,
     format: logFormat,
     transports,
     exitOnError: false,
 });
+
+/**
+ * Wrapper to satisfy @shared/observability.Logger interface
+ */
+class WinstonLoggerAdapter implements BaseLogger {
+    get level(): any { return winstonLogger.level; }
+    log(level: LogLevel, message: any, ...meta: any[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
+        winstonLogger.log(level, message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    }
+    debug(message: any, ...meta: any[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
+        winstonLogger.debug(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    }
+    info(message: any, ...meta: any[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
+        winstonLogger.info(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    }
+    warn(message: any, ...meta: any[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
+        winstonLogger.warn(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    }
+    warning(message: any, ...meta: any[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
+        winstonLogger.warn(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    }
+    error(message: any, ...meta: any[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
+        winstonLogger.error(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    }
+    http(message: any, ...meta: any[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
+        winstonLogger.http(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    }
+    child(defaultMeta: LogDetails): BaseLogger {
+        return new WinstonLoggerAdapterChild(winstonLogger.child(defaultMeta));
+    }
+}
+
+class WinstonLoggerAdapterChild implements BaseLogger {
+    constructor(private wLogger: winston.Logger) {}
+    get level(): any { return this.wLogger.level; }
+    log(level: LogLevel, message: any, ...meta: any[]): void {
+        this.wLogger.log(level, message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    }
+    debug(message: any, ...meta: any[]): void {
+        this.wLogger.debug(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    }
+    info(message: any, ...meta: any[]): void {
+        this.wLogger.info(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    }
+    warn(message: any, ...meta: any[]): void {
+        this.wLogger.warn(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    }
+    warning(message: any, ...meta: any[]): void {
+        this.wLogger.warn(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    }
+    error(message: any, ...meta: any[]): void {
+        this.wLogger.error(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    }
+    http(message: any, ...meta: any[]): void {
+        this.wLogger.http(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    }
+    child(defaultMeta: LogDetails): BaseLogger {
+        return new WinstonLoggerAdapterChild(this.wLogger.child(defaultMeta));
+    }
+}
+
+const logger = new WinstonLoggerAdapter();
 
 /**
  * Log levels:

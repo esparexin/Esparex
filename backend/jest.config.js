@@ -5,8 +5,12 @@ module.exports = {
     setupFiles: ['<rootDir>/src/tests/jest.setup-env.ts'],
     globalTeardown: '<rootDir>/src/tests/jest.globalTeardown.js',
     verbose: true,
+    roots: ['<rootDir>', '<rootDir>/../shared'],
     transform: {
-        '^.+\\.tsx?$': ['ts-jest', { diagnostics: false }]
+        '^.+\\.tsx?$': ['ts-jest', { 
+            diagnostics: false,
+            tsconfig: 'tsconfig.json'
+        }]
     },
     moduleNameMapper: {
         '^uuid$': '<rootDir>/__mocks__/uuid.js',

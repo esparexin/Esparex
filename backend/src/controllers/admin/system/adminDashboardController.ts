@@ -5,8 +5,7 @@
  */
 
 import { Request, Response } from 'express';
-import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse } from '../adminBaseController';
-import { sendErrorResponse } from '../../../utils/errorResponse';
+import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse, sendAdminError } from '../adminBaseController';
 import { getSingleParam } from '../../../utils/requestParams';
 import { escapeRegExp } from '../../../utils/stringUtils';
 import { GOVERNANCE, MS_IN_DAY } from '../../../config/constants';
@@ -41,8 +40,7 @@ import {
 import * as adminAnalyticsController from '../adminAnalyticsController';
 
 const sendDashboardError = (req: Request, res: Response, error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Dashboard operation failed';
-    sendErrorResponse(req, res, 500, message);
+    sendAdminError(req, res, error);
 };
 
 /**
@@ -243,7 +241,7 @@ export const updateContactSubmissionStatus = async (req: Request, res: Response)
         const { status } = req.body;
 
         if (!['new', 'read', 'replied'].includes(status)) {
-            return sendErrorResponse(req, res, 400, 'Invalid status');
+            return sendAdminError(req, res, 'Invalid status', 400);
         }
 
         const submission = await ContactSubmission.findByIdAndUpdate(
@@ -253,7 +251,7 @@ export const updateContactSubmissionStatus = async (req: Request, res: Response)
         );
 
         if (!submission) {
-            return sendErrorResponse(req, res, 404, 'Submission not found');
+            return sendAdminError(req, res, 'Submission not found', 404);
         }
 
         sendSuccessResponse(res, submission, 'Status updated successfully');

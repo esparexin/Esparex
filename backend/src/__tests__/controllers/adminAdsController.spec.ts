@@ -66,9 +66,14 @@ describe("adminAdsController status normalization", () => {
         });
     });
 
-    it("uses all canonical statuses when status query is missing", async () => {
+    const makeRes = () => ({
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis()
+    } as any);
+
+    it("uses all canonical statuses when status is missing", async () => {
         const req = { query: {} } as any;
-        const res = { json: jest.fn() } as any;
+        const res = makeRes();
 
         await adminGetAds(req, res);
 
@@ -81,7 +86,7 @@ describe("adminAdsController status normalization", () => {
 
     it("uses all canonical statuses when status=all", async () => {
         const req = { query: { status: "all" } } as any;
-        const res = { json: jest.fn() } as any;
+        const res = makeRes();
 
         await adminGetAds(req, res);
 
@@ -93,7 +98,7 @@ describe("adminAdsController status normalization", () => {
 
     it("passes explicit status through when a specific status is requested", async () => {
         const req = { query: { status: "approved", page: "2", limit: "50" } } as any;
-        const res = { json: jest.fn() } as any;
+        const res = makeRes();
 
         await adminGetAds(req, res);
 
@@ -116,7 +121,7 @@ describe("adminAdsController status normalization", () => {
             body: {},
             originalUrl: "/api/v1/admin/ads/65fa29c9d2c1f2e165fa29c9/approve",
         } as any;
-        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
+        const res = makeRes();
 
         await approveAd(req, res);
 

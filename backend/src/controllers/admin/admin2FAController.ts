@@ -3,8 +3,10 @@ import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import Admin from '../../models/Admin';
 import logger from '../../utils/logger';
-import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
-import { sendSuccessResponse } from './adminBaseController';
+import { 
+    sendSuccessResponse, 
+    sendAdminError 
+} from './adminBaseController';
 
 const resolveAdminId = (req: Request): string | null => {
     const reqAdmin = req.admin?._id?.toString();
@@ -25,7 +27,7 @@ export const setup2FA = async (req: Request, res: Response) => {
     try {
         const admin = await getAdminWith2FA(req);
         if (!admin) {
-            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
+            return sendAdminError(req, res, 'Unauthorized', 401);
         }
 
         const secret = speakeasy.generateSecret({
@@ -50,10 +52,7 @@ export const setup2FA = async (req: Request, res: Response) => {
             'Scan this QR code with Google Authenticator or Authy'
         );
     } catch (error) {
-        logger.error('Admin 2FA setup failed', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendContractErrorResponse(req, res, 500, 'Failed to setup 2FA');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -61,16 +60,16 @@ export const verify2FA = async (req: Request, res: Response) => {
     try {
         const { token } = req.body as { token?: string };
         if (!token) {
-            return sendContractErrorResponse(req, res, 400, 'Verification code required');
+            return sendAdminError(req, res, 'Verification code required', 400);
         }
 
         const admin = await getAdminWith2FA(req);
         if (!admin) {
-            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
+            return sendAdminError(req, res, 'Unauthorized', 401);
         }
 
         if (!admin.twoFactorSecret) {
-            return sendContractErrorResponse(req, res, 400, '2FA not set up. Please run setup first.');
+            return sendAdminError(req, res, '2FA not set up. Please run setup first.', 400);
         }
 
         const verified = speakeasy.totp.verify({
@@ -81,7 +80,7 @@ export const verify2FA = async (req: Request, res: Response) => {
         });
 
         if (!verified) {
-            return sendContractErrorResponse(req, res, 400, 'Invalid verification code');
+            return sendAdminError(req, res, 'Invalid verification code', 400);
         }
 
         admin.twoFactorEnabled = true;
@@ -94,10 +93,7 @@ export const verify2FA = async (req: Request, res: Response) => {
             '2FA enabled successfully'
         );
     } catch (error) {
-        logger.error('Admin 2FA verification failed', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendContractErrorResponse(req, res, 500, 'Failed to verify 2FA');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -105,16 +101,16 @@ export const disable2FA = async (req: Request, res: Response) => {
     try {
         const { token } = req.body as { token?: string };
         if (!token) {
-            return sendContractErrorResponse(req, res, 400, 'Verification code required to disable 2FA');
+            return sendAdminError(req, res, 'Verification code required to disable 2FA', 400);
         }
 
         const admin = await getAdminWith2FA(req);
         if (!admin) {
-            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
+            return sendAdminError(req, res, 'Unauthorized', 401);
         }
 
         if (!admin.twoFactorEnabled || !admin.twoFactorSecret) {
-            return sendContractErrorResponse(req, res, 400, '2FA is not enabled');
+            return sendAdminError(req, res, '2FA is not enabled', 400);
         }
 
         const verified = speakeasy.totp.verify({
@@ -125,7 +121,7 @@ export const disable2FA = async (req: Request, res: Response) => {
         });
 
         if (!verified) {
-            return sendContractErrorResponse(req, res, 400, 'Invalid verification code');
+            return sendAdminError(req, res, 'Invalid verification code', 400);
         }
 
         admin.twoFactorEnabled = false;
@@ -139,10 +135,7 @@ export const disable2FA = async (req: Request, res: Response) => {
             '2FA disabled successfully'
         );
     } catch (error) {
-        logger.error('Admin 2FA disable failed', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendContractErrorResponse(req, res, 500, 'Failed to disable 2FA');
+        return sendAdminError(req, res, error);
     }
 };
 
@@ -150,16 +143,13 @@ export const get2FAStatus = async (req: Request, res: Response) => {
     try {
         const admin = await getAdminWith2FA(req);
         if (!admin) {
-            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
+            return sendAdminError(req, res, 'Unauthorized', 401);
         }
 
         return sendSuccessResponse(res, {
             twoFactorEnabled: Boolean(admin.twoFactorEnabled)
         });
     } catch (error) {
-        logger.error('Failed to get admin 2FA status', {
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return sendContractErrorResponse(req, res, 500, 'Failed to get 2FA status');
+        return sendAdminError(req, res, error);
     }
 };

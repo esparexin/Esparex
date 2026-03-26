@@ -35,3 +35,33 @@ export const validateObjectIdOrThrow = (fieldName: string, value: unknown): stri
     }
     return id;
 };
+
+/**
+ * Standard utility to convert a value to a Mongoose ObjectId or null.
+ * Handles strings, ObjectIds, and objects with toString().
+ */
+export const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
+    if (!value) return null;
+    if (value instanceof mongoose.Types.ObjectId) return value;
+    if (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value)) {
+        return new mongoose.Types.ObjectId(value);
+    }
+    if (
+        typeof value === 'object' &&
+        typeof (value as { toString?: () => string }).toString === 'function'
+    ) {
+        const maybeId = (value as { toString: () => string }).toString();
+        if (mongoose.Types.ObjectId.isValid(maybeId)) {
+            return new mongoose.Types.ObjectId(maybeId);
+        }
+    }
+    return null;
+};
+
+/**
+ * Converts a value to a hex string representing an ObjectId, or null.
+ */
+export const toObjectIdString = (value: unknown): string | null => {
+    const oid = toObjectId(value);
+    return oid ? oid.toHexString() : null;
+};

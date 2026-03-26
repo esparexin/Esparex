@@ -32,9 +32,8 @@ import {
     getPaginationParams,
     sendPaginatedResponse,
     sendSuccessResponse,
-    respond
+    sendAdminError
 } from './adminBaseController';
-import { sendErrorResponse as sendContractError } from '../../utils/errorResponse';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
 import { AD_STATUS, AD_STATUS_VALUES } from '../../../../shared/enums/adStatus';
 import { mutateStatus } from '../../services/StatusMutationService';
@@ -70,26 +69,18 @@ const validateDuplicateBypass = (
     duplicateBypassReason: string
 ) => {
     if (allowDuplicateBypass && duplicateBypassReason.length < 12) {
-        sendContractError(
+        sendAdminError(
             req,
             res,
-            400,
             'A detailed duplicate bypass reason (minimum 12 characters) is required.',
-            { code: 'DUPLICATE_BYPASS_REASON_REQUIRED' }
+            400
         );
         return false;
     }
     return true;
 };
 
-const sendAdminAdsError = (req: Request, res: Response, error: unknown, statusCode = 500) => {
-    const isProduction = env.NODE_ENV === 'production';
-    let message = error instanceof Error ? error.message : 'Internal server error';
-    if (isProduction && statusCode >= 500) {
-        message = 'Internal server error';
-    }
-    sendContractError(req, res, statusCode, message);
-};
+// Local helper removed, using centralized sendAdminError.
 
 const normalizeAdminAdStatusInput = (rawStatus: string): string => {
     return rawStatus.trim().toLowerCase();
@@ -154,10 +145,10 @@ export const adminGetAds = async (req: Request, res: Response) => {
             }
         );
 
-        res.json(respond({ success: true, data: result }));
+        sendSuccessResponse(res, result);
     } catch (err) {
         logger.error('ADMIN_GET_ADS_ERROR', err);
-        sendAdminAdsError(req, res, err);
+        sendAdminError(req, res, err);
     }
 };
 
@@ -170,19 +161,19 @@ export const adminGetAdById = async (req: Request, res: Response) => {
         if (!id) return;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return sendContractError(req, res, 400, 'Invalid Ad ID');
+            return sendAdminError(req, res, 'Invalid Ad ID', 400);
         }
 
         const ad = await getAnyAdById(id);
 
         if (!ad) {
-            return sendContractError(req, res, 404, 'Ad not found');
+            return sendAdminError(req, res, 'Ad not found', 404);
         }
 
-        res.json(respond({ success: true, data: ad }));
+        sendSuccessResponse(res, ad);
     } catch (err) {
         logger.error('ADMIN_GET_AD_ERROR', err);
-        sendAdminAdsError(req, res, err);
+        sendAdminError(req, res, err);
     }
 };
 
@@ -195,7 +186,7 @@ export const adminUpdateAd = async (req: Request, res: Response) => {
         if (!id) return;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return sendContractError(req, res, 400, 'Invalid Ad ID');
+            return sendAdminError(req, res, 'Invalid Ad ID', 400);
         }
 
         const { allowDuplicateBypass, duplicateBypassReason } = parseDuplicateBypassPayload(
@@ -213,11 +204,11 @@ export const adminUpdateAd = async (req: Request, res: Response) => {
         if (hasStatusChange) {
             const status = normalizeAdminAdStatusInput(statusValue.trim());
             if (!isValidAdStatus(status)) {
-                return sendContractError(req, res, 400, 'Invalid status value');
+                return sendAdminError(req, res, 'Invalid status value', 400);
             }
             const currentAd = await Ad.findById(id).select('status').lean<{ status: string } | null>();
             if (!currentAd) {
-                return sendContractError(req, res, 404, 'Ad not found');
+                return sendAdminError(req, res, 'Ad not found', 404);
             }
             validateTransition('ad', currentAd.status as any, status as any);
 
@@ -275,14 +266,10 @@ export const adminUpdateAd = async (req: Request, res: Response) => {
             }
         );
 
-        res.json(respond({ success: true, data: updatedAd }));
+        sendSuccessResponse(res, updatedAd, 'Ad updated successfully');
     } catch (err: unknown) {
         logger.error('ADMIN_UPDATE_AD_ERROR', err);
-        const knownErr = err as { statusCode?: number; message?: string; code?: string };
-        const statusCode = typeof knownErr.statusCode === 'number' ? knownErr.statusCode : 400;
-        sendContractError(req, res, statusCode, knownErr.message || 'Failed to update ad', {
-            code: knownErr.code,
-        });
+        sendAdminError(req, res, err);
     }
 };
 
@@ -298,11 +285,11 @@ export const adminChangeAdStatus = async (req: Request, res: Response) => {
         const status = normalizeAdminAdStatusInput(requestedStatus);
 
         if (!isValidAdStatus(status)) {
-            return sendContractError(req, res, 400, 'Invalid status value');
+            return sendAdminError(req, res, 'Invalid status value', 400);
         }
         const currentAd = await Ad.findById(id).select('status listingType').lean<{ status: string, listingType?: string } | null>();
         if (!currentAd) {
-            return sendContractError(req, res, 404, 'Ad not found');
+            return sendAdminError(req, res, 'Ad not found', 404);
         }
         validateTransition('ad', currentAd.status as any, status as any);
 
@@ -341,14 +328,10 @@ export const adminChangeAdStatus = async (req: Request, res: Response) => {
             { status, rejectionReason }
         );
 
-        res.json(respond({ success: true, data: ad }));
+        sendSuccessResponse(res, ad, 'Status updated successfully');
     } catch (err: unknown) {
-        const knownErr = err as { message?: string; statusCode?: number; code?: string };
         logger.error('ADMIN_CHANGE_STATUS_ERROR', err);
-        const statusCode = typeof knownErr.statusCode === 'number' ? knownErr.statusCode : 500;
-        sendContractError(req, res, statusCode, knownErr.message || 'Failed to update status', {
-            code: knownErr.code,
-        });
+        sendAdminError(req, res, err);
     }
 };
 
@@ -363,13 +346,11 @@ export const adminDeleteAd = async (req: Request, res: Response) => {
         const hardDeleteRequested = req.body?.hardDelete === true;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return sendContractError(req, res, 400, 'Invalid Ad ID');
+            return sendAdminError(req, res, 'Invalid Ad ID', 400);
         }
 
         if (hardDeleteRequested) {
-            return sendContractError(req, res, 400, 'Hard delete is forbidden. Use soft delete only.', {
-                code: 'HARD_DELETE_FORBIDDEN',
-            });
+            return sendAdminError(req, res, 'Hard delete is forbidden. Use soft delete only.', 403);
         }
 
         const deleted = await mutateStatus({
@@ -391,7 +372,7 @@ export const adminDeleteAd = async (req: Request, res: Response) => {
         });
 
         if (!deleted) {
-            return sendContractError(req, res, 404, 'Ad not found');
+            return sendAdminError(req, res, 'Ad not found', 404);
         }
 
         await logAdminAction(
@@ -402,10 +383,10 @@ export const adminDeleteAd = async (req: Request, res: Response) => {
             { isDeleted: true }
         );
 
-        res.json(respond({ success: true, message: 'Ad deleted successfully' }));
+        sendSuccessResponse(res, { deleted: true }, 'Ad deleted successfully');
     } catch (err) {
         logger.error('ADMIN_DELETE_AD_ERROR', err);
-        sendContractError(req, res, 500, 'Failed to delete ad');
+        sendAdminError(req, res, err);
     }
 };
 
@@ -418,13 +399,13 @@ export const adminRestoreAd = async (req: Request, res: Response) => {
         if (!id) return;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return sendContractError(req, res, 400, 'Invalid Ad ID');
+            return sendAdminError(req, res, 'Invalid Ad ID', 400);
         }
 
         const restored = await adStatusService.restoreAd(id, req.user!._id.toString(), 'admin');
 
         if (!restored) {
-            return sendContractError(req, res, 404, 'Ad not found or not deleted');
+            return sendAdminError(req, res, 'Ad not found or not deleted', 404);
         }
 
         await logAdminAction(
@@ -435,10 +416,10 @@ export const adminRestoreAd = async (req: Request, res: Response) => {
             {}
         );
 
-        res.json(respond({ success: true, data: restored }));
+        sendSuccessResponse(res, restored, 'Ad restored successfully');
     } catch (err) {
         logger.error('ADMIN_RESTORE_AD_ERROR', err);
-        sendContractError(req, res, 500, 'Failed to restore ad');
+        sendAdminError(req, res, err);
     }
 };
 
@@ -465,7 +446,7 @@ export const getReportedAds = async (req: Request, res: Response) => {
         sendPaginatedResponse(res, data, total, page, limit);
     } catch (err) {
         logger.error('GET_REPORTED_ADS_ERROR', err);
-        sendAdminAdsError(req, res, err);
+        sendAdminError(req, res, err);
     }
 };
 
@@ -475,7 +456,7 @@ export const getReportedAdById = async (req: Request, res: Response) => {
         if (!id) return;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return sendContractError(req, res, 400, 'Invalid Report ID');
+            return sendAdminError(req, res, 'Invalid Report ID', 400);
         }
 
         const report = await Report.findById(id)
@@ -483,11 +464,11 @@ export const getReportedAdById = async (req: Request, res: Response) => {
             .populate('reportedBy', 'firstName lastName email')
             .populate('resolvedBy', 'firstName lastName');
 
-        if (!report) return sendContractError(req, res, 404, 'Report not found');
+        if (!report) return sendAdminError(req, res, 'Report not found', 404);
 
         sendSuccessResponse(res, report);
     } catch (err) {
-        sendAdminAdsError(req, res, err);
+        sendAdminError(req, res, err);
     }
 };
 
@@ -498,11 +479,11 @@ export const resolveReport = async (req: Request, res: Response) => {
         const { action, note } = req.body;
 
         const report = await Report.findById(id);
-        if (!report) return sendContractError(req, res, 404, 'Report not found');
+        if (!report) return sendAdminError(req, res, 'Report not found', 404);
 
         if (action === 'take_down') {
             if (!report.adId) {
-                return sendContractError(req, res, 400, 'Cannot take down: report has no legacy adId');
+                return sendAdminError(req, res, 'Cannot take down: report has no legacy adId', 400);
             }
             await mutateStatus({
                 domain: 'ad',
@@ -530,7 +511,7 @@ export const resolveReport = async (req: Request, res: Response) => {
         await logAdminAction(req, 'RESOLVE_REPORT', 'Report', id, { action, note });
         sendSuccessResponse(res, report, 'Report resolved successfully');
     } catch (err) {
-        sendAdminAdsError(req, res, err);
+        sendAdminError(req, res, err);
     }
 };
 
@@ -543,7 +524,7 @@ export const updateReportStatus = async (req: Request, res: Response) => {
         const note = typeof req.body?.note === 'string' ? req.body.note.trim() : undefined;
 
         if (![REPORT_STATUS.RESOLVED, REPORT_STATUS.DISMISSED].includes(status as any)) {
-            return sendContractError(req, res, 400, `Invalid report status. Allowed: ${REPORT_STATUS.RESOLVED}, ${REPORT_STATUS.DISMISSED}`);
+            return sendAdminError(req, res, `Invalid report status. Allowed: ${REPORT_STATUS.RESOLVED}, ${REPORT_STATUS.DISMISSED}`, 400);
         }
 
         const report = await Report.findByIdAndUpdate(
@@ -556,13 +537,12 @@ export const updateReportStatus = async (req: Request, res: Response) => {
             },
             { new: true }
         );
-        if (!report) return sendContractError(req, res, 404, 'Report not found');
+        if (!report) return sendAdminError(req, res, 'Report not found', 404);
 
         await logAdminAction(req, 'UPDATE_REPORT_STATUS', 'Report', id, { status, note });
         sendSuccessResponse(res, report, 'Report status updated successfully');
     } catch (err: unknown) {
-        const knownErr = err as { message?: string; statusCode?: number };
-        sendContractError(req, res, knownErr.statusCode || 500, knownErr.message || 'Failed to update report status');
+        sendAdminError(req, res, err);
     }
 };
 
@@ -576,12 +556,12 @@ export const extendAdExpiration = async (req: Request, res: Response) => {
         const { days = 30 } = req.body;
 
         const ad = await extendAdExpiry(id, Number(days), req.user!._id.toString(), 'admin');
-        if (!ad) return sendContractError(req, res, 404, 'Ad not found');
+        if (!ad) return sendAdminError(req, res, 'Ad not found', 404);
 
         await logAdminAction(req, 'EXTEND_AD_EXPIRY', 'Ad', id, { days });
         sendSuccessResponse(res, ad, `Extended by ${days} days`);
     } catch (err) {
-        sendAdminAdsError(req, res, err);
+        sendAdminError(req, res, err);
     }
 };
 
@@ -598,12 +578,12 @@ export const adminPromoteAd = async (req: Request, res: Response) => {
                 ? adminUser._id
                 : adminUser?._id?.toString() || 'admin';
         const ad = await promoteAd(id, days, type, adminId, true);
-        if (!ad) return sendContractError(req, res, 404, 'Ad not found');
+        if (!ad) return sendAdminError(req, res, 'Ad not found', 404);
 
         await logAdminAction(req, 'PROMOTE_AD', 'Ad', id, { days });
         sendSuccessResponse(res, ad, `Ad promoted for ${days} days`);
     } catch (err) {
-        sendAdminAdsError(req, res, err);
+        sendAdminError(req, res, err);
     }
 };
 
@@ -615,7 +595,7 @@ export const getAdReviewQueue = async (req: Request, res: Response) => {
 
         sendPaginatedResponse(res, data, total, page, limit);
     } catch (err) {
-        sendAdminAdsError(req, res, err);
+        sendAdminError(req, res, err);
     }
 };
 
@@ -625,7 +605,7 @@ export const getAdModerationSummary = async (req: Request, res: Response) => {
         sendSuccessResponse(res, summary, 'Ad moderation summary retrieved');
     } catch (err) {
         logger.error('ADMIN_GET_AD_SUMMARY_ERROR', err);
-        sendAdminAdsError(req, res, err);
+        sendAdminError(req, res, err);
     }
 };
 
@@ -689,14 +669,10 @@ export const createPostAd = async (req: Request, res: Response) => {
             }
         }
 
-        res.status(201).json(respond({ success: true, data: ad }));
+        sendSuccessResponse(res, ad, 'Ad created successfully', 201);
     } catch (err: unknown) {
         logger.error('ADMIN_CREATE_AD_ERROR', err);
-        const knownErr = err as { statusCode?: number; message?: string; code?: string };
-        const statusCode = typeof knownErr.statusCode === 'number' ? knownErr.statusCode : 400;
-        sendContractError(req, res, statusCode, knownErr.message || 'Failed to create ad', {
-            code: knownErr.code,
-        });
+        sendAdminError(req, res, err);
     }
 };
 
@@ -707,11 +683,11 @@ export const approveAd = async (req: Request, res: Response) => {
         const { reviewVersion } = req.body;
 
         const currentAd = await Ad.findById(id).select('status reviewVersion listingType').lean<{ status: string, reviewVersion?: number, listingType?: string } | null>();
-        if (!currentAd) return sendContractError(req, res, 404, 'Ad not found');
+        if (!currentAd) return sendAdminError(req, res, 'Ad not found', 404);
 
         if (typeof reviewVersion === 'number') {
             if (currentAd.reviewVersion !== reviewVersion) {
-                return sendContractError(req, res, 409, 'Conflict: The ad has been edited by the user since your review began.');
+                return sendAdminError(req, res, 'Conflict: The ad has been edited by the user since your review began.', 409);
             }
         }
 
@@ -739,12 +715,8 @@ export const approveAd = async (req: Request, res: Response) => {
 
         sendSuccessResponse(res, ad, 'Ad approved successfully');
     } catch (err: unknown) {
-        const knownErr = err as { message?: string; statusCode?: number; code?: string };
         logger.error('ADMIN_APPROVE_AD_ERROR', err);
-        const statusCode = typeof knownErr.statusCode === 'number' ? knownErr.statusCode : 500;
-        sendContractError(req, res, statusCode, knownErr.message || 'Failed to approve ad', {
-            code: knownErr.code,
-        });
+        sendAdminError(req, res, err);
     }
 };
 
@@ -754,7 +726,7 @@ export const rejectAd = async (req: Request, res: Response) => {
         if (!id) return;
         const { rejectionReason } = req.body || {};
         if (!rejectionReason || typeof rejectionReason !== 'string' || rejectionReason.trim().length === 0) {
-            return sendContractError(req, res, 400, 'Rejection reason is required and cannot be empty');
+            return sendAdminError(req, res, 'Rejection reason is required and cannot be empty', 400);
         }
         const ad = await mutateStatus({
             domain: 'ad',
@@ -768,13 +740,9 @@ export const rejectAd = async (req: Request, res: Response) => {
             }
         });
         await logAdminAction(req, 'REJECT_AD', 'Ad', id, { status: 'rejected', rejectionReason });
-        res.json(respond({ success: true, data: ad }));
+        sendSuccessResponse(res, ad, 'Ad rejected successfully');
     } catch (err: unknown) {
-        const knownErr = err as { message?: string; statusCode?: number; code?: string };
         logger.error('ADMIN_REJECT_AD_ERROR', err);
-        const statusCode = typeof knownErr.statusCode === 'number' ? knownErr.statusCode : 500;
-        sendContractError(req, res, statusCode, knownErr.message || 'Failed to reject ad', {
-            code: knownErr.code,
-        });
+        sendAdminError(req, res, err);
     }
 };

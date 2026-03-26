@@ -165,6 +165,27 @@ const normalizeDocuments = async (
     return newDocs;
 };
 
+const getUniquenessConditions = (data: BusinessPayload) => {
+    const conditions: Array<Record<string, string>> = [];
+    const normalizedMobile = String(data.mobile || data.phone || '').trim();
+    const normalizedEmail = String(data.email || '').trim().toLowerCase();
+    const normalizedGst = String(data.gstNumber || '').trim().toUpperCase();
+    const normalizedRegistration = String(data.registrationNumber || '').trim().toUpperCase();
+
+    if (normalizedMobile) conditions.push({ mobile: normalizedMobile });
+    if (normalizedEmail) conditions.push({ email: normalizedEmail });
+    if (normalizedGst) conditions.push({ gstNumber: normalizedGst });
+    if (normalizedRegistration) conditions.push({ registrationNumber: normalizedRegistration });
+
+    return {
+        conditions,
+        normalizedMobile,
+        normalizedEmail,
+        normalizedGst,
+        normalizedRegistration
+    };
+};
+
 export const registerBusiness = async (data: BusinessPayload, userId: string) => {
     // 1. Check existing business for this user
     let business = await Business.findOne({ userId });
@@ -173,16 +194,13 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
 
 
     // 4. Pre-registration uniqueness checks (for NEW accounts or updated sensitive fields)
-    const uniquenessConditions: Array<Record<string, string>> = [];
-    const normalizedMobile = String(data.mobile || data.phone || '').trim();
-    const normalizedEmail = String(data.email || '').trim().toLowerCase();
-    const normalizedGst = String(data.gstNumber || '').trim().toUpperCase();
-    const normalizedRegistration = String(data.registrationNumber || '').trim().toUpperCase();
-
-    if (normalizedMobile) uniquenessConditions.push({ mobile: normalizedMobile });
-    if (normalizedEmail) uniquenessConditions.push({ email: normalizedEmail });
-    if (normalizedGst) uniquenessConditions.push({ gstNumber: normalizedGst });
-    if (normalizedRegistration) uniquenessConditions.push({ registrationNumber: normalizedRegistration });
+    const { 
+        conditions: uniquenessConditions, 
+        normalizedMobile, 
+        normalizedEmail, 
+        normalizedGst, 
+        normalizedRegistration 
+    } = getUniquenessConditions(data);
 
     const existingChecks = uniquenessConditions.length > 0
         ? await Business.findOne({
@@ -312,16 +330,13 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
     const businessView = asBusinessDocView(business);
 
     // 1. Pre-update uniqueness checks
-    const uniquenessConditions: Array<Record<string, string>> = [];
-    const normalizedMobile = String(data.mobile || data.phone || '').trim();
-    const normalizedEmail = String(data.email || '').trim().toLowerCase();
-    const normalizedGst = String(data.gstNumber || '').trim().toUpperCase();
-    const normalizedRegistration = String(data.registrationNumber || '').trim().toUpperCase();
-
-    if (normalizedMobile) uniquenessConditions.push({ mobile: normalizedMobile });
-    if (normalizedEmail) uniquenessConditions.push({ email: normalizedEmail });
-    if (normalizedGst) uniquenessConditions.push({ gstNumber: normalizedGst });
-    if (normalizedRegistration) uniquenessConditions.push({ registrationNumber: normalizedRegistration });
+    const { 
+        conditions: uniquenessConditions, 
+        normalizedMobile, 
+        normalizedEmail, 
+        normalizedGst, 
+        normalizedRegistration 
+    } = getUniquenessConditions(data);
 
     if (uniquenessConditions.length > 0) {
         const existingChecks = await Business.findOne({

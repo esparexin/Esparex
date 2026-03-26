@@ -49,38 +49,31 @@ export const createApiErrorResult = (error: unknown) => {
 export const unwrapApiPayload = <T>(response: unknown): T | null => {
   if (response === null || response === undefined) return null;
 
+  // 1. Handle Axios response object or direct envelope
   const payload = (response as { data?: unknown })?.data ?? response;
   if (payload === null || payload === undefined) return null;
   if (typeof payload !== "object") return payload as T;
 
   const record = payload as Record<string, unknown>;
-  const nestedData = record.data;
 
-  if (nestedData && typeof nestedData === "object") {
-    const nestedRecord = nestedData as Record<string, unknown>;
-    if ("data" in nestedRecord) {
-      return nestedRecord.data as T;
-    }
+  // 2. SSOT: Standardized ApiResponse envelope { success, data, message }
+  // Only unwrap 'data' if 'success' is explicitly true, to ensure we don't 
+  // mistakenly unwrap an error payload that happens to have a 'data' field.
+  if (record.success === true && "data" in record) {
+    return record.data as T;
   }
 
-  if ("data" in record) {
-    const dataField = record.data;
-    if (dataField && typeof dataField === "object" && "items" in (dataField as any)) {
-      return (dataField as any).items as T;
-    }
-    return dataField as T;
-  }
-
-  if ("items" in record) {
+  // 3. Fallback: Legacy payload structures (to be deprecated)
+  if (record.items && Array.isArray(record.items)) {
     return record.items as T;
   }
 
   if (record.output && typeof record.output === "object") {
     const outputRecord = record.output as Record<string, unknown>;
-    if ("data" in outputRecord) return outputRecord.data as T;
-    return record.output as T;
+    return (outputRecord.data ?? record.output) as T;
   }
 
+  // 4. Return raw payload if no standard envelope-like keys found
   return payload as T;
 };
 

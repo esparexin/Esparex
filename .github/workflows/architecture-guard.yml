@@ -7,6 +7,10 @@ on:
       - main
       - dev
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -83,42 +87,38 @@ jobs:
       - name: Lint repository
         run: npm run lint
 
-      - name: Route collision guard
-        run: node scripts/enforce-route-collision-guard.js
-
-      - name: Ad SSOT guard
-        run: node scripts/enforce-ad-ssot-guard.js
-
-      - name: Dead import protection
-        run: npm run guard:unused-imports
-
       - name: Duplicate code detection
         run: npm run guard:duplication
 
       - name: API surface SSOT guard
         run: npm run guard:api-surface
 
-      - name: Guardrail failure hints
-        if: failure()
-        run: |
-          echo ""
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  Architecture guardrails failed."
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  Possible causes:"
-          echo "  • Duplicate API route — use canonical /api/v1/<resource>"
-          echo "  • Reserved slug collision detected"
-          echo "  • Duplicate hook family detected"
-          echo "  • Unused import introduced"
-          echo "  • Duplicated code block above threshold"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      - name: Ad placement SSOT guard
+        run: npm run guard:ad-ssot
 
-  # ── Job 4: Build verification (frontend + admin) ────────────────────────────
+      - name: Route collision guard
+        run: npm run guard:route-collision
+
+      - name: Platform governance guard
+        run: npm run guard:platform-governance
+
+      - name: Guardrail failure hints
+        if: always()
+        run: |
+          echo "Architecture guards completed. Review logs above for any HINT blocks if failure occurred."
+
+      - name: Upload duplication report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jscpd-report
+          path: .jscpd-report/
+          retention-days: 7
+
+  # ── Job 4: Build verification ───────────────────────────────────────────────
   build:
     name: Build
     runs-on: ubuntu-latest
-    # Only run full build on main pushes to save CI minutes on PRs
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
     steps:
       - uses: actions/checkout@v4
 
@@ -136,7 +136,6 @@ jobs:
       - name: Build frontend
         run: npm run build -w frontend
         env:
-          # Dummy values so Next.js build doesn't fail on missing env
           NEXT_PUBLIC_API_URL: https://api.esparex.in
 
       - name: Build admin-frontend

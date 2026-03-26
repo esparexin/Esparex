@@ -268,6 +268,14 @@ export class CatalogOrchestrator {
     }
 
     /**
+     * Resolve a single CategoryID from a BrandID (backward compatibility)
+     */
+    static async resolveCategoryIdFromBrand(brandId: string): Promise<string | null> {
+        const ids = await this.resolveCategoryIdsFromBrand(brandId);
+        return ids.length > 0 ? (ids[0] ?? null) : null;
+    }
+
+    /**
      * Detach SpareParts from a specific Model
      */
     static async detachSparePartsFromModel(modelId: string, session?: ClientSession) {
