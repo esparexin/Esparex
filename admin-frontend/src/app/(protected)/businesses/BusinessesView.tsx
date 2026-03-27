@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
     Building2,
     MapPin,
@@ -17,8 +17,14 @@ import { useToast } from "@/context/ToastContext";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { BusinessSuspendModal } from "@/components/business/BusinessSuspendModal";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { useAdminBusinessesMasterList } from "@/hooks/useAdminBusinessPageControllers";
+import { useAdminBusinessList } from "@/hooks/useAdminBusinessList";
 import type { Business } from "@/types/business";
+import {
+    buildUrlWithSearchParams,
+    normalizeSearchParamValue,
+    parsePositiveIntParam,
+    updateSearchParams,
+} from "@/lib/urlSearchParams";
 import {
     BusinessActionButton,
     buildBusinessModalController,
@@ -30,16 +36,78 @@ import {
     BusinessTypesCell,
 } from "@/components/business/BusinessListPrimitives";
 
+const DEFAULT_STATUS = "live";
+const BUSINESS_MASTER_STATUSES = new Set(["live", "suspended", "pending", "deleted", "all"]);
+
+const mapOverview = (data: Record<string, unknown>) => ({
+    total: Number(data.total || 0),
+    pending: Number(data.pending || 0),
+    live: Number(data.live || data.approved || 0),
+    suspended: Number(data.suspended || 0),
+});
+
 export default function BusinessesView() {
     const { showToast } = useToast();
+    const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const [cityFilter, setCityFilter] = useState("");
     const [suspendTarget, setSuspendTarget] = useState<Business | null>(null);
-    const activeTab = searchParams.get("status") || "live";
+    const rawStatus = searchParams.get("status");
+    const rawSearch = searchParams.get("search");
+    const rawCity = searchParams.get("city");
+    const rawPage = searchParams.get("page");
 
-    const businessList = useAdminBusinessesMasterList(activeTab, cityFilter);
-    const { businesses, loading, error, search, setSearch, page, setPage, pagination, overview } = businessList;
+    const activeTab =
+        rawStatus === "approved"
+            ? DEFAULT_STATUS
+            : rawStatus && BUSINESS_MASTER_STATUSES.has(rawStatus)
+                ? rawStatus
+                : DEFAULT_STATUS;
+    const search = normalizeSearchParamValue(rawSearch);
+    const cityFilter = normalizeSearchParamValue(rawCity);
+    const page = parsePositiveIntParam(rawPage, 1);
+
+    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    };
+
+    const businessList = useAdminBusinessList({
+        activeTab,
+        search,
+        page,
+        initialOverview: { total: 0, pending: 0, live: 0, suspended: 0 },
+        mapOverview,
+        extraQueryParams: { city: cityFilter },
+    });
+    const { businesses, loading, error, pagination, overview } = businessList;
+
+    useEffect(() => {
+        const nextUrl = buildUrlWithSearchParams(
+            pathname,
+            updateSearchParams(searchParams, {
+                status: activeTab,
+                search,
+                city: cityFilter,
+                page: page > 1 ? page : null,
+            })
+        );
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    }, [activeTab, cityFilter, page, pathname, rawStatus, router, search, searchParams]);
+
+    useEffect(() => {
+        if (!loading && page > pagination.pages) {
+            replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
+        }
+    }, [loading, page, pagination.pages]);
 
     const handleSuspend = async (id: string, reason: string) => {
         try {
@@ -181,17 +249,50 @@ export default function BusinessesView() {
 
                 <AdminModuleTabs
                     tabs={[
-                        { label: "Live", href: "/businesses?status=live", count: overview.live },
-                        { label: "Suspended", href: "/businesses?status=suspended", count: overview.suspended },
-                        { label: "Pending", href: "/businesses?status=pending", count: overview.pending },
-                        { label: "Deleted", href: "/businesses?status=deleted" },
-                        { label: "All", href: "/businesses?status=all" },
+                        {
+                            label: "Live",
+                            href: buildUrlWithSearchParams(
+                                pathname,
+                                updateSearchParams(searchParams, { status: "live", page: null })
+                            ),
+                            count: overview.live,
+                        },
+                        {
+                            label: "Suspended",
+                            href: buildUrlWithSearchParams(
+                                pathname,
+                                updateSearchParams(searchParams, { status: "suspended", page: null })
+                            ),
+                            count: overview.suspended,
+                        },
+                        {
+                            label: "Pending",
+                            href: buildUrlWithSearchParams(
+                                pathname,
+                                updateSearchParams(searchParams, { status: "pending", page: null })
+                            ),
+                            count: overview.pending,
+                        },
+                        {
+                            label: "Deleted",
+                            href: buildUrlWithSearchParams(
+                                pathname,
+                                updateSearchParams(searchParams, { status: "deleted", page: null })
+                            ),
+                        },
+                        {
+                            label: "All",
+                            href: buildUrlWithSearchParams(
+                                pathname,
+                                updateSearchParams(searchParams, { status: "all", page: null })
+                            ),
+                        },
                     ]}
                 />
 
                 <BusinessSearchToolbar
                     search={search}
-                    onSearchChange={setSearch}
+                    onSearchChange={(value) => replaceQueryState({ search: value, page: null })}
                     placeholder="Search by name, mobile, email..."
                     summary={<>{pagination.total} results</>}
                     wrap
@@ -202,7 +303,7 @@ export default function BusinessesView() {
                             placeholder="Filter by city..."
                             className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-36"
                             value={cityFilter}
-                            onChange={(event) => setCityFilter(event.target.value)}
+                            onChange={(event) => replaceQueryState({ city: event.target.value, page: null })}
                         />
                     }
                 />
@@ -212,7 +313,7 @@ export default function BusinessesView() {
                     columns={columns}
                     isLoading={loading}
                     page={page}
-                    setPage={setPage}
+                    setPage={(nextPage) => replaceQueryState({ page: nextPage > 1 ? nextPage : null })}
                     pagination={pagination}
                     onRowClick={(biz) => businessList.setSelectedBusiness(biz)}
                     emptyMessage={error || "No businesses found."}

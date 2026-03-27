@@ -411,10 +411,13 @@ import { Box, Briefcase, Smartphone, Wrench as WrenchIcon } from "lucide-react";
  */
 export function getListingTypeIcon(type: string, size = 16) {
     switch (type) {
+        case "ad":
         case "postad":
             return <Smartphone size={size} />;
+        case "service":
         case "postservice":
             return <Briefcase size={size} />;
+        case "spare_part":
         case "postsparepart":
             return <WrenchIcon size={size} />;
         default:
@@ -563,8 +566,11 @@ export function CatalogListingTypeBadges({ types = [] }: { types?: string[] }) {
     if (!types || types.length === 0) return null;
 
     const config: Record<string, { label: string; color: string; icon: ReactNode }> = {
+        ad: { label: "Devices", color: "blue", icon: <Smartphone size={10} /> },
         postad: { label: "Devices", color: "blue", icon: <Smartphone size={10} /> },
+        service: { label: "Services", color: "purple", icon: <WrenchIcon size={10} /> },
         postservice: { label: "Services", color: "purple", icon: <WrenchIcon size={10} /> },
+        spare_part: { label: "Spare Parts", color: "orange", icon: <Box size={10} /> },
         postsparepart: { label: "Spare Parts", color: "orange", icon: <Box size={10} /> },
     };
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { useToast } from "@/context/ToastContext";
@@ -11,6 +13,7 @@ import {
   type AdminConvSummary,
   type AdminChatFilter,
 } from "@/lib/api/adminChat";
+import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 
 const FILTER_OPTIONS: { value: AdminChatFilter; label: string; icon?: React.ReactNode }[] = [
   { value: "all", label: "All Chats" },
@@ -33,6 +36,9 @@ function timeAgo(iso?: string): string {
 
 export default function AdminChatView() {
   const { showToast } = useToast();
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [filter, setFilter] = useState<AdminChatFilter>("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -41,6 +47,32 @@ export default function AdminChatView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const requestedFilter = searchParams.get("filter");
+    const requestedSearch = searchParams.get("search");
+    const nextFilter = FILTER_OPTIONS.some((option) => option.value === requestedFilter)
+      ? (requestedFilter as AdminChatFilter)
+      : "all";
+    const nextSearch = readStringParam(requestedSearch);
+    const nextPage = readPositiveIntParam(searchParams.get("page"), 1);
+
+    setFilter((prev) => (prev === nextFilter ? prev : nextFilter));
+    setSearch((prev) => (prev === nextSearch ? prev : nextSearch));
+    setPage((prev) => (prev === nextPage ? prev : nextPage));
+  }, [searchParams]);
+
+  useEffect(() => {
+    const nextUrl = ADMIN_UI_ROUTES.chat({
+      filter: filter !== "all" ? filter : undefined,
+      search: search || undefined,
+      page: page > 1 ? page : undefined,
+    });
+    const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
+    if (nextUrl !== currentUrl) {
+      void router.replace(nextUrl, { scroll: false });
+    }
+  }, [filter, page, pathname, router, search, searchParams]);
 
   const load = useCallback(async () => {
     try {
@@ -192,14 +224,12 @@ export default function AdminChatView() {
                     <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{timeAgo(conv.updatedAt)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <a
-                          href={`/chat/${conv.id}`}
+                        <Link
+                          href={ADMIN_UI_ROUTES.chat({ search: conv.id })}
                           className="text-sky-600 hover:underline text-xs font-medium"
-                          target="_blank"
-                          rel="noopener noreferrer"
                         >
                           View
-                        </a>
+                        </Link>
                         {!conv.isBlocked && (
                           <button
                             type="button"

@@ -3,6 +3,16 @@ import { parseAdminResponse } from "./parseAdminResponse";
 import { ADMIN_ROUTES } from "./routes";
 import type { FinanceStats, Transaction } from "@/types/transaction";
 
+export type PaginatedFinanceTransactions = {
+    items: Transaction[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+    };
+};
+
 type FinanceTransactionQuery = {
     search: string;
     status: string;
@@ -15,16 +25,32 @@ export async function fetchFinanceTransactions({
     status,
     page = 1,
     limit = 20,
-}: FinanceTransactionQuery): Promise<Transaction[]> {
+}: FinanceTransactionQuery): Promise<PaginatedFinanceTransactions> {
     const query = new URLSearchParams({
-        search,
-        status,
         page: String(page),
         limit: String(limit),
-    }).toString();
+    });
 
-    const response = await adminFetch<unknown>(`${ADMIN_ROUTES.FINANCE_TRANSACTIONS}?${query}`);
-    return parseAdminResponse<Transaction>(response).items;
+    if (search.trim()) {
+        query.set("search", search.trim());
+    }
+    if (status !== "all") {
+        query.set("status", status);
+    }
+
+    const response = await adminFetch<unknown>(`${ADMIN_ROUTES.FINANCE_TRANSACTIONS}?${query.toString()}`);
+    const parsed = parseAdminResponse<Transaction>(response);
+    const pagination = parsed.pagination;
+
+    return {
+        items: parsed.items,
+        pagination: {
+            page: pagination?.page ?? page,
+            limit: pagination?.limit ?? limit,
+            total: pagination?.total ?? parsed.items.length,
+            pages: pagination?.pages ?? pagination?.totalPages ?? 1,
+        },
+    };
 }
 
 export async function fetchFinanceStats(): Promise<FinanceStats | null> {

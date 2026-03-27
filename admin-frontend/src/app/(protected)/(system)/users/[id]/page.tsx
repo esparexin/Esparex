@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
+import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import type { User } from "@/types/user";
 import { ArrowLeft, Mail, Phone, Shield, User as UserIcon } from "lucide-react";
 
@@ -70,7 +71,7 @@ export default function UserDetailsPage({ params }: Props) {
     return (
         <div className="space-y-6">
             <Link
-                href="/users"
+                href={ADMIN_UI_ROUTES.users()}
                 className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
                 <ArrowLeft size={14} /> Back to Users
@@ -111,13 +112,13 @@ export default function UserDetailsPage({ params }: Props) {
                         <div className="rounded-lg border border-slate-200 p-4">
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Quick Access</p>
                             <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-                                <Link href={`/moderation?sellerId=${encodeURIComponent(user.id)}`} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <Link href={ADMIN_UI_ROUTES.ads({ status: "all", sellerId: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
                                     View User Ads
                                 </Link>
-                                <Link href={`/reports?search=${encodeURIComponent(user.id)}`} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-                                    View User Reports
+                                <Link href={ADMIN_UI_ROUTES.reports({ status: "open" })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                    View Reports Queue
                                 </Link>
-                                <Link href={`/finance?search=${encodeURIComponent(user.id)}`} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <Link href={ADMIN_UI_ROUTES.finance({ search: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
                                     View User Payments
                                 </Link>
                             </div>

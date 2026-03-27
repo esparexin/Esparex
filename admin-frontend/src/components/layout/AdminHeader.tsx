@@ -41,20 +41,20 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
         subtitle: "Monitor and moderate buyer-seller conversations across the marketplace.",
     },
     finance: {
-        title: "Plans & Invoices",
-        subtitle: "Monitor revenue, payments, and marketplace performance trends.",
+        title: "Transactions",
+        subtitle: "Monitor transaction health, payment outcomes, and finance operations.",
     },
     invoices: {
-        title: "Plans & Invoices",
+        title: "Invoices",
         subtitle: "Review generated invoices, GST billing records, and downloadable PDFs.",
     },
     plans: {
-        title: "Plans & Invoices",
+        title: "Plans",
         subtitle: "Manage subscription plans, ad packs, spotlight credits, and smart alerts.",
     },
     revenue: {
-        title: "Plans & Invoices",
-        subtitle: "Track monetization performance across plans, invoices, and transactions.",
+        title: "Revenue",
+        subtitle: "Track monetization performance, revenue breakdowns, and growth trends.",
     },
     businesses: {
         title: "Business Master",
@@ -125,11 +125,12 @@ export function AdminHeader() {
         // This suppresses the duplicate title/subtitle/search block because the
         // page shell (AdminPageShell) or the screen itself handles its own density.
         const compactRoutes = [
+            "ads",
             "spare-parts",
             "reports",
             "business-requests",
             "services",
-            "messages"
+            "chat"
         ];
         const firstSegment = segments[0];
         if (!firstSegment) return false;

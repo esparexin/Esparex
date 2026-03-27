@@ -21,21 +21,36 @@ type AdminModuleTabsProps = {
 export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminModuleTabsProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const currentQuery = searchParams.toString();
+    const parsedTabs = tabs.map((tab) => {
+        const url = new URL(tab.href, "https://admin.local");
+        const tabParams = Array.from(url.searchParams.entries());
+        const pathMatches = pathname === url.pathname;
+        const paramsMatch = tab.matchPathOnly
+            ? pathMatches
+            : pathMatches && tabParams.every(([key, value]) => searchParams.get(key) === value);
+
+        return {
+            tab,
+            url,
+            tabParams,
+            pathMatches,
+            paramsMatch,
+        };
+    });
 
     return (
         <div className={cn("flex flex-wrap items-center", variant === "pills" ? "gap-2" : "gap-6 border-b border-slate-200 w-full", className)}>
-            {tabs.map((tab) => {
-                const url = new URL(tab.href, "https://admin.local");
-                
-                // Smarter active detection:
-                // 1. Path must match
-                // 2. All query params in the tab.href MUST be present in the current URL (unless matchPathOnly)
-                const pathMatches = pathname === url.pathname;
-                const tabParams = Array.from(url.searchParams.entries());
-                const paramsMatch = tab.matchPathOnly ? true : tabParams.every(([key, value]) => searchParams.get(key) === value);
-                
-                const isActive = pathMatches && paramsMatch;
+            {parsedTabs.map(({ tab, url, tabParams, pathMatches, paramsMatch }) => {
+                const hasMoreSpecificMatch =
+                    tabParams.length === 0 &&
+                    parsedTabs.some(
+                        (candidate) =>
+                            candidate.tab.href !== tab.href &&
+                            candidate.pathMatches &&
+                            candidate.tabParams.length > 0 &&
+                            candidate.paramsMatch
+                    );
+                const isActive = paramsMatch && !(pathMatches && hasMoreSpecificMatch);
 
                 const baseStyles = "inline-flex items-center gap-2 font-semibold uppercase tracking-[0.12em] transition-colors";
                 

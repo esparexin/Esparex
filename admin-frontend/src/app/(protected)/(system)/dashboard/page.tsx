@@ -11,6 +11,7 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { fetchAdminAdSummary, fetchAdminServiceSummary, fetchAdminSparePartSummary } from "@/lib/api/moderation";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
+import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import type { FinanceStats } from "@/types/transaction";
 
 type DashboardStats = {
@@ -90,7 +91,7 @@ export default function DashboardPage() {
     <AdminPageShell
       title="System Overview"
       description={`Welcome back, ${admin?.firstName || "Admin"}. Live performance data is synced.`}
-      tabs={<AdminModuleTabs tabs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Analytics", href: "/finance" }, { label: "Ads", href: "/ads?status=pending" }]} />}
+      tabs={<AdminModuleTabs tabs={[{ label: "Dashboard", href: ADMIN_UI_ROUTES.dashboard() }, { label: "Analytics", href: ADMIN_UI_ROUTES.finance() }, { label: "Ads", href: ADMIN_UI_ROUTES.ads({ status: "pending" }) }]} />}
       actions={
         growth !== null ? (
           <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-bold text-sm ${growth >= 0
@@ -111,41 +112,41 @@ export default function DashboardPage() {
           value={moderationCounts.pending}
           icon={Clock}
           className="border-amber-100 bg-amber-50/5"
-          href="/ads?status=pending"
+          href={ADMIN_UI_ROUTES.ads({ status: "pending" })}
         />
         <DashboardCard
           title="Live Ads"
           value={moderationCounts.live}
           icon={CheckCircle}
           className="border-emerald-100 bg-emerald-50/5"
-          href="/ads?status=live"
+          href={ADMIN_UI_ROUTES.ads({ status: "live" })}
         />
         <DashboardCard
           title="Reported Ads"
           value={reportCount}
           icon={AlertCircle}
           className="border-red-100 bg-red-50/5"
-          href="/reports?status=open"
+          href={ADMIN_UI_ROUTES.reports({ status: "open" })}
         />
         <DashboardCard
           title="Business Requests"
           value={businessRequestCount}
           icon={Building2}
           className="border-violet-100 bg-violet-50/5"
-          href="/business-requests?status=pending"
+          href={ADMIN_UI_ROUTES.businessRequests({ status: "pending" })}
         />
         <DashboardCard
           title="Total Users"
           value={stats?.totalUsers || 0}
           icon={Users}
-          href="/users"
+          href={ADMIN_UI_ROUTES.users()}
         />
         <DashboardCard
           title="Total Revenue"
           value={`₹${(financeStats?.totalRevenue || 0).toLocaleString()}`}
           icon={DollarSign}
           className="border-sky-100 bg-sky-50/5"
-          href="/finance"
+          href={ADMIN_UI_ROUTES.finance()}
         />
       </div>
 
@@ -155,14 +156,14 @@ export default function DashboardPage() {
           value={pendingServices}
           icon={Wrench}
           className="border-indigo-100 bg-indigo-50/5"
-          href="/ads?listingType=service&status=pending"
+          href={ADMIN_UI_ROUTES.services({ status: "pending" })}
         />
         <DashboardCard
           title="Pending Spare Parts"
           value={pendingSpareParts}
           icon={Package}
           className="border-teal-100 bg-teal-50/5"
-          href="/ads?listingType=spare_part&status=pending"
+          href={ADMIN_UI_ROUTES.spareParts({ status: "pending" })}
         />
       </div>
 

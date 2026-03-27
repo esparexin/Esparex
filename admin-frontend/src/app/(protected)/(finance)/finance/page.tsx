@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ColumnDef } from "@/components/ui/DataTable";
 import { Transaction, FinanceStats } from "@/types/transaction";
 import { fetchFinanceStats, fetchFinanceTransactions } from "@/lib/api/finance";
 import {
@@ -14,37 +14,73 @@ import {
     TrendingUp,
     Calendar,
     Wallet,
-    AlertCircle
 } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
-import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { financeTabs } from "@/components/layout/adminModuleTabSets";
-
 import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
+import {
+    buildUrlWithSearchParams,
+    normalizeSearchParamValue,
+    parsePositiveIntParam,
+    updateSearchParams,
+} from "@/lib/urlSearchParams";
+
+const DEFAULT_STATUS = "all";
+const FINANCE_STATUSES = new Set(["all", "SUCCESS", "FAILED", "INITIATED"]);
 
 export default function FinancePage() {
+    const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [stats, setStats] = useState<FinanceStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState("All");
+    const [pagination, setPagination] = useState({
+        total: 0,
+        pages: 1,
+        limit: 20,
+    });
+
+    const rawSearch = searchParams.get("search");
+    const rawStatus = searchParams.get("status");
+    const rawPage = searchParams.get("page");
+
+    const search = normalizeSearchParamValue(rawSearch);
+    const statusFilter =
+        rawStatus === "All"
+            ? DEFAULT_STATUS
+            : rawStatus && FINANCE_STATUSES.has(rawStatus)
+                ? rawStatus
+                : DEFAULT_STATUS;
+    const page = parsePositiveIntParam(rawPage, 1);
+
+    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    };
 
     const fetchFinanceData = async () => {
         setLoading(true);
+        setError("");
         try {
-            const [transactionsData, statsData] = await Promise.all([
+            const [{ items, pagination: nextPagination }, statsData] = await Promise.all([
                 fetchFinanceTransactions({
                     search,
                     status: statusFilter,
-                    page: 1,
+                    page,
                     limit: 20,
                 }),
                 fetchFinanceStats(),
             ]);
-            setTransactions(transactionsData);
+            setTransactions(items);
+            setPagination({
+                total: nextPagination.total,
+                pages: nextPagination.pages,
+                limit: nextPagination.limit,
+            });
             setStats(statsData);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to load finance data");
@@ -58,12 +94,29 @@ export default function FinancePage() {
             void fetchFinanceData();
         }, 300);
         return () => clearTimeout(timer);
-    }, [search, statusFilter]);
+    }, [page, search, statusFilter]);
 
     useEffect(() => {
-        const requestedSearch = searchParams.get("search") || "";
-        setSearch((prev) => (prev === requestedSearch ? prev : requestedSearch));
-    }, [searchParams]);
+        const nextUrl = buildUrlWithSearchParams(
+            pathname,
+            updateSearchParams(searchParams, {
+                search,
+                status: rawStatus === null ? null : statusFilter,
+                page: page > 1 ? page : null,
+            })
+        );
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    }, [page, pathname, rawStatus, router, search, searchParams, statusFilter]);
+
+    useEffect(() => {
+        if (!loading && page > pagination.pages) {
+            replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
+        }
+    }, [loading, page, pagination.pages]);
 
     const columns: ColumnDef<Transaction>[] = [
         {
@@ -140,6 +193,13 @@ export default function FinancePage() {
             isLoading={loading}
             error={error}
             emptyMessage="No transaction history found"
+            pagination={{
+                currentPage: page,
+                totalPages: pagination.pages,
+                totalItems: pagination.total,
+                pageSize: pagination.limit,
+                onPageChange: (nextPage) => replaceQueryState({ page: nextPage > 1 ? nextPage : null }),
+            }}
             actions={
                 <div className="flex gap-2">
                     <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
@@ -189,7 +249,7 @@ export default function FinancePage() {
                             placeholder="Search by Payment ID, User or description..."
                             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => replaceQueryState({ search: e.target.value, page: null })}
                         />
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto text-black">
@@ -197,9 +257,9 @@ export default function FinancePage() {
                         <select
                             className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black outline-none"
                             value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
+                            onChange={(e) => replaceQueryState({ status: e.target.value, page: null })}
                         >
-                            <option value="All">All Status</option>
+                            <option value="all">All Status</option>
                             <option value="SUCCESS">Success</option>
                             <option value="FAILED">Failed</option>
                             <option value="INITIATED">Initiated</option>

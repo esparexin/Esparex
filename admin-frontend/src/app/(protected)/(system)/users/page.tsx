@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
@@ -27,6 +27,7 @@ import {
     type UserActionState,
     type UserActionType,
 } from "@/components/system/users/userManagement";
+import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 
 const USER_STATUS_OPTIONS = [
     { value: "all", label: "All Status" },
@@ -42,6 +43,8 @@ const USER_ROLE_COLORS: Record<string, string> = {
 };
 
 export default function UsersPage() {
+    const pathname = usePathname();
+    const router = useRouter();
     const searchParams = useSearchParams();
     const { isPending: isActionLoading, runMutation } = useAdminMutation();
     const [users, setUsers] = useState<ManagedUser[]>([]);
@@ -59,7 +62,7 @@ export default function UsersPage() {
     const [overview, setOverview] = useState({
         totalUsers: 0,
         activeUsers: 0,
-        blockedUsers: 0,
+        bannedUsers: 0,
         verifiedUsers: 0
     });
 
@@ -99,12 +102,11 @@ export default function UsersPage() {
             }
             const overviewParsed = parseAdminResponse<never, Record<string, unknown>>(overviewResponse);
             const overviewData = overviewParsed.data || {};
-            const suspended = Number(overviewData.suspendedUsers || 0);
             const banned = Number(overviewData.bannedUsers || 0);
             setOverview({
                 totalUsers: Number(overviewData.totalUsers || 0),
                 activeUsers: Number(overviewData.activeUsers || 0),
-                blockedUsers: suspended + banned,
+                bannedUsers: banned,
                 verifiedUsers: Number(overviewData.verifiedUsers || 0)
             });
         } catch (err) {
@@ -121,11 +123,6 @@ export default function UsersPage() {
         return () => clearTimeout(timer);
     }, [search, statusFilter, verifiedFilter, page]);
 
-    // Reset page when filters change
-    useEffect(() => {
-        setPage(1);
-    }, [search, statusFilter, verifiedFilter]);
-
     useEffect(() => {
         const requestedStatus = searchParams.get("status");
         const requestedVerified = searchParams.get("isVerified");
@@ -139,12 +136,26 @@ export default function UsersPage() {
             requestedVerified === "true" || requestedVerified === "false"
                 ? requestedVerified
                 : "all";
-        const normalizedSearch = typeof requestedSearch === "string" ? requestedSearch : "";
+        const normalizedSearch = readStringParam(requestedSearch);
+        const normalizedPage = readPositiveIntParam(searchParams.get("page"), 1);
         setStatusFilter((prev) => (prev === normalizedStatus ? prev : normalizedStatus));
         setVerifiedFilter((prev) => (prev === normalizedVerified ? prev : normalizedVerified));
         setSearch((prev) => (prev === normalizedSearch ? prev : normalizedSearch));
-        setPage(1);
+        setPage((prev) => (prev === normalizedPage ? prev : normalizedPage));
     }, [searchParams]);
+
+    useEffect(() => {
+        const nextUrl = ADMIN_UI_ROUTES.users({
+            status: statusFilter !== "all" ? statusFilter : undefined,
+            isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
+            search: search || undefined,
+            page: page > 1 ? page : undefined,
+        });
+        const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
+        if (nextUrl !== currentUrl) {
+            void router.replace(nextUrl, { scroll: false });
+        }
+    }, [page, pathname, router, search, searchParams, statusFilter, verifiedFilter]);
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -283,11 +294,11 @@ export default function UsersPage() {
             tabs={
                 <AdminModuleTabs
                     tabs={[
-                        { label: "All Users", href: "/users" },
-                        { label: "Active", href: "/users?status=active", count: overview.activeUsers },
-                        { label: "Suspended", href: "/users?status=suspended" },
-                        { label: "Blocked", href: "/users?status=blocked", count: overview.blockedUsers },
-                        { label: "Verified", href: "/users?isVerified=true", count: overview.verifiedUsers },
+                        { label: "All Users", href: ADMIN_UI_ROUTES.users() },
+                        { label: "Active", href: ADMIN_UI_ROUTES.users({ status: "active" }), count: overview.activeUsers },
+                        { label: "Suspended", href: ADMIN_UI_ROUTES.users({ status: "suspended" }) },
+                        { label: "Banned", href: ADMIN_UI_ROUTES.users({ status: "banned" }), count: overview.bannedUsers },
+                        { label: "Verified", href: ADMIN_UI_ROUTES.users({ isVerified: "true" }), count: overview.verifiedUsers },
                     ]}
                 />
             }
@@ -298,19 +309,19 @@ export default function UsersPage() {
                 <div className="flex min-h-0 flex-1 flex-col gap-6">
 
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-                        <Link href="/users" className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Users</p>
                             <p className="mt-2 text-2xl font-bold text-slate-900">{overview.totalUsers.toLocaleString()}</p>
                         </Link>
-                        <Link href="/users?status=active" className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "active" })} className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Active Users</p>
                             <p className="mt-2 text-2xl font-bold text-emerald-700">{overview.activeUsers.toLocaleString()}</p>
                         </Link>
-                        <Link href="/users?status=blocked" className="rounded-xl border border-red-200 bg-red-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Blocked Users</p>
-                            <p className="mt-2 text-2xl font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "banned" })} className="rounded-xl border border-red-200 bg-red-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Banned Users</p>
+                            <p className="mt-2 text-2xl font-bold text-red-700">{overview.bannedUsers.toLocaleString()}</p>
                         </Link>
-                        <Link href="/users?isVerified=true" className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                        <Link href={ADMIN_UI_ROUTES.users({ isVerified: "true" })} className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Verified Users</p>
                             <p className="mt-2 text-2xl font-bold text-blue-700">{overview.verifiedUsers.toLocaleString()}</p>
                         </Link>
@@ -318,18 +329,25 @@ export default function UsersPage() {
 
                     <AdminFilterToolbar
                         search={search}
-                        onSearchChange={setSearch}
+                        onSearchChange={(value) => {
+                            setSearch(value);
+                            setPage(1);
+                        }}
                         searchPlaceholder="Search by name, email or mobile..."
                         status={statusFilter}
-                        onStatusChange={setStatusFilter}
+                        onStatusChange={(value) => {
+                            setStatusFilter(value);
+                            setPage(1);
+                        }}
                         statusOptions={USER_STATUS_OPTIONS}
                         extraFilters={
                             <select
                                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
                                 value={verifiedFilter}
-                                onChange={(event) =>
-                                    setVerifiedFilter(event.target.value as "all" | "true" | "false")
-                                }
+                                onChange={(event) => {
+                                    setVerifiedFilter(event.target.value as "all" | "true" | "false");
+                                    setPage(1);
+                                }}
                             >
                                 <option value="all">All Verification</option>
                                 <option value="true">Verified</option>

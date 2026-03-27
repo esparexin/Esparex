@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
     Building2,
     CheckCircle2,
@@ -18,8 +18,15 @@ import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { useToast } from "@/context/ToastContext";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { useAdminBusinessRequestsList } from "@/hooks/useAdminBusinessPageControllers";
+import { useAdminBusinessList } from "@/hooks/useAdminBusinessList";
 import type { Business } from "@/types/business";
+import { adminBusinessApprovalSchema } from "@/schemas/admin.schemas";
+import {
+    buildUrlWithSearchParams,
+    normalizeSearchParamValue,
+    parsePositiveIntParam,
+    updateSearchParams,
+} from "@/lib/urlSearchParams";
 import {
     BusinessActionButton,
     buildBusinessModalController,
@@ -31,16 +38,82 @@ import {
     BusinessTypesCell,
 } from "@/components/business/BusinessListPrimitives";
 
+const DEFAULT_STATUS = "pending";
+const BUSINESS_REQUEST_STATUSES = new Set(["pending", "live", "rejected", "all"]);
+
+const mapOverview = (data: Record<string, unknown>) => ({
+    total: Number(data.total || 0),
+    pending: Number(data.pending || 0),
+    live: Number(data.live || data.approved || 0),
+    rejected: Number(data.rejected || 0),
+});
+
 export default function BusinessRequestsView() {
     const { showToast } = useToast();
+    const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
 
     const [approveTarget, setApproveTarget] = useState<Business | null>(null);
-    const activeTab = searchParams.get("status") || "pending";
+    const rawStatus = searchParams.get("status");
+    const rawSearch = searchParams.get("search");
+    const rawPage = searchParams.get("page");
 
-    const businessList = useAdminBusinessRequestsList(activeTab);
-    const { businesses, loading, error, setError, search, setSearch, page, setPage, pagination, overview } =
-        businessList;
+    const activeTab =
+        rawStatus && BUSINESS_REQUEST_STATUSES.has(rawStatus)
+            ? rawStatus
+            : DEFAULT_STATUS;
+    const search = normalizeSearchParamValue(rawSearch);
+    const page = parsePositiveIntParam(rawPage, 1);
+
+    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    };
+
+    const businessList = useAdminBusinessList({
+        activeTab,
+        search,
+        page,
+        initialOverview: { total: 0, pending: 0, live: 0, rejected: 0 },
+        mapOverview,
+        rejectValidationMessage: (reason) => {
+            const validation = adminBusinessApprovalSchema.safeParse({
+                status: "REJECTED",
+                reason,
+            });
+
+            return validation.success
+                ? null
+                : validation.error.issues[0]?.message || "Invalid rejection reason";
+        },
+    });
+    const { businesses, loading, error, setError, pagination, overview } = businessList;
+
+    useEffect(() => {
+        const nextUrl = buildUrlWithSearchParams(
+            pathname,
+            updateSearchParams(searchParams, {
+                status: activeTab,
+                search,
+                page: page > 1 ? page : null,
+            })
+        );
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    }, [activeTab, page, pathname, rawStatus, router, search, searchParams]);
+
+    useEffect(() => {
+        if (!loading && page > pagination.pages) {
+            replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
+        }
+    }, [loading, page, pagination.pages]);
 
     const handleApprove = async (id: string) => {
         try {
@@ -197,16 +270,43 @@ export default function BusinessRequestsView() {
 
                 <AdminModuleTabs
                     tabs={[
-                        { label: "Pending", href: "/business-requests?status=pending", count: overview.pending },
-                        { label: "Live", href: "/business-requests?status=live", count: overview.live },
-                        { label: "Rejected", href: "/business-requests?status=rejected", count: overview.rejected },
-                        { label: "All", href: "/business-requests?status=all" },
+                        {
+                            label: "Pending",
+                            href: buildUrlWithSearchParams(
+                                pathname,
+                                updateSearchParams(searchParams, { status: "pending", page: null })
+                            ),
+                            count: overview.pending,
+                        },
+                        {
+                            label: "Live",
+                            href: buildUrlWithSearchParams(
+                                pathname,
+                                updateSearchParams(searchParams, { status: "live", page: null })
+                            ),
+                            count: overview.live,
+                        },
+                        {
+                            label: "Rejected",
+                            href: buildUrlWithSearchParams(
+                                pathname,
+                                updateSearchParams(searchParams, { status: "rejected", page: null })
+                            ),
+                            count: overview.rejected,
+                        },
+                        {
+                            label: "All",
+                            href: buildUrlWithSearchParams(
+                                pathname,
+                                updateSearchParams(searchParams, { status: "all", page: null })
+                            ),
+                        },
                     ]}
                 />
 
                 <BusinessSearchToolbar
                     search={search}
-                    onSearchChange={setSearch}
+                    onSearchChange={(value) => replaceQueryState({ search: value, page: null })}
                     placeholder="Search by name, email or mobile..."
                     summary={<>{pagination.total} total</>}
                 />
@@ -216,7 +316,7 @@ export default function BusinessRequestsView() {
                     columns={columns}
                     isLoading={loading}
                     page={page}
-                    setPage={setPage}
+                    setPage={(nextPage) => replaceQueryState({ page: nextPage > 1 ? nextPage : null })}
                     pagination={pagination}
                     onRowClick={(biz) => businessList.setSelectedBusiness(biz)}
                     emptyMessage={error || "No business requests found."}

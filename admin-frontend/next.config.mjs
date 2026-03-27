@@ -4,23 +4,33 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/moderation',
+        destination: '/ads?status=pending',
+        permanent: true,
+      },
+      {
         source: '/moderation/ads',
-        destination: '/ads',
+        destination: '/ads?status=pending',
         permanent: true,
       },
       {
         source: '/moderation/services',
-        destination: '/services',
+        destination: '/services?status=pending',
         permanent: true,
       },
       {
         source: '/moderation/parts',
-        destination: '/spare-parts',
+        destination: '/spare-parts?status=pending',
         permanent: true,
       },
       {
         source: '/moderation/messages',
-        destination: '/messages',
+        destination: '/chat',
+        permanent: true,
+      },
+      {
+        source: '/messages',
+        destination: '/chat',
         permanent: true,
       },
     ];

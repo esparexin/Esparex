@@ -4,6 +4,7 @@ import type { Ref } from "react";
 import Link from "next/link";
 import { Ban, Eye, MoreVertical, PlayCircle, Search, Shield, User as UserIcon } from "lucide-react";
 import type { ManagedUser, UserActionType } from "@/components/system/users/userManagement";
+import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 
 interface UserActionMenuProps {
     user: ManagedUser;
@@ -43,7 +44,7 @@ export function UserActionMenu({
                     className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-slate-100 bg-white py-1 text-sm font-medium shadow-lg"
                 >
                     <Link
-                        href={`/users/${encodeURIComponent(user.id)}`}
+                        href={ADMIN_UI_ROUTES.userById(user.id)}
                         onClick={onClose}
                         className="block w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50"
                     >
@@ -53,7 +54,7 @@ export function UserActionMenu({
                         </span>
                     </Link>
                     <Link
-                        href={`/moderation?sellerId=${encodeURIComponent(user.id)}`}
+                        href={ADMIN_UI_ROUTES.ads({ status: "all", sellerId: user.id })}
                         onClick={onClose}
                         className="block w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50"
                     >

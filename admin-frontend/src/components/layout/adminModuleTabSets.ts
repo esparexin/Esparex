@@ -26,8 +26,8 @@ export const locationsTabs: AdminTabItem[] = [
 export const financeTabs: AdminTabItem[] = [
     { label: "Plans", href: "/plans" },
     { label: "Invoices", href: "/invoices" },
-    { label: "Revenue", href: "/finance" },
-    { label: "Revenue Stats", href: "/revenue" },
+    { label: "Transactions", href: "/finance" },
+    { label: "Revenue", href: "/revenue" },
 ];
 
 export const catalogManagementTabs: AdminTabItem[] = [

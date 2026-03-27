@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CheckCircle2, User as UserIcon, X } from "lucide-react";
 import { StatusChip } from "@/components/ui/StatusChip";
+import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import {
     getUserDisplayName,
     getUserStatusPresentation,
@@ -105,19 +106,19 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                     </h4>
                     <div className="flex flex-col gap-2">
                         <Link
-                            href={`/moderation?sellerId=${encodeURIComponent(user.id)}`}
+                            href={ADMIN_UI_ROUTES.ads({ status: "all", sellerId: user.id })}
                             className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                         >
                             View User Ads
                         </Link>
                         <Link
-                            href={`/reports?search=${encodeURIComponent(user.id)}`}
+                            href={ADMIN_UI_ROUTES.reports({ status: "open" })}
                             className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                         >
-                            View User Reports
+                            View Reports Queue
                         </Link>
                         <Link
-                            href={`/finance?search=${encodeURIComponent(user.id)}`}
+                            href={ADMIN_UI_ROUTES.finance({ search: user.id })}
                             className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                         >
                             View User Payments

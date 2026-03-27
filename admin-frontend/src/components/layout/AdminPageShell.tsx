@@ -86,7 +86,10 @@ export function AdminPageShell({
             <button
                 type="button"
                 onClick={() => setFloatingSearchOpen(true)}
-                className="fixed bottom-8 right-8 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-sky-600 text-white shadow-lg shadow-sky-200 hover:bg-sky-700 transition-all"
+                className={cn(
+                    "fixed bottom-8 right-8 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-sky-600 text-white shadow-lg shadow-sky-200 hover:bg-sky-700 transition-all",
+                    !isCompact && "md:hidden"
+                )}
                 aria-label="Open global search"
             >
                 <Search size={20} />

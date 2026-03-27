@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from "react";
 import { AlertCircle, RefreshCcw, EyeOff, ChevronDown } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
 import { AdsTable } from "@/components/moderation/AdsTable";
 import { RejectAdModal } from "@/components/moderation/RejectAdModal";
@@ -28,6 +28,11 @@ import { moderationTabs, adLifecycleTabs, serviceLifecycleTabs, partLifecycleTab
 import { AdminErrorBoundary } from "@/components/common/AdminErrorBoundary";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { getListingPresentation } from "@/components/moderation/listingPresentation";
+import {
+    adminListingModerationRoute,
+    readPositiveIntParam,
+    readStringParam,
+} from "@/lib/adminUiRoutes";
 
 const SORT_OPTIONS: Array<{ label: string; value: ModerationFilters["sort"] }> = [
     { label: "Newest", value: "newest" },
@@ -36,6 +41,16 @@ const SORT_OPTIONS: Array<{ label: string; value: ModerationFilters["sort"] }> =
     { label: "Price Low", value: "price_low" }
 ];
 
+const ALLOWED_STATUSES = new Set<ModerationFilters["status"]>([
+    "pending",
+    "live",
+    "rejected",
+    "deactivated",
+    "sold",
+    "expired",
+    "all",
+]);
+
 type AdsViewProps = {
     mode?: "ads";
     listingType?: "ad" | "service" | "spare_part";
@@ -43,18 +58,13 @@ type AdsViewProps = {
 
 export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
     const { showToast } = useToast();
+    const pathname = usePathname();
+    const router = useRouter();
     const searchParams = useSearchParams();
     const presentation = getListingPresentation(listingType);
     const entityLabel = presentation.actionEntityLabel;
     const entityLabelPlural = presentation.actionEntityLabelPlural;
 
-    const [filters, setFilters] = useState<ModerationFilters>(() => ({
-        ...DEFAULT_FILTERS,
-        status: "live",
-        listingType
-    }));
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(20);
     const [refreshKey, setRefreshKey] = useState(0);
 
     const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>({
@@ -88,39 +98,122 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
         return AdminApiError.resolveMessage(actionError, fallbackMessage);
     };
 
-    useEffect(() => {
+    const currentUrl = useMemo(() => {
+        const queryString = searchParams.toString();
+        return queryString ? `${pathname}?${queryString}` : pathname;
+    }, [pathname, searchParams]);
+
+    const routeState = useMemo(() => {
+        const requestedListingType = searchParams.get("listingType") as ModerationFilters["listingType"] | null;
+        if (
+            requestedListingType &&
+            requestedListingType !== listingType &&
+            ["ad", "service", "spare_part"].includes(requestedListingType)
+        ) {
+            const legacyParams = new URLSearchParams(searchParams.toString());
+            legacyParams.delete("listingType");
+            return {
+                filters: {
+                    ...DEFAULT_FILTERS,
+                    status: "live" as ModerationFilters["status"],
+                    listingType,
+                },
+                page: 1,
+                pageSize: 20,
+                canonicalUrl: adminListingModerationRoute(
+                    requestedListingType as "ad" | "service" | "spare_part",
+                    Object.fromEntries(legacyParams.entries())
+                ),
+            };
+        }
+
         const statusFromQuery = searchParams.get("status");
         const sellerIdFromQuery = searchParams.get("sellerId");
         const searchFromQuery = searchParams.get("search");
-        const listingTypeFromQuery = searchParams.get("listingType") as ModerationFilters["listingType"];
-        const allowed = new Set(["pending", "live", "rejected", "deactivated", "sold", "expired", "all"]);
+        const locationFromQuery = searchParams.get("location");
+        const sortFromQuery = searchParams.get("sort");
+        const dateFromQuery = searchParams.get("dateFrom");
+        const dateToQuery = searchParams.get("dateTo");
         const normalizedStatus =
-            statusFromQuery && allowed.has(statusFromQuery)
+            statusFromQuery && ALLOWED_STATUSES.has(statusFromQuery as ModerationFilters["status"])
                 ? statusFromQuery as ModerationFilters["status"]
                 : "live";
-        const normalizedSellerId = typeof sellerIdFromQuery === "string" ? sellerIdFromQuery.trim() : "";
-        const normalizedSearch = typeof searchFromQuery === "string" ? searchFromQuery.trim() : "";
-        const normalizedListingType = listingType || listingTypeFromQuery;
+        const normalizedSellerId = readStringParam(sellerIdFromQuery);
+        const normalizedSearch = readStringParam(searchFromQuery);
+        const normalizedLocation = readStringParam(locationFromQuery);
+        const normalizedSort =
+            sortFromQuery && SORT_OPTIONS.some((option) => option.value === sortFromQuery)
+                ? (sortFromQuery as ModerationFilters["sort"])
+                : DEFAULT_FILTERS.sort;
+        const normalizedDateFrom = readStringParam(dateFromQuery);
+        const normalizedDateTo = readStringParam(dateToQuery);
+        const normalizedPage = readPositiveIntParam(searchParams.get("page"), 1);
+        const normalizedLimit = readPositiveIntParam(searchParams.get("limit"), 20);
 
-        setFilters((prev) => {
-            if (
-                prev.status === normalizedStatus &&
-                prev.sellerId === normalizedSellerId &&
-                prev.search === normalizedSearch &&
-                prev.listingType === normalizedListingType
-            ) {
-                return prev;
-            }
-            return {
-                ...prev,
+        return {
+            filters: {
+                ...DEFAULT_FILTERS,
                 status: normalizedStatus,
                 sellerId: normalizedSellerId,
                 search: normalizedSearch,
-                listingType: normalizedListingType
-            };
-        });
-        setPage(1);
+                location: normalizedLocation,
+                sort: normalizedSort,
+                dateFrom: normalizedDateFrom,
+                dateTo: normalizedDateTo,
+                listingType,
+            },
+            page: normalizedPage,
+            pageSize: normalizedLimit,
+            canonicalUrl: adminListingModerationRoute(listingType ?? "ad", {
+                status: normalizedStatus,
+                search: normalizedSearch || undefined,
+                sellerId: normalizedSellerId || undefined,
+                location: normalizedLocation || undefined,
+                sort: normalizedSort !== DEFAULT_FILTERS.sort ? normalizedSort : undefined,
+                dateFrom: normalizedDateFrom || undefined,
+                dateTo: normalizedDateTo || undefined,
+                page: normalizedPage > 1 ? normalizedPage : undefined,
+                limit: normalizedLimit !== 20 ? normalizedLimit : undefined,
+            }),
+        };
     }, [listingType, searchParams]);
+
+    const filters = routeState.filters;
+    const page = routeState.page;
+    const pageSize = routeState.pageSize;
+
+    useEffect(() => {
+        if (routeState.canonicalUrl !== currentUrl) {
+            void router.replace(routeState.canonicalUrl, { scroll: false });
+        }
+    }, [currentUrl, routeState.canonicalUrl, router]);
+
+    type RouteOverrides = Partial<Omit<ModerationFilters, "listingType"> & { page: number; limit: number }>;
+
+    const buildRoute = (overrides: RouteOverrides = {}) => {
+        const nextFilters = { ...filters, ...overrides };
+        const nextPage = overrides.page ?? page;
+        const nextLimit = overrides.limit ?? pageSize;
+
+        return adminListingModerationRoute(listingType ?? "ad", {
+            status: nextFilters.status,
+            search: nextFilters.search || undefined,
+            sellerId: nextFilters.sellerId || undefined,
+            location: nextFilters.location || undefined,
+            sort: nextFilters.sort !== DEFAULT_FILTERS.sort ? nextFilters.sort : undefined,
+            dateFrom: nextFilters.dateFrom || undefined,
+            dateTo: nextFilters.dateTo || undefined,
+            page: nextPage > 1 ? nextPage : undefined,
+            limit: nextLimit !== 20 ? nextLimit : undefined,
+        });
+    };
+
+    const replaceRoute = (overrides: RouteOverrides = {}) => {
+        const nextUrl = buildRoute(overrides);
+        if (nextUrl !== currentUrl) {
+            void router.replace(nextUrl, { scroll: false });
+        }
+    };
 
     const { items, pagination, summary, isLoading, error } = useAdminAdsQuery({
         filters,
@@ -137,7 +230,7 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
 
     useEffect(() => {
         if (page > pagination.pages) {
-            setPage(pagination.pages);
+            replaceRoute({ page: pagination.pages > 1 ? pagination.pages : 1 });
         }
     }, [page, pagination.pages]);
 
@@ -340,8 +433,10 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
     };
 
     const updateFilter = <K extends keyof ModerationFilters>(key: K, value: ModerationFilters[K]) => {
-        setPage(1);
-        setFilters((prev) => ({ ...prev, [key]: value }));
+        replaceRoute({
+            [key]: value,
+            page: 1,
+        } as RouteOverrides);
     };
 
     const toggleSelect = (adId: string, checked: boolean) => {
@@ -360,12 +455,17 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
     };
 
     const clearFilters = () => {
-        setFilters((prev) => ({
-            ...DEFAULT_FILTERS,
+        replaceRoute({
             status: "live",
-            listingType: listingType ?? prev.listingType
-        }));
-        setPage(1);
+            search: "",
+            sellerId: "",
+            location: "",
+            sort: DEFAULT_FILTERS.sort,
+            dateFrom: "",
+            dateTo: "",
+            page: 1,
+            limit: 20,
+        });
     };
 
     return (
@@ -506,10 +606,9 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
                         selectedIds={selectedIds}
                         onToggleSelect={toggleSelect}
                         onToggleSelectAll={toggleSelectAll}
-                        onPageChange={setPage}
+                        onPageChange={(nextPage) => replaceRoute({ page: nextPage })}
                         onPageSizeChange={(size) => {
-                            setPage(1);
-                            setPageSize(size);
+                            replaceRoute({ page: 1, limit: size });
                         }}
                         onView={handleView}
                         onApprove={(item) => void handleApprove(item)}

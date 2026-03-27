@@ -7,9 +7,11 @@ const mapBaseOverview = (data: Record<string, unknown>) => ({
     live: Number(data.live || data.approved || 0),
 });
 
-export function useAdminBusinessRequestsList(activeTab: string) {
+export function useAdminBusinessRequestsList(activeTab: string, search: string, page: number) {
     return useAdminBusinessList({
         activeTab,
+        search,
+        page,
         initialOverview: { total: 0, pending: 0, live: 0, rejected: 0 },
         mapOverview: (data) => ({
             ...mapBaseOverview(data),
@@ -28,9 +30,11 @@ export function useAdminBusinessRequestsList(activeTab: string) {
     });
 }
 
-export function useAdminBusinessesMasterList(activeTab: string, cityFilter: string) {
+export function useAdminBusinessesMasterList(activeTab: string, search: string, page: number, cityFilter: string) {
     return useAdminBusinessList({
         activeTab,
+        search,
+        page,
         initialOverview: { total: 0, pending: 0, live: 0, suspended: 0 },
         mapOverview: (data) => ({
             ...mapBaseOverview(data),

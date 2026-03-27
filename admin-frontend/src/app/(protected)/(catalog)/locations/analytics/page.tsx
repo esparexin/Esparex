@@ -177,8 +177,8 @@ export default function LocationAnalyticsPage() {
                                     <span className="ml-auto text-xs text-slate-400 font-medium">High search & ad activity</span>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100">
-                                    {data.hotZones.map(zone => (
-                                        <div key={zone._id} className="flex items-center justify-between px-5 py-3">
+                                    {data.hotZones.map((zone, idx) => (
+                                        <div key={`${zone._id}-${idx}`} className="flex items-center justify-between px-5 py-3">
                                             <div>
                                                 <div className="font-semibold text-slate-900 text-sm flex items-center gap-1.5">
                                                     {zone.isHotZone && <Flame size={13} className="text-orange-500" />}

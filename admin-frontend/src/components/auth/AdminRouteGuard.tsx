@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAdminAuth } from "@/context/AdminAuthContext";
+import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 
 export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -11,8 +12,11 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !admin) {
-      const nextPath = encodeURIComponent(pathname || "/");
-      void router.replace(`/login?next=${nextPath}`);
+      const nextPath =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+          : pathname || "/";
+      void router.replace(ADMIN_UI_ROUTES.login(nextPath));
     }
   }, [admin, loading, pathname, router]);
 

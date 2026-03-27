@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { AdminLog } from "@/types/audit";
 import { fetchAuditLogs } from "@/lib/api/auditLogs";
@@ -18,33 +18,79 @@ import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
+import {
+    buildUrlWithSearchParams,
+    normalizeSearchParamValue,
+    parsePositiveIntParam,
+    updateSearchParams,
+} from "@/lib/urlSearchParams";
+
+const ACTION_OPTIONS = [
+    { value: "all", label: "Every Action" },
+    { value: "LOGIN", label: "Logins" },
+    { value: "ADJUST_WALLET", label: "Wallet Changes" },
+    { value: "APPROVE_AD", label: "Ad Approvals" },
+    { value: "BAN_USER", label: "User Bans" },
+    { value: "UPDATE_SYSTEM_CONFIG", label: "Config Changes" },
+];
 
 export default function AuditLogsPage() {
+    const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
     const [logs, setLogs] = useState<AdminLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [search, setSearch] = useState("");
-    const [actionFilter, setActionFilter] = useState("all");
+    const [pagination, setPagination] = useState({
+        total: 0,
+        pages: 1,
+        limit: 50,
+    });
 
-    useEffect(() => {
-        const requestedAction = searchParams.get("action");
-        setActionFilter(requestedAction && requestedAction.trim().length > 0 ? requestedAction : "all");
-    }, [searchParams]);
+    const rawSearch = searchParams.get("search");
+    const rawAction = searchParams.get("action");
+    const rawPage = searchParams.get("page");
+    const rawView = searchParams.get("view");
 
-    const isAccessView = searchParams.get("view") === "access";
+    const search = normalizeSearchParamValue(rawSearch);
+    const actionFilter = normalizeSearchParamValue(rawAction) || "all";
+    const page = parsePositiveIntParam(rawPage, 1);
+
+    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    };
+
+    const statusOptions = useMemo(() => {
+        if (actionFilter === "all" || ACTION_OPTIONS.some((option) => option.value === actionFilter)) {
+            return ACTION_OPTIONS;
+        }
+
+        return [
+            { value: actionFilter, label: actionFilter.replace(/_/g, " ") },
+            ...ACTION_OPTIONS,
+        ];
+    }, [actionFilter]);
 
     const fetchLogs = async () => {
         setLoading(true);
+        setError("");
         try {
-            setLogs(
-                await fetchAuditLogs({
-                    search,
-                    action: actionFilter,
-                    page: 1,
-                    limit: 50,
-                })
-            );
+            const { items, pagination: nextPagination } = await fetchAuditLogs({
+                search,
+                action: actionFilter,
+                page,
+                limit: 50,
+            });
+            setLogs(items);
+            setPagination({
+                total: nextPagination.total,
+                pages: nextPagination.pages,
+                limit: nextPagination.limit,
+            });
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to load audit logs");
         } finally {
@@ -57,7 +103,30 @@ export default function AuditLogsPage() {
             void fetchLogs();
         }, 300);
         return () => clearTimeout(timer);
-    }, [search, actionFilter]);
+    }, [actionFilter, page, search]);
+
+    useEffect(() => {
+        const nextUrl = buildUrlWithSearchParams(
+            pathname,
+            updateSearchParams(searchParams, {
+                search,
+                action: actionFilter === "all" ? null : actionFilter,
+                page: page > 1 ? page : null,
+                view: null,
+            })
+        );
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    }, [actionFilter, page, pathname, rawView, router, search, searchParams]);
+
+    useEffect(() => {
+        if (!loading && page > pagination.pages) {
+            replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
+        }
+    }, [loading, page, pagination.pages]);
 
     const columns: ColumnDef<AdminLog>[] = [
         {
@@ -128,12 +197,8 @@ export default function AuditLogsPage() {
 
     return (
         <AdminPageShell
-            title={isAccessView ? "Access Logs" : "System Audit Logs"}
-            description={
-                isAccessView
-                    ? "Review admin access activity and authentication events."
-                    : "Review administrative activities and security events."
-            }
+            title="System Audit Logs"
+            description="Review administrative activities and security events."
             tabs={<AdminModuleTabs tabs={administrationTabs} />}
             actions={
                 <div className="p-2 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100 flex items-center gap-2 text-xs font-bold">
@@ -146,18 +211,11 @@ export default function AuditLogsPage() {
 
             <AdminFilterToolbar
                 search={search}
-                onSearchChange={setSearch}
+                onSearchChange={(value) => replaceQueryState({ search: value, page: null })}
                 searchPlaceholder="Search by Action, Admin or ID..."
                 status={actionFilter}
-                onStatusChange={setActionFilter}
-                statusOptions={[
-                    { value: "all", label: "Every Action" },
-                    { value: "LOGIN", label: "Logins" },
-                    { value: "ADJUST_WALLET", label: "Wallet Changes" },
-                    { value: "APPROVE_AD", label: "Ad Approvals" },
-                    { value: "BAN_USER", label: "User Bans" },
-                    { value: "UPDATE_SYSTEM_CONFIG", label: "Config Changes" },
-                ]}
+                onStatusChange={(value) => replaceQueryState({ action: value === "all" ? null : value, page: null })}
+                statusOptions={statusOptions}
             />
 
             <AdminInlineAlert message={error} />
@@ -172,6 +230,13 @@ export default function AuditLogsPage() {
                     columns={columns}
                     isLoading={loading}
                     emptyMessage="Zero activity logs found in the selected range"
+                    pagination={{
+                        currentPage: page,
+                        totalPages: pagination.pages,
+                        totalItems: pagination.total,
+                        pageSize: pagination.limit,
+                        onPageChange: (nextPage) => replaceQueryState({ page: nextPage > 1 ? nextPage : null }),
+                    }}
                     enableColumnVisibility
                     enableCsvExport
                     csvFileName="audit-logs.csv"

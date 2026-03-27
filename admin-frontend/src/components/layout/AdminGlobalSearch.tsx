@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
+import { ADMIN_UI_ROUTES, adminListingModerationRoute } from "@/lib/adminUiRoutes";
 
 type SearchBucket = "users" | "ads" | "businesses" | "reports" | "transactions";
 type SearchItem = {
@@ -27,7 +28,7 @@ const EMPTY_STATE: SearchState = {
 
 const SECTION_LABELS: Record<SearchBucket, string> = {
     users: "Users",
-    ads: "Ads",
+    ads: "Listings",
     businesses: "Businesses",
     reports: "Reports",
     transactions: "Transactions",
@@ -60,13 +61,13 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
 
         let cancelled = false;
         setLoading(true);
-        const timer = setTimeout(async () => {
+                const timer = setTimeout(async () => {
             try {
                 const limit = "3";
                 const [users, ads, businesses, reports, transactions] = await Promise.all([
                     adminFetch<any>(`${ADMIN_ROUTES.USERS}?${new URLSearchParams({ search: trimmed, page: "1", limit }).toString()}`),
                     adminFetch<any>(`${ADMIN_ROUTES.LISTINGS}?${new URLSearchParams({ search: trimmed, page: "1", limit }).toString()}`),
-                    adminFetch<any>(`${ADMIN_ROUTES.BUSINESS_REQUESTS}?${new URLSearchParams({ search: trimmed, page: "1", limit }).toString()}`),
+                    adminFetch<any>(`${ADMIN_ROUTES.BUSINESS_ACCOUNTS}?${new URLSearchParams({ search: trimmed, page: "1", limit, status: "all" }).toString()}`),
                     adminFetch<any>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ search: trimmed, page: "1", limit }).toString()}`),
                     adminFetch<any>(`${ADMIN_ROUTES.FINANCE_TRANSACTIONS}?${new URLSearchParams({ search: trimmed, page: "1", limit }).toString()}`),
                 ]);
@@ -78,31 +79,38 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                         id: String(item.id || item._id || item.mobile || ""),
                         label: String(item.name || item.mobile || "Unknown user"),
                         meta: String(item.mobile || item.email || "User"),
-                        href: `/users?search=${encodeURIComponent(trimmed)}`,
+                        href: ADMIN_UI_ROUTES.users({ search: trimmed }),
                     })),
                     ads: parseAdminResponse<Record<string, unknown>>(ads).items.map((item) => ({
                         id: String(item.id || item._id || ""),
                         label: String(item.title || item.id || "Untitled ad"),
-                        meta: String(item.status || item.sellerName || "Ad"),
-                        href: `/ads?search=${encodeURIComponent(trimmed)}`,
+                        meta: String(item.status || item.sellerName || item.listingType || "Listing"),
+                        href: adminListingModerationRoute(
+                            item.listingType === "service"
+                                ? "service"
+                                : item.listingType === "spare_part"
+                                    ? "spare_part"
+                                    : "ad",
+                            { search: trimmed }
+                        ),
                     })),
                     businesses: parseAdminResponse<Record<string, unknown>>(businesses).items.map((item) => ({
                         id: String(item.id || item._id || ""),
                         label: String(item.name || item.email || "Business"),
                         meta: String(item.status || item.email || "Business"),
-                        href: `/business-requests?search=${encodeURIComponent(trimmed)}`,
+                        href: ADMIN_UI_ROUTES.businesses({ status: "all", search: trimmed }),
                     })),
                     reports: parseAdminResponse<Record<string, unknown>>(reports).items.map((item) => ({
                         id: String(item.id || item._id || ""),
                         label: String(item.reason || item.reportType || "Report"),
                         meta: String(item.status || item.adId || "Report"),
-                        href: `/reports?search=${encodeURIComponent(trimmed)}`,
+                        href: ADMIN_UI_ROUTES.reports({ search: trimmed }),
                     })),
                     transactions: parseAdminResponse<Record<string, unknown>>(transactions).items.map((item) => ({
                         id: String(item.id || item._id || ""),
                         label: String(item.reference || item.transactionId || "Transaction"),
                         meta: String(item.status || item.amount || "Transaction"),
-                        href: `/finance?search=${encodeURIComponent(trimmed)}`,
+                        href: ADMIN_UI_ROUTES.finance({ search: trimmed }),
                     })),
                 };
 
@@ -145,7 +153,7 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                     if (e.key === "Escape" && onClose) onClose();
                 }}
                 onFocus={() => setIsOpen(true)}
-                placeholder="Search users, ads, businesses, reports, and transactions"
+                placeholder="Search users, listings, businesses, reports, and transactions"
                 className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 pl-10 pr-4 text-sm text-slate-700 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-200"
             />
 
