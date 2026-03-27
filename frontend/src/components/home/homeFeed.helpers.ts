@@ -1,4 +1,4 @@
-import type { Ad } from "@/lib/api/user/ads";
+import type { Listing as Ad } from "@/lib/api/user/listings";
 
 const getAdId = (ad: Ad): string => {
     const value = ad?.id;

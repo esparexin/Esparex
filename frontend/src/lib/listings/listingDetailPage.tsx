@@ -2,7 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
 import { ListingPageClient } from "@/app/(public)/ads/[slug]/ListingPageClient";
-import { getListingById } from "@/lib/api/user/ads";
+import { getListingById } from "@/lib/api/user/listings";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { generateAdSlug } from "@/lib/slug";
 

@@ -6,6 +6,7 @@ import {
     API_V1_BASE_PATH,
     DEFAULT_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
+import { buildLoginUrl } from "@/lib/authHelpers";
 
 type PostingBalancePayload = {
     totalRemaining?: number;
@@ -23,7 +24,7 @@ const API_BASE = (
     process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`
 ).replace(/\/$/, "");
 
-const loginRedirectUrl = "/login?callbackUrl=%2Fpost-ad";
+const loginRedirectUrl = buildLoginUrl("/post-ad");
 
 async function fetchPostingBalance(cookieHeader: string): Promise<{ balance: PostingBalancePayload | null; status: number }> {
     try {

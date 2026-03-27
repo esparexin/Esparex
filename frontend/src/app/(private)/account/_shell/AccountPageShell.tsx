@@ -6,7 +6,7 @@
  * handles auth loading, refreshUser wiring, and renders ProfileSettingsSidebar.
  */
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ProfileSettingsSidebar } from "@/components/user/ProfileSettingsSidebar";
 import { UserPage, getPageRoute } from "@/lib/routeUtils";
 import { useUser } from "@/hooks/useUser";
@@ -18,23 +18,7 @@ interface AccountPageShellProps {
 
 export function AccountPageShell({ tab }: AccountPageShellProps) {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const { user, loading, refreshUser, logout } = useUser();
-    const queryTab = searchParams.get("tab");
-    const allowedTabs = new Set([
-        "personal",
-        "listings",
-        "mylistings",
-        "services",
-        "spareparts",
-        "saved",
-        "business",
-        "plans",
-        "settings",
-        "smartalerts",
-        "purchases",
-    ]);
-    const resolvedTab = queryTab && allowedTabs.has(queryTab) ? queryTab : tab;
 
     const navigateTo = (
         page: UserPage,
@@ -57,7 +41,7 @@ export function AccountPageShell({ tab }: AccountPageShellProps) {
                 await logout();
                 void router.push("/");
             }}
-            initialTab={resolvedTab}
+            initialTab={tab}
         />
     );
 }

@@ -5,6 +5,7 @@
 import type { Metadata } from 'next';
 import { ChatList } from '@/components/chat/ChatList';
 import { getServerSession } from '@/lib/auth/session';
+import { buildLoginUrl } from '@/lib/authHelpers';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
@@ -13,10 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ChatInboxPage() {
-  const session = await getServerSession();
-  if (!session?.user) {
-    redirect('/auth/login?next=/chat');
-  }
+    const session = await getServerSession();
+    if (!session?.user) {
+    redirect(buildLoginUrl('/chat'));
+    }
 
   return (
     <main className="chat-inbox-page">

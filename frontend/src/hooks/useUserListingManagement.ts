@@ -3,9 +3,10 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { notify } from "@/lib/notify";
 import type { User } from "@/types/User";
 import logger from "@/lib/logger";
+import { queryKeys } from "@/hooks/queries/queryKeys";
 
 export type ListingStatus = "live" | "pending" | "rejected" | "expired" | "sold" | "deactivated";
-export type ListingType = "spare-parts" | "services";
+export type ListingType = "ads" | "spare-parts" | "services";
 
 interface ListingOptions<T> {
     type: ListingType;
@@ -34,7 +35,11 @@ export function useUserListingManagement<T extends { id: string; status: string 
 }: ListingOptions<T>) {
     const queryClient = useQueryClient();
     const isEnabled = activeTab === type && !!user;
-    const entityLabel = type === "spare-parts" ? "Spare part listing" : "Service";
+    const entityLabel = {
+        "ads": "Ad",
+        "spare-parts": "Spare part listing",
+        "services": "Service"
+    }[type];
 
     const {
         data: listings = [],
@@ -53,6 +58,7 @@ export function useUserListingManagement<T extends { id: string; status: string 
 
     const invalidateAll = useCallback(() => {
         queryClient.invalidateQueries({ queryKey });
+        queryClient.invalidateQueries({ queryKey: queryKeys.ads.stats() });
     }, [queryClient, queryKey]);
 
     const { mutateAsync: handleDelete } = useMutation({

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useLayoutEffect, useMemo, useReducer } from "react";
+import { useState, useLayoutEffect, useMemo, useReducer, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatLocation } from "@/lib/location/locationService";
 import type { UserPage } from "@/lib/routeUtils";
@@ -30,9 +30,9 @@ const ListingRelatedBusinessesSection = dynamic(
   { ssr: false }
 );
 import { BackButton } from "@/components/common/BackButton";
-import { deleteAd, markListingAsSold } from "@/lib/api/user/ads";
+import { deleteListing, markAsSold } from "@/lib/api/user/listings";
 import { chatApi } from "@/lib/api/chatApi";
-import { type Ad } from "@/schemas/ad.schema";
+import type { Listing as Ad } from "@/lib/api/user/listings";
 import { saveAd, unsaveAd } from "@/lib/api/user/users";
 
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
@@ -48,11 +48,18 @@ import { isAdSold, getSoldDetails } from "../../lib/logic/soldStatus";
 import { canUserPerformAction } from "../../lib/logic/ownership";
 import { getActionBarVariant } from "../../lib/logic/bottomBarActions";
 import { ROUTES } from "../../lib/logic/routes";
-import { useListingDetailQuery, useSavedAdsQuery } from "@/hooks/queries";
+import { useListingDetailQuery, useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { useAuth } from "@/context/AuthContext";
 import logger from "@/lib/logger";
 import { adDetailUiReducer, initialAdDetailUiState } from "./listing-detail/adDetailUiState";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
+import { useRouter } from "next/navigation";
+import {
+  buildOwnerMissingListingRoute,
+  DEFAULT_LISTING_UNAVAILABLE_MESSAGE,
+  isListingUnavailableError,
+} from "@/lib/listings/listingUnavailable";
 
 interface ListingDetailProps {
   adId: string | number | null;
@@ -71,6 +78,7 @@ interface ListingDetailProps {
 
 export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showBackButton = true, user: userProp }: ListingDetailProps) {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { user: authUser, isAuthResolved } = useAuth();
   // Prefer the auth context (always up-to-date) over the prop (can be stale or missing)
   const user = authUser ?? userProp;
@@ -101,6 +109,7 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [listingUnavailableMessage, setListingUnavailableMessage] = useState<string | null>(null);
   const { data: savedAds = [] } = useSavedAdsQuery({
     enabled: !!user,
   });
@@ -182,6 +191,21 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     user || null
   );
   const isPendingOwner = Boolean(isOwner && ad?.status === "pending");
+
+  const handleListingUnavailable = useCallback((message = DEFAULT_LISTING_UNAVAILABLE_MESSAGE) => {
+    setShowDeleteDialog(false);
+    setShowReportDialog(false);
+    setShowBoostDialog(false);
+    setShowSoldDialog(false);
+
+    if (ad && isOwner) {
+      void router.replace(buildOwnerMissingListingRoute(ad));
+      return;
+    }
+
+    setListingUnavailableMessage(message);
+  }, [ad, isOwner, router, setShowBoostDialog, setShowReportDialog, setShowSoldDialog]);
+
   // Get the correct display name for the seller/business
   const getSellerDisplayName = () => {
     if (!ad) return "Esparex Seller";
@@ -215,11 +239,16 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     }
   };
 
-  const handleSoldConfirm = async (platform: string) => {
-    if (!ad) return;
+  const handleSoldConfirm = async (platform: string): Promise<boolean> => {
+    if (!ad) return false;
 
     try {
-      const result = await markListingAsSold(ad.id);
+      const soldReason = platform === "on_platform"
+        ? "sold_on_platform"
+        : platform === "outside"
+        ? "sold_outside"
+        : "no_longer_available";
+      const result = await markAsSold(ad.id, soldReason);
       if (result) {
         setSoldOverride({
           adId: String(ad.id),
@@ -230,10 +259,15 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
 
         // Trigger refetch to pull the latest ad status
         refetch();
+        return true;
       } else {
         throw new Error("Failed to mark as sold");
       }
     } catch (error) {
+      if (isListingUnavailableError(error)) {
+        handleListingUnavailable();
+        return false;
+      }
       logger.error("Error marking ad as sold:", error);
       throw error; // Re-throw to be caught by SoldOutDialog
     }
@@ -251,15 +285,19 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     if (!ad) return;
     setIsDeleting(true);
     try {
-      await deleteAd(ad.id);
+      await deleteListing(ad.id);
       notify.success("Ad deleted successfully");
       setShowDeleteDialog(false);
       if (navigateBack) {
         navigateBack();
       } else {
-        navigateTo(ROUTES.MY_ADS);
+        navigateTo("my-ads");
       }
     } catch (deleteError) {
+      if (isListingUnavailableError(deleteError)) {
+        handleListingUnavailable();
+        return;
+      }
       notify.error(deleteError instanceof Error ? deleteError.message : "Failed to delete ad");
     } finally {
       setIsDeleting(false);
@@ -284,9 +322,13 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     }
 
     try {
-      const result = await chatApi.start(String(ad.id));
+      const result = await chatApi.start(String(ad.id), { silent: true });
       window.location.assign(`/chat/${encodeURIComponent(result.conversationId)}`);
     } catch (chatError) {
+      if (isListingUnavailableError(chatError)) {
+        handleListingUnavailable();
+        return;
+      }
       notify.error(chatError instanceof Error ? chatError.message : "Failed to start chat");
     }
   };
@@ -322,7 +364,11 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
         });
         notify.success("Added to favorites");
       }
-    } catch {
+    } catch (favoriteError) {
+      if (isListingUnavailableError(favoriteError)) {
+        handleListingUnavailable();
+        return;
+      }
       notify.error("Failed to update favorite status");
     }
   };
@@ -330,8 +376,12 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
   const handleShare = async () => {
     if (!ad) return;
     try {
-      // Create a shareable link
-      const shareUrl = `${window.location.origin}${window.location.pathname}?ad=${ad.id}`;
+      const shareUrl = `${window.location.origin}${buildPublicListingDetailRoute({
+        id: ad.id,
+        listingType: ad.listingType,
+        seoSlug: ad.seoSlug,
+        title: ad.title,
+      })}`;
       const shareText = `Check out this ${categoryLabel}: ${ad.title} - ${formatPrice(ad.price)}`;
 
       if (navigator.share) {
@@ -363,7 +413,9 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     <ListingDetailShell
       isLoading={isLoading}
       error={error}
-      notFound={!isLoading && !ad}
+      notFound={!isLoading && (!ad || !!listingUnavailableMessage)}
+      notFoundTitle={listingUnavailableMessage ? "Listing unavailable" : undefined}
+      notFoundMessage={listingUnavailableMessage || undefined}
       onRetry={() => refetch()}
     >
       {ad && (
@@ -440,6 +492,7 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
                     sellerDisplayName={sellerDisplayName}
                     isOwner={isOwner}
                     adStatus={adStatus}
+                    onChat={handleChatWithSeller}
                     onEdit={handleEdit}
                     onDelete={handleDeleteClick}
                     onMarkSold={handleMarkSoldClick}
@@ -490,6 +543,7 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
             isDeleting={isDeleting}
             onDeleteConfirm={handleDeleteConfirm}
             onSoldConfirm={handleSoldConfirm}
+            onListingUnavailable={handleListingUnavailable}
           />
 
         </>

@@ -13,7 +13,7 @@
 
 import { useMemo } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
+import { buildAuthCallbackUrl, buildLoginUrl, normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
 export interface UseLoginCallbackReturn {
     /** The return URL to embed in `/login?callbackUrl=…` (current page, callbackUrl stripped) */
@@ -33,11 +33,7 @@ export function useLoginCallback(): UseLoginCallbackReturn {
 
     // Build the URL to pass as callbackUrl to /login  (strip any existing callbackUrl param)
     const loginCallbackUrl = useMemo(() => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete("callbackUrl");
-        const query = params.toString();
-        const raw = query ? `${pathname}?${query}` : pathname;
-        return normalizeAuthCallbackUrl(raw);
+        return buildAuthCallbackUrl(pathname, searchParams);
     }, [pathname, searchParams]);
 
     // Read a post-login redirect destination already embedded in the current URL
@@ -61,9 +57,7 @@ export function useLoginCallback(): UseLoginCallbackReturn {
     };
 
     const handleShowLogin = () => {
-        void router.push(
-            `/login?callbackUrl=${encodeURIComponent(loginCallbackUrl)}`
-        );
+        void router.push(buildLoginUrl(loginCallbackUrl));
     };
 
     return { loginCallbackUrl, returnUrl, navigateBack, handleShowLogin };

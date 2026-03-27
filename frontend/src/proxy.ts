@@ -4,6 +4,7 @@ import { CANONICAL_SLUG_MAPPING } from "@/lib/seo/canonicalSlugs";
 import { isProtectedPath } from "@/config/protectedRoutes";
 import { ADMIN_API_V1_BASE_PATH } from "@/lib/api/routes";
 import logger from "@/lib/logger";
+import { buildAuthCallbackUrl, buildLoginUrl } from "@/lib/authHelpers";
 
 /**
  * Check whether an IP is allowed based on a comma-separated whitelist.
@@ -67,8 +68,8 @@ export function proxy(request: NextRequest) {
     const isProtectedRoute = isProtectedPath(pathname);
 
     if (isProtectedRoute && !token) {
-        const url = new URL("/login", request.url);
-        url.searchParams.set("callbackUrl", pathname);
+        const callbackUrl = buildAuthCallbackUrl(pathname, request.nextUrl.search);
+        const url = new URL(buildLoginUrl(callbackUrl), request.url);
         return NextResponse.redirect(url);
     }
 

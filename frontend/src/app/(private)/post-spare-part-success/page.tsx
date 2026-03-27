@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ListingSuccessMessage } from "@/components/user/shared/ListingSuccessMessage";
+import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 
 export default function PostSparePartSuccessPage() {
     const router = useRouter();
@@ -14,7 +15,7 @@ export default function PostSparePartSuccessPage() {
                 </>
             }
             primaryActionLabel="Go to My Listings"
-            onPrimaryAction={() => router.push("/account/business")}
+            onPrimaryAction={() => router.push(buildAccountListingRoute("spare-parts", "pending"))}
             secondaryActionLabel="Post Another Part"
             onSecondaryAction={() => router.push("/post-spare-part-listing")}
         />

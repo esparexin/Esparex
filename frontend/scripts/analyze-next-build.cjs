@@ -116,7 +116,7 @@ for (const entry of dynamicEntries.slice(0, 15)) {
   console.log(`${toKB(entry.total).padStart(10)}  ${entry.key}`);
 }
 
-const hotspotRoutes = ["/", "search", "browse-services", "ads/[slug]", "services/[slug]", "post-ad"];
+const hotspotRoutes = ["/", "search", "ads/[slug]", "services/[slug]", "spare-part-listings/[slug]", "post-ad"];
 printSection("Target Route Summary");
 for (const hotspot of hotspotRoutes) {
   const match = uniqueLargestRoutes.find((item) => item.route === hotspot);

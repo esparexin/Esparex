@@ -1,7 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
-import { Eye, Heart, Clock, Edit2, Trash2, RefreshCw, CheckSquare } from "lucide-react";
+import { Eye, Heart, Clock, Edit2, Trash2, RefreshCw, CheckSquare, PowerOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/ui/utils";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
@@ -34,6 +34,7 @@ interface ListingItemProps {
     detailHref?: string;
     onDelete: () => void;
     onRenew?: () => void;
+    onDeactivate?: () => void;
     onMarkSold?: () => void;
     metaBadges?: MetaBadge[];
     tags?: Tag[];
@@ -45,7 +46,7 @@ export function ListingItem({
     title, status, thumbnail, priceLabel, priceClassName, badgeColor = "blue",
     rejectionReason, createdAt, expiresAt, views, likes,
     getStatusBadge, editHref, detailHref,
-    onDelete, onRenew, onMarkSold,
+    onDelete, onRenew, onDeactivate, onMarkSold,
     metaBadges = [], tags = [], priority = false, className
 }: ListingItemProps) {
     const timeAgo = createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true }) : "";
@@ -86,7 +87,7 @@ export function ListingItem({
         >
             {/* Thumbnail */}
             <div className={cn("relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center", colors.bg)}>
-                <Image
+                <SafeImage
                     src={toSafeImageSrc(thumbnail, DEFAULT_IMAGE_PLACEHOLDER)}
                     alt={title}
                     fill
@@ -159,7 +160,7 @@ export function ListingItem({
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-end gap-2 mt-2">
+                <div className="flex flex-wrap items-center justify-end gap-2 mt-2">
                     {onMarkSold && isActive && (
                         <Button 
                             size="sm" variant="outline"
@@ -167,6 +168,15 @@ export function ListingItem({
                             onClick={(e) => { e.stopPropagation(); onMarkSold(); }}
                         >
                             <CheckSquare className="h-3 w-3 mr-1" /> Mark Sold
+                        </Button>
+                    )}
+                    {onDeactivate && isActive && (
+                        <Button
+                            size="sm" variant="outline"
+                            className="h-7 text-xs text-orange-600 border-orange-200 hover:bg-orange-50"
+                            onClick={(e) => { e.stopPropagation(); onDeactivate(); }}
+                        >
+                            <PowerOff className="h-3 w-3 mr-1" /> Hide
                         </Button>
                     )}
                     {showRenew && onRenew && (

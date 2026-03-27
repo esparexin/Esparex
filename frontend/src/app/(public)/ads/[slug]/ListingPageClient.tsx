@@ -2,9 +2,9 @@
 import { useParams, notFound } from 'next/navigation';
 import { ListingDetail } from '@/components/user/ListingDetail';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
-import { isValidAdIdentifier } from "@/lib/api/user/ads";
+import { isValidAdIdentifier } from "@/lib/api/user/listings";
 import { useLoginCallback } from '@/hooks/useLoginCallback';
-import type { Ad } from '@/schemas';
+import type { Listing as Ad } from '@/lib/api/user/listings';
 
 // Note: Title management is now handled by Server Component Metadata, 
 // but we keep this hook if we want dynamic client-side updates during navigation?

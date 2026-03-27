@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { notify } from "@/lib/notify";
 import type { User } from "@/types/User";
 import {
@@ -30,12 +31,15 @@ import {
 import type { UserPage } from "@/lib/routeUtils";
 
 // Hooks
-import { useMyAds } from "@/hooks/useMyAds";
+import { useMyListingsStatsQuery } from "@/hooks/queries/useListingsQuery";
+import { type ListingStatsResponse } from "@/lib/api/user/listings";
 import { useDynamicPlans } from "@/hooks/useDynamicPlans";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
 import { usePurchases } from "@/hooks/usePurchases";
 import { formatPrice, formatDate } from "@/lib/formatters";
+import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
+import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
 
 // Dialogs
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
@@ -63,18 +67,16 @@ interface ProfileSettingsProps {
 }
 
 export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogout, initialTab }: ProfileSettingsProps) {
+  const router = useRouter();
   // Navigation & Shell State
   const [activeTab, setActiveTab] = useState<ProfileTabValue>((initialTab as ProfileTabValue) || "personal");
   const [isMobileMenuView, setIsMobileMenuView] = useState(!initialTab);
 
   // Custom Hooks for Data Fetching
-  const [myAdsTab, setMyAdsTab] = useState<"live" | "pending" | "rejected" | "sold" | "expired" | "deactivated">("live");
-
   // Custom Hooks for Data Fetching
-  const {
-    myAds, adCounts, loadingAds,
-    handleDeleteAd, handleMarkAsSold
-  } = useMyAds(activeTab, user, myAdsTab);
+  const { data: adCounts = {} } = useMyListingsStatsQuery({ 
+    enabled: (activeTab === "mylistings" || activeTab === "services" || activeTab === "spareparts") && !!user 
+  });
 
   // Service data is now handled through the consolidated MyListingsTab flow.
   const { dynamicPlans } = useDynamicPlans(activeTab);
@@ -137,9 +139,6 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
       navigateTo(targetPage);
     } else {
       setActiveTab(value);
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('tab', value);
-      window.history.pushState({}, '', newUrl);
     }
   };
 
@@ -159,7 +158,9 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
       "custom",
     ];
     if (!allowedRoles.includes(user.role)) return false;
-    if (item.businessOnly) return businessData?.status === "live";
+    if (item.businessOnly) {
+      return normalizeBusinessStatus(businessData?.status, "pending") === "live";
+    }
     return true;
   });
   const activeTabLabel =
@@ -186,6 +187,9 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
 
     switch (status?.toLowerCase()) {
       case "live":
+      case "active":
+      case "approved":
+      case "published":
         return renderBadge("Live", "bg-emerald-100 text-emerald-700");
       case "pending":
         return renderBadge("Pending", "bg-amber-100 text-amber-700");
@@ -212,15 +216,6 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
   const renderContent = () => {
     const smartAlertItems: SmartAlertItem[] = smartAlerts.map(toSmartAlertItem);
     const setActiveTabFromChild = (tab: string) => setActiveTab(tab as ProfileTabValue);
-    const handleDeleteAdForTab = async (id: string | number): Promise<void> => {
-      await handleDeleteAd(id);
-    };
-    const handleMarkAsSoldForTab = async (
-      id: string | number,
-      soldReason?: "sold_on_platform" | "sold_outside" | "no_longer_available"
-    ): Promise<void> => {
-      await handleMarkAsSold({ id, soldReason });
-    };
     switch (activeTab) {
       case "personal": return (
         <PersonalTab
@@ -246,18 +241,11 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
           navigateToBusinessTab={() => setActiveTabFromChild("business")}
         />
       );
-      case "listings":
       case "mylistings":
       case "services":
       case "spareparts": return (
         <MyListingsTab
-          ads={myAds}
-          adCounts={adCounts}
-          loadingAds={loadingAds}
-          myAdsStatusTab={myAdsTab}
-          setMyAdsStatusTab={setMyAdsTab}
-          handleDeleteAd={handleDeleteAdForTab}
-          handleMarkAsSold={handleMarkAsSoldForTab}
+          adCounts={adCounts as ListingStatsResponse}
           user={user as any}
           navigateTo={(page, adId, category, businessId, serviceId) => navigateTo(page as UserPage, adId, category, businessId as string, serviceId as string)}
           getStatusBadge={getStatusBadge}
@@ -290,13 +278,14 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
             void deleteSavedSearch(id);
           }}
           handleViewAlertMatches={(alert) => {
-            const params = new URLSearchParams();
-            if (alert.keywords) params.set('q', alert.keywords);
-            if (alert.category) params.set('category', alert.category);
-            if (alert.locationId) params.set('locationId', alert.locationId);
-            else if (alert.location) params.set('location', alert.location);
-            if (alert.radius) params.set('radiusKm', String(alert.radius));
-            window.location.assign(`/search?${params.toString()}`);
+            void router.push(buildPublicBrowseRoute({
+              type: "ad",
+              q: alert.keywords,
+              category: alert.category,
+              locationId: alert.locationId,
+              location: alert.locationId ? undefined : alert.location,
+              radiusKm: alert.radius,
+            }));
           }} handleEditAlert={() => notify.info("Coming soon!")}
           handleSavePreferences={handleSaveAlertPreferences}
           setActiveTab={setActiveTabFromChild} loading={loadingAlerts}

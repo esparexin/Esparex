@@ -8,6 +8,11 @@ import { useLocationState, type LocationData } from "@/context/LocationContext";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import logger from "@/lib/logger";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
+import {
+  buildPublicBrowseRoute,
+  parsePublicBrowseParams,
+  type PublicBrowseType,
+} from "@/lib/publicBrowseRoutes";
 
 type BrowsePageResult<T> = {
   data: T[];
@@ -18,7 +23,7 @@ type BrowsePageResult<T> = {
 };
 
 interface BrowseListingsControllerConfig<TItem, TFilters> {
-  routePath: string;
+  browseType: PublicBrowseType;
   initialCategory?: string;
   initialSearchQuery?: string;
   initialResults?: BrowsePageResult<TItem>;
@@ -32,12 +37,16 @@ interface BrowseListingsControllerConfig<TItem, TFilters> {
     query: string;
     selectedCategory: string;
     location: LocationData;
+    sort: SortOption;
+    urlLocationId?: string;
+    urlLocationLabel?: string;
+    radiusKm?: number;
   }) => TFilters;
   fetchPage: (filters: TFilters) => Promise<BrowsePageResult<TItem>>;
 }
 
 export function useBrowseListingsController<TItem, TFilters>({
-  routePath,
+  browseType,
   initialCategory,
   initialSearchQuery = "",
   initialResults,
@@ -51,15 +60,18 @@ export function useBrowseListingsController<TItem, TFilters>({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { location, isLoaded } = useLocationState();
+  const routeParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
 
-  const [query, setQuery] = useState(searchParams.get("q") ?? initialSearchQuery);
-  const [inputValue, setInputValue] = useState(searchParams.get("q") ?? initialSearchQuery);
-  const [selectedCategory, setSelectedCategory] = useState<string>(
-    searchParams.get("category") ?? initialCategory ?? ""
-  );
-  const [sort, setSort] = useState<SortOption>("newest");
+  const initialSelectedCategory = routeParams.categoryId ?? routeParams.category ?? initialCategory ?? "";
+  const initialSort = (routeParams.sort as SortOption | undefined) ?? "newest";
+  const initialPage = routeParams.page && routeParams.page > 0 ? routeParams.page : 1;
+
+  const [query, setQuery] = useState(routeParams.q ?? initialSearchQuery);
+  const [inputValue, setInputValue] = useState(routeParams.q ?? initialSearchQuery);
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialSelectedCategory);
+  const [sort, setSort] = useState<SortOption>(initialSort);
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
 
   const [items, setItems] = useState<TItem[]>(initialResults?.data ?? []);
   const [total, setTotal] = useState(initialResults?.pagination.total ?? 0);
@@ -70,6 +82,9 @@ export function useBrowseListingsController<TItem, TFilters>({
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skippedInitialFetchRef = useRef(false);
+  const urlLocationId = routeParams.locationId ?? "";
+  const urlLocationLabel = routeParams.location ?? "";
+  const urlRadiusKm = routeParams.radiusKm;
 
   useEffect(() => {
     if (initialCategories && initialCategories.length > 0) {
@@ -91,11 +106,33 @@ export function useBrowseListingsController<TItem, TFilters>({
     };
   }, []);
 
+  useEffect(() => {
+    const nextQuery = routeParams.q ?? "";
+    const nextCategory = routeParams.categoryId ?? routeParams.category ?? "";
+    const nextSort = (routeParams.sort as SortOption | undefined) ?? "newest";
+    const nextPage = routeParams.page && routeParams.page > 0 ? routeParams.page : 1;
+
+    setQuery((current) => (current === nextQuery ? current : nextQuery));
+    setInputValue((current) => (current === nextQuery ? current : nextQuery));
+    setSelectedCategory((current) => (current === nextCategory ? current : nextCategory));
+    setSort((current) => (current === nextSort ? current : nextSort));
+    setPage((current) => (current === nextPage ? current : nextPage));
+  }, [
+    routeParams.category,
+    routeParams.categoryId,
+    routeParams.page,
+    routeParams.q,
+    routeParams.sort,
+  ]);
+
   const hasLocationFilter = useMemo(() => {
     const latitude = getLatitude(location);
     const longitude = getLongitude(location);
-    return Boolean(location.locationId) || (latitude != null && longitude != null);
-  }, [location]);
+    return (
+      Boolean(urlLocationId || urlLocationLabel || location.locationId) ||
+      (latitude != null && longitude != null)
+    );
+  }, [location, urlLocationId, urlLocationLabel]);
 
   const shouldUseInitialResults = useMemo(
     () =>
@@ -132,6 +169,10 @@ export function useBrowseListingsController<TItem, TFilters>({
             query,
             selectedCategory,
             location,
+            sort,
+            urlLocationId: urlLocationId || undefined,
+            urlLocationLabel: urlLocationLabel || undefined,
+            radiusKm: urlRadiusKm,
           })
         );
 
@@ -145,7 +186,21 @@ export function useBrowseListingsController<TItem, TFilters>({
         setLoading(false);
       }
     },
-    [buildFilters, fetchPage, loadErrorMessage, location, logScope, page, pageSize, query, selectedCategory]
+    [
+      buildFilters,
+      fetchPage,
+      loadErrorMessage,
+      location,
+      logScope,
+      page,
+      pageSize,
+      query,
+      selectedCategory,
+      sort,
+      urlLocationId,
+      urlLocationLabel,
+      urlRadiusKm,
+    ]
   );
 
   useEffect(() => {
@@ -157,7 +212,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     }
     setPage(1);
     void fetchItems(1);
-  }, [fetchItems, isLoaded, query, selectedCategory, shouldUseInitialResults]);
+  }, [fetchItems, isLoaded, query, selectedCategory, sort, shouldUseInitialResults, urlLocationId, urlLocationLabel, urlRadiusKm]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -170,18 +225,28 @@ export function useBrowseListingsController<TItem, TFilters>({
     void fetchItems(1);
   }, [fetchItems, isLoaded, location.coordinates, location.locationId, shouldUseInitialResults]);
 
-  const replaceQueryUrl = useCallback(
-    (nextQuery: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (nextQuery.trim()) {
-        params.set("q", nextQuery.trim());
-      } else {
-        params.delete("q");
-      }
-      const nextUrl = params.toString() ? `${routePath}?${params.toString()}` : routePath;
-      router.replace(nextUrl, { scroll: false });
+  const buildNextUrl = useCallback(
+    (
+      overrides: Partial<{
+        q: string;
+        category: string;
+        sort: SortOption;
+      }> = {}
+    ) => {
+      const hasOverride = (key: keyof typeof overrides) =>
+        Object.prototype.hasOwnProperty.call(overrides, key);
+
+      return buildPublicBrowseRoute({
+        type: browseType,
+        q: hasOverride("q") ? overrides.q : query,
+        category: hasOverride("category") ? overrides.category : selectedCategory,
+        sort: hasOverride("sort") ? overrides.sort : sort,
+        locationId: urlLocationId || undefined,
+        location: urlLocationId ? undefined : urlLocationLabel || undefined,
+        radiusKm: urlRadiusKm,
+      });
     },
-    [routePath, router, searchParams]
+    [browseType, query, selectedCategory, sort, urlLocationId, urlLocationLabel, urlRadiusKm]
   );
 
   const handleInputChange = useCallback(
@@ -192,10 +257,32 @@ export function useBrowseListingsController<TItem, TFilters>({
       }
       debounceRef.current = setTimeout(() => {
         setQuery(value);
-        replaceQueryUrl(value);
+        router.replace(buildNextUrl({ q: value }), { scroll: false });
       }, 350);
     },
-    [replaceQueryUrl]
+    [buildNextUrl, router]
+  );
+
+  const handleCategoryChange = useCallback(
+    (value: string) => {
+      startTransition(() => {
+        setSelectedCategory(value);
+        setPage(1);
+        router.replace(buildNextUrl({ category: value }), { scroll: false });
+      });
+    },
+    [buildNextUrl, router]
+  );
+
+  const handleSortChange = useCallback(
+    (value: SortOption) => {
+      startTransition(() => {
+        setSort(value);
+        setPage(1);
+        router.replace(buildNextUrl({ sort: value }), { scroll: false });
+      });
+    },
+    [buildNextUrl, router]
   );
 
   const handleReset = useCallback(() => {
@@ -205,9 +292,9 @@ export function useBrowseListingsController<TItem, TFilters>({
       setSelectedCategory("");
       setSort("newest");
       setPage(1);
-      router.replace(routePath, { scroll: false });
+      router.replace(buildPublicBrowseRoute({ type: browseType }), { scroll: false });
     });
-  }, [routePath, router]);
+  }, [browseType, router]);
 
   const handleLoadMore = useCallback(() => {
     const nextPage = page + 1;
@@ -234,7 +321,8 @@ export function useBrowseListingsController<TItem, TFilters>({
     categories,
     items,
     setSelectedCategory,
-    setSort,
+    handleCategoryChange,
+    handleSortChange,
     setView,
     handleInputChange,
     handleReset,

@@ -6,6 +6,8 @@ import { useRouter, useSearchParams, useSelectedLayoutSegments, usePathname } fr
 import { useMemo } from 'react';
 import { useAuth } from "@/context/AuthContext";
 import { useNavigation } from '@/context/NavigationContext';
+import { buildAuthCallbackUrl, buildLoginUrl } from "@/lib/authHelpers";
+import { buildPublicBrowseRouteFromPathname } from "@/lib/publicBrowseRoutes";
 
 import MobileHeader from "@/components/mobile/MobileHeader";
 import { MobileNavDrawerProvider } from "@/components/mobile/MobileNavDrawerProvider";
@@ -32,15 +34,11 @@ export function HeaderWrapper() {
         (segments[0] === "account" && segments[1] === "business" && segments[2] === "apply");
 
     const loginCallbackUrl = useMemo(() => {
-        const basePath = pathname || "/";
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete("callbackUrl");
-        const query = params.toString();
-        return query ? `${basePath}?${query}` : basePath;
+        return buildAuthCallbackUrl(pathname || "/", searchParams);
     }, [pathname, searchParams]);
 
     const handleShowLogin = () => {
-        void router.push(`/login?callbackUrl=${encodeURIComponent(loginCallbackUrl)}`);
+        void router.push(buildLoginUrl(loginCallbackUrl));
     };
 
     const handleLogout = () => {
@@ -60,8 +58,7 @@ export function HeaderWrapper() {
 
     const handleSearch = (query: string) => {
         if (!query.trim()) return;
-        const encodedQuery = encodeURIComponent(query.trim());
-        void router.push(`/search?q=${encodedQuery}`);
+        void router.push(buildPublicBrowseRouteFromPathname(pathname || "/", { q: query.trim() }));
     };
 
     if (isAdminRoute || isWizardRoute) return null;

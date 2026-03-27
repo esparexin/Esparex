@@ -61,6 +61,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '',
         '/about',
         '/search',
+        '/search?type=service',
+        '/search?type=spare_part',
         '/contact',
         '/faq',
         '/how-it-works',
@@ -120,13 +122,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
     }));
 
-    // Add browse-services static route
-    const browseServicesRoute = {
-        url: `${BASE_url}/browse-services`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 0.8,
-    };
-
-    return [...staticRoutes, browseServicesRoute, ...adRoutes, ...businessRoutes, ...categoryRoutes, ...serviceRoutes, ...sparePartRoutes];
+    return [...staticRoutes, ...adRoutes, ...businessRoutes, ...categoryRoutes, ...serviceRoutes, ...sparePartRoutes];
 }

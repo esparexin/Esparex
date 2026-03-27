@@ -1,16 +1,18 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, ChevronRight, MessageSquareOff } from "lucide-react";
+import { Building2, ChevronRight, MessageCircle, MessageSquareOff } from "lucide-react";
 import { ROUTES } from "@/lib/logic/routes";
 import type { UserPage } from "@/lib/routeUtils";
 import type { Ad } from "@/schemas/ad.schema";
 import { SellerIdentityPanel } from "../shared/SellerIdentityPanel";
+import { Button } from "@/components/ui/button";
 
 interface AdSellerCardProps {
     ad: Ad;
     sellerDisplayName: string;
     isOwner: boolean;
     isChatLocked?: boolean;
+    onChat?: () => void;
     navigateTo: (
         page: UserPage,
         adId?: string | number,
@@ -27,6 +29,7 @@ export function AdSellerCard({
     sellerDisplayName,
     isOwner,
     isChatLocked,
+    onChat,
     navigateTo
 }: AdSellerCardProps) {
     if (isOwner) return null;
@@ -76,6 +79,16 @@ export function AdSellerCard({
                     ) : undefined}
                     trailing={isInteractive ? <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" /> : undefined}
                 />
+
+                {!isChatLocked && onChat && (
+                    <Button
+                        onClick={onChat}
+                        className="hidden md:inline-flex w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold gap-2 shadow-lg shadow-green-200"
+                    >
+                        <MessageCircle className="h-5 w-5" />
+                        Chat with Seller
+                    </Button>
+                )}
 
                 {isChatLocked && (
                     <div className="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">

@@ -4,9 +4,10 @@ import { memo } from "react";
 import { Wrench } from "lucide-react";
 
 import { BrowseListingCard } from "@/components/user/BrowseListingCard";
-import type { Service } from "@/lib/api/user/services";
+import { type Listing as Service } from "@/lib/api/user/listings";
 import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 export const BrowseServicesCard = memo(function BrowseServicesCard({ service }: { service: Service }) {
   const imageUrl = toSafeImageSrc(service.images?.[0], "");
@@ -16,7 +17,7 @@ export const BrowseServicesCard = memo(function BrowseServicesCard({ service }: 
       : String(service.location ?? "");
 
   const displayPrice =
-    service.priceMin && service.priceMax
+    service.priceMin != null && service.priceMax != null
       ? `${formatPrice(service.priceMin)} – ${formatPrice(service.priceMax)}`
       : service.price
         ? formatPrice(service.price)
@@ -24,7 +25,12 @@ export const BrowseServicesCard = memo(function BrowseServicesCard({ service }: 
 
   return (
     <BrowseListingCard
-      href={`/services/${service.seoSlug || service.id}`}
+      href={buildPublicListingDetailRoute({
+        id: service.id,
+        listingType: "service",
+        seoSlug: service.seoSlug,
+        title: service.title,
+      })}
       imageUrl={imageUrl}
       title={service.title}
       priceLabel={displayPrice}

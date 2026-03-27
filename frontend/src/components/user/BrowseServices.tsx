@@ -11,12 +11,20 @@ import {
   applyServiceLocationFilters,
   buildBaseBrowseFilters,
 } from "@/components/user/browseFilterBuilders";
-import { getServicesPage, type Service, type ServiceFilters, type ServicePageResult } from "@/lib/api/user/services";
+import { getAdsPage, type Listing as Service, type ListingFilters as ServiceFilters, type ListingPageResult as ServicePageResult } from "@/lib/api/user/listings";
+import { API_ROUTES } from "@/lib/api/routes";
 import type { Category } from "@/lib/api/user/categories";
+import type { SortOption } from "@/components/search/SearchResultsHeader";
 
 const BrowseServicesVirtualizedList = dynamic(() => import("./BrowseServicesVirtualizedList"));
 
 const DEFAULT_SERVICE_RADIUS_KM = 50;
+const SORT_MAP: Record<SortOption, string> = {
+  relevance: "relevance",
+  newest: "createdAt_desc",
+  price_low_high: "price_asc",
+  price_high_low: "price_desc",
+};
 
 interface BrowseServicesProps {
   initialCategory?: string;
@@ -31,6 +39,10 @@ const buildServiceFilters = ({
   query,
   selectedCategory,
   location,
+  sort,
+  urlLocationId,
+  urlLocationLabel,
+  radiusKm,
 }: BrowseBuildFiltersArgs): ServiceFilters => {
   const filters = buildBaseBrowseFilters<ServiceFilters>({
     page,
@@ -38,11 +50,24 @@ const buildServiceFilters = ({
     query,
     selectedCategory,
   });
-  applyServiceLocationFilters({
-    filters,
-    location,
-    radiusKm: DEFAULT_SERVICE_RADIUS_KM,
-  });
+  filters.sortBy = SORT_MAP[sort];
+  if (urlLocationId) {
+    filters.locationId = urlLocationId;
+    if (typeof radiusKm === "number" && Number.isFinite(radiusKm)) {
+      filters.radiusKm = radiusKm;
+    }
+  } else if (urlLocationLabel) {
+    filters.location = urlLocationLabel;
+    if (typeof radiusKm === "number" && Number.isFinite(radiusKm)) {
+      filters.radiusKm = radiusKm;
+    }
+  } else {
+    applyServiceLocationFilters({
+      filters,
+      location,
+      radiusKm: DEFAULT_SERVICE_RADIUS_KM,
+    });
+  }
   return filters;
 };
 
@@ -54,7 +79,7 @@ export function BrowseServices({
 }: BrowseServicesProps) {
   return (
     <BrowseListingsView<Service, ServiceFilters>
-      routePath="/browse-services"
+      browseType="service"
       initialCategory={initialCategory}
       initialSearchQuery={initialSearchQuery}
       initialResults={initialResults}
@@ -62,7 +87,7 @@ export function BrowseServices({
       logScope="BrowseServices"
       loadErrorMessage="Failed to load services. Please try again."
       buildFilters={buildServiceFilters}
-      fetchPage={getServicesPage}
+      fetchPage={(filters) => getAdsPage(filters, { endpoint: API_ROUTES.USER.SERVICES })}
       inputId="browse-services-search"
       searchAriaLabel="Search services"
       searchPlaceholder="Search repair services..."

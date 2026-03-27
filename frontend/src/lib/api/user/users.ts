@@ -1,10 +1,10 @@
 import { apiClient, EsparexRequestConfig } from '@/lib/api/client';
 import { toApiResult } from '@/lib/api/result';
 import { API_ROUTES } from '../routes';
-import { type Ad } from '@/schemas';
+import { type Listing as Ad } from './listings';
 import { User } from "@/types/User";
 import { toSafeImageSrc } from '@/lib/image/imageUrl';
-import { normalizeAd } from './ads';
+import { normalizeListing as normalizeAd } from './listings';
 import { fetchUserApiJson, type ServerFetchOptions } from './server';
 
 // --- Types ---
@@ -143,12 +143,18 @@ export const updateProfile = async (
  * Save an ad
  */
 export const saveAd = async (adId: string | number): Promise<void> => {
-    await toApiResult<void>(apiClient.post(API_ROUTES.USER.USERS_SAVED_ADS, { adId }));
+    const { error } = await toApiResult<void>(
+        apiClient.post(API_ROUTES.USER.USERS_SAVED_ADS, { adId }, { silent: true })
+    );
+    if (error) throw error;
 };
 
 /**
  * Unsave an ad
  */
 export const unsaveAd = async (adId: string | number): Promise<void> => {
-    await toApiResult<void>(apiClient.delete(API_ROUTES.USER.USERS_SAVED_AD_DETAIL(String(adId))));
+    const { error } = await toApiResult<void>(
+        apiClient.delete(API_ROUTES.USER.USERS_SAVED_AD_DETAIL(String(adId)), { silent: true })
+    );
+    if (error) throw error;
 };

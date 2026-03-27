@@ -5,12 +5,11 @@ import { useDismissableLayer } from '@/hooks/useDismissableLayer';
 
 interface UseHeaderSearchProps {
     onSearch?: (query: string) => void;
-    navigateTo?: (page: string) => void;
     initialQuery?: string;
 }
 
 export function useHeaderSearch(
-    { onSearch, navigateTo, initialQuery = '' }: UseHeaderSearchProps = {}
+    { onSearch, initialQuery = '' }: UseHeaderSearchProps = {}
 ) {
     const [searchQuery, setSearchQuery] = useState(initialQuery);
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
@@ -32,11 +31,8 @@ export function useHeaderSearch(
 
             onSearch?.(q);
             setShowSearchDropdown(false);
-
-            // Navigate after search if provided
-            navigateTo?.('browse');
         },
-        [onSearch, navigateTo, searchQuery]
+        [onSearch, searchQuery]
     );
 
     /**

@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { PostAdWizard } from '@/components/user/post-ad/PostAdWizard';
 import { withGuard } from '@/guards/withGuard';
 import { requireUserAuth } from '@/guards/routeGuards';
+import { buildAccountListingRoute } from '@/lib/accountListingRoutes';
 
 
 
@@ -15,8 +16,7 @@ function EditAdPage() {
 
     const navigateTo = (page: string) => {
         if (page === 'profile' || page === 'ad-submission-success' || page === 'my-ads') {
-            // After edit save: land on My Ads → Pending tab so user sees re-submitted ad
-            void router.replace('/account/ads?tab=pending');
+            void router.replace(buildAccountListingRoute("ads", "pending"));
         } else if (page === 'home') {
             void router.replace('/');
         } else {

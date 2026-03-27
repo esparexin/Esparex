@@ -35,6 +35,7 @@ interface ListingDetailSidebarProps {
         isSold: boolean;
         isChatLocked: boolean;
     };
+    onChat: () => void;
     onEdit: () => void;
     onDelete: () => void;
     onMarkSold: () => void;
@@ -50,6 +51,7 @@ export function ListingDetailSidebar({
     sellerDisplayName,
     isOwner,
     adStatus,
+    onChat,
     onEdit,
     onDelete,
     onMarkSold,
@@ -98,6 +100,7 @@ export function ListingDetailSidebar({
                 sellerDisplayName={sellerDisplayName}
                 isOwner={isOwner}
                 isChatLocked={adStatus.isChatLocked}
+                onChat={onChat}
                 navigateTo={navigateTo}
             />
             <AdBusinessCard

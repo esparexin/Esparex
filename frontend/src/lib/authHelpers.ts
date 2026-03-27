@@ -31,3 +31,37 @@ export const normalizeAuthCallbackUrl = (raw?: string | null): string => {
         return "/";
     }
 };
+
+type SearchParamsLike =
+    | string
+    | URLSearchParams
+    | { toString(): string }
+    | null
+    | undefined;
+
+const toSearchParams = (input?: SearchParamsLike): URLSearchParams => {
+    if (!input) {
+        return new URLSearchParams();
+    }
+
+    if (typeof input === "string") {
+        return new URLSearchParams(input.startsWith("?") ? input.slice(1) : input);
+    }
+
+    return new URLSearchParams(input.toString());
+};
+
+export const buildAuthCallbackUrl = (
+    pathname: string,
+    searchParams?: SearchParamsLike
+): string => {
+    const safePathname = pathname?.trim() || "/";
+    const params = toSearchParams(searchParams);
+    params.delete("callbackUrl");
+
+    const query = params.toString();
+    return normalizeAuthCallbackUrl(query ? `${safePathname}?${query}` : safePathname);
+};
+
+export const buildLoginUrl = (callbackUrl: string): string =>
+    `/login?callbackUrl=${encodeURIComponent(normalizeAuthCallbackUrl(callbackUrl))}`;

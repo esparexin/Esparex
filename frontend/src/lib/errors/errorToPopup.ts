@@ -1,6 +1,27 @@
 import type { APIError } from "@/lib/api/APIError";
 import type { PopupAction, PopupType } from "@/lib/popup/popupEvents";
 
+function fallbackPopupTitle(error: APIError, type: PopupType): string {
+  const normalizedMessage = error.message.trim().toLowerCase();
+
+  if (error.status === 404) {
+    if (normalizedMessage === "listing not found") {
+      return "Listing unavailable";
+    }
+    return "Not found";
+  }
+
+  if (type === "warning") {
+    return "Warning";
+  }
+
+  if (type === "info") {
+    return "Info";
+  }
+
+  return "Request Failed";
+}
+
 export function errorToPopup(
   error: APIError,
   onRetry?: () => void,
@@ -38,7 +59,7 @@ export function errorToPopup(
 
   return {
     type,
-    title: error.code || (type === "error" ? "Request Failed" : "Notice"),
+    title: error.code || fallbackPopupTitle(error, type),
     message: error.message || "Unexpected error occurred.",
     code: error.code,
     endpoint: error.context?.endpoint,

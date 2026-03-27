@@ -1,12 +1,16 @@
 import { useUserListingManagement, ListingStatus } from "@/hooks/useUserListingManagement";
-import { deleteService, markServiceAsSold, deactivateService, repostService } from "@/lib/api/user/services";
-import { getMySparePartListings, deactivateSparePartListing, repostSparePartListing } from "@/lib/api/user/sparePartListings";
-import { markAsSold } from "@/lib/api/user/ads";
-import { useMyServicesQuery } from "@/hooks/queries/useServicesQuery";
+import { 
+    getMyListings, 
+    deleteListing, 
+    markListingAsSold, 
+    deactivateListing, 
+    repostListing 
+} from "@/lib/api/user/listings";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import type { User } from "@/types/User";
 
-export type ProfileListingType = "services" | "spare-parts";
+export type ProfileListingType = "ads" | "services" | "spare-parts";
 
 export function useProfileListings<T extends { id: any; status: string } = any>(
     type: ProfileListingType,
@@ -17,21 +21,29 @@ export function useProfileListings<T extends { id: any; status: string } = any>(
     const isActive = activeSubTab === type;
 
     const config: any = {
+        ads: {
+            fetchApi: () => getMyListings(LISTING_TYPE.AD, statusFilter).then(res => res.data),
+            deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.AD),
+            markSoldApi: markListingAsSold,
+            deactivateApi: deactivateListing,
+            repostApi: (id: string) => repostListing(id, LISTING_TYPE.AD),
+            queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.AD)
+        },
         services: {
-            fetchApi: () => useMyServicesQuery(statusFilter, { enabled: isActive }).refetch().then(r => r.data || []),
-            deleteApi: deleteService,
-            markSoldApi: markServiceAsSold,
-            deactivateApi: deactivateService,
-            repostApi: repostService,
-            queryKey: queryKeys.services.all
+            fetchApi: () => getMyListings(LISTING_TYPE.SERVICE, statusFilter).then(res => res.data),
+            deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SERVICE),
+            markSoldApi: markListingAsSold,
+            deactivateApi: deactivateListing,
+            repostApi: (id: string) => repostListing(id, LISTING_TYPE.SERVICE),
+            queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.SERVICE)
         },
         "spare-parts": {
-            fetchApi: getMySparePartListings,
-            deleteApi: (id: string) => Promise.resolve(id),
-            markSoldApi: markAsSold,
-            deactivateApi: deactivateSparePartListing,
-            repostApi: repostSparePartListing,
-            queryKey: queryKeys.spare.all
+            fetchApi: () => getMyListings(LISTING_TYPE.SPARE_PART, statusFilter).then(res => res.data),
+            deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SPARE_PART),
+            markSoldApi: markListingAsSold,
+            deactivateApi: deactivateListing,
+            repostApi: (id: string) => repostListing(id, LISTING_TYPE.SPARE_PART),
+            queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.SPARE_PART)
         }
     }[type];
 

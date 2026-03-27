@@ -8,7 +8,7 @@ import {
     extractEntityId, 
     toListingLocationFromBusiness 
 } from "./listingFormShared";
-import { getListingById } from "@/lib/api/user/ads";
+import { getListingById } from "@/lib/api/user/listings";
 import type { ListingImage } from "@/types/listing";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useAuth } from "@/context/AuthContext";

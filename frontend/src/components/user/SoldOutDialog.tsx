@@ -19,7 +19,7 @@ interface SoldOutDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   adTitle: string;
-  onSoldConfirm: (platform: string) => void;
+  onSoldConfirm: (platform: string) => Promise<boolean>;
 }
 
 export function SoldOutDialog({
@@ -43,7 +43,10 @@ export function SoldOutDialog({
     setGlobalError(null);
     setIsSubmitting(true);
     try {
-      await onSoldConfirm(selectedPlatform);
+      const soldConfirmed = await onSoldConfirm(selectedPlatform);
+      if (!soldConfirmed) {
+        return;
+      }
       onOpenChange(false);
 
       const platformText =

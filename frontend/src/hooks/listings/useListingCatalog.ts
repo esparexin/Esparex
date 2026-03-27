@@ -69,19 +69,30 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
     }, []);
 
     const dynamicCategories = useMemo<ListingCategory[]>(
-        () =>
-            categories
-                .filter(cat => cat.listingType?.includes(listingType))
+        () => {
+            // Map the FormPlacement (e.g. 'postad') to the database canonical ListingType (e.g. 'ad')
+            const canonicalListingType = {
+                'postad': 'ad',
+                'postservice': 'service',
+                'postsparepart': 'spare_part',
+            }[listingType as string] || listingType;
+
+            return categories
+                .filter(cat => {
+                    const types = cat.listingType || [];
+                    return types.includes(canonicalListingType as any) || types.includes(listingType as any);
+                })
                 .map((category) => ({
                     id: String(category.id || ""),
                     name: category.name,
                     slug: category.slug || "",
                     icon: getCategoryIcon(category.icon),
                     hasScreenSizes: Boolean(category.hasScreenSizes),
-                    supportsSpareParts: Boolean(category.listingType?.includes('postsparepart')),
+                    supportsSpareParts: Boolean(category.listingType?.includes('spare_part' as any) || category.listingType?.includes('postsparepart' as any)),
                     listingType: category.listingType || [],
                     serviceSelectionMode: category.serviceSelectionMode as 'single' | 'multi',
-                })),
+                }));
+        },
         [categories, getCategoryIcon, listingType]
     );
 

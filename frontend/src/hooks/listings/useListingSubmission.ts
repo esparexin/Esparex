@@ -119,6 +119,18 @@ export function useListingSubmission<T extends Record<string, any>>({
 
         } catch (e: any) {
             logger.error("[Submission] Failed:", e);
+            
+            // 🛡️ Policy Guard: Intercept Business Required Threshold
+            if (e.code === 'BUSINESS_REQUIRED_THRESHOLD' || (e.response && e.response.data && e.response.data.code === 'BUSINESS_REQUIRED_THRESHOLD')) {
+                const limitMsg = e.response?.data?.message || e.message;
+                notify.error(limitMsg, {
+                    duration: 6000,
+                    // In a real app, we might trigger an 'Upgrade to Business' modal here via a global event or context
+                    description: "Please upgrade to a Business account or purchase a premium slot to post more spare parts."
+                });
+                return null;
+            }
+
             const msg = e instanceof Error ? e.message : "Submission failed. Please try again.";
             if (onError) onError(msg);
             else notify.error(msg);

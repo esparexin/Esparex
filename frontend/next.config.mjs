@@ -195,7 +195,7 @@ const nextConfig = {
             {
                 source: '/profile/settings',
                 has: [{ type: 'query', key: 'tab', value: 'purchases' }],
-                destination: '/account/plans',
+                destination: '/account/purchases',
                 permanent: true,
             },
             {
@@ -211,7 +211,7 @@ const nextConfig = {
             },
             {
                 source: '/purchases',
-                destination: '/account/plans',
+                destination: '/account/purchases',
                 permanent: true,
             },
             {
@@ -226,7 +226,7 @@ const nextConfig = {
             },
             {
                 source: '/my-ads',
-                destination: '/account/ads',
+                destination: '/account/ads?status=live',
                 permanent: true,
             },
             {
@@ -241,13 +241,13 @@ const nextConfig = {
             },
             {
                 source: '/my-services',
-                destination: '/account/business',
+                destination: '/account/services?status=live',
                 permanent: true,
             },
             // Exact /business match only — /business/[slug] continues to work
             {
                 source: '/business',
-                destination: '/account/business',
+                destination: '/',
                 permanent: true,
             },
             // ── Pre-existing redirects ────────────────────────────────────────

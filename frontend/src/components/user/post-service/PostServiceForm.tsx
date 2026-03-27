@@ -16,13 +16,17 @@ import { extractEntityId } from "../shared/listingFormShared";
 import { ListingModalLoading } from "../shared/ListingModalLayout";
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
-import { createService, updateService } from "@/lib/api/user/services";
+import { createListing, updateListing } from "@/lib/api/user/listings";
 import { useGenericListingForm } from "../shared/useGenericListingForm";
 import { GenericPostForm } from "../shared/GenericPostForm";
 import { useListingFormProps } from "../shared/useListingFormProps";
+import { useRouter } from "next/navigation";
+import { notify } from "@/lib/notify";
+import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 
 export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
     const isEditMode = !!editServiceId;
+    const router = useRouter();
 
     const form = useForm<ServiceListingFormData>({
         resolver: zodResolver(ServiceListingPayloadSchema),
@@ -129,10 +133,13 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         editId: editServiceId,
         schema: ServiceListingPayloadSchema,
         submitFn: async (payload) => {
-            if (isEditMode && editServiceId) return updateService(editServiceId, payload);
-            return createService(payload);
+            if (isEditMode && editServiceId) return updateListing(editServiceId, payload);
+            return createListing(payload);
         },
-        onSuccess: () => {}, // Handled by router in formProps.onClose or success path
+        onSuccess: () => {
+            notify.success(isEditMode ? "Service updated successfully" : "Service submitted for review");
+            router.push(buildAccountListingRoute("services", "pending"));
+        },
     });
 
     const formProps = useListingFormProps({

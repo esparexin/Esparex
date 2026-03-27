@@ -56,7 +56,9 @@ export const useNotificationSync = ({ enabled = true }: UseNotificationSyncOptio
                 // Send cookies automatically so the server auth middleware
                 // can validate the user without an explicit token.
                 withCredentials: true,
-                transports: ['websocket', 'polling'],
+                // We start with polling and upgrade to websocket for maximum compatibility
+                // behind various browser/proxy configurations and to avoid initial handshake errors.
+                transports: ['polling', 'websocket'],
                 // Reconnection strategy: back off up to 10 s
                 reconnectionDelay: 1000,
                 reconnectionDelayMax: 10_000,

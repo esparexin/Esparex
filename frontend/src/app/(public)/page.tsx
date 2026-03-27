@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import logger from "@/lib/logger";
 import { API_ROUTES } from "@/lib/api/routes";
 import type { Category } from "@/schemas";
-import { getHomeAds } from "@/lib/api/user/ads";
+import { getHomeAds } from "@/lib/api/user/listings";
 import { HomeFeed } from "@/components/home/HomeFeed";
 import { HomeBannerAd } from "@/components/home/HomeBannerAd";
 import { CategoryBrowser } from "@/components/home/CategoryBrowser";

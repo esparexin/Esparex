@@ -3,12 +3,12 @@
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, PackageOpen } from "lucide-react";
 
-import { type Ad, type HomeAdsPayload } from "@/lib/api/user/ads";
+import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationState } from "@/context/LocationContext";
-import { useHomeAdsQuery } from "@/hooks/queries/useAdsQuery";
+import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { Button } from "@/components/ui/button";
-import { generateAdSlug } from "@/lib/slug";
+import { getListingHref } from "@/lib/listingUtils";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 
@@ -120,18 +120,18 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
             role="region"
             aria-label="Recommended Ads"
             aria-labelledby="home-feed-heading"
-            className="bg-white py-10 md:py-14"
+            className="bg-slate-50/50 py-16 md:py-20 border-t border-slate-100"
         >
             <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
                 <div className="mb-6">
                     <h2
                         id="home-feed-heading"
-                        className="text-2xl font-bold md:text-3xl text-slate-900 tracking-tight"
+                        className="text-2xl font-bold md:text-4xl text-slate-900 tracking-tight"
                     >
-                        Recommended Ads
+                        Recommended for You
                     </h2>
-                    <p className="mt-1 text-sm text-slate-500">
-                        Spotlight, boosted, and latest listings in one ranked feed.
+                    <p className="mt-2 text-sm md:text-base text-slate-500 max-w-2xl">
+                        Spotlight, boosted, and latest listings curated for your location.
                     </p>
                 </div>
 
@@ -170,7 +170,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
                                 <AdCardGrid
                                     key={ad.id}
                                     ad={ad}
-                                    href={`/ads/${generateAdSlug(ad.title)}-${ad.id}`}
+                                    href={getListingHref(ad)}
                                     priority={index < 4}
                                 />
                             ))}

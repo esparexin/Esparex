@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
-import { useSavedAdsQuery } from "@/hooks/queries/useAdsQuery";
+import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { useNotificationsQuery } from "@/hooks/queries/useNotificationsQuery";
 import type { User } from "@/types/User";

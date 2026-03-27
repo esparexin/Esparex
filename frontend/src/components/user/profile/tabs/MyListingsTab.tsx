@@ -1,30 +1,30 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "lucide-react";
-import type { Ad } from "@/lib/api/user/ads";
-import type { Service } from "@/lib/api/user/services";
-import type { SparePartListing } from "@/lib/api/user/sparePartListings";
+import type { Listing, ListingStatsResponse } from "@/lib/api/user/listings";
 import type { User } from "@/types/User";
-import { markAsSold as markAdAsSold } from "@/lib/api/user/ads";
 import { useProfileListings } from "./useProfileListings";
 import type { ListingStatus } from "@/hooks/useUserListingManagement";
 import { UserListingsTemplate } from "../../shared/UserListingsTemplate";
 import { ListingItem } from "../../shared/ListingItem";
 import { SoldReasonDialog, type SoldReason } from "../../shared/SoldReasonDialog";
 import {
+    ACCOUNT_LISTING_STATUS_TABS,
+    buildAccountListingRoute,
+    normalizeAccountListingStatus,
+    type AccountListingSection,
+} from "@/lib/accountListingRoutes";
+import {
     AlertDialog, AlertDialogAction, AlertDialogCancel,
     AlertDialogContent, AlertDialogDescription,
     AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { formatPrice } from "@/lib/formatters";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 // ── Types & Constants ────────────────────────────────────────────────────────
-type AdsStatus = "live" | "pending" | "sold" | "expired" | "rejected" | "deactivated";
 type ListingSubTab = "ads" | "services" | "spare-parts";
-
-const STATUS_PILL_TABS_ADS = ["live", "pending", "sold", "expired", "rejected", "deactivated"] as const;
-const STATUS_PILL_TABS_SERVICES = ["live", "pending", "expired", "rejected", "deactivated"] as const;
-const STATUS_PILL_TABS_SPARE = ["live", "pending", "sold", "expired", "rejected", "deactivated"] as const;
 
 const SUB_TABS: { value: ListingSubTab; label: string; icon: React.ReactNode; color: string }[] = [
     { value: "ads", label: "Ads", icon: <Package className="h-4 w-4" />, color: "blue" },
@@ -33,14 +33,9 @@ const SUB_TABS: { value: ListingSubTab; label: string; icon: React.ReactNode; co
 ];
 
 // ── Props ─────────────────────────────────────────────────────────────────────
-export interface MyListingsTabProps {
-    ads: Ad[];
-    adCounts: Record<string, number>;
-    loadingAds: boolean;
-    myAdsStatusTab: AdsStatus;
-    setMyAdsStatusTab: (tab: AdsStatus) => void;
-    handleDeleteAd: (id: string | number) => Promise<void>;
-    handleMarkAsSold: (id: string | number, soldReason?: SoldReason) => Promise<void>;
+
+interface MyListingsTabProps {
+    adCounts: ListingStatsResponse;
     user: User | null;
     navigateTo: (page: string, adId?: string | number, category?: string, businessId?: string, serviceId?: string) => void;
     getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
@@ -52,17 +47,47 @@ export interface MyListingsTabProps {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export function MyListingsTab({
-    ads, adCounts, loadingAds, myAdsStatusTab, setMyAdsStatusTab,
-    handleDeleteAd, handleMarkAsSold,
+    adCounts,
     user, navigateTo, getStatusBadge,
     isBusinessApproved, onRegisterBusiness,
     initialSubTab = "ads",
 }: MyListingsTabProps) {
-    const [subTab, setSubTab] = useState<ListingSubTab>(initialSubTab);
-    const [servicesStatus, setServicesStatus] = useState<ListingStatus>("live");
-    const [spareStatus, setSpareStatus] = useState<ListingStatus>("live");
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const subTab = initialSubTab;
+    const selectedStatus = normalizeAccountListingStatus(
+        subTab as AccountListingSection,
+        searchParams.get("status")
+    ) as ListingStatus;
+    const adsStatus: ListingStatus = subTab === "ads" ? selectedStatus : "live";
+    const servicesStatus: ListingStatus = subTab === "services" ? selectedStatus : "live";
+    const spareStatus: ListingStatus = subTab === "spare-parts" ? selectedStatus : "live";
 
-    // Dynamic Data Fetching (Services/Spare Parts)
+    // Sync state back to URL if normalized state differs from current params
+    useEffect(() => {
+        const currentParam = searchParams.get("status");
+        if (currentParam !== selectedStatus) {
+            void router.replace(buildAccountListingRoute(subTab as AccountListingSection, selectedStatus), { scroll: false });
+        }
+    }, [selectedStatus, searchParams, subTab, router]);
+
+    const handleStatusChange = (status: ListingStatus) => {
+        void router.replace(buildAccountListingRoute(subTab as AccountListingSection, status), { scroll: false });
+    };
+
+    const handleSubTabChange = (value: ListingSubTab) => {
+        const nextStatus = normalizeAccountListingStatus(value as AccountListingSection, selectedStatus);
+        void router.push(buildAccountListingRoute(value as AccountListingSection, nextStatus), { scroll: false });
+    };
+
+    // Dynamic Data Fetching
+    const {
+        listings: myAds, loading: loadingAds, error: adsError,
+        handleDelete: handleDeleteAd, handleMarkSold: handleMarkAdSold,
+        handleDeactivate: handleDeactivateAd, handleRepost: handleRepostAd,
+        refetch: fetchMyAds
+    } = useProfileListings("ads", subTab, user, adsStatus);
+
     const { 
         listings: myServices, loading: loadingServices, error: servicesError, 
         handleDelete: handleDeleteService, handleRepost: handleRepostService, refetch: fetchMyServices 
@@ -70,18 +95,18 @@ export function MyListingsTab({
 
     const { 
         listings: mySpare, loading: loadingSpare, error: spareError, 
-        handleDelete: handleDeleteSpare, handleRepost: handleRepostSpare, refetch: fetchMySpare 
+        handleDelete: handleDeleteSpare, handleMarkSold: handleMarkSpareSold, handleRepost: handleRepostSpare, refetch: fetchMySpare 
     } = useProfileListings("spare-parts", subTab, user, spareStatus);
 
     // Modal States
-    const [adToDelete, setAdToDelete] = useState<Ad | null>(null);
+    const [adToDelete, setAdToDelete] = useState<Listing | null>(null);
     const [isDeleteAdOpen, setIsDeleteAdOpen] = useState(false);
-    const [adToSell, setAdToSell] = useState<Ad | null>(null);
+    const [adToSell, setAdToSell] = useState<Listing | null>(null);
     const [isSoldOpen, setIsSoldOpen] = useState(false);
     const [soldReason, setSoldReason] = useState<SoldReason | null>(null);
     const [isSelling, setIsSelling] = useState(false);
 
-    const [spareToSell, setSpareToSell] = useState<SparePartListing | null>(null);
+    const [spareToSell, setSpareToSell] = useState<Listing | null>(null);
     const [isSparesSoldOpen, setIsSparesSoldOpen] = useState(false);
     const [sparesSoldReason, setSparesSoldReason] = useState<SoldReason | null>(null);
     const [isSpareSelling, setIsSpareSelling] = useState(false);
@@ -97,7 +122,7 @@ export function MyListingsTab({
     const confirmSold = async () => {
         if (!adToSell || !soldReason) return;
         setIsSelling(true);
-        try { await handleMarkAsSold(adToSell.id, soldReason); }
+        try { await handleMarkAdSold(adToSell.id, soldReason); }
         finally {
             setIsSelling(false);
             setAdToSell(null);
@@ -108,7 +133,7 @@ export function MyListingsTab({
     const confirmSoldSpare = async () => {
         if (!spareToSell || !sparesSoldReason) return;
         setIsSpareSelling(true);
-        try { await markAdAsSold(spareToSell.id, sparesSoldReason); }
+        try { await handleMarkSpareSold(spareToSell.id, sparesSoldReason); }
         finally {
             setIsSpareSelling(false);
             setSpareToSell(null);
@@ -121,41 +146,63 @@ export function MyListingsTab({
         ads: {
             title: "My Classified Ads",
             icon: <Package className="h-5 w-5 text-blue-600" />,
-            statusTabs: STATUS_PILL_TABS_ADS,
-            selectedStatus: myAdsStatusTab,
-            onStatusChange: setMyAdsStatusTab as any,
-            getStatusCount: (s: any) => adCounts[s] ?? 0,
-            items: ads,
+            statusTabs: ACCOUNT_LISTING_STATUS_TABS.ads,
+            selectedStatus: adsStatus,
+            onStatusChange: handleStatusChange as any,
+            getStatusCount: (s: any) => {
+                const typeStats = adCounts?.ad || {};
+                if (s === 'live') {
+                    return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
+                }
+                return typeStats[s] ?? 0;
+            },
+            items: myAds,
             loading: loadingAds,
+            error: adsError,
+            onRetry: fetchMyAds,
             onPost: () => navigateTo("post-ad"),
             postLabel: "Post Ad",
-            emptyTitle: `No ${myAdsStatusTab} ads`,
+            emptyTitle: `No ${adsStatus} ads`,
             emptyDesc: "Post your first ad to reach thousands of buyers.",
-            render: (ad: Ad) => (
+            render: (listing: Listing) => (
                 <ListingItem
-                    title={ad.title}
-                    status={ad.status}
-                    thumbnail={ad.images?.[0] ?? ad.image}
-                    priceLabel={formatPrice(ad.price)}
+                    title={listing.title}
+                    status={listing.status}
+                    thumbnail={listing.images?.[0] ?? listing.image}
+                    priceLabel={formatPrice(listing.price)}
                     badgeColor="blue"
-                    createdAt={ad.createdAt}
-                    expiresAt={ad.expiresAt}
-                    views={ad.views}
-                    likes={ad.likes}
+                    createdAt={listing.createdAt}
+                    expiresAt={listing.expiresAt}
+                    views={listing.views}
+                    likes={listing.likes}
                     getStatusBadge={getStatusBadge}
-                    editHref={`/edit-ad/${ad.id}`}
-                    detailHref={`/ad-detail/${ad.id}`}
-                    onDelete={() => { setAdToDelete(ad); setIsDeleteAdOpen(true); }}
-                    onMarkSold={() => { setAdToSell(ad); setSoldReason(null); setIsSoldOpen(true); }}
+                    editHref={`/edit-ad/${listing.id}`}
+                    detailHref={buildPublicListingDetailRoute({
+                        id: listing.id,
+                        listingType: "ad",
+                        seoSlug: listing.seoSlug,
+                        title: listing.title,
+                    })}
+                    onDelete={() => { setAdToDelete(listing); setIsDeleteAdOpen(true); }}
+                    onMarkSold={listing.status === "live" ? () => { setAdToSell(listing); setSoldReason(null); setIsSoldOpen(true); } : undefined}
+                    onDeactivate={() => handleDeactivateAd(listing.id)}
+                    onRenew={() => handleRepostAd(listing.id)}
                 />
             )
         },
         services: {
             title: "My Professional Services",
             icon: <Wrench className="h-5 w-5 text-violet-600" />,
-            statusTabs: STATUS_PILL_TABS_SERVICES,
+            statusTabs: ACCOUNT_LISTING_STATUS_TABS.services,
             selectedStatus: servicesStatus,
-            onStatusChange: setServicesStatus as any,
+            onStatusChange: handleStatusChange as any,
+            getStatusCount: (s: any) => {
+                const typeStats = adCounts?.service || {};
+                if (s === 'live') {
+                    return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
+                }
+                return typeStats[s] ?? 0;
+            },
             items: myServices,
             loading: loadingServices,
             error: servicesError,
@@ -164,7 +211,7 @@ export function MyListingsTab({
             postLabel: isBusinessApproved ? "Post Service" : "Register Business",
             emptyTitle: `No ${servicesStatus} services`,
             emptyDesc: "List your repair or maintenance services to attract customers.",
-            render: (service: Service) => (
+            render: (service: Listing) => (
                 <ListingItem
                     title={service.title}
                     status={service.status}
@@ -174,6 +221,12 @@ export function MyListingsTab({
                     createdAt={service.createdAt}
                     getStatusBadge={getStatusBadge}
                     editHref={`/edit-service/${service.id}`}
+                    detailHref={buildPublicListingDetailRoute({
+                        id: service.id,
+                        listingType: "service",
+                        seoSlug: service.seoSlug,
+                        title: service.title,
+                    })}
                     onDelete={() => handleDeleteService(service.id)}
                     onRenew={() => handleRepostService(service.id)}
                     metaBadges={[
@@ -186,8 +239,17 @@ export function MyListingsTab({
                         service.turnaroundTime ? { label: service.turnaroundTime, icon: <Timer className="h-3 w-3" /> } : null
                     ].filter(Boolean) as any}
                     tags={[
-                        service.category?.name ? { label: service.category.name, className: "bg-violet-50 text-violet-700 border-violet-100" } : null,
-                        service.brand?.name ? { label: service.brand.name } : null
+                        (() => {
+                            const name = (service.category as any)?.name || service.category;
+                            return name ? { 
+                                label: name, 
+                                className: "bg-violet-50 text-violet-700 border-violet-100" 
+                            } : null;
+                        })(),
+                        (() => {
+                            const name = (service.brand as any)?.name || service.brand;
+                            return name ? { label: name } : null;
+                        })()
                     ].filter(Boolean) as any}
                 />
             )
@@ -195,9 +257,16 @@ export function MyListingsTab({
         "spare-parts": {
             title: "My Spare Part Inventory",
             icon: <CircuitBoard className="h-5 w-5 text-teal-600" />,
-            statusTabs: STATUS_PILL_TABS_SPARE,
+            statusTabs: ACCOUNT_LISTING_STATUS_TABS["spare-parts"],
             selectedStatus: spareStatus,
-            onStatusChange: setSpareStatus as any,
+            onStatusChange: handleStatusChange as any,
+            getStatusCount: (s: any) => {
+                const typeStats = adCounts?.spare_part || {};
+                if (s === 'live') {
+                    return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
+                }
+                return typeStats[s] ?? 0;
+            },
             items: mySpare,
             loading: loadingSpare,
             error: spareError,
@@ -206,7 +275,7 @@ export function MyListingsTab({
             postLabel: isBusinessApproved ? "Post Spare Part" : "Register Business",
             emptyTitle: `No ${spareStatus} listings`,
             emptyDesc: "List spare parts to sell to repair shops and customers.",
-            render: (listing: SparePartListing) => (
+            render: (listing: Listing) => (
                 <ListingItem
                     title={listing.title}
                     status={listing.status}
@@ -216,6 +285,12 @@ export function MyListingsTab({
                     createdAt={listing.createdAt}
                     getStatusBadge={getStatusBadge}
                     editHref={`/edit-spare-part/${listing.id}`}
+                    detailHref={buildPublicListingDetailRoute({
+                        id: listing.id,
+                        listingType: "spare_part",
+                        seoSlug: listing.seoSlug,
+                        title: listing.title,
+                    })}
                     onDelete={() => handleDeleteSpare(listing.id)}
                     onRenew={() => handleRepostSpare(listing.id)}
                     onMarkSold={listing.status === "live" ? () => { setSpareToSell(listing); setSparesSoldReason(null); setIsSparesSoldOpen(true); } : undefined}
@@ -234,7 +309,7 @@ export function MyListingsTab({
                 icon={currentConfig.icon}
                 subTabs={SUB_TABS}
                 activeSubTab={subTab}
-                onSubTabChange={(v) => setSubTab(v as ListingSubTab)}
+                onSubTabChange={(v) => handleSubTabChange(v as ListingSubTab)}
                 statusTabs={currentConfig.statusTabs}
                 selectedStatus={currentConfig.selectedStatus}
                 onStatusChange={currentConfig.onStatusChange}

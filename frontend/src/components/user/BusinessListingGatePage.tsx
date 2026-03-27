@@ -7,6 +7,7 @@ import { Building2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";
 import { Button } from "@/components/ui/button";
+import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 
 interface BusinessListingGatePageProps {
     listingTypeLabel: string;
@@ -31,7 +32,8 @@ export function BusinessListingGatePage({
         );
     }
 
-    if (businessData?.status !== "live") {
+    const isLive = normalizeBusinessStatus(businessData?.status, "pending") === "live";
+    if (!isLive) {
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
                 <div className="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center space-y-6">

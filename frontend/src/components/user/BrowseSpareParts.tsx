@@ -10,14 +10,17 @@ import {
   buildBaseBrowseFilters,
 } from "@/components/user/browseFilterBuilders";
 import type { Category } from "@/lib/api/user/categories";
-import {
-  getSparePartListingsPage,
-  type SparePartListing,
-  type SparePartListingFilters,
-  type SparePartListingPageResult,
-} from "@/lib/api/user/sparePartListings";
+import { getAdsPage, type Listing as SparePartListing, type ListingFilters as SparePartListingFilters, type ListingPageResult as SparePartListingPageResult } from "@/lib/api/user/listings";
+import { API_ROUTES } from "@/lib/api/routes";
+import type { SortOption } from "@/components/search/SearchResultsHeader";
 
 const DEFAULT_RADIUS_KM = 50;
+const SORT_MAP: Record<SortOption, string> = {
+  relevance: "relevance",
+  newest: "createdAt_desc",
+  price_low_high: "price_asc",
+  price_high_low: "price_desc",
+};
 
 interface BrowseSparePartsProps {
   initialCategory?: string;
@@ -32,6 +35,10 @@ const buildSparePartFilters = ({
   query,
   selectedCategory,
   location,
+  sort,
+  urlLocationId,
+  urlLocationLabel,
+  radiusKm,
 }: BrowseBuildFiltersArgs): SparePartListingFilters => {
   const filters = buildBaseBrowseFilters<SparePartListingFilters>({
     page,
@@ -39,11 +46,24 @@ const buildSparePartFilters = ({
     query,
     selectedCategory,
   });
-  applyProximityLocationFilters({
-    filters,
-    location,
-    radiusKm: DEFAULT_RADIUS_KM,
-  });
+  filters.sortBy = SORT_MAP[sort];
+  if (urlLocationId) {
+    filters.locationId = urlLocationId;
+    if (typeof radiusKm === "number" && Number.isFinite(radiusKm)) {
+      filters.radiusKm = radiusKm;
+    }
+  } else if (urlLocationLabel) {
+    filters.location = urlLocationLabel;
+    if (typeof radiusKm === "number" && Number.isFinite(radiusKm)) {
+      filters.radiusKm = radiusKm;
+    }
+  } else {
+    applyProximityLocationFilters({
+      filters,
+      location,
+      radiusKm: DEFAULT_RADIUS_KM,
+    });
+  }
   return filters;
 };
 
@@ -55,7 +75,7 @@ export function BrowseSpareParts({
 }: BrowseSparePartsProps) {
   return (
     <BrowseListingsView<SparePartListing, SparePartListingFilters>
-      routePath="/browse-spare-parts"
+      browseType="spare_part"
       initialCategory={initialCategory}
       initialSearchQuery={initialSearchQuery}
       initialResults={initialResults}
@@ -63,7 +83,7 @@ export function BrowseSpareParts({
       logScope="BrowseSpareParts"
       loadErrorMessage="Failed to load spare parts. Please try again."
       buildFilters={buildSparePartFilters}
-      fetchPage={getSparePartListingsPage}
+      fetchPage={(filters) => getAdsPage(filters, { endpoint: API_ROUTES.USER.SPARE_PART_LISTINGS })}
       searchAriaLabel="Search spare parts"
       searchPlaceholder="Search spare parts..."
       inputClassName="pl-9 h-10 rounded-xl"

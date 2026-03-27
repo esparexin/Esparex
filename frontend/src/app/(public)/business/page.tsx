@@ -9,5 +9,5 @@ import { permanentRedirect } from 'next/navigation';
 
 
 export default function BusinessEntryPage() {
-    permanentRedirect('/account/business');
+    permanentRedirect('/');
 }

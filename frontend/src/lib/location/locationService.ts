@@ -513,8 +513,11 @@ type LocationDisplayLike =
 export function formatLocation(location: LocationLike): string {
     if (!location) return "";
     if (typeof location === "string") return location;
-    if (location.display) return normalizeLocationName(location.display);
+    
+    // Prioritize City for brief "brief" indicators (e.g. Ad Cards).
+    // The "display" field often contains full addresses which causes grid inconsistency.
     if (location.city) return normalizeLocationName(location.city);
+    if (location.display) return normalizeLocationName(location.display);
     if (location.name) return normalizeLocationName(location.name);
 
     return "";

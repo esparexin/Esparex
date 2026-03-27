@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSimilarAds } from "@/lib/api/user/ads";
-import type { Ad } from "@/lib/api/user/ads";
+import { getSimilarAds } from "@/lib/api/user/listings";
+import type { Listing } from "@/lib/api/user/listings";
 import { AdCardGrid } from "@/components/user/ad-card";
-import { generateAdSlug } from "@/lib/slug";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 interface SimilarAdsProps {
     currentAdId: string | number;
@@ -12,7 +12,7 @@ interface SimilarAdsProps {
 }
 
 export function SimilarAds({ currentAdId, category }: SimilarAdsProps) {
-    const [ads, setAds] = useState<Ad[]>([]);
+    const [ads, setAds] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -51,7 +51,7 @@ export function SimilarAds({ currentAdId, category }: SimilarAdsProps) {
                             <div key={i} className="flex-shrink-0 w-64 h-80 bg-slate-100 rounded-[2rem] animate-pulse" />
                         ))
                     ) : (
-                        ads.map((ad) => {
+                        ads.map((ad: Listing) => {
                             return (
                                 <div
                                     key={ad.id}
@@ -59,7 +59,12 @@ export function SimilarAds({ currentAdId, category }: SimilarAdsProps) {
                                 >
                                     <AdCardGrid
                                         ad={ad}
-                                        href={`/ads/${generateAdSlug(ad.title)}-${ad.id}`}
+                                        href={buildPublicListingDetailRoute({
+                                            id: ad.id,
+                                            listingType: ad.listingType,
+                                            seoSlug: ad.seoSlug,
+                                            title: ad.title,
+                                        })}
                                     />
                                 </div>
                             );

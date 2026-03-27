@@ -131,11 +131,13 @@ export const toPaginatedApiResult = async <T>(
 ): Promise<ApiResult<PaginatedApiResult<T>>> => {
   try {
     const response = await apiCall;
-    const data = unwrapApiPayload<T[] | { data?: T[] }>(response);
+    const data = unwrapApiPayload<T[] | { data?: T[]; items?: T[] }>(response);
     const arrayData = Array.isArray(data)
       ? data
       : data && typeof data === "object" && Array.isArray((data as { data?: T[] }).data)
         ? ((data as { data: T[] }).data || [])
+        : data && typeof data === "object" && Array.isArray((data as { items?: T[] }).items)
+          ? ((data as { items: T[] }).items || [])
         : [];
 
     return {

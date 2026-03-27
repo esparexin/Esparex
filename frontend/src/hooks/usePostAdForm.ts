@@ -3,12 +3,13 @@
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AdPayloadSchema as postAdSchema, AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
+import { AdPayloadSchema as postAdSchema, PartialAdPayloadSchema as partialAdSchema, AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
+import { Resolver } from "react-hook-form";
 
-export function usePostAdForm() {
+export function usePostAdForm(isEditMode: boolean = false) {
     // Initialize Form
     const form = useForm<PostAdFormData>({
-        resolver: zodResolver(postAdSchema),
+        resolver: zodResolver(isEditMode ? partialAdSchema : postAdSchema) as Resolver<PostAdFormData>,
         mode: "all",
         shouldFocusError: true,
         defaultValues: {

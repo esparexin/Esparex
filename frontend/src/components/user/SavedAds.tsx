@@ -22,10 +22,11 @@ import { notify } from "@/lib/notify";
 import type { Ad } from "@/schemas/ad.schema";
 import type { UserPage } from "@/lib/routeUtils";
 import { queryKeys } from "@/hooks/queries/queryKeys";
-import { useSavedAdsQuery } from "@/hooks/queries/useAdsQuery";
+import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { formatPrice, formatStableDate } from "@/lib/formatters";
 import { formatLocation, normalizeToAppLocation as normalizeAppLocation } from "@/lib/location/locationService";
 import { toSafeImageSrc, DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -59,14 +60,12 @@ const SORT_OPTIONS = Object.keys(SORT_LABELS) as SortOption[];
 
 /** Returns the correct detail URL for any listing type */
 const getDetailUrl = (ad: Ad): string => {
-  switch (ad.listingType) {
-    case "service":
-      return `/services/${ad.seoSlug || ad.id}`;
-    case "spare_part":
-      return ad.seoSlug ? `/spare-part-listings/${ad.seoSlug}` : `/spare-part-listings/${ad.id}`;
-    default:
-      return ad.seoSlug ? `/ads/${ad.seoSlug}` : `/ads/${ad.id}`;
-  }
+  return buildPublicListingDetailRoute({
+    id: ad.id,
+    listingType: ad.listingType,
+    seoSlug: ad.seoSlug,
+    title: ad.title,
+  });
 };
 
 const getListingTypeLabel = (ad: Ad): string => {

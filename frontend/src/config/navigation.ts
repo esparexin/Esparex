@@ -48,7 +48,6 @@ export interface ResolvedNavigationItem extends NavigationItem {
 
 export type ProfileTabValue =
   | "personal"
-  | "listings"
   | "mylistings"
   | "services"
   | "spareparts"
@@ -120,14 +119,14 @@ const BASE_NAVIGATION: NavigationItem[] = [
     href: "/search",
   },
   {
-    id: "browse-services",
+    id: "browse-service-listings",
     label: "Browse Services",
-    slug: "browse-services",
+    slug: "browse-service-listings",
     icon: Wrench,
     roles: ["guest", "user", "business"],
     showIn: ["mobile-drawer"],
     section: "main",
-    page: "browse-services",
+    page: "browse-service-listings",
   },
   {
     id: "profile",

@@ -24,8 +24,13 @@ export const AdCardMeta = memo(function AdCardMeta({
 }: AdCardMetaProps) {
   const adRecord = ad as Record<string, unknown>;
 
-  // Listing type pill
-  const listingType = adRecord.listingType as string | undefined;
+  // Listing type pill detection
+  const isSparesDetected = adRecord.listingType === 'spare_part' || 
+                           ad.category === 'spares' || 
+                           ('spareParts' in ad && Array.isArray(ad.spareParts) && ad.spareParts.length > 0);
+  
+  const listingType = isSparesDetected ? 'spare_part' : (adRecord.listingType as string | undefined);
+  
   const listingTypeConfig = listingType === 'service'
     ? { label: 'Service', className: 'bg-emerald-50 text-emerald-700 border-emerald-100' }
     : listingType === 'spare_part'
@@ -49,12 +54,19 @@ export const AdCardMeta = memo(function AdCardMeta({
   return (
     <div className={cn("flex flex-col", className)}>
       <div className="font-semibold line-clamp-2 text-sm leading-snug min-h-[2.5rem] text-slate-800">
-        {ad.title}
+        {ad.title.replace(/\*\*/g, '')}
       </div>
 
       <div className="flex items-center justify-between gap-2 mt-1">
         <span className={cn("font-bold", isDashboard ? "text-primary text-lg" : "text-green-600 text-sm md:text-base")}>
-          {ad.price === 0 ? "Free" : formatPrice(ad.price)}
+          {(() => {
+            if (adRecord.listingType === 'service' && (adRecord.priceMin || adRecord.priceMax)) {
+              if (adRecord.priceMin && adRecord.priceMax) return `${formatPrice(adRecord.priceMin as number)} - ${formatPrice(adRecord.priceMax as number)}`;
+              if (adRecord.priceMin) return `From ${formatPrice(adRecord.priceMin as number)}`;
+              return formatPrice(adRecord.priceMax as number);
+            }
+            return (ad.price === 0 || ad.price === undefined) ? "Free" : formatPrice(ad.price);
+          })()}
         </span>
         {!isDashboard && (
           <span className={cn(

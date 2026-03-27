@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getListingById, type Ad } from "@/lib/api/user/ads";
+import { getListingById, type Listing as Ad } from "@/lib/api/user/listings";
 import { normalizeOptionalObjectId, resolveCanonicalLocationId } from "@/lib/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { TOAST_MESSAGES } from "@/config/toastMessages";

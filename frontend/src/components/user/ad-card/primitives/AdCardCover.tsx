@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Building2 } from "lucide-react";
 import { cn } from "@/components/ui/utils";
@@ -31,16 +31,9 @@ export const AdCardCover = memo(function AdCardCover({
   children,
 }: AdCardCoverProps) {
   const adRecord = ad as Record<string, unknown>;
-  
+
   const getPlanBadge = () => {
     const isBoosted = adRecord.isBoosted === true;
-    if (ad.price === 0) {
-      return (
-        <Badge className="bg-white/95 text-gray-600 border border-gray-300 text-[10px] md:text-xs shadow-sm">
-          FREE
-        </Badge>
-      );
-    }
     const badgeClasses = "border-0 text-[10px] md:text-xs shadow-lg flex items-center";
     if (ad.isSpotlight) {
       return (
@@ -60,14 +53,11 @@ export const AdCardCover = memo(function AdCardCover({
   };
 
   const isSold = typeof customStatus === 'string' && customStatus.toLowerCase().includes('sold');
-  const isSpares = ad.category === 'spares' || ('spareParts' in ad && Array.isArray(ad.spareParts) && ad.spareParts.length > 0);
-  const isPowerOn = 'deviceCondition' in ad && ad.deviceCondition === 'power_on';
-  const isPowerOff = 'deviceCondition' in ad && ad.deviceCondition === 'power_off';
 
   return (
     <div className={cn("relative overflow-hidden bg-muted/20", className)}>
       {imageUrl ? (
-        <Image
+        <SafeImage
           src={imageUrl}
           alt={ad.title}
           fill
@@ -92,28 +82,7 @@ export const AdCardCover = memo(function AdCardCover({
         </div>
       )}
 
-      {/* Spares Badge */}
-      {isSpares && (
-        <div className={cn("absolute left-1.5 md:left-2 z-10", getPlanBadge() ? "top-8 md:top-9" : "top-1.5 md:top-2")}>
-          <Badge className="bg-gray-800/90 text-white border-0 text-[9px] md:text-[10px] shadow-sm hover:bg-gray-900">
-            SPARES
-          </Badge>
-        </div>
-      )}
-
-      {/* Device Condition Badge */}
-      {(isPowerOn || isPowerOff) && (
-        <div className="absolute right-1.5 md:right-2 z-10 top-1.5 md:top-2">
-          <Badge className={cn(
-            "border-0 text-[9px] md:text-[10px] shadow-sm",
-            isPowerOn ? "bg-green-600/90 hover:bg-green-700" : "bg-red-600/90 hover:bg-red-700"
-          )}>
-            {isPowerOn ? 'POWER ON' : 'POWER OFF'}
-          </Badge>
-        </div>
-      )}
-
-      {/* Plan Badge */}
+      {/* Plan Badge (Spotlight/Boosted Only) */}
       {getPlanBadge() && (
         <div className="absolute top-1.5 left-1.5 md:top-2 md:left-2 z-10">
           {getPlanBadge()}

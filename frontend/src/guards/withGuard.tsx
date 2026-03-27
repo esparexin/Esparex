@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useMemo } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
 import { User } from '@/types/User';
 import logger from "@/lib/logger";
+import { buildAuthCallbackUrl, buildLoginUrl } from "@/lib/authHelpers";
 
 type GuardFunction = (user: User) => void;
 
@@ -12,10 +13,11 @@ export function withGuard<P extends object>(
     Component: React.ComponentType<P>,
     guard: GuardFunction
 ) {
-    return function Guarded(props: P) {
-        const router = useRouter();
-        const pathname = usePathname();
-        const { user, loading: isLoading } = useUser();
+        return function Guarded(props: P) {
+            const router = useRouter();
+            const pathname = usePathname();
+            const searchParams = useSearchParams();
+            const { user, loading: isLoading } = useUser();
         const authorized = useMemo(() => {
             if (!user) return false;
             try {
@@ -29,15 +31,15 @@ export function withGuard<P extends object>(
 
         useEffect(() => {
             if (!user && !isLoading) {
-                const callbackUrl = encodeURIComponent(pathname || '/');
-                void router.replace(`/login?callbackUrl=${callbackUrl}`);
+                const callbackUrl = buildAuthCallbackUrl(pathname || "/", searchParams);
+                void router.replace(buildLoginUrl(callbackUrl));
                 return;
             }
 
             if (user && !authorized) {
                 void router.replace('/unauthorized');
             }
-        }, [user, isLoading, authorized, router, pathname]);
+        }, [user, isLoading, authorized, router, pathname, searchParams]);
 
         if (isLoading) return null;
         if (!authorized) return null;

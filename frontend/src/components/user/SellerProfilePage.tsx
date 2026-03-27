@@ -4,21 +4,23 @@ import { AdCardGrid } from "@/components/user/ad-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { Ad } from "@/schemas/ad.schema";
+import { type Listing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
 import { formatStableDate } from "@/lib/formatters";
-import { generateAdSlug } from "@/lib/slug";
 import { formatLocationDisplay } from "@/lib/location/locationService";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 interface SellerProfilePageProps {
     profile: SellerProfilePayload;
 }
 
 const buildAdHref = (ad: Ad): string => {
-    const adId = String(ad.id || "").trim();
-    if (!adId) return "/search";
-    const slug = ad.seoSlug?.trim() || generateAdSlug(ad.title || "ad");
-    return `/ads/${encodeURIComponent(slug)}-${encodeURIComponent(adId)}`;
+    return buildPublicListingDetailRoute({
+        id: ad.id,
+        listingType: ad.listingType,
+        seoSlug: ad.seoSlug,
+        title: ad.title,
+    });
 };
 
 const toLocationLabel = (profile: SellerProfilePayload): string => {
@@ -151,8 +153,8 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-                            {profile.ads.map((ad) => (
-                                <AdCardGrid key={String(ad.id)} ad={ad} href={buildAdHref(ad)} />
+                            {profile.ads.map((ad, index) => (
+                                <AdCardGrid key={String(ad.id)} ad={ad} href={buildAdHref(ad)} priority={index < 4} />
                             ))}
                         </div>
                     )}

@@ -11,7 +11,7 @@ import { ListingTitleField, ListingPriceField, ListingDescriptionField, Category
 import { extractEntityId } from "@/components/user/shared/listingFormShared";
 import { ListingModalLoading } from "@/components/user/shared/ListingModalLayout";
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
-import { createSparePartListing, updateSparePartListing } from "@/lib/api/user/sparePartListings";
+import { createListing, updateListing } from "@/lib/api/user/listings";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
 import {
     EditPostSparePartFormSchema,
@@ -21,9 +21,13 @@ import {
 import { useGenericListingForm } from "@/components/user/shared/useGenericListingForm";
 import { GenericPostForm } from "@/components/user/shared/GenericPostForm";
 import { useListingFormProps } from "@/components/user/shared/useListingFormProps";
+import { useRouter } from "next/navigation";
+import { notify } from "@/lib/notify";
+import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 
 export default function PostSparePartForm({ editSparePartId }: { editSparePartId?: string }) {
     const isEditMode = !!editSparePartId;
+    const router = useRouter();
 
     const form = useForm<PostSparePartFormValues>({
         resolver: zodResolver(PostSparePartFormSchema),
@@ -92,21 +96,24 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         partialSchema: EditPostSparePartFormSchema,
         submitFn: async (payload) => {
             if (isEditMode && editSparePartId) {
-                return updateSparePartListing(editSparePartId, {
+                return updateListing(editSparePartId, {
                     title: payload.title,
                     description: payload.description,
                     price: payload.price,
                     images: payload.images,
                 });
             }
-            return createSparePartListing({
+            return createListing({
                 ...payload,
                 sparePartId: payload.sparePartTypeId,
                 condition: "new",
                 locationId: (payload.location as any)?.locationId || businessData?.location?.locationId,
             });
         },
-        onSuccess: () => {}, // Handled by formProps.onClose or path-based redirection
+        onSuccess: () => {
+            notify.success(isEditMode ? "Spare part updated successfully" : "Spare part submitted for review");
+            router.push(buildAccountListingRoute("spare-parts", "pending"));
+        },
     });
 
     const formProps = useListingFormProps({

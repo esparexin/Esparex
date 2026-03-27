@@ -81,15 +81,17 @@ interface ListingLocationFieldProps {
     display: string;
     placeholder?: string;
     fixedLabel?: string;
+    error?: string;
 }
 
 export function ListingLocationField({
     display,
     placeholder,
     fixedLabel = "Fixed",
+    error,
 }: ListingLocationFieldProps) {
     return (
-        <Field label="Listing Location">
+        <Field label="Listing Location" error={error}>
             {display ? (
                 <div className="flex items-center gap-2 h-12 px-3 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm text-slate-700">
                     <MapPin className="w-4 h-4 text-slate-400 shrink-0" />

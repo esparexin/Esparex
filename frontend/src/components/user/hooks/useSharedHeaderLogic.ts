@@ -3,19 +3,16 @@ import { useNotificationSync } from "@/hooks/useNotificationSync";
 import { useLocationSelector } from "@/hooks/useLocationSelector";
 import { useHeaderSearch } from "@/hooks/useHeaderSearch";
 import { getHeaderLocationText } from "@/lib/location/locationService";
-import type { UserPage } from "@/lib/routeUtils";
 
 interface UseSharedHeaderLogicOptions {
     isLoggedIn: boolean;
     onSearch?: (query: string) => void;
-    navigateTo?: (page: UserPage) => void;
     disableNotificationsFetch?: boolean;
 }
 
 export function useSharedHeaderLogic({
     isLoggedIn,
     onSearch,
-    navigateTo,
     disableNotificationsFetch = false
 }: UseSharedHeaderLogicOptions) {
     // 1. Notifications logic
@@ -37,7 +34,6 @@ export function useSharedHeaderLogic({
     // 3. Search Logic
     const searchProps = useHeaderSearch({
         onSearch,
-        navigateTo: navigateTo ? (page: string) => navigateTo(page as UserPage) : undefined
     });
 
     const handleSearchSubmit = (e?: React.FormEvent) => {

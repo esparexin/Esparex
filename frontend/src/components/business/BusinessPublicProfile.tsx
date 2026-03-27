@@ -26,10 +26,11 @@ import { useBusiness } from '../../hooks/useBusiness';
 import { Separator } from '../ui/separator';
 import { AdCardGrid } from '../user/ad-card';
 import { getBusinessServices, getBusinessAds, getBusinessSpareParts } from "@/lib/api/user/businesses";
-import { generateAdSlug } from "@/lib/slug";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 import type { Ad } from '@/schemas/ad.schema';
 import type { Service } from "@/lib/api/user/businesses";
 import { PlaceholderImage } from '../common/PlaceholderImage';
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 type ListingTab = 'ads' | 'services' | 'spare-parts';
 
@@ -49,11 +50,12 @@ const buildListingHref = (item: Ad | Service): string => {
   const record = item as Record<string, unknown>;
   const id = String(record.id || record._id || '');
   if (!id) return '/search';
-  const listingType = String(record.listingType || 'ad');
-  const slug = String(record.seoSlug || generateAdSlug(String(record.title || 'listing')));
-  if (listingType === 'service') return `/services/${slug}-${id}`;
-  if (listingType === 'spare_part') return `/spare-part-listings/${slug}-${id}`;
-  return `/ads/${slug}-${id}`;
+  return buildPublicListingDetailRoute({
+    id,
+    listingType: record.listingType || LISTING_TYPE.AD,
+    seoSlug: String(record.seoSlug || ""),
+    title: String(record.title || "listing"),
+  });
 };
 
 export function BusinessPublicProfile({

@@ -8,6 +8,8 @@ interface ListingDetailShellProps {
     isLoading: boolean;
     error?: string | null;
     notFound?: boolean;
+    notFoundTitle?: string;
+    notFoundMessage?: string;
     onRetry?: () => void;
     children: React.ReactNode;
 }
@@ -16,6 +18,8 @@ export function ListingDetailShell({
     isLoading,
     error,
     notFound,
+    notFoundTitle,
+    notFoundMessage,
     onRetry,
     children,
 }: ListingDetailShellProps) {
@@ -32,9 +36,9 @@ export function ListingDetailShell({
                 <div className="bg-gray-100 p-4 rounded-full mb-4">
                     <SearchX className="h-8 w-8 text-gray-500" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Listing Not Found</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{notFoundTitle || "Listing Not Found"}</h2>
                 <p className="text-gray-500 max-w-md mb-6">
-                    The listing you are looking for might have been removed, expired, or the link is incorrect.
+                    {notFoundMessage || "The listing you are looking for might have been removed, expired, or the link is incorrect."}
                 </p>
                 <Button onClick={() => void router.push(ROUTES.BROWSE)} variant="default">
                     <ArrowLeft className="h-4 w-4 mr-2" />

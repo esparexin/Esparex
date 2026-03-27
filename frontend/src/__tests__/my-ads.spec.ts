@@ -1,14 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getMyAds, deleteAd } from "@/lib/api/user/ads";
+import { getMyAds, getMyListings, getMyListingsStats, deleteListing as deleteAd, repostListing } from "@/lib/api/user/listings";
 import { apiClient } from '@/lib/api/client';
 import { EsparexError, ErrorCategory, ErrorSeverity } from "@/lib/errorHandler";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 // We mock the API Client since it's the layer right below our ads api service
 vi.mock('@/lib/api/client', () => {
     return {
         apiClient: {
             get: vi.fn(),
-            delete: vi.fn()
+            delete: vi.fn(),
+            post: vi.fn()
         }
     };
 });
@@ -46,6 +48,17 @@ describe('MyAds API Regression Tests', () => {
             const result = await deleteAd('ad-123');
             expect(result).toBe(true);
         });
+
+        it('should route service deletes to the service endpoint', async () => {
+            vi.mocked(apiClient.delete).mockResolvedValueOnce({
+                success: true,
+                data: null
+            });
+
+            const result = await deleteAd('svc-123', LISTING_TYPE.SERVICE);
+            expect(result).toBe(true);
+            expect(apiClient.delete).toHaveBeenCalledWith('services/svc-123', { silent: true });
+        });
     });
 
     describe('Test 3 — MyAds Payload', () => {
@@ -63,6 +76,56 @@ describe('MyAds API Regression Tests', () => {
             expect(ads).toHaveLength(1);
             expect(ads[0]?.id).toBe('ad-xyz');
             expect(ads[0]?.title).toBe('Macbook');
+        });
+    });
+
+    describe('Test 4 — Unified MyListings Payload', () => {
+        it('should extract items from paginated data envelopes shaped as { items, pagination }', async () => {
+            const fakeDate = new Date().toISOString();
+            vi.mocked(apiClient.get).mockResolvedValueOnce({
+                success: true,
+                data: {
+                    items: [
+                        { _id: 'ad-unified', title: 'iPhone 15', price: 75000, createdAt: fakeDate, status: 'live' }
+                    ],
+                    pagination: { page: 1, limit: 20, total: 1, hasMore: false }
+                }
+            });
+
+            const result = await getMyListings('ad', 'live');
+            expect(result.data).toHaveLength(1);
+            expect(result.data[0]?.id).toBe('ad-unified');
+            expect(result.pagination.total).toBe(1);
+        });
+
+        it('should route spare-part reposts to the spare-part endpoint', async () => {
+            vi.mocked(apiClient.post as any).mockResolvedValueOnce({
+                success: true,
+                data: { ok: true }
+            });
+
+            const result = await repostListing('part-123', LISTING_TYPE.SPARE_PART);
+            expect(result).toBe(true);
+            expect(apiClient.post).toHaveBeenCalledWith(
+                'spare-part-listings/part-123/repost',
+                undefined,
+                { silent: true }
+            );
+        });
+
+        it('should load listing stats from the unified listings stats endpoint', async () => {
+            vi.mocked(apiClient.get).mockResolvedValueOnce({
+                success: true,
+                data: {
+                    ad: { live: 1, total: 1 },
+                    service: { pending: 2, total: 2 },
+                    spare_part: { total: 0 }
+                }
+            });
+
+            const stats = await getMyListingsStats();
+            expect(stats.ad?.live).toBe(1);
+            expect(apiClient.get).toHaveBeenCalledWith('listings/mine/stats');
         });
     });
 });

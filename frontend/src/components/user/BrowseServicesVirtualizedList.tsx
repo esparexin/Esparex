@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
-import type { Service } from "@/lib/api/user/services";
+import { type Listing as Service } from "@/lib/api/user/listings";
 import { BrowseServicesCard } from "@/components/user/BrowseServicesCard";
 
 interface BrowseServicesVirtualizedListProps {

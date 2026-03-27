@@ -43,43 +43,49 @@ export function GenericPostForm({
     return (
         <FormProvider {...form}>
             <ListingModalLayout title={title} onClose={onClose}>
-                <ListingModalBody>
-                    <form id={formId} onSubmit={onSubmit} className="space-y-8">
-                        {children}
+                    <form id={formId} onSubmit={onSubmit} className="flex flex-col flex-1 overflow-hidden">
+                        <ListingModalBody>
+                            <div className="space-y-8">
+                                {children}
 
-                        <ListingImagesField
-                            images={images}
-                            onUpload={onImageUpload}
-                            onRemove={onImageRemove}
-                            firstImageBadgeLabel={isEditMode ? "CURRENT" : "COVER"}
-                        />
+                                <ListingImagesField
+                                    images={images}
+                                    onUpload={onImageUpload}
+                                    onRemove={onImageRemove}
+                                    firstImageBadgeLabel={isEditMode ? "CURRENT" : "COVER"}
+                                />
 
-                        <ListingLocationField display={locationDisplay || ''} fixedLabel="Fixed" />
+                                <ListingLocationField 
+                                    display={locationDisplay || ''} 
+                                    fixedLabel="Fixed" 
+                                    error={form.formState.errors.location?.message as string}
+                                />
+                            </div>
+                        </ListingModalBody>
+
+                        <ListingModalFooter>
+                            <Button
+                                type="submit"
+                                form={formId}
+                                disabled={isSubmitting || images.length === 0}
+                                className={cn(
+                                    "w-full rounded-xl font-bold transition-all active:scale-[0.98]",
+                                    "h-14 text-lg sm:h-12 sm:text-base",
+                                    "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-70"
+                                )}
+                            >
+                                {isSubmitting ? (
+                                    <span className="flex items-center gap-2">
+                                        <Loader2 className="w-5 h-5 animate-spin" /> Submitting...
+                                    </span>
+                                ) : images.length === 0 ? (
+                                    "Add at least 1 photo to submit"
+                                ) : (
+                                    submitLabel || (isEditMode ? "Save Changes" : "Submit →")
+                                )}
+                            </Button>
+                        </ListingModalFooter>
                     </form>
-                </ListingModalBody>
-
-                <ListingModalFooter>
-                    <Button
-                        type="submit"
-                        form={formId}
-                        disabled={isSubmitting || images.length === 0}
-                        className={cn(
-                            "w-full rounded-xl font-bold transition-all active:scale-[0.98]",
-                            "h-14 text-lg sm:h-12 sm:text-base",
-                            "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-70"
-                        )}
-                    >
-                        {isSubmitting ? (
-                            <span className="flex items-center gap-2">
-                                <Loader2 className="w-5 h-5 animate-spin" /> Submitting...
-                            </span>
-                        ) : images.length === 0 ? (
-                            "Add at least 1 photo to submit"
-                        ) : (
-                            submitLabel || (isEditMode ? "Save Changes" : "Submit →")
-                        )}
-                    </Button>
-                </ListingModalFooter>
             </ListingModalLayout>
         </FormProvider>
     );

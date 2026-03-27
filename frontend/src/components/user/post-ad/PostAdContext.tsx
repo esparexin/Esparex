@@ -39,7 +39,7 @@ import {
     AdPayloadSchema as postAdSchema,
     PartialAdPayloadSchema as partialAdSchema
 } from "@/schemas/adPayload.schema";
-import { createAd, updateAd } from "@/lib/api/user/ads";
+import { createListing, updateListing } from "@/lib/api/user/listings";
 
 /* ===================== CONTEXT TYPE ===================== */
 
@@ -272,8 +272,8 @@ export function PostAdProvider({
 
     const submitAdApiCall = useCallback((payload: any, options?: { idempotencyKey?: string }) => {
         return (isEditMode && editAdId) 
-            ? updateAd(editAdId, payload)
-            : createAd(payload, options);
+            ? updateListing(editAdId, payload)
+            : createListing(payload, options);
     }, [isEditMode, editAdId]);
 
     const { onValidSubmit, isSubmitting } = useListingSubmission({
@@ -557,6 +557,15 @@ export function PostAdProvider({
             } finally {
                 setIsInternalUploading(false);
             }
+        }, (errors) => {
+            logger.error("[PostAdSubmit] Form validation errors:", errors);
+            const firstError = Object.values(errors)[0]?.message;
+            setFormError(
+                typeof firstError === "string"
+                    ? firstError
+                    : "Please fix the highlighted errors before saving."
+            );
+            notify.error("Validation failed. Please check your inputs.");
         })(),
         [handleSubmit, onValidSubmit, setSubmittedAd, listingImages, setListingImages, setFormError]
     );

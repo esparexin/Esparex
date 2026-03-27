@@ -106,14 +106,6 @@ export function getPlanBadge(ad: AdCardData, className?: string) {
   const adRecord = toAdRecord(ad);
   const isBoosted = adRecord.isBoosted === true;
 
-  if (ad.price === 0) {
-    return (
-      <Badge className={cn("bg-white/95 text-gray-600 border border-gray-300 text-[10px] md:text-xs shadow-sm", className)}>
-        FREE
-      </Badge>
-    );
-  }
-
   const badgeClasses = cn("border-0 text-[10px] shadow-lg flex items-center", className);
   
   if (ad.isSpotlight) {

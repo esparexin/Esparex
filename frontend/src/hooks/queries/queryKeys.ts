@@ -1,19 +1,24 @@
 // src/queries/queryKeys.ts
-import type { AdFilters, HomeAdsRequestParams } from "@/lib/api/user/ads";
+import type { ListingFilters as AdFilters, HomeAdsRequestParams } from "@/lib/api/user/listings";
+
+const listingKeys = {
+    all: ['ads'] as const,
+    lists: () => [...listingKeys.all, 'list'] as const,
+    list: (filters: AdFilters) => [...listingKeys.lists(), filters] as const,
+    details: () => [...listingKeys.all, 'detail'] as const,
+    detail: (id: string | number) => [...listingKeys.details(), id] as const,
+    home: (params?: HomeAdsRequestParams) => [...listingKeys.all, 'home', params ?? {}] as const,
+    myListings: (status?: string, type?: string) => [...listingKeys.all, 'mine', { status, type }] as const,
+    myAds: (status?: string, type?: string) => listingKeys.myListings(status, type),
+    stats: () => [...listingKeys.all, 'stats'] as const,
+    saved: () => [...listingKeys.all, 'saved'] as const,
+};
 
 export const queryKeys = {
-    // Ads
-    ads: {
-        all: ['ads'] as const,
-        lists: () => [...queryKeys.ads.all, 'list'] as const,
-        list: (filters: AdFilters) => [...queryKeys.ads.lists(), filters] as const,
-        details: () => [...queryKeys.ads.all, 'detail'] as const,
-        detail: (id: string | number) => [...queryKeys.ads.details(), id] as const,
-        home: (params?: HomeAdsRequestParams) => [...queryKeys.ads.all, 'home', params ?? {}] as const,
-        myAds: (status?: string) => [...queryKeys.ads.all, 'mine', { status }] as const,
-        stats: () => [...queryKeys.ads.all, 'stats'] as const,
-        saved: () => [...queryKeys.ads.all, 'saved'] as const,
-    },
+    // Listings (Unified name for Ads, Services, Spare Parts in the future)
+    listings: listingKeys,
+    // Legacy alias for Ads
+    ads: listingKeys,
 
     // Categories
     categories: {

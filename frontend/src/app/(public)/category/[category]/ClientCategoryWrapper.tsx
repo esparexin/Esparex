@@ -2,12 +2,12 @@
 
 import { Suspense } from 'react';
 import { BrowseAds } from '@/components/user/BrowseAds';
-import type { AdPageResult } from "@/lib/api/user/ads";
+import type { ListingPageResult } from "@/lib/api/user/listings";
 import type { Category } from "@/lib/api/user/categories";
 
 interface ClientCategoryWrapperProps {
     category: string;
-    initialResults?: AdPageResult;
+    initialResults?: ListingPageResult;
     initialCategories?: Category[];
 }
 

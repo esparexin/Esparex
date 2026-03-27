@@ -10,7 +10,8 @@ const DEFAULT_POLICY: MobileChromePolicy = {
   showStickySearch: false,
 };
 
-const STICKY_SEARCH_PREFIXES = ["/search", "/browse-services", "/category"];
+const STICKY_SEARCH_PREFIXES = ["/search", "/category"];
+const LISTING_DETAIL_PREFIXES = ["/ads/", "/services/", "/spare-part-listings/"];
 
 export function getMobileChromePolicy(pathname?: string | null): MobileChromePolicy {
   if (!pathname) return DEFAULT_POLICY;
@@ -23,7 +24,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
     };
   }
 
-  if (pathname.startsWith("/ads/")) {
+  if (LISTING_DETAIL_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
     return {
       showMobileBottomNav: false,
       showContextActionBar: true,

@@ -225,7 +225,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
 }
 
 export function PostAdWizard({ navigateTo, editAdId }: PostAdWizardProps) {
-  const formHook = usePostAdForm()
+  const formHook = usePostAdForm(!!editAdId)
   return (
     <FormProvider {...formHook.form}>
       <PostAdProvider

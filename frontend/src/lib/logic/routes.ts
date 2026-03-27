@@ -13,7 +13,6 @@ export const ROUTES = {
     POST_AD: "post-ad",
     LOGIN: "login",
     AD_DETAIL: "ad-detail",
-    MY_ADS: "my-ads",
     SAVED_ADS: "saved-ads",
     MESSAGES: "messages",
     PROFILE_SETTINGS: "profile-settings",

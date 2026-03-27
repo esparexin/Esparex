@@ -98,7 +98,6 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
   } = useSharedHeaderLogic({
     isLoggedIn,
     onSearch,
-    navigateTo: (page) => navigateTo(page as UserPage),
     disableNotificationsFetch: !shouldFetchHeaderNotifications
   });
 

@@ -6,6 +6,7 @@ import type { BrowseResultsContentProps } from "@/components/user/BrowseResultsP
 import { useBrowseListingsController } from "@/components/user/useBrowseListingsController";
 import type { LocationData } from "@/context/LocationContext";
 import type { Category } from "@/lib/api/user/categories";
+import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
 
 type BrowsePageResult<TItem> = {
   data: TItem[];
@@ -21,11 +22,15 @@ export interface BrowseBuildFiltersArgs {
   query: string;
   selectedCategory: string;
   location: LocationData;
+  sort: "relevance" | "newest" | "price_low_high" | "price_high_low";
+  urlLocationId?: string;
+  urlLocationLabel?: string;
+  radiusKm?: number;
 }
 
 interface BrowseListingsViewProps<TItem, TFilters>
   extends BrowseResultsContentProps<TItem> {
-  routePath: string;
+  browseType: PublicBrowseType;
   initialCategory?: string;
   initialSearchQuery?: string;
   initialResults?: BrowsePageResult<TItem>;
@@ -44,7 +49,7 @@ interface BrowseListingsViewProps<TItem, TFilters>
 }
 
 export function BrowseListingsView<TItem, TFilters>({
-  routePath,
+  browseType,
   initialCategory,
   initialSearchQuery = "",
   initialResults,
@@ -79,15 +84,15 @@ export function BrowseListingsView<TItem, TFilters>({
     total,
     categories,
     items,
-    setSelectedCategory,
-    setSort,
+    handleCategoryChange,
+    handleSortChange,
     setView,
     handleInputChange,
     handleReset,
     handleLoadMore,
     handleRetry,
   } = useBrowseListingsController<TItem, TFilters>({
-    routePath,
+    browseType,
     initialCategory,
     initialSearchQuery,
     initialResults,
@@ -108,7 +113,7 @@ export function BrowseListingsView<TItem, TFilters>({
         searchAriaLabel={searchAriaLabel}
         searchPlaceholder={searchPlaceholder}
         onInputChange={handleInputChange}
-        onCategoryChange={setSelectedCategory}
+        onCategoryChange={handleCategoryChange}
         onReset={handleReset}
         getCategoryValue={getCategoryValue}
         respectMobileChromePolicy={respectMobileChromePolicy}
@@ -125,7 +130,7 @@ export function BrowseListingsView<TItem, TFilters>({
         error={error}
         hasMore={hasMore}
         query={query}
-        onSortChange={setSort}
+        onSortChange={handleSortChange}
         onViewChange={setView}
         onRetry={handleRetry}
         onReset={handleReset}

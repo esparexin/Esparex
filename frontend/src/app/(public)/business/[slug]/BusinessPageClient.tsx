@@ -3,6 +3,7 @@
 import { useRouter, useParams } from 'next/navigation';
 import { PublicProfile } from '@/components/business/BusinessPublicProfile';
 import { useLoginCallback } from '@/hooks/useLoginCallback';
+import { buildPublicListingDetailRoute } from '@/lib/publicListingRoutes';
 
 export function BusinessPageClient() {
     const router = useRouter();
@@ -14,7 +15,7 @@ export function BusinessPageClient() {
     const navigateTo = (page: string, ...args: unknown[]) => {
         const adId = args[0] as number | string | undefined;
         if (page === 'ad-detail') {
-            void router.push(`/ads/${adId}`);
+            void router.push(buildPublicListingDetailRoute({ listingType: "ad", id: adId }));
             return;
         }
         void router.push('/');

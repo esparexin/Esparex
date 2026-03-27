@@ -29,8 +29,8 @@ export const chatApi = {
   /**
    * Start (or retrieve) a conversation for an ad.
    */
-  start: (adId: string): Promise<IChatStartResponse> =>
-    apiClient.post<IChatStartResponse>(USER_ROUTES.CHAT_START, { adId }),
+  start: (adId: string, options?: { silent?: boolean }): Promise<IChatStartResponse> =>
+    apiClient.post<IChatStartResponse>(USER_ROUTES.CHAT_START, { adId }, options),
 
   /**
    * Paginated inbox — buyer & seller conversations.

@@ -5,18 +5,19 @@ import { startTransition, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PackageOpen, RefreshCw, BellPlus } from "lucide-react";
 
-import { type AdFilters, type Ad, type AdPageResult } from "@/lib/api/user/ads";
+import { type ListingFilters, type Listing, type ListingPageResult } from "@/lib/api/user/listings";
 import { getCategories } from "@/lib/api/user/categories";
 import type { Category } from "@/lib/api/user/categories";
-import { useAdsListQuery } from "@/hooks/queries";
+import { useAdsListQuery } from "@/hooks/queries/useListingsQuery";
 
 import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocationState } from "@/context/LocationContext";
-import { generateAdSlug } from "@/lib/slug";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
+import { buildPublicBrowseRoute, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 const PAGE_SIZE = 20;
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
@@ -48,7 +49,7 @@ const loadCategories = async (): Promise<Category[]> => {
 interface BrowseAdsProps {
   initialSearchQuery?: string;
   initialCategory?: string;
-  initialResults?: AdPageResult;
+  initialResults?: ListingPageResult;
   initialCategories?: Category[];
 }
 
@@ -61,21 +62,27 @@ export function BrowseAds({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { location, isLoaded } = useLocationState();
+  const routeParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
 
   // ── Filter state (derived from URL params on mount) ──────────────────────────
   const [query, setQuery] = useState(
-    searchParams.get("q") ?? initialSearchQuery
+    routeParams.q ?? initialSearchQuery
   );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    searchParams.get("category") ?? initialCategory ?? null
+    routeParams.categoryId ?? routeParams.category ?? initialCategory ?? null
   );
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 200000]);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [radiusKm, setRadiusKm] = useState(50);
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    routeParams.minPrice ?? 0,
+    routeParams.maxPrice ?? 200000,
+  ]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(
+    routeParams.brands ? routeParams.brands.split(",").map((brand) => brand.trim()).filter(Boolean) : []
+  );
+  const [radiusKm, setRadiusKm] = useState(routeParams.radiusKm ?? 50);
   const [categoryFilters, setCategoryFilters] = useState<Record<string, string[]>>({});
-  const [sort, setSort] = useState<SortOption>("newest");
+  const [sort, setSort] = useState<SortOption>((routeParams.sort as SortOption | undefined) ?? "newest");
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(routeParams.page && routeParams.page > 0 ? routeParams.page : 1);
 
   const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
 
@@ -109,9 +116,11 @@ export function BrowseAds({
     price_low_high: "price_asc",
     price_high_low: "price_desc",
   };
+  const urlLocationId = routeParams.locationId ?? "";
+  const urlLocationLabel = routeParams.location ?? "";
 
-  const filters: AdFilters = useMemo(() => {
-    const nextFilters: AdFilters = {
+  const filters: ListingFilters = useMemo(() => {
+    const nextFilters: ListingFilters = {
       status: "live",
       page,
       limit: PAGE_SIZE,
@@ -137,7 +146,13 @@ export function BrowseAds({
     if (priceRange[0] > 0) nextFilters.minPrice = priceRange[0];
     if (priceRange[1] < 200000) nextFilters.maxPrice = priceRange[1];
 
-    if (location) {
+    if (urlLocationId) {
+      nextFilters.locationId = urlLocationId;
+      nextFilters.radiusKm = radiusKm;
+    } else if (urlLocationLabel) {
+      nextFilters.location = urlLocationLabel;
+      nextFilters.radiusKm = radiusKm;
+    } else if (location) {
       const isRegionLevel = location.level === "state" || location.level === "country";
       const regionLocationLabel =
         location.level === "state"
@@ -166,10 +181,10 @@ export function BrowseAds({
     }
 
     return nextFilters;
-  }, [categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, sort]);
+  }, [categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, sort, urlLocationId, urlLocationLabel]);
 
   const hasLocationFilter =
-    Boolean(location.locationId || location.city) ||
+    Boolean(urlLocationId || urlLocationLabel || location.locationId || location.city) ||
     (typeof filters.lat === "number" && Number.isFinite(filters.lat)) ||
     (typeof filters.lng === "number" && Number.isFinite(filters.lng));
 
@@ -201,7 +216,7 @@ export function BrowseAds({
       const brands = Array.from(
         new Set(
           ads
-            .map((ad: Ad) => ad.brand as string | undefined)
+            .map((ad: Listing) => ad.brand as string | undefined)
             .filter((b): b is string => typeof b === "string" && b.length > 0)
         )
       ) as string[];
@@ -215,26 +230,94 @@ export function BrowseAds({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, selectedCategory, selectedBrands, priceRange, sort, radiusKm]);
 
-  // ── Sync URL params → state on mount ────────────────────────────────────────
+  // ── Sync URL params → state ─────────────────────────────────────────────────
   useEffect(() => {
-    const urlQuery = searchParams.get("q") ?? "";
-    const urlCategory = searchParams.get("category") ?? null;
-    if (urlQuery !== query) { setQuery(urlQuery); }
-    if (urlCategory !== selectedCategory) setSelectedCategory(urlCategory);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const nextQuery = routeParams.q ?? "";
+    const nextCategory = routeParams.categoryId ?? routeParams.category ?? null;
+    const nextSort = (routeParams.sort as SortOption | undefined) ?? "newest";
+    const nextPriceRange: [number, number] = [routeParams.minPrice ?? 0, routeParams.maxPrice ?? 200000];
+    const nextBrands = routeParams.brands
+      ? routeParams.brands.split(",").map((brand) => brand.trim()).filter(Boolean)
+      : [];
+    const nextRadius = routeParams.radiusKm ?? 50;
+    const nextPage = routeParams.page && routeParams.page > 0 ? routeParams.page : 1;
+
+    setQuery((current) => (current === nextQuery ? current : nextQuery));
+    setSelectedCategory((current) => (current === nextCategory ? current : nextCategory));
+    setPriceRange((current) =>
+      current[0] === nextPriceRange[0] && current[1] === nextPriceRange[1] ? current : nextPriceRange
+    );
+    setSelectedBrands((current) =>
+      current.join(",") === nextBrands.join(",") ? current : nextBrands
+    );
+    setRadiusKm((current) => (current === nextRadius ? current : nextRadius));
+    setSort((current) => (current === nextSort ? current : nextSort));
+    setPage((current) => (current === nextPage ? current : nextPage));
+  }, [
+    routeParams.brands,
+    routeParams.category,
+    routeParams.categoryId,
+    routeParams.maxPrice,
+    routeParams.minPrice,
+    routeParams.page,
+    routeParams.q,
+    routeParams.radiusKm,
+    routeParams.sort,
+  ]);
+
+  const canonicalBrowseRoute = useMemo(
+    () =>
+      buildPublicBrowseRoute({
+        type: "ad",
+        q: query.trim() || undefined,
+        category: selectedCategory ?? undefined,
+        sort,
+        minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
+        maxPrice: priceRange[1] < 200000 ? priceRange[1] : undefined,
+        brands: selectedBrands.length > 0 ? selectedBrands.join(",") : undefined,
+        locationId: urlLocationId || undefined,
+        location: urlLocationId ? undefined : urlLocationLabel || undefined,
+        radiusKm: urlLocationId || urlLocationLabel ? radiusKm : undefined,
+      }),
+    [priceRange, query, radiusKm, selectedBrands, selectedCategory, sort, urlLocationId, urlLocationLabel]
+  );
+
+  const currentBrowseRoute = useMemo(
+    () =>
+      buildPublicBrowseRoute({
+        type: routeParams.type,
+        q: routeParams.q,
+        category: routeParams.category,
+        categoryId: routeParams.categoryId,
+        sort: routeParams.sort,
+        minPrice: routeParams.minPrice,
+        maxPrice: routeParams.maxPrice,
+        location: routeParams.location,
+        locationId: routeParams.locationId,
+        brands: routeParams.brands,
+        radiusKm: routeParams.radiusKm,
+      }),
+    [routeParams]
+  );
+
+  useEffect(() => {
+    if (page !== 1) return;
+    if (currentBrowseRoute !== canonicalBrowseRoute) {
+      router.replace(canonicalBrowseRoute, { scroll: false });
+    }
+  }, [canonicalBrowseRoute, currentBrowseRoute, page, router]);
 
   const handleReset = () => {
     startTransition(() => {
       setQuery("");
-      setSelectedCategory(initialCategory ?? null);
+      setSelectedCategory(null);
       setPriceRange([0, 200000]);
       setSelectedBrands([]);
       setRadiusKm(50);
       setCategoryFilters({});
       setSort("newest");
       setPage(1);
-      router.replace("/search", { scroll: false });
+      router.replace(buildPublicBrowseRoute({ type: "ad" }), { scroll: false });
     });
   };
 
@@ -262,10 +345,6 @@ export function BrowseAds({
     selectedCategory,
     setSelectedCategory: (val: string | null) => {
       setSelectedCategory(val);
-      const params = new URLSearchParams(searchParams.toString());
-      if (val) params.set("category", val);
-      else params.delete("category");
-      router.replace(`/search?${params.toString()}`, { scroll: false });
     },
     priceRange,
     setPriceRange,
@@ -371,19 +450,29 @@ export function BrowseAds({
                     : "grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
                 }
               >
-                {ads.map((ad, index) =>
+                {ads.map((ad: Listing, index: number) =>
                   view === "list" ? (
                     <AdCardList
                       key={ad.id}
                       ad={ad}
-                      href={`/ads/${generateAdSlug(ad.title)}-${ad.id}`}
+                      href={buildPublicListingDetailRoute({
+                        id: ad.id,
+                        listingType: ad.listingType,
+                        seoSlug: ad.seoSlug,
+                        title: ad.title,
+                      })}
                       priority={index < 4}
                     />
                   ) : (
                     <AdCardGrid
                       key={ad.id}
                       ad={ad}
-                      href={`/ads/${generateAdSlug(ad.title)}-${ad.id}`}
+                      href={buildPublicListingDetailRoute({
+                        id: ad.id,
+                        listingType: ad.listingType,
+                        seoSlug: ad.seoSlug,
+                        title: ad.title,
+                      })}
                       priority={index < 4}
                     />
                   )

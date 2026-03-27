@@ -1,3 +1,6 @@
+import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
+
 export type SellerType = "business" | "individual";
 
 export type AdDetailNavigateFn = (
@@ -13,7 +16,7 @@ export type AdDetailNavigateFn = (
 export type UserPage =
     | "home"
     | "browse"
-    | "browse-services"
+    | "browse-service-listings"
     | "category"
     | "post-ad"
     | "business-register"  // Business registration page
@@ -44,7 +47,7 @@ export type UserPage =
     | "business-entry" // Canonical business entry point
     | "post-spare-part-listing" // Canonical spare part creation
     | "spare-part-listing" // Canonical spare part gallery view
-    | "browse-spare-parts" // Public spare parts browse page
+    | "browse-spare-part-listings" // Public spare parts browse page
 
     | "notifications" // Notifications page
 
@@ -98,9 +101,9 @@ export type UserPage =
 
 const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     home: "/",
-    browse: "/search",
-    "browse-services": "/browse-services",
-    "browse-spare-parts": "/browse-spare-parts",
+    browse: buildPublicBrowseRoute({ type: "ad" }),
+    "browse-service-listings": buildPublicBrowseRoute({ type: "service" }),
+    "browse-spare-part-listings": buildPublicBrowseRoute({ type: "spare_part" }),
     "post-ad": "/post-ad",
     login: "/login",
     // ── /account/* namespace (SSOT for all private account pages) ──
@@ -116,7 +119,7 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     "my-business": "/account/business",
     "business-register": "/account/business/apply",
     "business-entry": "/account/business",
-    purchases: "/account/plans?tab=purchases",
+    purchases: "/account/purchases",
     notifications: "/notifications",
     "ad-submission-success": "/ad-submission-success",
     "post-spare-part-listing": "/post-spare-part-listing",
@@ -161,12 +164,12 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     "payments-faq": "/faq",
     "security-faq": "/faq",
     "account-faq": "/faq",
-    "find-technicians": "/browse-services",
-    "mobile-spare-parts": "/search",
-    "laptop-service": "/browse-services",
-    "tv-repair": "/browse-services",
-    "spare-parts-marketplace": "/search",
-    "device-repair-marketplace": "/browse-services",
+    "find-technicians": buildPublicBrowseRoute({ type: "service" }),
+    "mobile-spare-parts": buildPublicBrowseRoute({ type: "spare_part" }),
+    "laptop-service": buildPublicBrowseRoute({ type: "service" }),
+    "tv-repair": buildPublicBrowseRoute({ type: "service" }),
+    "spare-parts-marketplace": buildPublicBrowseRoute({ type: "spare_part" }),
+    "device-repair-marketplace": buildPublicBrowseRoute({ type: "service" }),
     "smart-alerts-guide": "/account/alerts",
 };
 
@@ -238,11 +241,6 @@ export const getPageRoute = (
         slug?: string
     }
 ): string => {
-    const toSlugId = (slug: string, id?: string | number): string =>
-        id !== undefined && id !== null
-            ? `${encodeURIComponent(String(slug))}-${encodeURIComponent(String(id))}`
-            : encodeURIComponent(String(slug));
-
     const staticRoute = STATIC_PAGE_ROUTE_MAP[page];
     if (staticRoute) {
         return staticRoute;
@@ -251,12 +249,15 @@ export const getPageRoute = (
     switch (page) {
         case "category": return params?.category ? `/category/${params.category}` : "/search";
         case "ad-detail":
-            if (params?.slug) return `/ads/${toSlugId(params.slug, params?.adId)}`;
-            return params?.adId ? `/ads/${params.adId}` : "/search";
+            return buildPublicListingDetailRoute({
+                listingType: "ad",
+                id: params?.adId,
+                slug: params?.slug,
+            });
         case "business-profile":
             return params?.businessSlug
                 ? `/business/${encodeURIComponent(String(params.businessSlug))}`
-                : "/business";
+                : "/";
 
         case "public-profile":
             if (params?.businessSlug) {
@@ -269,24 +270,28 @@ export const getPageRoute = (
         case "edit-service":
             return params?.serviceId
                 ? `/edit-service/${params.serviceId}`
-                : (params?.adId ? `/edit-service/${params.adId}` : "/account/ads");
+                : (params?.adId ? `/edit-service/${params.adId}` : "/account/services");
         case "edit-spare-part":
             return params?.partId
                 ? `/edit-spare-part/${params.partId}`
-                : (params?.adId ? `/edit-spare-part/${params.adId}` : "/account/ads");
+                : (params?.adId ? `/edit-spare-part/${params.adId}` : "/account/spare-parts");
 
         case "post-service":
             return "/post-service";
 
         case "service-detail":
-            if (params?.slug) return `/services/${toSlugId(params.slug, params?.serviceId)}`;
-            return params?.serviceId ? `/services/${params.serviceId}` : "/browse-services";
+            return buildPublicListingDetailRoute({
+                listingType: "service",
+                id: params?.serviceId,
+                slug: params?.slug,
+            });
 
         case "spare-part-listing":
-            if (params?.slug) return `/spare-part-listings/${params.slug}`;
-            if (params?.partId) return `/spare-part-listings/${params.partId}`;
-            if (params?.adId) return `/spare-part-listings/${params.adId}`;
-            return "/search";
+            return buildPublicListingDetailRoute({
+                listingType: "spare_part",
+                id: params?.partId ?? params?.adId,
+                slug: params?.slug,
+            });
 
         default:
             throw new Error(`[routeUtils] Unmapped UserPage route key: ${page}`);

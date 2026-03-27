@@ -57,6 +57,41 @@ export interface EsparexRequestConfig extends AxiosRequestConfig {
     maxRetries?: number;
 }
 
+function normalizeRequestPath(url?: string): string {
+    if (!url) return '';
+
+    try {
+        const pathname = new URL(url, 'http://localhost').pathname;
+        return pathname
+            .replace(/^\/+/, '')
+            .replace(/^api\/v1\/?/i, '')
+            .replace(/\/+$/, '');
+    } catch {
+        return url
+            .replace(/^\/+/, '')
+            .replace(/^api\/v1\/?/i, '')
+            .replace(/[?#].*$/, '')
+            .replace(/\/+$/, '');
+    }
+}
+
+export function isListingDetailRequest(url?: string, method?: string): boolean {
+    if ((method ?? 'get').toLowerCase() !== 'get') return false;
+
+    const match = normalizeRequestPath(url).match(/^listings\/([^/]+)$/i);
+    if (!match) return false;
+
+    const identifier = match[1]?.trim().toLowerCase();
+    return Boolean(identifier && identifier !== 'mine');
+}
+
+export function shouldSuppressPopupForApiError(
+    status: number | undefined,
+    requestConfig?: Pick<EsparexRequestConfig, 'url' | 'method'>
+): boolean {
+    return status === 404 && isListingDetailRequest(requestConfig?.url?.toString(), requestConfig?.method);
+}
+
 /* ======================================================
    API CLIENT
 ====================================================== */
@@ -382,7 +417,7 @@ class APIClient {
                         }
                     });
 
-                if (!requestConfig?.silent) {
+                if (!requestConfig?.silent && !shouldSuppressPopupForApiError(apiError.status, requestConfig)) {
                     // For retryable errors that exhausted automatic retries or are not candidate for auto-retry, offer manual retry action.
                     const isManualRetryable = isTransientError;
                     const onRetry =

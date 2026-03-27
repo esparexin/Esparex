@@ -39,7 +39,8 @@ interface ListingDetailDialogsProps {
   setShowDeleteDialog: (value: boolean) => void;
   isDeleting: boolean;
   onDeleteConfirm: () => void | Promise<void>;
-  onSoldConfirm: (platform: string) => Promise<void>;
+  onSoldConfirm: (platform: string) => Promise<boolean>;
+  onListingUnavailable: () => void;
 }
 
 export function ListingDetailDialogs({
@@ -55,6 +56,7 @@ export function ListingDetailDialogs({
   isDeleting,
   onDeleteConfirm,
   onSoldConfirm,
+  onListingUnavailable,
 }: ListingDetailDialogsProps) {
   return (
     <>
@@ -70,6 +72,7 @@ export function ListingDetailDialogs({
         adTitle={ad.title}
         open={showBoostDialog}
         onOpenChange={setShowBoostDialog}
+        onListingUnavailable={onListingUnavailable}
       />
 
       <SoldOutDialog

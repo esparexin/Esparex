@@ -28,6 +28,7 @@ import { API_ROUTES } from "@/lib/api/routes";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
+import { isListingUnavailableError } from "@/lib/listings/listingUnavailable";
 
 interface BoostPlanDialogProps {
   open: boolean;
@@ -36,6 +37,7 @@ interface BoostPlanDialogProps {
   adTitle: string;
   currentPlan?: string;
   onPlanPurchased?: (planType: string, duration: number) => void;
+  onListingUnavailable?: () => void;
 }
 
 type BoostPlan = ApiPlan & {
@@ -58,6 +60,7 @@ export function BoostPlanDialog({
   adTitle,
   currentPlan = "Free",
   onPlanPurchased,
+  onListingUnavailable,
 }: BoostPlanDialogProps) {
   const [boostPlans, setBoostPlans] = useState<BoostPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<BoostPlan | null>(null);
@@ -90,6 +93,27 @@ export function BoostPlanDialog({
     }
   }, [open]);
 
+  const applyBoost = async (durationDays: number) => {
+    try {
+      await apiClient.post(
+        API_ROUTES.USER.LISTING_PROMOTE(String(adId)),
+        {
+          days: durationDays,
+          type: "spotlight_hp",
+        },
+        { silent: true }
+      );
+      return true;
+    } catch (error) {
+      if (isListingUnavailableError(error)) {
+        onOpenChange(false);
+        onListingUnavailable?.();
+        return false;
+      }
+      throw error;
+    }
+  };
+
   const handlePurchase = async () => {
     if (!selectedPlan) return;
     try {
@@ -105,10 +129,8 @@ export function BoostPlanDialog({
           notify.info("Payment received. Spotlight credits will appear after verification shortly.");
         },
         onPaymentVerified: async () => {
-          await apiClient.patch(API_ROUTES.USER.AD_PROMOTE(String(adId)), {
-            days: selectedPlan.durationDays,
-            type: "spotlight_hp",
-          });
+          const boostApplied = await applyBoost(selectedPlan.durationDays);
+          if (!boostApplied) return;
 
           notify.success("Boost purchased and applied successfully! 🚀");
           onPlanPurchased?.(selectedPlan.name, selectedPlan.durationDays);
@@ -129,10 +151,8 @@ export function BoostPlanDialog({
     setIsProcessing(true);
 
     try {
-      await apiClient.patch(API_ROUTES.USER.AD_PROMOTE(String(adId)), {
-        days: selectedPlan.durationDays,
-        type: "spotlight_hp"
-      });
+      const boostApplied = await applyBoost(selectedPlan.durationDays);
+      if (!boostApplied) return;
 
       notify.success("Boost applied successfully using wallet credits! 🚀");
       onPlanPurchased?.(selectedPlan.name, selectedPlan.durationDays);
