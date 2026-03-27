@@ -26,27 +26,26 @@ export const USER_ROUTES = {
   ADS: "ads",
   ADS_NEARBY: "ads/nearby",
   ADS_SUGGESTIONS: "ads/suggestions",
-  MY_ADS: "ads/my-ads",
-  MY_ADS_STATS: "ads/my-ads/stats",
   AD_DETAIL: (id: string | number) => `ads/${encodeURIComponent(String(id))}`,
   AD_SIMILAR: (id: string | number) => `ads/${encodeURIComponent(String(id))}/similar`,
-  AD_VIEW: (id: string | number) => `ads/${encodeURIComponent(String(id))}/view`,
-  AD_SOLD: (id: string | number) => `ads/${encodeURIComponent(String(id))}/sold`,
   AD_REPOST: (id: string | number) => `ads/${encodeURIComponent(String(id))}/repost`,
-  AD_PROMOTE: (id: string | number) => `ads/${encodeURIComponent(String(id))}/promote`,
-  AD_PHONE: (id: string | number) => `ads/${encodeURIComponent(String(id))}/phone`,
   ADS_UPLOAD_IMAGE: "ads/upload-image",
+  ADS_UPLOAD_PRESIGN: "ads/upload-presign",
   ADS_TRENDING: "ads/trending",
   HOME_FEED: "ads/home", // canonical home feed endpoint
   
   // Listings (Unified SSOT)
   LISTINGS: "listings",
+  MY_LISTINGS: "listings/mine",
+  MY_LISTINGS_STATS: "listings/mine/stats",
   LISTING_DETAIL: (id: string | number) => `listings/${id}`,
   LISTING_EDIT: (id: string | number) => `listings/${id}/edit`,
   LISTING_SOLD: (id: string | number) => `listings/${id}/mark-sold`,
+  LISTING_DEACTIVATE: (id: string | number) => `listings/${id}/deactivate`,
   LISTING_PROMOTE: (id: string | number) => `listings/${id}/promote`,
   LISTING_ANALYTICS: (id: string | number) => `listings/${id}/analytics`,
   LISTING_VIEW: (id: string | number) => `listings/${id}/view`,
+  LISTING_PHONE: (id: string | number) => `listings/${id}/phone`,
 
 
   // Locations
@@ -87,8 +86,6 @@ export const USER_ROUTES = {
   // Services
   SERVICES: "services",
   SERVICE_VIEW: (id: string) => `services/${encodeURIComponent(id)}/view`,
-  MY_SERVICES: "services/my-services",
-  SERVICE_PHONE: (id: string) => `services/${id}/phone`,
   SERVICE_SOLD: (id: string) => `services/${id}/sold`,
   SERVICE_DEACTIVATE: (id: string) => `services/${id}/deactivate`,
   SERVICE_REPOST: (id: string) => `services/${id}/repost`,
@@ -96,7 +93,6 @@ export const USER_ROUTES = {
   // Spare Part Listings
   SPARE_PART_LISTINGS: "spare-part-listings",
   SPARE_PART_LISTING_DETAIL: (id: string) => `spare-part-listings/${encodeURIComponent(id)}`,
-  MY_SPARE_PART_LISTINGS: "spare-part-listings/my-listings",
   SPARE_PART_DEACTIVATE: (id: string) => `spare-part-listings/${id}/deactivate`,
   SPARE_PART_REPOST: (id: string) => `spare-part-listings/${id}/repost`,
 

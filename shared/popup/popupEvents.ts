@@ -41,6 +41,18 @@ export function emitGenericErrorPopup(
   if (status === 404) type = "info";
   else if (status === 400 || status === 409) type = "warning";
 
+  const normalizedMessage = message.trim().toLowerCase();
+  const fallbackTitle =
+    status === 404
+      ? normalizedMessage === "listing not found"
+        ? "Listing unavailable"
+        : "Not found"
+      : type === "warning"
+        ? "Warning"
+        : type === "error"
+          ? "Request Failed"
+          : "Info";
+
   const isRetryable = status === 0 || status >= 500 || status === 408 || status === 429;
   const actions: PopupAction[] | undefined =
     onRetry && isRetryable
@@ -50,7 +62,7 @@ export function emitGenericErrorPopup(
   return showFn(
     {
       type,
-      title: code || (type === "error" ? "Request Failed" : "Notice"),
+      title: code || fallbackTitle,
       message: message || "An unexpected error occurred.",
       code,
       actions,
