@@ -269,9 +269,8 @@ export const buildAdMatchStage = async (
     }
 
     const requestedStatus = filters.status || AD_STATUS.LIVE;
-    const statusQuery = Array.isArray(requestedStatus)
-        ? requestedStatus.map(s => normalizeAdStatus(s))
-        : normalizeAdStatus(String(requestedStatus));
+    const { getStatusMatchCriteria } = await import('../utils/statusQueryMapper');
+    const statusQuery = getStatusMatchCriteria(requestedStatus as string | string[]);
 
     let match = buildAdFilterFromCriteria({
         ...filters,
@@ -1108,6 +1107,52 @@ export const computeModerationSummaryByType = async () => {
 
     return summary;
 };
+/**
+ * Returns a breakdown of listing stats for a specific seller across all listing types.
+ * Used for the 'My Listings' dashboard to show counts on status pills.
+ */
+export const getSellerListingStats = async (sellerId: string) => {
+    if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+        throw new Error('Invalid Seller ID');
+    }
+
+    const results = await Ad.aggregate([
+        { 
+            $match: { 
+                sellerId: new mongoose.Types.ObjectId(sellerId),
+                isDeleted: { $ne: true } 
+            } 
+        },
+        {
+            $group: {
+                _id: {
+                    listingType: { $ifNull: ['$listingType', 'ad'] },
+                    status: '$status'
+                },
+                count: { $sum: 1 }
+            }
+        }
+    ]);
+
+    const stats: Record<string, Record<string, number>> = {
+        ad: { total: 0 },
+        service: { total: 0 },
+        spare_part: { total: 0 }
+    };
+
+    results.forEach(res => {
+        const type = res._id.listingType as string;
+        // Normalize status using the legacy-aware logic
+        const status = normalizeAdStatus(res._id.status);
+        
+        if (!stats[type]) stats[type] = { total: 0 };
+        stats[type][status] = (stats[type][status] || 0) + res.count;
+        stats[type].total += res.count;
+    });
+
+    return stats;
+};
+
 // ─────────────────────────────────────────────────
 // PUBLIC AD RETRIEVAL (No auth required)
 // ─────────────────────────────────────────────────
@@ -1272,9 +1317,23 @@ export const getAdIdBySlug = async (
     slug: string,
     visibilityFilter: Record<string, unknown> = {}
 ): Promise<string | null> => {
+    // 1. Direct match (canonical behavior)
     const slugQuery: Record<string, unknown> = { seoSlug: slug, ...visibilityFilter };
     const found = await Ad.findOne(slugQuery).select('_id').lean();
-    return found ? (found._id as mongoose.Types.ObjectId).toString() : null;
+    if (found) return (found._id as mongoose.Types.ObjectId).toString();
+
+    // 2. Fallback: Check if the slug is in 'name-slug-ID' format (common in frontend routing)
+    // Extract the last 24 hex characters at the end of a hyphenated string.
+    const match = slug.match(/^(.*)-([0-9a-fA-F]{24})$/);
+    if (match && match[2]) {
+        const potentialId = match[2];
+        const foundById = await Ad.findOne({ _id: potentialId, ...visibilityFilter })
+            .select('_id')
+            .lean();
+        if (foundById) return (foundById._id as mongoose.Types.ObjectId).toString();
+    }
+
+    return null;
 };
 
 /**
@@ -1308,8 +1367,9 @@ export const buildHomeFeedPipeline = (
     }
     
     // SSOT Pipeline Protection
-    const visibilityMatch = { ...buildPublicAdFilter(), ...matchStage };
+    const visibilityMatch = { ...(matchStage || {}), ...buildPublicAdFilter() };
     pipeline.push({ $match: visibilityMatch as any });
+
     if (cursor?.id && mongoose.Types.ObjectId.isValid(cursor.id)) {
         pipeline.push({
             $match: {
@@ -1335,13 +1395,14 @@ export const buildHomeFeedPipeline = (
         {
             $facet: {
                 spotlight: [
-                    { $match: effectiveSpotlightMatch as any },
+                    { $match: { ...visibilityMatch, ...effectiveSpotlightMatch } as any },
                     { $limit: limit * 2 }
                 ],
                 boosted: [
                     {
                         $match: {
                             _id: { $in: boostedIds },
+                            ...visibilityMatch,
                             ...nonSpotlightFallbackMatch
                         } as any
                     },
@@ -1351,6 +1412,7 @@ export const buildHomeFeedPipeline = (
                     {
                         $match: {
                             _id: { $nin: boostedIds },
+                            ...visibilityMatch,
                             ...nonSpotlightFallbackMatch
                         } as any
                     },

@@ -4,7 +4,7 @@ import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../..
 export interface ICategory extends Document {
     name: string;
     slug: string;
-    type?: 'AD' | 'SPARE_PART' | 'SERVICE' | 'OTHER';
+    type?: 'ad' | 'spare_part' | 'service' | 'other';
     icon?: string;
     description?: string;
     parentId?: mongoose.Types.ObjectId;
@@ -24,7 +24,7 @@ export interface ICategory extends Document {
 const CategorySchema = new Schema<ICategory>({
     name: { type: String, required: true },
     slug: { type: String, required: true },
-    type: { type: String, enum: ['AD', 'SPARE_PART', 'SERVICE', 'OTHER'], default: 'AD', required: false },
+    type: { type: String, enum: ['ad', 'spare_part', 'service', 'other'], default: 'ad', required: false },
     icon: { type: String },
     description: { type: String },
     parentId: { type: Schema.Types.ObjectId, ref: 'Category' },
@@ -32,7 +32,7 @@ const CategorySchema = new Schema<ICategory>({
     status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
     filters: { type: [Schema.Types.Mixed], default: [] },
     // Metadata-driven fields
-    listingType: [{ type: String, enum: ['postad', 'postservice', 'postsparepart'] }],
+    listingType: [{ type: String, enum: ['ad', 'service', 'spare_part'] }],
     serviceSelectionMode: { type: String, enum: ['single', 'multi'], default: 'multi' },
     hasScreenSizes: { type: Boolean, default: false }
 }, {
@@ -79,6 +79,22 @@ CategorySchema.index(
 
 import softDeletePlugin from '../utils/softDeletePlugin';
 CategorySchema.plugin(softDeletePlugin);
+
+// ON-THE-FLY NORMALIZATION (Safe Migration)
+// Ensures legacy uppercase types and 'post' prefixes are mapped to the new standard at runtime.
+CategorySchema.post('init', function(doc) {
+    if (doc.type && ['AD', 'SERVICE', 'SPARE_PART'].includes(doc.type)) {
+        doc.type = doc.type.toLowerCase() as any;
+    }
+    if (doc.listingType && doc.listingType.length > 0) {
+        doc.listingType = doc.listingType.map((lt: string) => {
+            if (lt === 'postad') return 'ad';
+            if (lt === 'postservice') return 'service';
+            if (lt === 'postsparepart') return 'spare_part';
+            return lt;
+        }) as any;
+    }
+});
 
 import { getAdminConnection } from '../config/db';
 const Category: Model<ICategory> = getAdminConnection().models.Category || getAdminConnection().model<ICategory>('Category', CategorySchema);

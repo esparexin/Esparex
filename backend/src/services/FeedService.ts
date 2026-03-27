@@ -339,10 +339,12 @@ const buildHomeFeed = async (
     limit: number,
     cursor: ParsedHomeFeedCursor | null
 ): Promise<HomeFeedResponse> => {
+    const { LISTING_TYPE } = await import('../../../shared/enums/listingType');
     const startedAt = Date.now();
     
     // 1. Resolve Match Criteria
     const baseFilters: AdFilters = {
+        listingType: LISTING_TYPE.AD,
         sortBy: 'newest',
         ...(typeof input.location === 'string' && input.location.trim().length > 0
             ? { location: input.location.trim() }

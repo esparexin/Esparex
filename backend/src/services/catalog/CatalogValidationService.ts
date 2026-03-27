@@ -142,7 +142,7 @@ export async function validateAdCategoryCapability(categoryId: string): Promise<
     const category = await Category.findOne({
         _id: categoryId,
         ...ACTIVE_CATEGORY_QUERY,
-        listingType: 'postad'
+        listingType: 'ad'
     }).select('_id').lean();
 
     if (!category) {
@@ -161,7 +161,7 @@ export async function validateServiceCategoryCapability(categoryId: string): Pro
     const category = await Category.findOne({
         _id: categoryId,
         ...ACTIVE_CATEGORY_QUERY,
-        listingType: 'postservice'
+        listingType: 'service'
     }).select('_id').lean();
 
     if (!category) {
@@ -204,7 +204,7 @@ export async function validateSparePartRelations(
     // 1. Category capability guard: categories must explicitly support spare parts
     const invalidCategories = await Category.find({
         _id: { $in: categoryIds },
-        listingType: { $ne: 'postsparepart' }
+        listingType: { $ne: 'spare_part' }
     }).select('_id').lean();
 
     if (invalidCategories.length > 0) {

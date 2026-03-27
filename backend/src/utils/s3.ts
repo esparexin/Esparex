@@ -87,7 +87,7 @@ export async function uploadToS3(
         Key: fileName,
         Body: fileBuffer,
         ContentType: normalizedContentType,
-        ContentDisposition: 'inline',
+        ACL: 'public-read', // Ensure public visibility for direct S3 URLs
         CacheControl: 'max-age=31536000, public', // CloudFront long-cache for immutable uploads
     });
 
@@ -103,6 +103,56 @@ export async function uploadToS3(
         logger.error('Error uploading to S3:', error);
         throw new Error(`Failed to upload to S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PRE-SIGNED UPLOAD URL GENERATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface PresignedUploadResult {
+    /** Time-limited PUT URL — send file bytes here directly from the browser */
+    uploadUrl: string;
+    /** Canonical public / CloudFront URL to store in the DB after upload */
+    publicUrl: string;
+    /** S3 object key */
+    key: string;
+}
+
+/**
+ * Generate a pre-signed S3 PUT URL so the browser can upload directly to S3
+ * without routing file bytes through the Node.js server.
+ *
+ * @param key         - Full S3 object key (e.g. "ads/2024/abc123.webp")
+ * @param contentType - MIME type of the file to be uploaded
+ * @param expiresIn   - Seconds until the URL expires (default: 300 s / 5 min)
+ */
+export async function generatePresignedUploadUrl(
+    key: string,
+    contentType: string,
+    expiresIn = 300
+): Promise<PresignedUploadResult> {
+    const bucket = getBucketName();
+    if (!bucket) throw new Error('S3_BUCKET_NAME environment variable is not defined');
+
+    const normalizedContentType = normalizeMimeType(contentType);
+    if (!ALLOWED_S3_MIME_TYPES.has(normalizedContentType)) {
+        throw new Error(`Unsupported file type for presigned upload: ${normalizedContentType || 'unknown'}`);
+    }
+
+    const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        ContentType: normalizedContentType,
+        ACL: 'public-read',
+        CacheControl: 'max-age=31536000, public',
+    });
+
+    const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn });
+    const publicUrl = `${getS3BaseUrl(bucket).replace(/\/$/, '')}/${key}`;
+
+    logger.info('Generated presigned upload URL', { key, expiresIn });
+
+    return { uploadUrl, publicUrl, key };
 }
 
 const isHttpsUrl = (value: string): boolean => {
@@ -240,12 +290,12 @@ export function sanitizePersistedImageUrls(
 }
 
 export const sanitizeStoredImageUrls = (urls: string[]): string[] => {
-    // Dynamically fallback to placeholders if S3 is actively missing configuration (Local Dev)
-    // This prevents the 502 AppError 'Image upload failed' when starting the app without AWS keys.
-    const s3Configured = isS3UploadConfigured();
+    // We relax placeholder filtering here. 
+    // Even if S3 is configured, we allow placeholders (e.g. from tests or legacy data) 
+    // to prevent stripping the images array entirely if no real S3 images are found.
     return sanitizePersistedImageUrls(urls, {
-        fallbackToPlaceholder: !s3Configured,
-        allowPlaceholder: !s3Configured,
+        fallbackToPlaceholder: true,
+        allowPlaceholder: true,
     });
 };
 

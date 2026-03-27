@@ -83,7 +83,7 @@ export class FeedDecisionEngine {
 
             const visibilityFilter = buildPublicAdFilter();
             const pipeline: mongoose.PipelineStage[] = [
-                { $match: { ...visibilityFilter, ...matchStage, _id: { $nin: Array.from(seenIds).map(id => new mongoose.Types.ObjectId(id)) } } },
+                { $match: { ...matchStage, ...visibilityFilter, _id: { $nin: Array.from(seenIds).map(id => new mongoose.Types.ObjectId(id)) } } },
                 { $sort: { createdAt: -1 } as any },
                 { $limit: limitNeeded - mergedAds.length },
             ];

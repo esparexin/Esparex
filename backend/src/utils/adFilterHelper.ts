@@ -30,7 +30,7 @@ export interface AdFilterCriteria {
     isSpotlight?: boolean;
     createdAfter?: string;
     createdBefore?: string;
-    status?: string | string[];
+    status?: string | string[] | UnknownRecord;
 }
 
 /**
@@ -151,8 +151,10 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
         if (Array.isArray(criteria.status)) {
             const finalStatusList = criteria.status.map(s => normalizeAdStatus(s));
             match.status = { $in: Array.from(new Set(finalStatusList)) };
-        } else {
+        } else if (typeof criteria.status === 'string') {
             match.status = normalizeAdStatus(criteria.status);
+        } else {
+            match.status = criteria.status;
         }
     }
 

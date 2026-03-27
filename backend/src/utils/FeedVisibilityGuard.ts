@@ -1,11 +1,12 @@
 import { AD_STATUS } from '../../../shared/enums/adStatus';
+import { getStatusMatchCriteria } from './statusQueryMapper';
 
 /**
  * FeedVisibilityGuard
  * Enterprise SSOT for resolving whether a public viewer is legally allowed to see an Ad.
  * 
  * Rules:
- * - status MUST equal "live" (active)
+ * - status MUST be 'live' equivalent (active, approved)
  * - expiresAt MUST be in the future
  * - isDeleted MUST be false
  * - moderationStatus MUST NOT be 'rejected' or 'community_hidden'
@@ -19,11 +20,16 @@ import { AD_STATUS } from '../../../shared/enums/adStatus';
  * 'rejected' = admin manual rejection.
  * 'community_hidden' = auto-hidden after ≥ N community reports.
  */
-export const HIDDEN_MODERATION_STATUSES = ['rejected', 'community_hidden'] as const;
+export const HIDDEN_MODERATION_STATUSES = ['rejected', 'community_hidden', 'held_for_review'] as const;
 
 export const buildPublicAdFilter = () => {
+    // Runtime safety check to prevent accidental status bypass
+    if (AD_STATUS.LIVE !== 'live') {
+        throw new Error('[FeedVisibilityGuard] CRITICAL: AD_STATUS.LIVE is corrupted or improperly defined.');
+    }
+
     return {
-        status: AD_STATUS.LIVE,
+        status: getStatusMatchCriteria(AD_STATUS.LIVE),
         isDeleted: { $ne: true },
         expiresAt: { $gt: new Date() },
         moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] }

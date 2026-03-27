@@ -7,6 +7,7 @@ import { AD_STATUS } from '../../../shared/enums/adStatus';
 import logger from '../utils/logger';
 import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';
 import { toObjectId } from '../utils/idUtils';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
 
 type AnalyticsEventType = 'view' | 'favorite';
 
@@ -104,6 +105,7 @@ const buildAggregateAdMatch = async (input: TrendingInput): Promise<Record<strin
     const match: Record<string, unknown> = {
         'ad.status': AD_STATUS.LIVE,
         'ad.isDeleted': { $ne: true },
+        'ad.listingType': LISTING_TYPE.AD,
     };
 
     const locationObjectId = toObjectId(input.locationId);
@@ -126,6 +128,7 @@ const buildDirectAdMatch = async (input: TrendingInput): Promise<Record<string, 
     const match: Record<string, unknown> = {
         status: AD_STATUS.LIVE,
         isDeleted: { $ne: true },
+        listingType: LISTING_TYPE.AD,
     };
 
     const locationObjectId = toObjectId(input.locationId);

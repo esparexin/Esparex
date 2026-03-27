@@ -70,7 +70,7 @@ export const updateUserStatus = async (
         // --- Side Effects ---
         if (newStatus === USER_STATUS.DELETED) {
             await Ad.updateMany(
-                { sellerId: userId, isDeleted: false },
+                { sellerId: userId, isDeleted: { $ne: true } },
                 { isDeleted: true, deletedAt: new Date() }
             );
         } else {

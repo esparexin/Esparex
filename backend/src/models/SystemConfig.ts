@@ -129,6 +129,16 @@ export interface ISystemConfig extends Document {
             };
         };
     };
+    listing: {
+        expiryDays: {
+            ad: number;
+            service: number;
+            spare_part: number;
+        };
+        thresholds: {
+            proSparePartLimit: number;
+        };
+    };
     emailTemplates?: unknown[];
     notificationTemplates?: unknown[];
     updatedBy?: string; // Admin ID
@@ -258,6 +268,16 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
                 publishableKey: { type: String },
                 secretKey: { type: String }
             }
+        }
+    },
+    listing: {
+        expiryDays: {
+            ad: { type: Number, default: 30 },
+            service: { type: Number, default: 90 },
+            spare_part: { type: Number, default: 60 },
+        },
+        thresholds: {
+            proSparePartLimit: { type: Number, default: 5 },
         }
     },
     featureFlags: { type: Map, of: Boolean, default: {} },

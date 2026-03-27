@@ -35,6 +35,7 @@ export interface PreparedPayload {
     description?: string;
     price?: number;
     images?: string[];
+    thumbnails?: string[];
     locationId?: unknown;
     location?: Record<string, unknown>;
     locationPath?: string[];
@@ -202,8 +203,11 @@ export class AdCreationService {
 
         if (Array.isArray(payload.images) && payload.images.length > 0) {
             const targetAdId = adId || new mongoose.Types.ObjectId().toString();
-            const processed = (await processImages(payload.images, `ads/${targetAdId}`)) as any[];
+            const processed = (await processImages(payload.images ?? [], `ads/${targetAdId}`)) as any[];
+            
             payload.images = sanitizeStoredImageUrls(processed.map((img: any) => img.url));
+            payload.thumbnails = sanitizeStoredImageUrls(processed.map((img: any) => img.thumbnailUrl || img.url));
+            
             payload.imageHashes = processed
                 .filter((img: any) => payload.images?.includes(img.url))
                 .map((img: any) => img.hash);
@@ -221,7 +225,7 @@ export class AdCreationService {
             payload.status = context.actor === 'ADMIN' ? LIFECYCLE_STATUS.LIVE : LIFECYCLE_STATUS.PENDING;
             payload.moderationStatus = context.actor === 'ADMIN' ? 'auto_approved' : 'held_for_review';
             payload.isFree = payload.price === 0 || payload.isFree === true;
-            payload.expiresAt = context.actor === 'ADMIN' ? computeActiveExpiry((source.listingType as ListingTypeValue) || LISTING_TYPE.AD) : undefined;
+            payload.expiresAt = context.actor === 'ADMIN' ? await computeActiveExpiry((source.listingType as ListingTypeValue) || LISTING_TYPE.AD) : undefined;
         }
 
         // --- Compute Lightweight Listing Quality Score ---

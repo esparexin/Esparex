@@ -26,6 +26,7 @@ export interface ImageUploadResult {
 
 export interface ProcessedImage {
     url: string;
+    thumbnailUrl?: string;
     hash: string;
     size?: number;
     dimensions?: {
@@ -83,6 +84,7 @@ export const uploadSingleImage = async (
     if (existing) {
         return {
             url: existing.imageUrl,
+            thumbnailUrl: existing.thumbnailUrl,
             hash: imageHash,
             size: buffer.length
         };
@@ -101,6 +103,7 @@ export const uploadSingleImage = async (
             [{
                 adId: id,
                 imageUrl: result.url,
+                thumbnailUrl: (result as any).thumbnailUrl,
                 imageHash: imageHash,
                 createdAt: new Date()
             }],
@@ -111,6 +114,7 @@ export const uploadSingleImage = async (
 
         return {
             url: result.url,
+            thumbnailUrl: (result as any).thumbnailUrl,
             hash: imageHash,
             size: buffer.length
         };
@@ -183,6 +187,9 @@ export const deleteAdImages = async (
             if (img.imageUrl) {
                 try {
                     await deleteFromS3Url(img.imageUrl);
+                    if (img.thumbnailUrl) {
+                        await deleteFromS3Url(img.thumbnailUrl);
+                    }
                 } catch (err) {
                     logger.error('Failed to delete image from S3', { error: err, url: img.imageUrl });
                 }
@@ -233,6 +240,9 @@ export const deleteSpecificImage = async (
         if (img.imageUrl) {
             try {
                 await deleteFromS3Url(img.imageUrl);
+                if (img.thumbnailUrl) {
+                    await deleteFromS3Url(img.thumbnailUrl);
+                }
             } catch (err) {
                 logger.error('Failed to delete image from S3', { error: err });
             }
@@ -270,11 +280,12 @@ export const getAdImages = async (
 
     try {
         const images = await AdImage.find({ adId: id })
-            .select('imageUrl imageHash')
+            .select('imageUrl thumbnailUrl imageHash')
             .lean();
 
         return images.map(img => ({
             url: img.imageUrl,
+            thumbnailUrl: img.thumbnailUrl,
             hash: img.imageHash
         }));
     } catch (error) {
@@ -298,7 +309,7 @@ export const getImageByHash = async (
 
     try {
         const img = await AdImage.findOne({ adId: id, imageHash: hash })
-            .select('imageUrl imageHash')
+            .select('imageUrl thumbnailUrl imageHash')
             .lean();
 
         if (!img) {
@@ -307,6 +318,7 @@ export const getImageByHash = async (
 
         return {
             url: img.imageUrl,
+            thumbnailUrl: img.thumbnailUrl,
             hash: img.imageHash
         };
     } catch (error) {

@@ -1,5 +1,6 @@
 import { LIFECYCLE_STATUS, type LifecycleStatus } from '../../../shared/enums/lifecycle';
 import { LISTING_TYPE, type ListingTypeValue } from '../../../shared/enums/listingType';
+import { getSystemConfigForRead } from './SystemConfigService';
 
 export type AdStatus = LifecycleStatus;
 
@@ -83,11 +84,31 @@ export const restoreAd = async (id: string, actorId?: string, actorType: 'user' 
     });
 };
 
-export const computeActiveExpiry = (listingType: ListingTypeValue = LISTING_TYPE.AD): Date => {
+/**
+ * Calculates the expiration date for a listing based on its type.
+ * Fetches dynamic values from SystemConfig (DB) if available, 
+ * otherwise falls back to hardcoded GOVERNANCE constants.
+ */
+export const computeActiveExpiry = async (listingType: ListingTypeValue = LISTING_TYPE.AD): Promise<Date> => {
     let days = GOVERNANCE.AD.EXPIRY_DAYS; // Default 30
 
-    if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
-        days = GOVERNANCE.CONTENT.EXPIRY_DAYS; // Also 30, but isolated for policy flexibility
+    try {
+        const config = await getSystemConfigForRead();
+        if (config?.listing?.expiryDays) {
+            const dynamicDays = config.listing.expiryDays[listingType as keyof typeof config.listing.expiryDays];
+            if (typeof dynamicDays === 'number') {
+                days = dynamicDays;
+            } else if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
+                days = GOVERNANCE.CONTENT.EXPIRY_DAYS;
+            }
+        } else if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
+            days = GOVERNANCE.CONTENT.EXPIRY_DAYS;
+        }
+    } catch (error) {
+        logger.warn('computeActiveExpiry: Failed to fetch SystemConfig, falling back to constants', { error });
+        if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
+            days = GOVERNANCE.CONTENT.EXPIRY_DAYS;
+        }
     }
 
     return new Date(Date.now() + days * MS_IN_DAY);

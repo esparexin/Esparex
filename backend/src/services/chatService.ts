@@ -12,6 +12,7 @@ import { ChatReport } from '../models/ChatReport';
 import Ad from '../models/Ad';
 import BlockedUser from '../models/BlockedUser';
 import logger from '../utils/logger';
+import type { IConversationDTO } from '@shared/contracts/chat.contracts';
 
 /* -------------------------------------------------------------------------- */
 /* Inline HTML-entity encoder (no external dep needed)                         */
@@ -167,7 +168,10 @@ export async function listConversations(userId: string, before?: string) {
       ? lastConv.lastMessageAt.toISOString()
       : undefined;
 
-  return { convs, nextCursor };
+  return {
+    convs: convs.map((conversation) => toConversationDto(conversation as unknown as PopulatedConv)),
+    nextCursor,
+  };
 }
 
 /* ============================================================================
@@ -406,8 +410,20 @@ export interface AdminConvSummary {
 }
 
 // Inline types for the populated sub-documents returned by .lean()
-interface PopulatedUser { name?: string; mobile?: string }
-interface PopulatedAd  { title?: string }
+interface PopulatedUser {
+  _id?: unknown;
+  id?: string;
+  name?: string;
+  avatar?: string;
+  mobile?: string;
+}
+interface PopulatedAd  {
+  _id?: unknown;
+  id?: string;
+  title?: string;
+  images?: string[];
+  price?: number;
+}
 interface PopulatedConv {
   _id: unknown;
   buyerId: PopulatedUser | null;
@@ -419,7 +435,15 @@ interface PopulatedConv {
   isAdClosed?: boolean;
   unreadBuyer?: number;
   unreadSeller?: number;
+  createdAt?: Date | string;
   updatedAt?: Date | string;
+}
+
+function normalizeNestedId(value?: { id?: string; _id?: unknown } | null): string {
+  if (!value) return '';
+  if (typeof value.id === 'string' && value.id.trim().length > 0) return value.id.trim();
+  if (value._id != null) return String(value._id);
+  return '';
 }
 
 function toIso(v?: Date | string): string | undefined {
@@ -431,6 +455,40 @@ function extractLastMessage(raw?: string | { text?: string } | null): string | u
   if (!raw) return undefined;
   if (typeof raw === 'string') return raw;
   return raw.text ?? undefined;
+}
+
+function toConversationDto(c: PopulatedConv): IConversationDTO {
+  const thumbnail = Array.isArray(c.adId?.images)
+    ? c.adId.images.find((image): image is string => typeof image === 'string' && image.trim().length > 0)
+    : undefined;
+
+  return {
+    id: String(c._id),
+    ad: {
+      id: normalizeNestedId(c.adId),
+      title: c.adId?.title ?? 'Untitled',
+      thumbnail,
+      price: typeof c.adId?.price === 'number' ? c.adId.price : undefined,
+    },
+    buyer: {
+      id: normalizeNestedId(c.buyerId),
+      name: c.buyerId?.name ?? c.buyerId?.mobile ?? 'Unknown',
+      avatar: c.buyerId?.avatar,
+    },
+    seller: {
+      id: normalizeNestedId(c.sellerId),
+      name: c.sellerId?.name ?? c.sellerId?.mobile ?? 'Unknown',
+      avatar: c.sellerId?.avatar,
+    },
+    lastMessage: extractLastMessage(c.lastMessage),
+    lastMessageAt: toIso(c.lastMessageAt),
+    unreadBuyer: Number(c.unreadBuyer ?? 0),
+    unreadSeller: Number(c.unreadSeller ?? 0),
+    isBlocked: Boolean(c.isBlocked),
+    isAdClosed: Boolean(c.isAdClosed),
+    createdAt: toIso(c.createdAt) ?? '',
+    updatedAt: toIso(c.updatedAt) ?? '',
+  };
 }
 
 function shapeConv(c: PopulatedConv): AdminConvSummary {
@@ -480,7 +538,8 @@ export async function adminListConversations(
       .populate('buyerId', 'name mobile')
       .populate('sellerId', 'name mobile')
       .populate('adId', 'title')
-      .lean() as Promise<PopulatedConv[]>,
+      .lean()
+      .then((conversations) => conversations as unknown as PopulatedConv[]),
     Conversation.countDocuments(query),
   ]);
 

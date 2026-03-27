@@ -101,7 +101,7 @@ export const checkPostLimit = async (
             sellerId: userId,
             listingType: LISTING_TYPE.SERVICE,
             status: { $in: [SERVICE_STATUS.LIVE, SERVICE_STATUS.PENDING] },
-            isDeleted: false
+            isDeleted: { $ne: true }
         });
         if (session) serviceQuery = serviceQuery.session(session);
         currentCount = await serviceQuery;
@@ -110,7 +110,7 @@ export const checkPostLimit = async (
             sellerId: userId,
             listingType: LISTING_TYPE.SPARE_PART,
             status: { $in: [INVENTORY_STATUS.LIVE, INVENTORY_STATUS.PENDING] },
-            isDeleted: false
+            isDeleted: { $ne: true }
         });
         if (session) splQuery = splQuery.session(session);
         currentCount = await splQuery;

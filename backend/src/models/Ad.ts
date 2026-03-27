@@ -121,6 +121,7 @@ const AdSchema: Schema = new Schema({
     }],
 
     images: [{ type: String }],
+    thumbnails: [{ type: String }],
     listingType: { type: String, enum: LISTING_TYPE_VALUES, default: LISTING_TYPE.AD },
     attributes: { type: Schema.Types.Mixed },
     sellerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, immutable: true },

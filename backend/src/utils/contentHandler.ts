@@ -173,10 +173,18 @@ export async function handlePaginatedContent<T extends Document>(
                 [field]: { $regex: safeSearch, $options: 'i' }
             }));
         }
-
+        
         // Allow explicit listingType filtering in public views (e.g. for Post Ad Step 1)
         if (effectiveQuery.listingType) {
-            query.listingType = effectiveQuery.listingType;
+            // Normalize legacy prefixes ('postad' -> 'ad') if present in query param
+            const rawListingType = String(effectiveQuery.listingType);
+            const normalizedListingType = {
+                'postad': 'ad',
+                'postservice': 'service',
+                'postsparepart': 'spare_part'
+            }[rawListingType] || rawListingType;
+            
+            query.listingType = normalizedListingType;
         }
 
         const findQuery = model.find(query).skip((page - 1) * limit).limit(limit).sort(sort);

@@ -4,6 +4,7 @@ import { getUserConnection } from '../config/db';
 export interface IAdImage extends Document {
     adId: mongoose.Types.ObjectId;
     imageUrl: string;
+    thumbnailUrl?: string;
     imageHash: string;
     createdAt: Date;
     updatedAt: Date;
@@ -12,6 +13,7 @@ export interface IAdImage extends Document {
 const AdImageSchema: Schema = new Schema({
     adId: { type: Schema.Types.ObjectId, ref: 'Ad', required: true },
     imageUrl: { type: String, required: true },
+    thumbnailUrl: { type: String },
     imageHash: { type: String, required: true },
 }, {
     timestamps: true

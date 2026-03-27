@@ -93,18 +93,19 @@ export const processSingleImage = async (
     image: string | Buffer,
     folder: string,
     inputMimeType: string = 'image/jpeg'
-): Promise<{ url: string; hash: string }> => {
+): Promise<{ url: string; thumbnailUrl: string; hash: string }> => {
     // SECURITY: Prevent MongoDB BSON Size Limit (16MB) Crash
     if (!getBucketName()) {
         warnMissingS3BucketOncePerTestRun(folder);
         return {
             url: imageDomainRegistry.placeholderImageUrl,
+            thumbnailUrl: imageDomainRegistry.placeholderImageUrl,
             hash: `dev-hash`
         };
     }
 
     try {
-        if (!image) return { url: "", hash: "" };
+        if (!image) return { url: "", thumbnailUrl: "", hash: "" };
 
         let buffer: Buffer;
         let mimeType = inputMimeType;
@@ -114,7 +115,7 @@ export const processSingleImage = async (
             buffer = image;
             extension = extensionFromMime(mimeType);
         } else if (image.startsWith('http')) {
-            return { url: image, hash: "existing-url" };
+            return { url: image, thumbnailUrl: image, hash: "existing-url" };
         } else {
             const match = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
             if (match && match.length === 3) {
@@ -126,7 +127,11 @@ export const processSingleImage = async (
                     buffer = Buffer.from(image.replace(/^data:image\/\w+;base64,/, ""), 'base64');
                 } catch (e) {
                     logger.error("Invalid base64 string", e);
-                    return { url: "https://placehold.co/600x400/png?text=Invalid+Image", hash: "invalid" };
+                    return { 
+                        url: "https://placehold.co/600x400/png?text=Invalid+Image", 
+                        thumbnailUrl: "https://placehold.co/600x400/png?text=Invalid+Image", 
+                        hash: "invalid" 
+                    };
                 }
             }
         }
@@ -142,31 +147,36 @@ export const processSingleImage = async (
         // Ensure folder doesn't have trailing slash before appending
         const basePath = folder.endsWith('/') ? folder.slice(0, -1) : folder;
         const fileName = `${basePath}/${Date.now()}-${crypto.randomUUID()}.${finalExtension}`;
-        const url = await uploadToS3(finalBuffer, fileName, finalMimeType);
+        const thumbFileName = `${basePath}/thumb-${Date.now()}-${crypto.randomUUID()}.${finalExtension}`;
 
-        return { url, hash };
+        const url = await uploadToS3(finalBuffer, fileName, finalMimeType);
+        const thumbnailUrl = await uploadToS3(optimized.thumbnailBuffer, thumbFileName, finalMimeType);
+
+        return { url, thumbnailUrl, hash };
     } catch (error) {
         logger.error("Image Processing Error:", error);
         return {
             url: imageDomainRegistry.placeholderImageUrl,
+            thumbnailUrl: imageDomainRegistry.placeholderImageUrl,
             hash: "error"
         };
     }
 };
 
 /**
- * Process multiple images (URLs, Base64 strings, or Buffers)
+ * Process multiple images
  */
 export const processImages = async (
     images: (string | Buffer)[],
     folder: string
-): Promise<{ url: string; hash: string }[]> => {
+): Promise<{ url: string; thumbnailUrl: string; hash: string }[]> => {
     try {
         return await Promise.all(images.map(img => processSingleImage(img, folder)));
     } catch (error) {
         logger.error("Multiple Image Processing Error:", error);
         return images.map(() => ({
             url: `https://placehold.co/600x400/png?text=Upload+Failed`,
+            thumbnailUrl: `https://placehold.co/600x400/png?text=Upload+Failed`,
             hash: "error"
         }));
     }

@@ -3,6 +3,7 @@ import Ad, { IAd } from '../models/Ad';
 import { getUserConnection } from '../config/db';
 import { FeatureFlag, isEnabled } from '../config/featureFlags';
 import logger from '../utils/logger';
+import { AppError } from '../utils/AppError';
 
 // Specialized Services
 import { AdDuplicateService, logDuplicateEvent, buildDuplicateFingerprint } from './AdDuplicateService';
@@ -12,8 +13,9 @@ import { AdCreationService } from './AdCreationService';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { mutateStatus } from './StatusMutationService';
 import { computeActiveExpiry } from './adStatusService';
-import { AD_STATUS } from '../../../shared/enums/adStatus';
+import { validateSellerTypeThreshold } from './AdValidationService';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
+import { AD_STATUS } from '../../../shared/enums/adStatus';
 
 export interface AdOrchestrationContext {
     authUserId: string; // The authenticated subject (JWT)
@@ -64,6 +66,17 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
                 });
                 if (slotResult.source === 'idempotency_hit') {
                     logger.info('AdOrchestrator: Idempotency hit for slot consumption', { adId: adId.toString() });
+                }
+            }
+
+            // 1.5 Threshold Validation (Pro-Seller Policy)
+            if (context.actor === 'USER' && !context.allowQuotaBypass) {
+                const thresholdResult = await validateSellerTypeThreshold(
+                    context.sellerId,
+                    (data.listingType as any) || LISTING_TYPE.AD
+                );
+                if (!thresholdResult.ok) {
+                    throw new AppError(thresholdResult.reason || 'Threshold exceeded', 400, thresholdResult.code);
                 }
             }
 
@@ -162,7 +175,7 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
                         moderatorId: context.authUserId,
                         approvedAt,
                         approvedBy: context.authUserId,
-                        expiresAt: computeActiveExpiry((createdAd as any).listingType || 'ad'),
+                        expiresAt: await computeActiveExpiry((createdAd as any).listingType || 'ad'),
                         moderationStatus: 'manual_approved',
                         rejectionReason: undefined,
                         $push: {

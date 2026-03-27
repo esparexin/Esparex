@@ -81,6 +81,7 @@ export {
     getAds,
     getListingDetailById,
     getAdCounts,
+    getSellerListingStats,
     computeModerationSummaryByType,
     getReportedAdsAggregation,
     getAdSuggestions,

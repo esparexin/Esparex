@@ -26,6 +26,7 @@ const SECTION_OBJECTS = [
     'featureFlags',
     'integrations',
     'location',
+    'listing',
 ] as const;
 
 const SECTION_ARRAYS = [
