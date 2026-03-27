@@ -438,7 +438,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
             const location = hotZoneLocationMap.get(String(zone.locationId));
             const summary = location ? buildLocationSummary(location as any, hotZoneHierarchyMap as any) : undefined;
             return {
-                _id: String(zone.locationId),
+                _id: String(zone._id),
                 city: summary?.city ?? '',
                 state: summary?.state ?? '',
                 popularityScore: zone.popularityScore ?? 0,

@@ -195,7 +195,7 @@ export const adminApproveListing = async (req: Request, res: Response) => {
         }
 
         const approvedAt = new Date();
-        const expiresAt = computeActiveExpiry((listing.listingType as ListingTypeValue) || LISTING_TYPE.AD);
+        const expiresAt = await computeActiveExpiry((listing.listingType as ListingTypeValue) || LISTING_TYPE.AD);
 
         const updated = await mutateStatus({
             domain: 'ad',
@@ -380,7 +380,7 @@ export const adminExtendListing = async (req: Request, res: Response) => {
         const listing = await getListingForMutation(req, res, id);
         if (!listing) return;
 
-        const newExpiresAt = computeActiveExpiry((listing.listingType as ListingTypeValue) || LISTING_TYPE.AD);
+        const newExpiresAt = await computeActiveExpiry((listing.listingType as ListingTypeValue) || LISTING_TYPE.AD);
         const now = new Date();
         const isExpired = listing.status === AD_STATUS.EXPIRED;
         let updated: unknown;

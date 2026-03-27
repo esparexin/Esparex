@@ -48,4 +48,24 @@ describe('buildAdFilterFromCriteria location hierarchy guards', () => {
 
         expect(match['location.country']).toBe('India');
     });
+
+    it('preserves expanded status query objects for moderation filters', () => {
+        const statusQuery = { $in: ['pending', 'held_for_review', 'suspended'] };
+
+        const match = buildAdFilterFromCriteria({
+            status: statusQuery,
+        });
+
+        expect(match.status).toEqual(statusQuery);
+    });
+
+    it('still normalizes simple status arrays to canonical lifecycle values', () => {
+        const match = buildAdFilterFromCriteria({
+            status: ['approved', 'active', 'pending'],
+        });
+
+        expect(match.status).toEqual({
+            $in: ['live', 'pending'],
+        });
+    });
 });

@@ -43,7 +43,7 @@ const sparePartListingUpdateSchema = PartialSparePartPayloadSchema.pick({
 
 /**
  * Create a new Spare Part Listing
- * POST /api/v1/spare-parts
+ * POST /api/v1/spare-part-listings
  */
 export const createSparePartListing = async (req: Request, res: Response) => {
     try {
@@ -140,7 +140,7 @@ export const createSparePartListing = async (req: Request, res: Response) => {
 
 /**
  * Get Spare Part Listings (Public/Search)
- * GET /api/v1/spare-parts
+ * GET /api/v1/spare-part-listings
  */
 export const getSparePartListings = async (req: Request, res: Response) => {
     try {
@@ -183,41 +183,8 @@ export const getSparePartListings = async (req: Request, res: Response) => {
 };
 
 /**
- * Get My Spare Part Listings (Authenticated Business)
- * GET /api/v1/spare-parts/my-listings
- */
-export const getMySparePartListings = async (req: Request, res: Response) => {
-    try {
-        if (!req.user) {
-            return sendContractErrorResponse(req, res, 401, 'Unauthorized');
-        }
-
-        const { status } = req.query;
-
-        // Query by sellerId (canonical owner field, works for all users).
-        const query: Record<string, unknown> = {
-            sellerId: req.user._id,
-            listingType: LISTING_TYPE.SPARE_PART,
-            isDeleted: false,
-        };
-        if (typeof status === 'string' && status) {
-            query.status = status;
-        }
-
-        const items = await AdModel.find(query)
-            .populate({ path: 'categoryId', model: Category, select: 'name slug' })
-            .populate({ path: 'sparePartId', model: SparePart, select: 'name slug' })
-            .sort({ createdAt: -1 });
-
-        res.json(respond({ success: true, data: { items, total: items.length } }));
-    } catch (error) {
-        sendContractErrorResponse(req, res, 500, 'Failed to fetch your listings');
-    }
-};
-
-/**
  * Update a Spare Part Listing (Owner only)
- * PUT /api/v1/spare-parts/:id
+ * PUT /api/v1/spare-part-listings/:id
  */
 export const updateSparePartListing = async (req: Request, res: Response) => {
     try {
@@ -285,7 +252,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
 
 /**
  * Delete (soft) a Spare Part Listing (Owner only)
- * DELETE /api/v1/spare-parts/:id
+ * DELETE /api/v1/spare-part-listings/:id
  */
 export const deleteSparePartListing = async (req: Request, res: Response) => {
     try {
@@ -366,25 +333,6 @@ export const repostSparePartListing = async (req: Request, res: Response) => {
     }
 };
 
-export const getSparePartPhone = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Spare Part ID' });
-        if (!id) return;
-        const requesterId = req.user?._id?.toString();
-        const metadata = {
-            ip: req.ip || req.socket.remoteAddress,
-            device: req.headers['user-agent'] as string | undefined
-        };
-        const result = await getSellerPhone(id, 'ad', requesterId, metadata);
-        if (!result || result.error) {
-            sendContractErrorResponse(req, res, 404, result?.error || 'Phone number not found');
-            return;
-        }
-        res.json(respond<ApiResponse<ContactResponse>>({
-            success: true,
-            data: result as unknown as ContactResponse
-        }));
-    } catch (error) {
-        sendContractErrorResponse(req, res, 500, 'Failed to reveal phone number');
-    }
-};
+/**
+ * Note: getSparePartPhone removed. Use listingController.getListingPhone.
+ */

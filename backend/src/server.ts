@@ -116,9 +116,9 @@ export async function startServer() {
             };
 
             server.once('error', onError);
-            server.listen(PORT, '0.0.0.0', () => {
+            server.listen(PORT, () => {
                 server.off('error', onError);
-                logger.info(`Server running on http://0.0.0.0:${PORT}`, {
+                logger.info(`Server running on http://localhost:${PORT}`, {
                     port: PORT,
                     environment: env.NODE_ENV,
                 });

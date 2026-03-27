@@ -51,11 +51,17 @@ export const getMyAds = async (req: Request, res: Response, next: NextFunction) 
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 20;
 
+        // Read listingType from query param — frontend sends ?listingType=ad
+        // Leaving undefined returns ALL types owned by the seller (future multi-type tab support)
+        const listingType = req.query.listingType
+            ? (req.query.listingType as ListingTypeValue)
+            : undefined;
+
         const result = await adService.getAds(
             {
                 sellerId: (req.user as IAuthUser)._id.toString(),
                 status: req.query.status ? (req.query.status as string) : undefined,
-                listingType: req.query.listingType ? (req.query.listingType as ListingTypeValue) : undefined,
+                listingType,
             },
             { page, limit }
         );
@@ -70,27 +76,6 @@ export const getMyAds = async (req: Request, res: Response, next: NextFunction) 
             success: true,
             data: result.data as unknown as Ad[],
             pagination
-        });
-
-        res.json(response);
-    } catch (error: unknown) {
-        next(error);
-    }
-};
-
-/**
- * Get current user's ad statistics
- */
-export const getMyAdsStats = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const counts = await (adService.getAdCounts as any)({
-            sellerId: (req.user as IAuthUser)._id.toString(),
-            listingType: LISTING_TYPE.AD,
-        });
-
-        const response = respond({
-            success: true,
-            data: counts
         });
 
         res.json(response);
@@ -290,6 +275,66 @@ export const uploadImage = async (req: Request, res: Response, next: NextFunctio
         res.json(respond({
             success: true,
             data: result
+        }));
+    } catch (error: unknown) {
+        next(error);
+    }
+};
+
+const PRESIGN_ALLOWED_FOLDERS = new Set(['ads', 'staging', 'business', 'avatars', 'service']);
+
+const MIME_TO_EXT: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/heic': 'heic',
+    'image/heif': 'heif',
+};
+
+/**
+ * POST /ads/upload-presign
+ * Returns a pre-signed S3 PUT URL so the browser can upload directly.
+ * The Node.js server never receives file bytes — only metadata.
+ */
+export const getUploadPresignedUrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user as IAuthUser;
+        const { contentType, folder = 'ads', adId } = req.body as {
+            contentType?: string;
+            folder?: string;
+            adId?: string;
+        };
+
+        if (!contentType || typeof contentType !== 'string') {
+            return sendErrorResponse(req, res, 400, 'contentType is required');
+        }
+
+        const normalizedFolder = folder.trim().toLowerCase();
+        if (!PRESIGN_ALLOWED_FOLDERS.has(normalizedFolder)) {
+            return sendErrorResponse(req, res, 400, `Invalid folder. Allowed: ${[...PRESIGN_ALLOWED_FOLDERS].join(', ')}`);
+        }
+
+        const ext = MIME_TO_EXT[contentType.split(';')[0]?.trim().toLowerCase() ?? ''] ?? 'jpg';
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).slice(2, 8);
+        const userId = user._id.toString();
+
+        // Key pattern: {folder}/{userId}/{timestamp}-{random}.{ext}
+        // or:          {folder}/{adId}/{timestamp}-{random}.{ext}  when adId is provided
+        const keyPrefix = adId ? `${normalizedFolder}/${adId}` : `${normalizedFolder}/${userId}`;
+        const key = `${keyPrefix}/${timestamp}-${random}.${ext}`;
+
+        const { generatePresignedUploadUrl } = await import('../../utils/s3');
+        const result = await generatePresignedUploadUrl(key, contentType);
+
+        res.json(respond({
+            success: true,
+            data: {
+                uploadUrl: result.uploadUrl,
+                publicUrl: result.publicUrl,
+                key: result.key,
+                expiresIn: 300,
+            }
         }));
     } catch (error: unknown) {
         next(error);

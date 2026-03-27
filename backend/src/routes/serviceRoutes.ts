@@ -1,6 +1,7 @@
 import express from 'express';
 import * as serviceController from '../controllers/service';
-import { protect, extractUser } from '../middleware/authMiddleware';
+import * as listingController from '../controllers/listingController';
+import { protect } from '../middleware/authMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
 import { mutationLimiter, searchLimiter, phoneRevealLimiter } from '../middleware/rateLimiter';
@@ -10,6 +11,8 @@ import { createListingValidator } from '../validators/listing.validator';
 
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
+import { requireListingType } from '../middleware/requireListingType';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
 
 const router = express.Router();
 
@@ -18,13 +21,13 @@ router.post(
     '/',
     protect,
     requireBusinessApproved,
+    requireListingType(LISTING_TYPE.SERVICE),
     mutationLimiter,
-    duplicateCooldownMiddleware('service'),
+    duplicateCooldownMiddleware(LISTING_TYPE.SERVICE),
     validateRequest(ServicePayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
     serviceController.createService
 );
-router.get('/my-services', protect, serviceController.getMyServices);
 // router.get('/analytics', ...) — removed: admin-only endpoint moved exclusively to
 // /api/v1/admin/services/analytics (adminRoutes.ts). Do not re-add here.
 
@@ -46,8 +49,8 @@ import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 
 // Public Get
 router.get('/', searchLimiter, serviceController.getServices);
-router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), serviceController.incrementServiceView);
+router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), listingController.incrementListingView);
 
-router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, serviceController.getServicePhone);
+router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, listingController.getListingPhone);
 
 export default router;

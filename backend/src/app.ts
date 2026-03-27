@@ -334,8 +334,6 @@ app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/smart-alerts', smartAlertRoutes);
 app.use('/api/v1/services', serviceRoutes);
-// Redirect legacy /api/v1/spare-parts path to /api/v1/spare-part-listings
-app.use('/api/v1/spare-parts', (_req, res) => res.redirect(301, _req.originalUrl.replace('/api/v1/spare-parts', '/api/v1/spare-part-listings')));
 app.use('/api/v1/spare-part-listings', sparePartRoutes);
 app.use('/api/v1/businesses', businessRoutes);
 app.use('/api/v1/invoices', invoiceRoutes);

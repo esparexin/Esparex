@@ -315,7 +315,7 @@ export const adminChangeAdStatus = async (req: Request, res: Response) => {
                 ...(status === AD_STATUS.LIVE ? {
                     approvedAt: new Date(),
                     approvedBy: req.user!._id.toString(),
-                    expiresAt: computeActiveExpiry((currentAd as any).listingType || 'ad')
+                    expiresAt: await computeActiveExpiry((currentAd as any).listingType || 'ad')
                 } : {})
             }
         });
@@ -707,7 +707,7 @@ export const approveAd = async (req: Request, res: Response) => {
                 moderatorId: req.user!._id.toString(),
                 approvedAt,
                 approvedBy: req.user!._id.toString(),
-                expiresAt: computeActiveExpiry((currentAd as any).listingType || 'ad')
+                expiresAt: await computeActiveExpiry((currentAd as any).listingType || 'ad')
             }
         });
 

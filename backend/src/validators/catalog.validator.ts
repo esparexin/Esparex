@@ -44,20 +44,35 @@ const categoryBaseSchema = z.object({
     type: z.enum(CATEGORY_TYPES).optional(),
     icon: z.string().trim().max(255).optional(),
     description: z.string().trim().max(2000).optional(),
-    parentId: objectIdSchema.optional(),
+    parentId: optionalObjectIdSchema,
     isActive: z.boolean().optional(),
     hasScreenSizes: z.boolean().optional(),
-    listingType: z.array(z.enum(['postad', 'postservice', 'postsparepart'])).optional(),
+    listingType: z.array(z.enum(['ad', 'service', 'spare_part', 'postad', 'postservice', 'postsparepart']))
+        .transform(arr => arr.map(v => {
+            if (v === 'postad') return 'ad';
+            if (v === 'postservice') return 'service';
+            if (v === 'postsparepart') return 'spare_part';
+            return v;
+        }))
+        .optional(),
     filters: z.array(z.unknown()).optional()
 });
 
 export const categoryCreateSchema = categoryBaseSchema
     .extend({
-        type: z.enum(CATEGORY_TYPES).optional().default('AD'),
+        type: z.enum(['ad', 'spare_part', 'service', 'other', 'AD', 'SPARE_PART', 'SERVICE', 'OTHER'])
+            .transform(v => v.toLowerCase() as 'ad' | 'spare_part' | 'service' | 'other')
+            .optional()
+            .default('ad'),
     })
     .strict();
 
 export const categoryUpdateSchema = categoryBaseSchema
+    .extend({
+        type: z.enum(['ad', 'spare_part', 'service', 'other', 'AD', 'SPARE_PART', 'SERVICE', 'OTHER'])
+            .transform(v => v.toLowerCase() as 'ad' | 'spare_part' | 'service' | 'other')
+            .optional(),
+    })
     .partial()
     .strict()
     .refine((payload) => Object.keys(payload).length > 0, 'At least one field is required');
@@ -116,7 +131,7 @@ const sparePartBaseSchema = z.object({
     name: z.string().trim().min(1).max(120),
     slug: z.string().trim().min(1).max(160).optional(),
     // type: z.enum(['PRIMARY', 'SECONDARY']).optional(),
-    listingType: z.array(z.enum(['postad', 'postsparepart'])).optional(),
+    listingType: z.array(z.enum(['ad', 'spare_part'])).optional(),
     ...categoryFields,
     sortOrder: z.number().int().min(0).optional(),
     filters: z.array(z.unknown()).optional(),

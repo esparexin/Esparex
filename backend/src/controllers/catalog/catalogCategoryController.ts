@@ -220,6 +220,13 @@ export const updateCategory = async (req: Request, res: Response) => {
     try {
         if (!hasAdminAccess(req)) return sendAdminError(req, res, 'Admin access required', 403);
         const categoryId = req.params.id;
+        
+        // Strip immutable/internal fields that admin frontends might send
+        const PROTECTED_FIELDS = ['id', '_id', '__v', 'isDeleted', 'deletedAt', 'updatedAt', 'createdAt'];
+        for (const field of PROTECTED_FIELDS) {
+            delete req.body[field];
+        }
+
         const oldCategory = await Category.findById(categoryId);
         if (!oldCategory) return sendAdminError(req, res, 'Category not found', 404);
 

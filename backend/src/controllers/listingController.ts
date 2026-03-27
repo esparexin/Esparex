@@ -7,10 +7,13 @@ import { respond, sendSuccessResponse } from '../utils/respond';
 import { getSingleParam } from '../utils/requestParams';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../shared/enums/actor';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
+import { PromotionPolicyService } from '../services/PromotionPolicyService';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 import * as adService from '../services/AdService';
 import { mutateStatus } from '../services/StatusMutationService';
 import { getAndVerifyOwnedListing } from '../utils/controllerUtils';
+import { getSellerPhone } from '../services/ContactRevealService';
 /**
  * Enterprise Listing Controller (SSOT)
  * Centralized logic for all listing types (Ads, Services, Spare Parts)
@@ -124,6 +127,10 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
             return sendErrorResponse(req, res, 400, 'Only live listings can be marked as sold');
         }
 
+        const soldReason = req.body?.soldReason as
+            | 'sold_on_platform' | 'sold_outside' | 'no_longer_available'
+            | undefined;
+
         const updatedListing = await mutateStatus({
             domain: 'ad',
             entityId: listing._id.toString(),
@@ -134,20 +141,21 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
                 ip: req.ip,
                 userAgent: req.headers['user-agent'],
             },
-            reason: 'Marked as sold by owner',
+            reason: soldReason || 'Marked as sold by owner',
             metadata: {
                 action: 'listing_mark_sold',
                 sourceRoute: '/api/v1/listings/:id/mark-sold',
             },
             patch: {
                 soldAt: new Date(),
+                soldReason,
                 isChatLocked: true,
                 isSpotlight: false,
                 $push: {
                     timeline: {
                         status: AD_STATUS.SOLD,
                         timestamp: new Date(),
-                        reason: 'Marked as sold by owner',
+                        reason: soldReason || 'Marked as sold by owner',
                     },
                 },
             },
@@ -161,19 +169,35 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
 
 /**
  * POST /api/v1/listings/:id/promote
- * Promotion entry point
+ * Promotion entry point — only ad and service types can be promoted.
+ * Spare parts cannot be spotlight-promoted.
  */
 export const promoteListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as IAuthUser;
-        const listing = await getAndVerifyOwnedListing(req, res);
+        // Select listingType so we can enforce promotion policy before reaching AdService
+        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType' });
         if (!listing) return;
+
+        // Centralized Policy Check: Reject if promotion is not allowed for this listing type
+        const policyResult = PromotionPolicyService.canPromote({
+            listingType: listing.listingType || 'ad',
+            status: listing.status
+        });
+
+        if (!policyResult.allowed) {
+            return sendErrorResponse(
+                req, res, 403,
+                policyResult.reason || `Listings of type ${listing.listingType} cannot be promoted.`,
+                { code: policyResult.code || 'PROMOTION_POLICY_REJECTED' }
+            );
+        }
 
         if (listing.status !== AD_STATUS.LIVE) {
             return sendErrorResponse(req, res, 400, 'Only live listings can be promoted');
         }
 
-        return sendSuccessResponse(res, { listingId: listing._id.toString(), currentStatus: listing.status }, 'Proceed to promotion checkout');
+        return sendSuccessResponse(res, { listingId: listing._id.toString(), currentStatus: listing.status, listingType: listing.listingType }, 'Proceed to promotion checkout');
     } catch (error) {
         next(error);
     }
@@ -204,15 +228,162 @@ export const getListingAnalytics = async (req: Request, res: Response, next: Nex
  */
 export const incrementListingView = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
-        if (!id) return;
+        const idOrSlug = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID or Slug' });
+        if (!idOrSlug) return;
 
-        await Ad.findByIdAndUpdate(id, {
+        // Support both ID and SEO Slug for public view tracking
+        const filter = mongoose.Types.ObjectId.isValid(idOrSlug)
+            ? { _id: idOrSlug }
+            : { seoSlug: idOrSlug };
+
+        await Ad.findOneAndUpdate(filter, {
             $inc: { 'views.total': 1 }
         });
 
         return sendSuccessResponse(res, { success: true });
     } catch (error) {
         next(error);
+    }
+};
+
+/**
+ * PATCH /api/v1/listings/:id/deactivate
+ * Lifecycle: LIVE → DEACTIVATED
+ */
+export const deactivateListing = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user as IAuthUser;
+        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status' });
+        if (!listing) return;
+
+        const updatedListing = await mutateStatus({
+            domain: 'ad', // Generic domain for all listings in 'Ad' collection
+            entityId: listing._id.toString(),
+            toStatus: 'deactivated',
+            actor: {
+                type: ACTOR_TYPE.USER,
+                id: user._id.toString(),
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+            },
+            reason: 'Deactivated by owner',
+            metadata: {
+                action: 'listing_deactivate',
+                sourceRoute: '/api/v1/listings/:id/deactivate',
+            },
+        });
+
+        return sendSuccessResponse(res, updatedListing, 'Listing deactivated');
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * GET /api/v1/listings/:id/phone
+ * Unified phone reveal for all listing types
+ */
+export const getListingPhone = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
+        if (!id) return;
+
+        const requesterId = req.user?._id?.toString();
+        const metadata = {
+            ip: req.ip || req.socket.remoteAddress,
+            device: req.headers['user-agent'] as string | undefined
+        };
+
+        // All listings (Ad, Service, SparePart) now live in the 'Ad' collection
+        // Passing LISTING_TYPE.AD (or just 'ad') to the service is correct as it identifies the collection.
+        const result = await getSellerPhone(id, LISTING_TYPE.AD, requesterId, metadata);
+
+        if (!result || result.error) {
+            return sendErrorResponse(req, res, 404, result?.error || 'Phone number not found');
+        }
+
+        return sendSuccessResponse(res, result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * GET /api/v1/listings/mine
+ * Unified fetch for user's own listings (all types)
+ */
+export const getMyListingStats = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = req.user?._id?.toString();
+        if (!userId) {
+            return sendErrorResponse(req, res, 401, 'Unauthorized');
+        }
+
+        const counts = await adService.getSellerListingStats(userId);
+        return sendSuccessResponse(res, counts);
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * GET /api/v1/listings/mine
+ * Unified fetch for user's own listings (all types)
+ */
+export const getMyListings = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?._id;
+        if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
+
+        const { type, status, page = 1, limit = 20 } = req.query;
+        const { getStatusMatchCriteria } = await import('../utils/statusQueryMapper');
+
+        const query: Record<string, any> = {
+            sellerId: userId,
+            isDeleted: { $ne: true },
+        };
+
+        // Filter by type if provided (ad, service, spare_part)
+        // If 'ad' is requested, we also include legacy records where listingType is missing or null.
+        if (type && Object.values(LISTING_TYPE).includes(type as any)) {
+            if (type === LISTING_TYPE.AD || type === 'ad') {
+                query.$or = [
+                    { listingType: LISTING_TYPE.AD },
+                    { listingType: { $exists: false } },
+                    { listingType: null }
+                ];
+            } else {
+                query.listingType = type;
+            }
+        }
+
+        // Filter by status if provided (live, pending, etc.)
+        if (status) {
+            query.status = getStatusMatchCriteria(status as string);
+        }
+
+        const items = await Ad.find(query)
+            .populate({ path: 'categoryId', select: 'name slug icon' })
+            .populate({ path: 'brandId', select: 'name slug' })
+            .populate({ path: 'modelId', select: 'name slug' })
+            .populate({ path: 'sparePartId', select: 'name slug' })
+            .populate({ path: 'serviceTypeIds', select: 'name slug' })
+            .sort({ createdAt: -1 })
+            .skip((Number(page) - 1) * Number(limit))
+            .limit(Number(limit));
+
+        const total = await Ad.countDocuments(query);
+
+        return sendSuccessResponse(res, {
+            items,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                hasMore: total > Number(page) * Number(limit)
+            }
+        });
+    } catch (error) {
+        sendErrorResponse(req, res, 500, 'Failed to fetch your listings');
     }
 };

@@ -40,15 +40,19 @@ export const createAd = async (req: Request, res: Response, next: NextFunction) 
         const authUserId = (req.user as IAuthUser)._id.toString();
         const sellerId = req.body.sellerId || req.body.userId || authUserId;
 
-        if (req.body.listingType === LISTING_TYPE.SERVICE) {
-            const business = await Business.findOne({ userId: authUserId });
-            if (!business || !isBusinessPublishedStatus(business.status)) {
-                return sendClientError(req, res, 403, 'Approved Business Account Required', 'BUSINESS_NOT_APPROVED', {
-                    message: 'You need an approved business account to post a service.'
-                });
-            }
-            req.body.status = 'pending'; 
-            req.body.sellerType = 'business';
+        // 🛡️ Strict listingType guard — requireListingType middleware coerces to LISTING_TYPE.AD
+        // but double-check here as defense-in-depth against direct controller calls.
+        const providedType = req.body.listingType;
+        if (providedType && providedType !== LISTING_TYPE.AD) {
+            const routeMap: Record<string, string> = {
+                [LISTING_TYPE.SERVICE]:    '/api/v1/services',
+                [LISTING_TYPE.SPARE_PART]: '/api/v1/spare-part-listings',
+            };
+            return sendClientError(
+                req, res, 400,
+                `Use ${routeMap[providedType] ?? 'the correct route'} to create a ${providedType}.`,
+                'WRONG_LISTING_TYPE'
+            );
         }
 
         const ad = await AdOrchestrator.createAd(req.body, {

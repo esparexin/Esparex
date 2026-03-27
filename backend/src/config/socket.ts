@@ -21,17 +21,21 @@ let io: Server | null = null;
  * Must be called before startListening().
  */
 export function initIO(httpServer: HttpServer): Server {
+    const corsOrigins = process.env.CORS_ORIGIN 
+        ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+        : [
+            process.env.FRONTEND_URL ?? 'http://localhost:3000',
+            process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:3001',
+        ];
+
     io = new Server(httpServer, {
         cors: {
-            origin: [
-                process.env.FRONTEND_URL ?? 'http://localhost:3000',
-                process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:3001',
-            ],
+            origin: corsOrigins,
             credentials: true,
         },
-        // Use long-polling fallback so it works behind reverse proxies that
-        // don't support WebSocket upgrades out of the box.
-        transports: ['websocket', 'polling'],
+        // We start with polling and upgrade to websocket for maximum compatibility
+        // behind various browser/proxy configurations.
+        transports: ['polling', 'websocket'],
         // Prevent lingering connections from blocking a graceful shutdown.
         connectionStateRecovery: { maxDisconnectionDuration: 2 * 60 * 1000 },
     });
@@ -56,18 +60,18 @@ export function initIO(httpServer: HttpServer): Server {
         try {
             const extractUserId = (token: string): string => {
                 const payload = verifyToken(token);
-                if (!payload) throw new Error('Invalid token');
+                if (!payload) return '';
                 return String((payload as Record<string, unknown>).id ?? '');
             };
 
-            // 1. Try Authorization header (Bearer token — used by mobile / non-cookie clients)
+            // 1. Try Authorization header (Bearer token)
             const authHeader = socket.handshake.headers.authorization;
             if (authHeader?.startsWith('Bearer ')) {
                 (socket as any).userId = extractUserId(authHeader.slice(7));
                 return next();
             }
 
-            // 2. Try cookie (web clients send the httpOnly cookie automatically via withCredentials)
+            // 2. Try cookie
             const rawCookie: string = (socket.handshake.headers.cookie as string) ?? '';
             const match = rawCookie.match(/esparex_auth=([^;]+)/);
             if (match?.[1]) {
@@ -75,34 +79,36 @@ export function initIO(httpServer: HttpServer): Server {
                 return next();
             }
 
-            // 3. Try auth.token handshake field (passed explicitly by socket.io-client)
+            // 3. Try auth.token
             const queryToken = socket.handshake.auth?.token as string | undefined;
             if (queryToken) {
                 (socket as any).userId = extractUserId(queryToken);
                 return next();
             }
 
-            next(new Error('Authentication required'));
+            // Allow anonymous connections to prevent frontend errors
+            // Use property check on socket to determine auth status in connection handler
+            return next();
         } catch {
-            next(new Error('Invalid token'));
+            // Even on token error, we allow the connection to stay alive (anonymous)
+            return next();
         }
     });
 
     // ── Connection handler ───────────────────────────────────────────────────
     io.on('connection', (socket: Socket) => {
-        const userId: string = (socket as any).userId;
-        if (!userId) {
-            socket.disconnect(true);
-            return;
+        const userId: string | undefined = (socket as any).userId;
+        
+        if (userId) {
+            // Join a private room named after the user's ID
+            void socket.join(userId);
+            logger.debug(`[Socket] Authenticated user connected`, { userId, socketId: socket.id });
+        } else {
+            logger.debug(`[Socket] Anonymous guest connected`, { socketId: socket.id });
         }
 
-        // Join a private room named after the user's ID so we can target
-        // individual users with getIO().to(userId).emit(...)
-        void socket.join(userId);
-        logger.debug(`[Socket] User connected`, { userId, socketId: socket.id });
-
         socket.on('disconnect', (reason) => {
-            logger.debug(`[Socket] User disconnected`, { userId, reason });
+            logger.debug(`[Socket] Client disconnected`, { userId: userId || 'anonymous', reason });
         });
     });
 

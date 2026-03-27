@@ -26,37 +26,6 @@ type ServiceAnalyticsPayload = {
 const asModel = <T extends Document>(model: MongooseModel<T>): MongooseModel<T> => model;
 
 /* ---------------------------------------------------
-   Get My Services (Owner Only)
---------------------------------------------------- */
-export const getMyServices = async (req: Request, res: Response) => {
-    const user = req.user;
-    if (!user) {
-        sendErrorResponse(req, res, 401, 'Unauthorized');
-        return;
-    }
-
-    const baseQuery: Record<string, unknown> = {
-        sellerId: user._id,
-        listingType: LISTING_TYPE.SERVICE,
-    };
-
-    // Optional server-side status filter — ?status=live|pending|rejected|expired|deactivated
-    if (typeof req.query.status === 'string' && req.query.status) {
-        baseQuery.status = req.query.status;
-    }
-
-    return handlePaginatedContent(req, res, asModel(AdModel), {
-        adminQuery: baseQuery,
-        publicQuery: baseQuery,
-        populate: [
-            { path: 'location.locationId', select: 'name city state' }
-        ],
-        transformResponse: (items: unknown[]) => hydrateServiceRefs(items as ServiceRecord[]),
-        defaultSort: { createdAt: -1 }
-    });
-};
-
-/* ---------------------------------------------------
    Get All Services (Public)
 --------------------------------------------------- */
 export const getServices = async (req: Request, res: Response) => {
@@ -120,58 +89,10 @@ export const getServices = async (req: Request, res: Response) => {
 
 
 
-export const incrementServiceView = async (req: Request, res: Response) => {
-    try {
-        const idOrSlug = getSingleParam(req, res, 'id', { error: 'Invalid Service ID or Slug' });
-        if (!idOrSlug) return;
-
-        const lookup = mongoose.Types.ObjectId.isValid(idOrSlug)
-            ? { _id: idOrSlug, status: AD_STATUS.LIVE, listingType: LISTING_TYPE.SERVICE }
-            : { seoSlug: idOrSlug, status: AD_STATUS.LIVE, listingType: LISTING_TYPE.SERVICE };
-
-        await AdModel.exists(lookup);
-        // Note: Views are tracked via incrementAdView which is called by AdEngagementService usually
-        
-        res.json(respond({ success: true }));
-    } catch {
-        // Service view tracking is non-critical. Preserve JSON success contract.
-        res.json(respond({ success: true }));
-    }
-};
-
-export const getServicePhone = async (req: Request, res: Response) => {
-    try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
-        if (!id) return;
-        const requesterId = req.user?._id?.toString();
-        const metadata = {
-            ip: req.ip || req.socket.remoteAddress,
-            device: req.headers['user-agent'] as string | undefined
-        };
-        // Use 'ad' type because it's now in the Ad collection
-        const result = await getSellerPhone(id, 'ad', requesterId, metadata);
-        if (!result || result.error) {
-            sendErrorResponse(req, res, 404, result?.error || 'Phone number not found');
-            return;
-        }
-
-        const response = respond<ApiResponse<ContactResponse>>({
-            success: true,
-            data: result as unknown as ContactResponse
-        });
-
-        res.json(response);
-    } catch (error: unknown) {
-        const statusCode = typeof error === 'object'
-            && error !== null
-            && 'statusCode' in error
-            && typeof (error as { statusCode?: unknown }).statusCode === 'number'
-            ? (error as { statusCode: number }).statusCode
-            : 500;
-        const message = error instanceof Error ? error.message : 'Failed to fetch phone number';
-        sendErrorResponse(req, res, statusCode, message);
-    }
-};
+/**
+ * Note: incrementServiceView and getServicePhone removed.
+ * Use listingController.incrementListingView and listingController.getListingPhone via generic /api/v1/listings routes.
+ */
 
 /* ---------------------------------------------------
    Analytics (Admin Only)

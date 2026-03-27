@@ -10,6 +10,7 @@ import Ad from '../../models/Ad';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { getModerationCounts, MODERATION_STATUSES } from '../../services/ListingModerationQueryService';
 import { HIDDEN_MODERATION_STATUSES } from '../../utils/FeedVisibilityGuard';
+import { getLiveStatusCriteria } from '../../utils/statusQueryMapper';
 
 const mockedAdModel = Ad as unknown as {
     aggregate: jest.Mock;
@@ -51,7 +52,7 @@ describe('getModerationCounts', () => {
         const livePipeline = mockedAdModel.aggregate.mock.calls[0][0];
         expect(livePipeline[0]).toEqual({
             $match: {
-                status: AD_STATUS.LIVE,
+                status: getLiveStatusCriteria(),
                 isDeleted: { $ne: true },
                 expiresAt: { $gt: expect.any(Date) },
                 moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] },
@@ -67,7 +68,7 @@ describe('getModerationCounts', () => {
         });
 
         expect(mockedAdModel.countDocuments).toHaveBeenCalledWith({
-            status: AD_STATUS.LIVE,
+            status: getLiveStatusCriteria(),
             isDeleted: { $ne: true },
             expiresAt: { $gt: expect.any(Date) },
             moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] },
@@ -97,7 +98,7 @@ describe('getModerationCounts', () => {
         const livePipeline = mockedAdModel.aggregate.mock.calls[0][0];
         expect(livePipeline[0]).toEqual({
             $match: {
-                status: AD_STATUS.LIVE,
+                status: getLiveStatusCriteria(),
                 isDeleted: { $ne: true },
                 expiresAt: { $gt: expect.any(Date) },
                 moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] },
@@ -106,7 +107,7 @@ describe('getModerationCounts', () => {
         });
 
         expect(mockedAdModel.countDocuments).toHaveBeenCalledWith({
-            status: AD_STATUS.LIVE,
+            status: getLiveStatusCriteria(),
             isDeleted: { $ne: true },
             expiresAt: { $gt: expect.any(Date) },
             moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] },

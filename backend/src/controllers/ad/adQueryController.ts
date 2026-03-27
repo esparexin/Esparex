@@ -20,6 +20,7 @@ import { IAuthUser } from '../../types/auth';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 
 const asControllerError = (error: unknown): any => error as any;
 const getViewerIdForFeed = (req: Request): string | undefined => {
@@ -74,6 +75,8 @@ export const getAds = async (req: Request, res: Response, next: NextFunction) =>
         // 🔒 CRITICAL FIX: Use getAds (Geospatial) instead of getSimpleAds (Text-only)
         const result = await adService.getAds(
             {
+                // 🔒 Scope: ad browse must only return ads, never services or spare_parts
+                listingType: LISTING_TYPE.AD,
                 // Public listing must never leak pending/rejected content.
                 status: query.status || AD_STATUS.LIVE,
                 category: query.category,
@@ -142,6 +145,8 @@ export const getNearbyAds = async (req: Request, res: Response, next: NextFuncti
 
         const result = await adService.getAds(
             {
+                // 🔒 Scope: nearby must only return ads, never services or spare_parts
+                listingType: LISTING_TYPE.AD,
                 status: query.status || AD_STATUS.LIVE,
                 category: query.category,
                 categoryId: query.categoryId,
@@ -336,30 +341,5 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
 };
 
 /**
- * GET /ads/:id/phone
- * Returns phone number for an ad listing (supports masking for unauthenticated users)
+ * Note: getAdPhone removed. Use listingController.getListingPhone via generic /api/v1/listings routes.
  */
-export const getAdPhone = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
-        if (!id) return;
-        const requesterId = (req.user as IAuthUser)?._id?.toString();
-        const metadata = {
-            ip: req.ip || req.socket.remoteAddress,
-            device: req.headers['user-agent'] as string | undefined
-        };
-        
-        const result = await getSellerPhone(id, 'ad', requesterId, metadata);
-        
-        if (!result || result.error) {
-            return sendErrorResponse(req, res, 404, result?.error || 'Phone number not found');
-        }
-
-        return res.json(respond({
-            success: true,
-            data: result
-        }));
-    } catch (error: unknown) {
-        next(error);
-    }
-};

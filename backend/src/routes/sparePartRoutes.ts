@@ -1,14 +1,17 @@
 import { Router } from 'express';
-import { protect, extractUser } from '../middleware/authMiddleware';
+import { protect } from '../middleware/authMiddleware';
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import * as sparePartListingController from '../controllers/sparePartListingController';
+import * as listingController from '../controllers/listingController';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
 import { createListingValidator } from '../validators/listing.validator';
 import { phoneRevealLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
 import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../shared/schemas/sparePartPayload.schema';
+import { requireListingType } from '../middleware/requireListingType';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
 
 const router = Router();
 
@@ -21,23 +24,11 @@ router.post(
     '/',
     protect,
     requireBusinessApproved,
-    duplicateCooldownMiddleware('spare_part'),
+    requireListingType(LISTING_TYPE.SPARE_PART),
+    duplicateCooldownMiddleware(LISTING_TYPE.SPARE_PART),
     validateRequest(SparePartPayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
     sparePartListingController.createSparePartListing
-);
-
-/**
- * @route   GET /api/v1/spare-part-listings/my-listings
- * @desc    Get listings owned by the authenticated user (Private)
- * @access  Private — owner only, no business approval required
- * Note: requireBusinessApproved intentionally omitted — users must always be
- * able to view their own listings even if their business is later revoked.
- */
-router.get(
-    '/my-listings',
-    protect,
-    sparePartListingController.getMySparePartListings
 );
 
 /**
@@ -52,7 +43,7 @@ router.get('/', sparePartListingController.getSparePartListings);
  * @desc    Reveal seller phone for a spare part listing
  * @access  Private
  */
-router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, sparePartListingController.getSparePartPhone);
+router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, listingController.getListingPhone);
 
 
 

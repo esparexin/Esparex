@@ -1,5 +1,6 @@
 import express from "express";
 import * as adController from "../controllers/ad";
+import * as listingController from "../controllers/listingController";
 import { protect, extractUser } from "../middleware/authMiddleware";
 import { validateSearchParams } from "../validators/securityValidators";
 import { mutationLimiter, searchLimiter, adPostLimiter } from "../middleware/rateLimiter";
@@ -7,14 +8,13 @@ import { validateObjectId } from "../middleware/validateObjectId";
 import { validateRequest } from "../middleware/validateRequest";
 import { enforceCreateAdIdempotency, idempotencyMiddleware } from "../middleware/idempotency";
 import { fraudMiddleware } from "../middleware/fraudMiddleware";
-import { AdPayloadSchema, PartialAdPayloadSchema } from "../../../shared/schemas/adPayload.schema";
+import { AdPayloadSchema } from "../../../shared/schemas/adPayload.schema";
 import type { ZodTypeAny } from "zod";
-import { validateIdOrSlug } from "../middleware/validateIdOrSlug";
-import { promoteAdSchema } from "../validators/promotion.validator";
-import { markAsSoldSchema } from "../validators/ad.validator";
 import { duplicateCooldownMiddleware } from "../middleware/duplicateCooldownMiddleware";
 import { createListingValidator } from "../validators/listing.validator";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/requireVerifiedBusiness";
+import { requireListingType } from "../middleware/requireListingType";
+import { LISTING_TYPE } from "../../../shared/enums/listingType";
 
 const router = express.Router();
 
@@ -29,9 +29,6 @@ router.get("/", extractUser, searchLimiter, validateSearchParams, adController.g
 
 // Nearby ads (distance-first alias over canonical ads search service)
 router.get("/nearby", extractUser, searchLimiter, validateSearchParams, adController.getNearbyAds);
-
-// User's own ads stats
-router.get("/my-ads/stats", protect, adController.getMyAdsStats);
 
 // User's own ads
 router.get("/my-ads", protect, validateSearchParams, adController.getMyAds);
@@ -49,6 +46,7 @@ router.post(
     protect,
     adPostLimiter,
     requireVerifiedBusinessForServiceParts,
+    requireListingType(LISTING_TYPE.AD),   // 🛡️ Rejects service/spare_part submitted via ad route
     duplicateCooldownMiddleware('ad'),
     fraudMiddleware,
     validateRequest(AdPayloadSchema as unknown as ZodTypeAny),
@@ -65,39 +63,22 @@ router.post(
     adController.uploadImage
 );
 
-// Update ad
-router.patch(
-    "/:id",
-    validateObjectId,
+// Pre-signed S3 Upload URL — browser uploads directly to S3 (no file bytes through Node.js)
+router.post(
+    "/upload-presign",
     protect,
     mutationLimiter,
-    fraudMiddleware,
-    validateRequest(PartialAdPayloadSchema as unknown as ZodTypeAny),
-    idempotencyMiddleware,
-    adController.updateAd
+    adController.getUploadPresignedUrl
 );
 
-// Promote ad
-router.patch(
-    "/:id/promote",
-    validateObjectId,
-    protect,
-    validateRequest(promoteAdSchema),
-    idempotencyMiddleware,
-    adController.promoteAd
-);
-
-// Mark as sold
-router.patch("/:id/sold", validateObjectId, protect, validateRequest(markAsSoldSchema), idempotencyMiddleware, adController.markAsSold);
-
-// Repost expired/rejected ad
-router.post("/:id/repost", validateObjectId, protect, mutationLimiter, idempotencyMiddleware, adController.repostAd);
-
-// Track ad view (public analytics endpoint)
-router.get("/:id/view", validateObjectId, searchLimiter, adController.incrementAdView);
+// Track ad view — use /listings/:id/view (Layer 2 canonical)
+// GET /:id/view removed (superseded by listingRoutes)
 
 // Reveal phone number (public with masking or private for authenticated users)
-router.get("/:id/phone", validateObjectId, searchLimiter, adController.getAdPhone);
+router.get("/:id/phone", validateObjectId, searchLimiter, listingController.getListingPhone);
+
+// Repost expired/rejected ad (no Layer 2 equivalent — keep here)
+router.post("/:id/repost", validateObjectId, protect, mutationLimiter, idempotencyMiddleware, adController.repostAd);
 
 // Delete ad
 router.delete("/:id", validateObjectId, protect, idempotencyMiddleware, adController.deleteAd);
