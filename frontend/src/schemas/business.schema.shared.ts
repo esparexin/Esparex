@@ -2,27 +2,45 @@ import { z } from "zod";
 
 const ALLOWED_ID_PROOF_TYPES = ["aadhaar", "pan", "driving_license", "voter_id"] as const;
 
-export const businessFileValidator = z.union([
-    z.instanceof(File)
-        .refine((file) => file.size <= 5 * 1024 * 1024, "File size must be less than 5MB")
-        .refine(
-            (file) =>
-                [
-                    "image/jpeg",
-                    "image/png",
-                    "image/webp",
-                    "image/avif",
-                    "image/heic",
-                    "image/heif",
-                    "application/pdf",
-                ].includes(file.type),
-            "Only JPEG, PNG, WebP, AVIF, HEIC, HEIF, and PDF files are allowed",
-        ),
-    z
-        .string()
-        .min(1, "Invalid image")
-        .refine((val) => val.startsWith("http") || val.startsWith("data:"), "Invalid image URL"),
-]);
+export const BUSINESS_IMAGE_MIME_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/avif",
+    "image/heic",
+    "image/heif",
+] as const;
+
+export const BUSINESS_DOCUMENT_MIME_TYPES = [
+    ...BUSINESS_IMAGE_MIME_TYPES,
+    "application/pdf",
+] as const;
+
+export const BUSINESS_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
+export const BUSINESS_UPLOAD_MAX_MB = BUSINESS_UPLOAD_MAX_BYTES / (1024 * 1024);
+export const BUSINESS_IMAGE_ACCEPT = BUSINESS_IMAGE_MIME_TYPES.join(",");
+export const BUSINESS_DOCUMENT_ACCEPT = BUSINESS_DOCUMENT_MIME_TYPES.join(",");
+
+const createBusinessFileValidator = (allowedMimeTypes: readonly string[], typeLabel: string) =>
+    z.union([
+        z.instanceof(File)
+            .refine(
+                (file) => file.size <= BUSINESS_UPLOAD_MAX_BYTES,
+                `File size must be less than ${BUSINESS_UPLOAD_MAX_MB}MB`,
+            )
+            .refine(
+                (file) => allowedMimeTypes.includes(file.type as (typeof allowedMimeTypes)[number]),
+                `Only supported ${typeLabel} file types are allowed`,
+            ),
+        z
+            .string()
+            .min(1, "Invalid file")
+            .refine((val) => val.startsWith("http") || val.startsWith("data:"), "Invalid file URL"),
+    ]);
+
+export const businessImageFileValidator = createBusinessFileValidator(BUSINESS_IMAGE_MIME_TYPES, "image");
+export const businessDocumentFileValidator = createBusinessFileValidator(BUSINESS_DOCUMENT_MIME_TYPES, "document");
+export const businessFileValidator = businessDocumentFileValidator;
 
 export const sanitizedBusinessText = (text: string) => {
     const excessiveSpecialChars = /[!@#$%^&*()_+=\[\]{};:'"<>,.?/\\|`~]{3,}/.test(text);
@@ -96,11 +114,11 @@ const optionalIdProofType = z
 
 const registrationOnlyFields = {
     idProofType: requiredIdProofType,
-    idProof: businessFileValidator.nullable().refine((val) => val !== null, "ID Proof is required"),
-    businessProof: businessFileValidator.nullable().refine((val) => val !== null, "Business Proof is required"),
-    certificates: z.array(businessFileValidator).optional(),
+    idProof: businessDocumentFileValidator.nullable().refine((val) => val !== null, "ID Proof is required"),
+    businessProof: businessDocumentFileValidator.nullable().refine((val) => val !== null, "Business Proof is required"),
+    certificates: z.array(businessDocumentFileValidator).optional(),
     shopImages: z
-        .array(businessFileValidator)
+        .array(businessImageFileValidator)
         .min(1, "Upload at least one shop image")
         .max(5, "Maximum 5 shop images allowed")
         .refine(
@@ -115,10 +133,10 @@ const registrationOnlyFields = {
 
 const editOnlyFields = {
     idProofType: optionalIdProofType,
-    idProof: businessFileValidator.nullable().optional(),
-    businessProof: businessFileValidator.nullable().optional(),
-    certificates: z.array(businessFileValidator).optional(),
-    shopImages: z.array(businessFileValidator).max(5, "Maximum 5 shop images allowed").optional(),
+    idProof: businessDocumentFileValidator.nullable().optional(),
+    businessProof: businessDocumentFileValidator.nullable().optional(),
+    certificates: z.array(businessDocumentFileValidator).optional(),
+    shopImages: z.array(businessImageFileValidator).max(5, "Maximum 5 shop images allowed").optional(),
 };
 
 export const createBusinessRegistrationSchema = () =>

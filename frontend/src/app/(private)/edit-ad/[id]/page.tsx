@@ -15,7 +15,7 @@ function EditAdPage() {
     const id = params?.id as string;
 
     const navigateTo = (page: string) => {
-        if (page === 'profile' || page === 'ad-submission-success' || page === 'my-ads') {
+        if (page === 'profile' || page === 'my-ads') {
             void router.replace(buildAccountListingRoute("ads", "pending"));
         } else if (page === 'home') {
             void router.replace('/');

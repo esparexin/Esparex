@@ -1,4 +1,4 @@
-import mongoose, { Schema, Model, Document, Types } from 'mongoose';
+import mongoose, { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
 import { Ad as SharedAd } from '@shared/schemas/ad.schema';
 import { ISoftDeleteDocument } from '../utils/softDeletePlugin';
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared/utils/geoUtils';
@@ -283,7 +283,7 @@ AdSchema.index(
     { listingType: 1, status: 1, createdAt: -1 },
     { name: 'idx_ad_listingType_status_createdAt' }
 );
-// Covers: brand+category search filter used by BrowseAds + SimilarAdsService
+// Covers: brand+category search filter used by BrowseAds and related listing discovery
 AdSchema.index(
     { brandId: 1, categoryId: 1, status: 1 },
     { name: 'idx_ad_brand_category_status' }
@@ -397,6 +397,7 @@ AdSchema.index(
 import { getUserConnection } from '../config/db';
 import softDeletePlugin from '../utils/softDeletePlugin';
 import { generateUniqueSlug } from '../utils/slugGenerator';
+import { syncConversationAvailabilityForListing } from '../services/chatAvailabilityService';
 
 AdSchema.plugin(softDeletePlugin);
 
@@ -414,7 +415,34 @@ const sanitizeAdLocation = (value: unknown): unknown => {
     return location;
 };
 
+const touchesChatAvailability = (update?: Record<string, unknown>): boolean => {
+    if (!update) return false;
+
+    const watchedKeys = ['status', 'isDeleted', 'isChatLocked'];
+    if (watchedKeys.some((key) => Object.prototype.hasOwnProperty.call(update, key))) {
+        return true;
+    }
+
+    const nestedUpdateKeys = ['$set', '$unset'] as const;
+    return nestedUpdateKeys.some((operator) => {
+        const operatorValue = update[operator];
+        if (!operatorValue || typeof operatorValue !== 'object') {
+            return false;
+        }
+        return watchedKeys.some((key) =>
+            Object.prototype.hasOwnProperty.call(operatorValue, key)
+        );
+    });
+};
+
 AdSchema.pre('save', async function (this: IAd) {
+    (this.$locals as Record<string, unknown>).syncChatAvailability =
+        !this.isNew && (
+            this.isModified('status') ||
+            this.isModified('isDeleted') ||
+            this.isModified('isChatLocked')
+        );
+
     this.location = sanitizeAdLocation(this.location) as IAd['location'];
 
     // ── Location consistency guard (PR 4 — dual-write contract) ──────────────
@@ -456,6 +484,7 @@ AdSchema.pre('save', async function (this: IAd) {
 
 AdSchema.pre('findOneAndUpdate', function () {
     const update = this.getUpdate() as Record<string, unknown> | undefined;
+    (this as { _syncChatAvailability?: boolean })._syncChatAvailability = touchesChatAvailability(update);
     if (!update) return;
 
     if ('location' in update) {
@@ -476,6 +505,39 @@ AdSchema.pre('findOneAndUpdate', function () {
             }
         }
     }
+});
+
+AdSchema.post('save', async function (doc: IAd) {
+    const shouldSync = Boolean((doc.$locals as Record<string, unknown>).syncChatAvailability);
+    if (!shouldSync) return;
+
+    const session = typeof doc.$session === 'function' ? doc.$session() : undefined;
+    await syncConversationAvailabilityForListing(
+        {
+            _id: doc._id,
+            status: doc.status,
+            isDeleted: doc.isDeleted,
+            isChatLocked: doc.isChatLocked,
+        },
+        session
+    );
+});
+
+AdSchema.post('findOneAndUpdate', async function (doc: IAd | null) {
+    if (!(this as { _syncChatAvailability?: boolean })._syncChatAvailability || !doc) {
+        return;
+    }
+
+    const options = this.getOptions() as { session?: unknown };
+    await syncConversationAvailabilityForListing(
+        {
+            _id: doc._id,
+            status: doc.status,
+            isDeleted: doc.isDeleted,
+            isChatLocked: doc.isChatLocked,
+        },
+        (options.session as ClientSession | undefined) || undefined
+    );
 });
 
 // Harmonization Virtuals

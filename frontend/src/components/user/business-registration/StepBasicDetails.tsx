@@ -10,6 +10,7 @@ import { CompletedStepCard } from "./CompletedStepCard";
 import { User } from "@/types/User";
 import { PhoneInput } from "@/components/ui/PhoneInput";
 import { cn } from "@/lib/utils";
+import { BUSINESS_IMAGE_ACCEPT, BUSINESS_UPLOAD_MAX_MB } from "@/schemas/business.schema.shared";
 
 interface StepBasicDetailsProps extends StepBaseProps {
     user: User | null;
@@ -155,7 +156,9 @@ export function StepBasicDetails({
                 <div className="space-y-3 pt-2">
                     <div>
                         <Label>Shop / Workshop Images *</Label>
-                        <p className="text-xs text-muted-foreground mb-1">Upload 1-5 images (Inside & Outside view preferred)</p>
+                        <p className="text-xs text-muted-foreground mb-1">
+                            Upload 1-5 images. Supported: JPG, PNG, WebP, AVIF, HEIC, HEIF up to {BUSINESS_UPLOAD_MAX_MB}MB each.
+                        </p>
                         {formData.errors?.shopImages && (
                             <p className="text-xs text-red-500 mt-1">{formData.errors.shopImages}</p>
                         )}
@@ -174,6 +177,7 @@ export function StepBasicDetails({
                                 />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                                     <Button
+                                        type="button"
                                         size="icon"
                                         variant="destructive"
                                         className="opacity-0 group-hover:opacity-100 transition-opacity"
@@ -196,7 +200,7 @@ export function StepBasicDetails({
                                     id="reg-shop-images"
                                     name="reg-shop-images"
                                     type="file"
-                                    accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif"
+                                    accept={BUSINESS_IMAGE_ACCEPT}
                                     multiple
                                     className="hidden"
                                     onChange={(e) => e.target.files && handleShopImageUpload(e.target.files)}

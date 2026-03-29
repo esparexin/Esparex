@@ -46,6 +46,7 @@ import { createListing, updateListing } from "@/lib/api/user/listings";
 export interface PostAdContextType {
     currentStep: number;
     setCurrentStep: (step: number) => void;
+    stepValidationAttempts: Record<number, boolean>;
 
     // RHF Methods
     form: UseFormReturn<PostAdFormData>;
@@ -112,6 +113,8 @@ export interface PostAdContextType {
     isLocationLocked: boolean;
     userHasInteracted: boolean;
     setUserHasInteracted: (val: boolean) => void;
+    loadError: string | null;
+    setLoadError: (message: string | null) => void;
     formError: string | null;
     setFormError: (message: string | null) => void;
     imageUploadError: string | null;
@@ -138,6 +141,7 @@ export type PostAdStateContextType = Omit<
     | "generateDescription"
     | "submitAd"
     | "setUserHasInteracted"
+    | "setLoadError"
     | "setFormError"
     | "setImageUploadError"
     | "setSubmittedAd"
@@ -163,6 +167,7 @@ export type PostAdActionContextType = Pick<
     | "generateDescription"
     | "submitAd"
     | "setUserHasInteracted"
+    | "setLoadError"
     | "setFormError"
     | "setImageUploadError"
     | "setSubmittedAd"
@@ -187,6 +192,7 @@ export function PostAdProvider({
     const validationHook = usePostAdValidation();
     const { form, register, control, errors, watch, setValue, trigger, handleSubmit } = formHook;
     const [userHasInteracted, setUserHasInteracted] = useState(false);
+    const [stepValidationAttempts, setStepValidationAttempts] = useState<Record<number, boolean>>({});
 
     const catalogHook = useListingCatalog({ 
         listingType: 'postad', 
@@ -194,11 +200,25 @@ export function PostAdProvider({
     });
 
     const handleImagesChange = useCallback((images: ListingImage[]) => {
-        setValue("images", images.map(img => img.preview), { 
-            shouldValidate: true, 
-            shouldDirty: true 
+        const nextImagePreviews = images.map((img) => img.preview);
+        const currentImagePreviews = Array.isArray(form.getValues("images"))
+            ? (form.getValues("images") as string[])
+            : [];
+
+        const isHydrationOnlySync =
+            currentImagePreviews.length === nextImagePreviews.length &&
+            currentImagePreviews.every((value, index) => value === nextImagePreviews[index]);
+
+        if (isHydrationOnlySync) {
+            return;
+        }
+
+        setValue("images", nextImagePreviews, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
         });
-    }, [setValue]);
+    }, [form, setValue]);
 
     const imagesHook = useListingImages({
         onImagesChange: handleImagesChange
@@ -265,7 +285,7 @@ export function PostAdProvider({
     }, [selectedCategoryId, categoryMap]);
 
     // Destructure validation hook
-    const { formError, setFormError } = validationHook;
+    const { loadError, setLoadError, formError, setFormError } = validationHook;
 
     // Submission logic in dedicated hook
     const { setIsDirty } = useNavigation();
@@ -333,7 +353,7 @@ export function PostAdProvider({
         editAdId,
         isEditMode,
         setIsLoading,
-        setFormError,
+        setLoadError,
         setOriginalAdStatus,
         setValue,
         setSpareParts,
@@ -346,15 +366,12 @@ export function PostAdProvider({
     /* ---------- HANDLERS ---------- */
     const handleCategoryChange = useCallback(async (id: string) => {
         setFormError(null);
-        setValue("category", id, { shouldValidate: true, shouldDirty: true });
-        setValue("categoryId", id, { shouldValidate: true, shouldDirty: true });
+        setValue("category", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        setValue("categoryId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         // Reset dependent fields with validation
         setValue("brand", "", { shouldValidate: true, shouldDirty: true });
         setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
-        setValue("model", "", { shouldValidate: true, shouldDirty: true });
-        // modelId temporarily unused in UI — reserved for future release; kept to prevent stale value on category switch
-        setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
         setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         setSpareParts([]);
         setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
@@ -366,17 +383,14 @@ export function PostAdProvider({
 
     const handleBrandChange = useCallback(async (name: string) => {
         setFormError(null);
-        setValue("brand", name, { shouldValidate: true, shouldDirty: true });
+        setValue("brand", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         // Resolve Brand ID from Map
         const brandObj = catalogHook.brandMap[name];
         const brandId = normalizeOptionalObjectId(brandObj?.id);
-        setValue("brandId", brandId ?? "", { shouldValidate: true, shouldDirty: true });
+        setValue("brandId", brandId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         // Reset dependent fields with validation
-        setValue("model", "", { shouldValidate: true, shouldDirty: true });
-        // modelId temporarily unused in UI — reserved for future release; kept to prevent stale value on brand switch
-        setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
         setSpareParts([]);
         setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
         setBrandIsPending(false);
@@ -386,15 +400,19 @@ export function PostAdProvider({
 
     /* ---------- SPARE PARTS ---------- */
     const generateDescription = useCallback(async (targetField: 'title' | 'description') => {
-        const { brand, model, screenSize } = form.getValues();
-        if (!brand || (!model && !screenSize)) return;
+        const { brand, screenSize, category, categoryId } = form.getValues();
+        const selectedCategoryId = String(categoryId || category || "");
+        const categoryName = categoryMap[selectedCategoryId]?.name || "device";
+        const resolvedBrand = String(brand || "").trim() || categoryName;
+        const resolvedDescriptor = String(screenSize || "").trim() || categoryName;
+        if (!resolvedBrand || !resolvedDescriptor) return;
         setIsLoading(true);
         try {
             const output = await generateAIContent({
                 type: 'generate',
                 context: {
-                    brand,
-                    model: model || screenSize,
+                    brand: resolvedBrand,
+                    model: resolvedDescriptor,
                     condition: "device",
                     targetField
                 }
@@ -416,7 +434,7 @@ export function PostAdProvider({
         } finally {
             setIsLoading(false);
         }
-    }, [form, setValue, trigger]);
+    }, [categoryMap, form, setValue, trigger]);
 
 
     const toggleAllSpareParts = useCallback((selectAll: boolean) => {
@@ -442,6 +460,10 @@ export function PostAdProvider({
     }, []);
 
     const nextStep = useCallback(async () => {
+        setStepValidationAttempts((prev) =>
+            prev[currentStep] ? prev : { ...prev, [currentStep]: true }
+        );
+
         // Step 1: categoryId and deviceCondition are optional in the base schema
         // (for partial saves / edit mode), so we gate them manually here before
         // running the schema-level trigger.
@@ -559,15 +581,16 @@ export function PostAdProvider({
             }
         }, (errors) => {
             logger.error("[PostAdSubmit] Form validation errors:", errors);
-            const firstError = Object.values(errors)[0]?.message;
-            setFormError(
-                typeof firstError === "string"
-                    ? firstError
-                    : "Please fix the highlighted errors before saving."
-            );
-            notify.error("Validation failed. Please check your inputs.");
+            const firstErrorKey = Object.keys(errors)[0];
+            if (typeof document !== "undefined" && firstErrorKey) {
+                if (firstErrorKey === "images") {
+                    document.querySelector("input[type='file']")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                } else {
+                    document.querySelector(`[name='${firstErrorKey}']`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            }
         })(),
-        [handleSubmit, onValidSubmit, setSubmittedAd, listingImages, setListingImages, setFormError]
+        [handleSubmit, onValidSubmit, setSubmittedAd, listingImages, setListingImages]
     );
 
     // Destructure stable function refs from images hook
@@ -575,6 +598,7 @@ export function PostAdProvider({
 
     const stateValue = useMemo<PostAdStateContextType>(() => ({
         currentStep,
+        stepValidationAttempts,
         form,
         control,
         errors,
@@ -597,6 +621,7 @@ export function PostAdProvider({
         isEditMode,
         isLocationLocked,
         userHasInteracted,
+        loadError,
         formError,
         imageUploadError: imagesHook.imageUploadError,
         requiresScreenSize,
@@ -606,6 +631,7 @@ export function PostAdProvider({
         control,
         errors,
         currentStep,
+        stepValidationAttempts,
         brandIsPending,
         spareParts,
         listingImages,
@@ -626,6 +652,7 @@ export function PostAdProvider({
         isEditMode,
         isLocationLocked,
         userHasInteracted,
+        loadError,
         formError,
         imagesHook.imageUploadError,
         requiresScreenSize,
@@ -648,6 +675,7 @@ export function PostAdProvider({
         generateDescription,
         submitAd,
         setUserHasInteracted,
+        setLoadError,
         setFormError,
         setImageUploadError: imagesHook.setImageUploadError,
         setSubmittedAd,
@@ -670,6 +698,7 @@ export function PostAdProvider({
         generateDescription,
         submitAd,
         setUserHasInteracted,
+        setLoadError,
         setFormError,
         imagesHook.setImageUploadError,
         setSubmittedAd,

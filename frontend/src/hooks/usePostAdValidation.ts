@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react";
 
 export function usePostAdValidation() {
-    const [error, setError] = useState<Error | null>(null);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
 
     const clearErrors = useCallback(() => {
-        setError(null);
+        setLoadError(null);
         setFormError(null);
     }, []);
 
@@ -13,9 +13,13 @@ export function usePostAdValidation() {
         setFormError(message);
     }, []);
 
+    const setLoadErrorMessage = useCallback((message: string | null) => {
+        setLoadError(message);
+    }, []);
+
     return {
-        error,
-        setError,
+        loadError,
+        setLoadError: setLoadErrorMessage,
         formError,
         setFormError: setErrorMessage,
         clearErrors,

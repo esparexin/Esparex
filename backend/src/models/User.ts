@@ -1,5 +1,9 @@
 import { Schema, Document, Model, Types } from 'mongoose';
 import { hasValidCoordinateArray } from '@shared/utils/geoUtils';
+import {
+  MOBILE_VISIBILITY,
+  normalizeMobileVisibility,
+} from '../../../shared/constants/mobileVisibility';
 import { getUserConnection } from '../config/db';
 
 export interface GeoJSONPoint {
@@ -47,7 +51,7 @@ export interface IUser extends Document {
   }>;
   notificationSettings?: Record<string, any>;
 
-  mobileVisibility: 'public' | 'contacts' | 'private' | 'show';
+  mobileVisibility: 'show' | 'hide' | 'on-request';
 
   isDeleted: boolean;
   deletedAt?: Date;
@@ -124,6 +128,9 @@ const normalizeUserLocation = (value: unknown): unknown => {
   return location;
 };
 
+const normalizeUserMobileVisibility = (value: unknown) =>
+  normalizeMobileVisibility(value, MOBILE_VISIBILITY.SHOW);
+
 
 const UserSchema: Schema = new Schema({
   mobile: { type: String, required: true },
@@ -184,8 +191,9 @@ const UserSchema: Schema = new Schema({
 
   mobileVisibility: {
     type: String,
-    enum: ['public', 'contacts', 'private', 'show'],
-    default: 'public',
+    enum: ['show', 'hide', 'on-request', 'public', 'contacts', 'private'],
+    default: MOBILE_VISIBILITY.SHOW,
+    set: normalizeUserMobileVisibility,
   },
 
   isDeleted: { type: Boolean, default: false },
@@ -220,6 +228,7 @@ UserSchema.index({ 'location.coordinates': '2dsphere' }, { sparse: true, name: '
 
 UserSchema.pre('save', function (this: IUser) {
   this.location = normalizeUserLocation(this.location) as IUser['location'];
+  this.mobileVisibility = normalizeUserMobileVisibility(this.mobileVisibility) as IUser['mobileVisibility'];
 });
 
 UserSchema.pre('findOneAndUpdate', function () {
@@ -228,6 +237,10 @@ UserSchema.pre('findOneAndUpdate', function () {
 
   if ('location' in update) {
     update.location = normalizeUserLocation(update.location);
+  }
+
+  if ('mobileVisibility' in update) {
+    update.mobileVisibility = normalizeUserMobileVisibility(update.mobileVisibility);
   }
 
   if ('location.coordinates' in update) {
@@ -244,6 +257,9 @@ UserSchema.pre('findOneAndUpdate', function () {
     if ('location' in setObj) {
       setObj.location = normalizeUserLocation(setObj.location);
     }
+    if ('mobileVisibility' in setObj) {
+      setObj.mobileVisibility = normalizeUserMobileVisibility(setObj.mobileVisibility);
+    }
     if ('location.coordinates' in setObj) {
       const nextGeo = toUserGeoPoint(setObj['location.coordinates']);
       if (!nextGeo) {
@@ -254,21 +270,6 @@ UserSchema.pre('findOneAndUpdate', function () {
     }
   }
 });
-
-UserSchema.pre('deleteOne',
-  { document: true, query: false },
-  async function(this: IUser) {
-    const Ad = getUserConnection().model('Ad');
-    const count = await Ad.countDocuments({
-      sellerId: this._id,
-      status: { $in: ['pending', 'active'] }
-    });
-    if (count > 0) {
-      throw new Error('Cannot delete user with active listings');
-    }
-  }
-);
-
 
 export const User: Model<IUser> = (getUserConnection().models.User as Model<IUser>) || getUserConnection().model<IUser>('User', UserSchema);
 export default User;

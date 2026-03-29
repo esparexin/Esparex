@@ -21,16 +21,20 @@ import {
 import { useGenericListingForm } from "@/components/user/shared/useGenericListingForm";
 import { GenericPostForm } from "@/components/user/shared/GenericPostForm";
 import { useListingFormProps } from "@/components/user/shared/useListingFormProps";
+import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingSubmissionSuccessModal";
 import { useRouter } from "next/navigation";
-import { notify } from "@/lib/notify";
 import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
+import { API_ROUTES } from "@/lib/api/routes";
 
 export default function PostSparePartForm({ editSparePartId }: { editSparePartId?: string }) {
     const isEditMode = !!editSparePartId;
     const router = useRouter();
+    const [submittedSparePart, setSubmittedSparePart] = React.useState(false);
 
     const form = useForm<PostSparePartFormValues>({
         resolver: zodResolver(PostSparePartFormSchema),
+        mode: "all",
+        shouldFocusError: true,
         defaultValues: {
             title: "",
             categoryId: "",
@@ -41,7 +45,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         },
     });
 
-    const { register, watch, setValue, formState: { errors } } = form;
+    const { register, watch, setValue, setError, clearErrors, formState: { errors } } = form;
     const categoryId = watch("categoryId");
     const sparePartTypeId = watch("sparePartTypeId");
 
@@ -80,10 +84,31 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         onDataLoaded
     });
 
+    React.useEffect(() => {
+        if (!categoryId) {
+            clearErrors("sparePartTypeId");
+            return;
+        }
+        if (isLoadingSpareParts) return;
+        if (availableSpareParts.length === 0) {
+            if (sparePartTypeId) {
+                clearErrors("sparePartTypeId");
+                return;
+            }
+            setError("sparePartTypeId", {
+                type: "manual",
+                message: "No spare parts are configured for this category yet. Choose another category to continue."
+            });
+            return;
+        }
+        clearErrors("sparePartTypeId");
+    }, [availableSpareParts.length, categoryId, clearErrors, isLoadingSpareParts, setError, sparePartTypeId]);
+
     const handleCategorySelect = async (id: string) => {
-        setValue("categoryId", id);
-        setValue("brandId", "");
-        setValue("sparePartTypeId", "");
+        setValue("categoryId", id, { shouldDirty: true, shouldValidate: true });
+        setValue("brandId", "", { shouldDirty: true, shouldValidate: true });
+        setValue("sparePartTypeId", "", { shouldDirty: true, shouldValidate: true });
+        clearErrors("sparePartTypeId");
         await Promise.all([loadBrandsForCategory(id), loadSparePartsForCategory(id)]);
     };
 
@@ -101,6 +126,8 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                     description: payload.description,
                     price: payload.price,
                     images: payload.images,
+                }, {
+                    endpoint: API_ROUTES.USER.SPARE_PART_LISTING_DETAIL(String(editSparePartId)),
                 });
             }
             return createListing({
@@ -108,11 +135,12 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                 sparePartId: payload.sparePartTypeId,
                 condition: "new",
                 locationId: (payload.location as any)?.locationId || businessData?.location?.locationId,
+            }, {
+                endpoint: API_ROUTES.USER.SPARE_PART_LISTINGS,
             });
         },
         onSuccess: () => {
-            notify.success(isEditMode ? "Spare part updated successfully" : "Spare part submitted for review");
-            router.push(buildAccountListingRoute("spare-parts", "pending"));
+            setSubmittedSparePart(true);
         },
     });
 
@@ -127,6 +155,21 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
     });
 
     if (isFetchingData) return <ListingModalLoading />;
+    if (submittedSparePart) {
+        return (
+            <ListingSubmissionSuccessModal
+                entityLabel="Spare Part"
+                isEditMode={isEditMode}
+                pendingActionLabel="View Pending Spare Parts"
+                onPrimaryAction={() => {
+                    void router.push("/");
+                }}
+                onSecondaryAction={() => {
+                    void router.push(buildAccountListingRoute("spare-parts", "pending"));
+                }}
+            />
+        );
+    }
 
     return (
         <GenericPostForm
@@ -134,6 +177,15 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
             title={isEditMode ? "Edit Spare Part" : "Post Spare Part"}
             formId="post-spare-part-form"
         >
+            {isEditMode ? (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                    <p className="font-semibold text-slate-900">Catalog fields are locked while editing.</p>
+                    <p className="mt-1">
+                        Category, brand, and spare part type stay fixed so this listing remains mapped to the same catalog item.
+                    </p>
+                </div>
+            ) : null}
+
             <CategorySelectorGrid
                 categories={dynamicCategories}
                 selectedCategoryId={categoryId}
@@ -149,7 +201,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                         brands={availableBrands}
                         brandMap={brandMap}
                         value={watch("brandId") || ""}
-                        onChange={(id) => setValue("brandId", id || "", { shouldValidate: true })}
+                        onChange={(id) => setValue("brandId", id || "", { shouldValidate: true, shouldDirty: true })}
                         disabled={isEditMode}
                     />
                 </Field>
@@ -172,24 +224,36 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                                     <button
                                         key={id}
                                         type="button"
-                                        onClick={() => setValue("sparePartTypeId", id, { shouldValidate: true })}
+                                        onClick={() => setValue("sparePartTypeId", id, { shouldValidate: true, shouldDirty: true })}
                                         disabled={isEditMode}
                                         className={cn(
-                                            "py-2.5 px-2 rounded-xl border text-xs font-bold transition-all",
+                                            "rounded-xl border px-2 py-2.5 text-sm font-semibold transition-all",
                                             selected
                                                 ? "bg-primary border-primary text-white shadow-sm"
-                                                : "bg-white border-slate-100 text-slate-600 hover:border-slate-200",
+                                                : "bg-white border-slate-100 text-slate-700 hover:border-slate-200",
                                             isEditMode && !selected ? "opacity-40" : ""
                                         )}
                                     >
-                                        {selected && <Check className="w-3 h-3 inline mr-1" />}
+                                        {selected && <Check className="mr-1 inline h-3.5 w-3.5" />}
                                         <span className="truncate">{part.name}</span>
                                     </button>
                                 );
                             })}
                         </div>
+                    ) : isEditMode && sparePartTypeId ? (
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                            <p className="font-semibold text-slate-900">Existing spare-part mapping is preserved.</p>
+                            <p className="mt-1">
+                                This listing keeps its current catalog mapping while you edit pricing, photos, and description.
+                            </p>
+                        </div>
                     ) : (
-                        <p className="text-xs text-slate-400 text-center py-3">No spare parts for this category.</p>
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                            <p className="font-semibold">This category cannot be posted yet.</p>
+                            <p className="mt-1">
+                                No spare parts are configured for this category. Choose another category to continue.
+                            </p>
+                        </div>
                     )}
                 </Field>
             )}

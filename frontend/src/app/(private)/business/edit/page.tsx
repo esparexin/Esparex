@@ -4,21 +4,21 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { notify } from "@/lib/notify";
 
-import { useAuth } from '@/context/AuthContext';
 import { normalizeBusinessStatus } from '@/lib/status/statusNormalization';
 
 import { useBusiness } from '@/hooks/useBusiness';
-import { BusinessEditFlow } from '@/components/user/BusinessEditFlow';
+import { useUser } from '@/hooks/useUser';
+import { BusinessProfileFlow } from '@/components/user/business-registration/BusinessProfileFlow';
 
 export default function BusinessEditPage() {
     const router = useRouter();
-    const { user, refreshUser, status: authStatus } = useAuth();
+    const { user, refreshUser, loading: authLoading } = useUser();
     const { businessData, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(user);
     
     const businessStatus = normalizeBusinessStatus(businessData?.status || user?.businessStatus, 'pending');
     const hasBusinessId = Boolean(businessData?.id || user?.businessId);
     
-    const isHydrated = authStatus !== 'loading' && !businessLoading && businessFetched;
+    const isHydrated = !authLoading && !businessLoading && businessFetched;
     const isAuthorized = !!user && hasBusinessId && businessStatus !== 'suspended';
 
     useEffect(() => {
@@ -46,9 +46,11 @@ export default function BusinessEditPage() {
     }
 
     return (
-        <BusinessEditFlow
+        <BusinessProfileFlow
+            mode="edit"
             user={user}
-            onUpdateUser={refreshUser}
+            initialBusiness={businessData}
+            onRefreshUser={refreshUser}
             onComplete={() => void router.push('/account/business')}
         />
     );

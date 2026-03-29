@@ -17,7 +17,7 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
  * 4. EMPTY: (Not currently used for Post Ad, but reserved)
  */
 export function PostAdShell({ children }: { children: React.ReactNode }) {
-    const { isLoading, formError: error } = usePostAd();
+    const { isLoading, loadError } = usePostAd();
     const { isBackendUp } = useBackendStatus();
 
     // 0. 📶 OFFLINE State
@@ -52,7 +52,7 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
     }
 
     // 2. ⚠️ ERROR State
-    if (error) {
+    if (loadError) {
         return (
             <div className="flex items-center justify-center w-full min-h-[60vh] p-4">
                 <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-red-100">
@@ -63,7 +63,7 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                         Something went wrong
                     </h2>
                     <p className="text-slate-600 mb-8">
-                        {mapErrorToMessage(error, "We encountered an issue loading the necessary data. Please try again.")}
+                        {mapErrorToMessage(loadError, "We encountered an issue loading the necessary data. Please try again.")}
                     </p>
                     <button
                         onClick={() => window.location.reload()}

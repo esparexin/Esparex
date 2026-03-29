@@ -4,10 +4,9 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { notify } from "@/lib/notify";
 
-import { BusinessRegistrationForm } from "@/components/user/BusinessRegistrationForm";
+import { BusinessProfileFlow } from "@/components/user/business-registration/BusinessProfileFlow";
 import { useUser } from "@/hooks/useUser";
 import { useBusiness } from "@/hooks/useBusiness";
-import type { UserPage } from "@/lib/routeUtils";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 
@@ -45,22 +44,6 @@ export default function BusinessApplyPage() {
         }
     }, [isHydrated, user, businessData, router]);
 
-    const navigateTo = (page: UserPage) => {
-        if (page === "home") {
-            void router.push("/");
-            return;
-        }
-        if (page === "business-entry") {
-            void router.push("/account/business");
-            return;
-        }
-        if (page === "business-register") {
-            void router.push("/account/business/apply");
-            return;
-        }
-        void router.push(`/${page}`);
-    };
-
     const handleUpdateUser = async () => {
         await refreshUser();
     };
@@ -74,10 +57,10 @@ export default function BusinessApplyPage() {
     }
 
     return (
-        <BusinessRegistrationForm
+        <BusinessProfileFlow
+            mode="registration"
             user={user}
-            onUpdateUser={handleUpdateUser}
-            navigateTo={(page) => navigateTo(page as UserPage)}
+            onRefreshUser={handleUpdateUser}
             onClose={() => void router.push("/account/business")}
         />
     );

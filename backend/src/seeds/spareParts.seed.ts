@@ -4,7 +4,7 @@ import Category from "../models/Category";
 import slugify from "slugify";
 import logger from '../utils/logger';
 import { escapeRegExp } from '../utils/stringUtils';
-import { CATALOG_STATUS } from "../../../shared/enums/catalogStatus";
+import { LISTING_TYPE } from "../../../shared/enums/listingType";
 
 type SparePartSeed = {
     name: string;
@@ -75,8 +75,7 @@ export async function seedSpareParts() {
                     $set: {
                         name: part.name,
                         categoryIds,
-                        listingType: ['postad', 'postsparepart'], // Ensure visibility in Post Ad flow
-                        status: CATALOG_STATUS.LIVE,
+                        listingType: [LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART],
                         isActive: true,
                         isDeleted: false,
                         usageCount: 0,

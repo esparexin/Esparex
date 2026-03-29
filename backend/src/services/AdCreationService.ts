@@ -92,7 +92,7 @@ export const validateSparePartsForCategory = async (
     const validParts = await SparePart.find({
         _id: { $in: uniqueSparePartIds },
         categoryIds: { $in: categoryScope },
-        status: CATALOG_STATUS.ACTIVE
+        isActive: true
     }).select('_id name brandId').lean();
 
     if (validParts.length !== uniqueSparePartIds.length) {

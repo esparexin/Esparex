@@ -31,7 +31,7 @@ async function run() {
     logger.info('[IndexMigration] Created idx_ad_listingType_status_createdAt');
 
     // 2. brandId + categoryId + status
-    //    Covers: brand+category search filter (BrowseAds, SimilarAdsService)
+    //    Covers: brand+category search filter used by browse and related discovery
     await col.createIndex(
         { brandId: 1, categoryId: 1, status: 1 },
         { name: 'idx_ad_brand_category_status', background: true }

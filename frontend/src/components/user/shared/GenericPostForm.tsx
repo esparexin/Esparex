@@ -3,7 +3,7 @@
 import React, { ReactNode } from "react";
 import { FormProvider, UseFormReturn } from "react-hook-form";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "./ListingModalLayout";
-import { ListingImagesField, ListingLocationField } from "./ListingFormFields";
+import { ListingImagesField, ListingLocationField, getFirstFormErrorMessage } from "./ListingFormFields";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
@@ -40,6 +40,12 @@ export function GenericPostForm({
     submitLabel,
     formId,
 }: GenericPostFormProps) {
+    const imagesError = getFirstFormErrorMessage(form.formState.errors.images);
+    const locationError = getFirstFormErrorMessage(form.formState.errors.location);
+    const locationHelperText = locationDisplay
+        ? "This listing uses your Business profile location. Update it in Business Hub if needed."
+        : "Add a Business profile location in Business Hub before publishing.";
+
     return (
         <FormProvider {...form}>
             <ListingModalLayout title={title} onClose={onClose}>
@@ -53,12 +59,15 @@ export function GenericPostForm({
                                     onUpload={onImageUpload}
                                     onRemove={onImageRemove}
                                     firstImageBadgeLabel={isEditMode ? "CURRENT" : "COVER"}
+                                    error={imagesError}
+                                    helperText="Add clear product photos. The first photo will be used as the cover image."
                                 />
 
                                 <ListingLocationField 
                                     display={locationDisplay || ''} 
                                     fixedLabel="Fixed" 
-                                    error={form.formState.errors.location?.message as string}
+                                    error={locationError}
+                                    helperText={locationHelperText}
                                 />
                             </div>
                         </ListingModalBody>
@@ -67,9 +76,9 @@ export function GenericPostForm({
                             <Button
                                 type="submit"
                                 form={formId}
-                                disabled={isSubmitting || images.length === 0}
+                                disabled={isSubmitting}
                                 className={cn(
-                                    "w-full rounded-xl font-bold transition-all active:scale-[0.98]",
+                                    "w-full rounded-xl font-semibold transition-all active:scale-[0.98]",
                                     "h-14 text-lg sm:h-12 sm:text-base",
                                     "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-70"
                                 )}
@@ -78,8 +87,6 @@ export function GenericPostForm({
                                     <span className="flex items-center gap-2">
                                         <Loader2 className="w-5 h-5 animate-spin" /> Submitting...
                                     </span>
-                                ) : images.length === 0 ? (
-                                    "Add at least 1 photo to submit"
                                 ) : (
                                     submitLabel || (isEditMode ? "Save Changes" : "Submit →")
                                 )}

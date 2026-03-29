@@ -15,10 +15,8 @@ export function usePostAdForm(isEditMode: boolean = false) {
         defaultValues: {
             category: "",
             categoryId: "",
-            sparePartId: "",
             brand: "",
             brandId: "",
-            model: "",
             screenSize: "",
 
             title: "",

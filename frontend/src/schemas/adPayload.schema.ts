@@ -18,10 +18,12 @@ export const PartialAdPayloadSchema = SharedPartialAdPayloadSchema;
 export type AdFormExtras = {
     category?: string;
     brand?: string;
-    model?: string;
 };
 
-// Frontend forms work with schema input types (pre-transform/preprocess values).
-export type AdPayload = z.input<typeof AdPayloadSchema> & AdFormExtras;
-export type BaseAdPayload = z.input<typeof BaseAdPayloadSchema> & AdFormExtras;
-export type PartialAdPayload = z.input<typeof PartialAdPayloadSchema> & AdFormExtras;
+type RemovedPostAdFields = "modelId" | "sparePartId";
+
+// Frontend forms work with schema input types (pre-transform/preprocess values),
+// but the current Post Ad UI no longer collects model or single spare-part IDs.
+export type AdPayload = Omit<z.input<typeof AdPayloadSchema>, RemovedPostAdFields> & AdFormExtras;
+export type BaseAdPayload = Omit<z.input<typeof BaseAdPayloadSchema>, RemovedPostAdFields> & AdFormExtras;
+export type PartialAdPayload = Omit<z.input<typeof PartialAdPayloadSchema>, RemovedPostAdFields> & AdFormExtras;

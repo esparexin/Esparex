@@ -14,5 +14,5 @@ export default async function AccountSparePartsPage(props: {
         redirect(buildAccountListingRoute("spare-parts", normalizedStatus));
     }
 
-    return <AccountPageShell tab="spareparts" />;
+    return <AccountPageShell tab="mylistings" listingSubTab="spare-parts" />;
 }

@@ -11,7 +11,7 @@ import BusinessModel from '../../models/Business';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { BusinessStatsPayload } from './shared';
 
-export const getMyBusinesses = async (req: Request, res: Response) => {
+export const getMyBusiness = async (req: Request, res: Response) => {
     try {
         const user = req.user;
         if (!user) {
@@ -19,17 +19,17 @@ export const getMyBusinesses = async (req: Request, res: Response) => {
             return;
         }
 
-        const businesses = await businessService.getBusinessesByUserId(user._id.toString());
+        const business = await businessService.getBusinessByUserId(user._id.toString());
 
-        const response = respond<ApiResponse<Business[]>>({
+        const response = respond<ApiResponse<Business | null>>({
             success: true,
-            data: businesses as unknown as Business[]
+            data: (business as unknown as Business) ?? null
         });
 
         res.json(response);
     } catch (error: unknown) {
-        logger.error('Get My Businesses Error:', error);
-        sendErrorResponse(req, res, 500, 'Failed to fetch businesses');
+        logger.error('Get My Business Error:', error);
+        sendErrorResponse(req, res, 500, 'Failed to fetch business');
     }
 };
 

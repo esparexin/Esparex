@@ -1,26 +1,21 @@
 import { useState, useEffect } from "react";
 import { getPlans } from "@/lib/api/user/plans";
-// Local type definitions for ProfilePlan and ProfilePlanType
-type ProfilePlanType = "More Ads" | "Spotlight" | "Alert Slots";
-interface ProfilePlan {
-    id: string;
-    name: string;
-    price: number;
-    duration: string;
-    type: ProfilePlanType;
-    features: string[];
-    popular: boolean;
-}
+import type { ProfilePlan, ProfilePlanType } from "@/components/user/profile/types";
+import type { User } from "@/types/User";
 import logger from "@/lib/logger";
 
-export function useDynamicPlans(activeTab: string) {
+export function useDynamicPlans(activeTab: string, user: User | null) {
     const [dynamicPlans, setDynamicPlans] = useState<ProfilePlan[]>([]);
     const [loadingPlans, setLoadingPlans] = useState(false);
 
     const fetchDynamicPlans = async () => {
         setLoadingPlans(true);
         try {
-            const data = await getPlans({ userType: "normal" });
+            const userType =
+                user?.role === "business" || user?.businessStatus === "live"
+                    ? "business"
+                    : "normal";
+            const data = await getPlans({ userType });
             const mapped: ProfilePlan[] = data.map((p) => ({
                 id: p.id,
                 name: p.name,
@@ -30,7 +25,7 @@ export function useDynamicPlans(activeTab: string) {
                     p.type === "AD_PACK" ? "More Ads" : (p.type === "SPOTLIGHT" ? "Spotlight" : "Alert Slots")
                 ) as ProfilePlanType,
                 features: p.description ? [p.description] : [p.name],
-                popular: p.active,
+                popular: Boolean(p.isDefault),
             }));
             setDynamicPlans(mapped);
         } catch (error) {
@@ -45,7 +40,7 @@ export function useDynamicPlans(activeTab: string) {
         if (activeTab === 'plans') {
             fetchDynamicPlans();
         }
-    }, [activeTab]);
+    }, [activeTab, user?.businessStatus, user?.role]);
 
     return {
         dynamicPlans,

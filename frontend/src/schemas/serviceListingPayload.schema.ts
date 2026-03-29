@@ -47,7 +47,7 @@ export const ServiceListingPayloadSchema = BaseServicePayloadSchema
         brandId: stringId,
         modelId: stringId,
         // serviceTypeIds uses ObjectIdSchema (z.preprocess → unknown output); override with plain string[]
-        serviceTypeIds: z.array(z.string()).optional(),
+        serviceTypeIds: z.array(z.string()).min(1, 'Select at least one service type'),
         // Single price field — mapped to priceMin on submit (backend expects priceMin)
         price: z.number({ invalid_type_error: 'Enter a valid price' }).min(0, 'Price must be at least 0'),
     }));

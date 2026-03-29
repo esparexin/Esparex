@@ -3,6 +3,7 @@ import Ad from '../models/Ad';
 import PhoneRevealLog from '../models/PhoneRevealLog';
 import PhoneRequest from '../models/PhoneRequest';
 import logger from '../utils/logger';
+import { MOBILE_VISIBILITY, normalizeMobileVisibility } from '../../../shared/constants/mobileVisibility';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 
 /**
@@ -105,10 +106,12 @@ export const getSellerPhone = async (
 
         // Privacy Logic Enforcement (Bypass for owners)
         if (!isOwner) {
-            if (seller.mobileVisibility === 'hide') {
+            const sellerMobileVisibility = normalizeMobileVisibility(seller.mobileVisibility, MOBILE_VISIBILITY.SHOW);
+
+            if (sellerMobileVisibility === MOBILE_VISIBILITY.HIDE) {
                 return { error: 'HIDDEN' };
             }
-            if (seller.mobileVisibility === 'on-request') {
+            if (sellerMobileVisibility === MOBILE_VISIBILITY.ON_REQUEST) {
                 // Check for approved request
                 const approvedRequest = await PhoneRequest.findOne({
                     buyerId: new mongoose.Types.ObjectId(buyerId),
@@ -171,4 +174,3 @@ export const getSellerPhone = async (
         return { error: 'Failed to retrieve phone number' };
     }
 };
-

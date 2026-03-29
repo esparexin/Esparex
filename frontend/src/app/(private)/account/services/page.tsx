@@ -14,5 +14,5 @@ export default async function AccountServicesPage(props: {
         redirect(buildAccountListingRoute("services", normalizedStatus));
     }
 
-    return <AccountPageShell tab="services" />;
+    return <AccountPageShell tab="mylistings" listingSubTab="services" />;
 }

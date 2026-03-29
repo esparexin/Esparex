@@ -13,23 +13,24 @@ export const coordinatesSchema = z.object({
   ]),
 });
 
-export const ingestLocationSchema = z.object({
-  name: z.string().trim().min(1, 'Location name required'),
-  state: z.string().trim().min(1, 'State required'),
-  coordinates: coordinatesSchema,
-  city: z.string().trim().optional(),
-  country: z.string().trim().optional(),
-  radius: z.number().positive().optional(),
-  tags: z.array(z.string()).optional(),
-});
-
 export const logLocationEventSchema = z.object({
   city: z.string().trim().min(1),
   state: z.string().trim().min(1),
   source: z.enum(['auto', 'ip', 'manual', 'default']),
+  reason: z.enum([
+    'manual_override',
+    'gps_denied',
+    'permission_denied',
+    'timeout',
+    'insecure_context',
+    'ip_fallback',
+    'manual_select',
+    'gps_allowed',
+    'fallback',
+  ]),
   eventType: z.string().min(1),
-  reason: z.string().optional(),
   coordinates: coordinatesSchema.optional(),
+  locationId: z.string().optional(),
 });
 
 export const appLocationSchema = z.object({

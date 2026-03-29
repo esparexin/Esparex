@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../../../shared/enums/catalogStatus';
+import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from '../../../shared/enums/listingType';
 
 export interface ISparePart extends Document {
     name: string;
     slug: string;
-    listingType: string[];
+    listingType: ListingTypeValue[];
     categoryIds: mongoose.Types.ObjectId[];
     brandId?: mongoose.Types.ObjectId;   // Optional — scopes part to a brand
     modelId?: mongoose.Types.ObjectId;   // Optional — scopes part to a specific model
@@ -12,9 +12,6 @@ export interface ISparePart extends Document {
     usageCount: number;
     filters?: unknown[];
     isActive: boolean;
-    status: CatalogStatusValue;
-    rejectionReason?: string;
-    needsReview?: boolean; // Flag for data audit/migration
     createdBy?: mongoose.Types.ObjectId;
     isDeleted: boolean;
     deletedAt?: Date;
@@ -22,14 +19,14 @@ export interface ISparePart extends Document {
     restore(): Promise<this>;
 }
 
-const SparePartSchema = new Schema(
+const SparePartSchema = new Schema<ISparePart>(
     {
         name: { type: String, required: true, trim: true },
         slug: { type: String, required: true, lowercase: true, trim: true },
-        listingType: { 
-            type: [String], 
-            enum: ['postad', 'postsparepart'], 
-            default: ['postsparepart'] 
+        listingType: {
+            type: [String],
+            enum: LISTING_TYPE_VALUES,
+            default: [LISTING_TYPE.SPARE_PART],
         },
         categoryIds: {
             type: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
@@ -44,9 +41,6 @@ const SparePartSchema = new Schema(
         usageCount: { type: Number, default: 0 },
         filters: { type: Array, default: [] },
         isActive: { type: Boolean, default: true },
-        status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
-        rejectionReason: { type: String },
-        needsReview: { type: Boolean, default: false },
         createdBy: { type: Schema.Types.ObjectId, ref: 'Admin' }
     },
 
@@ -72,11 +66,30 @@ SparePartSchema.index({ slug: 1 }, {
 SparePartSchema.index({ categoryIds: 1 }, { name: 'idx_sparepart_categoryIds' });
 SparePartSchema.index({ isActive: 1 }, { name: 'idx_sparepart_isActive' });
 SparePartSchema.index({ categoryIds: 1, isActive: 1 }, { name: 'idx_sparepart_categoryIds_active' });
-SparePartSchema.index({ status: 1 }, { name: 'idx_sparepart_status' });
 SparePartSchema.index({ brandId: 1, modelId: 1 }, { name: 'idx_sparepart_brand_model' });
 SparePartSchema.index({ sortOrder: 1 }, { name: 'idx_sparepart_sortOrder' });
 SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });
 SparePartSchema.index({ isDeleted: 1 }, { name: 'idx_sparepart_isDeleted' });
+
+SparePartSchema.pre('validate', function() {
+    if (Array.isArray(this.listingType) && this.listingType.length > 0) {
+        this.listingType = this.listingType.map((value: string) => {
+            if (value === 'postad') return LISTING_TYPE.AD;
+            if (value === 'postsparepart') return LISTING_TYPE.SPARE_PART;
+            return value;
+        }) as ListingTypeValue[];
+    }
+});
+
+SparePartSchema.post('init', function(doc: ISparePart) {
+    if (Array.isArray(doc.listingType) && doc.listingType.length > 0) {
+        doc.listingType = doc.listingType.map((value: string) => {
+            if (value === 'postad') return LISTING_TYPE.AD;
+            if (value === 'postsparepart') return LISTING_TYPE.SPARE_PART;
+            return value;
+        }) as ListingTypeValue[];
+    }
+});
 
 import { getAdminConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';

@@ -75,45 +75,64 @@ export const buildLocationSummary = (
         state = ownName;
     }
 
+    let district = findHierarchyName('district');
+    if (!district && currentLevel === 'district') {
+        district = ownName;
+    }
+
     const country = asString(location.country) || findHierarchyName('country') || '';
 
     return {
         id: toLocationIdString(location._id) || '',
         name: ownName,
         city,
+        district,
         state,
         country,
         level: currentLevel,
     };
 };
 
-export const resolveLocationSummary = async (location: CanonicalLocationDoc | null | undefined) => {
-    if (!location) return null;
-
+export const loadHierarchyMapForLocations = async (
+    locations: Array<CanonicalLocationDoc | null | undefined>
+) => {
     const hierarchyIds = new Set<string>();
-    const currentId = toLocationIdString(location._id);
-    if (currentId) {
-        hierarchyIds.add(currentId);
-    }
-    for (const entry of location.path || []) {
-        const entryId = toLocationIdString(entry);
-        if (entryId) {
-            hierarchyIds.add(entryId);
+
+    for (const location of locations) {
+        if (!location) continue;
+
+        const currentId = toLocationIdString(location._id);
+        if (currentId) {
+            hierarchyIds.add(currentId);
         }
-    }
-    const parentId = toLocationIdString(location.parentId);
-    if (parentId) {
-        hierarchyIds.add(parentId);
+
+        for (const entry of location.path || []) {
+            const entryId = toLocationIdString(entry);
+            if (entryId) {
+                hierarchyIds.add(entryId);
+            }
+        }
+
+        const parentId = toLocationIdString(location.parentId);
+        if (parentId) {
+            hierarchyIds.add(parentId);
+        }
     }
 
     const hierarchyLocations = hierarchyIds.size > 0
         ? await Location.find({ _id: { $in: Array.from(hierarchyIds) } })
-            .select('_id name country level')
+            .select('_id name country level parentId path')
             .lean<CanonicalLocationDoc[]>()
         : [];
-    const hierarchyMap = new Map(
+
+    return new Map(
         hierarchyLocations.map((entry) => [String(entry._id), entry])
     );
+};
+
+export const resolveLocationSummary = async (location: CanonicalLocationDoc | null | undefined) => {
+    if (!location) return null;
+    const hierarchyMap = await loadHierarchyMapForLocations([location]);
 
     return buildLocationSummary(location, hierarchyMap);
 };
@@ -145,6 +164,11 @@ export const normalizeStateLabel = (value: unknown): string => {
 
 const toExactRegex = (value: string): RegExp =>
     new RegExp(`^${escapeRegExp(value)}$`, 'i');
+
+const equalsIgnoreCase = (left: string | undefined, right: string | undefined) => {
+    if (!left || !right) return false;
+    return left.trim().toLowerCase() === right.trim().toLowerCase();
+};
 
 export const normalizeHierarchyLevel = (value: unknown): HierarchyLevel | undefined => {
     const normalized = asString(value)?.toLowerCase();
@@ -291,4 +315,117 @@ export const resolveLocationPathIds = async (
     }
 
     return chain;
+};
+
+export const resolveLocationScope = async (params: {
+    country?: unknown;
+    state?: unknown;
+    district?: unknown;
+    city?: unknown;
+}) => {
+    const country = toTitleCase(asString(params.country));
+    const state = toTitleCase(asString(params.state));
+    const district = toTitleCase(asString(params.district));
+    const city = toTitleCase(asString(params.city));
+
+    const deepestLevel = city
+        ? 'city'
+        : district
+            ? 'district'
+            : state
+                ? 'state'
+                : country
+                    ? 'country'
+                    : null;
+
+    if (!deepestLevel) {
+        return {
+            rootIds: null as mongoose.Types.ObjectId[] | null,
+            locationIds: null as mongoose.Types.ObjectId[] | null,
+            filters: { country, state, district, city },
+        };
+    }
+
+    if (deepestLevel === 'country' && country) {
+        const countryLocationIds = await Location.find({
+            isActive: true,
+            country: toExactRegex(country),
+        }).distinct('_id');
+
+        return {
+            rootIds: countryLocationIds.map((value) => value instanceof mongoose.Types.ObjectId ? value : new mongoose.Types.ObjectId(String(value))),
+            locationIds: countryLocationIds.map((value) => value instanceof mongoose.Types.ObjectId ? value : new mongoose.Types.ObjectId(String(value))),
+            filters: { country, state, district, city },
+        };
+    }
+
+    const query: Record<string, unknown> = {
+        isActive: true,
+        level: deepestLevel,
+    };
+
+    if (deepestLevel === 'state' && state) {
+        query.name = toExactRegex(state);
+        if (country) {
+            query.country = toExactRegex(country);
+        }
+    } else if (deepestLevel === 'district' && district) {
+        query.name = toExactRegex(district);
+        if (country) {
+            query.country = toExactRegex(country);
+        }
+    } else if (deepestLevel === 'city' && city) {
+        query.name = toExactRegex(city);
+        if (country) {
+            query.country = toExactRegex(country);
+        }
+    }
+
+    const candidates = await Location.find(query)
+        .select('_id name country level parentId path')
+        .lean<CanonicalLocationDoc[]>();
+
+    if (candidates.length === 0) {
+        return {
+            rootIds: [] as mongoose.Types.ObjectId[],
+            locationIds: [] as mongoose.Types.ObjectId[],
+            filters: { country, state, district, city },
+        };
+    }
+
+    const hierarchyMap = await loadHierarchyMapForLocations(candidates);
+    const matchedRootIds = candidates
+        .filter((candidate) => {
+            const summary = buildLocationSummary(candidate, hierarchyMap);
+            if (country && !equalsIgnoreCase(summary.country, country)) return false;
+            if (state && !equalsIgnoreCase(summary.state, state)) return false;
+            if (district && !equalsIgnoreCase(summary.district, district)) return false;
+            if (city && !equalsIgnoreCase(summary.city, city)) return false;
+            return true;
+        })
+        .map((candidate) => candidate._id)
+        .filter((value): value is mongoose.Types.ObjectId => value instanceof mongoose.Types.ObjectId || mongoose.Types.ObjectId.isValid(String(value)))
+        .map((value) => value instanceof mongoose.Types.ObjectId ? value : new mongoose.Types.ObjectId(String(value)));
+
+    if (matchedRootIds.length === 0) {
+        return {
+            rootIds: [] as mongoose.Types.ObjectId[],
+            locationIds: [] as mongoose.Types.ObjectId[],
+            filters: { country, state, district, city },
+        };
+    }
+
+    const locationIds = await Location.find({
+        isActive: true,
+        $or: [
+            { _id: { $in: matchedRootIds } },
+            { path: { $in: matchedRootIds } },
+        ],
+    }).distinct('_id');
+
+    return {
+        rootIds: matchedRootIds,
+        locationIds: locationIds.map((value) => value instanceof mongoose.Types.ObjectId ? value : new mongoose.Types.ObjectId(String(value))),
+        filters: { country, state, district, city },
+    };
 };

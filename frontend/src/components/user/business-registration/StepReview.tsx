@@ -12,6 +12,8 @@ interface StepReviewProps {
     onEditStep: (step: number) => void;
     isSubmitting: boolean;
     submitLabel?: string;
+    variant: "registration" | "application-edit" | "live-edit";
+    showDocumentsSummary: boolean;
 }
 
 export function StepReview({
@@ -20,8 +22,24 @@ export function StepReview({
     isActive,
     onEditStep,
     isSubmitting,
-    submitLabel = "Submit Application"
+    submitLabel = "Submit Application",
+    variant,
+    showDocumentsSummary,
 }: StepReviewProps) {
+    const title = variant === "live-edit" ? "Review Changes" : "Final Review";
+    const description =
+        variant === "registration"
+            ? "Confirm your details. Your account will be pending admin approval."
+            : variant === "application-edit"
+                ? "Review your updates before resubmitting your business application."
+                : "Confirm your updates before saving your business profile.";
+    const reviewNotice =
+        variant === "registration"
+            ? "Your application will be reviewed by our team within 24 working hours. Services and Parts can be managed from your Dashboard once approved."
+            : variant === "application-edit"
+                ? "Your updated application will remain under admin review. Replace documents only if something changed or the reviewer asked for it."
+                : "Most profile changes save immediately. Sensitive changes like business name, location, or documents can send the profile back for admin review.";
+    const loadingLabel = variant === "live-edit" ? "Saving..." : "Submitting...";
 
     if (!isActive) return null;
 
@@ -30,11 +48,9 @@ export function StepReview({
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-[#0652DD]" />
-                    Final Review
+                    {title}
                 </CardTitle>
-                <CardDescription>
-                    Confirm your details. Your account will be pending admin approval.
-                </CardDescription>
+                <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <ReviewSection
@@ -47,11 +63,13 @@ export function StepReview({
                     content={`${formData.shopNo}, ${formData.street}, ${formData.city}, ${formData.state} - ${formData.pincode}`}
                     onEdit={() => onEditStep(1)}
                 />
-                <ReviewSection
-                    title="Documents"
-                    content={`${formData.idProofType ? formData.idProofType.charAt(0).toUpperCase() + formData.idProofType.slice(1).replace("_", " ") + " - " : ""}ID Proof, Business Proof`}
-                    onEdit={() => onEditStep(2)}
-                />
+                {showDocumentsSummary && (
+                    <ReviewSection
+                        title="Documents"
+                        content={`${formData.idProofType ? formData.idProofType.charAt(0).toUpperCase() + formData.idProofType.slice(1).replace("_", " ") + " - " : ""}ID Proof, Business Proof`}
+                        onEdit={() => onEditStep(2)}
+                    />
+                )}
 
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
                     <div className="flex gap-3">
@@ -59,7 +77,7 @@ export function StepReview({
                             <FileText className="h-3.5 w-3.5 text-amber-600" />
                         </div>
                         <p className="text-sm text-amber-900 leading-relaxed font-medium">
-                            Your application will be reviewed by our team within 24 working hours. Services and Parts can be managed from your Dashboard once approved.
+                            {reviewNotice}
                         </p>
                     </div>
                 </div>
@@ -82,7 +100,7 @@ export function StepReview({
                         {isSubmitting ? (
                             <span className="flex items-center gap-2">
                                 <Loader2 className="h-4 w-4 animate-spin" />
-                                Submitting...
+                                {loadingLabel}
                             </span>
                         ) : submitLabel}
                     </Button>

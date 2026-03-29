@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect } from "react";
+import { useCallback, useLayoutEffect } from "react";
 import { usePostAd } from "../PostAdContext";
 import { CircuitBoard } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
@@ -14,6 +14,12 @@ import {
 } from "@/components/ui/select";
 import { Field } from "@/components/ui/field";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
+
+const getNestedFieldMeta = (source: unknown, path: string): unknown =>
+    path.split(".").reduce<unknown>((current, segment) => {
+        if (!current || typeof current !== "object") return undefined;
+        return (current as Record<string, unknown>)[segment];
+    }, source);
 
 export default function DeviceIdentityFields() {
     const {
@@ -30,6 +36,9 @@ export default function DeviceIdentityFields() {
         availableSpareParts,
         isLoadingSpareParts,
         requiresScreenSize,
+        stepValidationAttempts,
+        currentStep,
+        form,
     } = usePostAd();
 
     const categoryId = String(watch("category") || "");
@@ -39,6 +48,25 @@ export default function DeviceIdentityFields() {
     const screenSize = String(watch("screenSize") || "");
     const spareParts = watch("spareParts") || [];
     const deviceCondition = watch("deviceCondition");
+    const {
+        touchedFields,
+    } = form.formState;
+    const hasAttemptedStepValidation = Boolean(stepValidationAttempts[1]) || currentStep > 1;
+    const shouldShowFieldError = useCallback(
+        (path: string) => {
+            if (hasAttemptedStepValidation) return true;
+            return Boolean(getNestedFieldMeta(touchedFields, path));
+        },
+        [hasAttemptedStepValidation, touchedFields]
+    );
+    const categoryError = shouldShowFieldError("categoryId") || shouldShowFieldError("category")
+        ? (errors.categoryId?.message ?? errors.category?.message)
+        : undefined;
+    const brandError = shouldShowFieldError("brand") || shouldShowFieldError("brandId")
+        ? (errors.brand?.message ?? errors.brandId?.message)
+        : undefined;
+    const screenSizeError = shouldShowFieldError("screenSize") ? errors.screenSize?.message : undefined;
+    const deviceConditionError = shouldShowFieldError("deviceCondition") ? errors.deviceCondition?.message : undefined;
 
     // PostAd tracks brand as name string in form "brand" field.
     // BrandSearchSelect matches by id — use name as id so selection round-trips correctly.
@@ -59,7 +87,7 @@ export default function DeviceIdentityFields() {
 
             {/* Category */}
             <section className="space-y-4">
-                <Field error={errors.categoryId?.message ?? errors.category?.message} label="Select Category">
+                <Field error={categoryError} label="Select Category">
                     <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                         {dynamicCategories.map((cat) => {
                             const Icon = cat.icon || CircuitBoard;
@@ -78,7 +106,7 @@ export default function DeviceIdentityFields() {
                                     )}
                                 >
                                     <Icon className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-slate-400")} />
-                                    <span className={cn("text-[10px] font-bold text-center leading-tight truncate w-full px-1", selected ? "text-primary-foreground" : "text-slate-600")}>
+                                    <span className={cn("text-[11px] font-semibold text-center leading-tight truncate w-full px-1", selected ? "text-primary-foreground" : "text-slate-600")}>
                                         {cat.name}
                                     </span>
                                 </Button>
@@ -91,7 +119,7 @@ export default function DeviceIdentityFields() {
             {/* Brand & Screen Size */}
             <section className="space-y-4">
                 <div className="flex flex-col gap-4">
-                    <Field label="Brand" error={errors.brand?.message ?? errors.brandId?.message}>
+                    <Field label="Brand" error={brandError}>
                         <BrandSearchSelect
                             brands={availableBrands}
                             brandMap={brandMapForSelect}
@@ -102,10 +130,10 @@ export default function DeviceIdentityFields() {
 
                     {/* Screen Size — only for LED-TV / monitor categories */}
                     {requiresScreenSize && (
-                        <Field label="Screen Size" error={errors.screenSize?.message}>
+                        <Field label="Screen Size" error={screenSizeError}>
                             <Select
                                 value={screenSize || undefined}
-                                onValueChange={(val) => setValue("screenSize", val, { shouldValidate: true, shouldDirty: true })}
+                                onValueChange={(val) => setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}
                             >
                                 <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-bold text-slate-900 focus:border-primary transition-colors px-3 text-sm">
                                     <SelectValue placeholder="Select size" />
@@ -146,7 +174,7 @@ export default function DeviceIdentityFields() {
                                         variant={isSelected ? "default" : "outline"}
                                         onClick={() => toggleSparePart(part.id as string)}
                                         className={cn(
-                                            "h-auto py-2.5 px-2 rounded-xl border text-xs font-bold transition-all",
+                                            "h-auto rounded-xl border px-2 py-2.5 text-sm font-semibold transition-all",
                                             isSelected
                                                 ? "bg-primary border-primary text-primary-foreground shadow-sm scale-[1.02]"
                                                 : "bg-white border-slate-100 text-slate-600 hover:border-slate-200"
@@ -167,7 +195,7 @@ export default function DeviceIdentityFields() {
 
             {/* Device Condition — compact inline toggles */}
             <section className="space-y-3">
-                <Field label="Device Condition" error={errors.deviceCondition?.message}>
+                <Field label="Device Condition" error={deviceConditionError}>
                     <div className="flex gap-2 flex-wrap">
                         {[
                             { value: "power_on", label: "Power On", dot: "bg-green-500", active: "bg-green-600 text-white border-green-600 shadow-sm" },
@@ -176,7 +204,7 @@ export default function DeviceIdentityFields() {
                             <button
                                 key={value}
                                 type="button"
-                                onClick={() => setValue("deviceCondition", value as any, { shouldValidate: true })}
+                                onClick={() => setValue("deviceCondition", value as any, { shouldValidate: true, shouldTouch: true })}
                                 className={cn(
                                     "flex items-center gap-2 h-10 px-4 rounded-xl border-2 text-sm font-bold transition-all",
                                     deviceCondition === value

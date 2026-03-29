@@ -5,13 +5,14 @@ import type { ListingCategory } from "@/types/listing";
 import type { Brand, SparePart, ScreenSize, DeviceModel, ServiceType } from "@/lib/api/user/masterData";
 import { getCategorySchema } from "@/lib/api/user/categories";
 import type { CategoryFilter } from "@shared/schemas/catalog.schema";
+import { LISTING_TYPE, type ListingTypeValue, type FormPlacement } from "@shared/enums/listingType";
+import { categoryEnumToRecord } from "@shared/utils/listingTypeMap";
 import { IconRegistry } from "@/icons/IconRegistry";
 import type { LucideIcon } from "lucide-react";
 import logger from "@/lib/logger";
 import { TOAST_MESSAGES } from "@/config/toastMessages";
 import { normalizeOptionalObjectId } from "@/lib/listings/locationUtils";
 import { useCategoriesQuery } from "@/hooks/queries/useCategoriesQuery";
-import type { FormPlacement } from "@shared/enums/listingType";
 
 interface CategorySchemaType {
     categoryId: string;
@@ -55,6 +56,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
     const [availableSpareParts, setAvailableSpareParts] = useState<SparePart[]>([]);
     const [availableServiceTypes, setAvailableServiceTypes] = useState<ServiceType[]>([]);
     const [isLoadingSpareParts, setIsLoadingSpareParts] = useState(false);
+    const [isLoadingServiceTypes, setIsLoadingServiceTypes] = useState(false);
     const [categorySchema, setCategorySchema] = useState<CategorySchemaType | null>(null);
     const [activeCategoryId, setActiveCategoryId] = useState<string>("");
 
@@ -70,17 +72,12 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
 
     const dynamicCategories = useMemo<ListingCategory[]>(
         () => {
-            // Map the FormPlacement (e.g. 'postad') to the database canonical ListingType (e.g. 'ad')
-            const canonicalListingType = {
-                'postad': 'ad',
-                'postservice': 'service',
-                'postsparepart': 'spare_part',
-            }[listingType as string] || listingType;
+            const canonicalListingType = categoryEnumToRecord(listingType);
 
             return categories
                 .filter(cat => {
                     const types = cat.listingType || [];
-                    return types.includes(canonicalListingType as any) || types.includes(listingType as any);
+                    return types.includes(canonicalListingType);
                 })
                 .map((category) => ({
                     id: String(category.id || ""),
@@ -88,7 +85,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
                     slug: category.slug || "",
                     icon: getCategoryIcon(category.icon),
                     hasScreenSizes: Boolean(category.hasScreenSizes),
-                    supportsSpareParts: Boolean(category.listingType?.includes('spare_part' as any) || category.listingType?.includes('postsparepart' as any)),
+                    supportsSpareParts: Boolean(category.listingType?.includes(LISTING_TYPE.SPARE_PART)),
                     listingType: category.listingType || [],
                     serviceSelectionMode: category.serviceSelectionMode as 'single' | 'multi',
                 }));
@@ -157,6 +154,11 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
     }, [onError]);
 
     const loadServiceTypes = useCallback(async (categoryId?: string): Promise<ServiceType[]> => {
+        if (!categoryId) {
+            setAvailableServiceTypes([]);
+            return [];
+        }
+        setIsLoadingServiceTypes(true);
         try {
             const { getServiceTypes } = await import("@/lib/api/user/masterData");
             const serviceTypes = await getServiceTypes(categoryId);
@@ -180,18 +182,21 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         } catch (err) {
             logger.error(`[Catalog] Failed to load service types for ${categoryId}:`, err);
             setAvailableServiceTypes([]);
+            onError?.("Failed to load service types");
             return [];
+        } finally {
+            setIsLoadingServiceTypes(false);
         }
-    }, []);
+    }, [onError]);
 
     const loadSparePartsForCategory = useCallback(async (categoryId: string) => {
         if (!categoryId) return;
         setIsLoadingSpareParts(true);
         try {
             const { getSpareParts } = await import("@/lib/api/user/masterData");
-            // Spare parts for 'postservice' use the same catalog slot as 'postad' (handled by listingTypeMap)
-            const resolvedPlacement = listingType === 'postservice' ? 'postad' : listingType;
-            const parts = await getSpareParts(categoryId, resolvedPlacement as 'postad' | 'postsparepart');
+            const resolvedListingType: ListingTypeValue =
+                listingType === "postservice" ? LISTING_TYPE.AD : categoryEnumToRecord(listingType);
+            const parts = await getSpareParts(categoryId, resolvedListingType);
             setAvailableSpareParts(
                 parts
                     .map((part) => ({
@@ -247,6 +252,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         availableSpareParts,
         availableServiceTypes,
         isLoadingSpareParts,
+        isLoadingServiceTypes,
         categorySchema,
         loadBrandsForCategory,
         loadModelsForBrand,

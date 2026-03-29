@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 import type { FieldErrors, UseFormSetValue } from "react-hook-form";
 import type { StepData } from "./types";
 
-const NON_FORM_FIELDS = new Set(["errors", "deviceCategories"]);
+const NON_FORM_FIELDS = new Set(["errors"]);
 
 const resolveFieldErrorMessage = (fieldError: unknown): string => {
     const err = fieldError as any;
@@ -56,7 +56,6 @@ export function useBusinessWizardBridge<TFormData extends Record<string, unknown
     extraFields?: Partial<StepData>;
 }) {
     const legacyFormData: StepData = {
-        deviceCategories: [],
         ...(formData as Record<string, unknown>),
         ...(extraFields ?? {}),
         errors: Object.keys(errors).reduce((acc, key) => {

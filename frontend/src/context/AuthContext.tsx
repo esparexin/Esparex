@@ -371,6 +371,8 @@ export function AuthProvider({
       if (typeof window !== "undefined") {
         localStorage.removeItem("esparex_access_token");
         localStorage.removeItem("esparex_user_session");
+        localStorage.removeItem("esparex_fcm_token");
+        localStorage.removeItem("esparex_fcm_registration_v1");
       }
       setUser(null);
       setStatus("unauthenticated");

@@ -51,6 +51,18 @@ export function useListingSubmission<T extends Record<string, any>>({
         if (onError) onError("");
 
         try {
+            if (listingImages.length === 0) {
+                form.setError("images" as any, {
+                    type: "manual",
+                    message: "Add at least one photo to continue.",
+                });
+                if (typeof document !== "undefined") {
+                    document.querySelector("input[type='file']")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+                return null;
+            }
+            form.clearErrors("images" as any);
+
             // 1. Image Upload Pipeline (Sequential)
             const finalImageUrls: string[] = [];
             for (const img of listingImages) {
@@ -88,7 +100,6 @@ export function useListingSubmission<T extends Record<string, any>>({
                 // Remove UI-only fields if they exist
                 category: undefined,
                 brand: undefined,
-                model: undefined
             };
 
             // 3. Validation Check
@@ -96,14 +107,34 @@ export function useListingSubmission<T extends Record<string, any>>({
             const validation = activeSchema.safeParse(finalPayload);
             
             if (!validation.success) {
-                const firstError = validation.error.errors[0]!;
-                // Scroll to the first invalid field so it is visible on long forms
-                const firstPath = firstError.path[0];
-                if (typeof firstPath === "string" && typeof document !== "undefined") {
-                    const el = document.querySelector(`[name='${firstPath}']`);
-                    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                const [firstIssue] = validation.error.errors;
+                validation.error.errors.forEach((issue: { path: unknown[]; message: string }) => {
+                    const fieldPath = issue.path
+                        .filter((segment: unknown): segment is string | number => typeof segment === "string" || typeof segment === "number")
+                        .join(".");
+
+                    if (fieldPath) {
+                        form.setError(fieldPath as any, {
+                            type: "manual",
+                            message: issue.message,
+                        });
+                    }
+                });
+
+                const firstPath = firstIssue?.path
+                    .filter((segment: unknown): segment is string | number => typeof segment === "string" || typeof segment === "number")
+                    .join(".");
+
+                if (typeof document !== "undefined") {
+                    if (firstPath === "images") {
+                        document.querySelector("input[type='file']")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    } else if (firstPath) {
+                        const el = document.querySelector(`[name='${firstPath}']`);
+                        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
                 }
-                throw new Error(firstError.message || "Validation failed. Please check your inputs.");
+
+                return null;
             }
 
             // 4. API Submission

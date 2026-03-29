@@ -15,6 +15,8 @@ interface ListingImagesFieldProps {
     onUpload: (files: File[]) => void;
     onRemove: (id: string) => void;
     firstImageBadgeLabel?: string;
+    error?: string;
+    helperText?: string;
 }
 
 export function ListingImagesField({
@@ -22,13 +24,15 @@ export function ListingImagesField({
     onUpload,
     onRemove,
     firstImageBadgeLabel = "MAIN",
+    error,
+    helperText,
 }: ListingImagesFieldProps) {
     return (
-        <Field label="Photos (up to 10)">
+        <Field label="Photos (up to 10)" error={error}>
             <div className="space-y-3">
                 <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
                     <Upload className="w-6 h-6 text-slate-400 mb-1" />
-                    <span className="text-xs text-slate-500">Tap to add photos</span>
+                    <span className="text-sm text-slate-500">Tap to add photos</span>
                     <input
                         type="file"
                         accept="image/*"
@@ -57,7 +61,7 @@ export function ListingImagesField({
                                     className="object-cover"
                                 />
                                 {index === 0 && (
-                                    <span className="absolute bottom-0 left-0 right-0 text-center text-[9px] font-bold bg-primary text-white py-0.5">
+                                    <span className="absolute bottom-0 left-0 right-0 text-center text-[11px] font-semibold bg-primary text-white py-0.5">
                                         {firstImageBadgeLabel}
                                     </span>
                                 )}
@@ -72,6 +76,9 @@ export function ListingImagesField({
                         ))}
                     </div>
                 )}
+                {helperText && !error ? (
+                    <p className="text-xs text-slate-500">{helperText}</p>
+                ) : null}
             </div>
         </Field>
     );
@@ -82,6 +89,7 @@ interface ListingLocationFieldProps {
     placeholder?: string;
     fixedLabel?: string;
     error?: string;
+    helperText?: string;
 }
 
 export function ListingLocationField({
@@ -89,30 +97,36 @@ export function ListingLocationField({
     placeholder,
     fixedLabel = "Fixed",
     error,
+    helperText,
 }: ListingLocationFieldProps) {
     return (
         <Field label="Listing Location" error={error}>
-            {display ? (
-                <div className="flex items-center gap-2 h-12 px-3 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm text-slate-700">
-                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="truncate">{display}</span>
-                    <span className="ml-auto text-[10px] text-slate-500 bg-slate-200 px-2 py-0.5 rounded uppercase font-bold shrink-0">
-                        {fixedLabel}
-                    </span>
-                </div>
-            ) : (
-                placeholder
-                    ? (
-                        <div className="flex items-center gap-2 h-12 px-3 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm text-slate-700">
-                            <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                            <span className="truncate">{placeholder}</span>
-                            <span className="ml-auto text-[10px] text-slate-500 bg-slate-200 px-2 py-0.5 rounded uppercase font-bold shrink-0">
-                                {fixedLabel}
-                            </span>
-                        </div>
-                    )
-                    : <div className="h-12 rounded-xl bg-slate-100 animate-pulse" />
-            )}
+            <div className="space-y-2">
+                {display ? (
+                    <div className="flex items-center gap-2 h-12 px-3 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm text-slate-700">
+                        <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span className="truncate">{display}</span>
+                        <span className="ml-auto text-[11px] text-slate-500 bg-slate-200 px-2 py-0.5 rounded uppercase font-semibold shrink-0">
+                            {fixedLabel}
+                        </span>
+                    </div>
+                ) : (
+                    placeholder
+                        ? (
+                            <div className="flex items-center gap-2 h-12 px-3 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm text-slate-700">
+                                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                                <span className="truncate">{placeholder}</span>
+                                <span className="ml-auto text-[11px] text-slate-500 bg-slate-200 px-2 py-0.5 rounded uppercase font-semibold shrink-0">
+                                    {fixedLabel}
+                                </span>
+                            </div>
+                        )
+                        : <div className="h-12 rounded-xl bg-slate-100 animate-pulse" />
+                )}
+                {helperText && !error ? (
+                    <p className="text-xs text-slate-500">{helperText}</p>
+                ) : null}
+            </div>
         </Field>
     );
 }
@@ -132,10 +146,10 @@ export function ListingTitleField({ label, error, registerProps, placeholder, va
                 <Input
                     {...registerProps}
                     placeholder={placeholder}
-                    className="h-12 rounded-xl border-2 border-slate-200 bg-white text-sm font-medium focus:border-primary pr-16"
+                    className="h-12 rounded-xl border-2 border-slate-200 bg-white text-[15px] font-medium focus:border-primary pr-16"
                 />
                 <span className={cn(
-                    "absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium tabular-nums pointer-events-none",
+                    "absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium tabular-nums pointer-events-none",
                     valueLength > (maxLength - 5) ? "text-red-400" : "text-slate-400"
                 )}>
                     {valueLength}/{maxLength}
@@ -157,7 +171,7 @@ export function ListingPriceField({ label = "Price (₹)", error, registerProps,
         <Field label={label} error={error}>
             <div className="relative">
                 {showCurrencySymbol && (
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm pointer-events-none">₹</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-semibold text-[15px] pointer-events-none">₹</span>
                 )}
                 <Input
                     type="number"
@@ -165,7 +179,7 @@ export function ListingPriceField({ label = "Price (₹)", error, registerProps,
                     {...registerProps}
                     placeholder={placeholder}
                     className={cn(
-                        "h-12 rounded-xl border-2 border-slate-200 bg-white text-sm font-medium focus:border-primary",
+                        "h-12 rounded-xl border-2 border-slate-200 bg-white text-[15px] font-medium focus:border-primary",
                         showCurrencySymbol && "pl-8"
                     )}
                 />
@@ -189,10 +203,10 @@ export function ListingDescriptionField({ label = "Description", error, register
                 <Textarea
                     {...registerProps}
                     placeholder={placeholder}
-                    className="min-h-[120px] rounded-xl border-2 border-slate-200 bg-white text-sm pb-6"
+                    className="min-h-[120px] rounded-xl border-2 border-slate-200 bg-white text-[15px] pb-6"
                 />
                 <span className={cn(
-                    "absolute right-3 bottom-2 text-[10px] font-medium tabular-nums pointer-events-none",
+                    "absolute right-3 bottom-2 text-xs font-medium tabular-nums pointer-events-none",
                     valueLength > (maxLength - 100) ? "text-red-400" : "text-slate-400"
                 )}>
                     {valueLength}/{maxLength}
@@ -243,15 +257,37 @@ export function CategorySelectorGrid({
                         )}
                     >
                         <Icon className={cn("w-5 h-5", selected ? "text-white" : "text-slate-400")} />
-                        <span className="text-[10px] font-bold leading-tight truncate w-full px-1">
+                        <span className="text-[11px] font-semibold leading-tight truncate w-full px-1">
                             {cat.name}
                         </span>
                     </button>
                 );
             })}
             </div>
-            {error && <p className="text-[10px] font-medium text-red-500 px-1">{error}</p>}
+            {error && <p className="text-xs font-medium text-red-500 px-1">{error}</p>}
         </div>
     );
 }
 
+export function getFirstFormErrorMessage(error: unknown): string | undefined {
+    if (!error) return undefined;
+    if (typeof error === "string") return error;
+    if (Array.isArray(error)) {
+        for (const item of error) {
+            const nested = getFirstFormErrorMessage(item);
+            if (nested) return nested;
+        }
+        return undefined;
+    }
+    if (typeof error === "object") {
+        const record = error as Record<string, unknown>;
+        if (typeof record.message === "string" && record.message.trim().length > 0) {
+            return record.message;
+        }
+        for (const value of Object.values(record)) {
+            const nested = getFirstFormErrorMessage(value);
+            if (nested) return nested;
+        }
+    }
+    return undefined;
+}

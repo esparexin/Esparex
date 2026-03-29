@@ -2,12 +2,6 @@ import type { GeoJSONPoint } from "@/types/location";
 
 export interface StepData {
     businessTypes: string[];
-    deviceCategories: Array<{
-        category: string;
-        services: boolean;
-        spareParts: boolean;
-        isLocked: boolean;
-    }>;
     businessName: string;
     businessDescription: string;
     // Structured Address
@@ -34,7 +28,6 @@ export interface StepData {
 
 export const initialStepData: StepData = {
     businessTypes: [],
-    deviceCategories: [],
     businessName: "",
     businessDescription: "",
     shopNo: "",

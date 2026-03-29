@@ -11,7 +11,7 @@ import { Field } from "@/components/ui/field";
 import { cn } from "@/components/ui/utils";
 import { Check, Wrench } from "@/icons/IconRegistry";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
-import { ListingTitleField, ListingPriceField, ListingDescriptionField, CategorySelectorGrid } from "../shared/ListingFormFields";
+import { ListingTitleField, ListingPriceField, ListingDescriptionField, CategorySelectorGrid, getFirstFormErrorMessage } from "../shared/ListingFormFields";
 import { extractEntityId } from "../shared/listingFormShared";
 import { ListingModalLoading } from "../shared/ListingModalLayout";
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
@@ -20,16 +20,20 @@ import { createListing, updateListing } from "@/lib/api/user/listings";
 import { useGenericListingForm } from "../shared/useGenericListingForm";
 import { GenericPostForm } from "../shared/GenericPostForm";
 import { useListingFormProps } from "../shared/useListingFormProps";
+import { ListingSubmissionSuccessModal } from "../shared/ListingSubmissionSuccessModal";
 import { useRouter } from "next/navigation";
-import { notify } from "@/lib/notify";
 import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
+import { API_ROUTES } from "@/lib/api/routes";
 
 export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
     const isEditMode = !!editServiceId;
     const router = useRouter();
+    const [submittedService, setSubmittedService] = React.useState(false);
 
     const form = useForm<ServiceListingFormData>({
         resolver: zodResolver(ServiceListingPayloadSchema),
+        mode: "all",
+        shouldFocusError: true,
         defaultValues: {
             title: "",
             categoryId: "",
@@ -40,7 +44,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         },
     });
 
-    const { register, watch, setValue } = form;
+    const { register, watch, setValue, setError, clearErrors, formState: { errors } } = form;
 
     const categoryId = watch("categoryId");
     const brandId = watch("brandId");
@@ -53,9 +57,15 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         availableBrands,
         brandMap,
         availableServiceTypes,
+        isLoadingServiceTypes,
         loadBrandsForCategory,
         loadServiceTypes,
     } = useListingCatalog({ listingType: "postservice" });
+
+    const selectedCategory = React.useMemo(
+        () => dynamicCategories.find((category) => category.id === categoryId) || null,
+        [dynamicCategories, categoryId]
+    );
 
     const resolveServiceTypeIds = React.useCallback((tokens: string[], availableItems: any[]) => {
         const validIds = new Set<string>();
@@ -112,10 +122,31 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         onDataLoaded
     });
 
+    React.useEffect(() => {
+        if (!categoryId) {
+            clearErrors("serviceTypeIds");
+            return;
+        }
+        if (isLoadingServiceTypes) return;
+        if (availableServiceTypes.length === 0) {
+            if (selectedServiceTypes.length > 0) {
+                clearErrors("serviceTypeIds");
+                return;
+            }
+            setError("serviceTypeIds", {
+                type: "manual",
+                message: "No service types are configured for this category yet. Choose another category to continue."
+            });
+            return;
+        }
+        clearErrors("serviceTypeIds");
+    }, [availableServiceTypes.length, categoryId, clearErrors, isLoadingServiceTypes, selectedServiceTypes.length, setError]);
+
     const handleCategorySelect = async (id: string) => {
-        setValue("categoryId", id);
-        setValue("brandId", "");
-        setValue("serviceTypeIds", []);
+        setValue("categoryId", id, { shouldDirty: true, shouldValidate: true });
+        setValue("brandId", "", { shouldDirty: true, shouldValidate: true });
+        setValue("serviceTypeIds", [], { shouldDirty: true, shouldValidate: true });
+        clearErrors("serviceTypeIds");
         await Promise.all([loadBrandsForCategory(id), loadServiceTypes(id)]);
     };
 
@@ -123,7 +154,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         const next = selectedServiceTypes.includes(id)
             ? selectedServiceTypes.filter(serviceTypeId => serviceTypeId !== id)
             : [...selectedServiceTypes, id];
-        setValue("serviceTypeIds", next, { shouldValidate: true });
+        setValue("serviceTypeIds", next, { shouldValidate: true, shouldDirty: true });
     };
 
     const { onValidSubmit, isSubmitting } = useListingSubmission({
@@ -133,12 +164,17 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         editId: editServiceId,
         schema: ServiceListingPayloadSchema,
         submitFn: async (payload) => {
-            if (isEditMode && editServiceId) return updateListing(editServiceId, payload);
-            return createListing(payload);
+            if (isEditMode && editServiceId) {
+                return updateListing(editServiceId, payload, {
+                    endpoint: API_ROUTES.USER.SERVICE_DETAIL(editServiceId),
+                });
+            }
+            return createListing(payload, {
+                endpoint: API_ROUTES.USER.SERVICES,
+            });
         },
         onSuccess: () => {
-            notify.success(isEditMode ? "Service updated successfully" : "Service submitted for review");
-            router.push(buildAccountListingRoute("services", "pending"));
+            setSubmittedService(true);
         },
     });
 
@@ -153,6 +189,21 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
     });
 
     if (isFetchingData) return <ListingModalLoading />;
+    if (submittedService) {
+        return (
+            <ListingSubmissionSuccessModal
+                entityLabel="Service"
+                isEditMode={isEditMode}
+                pendingActionLabel="View Pending Services"
+                onPrimaryAction={() => {
+                    void router.push("/");
+                }}
+                onSecondaryAction={() => {
+                    void router.push(buildAccountListingRoute("services", "pending"));
+                }}
+            />
+        );
+    }
 
     return (
         <GenericPostForm
@@ -160,59 +211,95 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             title={isEditMode ? "Edit Service" : "Post a Service"}
             formId="post-service-form"
         >
+            {isEditMode ? (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                    <p className="font-semibold text-slate-900">Catalog fields are partially locked while editing.</p>
+                    <p className="mt-1">
+                        Category and brand stay fixed so this service keeps the same catalog placement. Create a new listing if those details changed.
+                    </p>
+                </div>
+            ) : null}
+
             <CategorySelectorGrid
                 categories={dynamicCategories}
                 selectedCategoryId={categoryId}
                 onSelect={handleCategorySelect}
                 disabled={isEditMode}
                 defaultIcon={Wrench}
-                error={form.formState.errors.categoryId?.message}
+                error={errors.categoryId?.message}
             />
 
             {categoryId && availableBrands.length > 0 && (
-                <Field label="Brand" error={form.formState.errors.brandId?.message}>
+                <Field label="Brand" error={errors.brandId?.message}>
                     <BrandSearchSelect
                         brands={availableBrands}
                         brandMap={brandMap}
                         value={brandId || ""}
-                        onChange={(id) => setValue("brandId", id || "", { shouldValidate: true })}
+                        onChange={(id) => setValue("brandId", id || "", { shouldValidate: true, shouldDirty: true })}
                         disabled={isEditMode}
                     />
                 </Field>
             )}
 
-            {categoryId && availableServiceTypes.length > 0 && (
-                <Field label="Service Types" error={form.formState.errors.serviceTypeIds?.message}>
-                    <p className="text-xs text-slate-500 -mt-1 mb-2">Select all that apply</p>
-                    <div className="grid grid-cols-2 gap-2">
-                        {availableServiceTypes.map((serviceType) => {
-                            const typeId = serviceType.id || serviceType._id || serviceType.name;
-                            if (!typeId) return null;
-                            const selected = selectedServiceTypes.includes(typeId);
-                            return (
-                                <button
-                                    key={typeId}
-                                    type="button"
-                                    onClick={() => toggleServiceType(typeId)}
-                                    className={cn(
-                                        "py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-left",
-                                        selected
-                                            ? "bg-primary border-primary text-white shadow-sm"
-                                            : "bg-white border-slate-100 text-slate-600 hover:border-slate-200"
-                                    )}
-                                >
-                                    {selected && <Check className="w-3 h-3 inline mr-1" />}
-                                    {serviceType.name}
-                                </button>
-                            );
-                        })}
-                    </div>
+            {categoryId && (
+                <Field label="Service Types" error={getFirstFormErrorMessage(errors.serviceTypeIds)}>
+                    {isLoadingServiceTypes ? (
+                        <div className="grid grid-cols-2 gap-2">
+                            {Array.from({ length: 4 }).map((_, index) => (
+                                <div key={index} className="h-11 rounded-xl bg-slate-100 animate-pulse" />
+                            ))}
+                        </div>
+                    ) : availableServiceTypes.length > 0 ? (
+                        <>
+                            <p className="mb-2 text-sm text-slate-500">
+                                Select every service you offer for {selectedCategory?.name || "this category"}.
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                                {availableServiceTypes.map((serviceType) => {
+                                    const typeId = serviceType.id || serviceType._id || serviceType.name;
+                                    if (!typeId) return null;
+                                    const selected = selectedServiceTypes.includes(typeId);
+                                    return (
+                                        <button
+                                            key={typeId}
+                                            type="button"
+                                            onClick={() => toggleServiceType(typeId)}
+                                            className={cn(
+                                                "rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition-all",
+                                                selected
+                                                    ? "bg-primary border-primary text-white shadow-sm"
+                                                    : "bg-white border-slate-100 text-slate-700 hover:border-slate-200"
+                                            )}
+                                        >
+                                            {selected ? <Check className="mr-1 inline h-3.5 w-3.5" /> : null}
+                                            {serviceType.name}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </>
+                    ) : isEditMode && selectedServiceTypes.length > 0 ? (
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                            <p className="font-semibold text-slate-900">Existing service types are preserved.</p>
+                            <p className="mt-1">
+                                This listing keeps its current service-type mapping while you edit pricing, photos, and description.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                            <p className="font-semibold">This category cannot be posted yet.</p>
+                            <p className="mt-1">
+                                No service types are configured for {selectedCategory?.name || "this category"}.
+                                Choose another category to continue.
+                            </p>
+                        </div>
+                    )}
                 </Field>
             )}
 
             <ListingTitleField
                 label="Service Title"
-                error={form.formState.errors.title?.message}
+                error={errors.title?.message}
                 registerProps={register("title")}
                 placeholder="e.g. iPhone Screen Replacement"
                 valueLength={titleVal.length}
@@ -220,14 +307,14 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
 
             <ListingPriceField
                 label="Price (₹)"
-                error={form.formState.errors.price?.message}
+                error={errors.price?.message}
                 registerProps={register("price", { valueAsNumber: true })}
                 showCurrencySymbol={true}
             />
 
             <ListingDescriptionField
                 label="Description"
-                error={form.formState.errors.description?.message}
+                error={errors.description?.message}
                 registerProps={register("description")}
                 placeholder="Describe your service: what's included, turnaround time, warranty..."
                 valueLength={descVal.length}

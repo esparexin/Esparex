@@ -7,6 +7,9 @@ interface FileUploadCardProps {
     file: File | string | null;
     onUpload: (file: File) => void;
     onRemove: () => void;
+    accept?: string;
+    helperText?: string;
+    error?: string;
 }
 
 export function FileUploadCard({
@@ -14,10 +17,13 @@ export function FileUploadCard({
     description,
     file,
     onUpload,
-    onRemove
+    onRemove,
+    accept,
+    helperText,
+    error,
 }: FileUploadCardProps) {
     return (
-        <div className="border-2 border-slate-100 rounded-2xl p-5 hover:border-blue-100 transition-colors">
+        <div className={`border-2 rounded-2xl p-5 transition-colors ${error ? "border-red-200 bg-red-50/30" : "border-slate-100 hover:border-blue-100"}`}>
             <h3 className="font-bold text-slate-900 mb-1">{title}</h3>
             <p className="text-sm text-slate-500 mb-5">{description}</p>
 
@@ -37,6 +43,7 @@ export function FileUploadCard({
                         </div>
                     </div>
                     <Button
+                        type="button"
                         variant="ghost"
                         size="icon"
                         onClick={onRemove}
@@ -51,12 +58,14 @@ export function FileUploadCard({
                         <Upload className="h-8 w-8 text-slate-400 group-hover:text-blue-600 transition-colors" />
                     </div>
                     <span className="text-sm font-bold text-slate-900 mb-1">Upload Document</span>
-                    <span className="text-xs text-slate-400 font-medium">PDF, JPG, PNG (Max 5MB)</span>
+                    <span className="text-xs text-slate-400 font-medium">
+                        {helperText || "PDF, JPG, PNG, WebP, AVIF, HEIC, HEIF"}
+                    </span>
                     <input
                         id={`reg-${title.toLowerCase().replace(/\s+/g, "-")}`}
                         name={`reg-${title.toLowerCase().replace(/\s+/g, "-")}`}
                         type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
+                        accept={accept}
                         className="hidden"
                         onChange={(e) => {
                             const selectedFile = e.target.files?.[0];
@@ -65,6 +74,7 @@ export function FileUploadCard({
                     />
                 </label>
             )}
+            {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
         </div>
     );
 }

@@ -3,7 +3,11 @@ import { type Business, type BusinessStats } from "@/lib/api/user/businesses";
 import type { User } from "@/types/User";
 import logger from "@/lib/logger";
 
-export function useBusiness(user: User | null, businessId?: string) {
+interface UseBusinessOptions {
+    enabled?: boolean;
+}
+
+export function useBusiness(user: User | null, businessId?: string, options?: UseBusinessOptions) {
     const [businessData, setBusinessData] = useState<Business | null>(null);
     const [businessStats, setBusinessStats] = useState<BusinessStats>({
         totalServices: 0,
@@ -14,6 +18,7 @@ export function useBusiness(user: User | null, businessId?: string) {
     const [isLoading, setIsLoading] = useState(false);
     const [isFetched, setIsFetched] = useState(false);
     const [error, setError] = useState<any>(null);
+    const enabled = options?.enabled ?? true;
 
     useEffect(() => {
         if (!isFetched || !businessData || !user) return;
@@ -63,6 +68,11 @@ export function useBusiness(user: User | null, businessId?: string) {
             }
         };
 
+        if (!enabled) {
+            setIsLoading(false);
+            return;
+        }
+
         if (user || businessId) {
             fetchBusiness();
         } else {
@@ -70,7 +80,7 @@ export function useBusiness(user: User | null, businessId?: string) {
             setIsFetched(false);
             setIsLoading(false);
         }
-    }, [user, businessId]);
+    }, [businessId, enabled, user]);
 
     return { 
         businessData, 

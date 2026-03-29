@@ -86,12 +86,24 @@ export function StepAddress({
 }: StepAddressProps) {
 
     const [lastFetchedPincode, setLastFetchedPincode] = useState("");
+    const [resolvedPincode, setResolvedPincode] = useState("");
     const { setManualLocation } = useLocationDispatch();
 
     // Inside StepAddress:
     // Handle Pincode Auto-Fetch with Cache
     useEffect(() => {
         if (!isActive) return; // 🔒 Guard: Only run when step is active
+
+        if (resolvedPincode && formData.pincode !== resolvedPincode) {
+            setResolvedPincode("");
+            setFormData((prev) => ({
+                ...prev,
+                city: "",
+                state: "",
+                coordinates: null,
+                pincodeError: undefined,
+            }));
+        }
 
         if (formData.pincode.length === 6) {
             if (formData.pincode === lastFetchedPincode) return; // Prevent spam
@@ -110,8 +122,10 @@ export function StepAddress({
                             setFormData,
                             setManualLocation,
                         });
+                        setResolvedPincode(pincodeSnapshot);
                     } else {
                         // Not found — clear city/state so user can enter manually
+                        setResolvedPincode("");
                         setFormData((prev) => ({
                             ...prev,
                             city: "",
@@ -122,6 +136,7 @@ export function StepAddress({
                     }
                 } catch (e) {
                     logger.error("Pincode fetch error", e);
+                    setResolvedPincode("");
                     setFormData((prev) => ({
                         ...prev,
                         city: "",
@@ -136,7 +151,7 @@ export function StepAddress({
             // Clear error if they start typing a new one
             setFormData((prev) => ({ ...prev, pincodeError: undefined }));
         }
-    }, [formData.pincode, lastFetchedPincode, isActive]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [formData.pincode, formData.pincodeError, isActive, lastFetchedPincode, resolvedPincode]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (isCompleted && !isActive) {
         return (
@@ -203,18 +218,24 @@ export function StepAddress({
                             label="City"
                             placeholder={!formData.city ? "Enter city name" : "Auto-detected from pincode"}
                             value={formData.city}
-                            onChange={v => setFormData({ ...formData, city: v })}
+                            onChange={v => {
+                                setResolvedPincode("");
+                                setFormData({ ...formData, city: v });
+                            }}
                             error={formData.errors?.city}
-                            isAutoDetected={!formData.pincodeError && Boolean(formData.city)}
+                            isAutoDetected={resolvedPincode === formData.pincode && Boolean(formData.city)}
                         />
                         <AddressField
                             id="state"
                             label="State"
                             placeholder={!formData.state ? "Enter state name" : "Auto-detected from pincode"}
                             value={formData.state}
-                            onChange={v => setFormData({ ...formData, state: v })}
+                            onChange={v => {
+                                setResolvedPincode("");
+                                setFormData({ ...formData, state: v });
+                            }}
                             error={formData.errors?.state}
-                            isAutoDetected={!formData.pincodeError && Boolean(formData.state)}
+                            isAutoDetected={resolvedPincode === formData.pincode && Boolean(formData.state)}
                         />
                     </div>
                 </CardContent>

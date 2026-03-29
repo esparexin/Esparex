@@ -13,6 +13,7 @@ import type { StepData } from "./types";
 
 interface BusinessProfileWizardProps {
     headerVariant: "registration" | "edit";
+    wizardVariant: "registration" | "application-edit" | "live-edit";
     title: string;
     user: User | null;
     currentStep: number;
@@ -30,6 +31,7 @@ interface BusinessProfileWizardProps {
 
 export function BusinessProfileWizard({
     headerVariant,
+    wizardVariant,
     title,
     user,
     currentStep,
@@ -44,6 +46,9 @@ export function BusinessProfileWizard({
     onSubmit,
     children,
 }: BusinessProfileWizardProps) {
+    const showDocumentsStep = wizardVariant !== "live-edit";
+    const reviewStepIndex = showDocumentsStep ? 3 : 2;
+
     const handleHeaderBack = () => {
         if (currentStep > 0) {
             onStepChange(currentStep - 1);
@@ -105,23 +110,28 @@ export function BusinessProfileWizard({
                     onEdit={() => onStepChange(1)}
                 />
 
-                <StepDocuments
-                    formData={formData}
-                    setFormData={setFormData}
-                    onNext={onNext}
-                    onBack={() => onStepChange(1)}
-                    isActive={currentStep === 2}
-                    isCompleted={currentStep > 2}
-                    onEdit={() => onStepChange(2)}
-                />
+                {showDocumentsStep && (
+                    <StepDocuments
+                        formData={formData}
+                        setFormData={setFormData}
+                        onNext={onNext}
+                        onBack={() => onStepChange(1)}
+                        isActive={currentStep === 2}
+                        isCompleted={currentStep > 2}
+                        onEdit={() => onStepChange(2)}
+                        variant={wizardVariant === "registration" ? "registration" : "application-edit"}
+                    />
+                )}
 
                 <StepReview
                     formData={formData}
-                    onBack={() => onStepChange(2)}
-                    isActive={currentStep === 3}
+                    onBack={() => onStepChange(showDocumentsStep ? 2 : 1)}
+                    isActive={currentStep === reviewStepIndex}
                     onEditStep={onStepChange}
                     isSubmitting={isSubmitting}
                     submitLabel={submitLabel}
+                    variant={wizardVariant}
+                    showDocumentsSummary={showDocumentsStep}
                 />
             </form>
 

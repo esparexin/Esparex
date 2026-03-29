@@ -29,6 +29,7 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
 import { isListingUnavailableError } from "@/lib/listings/listingUnavailable";
+import { getPrimaryPlanCreditCount } from "@shared/utils/planEntitlements";
 
 interface BoostPlanDialogProps {
   open: boolean;
@@ -123,7 +124,7 @@ export function BoostPlanDialog({
         description: `${selectedPlan.name} (${selectedPlan.durationDays} days)`,
         waitForCredit: {
           field: "spotlightCredits",
-          minimumDelta: Math.max(1, selectedPlan.credits || 1),
+          minimumDelta: Math.max(1, getPrimaryPlanCreditCount(selectedPlan)),
         },
         onCreditPending: () => {
           notify.info("Payment received. Spotlight credits will appear after verification shortly.");
@@ -269,7 +270,7 @@ export function BoostPlanDialog({
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Credits granted on purchase:</span>
-                    <span>{selectedPlan.credits}</span>
+                    <span>{getPrimaryPlanCreditCount(selectedPlan)}</span>
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Applies after webhook verification:</span>

@@ -4,6 +4,7 @@ import { normalizeTo10Digits } from '../utils/phoneUtils';
 import { BUSINESS_LIMITS } from '../../../shared/schemas/common.schemas';
 import { validateText } from '../../../shared/utils/textValidator';
 import { ID_PROOF_TYPE_VALUES } from '../../../shared/enums/idProofType';
+import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
 
 // VALIDATION SSOT NOTE:
 // This schema mirrors shared/schemas/coordinates.schema.ts.
@@ -73,6 +74,12 @@ const locationSchema = z.object({
     coordinates: coordinatesSchema.optional()
 });
 
+const optionalTrimmedString = (max: number) =>
+    z
+        .string()
+        .max(max)
+        .transform((value) => value.trim());
+
 const documentsSchema = z.object({
     idProofType: z.enum(ID_PROOF_TYPE_VALUES, {
         required_error: 'ID proof type is required',
@@ -118,4 +125,79 @@ export const updateBusinessSchema = z.object(businessBaseShape).partial().extend
     location: locationSchema.partial().optional(),
     documents: documentsSchema.partial().optional(),
     images: z.array(z.string()).max(BUSINESS_LIMITS.IMAGES.MAX, BUSINESS_LIMITS.IMAGES.ERROR_MAX).optional()
+}).strict();
+
+const adminBusinessStatusFilterSchema = z.enum([
+    BUSINESS_STATUS.LIVE,
+    BUSINESS_STATUS.PENDING,
+    BUSINESS_STATUS.REJECTED,
+    BUSINESS_STATUS.SUSPENDED,
+    BUSINESS_STATUS.DELETED,
+    'all',
+    'approved',
+    'active',
+]);
+
+export const adminBusinessAccountsQuerySchema = z.object({
+    status: adminBusinessStatusFilterSchema.optional(),
+    search: z.string().trim().max(200).optional(),
+    city: z.string().trim().max(100).optional(),
+    page: z.coerce.number().int().min(1).optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    includeDeleted: z.enum(['true', 'false']).optional(),
+    sort: z.string().trim().max(100).optional(),
+}).strict();
+
+export const adminBusinessRejectSchema = z.object({
+    reason: z.string().trim().min(10, 'Rejection reason is required').max(500),
+}).strict();
+
+export const adminBusinessStatusSchema = z
+    .object({
+        status: z.enum([
+            BUSINESS_STATUS.LIVE,
+            BUSINESS_STATUS.REJECTED,
+            BUSINESS_STATUS.SUSPENDED,
+            'approved',
+            'active',
+        ]),
+        reason: z.string().trim().max(500).optional(),
+    })
+    .strict()
+    .superRefine((data, ctx) => {
+        const normalizedStatus = data.status.toLowerCase();
+        if ((normalizedStatus === BUSINESS_STATUS.REJECTED || normalizedStatus === BUSINESS_STATUS.SUSPENDED) && !data.reason) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['reason'],
+                message: 'Reason is required for rejection or suspension',
+            });
+        }
+    });
+
+export const adminBusinessUpdateSchema = z.object({
+    name: businessNameSchema.optional(),
+    description: z.string().trim().max(2000).optional(),
+    mobile: phoneSchema.optional(),
+    phone: phoneSchema.optional(),
+    email: z.union([commonSchemas.email, z.literal('')]).optional(),
+    website: z.union([z.string().url('Invalid URL format'), z.literal('')]).optional(),
+    gstNumber: z.union([
+        z.string().regex(BUSINESS_LIMITS.GST.PATTERN, BUSINESS_LIMITS.GST.ERROR_FORMAT),
+        z.literal(''),
+    ]).optional(),
+    registrationNumber: z.union([
+        sanitizeString(BUSINESS_LIMITS.REGISTRATION.MIN, BUSINESS_LIMITS.REGISTRATION.MAX),
+        z.literal(''),
+    ]).optional(),
+    businessTypes: z.array(sanitizeString(2, 50)).min(1, 'Select at least one business type').optional(),
+    location: z.object({
+        address: optionalTrimmedString(200).optional(),
+        city: optionalTrimmedString(50).optional(),
+        state: optionalTrimmedString(50).optional(),
+        pincode: z.union([
+            z.string().regex(BUSINESS_LIMITS.PINCODE.PATTERN, BUSINESS_LIMITS.PINCODE.ERROR_FORMAT),
+            z.literal(''),
+        ]).optional(),
+    }).strict().optional(),
 }).strict();

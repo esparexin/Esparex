@@ -13,7 +13,7 @@ export function ListingModalLayout({ title, onClose, children }: ListingModalLay
         <div
             onClick={onClose}
             className={cn(
-                "fixed inset-0 z-[1001] flex flex-col bg-white overflow-hidden font-inter",
+                "fixed inset-0 z-[1001] flex flex-col bg-white overflow-hidden",
                 "sm:bg-slate-900/40 sm:backdrop-blur-md",
                 "sm:items-center sm:justify-center sm:p-6 sm:cursor-pointer"
             )}
@@ -62,9 +62,16 @@ export function ListingModalLayout({ title, onClose, children }: ListingModalLay
     );
 }
 
-export function ListingModalBody({ children, className }: { children: React.ReactNode; className?: string }) {
+export function ListingModalBody({
+    children,
+    className,
+    ...props
+}: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) {
     return (
-        <div className={cn("flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5", className)}>
+        <div
+            {...props}
+            className={cn("flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5", className)}
+        >
             {children}
         </div>
     );
@@ -80,7 +87,7 @@ export function ListingModalFooter({ children, className }: { children: React.Re
 
 export function ListingModalLoading() {
     return (
-        <div className="fixed inset-0 z-[1001] flex flex-col bg-white overflow-hidden font-inter sm:bg-slate-900/40 sm:backdrop-blur-md sm:items-center sm:justify-center sm:p-6">
+        <div className="fixed inset-0 z-[1001] flex flex-col bg-white overflow-hidden sm:bg-slate-900/40 sm:backdrop-blur-md sm:items-center sm:justify-center sm:p-6">
             <div className="flex flex-col bg-white flex-1 overflow-hidden sm:flex-none sm:w-full sm:max-w-lg sm:max-h-[90dvh] sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-900/10">
                 <div className="flex-1 flex items-center justify-center text-slate-500 text-sm gap-2">
                     <Loader2 className="w-6 h-6 animate-spin text-slate-400" />

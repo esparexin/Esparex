@@ -7,7 +7,6 @@ import { User as SharedUser } from '../../../../shared/types/User';
 import { serializeDoc } from '../../utils/serialize';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';
-import { getSellerReputation } from '../../services/SellerTrustSignalsService';
 import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '../../services/UserProfileService';
 
 const resolveUserId = (req: Request, res: Response): string | null => {
@@ -73,29 +72,6 @@ export const getMe = async (
     res.json(response);
   } catch (err) {
     next(err);
-  }
-};
-
-export const getUserReputationById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const userId = resolveUserId(req, res);
-    if (!userId) return;
-
-    const reputation = await getSellerReputation(userId);
-
-    res.json(respond<ApiResponse<{
-      score: number;
-      adsPosted: number;
-    }>>({
-      success: true,
-      data: reputation
-    }));
-  } catch (error) {
-    next(error);
   }
 };
 

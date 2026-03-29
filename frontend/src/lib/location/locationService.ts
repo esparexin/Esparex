@@ -2,7 +2,6 @@ import type { AppLocation, AppLocationSource, GeoJSONPoint } from "@/types/locat
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import {
     reverseGeocode as reverseGeocodeApi,
-    ingestLocation as ingestLocationApi,
 } from "@/lib/api/user/locations";
 import { detectLocationByIP } from "@/lib/api/ipGeolocation";
 import {
@@ -224,39 +223,16 @@ const reverseGeocodeWithSource = async (
 };
 
 /**
- * Auto-detect location: reverse geocode, then auto-create if not found
- * Used specifically for the auto-detect feature to ensure we always have a location record
+ * Auto-detect location using the canonical reverse-geocode path only.
+ * The location ingest endpoint is admin-only and intentionally not used by the user app.
  */
-const autoDetectLocationWithAutoCreate = async (
+const autoDetectLocation = async (
     latitude: number,
     longitude: number
 ): Promise<AppLocation | null> => {
-    // Try reverse geocoding first
     const existing = await reverseGeocodeApi(latitude, longitude);
     if (existing) {
         return normalizeToAppLocation(existing, "auto");
-    }
-
-    // If not found, try to create it
-    try {
-        const created = await ingestLocationApi({
-            coordinates: {
-                type: "Point",
-                coordinates: [longitude, latitude],
-            },
-            name: "",
-            city: "",
-            state: "",
-            country: "Unknown",
-            // Server will reverse geocode the address from coordinates
-        });
-
-        if (created) {
-            return normalizeToAppLocation(created, "auto");
-        }
-    } catch {
-        // If auto-create fails, fall back to fallback location
-        // (server-side ingestLocation already checks for duplicates and creates if needed)
     }
 
     return null;
@@ -336,7 +312,7 @@ async function getCurrentLocationWithOptions(
                     }
                 );
 
-                const resolved = await autoDetectLocationWithAutoCreate(
+                const resolved = await autoDetectLocation(
                     coords.latitude,
                     coords.longitude
                 );

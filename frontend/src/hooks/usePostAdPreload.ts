@@ -12,7 +12,7 @@ interface UsePostAdPreloadProps {
     editAdId?: string;
     isEditMode: boolean;
     setIsLoading: (val: boolean) => void;
-    setFormError: (msg: string | null) => void;
+    setLoadError: (msg: string | null) => void;
     setValue: any;
     setSpareParts: (parts: string[]) => void;
     setAdImages: (images: ListingImage[]) => void;
@@ -26,7 +26,7 @@ export function usePostAdPreload({
     editAdId,
     isEditMode,
     setIsLoading,
-    setFormError,
+    setLoadError,
     setValue,
     setSpareParts,
     setAdImages,
@@ -50,6 +50,7 @@ export function usePostAdPreload({
 
         const loadAdData = async () => {
             setIsLoading(true);
+            setLoadError(null);
             try {
                 const data = await getListingById(editAdId);
                 if (data) {
@@ -75,7 +76,6 @@ export function usePostAdPreload({
                     setValue("brand", brandName);
                     
                     // 3. Set basic fields
-                    setValue("model", adData.model || "");
                     setValue("title", adData.title);
                     setValue("description", adData.description);
                     setValue("price", Number(adData.price) || 0);
@@ -133,11 +133,11 @@ export function usePostAdPreload({
             } catch (err) {
                 logger.error("[Preload] Failed to load ad:", err);
                 loadedAdIdRef.current = null; // Allow retry after transient failures (e.g., 429).
-                setFormError(TOAST_MESSAGES.LOAD_FAILED);
+                setLoadError(TOAST_MESSAGES.LOAD_FAILED);
             } finally {
                 setIsLoading(false);
             }
         };
         loadAdData();
-    }, [editAdId, isEditMode, loadBrandsForCategory, loadSparePartsForCategory, setValue, setLocation, setAdImages, setIsLoading, setFormError, setSpareParts]);
+    }, [editAdId, isEditMode, loadBrandsForCategory, loadSparePartsForCategory, setValue, setLocation, setAdImages, setIsLoading, setLoadError, setSpareParts]);
 }
