@@ -4,14 +4,21 @@ import { Category } from "@/types/category";
 import { useToast } from "@/context/ToastContext";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useAdminCrudList, AdminListPagination } from "@/hooks/useAdminCrudList";
+import type { ListingTypeValue } from "@shared/enums/listingType";
 
 interface UseAdminCategoriesOptions {
     initialPagination?: Partial<AdminListPagination>;
+    initialFilters?: {
+        search: string;
+        status: string;
+    };
 }
-
-// Simple module-level cache to prevent redundant fetches across Brands/Models/SpareParts pages
-let categoryCache: { items: Category[], timestamp: number } | null = null;
-const CACHE_TTL = 30000; // 30 seconds
+type CategoryMutationPayload = {
+    name: string;
+    isActive?: boolean;
+    hasScreenSizes?: boolean;
+    listingType?: ListingTypeValue[];
+};
 
 export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
     const { showToast } = useToast();
@@ -23,30 +30,17 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
             filters: { search: string; status: string };
             pagination: { page: number; limit: number };
         }) => {
-            const query: any = {
+            const query: Record<string, string | number | boolean> = {
                 page: pagination.page,
                 limit: pagination.limit
             };
             if (filters.search) query.search = filters.search;
             if (filters.status !== 'all') query.isActive = filters.status === 'active';
 
-            // Cache optimization for global list (fetching all categories for dropdowns)
-            const isGlobalFetch = pagination.limit >= 500 && !filters.search && filters.status === 'all';
-            if (isGlobalFetch && categoryCache && (Date.now() - categoryCache.timestamp < CACHE_TTL)) {
-                return {
-                    items: categoryCache.items,
-                    pagination: { page: 1, total: categoryCache.items.length, totalPages: 1 }
-                };
-            }
-
             const response = await getCategories(query);
             if (response.success) {
                 const parsed = parseAdminResponse<Category>(response);
                 const items = parsed.items;
-
-                if (isGlobalFetch) {
-                    categoryCache = { items, timestamp: Date.now() };
-                }
 
                 return {
                     items,
@@ -72,7 +66,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
         setPage,
         refresh: fetchCategories,
     } = useAdminCrudList<Category, { search: string; status: string }>({
-        initialFilters: {
+        initialFilters: options.initialFilters ?? {
             search: "",
             status: "all",
         },
@@ -85,7 +79,6 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
             const response = await toggleCategoryStatus(id);
             if (response.success) {
                 setCategories(prev => prev.map(cat => cat.id === id ? { ...cat, isActive: !cat.isActive } : cat));
-                categoryCache = null; // Invalidate cache
                 showToast("Category status updated", "success");
             } else {
                 showToast(response.message || "Failed to update status", "error");
@@ -101,7 +94,6 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
             const response = await deleteCategory(id);
             if (response.success) {
                 setCategories(prev => prev.filter(cat => cat.id !== id));
-                categoryCache = null; // Invalidate cache
                 showToast("Category deleted successfully", "success");
             } else {
                 showToast(response.message || "Failed to delete category", "error");
@@ -124,12 +116,11 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
         }
     };
 
-    const handleCreate = async (data: any) => {
+    const handleCreate = async (data: CategoryMutationPayload) => {
         try {
             const response = await createCategory(data);
             if (response.success) {
                 showToast("Category created successfully", "success");
-                categoryCache = null; // Invalidate cache
                 void fetchCategories();
                 return true;
             } else {
@@ -142,12 +133,11 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
         }
     };
 
-    const handleUpdate = async (id: string, data: any) => {
+    const handleUpdate = async (id: string, data: CategoryMutationPayload) => {
         try {
             const response = await updateCategory(id, data);
             if (response.success) {
                 showToast("Category updated successfully", "success");
-                categoryCache = null; // Invalidate cache
                 void fetchCategories();
                 return true;
             } else {

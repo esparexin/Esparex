@@ -3,7 +3,7 @@
 import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { Brand } from "@/types/brand";
-import { useAssignableCategories } from "@/hooks/useAssignableCategories";
+import { categorySupportsAds, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { Tag, CheckCircle, XCircle } from "lucide-react";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import { adminBrandSchema } from "@/schemas/admin.schemas";
@@ -19,6 +19,7 @@ import {
     CatalogActionsRow,
     CatalogActionIconButton,
     CatalogActiveCheckboxField,
+    CatalogActiveToggleButton,
     CatalogArchivedCategoryNotice,
     CatalogBoundSearchCategoryFilters,
     CatalogCategoryTags,
@@ -47,7 +48,7 @@ export default function BrandsPage() {
     const { categories } = useAdminCategories();
     const { assignableCategories, assignableCategoryIdSet } = useAssignableCategories(
         categories,
-        (cat) => cat.listingType?.includes('postad') || false
+        categorySupportsAds
     );
     const categoryOptions = toCategoryOptions(assignableCategories);
 
@@ -115,12 +116,10 @@ export default function BrandsPage() {
                             );
                         }
                         return (
-                            <button
+                            <CatalogActiveToggleButton
+                                isActive={brand.isActive}
                                 onClick={() => void handleToggleStatus(brand.id)}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${brand.isActive ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-red-100 text-red-700 hover:bg-red-200"
-                                    }`}>
-                                {brand.isActive ? "Active" : "Inactive"}
-                            </button>
+                            />
                         );
                     }
                 },

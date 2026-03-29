@@ -5,11 +5,9 @@
  */
 
 import { Request, Response } from 'express';
-import { respond } from '../../utils/respond';
 import { handlePaginatedContent } from '../../utils/contentHandler';
 import mongoose from 'mongoose';
 import slugify from 'slugify';
-import { z, ZodError } from 'zod';
 import Category from '../../models/Category';
 import Brand from '../../models/Brand';
 import Model from '../../models/Model';
@@ -17,11 +15,10 @@ import SparePart from '../../models/SparePart';
 import Ad from '../../models/Ad';
 import { 
     sendAdminError,
-    sendSuccessResponse 
+    sendSuccessResponse
 } from '../admin/adminBaseController';
 import { resolveEquivalentActiveCategoryIds } from '../../utils/categoryCanonical';
 import {
-    hasAdminAccess,
     sendCatalogError,
     asModel,
     QueryRecord,
@@ -31,23 +28,31 @@ import {
     handleCatalogCreate,
     handleCatalogUpdate,
     handleCatalogDelete,
-    handleCatalogReview,
-    isDuplicateKeyError,
     sendEmptyPublicList,
     getAdminActorId
 } from './shared';
-import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
-import { normalizeObjectIdLike } from '../../utils/idUtils';
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES } from '../../../../shared/enums/catalogStatus';
+import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { validateSparePartRelations } from '../../services/catalog/CatalogValidationService';
 import {
     sparePartCreateSchema,
-    sparePartUpdateSchema,
-    rejectionSchema
+    sparePartUpdateSchema
 } from '../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 import { ISparePart } from '../../models/SparePart';
+import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
+import { categoryEnumToRecord } from '../../../../shared/utils/listingTypeMap';
+
+const normalizeSparePartListingType = (value: unknown): ListingTypeValue | undefined => {
+    if (typeof value !== 'string') return undefined;
+    if (value === LISTING_TYPE.AD || value === LISTING_TYPE.SPARE_PART) {
+        return value;
+    }
+    if (value === 'postad' || value === 'postsparepart') {
+        return categoryEnumToRecord(value);
+    }
+    return undefined;
+};
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // SparePart CRUD now delegated to shared.ts generic handlers.
@@ -59,6 +64,9 @@ export const getSpareParts = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
     const { status } = req.query;
     const categoryParam = (req.query.categoryId || req.query.category) as string | undefined;
+    const requestedListingType =
+        normalizeSparePartListingType(req.query.listingType) ??
+        normalizeSparePartListingType(req.query.placement);
 
     let categoryObjectId: string | undefined = categoryParam;
     if (categoryParam && !mongoose.Types.ObjectId.isValid(categoryParam)) {
@@ -117,8 +125,8 @@ export const getSpareParts = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build();
     if (status) adminQuery.status = status;
 
-    const publicQuery: QueryRecord = { 
-        status: CATALOG_STATUS.ACTIVE,
+    const publicQuery: QueryRecord = {
+        isActive: true,
         ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build()
     };
     publicQuery.$and = [
@@ -142,15 +150,12 @@ export const getSpareParts = async (req: Request, res: Response) => {
     const cleanQuery = { ...req.query };
     delete cleanQuery.categoryId;
     delete cleanQuery.category;
+    delete cleanQuery.listingType;
+    delete cleanQuery.placement;
 
-    // Placement-based filtering:
-    // 'postad' -> Only parts with ['postad'] in listingType (Feature parts)
-    // 'postsparepart' -> Only parts with ['postsparepart'] in listingType (Inventory parts)
-    const placement = req.query.placement as string;
-    if (placement === 'postad' || placement === 'postsparepart') {
-        publicQuery.listingType = { $in: [placement] };
-        adminQuery.listingType = { $in: [placement] };
-        delete cleanQuery.placement;
+    if (requestedListingType) {
+        publicQuery.listingType = requestedListingType;
+        adminQuery.listingType = requestedListingType;
     }
 
     return handlePaginatedContent(req, res, SparePart, {
@@ -180,7 +185,7 @@ export const createSparePart = async (req: Request, res: Response) => {
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
 
             payload.createdBy = getAdminActorId(req);
-            payload.listingType = payload.listingType || ['postsparepart'];
+            payload.listingType = payload.listingType?.length ? payload.listingType : [LISTING_TYPE.SPARE_PART];
             payload.usageCount = 0;
             
             return payload;
@@ -245,4 +250,3 @@ export const getSparePartById = async (req: Request, res: Response) => {
         sendCatalogError(req, res, error);
     }
 };
-

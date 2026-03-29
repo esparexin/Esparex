@@ -29,19 +29,20 @@ export function useAppNavigation() {
         category?: string,
         businessId?: string,
         serviceId?: string,
-        _sellerId?: string,
-        _sellerType?: SellerType
+        sellerId?: string,
+        sellerType?: SellerType
     ) => {
         const routeParams = {
             adId,
             serviceId,
-            category
+            category,
+            businessId,
+            businessSlug: businessId,
+            sellerId,
+            sellerType,
         };
 
-        const path =
-            page === "public-profile" && businessId
-                ? getPageRoute(page, { businessSlug: businessId, businessId })
-                : getPageRoute(page, routeParams);
+        const path = getPageRoute(page, routeParams);
 
         if (pathname === path || navigatingRef.current) {
             return;
@@ -56,10 +57,6 @@ export function useAppNavigation() {
             // Special cases that might need custom handling before routing
             // (e.g. logging, analytics hooks could go here)
 
-            if (page === "public-profile" && businessId) {
-                void router.push(path);
-                return;
-            }
             void router.push(path);
         };
 

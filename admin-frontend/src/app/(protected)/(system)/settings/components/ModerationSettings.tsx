@@ -6,32 +6,64 @@ import type { SectionProps } from "./types";
 const FIELDS: SettingsFieldSchema[] = [
   {
     type: "toggle",
-    label: "Enabled",
-    description: "Enable automated AI moderation.",
+    label: "AI Moderation Enabled",
+    description: "Controls the moderation service kill-switch for automated checks.",
     path: "moderation.enabled",
     default: true,
   },
   {
+    type: "number",
+    label: "Auto-hide Report Threshold",
+    description: "Number of open reports needed before a listing is auto-hidden.",
+    path: "moderation.reportAutoHideThreshold",
+    default: 5,
+    min: 1,
+  },
+  {
     type: "toggle",
-    label: "Auto Flag",
-    description: "Automatically flag suspicious content.",
-    path: "moderation.autoFlag",
+    label: "SEO Title Generation",
+    description: "Allows AI-generated listing titles when generation is requested.",
+    path: "seo.enableTitleSEO",
     default: true,
   },
   {
     type: "toggle",
-    label: "Auto Block",
-    description: "Automatically block high-risk content.",
-    path: "moderation.autoBlock",
-    default: false,
+    label: "SEO Description Generation",
+    description: "Allows AI-generated listing descriptions when generation is requested.",
+    path: "seo.enableDescriptionSEO",
+    default: true,
+  },
+  {
+    type: "password",
+    label: "OpenAI API Key",
+    description: "Used by AI identify, moderation, and SEO generation.",
+    path: "seo.openaiApiKey",
+    default: "",
+    placeholder: "Leave blank to keep current key",
+    preserveMasked: true,
+  },
+  {
+    type: "text",
+    label: "OpenAI Model",
+    path: "seo.model",
+    default: "gpt-4o",
   },
   {
     type: "number",
-    label: "Confidence Threshold (%)",
-    path: "moderation.confidenceThreshold",
-    default: 85,
+    label: "Temperature",
+    description: "Applied to AI SEO generation and moderation requests.",
+    path: "seo.temperature",
+    default: 0.7,
+    min: 0,
+    max: 2,
+    step: 0.1,
+  },
+  {
+    type: "number",
+    label: "Max Tokens",
+    path: "seo.maxTokens",
+    default: 500,
     min: 1,
-    max: 100,
   },
 ];
 
@@ -39,13 +71,12 @@ export function ModerationSettings(props: SectionProps) {
   return (
     <GenericSettingsSection
       {...props}
-      title="Moderation"
-      description="Automated moderation policy controls."
+      title="Moderation & AI"
+      description="Only runtime-backed moderation and AI generation controls are exposed here."
       configPath="ai"
-      successMessage="Moderation settings updated"
+      successMessage="Moderation and AI settings updated"
       fields={FIELDS}
       columns={3}
     />
   );
 }
-

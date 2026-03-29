@@ -119,4 +119,18 @@ describe("adminAuth middleware", () => {
 
         expect(next).toHaveBeenCalledTimes(1);
     });
+
+    it("grants chat moderation read access through role fallback", () => {
+        const req = {
+            user: { role: "moderator", permissions: [] },
+            originalUrl: "/api/v1/admin/chat/list",
+        } as any;
+        const res = createMockRes();
+        const next = jest.fn();
+
+        const middleware = requirePermission("chat:read");
+        middleware(req, res, next);
+
+        expect(next).toHaveBeenCalledTimes(1);
+    });
 });

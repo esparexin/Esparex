@@ -44,17 +44,6 @@ export async function fetchAdminChats(params: {
   return res as unknown as AdminChatListResponse;
 }
 
-export async function fetchAdminChatDetail(id: string): Promise<unknown> {
-  return adminFetch(`/chat/${id}`);
-}
-
-export async function adminDeleteChatMessage(msgId: string, reason?: string): Promise<void> {
-  await adminFetch(`/chat/message/${msgId}`, {
-    method: 'DELETE',
-    body: { reason },
-  });
-}
-
 export async function adminMuteChat(id: string, reason?: string): Promise<void> {
   await adminFetch(`/chat/mute/${id}`, {
     method: 'POST',
@@ -64,11 +53,4 @@ export async function adminMuteChat(id: string, reason?: string): Promise<void> 
 
 export async function adminExportChat(id: string): Promise<unknown> {
   return adminFetch(`/chat/export/${id}`, { method: 'POST' });
-}
-
-export async function adminResolveReport(reportId: string, status: 'resolved' | 'dismissed', adminAction?: string): Promise<void> {
-  await adminFetch(`/chat/report/${reportId}`, {
-    method: 'PATCH',
-    body: { status, adminAction },
-  });
 }

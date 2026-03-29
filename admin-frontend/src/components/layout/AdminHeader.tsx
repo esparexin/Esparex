@@ -20,10 +20,6 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
         subtitle: "Manage user lifecycle, verification state, and account controls.",
     },
 
-    "business-requests": {
-        title: "Businesses",
-        subtitle: "Process business onboarding, approvals, and account quality.",
-    },
     services: {
         title: "Services",
         subtitle: "Manage repair services, coverage, and listing quality.",
@@ -58,7 +54,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
     },
     businesses: {
         title: "Business Master",
-        subtitle: "View and manage all approved business accounts on the platform.",
+        subtitle: "Manage pending, live, suspended, deleted, and historical business accounts in one place.",
     },
     locations: {
         title: "Locations",
@@ -128,7 +124,6 @@ export function AdminHeader() {
             "ads",
             "spare-parts",
             "reports",
-            "business-requests",
             "services",
             "chat"
         ];

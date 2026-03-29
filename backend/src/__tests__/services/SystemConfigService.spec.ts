@@ -67,17 +67,6 @@ describe("systemConfigService.updateSystemConfigSections", () => {
         } satisfies Partial<SystemConfigValidationError>);
     });
 
-    it("rejects featureFlags containing non-boolean values", async () => {
-        mockModel.findOne.mockResolvedValue(createMockConfigDoc({ featureFlags: { a: true } }));
-
-        await expect(
-            updateSystemConfigSections({ featureFlags: { a: true, b: "yes" } }, "admin-1")
-        ).rejects.toMatchObject({
-            code: "SYSTEM_CONFIG_FEATURE_FLAGS_INVALID",
-            statusCode: 400,
-        } satisfies Partial<SystemConfigValidationError>);
-    });
-
     it("deep-merges object sections and invalidates cache", async () => {
         const mockDoc = createMockConfigDoc({
             ai: {

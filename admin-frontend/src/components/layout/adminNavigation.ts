@@ -4,7 +4,6 @@ import type { LucideIcon } from "lucide-react";
 import {
     BarChart3,
     Bell,
-    Building2,
     Database,
     LayoutDashboard,
     Layers,
@@ -26,7 +25,6 @@ export type AdminModuleKey =
     | "ads"
     | "services"
     | "parts"
-    | "businesses"
     | "businessMaster"
     | "reports"
     | "notifications"
@@ -69,23 +67,14 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         aliases: ["/ads", "/services", "/spare-parts"],
     },
     {
-        key: "businesses",
-        label: "Business Requests",
+        key: "businessMaster",
+        label: "Business Master",
         icon: ShieldAlert,
-        href: "/business-requests?status=pending",
+        href: "/businesses?status=pending",
         roles: ["admin", "super_admin", "moderator"],
         section: "Directory",
         counterKey: "businesses",
-        aliases: ["/business-requests"],
-    },
-    {
-        key: "businessMaster",
-        label: "Business Master",
-        icon: Building2,
-        href: "/businesses?status=live",
-        roles: ["admin", "super_admin"],
-        section: "Directory",
-        aliases: ["/businesses"],
+        aliases: ["/businesses", "/business-requests"],
     },
     {
         key: "reports",

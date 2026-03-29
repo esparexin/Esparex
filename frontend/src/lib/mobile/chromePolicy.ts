@@ -1,11 +1,13 @@
 export interface MobileChromePolicy {
   showMobileBottomNav: boolean;
+  showBottomActionsBar: boolean;
   showContextActionBar: boolean;
   showStickySearch: boolean;
 }
 
 const DEFAULT_POLICY: MobileChromePolicy = {
   showMobileBottomNav: true,
+  showBottomActionsBar: true,
   showContextActionBar: false,
   showStickySearch: false,
 };
@@ -13,12 +15,26 @@ const DEFAULT_POLICY: MobileChromePolicy = {
 const STICKY_SEARCH_PREFIXES = ["/search", "/category"];
 const LISTING_DETAIL_PREFIXES = ["/ads/", "/services/", "/spare-part-listings/"];
 
+export function isChatRoute(pathname?: string | null): boolean {
+  return pathname === "/chat" || Boolean(pathname?.startsWith("/chat/"));
+}
+
 export function getMobileChromePolicy(pathname?: string | null): MobileChromePolicy {
   if (!pathname) return DEFAULT_POLICY;
 
   if (pathname.startsWith("/admin")) {
     return {
       showMobileBottomNav: false,
+      showBottomActionsBar: false,
+      showContextActionBar: false,
+      showStickySearch: false,
+    };
+  }
+
+  if (isChatRoute(pathname)) {
+    return {
+      showMobileBottomNav: false,
+      showBottomActionsBar: false,
       showContextActionBar: false,
       showStickySearch: false,
     };
@@ -27,6 +43,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
   if (LISTING_DETAIL_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
     return {
       showMobileBottomNav: false,
+      showBottomActionsBar: true,
       showContextActionBar: true,
       showStickySearch: false,
     };
@@ -45,6 +62,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
   ) {
     return {
       showMobileBottomNav: false,
+      showBottomActionsBar: false,
       showContextActionBar: false,
       showStickySearch: false,
     };
@@ -53,6 +71,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
   if (STICKY_SEARCH_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
     return {
       showMobileBottomNav: true,
+      showBottomActionsBar: true,
       showContextActionBar: false,
       showStickySearch: true,
     };

@@ -74,7 +74,6 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
                 gstNumber: form.gstNumber.trim(),
                 registrationNumber: form.registrationNumber.trim(),
                 location: {
-                    ...business.location,
                     address: form.address.trim(),
                     city: form.city.trim(),
                     state: form.state.trim(),

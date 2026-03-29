@@ -1,8 +1,21 @@
 import AdminSession, { hashAdminSessionToken } from '../models/AdminSession';
+import { getSystemConfigDoc } from '../utils/systemConfigHelper';
 
 const ADMIN_SESSION_TTL_MS = Number(process.env.ADMIN_SESSION_TTL_MS || 8 * 60 * 60 * 1000);
 
-export const getAdminSessionTtlMs = (): number => ADMIN_SESSION_TTL_MS;
+export const getAdminSessionTtlMs = async (): Promise<number> => {
+    try {
+        const config = await getSystemConfigDoc();
+        const minutes = Number(config?.security?.sessionTimeoutMinutes);
+        if (Number.isFinite(minutes) && minutes >= 5) {
+            return Math.floor(minutes) * 60 * 1000;
+        }
+    } catch {
+        // Fall back to the environment-configured TTL below.
+    }
+
+    return ADMIN_SESSION_TTL_MS;
+};
 
 export const createAdminSession = async (params: {
     adminId: string;
@@ -11,7 +24,7 @@ export const createAdminSession = async (params: {
     ip?: string;
     device?: string;
 }) => {
-    const expiresAt = new Date(Date.now() + ADMIN_SESSION_TTL_MS);
+    const expiresAt = new Date(Date.now() + await getAdminSessionTtlMs());
     const tokenHash = hashAdminSessionToken(params.token);
 
     return AdminSession.create({

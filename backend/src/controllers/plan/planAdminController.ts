@@ -3,15 +3,11 @@ import { logAdminAction } from '../../utils/adminLogger';
 import { respond } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { AppError } from '../../utils/AppError';
-import { buildPlanPayload, getErrorMessage, getRequiredPlanId, isAdminUser, PlanModel } from './shared';
+import { escapeRegExp } from '../../utils/stringUtils';
+import { buildPlanPayload, getErrorMessage, getRequiredPlanId, PlanModel } from './shared';
 
 export const createPlan = async (req: Request, res: Response) => {
     try {
-        if (!isAdminUser(req)) {
-            sendErrorResponse(req, res, 403, 'Admin access required');
-            return;
-        }
-
         const safeBody = buildPlanPayload(req.body as Record<string, unknown>);
 
         const plan = await PlanModel.create(safeBody);
@@ -26,28 +22,41 @@ export const createPlan = async (req: Request, res: Response) => {
 
 export const updatePlan = async (req: Request, res: Response) => {
     try {
-        if (!isAdminUser(req)) {
-            sendErrorResponse(req, res, 403, 'Admin access required');
-            return;
-        }
         const planId = getRequiredPlanId(req);
         const safeBody = buildPlanPayload(req.body as Record<string, unknown>);
 
         const plan = await PlanModel.findByIdAndUpdate(planId, safeBody, { new: true });
+        if (!plan) {
+            throw new AppError('Plan not found', 404, 'PLAN_NOT_FOUND');
+        }
         await logAdminAction(req, 'UPDATE_PLAN', 'Plan', planId, { updates: safeBody });
         res.json(respond({ success: true, data: plan }));
     } catch (error: unknown) {
-        sendErrorResponse(req, res, 400, getErrorMessage(error));
+        const appError = error instanceof AppError ? error : null;
+        sendErrorResponse(req, res, appError?.statusCode ?? 400, getErrorMessage(error));
     }
 };
 
 export const getPlans = async (req: Request, res: Response) => {
     try {
-        if (!isAdminUser(req)) {
-            sendErrorResponse(req, res, 403, 'Admin access required');
-            return;
+        const rawSearch = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+        const rawType = typeof req.query.type === 'string' ? req.query.type.trim() : '';
+        const query: Record<string, unknown> = {};
+
+        if (rawType && rawType !== 'all') {
+            query.type = rawType.toUpperCase();
         }
-        const plans = await PlanModel.find({}).sort({ createdAt: -1 });
+
+        if (rawSearch) {
+            const safeSearch = escapeRegExp(rawSearch);
+            query.$or = [
+                { code: { $regex: safeSearch, $options: 'i' } },
+                { name: { $regex: safeSearch, $options: 'i' } },
+                { description: { $regex: safeSearch, $options: 'i' } },
+            ];
+        }
+
+        const plans = await PlanModel.find(query).sort({ createdAt: -1 });
         res.json(respond({ success: true, data: plans }));
     } catch (error: unknown) {
         sendErrorResponse(req, res, 500, getErrorMessage(error));
@@ -56,10 +65,6 @@ export const getPlans = async (req: Request, res: Response) => {
 
 export const togglePlan = async (req: Request, res: Response) => {
     try {
-        if (!isAdminUser(req)) {
-            sendErrorResponse(req, res, 403, 'Admin access required');
-            return;
-        }
         const planId = getRequiredPlanId(req);
         const plan = await PlanModel.findById(planId);
         if (!plan) throw new AppError('Plan not found', 404, 'PLAN_NOT_FOUND');
@@ -68,6 +73,7 @@ export const togglePlan = async (req: Request, res: Response) => {
         await logAdminAction(req, 'TOGGLE_PLAN_STATUS', 'Plan', planId, { isActive: plan.active });
         res.json(respond({ success: true, data: plan }));
     } catch (error: unknown) {
-        sendErrorResponse(req, res, 400, getErrorMessage(error));
+        const appError = error instanceof AppError ? error : null;
+        sendErrorResponse(req, res, appError?.statusCode ?? 400, getErrorMessage(error));
     }
 };

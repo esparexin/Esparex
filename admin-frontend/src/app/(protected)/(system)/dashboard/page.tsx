@@ -17,6 +17,7 @@ import type { FinanceStats } from "@/types/transaction";
 type DashboardStats = {
   totalUsers: number;
   activeUsers: number;
+  suspendedUsers: number;
   verifiedUsers: number;
 };
 
@@ -35,30 +36,31 @@ export default function DashboardPage() {
   const [pendingServices, setPendingServices] = useState(0);
   const [pendingSpareParts, setPendingSpareParts] = useState(0);
   const [reportCount, setReportCount] = useState(0);
-  const [businessRequestCount, setBusinessRequestCount] = useState(0);
+  const [pendingBusinessCount, setPendingBusinessCount] = useState(0);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [moderationSummary, serviceSummary, sparePartSummary, trendsResult, userOverview, reportPayload, businessPayload, financePayload] = await Promise.all([
+        const [moderationSummary, serviceSummary, sparePartSummary, trendsResult, userOverview, reportPayload, businessOverviewPayload, financePayload] = await Promise.all([
           fetchAdminAdSummary(),
           fetchAdminServiceSummary(),
           fetchAdminSparePartSummary(),
           adminFetch<any>(ADMIN_ROUTES.ANALYTICS),
           adminFetch<any>(ADMIN_ROUTES.USER_OVERVIEW),
           adminFetch<any>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`),
-          adminFetch<any>(`${ADMIN_ROUTES.BUSINESS_REQUESTS}?${new URLSearchParams({ status: "pending", page: "1", limit: "1" }).toString()}`),
+          adminFetch<any>(ADMIN_ROUTES.BUSINESS_OVERVIEW),
           adminFetch<any>(ADMIN_ROUTES.FINANCE_STATS),
         ]);
 
         const overviewData = parseAdminResponse<never, any>(userOverview).data || {};
         const reportPagination = parseAdminResponse<Record<string, unknown>>(reportPayload).pagination;
-        const businessPagination = parseAdminResponse<Record<string, unknown>>(businessPayload).pagination;
+        const businessOverview = parseAdminResponse<never, Record<string, unknown>>(businessOverviewPayload).data || {};
 
         setStats({
           totalUsers: Number(overviewData.totalUsers || 0),
           activeUsers: Number(overviewData.activeUsers || 0),
+          suspendedUsers: Number(overviewData.suspendedUsers || 0),
           verifiedUsers: Number(overviewData.verifiedUsers || 0),
         });
         setFinanceStats((parseAdminResponse<never, FinanceStats>(financePayload).data || null) as FinanceStats | null);
@@ -67,7 +69,7 @@ export default function DashboardPage() {
         setPendingServices(serviceSummary.pending);
         setPendingSpareParts(sparePartSummary.pending);
         setReportCount(Number(reportPagination?.total || 0));
-        setBusinessRequestCount(Number(businessPagination?.total || 0));
+        setPendingBusinessCount(Number(businessOverview.pending || 0));
       } catch (err) {
         const message = err instanceof Error ? err.message : "Failed to load dashboard data";
         setError(message);
@@ -129,17 +131,24 @@ export default function DashboardPage() {
           href={ADMIN_UI_ROUTES.reports({ status: "open" })}
         />
         <DashboardCard
-          title="Business Requests"
-          value={businessRequestCount}
+          title="Pending Businesses"
+          value={pendingBusinessCount}
           icon={Building2}
           className="border-violet-100 bg-violet-50/5"
-          href={ADMIN_UI_ROUTES.businessRequests({ status: "pending" })}
+          href={ADMIN_UI_ROUTES.businesses({ status: "pending" })}
         />
         <DashboardCard
           title="Total Users"
           value={stats?.totalUsers || 0}
           icon={Users}
           href={ADMIN_UI_ROUTES.users()}
+        />
+        <DashboardCard
+          title="Suspended Users"
+          value={stats?.suspendedUsers || 0}
+          icon={AlertCircle}
+          className="border-amber-100 bg-amber-50/5"
+          href={ADMIN_UI_ROUTES.users({ status: "suspended" })}
         />
         <DashboardCard
           title="Total Revenue"

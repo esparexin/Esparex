@@ -14,6 +14,13 @@ export interface Plan {
         smartAlerts?: number;
         spotlightCredits?: number;
     };
+
+    smartAlertConfig?: {
+        maxAlerts?: number;
+        matchFrequency?: "instant" | "hourly" | "daily";
+        radiusLimitKm?: number;
+        notificationChannels?: string[];
+    };
     
     features?: {
         priorityWeight?: number;

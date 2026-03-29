@@ -30,6 +30,8 @@ import {
     revokeAdminSessionsForAdmin
 } from '../../../services/AdminSessionService';
 
+const normalizeIp = (value: string) => value.replace(/^::ffff:/, '').trim();
+
 const sendAuthError = (req: Request, res: Response, error: unknown) => {
     sendAdminError(req, res, error);
 };
@@ -153,7 +155,20 @@ export const adminLogin = async (req: Request, res: Response) => {
         if (!email || !password) return sendAdminError(req, res, 'Email and password are required', 400);
 
         // 🛡️ SECURITY AUDIT: Load dynamic security settings
-        await getSystemConfigDoc();
+        const systemConfig = await getSystemConfigDoc();
+        const requestIp = normalizeIp(
+            ((req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim())
+            || req.socket.remoteAddress
+            || req.ip
+            || ''
+        );
+        const ipWhitelist = Array.isArray(systemConfig?.security?.ipWhitelist)
+            ? systemConfig.security.ipWhitelist.map((value: unknown) => normalizeIp(String(value))).filter(Boolean)
+            : [];
+        if (ipWhitelist.length > 0 && requestIp && !ipWhitelist.includes(requestIp)) {
+            logger.warn('Admin login blocked by system-config IP allowlist', { email, ip: requestIp });
+            return sendAdminError(req, res, 'Sign-in is not allowed from this IP address', 403);
+        }
 
         // Direct DB Access for Auth (as per Step 1 of plan)
         const admin = await Admin.findOne({ email }).select('+password +twoFactorSecret');
@@ -216,7 +231,7 @@ export const adminLogin = async (req: Request, res: Response) => {
         const token = generateAdminToken({ id: tokenId, role: adminData.role || 'admin' });
 
         // 🔒 UNIFIED SESSION COOKIE
-        const cookieOptions = getAdminCookieOptions(getAdminSessionTtlMs());
+        const cookieOptions = getAdminCookieOptions(await getAdminSessionTtlMs());
         res.cookie('admin_token', token, cookieOptions);
 
         // Also clear legacy cookie just in case

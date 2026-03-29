@@ -1,7 +1,8 @@
 import {
     buildPublicAdFilter,
     assertFeedSafetyFilter,
-    HIDDEN_MODERATION_STATUSES
+    HIDDEN_MODERATION_STATUSES,
+    isPublicAdVisible,
 } from '../../utils/FeedVisibilityGuard';
 
 describe('FeedVisibilityGuard', () => {
@@ -15,7 +16,7 @@ describe('FeedVisibilityGuard', () => {
     describe('buildPublicAdFilter', () => {
         it('returns filter with status live', () => {
             const filter = buildPublicAdFilter();
-            expect(filter.status).toBe('live');
+            expect(filter.status).toEqual({ $in: ['live', 'approved', 'active', 'published'] });
         });
 
         it('returns filter with isDeleted exclusion', () => {
@@ -66,6 +67,50 @@ describe('FeedVisibilityGuard', () => {
         it('passes for a filter with moderationStatus as an object', () => {
             const okFilter = { moderationStatus: { $ne: 'rejected' } };
             expect(() => assertFeedSafetyFilter(okFilter)).not.toThrow();
+        });
+    });
+
+    describe('isPublicAdVisible', () => {
+        it('returns true for a live, non-deleted, non-hidden ad with future expiry', () => {
+            expect(
+                isPublicAdVisible({
+                    status: 'live',
+                    isDeleted: false,
+                    expiresAt: new Date(Date.now() + 60_000),
+                    moderationStatus: 'approved',
+                })
+            ).toBe(true);
+        });
+
+        it('returns false for non-live statuses', () => {
+            expect(
+                isPublicAdVisible({
+                    status: 'pending',
+                    isDeleted: false,
+                    expiresAt: new Date(Date.now() + 60_000),
+                })
+            ).toBe(false);
+        });
+
+        it('returns false for hidden moderation statuses', () => {
+            expect(
+                isPublicAdVisible({
+                    status: 'live',
+                    isDeleted: false,
+                    expiresAt: new Date(Date.now() + 60_000),
+                    moderationStatus: 'held_for_review',
+                })
+            ).toBe(false);
+        });
+
+        it('returns false for expired listings', () => {
+            expect(
+                isPublicAdVisible({
+                    status: 'live',
+                    isDeleted: false,
+                    expiresAt: new Date(Date.now() - 60_000),
+                })
+            ).toBe(false);
         });
     });
 });

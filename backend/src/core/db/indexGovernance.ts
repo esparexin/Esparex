@@ -12,6 +12,7 @@ import logger from '../../utils/logger';
  */
 
 interface IndexDefinition {
+  scope: string;
   collection: string;
   name: string;
   keys: any;
@@ -40,19 +41,31 @@ function validateNaming(collection: string, name: string): boolean {
  */
 function checkDuplicates(newIdx: IndexDefinition) {
   const collision = registeredIndexes.find(idx => 
+    idx.scope === newIdx.scope &&
     idx.collection === newIdx.collection && 
     JSON.stringify(idx.keys) === JSON.stringify(newIdx.keys)
   );
 
   if (collision) {
-    logger.error(`[Index Governance] Duplicate Index Collision: "${newIdx.name}" and "${collision.name}" in collection "${newIdx.collection}" share the same key pattern.`);
+    logger.error(
+      `[Index Governance] Duplicate Index Collision: "${newIdx.name}" and "${collision.name}" in scope "${newIdx.scope}" collection "${newIdx.collection}" share the same key pattern.`
+    );
   }
 }
 
 /**
  * Hook into Mongoose schema to register indexes for governance
  */
-export function governSchema(schema: mongoose.Schema, collectionName: string) {
+export function governSchema(
+  schema: mongoose.Schema,
+  {
+    scope,
+    collectionName,
+  }: {
+    scope: string;
+    collectionName: string;
+  }
+) {
   // @ts-ignore - access internal index definitions
   const indexes = schema.indexes();
   
@@ -63,7 +76,7 @@ export function governSchema(schema: mongoose.Schema, collectionName: string) {
       continue;
     }
 
-    const definition: IndexDefinition = { collection: collectionName, name, keys, options };
+    const definition: IndexDefinition = { scope, collection: collectionName, name, keys, options };
     validateNaming(collectionName, name);
     checkDuplicates(definition);
     registeredIndexes.push(definition);
@@ -75,4 +88,8 @@ export function governSchema(schema: mongoose.Schema, collectionName: string) {
  */
 export function runStartupIndexAudit() {
   logger.info(`[Index Governance] Startup audit complete. Monitored ${registeredIndexes.length} indices across registered schemas.`);
+}
+
+export function resetIndexGovernanceForTests() {
+  registeredIndexes.length = 0;
 }

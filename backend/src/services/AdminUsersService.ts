@@ -1,10 +1,9 @@
 import User from '../models/User';
-import Admin from '../models/Admin';
 import Ad from '../models/Ad';
 import AdminMetrics from '../models/AdminMetrics';
-import mongoose from 'mongoose';
 import { USER_STATUS } from '../../../shared/enums/userStatus';
 import { Role } from '../../../shared/enums/roles';
+import { normalizeUserStatus } from '../../../shared/utils/userStatus';
 import { hashPassword } from '../utils/auth';
 import { AppError } from '../utils/AppError';
 
@@ -14,6 +13,31 @@ export interface UserFilters {
     role?: string;
     isVerified?: boolean;
 }
+
+const LEGACY_ACTIVE_STATUS = 'active';
+const ACTIVE_USER_STATUS_QUERY = { $in: [USER_STATUS.LIVE, LEGACY_ACTIVE_STATUS] };
+
+const buildUserStatusFilter = (status?: string) => {
+    if (!status || status === 'all') {
+        return undefined;
+    }
+
+    const normalizedStatus = normalizeUserStatus(status);
+    if (normalizedStatus === USER_STATUS.LIVE) {
+        return ACTIVE_USER_STATUS_QUERY;
+    }
+
+    return normalizedStatus ?? status;
+};
+
+export const normalizeAdminManagedUser = <T extends Record<string, any>>(input: T): T => {
+    const plain = typeof input.toObject === 'function' ? input.toObject() : { ...input };
+    const normalizedStatus = normalizeUserStatus(plain.status);
+    if (normalizedStatus) {
+        plain.status = normalizedStatus;
+    }
+    return plain as T;
+};
 
 /**
  * Service for advanced admin-only user management and metrics.
@@ -32,8 +56,9 @@ export const getUsers = async (filters: UserFilters = {}, pagination: { skip: nu
         ];
     }
     
-    if (status && status !== 'all') {
-        query.status = status;
+    const statusQuery = buildUserStatusFilter(status);
+    if (statusQuery) {
+        query.status = statusQuery;
     }
     
     if (role && role !== 'all') {
@@ -76,7 +101,7 @@ export const getUsers = async (filters: UserFilters = {}, pagination: { skip: nu
     );
 
     const usersWithStats = users.map((user) => {
-        const plain = user.toObject() as any;
+        const plain = normalizeAdminManagedUser(user) as any;
         plain.totalAdsPosted = adsByUserId.get(String(user._id)) || 0;
         return plain;
     });
@@ -92,13 +117,16 @@ export const getUserManagementOverview = async () => {
     const startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
 
-    const [newUsersToday, suspendedUsers, bannedUsers] = await Promise.all([
+    const [newUsersToday, suspendedUsers, bannedUsers, totalUsers, activeUsers, verifiedUsers] = await Promise.all([
         User.countDocuments({
             status: { $ne: USER_STATUS.DELETED },
             createdAt: { $gte: startOfDay }
         }),
         User.countDocuments({ status: USER_STATUS.SUSPENDED }),
-        User.countDocuments({ status: USER_STATUS.BANNED })
+        User.countDocuments({ status: USER_STATUS.BANNED }),
+        User.countDocuments({ status: { $ne: USER_STATUS.DELETED } }),
+        User.countDocuments({ status: ACTIVE_USER_STATUS_QUERY }),
+        User.countDocuments({ status: { $ne: USER_STATUS.DELETED }, isVerified: true }),
     ]);
 
     const payload = (cachedMetrics && typeof cachedMetrics.payload === 'object' && cachedMetrics.payload !== null)
@@ -107,26 +135,6 @@ export const getUserManagementOverview = async () => {
 
     const toNumberIfFinite = (value: unknown): number | undefined =>
         typeof value === 'number' && Number.isFinite(value) ? value : undefined;
-
-    let totalUsers = toNumberIfFinite(payload.totalUsers);
-    let activeUsers = toNumberIfFinite(payload.activeUsers);
-    let verifiedUsers = toNumberIfFinite(payload.verifiedUsers);
-
-    if (totalUsers === undefined || activeUsers === undefined || verifiedUsers === undefined) {
-        const [liveTotalUsers, liveActiveUsers, liveVerifiedUsers] = await Promise.all([
-            User.countDocuments({ status: { $ne: USER_STATUS.DELETED } }),
-            User.countDocuments({ status: USER_STATUS.ACTIVE }),
-            User.countDocuments({ status: USER_STATUS.ACTIVE, isVerified: true })
-        ]);
-
-        totalUsers = totalUsers ?? liveTotalUsers;
-        activeUsers = activeUsers ?? liveActiveUsers;
-        verifiedUsers = verifiedUsers ?? liveVerifiedUsers;
-    }
-
-    totalUsers = totalUsers ?? 0;
-    activeUsers = activeUsers ?? 0;
-    verifiedUsers = verifiedUsers ?? 0;
 
     const newUsersThisWeek = toNumberIfFinite(payload.newUsersThisWeek) ?? 0;
     const businessUsers = toNumberIfFinite(payload.businessUsers) ?? 0;
@@ -173,7 +181,7 @@ export const createAdminUser = async (data: any, actorId: string) => {
         isVerified: !!isVerified,
         isPhoneVerified: !!isVerified,
         isEmailVerified: !!isVerified && !!email,
-        status: USER_STATUS.ACTIVE,
+        status: USER_STATUS.LIVE,
         createdBy: actorId
     };
 
@@ -182,7 +190,7 @@ export const createAdminUser = async (data: any, actorId: string) => {
     }
 
     const newUser = await User.create(userData);
-    const userObj = newUser.toObject() as any;
+    const userObj = normalizeAdminManagedUser(newUser) as any;
     delete userObj.password;
     return userObj;
 };
@@ -221,5 +229,5 @@ export const updateAdminUser = async (userId: string, data: any, actorId: string
         throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    return user;
+    return normalizeAdminManagedUser(user);
 };

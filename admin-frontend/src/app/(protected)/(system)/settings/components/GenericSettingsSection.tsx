@@ -1,23 +1,26 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Field, SaveButton, SettingsSection, Toggle } from "./shared";
 import type { SectionProps } from "./types";
 
 export type SettingsFieldSchema = {
-  type: "toggle" | "number" | "text" | "select" | "textarea";
+  type: "toggle" | "number" | "text" | "password" | "datetime-local" | "select" | "textarea";
   label: string;
   description?: string;
   path: string; // nested path within the section config
   default?: any;
   min?: number;
   max?: number;
+  step?: number;
   options?: { value: string; label: string }[];
   placeholder?: string;
   /** Custom transform from config value to local state (e.g. join array) */
   transform?: (val: any) => any;
   /** Custom serialize from local state to config value (e.g. split string) */
   serialize?: (val: any) => any;
+  /** Preserve existing secret when the UI only receives a masked placeholder from the API. */
+  preserveMasked?: boolean;
 };
 
 interface GenericSettingsSectionProps extends SectionProps {
@@ -50,14 +53,20 @@ export function GenericSettingsSection({
     fields.forEach((field) => {
       // Handle nested paths if needed
       const parts = field.path.split(".");
-      let val = parts.reduce((acc, part) => (acc && typeof acc === "object" ? acc[part] : undefined), sectionConfig);
+      let val: unknown = parts.reduce(
+        (acc, part) => (acc && typeof acc === "object" ? (acc as Record<string, unknown>)[part] : undefined),
+        sectionConfig as unknown
+      );
 
       if (val === undefined) val = field.default;
 
       if (field.transform) {
         val = field.transform(val);
       }
-      initialData[field.path] = val;
+      if (field.preserveMasked && typeof val === "string" && val.includes("*")) {
+        val = "";
+      }
+      initialData[field.path] = val as any;
     });
 
     setFormData(initialData);
@@ -67,6 +76,9 @@ export function GenericSettingsSection({
     const payload: Record<string, any> = {};
     fields.forEach((field) => {
       let val = formData[field.path];
+      if (field.preserveMasked && (val === "" || val === undefined || val === null)) {
+        return;
+      }
       if (field.serialize) {
         val = field.serialize(val);
       }
@@ -106,17 +118,19 @@ export function GenericSettingsSection({
             className={field.type === "toggle" ? "col-span-full" : ""}
           >
             {field.type === "toggle" ? (
-              <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
-                <div>
+              <div className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-slate-900">{field.label}</p>
                   {field.description && (
                     <p className="text-xs text-slate-500">{field.description}</p>
                   )}
                 </div>
-                <Toggle
-                  checked={Boolean(formData[field.path])}
-                  onChange={(val) => updateField(field.path, val)}
-                />
+                <div className="self-start sm:self-center">
+                  <Toggle
+                    checked={Boolean(formData[field.path])}
+                    onChange={(val) => updateField(field.path, val)}
+                  />
+                </div>
               </div>
             ) : (
               <Field label={field.label} hint={field.description}>
@@ -146,6 +160,7 @@ export function GenericSettingsSection({
                     type={field.type}
                     min={field.min}
                     max={field.max}
+                    step={field.step}
                     value={formData[field.path] ?? ""}
                     onChange={(e) =>
                       updateField(

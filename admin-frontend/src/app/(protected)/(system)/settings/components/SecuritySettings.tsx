@@ -3,32 +3,36 @@
 import { GenericSettingsSection, type SettingsFieldSchema } from "./GenericSettingsSection";
 import type { SectionProps } from "./types";
 
+const splitLines = (value: string) =>
+  value
+    .split(/\r?\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
 const FIELDS: SettingsFieldSchema[] = [
   {
-    type: "toggle",
-    label: "2FA Enforcement",
-    description: "Require admin 2FA on login.",
-    path: "twoFactor.enabled",
-    default: false,
+    type: "text",
+    label: "2FA Issuer",
+    description: "Displayed inside authenticator apps when an admin enrolls in 2FA.",
+    path: "twoFactor.issuer",
+    default: "Esparex Admin",
   },
   {
     type: "number",
     label: "Session Timeout (minutes)",
+    description: "Controls admin session TTL and cookie refresh duration.",
     path: "sessionTimeoutMinutes",
     default: 60,
     min: 5,
   },
   {
-    type: "text",
-    label: "IP Whitelist (comma separated)",
+    type: "textarea",
+    label: "Login IP Allowlist",
+    description: "One IP per line. Admin login is blocked outside this allowlist when populated.",
     path: "ipWhitelist",
     default: "",
-    transform: (val: string[]) => (val || []).join(", "),
-    serialize: (val: string) =>
-      val
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
+    transform: (value: string[]) => (value || []).join("\n"),
+    serialize: (value: string) => splitLines(value),
   },
 ];
 
@@ -37,11 +41,10 @@ export function SecuritySettings(props: SectionProps) {
     <GenericSettingsSection
       {...props}
       title="Security"
-      description="Admin security and hardening controls."
+      description="Live admin session, 2FA issuer, and sign-in IP controls."
       configPath="security"
       successMessage="Security settings updated"
       fields={FIELDS}
     />
   );
 }
-

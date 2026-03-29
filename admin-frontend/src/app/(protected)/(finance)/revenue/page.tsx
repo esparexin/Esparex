@@ -6,19 +6,11 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
-import { adminFetch } from "@/lib/api/adminClient";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-
-type RevenueStats = {
-  totalRevenue: number;
-  todayRevenue: number;
-  totalSales: number;
-  thisMonthRevenue: number;
-};
+import { fetchRevenueSummarySeries } from "@/lib/api/finance";
+import type { FinanceStats } from "@/types/transaction";
 
 export default function RevenuePage() {
-  const [stats, setStats] = useState<RevenueStats | null>(null);
+  const [stats, setStats] = useState<FinanceStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -26,11 +18,30 @@ export default function RevenuePage() {
     void (async () => {
       setLoading(true);
       try {
-        const response = await adminFetch<{ totalRevenue: number; todayRevenue: number; totalSales: number; thisMonthRevenue: number }>(
-          ADMIN_ROUTES.FINANCE_STATS
-        );
-        const parsed = parseAdminResponse<never, RevenueStats>(response);
-        setStats(parsed.data ?? null);
+        const series = await fetchRevenueSummarySeries();
+        const todayKey = new Date().toISOString().slice(0, 10);
+        const currentMonthKey = todayKey.slice(0, 7);
+
+        const aggregated = series.reduce<FinanceStats>((acc, entry) => {
+          acc.totalRevenue += entry.totalRevenue || 0;
+          acc.totalSales += entry.totalTransactions || 0;
+
+          if (entry.date === todayKey) {
+            acc.todayRevenue += entry.totalRevenue || 0;
+          }
+          if (entry.date.startsWith(currentMonthKey)) {
+            acc.thisMonthRevenue += entry.totalRevenue || 0;
+          }
+
+          return acc;
+        }, {
+          totalRevenue: 0,
+          todayRevenue: 0,
+          totalSales: 0,
+          thisMonthRevenue: 0,
+        });
+
+        setStats(aggregated);
         setError("");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load revenue analytics");

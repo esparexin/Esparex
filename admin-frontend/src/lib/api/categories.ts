@@ -1,39 +1,33 @@
-import { z } from "zod";
-export const CategoryDataSchema = z.object({
-    id: z.string().optional(),
-    name: z.string(),
-    type: z.string().optional(),
-    status: z.string().optional(),
-    isActive: z.boolean().optional(),
-    parentId: z.string().optional(),
-    filters: z.array(z.unknown()).optional(),
-    listingType: z.array(z.string()).optional(),
-    hasScreenSizes: z.boolean().optional(),
-});
-
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
+import { buildQueryString } from "./queryParams";
+import type { ListingTypeValue } from "@shared/enums/listingType";
 
 export interface CategoryFilters {
     search?: string;
-    type?: string;
     status?: string;
-    [key: string]: string | undefined;
+    page?: number;
+    limit?: number;
+    isActive?: boolean;
+    [key: string]: string | number | boolean | undefined;
 }
 
 export interface CategoryData {
     id?: string;
     name: string;
+    slug?: string;
     type?: string;
     status?: string;
     isActive?: boolean;
     isDeleted?: boolean;
-    listingType?: string[];
+    listingType?: ListingTypeValue[];
     hasScreenSizes?: boolean;
+    parentId?: string;
+    filters?: unknown[];
 }
 
 export async function getCategories(filters?: CategoryFilters) {
-    const query = new URLSearchParams(filters as Record<string, string>).toString();
+    const query = buildQueryString(filters);
     return adminFetch<CategoryData[]>(`${ADMIN_ROUTES.CATEGORIES}?${query}`);
 }
 
@@ -51,14 +45,14 @@ export async function createCategory(data: CategoryData) {
 }
 
 export async function updateCategory(id: string, data: CategoryData) {
-    return adminFetch<CategoryData>(`${ADMIN_ROUTES.CATEGORIES}/${id}`, {
+    return adminFetch<CategoryData>(ADMIN_ROUTES.CATEGORY_BY_ID(id), {
         method: "PUT",
         body: data
     });
 }
 
 export async function deleteCategory(id: string) {
-    return adminFetch<void>(`${ADMIN_ROUTES.CATEGORIES}/${id}`, {
+    return adminFetch<void>(ADMIN_ROUTES.CATEGORY_BY_ID(id), {
         method: "DELETE"
     });
 }

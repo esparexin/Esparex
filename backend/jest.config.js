@@ -3,6 +3,7 @@ module.exports = {
     testEnvironment: 'node',
     testMatch: ['**/__tests__/**/*.spec.ts', '**/tests/**/*.spec.ts', '**/__tests__/**/*.test.ts'],
     setupFiles: ['<rootDir>/src/tests/jest.setup-env.ts'],
+    setupFilesAfterEnv: ['<rootDir>/src/tests/jest.after-env.ts'],
     globalTeardown: '<rootDir>/src/tests/jest.globalTeardown.js',
     verbose: true,
     roots: ['<rootDir>', '<rootDir>/../shared'],

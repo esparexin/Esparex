@@ -14,7 +14,7 @@ import {
 } from "@/components/catalog/CatalogUiPrimitives";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminServiceTypes, type ServiceType } from "@/hooks/useAdminServiceTypes";
-import { useAssignableCategories } from "@/hooks/useAssignableCategories";
+import { categorySupportsServices, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { toCategoryOptions, validateRequiredCategoryIds } from "@/components/catalog/catalogDomainUtils";
 
@@ -42,7 +42,7 @@ export default function ServiceTypesPage() {
 
     const { assignableCategories } = useAssignableCategories(
         categories,
-        (category) => !!category.listingType?.includes("postservice")
+        categorySupportsServices
     );
     const categoryOptions = toCategoryOptions(assignableCategories);
 

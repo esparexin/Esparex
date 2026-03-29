@@ -14,6 +14,8 @@ export type AdminRole =
 export const ADMIN_PERMISSION_KEYS = {
     ADS_APPROVE: 'ads:write',
     ADS_DELETE: 'ads:write',
+    CHAT_READ: 'chat:read',
+    CHAT_WRITE: 'chat:write',
     USERS_WARN: 'users:write',
     USERS_SUSPEND: 'users:write',
     USERS_BAN: 'users:write',
@@ -42,6 +44,8 @@ const PERMISSION_ROLE_ALLOWLIST: Record<string, AdminRole[]> = {
     'services:write': [Role.ADMIN, Role.MODERATOR, 'content_moderator'],
     'parts:read': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'viewer'],
     'parts:write': [Role.ADMIN, Role.MODERATOR, 'content_moderator'],
+    'chat:read': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'viewer'],
+    'chat:write': [Role.ADMIN, Role.MODERATOR, 'content_moderator'],
     'content:read': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'viewer'],
     'content:write': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'editor'],
     'finance:read': [Role.ADMIN, 'finance_manager'],

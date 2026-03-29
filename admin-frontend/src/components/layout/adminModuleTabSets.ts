@@ -10,16 +10,10 @@ export const administrationTabs: AdminTabItem[] = [
     { label: "API Keys", href: "/api-keys" },
 ];
 
-
-export const platformConfigTabs: AdminTabItem[] = [
-    { label: "Settings", href: "/settings?tab=platform" },
-];
-
-// Location management pages: /locations, /locations/analytics, /locations/geofences
+// Location management pages: /locations, /locations/analytics
 export const locationsTabs: AdminTabItem[] = [
     { label: "Locations", href: "/locations" },
     { label: "Geo Analytics", href: "/locations/analytics" },
-    { label: "Geofences", href: "/locations/geofences" },
 ];
 
 // Finance pages: /plans, /invoices, /finance, /revenue
@@ -41,6 +35,7 @@ export const catalogManagementTabs: AdminTabItem[] = [
 
 export const sparePartsMasterTabs: AdminTabItem[] = [
     { label: "Spare Parts",  href: "/spare-parts-catalog" },
+    { label: "Hierarchy", href: "/taxonomy" },
 ];
 
 export const moderationTabs: AdminTabItem[] = [
@@ -81,5 +76,5 @@ export const adLifecycleTabs: AdminTabItem[] = [
 
 
 export const notificationsTabs: AdminTabItem[] = [
-    { label: "Broadcast", href: "/notifications" },
+    { label: "Broadcasts", href: "/notifications" },
 ];

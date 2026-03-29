@@ -1,5 +1,6 @@
 import { CategoryType } from '../../../shared/schemas/catalog.schema';
 import type { CatalogStatusValue } from '../../../shared/enums/catalogStatus';
+import type { ListingTypeValue } from '../../../shared/enums/listingType';
 
 export interface Category {
     id: string;
@@ -15,7 +16,7 @@ export interface Category {
     isActive: boolean;
     isDeleted: boolean;
     // Metadata-driven architecture fields
-    listingType?: string[];
+    listingType?: ListingTypeValue[];
     createdAt?: string;
     updatedAt?: string;
 }

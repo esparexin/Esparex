@@ -13,8 +13,8 @@ type BusinessListPagination = {
 
 interface UseAdminBusinessListOptions<TOverview extends Record<string, number>> {
     activeTab: string;
-    search?: string;
-    page?: number;
+    search: string;
+    page: number;
     initialOverview: TOverview;
     mapOverview: (data: Record<string, unknown>) => TOverview;
     extraQueryParams?: Record<string, string | undefined>;
@@ -45,8 +45,8 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 
 export function useAdminBusinessList<TOverview extends Record<string, number>>({
     activeTab,
-    search: controlledSearch,
-    page: controlledPage,
+    search,
+    page,
     initialOverview,
     mapOverview,
     extraQueryParams,
@@ -57,8 +57,6 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
     const [businesses, setBusinesses] = useState<Business[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [internalSearch, setSearch] = useState("");
-    const [internalPage, setPage] = useState(1);
     const [pagination, setPagination] = useState<BusinessListPagination>(DEFAULT_PAGINATION);
     const [overview, setOverview] = useState<TOverview>(initialOverview);
 
@@ -67,8 +65,6 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
     const [modifyTarget, setModifyTarget] = useState<Business | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Business | null>(null);
 
-    const search = controlledSearch ?? internalSearch;
-    const page = controlledPage ?? internalPage;
     const extraQueryKey = JSON.stringify(extraQueryParams ?? {});
 
     const fetchBusinesses = async () => {
@@ -189,9 +185,7 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
         error,
         setError,
         search,
-        setSearch,
         page,
-        setPage,
         pagination,
         overview,
         selectedBusiness,

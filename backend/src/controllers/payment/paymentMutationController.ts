@@ -7,8 +7,9 @@ import User from '../../models/User';
 import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
-import { buildMockOrder, razorpay, RAZORPAY_KEY_ID } from './shared';
+import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from './shared';
 import { logBusiness, logSecurity } from '../../utils/logger';
+import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
 
 /**
  * 1. CREATE ORDER
@@ -26,6 +27,10 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
 
         const plan = await Plan.findById(planId);
         if (!plan || !plan.active) return sendErrorResponse(req, res, 404, 'Invalid or inactive plan');
+        const razorpayConfig = await getRazorpayRuntimeConfig();
+        if (!razorpayConfig.enabled) {
+            return sendErrorResponse(req, res, 503, 'Payments are currently unavailable');
+        }
 
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
         const velocityCount = await Transaction.countDocuments({
@@ -64,7 +69,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
                     transactionId: existingPendingTransaction._id,
                     amount: existingPendingTransaction.amount,
                     currency: existingPendingTransaction.currency || plan.currency || 'INR',
-                    keyId: RAZORPAY_KEY_ID,
+                    keyId: razorpayConfig.keyId,
                     userName: user.name || 'User',
                     userEmail: user.email || '',
                     userPhone: user.mobile || ''
@@ -73,12 +78,13 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         }
 
         const isMock = process.env.NODE_ENV === 'development'
-            && (RAZORPAY_KEY_ID === 'rzp_test_placeholder' || req.headers['x-mock-payment'] === 'true');
+            && (razorpayConfig.keyId === 'rzp_test_placeholder' || req.headers['x-mock-payment'] === 'true');
 
         let rzpOrder;
         if (isMock) {
             rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
         } else {
+            const razorpay = await getRazorpayClient();
             rzpOrder = await razorpay.orders.create({
                 amount: plan.price * 100,
                 currency: plan.currency || 'INR',
@@ -93,7 +99,9 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
                 code: plan.code,
                 name: plan.name,
                 type: plan.type,
-                credits: plan.credits,
+                credits: getPrimaryPlanCreditCount(plan),
+                durationDays: plan.durationDays,
+                limits: plan.limits,
                 price: plan.price,
                 currency: plan.currency || 'INR'
             },
@@ -121,7 +129,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
                 transactionId: transaction._id,
                 amount: plan.price,
                 currency: plan.currency || 'INR',
-                keyId: RAZORPAY_KEY_ID,
+                keyId: razorpayConfig.keyId,
                 userName: user.name || 'User',
                 userEmail: user.email || '',
                 userPhone: user.mobile || ''

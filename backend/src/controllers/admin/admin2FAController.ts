@@ -3,6 +3,7 @@ import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import Admin from '../../models/Admin';
 import logger from '../../utils/logger';
+import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
 import { 
     sendSuccessResponse, 
     sendAdminError 
@@ -29,10 +30,12 @@ export const setup2FA = async (req: Request, res: Response) => {
         if (!admin) {
             return sendAdminError(req, res, 'Unauthorized', 401);
         }
+        const systemConfig = await getSystemConfigDoc();
+        const issuer = systemConfig?.security?.twoFactor?.issuer?.trim() || 'Esparex Admin';
 
         const secret = speakeasy.generateSecret({
-            name: `Esparex Admin (${admin.email})`,
-            issuer: 'Esparex'
+            name: `${issuer} (${admin.email})`,
+            issuer
         });
 
         admin.twoFactorSecret = secret.base32;

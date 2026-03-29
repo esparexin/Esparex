@@ -18,6 +18,7 @@ import { runS3GarbageCollectorJob } from '../jobs/s3GarbageCollector.job';
 import { runAdminMetricsJob } from '../jobs/adminMetrics.job';
 import { runHomeFeedWarmupJob } from '../jobs/homeFeedWarmup.job';
 import { runQualityScoreBackfill } from '../workers/QualityScoreBackfillWorker';
+import { runCleanupReadNotificationsJob } from '../jobs/cleanupReadNotifications.job';
 
 const schedulerProcessors: Record<SchedulerJobName, () => Promise<unknown>> = {
     expire_ads_job: runExpireAdsJob,
@@ -28,6 +29,7 @@ const schedulerProcessors: Record<SchedulerJobName, () => Promise<unknown>> = {
     database_backup_job: runBackupJob,
     location_analytics_refresh: runLocationAnalyticsJob,
     notification_scheduler_poll: runScheduledNotificationPoll,
+    cleanup_read_notifications: runCleanupReadNotificationsJob,
     s3_garbage_collector_job: runS3GarbageCollectorJob,
     admin_metrics_cache_job: runAdminMetricsJob,
     home_feed_warmup: runHomeFeedWarmupJob,

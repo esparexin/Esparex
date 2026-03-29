@@ -23,6 +23,8 @@ import { UserQuickDetailsPanel } from "@/components/system/users/UserQuickDetail
 import {
     DEFAULT_USER_ACTION_STATE,
     getUserStatusPresentation,
+    normalizeManagedUser,
+    normalizeUserManagementStatusFilter,
     type ManagedUser,
     type UserActionState,
     type UserActionType,
@@ -31,7 +33,7 @@ import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/ad
 
 const USER_STATUS_OPTIONS = [
     { value: "all", label: "All Status" },
-    { value: "active", label: "Active" },
+    { value: "live", label: "Active" },
     { value: "suspended", label: "Suspended" },
     { value: "banned", label: "Banned" },
 ];
@@ -50,10 +52,7 @@ export default function UsersPage() {
     const [users, setUsers] = useState<ManagedUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
-    const [verifiedFilter, setVerifiedFilter] = useState<"all" | "true" | "false">("all");
-    const [page, setPage] = useState(1);
+    const [searchInput, setSearchInput] = useState("");
     const [pagination, setPagination] = useState({
         total: 0,
         pages: 1,
@@ -62,6 +61,7 @@ export default function UsersPage() {
     const [overview, setOverview] = useState({
         totalUsers: 0,
         activeUsers: 0,
+        suspendedUsers: 0,
         bannedUsers: 0,
         verifiedUsers: 0
     });
@@ -72,16 +72,28 @@ export default function UsersPage() {
 
     const dropdownRef = useRef<HTMLDivElement>(null);
 
+    const statusFilter = normalizeUserManagementStatusFilter(searchParams.get("status"));
+    const verifiedFilter =
+        searchParams.get("isVerified") === "true" || searchParams.get("isVerified") === "false"
+            ? (searchParams.get("isVerified") as "true" | "false")
+            : "all";
+    const committedSearch = readStringParam(searchParams.get("search"));
+    const page = readPositiveIntParam(searchParams.get("page"), 1);
+
     const fetchUsers = async () => {
         setLoading(true);
         setError("");
         try {
             const queryParams = new URLSearchParams({
-                search,
-                status: statusFilter,
                 page: String(page),
-                limit: "20"
+                limit: "20",
             });
+            if (committedSearch) {
+                queryParams.set("search", committedSearch);
+            }
+            if (statusFilter !== "all") {
+                queryParams.set("status", statusFilter);
+            }
             if (verifiedFilter !== "all") {
                 queryParams.set("isVerified", verifiedFilter);
             }
@@ -92,7 +104,7 @@ export default function UsersPage() {
                 adminFetch<any>(ADMIN_ROUTES.USER_OVERVIEW)
             ]);
             const parsed = parseAdminResponse<ManagedUser>(response);
-            setUsers(parsed.items);
+            setUsers(parsed.items.map(normalizeManagedUser));
             if (parsed.pagination) {
                 setPagination({
                     total: parsed.pagination.total ?? 0,
@@ -103,9 +115,11 @@ export default function UsersPage() {
             const overviewParsed = parseAdminResponse<never, Record<string, unknown>>(overviewResponse);
             const overviewData = overviewParsed.data || {};
             const banned = Number(overviewData.bannedUsers || 0);
+            const suspended = Number(overviewData.suspendedUsers || 0);
             setOverview({
                 totalUsers: Number(overviewData.totalUsers || 0),
                 activeUsers: Number(overviewData.activeUsers || 0),
+                suspendedUsers: suspended,
                 bannedUsers: banned,
                 verifiedUsers: Number(overviewData.verifiedUsers || 0)
             });
@@ -121,41 +135,45 @@ export default function UsersPage() {
             void fetchUsers();
         }, 300);
         return () => clearTimeout(timer);
-    }, [search, statusFilter, verifiedFilter, page]);
+    }, [committedSearch, page, statusFilter, verifiedFilter]);
 
     useEffect(() => {
-        const requestedStatus = searchParams.get("status");
-        const requestedVerified = searchParams.get("isVerified");
-        const requestedSearch = searchParams.get("search");
-        const allowed = new Set(["all", "active", "suspended", "banned", "blocked"]);
-        const normalizedStatus =
-            requestedStatus && allowed.has(requestedStatus)
-                ? (requestedStatus === "blocked" ? "banned" : requestedStatus)
-                : "all";
-        const normalizedVerified =
-            requestedVerified === "true" || requestedVerified === "false"
-                ? requestedVerified
-                : "all";
-        const normalizedSearch = readStringParam(requestedSearch);
-        const normalizedPage = readPositiveIntParam(searchParams.get("page"), 1);
-        setStatusFilter((prev) => (prev === normalizedStatus ? prev : normalizedStatus));
-        setVerifiedFilter((prev) => (prev === normalizedVerified ? prev : normalizedVerified));
-        setSearch((prev) => (prev === normalizedSearch ? prev : normalizedSearch));
-        setPage((prev) => (prev === normalizedPage ? prev : normalizedPage));
-    }, [searchParams]);
+        setSearchInput((prev) => (prev === committedSearch ? prev : committedSearch));
+    }, [committedSearch]);
 
     useEffect(() => {
         const nextUrl = ADMIN_UI_ROUTES.users({
             status: statusFilter !== "all" ? statusFilter : undefined,
             isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
-            search: search || undefined,
+            search: committedSearch || undefined,
             page: page > 1 ? page : undefined,
         });
         const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
         if (nextUrl !== currentUrl) {
             void router.replace(nextUrl, { scroll: false });
         }
-    }, [page, pathname, router, search, searchParams, statusFilter, verifiedFilter]);
+    }, [committedSearch, page, pathname, router, searchParams, statusFilter, verifiedFilter]);
+
+    useEffect(() => {
+        const normalizedSearchInput = readStringParam(searchInput);
+        if (normalizedSearchInput === committedSearch) {
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            const nextUrl = ADMIN_UI_ROUTES.users({
+                status: statusFilter !== "all" ? statusFilter : undefined,
+                isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
+                search: normalizedSearchInput || undefined,
+            });
+            const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
+            if (nextUrl !== currentUrl) {
+                void router.replace(nextUrl, { scroll: false });
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [committedSearch, pathname, router, searchInput, searchParams, statusFilter, verifiedFilter]);
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -295,8 +313,8 @@ export default function UsersPage() {
                 <AdminModuleTabs
                     tabs={[
                         { label: "All Users", href: ADMIN_UI_ROUTES.users() },
-                        { label: "Active", href: ADMIN_UI_ROUTES.users({ status: "active" }), count: overview.activeUsers },
-                        { label: "Suspended", href: ADMIN_UI_ROUTES.users({ status: "suspended" }) },
+                        { label: "Active", href: ADMIN_UI_ROUTES.users({ status: "live" }), count: overview.activeUsers },
+                        { label: "Suspended", href: ADMIN_UI_ROUTES.users({ status: "suspended" }), count: overview.suspendedUsers },
                         { label: "Banned", href: ADMIN_UI_ROUTES.users({ status: "banned" }), count: overview.bannedUsers },
                         { label: "Verified", href: ADMIN_UI_ROUTES.users({ isVerified: "true" }), count: overview.verifiedUsers },
                     ]}
@@ -308,14 +326,18 @@ export default function UsersPage() {
             <div className={`flex min-h-0 flex-1 flex-col overflow-hidden transition-all duration-300 ${selectedUser ? 'pr-[400px]' : ''}`}>
                 <div className="flex min-h-0 flex-1 flex-col gap-6">
 
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
                         <Link href={ADMIN_UI_ROUTES.users()} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Users</p>
                             <p className="mt-2 text-2xl font-bold text-slate-900">{overview.totalUsers.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ status: "active" })} className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "live" })} className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Active Users</p>
                             <p className="mt-2 text-2xl font-bold text-emerald-700">{overview.activeUsers.toLocaleString()}</p>
+                        </Link>
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-xl border border-amber-200 bg-amber-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Suspended Users</p>
+                            <p className="mt-2 text-2xl font-bold text-amber-700">{overview.suspendedUsers.toLocaleString()}</p>
                         </Link>
                         <Link href={ADMIN_UI_ROUTES.users({ status: "banned" })} className="rounded-xl border border-red-200 bg-red-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Banned Users</p>
@@ -328,16 +350,20 @@ export default function UsersPage() {
                     </div>
 
                     <AdminFilterToolbar
-                        search={search}
-                        onSearchChange={(value) => {
-                            setSearch(value);
-                            setPage(1);
-                        }}
+                        search={searchInput}
+                        onSearchChange={setSearchInput}
                         searchPlaceholder="Search by name, email or mobile..."
                         status={statusFilter}
                         onStatusChange={(value) => {
-                            setStatusFilter(value);
-                            setPage(1);
+                            const nextStatus = normalizeUserManagementStatusFilter(value);
+                            void router.replace(
+                                ADMIN_UI_ROUTES.users({
+                                    status: nextStatus !== "all" ? nextStatus : undefined,
+                                    isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
+                                    search: committedSearch || undefined,
+                                }),
+                                { scroll: false }
+                            );
                         }}
                         statusOptions={USER_STATUS_OPTIONS}
                         extraFilters={
@@ -345,8 +371,15 @@ export default function UsersPage() {
                                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
                                 value={verifiedFilter}
                                 onChange={(event) => {
-                                    setVerifiedFilter(event.target.value as "all" | "true" | "false");
-                                    setPage(1);
+                                    const nextVerified = event.target.value as "all" | "true" | "false";
+                                    void router.replace(
+                                        ADMIN_UI_ROUTES.users({
+                                            status: statusFilter !== "all" ? statusFilter : undefined,
+                                            isVerified: nextVerified !== "all" ? nextVerified : undefined,
+                                            search: committedSearch || undefined,
+                                        }),
+                                        { scroll: false }
+                                    );
                                 }}
                             >
                                 <option value="all">All Verification</option>
@@ -369,7 +402,17 @@ export default function UsersPage() {
                                 totalPages: pagination.pages || 1,
                                 totalItems: pagination.total,
                                 pageSize: pagination.limit,
-                                onPageChange: setPage
+                                onPageChange: (nextPage) => {
+                                    void router.replace(
+                                        ADMIN_UI_ROUTES.users({
+                                            status: statusFilter !== "all" ? statusFilter : undefined,
+                                            isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
+                                            search: committedSearch || undefined,
+                                            page: nextPage > 1 ? nextPage : undefined,
+                                        }),
+                                        { scroll: false }
+                                    );
+                                }
                             }}
                         />
                     </div>

@@ -14,6 +14,11 @@ const listingKeys = {
     saved: () => [...listingKeys.all, 'saved'] as const,
 };
 
+const businessKeys = {
+    all: ['businesses'] as const,
+    nearby: (params: Record<string, unknown>) => [...businessKeys.all, 'nearby', params] as const,
+};
+
 export const queryKeys = {
     // Listings (Unified name for Ads, Services, Spare Parts in the future)
     listings: listingKeys,
@@ -30,6 +35,8 @@ export const queryKeys = {
         schema: (id: string) => [...queryKeys.categories.schemas(), id] as const,
     },
 
+    businesses: businessKeys,
+
     // User
     user: {
         all: ['user'] as const,
@@ -40,7 +47,8 @@ export const queryKeys = {
     // Notifications
     notifications: {
         all: ['notifications'] as const,
-        list: (page: number, limit: number) => [...queryKeys.notifications.all, page, limit] as const,
+        list: (params: { page?: number; limit?: number; filter?: string; type?: string; q?: string }) =>
+            [...queryKeys.notifications.all, params] as const,
     },
 
     // Services
@@ -59,4 +67,3 @@ export const queryKeys = {
         myListings: (status?: string) => [...queryKeys.spare.all, 'mine', { status }] as const,
     },
 };
-

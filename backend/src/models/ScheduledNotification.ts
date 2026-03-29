@@ -9,6 +9,7 @@ export interface IScheduledNotification extends mongoose.Document {
     targetType: 'all' | 'users' | 'topic';
     targetValue?: string;
     userIds?: mongoose.Types.ObjectId[];
+    actionUrl?: string;
     sentBy: mongoose.Types.ObjectId;
     sendAt: Date;
     status: 'pending' | 'sent' | 'failed' | 'cancelled';

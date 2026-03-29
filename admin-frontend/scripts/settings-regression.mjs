@@ -8,30 +8,22 @@ const apiPath = path.join(root, "src", "lib", "api", "systemConfig.ts");
 const componentDir = path.join(root, "src", "app", "(protected)", "(system)", "settings", "components");
 const componentExpectations = [
     "PlatformSettings.tsx",
-    "AdsSettings.tsx",
+    "ListingSettings.tsx",
     "ModerationSettings.tsx",
-    "UserSettings.tsx",
-    "MessagingSettings.tsx",
     "PaymentSettings.tsx",
-    "FraudSettings.tsx",
     "NotificationSettings.tsx",
     "SecuritySettings.tsx",
     "SearchSettings.tsx",
-    "FeatureFlags.tsx",
 ];
 
 const requiredTabs = [
     "platform",
-    "ads",
+    "listing",
     "moderation",
-    "users",
-    "messaging",
     "payments",
-    "fraud",
     "notifications",
     "security",
-    "search",
-    "featureFlags",
+    "location",
 ];
 
 const failures = [];
@@ -68,8 +60,8 @@ assertPattern(
 );
 assertPattern(
     page,
-    /const\s+\[activeTab,\s*setActiveTab\]\s*=\s*useState<SettingsTab>\("platform"\)/,
-    "Settings page regression: default active tab should be platform."
+    /const\s+activeTab:\s*SettingsTab\s*=\s*isSettingsTab\(requestedTab\)\s*\?\s*requestedTab\s*:\s*"platform"/,
+    "Settings page regression: active tab must be derived from the canonical query param."
 );
 
 for (const tab of requiredTabs) {
@@ -86,8 +78,8 @@ for (const file of componentExpectations) {
     if (!content) continue;
     assertPattern(
         content,
-        /onSave\(/,
-        `Settings component regression: ${file} must call onSave(...).`
+        /(onSave\(|GenericSettingsSection)/,
+        `Settings component regression: ${file} must remain wired to the shared settings save flow.`
     );
 }
 

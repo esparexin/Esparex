@@ -20,6 +20,13 @@ type FinanceTransactionQuery = {
     limit?: number;
 };
 
+export type RevenueSummaryEntry = {
+    date: string;
+    totalRevenue: number;
+    totalTransactions: number;
+    breakdown?: Record<string, { revenue: number; count: number }>;
+};
+
 export async function fetchFinanceTransactions({
     search,
     status,
@@ -56,4 +63,9 @@ export async function fetchFinanceTransactions({
 export async function fetchFinanceStats(): Promise<FinanceStats | null> {
     const response = await adminFetch<unknown>(ADMIN_ROUTES.FINANCE_STATS);
     return parseAdminResponse<never, FinanceStats>(response).data;
+}
+
+export async function fetchRevenueSummarySeries(): Promise<RevenueSummaryEntry[]> {
+    const response = await adminFetch<unknown>(ADMIN_ROUTES.REVENUE.SUMMARY);
+    return parseAdminResponse<RevenueSummaryEntry>(response).items;
 }

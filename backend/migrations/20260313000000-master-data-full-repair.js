@@ -301,14 +301,14 @@ module.exports = {
           repairOps.push({
             updateOne: {
               filter: { _id: part._id },
-              update: { $set: { categories: [derivedCatId], needsReview: false } },
+              update: { $set: { categories: [derivedCatId] } },
             },
           });
         } else {
           orphanOps.push({
             updateOne: {
               filter: { _id: part._id },
-              update: { $set: { isActive: false, needsReview: true } },
+              update: { $set: { isActive: false, categories: [] } },
             },
           });
         }
@@ -333,7 +333,7 @@ module.exports = {
           orphanOps.push({
             updateOne: {
               filter: { _id: part._id },
-              update: { $set: { isActive: false, needsReview: true, categories: [] } },
+              update: { $set: { isActive: false, categories: [] } },
             },
           });
         } else {
@@ -440,7 +440,6 @@ module.exports = {
             isDeleted:   { $ne: true },
             isActive:    false,
             status:      'approved',
-            needsReview: { $ne: true },
             categories:  { $exists: true, $not: { $size: 0 } },
           })
           .project({ _id: 1, categories: 1 })

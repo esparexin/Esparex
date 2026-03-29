@@ -7,11 +7,12 @@ import Plan from '../../models/Plan';
 import User from '../../models/User';
 import UserPlan from '../../models/UserPlan';
 import { logAdminAction } from '../../utils/adminLogger';
-import { escapeRegExp } from '../../utils/stringUtils';
 import { respond } from '../../utils/respond';
 import { PAYMENT_STATUS } from '../../../../shared/enums/paymentStatus';
 import { PLAN_STATUS } from '@shared/enums/planStatus';
 import { generateInvoiceNumber } from '../../utils/invoiceNumber';
+import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
+import * as invoiceService from '../../services/InvoiceService';
 import { 
     sendSuccessResponse, 
     sendAdminError,
@@ -29,34 +30,15 @@ export const getAllInvoices = async (req: Request, res: Response) => {
 
         const { status, search } = req.query;
 
-        const query: Record<string, unknown> & { $or?: Array<Record<string, unknown>> } = {};
+        const { items, total } = await invoiceService.getInvoices(
+            {
+                search: typeof search === 'string' ? search : undefined,
+                status: typeof status === 'string' ? status : undefined,
+            },
+            { skip, limit }
+        );
 
-        if (status && status !== 'all') {
-            query.status = status;
-        }
-
-        if (search) {
-            const safeSearch = escapeRegExp(search as string);
-            query.$or = [
-                { invoiceNumber: { $regex: safeSearch, $options: 'i' } },
-                { "userId.name": { $regex: safeSearch, $options: 'i' } }, // Assuming we might want to search user name if feasible, but userId is ref.
-                // Standard search on Invoice Number
-            ];
-
-            // To search by User Name, we'd need a lookup or knowing User ID. 
-            // For now, let's stick to invoiceNumber or try to populate query if needed. 
-            // Keeping it simple for safety.
-        }
-
-        const invoices = await Invoice.find(query)
-            .populate('userId', 'name email mobile')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const total = await Invoice.countDocuments(query);
-
-        return sendPaginatedResponse(res, invoices, total, page, limit);
+        return sendPaginatedResponse(res, items, total, page, limit);
 
     } catch (error: unknown) {
         return sendAdminError(req, res, error);
@@ -68,7 +50,12 @@ export const getAllInvoices = async (req: Request, res: Response) => {
  */
 export const getInvoiceById = async (req: Request, res: Response) => {
     try {
-        const invoice = await Invoice.findById(req.params.id).populate('userId', 'name email mobile');
+        const invoiceId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        if (!invoiceId) {
+            return sendAdminError(req, res, 'Invoice not found', 404);
+        }
+
+        const invoice = await invoiceService.getInvoiceById(invoiceId);
         if (!invoice) {
             return sendAdminError(req, res, 'Invoice not found', 404);
         }
@@ -102,6 +89,7 @@ export const createInvoice = async (req: Request, res: Response) => {
         let transactionAmount = 0;
         let planSnapshot: Record<string, unknown> | null = null;
         let transactionDescription = "Invoice Payment";
+        let resolvedPlanId: string | undefined;
 
         // CASE A: Subscription Plan Invoice (Legacy/Strict)
         if (planId) {
@@ -113,12 +101,15 @@ export const createInvoice = async (req: Request, res: Response) => {
             }
 
             const snapshotPrice = parseFloat(amount) || plan.price;
+            resolvedPlanId = plan._id.toString();
 
             planSnapshot = {
                 code: plan.code,
                 name: plan.name,
                 type: plan.type,
-                credits: plan.credits,
+                credits: getPrimaryPlanCreditCount(plan),
+                durationDays: plan.durationDays,
+                limits: plan.limits,
                 price: snapshotPrice,
                 currency: currency || plan.currency,
             };
@@ -158,7 +149,7 @@ export const createInvoice = async (req: Request, res: Response) => {
 
         const transaction = await Transaction.create({
             userId: user._id,
-            planId: planId ? (planSnapshot ? null : planId) : undefined, // Ref if exists
+            planId: resolvedPlanId,
             planSnapshot: planSnapshot || undefined,
             description: transactionDescription,
             amount: transactionAmount,

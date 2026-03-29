@@ -1,10 +1,10 @@
-import BusinessRequestsView from "./BusinessRequestsView";
+import { redirect } from "next/navigation";
 
 export const metadata = {
     title: "Business Requests | Admin Dashboard",
-    description: "Moderate and manage business registration applications",
+    description: "Redirecting to Business Master pending review queue",
 };
 
 export default function BusinessRequestsPage() {
-    return <BusinessRequestsView />;
+    redirect("/businesses?status=pending");
 }

@@ -94,7 +94,6 @@ export const ADMIN_UI_ROUTES = {
     users: (query?: QueryShape) => toRoute("/users", query),
     userById: (id: string) => `/users/${encodeURIComponent(id)}`,
     businesses: (query?: QueryShape) => toRoute("/businesses", query),
-    businessRequests: (query?: QueryShape) => toRoute("/business-requests", query),
     finance: (query?: QueryShape) => toRoute("/finance", query),
     chat: (query?: QueryShape) => toRoute("/chat", query),
 } as const;

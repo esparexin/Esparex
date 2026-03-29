@@ -33,6 +33,8 @@
     "ops:report-unify": "npm run ops -- report-unify-backfill",
     "ops:report-orphans": "npm run ops -- report-orphan-remediate",
     "migrate:ad-listingtype-backfill": "ts-node -r tsconfig-paths/register src/scripts/migrate_ad_listingtype_backfill.ts",
+    "migrate:spare-part-listingtype-backfill": "ts-node -r tsconfig-paths/register src/scripts/migrations/migrate_spare_part_listing_types.ts",
+    "migrate:spare-part-needs-review-cleanup": "ts-node -r tsconfig-paths/register src/scripts/migrations/remove_spare_part_needs_review.ts",
     "migrate:lifecycle-integrity-sweep": "ts-node -r tsconfig-paths/register src/scripts/migrations/migrate_listing_lifecycle_integrity.ts",
     "scan:master-data-integrity": "node scripts/master-data-integrity-scan.js",
     "ops:indexes:apply": "ts-node scripts/syncUserIndexes.ts && ts-node scripts/sync_ad_indexes.ts",

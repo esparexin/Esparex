@@ -8,7 +8,6 @@ import { Request, Response } from 'express';
 import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse, sendAdminError } from '../adminBaseController';
 import { getSingleParam } from '../../../utils/requestParams';
 import { escapeRegExp } from '../../../utils/stringUtils';
-import { GOVERNANCE, MS_IN_DAY } from '../../../config/constants';
 
 import User from '../../../models/User';
 import Ad from '../../../models/Ad';
@@ -32,9 +31,9 @@ import { buildPublicAdFilter } from '../../../utils/FeedVisibilityGuard';
 
 import {
     buildLocationSummary,
-    CanonicalLocationDoc,
+    loadHierarchyMapForLocations,
     normalizeStateLabel,
-    toLocationIdString
+    resolveLocationScope,
 } from '../../../utils/locationHierarchy';
 
 import * as adminAnalyticsController from '../adminAnalyticsController';
@@ -279,89 +278,129 @@ export const getRateLimitMetrics = async (req: Request, res: Response) => {
  */
 export const getLocationAnalytics = async (req: Request, res: Response) => {
     try {
-        const thirtyDaysAgo = new Date(Date.now() - GOVERNANCE.BUSINESS.AUTO_EXPIRE_CHECK_DAYS * MS_IN_DAY);
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
         const cityFilter = typeof req.query.city === 'string' ? req.query.city.trim() : '';
         const districtFilter = typeof req.query.district === 'string' ? req.query.district.trim() : '';
         const stateFilter = typeof req.query.state === 'string' ? req.query.state.trim() : '';
         const countryFilter = typeof req.query.country === 'string' ? req.query.country.trim() : '';
+        const scope = await resolveLocationScope({
+            city: cityFilter || undefined,
+            district: districtFilter || undefined,
+            state: stateFilter && stateFilter !== 'all' ? stateFilter : undefined,
+            country: countryFilter && countryFilter !== 'all' ? countryFilter : undefined,
+        });
+        const locationScopeIds = scope.locationIds;
 
-        const locationScopeFilter: Record<string, unknown> = { isActive: true };
-        if (cityFilter) {
-            locationScopeFilter.city = new RegExp(`^${escapeRegExp(cityFilter)}$`, 'i');
-        }
-        if (districtFilter) {
-            locationScopeFilter.district = new RegExp(`^${escapeRegExp(districtFilter)}$`, 'i');
-        }
-        if (stateFilter && stateFilter !== 'all') {
-            locationScopeFilter.state = new RegExp(`^${escapeRegExp(stateFilter)}$`, 'i');
-        }
-        if (countryFilter && countryFilter !== 'all') {
-            locationScopeFilter.country = new RegExp(`^${escapeRegExp(countryFilter)}$`, 'i');
-        }
-
-        const locationScopeIds =
-            Object.keys(locationScopeFilter).length > 1
-                ? await Location.find(locationScopeFilter).distinct('_id')
-                : null;
-        const hotZoneQuery: Record<string, unknown> = { isHotZone: true };
-        if (Array.isArray(locationScopeIds)) {
-            if (locationScopeIds.length === 0) {
-                hotZoneQuery.locationId = { $in: [] };
-            } else {
-                hotZoneQuery.locationId = { $in: locationScopeIds };
+        const buildScopedLocationQuery = (extra: Record<string, unknown> = {}) => {
+            if (locationScopeIds === null) {
+                return { isActive: true, ...extra };
             }
+            if (locationScopeIds.length === 0) {
+                return { _id: { $in: [] }, ...extra };
+            }
+            return {
+                isActive: true,
+                ...extra,
+                $or: [
+                    { _id: { $in: locationScopeIds } },
+                    { path: { $in: locationScopeIds } },
+                ],
+            };
+        };
+
+        const buildScopedAdQuery = (extra: Record<string, unknown> = {}) => {
+            if (locationScopeIds === null) {
+                return extra;
+            }
+            if (locationScopeIds.length === 0) {
+                return { _id: { $in: [] }, ...extra };
+            }
+            return {
+                ...extra,
+                $or: [
+                    { 'location.locationId': { $in: locationScopeIds } },
+                    { locationPath: { $in: locationScopeIds } },
+                ],
+            };
+        };
+
+        const buildScopedUserQuery = (extra: Record<string, unknown> = {}) => {
+            if (locationScopeIds === null) {
+                return extra;
+            }
+            if (locationScopeIds.length === 0) {
+                return { _id: { $in: [] }, ...extra };
+            }
+
+            const orQuery: Array<Record<string, unknown>> = [
+                { locationId: { $in: locationScopeIds } },
+                { 'location.locationId': { $in: locationScopeIds } },
+            ];
+
+            if (cityFilter) {
+                orQuery.push({ 'location.city': new RegExp(`^${escapeRegExp(cityFilter)}$`, 'i') });
+            }
+            if (stateFilter && stateFilter !== 'all') {
+                orQuery.push({ 'location.state': new RegExp(`^${escapeRegExp(stateFilter)}$`, 'i') });
+            }
+
+            return {
+                ...extra,
+                $or: orQuery,
+            };
+        };
+
+        if (Array.isArray(locationScopeIds) && locationScopeIds.length === 0) {
+            return sendSuccessResponse(res, {
+                totalLocations: 0,
+                totalAds: 0,
+                totalUsers: 0,
+                topCities: [],
+                adsByState: [],
+                hotZones: [],
+                monthlyTrends: [],
+            });
         }
+
+        const hotZoneQuery: Record<string, unknown> = {
+            isHotZone: true,
+            ...(Array.isArray(locationScopeIds) ? { locationId: { $in: locationScopeIds } } : {}),
+        };
 
         const [
-            // 1. Core Counts & Trends
-            totalLocations, oldLocations,
-            totalAds, oldAds,
-            totalUsers, oldUsers,
-
-            // 2. Top Cities (Aggregated from Ads)
-            topCitiesAgg,
-
-            // 3. Ads by State (Regional Distribution)
-            adsByStateAgg,
-
-            // 4. Monthly Trends (Ads, Users, Locations)
+            totalLocations,
+            totalAds,
+            totalUsers,
+            adsByLocationAgg,
             monthlyAds,
             monthlyUsers,
             monthlyLocs,
             topHotZonesRaw
         ] = await Promise.all([
-            Location.countDocuments({ isActive: true }),
-            Location.countDocuments({ isActive: true, createdAt: { $lt: thirtyDaysAgo } }),
-            Ad.countDocuments({ status: AD_STATUS.LIVE }),
-            Ad.countDocuments({ status: AD_STATUS.LIVE, createdAt: { $lt: thirtyDaysAgo } }),
-            User.countDocuments({ status: USER_STATUS.ACTIVE }),
-            User.countDocuments({ status: USER_STATUS.ACTIVE, createdAt: { $lt: thirtyDaysAgo } }),
-
-            // Top Cities by Activity
+            Location.countDocuments(buildScopedLocationQuery()),
+            Ad.countDocuments(buildScopedAdQuery({ status: AD_STATUS.LIVE })),
+            User.countDocuments(buildScopedUserQuery({ status: { $in: [USER_STATUS.LIVE, 'active'] } })),
             Ad.aggregate([
-                { $match: { status: AD_STATUS.LIVE } },
                 {
-                    $group: {
-                        _id: { city: "$location.city", state: "$location.state" },
-                        ads: { $sum: 1 }
+                    $match: {
+                        ...buildScopedAdQuery({ status: AD_STATUS.LIVE }),
+                        'location.locationId': { $exists: true, $ne: null },
                     }
                 },
-                { $sort: { ads: -1 } },
-                { $limit: 10 }
-            ]),
-
-            // Ads by Region
-            Ad.aggregate([
-                { $match: { status: AD_STATUS.LIVE, "location.state": { $exists: true, $ne: null } } },
-                { $group: { _id: "$location.state", count: { $sum: 1 } } },
-                { $sort: { count: -1 } }
+                {
+                    $group: {
+                        _id: '$location.locationId',
+                        adsCount: { $sum: 1 }
+                    }
+                },
+                { $sort: { adsCount: -1 } },
+                { $limit: 250 }
             ]),
 
             // Monthly Ad Trends
             Ad.aggregate([
-                { $match: { createdAt: { $gte: sixMonthsAgo } } },
+                { $match: buildScopedAdQuery({ createdAt: { $gte: sixMonthsAgo } }) },
                 {
                     $group: {
                         _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
@@ -372,7 +411,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
 
             // Monthly User Trends
             User.aggregate([
-                { $match: { createdAt: { $gte: sixMonthsAgo } } },
+                { $match: buildScopedUserQuery({ createdAt: { $gte: sixMonthsAgo } }) },
                 {
                     $group: {
                         _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
@@ -383,7 +422,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
 
             // Monthly Location Additions
             Location.aggregate([
-                { $match: { createdAt: { $gte: sixMonthsAgo } } },
+                { $match: buildScopedLocationQuery({ createdAt: { $gte: sixMonthsAgo } }) },
                 {
                     $group: {
                         _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
@@ -406,31 +445,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
                 .select('_id name country level parentId path')
                 .lean()
             : [];
-        const hierarchyLocationIds = new Set<string>();
-        for (const location of hotZoneLocations) {
-            const currentId = toLocationIdString(location._id);
-            if (currentId) {
-                hierarchyLocationIds.add(currentId);
-            }
-            for (const entry of location.path || []) {
-                const entryId = toLocationIdString(entry);
-                if (entryId) {
-                    hierarchyLocationIds.add(entryId);
-                }
-            }
-            const parentId = toLocationIdString(location.parentId);
-            if (parentId) {
-                hierarchyLocationIds.add(parentId);
-            }
-        }
-        const hierarchyLocations = hierarchyLocationIds.size > 0
-            ? await Location.find({ _id: { $in: Array.from(hierarchyLocationIds) } })
-                .select('_id name level country')
-                .lean()
-            : [];
-        const hotZoneHierarchyMap = new Map(
-            hierarchyLocations.map((location) => [String(location._id), location])
-        );
+        const hotZoneHierarchyMap = await loadHierarchyMapForLocations(hotZoneLocations);
         const hotZoneLocationMap = new Map(
             hotZoneLocations.map((location) => [String(location._id), location])
         );
@@ -445,16 +460,6 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
                 isHotZone: true,
             };
         });
-
-        const getTrend = (current: number, old: number): "up" | "down" => {
-            return current >= old ? 'up' : 'down';
-        };
-
-        const getChange = (current: number, old: number) => {
-            if (old === 0) return current > 0 ? '+100%' : '0%';
-            const diff = ((current - old) / old) * 100;
-            return `${diff > 0 ? '+' : ''}${diff.toFixed(1)}%`;
-        };
 
         // Format Monthly Trends
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -477,11 +482,47 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
             });
         }
 
+        const adsByLocationIds = adsByLocationAgg
+            .map((entry) => entry?._id)
+            .filter((value): value is string => Boolean(value))
+            .map((value) => String(value));
+        const analyticsLocations = adsByLocationIds.length > 0
+            ? await Location.find({ _id: { $in: adsByLocationIds } })
+                .select('_id name country level parentId path')
+                .lean()
+            : [];
+        const analyticsHierarchyMap = await loadHierarchyMapForLocations(analyticsLocations);
+        const analyticsLocationMap = new Map(
+            analyticsLocations.map((location) => [String(location._id), location])
+        );
+
+        const topCityMap = new Map<string, { _id: string; city: string; state: string; adsCount: number }>();
         const adsByStateMap = new Map<string, { _id: string; count: number }>();
-        for (const entry of adsByStateAgg) {
-            const stateLabel = normalizeStateLabel(entry?._id);
+
+        for (const entry of adsByLocationAgg) {
+            const location = analyticsLocationMap.get(String(entry._id));
+            if (!location) continue;
+
+            const summary = buildLocationSummary(location, analyticsHierarchyMap);
+            const count = typeof entry?.adsCount === 'number' ? entry.adsCount : Number(entry?.adsCount || 0);
+
+            if (summary.city && summary.state && summary.level !== 'state' && summary.level !== 'country') {
+                const cityKey = `${summary.city.toLowerCase()}::${summary.state.toLowerCase()}`;
+                const existingCity = topCityMap.get(cityKey);
+                if (existingCity) {
+                    existingCity.adsCount += count;
+                } else {
+                    topCityMap.set(cityKey, {
+                        _id: cityKey,
+                        city: summary.city,
+                        state: summary.state,
+                        adsCount: count,
+                    });
+                }
+            }
+
+            const stateLabel = normalizeStateLabel(summary.state);
             const stateKey = stateLabel.toLowerCase();
-            const count = typeof entry?.count === 'number' ? entry.count : Number(entry?.count || 0);
             const existing = adsByStateMap.get(stateKey);
             if (existing) {
                 existing.count += count;
@@ -489,6 +530,9 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
             }
             adsByStateMap.set(stateKey, { _id: stateLabel, count });
         }
+        const topCities = Array.from(topCityMap.values())
+            .sort((a, b) => b.adsCount - a.adsCount)
+            .slice(0, 10);
         const adsByState = Array.from(adsByStateMap.values()).sort((a, b) => b.count - a.count);
 
         sendSuccessResponse(res, {
@@ -497,12 +541,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
             totalAds,
             totalUsers,
             // Shaped to match frontend type: { _id, city, state, adsCount }
-            topCities: topCitiesAgg.map(c => ({
-                _id: `${c._id.city ?? ''}-${c._id.state ?? ''}`,
-                city: c._id.city ?? '',
-                state: c._id.state ?? '',
-                adsCount: c.ads,
-            })),
+            topCities,
             // Shaped to match frontend type: { _id, count }
             adsByState,
             // Shaped to match frontend type: { _id, city, state, popularityScore, isHotZone }

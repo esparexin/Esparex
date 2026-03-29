@@ -135,7 +135,7 @@ export function CatalogStatusBadge({
     tone: "success" | "danger" | "warning" | "neutral";
 }) {
     return (
-        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${toneClasses[tone]}`}>
+        <span className={`inline-flex shrink-0 whitespace-nowrap px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${toneClasses[tone]}`}>
             {label}
         </span>
     );
@@ -156,7 +156,7 @@ export function CatalogActiveToggleButton({
         <button
             type="button"
             onClick={onClick}
-            className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
+            className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
                 isActive ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-red-100 text-red-700 hover:bg-red-200"
             }`}
         >
@@ -178,14 +178,14 @@ export function CatalogActionIconButton({
     className: string;
 }) {
     return (
-        <button type="button" onClick={onClick} className={className} title={title}>
+        <button type="button" onClick={onClick} className={`shrink-0 ${className}`.trim()} title={title}>
             {icon}
         </button>
     );
 }
 
 export function CatalogActionsRow({ children }: { children: ReactNode }) {
-    return <div className="flex items-center justify-end gap-2">{children}</div>;
+    return <div className="flex flex-wrap items-center justify-end gap-2">{children}</div>;
 }
 
 export function CatalogEditDeleteActions({
@@ -405,20 +405,18 @@ export function CatalogArchivedCategoryNotice({
 }
 
 import { Box, Briefcase, Smartphone, Wrench as WrenchIcon } from "lucide-react";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 /**
  * Standardized icon getter for listing types.
  */
 export function getListingTypeIcon(type: string, size = 16) {
     switch (type) {
-        case "ad":
-        case "postad":
+        case LISTING_TYPE.AD:
             return <Smartphone size={size} />;
-        case "service":
-        case "postservice":
+        case LISTING_TYPE.SERVICE:
             return <Briefcase size={size} />;
-        case "spare_part":
-        case "postsparepart":
+        case LISTING_TYPE.SPARE_PART:
             return <WrenchIcon size={size} />;
         default:
             return <Box size={size} />;
@@ -530,6 +528,8 @@ export function CatalogCheckboxGroupField({
     onChange: (values: string[]) => void;
     columns?: 1 | 2;
 }) {
+    const gridClassName = columns === 2 ? "grid-cols-2" : "grid-cols-1";
+
     const handleToggle = (value: string) => {
         const nextValues = selectedValues.includes(value)
             ? selectedValues.filter((v) => v !== value)
@@ -540,7 +540,7 @@ export function CatalogCheckboxGroupField({
     return (
         <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{label}</label>
-            <div className={`grid grid-cols-${columns} gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg`.trim()}>
+            <div className={`grid ${gridClassName} gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg`}>
                 {options.map((opt) => (
                     <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
                         <input
@@ -565,13 +565,22 @@ export function CatalogCheckboxGroupField({
 export function CatalogListingTypeBadges({ types = [] }: { types?: string[] }) {
     if (!types || types.length === 0) return null;
 
-    const config: Record<string, { label: string; color: string; icon: ReactNode }> = {
-        ad: { label: "Devices", color: "blue", icon: <Smartphone size={10} /> },
-        postad: { label: "Devices", color: "blue", icon: <Smartphone size={10} /> },
-        service: { label: "Services", color: "purple", icon: <WrenchIcon size={10} /> },
-        postservice: { label: "Services", color: "purple", icon: <WrenchIcon size={10} /> },
-        spare_part: { label: "Spare Parts", color: "orange", icon: <Box size={10} /> },
-        postsparepart: { label: "Spare Parts", color: "orange", icon: <Box size={10} /> },
+    const config: Record<string, { label: string; className: string; icon: ReactNode }> = {
+        [LISTING_TYPE.AD]: {
+            label: "Devices",
+            className: "bg-blue-50 text-blue-600 border-blue-100",
+            icon: <Smartphone size={10} />,
+        },
+        [LISTING_TYPE.SERVICE]: {
+            label: "Services",
+            className: "bg-violet-50 text-violet-600 border-violet-100",
+            icon: <Briefcase size={10} />,
+        },
+        [LISTING_TYPE.SPARE_PART]: {
+            label: "Spare Parts",
+            className: "bg-amber-50 text-amber-700 border-amber-100",
+            icon: <WrenchIcon size={10} />,
+        },
     };
 
     return (
@@ -582,7 +591,7 @@ export function CatalogListingTypeBadges({ types = [] }: { types?: string[] }) {
                 return (
                     <span
                         key={type}
-                        className={`px-2 py-0.5 rounded text-[10px] bg-${item.color}-50 text-${item.color}-600 border border-${item.color}-100 font-bold flex items-center gap-1`}
+                        className={`px-2 py-0.5 rounded text-[10px] border font-bold flex items-center gap-1 ${item.className}`}
                     >
                         {item.icon} {item.label}
                     </span>
@@ -591,5 +600,3 @@ export function CatalogListingTypeBadges({ types = [] }: { types?: string[] }) {
         </div>
     );
 }
-
-

@@ -1,4 +1,5 @@
 import type { HydratedDocument } from 'mongoose';
+import { ZodError } from 'zod';
 
 import SystemConfig, { ISystemConfig } from '../models/SystemConfig';
 import { deepMerge } from '../utils/objectUtils';
@@ -7,6 +8,7 @@ import {
     invalidateSystemConfigCache,
     SYSTEM_CONFIG_KEY,
 } from '../utils/systemConfigHelper';
+import { systemConfigUpdateSchema } from '../validators/systemConfig.validator';
 
 type ObjectLike = Record<string, unknown>;
 
@@ -23,7 +25,6 @@ const SECTION_OBJECTS = [
     'security',
     'notifications',
     'platform',
-    'featureFlags',
     'integrations',
     'location',
     'listing',
@@ -37,11 +38,6 @@ const SECTION_ARRAYS = [
 type SystemConfigObjectSection = (typeof SECTION_OBJECTS)[number];
 type SystemConfigArraySection = (typeof SECTION_ARRAYS)[number];
 export type SystemConfigSection = SystemConfigObjectSection | SystemConfigArraySection;
-
-const ALLOWED_SECTIONS: ReadonlySet<SystemConfigSection> = new Set<SystemConfigSection>([
-    ...SECTION_OBJECTS,
-    ...SECTION_ARRAYS,
-]);
 
 type SystemConfigPatch = Partial<Record<SystemConfigSection, unknown>>;
 
@@ -73,57 +69,26 @@ const validatePatchPayload = (payload: unknown): SystemConfigPatch => {
         throw new SystemConfigValidationError('Request body must be an object.', 'SYSTEM_CONFIG_BODY_INVALID');
     }
 
-    const unknownSections = Object.keys(payload).filter(
-        (key) => !ALLOWED_SECTIONS.has(key as SystemConfigSection)
-    );
+    try {
+        return systemConfigUpdateSchema.parse(payload) as SystemConfigPatch;
+    } catch (error) {
+        if (!(error instanceof ZodError)) {
+            throw error;
+        }
 
-    if (unknownSections.length > 0) {
+        const [issue] = error.issues;
+        if (issue?.code === 'unrecognized_keys') {
+            throw new SystemConfigValidationError(
+                issue.message,
+                'SYSTEM_CONFIG_SECTION_UNSUPPORTED'
+            );
+        }
+
         throw new SystemConfigValidationError(
-            `Unsupported config section(s): ${unknownSections.join(', ')}`,
-            'SYSTEM_CONFIG_SECTION_UNSUPPORTED'
+            issue?.message || 'Invalid system configuration payload.',
+            'SYSTEM_CONFIG_SECTION_TYPE_INVALID'
         );
     }
-
-    const updates: SystemConfigPatch = {};
-
-    for (const section of SECTION_OBJECTS) {
-        const nextValue = payload[section];
-        if (nextValue === undefined) continue;
-        if (!isObjectLike(nextValue)) {
-            throw new SystemConfigValidationError(
-                `Section "${section}" must be an object.`,
-                'SYSTEM_CONFIG_SECTION_TYPE_INVALID'
-            );
-        }
-        updates[section] = nextValue;
-    }
-
-    for (const section of SECTION_ARRAYS) {
-        const nextValue = payload[section];
-        if (nextValue === undefined) continue;
-        if (!Array.isArray(nextValue)) {
-            throw new SystemConfigValidationError(
-                `Section "${section}" must be an array.`,
-                'SYSTEM_CONFIG_SECTION_TYPE_INVALID'
-            );
-        }
-        updates[section] = nextValue;
-    }
-
-    const flags = updates.featureFlags;
-    if (flags && isObjectLike(flags)) {
-        const invalidFlagEntries = Object.entries(flags).filter(
-            ([, value]) => typeof value !== 'boolean'
-        );
-        if (invalidFlagEntries.length > 0) {
-            throw new SystemConfigValidationError(
-                'featureFlags values must be boolean.',
-                'SYSTEM_CONFIG_FEATURE_FLAGS_INVALID'
-            );
-        }
-    }
-
-    return updates;
 };
 
 const normalizeExistingSection = (value: unknown): ObjectLike => {
@@ -170,4 +135,3 @@ export const updateSystemConfigSections = async (payload: unknown, adminId?: str
 
     return { config, updatedSections };
 };
-

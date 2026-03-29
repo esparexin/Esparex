@@ -1,5 +1,6 @@
 import { adminFetch } from "./adminClient";
 import { Location, LocationFilters } from "@/types/location";
+import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 
 const BASE_PATH = "/locations";
 
@@ -15,10 +16,27 @@ export const getLocations = async (filters: LocationFilters & { page?: number; l
     if (filters.status && filters.status !== "all") query.append("status", filters.status);
     if (filters.state && filters.state !== "all") query.append("state", filters.state);
     if (filters.level && filters.level !== "all") query.append("level", filters.level);
+    if (filters.isPopular && filters.isPopular !== "all") query.append("isPopular", filters.isPopular);
     if (filters.page) query.append("page", filters.page.toString());
     if (filters.limit) query.append("limit", filters.limit.toString());
 
     return adminFetch<{ items: Location[]; pagination: Pagination }>(`${BASE_PATH}?${query.toString()}`);
+};
+
+export const getLocationOptions = async (
+    filters: LocationFilters & { page?: number; limit?: number } = {}
+): Promise<Location[]> => {
+    const response = await getLocations({
+        page: 1,
+        limit: 200,
+        ...filters,
+    });
+
+    if (!response.success) {
+        return [];
+    }
+
+    return parseAdminResponse<Location>(response).items;
 };
 
 export const getDistinctStates = async (): Promise<string[]> => {
@@ -105,27 +123,4 @@ export const getLocationAnalytics = async (filters: LocationAnalyticsFilters = {
     const qs = query.toString();
     const env = await adminFetch<LocationAnalyticsData>(`${BASE_PATH}/analytics${qs ? `?${qs}` : ""}`);
     return env.data!;
-};
-
-export interface Geofence {
-    id: string;
-    name: string;
-    type: "Polygon";
-    color: string;
-    isActive: boolean;
-    createdAt?: string;
-}
-
-export const getGeofences = async (): Promise<Geofence[]> => {
-    const env = await adminFetch<Geofence[]>(`/geofences`);
-    return env.data ?? [];
-};
-
-export const toggleGeofenceStatus = async (id: string): Promise<Geofence> => {
-    const env = await adminFetch<Geofence>(`/geofences/${id}/toggle`, { method: "PATCH" });
-    return env.data!;
-};
-
-export const deleteGeofence = async (id: string) => {
-    return adminFetch(`/geofences/${id}`, { method: "DELETE" });
 };

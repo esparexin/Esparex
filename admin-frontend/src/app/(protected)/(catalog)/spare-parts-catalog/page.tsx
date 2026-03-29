@@ -1,53 +1,126 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Wrench } from "lucide-react";
-
+import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
+import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
+import { sparePartsMasterTabs } from "@/components/layout/adminModuleTabSets";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import {
-    CatalogBoundSearchCategoryFilters,
     CatalogCategoryTags,
     CatalogEditDeleteActions,
     CatalogEntityCell,
+    CatalogSearchAndCategoryFilters,
     CatalogSelectFilter,
     CatalogStatusBadge,
 } from "@/components/catalog/CatalogUiPrimitives";
-import { useAdminCategories } from "@/hooks/useAdminCategories";
-import { useAdminSpareParts } from "@/hooks/useAdminSparePartCatalog";
-import { useAssignableCategories } from "@/hooks/useAssignableCategories";
-import { type ISparePartAdmin } from "@/types/sparePartCatalog";
-import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import {
     buildSpareCategoryDisplayRows,
     getEntityCategoryIds,
     validateRequiredCategoryIds,
 } from "@/components/catalog/catalogDomainUtils";
+import { useAdminCategories } from "@/hooks/useAdminCategories";
+import { useAdminSpareParts } from "@/hooks/useAdminSparePartCatalog";
+import { categorySupportsSpareParts, useAssignableCategories } from "@/hooks/useAssignableCategories";
+import { buildUrlWithSearchParams, normalizeSearchParamValue, parsePositiveIntParam, updateSearchParams } from "@/lib/urlSearchParams";
+import { type ISparePartAdmin } from "@/types/sparePartCatalog";
 
 type SparePartFormData = {
     name: string;
     categoryIds: string[];
-    listingType: string[];
+    listingType: ListingTypeValue[];
     isActive: boolean;
 };
 
-export default function SparePartsCatalogPage() {
+const VALID_IS_ACTIVE_VALUES = new Set(["all", "true", "false"]);
+const VALID_SPARE_PART_LISTING_TYPES = new Set<string>([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART]);
+
+const normalizeActiveParam = (value: string | null) =>
+    value && VALID_IS_ACTIVE_VALUES.has(value) ? value : "all";
+
+const normalizeCategoryParam = (value: string | null) => normalizeSearchParamValue(value) || "all";
+
+const isSparePartListingType = (value: string): value is ListingTypeValue =>
+    VALID_SPARE_PART_LISTING_TYPES.has(value);
+
+type SparePartsCatalogPageContentProps = {
+    initialSearch: string;
+    initialCategoryId: string;
+    initialIsActive: string;
+    initialPage: number;
+};
+
+function SparePartsCatalogPageContent({
+    initialSearch,
+    initialCategoryId,
+    initialIsActive,
+    initialPage,
+}: SparePartsCatalogPageContentProps) {
+    const pathname = usePathname();
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [searchInput, setSearchInput] = useState(initialSearch);
+
     const {
         parts,
         loading,
         error,
-        filters,
-        setFilters,
         handleDelete,
         handleCreate,
         handleUpdate,
         pagination,
-        setPage,
-    } = useAdminSpareParts();
+    } = useAdminSpareParts({
+        initialFilters: {
+            search: initialSearch,
+            categoryId: initialCategoryId,
+            isActive: initialIsActive,
+        },
+        initialPagination: {
+            page: initialPage,
+            limit: 20,
+        },
+    });
 
     const { categories } = useAdminCategories({ initialPagination: { limit: 500 } });
     const {
         assignableCategories: assignableSpareCategories,
         assignableCategoryIdSet: assignableSpareCategoryIds,
-    } = useAssignableCategories(categories, (category) => !!category.listingType?.includes("postsparepart"));
+    } = useAssignableCategories(categories, categorySupportsSpareParts);
+
+    useEffect(() => {
+        setSearchInput(initialSearch);
+    }, [initialSearch]);
+
+    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    };
+
+    useEffect(() => {
+        if (!loading && initialPage > pagination.totalPages && pagination.totalPages > 0) {
+            replaceQueryState({ page: pagination.totalPages > 1 ? pagination.totalPages : null });
+        }
+    }, [initialPage, loading, pagination.totalPages]);
+
+    useEffect(() => {
+        const normalizedSearch = normalizeSearchParamValue(searchInput);
+        if (normalizedSearch === initialSearch) {
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            replaceQueryState({
+                search: normalizedSearch || null,
+                page: null,
+            });
+        }, 300);
+
+        return () => window.clearTimeout(timer);
+    }, [initialSearch, searchInput]);
 
     return (
         <CatalogPageTemplate<ISparePartAdmin, SparePartFormData>
@@ -55,14 +128,20 @@ export default function SparePartsCatalogPage() {
             description="Global master list of spare parts — the SSOT for Post Ad Power-Off flow, spare parts marketplace, and repair service linking."
             createLabel="Add Master Part"
             csvFileName="spare-parts-catalog.csv"
+            tabs={sparePartsMasterTabs}
             items={parts}
             loading={loading}
             error={error}
             pagination={pagination}
-            setPage={setPage}
+            setPage={(page) => replaceQueryState({ page: page > 1 ? page : null })}
             handleCreate={handleCreate}
             handleUpdate={handleUpdate}
-            defaultFormData={{ name: "", categoryIds: [], listingType: ["postsparepart"], isActive: true }}
+            defaultFormData={{
+                name: "",
+                categoryIds: [],
+                listingType: [LISTING_TYPE.SPARE_PART],
+                isActive: true,
+            }}
             customSubmitValidation={(formData) => {
                 const categoryError = validateRequiredCategoryIds(formData.categoryIds);
                 if (categoryError) return categoryError;
@@ -77,7 +156,9 @@ export default function SparePartsCatalogPage() {
                     setFormData({
                         name: item.name,
                         categoryIds: getEntityCategoryIds(item),
-                        listingType: item.listingType || ["postsparepart"],
+                        listingType: Array.isArray(item.listingType)
+                            ? item.listingType.filter(isSparePartListingType)
+                            : [LISTING_TYPE.SPARE_PART],
                         isActive: item.isActive !== false,
                     });
                 }
@@ -127,15 +208,27 @@ export default function SparePartsCatalogPage() {
             filterLayoutClassName="md:grid-cols-3"
             filtersRenderer={
                 <>
-                    <CatalogBoundSearchCategoryFilters
-                        filters={filters}
-                        setFilters={setFilters}
+                    <CatalogSearchAndCategoryFilters
+                        searchValue={searchInput}
+                        onSearchChange={setSearchInput}
                         searchPlaceholder="Search parts catalog..."
                         categories={categories}
+                        categoryValue={initialCategoryId}
+                        onCategoryChange={(categoryId) =>
+                            replaceQueryState({
+                                categoryId: categoryId !== "all" ? categoryId : null,
+                                page: null,
+                            })
+                        }
                     />
                     <CatalogSelectFilter
-                        value={filters.isActive as string}
-                        onChange={(isActive) => setFilters((prev) => ({ ...prev, isActive }))}
+                        value={initialIsActive}
+                        onChange={(isActive) =>
+                            replaceQueryState({
+                                isActive: isActive !== "all" ? isActive : null,
+                                page: null,
+                            })
+                        }
                         options={[
                             { value: "all", label: "All Status" },
                             { value: "true", label: "Active" },
@@ -179,12 +272,12 @@ export default function SparePartsCatalogPage() {
 
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                Placement (Workflows)
+                                Visible In
                             </label>
                             <div className="flex gap-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
                                 {[
-                                    { id: "postad", label: "Post Ad (Feature)" },
-                                    { id: "postsparepart", label: "Inventory (Secondary)" },
+                                    { id: LISTING_TYPE.AD, label: "Device Ad Flow" },
+                                    { id: LISTING_TYPE.SPARE_PART, label: "Spare Parts Marketplace" },
                                 ].map((listingType) => (
                                     <label key={listingType.id} className="flex items-center gap-2 cursor-pointer group">
                                         <input
@@ -208,7 +301,7 @@ export default function SparePartsCatalogPage() {
                             </div>
                             {formData.listingType.length === 0 ? (
                                 <p className="text-[10px] font-bold italic text-amber-600">
-                                    * No placement selected will hide this part from all workflows.
+                                    * No visibility selected will hide this part from all workflows.
                                 </p>
                             ) : null}
                         </div>
@@ -229,6 +322,24 @@ export default function SparePartsCatalogPage() {
                     </>
                 );
             }}
+        />
+    );
+}
+
+export default function SparePartsCatalogPage() {
+    const searchParams = useSearchParams();
+    const initialSearch = normalizeSearchParamValue(searchParams.get("search"));
+    const initialCategoryId = normalizeCategoryParam(searchParams.get("categoryId"));
+    const initialIsActive = normalizeActiveParam(searchParams.get("isActive"));
+    const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
+
+    return (
+        <SparePartsCatalogPageContent
+            key={`${initialSearch}:${initialCategoryId}:${initialIsActive}:${initialPage}`}
+            initialSearch={initialSearch}
+            initialCategoryId={initialCategoryId}
+            initialIsActive={initialIsActive}
+            initialPage={initialPage}
         />
     );
 }

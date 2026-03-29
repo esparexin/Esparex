@@ -58,23 +58,25 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
 
         const run = async () => {
             try {
-                const [moderationSummary, reportPayload, businessPayload] = await Promise.all([
+                const [moderationSummary, reportPayload, businessOverviewPayload] = await Promise.all([
                     fetchAdminModerationSummary().catch(() => null),
                     adminFetch<any>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`).catch(() => null),
-                    adminFetch<any>(`${ADMIN_ROUTES.BUSINESS_REQUESTS}?${new URLSearchParams({ status: "pending", page: "1", limit: "1" }).toString()}`).catch(() => null),
+                    adminFetch<any>(ADMIN_ROUTES.BUSINESS_OVERVIEW).catch(() => null),
                 ]);
 
                 if (cancelled) return;
 
                 const reportPagination = reportPayload ? parseAdminResponse<Record<string, unknown>>(reportPayload).pagination : undefined;
-                const businessPagination = businessPayload ? parseAdminResponse<Record<string, unknown>>(businessPayload).pagination : undefined;
+                const businessOverview = businessOverviewPayload
+                    ? parseAdminResponse<never, Record<string, unknown>>(businessOverviewPayload).data ?? {}
+                    : {};
 
                 setCounts({
                     ads: moderationSummary
                         ? `${moderationSummary.total} (P:${moderationSummary.pending}/L:${moderationSummary.live})`
                         : 0,
                     reports: reportPagination?.total ?? 0,
-                    businesses: businessPagination?.total ?? 0,
+                    businesses: Number(businessOverview.pending || 0),
                 });
             } catch {
                 if (!cancelled) {

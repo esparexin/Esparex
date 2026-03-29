@@ -189,8 +189,6 @@ LocationSchema.index({ verificationStatus: 1 }, { name: 'idx_location_verificati
 LocationSchema.index({ priority: -1 }, { name: 'idx_location_priority' });
 LocationSchema.index({ aliases: 1 }, { name: 'idx_location_aliases' });
 
-LocationSchema.index({ city: 1 }, { name: 'idx_location_city' });
-LocationSchema.index({ state: 1 }, { name: 'idx_location_state' });
 LocationSchema.index({ country: 1 }, { name: 'idx_location_country' });
 LocationSchema.index({ slug: 1 }, { name: 'idx_location_slug' });
 LocationSchema.index({ path: 1 }, { name: 'idx_location_path' });
@@ -201,24 +199,19 @@ LocationSchema.index({ isPopular: -1, priority: -1 }, { name: 'idx_location_popu
 LocationSchema.index({ normalizedName: 1 }, { name: 'idx_location_normalizedName' });
 
 // Compound indexes for admin filters + pagination/sorting paths
-LocationSchema.index({ state: 1, isActive: 1 }, { name: 'idx_location_state_active' });
 LocationSchema.index({ level: 1, isActive: 1 }, { name: 'idx_location_level_active' });
 LocationSchema.index({ verificationStatus: 1, createdAt: 1 }, { name: 'idx_location_verificationStatus_createdAt' });
 LocationSchema.index({ isActive: 1, isPopular: -1, createdAt: -1 }, { name: 'idx_location_active_popular_freshness' });
-LocationSchema.index(
-    { isActive: 1, state: 1, level: 1, isPopular: -1, createdAt: -1 }, 
-    { name: 'idx_location_discovery_complex' }
-);
+LocationSchema.index({ country: 1, level: 1, parentId: 1 }, { name: 'idx_location_country_level_parent' });
 LocationSchema.index({ isDeleted: 1 }, { name: 'idx_location_isDeleted' });
 
 // Uniqueness guard (real-world safe)
 LocationSchema.index(
     {
         name: 1,
-        city: 1,
-        state: 1,
         country: 1,
         level: 1,
+        parentId: 1,
     },
     {
         name: 'idx_location_unique_identity',

@@ -13,39 +13,36 @@ export type ManagedAdmin = {
     createdAt?: string;
 };
 
-export type AdminFormState = {
+export type AdminCreateFormState = {
     firstName: string;
     lastName: string;
     email: string;
     password: string;
     role: AdminRole;
-    status: AdminStatus;
     permissionsText: string;
 };
 
-export type EditableAdminFormState = Omit<AdminFormState, "password">;
-
-export type AdminUserFormValues = {
+export type AdminEditFormState = {
     firstName: string;
     lastName: string;
     email: string;
     role: AdminRole;
     permissionsText: string;
-    password?: string;
-    status?: AdminStatus;
+    status: AdminStatus;
 };
 
-export const DEFAULT_CREATE_FORM: AdminFormState = {
+export type AdminUserFormValues = Partial<AdminCreateFormState & AdminEditFormState>;
+
+export const DEFAULT_CREATE_FORM: AdminCreateFormState = {
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     role: "moderator",
-    status: "live",
     permissionsText: "",
 };
 
-export const DEFAULT_EDIT_FORM: EditableAdminFormState = {
+export const DEFAULT_EDIT_FORM: AdminEditFormState = {
     firstName: "",
     lastName: "",
     email: "",
@@ -98,4 +95,22 @@ export function getAdminStatusPresentation(status: string) {
 
 export function getAdminDisplayName(admin: Pick<ManagedAdmin, "firstName" | "lastName" | "email">) {
     return `${admin.firstName} ${admin.lastName}`.trim() || admin.email;
+}
+
+export function parsePermissionsText(permissionsText: string) {
+    return permissionsText
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+}
+
+export function toEditableAdminFormState(admin: ManagedAdmin): AdminEditFormState {
+    return {
+        firstName: admin.firstName,
+        lastName: admin.lastName,
+        email: admin.email,
+        role: (["super_admin", "admin", "moderator"].includes(admin.role) ? admin.role : "moderator") as AdminRole,
+        status: (["live", "inactive", "suspended", "banned"].includes(admin.status) ? admin.status : "live") as AdminStatus,
+        permissionsText: admin.permissions.join(", "),
+    };
 }

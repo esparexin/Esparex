@@ -13,6 +13,14 @@ export interface ITransaction extends Document {
         name: string;
         type: string;
         credits: number;
+        durationDays?: number;
+        limits?: {
+            maxAds?: number;
+            maxServices?: number;
+            maxParts?: number;
+            smartAlerts?: number;
+            spotlightCredits?: number;
+        };
         price: number;
         currency: string;
     };
@@ -39,6 +47,8 @@ const TransactionSchema = new Schema<ITransaction>(
             name: { type: String },
             type: { type: String },
             credits: { type: Number },
+            durationDays: { type: Number },
+            limits: { type: Schema.Types.Mixed },
             price: { type: Number },
             currency: { type: String },
         },

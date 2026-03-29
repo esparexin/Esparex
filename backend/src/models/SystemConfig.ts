@@ -103,7 +103,6 @@ export interface ISystemConfig extends Document {
         enableNearbySearch: boolean;
         showDistanceInListings: boolean;
     };
-    featureFlags: Map<string, boolean>;
     integrations: {
         googleMaps: {
             apiKey: string;
@@ -280,7 +279,6 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
             proSparePartLimit: { type: Number, default: 5 },
         }
     },
-    featureFlags: { type: Map, of: Boolean, default: {} },
     emailTemplates: [{ type: Schema.Types.Mixed }],
     notificationTemplates: [{ type: Schema.Types.Mixed }],
     updatedBy: { type: String },

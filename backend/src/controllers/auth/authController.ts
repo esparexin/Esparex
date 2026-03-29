@@ -106,7 +106,7 @@ export class AuthController {
             const { fcmToken } = (req.body ?? {}) as { fcmToken?: string };
             if (fcmToken && req.user?._id) {
                 await User.findByIdAndUpdate(req.user._id, {
-                    $pull: { fcmTokens: fcmToken }
+                    $pull: { fcmTokens: { token: fcmToken } }
                 });
             }
 

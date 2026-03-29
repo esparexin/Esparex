@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
@@ -9,71 +9,58 @@ import {
   ChevronLeft,
   Cpu,
   CreditCard,
+  Globe,
+  ListChecks,
   RefreshCcw,
   Search,
-  Settings,
   Shield,
-  ShieldAlert,
-  Users,
-  Zap,
-  MessageCircle,
-  LayoutGrid,
+  Settings,
 } from "lucide-react";
 
 import Link from "next/link";
 import { getSystemConfig, updateSystemConfig } from "@/lib/api/systemConfig";
 import type { SystemConfig, SystemConfigPatch } from "@/types/systemConfig";
 import { PlatformSettings } from "./components/PlatformSettings";
-import { AdsSettings } from "./components/AdsSettings";
 import { ModerationSettings } from "./components/ModerationSettings";
-import { UserSettings } from "./components/UserSettings";
-import { MessagingSettings } from "./components/MessagingSettings";
 import { PaymentSettings } from "./components/PaymentSettings";
-import { FraudSettings } from "./components/FraudSettings";
 import { NotificationSettings } from "./components/NotificationSettings";
 import { SecuritySettings } from "./components/SecuritySettings";
 import { SearchSettings } from "./components/SearchSettings";
-import { FeatureFlags } from "./components/FeatureFlags";
-import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { ListingSettings } from "./components/ListingSettings";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { platformConfigTabs } from "@/components/layout/adminModuleTabSets";
 
 type SettingsTab =
   | "platform"
-  | "ads"
+  | "listing"
   | "moderation"
-  | "users"
-  | "messaging"
-  | "payments"
-  | "fraud"
   | "notifications"
+  | "payments"
   | "security"
-  | "search"
-  | "featureFlags";
+  | "location";
 
 const SETTINGS_TABS: Array<{ key: SettingsTab; label: string; icon: typeof Settings }> = [
-  { key: "platform", label: "Platform", icon: LayoutGrid },
-  { key: "ads", label: "Ads", icon: Settings },
+  { key: "platform", label: "Platform", icon: Globe },
+  { key: "listing", label: "Listing Rules", icon: ListChecks },
   { key: "moderation", label: "Moderation", icon: Cpu },
-  { key: "users", label: "Users", icon: Users },
-  { key: "messaging", label: "Messaging", icon: MessageCircle },
-  { key: "payments", label: "Payments", icon: CreditCard },
-  { key: "fraud", label: "Fraud Detection", icon: ShieldAlert },
   { key: "notifications", label: "Notifications", icon: Bell },
+  { key: "payments", label: "Payments", icon: CreditCard },
   { key: "security", label: "Security", icon: Shield },
-  { key: "search", label: "Search", icon: Search },
-  { key: "featureFlags", label: "Feature Flags", icon: Zap },
+  { key: "location", label: "Search & Location", icon: Search },
 ];
+
+const isSettingsTab = (value: string | null): value is SettingsTab =>
+  SETTINGS_TABS.some((tab) => tab.key === value);
 
 export default function SettingsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<SettingsTab>("platform");
   const [config, setConfig] = useState<SystemConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const requestedTab = searchParams.get("tab");
+  const activeTab: SettingsTab = isSettingsTab(requestedTab) ? requestedTab : "platform";
 
   const loadConfig = async () => {
     setLoading(true);
@@ -93,12 +80,10 @@ export default function SettingsPage() {
   }, []);
 
   useEffect(() => {
-    const requestedTab = searchParams.get("tab");
-    const validTabs = new Set<SettingsTab>(SETTINGS_TABS.map((tab) => tab.key));
-    if (requestedTab && validTabs.has(requestedTab as SettingsTab)) {
-      setActiveTab(requestedTab as SettingsTab);
+    if (requestedTab !== activeTab) {
+      router.replace(`/settings?tab=${activeTab}`, { scroll: false });
     }
-  }, [searchParams]);
+  }, [activeTab, requestedTab, router]);
 
   const handleSaveSection = async (patch: SystemConfigPatch, successMessage: string) => {
     setSaving(true);
@@ -115,41 +100,32 @@ export default function SettingsPage() {
     }
   };
 
-  const tabPanel = useMemo(() => {
-    const props = { config, saving, onSave: handleSaveSection };
+  const props = { config, saving, onSave: handleSaveSection };
+  const tabPanel = (() => {
     switch (activeTab) {
       case "platform":
         return <PlatformSettings {...props} />;
-      case "ads":
-        return <AdsSettings {...props} />;
+      case "listing":
+        return <ListingSettings {...props} />;
       case "moderation":
         return <ModerationSettings {...props} />;
-      case "users":
-        return <UserSettings {...props} />;
-      case "messaging":
-        return <MessagingSettings {...props} />;
-      case "payments":
-        return <PaymentSettings {...props} />;
-      case "fraud":
-        return <FraudSettings {...props} />;
       case "notifications":
         return <NotificationSettings {...props} />;
+      case "payments":
+        return <PaymentSettings {...props} />;
       case "security":
         return <SecuritySettings {...props} />;
-      case "search":
+      case "location":
         return <SearchSettings {...props} />;
-      case "featureFlags":
-        return <FeatureFlags {...props} />;
       default:
         return null;
     }
-  }, [activeTab, config, saving, handleSaveSection]);
+  })();
 
   return (
     <AdminPageShell
       title="Admin Settings"
-      description="Centralized platform configuration (single SystemConfig document)."
-      tabs={<AdminModuleTabs tabs={platformConfigTabs} />}
+      description="Runtime-backed platform configuration from the single SystemConfig document."
       actions={
         <div className="flex items-center gap-2">
           <Link
@@ -189,6 +165,9 @@ export default function SettingsPage() {
       ) : (
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
           <aside className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+            <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-3 text-xs leading-5 text-slate-600">
+              Only runtime-backed sections are shown here. Experimental flags and env-only knobs were removed so this screen matches the live system contract.
+            </div>
             <nav className="space-y-1">
               {SETTINGS_TABS.map((tab) => {
                 const Icon = tab.icon;
@@ -197,7 +176,7 @@ export default function SettingsPage() {
                   <button
                     key={tab.key}
                     type="button"
-                    onClick={() => { setActiveTab(tab.key); router.replace(`/settings?tab=${tab.key}`); }}
+                    onClick={() => router.replace(`/settings?tab=${tab.key}`, { scroll: false })}
                     className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
                       isActive ? "bg-primary text-white" : "text-slate-700 hover:bg-slate-100"
                     }`}

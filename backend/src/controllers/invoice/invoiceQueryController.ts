@@ -11,6 +11,7 @@ export const getInvoices = async (req: Request, res: Response) => {
         const { search, status } = req.query;
 
         const invoices = await invoiceService.getInvoices({
+            userId: req.user._id.toString(),
             search: typeof search === 'string' ? search : undefined,
             status: typeof status === 'string' ? status : undefined
         });
@@ -28,7 +29,7 @@ export const getInvoiceById = async (req: Request, res: Response) => {
         const { id } = req.params;
         if (!id || typeof id !== 'string') return sendErrorResponse(req, res, 400, 'Invoice ID is required');
 
-        const invoice = await invoiceService.getInvoiceById(id);
+        const invoice = await invoiceService.getInvoiceById(id, req.user._id.toString());
         if (!invoice) {
             return sendErrorResponse(req, res, 404, 'Invoice not found');
         }

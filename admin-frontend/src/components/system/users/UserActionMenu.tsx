@@ -3,7 +3,11 @@
 import type { Ref } from "react";
 import Link from "next/link";
 import { Ban, Eye, MoreVertical, PlayCircle, Search, Shield, User as UserIcon } from "lucide-react";
-import type { ManagedUser, UserActionType } from "@/components/system/users/userManagement";
+import {
+    isManagedUserActive,
+    type ManagedUser,
+    type UserActionType,
+} from "@/components/system/users/userManagement";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 
 interface UserActionMenuProps {
@@ -86,7 +90,7 @@ export function UserActionMenu({
 
                     <hr className="my-1 border-slate-100" />
 
-                    {user.status === "active" ? (
+                    {isManagedUserActive(user.status) ? (
                         <button
                             onClick={() => {
                                 onOpenAction("ban", user);

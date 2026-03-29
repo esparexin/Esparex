@@ -22,7 +22,7 @@ export function ClientChromeLoader({
             <BackendStatusBanner />
             <ConnectivityBanner apiUnavailable={apiUnavailable} />
             <MobileBottomNav enabled={policy.showMobileBottomNav} />
-            <BottomActionsBar />
+            <BottomActionsBar enabled={policy.showBottomActionsBar} />
         </>
     );
 }

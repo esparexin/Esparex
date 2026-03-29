@@ -25,7 +25,6 @@ export const ADMIN_ROUTES = {
 
   // Users
   USERS: "/users",
-  USERS_SEARCH: "/users/search",
   USER_BY_ID: (id: string) => `/users/${id}`,
   USER_OVERVIEW: "/user-management/overview",
   USER_STATUS: (id: string) => `/users/${id}/status`,
@@ -47,12 +46,9 @@ export const ADMIN_ROUTES = {
   // Business
   BUSINESS_ACCOUNTS: "/businesses/accounts",
   BUSINESS_OVERVIEW: "/businesses/overview",
-  BUSINESS_REQUESTS: "/businesses/requests",
-  BUSINESS_REQUEST_BY_ID: (id: string) => `/businesses/requests/${id}`,
   BUSINESS_DETAIL: (id: string) => `/businesses/${id}`,
   BUSINESS_APPROVE: (id: string) => `/businesses/${id}/approve`,
   BUSINESS_REJECT: (id: string) => `/businesses/${id}/reject`,
-  BUSINESS_RENEW: (id: string) => `/businesses/requests/${id}/renew`,
   DELETE_BUSINESS: (id: string) => `/businesses/${id}`,
   BUSINESS_UPDATE: (id: string) => `/businesses/${id}`,
   BUSINESS_STATUS: (id: string) => `/businesses/${id}/status`,
@@ -81,6 +77,7 @@ export const ADMIN_ROUTES = {
   CATEGORY_SCHEMA: (id: string) => `/categories/${id}/schema`,
   CATEGORY_STATUS: (id: string) => `/categories/${id}/status`,
   CATEGORY_COUNTS: "/categories/counts",
+  CATALOG_HIERARCHY_TREE: "/governance/hierarchy-tree",
   BRANDS: "/brands",
   BRAND_BY_ID: (id: string) => `/brands/${id}`,
   APPROVE_BRAND: (id: string) => `/brands/${id}/approve`,
@@ -102,8 +99,6 @@ export const ADMIN_ROUTES = {
   // Finance
   FINANCE_TRANSACTIONS: "/finance/transactions",
   FINANCE_STATS: "/finance/stats",
-  TRANSACTIONS: "/finance/transactions",
-  TRANSACTION_STATS: "/finance/stats",
   INVOICES: "/invoices",
   INVOICE_BY_ID: (id: string) => `/invoices/${id}`,
   INVOICE_PRINT: (id: string) => `/invoices/${id}/print`,
@@ -111,30 +106,26 @@ export const ADMIN_ROUTES = {
   // Notifications / AI
   NOTIFICATIONS_SEND: "/notifications/send",
   NOTIFICATIONS_HISTORY: "/notifications/history",
+  NOTIFICATIONS_RECIPIENTS: "/notifications/recipients",
   AI_GENERATE: "/ai/generate",
   API_KEYS: "/api-keys",
   API_KEY_REVOKE: (id: string) => `/api-keys/${id}/revoke`,
 
   // Locations
   LOCATIONS: "/locations",
-  LOCATIONS_STATS: "/locations/stats/refresh",
   LOCATION_ANALYTICS: "/locations/analytics",
   LOCATION_BY_ID: (id: string) => `/locations/${id}`,
   LOCATION_TOGGLE: (id: string) => `/locations/${id}/toggle`,
   LOCATION_STATES_DISTINCT: "/locations/states",
   GEOFENCES: "/geofences",
   GEOFENCE_BY_ID: (id: string) => `/geofences/${id}`,
-  LOCATIONS_MODERATION: "/locations/moderation",
 
   // System
   SYSTEM_HEALTH: "/system/health",
   SYSTEM_SCAN: "/system/scan",
   SYSTEM_FIX: "/system/fix",
   CACHE_HEALTH: "/cache/health",
-  SETTINGS: "/settings",
   SYSTEM_CONFIG: "/system/config",
-  SYSTEM_CONFIG_RESET: "/system/config/reset",
-  SYSTEM_CONFIG_TEST_EMAIL: "/system/config/test-email",
   SUPPORT_CONTACT: "/support/contact",
   SUPPORT_CONTACT_STATUS: (id: string) => `/support/contact/${id}/status`,
 

@@ -15,17 +15,18 @@ import {
     getPaginationParams,
     sendPaginatedResponse,
     sendSuccessResponse,
-    sendAdminError as sendBaseAdminError,
-    respond
+    sendAdminError as sendBaseAdminError
 } from './adminBaseController';
 import {
     normalizeLocationResponse,
-    toGeoPoint,
     normalizeCoordinates
 } from '../../services/LocationService';
 import {
+    buildLocationSummary,
     buildHierarchyPath,
+    loadHierarchyMapForLocations,
     resolveParentLocation,
+    resolveLocationScope,
     resolveLocationSummary,
     asString as resolveStringField,
     CanonicalLocationDoc
@@ -45,8 +46,40 @@ const getErrorCode = (error: unknown): number | undefined => {
 
 const ADMIN_STATES_CACHE_KEY = 'admin:locations:states';
 const ADMIN_STATES_CACHE_TTL_SECONDS = 300;
-const LOCATION_LIST_HINT = { isActive: 1, state: 1, level: 1, isPopular: -1, createdAt: -1 } as const;
+const LOCATION_LIST_HINT = { isActive: 1, isPopular: -1, createdAt: -1 } as const;
 let hasWarnedLocationListHintFailure = false;
+
+const toScopeQuery = (locationIds: mongoose.Types.ObjectId[] | null) => {
+    if (locationIds === null) return {};
+    if (locationIds.length === 0) {
+        return { _id: { $in: [] as mongoose.Types.ObjectId[] } };
+    }
+
+    return {
+        $or: [
+            { _id: { $in: locationIds } },
+            { path: { $in: locationIds } },
+        ],
+    };
+};
+
+const hydrateLocationResponses = async (locations: CanonicalLocationDoc[]) => {
+    const hierarchyMap = await loadHierarchyMapForLocations(locations);
+
+    return locations
+        .map((location) => {
+            const summary = buildLocationSummary(location, hierarchyMap);
+            return normalizeLocationResponse({
+                ...location,
+                name: location.name || summary.name,
+                city: summary.city,
+                district: summary.district,
+                state: summary.state,
+                country: summary.country,
+            });
+        })
+        .filter((location): location is NonNullable<ReturnType<typeof normalizeLocationResponse>> => Boolean(location));
+};
 
 
 
@@ -81,10 +114,8 @@ export const createStateLocation = async (req: Request, res: Response) => {
     req.body = {
         ...req.body,
         name: stateName,
-        city: stateName,
-        state: stateName,
         level: 'state',
-        district: undefined
+        parentId: null,
     };
 
     return createLocation(req, res);
@@ -117,12 +148,9 @@ export const createCityLocation = async (req: Request, res: Response) => {
     req.body = {
         ...req.body,
         name: cityName,
-        city: cityName,
-        state: stateSummary.state,
         country: resolveStringField(req.body?.country) || stateSummary.country || 'Unknown',
         level: 'city',
         parentId: stateId,
-        district: undefined
     };
 
     return createLocation(req, res);
@@ -155,12 +183,9 @@ export const createAreaLocation = async (req: Request, res: Response) => {
     req.body = {
         ...req.body,
         name: areaName,
-        city: citySummary.city,
-        state: citySummary.state,
         country: resolveStringField(req.body?.country) || citySummary.country || 'Unknown',
         level: 'area',
         parentId: cityId,
-        district: undefined
     };
 
     return createLocation(req, res);
@@ -205,31 +230,35 @@ export const getAllLocations = async (req: Request, res: Response) => {
         const isPopular = req.query.isPopular as string;
 
         const query: Record<string, unknown> = {};
-        const hasSearchFilter = Boolean(search);
-
-        if (search) {
-            const escaped = escapeRegExp(search);
-            query.$or = [
-                { city: { $regex: escaped, $options: 'i' } },
-                { state: { $regex: escaped, $options: 'i' } },
-                { slug: { $regex: escaped, $options: 'i' } }
-            ];
-        }
 
         if (status === 'active') query.isActive = true;
         if (status === 'inactive') query.isActive = false;
 
-        if (state && state !== 'all') query.state = state;
         if (level && level !== 'all') query.level = level;
         if (isPopular === 'true') query.isPopular = true;
         if (isPopular === 'false') query.isPopular = false;
 
+        if (search) {
+            const escaped = escapeRegExp(search);
+            query.$or = [
+                { name: { $regex: escaped, $options: 'i' } },
+                { normalizedName: { $regex: escaped, $options: 'i' } },
+                { slug: { $regex: escaped, $options: 'i' } },
+                { aliases: { $regex: escaped, $options: 'i' } },
+            ];
+        }
+
+        const scope = state && state !== 'all'
+            ? await resolveLocationScope({ state })
+            : { locationIds: null as mongoose.Types.ObjectId[] | null };
+        Object.assign(query, toScopeQuery(scope.locationIds));
+
         const hasAnyFilter = Object.keys(query).length > 0;
-        const shouldAttemptHint = !hasSearchFilter && hasAnyFilter;
+        const shouldAttemptHint = !search && hasAnyFilter && scope.locationIds === null;
 
         const buildLocationsQuery = () =>
             Location.find(query)
-                .select('_id name slug city district state country level coordinates isActive isPopular verificationStatus createdAt updatedAt')
+                .select('_id name slug country level parentId path coordinates isActive isPopular verificationStatus createdAt updatedAt')
                 .lean()
                 .sort({ isPopular: -1, createdAt: -1 })
                 .skip(skip)
@@ -275,9 +304,7 @@ export const getAllLocations = async (req: Request, res: Response) => {
         })();
 
         const [total, locations] = await Promise.all([totalPromise, locationsPromise]);
-        const items = (locations as unknown[])
-            .map((location) => normalizeLocationResponse(location))
-            .filter((location): location is NonNullable<ReturnType<typeof normalizeLocationResponse>> => Boolean(location));
+        const items = await hydrateLocationResponses(locations as CanonicalLocationDoc[]);
 
         return sendPaginatedResponse(res, items, total, page, limit);
 
@@ -291,7 +318,7 @@ export const getAllLocations = async (req: Request, res: Response) => {
  */
 export const createLocation = async (req: Request, res: Response) => {
     try {
-        const { city, state, country, latitude, longitude, isActive, isPopular, level, district, name } = req.body;
+        const { country, latitude, longitude, isActive, isPopular, level, name } = req.body;
 
         // Use locationService to normalize coordinates and detect Null Island
         const coords = normalizeCoordinates({ lat: latitude, lng: longitude });
@@ -299,11 +326,11 @@ export const createLocation = async (req: Request, res: Response) => {
             return sendBaseAdminError(req, res, 'Valid map coordinates are required.', 400);
         }
 
-        if (!city || !state) {
-            return sendBaseAdminError(req, res, 'City and State are required.', 400);
+        const displayName = resolveStringField(name);
+        if (!displayName) {
+            return sendBaseAdminError(req, res, 'Location name is required.', 400);
         }
 
-        const districtName = district || name;
         const requestedLevel = resolveStringField(level)?.toLowerCase();
         let finalLevel: 'country' | 'state' | 'district' | 'city' | 'area' | 'village' =
             requestedLevel === 'country' ||
@@ -314,8 +341,6 @@ export const createLocation = async (req: Request, res: Response) => {
                 requestedLevel === 'village'
                 ? requestedLevel
                 : 'city';
-        const displayName = districtName || city;
-        const slug = safeSlugify(`${displayName}-${city}-${state}`);
         const explicitParentId = resolveStringField(req.body?.parentId);
         let parentLocation: { _id: unknown; level?: string; path?: unknown } | null = null;
 
@@ -333,19 +358,26 @@ export const createLocation = async (req: Request, res: Response) => {
             parentLocation = await resolveParentLocation({
                 level: finalLevel,
                 country: country || 'Unknown',
-                state,
-                district: districtName,
-                city
+                state: resolveStringField(req.body?.state),
+                district: resolveStringField(req.body?.district),
+                city: resolveStringField(req.body?.city) || displayName
             });
         }
-        if (districtName && finalLevel === 'city' && parentLocation?.level === 'city') {
-            finalLevel = 'area';
-        }
+
+        const parentSummary = parentLocation
+            ? await resolveLocationSummary(parentLocation as CanonicalLocationDoc)
+            : null;
+        const normalizedCountry = resolveStringField(country) || parentSummary?.country || 'Unknown';
+        const slug = safeSlugify(
+            [displayName, parentSummary?.state, normalizedCountry]
+                .filter((part): part is string => Boolean(part))
+                .join('-')
+        );
 
         // Check duplicate
         const existing = await Location.findOne({
             name: { $regex: new RegExp(`^${escapeRegExp(displayName)}$`, 'i') },
-            country: country || 'Unknown',
+            country: normalizedCountry,
             level: finalLevel,
             parentId: parentLocation?._id || null
         });
@@ -358,7 +390,7 @@ export const createLocation = async (req: Request, res: Response) => {
         const location = await Location.create({
             _id: locationId,
             name: displayName,
-            country: country || 'Unknown',
+            country: normalizedCountry,
             coordinates: coords,
             level: finalLevel,
             parentId: parentLocation?._id || null,
@@ -371,7 +403,8 @@ export const createLocation = async (req: Request, res: Response) => {
 
         await invalidateLocationStateCache();
 
-        return sendSuccessResponse(res, normalizeLocationResponse(location));
+        const [response] = await hydrateLocationResponses([location.toObject() as CanonicalLocationDoc]);
+        return sendSuccessResponse(res, response);
 
     } catch (error: unknown) {
         if (getErrorCode(error) === 11000) {
@@ -387,9 +420,7 @@ export const createLocation = async (req: Request, res: Response) => {
 export const updateLocation = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { city, state, country, latitude, longitude, isActive, isPopular, level, district, name } = req.body;
-        const nextCity = resolveStringField(city);
-        const nextState = resolveStringField(state);
+        const { country, latitude, longitude, isActive, isPopular, level, name } = req.body;
         const nextCountry = resolveStringField(country);
         const nextName = resolveStringField(name);
 
@@ -414,11 +445,6 @@ export const updateLocation = async (req: Request, res: Response) => {
         if (nextCountry) location.country = nextCountry;
         if (nextName) {
             location.name = nextName;
-        } else if (
-            nextCity &&
-            (location.level === 'country' || location.level === 'state' || location.level === 'city')
-        ) {
-            location.name = nextCity;
         }
 
         const parentIdFromBody = req.body?.parentId;
@@ -453,30 +479,22 @@ export const updateLocation = async (req: Request, res: Response) => {
         }
 
         // Regenerate slug if Name/City/State changes
-        if (city || state || name || level || hasParentMutation) {
+        if (name || country || level || hasParentMutation) {
             let parentLocation = null;
             if (location.parentId) {
                 parentLocation = await Location.findById(location.parentId)
-                    .select('_id path')
+                    .select('_id level path country')
                     .lean();
             }
-            if (!parentLocation) {
-                parentLocation = await resolveParentLocation({
-                    level: location.level,
-                    country: location.country,
-                    state: nextState,
-                    district: resolveStringField(req.body?.district) || undefined,
-                    city: nextCity,
-                    excludeId: location._id
-                });
-                location.parentId = parentLocation?._id || null;
-            }
             location.path = buildHierarchyPath(location._id as any, parentLocation as any) as any;
+            const parentSummary = parentLocation
+                ? await resolveLocationSummary(parentLocation as CanonicalLocationDoc)
+                : null;
 
             const slugParts = [
                 location.name,
-                nextCity && nextCity !== location.name ? nextCity : undefined,
-                nextState || location.country || 'unknown'
+                parentSummary?.state,
+                location.country || 'unknown'
             ].filter((part): part is string => Boolean(part));
             location.slug = safeSlugify(slugParts.join('-'));
         }
@@ -484,7 +502,8 @@ export const updateLocation = async (req: Request, res: Response) => {
         await location.save();
         await invalidateLocationStateCache();
 
-        return sendSuccessResponse(res, normalizeLocationResponse(location));
+        const [response] = await hydrateLocationResponses([location.toObject() as CanonicalLocationDoc]);
+        return sendSuccessResponse(res, response);
 
     } catch (error: unknown) {
         return sendBaseAdminError(req, res, error);
@@ -527,6 +546,7 @@ export const togglePopularStatus = async (req: Request, res: Response) => {
         }
 
         location.isPopular = !location.isPopular;
+        location.priority = location.isPopular ? 100 : 0;
         await location.save();
         await invalidateLocationStateCache(); // Popular status affects hierarchy & search caches
 

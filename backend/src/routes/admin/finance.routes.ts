@@ -6,9 +6,16 @@ import { Router } from 'express';
 import { validateObjectId } from '../../middleware/validateObjectId';
 import { searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
 import { requirePermission } from '../../middleware/adminAuth';
+import { validateRequest } from '../../middleware/validateRequest';
 import * as transactionController from '../../controllers/admin/adminTransactionController';
 import * as adminInvoiceController from '../../controllers/admin/adminInvoiceController';
 import * as smartAlertController from '../../controllers/smartAlert';
+import {
+    adminCreateInvoiceSchema,
+    adminInvoiceQuerySchema,
+    adminTransactionQuerySchema,
+    adminUpdateInvoiceStatusSchema,
+} from '../../validators/finance.validator';
 
 const router = Router();
 
@@ -19,21 +26,21 @@ const router = Router();
 router.get('/finance/stats', requirePermission('finance:read'), searchLimiter, transactionController.getTransactionStats);
 
 // ✅ FILTER / QUERY
-router.get('/finance/transactions', requirePermission('finance:read'), transactionController.getAllTransactions);
+router.get('/finance/transactions', requirePermission('finance:read'), searchLimiter, validateRequest({ query: adminTransactionQuerySchema }), transactionController.getAllTransactions);
 
 // ============================================
 // INVOICES
 // ============================================
 // ✅ STATIC / ACTION
-router.get('/invoices/:id/print', validateObjectId, adminInvoiceController.getPrintableInvoice);
+router.get('/invoices/:id/print', requirePermission('finance:read'), validateObjectId, adminInvoiceController.getPrintableInvoice);
 
 // ✅ FILTER / QUERY
-router.get('/invoices', adminInvoiceController.getAllInvoices);
+router.get('/invoices', requirePermission('finance:read'), searchLimiter, validateRequest({ query: adminInvoiceQuerySchema }), adminInvoiceController.getAllInvoices);
 
 // ✅ PARAM LAST
-router.get('/invoices/:id', validateObjectId, adminInvoiceController.getInvoiceById);
-router.post('/invoices', adminMutationLimiter, adminInvoiceController.createInvoice);
-router.patch('/invoices/:id/status', adminMutationLimiter, validateObjectId, adminInvoiceController.updateInvoiceStatus);
+router.get('/invoices/:id', requirePermission('finance:read'), validateObjectId, adminInvoiceController.getInvoiceById);
+router.post('/invoices', requirePermission('finance:manage'), adminMutationLimiter, validateRequest(adminCreateInvoiceSchema), adminInvoiceController.createInvoice);
+router.patch('/invoices/:id/status', requirePermission('finance:manage'), adminMutationLimiter, validateObjectId, validateRequest(adminUpdateInvoiceStatusSchema), adminInvoiceController.updateInvoiceStatus);
 
 // ============================================
 // SMART ALERTS

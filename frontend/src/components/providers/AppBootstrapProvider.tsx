@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { queryKeys } from "@/hooks/queries/queryKeys";
-import { useNotificationsQuery } from "@/hooks/queries/useNotificationsQuery";
+import { ensureForegroundPushListener, syncBrowserPushRegistration, clearBrowserPushCache } from "@/lib/notifications/webPush";
 import type { User } from "@/types/User";
 
 export function AppBootstrapProvider({ children }: { children: ReactNode }) {
@@ -21,11 +21,6 @@ export function AppBootstrapProvider({ children }: { children: ReactNode }) {
         !pathname?.startsWith("/account/business/apply") &&
         !pathname?.startsWith("/business/edit");
 
-    useNotificationsQuery({
-        page: 1,
-        limit: 20,
-        enabled: shouldPrefetchAccountWidgets,
-    });
     useSavedAdsQuery({
         enabled: shouldPrefetchAccountWidgets,
     });
@@ -40,7 +35,23 @@ export function AppBootstrapProvider({ children }: { children: ReactNode }) {
             queryClient.removeQueries({ queryKey: queryKeys.user.all });
             queryClient.removeQueries({ queryKey: queryKeys.notifications.all });
             queryClient.removeQueries({ queryKey: queryKeys.ads.saved() });
+            clearBrowserPushCache();
         }
+    }, [queryClient, status, user]);
+
+    useEffect(() => {
+        if (status !== "authenticated" || !user) {
+            return;
+        }
+
+        void syncBrowserPushRegistration({
+            user: user as User & { notificationSettings?: { pushNotifications?: boolean } },
+            interactive: false,
+        });
+
+        void ensureForegroundPushListener(() => {
+            void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+        });
     }, [queryClient, status, user]);
 
     return <>{children}</>;

@@ -1,35 +1,32 @@
-import { z } from "zod";
-export const SparePartDataSchema = z.object({
-    id: z.string().optional(),
-    name: z.string(),
-    categoryIds: z.array(z.string()),
-    status: z.string().optional(),
-    brandId: z.string().optional(),
-    modelId: z.string().optional(),
-    type: z.enum(['PRIMARY', 'SECONDARY']).optional(),
-    sortOrder: z.number().optional(),
-    usageCount: z.number().optional(),
-});
-
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
+import { buildQueryString } from "./queryParams";
+import type { ListingTypeValue } from "@shared/enums/listingType";
 
 export interface SparePartFilters {
     search?: string;
     categoryId?: string;
-    status?: string;
-    [key: string]: string | undefined;
+    isActive?: string;
+    page?: number;
+    limit?: number;
+    [key: string]: string | number | boolean | undefined;
 }
 
 export interface SparePartData {
     id?: string;
     name: string;
     categoryIds: string[];
-    status?: string;
+    slug?: string;
+    listingType?: ListingTypeValue[];
+    brandId?: string;
+    modelId?: string;
+    sortOrder?: number;
+    usageCount?: number;
+    isActive?: boolean;
 }
 
 export async function getSpareParts(filters?: SparePartFilters) {
-    const query = new URLSearchParams(filters as Record<string, string>).toString();
+    const query = buildQueryString(filters);
     return adminFetch<SparePartData[]>(`${ADMIN_ROUTES.SPARE_PARTS}?${query}`);
 }
 
@@ -47,7 +44,7 @@ export async function createSparePart(data: SparePartData) {
 }
 
 export async function updateSparePart(id: string, data: SparePartData) {
-    return adminFetch<SparePartData>(`${ADMIN_ROUTES.SPARE_PARTS}/${id}`, {
+    return adminFetch<SparePartData>(ADMIN_ROUTES.SPARE_PART_BY_ID(id), {
         method: "PUT",
         body: data
     });

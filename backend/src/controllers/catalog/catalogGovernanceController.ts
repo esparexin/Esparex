@@ -5,7 +5,7 @@
 
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { scanHierarchyIntegrity, repairHierarchy } from '../../services/catalog/CatalogHierarchyService';
+import { getHierarchyTree as buildHierarchyTree, scanHierarchyIntegrity, repairHierarchy } from '../../services/catalog/CatalogHierarchyService';
 import { sendSuccessResponse } from '../admin/adminBaseController';
 import { sendCatalogError, hasAdminAccess } from './shared';
 import Category from '../../models/Category';
@@ -27,6 +27,23 @@ export const getHierarchyReport = async (req: Request, res: Response) => {
         }
         const report = await scanHierarchyIntegrity();
         sendSuccessResponse(res, report);
+    } catch (error) {
+        sendCatalogError(req, res, error);
+    }
+};
+
+/**
+ * GET /governance/hierarchy-tree
+ * Returns the full category → brand → model tree without client-side pagination fan-out.
+ */
+export const getHierarchyTree = async (req: Request, res: Response) => {
+    try {
+        if (!hasAdminAccess(req)) {
+            return sendContractErrorResponse(req, res, 403, 'Admin access required');
+        }
+
+        const tree = await buildHierarchyTree();
+        sendSuccessResponse(res, tree);
     } catch (error) {
         sendCatalogError(req, res, error);
     }

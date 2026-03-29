@@ -41,6 +41,40 @@ interface BusinessDetailsModalProps {
 export function BusinessDetailsModal({ business, onClose, onApprove, onReject, onDelete, onModify, onSuspend, onActivate }: BusinessDetailsModalProps) {
     if (!business) return null;
 
+    const isPdf = (url?: string) => typeof url === "string" && /\.pdf($|[?#])/i.test(url);
+
+    const renderDocumentPreview = (url: string | undefined, alt: string) => {
+        if (!url) {
+            return <span className="text-slate-400 text-xs italic">No document uploaded</span>;
+        }
+
+        if (isPdf(url)) {
+            return (
+                <a
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex h-full w-full flex-col items-center justify-center rounded-md border border-dashed border-slate-300 bg-white p-4 text-center transition-colors hover:border-primary hover:bg-slate-50"
+                >
+                    <FileText size={28} className="text-primary" />
+                    <span className="mt-3 text-xs font-semibold text-slate-700">Open PDF document</span>
+                    <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+                        <ExternalLink size={12} /> View full file
+                    </span>
+                </a>
+            );
+        }
+
+        return (
+            <a href={url} target="_blank" rel="noreferrer" className="relative block h-full w-full">
+                <img src={url} className="w-full h-full object-cover rounded-md" alt={alt} />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                    <ExternalLink size={16} /> VIEW FULL
+                </div>
+            </a>
+        );
+    };
+
     const groupedDocs = {
         id_proof: business.documents?.filter(d => d.type === 'id_proof') || [],
         business_proof: business.documents?.filter(d => d.type === 'business_proof') || [],
@@ -182,12 +216,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                 </div>
                                 <div className="flex-1 flex items-center justify-center p-4">
                                     {groupedDocs.id_proof.length > 0 ? (
-                                        <a href={groupedDocs.id_proof[0]?.url} target="_blank" className="relative block w-full h-full">
-                                            <img src={groupedDocs.id_proof[0]?.url} className="w-full h-full object-cover rounded-md" alt="ID Proof" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
-                                                <ExternalLink size={16} /> VIEW FULL
-                                            </div>
-                                        </a>
+                                        renderDocumentPreview(groupedDocs.id_proof[0]?.url, "ID Proof")
                                     ) : (
                                         <span className="text-slate-400 text-xs italic">No ID Proof uploaded</span>
                                     )}
@@ -204,12 +233,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                 </div>
                                 <div className="flex-1 flex items-center justify-center p-4">
                                     {groupedDocs.business_proof.length > 0 ? (
-                                        <a href={groupedDocs.business_proof[0]?.url} target="_blank" className="relative block w-full h-full">
-                                            <img src={groupedDocs.business_proof[0]?.url} className="w-full h-full object-cover rounded-md" alt="Business Proof" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
-                                                <ExternalLink size={16} /> VIEW FULL
-                                            </div>
-                                        </a>
+                                        renderDocumentPreview(groupedDocs.business_proof[0]?.url, "Business Proof")
                                     ) : (
                                         <span className="text-slate-400 text-xs italic">No Business Proof uploaded</span>
                                     )}
@@ -225,9 +249,9 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                     <div className="grid grid-cols-2 gap-2 h-full">
                                         {groupedDocs.certificate.length > 0 ? (
                                             groupedDocs.certificate.slice(0, 4).map((doc, i) => (
-                                                <a key={i} href={doc.url} target="_blank" className="relative block h-full">
-                                                    <img src={doc.url} className="w-full h-full object-cover rounded shadow-sm border border-slate-200" alt={`Certificate ${i + 1}`} />
-                                                </a>
+                                                <div key={i} className="h-full">
+                                                    {renderDocumentPreview(doc.url, `Certificate ${i + 1}`)}
+                                                </div>
                                             ))
                                         ) : (
                                             <div className="col-span-2 flex items-center justify-center text-slate-400 text-xs italic h-full">

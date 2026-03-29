@@ -8,4 +8,11 @@ describe("mobile chrome policy", () => {
         expect(getMobileChromePolicy("/services/board-repair-123").showContextActionBar).toBe(true);
         expect(getMobileChromePolicy("/spare-part-listings/display-123").showContextActionBar).toBe(true);
     });
+
+    it("suppresses bottom mobile chrome on chat routes", () => {
+        expect(getMobileChromePolicy("/chat").showMobileBottomNav).toBe(false);
+        expect(getMobileChromePolicy("/chat").showBottomActionsBar).toBe(false);
+        expect(getMobileChromePolicy("/chat/abc123").showMobileBottomNav).toBe(false);
+        expect(getMobileChromePolicy("/chat/abc123").showBottomActionsBar).toBe(false);
+    });
 });

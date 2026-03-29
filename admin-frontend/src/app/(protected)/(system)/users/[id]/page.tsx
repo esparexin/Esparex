@@ -6,6 +6,11 @@ import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
+import {
+    getUserStatusPresentation,
+    normalizeManagedUser,
+} from "@/components/system/users/userManagement";
+import { StatusChip } from "@/components/ui/StatusChip";
 import type { User } from "@/types/user";
 import { ArrowLeft, Mail, Phone, Shield, User as UserIcon } from "lucide-react";
 
@@ -22,21 +27,22 @@ export default function UserDetailsPage({ params }: Props) {
 
     const { id: userId } = React.use(params);
 
-    const normalizeUser = (raw: Record<string, unknown>): User => ({
-        id: String(raw.id || raw._id || ""),
-        name: String(raw.name || ""),
-        email: String(raw.email || ""),
-        mobile: (typeof raw.mobile === "string" ? raw.mobile : "") as string,
-        role: (raw.role as User["role"]) || "user",
-        status: (raw.status as User["status"]) || "active",
-        isVerified: Boolean(raw.isVerified),
-        isPhoneVerified: Boolean(raw.isPhoneVerified),
-        isEmailVerified: Boolean(raw.isEmailVerified),
-        businessStatus: (typeof raw.businessStatus === "string" ? raw.businessStatus : undefined) as any,
-        totalAdsPosted: typeof raw.totalAdsPosted === "number" ? raw.totalAdsPosted : undefined,
-        createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date(0).toISOString(),
-        updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : new Date(0).toISOString(),
-    } as any);
+    const normalizeUser = (raw: Record<string, unknown>): User =>
+        normalizeManagedUser({
+            id: String(raw.id || raw._id || ""),
+            name: String(raw.name || ""),
+            email: String(raw.email || ""),
+            mobile: (typeof raw.mobile === "string" ? raw.mobile : "") as string,
+            role: (raw.role as User["role"]) || "user",
+            status: (raw.status as User["status"]) || "live",
+            isVerified: Boolean(raw.isVerified),
+            isPhoneVerified: Boolean(raw.isPhoneVerified),
+            isEmailVerified: Boolean(raw.isEmailVerified),
+            businessStatus: (typeof raw.businessStatus === "string" ? raw.businessStatus : undefined) as any,
+            totalAdsPosted: typeof raw.totalAdsPosted === "number" ? raw.totalAdsPosted : undefined,
+            createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date(0).toISOString(),
+            updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : new Date(0).toISOString(),
+        } as any);
 
     useEffect(() => {
         let cancelled = false;
@@ -68,6 +74,8 @@ export default function UserDetailsPage({ params }: Props) {
         };
     }, [userId]);
 
+    const statusPresentation = user ? getUserStatusPresentation(user.status) : null;
+
     return (
         <div className="space-y-6">
             <Link
@@ -90,6 +98,13 @@ export default function UserDetailsPage({ params }: Props) {
                             <div>
                                 <h1 className="text-xl font-semibold text-slate-900">{user.name}</h1>
                                 <p className="text-sm text-slate-500">User ID: {user.id}</p>
+                                {statusPresentation ? (
+                                    <StatusChip
+                                        status={statusPresentation.status}
+                                        label={statusPresentation.label}
+                                        className="mt-2"
+                                    />
+                                ) : null}
                             </div>
                         </div>
 
@@ -103,7 +118,7 @@ export default function UserDetailsPage({ params }: Props) {
                             <div className="rounded-lg border border-slate-200 p-4">
                                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Account</p>
                                 <p className="mt-2 flex items-center gap-2 text-sm text-slate-700"><Shield size={14} /> Role: {user.role}</p>
-                                <p className="mt-1 text-sm text-slate-700">Status: {user.status}</p>
+                                <p className="mt-1 text-sm text-slate-700">Status: {statusPresentation?.label || "Active"}</p>
                                 <p className="mt-1 text-sm text-slate-700">Verified: {user.isVerified ? "Yes" : "No"}</p>
                                 <p className="mt-1 text-sm text-slate-700">Created: {new Date(user.createdAt as string).toLocaleString()}</p>
                             </div>

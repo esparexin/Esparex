@@ -44,6 +44,7 @@ const mapOverview = (data: Record<string, unknown>) => ({
     pending: Number(data.pending || 0),
     live: Number(data.live || data.approved || 0),
     suspended: Number(data.suspended || 0),
+    deleted: Number(data.deleted || 0),
 });
 
 export default function BusinessesView() {
@@ -59,7 +60,7 @@ export default function BusinessesView() {
     const rawPage = searchParams.get("page");
 
     const activeTab =
-        rawStatus === "approved"
+        rawStatus === "approved" || rawStatus === "active"
             ? DEFAULT_STATUS
             : rawStatus && BUSINESS_MASTER_STATUSES.has(rawStatus)
                 ? rawStatus
@@ -80,9 +81,12 @@ export default function BusinessesView() {
         activeTab,
         search,
         page,
-        initialOverview: { total: 0, pending: 0, live: 0, suspended: 0 },
+        initialOverview: { total: 0, pending: 0, live: 0, suspended: 0, deleted: 0 },
         mapOverview,
-        extraQueryParams: { city: cityFilter },
+        extraQueryParams: {
+            city: cityFilter,
+            includeDeleted: activeTab === "deleted" || activeTab === "all" ? "true" : undefined,
+        },
     });
     const { businesses, loading, error, pagination, overview } = businessList;
 
@@ -204,6 +208,8 @@ export default function BusinessesView() {
             onDelete: businessList.setDeleteTarget,
             editTitle: "Edit Business",
             deleteTitle: "Delete Business",
+            canEdit: (biz) => !biz.isDeleted,
+            canDelete: (biz) => !biz.isDeleted,
             renderExtraActions: (biz) =>
                 biz.status === "live" ? (
                     <BusinessActionButton
@@ -226,16 +232,17 @@ export default function BusinessesView() {
     return (
         <AdminPageShell
             title="Business Master"
-            description="Central directory of all verified and registered business accounts"
+            description="Single admin surface for pending, live, suspended, deleted, and historical business accounts"
             headerVariant="compact"
         >
             <div className="space-y-6">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                     {[
-                        { label: "Total", value: overview.total, color: "text-slate-700" },
+                        { label: "All", value: overview.total, color: "text-slate-700" },
                         { label: "Live", value: overview.live, color: "text-emerald-600" },
                         { label: "Pending", value: overview.pending, color: "text-amber-600" },
                         { label: "Suspended", value: overview.suspended, color: "text-red-600" },
+                        { label: "Deleted", value: overview.deleted, color: "text-slate-500" },
                     ].map(({ label, value, color }) => (
                         <div key={label} className="bg-white rounded-xl border border-slate-200 p-3 flex items-center gap-3 shadow-sm">
                             <ChartBar size={16} className="text-slate-300" />
@@ -279,6 +286,7 @@ export default function BusinessesView() {
                                 pathname,
                                 updateSearchParams(searchParams, { status: "deleted", page: null })
                             ),
+                            count: overview.deleted,
                         },
                         {
                             label: "All",
@@ -286,6 +294,7 @@ export default function BusinessesView() {
                                 pathname,
                                 updateSearchParams(searchParams, { status: "all", page: null })
                             ),
+                            count: overview.total,
                         },
                     ]}
                 />

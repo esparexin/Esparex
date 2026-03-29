@@ -11,7 +11,6 @@ import './Plan';
 import './AdminLog';
 import './AdminSession';
 import './ApiKey';
-import './Broadcast';
 import './Counter';
 import './JobLog';
 import './LocationEvent';
@@ -53,6 +52,7 @@ import './BlockedUser';
 import './FraudScore';
 
 import { getUserConnection, getAdminConnection } from '../config/db';
+import { getIndexAuditTargets } from '../core/db/indexAuditTargets';
 import { governSchema, runStartupIndexAudit } from '../core/db/indexGovernance';
 
 if (process.env.NODE_ENV !== 'test') {
@@ -60,15 +60,19 @@ if (process.env.NODE_ENV !== 'test') {
 
     const userConn = getUserConnection();
     const adminConn = getAdminConnection();
+    const auditTargets = getIndexAuditTargets([
+        { scope: 'user', connection: userConn },
+        { scope: 'admin', connection: adminConn },
+    ]);
 
-    // Audit User DB Models
-    Object.entries(userConn.models).forEach(([name, model]) => {
-        governSchema(model.schema, name);
-    });
+    if (auditTargets.length === 1 && userConn === adminConn) {
+        logger.info('[Index Governance] Unified DB detected. Auditing shared model registry once.');
+    }
 
-    // Audit Admin DB Models
-    Object.entries(adminConn.models).forEach(([name, model]) => {
-        governSchema(model.schema, name);
+    auditTargets.forEach(({ scope, connection }) => {
+        Object.entries(connection.models).forEach(([name, model]) => {
+            governSchema(model.schema, { scope, collectionName: name });
+        });
     });
 
     runStartupIndexAudit();

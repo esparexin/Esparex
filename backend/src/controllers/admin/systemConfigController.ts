@@ -1,7 +1,4 @@
-import logger from '../../utils/logger';
-import nodemailer from 'nodemailer';
 import { Request, Response } from 'express';
-import SystemConfig from '../../models/SystemConfig';
 import { 
     sendSuccessResponse, 
     sendAdminError 
@@ -10,7 +7,6 @@ import {
     getSystemConfigForRead,
     updateSystemConfigSections
 } from '../../services/SystemConfigService';
-import { SYSTEM_CONFIG_KEY, invalidateSystemConfigCache, ensureSystemConfig } from '../../utils/systemConfigHelper';
 import { logAdminAction } from '../../utils/adminLogger';
 
 type AuthenticatedRequest = Request & { user?: { _id?: string } };
@@ -32,7 +28,8 @@ const maskSecrets = (obj: any): any => {
         'apiSecret',
         'keySecret',
         'secretKey',
-        'mapboxAccessToken'
+        'mapboxAccessToken',
+        'bypassToken'
     ];
 
     const recurse = (current: any) => {
@@ -121,83 +118,6 @@ export const updateSystemConfig = async (req: Request, res: Response) => {
         const maskedConfig = maskSecrets(config.toJSON ? config.toJSON() : config);
         sendSuccessResponse(res, maskedConfig, 'System configuration updated successfully');
     } catch (error) {
-        return sendAdminError(req, res, error);
-    }
-};
-
-/**
- * Reset system configuration to defaults
- * Can reset specific sections or everything.
- */
-export const resetSystemConfig = async (req: Request, res: Response) => {
-    try {
-        const { sections } = req.body; // Array of sections to reset ['ai', 'security']
-
-        let config = await SystemConfig.findOne({ singletonKey: SYSTEM_CONFIG_KEY });
-        if (!config) config = await ensureSystemConfig();
-        const configRecord = config as unknown as Record<string, unknown>;
-
-        if (!sections || !Array.isArray(sections) || sections.length === 0) {
-            // Full reset (delete and recreate)
-            await SystemConfig.deleteMany({ singletonKey: SYSTEM_CONFIG_KEY });
-            await invalidateSystemConfigCache();
-            const newConfig = await ensureSystemConfig();
-            sendSuccessResponse(res, newConfig, 'System configuration fully reset');
-            return;
-        }
-
-        // Partial reset
-        const defaultConfig = new SystemConfig({ singletonKey: SYSTEM_CONFIG_KEY }); // instance to get defaults
-        const defaultRecord = defaultConfig as unknown as Record<string, unknown>;
-
-        sections.forEach((section: string) => {
-            const value = defaultRecord[section];
-            if (value !== undefined) {
-                configRecord[section] = value;
-            }
-        });
-
-        await config.save();
-        await invalidateSystemConfigCache();
-
-        await logAdminAction(req, 'RESET_SYSTEM_CONFIG', 'Config', 'global', { sections });
-
-        sendSuccessResponse(res, config, `System configuration sections [${sections.join(', ')}] reset`);
-
-    } catch (error) {
-        return sendAdminError(req, res, error);
-    }
-};
-
-/**
- * Test email connection settings
- */
-export const testEmailConnection = async (req: Request, res: Response) => {
-    try {
-        const { host, port, username, password, encryption } = req.body;
-
-        if (!host || !port || !username || !password) {
-            return sendAdminError(req, res, 'Missing required SMTP fields', 400);
-        }
-
-        const transporter = nodemailer.createTransport({
-            host,
-            port,
-            secure: encryption === 'ssl',
-            auth: {
-                user: username,
-                pass: password,
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
-
-        // Verify connection configuration
-        await transporter.verify();
-
-        sendSuccessResponse(res, null, 'Email connection successful');
-    } catch (error: unknown) {
         return sendAdminError(req, res, error);
     }
 };

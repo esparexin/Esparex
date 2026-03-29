@@ -6,13 +6,13 @@ import type { ButtonProps } from './ui/button';
 import { Button } from './ui/button';
 import { useRouter, usePathname } from 'next/navigation';
 
-export function BottomActionsBar() {
+export function BottomActionsBar({ enabled = true }: { enabled?: boolean }) {
     const { actions, isVisible } = useBottomBar();
     const router = useRouter();
     const pathname = usePathname();
 
     // Don't show bottom bar on admin pages
-    if (pathname?.startsWith('/admin')) {
+    if (!enabled || pathname?.startsWith('/admin')) {
         return null;
     }
 

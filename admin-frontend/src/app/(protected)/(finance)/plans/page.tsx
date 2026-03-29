@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ColumnDef } from "@/components/ui/DataTable";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
@@ -10,7 +11,6 @@ import {
     CreditCard,
     Search,
     Filter,
-    AlertCircle,
     CheckCircle2,
     XCircle,
     Package,
@@ -18,32 +18,53 @@ import {
     Activity,
     Pencil,
 } from "lucide-react";
-import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { financeTabs } from "@/components/layout/adminModuleTabSets";
 import { PlanFormModal } from "@/components/plans/PlanFormModal";
-
 import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
-import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import {
+    buildUrlWithSearchParams,
+    normalizeSearchParamValue,
+    updateSearchParams,
+} from "@/lib/urlSearchParams";
+
+const PLAN_TYPES = new Set(["all", "AD_PACK", "SPOTLIGHT", "SMART_ALERT"]);
 
 export default function PlansPage() {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [plans, setPlans] = useState<Plan[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [search, setSearch] = useState("");
-    const [typeFilter, setTypeFilter] = useState("all");
     const [showModal, setShowModal] = useState(false);
     const [editPlan, setEditPlan] = useState<Plan | null>(null);
 
+    const rawSearch = searchParams.get("search");
+    const rawType = searchParams.get("type");
+    const search = normalizeSearchParamValue(rawSearch);
+    const typeFilter = rawType && PLAN_TYPES.has(rawType) ? rawType : "all";
+
+    const replaceQueryState = (updates: Record<string, string | null | undefined>) => {
+        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    };
+
     const fetchPlans = async () => {
         setLoading(true);
+        setError("");
         try {
-            const query = new URLSearchParams({
-                search,
-                type: typeFilter !== "all" ? typeFilter : "",
-            }).toString();
+            const query = new URLSearchParams();
+            if (search) {
+                query.set("search", search);
+            }
+            if (typeFilter !== "all") {
+                query.set("type", typeFilter);
+            }
 
-            const response = await adminFetch<any>(`${ADMIN_ROUTES.PLANS}?${query}`);
+            const response = await adminFetch<unknown>(`${ADMIN_ROUTES.PLANS}?${query.toString()}`);
             const parsed = parseAdminResponse<Plan>(response);
             setPlans(parsed.items);
         } catch (err) {
@@ -59,6 +80,20 @@ export default function PlansPage() {
         }, 300);
         return () => clearTimeout(timer);
     }, [search, typeFilter]);
+
+    useEffect(() => {
+        const nextUrl = buildUrlWithSearchParams(
+            pathname,
+            updateSearchParams(searchParams, {
+                search,
+                type: typeFilter === "all" ? null : typeFilter,
+            })
+        );
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    }, [pathname, router, search, searchParams, typeFilter]);
 
     const handleToggleStatus = async (planId: string) => {
         try {
@@ -76,9 +111,9 @@ export default function PlansPage() {
             header: "Plan Name & Code",
             cell: (plan) => (
                 <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${plan.type === 'AD_PACK' ? 'bg-blue-50 text-blue-600' :
-                            plan.type === 'SPOTLIGHT' ? 'bg-amber-50 text-amber-600' :
-                                'bg-purple-50 text-purple-600'
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${plan.type === "AD_PACK" ? "bg-blue-50 text-blue-600" :
+                            plan.type === "SPOTLIGHT" ? "bg-amber-50 text-amber-600" :
+                                "bg-purple-50 text-purple-600"
                         }`}>
                         <Package size={20} />
                     </div>
@@ -114,7 +149,7 @@ export default function PlansPage() {
             cell: (plan) => (
                 <div className="flex flex-col gap-1">
                     <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                        <Activity size={12} className="text-slate-400" /> {plan.type.replace('_', ' ')}
+                        <Activity size={12} className="text-slate-400" /> {plan.type.replace("_", " ")}
                     </span>
                     <span className="text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-1">
                         <Users size={10} /> {plan.userType}
@@ -127,8 +162,8 @@ export default function PlansPage() {
             cell: (plan) => (
                 <div className="text-xs text-slate-600 flex flex-col gap-1">
                     {plan.limits?.maxAds ? <div>Ads: <span className="font-medium text-slate-900">{plan.limits.maxAds}</span></div> : null}
-                    {plan.type === 'SPOTLIGHT' && plan.limits?.spotlightCredits ? <div>Credits: <span className="font-medium text-emerald-600">{plan.limits.spotlightCredits}</span></div> : null}
-                    {plan.type === 'AD_PACK' && (!plan.limits?.maxAds && !plan.limits?.spotlightCredits) ? <span className="italic text-slate-400">Standard</span> : null}
+                    {plan.type === "SPOTLIGHT" && plan.limits?.spotlightCredits ? <div>Credits: <span className="font-medium text-emerald-600">{plan.limits.spotlightCredits}</span></div> : null}
+                    {plan.type === "AD_PACK" && (!plan.limits?.maxAds && !plan.limits?.spotlightCredits) ? <span className="italic text-slate-400">Standard</span> : null}
                 </div>
             )
         },
@@ -138,7 +173,7 @@ export default function PlansPage() {
                 <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${plan.active ? "bg-emerald-500" : "bg-red-500"}`} />
                     <span className={`capitalize text-xs font-medium ${plan.active ? "text-emerald-700" : "text-red-700"}`}>
-                        {plan.active ? 'Active' : 'Inactive'}
+                        {plan.active ? "Active" : "Inactive"}
                     </span>
                 </div>
             )
@@ -194,7 +229,7 @@ export default function PlansPage() {
                             placeholder="Search plans by name or code..."
                             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => replaceQueryState({ search: e.target.value })}
                         />
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto text-black">
@@ -202,7 +237,7 @@ export default function PlansPage() {
                         <select
                             className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black outline-none"
                             value={typeFilter}
-                            onChange={(e) => setTypeFilter(e.target.value)}
+                            onChange={(e) => replaceQueryState({ type: e.target.value === "all" ? null : e.target.value })}
                         >
                             <option value="all">Every Type</option>
                             <option value="AD_PACK">Ad Packs</option>

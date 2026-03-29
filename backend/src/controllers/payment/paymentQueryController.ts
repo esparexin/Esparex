@@ -77,11 +77,19 @@ export const getInvoice = async (req: Request, res: Response) => {
             ]
         }).lean();
 
-        if (invoice?.pdfUrl) {
-            return res.redirect(invoice.pdfUrl);
+        if (invoice) {
+            const ownerId = invoice.userId?.toString?.() ?? String(invoice.userId);
+            if (ownerId !== req.user._id.toString() && !['admin', 'super_admin'].includes(req.user.role)) {
+                return sendErrorResponse(req, res, 403, 'Unauthorized');
+            }
+
+            if (invoice.pdfUrl) {
+                return res.redirect(invoice.pdfUrl);
+            }
         }
 
-        const transaction = await Transaction.findById(id).populate('userId', 'name email mobile address');
+        const transactionId = invoice?.transactionId?.toString?.() ?? String(invoice?.transactionId ?? id);
+        const transaction = await Transaction.findById(transactionId).populate('userId', 'name email mobile address');
 
         if (!transaction) {
             return sendErrorResponse(req, res, 404, 'Invoice not found');

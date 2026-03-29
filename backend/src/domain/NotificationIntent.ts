@@ -1,5 +1,7 @@
 import crypto from 'crypto';
 
+import { NOTIFICATION_TYPE, type NotificationTypeValue } from '@shared/enums/notificationType';
+
 export interface EntityRef {
     domain: string;
     id: string;
@@ -7,20 +9,20 @@ export interface EntityRef {
 
 export class NotificationIntent {
     userId: string;
-    type: string;
+    type: NotificationTypeValue;
     entityRef: EntityRef;
     message: { title: string; body: string; data?: Record<string, unknown> };
-    priority: 'high' | 'normal' | 'low';
+    priority: 'high' | 'medium' | 'low';
     dedupKey: string;
     channels: string[];
     metadata?: Record<string, unknown>;
 
     constructor(init: {
         userId: string;
-        type: string;
+        type: NotificationTypeValue;
         entityRef: EntityRef;
         message: { title: string; body: string; data?: Record<string, unknown> };
-        priority?: 'high' | 'normal' | 'low';
+        priority?: 'high' | 'medium' | 'low';
         channels?: string[];
         metadata?: Record<string, unknown>;
         dedupKey?: string;
@@ -29,7 +31,7 @@ export class NotificationIntent {
         this.type = init.type;
         this.entityRef = init.entityRef;
         this.message = init.message;
-        this.priority = init.priority || 'normal';
+        this.priority = init.priority || 'medium';
         this.channels = init.channels && init.channels.length > 0 ? init.channels : ['in-app'];
         this.metadata = init.metadata;
         
@@ -50,12 +52,12 @@ export class NotificationIntent {
     ): NotificationIntent {
         return new NotificationIntent({
             userId,
-            type: 'SMART_ALERT',
+            type: NOTIFICATION_TYPE.SMART_ALERT,
             entityRef: { domain: 'ad', id: adId },
             message: {
                 title: 'New Ad Alert',
                 body: `A new ad matches your alert: ${alertName}`,
-                data: { adId, alertId, type: 'SMART_ALERT' }
+                data: { adId, alertId, type: NOTIFICATION_TYPE.SMART_ALERT }
             },
             priority: 'high',
             channels,
@@ -68,18 +70,23 @@ export class NotificationIntent {
         jobId: string,
         title: string,
         body: string,
-        targetType: string
+        targetType: string,
+        actionUrl?: string
     ): NotificationIntent {
         return new NotificationIntent({
             userId,
-            type: 'admin_push_scheduled',
-            entityRef: { domain: 'scheduler_job', id: jobId },
+            type: NOTIFICATION_TYPE.SYSTEM,
+            entityRef: { domain: 'admin_broadcast', id: jobId },
             message: {
                 title,
                 body,
-                data: { type: 'admin_broadcast', targetType }
+                data: {
+                    kind: 'admin_broadcast_scheduled',
+                    targetType,
+                    ...(actionUrl ? { actionUrl, link: actionUrl } : {}),
+                }
             },
-            priority: 'normal',
+            priority: 'medium',
             channels: ['push', 'in-app']
         });
     }
@@ -89,18 +96,24 @@ export class NotificationIntent {
         broadcastId: string,
         title: string,
         body: string,
-        typeStr: string = 'admin_broadcast'
+        kind: string = 'admin_broadcast',
+        targetType?: string,
+        actionUrl?: string
     ): NotificationIntent {
         return new NotificationIntent({
             userId,
-            type: typeStr,
+            type: NOTIFICATION_TYPE.SYSTEM,
             entityRef: { domain: 'admin_broadcast', id: broadcastId },
             message: {
                 title,
                 body,
-                data: { type: 'admin_broadcast' }
+                data: {
+                    kind,
+                    targetType,
+                    ...(actionUrl ? { actionUrl, link: actionUrl } : {}),
+                }
             },
-            priority: 'normal',
+            priority: 'medium',
             channels: ['push', 'in-app']
         });
     }

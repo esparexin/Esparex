@@ -4,9 +4,7 @@ import Business from '../../models/Business';
 import AdModel from '../../models/Ad';
 import { Document, Model } from 'mongoose';
 import { logAdminAction } from '../../utils/adminLogger';
-import { GOVERNANCE, MS_IN_DAY } from '../../config/constants';
 import { createInAppNotification } from '../../services/NotificationService';
-import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
 import { recalculateTrustScore } from '../../services/TrustService';
 import {
     sendSuccessResponse,
@@ -17,7 +15,6 @@ import { normalizeBusinessStatus } from '../../utils/businessStatus';
 import { handlePaginatedContent } from '../../utils/contentHandler';
 import * as businessService from '../../services/BusinessService';
 import * as adminBusinessService from '../../services/AdminBusinessService';
-import AdminMetrics from '../../models/AdminMetrics';
 import { mutateStatus, mutateStatuses } from '../../services/StatusMutationService';
 import { BUSINESS_STATUS } from '../../../../shared/enums/businessStatus';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
@@ -48,12 +45,13 @@ export const getBusinessOverview = async (req: Request, res: Response) => {
     }
 };
 
-// Shared transform for business documents — used by both getBusinessAccounts and getBusinessRequests.
-// Shared transform migrated to adminBusinessService.transformBusinessDocs
-
 export const getBusinessAccounts = async (req: Request, res: Response) => {
     const { status } = req.query;
     const adminQuery = adminBusinessService.getBusinessAccountsQuery(status as string);
+    const city = typeof req.query.city === 'string' ? req.query.city.trim() : '';
+    if (city) {
+        adminQuery['location.city'] = city;
+    }
 
     return handlePaginatedContent(req, res, Business as unknown as Model<Document>, {
         populate: 'userId',
@@ -63,19 +61,11 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
     });
 };
 
-export const getBusinessRequests = async (req: Request, res: Response) => {
-    return handlePaginatedContent(req, res, Business as unknown as Model<Document>, {
-        populate: 'userId',
-        searchFields: ['name', 'email', 'mobile', 'location.city'],
-        adminQuery: { status: BUSINESS_STATUS.PENDING },
-        queryParams: { ...(req.query as Record<string, unknown>), status: BUSINESS_STATUS.PENDING },
-        transformResponse: adminBusinessService.transformBusinessDocs
-    });
-};
-
 export const getBusinessAccountById = async (req: Request, res: Response) => {
     try {
-        const business = await Business.findById(req.params.id).populate('userId');
+        const business = await Business.findOne({ _id: req.params.id })
+            .setOptions({ withDeleted: true })
+            .populate('userId');
         if (!business) {
             return sendAdminError(req, res, 'Business not found', 404);
         }
@@ -148,51 +138,6 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
         await cascadeExpireListings(business._id, actor, `Cascaded from business rejection: ${reason}`);
 
         sendSuccessResponse(res, business, 'Business rejected');
-    } catch (error: unknown) {
-        sendAdminError(req, res, error);
-    }
-};
-
-export const renewBusinessAccount = async (req: Request, res: Response) => {
-    try {
-        const { days } = req.body;
-        const business = await Business.findById(req.params.id);
-
-        if (!business) {
-            return sendAdminError(req, res, 'Business not found', 404);
-        }
-
-        const currentExpiry = business.expiresAt || new Date();
-        const newExpiry = new Date(currentExpiry.getTime() + days * MS_IN_DAY);
-
-        const renewedBusiness = await businessService.renewBusiness(
-            req.params.id as string, 
-            newExpiry, 
-            (req.user as any)?.id || (req.user as any)?._id
-        );
-
-        if (!renewedBusiness) {
-            return sendAdminError(req, res, 'Business not found', 404);
-        }
-
-        // Sync User.businessStatus back to approved so the owner regains access
-        const wasInactive = (business as any).status !== BUSINESS_STATUS.LIVE;
-        if (wasInactive) {
-            await logAdminAction(req, 'RENEW_BUSINESS', 'Business', req.params.id, { newExpiry, restoredFromStatus: business.status });
-        } else {
-            await logAdminAction(req, 'RENEW_BUSINESS', 'Business', req.params.id, { newExpiry });
-        }
-
-        // Send notification to business owner
-        await createInAppNotification(
-            business.userId.toString(),
-            'BUSINESS_STATUS',
-            'Business Renewed! 🎉',
-            `Your business "${business.name}" has been renewed. New expiry: ${newExpiry.toLocaleDateString()}.`,
-            { businessId: business._id.toString(), status: 'renewed', newExpiry: newExpiry.toISOString() }
-        );
-
-        sendSuccessResponse(res, renewedBusiness, 'Business renewed successfully');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }

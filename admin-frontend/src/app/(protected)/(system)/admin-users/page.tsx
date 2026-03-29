@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Shield, UserPlus, Power, Trash2, Save, XCircle } from "lucide-react";
+import { UserPlus, Power, Trash2, Save, XCircle } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { useToast } from "@/context/ToastContext";
 import { adminFetch } from "@/lib/api/adminClient";
@@ -18,16 +18,13 @@ import { AdminUserIdentityCell } from "@/components/system/adminUsers/AdminUserI
 import { AdminUserRoleBadge } from "@/components/system/adminUsers/AdminUserRoleBadge";
 import {
     DEFAULT_CREATE_FORM,
-    DEFAULT_EDIT_FORM,
     getAdminStatusPresentation,
     normalizeAdmin,
-    type AdminFormState,
-    type AdminRole,
-    type AdminStatus,
-    type AdminUserFormValues,
-    type EditableAdminFormState,
+    parsePermissionsText,
+    toEditableAdminFormState,
     type ManagedAdmin,
 } from "@/components/system/adminUsers/adminUsers";
+import type { AdminCreateUserFormValues, AdminEditUserFormValues } from "@/schemas/admin.schemas";
 
 const ADMIN_IDENTITY_COLUMNS: ColumnDef<ManagedAdmin>[] = [
     {
@@ -46,9 +43,9 @@ export default function AdminUsersPage() {
     const { isPending: isSaving, runMutation } = useAdminMutation();
     const [admins, setAdmins] = useState<ManagedAdmin[]>([]);
     const [loading, setLoading] = useState(true);
-    const [createForm, setCreateForm] = useState<AdminFormState>(DEFAULT_CREATE_FORM);
-    const [editForm, setEditForm] = useState<EditableAdminFormState>(DEFAULT_EDIT_FORM);
     const [editingAdminId, setEditingAdminId] = useState<string | null>(null);
+    const [editingAdmin, setEditingAdmin] = useState<ManagedAdmin | null>(null);
+    const [permissionsDraft, setPermissionsDraft] = useState("");
     const isPermissionsView = searchParams.get("view") === "permissions";
 
     const loadAdmins = async () => {
@@ -68,45 +65,26 @@ export default function AdminUsersPage() {
         void loadAdmins();
     }, []);
 
-    const resetCreateForm = () => setCreateForm(DEFAULT_CREATE_FORM);
-
-    const updateCreateForm = (field: keyof AdminUserFormValues, value: string) => {
-        setCreateForm((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const updateEditForm = (field: keyof AdminUserFormValues, value: string) => {
-        setEditForm((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const onCreate = async () => {
-        const name = `${createForm.firstName} ${createForm.lastName}`.trim();
-        if (!name || !createForm.email || !createForm.password) {
-            showToast("First name, last name, email, and password are required", "error");
-            return;
-        }
-
+    const onCreate = async (values: AdminCreateUserFormValues) => {
+        const name = `${values.firstName} ${values.lastName}`.trim();
         await runMutation(
             () =>
                 adminFetch(ADMIN_ROUTES.ADMIN_USERS, {
                     method: "POST",
                     body: {
-                        firstName: createForm.firstName.trim(),
-                        lastName: createForm.lastName.trim(),
+                        firstName: values.firstName.trim(),
+                        lastName: values.lastName.trim(),
                         name,
-                        email: createForm.email.trim(),
-                        password: createForm.password,
-                        role: createForm.role,
-                        permissions: createForm.permissionsText
-                            .split(",")
-                            .map((value) => value.trim())
-                            .filter(Boolean),
+                        email: values.email.trim(),
+                        password: values.password,
+                        role: values.role,
+                        permissions: parsePermissionsText(values.permissionsText),
                     },
                 }),
             {
                 successMessage: "Admin created successfully",
                 failureMessage: "Failed to create admin",
                 onSuccess: async () => {
-                    resetCreateForm();
                     await loadAdmins();
                 },
             }
@@ -115,38 +93,30 @@ export default function AdminUsersPage() {
 
     const onStartEdit = (admin: ManagedAdmin) => {
         setEditingAdminId(admin.id);
-        setEditForm({
-            firstName: admin.firstName,
-            lastName: admin.lastName,
-            email: admin.email,
-            role: (["super_admin", "admin", "moderator"].includes(admin.role) ? admin.role : "moderator") as AdminRole,
-            status: (["live", "inactive", "suspended", "banned"].includes(admin.status) ? admin.status : "live") as AdminStatus,
-            permissionsText: admin.permissions.join(", "),
-        });
+        setEditingAdmin(admin);
+        setPermissionsDraft(admin.permissions.join(", "));
     };
 
     const onCancelEdit = () => {
         setEditingAdminId(null);
-        setEditForm(DEFAULT_EDIT_FORM);
+        setEditingAdmin(null);
+        setPermissionsDraft("");
     };
 
-    const onSaveEdit = async () => {
-        if (!editingAdminId) return;
+    const onSaveEdit = async (values: AdminEditUserFormValues) => {
+        if (!editingAdmin) return;
 
         await runMutation(
             () =>
-                adminFetch(ADMIN_ROUTES.ADMIN_USER_BY_ID(editingAdminId), {
+                adminFetch(ADMIN_ROUTES.ADMIN_USER_BY_ID(editingAdmin.id), {
                     method: "PATCH",
                     body: {
-                        firstName: editForm.firstName.trim(),
-                        lastName: editForm.lastName.trim(),
-                        email: editForm.email.trim(),
-                        role: editForm.role,
-                        status: editForm.status,
-                        permissions: editForm.permissionsText
-                            .split(",")
-                            .map((value) => value.trim())
-                            .filter(Boolean),
+                        firstName: values.firstName.trim(),
+                        lastName: values.lastName.trim(),
+                        email: values.email.trim(),
+                        role: values.role,
+                        status: values.status,
+                        permissions: parsePermissionsText(values.permissionsText),
                     },
                 }),
             {
@@ -204,14 +174,20 @@ export default function AdminUsersPage() {
                             <div className="flex items-center gap-2">
                                 <input
                                     className="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
-                                    value={editForm.permissionsText}
+                                    value={permissionsDraft}
                                     placeholder="users:read, ads:write, ..."
-                                    onChange={(e) => setEditForm((prev) => ({ ...prev, permissionsText: e.target.value }))}
+                                    onChange={(e) => setPermissionsDraft(e.target.value)}
                                 />
                                 <button
                                     className="inline-flex items-center gap-1 rounded-md bg-slate-900 px-2 py-1 text-xs font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
                                     disabled={isSaving}
-                                    onClick={() => void onSaveEdit()}
+                                    onClick={() => {
+                                        if (!editingAdmin) return;
+                                        void onSaveEdit({
+                                            ...toEditableAdminFormState(editingAdmin),
+                                            permissionsText: permissionsDraft,
+                                        });
+                                    }}
                                 >
                                     <Save size={12} /> Save
                                 </button>
@@ -250,7 +226,7 @@ export default function AdminUsersPage() {
                 ),
             },
         ],
-        [editingAdminId, editForm.permissionsText, isSaving]
+        [editingAdmin, editingAdminId, isSaving, permissionsDraft]
     );
 
     const columns: ColumnDef<ManagedAdmin>[] = useMemo(
@@ -321,35 +297,33 @@ export default function AdminUsersPage() {
           ) : (<>
 
             <AdminUserFormCard
-                values={createForm}
+                mode="create"
+                values={DEFAULT_CREATE_FORM}
                 submitLabel="Create Admin"
                 secondaryLabel="Clear"
                 submitIcon={UserPlus}
                 secondaryIcon={XCircle}
                 isSubmitting={isSaving}
-                showPassword
                 permissionsPlaceholder="Permissions, comma separated (example: users:read, ads:write)"
-                onChange={updateCreateForm}
-                onSubmit={() => void onCreate()}
-                onSecondary={resetCreateForm}
+                onSubmit={(values) => void onCreate(values)}
+                onSecondary={() => undefined}
             />
 
-            {editingAdminId && (
+            {editingAdminId && editingAdmin ? (
                 <AdminUserFormCard
+                    mode="edit"
                     title="Edit Admin"
-                    values={editForm}
+                    values={toEditableAdminFormState(editingAdmin)}
                     submitLabel="Save"
                     secondaryLabel="Cancel"
                     submitIcon={Save}
                     secondaryIcon={XCircle}
                     isSubmitting={isSaving}
-                    showStatus
                     permissionsPlaceholder="Permissions, comma separated"
-                    onChange={updateEditForm}
-                    onSubmit={() => void onSaveEdit()}
+                    onSubmit={(values) => void onSaveEdit(values)}
                     onSecondary={onCancelEdit}
                 />
-            )}
+            ) : null}
 
             <DataTable data={admins} columns={columns} isLoading={loading} emptyMessage="No admin users found." />
           </>)}

@@ -7,16 +7,23 @@ const FIELDS: SettingsFieldSchema[] = [
   {
     type: "toggle",
     label: "Razorpay",
-    description: "Enable Razorpay gateway for marketplace payments.",
+    description: "Disables new user checkout creation when turned off.",
     path: "payment.razorpay.enabled",
     default: false,
   },
   {
-    type: "toggle",
-    label: "Stripe",
-    description: "Enable Stripe gateway for marketplace payments.",
-    path: "payment.stripe.enabled",
-    default: false,
+    type: "text",
+    label: "Razorpay Key ID",
+    path: "payment.razorpay.keyId",
+    default: "",
+  },
+  {
+    type: "password",
+    label: "Razorpay Key Secret",
+    path: "payment.razorpay.keySecret",
+    default: "",
+    placeholder: "Leave blank to keep current secret",
+    preserveMasked: true,
   },
 ];
 
@@ -25,11 +32,10 @@ export function PaymentSettings(props: SectionProps) {
     <GenericSettingsSection
       {...props}
       title="Payments"
-      description="Enable or disable supported payment gateways."
+      description="Live marketplace checkout configuration for the active Razorpay gateway."
       configPath="integrations"
       successMessage="Payment settings updated"
       fields={FIELDS}
     />
   );
 }
-

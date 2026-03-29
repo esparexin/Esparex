@@ -113,6 +113,15 @@ export async function handlePaginatedContent<T extends Document>(
                     // Unknown param: skip and do not inject into Mongo query
                     return;
                 }
+                if (query[key] !== undefined) {
+                    return;
+                }
+                if (value === 'all' || value === '' || value === undefined || value === null) {
+                    return;
+                }
+                if (key === 'status' && value === 'deleted' && query.isDeleted === true) {
+                    return;
+                }
                 query[key] = value;
             });
 

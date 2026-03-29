@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
@@ -13,9 +12,14 @@ import {
   type AdminConvSummary,
   type AdminChatFilter,
 } from "@/lib/api/adminChat";
-import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
+import {
+  ADMIN_UI_ROUTES,
+  buildAdminRouteWithMergedQuery,
+  readPositiveIntParam,
+  readStringParam,
+} from "@/lib/adminUiRoutes";
 
-const FILTER_OPTIONS: { value: AdminChatFilter; label: string; icon?: React.ReactNode }[] = [
+const FILTER_OPTIONS: { value: AdminChatFilter; label: string; icon?: ReactNode }[] = [
   { value: "all", label: "All Chats" },
   { value: "reported", label: "Reported", icon: <AlertTriangle size={14} /> },
   { value: "high_risk", label: "High Risk", icon: <Shield size={14} /> },
@@ -34,14 +38,23 @@ function timeAgo(iso?: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+function normalizeFilter(value: string | null): AdminChatFilter {
+  return FILTER_OPTIONS.some((option) => option.value === value)
+    ? (value as AdminChatFilter)
+    : "all";
+}
+
 export default function AdminChatView() {
   const { showToast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [filter, setFilter] = useState<AdminChatFilter>("all");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+
+  const filter = normalizeFilter(searchParams.get("filter"));
+  const search = readStringParam(searchParams.get("search"));
+  const page = readPositiveIntParam(searchParams.get("page"), 1);
+
+  const [searchInput, setSearchInput] = useState(search);
   const [items, setItems] = useState<AdminConvSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,30 +62,40 @@ export default function AdminChatView() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    const requestedFilter = searchParams.get("filter");
-    const requestedSearch = searchParams.get("search");
-    const nextFilter = FILTER_OPTIONS.some((option) => option.value === requestedFilter)
-      ? (requestedFilter as AdminChatFilter)
-      : "all";
-    const nextSearch = readStringParam(requestedSearch);
-    const nextPage = readPositiveIntParam(searchParams.get("page"), 1);
+    setSearchInput((prev) => (prev === search ? prev : search));
+  }, [search]);
 
-    setFilter((prev) => (prev === nextFilter ? prev : nextFilter));
-    setSearch((prev) => (prev === nextSearch ? prev : nextSearch));
-    setPage((prev) => (prev === nextPage ? prev : nextPage));
-  }, [searchParams]);
+  const replaceQueryState = useCallback(
+    (updates: Record<string, string | number | null | undefined>) => {
+      const nextUrl = buildAdminRouteWithMergedQuery(pathname, searchParams, updates);
+      const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
+      if (nextUrl !== currentUrl) {
+        void router.replace(nextUrl, { scroll: false });
+      }
+    },
+    [pathname, router, searchParams]
+  );
 
   useEffect(() => {
-    const nextUrl = ADMIN_UI_ROUTES.chat({
+    const canonicalUrl = ADMIN_UI_ROUTES.chat({
       filter: filter !== "all" ? filter : undefined,
       search: search || undefined,
       page: page > 1 ? page : undefined,
     });
     const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
-    if (nextUrl !== currentUrl) {
-      void router.replace(nextUrl, { scroll: false });
+    if (canonicalUrl !== currentUrl) {
+      void router.replace(canonicalUrl, { scroll: false });
     }
   }, [filter, page, pathname, router, search, searchParams]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      if (searchInput === search) return;
+      replaceQueryState({ search: searchInput || null, page: null });
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [replaceQueryState, search, searchInput]);
 
   const load = useCallback(async () => {
     try {
@@ -86,9 +109,11 @@ export default function AdminChatView() {
     } finally {
       setIsLoading(false);
     }
-  }, [filter, search, page, refreshKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filter, search, page, refreshKey]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const refresh = () => setRefreshKey((k) => k + 1);
 
@@ -108,10 +133,10 @@ export default function AdminChatView() {
       const data = await adminExportChat(id);
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `chat_${id}.json`;
-      a.click();
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `chat_${id}.json`;
+      anchor.click();
       URL.revokeObjectURL(url);
     } catch {
       showToast("Export failed", "error");
@@ -135,42 +160,44 @@ export default function AdminChatView() {
       }
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3">
-        {/* Filters */}
         <div className="flex flex-wrap items-center gap-2">
-          {FILTER_OPTIONS.map((opt) => (
+          {FILTER_OPTIONS.map((option) => (
             <button
-              key={opt.value}
+              key={option.value}
               type="button"
-              onClick={() => { setFilter(opt.value); setPage(1); }}
+              onClick={() => replaceQueryState({ filter: option.value !== "all" ? option.value : null, page: null })}
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                filter === opt.value
+                filter === option.value
                   ? "bg-sky-600 text-white"
                   : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
               }`}
             >
-              {opt.icon}
-              {opt.label}
+              {option.icon}
+              {option.label}
             </button>
           ))}
           <div className="relative ml-auto">
             <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search buyer, seller, ad..."
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  replaceQueryState({ search: searchInput || null, page: null });
+                }
+              }}
+              placeholder="Search buyer, seller, ad, or conversation ID"
               className="rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-7 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
             />
           </div>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600">
             {error}
           </div>
         )}
 
-        {/* Table */}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-sm">
             <thead className="border-b border-slate-100 bg-slate-50 text-xs font-semibold text-slate-500">
@@ -186,11 +213,11 @@ export default function AdminChatView() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {isLoading ? (
-                [...Array(5)].map((_, i) => (
-                  <tr key={i}>
-                    {[...Array(7)].map((_, j) => (
-                      <td key={j} className="px-4 py-3">
-                        <div className="h-4 rounded bg-slate-100 animate-pulse" />
+                [...Array(5)].map((_, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {[...Array(7)].map((_, cellIndex) => (
+                      <td key={cellIndex} className="px-4 py-3">
+                        <div className="h-4 animate-pulse rounded bg-slate-100" />
                       </td>
                     ))}
                   </tr>
@@ -203,13 +230,13 @@ export default function AdminChatView() {
                 </tr>
               ) : (
                 items.map((conv) => (
-                  <tr key={conv.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={conv.id} className="transition-colors hover:bg-slate-50">
                     <td className="px-4 py-3 font-medium text-slate-800">{conv.buyerName}</td>
                     <td className="px-4 py-3 text-slate-600">{conv.sellerName}</td>
-                    <td className="px-4 py-3 max-w-[160px] truncate text-slate-600" title={conv.adTitle}>
+                    <td className="max-w-[160px] truncate px-4 py-3 text-slate-600" title={conv.adTitle}>
                       {conv.adTitle}
                     </td>
-                    <td className="px-4 py-3 max-w-[200px] truncate text-slate-500" title={conv.lastMessage}>
+                    <td className="max-w-[200px] truncate px-4 py-3 text-slate-500" title={conv.lastMessage}>
                       {conv.lastMessage ?? "—"}
                     </td>
                     <td className="px-4 py-3">
@@ -221,15 +248,16 @@ export default function AdminChatView() {
                         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">Active</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{timeAgo(conv.updatedAt)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-slate-400">{timeAgo(conv.updatedAt)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <Link
-                          href={ADMIN_UI_ROUTES.chat({ search: conv.id })}
+                        <button
+                          type="button"
+                          onClick={() => void router.push(ADMIN_UI_ROUTES.chat({ search: conv.id }))}
                           className="text-sky-600 hover:underline text-xs font-medium"
                         >
-                          View
-                        </Link>
+                          Locate
+                        </button>
                         {!conv.isBlocked && (
                           <button
                             type="button"
@@ -255,7 +283,6 @@ export default function AdminChatView() {
           </table>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between text-sm text-slate-500">
             <span>{total} total conversations</span>
@@ -263,16 +290,18 @@ export default function AdminChatView() {
               <button
                 type="button"
                 disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
+                onClick={() => replaceQueryState({ page: page - 1 > 1 ? page - 1 : null })}
                 className="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40"
               >
                 Previous
               </button>
-              <span className="font-medium">{page} / {totalPages}</span>
+              <span className="font-medium">
+                {page} / {totalPages}
+              </span>
               <button
                 type="button"
                 disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() => replaceQueryState({ page: page + 1 })}
                 className="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40"
               >
                 Next

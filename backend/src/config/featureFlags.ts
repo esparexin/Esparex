@@ -1,8 +1,6 @@
 import { env } from './env';
 import logger from '../utils/logger';
 import { getCache, setCache } from '../utils/redisCache';
-// Note: Assuming a simple FeatureFlag model exists or using a generic settings collection
-// For now, adhering to the requested hierarchy with Redis cache.
 
 export enum FeatureFlag {
     ENABLE_AD_ORCHESTRATOR = 'ENABLE_AD_ORCHESTRATOR',
@@ -21,8 +19,8 @@ const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
 };
 
 /**
- * Get feature flag value with hierarchy: Env -> Cache -> Default
- * Integrate DB source for persistent runtime overrides.
+ * Get feature flag value with hierarchy: Env -> Cache -> Default.
+ * Feature flags are intentionally not backed by SystemConfig.
  */
 export const isEnabled = async (flag: FeatureFlag): Promise<boolean> => {
     // 1. Check Environment Variable first (Hard Override)

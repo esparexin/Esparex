@@ -30,6 +30,10 @@ const STATUS_STYLES: Record<
         pill: "bg-red-100 text-red-700 border-red-200",
         dot: "bg-red-500",
     },
+    deleted: {
+        pill: "bg-slate-100 text-slate-600 border-slate-200",
+        dot: "bg-slate-400",
+    },
 };
 
 export function BusinessStatusBadge({
@@ -139,67 +143,6 @@ export function BusinessTypesCell({
     );
 }
 
-export function BusinessRowActions({
-    onView,
-    onEdit,
-    onDelete,
-    viewIcon,
-    editIcon,
-    deleteIcon,
-    editTitle,
-    deleteTitle,
-    extraActions,
-}: {
-    onView: () => void;
-    onEdit: () => void;
-    onDelete: () => void;
-    viewIcon: ReactNode;
-    editIcon: ReactNode;
-    deleteIcon: ReactNode;
-    editTitle: string;
-    deleteTitle: string;
-    extraActions?: ReactNode;
-}) {
-    return (
-        <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
-            <BusinessActionButton onClick={onView} title="View Details" icon={viewIcon} />
-            <BusinessActionButton onClick={onEdit} title={editTitle} tone="primary" icon={editIcon} />
-            {extraActions}
-            <BusinessActionButton onClick={onDelete} title={deleteTitle} tone="danger" icon={deleteIcon} />
-        </div>
-    );
-}
-
-export function BusinessDefaultRowActions({
-    onView,
-    onEdit,
-    onDelete,
-    editTitle,
-    deleteTitle,
-    extraActions,
-}: {
-    onView: () => void;
-    onEdit: () => void;
-    onDelete: () => void;
-    editTitle: string;
-    deleteTitle: string;
-    extraActions?: ReactNode;
-}) {
-    return (
-        <BusinessRowActions
-            onView={onView}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            viewIcon={<Eye size={15} />}
-            editIcon={<Pencil size={15} />}
-            deleteIcon={<Trash2 size={15} />}
-            editTitle={editTitle}
-            deleteTitle={deleteTitle}
-            extraActions={extraActions}
-        />
-    );
-}
-
 export function BusinessListTable({
     data,
     columns,
@@ -254,6 +197,8 @@ export function createBusinessActionsColumn({
     editTitle,
     deleteTitle,
     renderExtraActions,
+    canEdit,
+    canDelete,
 }: {
     onView: (business: Business) => void;
     onEdit: (business: Business) => void;
@@ -261,20 +206,29 @@ export function createBusinessActionsColumn({
     editTitle: string;
     deleteTitle: string;
     renderExtraActions?: (business: Business) => ReactNode;
+    canEdit?: (business: Business) => boolean;
+    canDelete?: (business: Business) => boolean;
 }): ColumnDef<Business> {
     return {
         header: "Actions",
         id: "actions",
-        cell: (business) => (
-            <BusinessDefaultRowActions
-                onView={() => onView(business)}
-                onEdit={() => onEdit(business)}
-                onDelete={() => onDelete(business)}
-                editTitle={editTitle}
-                deleteTitle={deleteTitle}
-                extraActions={renderExtraActions?.(business)}
-            />
-        ),
+        cell: (business) => {
+            const allowEdit = canEdit ? canEdit(business) : true;
+            const allowDelete = canDelete ? canDelete(business) : true;
+
+            return (
+                <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
+                    <BusinessActionButton onClick={() => onView(business)} title="View Details" icon={<Eye size={15} />} />
+                    {allowEdit ? (
+                        <BusinessActionButton onClick={() => onEdit(business)} title={editTitle} tone="primary" icon={<Pencil size={15} />} />
+                    ) : null}
+                    {renderExtraActions?.(business)}
+                    {allowDelete ? (
+                        <BusinessActionButton onClick={() => onDelete(business)} title={deleteTitle} tone="danger" icon={<Trash2 size={15} />} />
+                    ) : null}
+                </div>
+            );
+        },
     };
 }
 

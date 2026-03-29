@@ -1,111 +1,95 @@
-import { Request, Response, NextFunction } from 'express';
-import validator from 'validator';
+import { z } from "zod";
 
-/**
- * Sanitize and validate notification content
- * Prevents XSS attacks and enforces length limits
- */
-export const validateNotificationContent = (req: Request, res: Response, next: NextFunction) => {
-    const { title, body, data } = req.body;
+import {
+    ADMIN_NOTIFICATION_TARGET_TYPE,
+    ADMIN_NOTIFICATION_TOPIC_VALUES,
+} from "../../../shared/constants/adminNotificationTargets";
+import { NOTIFICATION_TYPE_VALUES } from "../../../shared/enums/notificationType";
+import { commonSchemas, sanitizeString } from "../middleware/validateRequest";
 
-    // Validate title
-    if (title) {
-        // Sanitize HTML/script tags
-        req.body.title = validator.escape(title.trim());
+const adminNotificationTargetTypeEnum = z.enum([
+    ADMIN_NOTIFICATION_TARGET_TYPE.ALL,
+    ADMIN_NOTIFICATION_TARGET_TYPE.TOPIC,
+    ADMIN_NOTIFICATION_TARGET_TYPE.USERS,
+]);
 
-        // Enforce length limit
-        if (req.body.title.length > 100) {
-            return res.status(400).json({
-                error: 'Title must be 100 characters or less'
+const adminNotificationTopicEnum = z.enum(
+    ADMIN_NOTIFICATION_TOPIC_VALUES as [
+        (typeof ADMIN_NOTIFICATION_TOPIC_VALUES)[number],
+        ...(typeof ADMIN_NOTIFICATION_TOPIC_VALUES)[number][]
+    ]
+);
+
+const notificationHistoryStatusEnum = z.enum(["all", "sent", "failed", "scheduled"]);
+
+const notificationInboxFilterEnum = z.enum(["all", "unread"]);
+
+const notificationTypeFilterEnum = z.enum([
+    "all",
+    ...NOTIFICATION_TYPE_VALUES,
+] as ["all", ...(typeof NOTIFICATION_TYPE_VALUES)[number][]]);
+
+const localDateTimeSchema = z
+    .string()
+    .trim()
+    .regex(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?(?:\.\d{1,3})?(Z|[+-]\d{2}:\d{2})?$/,
+        "Invalid scheduled date"
+    );
+
+const notificationActionUrlSchema = z
+    .string()
+    .trim()
+    .min(1)
+    .max(500)
+    .refine(
+        (value) => value.startsWith("/") || /^https?:\/\//i.test(value),
+        "Action URL must start with / or http(s)://"
+    );
+
+export const adminNotificationSendSchema = z
+    .object({
+        title: sanitizeString(1, 100),
+        body: sanitizeString(1, 500),
+        targetType: adminNotificationTargetTypeEnum,
+        targetValue: adminNotificationTopicEnum.optional(),
+        userIds: z.array(commonSchemas.objectId).max(1000).optional(),
+        actionUrl: notificationActionUrlSchema.optional(),
+        sendAt: localDateTimeSchema.optional(),
+    })
+    .superRefine((value, ctx) => {
+        if (value.targetType === ADMIN_NOTIFICATION_TARGET_TYPE.TOPIC && !value.targetValue) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["targetValue"],
+                message: "Topic is required when targetType is topic",
             });
         }
-    }
 
-    // Validate body/message
-    const messageField = body || req.body.message;
-    if (messageField) {
-        // Sanitize HTML/script tags
-        const sanitized = validator.escape(messageField.trim());
-        if (body) {
-            req.body.body = sanitized;
-        } else {
-            req.body.message = sanitized;
-        }
-
-        // Enforce length limit
-        if (sanitized.length > 500) {
-            return res.status(400).json({
-                error: 'Message must be 500 characters or less'
-            });
-        }
-    }
-
-    // Validate data object
-    if (data && typeof data === 'object') {
-        // Sanitize string values in data object
-        for (const key in data) {
-            if (typeof data[key] === 'string') {
-                data[key] = validator.escape(data[key]);
+        if (value.targetType === ADMIN_NOTIFICATION_TARGET_TYPE.USERS) {
+            if (!value.userIds || value.userIds.length === 0) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ["userIds"],
+                    message: "userIds are required when targetType is users",
+                });
             }
         }
-    }
+    });
 
-    next();
-};
+export const adminNotificationHistoryQuerySchema = commonSchemas.pagination.extend({
+    q: z.string().trim().min(1).max(100).optional(),
+    status: notificationHistoryStatusEnum.default("all"),
+    targetType: adminNotificationTargetTypeEnum.optional(),
+});
 
-/**
- * Validate notification type enum
- */
-export const validateNotificationType = (req: Request, res: Response, next: NextFunction) => {
-    const { type } = req.body;
+export const adminNotificationRecipientQuerySchema = z.object({
+    q: z.string().trim().min(2).max(100),
+    limit: z.coerce.number().int().min(1).max(20).default(8),
+});
 
-    const validTypes = ['SMART_ALERT', 'ORDER_UPDATE', 'AD_STATUS', 'BUSINESS_STATUS', 'SYSTEM', 'PRICE_DROP', 'CHAT'];
-
-    if (type && !validTypes.includes(type)) {
-        return res.status(400).json({
-            error: `Invalid notification type. Must be one of: ${validTypes.join(', ')}`
-        });
-    }
-
-    next();
-};
-
-/**
- * Validate admin notification target
- */
-export const validateAdminNotificationTarget = (req: Request, res: Response, next: NextFunction) => {
-    const { targetType, userIds, targetValue } = req.body;
-
-    const validTargetTypes = ['all', 'users', 'topic'];
-
-    if (!targetType || !validTargetTypes.includes(targetType)) {
-        return res.status(400).json({
-            error: `Invalid targetType. Must be one of: ${validTargetTypes.join(', ')}`
-        });
-    }
-
-    // Validate userIds for 'users' targetType
-    if (targetType === 'users') {
-        if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
-            return res.status(400).json({
-                error: 'userIds array is required for targetType "users"'
-            });
-        }
-
-        // Limit max users to prevent abuse
-        if (userIds.length > 1000) {
-            return res.status(400).json({
-                error: 'Cannot send to more than 1000 users at once'
-            });
-        }
-    }
-
-    // Validate targetValue for 'topic' targetType
-    if (targetType === 'topic' && !targetValue) {
-        return res.status(400).json({
-            error: 'targetValue is required for targetType "topic"'
-        });
-    }
-
-    next();
-};
+export const userNotificationsQuerySchema = commonSchemas.pagination.extend({
+    q: z.string().trim().min(1).max(100).optional(),
+    filter: notificationInboxFilterEnum.default("all"),
+    type: notificationTypeFilterEnum.default("all"),
+});

@@ -1,25 +1,100 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { locationsTabs } from "@/components/layout/adminModuleTabSets";
-import { getLocationAnalytics, LocationAnalyticsData, LocationAnalyticsFilters } from "@/lib/api/locations";
-import { getDistinctStates } from "@/lib/api/locations";
+import {
+    getDistinctStates,
+    getLocationAnalytics,
+    LocationAnalyticsData,
+    LocationAnalyticsFilters,
+} from "@/lib/api/locations";
+import {
+    buildUrlWithSearchParams,
+    normalizeSearchParamValue,
+    updateSearchParams,
+} from "@/lib/urlSearchParams";
 import { MapPin, TrendingUp, BarChart2, Users, Search, Flame } from "lucide-react";
 
-export default function LocationAnalyticsPage() {
+function LocationAnalyticsPageContent({
+    initialCity,
+    initialDistrict,
+    initialState,
+    initialCountry,
+}: {
+    initialCity: string;
+    initialDistrict: string;
+    initialState: string;
+    initialCountry: string;
+}) {
+    const pathname = usePathname();
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [data, setData] = useState<LocationAnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [states, setStates] = useState<string[]>([]);
-    const [filters, setFilters] = useState<LocationAnalyticsFilters>({});
+    const [cityInput, setCityInput] = useState(initialCity);
+    const [districtInput, setDistrictInput] = useState(initialDistrict);
+
+    const filters: LocationAnalyticsFilters = {
+        city: initialCity || undefined,
+        district: initialDistrict || undefined,
+        state: initialState || undefined,
+        country: initialCountry || undefined,
+    };
+
+    useEffect(() => {
+        setCityInput(initialCity);
+    }, [initialCity]);
+
+    useEffect(() => {
+        setDistrictInput(initialDistrict);
+    }, [initialDistrict]);
+
+    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+        if (nextUrl !== currentUrl) {
+            router.replace(nextUrl, { scroll: false });
+        }
+    };
 
     useEffect(() => {
         getDistinctStates()
             .then(setStates)
-            .catch(() => { /* non-critical */ });
+            .catch(() => {
+                setStates([]);
+            });
     }, []);
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => {
+            const normalizedCity = normalizeSearchParamValue(cityInput);
+            if (normalizedCity !== initialCity) {
+                replaceQueryState({
+                    city: normalizedCity || null,
+                });
+            }
+        }, 300);
+
+        return () => window.clearTimeout(timer);
+    }, [cityInput, initialCity]);
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => {
+            const normalizedDistrict = normalizeSearchParamValue(districtInput);
+            if (normalizedDistrict !== initialDistrict) {
+                replaceQueryState({
+                    district: normalizedDistrict || null,
+                });
+            }
+        }, 300);
+
+        return () => window.clearTimeout(timer);
+    }, [districtInput, initialDistrict]);
 
     useEffect(() => {
         setLoading(true);
@@ -28,7 +103,7 @@ export default function LocationAnalyticsPage() {
             .then(setData)
             .catch((e: Error) => setError(e.message || "Failed to load analytics"))
             .finally(() => setLoading(false));
-    }, [filters]);
+    }, [initialCity, initialDistrict, initialState, initialCountry]);
 
     const adsByStateRows = (() => {
         const merged = new Map<string, { key: string; label: string; count: number }>();
@@ -54,40 +129,56 @@ export default function LocationAnalyticsPage() {
     return (
         <AdminPageShell
             title="Geo Analytics"
-            description="Location-scoped activity, hot zones, and ad distribution across states."
+            description="Hierarchy-scoped location activity, hot zones, and live listing distribution."
             tabs={<AdminModuleTabs tabs={locationsTabs} />}
             className="h-full overflow-y-auto pr-1"
         >
             <div className="space-y-6">
-                {/* Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                         <input
                             type="text"
                             placeholder="Filter by city..."
                             className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                            value={filters.city ?? ""}
-                            onChange={(e) => setFilters(prev => ({ ...prev, city: e.target.value || undefined }))}
+                            value={cityInput}
+                            onChange={(e) => setCityInput(e.target.value)}
                         />
                     </div>
+                    <input
+                        type="text"
+                        placeholder="Filter by district..."
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        value={districtInput}
+                        onChange={(e) => setDistrictInput(e.target.value)}
+                    />
                     <select
                         className="bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none"
-                        value={filters.state ?? ""}
-                        onChange={(e) => setFilters(prev => ({ ...prev, state: e.target.value || undefined }))}
+                        value={initialState}
+                        onChange={(e) => replaceQueryState({ state: e.target.value || null })}
                     >
                         <option value="">All States</option>
-                        {states.map(s => <option key={s} value={s}>{s}</option>)}
+                        {states.map((state) => (
+                            <option key={state} value={state}>
+                                {state}
+                            </option>
+                        ))}
                     </select>
                     <select
                         className="bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none"
-                        value={filters.country ?? ""}
-                        onChange={(e) => setFilters(prev => ({ ...prev, country: e.target.value || undefined }))}
+                        value={initialCountry}
+                        onChange={(e) => replaceQueryState({ country: e.target.value || null })}
                     >
                         <option value="">All Countries</option>
                         <option value="India">India</option>
                     </select>
                 </div>
+
+                {(initialCity || initialDistrict || initialState || initialCountry) && (
+                    <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+                        Analytics cards and charts are scoped to the selected hierarchy filters.
+                    </div>
+                )}
 
                 {error && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
@@ -97,13 +188,12 @@ export default function LocationAnalyticsPage() {
 
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {[1, 2, 3].map(i => (
+                        {[1, 2, 3].map((i) => (
                             <div key={i} className="h-28 bg-slate-100 rounded-xl animate-pulse" />
                         ))}
                     </div>
                 ) : data ? (
                     <>
-                        {/* Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <StatCard icon={<MapPin size={20} />} label="Total Locations" value={data.totalLocations} color="blue" />
                             <StatCard icon={<BarChart2 size={20} />} label="Total Ads" value={data.totalAds} color="emerald" />
@@ -111,7 +201,6 @@ export default function LocationAnalyticsPage() {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Top Cities */}
                             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
                                     <TrendingUp size={18} className="text-primary" />
@@ -137,7 +226,6 @@ export default function LocationAnalyticsPage() {
                                 </div>
                             </div>
 
-                            {/* Ads by State */}
                             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
                                     <BarChart2 size={18} className="text-primary" />
@@ -152,9 +240,7 @@ export default function LocationAnalyticsPage() {
                                                     <div
                                                         className="h-full bg-primary rounded-full"
                                                         style={{
-                                                            width: `${Math.min(100, Math.round(
-                                                                (row.count / maxStateAdsCount) * 100
-                                                            ))}%`
+                                                            width: `${Math.min(100, Math.round((row.count / maxStateAdsCount) * 100))}%`
                                                         }}
                                                     />
                                                 </div>
@@ -168,7 +254,6 @@ export default function LocationAnalyticsPage() {
                             </div>
                         </div>
 
-                        {/* Hot Zones */}
                         {data.hotZones?.length ? (
                             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
@@ -201,8 +286,26 @@ export default function LocationAnalyticsPage() {
     );
 }
 
+export default function LocationAnalyticsPage() {
+    const searchParams = useSearchParams();
+
+    const initialCity = normalizeSearchParamValue(searchParams.get("city"));
+    const initialDistrict = normalizeSearchParamValue(searchParams.get("district"));
+    const initialState = normalizeSearchParamValue(searchParams.get("state"));
+    const initialCountry = normalizeSearchParamValue(searchParams.get("country"));
+
+    return (
+        <LocationAnalyticsPageContent
+            initialCity={initialCity}
+            initialDistrict={initialDistrict}
+            initialState={initialState}
+            initialCountry={initialCountry}
+        />
+    );
+}
+
 function StatCard({ icon, label, value, color }: {
-    icon: React.ReactNode;
+    icon: ReactNode;
     label: string;
     value: number;
     color: "blue" | "emerald" | "violet";

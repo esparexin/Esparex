@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import logger from '../utils/logger';
+import { getSystemConfigDoc } from '../utils/systemConfigHelper';
 
 // interface EmailOptions {
 //     to: string;
@@ -9,43 +10,94 @@ import logger from '../utils/logger';
 
 export class EmailService {
     private transporter: nodemailer.Transporter | null = null;
-    private isConfigured = false;
+    private configSignature = '';
 
     constructor() {
-        this.init();
+        // Runtime config is loaded lazily from SystemConfig on send.
     }
 
-    private init() {
-        // Check for SMTP Credentials
-        const { SMTP_HOST, SMTP_USER, SMTP_PASSWORD, SMTP_PORT } = process.env;
+    private async resolveConfig() {
+        const config = await getSystemConfigDoc();
+        const emailConfig = config?.notifications?.email;
 
-        if (SMTP_HOST && SMTP_USER && SMTP_PASSWORD) {
+        return {
+            enabled: emailConfig?.enabled ?? true,
+            provider: emailConfig?.provider || 'smtp',
+            senderName: emailConfig?.senderName?.trim() || 'Esparex Admin',
+            senderEmail: emailConfig?.senderEmail?.trim() || process.env.SMTP_FROM || 'noreply@esparex.com',
+            host: emailConfig?.host?.trim() || process.env.SMTP_HOST || '',
+            port: Number(emailConfig?.port || process.env.SMTP_PORT || 587),
+            username: emailConfig?.username?.trim() || process.env.SMTP_USER || '',
+            password: emailConfig?.password?.trim() || process.env.SMTP_PASSWORD || '',
+            encryption: emailConfig?.encryption || 'tls',
+        };
+    }
+
+    private async ensureTransporter() {
+        const config = await this.resolveConfig();
+
+        if (!config.enabled) {
+            this.transporter = null;
+            this.configSignature = '';
+            return { config, available: false };
+        }
+
+        if (config.provider !== 'smtp') {
+            logger.warn('Email provider is not implemented; SMTP is required for runtime delivery', {
+                provider: config.provider
+            });
+            return { config, available: false };
+        }
+
+        if (!config.host || !config.username || !config.password) {
+            logger.warn('Email service not configured - missing SMTP credentials', {
+                hostConfigured: Boolean(config.host),
+                usernameConfigured: Boolean(config.username)
+            });
+            return { config, available: false };
+        }
+
+        const signature = JSON.stringify([
+            config.host,
+            config.port,
+            config.username,
+            config.password,
+            config.encryption,
+        ]);
+
+        if (!this.transporter || this.configSignature !== signature) {
             this.transporter = nodemailer.createTransport({
-                host: SMTP_HOST,
-                port: Number(SMTP_PORT) || 587,
-                secure: Number(SMTP_PORT) === 465, // true for 465, false for other ports
+                host: config.host,
+                port: config.port,
+                secure: config.encryption === 'ssl' || config.port === 465,
                 auth: {
-                    user: SMTP_USER,
-                    pass: SMTP_PASSWORD,
+                    user: config.username,
+                    pass: config.password,
                 },
             });
-            this.isConfigured = true;
-            logger.info('Email service configured', { transport: 'SMTP' });
-        } else {
-            logger.warn('Email service not configured - emails will be mocked', { reason: 'Missing SMTP credentials' });
-            this.isConfigured = false;
+            this.configSignature = signature;
+            logger.info('Email service configured', { transport: 'SMTP', host: config.host });
         }
+
+        return { config, available: true };
     }
 
     public async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
-        if (!this.isConfigured || !this.transporter) {
-            logger.info('Mock email sent (SMTP not configured)', { to, subject });
-            return true; // Pretend success
+        const { config, available } = await this.ensureTransporter();
+
+        if (!config.enabled) {
+            logger.info('Email skipped because notifications.email.enabled is false', { to, subject });
+            return false;
+        }
+
+        if (!available || !this.transporter) {
+            logger.warn('Email not sent because SMTP runtime settings are incomplete', { to, subject });
+            return false;
         }
 
         try {
             const info = await this.transporter.sendMail({
-                from: process.env.SMTP_FROM || '"Esparex Admin" <noreply@esparex.com>',
+                from: `"${config.senderName}" <${config.senderEmail}>`,
                 to,
                 subject,
                 html,

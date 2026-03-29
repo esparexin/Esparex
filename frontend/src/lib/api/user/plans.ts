@@ -13,6 +13,13 @@ export interface Plan {
     price: number;
     currency: string;
     active: boolean;
+    limits?: {
+        maxAds?: number;
+        maxServices?: number;
+        maxParts?: number;
+        smartAlerts?: number;
+        spotlightCredits?: number;
+    };
     features?: {
         priorityWeight?: number;
         businessBadge?: boolean;
@@ -21,6 +28,7 @@ export interface Plan {
     };
     duration?: string;
     durationDays?: number;
+    isDefault?: boolean;
 }
 
 export interface PlanQuery {

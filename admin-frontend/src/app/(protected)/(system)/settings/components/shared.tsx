@@ -9,48 +9,32 @@ type SettingsHelpCopy = {
 
 const SETTINGS_HELP: Record<string, SettingsHelpCopy> = {
   Platform: {
-    description: "Controls maintenance mode and brand identity values used across the platform.",
-    impact: "Turning on maintenance mode can block or limit user traffic immediately."
+    description: "Controls the live maintenance middleware for the public marketplace.",
+    impact: "Turning on maintenance mode or changing bypass controls affects public traffic immediately."
   },
-  Ads: {
-    description: "Controls ad discovery behavior such as nearby results and radius defaults.",
-    impact: "Too small a radius can reduce inventory visibility; too large can reduce relevance."
+  "Listing Rules": {
+    description: "Controls live listing expiry windows and spare-part seller thresholds.",
+    impact: "Changing these values affects validation and lifecycle jobs without a deploy."
   },
-  Moderation: {
-    description: "Controls AI-assisted moderation thresholds and automatic actions.",
-    impact: "Lower thresholds increase moderation sensitivity and may increase false positives."
-  },
-  Users: {
-    description: "Controls user account session and login protection settings.",
-    impact: "Aggressive limits can reduce abuse but may increase legitimate lockouts."
-  },
-  Messaging: {
-    description: "Controls push notification channel and provider configuration.",
-    impact: "Incorrect provider settings can stop chat and alert delivery."
+  "Moderation & AI": {
+    description: "Controls the live moderation kill-switch, community auto-hide threshold, and AI generation settings.",
+    impact: "These values directly affect report auto-hide behavior and AI content generation."
   },
   Payments: {
-    description: "Controls enabled payment gateways for marketplace transactions.",
-    impact: "Disabling a gateway immediately blocks checkout paths that rely on it."
-  },
-  "Fraud Detection": {
-    description: "Controls AI risk thresholds used for fraud/spam/counterfeit checks.",
-    impact: "Threshold changes directly influence how many ads are flagged or blocked."
+    description: "Controls the active Razorpay checkout configuration used by user plan purchases.",
+    impact: "Disabling Razorpay immediately blocks new plan purchases."
   },
   Notifications: {
-    description: "Controls outbound notification email channel and sender identity.",
-    impact: "Invalid sender/provider values can break system emails."
+    description: "Controls runtime SMTP email delivery and push notification delivery.",
+    impact: "Invalid SMTP or push values can break password reset, invoices, chat, and alert notifications."
   },
   Security: {
-    description: "Controls admin hardening settings such as 2FA and session timeout.",
-    impact: "Stricter security improves protection but can increase sign-in friction."
+    description: "Controls admin session lifetime, 2FA issuer labeling, and sign-in IP allowlisting.",
+    impact: "Incorrect values can shorten sessions or block admin login from expected networks."
   },
-  Search: {
-    description: "Controls search UX, autocomplete behavior, and distance units.",
-    impact: "Misconfigured search settings can degrade relevance and discoverability."
-  },
-  "Feature Flags": {
-    description: "Controls feature rollout toggles without code deployment.",
-    impact: "Flag changes are immediate and can expose or hide user-facing features."
+  "Search & Location": {
+    description: "Controls the live location-search settings used by autocomplete and reverse-geocoding flows.",
+    impact: "Aggressive limits can reduce discoverability; permissive values can increase noisy requests."
   }
 };
 
@@ -155,11 +139,13 @@ export function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 rounded-full transition-colors ${checked ? "bg-primary" : "bg-slate-300"}`}
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+        checked ? "bg-primary" : "bg-slate-300"
+      }`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-          checked ? "translate-x-5" : "translate-x-0.5"
+        className={`pointer-events-none absolute left-0.5 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform ${
+          checked ? "translate-x-5" : "translate-x-0"
         }`}
       />
     </button>

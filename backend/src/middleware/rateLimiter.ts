@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { type Store } from 'express-rate-limit';
 import RedisStore, { type RedisReply } from 'rate-limit-redis';
 import redisClient from '../config/redis';
 import { Request, Response } from 'express';
@@ -81,17 +81,67 @@ const respondRateLimited = (
     });
 };
 
-const createRedisStore = (prefix: string) => {
+const createRedisStore = (prefix: string, windowMs: number) => {
     if (process.env.NODE_ENV === 'production' && shouldDisableRedisStore) {
         throw new Error('FATAL: Redis store is required in production. In-memory fallback is strictly banned by SSOT.');
     }
     return shouldDisableRedisStore
-        ? undefined
+        ? createEphemeralTestStore(prefix, windowMs)
         : new RedisStore({
             sendCommand: (...args: string[]) =>
                 (redisClient as unknown as RedisCallable).call(...args),
             prefix: `rl:${prefix}`,
         });
+};
+
+const createEphemeralTestStore = (prefix: string, windowMs: number): Store => {
+    const hits = new Map<string, { totalHits: number; resetTime: Date }>();
+
+    return {
+        localKeys: true,
+        prefix: `test:${prefix}`,
+        increment: (key: string) => {
+            const now = Date.now();
+            const current = hits.get(key);
+
+            if (!current || current.resetTime.getTime() <= now) {
+                const next = {
+                    totalHits: 1,
+                    resetTime: new Date(now + windowMs),
+                };
+                hits.set(key, next);
+                return next;
+            }
+
+            const next = {
+                totalHits: current.totalHits + 1,
+                resetTime: current.resetTime,
+            };
+            hits.set(key, next);
+            return next;
+        },
+        decrement: (key: string) => {
+            const current = hits.get(key);
+            if (!current) return;
+            if (current.totalHits <= 1) {
+                hits.delete(key);
+                return;
+            }
+            hits.set(key, {
+                totalHits: current.totalHits - 1,
+                resetTime: current.resetTime,
+            });
+        },
+        resetKey: (key: string) => {
+            hits.delete(key);
+        },
+        resetAll: () => {
+            hits.clear();
+        },
+        shutdown: () => {
+            hits.clear();
+        },
+    };
 };
 
 // ============================================================================
@@ -114,7 +164,7 @@ export function createLimiter({
         max,
         standardHeaders: true,
         legacyHeaders: false,
-        store: createRedisStore(keyPrefix),
+        store: createRedisStore(keyPrefix, windowMs),
         keyGenerator: keyGenerator,
         validate: keyGenerator ? false : { ip: false },
         handler: (req: Request, res: Response) => {
@@ -131,7 +181,7 @@ export function createLimiter({
 export const globalLimiter = rateLimit({
     windowMs: 60 * 1000,
     max: process.env.NODE_ENV === 'development' ? 3000 : 100,
-    store: createRedisStore('global:'),
+    store: createRedisStore('global:', 60 * 1000),
     skip: (req) => {
         return req.originalUrl === '/api/v1/health' || req.originalUrl === '/health' || req.originalUrl.includes('/webhook');
     },

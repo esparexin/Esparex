@@ -123,7 +123,8 @@ const callOpenAIWithMessages = async (
     apiKey: string,
     model: string,
     messages: OpenAIMessage[],
-    maxTokens: number = 500
+    maxTokens: number = 500,
+    temperature: number = 0.7
 ): Promise<OpenAICallResult> => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), AI_REQUEST_TIMEOUT_MS);
@@ -140,7 +141,7 @@ const callOpenAIWithMessages = async (
                 model: model || 'gpt-4o',
                 messages,
                 max_tokens: maxTokens,
-                temperature: 0.7
+                temperature
             })
         });
 
@@ -185,8 +186,14 @@ const callOpenAIWithMessages = async (
     }
 };
 
-const callOpenAI = async (apiKey: string, model: string, prompt: string, maxTokens: number = 500) => {
-    return callOpenAIWithMessages(apiKey, model, [{ role: 'user', content: prompt }], maxTokens);
+const callOpenAI = async (
+    apiKey: string,
+    model: string,
+    prompt: string,
+    maxTokens: number = 500,
+    temperature: number = 0.7
+) => {
+    return callOpenAIWithMessages(apiKey, model, [{ role: 'user', content: prompt }], maxTokens, temperature);
 };
 
 const toServiceFailure = (response: AIServiceFailure): AIServiceFailure => response;
@@ -255,6 +262,8 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
         ? aiConfig.seo.openaiApiKey.trim()
         : '';
     const model = aiConfig?.seo?.model || 'gpt-4o';
+    const maxTokens = typeof aiConfig?.seo?.maxTokens === 'number' ? aiConfig.seo.maxTokens : 500;
+    const temperature = typeof aiConfig?.seo?.temperature === 'number' ? aiConfig.seo.temperature : 0.7;
 
     const hasApiKey = apiKey.length > 0;
     const canUseIdentify = hasApiKey;
@@ -278,7 +287,8 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
             apiKey,
             model,
             [buildUserMessage(prompt, image)],
-            300
+            Math.min(maxTokens, 300),
+            temperature
         );
 
         return parseValidJsonResult(result, 'AI identify response parse failed');
@@ -302,7 +312,7 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
                 Output validation: Return strictly valid JSON with keys "title" and "description".
                 `;
 
-        const result = await callOpenAI(apiKey, model, prompt);
+        const result = await callOpenAI(apiKey, model, prompt, maxTokens, temperature);
         return parseValidJsonResult(result, 'AI generate response parse failed');
     }
 
@@ -320,7 +330,9 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     const result = await callOpenAIWithMessages(
         apiKey,
         model,
-        [buildUserMessage(prompt, image)]
+        [buildUserMessage(prompt, image)],
+        maxTokens,
+        temperature
     );
     return parseValidJsonResult(result, 'AI moderation response parse failed');
 };

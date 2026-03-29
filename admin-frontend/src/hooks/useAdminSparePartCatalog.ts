@@ -6,9 +6,15 @@ import {
     type SparePartData,
 } from "@/lib/api/sparePartCatalog";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
+import type { AdminListPagination } from "@/hooks/useAdminCrudList";
 import { ISparePartAdmin } from "@/types/sparePartCatalog";
 
-export function useAdminSpareParts() {
+interface UseAdminSparePartsOptions {
+    initialFilters?: { search: string; categoryId: string; isActive: string };
+    initialPagination?: Partial<AdminListPagination>;
+}
+
+export function useAdminSpareParts(options: UseAdminSparePartsOptions = {}) {
     const {
         items: parts,
         loading,
@@ -26,11 +32,12 @@ export function useAdminSpareParts() {
         { search: string; categoryId: string; isActive: string },
         SparePartData
     >({
-        initialFilters: {
+        initialFilters: options.initialFilters ?? {
             search: "",
             categoryId: "all",
             isActive: "all",
         },
+        initialPagination: options.initialPagination,
         fetchList: getSpareParts,
         listErrorMessage: "Failed to fetch spare parts catalog",
         createItem: createSparePart,

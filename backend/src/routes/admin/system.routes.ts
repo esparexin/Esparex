@@ -24,7 +24,36 @@ import * as aiController from '../../controllers/ai';
 import * as adminRevealController from '../../controllers/admin/adminRevealController';
 import * as twoFAController from '../../controllers/admin/admin2FAController';
 import { aiGenerateSchema } from '../../validators/ai.validator';
+import {
+    getUsersQuerySchema,
+    updateUserStatusSchema,
+    updateUserVerificationSchema,
+} from '../../validators/user.validator';
+import {
+    adminBusinessAccountsQuerySchema,
+    adminBusinessRejectSchema,
+    adminBusinessStatusSchema,
+    adminBusinessUpdateSchema,
+} from '../../validators/business.validator';
 import { walletAdjustmentSchema } from '../../validators/wallet.validator';
+import { adminPlanQuerySchema } from '../../validators/finance.validator';
+import {
+    adminCreateAreaLocationSchema,
+    adminCreateCityLocationSchema,
+    adminCreateGeofenceSchema,
+    adminCreateLocationSchema,
+    adminCreateStateLocationSchema,
+    adminLocationAnalyticsQuerySchema,
+    adminLocationListQuerySchema,
+    adminUpdateGeofenceSchema,
+    adminUpdateLocationSchema,
+    adminVerifyLocationSchema,
+} from '../../validators/location.validator';
+import {
+    adminNotificationHistoryQuerySchema,
+    adminNotificationRecipientQuerySchema,
+    adminNotificationSendSchema,
+} from '../../validators/notificationValidators';
 import * as walletController from '../../controllers/wallet';
 import importRoutes from '../importRoutes';
 import {
@@ -58,9 +87,9 @@ import {
 import {
     getSystemConfig,
     updateSystemConfig,
-    resetSystemConfig,
-    testEmailConnection,
 } from '../../controllers/admin/systemConfigController';
+import { ADMIN_PERMISSION_KEYS } from '../../constants/adminPermissions';
+import { systemConfigUpdateSchema } from '../../validators/systemConfig.validator';
 
 const router = Router();
 
@@ -82,7 +111,7 @@ router.get('/analytics/revenue/summary', searchLimiter, analyticsController.getR
 router.get('/analytics/revenue/categories', searchLimiter, analyticsController.getRevenueByCategory);
 router.get('/activity', searchLimiter, systemController.getRecentActivity);
 router.post('/ai/generate', adminMutationLimiter, validateRequest(aiGenerateSchema), aiController.generate);
-router.get('/locations/analytics', searchLimiter, systemController.getLocationAnalytics);
+router.get('/locations/analytics', requirePermission('system:config'), searchLimiter, validateRequest({ query: adminLocationAnalyticsQuerySchema }), systemController.getLocationAnalytics);
 router.get('/rate-limits/metrics', searchLimiter, systemController.getRateLimitMetrics);
 
 // ============================================
@@ -106,22 +135,18 @@ router.get('/phone-reveals/requests', requirePermission('ads:read'), searchLimit
 // ============================================
 // ✅ STATIC / QUERY
 router.get('/user-management/overview', requirePermission('users:read'), usersController.getUserManagementOverview);
-router.get('/users/search', requirePermission('users:read'), usersController.searchUsers);
-router.get('/users', requirePermission('users:read'), usersController.getUsers);
+router.get('/users', requirePermission('users:read'), validateRequest({ query: getUsersQuerySchema }), usersController.getUsers);
 
 // ✅ ACTIONS
 router.post('/users', requirePermission('users:write'), adminMutationLimiter, usersController.createUser);
-router.patch('/users/:id/status', requirePermission('users:write'), adminMutationLimiter, validateObjectId, usersController.updateUserStatus);
-router.patch('/users/:id/suspend', requirePermission('users:write'), adminMutationLimiter, validateObjectId, usersController.suspendUser);
-router.patch('/users/:id/ban', requirePermission('users:write'), adminMutationLimiter, validateObjectId, usersController.banUser);
-router.patch('/users/:id/verify', requirePermission('users:write'), adminMutationLimiter, validateObjectId, usersController.verifyUser);
+router.patch('/users/:id/status', requirePermission('users:write'), adminMutationLimiter, validateObjectId, validateRequest(updateUserStatusSchema), usersController.updateUserStatus);
+router.patch('/users/:id/verify', requirePermission('users:write'), adminMutationLimiter, validateObjectId, validateRequest(updateUserVerificationSchema), usersController.verifyUser);
 router.patch('/users/:id/wallet', requirePermission('finance:manage'), adminMutationLimiter, validateObjectId, validateRequest(walletAdjustmentSchema as unknown as ZodTypeAny), walletController.adjustWallet);
 
 // ✅ PARAM LAST
 router.get('/users/:id', requirePermission('users:read'), validateObjectId, usersController.getUserById);
 router.patch('/users/:id', requirePermission('users:write'), adminMutationLimiter, validateObjectId, usersController.updateUser);
 router.delete('/users/:id', requirePermission('users:write'), adminMutationLimiter, validateObjectId, usersController.deleteUser);
-router.patch('/users/:id/wallet', requirePermission('finance:manage'), adminMutationLimiter, validateObjectId, validateRequest(walletAdjustmentSchema as unknown as ZodTypeAny), walletController.adjustWallet);
 
 
 router.get('/admin-users', requireSuperAdmin, usersController.getAdmins);
@@ -134,10 +159,10 @@ router.delete('/admin-users/:id', requireSuperAdmin, adminMutationLimiter, valid
 // ============================================
 // PLANS
 // ============================================
-router.get('/plans', searchLimiter, planController.getPlans);
-router.post('/plans', adminMutationLimiter, validateRequest(PlanPayloadSchema as unknown as ZodTypeAny), planController.createPlan);
-router.put('/plans/:id', adminMutationLimiter, validateObjectId, validateRequest(PartialPlanPayloadSchema as unknown as ZodTypeAny), planController.updatePlan);
-router.patch('/plans/:id/toggle', adminMutationLimiter, validateObjectId, planController.togglePlan);
+router.get('/plans', requirePermission('finance:read'), searchLimiter, validateRequest({ query: adminPlanQuerySchema }), planController.getPlans);
+router.post('/plans', requirePermission('finance:manage'), adminMutationLimiter, validateRequest(PlanPayloadSchema as unknown as ZodTypeAny), planController.createPlan);
+router.put('/plans/:id', requirePermission('finance:manage'), adminMutationLimiter, validateObjectId, validateRequest(PartialPlanPayloadSchema as unknown as ZodTypeAny), planController.updatePlan);
+router.patch('/plans/:id/toggle', requirePermission('finance:manage'), adminMutationLimiter, validateObjectId, planController.togglePlan);
 
 // ============================================
 // BUSINESS
@@ -146,19 +171,16 @@ router.patch('/plans/:id/toggle', adminMutationLimiter, validateObjectId, planCo
 router.get('/businesses/overview', requirePermission('users:read'), businessController.getBusinessOverview);
 
 // ✅ FILTER / QUERY
-router.get('/businesses/accounts', requirePermission('users:read'), businessController.getBusinessAccounts);
-router.get('/businesses/requests', requirePermission('users:read'), businessController.getBusinessRequests);
+router.get('/businesses/accounts', requirePermission('users:read'), searchLimiter, validateRequest({ query: adminBusinessAccountsQuerySchema }), businessController.getBusinessAccounts);
 
 // ✅ ACTIONS
 router.patch('/businesses/:id/approve', requirePermission('users:write'), adminMutationLimiter, validateObjectId, businessController.approveBusinessAccount);
-router.patch('/businesses/:id/reject', requirePermission('users:write'), adminMutationLimiter, validateObjectId, businessController.rejectBusinessAccount);
-router.patch('/businesses/:id/status', requirePermission('users:write'), adminMutationLimiter, validateObjectId, businessController.updateBusinessStatus);
-router.post('/businesses/requests/:id/renew', requirePermission('users:write'), adminMutationLimiter, validateObjectId, businessController.renewBusinessAccount);
+router.patch('/businesses/:id/reject', requirePermission('users:write'), adminMutationLimiter, validateObjectId, validateRequest({ body: adminBusinessRejectSchema }), businessController.rejectBusinessAccount);
+router.patch('/businesses/:id/status', requirePermission('users:write'), adminMutationLimiter, validateObjectId, validateRequest({ body: adminBusinessStatusSchema }), businessController.updateBusinessStatus);
 
 // ✅ PARAM LAST
-router.get('/businesses/requests/:id', requirePermission('users:read'), validateObjectId, businessController.getBusinessAccountById);
 router.get('/businesses/:id', requirePermission('users:read'), validateObjectId, businessController.getBusinessAccountById);
-router.put('/businesses/:id', requirePermission('users:write'), adminMutationLimiter, validateObjectId, businessController.updateBusinessByAdmin);
+router.put('/businesses/:id', requirePermission('users:write'), adminMutationLimiter, validateObjectId, validateRequest({ body: adminBusinessUpdateSchema }), businessController.updateBusinessByAdmin);
 router.delete('/businesses/:id', requirePermission('users:write'), adminMutationLimiter, validateObjectId, businessController.deleteBusinessAccount);
 
 
@@ -172,9 +194,9 @@ router.patch('/api-keys/:id/revoke', requirePermission('system:config'), adminMu
 // ============================================
 // NOTIFICATIONS
 // ============================================
-router.post('/notifications/send', requirePermission('content:write'), adminMutationLimiter, notificationController.sendNotification);
-router.get('/notifications/history', requirePermission('content:read'), notificationController.getHistory);
-router.post('/broadcast', requirePermission('content:write'), adminMutationLimiter, notificationController.createBroadcast);
+router.post('/notifications/send', requirePermission('content:write'), adminMutationLimiter, validateRequest({ body: adminNotificationSendSchema }), notificationController.sendNotification);
+router.get('/notifications/history', requirePermission('content:read'), searchLimiter, validateRequest({ query: adminNotificationHistoryQuerySchema }), notificationController.getHistory);
+router.get('/notifications/recipients', requirePermission('content:write'), searchLimiter, validateRequest({ query: adminNotificationRecipientQuerySchema }), notificationController.getRecipients);
 
 // ============================================
 // LOCATIONS
@@ -186,27 +208,27 @@ router.get('/locations/states', requirePermission('system:config'), searchLimite
 router.get('/locations/moderation', requirePermission('system:config'), getModerationQueue);
 
 // ✅ FILTER / QUERY
-router.get('/locations', requirePermission('system:config'), getAllLocations);
+router.get('/locations', requirePermission('system:config'), searchLimiter, validateRequest({ query: adminLocationListQuerySchema }), getAllLocations);
 
 // ✅ ACTIONS
-router.post('/locations/states', requirePermission('system:config'), adminMutationLimiter, createStateLocation);
-router.post('/locations/cities', requirePermission('system:config'), adminMutationLimiter, createCityLocation);
-router.post('/locations/areas', requirePermission('system:config'), adminMutationLimiter, createAreaLocation);
-router.post('/locations', requirePermission('system:config'), adminMutationLimiter, createLocation);
-router.patch('/locations/:id/toggle', requirePermission('system:config'), validateObjectId, toggleLocationStatus);
-router.patch('/locations/:id/popular', requirePermission('system:config'), validateObjectId, togglePopularStatus);
-router.post('/locations/:id/verify', requirePermission('system:config'), adminMutationLimiter, validateObjectId, approveRejectLocation);
+router.post('/locations/states', requirePermission('system:config'), adminMutationLimiter, validateRequest({ body: adminCreateStateLocationSchema }), createStateLocation);
+router.post('/locations/cities', requirePermission('system:config'), adminMutationLimiter, validateRequest({ body: adminCreateCityLocationSchema }), createCityLocation);
+router.post('/locations/areas', requirePermission('system:config'), adminMutationLimiter, validateRequest({ body: adminCreateAreaLocationSchema }), createAreaLocation);
+router.post('/locations', requirePermission('system:config'), adminMutationLimiter, validateRequest({ body: adminCreateLocationSchema }), createLocation);
+router.patch('/locations/:id/toggle', requirePermission('system:config'), adminMutationLimiter, validateObjectId, toggleLocationStatus);
+router.patch('/locations/:id/popular', requirePermission('system:config'), adminMutationLimiter, validateObjectId, togglePopularStatus);
+router.post('/locations/:id/verify', requirePermission('system:config'), adminMutationLimiter, validateObjectId, validateRequest({ body: adminVerifyLocationSchema }), approveRejectLocation);
 
 // ✅ PARAM LAST
-router.put('/locations/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, updateLocation);
+router.put('/locations/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, validateRequest({ body: adminUpdateLocationSchema }), updateLocation);
 router.delete('/locations/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, deleteLocation);
 
 // ============================================
 // GEOFENCES
 // ============================================
 router.get('/geofences', requirePermission('system:config'), getGeofences);
-router.post('/geofences', requirePermission('system:config'), adminMutationLimiter, createGeofence);
-router.put('/geofences/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, updateGeofence);
+router.post('/geofences', requirePermission('system:config'), adminMutationLimiter, validateRequest({ body: adminCreateGeofenceSchema }), createGeofence);
+router.put('/geofences/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, validateRequest({ body: adminUpdateGeofenceSchema }), updateGeofence);
 router.delete('/geofences/:id', requirePermission('system:config'), adminMutationLimiter, validateObjectId, deleteGeofence);
 
 // ============================================
@@ -227,27 +249,19 @@ router.get('/cache/health', requirePermission('system:config'), adminMutationLim
 // ============================================
 // SYSTEM CONFIG / SETTINGS
 // ============================================
-router.get('/settings', requirePermission('system:config'), adminMutationLimiter, getSystemConfig);
-router.patch('/settings', requirePermission('system:config'), adminMutationLimiter, updateSystemConfig);
-router.put('/settings', requirePermission('system:config'), adminMutationLimiter, updateSystemConfig);
-router.get('/system/config', requirePermission('system:config'), adminMutationLimiter, getSystemConfig);
-router.patch('/system/config', requirePermission('system:config'), adminMutationLimiter, updateSystemConfig);
-router.put('/system/config', requirePermission('system:config'), adminMutationLimiter, updateSystemConfig);
-
-
-
-router.post('/system/config/reset', requirePermission('system:config'), adminMutationLimiter, resetSystemConfig);
-router.post('/system/config/test-email', requirePermission('system:config'), adminMutationLimiter, testEmailConnection);
+router.get('/system/config', requirePermission('system:config'), searchLimiter, getSystemConfig);
+router.patch('/system/config', requirePermission('system:config'), adminMutationLimiter, validateRequest(systemConfigUpdateSchema), updateSystemConfig);
+router.put('/system/config', requirePermission('system:config'), adminMutationLimiter, validateRequest(systemConfigUpdateSchema), updateSystemConfig);
 
 // ============================================
 // CHAT MODERATION (admin access via /api/v1/admin/chat/*)
 // ============================================
-router.get('/chat/list', adminListChats);
-router.get('/chat/:id', adminGetChat);
-router.delete('/chat/message/:msgId', adminDeleteMsg);
-router.post('/chat/mute/:id', adminMutationLimiter, adminMuteChat);
-router.post('/chat/export/:id', adminExportChat);
-router.patch('/chat/report/:id', adminMutationLimiter, adminResolveReport);
+router.get('/chat/list', requirePermission(ADMIN_PERMISSION_KEYS.CHAT_READ), adminListChats);
+router.get('/chat/:id', requirePermission(ADMIN_PERMISSION_KEYS.CHAT_READ), adminGetChat);
+router.delete('/chat/message/:msgId', requirePermission(ADMIN_PERMISSION_KEYS.CHAT_WRITE), adminMutationLimiter, adminDeleteMsg);
+router.post('/chat/mute/:id', requirePermission(ADMIN_PERMISSION_KEYS.CHAT_WRITE), adminMutationLimiter, adminMuteChat);
+router.post('/chat/export/:id', requirePermission(ADMIN_PERMISSION_KEYS.CHAT_READ), adminExportChat);
+router.patch('/chat/report/:id', requirePermission(ADMIN_PERMISSION_KEYS.CHAT_WRITE), adminMutationLimiter, adminResolveReport);
 
 // ============================================
 // BULK IMPORT

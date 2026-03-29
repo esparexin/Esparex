@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../../models/User';
 import Admin from '../../models/Admin';
-import Ad from '../../models/Ad';
 import { logAdminAction } from '../../utils/adminLogger';
 import * as userStatusService from '../../services/UserStatusService';
 import { recalculateTrustScore } from '../../services/TrustService';
@@ -17,8 +16,6 @@ import { Role } from '../../../../shared/enums/roles';
 import { revokeAdminSessionsForAdmin } from '../../services/AdminSessionService';
 import { USER_STATUS } from '../../../../shared/enums/userStatus';
 import * as adminUsersService from '../../services/AdminUsersService';
-
-type UserQuery = Record<string, unknown> & { $or?: Array<Record<string, unknown>> };
 
 // Local helper removed, using centralized sendAdminError.
 
@@ -74,8 +71,13 @@ export const getUsers = async (req: Request, res: Response) => {
         const { page, limit, skip } = getPaginationParams(req);
         const search = req.query.search as string;
         const status = req.query.status as string;
-        const role = req.query.userType as string;
-        const isVerified = req.query.isVerified !== undefined ? req.query.isVerified === 'true' : undefined;
+        const role = req.query.role as string;
+        const isVerified =
+            typeof req.query.isVerified === 'boolean'
+                ? req.query.isVerified
+                : req.query.isVerified !== undefined
+                    ? req.query.isVerified === 'true'
+                    : undefined;
 
         const { data, total } = await adminUsersService.getUsers(
             { search, status, role, isVerified },
@@ -87,8 +89,6 @@ export const getUsers = async (req: Request, res: Response) => {
         sendAdminError(req, res, error);
     }
 };
-
-import AdminMetrics from '../../models/AdminMetrics';
 
 export const getUserManagementOverview = async (req: Request, res: Response) => {
     try {
@@ -126,7 +126,7 @@ export const getUserById = async (req: Request, res: Response) => {
         if (!user) {
             return sendAdminError(req, res, 'User not found', 404);
         }
-        sendSuccessResponse(res, user);
+        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user));
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -134,12 +134,7 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const verifyUser = async (req: Request, res: Response) => {
     try {
-        const verifiedInput = req.body.verified ?? req.body.isVerified;
-        if (typeof verifiedInput !== 'boolean') {
-            return sendAdminError(req, res, 'Invalid verification payload. "verified" must be boolean.', 400);
-        }
-
-        const verified = verifiedInput;
+        const verified = req.body.isVerified;
         const user = await User.findByIdAndUpdate(
             req.params.id,
             { isVerified: verified },
@@ -155,7 +150,7 @@ export const verifyUser = async (req: Request, res: Response) => {
         // 🏆 TRUST SCORE: Recalculate on verification change
         setImmediate(() => recalculateTrustScore(user._id).catch(() => { }));
 
-        sendSuccessResponse(res, user, 'User verification updated');
+        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user), 'User verification updated');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -223,20 +218,10 @@ export const updateUserStatus = async (req: Request, res: Response) => {
             reason
         });
 
-        sendSuccessResponse(res, user, `User status updated to ${status}`);
+        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user), `User status updated to ${status}`);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
-};
-
-export const suspendUser = async (req: Request, res: Response) => {
-    req.body = { ...(req.body || {}), status: USER_STATUS.SUSPENDED };
-    return updateUserStatus(req, res);
-};
-
-export const banUser = async (req: Request, res: Response) => {
-    req.body = { ...(req.body || {}), status: USER_STATUS.BANNED };
-    return updateUserStatus(req, res);
 };
 
 export const createAdmin = async (req: Request, res: Response) => {
@@ -458,40 +443,6 @@ export const deleteUser = async (req: Request, res: Response) => {
             reason: 'Admin Soft Delete'
         });
         sendSuccessResponse(res, null, 'User deleted successfully (Soft Delete)');
-    } catch (error: unknown) {
-        sendAdminError(req, res, error);
-    }
-};
-
-
-
-export const searchUsers = async (req: Request, res: Response) => {
-    try {
-        const q = req.query.q as string;
-        if (!q) {
-            return sendSuccessResponse(res, []);
-        }
-
-        const users = await User.find({
-            $or: [
-                { name: { $regex: q, $options: 'i' } },
-                { email: { $regex: q, $options: 'i' } },
-                { mobile: { $regex: q, $options: 'i' } }
-            ]
-        })
-            .select('_id name mobile email fcmTokens')
-            .limit(20);
-
-        // Map to format expected by UI (name, phone)
-        const mappedUsers = users.map(u => ({
-            _id: u._id,
-            name: u.name || 'Unknown',
-            mobile: u.mobile, // Standardized naming to 'mobile'
-            email: u.email,
-            fcmTokensCount: u.fcmTokens?.length || 0
-        }));
-
-        sendSuccessResponse(res, mappedUsers);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }

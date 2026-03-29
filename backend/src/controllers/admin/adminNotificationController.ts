@@ -1,230 +1,344 @@
-import logger from '../../utils/logger';
-import { Request, Response } from 'express';
-import NotificationLog from '../../models/NotificationLog';
-import Broadcast from '../../models/Broadcast';
-import { NotificationIntent } from '../../domain/NotificationIntent';
-import { NotificationDispatcher } from '../../services/notification/NotificationDispatcher';
-import mongoose from 'mongoose';
-import User, { IUser } from '../../models/User';
-import { sendSuccessResponse, checkPermission, getPaginationParams, sendPaginatedResponse, sendAdminError } from './adminBaseController';
-import { logAdminAction } from '../../utils/adminLogger';
-import { validateNotificationContent, validateAdminNotificationTarget } from '../../validators/notificationValidators';
+import { Request, Response } from "express";
+import mongoose from "mongoose";
 
+import { NOTIFICATION_TYPE } from "../../../../shared/enums/notificationType";
+import NotificationLog, { type INotificationLog } from "../../models/NotificationLog";
+import ScheduledNotification, { type IScheduledNotification } from "../../models/ScheduledNotification";
+import { NotificationIntent } from "../../domain/NotificationIntent";
+import {
+    getPaginationParams,
+    sendAdminError,
+    sendSuccessResponse,
+} from "./adminBaseController";
+import { logAdminAction } from "../../utils/adminLogger";
+import { NotificationDispatcher } from "../../services/notification/NotificationDispatcher";
+import { createAdminNotificationTargetCursor } from "../../services/notification/AdminNotificationTargetingService";
+import User, { type IUser } from "../../models/User";
+import { respond } from "../../utils/respond";
 
+const BATCH_SIZE = 500;
 
-/** Stream all users and bulk-dispatch notifications in batches of 500. */
-const dispatchToAllUsers = async (
-    broadcastId: string,
-    title: string,
-    body: string,
-    type: 'admin_push' | 'admin_broadcast'
-): Promise<{ successCount: number }> => {
+type AdminNotificationTargetType = "all" | "topic" | "users";
+
+type HistoryRecord = {
+    id: string;
+    title: string;
+    body: string;
+    type: string;
+    targetType: AdminNotificationTargetType;
+    targetValue?: string;
+    userIds?: Array<string | mongoose.Types.ObjectId>;
+    actionUrl?: string;
+    sentBy: mongoose.Types.ObjectId | Record<string, unknown> | null;
+    successCount: number;
+    skippedCount: number;
+    failureCount: number;
+    status: "sent" | "failed" | "scheduled";
+    createdAt: Date;
+    sendAt?: Date;
+};
+
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+async function dispatchToAudience(params: {
+    audienceId: string;
+    title: string;
+    body: string;
+    targetType: AdminNotificationTargetType;
+    targetValue?: string;
+    userIds?: string[];
+    actionUrl?: string;
+    kind: string;
+}) {
+    const cursor = createAdminNotificationTargetCursor({
+        targetType: params.targetType,
+        targetValue: params.targetValue,
+        userIds: params.userIds,
+    });
+
     let successCount = 0;
-    const cursor = User.find({}).select('_id').cursor();
+    let skippedCount = 0;
+    let failureCount = 0;
     let batch: NotificationIntent[] = [];
+
     for await (const user of cursor) {
-        batch.push(NotificationIntent.fromAdminBroadcast(user._id.toString(), broadcastId, title, body, type));
-        if (batch.length >= 500) {
-            await NotificationDispatcher.bulkDispatch(batch);
-            successCount += batch.length;
+        batch.push(
+            NotificationIntent.fromAdminBroadcast(
+                user._id.toString(),
+                params.audienceId,
+                params.title,
+                params.body,
+                params.kind,
+                params.targetType,
+                params.actionUrl
+            )
+        );
+
+        if (batch.length >= BATCH_SIZE) {
+            const result = await NotificationDispatcher.bulkDispatch(batch);
+            successCount += result.successCount;
+            skippedCount += result.skippedCount;
+            failureCount += result.failureCount;
             batch = [];
         }
     }
+
     if (batch.length > 0) {
-        await NotificationDispatcher.bulkDispatch(batch);
-        successCount += batch.length;
+        const result = await NotificationDispatcher.bulkDispatch(batch);
+        successCount += result.successCount;
+        skippedCount += result.skippedCount;
+        failureCount += result.failureCount;
     }
-    return { successCount };
-};
 
-/**
- * Send Admin Notification
- * POST /api/v1/admin/notifications/send
- * Body: { title, body, targetType: 'all' | 'users' | 'topic', targetValue?, userIds? }
- */
-export const sendNotification = [
-    validateNotificationContent,
-    validateAdminNotificationTarget,
-    async (req: Request, res: Response) => {
-        try {
-            const currentUser = req.user as unknown as IUser;
-            if (!checkPermission(currentUser, 'notifications', 'update') && !checkPermission(currentUser, 'settings', 'update')) {
-                return sendAdminError(req, res, 'Permission denied: notifications:update required', 403);
-            }
+    return { successCount, skippedCount, failureCount };
+}
 
-            const { title, body, targetType, targetValue, userIds, sendAt } = req.body;
-
-            if (!title || !body || !targetType) {
-                return sendAdminError(req, res, 'Missing required fields', 400);
-            }
-
-            // 0. Handle Scheduling
-            if (sendAt) {
-                const date = new Date(sendAt);
-                if (date <= new Date()) {
-                    return sendAdminError(req, res, 'Scheduled time must be in the future', 400);
-                }
-
-                // Create scheduled notification record.
-                // The BullMQ scheduler (schedulerService.ts) polls every minute and dispatches it at sendAt.
-                const scheduled = await import('../../models/ScheduledNotification').then(m => m.default.create({
-                    title,
-                    body,
-                    type: 'admin_push',
-                    targetType,
-                    targetValue: targetType === 'topic' ? targetValue : (targetType === 'all' ? 'all_users' : undefined),
-                    userIds: targetType === 'users' ? userIds : undefined,
-                    sentBy: currentUser._id,
-                    sendAt: date,
-                    status: 'pending'
-                }));
-
-                await logAdminAction(req, 'SCHEDULE_NOTIFICATION', 'ScheduledNotification', scheduled._id.toString(), { title, targetType });
-                return sendSuccessResponse(res, scheduled, `Notification scheduled for ${date.toLocaleString()}`);
-            }
-
-            let successCount = 0;
-            let failureCount = 0;
-
-            const broadcastId = new mongoose.Types.ObjectId().toString();
-
-            // 1. Topic / Broadcast
-            if (targetType === 'topic' || targetType === 'all') {
-                ({ successCount } = await dispatchToAllUsers(broadcastId, title, body, 'admin_push'));
-            }
-            // 2. Specific Users
-            else if (targetType === 'users') {
-                if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
-                    return sendAdminError(req, res, 'User IDs required', 400);
-                }
-
-                const intents = userIds.map((uid: string) => 
-                    NotificationIntent.fromAdminBroadcast(uid, broadcastId, title, body, 'admin_push')
-                );
-
-                await NotificationDispatcher.bulkDispatch(intents);
-                successCount += intents.length;
-            }
-
-            // 3. Save Log
-            const log = await NotificationLog.create({
-                title,
-                body,
-                type: 'admin_push',
-                targetType,
-                targetValue: targetType === 'topic' ? targetValue : (targetType === 'all' ? 'all_users' : undefined),
-                userIds: targetType === 'users' ? userIds : undefined,
-                sentBy: currentUser._id,
-                successCount,
-                failureCount,
-                status: 'sent'
-            });
-
-            await logAdminAction(req, 'SEND_NOTIFICATION', 'Notification', log._id.toString(), { title, successCount, failureCount });
-
-            sendSuccessResponse(res, log, "Notification sent successfully");
-        } catch (error) {
-            sendAdminError(req, res, error);
-        }
-    }
-];
-
-/**
- * Get Notification History
- * GET /api/v1/admin/notifications/history
- */
-export const getHistory = async (req: Request, res: Response) => {
+export async function sendNotification(req: Request, res: Response) {
     try {
         const currentUser = req.user as unknown as IUser;
-        if (!checkPermission(currentUser, 'notifications', 'read') && !checkPermission(currentUser, 'reports', 'read')) {
-            return sendAdminError(req, res, 'Permission denied: notifications:read or reports:read required', 403);
-        }
+        const { title, body, targetType, targetValue, userIds, actionUrl, sendAt } = req.body as {
+            title: string;
+            body: string;
+            targetType: AdminNotificationTargetType;
+            targetValue?: string;
+            userIds?: string[];
+            actionUrl?: string;
+            sendAt?: string;
+        };
 
-        const { page, limit, skip } = getPaginationParams(req);
-
-        const [logs, total] = await Promise.all([
-            NotificationLog.find()
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .populate('sentBy', 'firstName lastName email'), // Populate admin info
-            NotificationLog.countDocuments()
-        ]);
-
-        sendPaginatedResponse(res, logs, total, page, limit);
-    } catch (error) {
-        sendAdminError(req, res, error);
-    }
-};
-
-/**
- * Create admin broadcast
- * POST /api/v1/admin/broadcast
- * Body: { type: 'GLOBAL' | 'SEGMENT' | 'USER', title, message, targetUsers?, segment? }
- */
-export const createBroadcast = async (req: Request, res: Response) => {
-    try {
-        const adminUser = req.user as unknown as IUser;
-        const type = typeof req.body?.type === 'string' ? req.body.type.toUpperCase() : '';
-        const title = typeof req.body?.title === 'string' ? req.body.title.trim() : '';
-        const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
-        const targetUsers = Array.isArray(req.body?.targetUsers)
-            ? req.body.targetUsers.filter((userId: unknown) => typeof userId === 'string')
-            : [];
-        const segment = typeof req.body?.segment === 'string' ? req.body.segment.trim() : '';
-
-        if (!['GLOBAL', 'SEGMENT', 'USER'].includes(type)) {
-            return sendAdminError(req, res, 'Invalid broadcast type', 400);
-        }
-        if (!title || !message) {
-            return sendAdminError(req, res, 'title and message are required', 400);
-        }
-        if (type === 'USER' && targetUsers.length === 0) {
-            return sendAdminError(req, res, 'targetUsers are required for USER broadcast', 400);
-        }
-        if (type === 'SEGMENT' && !segment) {
-            return sendAdminError(req, res, 'segment is required for SEGMENT broadcast', 400);
-        }
-
-        const broadcast = await Broadcast.create({
-            type,
-            title,
-            message,
-            targetUsers: type === 'USER' ? targetUsers : [],
-            metadata: type === 'SEGMENT' ? { segment } : undefined,
-            createdBy: adminUser._id
-        });
-
-        let successCount = 0;
-        let failureCount = 0;
-        const broadcastIdText = broadcast._id.toString();
-
-        if (type === 'GLOBAL' || type === 'SEGMENT') {
-            ({ successCount } = await dispatchToAllUsers(broadcastIdText, title, message, 'admin_broadcast'));
-        } else {
-            const intents = targetUsers.map((uid: string) => 
-                NotificationIntent.fromAdminBroadcast(uid, broadcastIdText, title, message, 'admin_broadcast')
-            );
-            await NotificationDispatcher.bulkDispatch(intents);
-            successCount += intents.length;
-        }
-
-        await logAdminAction(req, 'CREATE_BROADCAST', 'Notification', broadcast._id.toString(), {
-            type,
-            successCount,
-            failureCount,
-            segment: segment || undefined,
-            targets: targetUsers.length
-        });
-
-        return sendSuccessResponse(res, {
-            ...broadcast.toJSON(),
-            delivery: {
-                successCount,
-                failureCount
+        if (sendAt) {
+            const scheduledAt = new Date(sendAt);
+            if (Number.isNaN(scheduledAt.getTime())) {
+                return sendAdminError(req, res, "Invalid scheduled time", 400);
             }
-        }, 'Broadcast created');
+            if (scheduledAt <= new Date()) {
+                return sendAdminError(req, res, "Scheduled time must be in the future", 400);
+            }
+
+            const scheduled = await ScheduledNotification.create({
+                title,
+                body,
+                type: NOTIFICATION_TYPE.SYSTEM,
+                targetType,
+                targetValue,
+                userIds: targetType === "users" ? userIds : undefined,
+                actionUrl,
+                sentBy: currentUser._id,
+                sendAt: scheduledAt,
+                status: "pending",
+            });
+
+            await logAdminAction(req, "SCHEDULE_NOTIFICATION", "ScheduledNotification", scheduled._id.toString(), {
+                title,
+                targetType,
+                targetValue,
+                actionUrl,
+                sendAt: scheduledAt.toISOString(),
+            });
+
+            return sendSuccessResponse(res, scheduled, `Notification scheduled for ${scheduledAt.toLocaleString()}`);
+        }
+
+        const audienceId = new mongoose.Types.ObjectId().toString();
+        const { successCount, skippedCount, failureCount } = await dispatchToAudience({
+            audienceId,
+            title,
+            body,
+            targetType,
+            targetValue,
+            userIds,
+            actionUrl,
+            kind: "admin_broadcast",
+        });
+
+        const status = successCount > 0 || skippedCount > 0 ? "sent" : "failed";
+        const log = await NotificationLog.create({
+            title,
+            body,
+            type: NOTIFICATION_TYPE.SYSTEM,
+            targetType,
+            targetValue,
+            userIds: targetType === "users" ? userIds : undefined,
+            actionUrl,
+            sentBy: currentUser._id,
+            successCount,
+            skippedCount,
+            failureCount,
+            status,
+        });
+
+        await logAdminAction(req, "SEND_NOTIFICATION", "Notification", log._id.toString(), {
+            title,
+            targetType,
+            targetValue,
+            successCount,
+            skippedCount,
+            failureCount,
+            actionUrl,
+        });
+
+        return sendSuccessResponse(res, log, status === "sent" ? "Notification sent successfully" : "Notification failed");
     } catch (error) {
         return sendAdminError(req, res, error);
     }
-};
+}
+
+export async function getHistory(req: Request, res: Response) {
+    try {
+        const { page, limit, skip } = getPaginationParams(req);
+        const { q, status, targetType } = req.query as {
+            q?: string;
+            status?: "all" | "sent" | "failed" | "scheduled";
+            targetType?: AdminNotificationTargetType;
+        };
+        const historyStatus = status ?? "all";
+        const mergeWindow = skip + limit;
+        const searchTerm = q?.trim();
+        const searchRegex = searchTerm ? new RegExp(escapeRegex(searchTerm), "i") : null;
+
+        const logMatch: {
+            targetType?: AdminNotificationTargetType;
+            status?: "sent" | "failed";
+            $or?: Array<
+                | { title: { $regex: RegExp } }
+                | { body: { $regex: RegExp } }
+            >;
+        } = {};
+
+        const scheduledMatch: {
+            targetType?: AdminNotificationTargetType;
+            status: "pending";
+            $or?: Array<
+                | { title: { $regex: RegExp } }
+                | { body: { $regex: RegExp } }
+            >;
+        } = {
+            status: "pending",
+        };
+
+        if (targetType) {
+            logMatch.targetType = targetType;
+            scheduledMatch.targetType = targetType;
+        }
+
+        if (searchRegex) {
+            logMatch.$or = [{ title: { $regex: searchRegex } }, { body: { $regex: searchRegex } }];
+            scheduledMatch.$or = [{ title: { $regex: searchRegex } }, { body: { $regex: searchRegex } }];
+        }
+
+        if (historyStatus === "sent" || historyStatus === "failed") {
+            logMatch.status = historyStatus;
+        }
+
+        const includeLogs = historyStatus === "all" || historyStatus === "sent" || historyStatus === "failed";
+        const includeScheduled = historyStatus === "all" || historyStatus === "scheduled";
+
+        const [logs, logsTotal, scheduled, scheduledTotal] = await Promise.all([
+            includeLogs
+                ? NotificationLog.find(logMatch)
+                      .sort({ createdAt: -1 })
+                      .limit(mergeWindow)
+                      .populate("sentBy", "firstName lastName email")
+                : Promise.resolve([]),
+            includeLogs ? NotificationLog.countDocuments(logMatch) : Promise.resolve(0),
+            includeScheduled
+                ? ScheduledNotification.find(scheduledMatch)
+                      .sort({ sendAt: -1 })
+                      .limit(mergeWindow)
+                      .populate("sentBy", "firstName lastName email")
+                : Promise.resolve([]),
+            includeScheduled ? ScheduledNotification.countDocuments(scheduledMatch) : Promise.resolve(0),
+        ]);
+
+        const normalizedLogs: HistoryRecord[] = logs.map((log) => ({
+            id: log._id.toString(),
+            title: log.title,
+            body: log.body,
+            type: log.type,
+            targetType: log.targetType,
+            targetValue: log.targetValue,
+            userIds: log.userIds,
+            actionUrl: log.actionUrl,
+            sentBy: (log as unknown as { sentBy?: mongoose.Types.ObjectId | Record<string, unknown> }).sentBy ?? null,
+            successCount: log.successCount,
+            skippedCount: log.skippedCount ?? 0,
+            failureCount: log.failureCount,
+            status: log.status,
+            createdAt: log.createdAt,
+        }));
+
+        const normalizedScheduled: HistoryRecord[] = scheduled.map((job) => ({
+            id: job._id.toString(),
+            title: job.title,
+            body: job.body,
+            type: job.type,
+            targetType: job.targetType,
+            targetValue: job.targetValue,
+            userIds: job.userIds,
+            actionUrl: job.actionUrl,
+            sentBy: (job as unknown as { sentBy?: mongoose.Types.ObjectId | Record<string, unknown> }).sentBy ?? null,
+            successCount: 0,
+            skippedCount: 0,
+            failureCount: 0,
+            status: "scheduled",
+            createdAt: job.sendAt,
+            sendAt: job.sendAt,
+        }));
+
+        const items = [...normalizedScheduled, ...normalizedLogs]
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+            .slice(skip, skip + limit);
+
+        const total = logsTotal + scheduledTotal;
+
+        return res.status(200).json(
+            respond({
+                success: true,
+                data: {
+                    items,
+                    pagination: {
+                        page,
+                        limit,
+                        total,
+                        totalPages: Math.ceil(total / limit),
+                    },
+                },
+            })
+        );
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+}
+
+export async function getRecipients(req: Request, res: Response) {
+    try {
+        const { q, limit = 8 } = req.query as { q?: string; limit?: number };
+        const query = q?.trim();
+
+        if (!query) {
+            return sendSuccessResponse(res, { items: [] });
+        }
+
+        const searchRegex = new RegExp(escapeRegex(query), "i");
+        const items = await User.find({
+                isDeleted: { $ne: true },
+                status: { $nin: ["deleted", "banned"] },
+                role: { $in: ["user", "business"] },
+                $or: [
+                    { name: { $regex: searchRegex } },
+                    { email: { $regex: searchRegex } },
+                    { mobile: { $regex: searchRegex } },
+                    { firstName: { $regex: searchRegex } },
+                    { lastName: { $regex: searchRegex } },
+                ],
+            })
+            .select("name firstName lastName email mobile")
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .lean();
+
+        return sendSuccessResponse(res, { items });
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+}

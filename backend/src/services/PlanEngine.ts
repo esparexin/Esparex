@@ -1,3 +1,5 @@
+import { getNormalizedPlanLimits } from '@shared/utils/planEntitlements';
+
 interface PlanLike {
     credits?: number;
     type?: 'AD_PACK' | 'SMART_ALERT' | 'SPOTLIGHT' | string;
@@ -29,20 +31,14 @@ interface UserPlanPermissions {
 export function calculateUserPlan(plans: Array<PlanLike | unknown>): UserPlanPermissions {
     return plans.reduce<UserPlanPermissions>((acc, rawPlan) => {
         const plan = (rawPlan || {}) as PlanLike;
-        // 1. Accumulate Limits (Stackable)
-        const val = plan.credits || 0;
-        if (plan.type === 'AD_PACK') acc.maxAds += val;
-        if (plan.type === 'SMART_ALERT') acc.smartAlerts += val;
-        if (plan.type === 'SPOTLIGHT') acc.spotlightCredits += val;
+        const normalizedLimits = getNormalizedPlanLimits(plan);
 
-        // Legacy/Fallback check if limits structure exists
-        if (plan.limits) {
-            acc.maxAds += plan.limits.maxAds || 0;
-            acc.maxServices += plan.limits.maxServices || 0;
-            acc.maxParts += plan.limits.maxParts || 0;
-            acc.smartAlerts += plan.limits.smartAlerts || 0;
-            acc.spotlightCredits += plan.limits.spotlightCredits || 0;
-        }
+        // 1. Accumulate Limits (Stackable)
+        acc.maxAds += normalizedLimits.maxAds;
+        acc.maxServices += normalizedLimits.maxServices;
+        acc.maxParts += normalizedLimits.maxParts;
+        acc.smartAlerts += normalizedLimits.smartAlerts;
+        acc.spotlightCredits += normalizedLimits.spotlightCredits;
 
         // 2. Priority Score (Take Max, e.g., Elite > Free)
         acc.priorityScore = Math.max(

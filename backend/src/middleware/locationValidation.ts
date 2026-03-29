@@ -1,19 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import mongoose from 'mongoose';
 import { sendErrorResponse } from '../utils/errorResponse';
 import {
     LOCATION_EVENT_REASONS,
     LOCATION_EVENT_SOURCES,
 } from '../constants/locationEvents';
-
-const toFiniteNumber = (value: unknown): number | null => {
-    if (typeof value === 'number' && Number.isFinite(value)) return value;
-    if (typeof value === 'string' && value.trim().length > 0) {
-        const parsed = Number(value);
-        return Number.isFinite(parsed) ? parsed : null;
-    }
-    return null;
-};
 
 const allowedSources = new Set<string>(LOCATION_EVENT_SOURCES);
 const allowedReasons = new Set<string>(LOCATION_EVENT_REASONS);
@@ -49,37 +39,12 @@ export const validateLocationEventRequest = (req: Request, res: Response, next: 
         return;
     }
 
-    if (locationId && !mongoose.Types.ObjectId.isValid(locationId)) {
-        sendErrorResponse(req, res, 400, 'Invalid location identifier');
-        return;
-    }
-
-    const lat = body.lat !== undefined ? toFiniteNumber(body.lat) : null;
-    const lng = body.lng !== undefined ? toFiniteNumber(body.lng) : null;
-
-    if ((body.lat !== undefined || body.lng !== undefined) && (lat === null || lng === null)) {
-        sendErrorResponse(req, res, 400, 'Invalid event coordinates');
-        return;
-    }
-
-    if (lat !== null && (lat < -90 || lat > 90)) {
-        sendErrorResponse(req, res, 400, 'Invalid event latitude');
-        return;
-    }
-
-    if (lng !== null && (lng < -180 || lng > 180)) {
-        sendErrorResponse(req, res, 400, 'Invalid event longitude');
-        return;
-    }
-
     req.body = {
         ...body,
         source,
         city,
         state,
         reason,
-        ...(lat !== null ? { lat } : {}),
-        ...(lng !== null ? { lng } : {}),
         ...(eventType ? { eventType } : {}),
         ...(locationId ? { locationId } : {}),
     };

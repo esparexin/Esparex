@@ -6,9 +6,6 @@ import { AppError } from '../../utils/AppError';
 export const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';
 
-export const isAdminUser = (req: Request): boolean =>
-    Boolean(req.user && ['admin', 'super_admin'].includes(req.user.role));
-
 export const getRequiredPlanId = (req: Request): string => {
     const rawId = req.params.id;
     if (typeof rawId !== 'string' || !rawId.trim()) {

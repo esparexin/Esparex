@@ -8,8 +8,9 @@ import { credit, type WalletAmount } from "./WalletService";
 import { recordRevenue } from "./RevenueAnalytics";
 import { generateInvoiceNumber } from "../utils/invoiceNumber";
 import { generateInvoicePdf } from "./InvoicePdfService";
-import { razorpay } from "../controllers/payment/shared";
+import { getRazorpayClient } from "../controllers/payment/shared";
 import logger, { logBusiness, logSecurity } from "../utils/logger";
+import { getPrimaryPlanCreditCount } from "@shared/utils/planEntitlements";
 
 export type PaymentProcessingSource = "webhook" | "recovery";
 
@@ -69,7 +70,7 @@ const toNumericAmount = (value: number | string | undefined) => {
 
 const buildWalletIncrement = (tx: ITransaction): WalletAmount => {
     const kind = tx.planSnapshot?.type;
-    const credits = tx.planSnapshot?.credits || 0;
+    const credits = getPrimaryPlanCreditCount(tx.planSnapshot);
     const amount: WalletAmount = {};
 
     if (kind === "AD_PACK") amount.adCredits = credits;
@@ -404,6 +405,7 @@ export async function processSuccessfulPayment(
 }
 
 const findCapturedPaymentForOrder = async (gatewayOrderId: string): Promise<RazorpayPaymentLike | undefined> => {
+    const razorpay = await getRazorpayClient();
     const ordersApi = razorpay.orders as typeof razorpay.orders & {
         fetchPayments?: (orderId: string) => Promise<{ items?: RazorpayPaymentLike[] }>;
     };
@@ -423,6 +425,7 @@ const fetchGatewayRecoveryOutcome = async (tx: ITransaction): Promise<RecoveryOu
         return { status: "unresolved", reason: "missing_gateway_order_id" };
     }
 
+    const razorpay = await getRazorpayClient();
     const order = await razorpay.orders.fetch(tx.gatewayOrderId) as RazorpayOrderLike;
 
     if (order.status === "paid") {

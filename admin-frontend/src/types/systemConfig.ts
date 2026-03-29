@@ -120,7 +120,16 @@ export type SystemConfig = {
       };
     };
   };
-  featureFlags?: Record<string, boolean>;
+  listing?: {
+    expiryDays?: {
+      ad?: number;
+      service?: number;
+      spare_part?: number;
+    };
+    thresholds?: {
+      proSparePartLimit?: number;
+    };
+  };
   emailTemplates?: unknown[];
   notificationTemplates?: unknown[];
 };
@@ -130,9 +139,9 @@ export type SystemConfigPatch = Partial<{
   security: NonNullable<SystemConfig["security"]>;
   notifications: NonNullable<SystemConfig["notifications"]>;
   platform: NonNullable<SystemConfig["platform"]>;
-  featureFlags: NonNullable<SystemConfig["featureFlags"]>;
   integrations: NonNullable<SystemConfig["integrations"]>;
   location: NonNullable<SystemConfig["location"]>;
+  listing: NonNullable<SystemConfig["listing"]>;
   emailTemplates: unknown[];
   notificationTemplates: unknown[];
 }>;

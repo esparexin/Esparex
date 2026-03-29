@@ -15,6 +15,7 @@ import { sendErrorResponse } from '../utils/errorResponse';
  */
 export const maintenanceMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const normalizeIp = (value: string) => value.replace(/^::ffff:/, '').trim();
         const requestPath = (req.originalUrl || req.url).split('?')[0] || '';
 
         // ALWAYS allow admin routes and health checks
@@ -43,14 +44,18 @@ export const maintenanceMiddleware = async (req: Request, res: Response, next: N
         }
 
         // Check IP Whitelist
-        const clientIp = req.ip || req.socket.remoteAddress || '';
-        if (maintenance.allowedIps && maintenance.allowedIps.includes(clientIp)) {
+        const clientIp = normalizeIp(req.ip || req.socket.remoteAddress || '');
+        const allowedIps = Array.isArray(maintenance.allowedIps)
+            ? maintenance.allowedIps.map((value: unknown) => normalizeIp(String(value)))
+            : [];
+        if (allowedIps.includes(clientIp)) {
             return next();
         }
 
         // System is in maintenance mode
-        const retryAfter = maintenance.scheduledEnd
-            ? Math.ceil((maintenance.scheduledEnd.getTime() - Date.now()) / 1000)
+        const scheduledEnd = maintenance.scheduledEnd ? new Date(maintenance.scheduledEnd) : null;
+        const retryAfter = scheduledEnd && !Number.isNaN(scheduledEnd.getTime())
+            ? Math.max(0, Math.ceil((scheduledEnd.getTime() - Date.now()) / 1000))
             : 3600;
         res.set('Retry-After', String(retryAfter));
         sendErrorResponse(

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { CategoryData } from "@/lib/api/categories";
+import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
 
 /**
  * A shared hook to consistently resolve which categories can be assigned to models/brands/spare-parts.
@@ -24,3 +25,15 @@ export function useAssignableCategories(categories: CategoryData[], condition?: 
         };
     }, [categories, condition]);
 }
+
+export const categorySupportsListingType = (category: Pick<CategoryData, "listingType">, listingType: ListingTypeValue) =>
+    Array.isArray(category.listingType) && category.listingType.includes(listingType);
+
+export const categorySupportsAds = (category: Pick<CategoryData, "listingType">) =>
+    categorySupportsListingType(category, LISTING_TYPE.AD);
+
+export const categorySupportsServices = (category: Pick<CategoryData, "listingType">) =>
+    categorySupportsListingType(category, LISTING_TYPE.SERVICE);
+
+export const categorySupportsSpareParts = (category: Pick<CategoryData, "listingType">) =>
+    categorySupportsListingType(category, LISTING_TYPE.SPARE_PART);

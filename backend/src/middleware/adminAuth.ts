@@ -63,7 +63,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         req.user = adminUser;
 
         // Re-set the cookie to refresh its expiration, ensuring path is included
-        res.cookie('admin_token', token, getAdminCookieOptions(getAdminSessionTtlMs()));
+        res.cookie('admin_token', token, getAdminCookieOptions(await getAdminSessionTtlMs()));
 
         next();
     } catch {
