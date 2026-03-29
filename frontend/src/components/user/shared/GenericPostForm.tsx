@@ -76,10 +76,10 @@ export function GenericPostForm({
                             <Button
                                 type="submit"
                                 form={formId}
+                                size="lg"
                                 disabled={isSubmitting}
                                 className={cn(
-                                    "w-full rounded-xl font-semibold transition-all active:scale-[0.98]",
-                                    "h-14 text-lg sm:h-12 sm:text-base",
+                                    "w-full font-semibold transition-all active:scale-[0.98]",
                                     "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-70"
                                 )}
                             >

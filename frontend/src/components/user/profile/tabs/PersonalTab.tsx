@@ -55,16 +55,16 @@ export function PersonalTab({
         <div className="space-y-4">
             <Card className="border-0 shadow-sm md:border md:shadow-sm">
                 <CardHeader className="pb-2 px-4 md:px-6">
-                    <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
                         <User className="h-5 w-5 text-blue-600" />
                         Personal Information
                     </CardTitle>
-                    <CardDescription className="text-xs md:text-sm">Update your personal details</CardDescription>
+                    <CardDescription>Update your personal details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 px-4 md:px-6 pb-6">
                     {/* Profile Photo Section */}
                     <div className="space-y-2">
-                        <Label className="text-lg font-medium">Profile Photo</Label>
+                        <Label className="text-sm">Profile Photo</Label>
                         <div className="flex items-center gap-4">
                             <div className="relative">
                                 <div className="h-16 w-16 md:h-20 md:w-20 rounded-full border-2 border-slate-100 overflow-hidden bg-slate-50 flex items-center justify-center shadow-inner">
@@ -84,7 +84,7 @@ export function PersonalTab({
                                 </div>
                                 <button
                                     onClick={onPhotoClick}
-                                    className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-md border-2 border-white transition-transform active:scale-95 z-10"
+                                    className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-md transition-transform active:scale-95 z-10 hover:bg-blue-700"
                                 >
                                     <Camera className="h-3 w-3" />
                                 </button>
@@ -96,7 +96,7 @@ export function PersonalTab({
                                         size="sm"
                                         variant="outline"
                                         onClick={onPhotoClick}
-                                        className="h-8 text-xs gap-2"
+                                        className="gap-2"
                                     >
                                         <Upload className="h-3 w-3" />
                                         Upload
@@ -107,14 +107,14 @@ export function PersonalTab({
                                             size="sm"
                                             variant="ghost"
                                             onClick={handlePhotoDelete}
-                                            className="h-8 text-xs gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                                         >
                                             <Trash2 className="h-3 w-3" />
                                             Remove
                                         </Button>
                                     )}
                                 </div>
-                                <p className="text-[10px] md:text-xs text-muted-foreground mt-1.5">
+                                <p className="mt-1.5 text-xs text-muted-foreground">
                                     {PROFILE_PHOTO_ALLOWED_LABEL}. Max 5MB.
                                 </p>
                                 <FormError message={profileErrors?.photo} />
@@ -126,7 +126,7 @@ export function PersonalTab({
 
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                            <Label htmlFor="profile-name" className="text-xs md:text-sm">Full Name *</Label>
+                            <Label htmlFor="profile-name">Full Name *</Label>
                             <Input
                                 id="profile-name"
                                 name="name"
@@ -136,7 +136,7 @@ export function PersonalTab({
                                     if (profileErrors?.name) clearProfileError?.("name");
                                     setFormData({ ...formData, name: e.target.value });
                                 }}
-                                className={`h-12 md:h-11 ${profileErrors?.name ? "border-red-500" : ""}`}
+                                className={profileErrors?.name ? "border-red-500" : ""}
                                 aria-invalid={!!profileErrors?.name}
                                 aria-describedby={profileErrors?.name ? "profile-name-error" : undefined}
                                 autoComplete="name"
@@ -145,7 +145,7 @@ export function PersonalTab({
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="profile-email" className="text-xs md:text-sm">Email *</Label>
+                            <Label htmlFor="profile-email">Email *</Label>
                             <Input
                                 id="profile-email"
                                 name="email"
@@ -156,7 +156,7 @@ export function PersonalTab({
                                     if (profileErrors?.email) clearProfileError?.("email");
                                     setFormData({ ...formData, email: e.target.value });
                                 }}
-                                className={`h-12 md:h-11 ${profileErrors?.email ? "border-red-500" : ""}`}
+                                className={profileErrors?.email ? "border-red-500" : ""}
                                 aria-invalid={!!profileErrors?.email}
                                 aria-describedby={profileErrors?.email ? "profile-email-error" : undefined}
                                 autoComplete="email"
@@ -165,7 +165,7 @@ export function PersonalTab({
                         </div>
 
                         <div className="space-y-1.5 md:col-span-2">
-                            <Label htmlFor="profile-phone" className="text-xs md:text-sm">Phone Number</Label>
+                            <Label htmlFor="profile-phone">Phone Number</Label>
                             <PhoneInput
                                 id="profile-phone"
                                 name="phone"
@@ -174,7 +174,7 @@ export function PersonalTab({
                                 isVerified={true}
                                 autoComplete="tel"
                             />
-                            <p className="text-[10px] text-muted-foreground mt-1">
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 Need to change your number? <a href="mailto:support@esparex.com" className="text-blue-600 hover:underline">Contact Support</a>
                             </p>
                         </div>
@@ -188,7 +188,7 @@ export function PersonalTab({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="billing-business-name" className="text-xs">Business Name</Label>
+                                    <Label htmlFor="billing-business-name">Business Name</Label>
                                     <Input
                                         id="billing-business-name"
                                         name="businessName"
@@ -198,7 +198,7 @@ export function PersonalTab({
                                             if (profileErrors?.businessName) clearProfileError?.("businessName");
                                             setFormData({ ...formData, businessName: e.target.value });
                                         }}
-                                        className={`h-12 md:h-11 bg-white ${profileErrors?.businessName ? "border-red-500" : ""}`}
+                                        className={`bg-white ${profileErrors?.businessName ? "border-red-500" : ""}`}
                                         aria-invalid={!!profileErrors?.businessName}
                                         aria-describedby={profileErrors?.businessName ? "profile-business-name-error" : undefined}
                                         autoComplete="organization"
@@ -206,7 +206,7 @@ export function PersonalTab({
                                     <FormError id="profile-business-name-error" message={profileErrors?.businessName} />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="billing-gst-number" className="text-xs">GST Number</Label>
+                                    <Label htmlFor="billing-gst-number">GST Number</Label>
                                     <Input
                                         id="billing-gst-number"
                                         name="gstNumber"
@@ -216,7 +216,7 @@ export function PersonalTab({
                                             if (profileErrors?.gstNumber) clearProfileError?.("gstNumber");
                                             setFormData({ ...formData, gstNumber: e.target.value });
                                         }}
-                                        className={`h-12 md:h-11 bg-white ${profileErrors?.gstNumber ? "border-red-500" : ""}`}
+                                        className={`bg-white ${profileErrors?.gstNumber ? "border-red-500" : ""}`}
                                         aria-invalid={!!profileErrors?.gstNumber}
                                         aria-describedby={profileErrors?.gstNumber ? "profile-gst-number-error" : undefined}
                                         autoComplete="off"
@@ -233,7 +233,7 @@ export function PersonalTab({
                             <Button
                                 onClick={handleSaveProfile}
                                 disabled={isSavingProfile}
-                                className="mt-1 w-full md:w-auto bg-blue-600 hover:bg-blue-700 h-12 md:h-11 rounded-[10px] shadow-lg shadow-blue-200/50 text-white border-0 disabled:opacity-70"
+                                className="mt-1 w-full md:w-auto bg-blue-600 text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700 disabled:opacity-70"
                             >
                                 <Save className="h-4 w-4 mr-2" />
                                 {isSavingProfile ? "Saving..." : "Save Changes"}
@@ -269,7 +269,7 @@ export function PersonalTab({
                                 </div>
                                 <div>
                                     <p className="font-bold text-sm text-slate-900">Show to All</p>
-                                    <p className="text-[10px] text-slate-500 leading-tight">Visible on all your ads to verified buyers.</p>
+                                    <p className="text-xs text-slate-500 leading-tight">Visible on all your ads to verified buyers.</p>
                                 </div>
                             </div>
 
@@ -285,14 +285,14 @@ export function PersonalTab({
                                 </div>
                                 <div>
                                     <p className="font-bold text-sm text-slate-900">Hide</p>
-                                    <p className="text-[10px] text-slate-500 leading-tight">Buyers will not be able to see your number.</p>
+                                    <p className="text-xs text-slate-500 leading-tight">Buyers will not be able to see your number.</p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 mt-2">
                             <Shield className="h-4 w-4 text-blue-500" />
-                            <p className="text-[10px] text-slate-500 font-medium italic">
+                            <p className="text-xs text-slate-500 font-medium italic">
                                 Note: Visibility changes will apply across all your active listings when you click "Save Changes" above.
                             </p>
                         </div>

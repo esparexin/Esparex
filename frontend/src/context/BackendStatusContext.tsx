@@ -6,6 +6,7 @@ import {
     API_V1_BASE_PATH,
     DEFAULT_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
+import { resolveBrowserApiBaseUrl } from "@/lib/api/browserApiBase";
 
 type BackendStatus = {
     isBackendUp: boolean;
@@ -26,9 +27,9 @@ export function BackendStatusProvider({
     const [checked, setChecked] = useState(false);
 
     useEffect(() => {
-        const apiBase = (
+        const apiBase = resolveBrowserApiBaseUrl((
             process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`
-        ).replace(/\/$/, "");
+        )).replace(/\/$/, "");
         fetch(`${apiBase}/${API_ROUTES.USER.HEALTH}`, {
             method: "GET",
         })

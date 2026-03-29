@@ -18,6 +18,7 @@ import {
 } from "@/lib/api/routes";
 import { TraceContext } from "@shared/observability/trace";
 import logger from "@/lib/logger";
+import { resolveBrowserApiBaseUrl } from "./browserApiBase";
 
 /* ======================================================
    BASE_URL
@@ -26,23 +27,11 @@ import logger from "@/lib/logger";
 let BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
 
-if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-    // 🔒 DYNAMIC HOST ALIGNMENT
-    // Ensure API requests match the browser's hostname (127.0.0.1 vs localhost)
-    // to prevent SameSite cookie rejection.
-    const hostname = window.location.hostname;
-    if ((hostname === '127.0.0.1' || hostname === 'localhost') && BASE_URL.includes('localhost')) {
-        // If browser is 127, force API to 127. If browser is localhost, force localhost.
-        // But BASE_URL default is usually localhost.
-        if (hostname === '127.0.0.1') {
-            logger.warn('[API Client] 🔄 Aligning API host to 127.0.0.1 for cookie compatibility');
-            BASE_URL = BASE_URL.replace('localhost', '127.0.0.1');
-        }
-    } else if ((hostname === '127.0.0.1' || hostname === 'localhost') && BASE_URL.includes('127.0.0.1')) {
-        if (hostname === 'localhost') {
-            logger.warn('[API Client] 🔄 Aligning API host to localhost for cookie compatibility');
-            BASE_URL = BASE_URL.replace('127.0.0.1', 'localhost');
-        }
+if (typeof window !== 'undefined') {
+    const resolvedBaseUrl = resolveBrowserApiBaseUrl(BASE_URL);
+    if (resolvedBaseUrl !== BASE_URL) {
+        logger.warn(`[API Client] Aligning API host to browser hostname: ${resolvedBaseUrl}`);
+        BASE_URL = resolvedBaseUrl;
     }
 }
 

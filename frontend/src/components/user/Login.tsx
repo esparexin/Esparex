@@ -64,7 +64,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
         >
           <CardHeader
             className={cn(
-              "relative text-center space-y-2",
+              "relative space-y-2 text-center",
               isModal ? "pb-2 pt-2 sm:pt-3" : "pb-3 sm:pb-4"
             )}
           >
@@ -78,7 +78,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
               <CardTitle className="text-xl sm:text-2xl">
                 {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
               </CardTitle>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {step === "enterMobile"
                   ? "Login to buy & sell mobile spares"
                   : "Enter the code sent to your mobile"}
@@ -131,7 +131,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         placeholder="9876543210"
                         maxLength={10}
                         className={cn(
-                          "pl-12 pr-10 h-11 text-base tracking-wide",
+                          "pl-12 pr-10 tracking-[0.02em]",
                           (mobileError || mobileServerError) && "border-destructive",
                           isValidMobile && "border-green-500"
                         )}
@@ -164,7 +164,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                     <Button
                       type="submit"
                       disabled={!backendReady || isSendingOTP || !isValidMobile || isSendRateLimited}
-                      className="w-full h-11 text-base font-medium"
+                      className="w-full"
                     >
                       {isSendingOTP && (
                         <Loader2 className="animate-spin mr-2" size={18} />
@@ -178,7 +178,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                       type="button"
                       variant="ghost"
                       onClick={onBack}
-                      className="w-full h-10 text-sm"
+                      className="w-full"
                     >
                       <ArrowLeft size={16} className="mr-1" />
                       Back
@@ -262,7 +262,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         }}
                         disabled={isBlocked || isLocked}
                         className={cn(
-                          "h-11 text-base",
+                          "",
                           !newUserName.trim() && nameError && "border-destructive"
                         )}
                         aria-label="Your name"
@@ -297,7 +297,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
                         onPaste={(e) => handleOtpPaste(index, e)}
                         disabled={otpInputDisabled}
-                        className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg font-semibold"
+                        className="h-12 w-11 text-center text-base font-semibold sm:w-12 sm:text-lg"
                         inputMode="numeric"
                         aria-label={`OTP digit ${index + 1}`}
                         aria-invalid={!!otpErrorMessage}
@@ -317,7 +317,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         variant="link"
                         disabled={isSendingOTP || isBlocked || isLocked || isSendRateLimited}
                         onClick={handleResendOtp}
-                        className="h-auto p-0 text-sm font-medium text-blue-600 hover:text-blue-700"
+                        className="h-auto p-0 text-sm font-semibold text-blue-600 hover:text-blue-700"
                       >
                         {isSendingOTP && (
                           <Loader2 className="animate-spin mr-2" size={14} />
@@ -347,7 +347,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         (requiresName && !newUserName.trim())
                       }
                       onClick={() => void verifyOtpCode(otpValue)}
-                      className="w-full h-11 text-base font-medium mt-2"
+                      className="mt-2 w-full"
                     >
                       {isVerifying && (
                         <Loader2 className="animate-spin mr-2" size={18} />

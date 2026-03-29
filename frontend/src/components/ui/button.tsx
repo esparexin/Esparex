@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
 const base =
-  "inline-flex items-center justify-center rounded-[10px] text-base font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none";
+  "inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50";
 
 const variants = {
   default: "bg-primary text-primary-foreground hover:bg-primary/90", // Backwards compatibility
@@ -16,10 +16,10 @@ const variants = {
 };
 
 const sizes = {
-  default: "h-11 px-5",
+  default: "h-10 px-4",
   sm: "h-9 px-3 text-sm",
-  lg: "h-12 px-8",
-  icon: "size-11",
+  lg: "h-11 px-6 text-base",
+  icon: "size-10",
 };
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

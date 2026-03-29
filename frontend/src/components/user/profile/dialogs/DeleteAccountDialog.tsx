@@ -48,9 +48,11 @@ export function DeleteAccountDialog({
     deleteAccountErrors,
     deleteAccountGlobalError,
 }: DeleteAccountDialogProps) {
+    const confirmReady = deleteConfirmText.trim().toLowerCase() === "delete";
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-red-600">
                         <AlertTriangle className="h-5 w-5" />
@@ -61,7 +63,11 @@ export function DeleteAccountDialog({
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                    <div className="space-y-2">
+                    <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        Deleting your account removes access to your listings, chats, and saved activity. This cannot be undone.
+                    </div>
+
+                    <div className="space-y-1.5">
                         <Label htmlFor="delete-account-reason">Reason</Label>
                         <Select value={deleteReason} onValueChange={(value) => setDeleteReason(value as DeleteAccountReason)}>
                             <SelectTrigger
@@ -80,7 +86,7 @@ export function DeleteAccountDialog({
                         </Select>
                         <FormError message={deleteAccountErrors?.reason} />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         <Label htmlFor="delete-account-feedback">Optional feedback</Label>
                         <Textarea
                             id="delete-account-feedback"
@@ -92,26 +98,32 @@ export function DeleteAccountDialog({
                         />
                         <FormError message={deleteAccountErrors?.feedback} />
                     </div>
-                    <p className="text-sm">
-                        Type <span className="font-bold">delete</span> to confirm:
-                    </p>
-                    <Input
-                        placeholder="Type 'delete' to confirm"
-                        value={deleteConfirmText}
-                        onChange={(e) => setDeleteConfirmText(e.target.value)}
-                        aria-invalid={!!deleteAccountErrors?.confirmText}
-                    />
-                    <FormError message={deleteAccountErrors?.confirmText} />
+
+                    <div className="space-y-1.5">
+                        <Label htmlFor="delete-account-confirm">
+                            Type <span className="font-bold">delete</span> to confirm
+                        </Label>
+                        <Input
+                            id="delete-account-confirm"
+                            placeholder="Type 'delete' to confirm"
+                            value={deleteConfirmText}
+                            onChange={(e) => setDeleteConfirmText(e.target.value)}
+                            aria-invalid={!!deleteAccountErrors?.confirmText}
+                        />
+                        <FormError message={deleteAccountErrors?.confirmText} />
+                    </div>
+
                     <FormError message={deleteAccountGlobalError} />
                 </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                <DialogFooter className="gap-2 sm:justify-end">
+                    <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
                         Cancel
                     </Button>
                     <Button
                         variant="destructive"
                         onClick={onDelete}
-                        disabled={deleteConfirmText.trim().toLowerCase() !== "delete"}
+                        disabled={!confirmReady}
+                        className="w-full sm:w-auto"
                     >
                         Delete Account
                     </Button>

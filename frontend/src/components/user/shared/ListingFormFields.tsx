@@ -30,9 +30,9 @@ export function ListingImagesField({
     return (
         <Field label="Photos (up to 10)" error={error}>
             <div className="space-y-3">
-                <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                <label className="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/50 transition-colors hover:bg-slate-50">
                     <Upload className="w-6 h-6 text-slate-400 mb-1" />
-                    <span className="text-sm text-slate-500">Tap to add photos</span>
+                    <span className="text-sm font-medium text-slate-600">Tap to add photos</span>
                     <input
                         type="file"
                         accept="image/*"
@@ -61,7 +61,7 @@ export function ListingImagesField({
                                     className="object-cover"
                                 />
                                 {index === 0 && (
-                                    <span className="absolute bottom-0 left-0 right-0 text-center text-[11px] font-semibold bg-primary text-white py-0.5">
+                                    <span className="absolute bottom-0 left-0 right-0 bg-primary py-0.5 text-center text-[11px] font-semibold text-white">
                                         {firstImageBadgeLabel}
                                     </span>
                                 )}
@@ -103,25 +103,25 @@ export function ListingLocationField({
         <Field label="Listing Location" error={error}>
             <div className="space-y-2">
                 {display ? (
-                    <div className="flex items-center gap-2 h-12 px-3 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm text-slate-700">
+                    <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
                         <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                         <span className="truncate">{display}</span>
-                        <span className="ml-auto text-[11px] text-slate-500 bg-slate-200 px-2 py-0.5 rounded uppercase font-semibold shrink-0">
+                        <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-500">
                             {fixedLabel}
                         </span>
                     </div>
                 ) : (
                     placeholder
                         ? (
-                            <div className="flex items-center gap-2 h-12 px-3 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm text-slate-700">
+                            <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
                                 <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                                 <span className="truncate">{placeholder}</span>
-                                <span className="ml-auto text-[11px] text-slate-500 bg-slate-200 px-2 py-0.5 rounded uppercase font-semibold shrink-0">
+                                <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-500">
                                     {fixedLabel}
                                 </span>
                             </div>
                         )
-                        : <div className="h-12 rounded-xl bg-slate-100 animate-pulse" />
+                        : <div className="h-10 rounded-xl bg-slate-100 animate-pulse" />
                 )}
                 {helperText && !error ? (
                     <p className="text-xs text-slate-500">{helperText}</p>
@@ -146,10 +146,10 @@ export function ListingTitleField({ label, error, registerProps, placeholder, va
                 <Input
                     {...registerProps}
                     placeholder={placeholder}
-                    className="h-12 rounded-xl border-2 border-slate-200 bg-white text-[15px] font-medium focus:border-primary pr-16"
+                    className="pr-16"
                 />
                 <span className={cn(
-                    "absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium tabular-nums pointer-events-none",
+                    "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium tabular-nums",
                     valueLength > (maxLength - 5) ? "text-red-400" : "text-slate-400"
                 )}>
                     {valueLength}/{maxLength}
@@ -179,7 +179,7 @@ export function ListingPriceField({ label = "Price (₹)", error, registerProps,
                     {...registerProps}
                     placeholder={placeholder}
                     className={cn(
-                        "h-12 rounded-xl border-2 border-slate-200 bg-white text-[15px] font-medium focus:border-primary",
+                        "",
                         showCurrencySymbol && "pl-8"
                     )}
                 />
@@ -203,10 +203,10 @@ export function ListingDescriptionField({ label = "Description", error, register
                 <Textarea
                     {...registerProps}
                     placeholder={placeholder}
-                    className="min-h-[120px] rounded-xl border-2 border-slate-200 bg-white text-[15px] pb-6"
+                    className="min-h-[132px] pb-6"
                 />
                 <span className={cn(
-                    "absolute right-3 bottom-2 text-xs font-medium tabular-nums pointer-events-none",
+                    "pointer-events-none absolute right-3 bottom-2 text-xs font-medium tabular-nums",
                     valueLength > (maxLength - 100) ? "text-red-400" : "text-slate-400"
                 )}>
                     {valueLength}/{maxLength}
@@ -249,15 +249,15 @@ export function CategorySelectorGrid({
                         onClick={() => onSelect(cat.id || "")}
                         disabled={disabled}
                         className={cn(
-                            "flex flex-col items-center gap-1 py-3 px-1 rounded-xl border-2 transition-all text-center",
+                            "flex flex-col items-center gap-1 rounded-xl border px-1 py-3 text-center transition-all",
                             selected
                                 ? "bg-primary border-primary text-white"
-                                : "bg-white border-slate-100 text-slate-600 hover:border-slate-200",
+                                : "bg-white border-slate-200 text-slate-600 hover:border-slate-300",
                             disabled && !selected ? "opacity-40" : ""
                         )}
                     >
                         <Icon className={cn("w-5 h-5", selected ? "text-white" : "text-slate-400")} />
-                        <span className="text-[11px] font-semibold leading-tight truncate w-full px-1">
+                        <span className="w-full truncate px-1 text-xs font-semibold leading-tight">
                             {cat.name}
                         </span>
                     </button>
