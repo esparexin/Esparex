@@ -46,6 +46,10 @@ import {
 
 type BusinessProfileFlowMode = "registration" | "edit";
 type BusinessProfileWizardVariant = "registration" | "application-edit" | "live-edit";
+type SubmissionStatus = {
+    title: string;
+    detail: string;
+};
 
 interface BusinessProfileFlowProps {
     mode: BusinessProfileFlowMode;
@@ -57,9 +61,9 @@ interface BusinessProfileFlowProps {
 }
 
 type BusinessWizardFormShape = {
-    businessTypes: string[];
     businessName: string;
     businessDescription: string;
+    locationId?: string | null;
     shopNo: string;
     street: string;
     landmark?: string | null;
@@ -75,8 +79,8 @@ function buildBusinessPayloadBase(data: BusinessWizardFormShape): Omit<CreateBus
     return {
         name: data.businessName.trim(),
         description: data.businessDescription.trim(),
-        businessTypes: data.businessTypes,
         location: {
+            ...(data.locationId ? { locationId: data.locationId } : {}),
             city: data.city.trim(),
             state: data.state.trim(),
             pincode: data.pincode.trim(),
@@ -92,11 +96,11 @@ function buildBusinessPayloadBase(data: BusinessWizardFormShape): Omit<CreateBus
 
 function mapBusinessToEditDefaults(business: UserBusiness): BusinessEditFormInput {
     return {
-        businessTypes: business.businessTypes || [],
         businessName: business.businessName || business.name || "",
         businessDescription: business.description || "",
         contactNumber: business.contactNumber || business.mobile || "",
         email: business.email || "",
+        locationId: business.location.locationId || business.locationId || null,
         shopNo: business.location.shopNo || "",
         street: business.location.street || "",
         city: business.location.city || "",
@@ -108,7 +112,7 @@ function mapBusinessToEditDefaults(business: UserBusiness): BusinessEditFormInpu
         idProof: business.documents?.idProof?.[0] || null,
         businessProof: business.documents?.businessProof?.[0] || null,
         certificates: business.documents?.certificates || [],
-        idProofType: "aadhaar",
+        idProofType: business.documents?.idProofType,
     };
 }
 
@@ -159,13 +163,28 @@ function useBusinessProfileWizardController<TFormData extends Record<string, unk
     };
 }
 
-async function processStagedFiles(items: Array<File | string>) {
+async function processStagedFiles(
+    items: Array<File | string>,
+    options?: {
+        label?: string;
+        onProgress?: (status: SubmissionStatus) => void;
+    },
+) {
     const results: string[] = [];
+    const totalUploadable = items.filter((item): item is File => item instanceof File).length;
+    let uploadedCount = 0;
+
     for (const item of items) {
         if (!(item instanceof File)) {
             results.push(item);
             continue;
         }
+
+        uploadedCount += 1;
+        options?.onProgress?.({
+            title: options.label || "Uploading files",
+            detail: `${uploadedCount} of ${totalUploadable} file${totalUploadable === 1 ? "" : "s"} uploaded`,
+        });
 
         const isDocument = item.type === "application/pdf";
         results.push(await uploadBusinessImage(item, isDocument ? "documents" : "businesses"));
@@ -183,15 +202,16 @@ function BusinessRegistrationFlow({
     const router = useRouter();
     const normalizedContactNumber = (user?.mobile || "").replace(/\D/g, "").slice(-10);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
 
     const form = useForm<BusinessRegistrationFormInput, any, BusinessRegistrationFormData>({
         resolver: zodResolver(businessRegistrationSchema),
         mode: "onBlur",
         reValidateMode: "onChange",
         defaultValues: {
-            businessTypes: ["repair", "spare-parts"],
             businessName: "",
             businessDescription: "",
+            locationId: null,
             shopNo: "",
             street: "",
             landmark: "",
@@ -205,7 +225,7 @@ function BusinessRegistrationFlow({
             businessProof: null,
             certificates: [],
             shopImages: [],
-            idProofType: "aadhaar",
+            idProofType: undefined,
         },
     });
 
@@ -224,12 +244,28 @@ function BusinessRegistrationFlow({
 
     const onValidSubmit = async (data: BusinessRegistrationFormData) => {
         wizard.setFormError(null);
+        setSubmissionStatus({
+            title: "Preparing application",
+            detail: "Checking files and details before secure upload.",
+        });
 
         try {
-            const images = await processStagedFiles(data.shopImages);
-            const idProof = data.idProof ? await processStagedFiles([data.idProof]) : [];
-            const businessProof = data.businessProof ? await processStagedFiles([data.businessProof]) : [];
-            const certificates = await processStagedFiles(data.certificates ?? []);
+            const images = await processStagedFiles(data.shopImages, {
+                label: "Uploading shop photos",
+                onProgress: setSubmissionStatus,
+            });
+            const idProof = data.idProof ? await processStagedFiles([data.idProof], {
+                label: "Uploading owner ID proof",
+                onProgress: setSubmissionStatus,
+            }) : [];
+            const businessProof = data.businessProof ? await processStagedFiles([data.businessProof], {
+                label: "Uploading business proof",
+                onProgress: setSubmissionStatus,
+            }) : [];
+            const certificates = await processStagedFiles(data.certificates ?? [], {
+                label: "Uploading supporting certificates",
+                onProgress: setSubmissionStatus,
+            });
 
             const payload: CreateBusinessDTO = {
                 ...buildBusinessPayloadBase(data),
@@ -242,13 +278,19 @@ function BusinessRegistrationFlow({
                 },
             };
 
+            setSubmissionStatus({
+                title: "Submitting application",
+                detail: "Sending your business details and verification documents to the review team.",
+            });
             const created = await registerBusiness(payload);
             if (!created) {
                 throw new Error("Business registration failed.");
             }
 
+            setSubmissionStatus(null);
             setShowSuccessDialog(true);
         } catch (error: unknown) {
+            setSubmissionStatus(null);
             wizard.setFormError(mapErrorToMessage(error, "Failed to submit business registration."));
         }
     };
@@ -268,7 +310,6 @@ function BusinessRegistrationFlow({
 
     return (
         <BusinessProfileWizard
-            headerVariant="registration"
             wizardVariant="registration"
             title="Register Business"
             user={user}
@@ -276,6 +317,7 @@ function BusinessRegistrationFlow({
             formData={wizard.legacyFormData}
             setFormData={wizard.setLegacyFormData}
             formError={wizard.formError}
+            submissionStatus={submissionStatus}
             isSubmitting={wizard.isSubmitting}
             submitLabel="Submit Application"
             onNext={wizard.handleNext}
@@ -326,26 +368,27 @@ function BusinessEditProfileFlow({
     const [isLoading, setIsLoading] = useState(() => !initialBusiness);
     const [businessId, setBusinessId] = useState<string | null>(initialBusiness?.id ?? null);
     const [loadedBusiness, setLoadedBusiness] = useState<UserBusiness | null>(initialBusiness ?? null);
+    const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
     const initialEditDefaults: BusinessEditFormInput = initialBusiness
         ? mapBusinessToEditDefaults(initialBusiness)
         : {
-            businessTypes: [],
             businessName: "",
             businessDescription: "",
+            locationId: null,
             shopNo: "",
             street: "",
-            landmark: "",
-            city: "",
-            state: "",
-            pincode: "",
-            coordinates: null,
-            contactNumber: "",
-            email: "",
-            idProofType: "aadhaar",
-            idProof: null,
-            businessProof: null,
-            certificates: [],
-            shopImages: [],
+                landmark: "",
+                city: "",
+                state: "",
+                pincode: "",
+                coordinates: null,
+                contactNumber: "",
+                email: "",
+                idProofType: undefined,
+                idProof: null,
+                businessProof: null,
+                certificates: [],
+                shopImages: [],
         };
 
     const form = useForm<BusinessEditFormInput, any, BusinessEditFormData>({
@@ -417,29 +460,51 @@ function BusinessEditProfileFlow({
         if (!businessId) return;
 
         wizard.setFormError(null);
+        setSubmissionStatus({
+            title: "Preparing changes",
+            detail: "Checking updated files and business details before upload.",
+        });
 
         try {
-            const images = await processStagedFiles((data.shopImages ?? []) as Array<File | string>);
-            const idProof = data.idProof ? await processStagedFiles([data.idProof as File | string]) : [];
-            const businessProof = data.businessProof ? await processStagedFiles([data.businessProof as File | string]) : [];
-            const certificates = await processStagedFiles((data.certificates ?? []) as Array<File | string>);
+            const images = await processStagedFiles((data.shopImages ?? []) as Array<File | string>, {
+                label: "Uploading shop photos",
+                onProgress: setSubmissionStatus,
+            });
+            const idProof = data.idProof ? await processStagedFiles([data.idProof as File | string], {
+                label: "Uploading owner ID proof",
+                onProgress: setSubmissionStatus,
+            }) : [];
+            const businessProof = data.businessProof ? await processStagedFiles([data.businessProof as File | string], {
+                label: "Uploading business proof",
+                onProgress: setSubmissionStatus,
+            }) : [];
+            const certificates = await processStagedFiles((data.certificates ?? []) as Array<File | string>, {
+                label: "Uploading supporting certificates",
+                onProgress: setSubmissionStatus,
+            });
 
             const payload: Partial<CreateBusinessDTO> = {
                 ...buildBusinessPayloadBase(data),
                 images,
                 documents: {
                     idProof,
+                    idProofType: data.idProofType,
                     businessProof,
                     certificates,
                 },
             };
 
+            setSubmissionStatus({
+                title: "Saving business profile",
+                detail: "Applying your latest business details and review documents.",
+            });
             const updated = await updateBusiness(businessId, payload);
             if (!updated) {
                 throw new Error("Update failed");
             }
 
             setLoadedBusiness(updated);
+            setSubmissionStatus(null);
 
             if (normalizeBusinessStatus(updated.status, "pending") === "pending") {
                 notify.success(
@@ -461,6 +526,7 @@ function BusinessEditProfileFlow({
 
             void router.push("/account/business");
         } catch (error: unknown) {
+            setSubmissionStatus(null);
             logger.error(error);
             const injected = injectApiErrors(form as any, error);
             if (!injected) {
@@ -479,7 +545,6 @@ function BusinessEditProfileFlow({
 
     return (
         <BusinessProfileWizard
-            headerVariant="edit"
             wizardVariant={wizardVariant}
             title={editTitle}
             user={user}
@@ -487,6 +552,7 @@ function BusinessEditProfileFlow({
             formData={wizard.legacyFormData}
             setFormData={wizard.setLegacyFormData}
             formError={wizard.formError}
+            submissionStatus={submissionStatus}
             isSubmitting={wizard.isSubmitting}
             submitLabel={submitLabel}
             onNext={wizard.handleNext}

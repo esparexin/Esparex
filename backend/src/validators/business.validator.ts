@@ -6,6 +6,8 @@ import { validateText } from '../../../shared/utils/textValidator';
 import { ID_PROOF_TYPE_VALUES } from '../../../shared/enums/idProofType';
 import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
 
+const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
+
 // VALIDATION SSOT NOTE:
 // This schema mirrors shared/schemas/coordinates.schema.ts.
 // Direct import avoided due to Zod instance boundary across monorepo packages.
@@ -65,6 +67,7 @@ const coordinatesSchema = z.object({
 });
 
 const locationSchema = z.object({
+    locationId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid location ID').optional(),
     shopNo: sanitizeString(1, 50),
     street: sanitizeString(2, 100),
     landmark: sanitizeString(0, 100).optional(),
@@ -94,7 +97,7 @@ const businessBaseShape = {
     // Uses centralized text validation (profanity, gibberish detection)
     name: businessNameSchema,
     description: descriptionSchema.optional(),
-    businessTypes: z.array(sanitizeString(2, 50)).min(1, 'Select at least one business type'),
+    businessTypes: z.array(sanitizeString(2, 50)).min(1, 'Select at least one business type').optional(),
     location: locationSchema,
     // Support phone OR mobile - uses shared phoneSchema
     mobile: phoneSchema.optional(),
@@ -115,6 +118,9 @@ export const createBusinessSchema = z.object(businessBaseShape).strict().transfo
     if (data.phone && !data.mobile) {
         data.mobile = data.phone;
     }
+    if (!Array.isArray(data.businessTypes) || data.businessTypes.length === 0) {
+        data.businessTypes = [...DEFAULT_BUSINESS_TYPES];
+    }
     return data;
 }).refine((data) => !!data.mobile, {
     message: "Phone number (mobile) is required",
@@ -124,7 +130,8 @@ export const createBusinessSchema = z.object(businessBaseShape).strict().transfo
 export const updateBusinessSchema = z.object(businessBaseShape).partial().extend({
     location: locationSchema.partial().optional(),
     documents: documentsSchema.partial().optional(),
-    images: z.array(z.string()).max(BUSINESS_LIMITS.IMAGES.MAX, BUSINESS_LIMITS.IMAGES.ERROR_MAX).optional()
+    images: z.array(z.string()).max(BUSINESS_LIMITS.IMAGES.MAX, BUSINESS_LIMITS.IMAGES.ERROR_MAX).optional(),
+    businessTypes: z.array(sanitizeString(2, 50)).min(1, 'Select at least one business type').optional(),
 }).strict();
 
 const adminBusinessStatusFilterSchema = z.enum([

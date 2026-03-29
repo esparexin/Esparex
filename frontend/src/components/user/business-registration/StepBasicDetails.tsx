@@ -1,16 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { FormError } from "@/components/ui/FormError";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, ChevronRight, X, Upload } from "@/icons/IconRegistry";
-import { StepBaseProps } from "./types";
-import { CompletedStepCard } from "./CompletedStepCard";
-import { User } from "@/types/User";
-import { PhoneInput } from "@/components/ui/PhoneInput";
+import type { User } from "@/types/User";
 import { cn } from "@/lib/utils";
-import { BUSINESS_IMAGE_ACCEPT, BUSINESS_UPLOAD_MAX_MB } from "@/schemas/business.schema.shared";
+import { type StepBaseProps } from "./types";
 
 interface StepBasicDetailsProps extends StepBaseProps {
     user: User | null;
@@ -19,208 +13,97 @@ interface StepBasicDetailsProps extends StepBaseProps {
 export function StepBasicDetails({
     formData,
     setFormData,
-    onNext,
-    onBack: _onBack,
-    isActive,
-    isCompleted,
-    onEdit,
-    user
+    user,
 }: StepBasicDetailsProps) {
-    const removeShopImage = (index: number) => {
-        const newImages = [...formData.shopImages];
-        newImages.splice(index, 1);
-        setFormData({ ...formData, shopImages: newImages });
-    };
-
-    const handleShopImageUpload = (files: FileList) => {
-        if (formData.shopImages.length + files.length > 5) {
-            // Don't set local error - let Zod handle it
-            return;
-        }
-        const newFiles = Array.from(files);
-        setFormData({
-            ...formData,
-            shopImages: [...formData.shopImages, ...newFiles]
-        });
-    };
-
-    if (isCompleted && !isActive) {
-        return (
-            <CompletedStepCard
-                title="Business Details"
-                summary={`${formData.businessName} (${formData.shopImages.length} images)`}
-                onEdit={onEdit}
-            />
-        );
-    }
-
-    if (!isActive) return null;
-
     return (
-        <Card className="shadow-sm">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-[#0652DD]" />
-                    Business Details & Images
-                </CardTitle>
-                <CardDescription>
-                    Provide information about your business and workspace
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                {/* Business Name */}
-                <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                        <Label htmlFor="reg-business-name">Business Name *</Label>
-                        <span className={cn("text-xs font-medium", 
-                            formData.businessName.length > 100 ? "text-destructive" : "text-muted-foreground"
-                        )}>
-                            {formData.businessName.length} / 100
+        <div className="space-y-6">
+            <div className="grid gap-5 md:grid-cols-2">
+                <Field
+                    label="Business name"
+                    required
+                    error={formData.errors?.businessName}
+                    className="space-y-2"
+                >
+                    <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs text-slate-500">Use the public-facing business name customers will recognize.</span>
+                        <span className={cn("text-xs font-medium", formData.businessName.length > 100 ? "text-destructive" : "text-muted-foreground")}>
+                            {formData.businessName.length}/100
                         </span>
                     </div>
                     <Input
                         id="reg-business-name"
                         value={formData.businessName}
                         onChange={(e) => setFormData({ ...formData, businessName: e.target.value.slice(0, 100) })}
-                        placeholder="e.g., Tech Repair Solutions"
+                        placeholder="e.g. Tech Repair Solutions"
                         maxLength={100}
-                        className={formData.errors?.businessName ? "border-red-500" : ""}
+                        aria-invalid={Boolean(formData.errors?.businessName)}
                     />
-                    {formData.errors?.businessName && (
-                        <p className="text-xs text-red-500 mt-1">{formData.errors.businessName}</p>
-                    )}
-                </div>
+                </Field>
 
-                {/* Contact Number - Locked to verified mobile */}
-                <div className="space-y-2">
-                    <Label htmlFor="reg-contact-number">
-                        Business Contact *
-                        <span className="text-xs text-green-600 ml-2 font-medium">✓ Verified Mobile</span>
-                    </Label>
-                    <PhoneInput
-                        id="reg-contact-number"
-                        value={formData.contactNumber}
-                        placeholder="9876543210"
-                        error={!!formData.errors?.contactNumber}
-                        isVerified={true} // Always locked - only verified users can register
-                        disabled
-                    />
-                    <p className="text-xs text-slate-500">This is your registered mobile number and cannot be changed.</p>
-                </div>
-
-                {/* Business Email */}
-                <div className="space-y-2">
-                    <Label htmlFor="reg-email">
-                        Business Email *
-                        {user?.email && <span className="text-xs text-slate-500 ml-2 font-normal">(Pre-filled from profile)</span>}
-                    </Label>
+                <Field
+                    label="Business email"
+                    required
+                    error={formData.errors?.email}
+                    className="space-y-2"
+                >
+                    <div className="text-xs text-slate-500">
+                        {user?.email ? "Pre-filled from your profile, but you can change it for business inquiries." : "Customers and reviewers will use this for business communication."}
+                    </div>
                     <Input
                         id="reg-email"
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="contact@yourbusiness.com"
-                        className={formData.errors?.email ? "border-red-500" : ""}
+                        aria-invalid={Boolean(formData.errors?.email)}
                     />
-                    {formData.errors?.email && (
-                        <p className="text-xs text-red-500 mt-1">{formData.errors.email}</p>
-                    )}
-                    <p className="text-xs text-slate-500">You can use a different email for business inquiries.</p>
-                </div>
+                </Field>
+            </div>
 
-                {/* Business Description */}
-                <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                        <Label htmlFor="reg-business-desc">About Your Business *</Label>
-                        <span className={cn("text-xs font-medium", 
-                            formData.businessDescription.length > 500 ? "text-destructive" : "text-muted-foreground"
-                        )}>
-                            {formData.businessDescription.length} / 500
-                        </span>
-                    </div>
-                    <Textarea
-                        id="reg-business-desc"
-                        value={formData.businessDescription}
-                        onChange={(e) => setFormData({ ...formData, businessDescription: e.target.value.slice(0, 500) })}
-                        placeholder="Describe your business, specialties, and services..."
-                        maxLength={500}
-                        rows={3}
-                        className={formData.errors?.businessDescription ? "border-red-500" : ""}
-                    />
-                    {formData.errors?.businessDescription && (
-                        <p className="text-xs text-red-500 mt-1">{formData.errors.businessDescription}</p>
-                    )}
-                </div>
-
-                {/* Shop Images */}
-                <div className="space-y-3 pt-2">
-                    <div>
-                        <Label>Shop / Workshop Images *</Label>
-                        <p className="text-xs text-muted-foreground mb-1">
-                            Upload 1-5 images. Supported: JPG, PNG, WebP, AVIF, HEIC, HEIF up to {BUSINESS_UPLOAD_MAX_MB}MB each.
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-4">
+                <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                        <p className="text-sm font-semibold text-emerald-900">Business contact</p>
+                        <p className="text-xs leading-5 text-emerald-700">
+                            This is your verified account mobile number, so customers and our review team can trust it.
                         </p>
-                        {formData.errors?.shopImages && (
-                            <p className="text-xs text-red-500 mt-1">{formData.errors.shopImages}</p>
-                        )}
                     </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {formData.shopImages.map((file, index) => (
-                            <div key={index} className="relative aspect-square border-2 border-dashed rounded-xl overflow-hidden group">
-                                <Image
-                                    src={file instanceof File ? URL.createObjectURL(file) : file}
-                                    alt={`Shop ${index + 1}`}
-                                    fill
-                                    unoptimized
-                                    sizes="(max-width: 768px) 50vw, 25vw"
-                                    className="object-cover"
-                                />
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                                    <Button
-                                        type="button"
-                                        size="icon"
-                                        variant="destructive"
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onClick={() => removeShopImage(index)}
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
-
-                        {formData.shopImages.length < 5 && (
-                            <label className="aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[#0652DD] hover:bg-blue-50 transition-colors">
-                                <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                                <span className="text-sm text-gray-600">Upload</span>
-                                <span className="text-xs text-gray-400 mt-1">
-                                    {formData.shopImages.length}/5
-                                </span>
-                                <input
-                                    id="reg-shop-images"
-                                    name="reg-shop-images"
-                                    type="file"
-                                    accept={BUSINESS_IMAGE_ACCEPT}
-                                    multiple
-                                    className="hidden"
-                                    onChange={(e) => e.target.files && handleShopImageUpload(e.target.files)}
-                                />
-                            </label>
-                        )}
-                    </div>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 shadow-sm">
+                        Verified
+                    </span>
                 </div>
+                <Input
+                    id="reg-contact-number"
+                    value={formData.contactNumber}
+                    readOnly
+                    className="mt-3 bg-white font-medium"
+                    aria-invalid={Boolean(formData.errors?.contactNumber)}
+                />
+                <FormError message={formData.errors?.contactNumber} />
+            </div>
 
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 z-50 flex items-center justify-end gap-4 md:static md:bg-transparent md:border-0 md:p-0 md:mt-8">
-                    <Button
-                        type="button"
-                        onClick={onNext}
-                        className="w-full md:w-auto h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-100"
-                    >
-                        Continue
-                        <ChevronRight className="h-4 w-4 ml-2" />
-                    </Button>
+            <Field
+                label="About your business"
+                required
+                error={formData.errors?.businessDescription}
+                className="space-y-2"
+            >
+                <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs text-slate-500">Explain your expertise, specialties, and what customers can expect.</span>
+                        <span className={cn("text-xs font-medium", formData.businessDescription.length > 2000 ? "text-destructive" : "text-muted-foreground")}>
+                            {formData.businessDescription.length}/2000
+                        </span>
                 </div>
-            </CardContent>
-        </Card>
+                <Textarea
+                    id="reg-business-desc"
+                    value={formData.businessDescription}
+                    onChange={(e) => setFormData({ ...formData, businessDescription: e.target.value.slice(0, 2000) })}
+                    placeholder="Describe your business, specialties, and services..."
+                    maxLength={2000}
+                    rows={4}
+                    aria-invalid={Boolean(formData.errors?.businessDescription)}
+                />
+            </Field>
+        </div>
     );
 }

@@ -127,7 +127,6 @@ export function ProfileSettingsSidebar({
     deleteAccountGlobalError,
     showPlanDialog, setShowPlanDialog,
     selectedPlan, setSelectedPlan,
-    showBusinessEditForm, setShowBusinessEditForm,
     smartAlertForm, updateSmartAlertForm,
     smartAlertErrors,
     smartAlertGlobalError,
@@ -276,10 +275,7 @@ export function ProfileSettingsSidebar({
           getStatusBadge={getStatusBadge}
           formatDate={formatDate}
           isBusinessApproved={isBusinessLive}
-          onRegisterBusiness={() => {
-            setShowBusinessEditForm(true);
-            handleTabChange("business");
-          }}
+          onRegisterBusiness={() => navigateTo("business-register")}
           initialSubTab={initialListingSubTab}
         />
       );
@@ -293,7 +289,7 @@ export function ProfileSettingsSidebar({
       );
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
       case "plans": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
-      case "business": return <BusinessTab businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} showBusinessEditForm={showBusinessEditForm} setShowBusinessEditForm={setShowBusinessEditForm} user={user} navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)} setActiveTab={setActiveTabFromChild} />;
+      case "business": return <BusinessTab businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)} />;
       case "settings": return (
         <SettingsTab
           notifications={notifications}

@@ -1,112 +1,124 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, FileText } from "@/icons/IconRegistry";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { StepData } from "./types";
 import { ReviewSection } from "./ReviewSection";
+import { type StepData } from "./types";
 
 interface StepReviewProps {
     formData: StepData;
-    onBack: () => void;
-    isActive: boolean;
     onEditStep: (step: number) => void;
-    isSubmitting: boolean;
-    submitLabel?: string;
     variant: "registration" | "application-edit" | "live-edit";
     showDocumentsSummary: boolean;
+    detailsStepIndex?: number;
+    documentsStepIndex?: number;
 }
 
 export function StepReview({
     formData,
-    onBack,
-    isActive,
     onEditStep,
-    isSubmitting,
-    submitLabel = "Submit Application",
     variant,
     showDocumentsSummary,
+    detailsStepIndex = 0,
+    documentsStepIndex = 2,
 }: StepReviewProps) {
-    const title = variant === "live-edit" ? "Review Changes" : "Final Review";
-    const description =
-        variant === "registration"
-            ? "Confirm your details. Your account will be pending admin approval."
-            : variant === "application-edit"
-                ? "Review your updates before resubmitting your business application."
-                : "Confirm your updates before saving your business profile.";
+    const idProofTypeLabel = {
+        aadhaar: "Aadhaar card",
+        pan: "PAN card",
+        driving_license: "Driving license",
+        voter_id: "Voter ID",
+    }[formData.idProofType || ""] ?? "Owner ID proof type not selected";
+
     const reviewNotice =
         variant === "registration"
-            ? "Your application will be reviewed by our team within 24 working hours. Services and Parts can be managed from your Dashboard once approved."
+            ? "After submission, the review team checks your business details and documents before the profile goes live."
             : variant === "application-edit"
-                ? "Your updated application will remain under admin review. Replace documents only if something changed or the reviewer asked for it."
-                : "Most profile changes save immediately. Sensitive changes like business name, location, or documents can send the profile back for admin review.";
-    const loadingLabel = variant === "live-edit" ? "Saving..." : "Submitting...";
-
-    if (!isActive) return null;
+                ? "Your updated application stays under review until the new details are approved."
+                : "Most edits save immediately, but business name, address, and document changes can trigger a fresh admin review.";
 
     return (
-        <Card className="shadow-sm">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-[#0652DD]" />
-                    {title}
-                </CardTitle>
-                <CardDescription>{description}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <ReviewSection
-                    title="Business Details"
-                    content={`${formData.businessName} (${formData.shopImages.length} photos)`}
-                    onEdit={() => onEditStep(0)}
-                />
-                <ReviewSection
-                    title="Address"
-                    content={`${formData.shopNo}, ${formData.street}, ${formData.city}, ${formData.state} - ${formData.pincode}`}
-                    onEdit={() => onEditStep(1)}
-                />
-                {showDocumentsSummary && (
-                    <ReviewSection
-                        title="Documents"
-                        content={`${formData.idProofType ? formData.idProofType.charAt(0).toUpperCase() + formData.idProofType.slice(1).replace("_", " ") + " - " : ""}ID Proof, Business Proof`}
-                        onEdit={() => onEditStep(2)}
-                    />
-                )}
+        <div className="space-y-4">
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4">
+                <div className="flex gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-sm font-semibold text-emerald-900">Final check before you continue</p>
+                        <p className="text-sm leading-6 text-emerald-800">{reviewNotice}</p>
+                    </div>
+                </div>
+            </div>
 
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-                    <div className="flex gap-3">
-                        <div className="h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                            <FileText className="h-3.5 w-3.5 text-amber-600" />
-                        </div>
-                        <p className="text-sm text-amber-900 leading-relaxed font-medium">
-                            {reviewNotice}
+            <ReviewSection
+                title="Business details"
+                onEdit={() => onEditStep(detailsStepIndex)}
+                content={
+                    <>
+                        <p className="text-sm font-semibold text-slate-900">{formData.businessName}</p>
+                        <p className="text-sm leading-6 text-slate-600">{formData.businessDescription}</p>
+                        <p className="text-sm text-slate-500">{formData.email}</p>
+                    </>
+                }
+            />
+
+            <ReviewSection
+                title="Address"
+                onEdit={() => onEditStep(detailsStepIndex)}
+                content={
+                    <>
+                        <p className="text-sm font-semibold text-slate-900">
+                            {formData.shopNo}, {formData.street}
+                        </p>
+                        {formData.landmark ? (
+                            <p className="text-sm text-slate-600">Landmark: {formData.landmark}</p>
+                        ) : null}
+                        <p className="text-sm text-slate-600">
+                            {formData.city}, {formData.state} - {formData.pincode}
+                        </p>
+                        <p className="text-sm text-slate-500">
+                            {formData.coordinates ? "Coordinates captured for local discovery." : "No map coordinates stored yet."}
+                        </p>
+                    </>
+                }
+            />
+
+            {showDocumentsSummary && (
+                <ReviewSection
+                    title="Verification"
+                    onEdit={() => onEditStep(documentsStepIndex)}
+                    content={
+                        <>
+                            <p className="text-sm font-semibold text-slate-900">
+                                {formData.shopImages.length} shop photo{formData.shopImages.length === 1 ? "" : "s"} ready for review
+                            </p>
+                            <p className="text-sm font-semibold text-slate-900">
+                                {formData.idProofType ? `${idProofTypeLabel} selected as owner ID` : idProofTypeLabel}
+                            </p>
+                            <p className="text-sm text-slate-600">
+                                {formData.idProof ? "Owner ID proof attached" : "Owner ID proof missing"}
+                            </p>
+                            <p className="text-sm text-slate-600">
+                                {formData.businessProof ? "Business proof attached" : "Business proof missing"}
+                            </p>
+                            <p className="text-sm text-slate-500">
+                                {formData.certificates.length} optional certificate{formData.certificates.length === 1 ? "" : "s"} attached
+                            </p>
+                        </>
+                    }
+                />
+            )}
+
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                <div className="flex gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+                        <FileText className="h-4 w-4 text-amber-600" />
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-sm font-semibold text-amber-900">What happens after this</p>
+                        <p className="text-sm leading-6 text-amber-800">
+                            Make sure the business name, address, and proofs match the real business exactly. Mismatched details slow down approval.
                         </p>
                     </div>
                 </div>
-
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onBack}
-                        disabled={isSubmitting}
-                        className="flex-1 sm:flex-none h-12 px-8 rounded-xl border-slate-200"
-                    >
-                        Back
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="flex-1 h-12 rounded-xl bg-[#0652DD] hover:bg-[#0540b5] text-white font-bold shadow-lg shadow-blue-200 transition-all"
-                    >
-                        {isSubmitting ? (
-                            <span className="flex items-center gap-2">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                {loadingLabel}
-                            </span>
-                        ) : submitLabel}
-                    </Button>
-                </div>
-
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

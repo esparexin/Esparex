@@ -12,6 +12,7 @@ import {
     getCitiesByStateId,
     getStateLocations,
     getPopularLocations as getPopularLocationsService,
+    lookupLocationByPincode as lookupLocationByPincodeService,
     searchLocations as searchLocationsService,
     touchLocationSearchAnalytics,
     ingestLocation as ingestLocationService,
@@ -132,6 +133,34 @@ export const getPopularLocations = async (req: Request, res: Response) => {
     } catch (error: unknown) {
         logger.error('getPopularLocations error', { error: error instanceof Error ? error.message : String(error) });
         return sendErrorResponse(req, res, 500, "Failed to fetch popular locations");
+    }
+};
+
+export const lookupPincode = async (req: Request, res: Response) => {
+    try {
+        const rawPincode = Array.isArray(req.params.pincode) ? req.params.pincode[0] : req.params.pincode;
+        const pincode = typeof rawPincode === "string" ? rawPincode.trim() : "";
+
+        if (!/^\d{6}$/.test(pincode)) {
+            return sendErrorResponse(req, res, 400, "Valid 6-digit pincode is required");
+        }
+
+        const cacheKey = `location:pincode:${pincode}`;
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            return res.json(respond({ success: true, data: cached }));
+        }
+
+        const location = await lookupLocationByPincodeService(pincode);
+        if (!location) {
+            return sendErrorResponse(req, res, 404, "Pincode not found");
+        }
+
+        await setCache(cacheKey, location, CACHE_TTLS.CITY_SEARCH);
+        return res.json(respond({ success: true, data: location }));
+    } catch (error: unknown) {
+        logger.error("lookupPincode error", { error: error instanceof Error ? error.message : String(error) });
+        return sendErrorResponse(req, res, 500, "Failed to resolve pincode");
     }
 };
 

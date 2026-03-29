@@ -20,8 +20,9 @@ export type Service = SharedService;
 export interface CreateBusinessDTO {
     name: string;
     description: string;
-    businessTypes: string[];
+    businessTypes?: string[];
     location: {
+        locationId?: string;
         city: string;
         state: string;
         pincode: string;
@@ -82,6 +83,9 @@ export function normalizeBusiness(
                 idProof: Array.isArray(apiBusiness.documents) 
                     ? apiBusiness.documents.filter(d => d.type === 'id_proof').map(d => d.url)
                     : (apiBusiness.documents as any)?.idProof || [],
+                idProofType: Array.isArray(apiBusiness.documents)
+                    ? apiBusiness.documents.find(d => d.type === 'id_proof')?.idProofType
+                    : (apiBusiness.documents as any)?.idProofType,
                 businessProof: Array.isArray(apiBusiness.documents)
                     ? apiBusiness.documents.filter(d => d.type === 'business_proof').map(d => d.url)
                     : (apiBusiness.documents as any)?.businessProof || [],

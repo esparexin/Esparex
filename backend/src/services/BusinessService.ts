@@ -17,6 +17,9 @@ import { ACTOR_TYPE } from '../../../shared/enums/actor';
 import { SERVICE_STATUS } from '../../../shared/enums/serviceStatus';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
+import { type IdProofTypeValue } from '../../../shared/enums/idProofType';
+
+const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
 
 import { IBusinessDocument, IBusiness } from '../models/Business';
 
@@ -25,6 +28,7 @@ type BusinessDocumentInput = {
     url: string;
     expiryDate?: string | Date;
     version?: number;
+    idProofType?: IdProofTypeValue;
 };
 
 type BusinessDocuments = BusinessDocumentInput[] | {
@@ -72,6 +76,7 @@ type BusinessDocView = {
     userId?: unknown;
     name?: string;
     mobile?: string;
+    businessTypes?: string[];
     images?: unknown;
     locationId?: unknown;
     documents?: IBusinessDocument[];
@@ -144,7 +149,16 @@ const normalizeDocuments = async (
     }
 
     // Handle old format
-    const newDocs: IBusinessDocument[] = [...existingDocs];
+    const idProofType =
+        typeof input.idProofType === 'string' && input.idProofType.trim().length > 0
+            ? (input.idProofType.trim() as IdProofTypeValue)
+            : undefined;
+
+    const newDocs: IBusinessDocument[] = existingDocs.map((doc) => ({
+        ...doc,
+        ...(doc.type === 'id_proof' && idProofType ? { idProofType } : {})
+    }));
+
     const upload = async (urls: string[] | undefined, type: IBusinessDocument['type']) => {
         if (!urls || urls.length === 0) return;
         const processed = toImageUrls(await processImages(toStringArray(urls), `businesses/${businessId}`));
@@ -156,7 +170,8 @@ const normalizeDocuments = async (
                 type,
                 url,
                 uploadedAt: new Date(),
-                version: 1
+                version: 1,
+                ...(type === 'id_proof' && idProofType ? { idProofType } : {})
             });
         });
     };
@@ -269,6 +284,12 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     }
     if (normalizedRegistration) {
         safePayload.registrationNumber = normalizedRegistration;
+    }
+    if (!Array.isArray(safePayload.businessTypes) || safePayload.businessTypes.length === 0) {
+        safePayload.businessTypes =
+            Array.isArray(businessView.businessTypes) && businessView.businessTypes.length > 0
+                ? businessView.businessTypes
+                : [...DEFAULT_BUSINESS_TYPES];
     }
 
     // 6. Image & Doc Processing
@@ -681,9 +702,6 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
 
     return enriched.slice(0, safeLimit);
 };
-
-export const getBusinessStats = async (id: string) => { return {}; };
-export const getBusinessServices = async (id: string) => { return []; };
 
 export const approveBusiness = async (id: string, moderatorId: string = 'SYSTEM') => {
     // Idempotency guard: skip mutateStatus if already live to avoid live→live transition error

@@ -10,6 +10,7 @@ import { toGeoPoint } from '../../../shared/utils/geoUtils';
 export { toGeoPoint };
 import { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../utils/redisCache';
 import { AppError } from '../utils/AppError';
+import { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../utils/locationHierarchy';
 import {
     asString,
     buildDisplay,
@@ -153,6 +154,71 @@ const buildNormalizedFromLocationDoc = (loc: LocationInputObject): NormalizedLoc
         isActive: loc.isActive !== undefined ? Boolean(loc.isActive) : true,
         verificationStatus: asString(loc.verificationStatus) || 'pending',
     };
+};
+
+const buildCanonicalDisplay = ({
+    level,
+    name,
+    city,
+    state,
+    fallbackDisplay,
+}: {
+    level?: string;
+    name: string;
+    city: string;
+    state: string;
+    fallbackDisplay?: string;
+}) => {
+    if (level === 'country' || level === 'state') {
+        return name || fallbackDisplay || 'Unknown Location';
+    }
+    if ((level === 'area' || level === 'village') && city) {
+        return `${name}, ${city}`;
+    }
+    if (state) {
+        return `${name}, ${state}`;
+    }
+    if (city && city !== name) {
+        return `${name}, ${city}`;
+    }
+    return fallbackDisplay || name || 'Unknown Location';
+};
+
+const mapLocationDocsToResponses = async (
+    docs: LocationInputObject[]
+): Promise<NormalizedLocationResponse[]> => {
+    if (docs.length === 0) return [];
+
+    const hierarchyMap = await loadHierarchyMapForLocations(
+        docs as Array<CanonicalLocationDoc | null | undefined>
+    );
+
+    return docs.map((loc) => {
+        const normalized = buildNormalizedFromLocationDoc(loc);
+        const summary = buildLocationSummary(loc as CanonicalLocationDoc, hierarchyMap);
+        const resolvedName = asString(loc?.name) || normalized.name || summary.name || summary.city || '';
+        const resolvedCity =
+            normalized.level === 'state' || normalized.level === 'country'
+                ? normalized.city
+                : summary.city || normalized.city;
+        const resolvedState = summary.state || normalized.state;
+        const resolvedCountry = summary.country || normalized.country;
+
+        return mapToLocationResponse({
+            ...normalized,
+            name: resolvedName,
+            city: resolvedCity,
+            state: resolvedState,
+            country: resolvedCountry,
+            display: buildCanonicalDisplay({
+                level: normalized.level,
+                name: resolvedName,
+                city: resolvedCity,
+                state: resolvedState,
+                fallbackDisplay: asString(loc?.display) || normalized.display,
+            }),
+        });
+    });
 };
 
 const resolveLocationFromDb = async (input: unknown): Promise<NormalizedLocation | null> => {
@@ -610,6 +676,38 @@ const lookupPincodeViaNominatim = (pincode: string): Promise<NormalizedLocationR
     });
 };
 
+export const lookupLocationByPincode = async (
+    pincode: string
+): Promise<NormalizedLocationResponse | null> => {
+    if (!/^\d{6}$/.test(pincode)) {
+        throw new AppError('Valid 6-digit pincode is required', 400, 'INVALID_PINCODE');
+    }
+
+    const exactAliasRegex = new RegExp(`(^|\\b)${escapeRegExp(pincode)}(\\b|$)`, 'i');
+    const exactCandidates = await Location.find({
+        isActive: true,
+        $or: [
+            { aliases: exactAliasRegex },
+            { name: exactAliasRegex },
+            { normalizedName: normalizeLocationNameForSearch(pincode) }
+        ]
+    })
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path aliases')
+        .sort({ isPopular: -1, priority: -1, name: 1 })
+        .limit(5)
+        .lean();
+
+    if (exactCandidates.length > 0) {
+        const [bestMatch] = await mapLocationDocsToResponses(exactCandidates as LocationInputObject[]);
+        if (bestMatch) return {
+            ...bestMatch,
+            pincode,
+        };
+    }
+
+    return lookupPincodeViaNominatim(pincode);
+};
+
 export const searchLocations = async (
     q: string,
     popular?: boolean
@@ -684,8 +782,6 @@ export const searchLocations = async (
             {
                 $project: {
                     name: 1,
-                    city: 1,
-                    state: 1,
                     country: 1,
                     level: 1,
                     coordinates: 1,
@@ -741,9 +837,7 @@ export const searchLocations = async (
         ]);
 
         if (atlasResults.length > 0) {
-            return atlasResults.map((loc) =>
-                mapToLocationResponse(buildNormalizedFromLocationDoc(loc as LocationInputObject))
-            );
+            return mapLocationDocsToResponses(atlasResults as LocationInputObject[]);
         }
     } catch (error) {
         if (!hasWarnedAtlasSearchFallback) {
@@ -764,7 +858,7 @@ export const searchLocations = async (
             { aliases: rawPrefixRegex }
         ]
     })
-        .select('name city state country level coordinates isPopular isActive verificationStatus parentId path')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path aliases')
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .limit(LOCATION_AUTOCOMPLETE_LIMIT)
         .lean();
@@ -777,7 +871,7 @@ export const searchLocations = async (
             aliases: aliasRegex,
             _id: { $nin: results.map((item) => item._id) }
         })
-            .select('name city state country level coordinates isPopular isActive verificationStatus parentId path')
+            .select('name country level coordinates isPopular isActive verificationStatus parentId path aliases')
             .sort({ isPopular: -1, priority: -1, name: 1 })
             .limit(LOCATION_AUTOCOMPLETE_LIMIT - results.length)
             .lean();
@@ -785,16 +879,17 @@ export const searchLocations = async (
     }
 
     const mapped = results
-        .slice(0, LOCATION_AUTOCOMPLETE_LIMIT)
-        .map((loc) => mapToLocationResponse(buildNormalizedFromLocationDoc(loc as LocationInputObject)));
+        .slice(0, LOCATION_AUTOCOMPLETE_LIMIT);
+
+    const mappedResponses = await mapLocationDocsToResponses(mapped as LocationInputObject[]);
 
     // If no results and query is a 6-digit Indian pincode, try Nominatim
-    if (mapped.length === 0 && /^\d{6}$/.test(query)) {
-        const nominatimResult = await lookupPincodeViaNominatim(query);
+    if (mappedResponses.length === 0 && /^\d{6}$/.test(query)) {
+        const nominatimResult = await lookupLocationByPincode(query);
         if (nominatimResult) return [nominatimResult];
     }
 
-    return mapped;
+    return mappedResponses;
 };
 
 export const getPopularLocations = async (): Promise<NormalizedLocationResponse[]> => {
@@ -803,14 +898,12 @@ export const getPopularLocations = async (): Promise<NormalizedLocationResponse[
         isPopular: true,
         level: 'city'
     })
-        .select('name city state country level coordinates isPopular isActive verificationStatus')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ priority: -1, name: 1 })
         .limit(12)
         .lean();
 
-    return popularLocations.map((loc) =>
-        mapToLocationResponse(buildNormalizedFromLocationDoc(loc as LocationInputObject))
-    );
+    return mapLocationDocsToResponses(popularLocations as LocationInputObject[]);
 };
 
 export const getStateLocations = async (): Promise<NormalizedLocationResponse[]> => {
@@ -823,9 +916,7 @@ export const getStateLocations = async (): Promise<NormalizedLocationResponse[]>
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
 
-    return stateAnchors.map((loc) =>
-        mapToLocationResponse(buildNormalizedFromLocationDoc(loc as LocationInputObject))
-    );
+    return mapLocationDocsToResponses(stateAnchors as LocationInputObject[]);
 };
 
 export const getCitiesByStateId = async (
@@ -854,9 +945,7 @@ export const getCitiesByStateId = async (
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
 
-    return cities.map((city) =>
-        mapToLocationResponse(buildNormalizedFromLocationDoc(city as LocationInputObject))
-    );
+    return mapLocationDocsToResponses(cities as LocationInputObject[]);
 };
 
 export const getAreasByCityId = async (
@@ -885,9 +974,7 @@ export const getAreasByCityId = async (
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
 
-    return areas.map((area) =>
-        mapToLocationResponse(buildNormalizedFromLocationDoc(area as LocationInputObject))
-    );
+    return mapLocationDocsToResponses(areas as LocationInputObject[]);
 };
 
 export const getNearbyLocations = async (
@@ -915,11 +1002,11 @@ export const getNearbyLocations = async (
             }
         }
     })
-        .select('name city state country level coordinates isPopular isActive verificationStatus')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .limit(50)
         .lean();
 
-    return nearby.map((loc) => mapToLocationResponse(buildNormalizedFromLocationDoc(loc as LocationInputObject)));
+    return mapLocationDocsToResponses(nearby as LocationInputObject[]);
 };
 
 const resolveBoundaryMatch = async (lat: number, lng: number): Promise<NormalizedLocationResponse | null> => {
@@ -943,7 +1030,8 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
     const location = await getActiveLocationById(boundary?.locationId);
     if (!location) return null;
 
-    return mapToLocationResponse(buildNormalizedFromLocationDoc(location as LocationInputObject));
+    const [mappedBoundaryLocation] = await mapLocationDocsToResponses([location as LocationInputObject]);
+    return mappedBoundaryLocation || null;
 };
 
 export const reverseGeocode = async (
@@ -981,12 +1069,13 @@ export const reverseGeocode = async (
             }
         }
     })
-        .select('name city state country level coordinates isPopular isActive verificationStatus')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .lean();
 
     if (!nearest) return null;
 
-    const response = mapToLocationResponse(buildNormalizedFromLocationDoc(nearest as LocationInputObject));
+    const [response] = await mapLocationDocsToResponses([nearest as LocationInputObject]);
+    if (!response) return null;
     await setCache(cacheKey, response, CACHE_TTLS.REVERSE_GEOCODE);
     return response;
 };
@@ -1001,67 +1090,38 @@ export const getHierarchy = async (
         query.level = normalizedLevel;
     }
 
-    const normalizedState = toTitleCase(asString(state) || '');
-    if (normalizedState) {
-        query.state = new RegExp(`^${escapeRegExp(normalizedState)}$`, 'i');
-    }
-
     if (parentId && mongoose.Types.ObjectId.isValid(parentId)) {
-        if (normalizedLevel) {
-            const hierarchyByPath = await Location.find({
-                isActive: true,
-                level: normalizedLevel,
-                path: new mongoose.Types.ObjectId(parentId)
-            })
-                .select('name city state country level coordinates isPopular isActive verificationStatus')
-                .sort({ isPopular: -1, priority: -1, name: 1 })
-                .limit(200)
-                .lean();
+        query.path = new mongoose.Types.ObjectId(parentId);
+    } else {
+        const normalizedState = toTitleCase(asString(state) || '');
+        if (normalizedState) {
+            if (normalizedLevel === 'state') {
+                query.name = new RegExp(`^${escapeRegExp(normalizedState)}$`, 'i');
+            } else {
+                const stateAnchor = await Location.findOne({
+                    isActive: true,
+                    level: 'state',
+                    name: new RegExp(`^${escapeRegExp(normalizedState)}$`, 'i')
+                })
+                    .select('_id')
+                    .lean<{ _id: mongoose.Types.ObjectId } | null>();
 
-            if (hierarchyByPath.length > 0) {
-                return hierarchyByPath.map((loc) =>
-                    mapToLocationResponse(buildNormalizedFromLocationDoc(loc as LocationInputObject))
-                );
-            }
-        }
+                if (!stateAnchor) {
+                    return [];
+                }
 
-        const parent = await Location.findById(parentId)
-            .select('city state country level isActive')
-            .lean<{
-                city?: string;
-                state?: string;
-                country?: string;
-                level?: string;
-                isActive?: boolean;
-            } | null>();
-
-        if (parent && parent.isActive) {
-            const parentLevel = normalizeLocationLevel(parent.level);
-            if (parentLevel === 'country' && parent.country) {
-                query.country = new RegExp(`^${escapeRegExp(parent.country)}$`, 'i');
-            }
-            if (parentLevel === 'state' && parent.state) {
-                query.state = new RegExp(`^${escapeRegExp(parent.state)}$`, 'i');
-            }
-            if (parentLevel === 'district' && parent.state) {
-                query.state = new RegExp(`^${escapeRegExp(parent.state)}$`, 'i');
-            }
-            if (parentLevel === 'city' && parent.city) {
-                query.city = new RegExp(`^${escapeRegExp(parent.city)}$`, 'i');
-            }
-            if ((parentLevel === 'area' || parentLevel === 'village') && parent.city) {
-                query.city = new RegExp(`^${escapeRegExp(parent.city)}$`, 'i');
+                query.path = stateAnchor._id;
             }
         }
     }
 
     const hierarchyItems = await Location.find(query)
-        .select('name city state country level coordinates isPopular isActive verificationStatus')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .limit(200)
         .lean();
 
-    return hierarchyItems.map((loc) => mapToLocationResponse(buildNormalizedFromLocationDoc(loc as LocationInputObject)));
+    return mapLocationDocsToResponses(hierarchyItems as LocationInputObject[]);
 };
 
 export const getDefaultCenterLocation = async (
@@ -1084,12 +1144,16 @@ export const getDefaultCenterLocation = async (
                 },
             },
         })
-            .select('name city state country level coordinates isPopular isActive verificationStatus')
+            .select('name country level coordinates isPopular isActive verificationStatus parentId path')
             .lean();
 
         if (nearest) {
+            const [mappedNearest] = await mapLocationDocsToResponses([nearest as LocationInputObject]);
+            if (!mappedNearest) {
+                return null;
+            }
             return {
-                ...mapToLocationResponse(buildNormalizedFromLocationDoc(nearest as LocationInputObject)),
+                ...mappedNearest,
                 source: 'default',
             };
         }
@@ -1112,25 +1176,33 @@ export const getDefaultCenterLocation = async (
     }
 
     const fallbackLocation = await Location.findOne({ isActive: true, level: 'city', isPopular: true })
-        .select('name city state country level coordinates isPopular isActive verificationStatus')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ priority: -1, name: 1 })
         .lean();
 
     if (fallbackLocation) {
+        const [mappedFallbackLocation] = await mapLocationDocsToResponses([fallbackLocation as LocationInputObject]);
+        if (!mappedFallbackLocation) {
+            return null;
+        }
         return {
-            ...mapToLocationResponse(buildNormalizedFromLocationDoc(fallbackLocation as LocationInputObject)),
+            ...mappedFallbackLocation,
             source: 'default',
         };
     }
 
     const anyActiveLocation = await Location.findOne({ isActive: true, level: 'city' })
-        .select('name city state country level coordinates isPopular isActive verificationStatus')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ priority: -1, name: 1 })
         .lean();
 
     if (anyActiveLocation) {
+        const [mappedActiveLocation] = await mapLocationDocsToResponses([anyActiveLocation as LocationInputObject]);
+        if (!mappedActiveLocation) {
+            return null;
+        }
         return {
-            ...mapToLocationResponse(buildNormalizedFromLocationDoc(anyActiveLocation as LocationInputObject)),
+            ...mappedActiveLocation,
             source: 'default',
         };
     }

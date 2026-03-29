@@ -1,17 +1,16 @@
 import type { GeoJSONPoint } from "@/types/location";
 
 export interface StepData {
-    businessTypes: string[];
     businessName: string;
     businessDescription: string;
     // Structured Address
+    locationId?: string | null;
     shopNo: string;
     street: string;
     landmark: string;
     city: string;
     state: string;
     pincode: string;
-    pincodeError?: string;
     coordinates: GeoJSONPoint | null;
     // Contact
     contactNumber: string;
@@ -26,32 +25,8 @@ export interface StepData {
     errors?: Partial<Record<keyof StepData, string>>;
 }
 
-export const initialStepData: StepData = {
-    businessTypes: [],
-    businessName: "",
-    businessDescription: "",
-    shopNo: "",
-    street: "",
-    landmark: "",
-    city: "",
-    state: "",
-    pincode: "",
-    coordinates: null,
-    contactNumber: "",
-    email: "",
-    idProof: null,
-    businessProof: null,
-    certificates: [],
-    shopImages: []
-};
-
 // Contract Lock
 export interface StepBaseProps {
     formData: StepData;
     setFormData: React.Dispatch<React.SetStateAction<StepData>>;
-    onNext: () => void;
-    onBack?: () => void; // Optional for first step
-    isActive: boolean;
-    isCompleted: boolean;
-    onEdit: () => void;
 }

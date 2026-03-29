@@ -30,15 +30,23 @@ export function getBusinessWizardFieldsForStep(
     const { requireDocuments = true } = options;
 
     if (currentStep === 0) {
-        return ["businessName", "businessDescription", "contactNumber", "email", "shopImages"];
+        return [
+            "businessName",
+            "businessDescription",
+            "contactNumber",
+            "email",
+            "shopNo",
+            "street",
+            "city",
+            "state",
+            "pincode",
+        ];
     }
 
     if (currentStep === 1) {
-        return ["shopNo", "street", "city", "state", "pincode"];
-    }
-
-    if (currentStep === 2 && requireDocuments) {
-        return ["idProofType", "idProof", "businessProof"];
+        return requireDocuments
+            ? ["shopImages", "idProofType", "idProof", "businessProof"]
+            : ["shopImages"];
     }
 
     return [];

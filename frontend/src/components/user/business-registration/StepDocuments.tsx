@@ -1,9 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileText, ChevronRight } from "@/icons/IconRegistry";
-import { StepBaseProps } from "./types";
-import { CompletedStepCard } from "./CompletedStepCard";
-import { FileUploadCard } from "./FileUploadCard";
+import { Field } from "@/components/ui/field";
+import { Label } from "@/components/ui/label";
 import {
     Select,
     SelectContent,
@@ -11,8 +7,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { BUSINESS_DOCUMENT_ACCEPT, BUSINESS_UPLOAD_MAX_MB } from "@/schemas/business.schema.shared";
+import type { StepBaseProps } from "./types";
+import { FileUploadCard } from "./FileUploadCard";
+import {
+    BUSINESS_DOCUMENT_ACCEPT,
+    BUSINESS_UPLOAD_MAX_MB,
+} from "@/schemas/business.schema.shared";
 
 interface StepDocumentsProps extends StepBaseProps {
     variant: "registration" | "application-edit";
@@ -21,85 +21,77 @@ interface StepDocumentsProps extends StepBaseProps {
 export function StepDocuments({
     formData,
     setFormData,
-    onNext,
-    onBack,
-    isActive,
-    isCompleted,
-    onEdit,
     variant,
 }: StepDocumentsProps) {
     const isRegistration = variant === "registration";
     const canUploadIdProof = isRegistration ? Boolean(formData.idProofType) : true;
-    const documentHelperText = `PDF, JPG, PNG, WebP, AVIF, HEIC, HEIF (Max ${BUSINESS_UPLOAD_MAX_MB}MB)`;
+    const documentHelperText = `PDF, JPG, PNG, WebP, AVIF, HEIC, HEIF up to ${BUSINESS_UPLOAD_MAX_MB}MB`;
+    const selectedIdProofLabel = {
+        aadhaar: "Aadhaar card",
+        pan: "PAN card",
+        driving_license: "Driving license",
+        voter_id: "Voter ID",
+    }[formData.idProofType || ""] ?? "owner ID document";
 
     const handleFileUpload = (field: "idProof" | "businessProof", file: File) => {
         setFormData({ ...formData, [field]: file });
     };
 
-    if (isCompleted && !isActive) {
-        return (
-            <CompletedStepCard
-                title="Documents"
-                summary="ID Proof & Business Proof uploaded"
-                onEdit={onEdit}
-            />
-        );
-    }
-
-    if (!isActive) return null;
-
     return (
-        <Card className="shadow-sm">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-[#0652DD]" />
-                    {isRegistration ? "Verification Documents" : "Application Documents"}
-                </CardTitle>
-                <CardDescription>
-                    {isRegistration
-                        ? "Upload required proof for verification"
-                        : "Update documents only if they changed or our review team asked for replacements."}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                {!isRegistration && (
-                    <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-                        Existing documents stay attached unless you replace them here.
-                    </div>
-                )}
+        <div className="space-y-6">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                {isRegistration
+                    ? "Upload the owner ID and one business proof document the review team needs for approval."
+                    : "Replace these files only if details changed or the review team asked for fresh documents."}
+            </div>
 
-                <div className="space-y-3">
-                    <Label className="text-sm font-semibold">
-                        Select ID Proof Type {isRegistration ? "*" : "(Optional)"}
-                    </Label>
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,260px),minmax(0,1fr)]">
+                <Field
+                    label={`ID proof type${isRegistration ? "" : " (optional)"}`}
+                    required={isRegistration}
+                    error={formData.errors?.idProofType}
+                    className="space-y-2"
+                >
+                    <p className="text-xs text-slate-500">Pick the owner ID you are uploading so admins can review it correctly.</p>
                     <Select
                         value={formData.idProofType || ""}
-                        onValueChange={(val) => setFormData({ ...formData, idProofType: val })}
+                        onValueChange={(value) => setFormData({ ...formData, idProofType: value })}
                     >
-                        <SelectTrigger className="w-full bg-white">
-                            <SelectValue placeholder="Select Document Type" />
+                        <SelectTrigger
+                            className="w-full bg-white"
+                            aria-invalid={Boolean(formData.errors?.idProofType)}
+                        >
+                            <SelectValue placeholder="Select document type" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="aadhaar">Aadhaar Card</SelectItem>
-                            <SelectItem value="pan">PAN Card</SelectItem>
-                            <SelectItem value="driving_license">Driving License</SelectItem>
+                            <SelectItem value="aadhaar">Aadhaar card</SelectItem>
+                            <SelectItem value="pan">PAN card</SelectItem>
+                            <SelectItem value="driving_license">Driving license</SelectItem>
                             <SelectItem value="voter_id">Voter ID</SelectItem>
                         </SelectContent>
                     </Select>
-                    {formData.errors?.idProofType && (
-                        <p className="text-xs text-red-500">{formData.errors.idProofType}</p>
-                    )}
-                </div>
+                </Field>
 
-                <div className={canUploadIdProof ? "opacity-100" : "opacity-50 pointer-events-none transition-opacity"}>
+                <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-4">
+                    <Label className="text-sm font-semibold text-blue-900">Before you upload</Label>
+                    <ul className="mt-3 space-y-2 text-sm leading-6 text-blue-800">
+                        <li>Use clear, uncropped photos or PDFs so the reviewer can read every detail.</li>
+                        <li>Files stay local until you submit this form.</li>
+                        <li>Existing documents stay active until new ones are saved.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+                <div className={canUploadIdProof ? "opacity-100" : "pointer-events-none opacity-60"}>
                     <FileUploadCard
-                        title={`ID Proof (Owner) ${isRegistration ? "*" : ""}`.trim()}
+                        title={`Owner ID proof${isRegistration ? " *" : ""}`}
                         description={
                             canUploadIdProof
                                 ? formData.idProofType
-                                    ? `Upload your ${formData.idProofType.replace("_", " ")}`
-                                    : "Replace your current owner ID proof if needed"
-                                : "Select ID type first"
+                                    ? `Upload your ${selectedIdProofLabel}`
+                                    : "Replace the existing owner ID document if needed"
+                                : "Select the ID proof type first"
                         }
                         file={formData.idProof}
                         onUpload={(file) => handleFileUpload("idProof", file)}
@@ -111,8 +103,12 @@ export function StepDocuments({
                 </div>
 
                 <FileUploadCard
-                    title={`Business Proof ${isRegistration ? "*" : ""}`.trim()}
-                    description={isRegistration ? "GST / Shop License / Udyam" : "GST, shop license, Udyam, or any updated business proof"}
+                    title={`Business proof${isRegistration ? " *" : ""}`}
+                    description={
+                        isRegistration
+                            ? "Upload GST, shop license, Udyam, or another business proof document"
+                            : "Replace GST, shop license, Udyam, or another proof document if it changed"
+                    }
                     file={formData.businessProof}
                     onUpload={(file) => handleFileUpload("businessProof", file)}
                     onRemove={() => setFormData({ ...formData, businessProof: null })}
@@ -120,21 +116,7 @@ export function StepDocuments({
                     helperText={documentHelperText}
                     error={formData.errors?.businessProof}
                 />
-
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 z-50 flex items-center justify-between gap-4 md:static md:bg-transparent md:border-0 md:p-0 md:mt-8">
-                    <Button type="button" variant="outline" onClick={onBack} className="flex-1 md:flex-none h-12 px-8 rounded-xl border-slate-200">
-                        Back
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={onNext}
-                        className="flex-1 md:flex-none h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-100"
-                    >
-                        Continue to Review
-                        <ChevronRight className="h-4 w-4 ml-2" />
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

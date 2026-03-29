@@ -42,6 +42,26 @@ export const businessImageFileValidator = createBusinessFileValidator(BUSINESS_I
 export const businessDocumentFileValidator = createBusinessFileValidator(BUSINESS_DOCUMENT_MIME_TYPES, "document");
 export const businessFileValidator = businessDocumentFileValidator;
 
+const validateBusinessUploadSelection = (
+    file: File,
+    allowedMimeTypes: readonly string[],
+    typeLabel: string,
+): string | null => {
+    if (file.size > BUSINESS_UPLOAD_MAX_BYTES) {
+        return `File size must be less than ${BUSINESS_UPLOAD_MAX_MB}MB`;
+    }
+    if (!allowedMimeTypes.includes(file.type as (typeof allowedMimeTypes)[number])) {
+        return `Only supported ${typeLabel} file types are allowed`;
+    }
+    return null;
+};
+
+export const validateBusinessImageSelection = (file: File): string | null =>
+    validateBusinessUploadSelection(file, BUSINESS_IMAGE_MIME_TYPES, "image");
+
+export const validateBusinessDocumentSelection = (file: File): string | null =>
+    validateBusinessUploadSelection(file, BUSINESS_DOCUMENT_MIME_TYPES, "document");
+
 export const sanitizedBusinessText = (text: string) => {
     const excessiveSpecialChars = /[!@#$%^&*()_+=\[\]{};:'"<>,.?/\\|`~]{3,}/.test(text);
     const suspiciousPatterns = /xss|sql|script|select|drop|insert|exec/i.test(text);
@@ -49,8 +69,6 @@ export const sanitizedBusinessText = (text: string) => {
 };
 
 const requiredBusinessFields = {
-    businessTypes: z.array(z.string()).min(1, "Select at least one business type"),
-
     businessName: z
         .string()
         .trim()
@@ -62,13 +80,18 @@ const requiredBusinessFields = {
         .string()
         .trim()
         .min(20, "Description must be at least 20 characters")
-        .max(500, "Description must be less than 500 characters")
+        .max(2000, "Description must be less than 2000 characters")
         .refine(sanitizedBusinessText, "Description contains invalid characters"),
+
+    locationId: z.string().trim().optional().nullable(),
 
     contactNumber: z
         .string()
-        .length(10, "Contact number must be exactly 10 digits")
-        .regex(/^\d{10}$/, "Contact number must contain only digits"),
+        .transform((value) => value.replace(/\D/g, "").slice(-10))
+        .refine(
+            (value) => /^[6-9]\d{9}$/.test(value),
+            "Contact number must be a valid 10-digit Indian mobile starting with 6-9",
+        ),
 
     email: z.string().email("Please enter a valid email address").max(100, "Email must be less than 100 characters"),
 

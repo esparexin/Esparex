@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 import { Business as SharedBusiness } from '@shared/types/Business';
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared/utils/geoUtils';
 import { BUSINESS_STATUS, BusinessStatusValue, BUSINESS_STATUS_VALUES } from '@shared/enums/businessStatus';
+import { ID_PROOF_TYPE_VALUES, type IdProofTypeValue } from '@shared/enums/idProofType';
 
 export interface IBusinessDocument {
     type: 'id_proof' | 'business_proof' | 'certificate';
@@ -9,6 +10,7 @@ export interface IBusinessDocument {
     uploadedAt: Date;
     expiryDate?: Date;
     version: number;
+    idProofType?: IdProofTypeValue;
 }
 
 export interface IBusiness extends Document {
@@ -59,7 +61,8 @@ const BusinessDocumentSchema = new Schema({
     url: { type: String, required: true },
     uploadedAt: { type: Date, default: Date.now },
     expiryDate: { type: Date },
-    version: { type: Number, default: 1 }
+    version: { type: Number, default: 1 },
+    idProofType: { type: String, enum: ID_PROOF_TYPE_VALUES, required: false }
 }, { _id: false });
 
 const BusinessSchema: Schema = new Schema({

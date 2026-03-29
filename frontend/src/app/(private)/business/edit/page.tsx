@@ -13,7 +13,9 @@ import { BusinessProfileFlow } from '@/components/user/business-registration/Bus
 export default function BusinessEditPage() {
     const router = useRouter();
     const { user, refreshUser, loading: authLoading } = useUser();
-    const { businessData, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(user);
+    const { businessData, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(user, undefined, {
+        includeStats: false,
+    });
     
     const businessStatus = normalizeBusinessStatus(businessData?.status || user?.businessStatus, 'pending');
     const hasBusinessId = Boolean(businessData?.id || user?.businessId);

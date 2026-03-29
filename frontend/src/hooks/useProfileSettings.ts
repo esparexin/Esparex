@@ -228,9 +228,6 @@ export function useProfileSettings({
   const [showPlanDialog, setShowPlanDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
-  /* Business form states */
-  const [showBusinessEditForm, setShowBusinessEditForm] = useState(false);
-
   /* Smart alert form states */
   const [smartAlertForm, setSmartAlertForm] = useState<SmartAlertFormData>(createInitialSmartAlertForm);
   const [smartAlertErrors, setSmartAlertErrors] = useState<SmartAlertFieldErrors>(
@@ -689,8 +686,6 @@ export function useProfileSettings({
     deleteAccountGlobalError,
     showPlanDialog, setShowPlanDialog,
     selectedPlan, setSelectedPlan,
-    // Business forms
-    showBusinessEditForm, setShowBusinessEditForm,
     // Smart alert form
     smartAlertForm, setSmartAlertForm, updateSmartAlertForm,
     smartAlertErrors,

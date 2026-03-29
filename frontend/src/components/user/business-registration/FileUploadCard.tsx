@@ -1,5 +1,15 @@
+import { useState } from "react";
+import Image from "next/image";
+import { FileText, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FileText, Upload, X } from "@/icons/IconRegistry";
+import { cn } from "@/lib/utils";
+import { validateBusinessDocumentSelection } from "@/schemas/business.schema.shared";
+import {
+    getBusinessFileMeta,
+    getBusinessFileName,
+    isImageAsset,
+    useFilePreviewUrl,
+} from "./useFilePreviewUrl";
 
 interface FileUploadCardProps {
     title: string;
@@ -22,44 +32,87 @@ export function FileUploadCard({
     helperText,
     error,
 }: FileUploadCardProps) {
+    const [localError, setLocalError] = useState<string | null>(null);
+    const previewUrl = useFilePreviewUrl(file);
+    const showImagePreview = isImageAsset(file) && Boolean(previewUrl);
+    const effectiveError = error || localError || undefined;
+
     return (
-        <div className={`border-2 rounded-2xl p-5 transition-colors ${error ? "border-red-200 bg-red-50/30" : "border-slate-100 hover:border-blue-100"}`}>
-            <h3 className="font-bold text-slate-900 mb-1">{title}</h3>
-            <p className="text-sm text-slate-500 mb-5">{description}</p>
+        <div
+            className={cn(
+                "rounded-2xl border p-5 transition-colors",
+                effectiveError ? "border-red-200 bg-red-50/30" : "border-slate-200 bg-white",
+            )}
+        >
+            <div className="space-y-1">
+                <div className="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+                        <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+                    </div>
+                    {file && (
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+                            {file instanceof File ? "Ready" : "Attached"}
+                        </span>
+                    )}
+                </div>
+                {helperText && <p className="text-xs text-slate-500">{helperText}</p>}
+            </div>
 
             {file ? (
-                <div className="flex items-center justify-between bg-emerald-50/50 border-2 border-emerald-100 rounded-xl p-4">
-                    <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-                            <FileText className="h-7 w-7 text-emerald-600" />
+                <div className="mt-4 flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    {showImagePreview && previewUrl ? (
+                        <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                            <Image
+                                src={previewUrl}
+                                alt={title}
+                                fill
+                                unoptimized
+                                sizes="64px"
+                                className="object-cover"
+                            />
                         </div>
-                        <div>
-                            <p className="text-sm font-bold text-emerald-900">
-                                {file instanceof File ? file.name : "Existing Document (Uploaded)"}
-                            </p>
-                            <p className="text-xs text-emerald-600/70 font-medium">
-                                {file instanceof File ? (file.size / (1024 * 1024)).toFixed(2) + " MB" : "Verified"}
-                            </p>
+                    ) : (
+                        <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-slate-200 bg-white">
+                            <FileText className="h-7 w-7 text-slate-500" />
                         </div>
+                    )}
+
+                    <div className="min-w-0 flex-1 space-y-1">
+                        <p className="truncate text-sm font-semibold text-slate-900">
+                            {getBusinessFileName(file)}
+                        </p>
+                        <p className="text-xs font-medium text-slate-500">
+                            {getBusinessFileMeta(file)}
+                        </p>
+                        <p className="text-xs leading-5 text-slate-500">
+                            {file instanceof File
+                                ? "This file is staged locally and will upload securely when you submit the form."
+                                : "This file is already attached to your business profile until you replace it."}
+                        </p>
                     </div>
+
                     <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={onRemove}
-                        className="h-10 w-10 text-rose-500 hover:bg-rose-50 rounded-full"
+                        onClick={() => {
+                            setLocalError(null);
+                            onRemove();
+                        }}
+                        className="h-10 w-10 shrink-0 rounded-full text-rose-500 hover:bg-rose-50"
                     >
-                        <X className="h-5 w-5" />
+                        <X className="h-4 w-4" />
                     </Button>
                 </div>
             ) : (
-                <label className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-blue-600 hover:bg-blue-50 transition-all group">
-                    <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
-                        <Upload className="h-8 w-8 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition-colors hover:border-blue-400 hover:bg-blue-50">
+                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
+                        <Upload className="h-6 w-6 text-slate-500" />
                     </div>
-                    <span className="text-sm font-bold text-slate-900 mb-1">Upload Document</span>
-                    <span className="text-xs text-slate-400 font-medium">
-                        {helperText || "PDF, JPG, PNG, WebP, AVIF, HEIC, HEIF"}
+                    <span className="text-sm font-semibold text-slate-900">Choose file</span>
+                    <span className="mt-1 text-xs leading-5 text-slate-500">
+                        Pick a clear scan or photo. It will upload when you submit this form.
                     </span>
                     <input
                         id={`reg-${title.toLowerCase().replace(/\s+/g, "-")}`}
@@ -69,12 +122,22 @@ export function FileUploadCard({
                         className="hidden"
                         onChange={(e) => {
                             const selectedFile = e.target.files?.[0];
-                            if (selectedFile) onUpload(selectedFile);
+                            if (!selectedFile) return;
+                            const validationError = validateBusinessDocumentSelection(selectedFile);
+                            if (validationError) {
+                                setLocalError(validationError);
+                                e.currentTarget.value = "";
+                                return;
+                            }
+                            setLocalError(null);
+                            onUpload(selectedFile);
+                            e.currentTarget.value = "";
                         }}
                     />
                 </label>
             )}
-            {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
+
+            {effectiveError && <p className="mt-3 text-xs font-medium text-red-600">{effectiveError}</p>}
         </div>
     );
 }

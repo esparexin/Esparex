@@ -1,3 +1,6 @@
+import type { IdProofTypeValue } from '../enums/idProofType';
+import { BusinessStatusValue } from '../enums/businessStatus';
+
 export interface BusinessLocation {
     id?: string;
     locationId?: string;
@@ -23,9 +26,8 @@ export interface BusinessDocument {
     uploadedAt: string;
     expiryDate?: string;
     version: number;
+    idProofType?: IdProofTypeValue;
 }
-
-import { BusinessStatusValue } from '../enums/businessStatus';
 
 export type BusinessStatus = BusinessStatusValue;
 
@@ -73,6 +75,8 @@ export interface Business {
     documents: BusinessDocument[] & {
         /** @deprecated Use canonical array filtering */
         idProof?: string[];
+        /** @deprecated Use canonical array filtering */
+        idProofType?: IdProofTypeValue;
         /** @deprecated Use canonical array filtering */
         businessProof?: string[];
         /** @deprecated Use canonical array filtering */

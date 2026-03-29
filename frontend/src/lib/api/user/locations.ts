@@ -22,6 +22,23 @@ export const searchLocations = async (
     return Array.isArray(result) ? result : [];
 };
 
+export const lookupPincode = async (
+    pincode: string
+): Promise<Location | null> => {
+    const normalizedPincode = String(pincode || "").trim();
+    if (!/^\d{6}$/.test(normalizedPincode)) {
+        return null;
+    }
+
+    const { data: result } = await toApiResult<Location>(
+        apiClient.get(API_ROUTES.USER.LOCATIONS_PINCODE(normalizedPincode), {
+            skipHealthCheck: true,
+        })
+    );
+
+    return result || null;
+};
+
 /* -------------------------------------------------------------------------- */
 /* GPS → REVERSE GEOCODE (PRIMARY, HIGH ACCURACY) [GET]                       */
 /* -------------------------------------------------------------------------- */

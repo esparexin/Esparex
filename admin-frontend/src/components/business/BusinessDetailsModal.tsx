@@ -41,6 +41,15 @@ interface BusinessDetailsModalProps {
 export function BusinessDetailsModal({ business, onClose, onApprove, onReject, onDelete, onModify, onSuspend, onActivate }: BusinessDetailsModalProps) {
     if (!business) return null;
 
+    const idProofTypeLabels = {
+        aadhaar: "Aadhaar card",
+        pan: "PAN card",
+        driving_license: "Driving license",
+        voter_id: "Voter ID",
+    } as const;
+    const selectedIdProofType = business.documents?.find((doc) => doc.type === "id_proof")?.idProofType;
+    const idProofTypeLabel = selectedIdProofType ? idProofTypeLabels[selectedIdProofType] ?? null : null;
+
     const isPdf = (url?: string) => typeof url === "string" && /\.pdf($|[?#])/i.test(url);
 
     const renderDocumentPreview = (url: string | undefined, alt: string) => {
@@ -209,7 +218,12 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             {/* ID Proof */}
                             <div className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50 aspect-[4/3] flex flex-col">
                                 <div className="p-3 bg-white border-b border-slate-100 flex items-center justify-between">
-                                    <span className="text-xs font-bold text-slate-700 uppercase">ID Proof</span>
+                                    <div className="min-w-0">
+                                        <span className="text-xs font-bold uppercase text-slate-700">ID Proof</span>
+                                        {idProofTypeLabel ? (
+                                            <p className="mt-1 text-[11px] font-medium text-slate-500">{idProofTypeLabel}</p>
+                                        ) : null}
+                                    </div>
                                     {groupedDocs.id_proof.length > 0 && (
                                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">v{groupedDocs.id_proof[0]?.version}</span>
                                     )}

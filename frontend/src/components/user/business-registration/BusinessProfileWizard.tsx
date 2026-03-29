@@ -1,18 +1,19 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import type { User } from "@/types/User";
 import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/ui/FormError";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { StepBasicDetails } from "./StepBasicDetails";
 import { StepAddress } from "./StepAddress";
 import { StepDocuments } from "./StepDocuments";
+import { ShopPhotosField } from "./ShopPhotosField";
 import { StepReview } from "./StepReview";
 import type { StepData } from "./types";
 
 interface BusinessProfileWizardProps {
-    headerVariant: "registration" | "edit";
     wizardVariant: "registration" | "application-edit" | "live-edit";
     title: string;
     user: User | null;
@@ -20,6 +21,10 @@ interface BusinessProfileWizardProps {
     formData: StepData;
     setFormData: React.Dispatch<React.SetStateAction<StepData>>;
     formError: string | null;
+    submissionStatus?: {
+        title: string;
+        detail: string;
+    } | null;
     isSubmitting: boolean;
     submitLabel: string;
     onNext: () => void;
@@ -30,7 +35,6 @@ interface BusinessProfileWizardProps {
 }
 
 export function BusinessProfileWizard({
-    headerVariant,
     wizardVariant,
     title,
     user,
@@ -38,6 +42,7 @@ export function BusinessProfileWizard({
     formData,
     setFormData,
     formError,
+    submissionStatus,
     isSubmitting,
     submitLabel,
     onNext,
@@ -47,95 +52,170 @@ export function BusinessProfileWizard({
     children,
 }: BusinessProfileWizardProps) {
     const showDocumentsStep = wizardVariant !== "live-edit";
-    const reviewStepIndex = showDocumentsStep ? 3 : 2;
 
-    const handleHeaderBack = () => {
-        if (currentStep > 0) {
-            onStepChange(currentStep - 1);
-            return;
-        }
-
-        onHeaderBack();
-    };
-
-    return (
-        <div className="bg-gray-50 py-8">
-            <div className="bg-white border-b mb-8">
-                <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleHeaderBack}
-                        className={headerVariant === "registration" ? "rounded-full h-10 w-10 text-slate-500" : undefined}
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </Button>
-                    {headerVariant === "registration" ? (
-                        <>
-                            <div className="h-4 w-px bg-slate-200 mx-1" />
-                            <div className="flex items-center gap-2">
-                                <div className="h-7 w-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
-                                    E
-                                </div>
-                                <h1 className="font-bold text-lg text-slate-900 tracking-tight">{title}</h1>
-                            </div>
-                        </>
-                    ) : (
-                        <h1 className="font-bold text-xl">{title}</h1>
-                    )}
-                </div>
-            </div>
-
-            <form className="max-w-4xl mx-auto px-4 space-y-4" onSubmit={onSubmit} noValidate>
-                <FormError message={formError} className="mb-2" />
-
-                <StepBasicDetails
-                    formData={formData}
-                    setFormData={setFormData}
-                    user={user}
-                    onNext={onNext}
-                    isActive={currentStep === 0}
-                    isCompleted={currentStep > 0}
-                    onEdit={() => onStepChange(0)}
-                />
-
-                <StepAddress
-                    formData={formData}
-                    setFormData={setFormData}
-                    onNext={onNext}
-                    onBack={() => onStepChange(0)}
-                    isActive={currentStep === 1}
-                    isCompleted={currentStep > 1}
-                    onEdit={() => onStepChange(1)}
-                />
-
-                {showDocumentsStep && (
-                    <StepDocuments
+    const steps = [
+        {
+            label: "Business info",
+            title: "Business information",
+            description: "Add the business name, contact email, and shop location reviewers need to verify first.",
+            content: (
+                <div className="space-y-8">
+                    <StepBasicDetails
                         formData={formData}
                         setFormData={setFormData}
-                        onNext={onNext}
-                        onBack={() => onStepChange(1)}
-                        isActive={currentStep === 2}
-                        isCompleted={currentStep > 2}
-                        onEdit={() => onStepChange(2)}
-                        variant={wizardVariant === "registration" ? "registration" : "application-edit"}
+                        user={user}
                     />
-                )}
+                    <div className="border-t border-slate-100 pt-8">
+                        <StepAddress
+                            formData={formData}
+                            setFormData={setFormData}
+                        />
+                    </div>
+                </div>
+            ),
+        },
+        {
+            label: "Verification",
+            title: wizardVariant === "live-edit" ? "Photos and review" : "Verification and review",
+            description:
+                wizardVariant === "live-edit"
+                    ? "Refresh shop photos and review the business profile before saving."
+                    : "Upload verification documents, add shop photos, and confirm everything before you submit.",
+            content: (
+                <div className="space-y-8">
+                    <ShopPhotosField
+                        formData={formData}
+                        setFormData={setFormData}
+                        helperText="Upload the workspace photos reviewers expect to see before they approve the business."
+                    />
+                    {showDocumentsStep ? (
+                        <div className="border-t border-slate-100 pt-8">
+                            <StepDocuments
+                                formData={formData}
+                                setFormData={setFormData}
+                                variant={wizardVariant === "registration" ? "registration" : "application-edit"}
+                            />
+                        </div>
+                    ) : null}
+                    <div className="border-t border-slate-100 pt-8">
+                        <Accordion type="single" collapsible className="rounded-2xl border border-slate-200 bg-slate-50 px-4">
+                            <AccordionItem value="review" className="border-b-0">
+                                <AccordionTrigger className="py-4 text-sm font-semibold text-slate-900 hover:no-underline">
+                                    Review everything before you submit
+                                </AccordionTrigger>
+                                <AccordionContent className="pb-1">
+                                    <StepReview
+                                        formData={formData}
+                                        onEditStep={onStepChange}
+                                        variant={wizardVariant}
+                                        showDocumentsSummary={showDocumentsStep}
+                                        detailsStepIndex={0}
+                                        documentsStepIndex={1}
+                                    />
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+                    </div>
+                </div>
+            ),
+        },
+    ];
 
-                <StepReview
-                    formData={formData}
-                    onBack={() => onStepChange(showDocumentsStep ? 2 : 1)}
-                    isActive={currentStep === reviewStepIndex}
-                    onEditStep={onStepChange}
-                    isSubmitting={isSubmitting}
-                    submitLabel={submitLabel}
-                    variant={wizardVariant}
-                    showDocumentsSummary={showDocumentsStep}
-                />
+    const fallbackStep = steps[0] ?? {
+        label: "Details",
+        title,
+        description: "",
+        content: null,
+    };
+    const safeCurrentStep = Math.min(currentStep, Math.max(steps.length - 1, 0));
+    const activeStep = steps[safeCurrentStep] ?? fallbackStep;
+    const isFinalStep = safeCurrentStep === steps.length - 1;
+    const primaryLabel = isFinalStep
+        ? submitLabel
+        : "Continue to verification";
+
+    return (
+        <div className="bg-slate-50 py-6 md:py-8">
+            <form
+                className="mx-auto flex max-w-4xl flex-col gap-6 px-4 pb-28 md:pb-0"
+                onSubmit={onSubmit}
+                noValidate
+            >
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm md:px-5">
+                    <div className="flex items-center gap-3">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={onHeaderBack}
+                            className="h-9 rounded-full px-3 text-slate-600 hover:bg-slate-100"
+                        >
+                            <ArrowLeft className="mr-1.5 h-4 w-4" />
+                            {wizardVariant === "registration" ? "Exit setup" : "Close"}
+                        </Button>
+
+                        <h1 className="truncate text-base font-semibold text-slate-900 md:text-lg">
+                            {title}
+                        </h1>
+                    </div>
+                </div>
+
+                <FormError message={formError} className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" />
+                {submissionStatus ? (
+                    <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                        <div className="flex items-start gap-3">
+                            <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin" />
+                            <div className="space-y-1">
+                                <p className="font-semibold">{submissionStatus.title}</p>
+                                <p className="leading-6 text-blue-800">{submissionStatus.detail}</p>
+                            </div>
+                        </div>
+                    </div>
+                ) : null}
+
+                <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
+                    <div className="border-b border-slate-100 px-5 py-5 md:px-8 md:py-6">
+                        <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
+                            {activeStep.title}
+                        </h2>
+                        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                            {activeStep.description}
+                        </p>
+                    </div>
+                    <div className="px-5 py-5 md:px-8 md:py-8">{activeStep.content}</div>
+                </section>
+
+                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-4 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+                    <div className="mx-auto flex max-w-4xl flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            {safeCurrentStep > 0 ? (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => onStepChange(safeCurrentStep - 1)}
+                                    disabled={isSubmitting}
+                                    className="h-11 w-full rounded-xl border-slate-200 px-6 sm:w-auto"
+                                >
+                                    Back
+                                </Button>
+                            ) : null}
+                        </div>
+
+                        <Button
+                            type={isFinalStep ? "submit" : "button"}
+                            onClick={isFinalStep ? undefined : onNext}
+                            disabled={isSubmitting}
+                            className="h-11 w-full rounded-xl bg-blue-600 px-6 font-semibold text-white hover:bg-blue-700 sm:w-auto"
+                        >
+                            {isSubmitting && isFinalStep
+                                ? (wizardVariant === "registration" ? "Submitting application..." : "Saving business profile...")
+                                : primaryLabel}
+                        </Button>
+                    </div>
+                </div>
+
+                {children}
             </form>
-
-            {children}
         </div>
     );
 }

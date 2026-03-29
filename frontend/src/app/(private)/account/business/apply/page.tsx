@@ -13,7 +13,9 @@ import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 export default function BusinessApplyPage() {
     const router = useRouter();
     const { user, refreshUser, loading: authLoading } = useUser();
-    const { businessData, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(user);
+    const { businessData, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(user, undefined, {
+        includeStats: false,
+    });
     
     const isHydrated = !authLoading && !businessLoading && businessFetched;
 

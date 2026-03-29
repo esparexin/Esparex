@@ -20,6 +20,7 @@ const router = express.Router();
 
 // Search (text autocomplete)
 router.get("/", searchLimiter, locationController.searchLocations);
+router.get("/pincode/:pincode", searchLimiter, locationController.lookupPincode);
 
 // Hierarchical selectors
 router.get("/states", searchLimiter, locationController.getStates);

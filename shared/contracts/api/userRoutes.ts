@@ -51,6 +51,7 @@ export const USER_ROUTES = {
 
   // Locations
   LOCATIONS: "locations",
+  LOCATIONS_PINCODE: (pincode: string) => `locations/pincode/${encodeURIComponent(String(pincode))}`,
   LOCATIONS_STATES: "locations/states",
   LOCATIONS_CITIES: "locations/cities",
   LOCATIONS_AREAS: "locations/areas",

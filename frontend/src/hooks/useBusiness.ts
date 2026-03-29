@@ -5,6 +5,7 @@ import logger from "@/lib/logger";
 
 interface UseBusinessOptions {
     enabled?: boolean;
+    includeStats?: boolean;
 }
 
 export function useBusiness(user: User | null, businessId?: string, options?: UseBusinessOptions) {
@@ -19,6 +20,7 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
     const [isFetched, setIsFetched] = useState(false);
     const [error, setError] = useState<any>(null);
     const enabled = options?.enabled ?? true;
+    const includeStats = options?.includeStats ?? true;
 
     useEffect(() => {
         if (!isFetched || !businessData || !user) return;
@@ -42,18 +44,31 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
                 const { getMyBusiness, getMyBusinessStats, getBusinessById, getBusinessStats } = await import("@/lib/api/user/businesses");
                 
                 let data: Business | null;
-                let stats: BusinessStats;
+                let stats: BusinessStats = {
+                    totalServices: 0,
+                    approvedServices: 0,
+                    pendingServices: 0,
+                    views: 0,
+                };
 
                 if (businessId) {
-                    [data, stats] = await Promise.all([
-                        getBusinessById(businessId),
-                        getBusinessStats(businessId)
-                    ]);
+                    if (includeStats) {
+                        [data, stats] = await Promise.all([
+                            getBusinessById(businessId),
+                            getBusinessStats(businessId)
+                        ]);
+                    } else {
+                        data = await getBusinessById(businessId);
+                    }
                 } else {
-                    [data, stats] = await Promise.all([
-                        getMyBusiness(),
-                        getMyBusinessStats()
-                    ]);
+                    if (includeStats) {
+                        [data, stats] = await Promise.all([
+                            getMyBusiness(),
+                            getMyBusinessStats()
+                        ]);
+                    } else {
+                        data = await getMyBusiness();
+                    }
                 }
                 
                 setBusinessData(data);
@@ -80,7 +95,7 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
             setIsFetched(false);
             setIsLoading(false);
         }
-    }, [businessId, enabled, user]);
+    }, [businessId, enabled, includeStats, user]);
 
     return { 
         businessData, 
