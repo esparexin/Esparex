@@ -333,7 +333,11 @@ const fetchFirstAdSlug = async () => {
     const response = await page.goto(`${FRONTEND_URL}/chat`, { waitUntil: "domcontentloaded" });
     assertHealthyResponse(response, "chat redirect");
     await page.waitForTimeout(700);
-    assertUrlIncludes(page.url(), "/login?callbackUrl=%2Fchat", "chat redirect");
+    assertUrlIncludes(
+      page.url(),
+      "/login?callbackUrl=%2Faccount%2Fmessages",
+      "chat redirect"
+    );
     await context.close();
   });
 
@@ -362,22 +366,20 @@ const fetchFirstAdSlug = async () => {
     await context.close();
   });
 
-  await run("ad submission success pending landing smoke", async () => {
-    if (!authenticatedToken) {
-      throw new Error("Authenticated smoke token unavailable.");
-    }
-
+  await run("legacy ad submission success route smoke", async () => {
     const context = await browser.newContext();
-    await withAuthCookie(context, FRONTEND_URL, authenticatedToken);
     const page = await context.newPage();
     const response = await page.goto(`${FRONTEND_URL}/ad-submission-success`, {
       waitUntil: "domcontentloaded",
     });
-    assertHealthyResponse(response, "ad submission success");
-    await page.waitForTimeout(700);
-    await page.getByRole("button", { name: "View My Ads" }).click();
-    await page.waitForTimeout(1000);
-    assertUrlIncludes(page.url(), "/account/ads?status=pending", "ad submission success");
+    if (!response) {
+      throw new Error("ad submission success legacy route: no HTTP response captured.");
+    }
+    if (response.status() !== 404) {
+      throw new Error(
+        `ad submission success legacy route: expected 404 for removed page, got ${response.status()}.`
+      );
+    }
     await context.close();
   });
 
