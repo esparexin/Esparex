@@ -3,21 +3,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatPrice } from "@/lib/formatters";
 import { formatLocation } from "@/lib/location/locationService";
 import { type Ad } from "@/schemas/ad.schema";
-import type { UserPage } from "@/lib/routeUtils";
-import { ROUTES } from "@/lib/logic/routes";
-import { Shield, CheckCircle, ChevronRight, MapPin, Clock, Eye } from "lucide-react";
+import { Shield, CheckCircle, MapPin, Clock, Eye } from "lucide-react";
 import { cn } from "@/components/ui/utils";
 
 interface AdTitlePriceCardProps {
     ad: Ad;
     categoryLabel: string;
     viewCount: number | undefined;
-    navigateTo: (
-        page: UserPage,
-        adId?: string | number,
-        category?: string,
-        sellerIdOrBusinessId?: string
-    ) => void;
     variant: "mobile" | "desktop";
 }
 
@@ -25,15 +17,8 @@ export function AdTitlePriceCard({
     ad,
     categoryLabel,
     viewCount,
-    navigateTo,
     variant,
 }: AdTitlePriceCardProps) {
-    const handleBusinessClick = () => {
-        if (ad.businessId) {
-            navigateTo(ROUTES.PUBLIC_PROFILE, undefined, undefined, ad.businessId);
-        }
-    };
-
     if (variant === "mobile") {
         return (
             <Card className="md:hidden rounded-none bg-white border-x-0 border-t-0 border-b">
@@ -65,17 +50,14 @@ export function AdTitlePriceCard({
                     </div>
 
                     {ad.isBusiness && ad.businessName && (
-                        <button
-                            onClick={handleBusinessClick}
-                            className="flex items-center gap-2 mb-4 text-xs text-blue-700 bg-blue-50 px-3 py-2 rounded-xl border border-blue-100 hover:bg-blue-100 transition-all w-full cursor-pointer shadow-sm"
-                        >
+                        <div className="flex items-center gap-2 mb-4 text-xs text-blue-700 bg-blue-50 px-3 py-2 rounded-xl border border-blue-100 shadow-sm">
                             <Shield className="h-3.5 w-3.5 flex-shrink-0 text-blue-600" />
                             <span className="font-bold">{ad.businessName}</span>
                             <div className="ml-auto flex items-center gap-1 bg-blue-600 text-white px-1.5 py-0.5 rounded-md text-[10px]">
                                 <CheckCircle className="h-2.5 w-2.5" />
                                 Verified
                             </div>
-                        </button>
+                        </div>
                     )}
 
                     <h1 className="text-xl font-bold mb-2">{ad.title}</h1>
@@ -137,11 +119,8 @@ export function AdTitlePriceCard({
 
                 {ad.isBusiness && ad.businessName && (
                     <div className="mb-4">
-                        <button
-                            onClick={handleBusinessClick}
-                            className="group flex items-center gap-2 text-xs text-blue-700 bg-blue-50/50 px-3 py-2.5 rounded-2xl border border-blue-100/50 hover:bg-blue-100/50 transition-all w-full cursor-pointer"
-                        >
-                            <div className="h-6 w-6 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform">
+                        <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-50/50 px-3 py-2.5 rounded-2xl border border-blue-100/50 w-full">
+                            <div className="h-6 w-6 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                                 <Shield className="h-3.5 w-3.5 text-white" />
                             </div>
                             <div className="flex-1 text-left min-w-0">
@@ -151,8 +130,7 @@ export function AdTitlePriceCard({
                                     Verified Business
                                 </span>
                             </div>
-                            <ChevronRight className="h-3.5 w-3.5 text-blue-400 group-hover:translate-x-1 transition-transform" />
-                        </button>
+                        </div>
                     </div>
                 )}
 

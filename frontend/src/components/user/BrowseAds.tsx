@@ -118,6 +118,7 @@ export function BrowseAds({
   };
   const urlLocationId = routeParams.locationId ?? "";
   const urlLocationLabel = routeParams.location ?? "";
+  const urlModelId = routeParams.modelId ?? "";
 
   const filters: ListingFilters = useMemo(() => {
     const nextFilters: ListingFilters = {
@@ -143,6 +144,7 @@ export function BrowseAds({
       }
     }
     if (selectedBrands.length > 0) nextFilters.brandId = selectedBrands.join(",");
+    if (urlModelId) nextFilters.modelId = urlModelId;
     if (priceRange[0] > 0) nextFilters.minPrice = priceRange[0];
     if (priceRange[1] < 200000) nextFilters.maxPrice = priceRange[1];
 
@@ -181,7 +183,7 @@ export function BrowseAds({
     }
 
     return nextFilters;
-  }, [categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, sort, urlLocationId, urlLocationLabel]);
+  }, [categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, sort, urlLocationId, urlLocationLabel, urlModelId]);
 
   const hasLocationFilter =
     Boolean(urlLocationId || urlLocationLabel || location.locationId || location.city) ||
@@ -275,11 +277,12 @@ export function BrowseAds({
         minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
         maxPrice: priceRange[1] < 200000 ? priceRange[1] : undefined,
         brands: selectedBrands.length > 0 ? selectedBrands.join(",") : undefined,
+        modelId: urlModelId || undefined,
         locationId: urlLocationId || undefined,
         location: urlLocationId ? undefined : urlLocationLabel || undefined,
         radiusKm: urlLocationId || urlLocationLabel ? radiusKm : undefined,
       }),
-    [priceRange, query, radiusKm, selectedBrands, selectedCategory, sort, urlLocationId, urlLocationLabel]
+    [priceRange, query, radiusKm, selectedBrands, selectedCategory, sort, urlLocationId, urlLocationLabel, urlModelId]
   );
 
   const currentBrowseRoute = useMemo(
@@ -289,6 +292,7 @@ export function BrowseAds({
         q: routeParams.q,
         category: routeParams.category,
         categoryId: routeParams.categoryId,
+        modelId: routeParams.modelId,
         sort: routeParams.sort,
         minPrice: routeParams.minPrice,
         maxPrice: routeParams.maxPrice,

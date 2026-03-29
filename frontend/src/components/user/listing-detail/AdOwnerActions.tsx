@@ -10,9 +10,19 @@ interface AdOwnerActionsProps {
     onDelete: () => void;
     onMarkSold: () => void;
     onPromote: () => void;
+    onViewAnalytics: () => void;
 }
 
-export function AdOwnerActions({ isSold, isChatLocked, status, onEdit, onDelete, onMarkSold, onPromote }: AdOwnerActionsProps) {
+export function AdOwnerActions({
+    isSold,
+    isChatLocked,
+    status,
+    onEdit,
+    onDelete,
+    onMarkSold,
+    onPromote,
+    onViewAnalytics,
+}: AdOwnerActionsProps) {
     const isPending = status === "pending";
     const isActive = status === "live";
     const showViewOnlyState = !isPending && !isActive && !isSold;
@@ -96,6 +106,17 @@ export function AdOwnerActions({ isSold, isChatLocked, status, onEdit, onDelete,
                     >
                         <TrendingUp className="h-4 w-4" />
                         Promote Listing
+                    </Button>
+                )}
+
+                {(isActive || isSold || showViewOnlyState) && (
+                    <Button
+                        onClick={onViewAnalytics}
+                        variant="outline"
+                        className="w-full gap-2 justify-start text-sm h-10"
+                    >
+                        <TrendingUp className="h-4 w-4" />
+                        View Analytics
                     </Button>
                 )}
             </CardContent>

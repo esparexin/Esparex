@@ -6,7 +6,6 @@
 
 import { Request, Response } from 'express';
 import slugify from 'slugify';
-import { z, ZodError } from 'zod';
 import mongoose from 'mongoose';
 import { getAdminConnection } from '../../config/db';
 import { handlePaginatedContent } from '../../utils/contentHandler';
@@ -111,7 +110,20 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
  */
 export const getCategoryById = async (req: Request, res: Response) => {
     try {
-        const category = await Category.findById(req.params.id);
+        const isAdminView = req.originalUrl.includes('/admin');
+        const identifierParam = req.params.id;
+        const identifier = Array.isArray(identifierParam) ? identifierParam[0] : identifierParam;
+        if (!identifier) {
+            return sendAdminError(req, res, 'Category not found', 404);
+        }
+        const lookup = mongoose.Types.ObjectId.isValid(identifier)
+            ? { _id: identifier }
+            : { slug: identifier.toLowerCase() };
+
+        const category = await Category.findOne({
+            ...lookup,
+            ...(isAdminView ? {} : ACTIVE_CATEGORY_QUERY),
+        });
         if (!category) {
             return sendAdminError(req, res, 'Category not found', 404);
         }

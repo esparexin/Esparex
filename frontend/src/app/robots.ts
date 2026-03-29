@@ -22,7 +22,6 @@ export default function robots(): MetadataRoute.Robots {
                 '/post-ad',
                 '/post-service',
                 '/edit-ad/',
-                '/ad-submission-success',
                 '/notifications',
                 // System
                 '/api/',

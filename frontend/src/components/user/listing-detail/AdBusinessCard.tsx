@@ -8,23 +8,21 @@ import type { AdDetailNavigateFn } from "@/lib/routeUtils";
 import type { Ad } from "@/schemas/ad.schema";
 import { formatStableDate } from "@/lib/formatters";
 
-type BusinessCardDetails = {
-    businessName?: string;
-    businessType?: string;
-    businessCategory?: string;
-    city?: string;
-    state?: string;
-    expiresAt?: string | Date;
-};
-
 interface AdBusinessCardProps {
-    businessDetails: BusinessCardDetails | null;
     ad: Ad;
     navigateTo: AdDetailNavigateFn;
 }
 
-export function AdBusinessCard({ businessDetails, ad, navigateTo }: AdBusinessCardProps) {
-    if (!businessDetails || !ad.isBusiness || !ad.verified) return null;
+export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
+    if (!ad.isBusiness || !ad.verified || !ad.businessId) return null;
+
+    const businessName = ad.businessName || "Verified Business Seller";
+    const businessType = ad.businessType || "Professional seller";
+    const businessCategory = ad.businessCategory;
+    const businessCity = ad.businessCity || ad.location?.city;
+    const businessState = ad.businessState || ad.location?.state;
+    const businessExpiresAt = ad.businessExpiresAt;
+    const locationLabel = [businessCity, businessState].filter(Boolean).join(", ");
 
     return (
         <Card className="bg-white border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] overflow-hidden border border-slate-100/50">
@@ -36,22 +34,22 @@ export function AdBusinessCard({ businessDetails, ad, navigateTo }: AdBusinessCa
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                            <h3 className="font-bold text-slate-900 truncate">{businessDetails.businessName}</h3>
+                            <h3 className="font-bold text-slate-900 truncate">{businessName}</h3>
                             <Badge className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md border-none">
                                 VERIFIED
                             </Badge>
                         </div>
                         <p className="text-xs text-slate-400 font-medium">
-                            {businessDetails.businessType}
+                            {businessType}
                         </p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 text-[11px]">
                     {[
-                        { icon: Store, label: "Category", value: businessDetails.businessCategory },
-                        { icon: MapPin, label: "Location", value: `${businessDetails.city}, ${businessDetails.state}` },
-                        businessDetails.expiresAt && { icon: Calendar, label: "Membership", value: `Valid until ${formatStableDate(businessDetails.expiresAt)}` }
+                        businessCategory ? { icon: Store, label: "Category", value: businessCategory } : null,
+                        locationLabel ? { icon: MapPin, label: "Location", value: locationLabel } : null,
+                        businessExpiresAt ? { icon: Calendar, label: "Membership", value: `Valid until ${formatStableDate(businessExpiresAt)}` } : null,
                     ].filter(Boolean).map((detail, idx) => {
                         if (!detail) return null;
                         const Icon = detail.icon;

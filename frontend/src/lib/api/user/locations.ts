@@ -2,26 +2,8 @@ import { apiClient } from "@/lib/api/client";
 import type { EsparexRequestConfig } from "@/lib/api/client";
 import { toApiResult } from "@/lib/api/result";
 import { API_ROUTES } from "@/lib/api/routes";
-export type { Location, IngestLocationParams } from '@shared/types/Location';
-import type { Location, IngestLocationParams } from '@shared/types/Location';
-import logger from "@/lib/logger";
-import { ingestLocationSchema } from "@/schemas/location.schema";
-
-/* -------------------------------------------------------------------------- */
-/* INGEST (JIT CREATION)                                                      */
-/* -------------------------------------------------------------------------- */
-
-export const ingestLocation = async (params: IngestLocationParams): Promise<Location | null> => {
-    const parseResult = ingestLocationSchema.safeParse(params);
-    if (!parseResult.success) {
-        logger.warn('[locations] ingestLocation: invalid params', { errors: parseResult.error.flatten() });
-        return null;
-    }
-    const { data } = await toApiResult<Location>(
-        apiClient.post(API_ROUTES.USER.LOCATIONS_INGEST, params)
-    );
-    return data;
-};
+export type { Location } from '@shared/types/Location';
+import type { Location } from '@shared/types/Location';
 
 /* -------------------------------------------------------------------------- */
 /* SEARCH LOCATIONS (TEXT SEARCH)                                             */
@@ -55,10 +37,6 @@ export const reverseGeocode = async (
     const { data: result } = await toApiResult<Location>(
         apiClient.get(API_ROUTES.USER.LOCATIONS_GEOCODE, config)
     );
-
-    if (!result && process.env.NODE_ENV === "development") {
-        logger.warn("[LocationAPI] reverseGeocode failed:", lat, lng);
-    }
 
     return result;
 };

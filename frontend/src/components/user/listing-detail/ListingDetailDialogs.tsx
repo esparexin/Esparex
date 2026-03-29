@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { TrendingUp } from "lucide-react";
 
 import { type Ad } from "@/schemas/ad.schema";
 import {
@@ -13,6 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const ReportAdDialog = dynamic(
   () => import("../ReportAdDialog").then((mod) => mod.ReportAdDialog),
@@ -37,6 +45,14 @@ interface ListingDetailDialogsProps {
   setShowSoldDialog: (value: boolean) => void;
   showDeleteDialog: boolean;
   setShowDeleteDialog: (value: boolean) => void;
+  showAnalyticsDialog: boolean;
+  setShowAnalyticsDialog: (value: boolean) => void;
+  analyticsSummary: {
+    total: number;
+    unique: number;
+    lastViewedAt?: string | null;
+  } | null;
+  isAnalyticsLoading: boolean;
   isDeleting: boolean;
   onDeleteConfirm: () => void | Promise<void>;
   onSoldConfirm: (platform: string) => Promise<boolean>;
@@ -53,6 +69,10 @@ export function ListingDetailDialogs({
   setShowSoldDialog,
   showDeleteDialog,
   setShowDeleteDialog,
+  showAnalyticsDialog,
+  setShowAnalyticsDialog,
+  analyticsSummary,
+  isAnalyticsLoading,
   isDeleting,
   onDeleteConfirm,
   onSoldConfirm,
@@ -81,6 +101,46 @@ export function ListingDetailDialogs({
         onOpenChange={setShowSoldDialog}
         onSoldConfirm={onSoldConfirm}
       />
+
+      <Dialog open={showAnalyticsDialog} onOpenChange={setShowAnalyticsDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              Listing analytics
+            </DialogTitle>
+            <DialogDescription>
+              Live performance snapshot for this listing.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl border bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total views</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">
+                {isAnalyticsLoading ? "..." : analyticsSummary?.total ?? 0}
+              </p>
+            </div>
+            <div className="rounded-2xl border bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Unique viewers</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">
+                {isAnalyticsLoading ? "..." : analyticsSummary?.unique ?? 0}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border bg-white p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Last activity</p>
+            <p className="mt-2 text-sm text-slate-700">
+              {isAnalyticsLoading
+                ? "Loading latest activity..."
+                : analyticsSummary?.lastViewedAt
+                  ? new Date(analyticsSummary.lastViewedAt).toLocaleString()
+                  : "No recent viewer activity yet."}
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>

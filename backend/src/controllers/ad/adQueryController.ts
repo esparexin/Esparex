@@ -9,7 +9,6 @@ import mongoose from 'mongoose';
 import * as adService from '../../services/AdService';
 import * as feedService from '../../services/FeedService';
 import * as trendingService from '../../services/TrendingService';
-import * as similarAdsService from '../../services/SimilarAdsService';
 import { getSellerPhone } from '../../services/ContactRevealService';
 import { respond } from '../../utils/respond';
 import { getSingleParam } from '../../utils/requestParams';
@@ -273,28 +272,6 @@ export const getTrendingAds = async (req: Request, res: Response, next: NextFunc
         return next(error);
     }
 };
-
-/**
- * Get similar ads by source ad ID
- */
-export const getSimilarAds = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
-        if (!id) return;
-        const limit = parseInt(String(req.query.limit ?? '8'), 10) || 8;
-
-        const data = await similarAdsService.getSimilarAds(id, { limit });
-
-        return res.json(respond<ApiResponse<{ ads: Ad[] }>>({
-            success: true,
-            data: data as { ads: Ad[] }
-        }));
-    } catch (error: unknown) {
-        return next(error);
-    }
-};
-
-
 
 /**
  * Get any ad by ID regardless of status (admin only)

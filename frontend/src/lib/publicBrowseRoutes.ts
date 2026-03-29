@@ -5,6 +5,7 @@ export interface PublicBrowseRouteParams {
     q?: unknown;
     category?: unknown;
     categoryId?: unknown;
+    modelId?: unknown;
     sort?: unknown;
     minPrice?: unknown;
     maxPrice?: unknown;
@@ -20,6 +21,7 @@ export interface ParsedPublicBrowseParams {
     q?: string;
     category?: string;
     categoryId?: string;
+    modelId?: string;
     sort?: string;
     minPrice?: number;
     maxPrice?: number;
@@ -114,6 +116,7 @@ export const parsePublicBrowseParams = (
         q: read("q"),
         category: read("category"),
         categoryId: read("categoryId"),
+        modelId: read("modelId"),
         sort: sort && PUBLIC_SORTS.has(sort) ? sort : undefined,
         minPrice: readNumber(read("minPrice")),
         maxPrice: readNumber(read("maxPrice")),
@@ -144,6 +147,7 @@ export const buildPublicBrowseRoute = (input: PublicBrowseRouteParams = {}): str
     } else {
         appendIfPresent(params, "category", normalizedCategory);
     }
+    appendIfPresent(params, "modelId", input.modelId);
 
     const sort = readString(input.sort);
     if (sort && PUBLIC_SORTS.has(sort)) {

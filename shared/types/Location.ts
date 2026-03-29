@@ -18,7 +18,7 @@ export interface Location {
     locationId?: string;
     parentId?: string | null;
     path?: string[];
-    slug: string;
+    slug?: string;
     name: string;        // Specific area/city name
     display: string;     // Formatted joint name (e.g., "Andheri East, Mumbai")
     displayName?: string;
@@ -36,13 +36,4 @@ export interface Location {
     distance?: number;    // Calculated distance for nearby searches
     createdAt?: string | Date;
     updatedAt?: string | Date;
-}
-
-export interface IngestLocationParams {
-    name: string;
-    city: string;
-    state: string;
-    country: string;
-    coordinates: CanonicalGeoPoint;
-    level?: LocationLevel;
 }

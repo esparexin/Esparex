@@ -26,8 +26,8 @@ export const getCategories = async (options?: { fetchOptions?: ServerFetchOption
 };
 
 /**
- * Get single category by ID or slug
- * Returns FINAL unwrapped data (Category | null)
+ * Get single category by ID or slug.
+ * Returns FINAL unwrapped data (Category | null).
  */
 export const getCategoryById = async (
     id: string

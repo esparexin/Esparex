@@ -49,11 +49,19 @@ const sendListingResponse = async (req: Request, res: Response, listingType: str
 
 export const getBusinesses = async (req: Request, res: Response) => {
     try {
-        const { city, category, limit } = req.query;
+        const { city, category, limit, latitude, longitude, radiusKm, locationId, listingCategoryId, brandId, excludeBusinessId, serviceOnly } = req.query;
         const businesses = await businessService.getBusinesses({
             city: city as string,
             category: category as string,
-            limit: limit ? parseInt(limit as string) : 20
+            limit: limit ? parseInt(limit as string) : 20,
+            latitude: latitude ? Number(latitude) : undefined,
+            longitude: longitude ? Number(longitude) : undefined,
+            radiusKm: radiusKm ? Number(radiusKm) : undefined,
+            locationId: locationId as string,
+            listingCategoryId: listingCategoryId as string,
+            brandId: brandId as string,
+            excludeBusinessId: excludeBusinessId as string,
+            serviceOnly: serviceOnly as string,
         });
         const sanitizedBusinesses = businesses.map((business) => sanitizeBusinessForPublic(business));
 

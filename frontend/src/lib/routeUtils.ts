@@ -25,7 +25,7 @@ export type UserPage =
     | "my-ads"
     | "saved-ads"
     | "messages"
-    | "public-profile"  // Unified public profile page for all users (normal and business)
+    | "public-profile"  // Canonical public profile route for sellers and businesses
     | "profile"
     | "profile-settings"
     | "profile-settings-business"
@@ -34,20 +34,17 @@ export type UserPage =
     | "my-business"
     | "my-services"  // My services page
     | "spare-parts"  // My spare parts page
-    | "business-profile"  // Business profile page
     | "purchases"
     | "edit-ad"  // Edit ad page
     | "edit-service"  // Edit service page
     | "edit-spare-part"  // Edit spare part listing page
     | "edit-business"  // Edit business profile page
-    | "ad-submission-success"
     | "post-service"  // Service posting form
     | "faq"  // FAQ / Help Center page
     | "safety-tips"  // Safety Tips page
     | "business-entry" // Canonical business entry point
     | "post-spare-part-listing" // Canonical spare part creation
     | "spare-part-listing" // Canonical spare part gallery view
-    | "browse-spare-part-listings" // Public spare parts browse page
 
     | "notifications" // Notifications page
 
@@ -89,12 +86,6 @@ export type UserPage =
     | "payments-faq"
     | "security-faq"
     | "account-faq"
-    | "find-technicians"
-    | "mobile-spare-parts"
-    | "laptop-service"
-    | "tv-repair"
-    | "spare-parts-marketplace"
-    | "device-repair-marketplace"
     | "smart-alerts-guide"
     | "plans-payments"
     | "account";  // /account root — protects all /account/* paths
@@ -103,7 +94,6 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     home: "/",
     browse: buildPublicBrowseRoute({ type: "ad" }),
     "browse-service-listings": buildPublicBrowseRoute({ type: "service" }),
-    "browse-spare-part-listings": buildPublicBrowseRoute({ type: "spare_part" }),
     "post-ad": "/post-ad",
     login: "/login",
     // ── /account/* namespace (SSOT for all private account pages) ──
@@ -112,7 +102,7 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     "my-services": "/account/services",
     "spare-parts": "/account/spare-parts",
     "saved-ads": "/account/saved",
-    messages: "/chat",
+    messages: "/account/messages",
     profile: "/account/profile",
     "profile-settings": "/account/settings",
     "profile-settings-business": "/business/edit",
@@ -121,7 +111,6 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     "business-entry": "/account/business",
     purchases: "/account/purchases",
     notifications: "/notifications",
-    "ad-submission-success": "/ad-submission-success",
     "post-spare-part-listing": "/post-spare-part-listing",
     about: "/about",
     faq: "/faq",
@@ -164,12 +153,6 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     "payments-faq": "/faq",
     "security-faq": "/faq",
     "account-faq": "/faq",
-    "find-technicians": buildPublicBrowseRoute({ type: "service" }),
-    "mobile-spare-parts": buildPublicBrowseRoute({ type: "spare_part" }),
-    "laptop-service": buildPublicBrowseRoute({ type: "service" }),
-    "tv-repair": buildPublicBrowseRoute({ type: "service" }),
-    "spare-parts-marketplace": buildPublicBrowseRoute({ type: "spare_part" }),
-    "device-repair-marketplace": buildPublicBrowseRoute({ type: "service" }),
     "smart-alerts-guide": "/account/alerts",
 };
 
@@ -237,6 +220,9 @@ export const getPageRoute = (
         partId?: string | number,
         businessId?: string | number,
         businessSlug?: string,
+        sellerId?: string | number,
+        sellerSlug?: string,
+        sellerType?: SellerType,
         category?: string,
         slug?: string
     }
@@ -254,12 +240,15 @@ export const getPageRoute = (
                 id: params?.adId,
                 slug: params?.slug,
             });
-        case "business-profile":
-            return params?.businessSlug
-                ? `/business/${encodeURIComponent(String(params.businessSlug))}`
-                : "/";
-
         case "public-profile":
+            if (params?.sellerType === "individual" && params?.sellerId) {
+                const sellerId = String(params.sellerId);
+                const sellerSlug = (params.sellerSlug || "").trim();
+                const sellerParam = sellerSlug
+                    ? `${sellerSlug}-${sellerId}`
+                    : sellerId;
+                return `/seller/${encodeURIComponent(sellerParam)}`;
+            }
             if (params?.businessSlug) {
                 return `/business/${encodeURIComponent(String(params.businessSlug))}`;
             }

@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 
 import type { Ad } from "@/schemas/ad.schema";
-import { getBusinessById, type Business } from "@/lib/api/user/businesses";
 
 import type { UserPage } from "@/lib/routeUtils";
 
@@ -36,10 +34,16 @@ interface ListingDetailSidebarProps {
         isChatLocked: boolean;
     };
     onChat: () => void;
+    onRevealPhone: () => void;
+    isPhoneLoading: boolean;
+    revealedPhone: string | null;
+    isPhoneMasked: boolean;
+    phoneMessage: string | null;
     onEdit: () => void;
     onDelete: () => void;
     onMarkSold: () => void;
     onPromote: () => void;
+    onViewAnalytics: () => void;
     onReport: () => void;
 }
 
@@ -52,38 +56,22 @@ export function ListingDetailSidebar({
     isOwner,
     adStatus,
     onChat,
+    onRevealPhone,
+    isPhoneLoading,
+    revealedPhone,
+    isPhoneMasked,
+    phoneMessage,
     onEdit,
     onDelete,
     onMarkSold,
     onPromote,
+    onViewAnalytics,
     onReport,
 }: ListingDetailSidebarProps) {
-    const [businessDetails, setBusinessDetails] = useState<Business | null>(null);
-
-    useEffect(() => {
-        let isMounted = true;
-
-        if (!ad.isBusiness || !ad.verified || !ad.businessId) {
-            setBusinessDetails(null);
-            return () => {
-                isMounted = false;
-            };
-        }
-
-        void getBusinessById(ad.businessId)
-            .then((business) => {
-                if (!isMounted) return;
-                setBusinessDetails(business);
-            })
-            .catch(() => {
-                if (!isMounted) return;
-                setBusinessDetails(null);
-            });
-
-        return () => {
-            isMounted = false;
-        };
-    }, [ad.businessId, ad.isBusiness, ad.verified]);
+    const ctaPolicy = {
+        businessProfileSurface: "business-card",
+        visitorChatSurface: "sticky-mobile-inline-desktop",
+    } as const;
 
     return (
         <div className="space-y-3 md:space-y-4 p-4 md:p-0">
@@ -91,7 +79,6 @@ export function ListingDetailSidebar({
                 ad={ad}
                 categoryLabel={categoryLabel}
                 viewCount={viewCount}
-                navigateTo={navigateTo}
                 variant="desktop"
             />
 
@@ -101,13 +88,18 @@ export function ListingDetailSidebar({
                 isOwner={isOwner}
                 isChatLocked={adStatus.isChatLocked}
                 onChat={onChat}
-                navigateTo={navigateTo}
+                onRevealPhone={onRevealPhone}
+                isPhoneLoading={isPhoneLoading}
+                revealedPhone={revealedPhone}
+                isPhoneMasked={isPhoneMasked}
+                phoneMessage={phoneMessage}
             />
-            <AdBusinessCard
-                businessDetails={businessDetails}
-                ad={ad}
-                navigateTo={navigateTo}
-            />
+            {ctaPolicy.businessProfileSurface === "business-card" ? (
+                <AdBusinessCard
+                    ad={ad}
+                    navigateTo={navigateTo}
+                />
+            ) : null}
 
             <AdSafetyTips />
 
@@ -120,6 +112,7 @@ export function ListingDetailSidebar({
                     onDelete={onDelete}
                     onMarkSold={onMarkSold}
                     onPromote={onPromote}
+                    onViewAnalytics={onViewAnalytics}
                 />
             )}
             {!isOwner && (

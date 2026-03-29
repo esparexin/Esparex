@@ -9,10 +9,14 @@ import { CategoryBrowser } from "@/components/home/CategoryBrowser";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { BusinessQuickActionsShell } from "@/components/home/BusinessQuickActionsShell";
 
+const shouldLogHomeServerFallback = () => process.env.NODE_ENV === "development";
+
 async function getHomeCategories(): Promise<Category[]> {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!baseUrl) {
-        logger.error("NEXT_PUBLIC_API_URL is missing for homepage categories");
+        if (shouldLogHomeServerFallback()) {
+            logger.warn("NEXT_PUBLIC_API_URL is missing for homepage categories");
+        }
         return [];
     }
 
@@ -46,7 +50,9 @@ async function getHomeCategories(): Promise<Category[]> {
 
         return [];
     } catch (error) {
-        logger.error("Home categories fetch failed", error);
+        if (shouldLogHomeServerFallback()) {
+            logger.warn("Home categories fetch failed", error);
+        }
         return [];
     }
 }

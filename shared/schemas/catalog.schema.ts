@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LISTING_TYPE_VALUES, LISTING_TYPE } from "../enums/listingType";
 
 // Base Validations
 export const ObjectIdSchema = z.preprocess(
@@ -37,8 +38,8 @@ export const CreateCategorySchema = z.object({
     description: z.string().optional(),
     parentId: ObjectIdSchema.optional(),
     isActive: z.boolean().default(true),
-    listingType: z.array(z.enum(['postad', 'postservice', 'postsparepart'])).optional(),
-    // Deprecated: Use listingType.includes('postsparepart')
+    listingType: z.array(z.enum(LISTING_TYPE_VALUES)).optional(),
+    // Deprecated: Use listingType.includes('spare_part')
     // supportsSpareParts: z.boolean().default(false),
     serviceSelectionMode: z.enum(['single', 'multi']).default('multi'),
     hasScreenSizes: z.boolean().default(false),
@@ -93,15 +94,12 @@ export const ModelSchema = CreateModelSchema.extend({
 export const CreateSparePartSchema = z.object({
     name: z.string().min(2),
     slug: SlugSchema.optional(),
-    // type: z.enum(['PRIMARY', 'SECONDARY']).optional(),
-    listingType: z.array(z.enum(['postad', 'postsparepart'])).optional(),
+    listingType: z.array(z.enum([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART])).optional(),
     categories: z.array(ObjectIdSchema).min(1, "At least one category is required"),
     brandId: ObjectIdSchema.optional(),
     modelId: ObjectIdSchema.optional(),
     sortOrder: z.number().default(0),
-    isActive: z.boolean().default(false),
-    status: z.enum(['pending', 'active', 'inactive', 'rejected']).default('pending'),
-    rejectionReason: z.string().optional()
+    isActive: z.boolean().default(true)
 }).strict();
 
 export const UpdateSparePartSchema = CreateSparePartSchema.partial();

@@ -58,6 +58,25 @@ export interface ListingPageResult {
     pagination: PaginationEnvelope;
 }
 
+export interface ListingAnalytics {
+    id?: string | number;
+    views?: number | {
+        total?: number;
+        unique?: number;
+        lastViewedAt?: string;
+    };
+}
+
+export interface ListingPhoneResponse {
+    phone?: string;
+    mobile?: string;
+    masked?: string;
+}
+
+interface GetListingByIdOptions {
+    throwOnServerError?: boolean;
+}
+
 function getDeleteListingEndpoint(id: string | number, listingType: ListingTypeValue): string {
     switch (listingType) {
         case LISTING_TYPE.SERVICE:
@@ -152,10 +171,43 @@ function toListingSchemaCompatible(data: unknown): unknown {
         return undefined;
     };
 
-    const normalizedSellerId = extractId(record.sellerId);
+    const rawSellerId = record.sellerId;
+    const normalizedSellerId = extractId(rawSellerId);
     const normalizedUserId = extractId(record.userId) ?? '';
     if (normalizedSellerId) record.sellerId = normalizedSellerId;
     record.userId = normalizedUserId;
+
+    if (record.verified === undefined && rawSellerId && typeof rawSellerId === 'object') {
+        const sellerRecord = rawSellerId as Record<string, unknown>;
+        if (typeof sellerRecord.isVerified === 'boolean') {
+            record.verified = sellerRecord.isVerified;
+        }
+    }
+
+    const normalizeReferenceField = (
+        idKey: "categoryId" | "brandId" | "modelId" | "businessId",
+        labelKey: "category" | "brand" | "model" | null
+    ) => {
+        const reference = record[idKey];
+        const normalizedId = extractId(reference);
+        if (normalizedId) {
+            record[idKey] = normalizedId;
+        } else if (reference !== undefined && typeof reference === "object") {
+            delete record[idKey];
+        }
+
+        if (labelKey && record[labelKey] === undefined) {
+            const normalizedLabel = toLegacyStringField(reference);
+            if (normalizedLabel) {
+                record[labelKey] = normalizedLabel;
+            }
+        }
+    };
+
+    normalizeReferenceField("categoryId", "category");
+    normalizeReferenceField("brandId", "brand");
+    normalizeReferenceField("modelId", "model");
+    normalizeReferenceField("businessId", null);
 
     if (record.category !== undefined) {
         const norm = toLegacyStringField(record.category);
@@ -253,7 +305,11 @@ export function stripEmptyObjectIdFields<T extends Record<string, unknown>>(payl
 
 // --- Generic API Functions ---
 
-export const getListingById = async (id: string | number, headers?: Record<string, string>): Promise<Listing | null> => {
+export const getListingById = async (
+    id: string | number,
+    headers?: Record<string, string>,
+    options?: GetListingByIdOptions
+): Promise<Listing | null> => {
     const normalizedIdentifier = normalizeListingIdentifier(id);
     if (!isValidListingIdentifier(normalizedIdentifier)) return null;
     try {
@@ -267,14 +323,23 @@ export const getListingById = async (id: string | number, headers?: Record<strin
         if (statusCode === 404 || !result) return null;
         return normalizeListing(result);
     } catch (e) {
+        if (typeof window === 'undefined' && options?.throwOnServerError) {
+            const status = typeof (e as { status?: unknown })?.status === 'number'
+                ? Number((e as { status?: number }).status)
+                : Number.parseInt(String((e as Error).message || '').split(':').pop() || '', 10);
+            if (status === 404 || status === 403) {
+                return null;
+            }
+            throw e;
+        }
         logger.error('Failed to load listing', e);
         return null;
     }
 };
 
-export const getListingAnalytics = async (id: string | number): Promise<any> => {
+export const getListingAnalytics = async (id: string | number): Promise<ListingAnalytics | null> => {
     try {
-        const { data } = await toApiResult<any>(apiClient.get(API_ROUTES.USER.LISTING_ANALYTICS(id)));
+        const { data } = await toApiResult<ListingAnalytics>(apiClient.get(API_ROUTES.USER.LISTING_ANALYTICS(id)));
         return data;
     } catch (e) {
         logger.error('Failed to load listing analytics', e);
@@ -426,10 +491,6 @@ export interface TrendingAdsRequestParams {
     limit?: number;
 }
 
-export interface SimilarAdsPayload {
-    ads: Listing[];
-}
-
 // --- Direct Listing Queries ---
 
 export const getAdsPage = async (
@@ -498,6 +559,8 @@ export const getHomeAds = async (
     paramsInput?: HomeAdsRequestParams,
     options?: { fetchOptions?: ServerFetchOptions }
 ): Promise<HomeAdsPayload> => {
+    const shouldLogHomeFeedFallback =
+        typeof window !== 'undefined' || process.env.NODE_ENV === 'development';
     const fallbackCursor = (
         typeof paramsInput?.cursor === 'string'
             ? { createdAt: paramsInput.cursor, id: '' }
@@ -550,7 +613,9 @@ export const getHomeAds = async (
             hasMore: result.hasMore === true
         };
     } catch (e) {
-        logger.error('Failed to fetch home ads', e);
+        if (shouldLogHomeFeedFallback) {
+            logger.warn('Failed to fetch home ads', e);
+        }
         return { ads: [], nextCursor: fallbackCursor, hasMore: false };
     }
 };
@@ -589,34 +654,6 @@ export const getTrendingAds = async (
 export const getAds = async (filters?: ListingFilters, options?: { endpoint?: string }): Promise<Listing[]> => {
     const result = await getAdsPage(filters, options);
     return result.data;
-};
-
-export const getSimilarAds = async (
-    adId: string | number,
-    paramsInput?: { limit?: number }
-): Promise<SimilarAdsPayload> => {
-    const normalizedIdentifier = normalizeListingIdentifier(adId);
-    if (!isValidListingIdentifier(normalizedIdentifier)) return { ads: [] };
-
-    try {
-        let url: string = API_ROUTES.USER.AD_SIMILAR(normalizedIdentifier);
-        const params = new URLSearchParams();
-        if (paramsInput?.limit) params.append('limit', String(paramsInput.limit));
-        
-        const query = params.toString();
-        url = query ? (url.includes('?') ? `${url}&${query}` : `${url}?${query}`) : url;
-
-        const result = await (typeof window === 'undefined'
-            ? fetchUserApiJson(url).then(unwrapApiPayload) as Promise<any>
-            : apiClient.get(url).then((res: any) => unwrapApiPayload(res.data) as any));
-
-        return {
-            ads: Array.isArray(result?.ads) ? result.ads.map(normalizeListing) : []
-        };
-    } catch (e) {
-        logger.error('Failed to fetch similar ads', e);
-        return { ads: [] };
-    }
 };
 
 /**
@@ -663,12 +700,14 @@ export const createListing = async (
  */
 export const updateListing = async (
     id: string | number,
-    listingData: Partial<Listing>
+    listingData: Partial<Listing>,
+    options?: { endpoint?: string }
 ): Promise<Listing | null> => {
     const sanitizedPayload = stripEmptyObjectIdFields(listingData as Record<string, unknown>);
+    const endpoint = options?.endpoint || API_ROUTES.USER.LISTING_EDIT(id);
 
     return executeListingMutationRequest(
-        apiClient.put<unknown>(API_ROUTES.USER.LISTING_EDIT(id), sanitizedPayload, {
+        apiClient.put<unknown>(endpoint, sanitizedPayload, {
             silent: true,
         }),
         "Failed to update listing"
@@ -734,9 +773,9 @@ export const deactivateListing = async (id: string | number): Promise<boolean> =
 /**
  * Reveals the seller's phone number for a listing.
  */
-export const getListingPhone = async (id: string | number): Promise<{ mobile: string } | null> => {
+export const getListingPhone = async (id: string | number): Promise<ListingPhoneResponse | null> => {
     try {
-        const { data, error } = await toApiResult<{ mobile: string }>(
+        const { data, error } = await toApiResult<ListingPhoneResponse>(
             apiClient.get(API_ROUTES.USER.LISTING_PHONE(id), { silent: true })
         );
         if (error) throw error;

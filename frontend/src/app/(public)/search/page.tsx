@@ -17,7 +17,7 @@ export async function generateMetadata(
     const searchParams = await props.searchParams;
     const parsed = parsePublicBrowseParams(searchParams);
     const hasFilters = Object.keys(searchParams).some((k) =>
-        ['q', 'page', 'sort', 'category', 'minPrice', 'maxPrice', 'location', 'locationId', 'brands', 'radiusKm'].includes(k)
+        ['q', 'page', 'sort', 'category', 'categoryId', 'modelId', 'minPrice', 'maxPrice', 'location', 'locationId', 'brands', 'radiusKm'].includes(k)
     );
 
     const titlePrefix = parsed.type === 'service' ? 'Search Services' : parsed.type === 'spare_part' ? 'Search Spare Parts' : 'Search Ads';
@@ -63,6 +63,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
                 limit: 20,
                 ...(parsed.q ? { search: parsed.q } : {}),
                 ...(parsed.categoryId ? { categoryId: parsed.categoryId } : parsed.category ? { category: parsed.category } : {}),
+                ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
                 ...(parsed.sort ? { sortBy: sortMap[parsed.sort] } : {}),
                 ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
                 ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),

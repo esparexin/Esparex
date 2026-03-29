@@ -72,6 +72,11 @@ export const AdSchema = z.object({
     // Extended UI fields
     businessName: z.string().optional(),
     businessId: z.string().optional(),
+    businessType: z.string().optional(),
+    businessCategory: z.string().optional(),
+    businessCity: z.string().optional(),
+    businessState: z.string().optional(),
+    businessExpiresAt: z.string().optional(),
     sellerName: z.string().optional(), // Normalized display name
     phone: z.string().optional(),
     mobile: z.string().optional(),

@@ -22,6 +22,7 @@ const ALLOWED_BUSINESS_UPLOAD_TYPES = [
     'image/jpeg',
     'image/png',
     'image/webp',
+    'image/avif',
     'image/heic',
     'image/heif',
     'application/pdf',
@@ -47,8 +48,8 @@ router.post('/', protect, mutationLimiter, validateRequest(createBusinessSchema)
 // single('file') matches the controller's req.file expectation — no controller changes needed.
 router.post('/upload', protect, mutationLimiter, businessUpload.single('file'), uploadFile);
 
-// GET /api/v1/businesses/me - Get my businesses (plural)
-router.get('/me', protect, businessController.getMyBusinesses);
+// GET /api/v1/businesses/me - Get the current user's active business
+router.get('/me', protect, businessController.getMyBusiness);
 
 // DELETE /api/v1/businesses/me - Withdraw pending business application
 router.delete('/me', protect, mutationLimiter, businessController.withdrawBusiness);

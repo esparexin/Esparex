@@ -40,7 +40,13 @@ export const fetchUserApiJson = async (
         if (options?.returnNullOnHttpError) {
             return null;
         }
-        throw new Error(`Failed to load ${endpoint}: ${response.status}`);
+        const error = new Error(`Failed to load ${endpoint}: ${response.status}`) as Error & {
+            status?: number;
+            endpoint?: string;
+        };
+        error.status = response.status;
+        error.endpoint = endpoint;
+        throw error;
     }
 
     return response.json().catch(() => null);

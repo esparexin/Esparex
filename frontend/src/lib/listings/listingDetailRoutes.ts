@@ -10,7 +10,7 @@ import {
 
 type ListingDetailRouteConfig = {
   missingTitle: string;
-  canonicalBasePath: "/ads" | "/services";
+  canonicalBasePath: "/ads" | "/services" | "/spare-part-listings";
   buildStructuredData: (listing: ListingLike) => ListingStructuredData;
 };
 
@@ -84,6 +84,27 @@ const serviceListingRouteConfig: ListingDetailRouteConfig = {
   }),
 };
 
+const sparePartListingRouteConfig: ListingDetailRouteConfig = {
+  missingTitle: "Spare Part Not Found | Esparex",
+  canonicalBasePath: "/spare-part-listings",
+  buildStructuredData: (listing) => ({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: listing.title,
+    description: listing.description,
+    image: listing.images || [],
+    offers: {
+      "@type": "Offer",
+      price: listing.price,
+      priceCurrency: "IQD",
+      availability:
+        listing.status === "live"
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+    },
+  }),
+};
+
 export const generateAdPageMetadata = createListingPageMetadata(
   adListingRouteConfig
 );
@@ -93,4 +114,10 @@ export const generateServicePageMetadata = createListingPageMetadata(
 );
 export const ServiceListingPage = createListingDetailRoute(
   serviceListingRouteConfig
+);
+export const generateSparePartPageMetadata = createListingPageMetadata(
+  sparePartListingRouteConfig
+);
+export const SparePartListingPage = createListingDetailRoute(
+  sparePartListingRouteConfig
 );

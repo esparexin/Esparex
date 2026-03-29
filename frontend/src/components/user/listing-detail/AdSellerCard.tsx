@@ -1,11 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, ChevronRight, MessageCircle, MessageSquareOff } from "lucide-react";
-import { ROUTES } from "@/lib/logic/routes";
-import type { UserPage } from "@/lib/routeUtils";
+import { Building2, ChevronRight, MessageCircle, MessageSquareOff, Phone } from "lucide-react";
 import type { Ad } from "@/schemas/ad.schema";
 import { SellerIdentityPanel } from "../shared/SellerIdentityPanel";
 import { Button } from "@/components/ui/button";
+import { generateAdSlug } from "@/lib/slug";
+import { getPageRoute } from "@/lib/routeUtils";
 
 interface AdSellerCardProps {
     ad: Ad;
@@ -13,15 +13,11 @@ interface AdSellerCardProps {
     isOwner: boolean;
     isChatLocked?: boolean;
     onChat?: () => void;
-    navigateTo: (
-        page: UserPage,
-        adId?: string | number,
-        category?: string,
-        sellerIdOrBusinessId?: string,
-        serviceId?: string,
-        sellerId?: string,
-        sellerType?: "business" | "individual"
-    ) => void;
+    onRevealPhone?: () => void;
+    isPhoneLoading?: boolean;
+    revealedPhone?: string | null;
+    isPhoneMasked?: boolean;
+    phoneMessage?: string | null;
 }
 
 export function AdSellerCard({
@@ -30,18 +26,31 @@ export function AdSellerCard({
     isOwner,
     isChatLocked,
     onChat,
-    navigateTo
+    onRevealPhone,
+    isPhoneLoading,
+    revealedPhone,
+    isPhoneMasked,
+    phoneMessage,
 }: AdSellerCardProps) {
     if (isOwner) return null;
     const sellerProfileId = String(ad.sellerId || "").trim();
+    const sellerSlug = generateAdSlug(sellerDisplayName || ad.sellerName || "seller");
     const sellerProfileHref = sellerProfileId
-        ? `/seller/${encodeURIComponent(sellerProfileId)}`
+        ? getPageRoute("public-profile", {
+            sellerId: sellerProfileId,
+            sellerSlug,
+            sellerType: "individual",
+        })
         : null;
 
-    const isInteractive = ad.isBusiness || !!sellerProfileHref;
+    const isInteractive = !ad.isBusiness && !!sellerProfileHref;
     const panelClassName = `items-center p-2.5 rounded-[1.5rem] border border-transparent ${
         isInteractive ? "hover:bg-slate-50 group hover:border-slate-100" : ""
     }`;
+    const showInlineChat = !isChatLocked && Boolean(onChat);
+    const showInlinePhone = Boolean(onRevealPhone);
+    const showContactPanel =
+        showInlineChat || showInlinePhone || Boolean(revealedPhone) || Boolean(phoneMessage);
 
     const renderAvatar = () => {
         if (ad.isBusiness) {
@@ -64,8 +73,7 @@ export function AdSellerCard({
         <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-[2rem] border border-slate-100/50">
             <CardContent className="p-6 space-y-5">
                 <SellerIdentityPanel
-                    onClick={ad.isBusiness && ad.businessId ? () => navigateTo(ROUTES.PUBLIC_PROFILE, undefined, undefined, ad.businessId) : undefined}
-                    href={!ad.isBusiness && sellerProfileHref ? sellerProfileHref : undefined}
+                    href={sellerProfileHref}
                     className={panelClassName}
                     avatar={renderAvatar()}
                     name={sellerDisplayName}
@@ -80,14 +88,43 @@ export function AdSellerCard({
                     trailing={isInteractive ? <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" /> : undefined}
                 />
 
-                {!isChatLocked && onChat && (
-                    <Button
-                        onClick={onChat}
-                        className="hidden md:inline-flex w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold gap-2 shadow-lg shadow-green-200"
-                    >
-                        <MessageCircle className="h-5 w-5" />
-                        Chat with Seller
-                    </Button>
+                {showContactPanel && (
+                    <div className="grid gap-3">
+                        {showInlineChat && (
+                            <Button
+                                onClick={onChat}
+                                className="hidden md:flex w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold gap-2 shadow-lg shadow-green-200"
+                            >
+                                <MessageCircle className="h-5 w-5" />
+                                Chat with Seller
+                            </Button>
+                        )}
+                        {showInlinePhone && (
+                            <Button
+                                onClick={onRevealPhone}
+                                variant="outline"
+                                disabled={isPhoneLoading}
+                                className="w-full h-12 rounded-xl font-semibold gap-2"
+                            >
+                                <Phone className="h-4 w-4" />
+                                {revealedPhone
+                                    ? (isPhoneMasked ? "Phone preview" : "Call seller")
+                                    : (isPhoneLoading ? "Loading phone..." : "Show phone")}
+                            </Button>
+                        )}
+                        {(revealedPhone || phoneMessage) && (
+                            <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                                {revealedPhone && (
+                                    <p className="text-sm font-semibold text-slate-900">
+                                        {revealedPhone}
+                                    </p>
+                                )}
+                                {phoneMessage && (
+                                    <p className="text-xs text-slate-500 mt-1">{phoneMessage}</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 )}
 
                 {isChatLocked && (

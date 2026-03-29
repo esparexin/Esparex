@@ -36,10 +36,6 @@ router.get("/my-ads", protect, validateSearchParams, adController.getMyAds);
 // Search autocomplete suggestions
 router.get("/suggestions", searchLimiter, adController.getSuggestions);
 
-// Similar ads by source listing
-router.get("/:id/similar", validateObjectId, searchLimiter, adController.getSimilarAds);
-
-
 // Create ad
 router.post(
     "/",

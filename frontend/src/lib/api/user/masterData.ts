@@ -1,7 +1,8 @@
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "../routes";
 import logger from "@/lib/logger";
-import type { FormPlacement } from "@shared/enums/listingType";
+import { unwrapApiPayload } from "@/lib/api/result";
+import type { ListingTypeValue } from "@shared/enums/listingType";
 
 /**
  * Category Data API
@@ -62,12 +63,6 @@ export interface ServiceType {
 /* INTERNAL HELPER                                                            */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Normalizes all backend response shapes:
- * - { data: [...] }
- * - { output: { data: [...] } }
- * - raw array
- */
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== null;
 
@@ -82,20 +77,22 @@ const normalizeEntityId = (value: unknown): string | undefined => {
     return undefined;
 };
 
-function normalizeArrayResponse<T>(response: unknown): T[] {
-    const record = isRecord(response) ? response : {};
-    const data =
-        (isRecord(record.data) ? (record.data as Record<string, unknown>).items : undefined) ??
-        (isRecord(record.data) ? (record.data as Record<string, unknown>).data : undefined) ??
-        (isRecord(record.output) ? (record.output as Record<string, unknown>).items : undefined) ??
-        (isRecord(record.output) ? (record.output as Record<string, unknown>).data : undefined) ??
-        record.items ??
-        record.data ??
-        record.output ??
-        response ??
-        [];
+function unwrapArrayPayload<T>(response: unknown): T[] {
+    const payload = unwrapApiPayload<unknown>(response);
+    if (Array.isArray(payload)) {
+        return payload as T[];
+    }
 
-    return Array.isArray(data) ? (data as T[]) : [];
+    if (isRecord(payload)) {
+        if (Array.isArray(payload.items)) {
+            return payload.items as T[];
+        }
+        if (Array.isArray(payload.data)) {
+            return payload.data as T[];
+        }
+    }
+
+    return [];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -107,7 +104,7 @@ export async function getBrands(categoryId: string): Promise<Brand[]> {
         const response = await apiClient.get(API_ROUTES.USER.BRANDS_BASE, {
             params: { categoryId },
         });
-        return normalizeArrayResponse<Brand>(response).map((brand) => ({
+        return unwrapArrayPayload<Brand>(response).map((brand) => ({
             ...brand,
             id: normalizeEntityId(brand) ?? brand.id,
         }));
@@ -122,7 +119,7 @@ export async function getModels(brandId: string, categoryId?: string): Promise<D
         const response = await apiClient.get(API_ROUTES.USER.MODELS_BASE, {
             params: { brandId, ...(categoryId && { categoryId }) },
         });
-        return normalizeArrayResponse<DeviceModel>(response).map((model) => ({
+        return unwrapArrayPayload<DeviceModel>(response).map((model) => ({
             ...model,
             id: normalizeEntityId(model) ?? model.id,
         }));
@@ -137,7 +134,7 @@ export async function getScreenSizes(categoryId?: string): Promise<ScreenSize[]>
         const response = await apiClient.get(API_ROUTES.USER.SCREEN_SIZES, {
             params: categoryId ? { categoryId } : undefined,
         });
-        return normalizeArrayResponse<ScreenSize>(response).map((screenSize) => ({
+        return unwrapArrayPayload<ScreenSize>(response).map((screenSize) => ({
             ...screenSize,
             id: normalizeEntityId(screenSize) ?? screenSize.id,
         }));
@@ -152,7 +149,7 @@ export async function getServiceTypes(categoryId?: string): Promise<ServiceType[
         const response = await apiClient.get(API_ROUTES.USER.SERVICE_TYPES, {
             params: categoryId ? { categoryId } : undefined,
         });
-        return normalizeArrayResponse<ServiceType>(response).map((serviceType) => ({
+        return unwrapArrayPayload<ServiceType>(response).map((serviceType) => ({
             ...serviceType,
             id: normalizeEntityId(serviceType) ?? serviceType.id,
         }));
@@ -164,16 +161,16 @@ export async function getServiceTypes(categoryId?: string): Promise<ServiceType[
 
 export async function getSpareParts(
     categoryId?: string,
-    placement?: Extract<FormPlacement, 'postad' | 'postsparepart'>
+    listingType?: ListingTypeValue
 ): Promise<SparePart[]> {
     try {
         const response = await apiClient.get(API_ROUTES.USER.SPARE_PARTS_BASE, {
             params: {
                 ...(categoryId && { categoryId }),
-                ...(placement && { placement })
+                ...(listingType && { listingType })
             },
         });
-        return normalizeArrayResponse<SparePart>(response).map((part) => ({
+        return unwrapArrayPayload<SparePart>(response).map((part) => ({
             ...part,
             id: normalizeEntityId(part) ?? part.id,
         }));

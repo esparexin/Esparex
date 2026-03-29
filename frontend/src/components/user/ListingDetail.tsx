@@ -1,5 +1,5 @@
 "use client";
-import { useState, useLayoutEffect, useMemo, useReducer, useCallback } from "react";
+import { useState, useLayoutEffect, useMemo, useReducer, useCallback, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatLocation } from "@/lib/location/locationService";
 import type { UserPage } from "@/lib/routeUtils";
@@ -30,7 +30,14 @@ const ListingRelatedBusinessesSection = dynamic(
   { ssr: false }
 );
 import { BackButton } from "@/components/common/BackButton";
-import { deleteListing, markAsSold } from "@/lib/api/user/listings";
+import {
+  deleteListing,
+  getListingAnalytics,
+  getListingPhone,
+  incrementListingView,
+  markAsSold,
+  type ListingAnalytics,
+} from "@/lib/api/user/listings";
 import { chatApi } from "@/lib/api/chatApi";
 import type { Listing as Ad } from "@/lib/api/user/listings";
 import { saveAd, unsaveAd } from "@/lib/api/user/users";
@@ -39,10 +46,6 @@ import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
 import { AdTitlePriceCard } from "./listing-detail/AdTitlePriceCard";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";
 import { AdPendingStatusCard } from "./listing-detail/AdPendingStatusCard";
-const SimilarAds = dynamic(
-  () => import("./listing-detail/SimilarAds").then((mod) => mod.SimilarAds),
-  { ssr: false }
-);
 
 import { isAdSold, getSoldDetails } from "../../lib/logic/soldStatus";
 import { canUserPerformAction } from "../../lib/logic/ownership";
@@ -60,6 +63,8 @@ import {
   DEFAULT_LISTING_UNAVAILABLE_MESSAGE,
   isListingUnavailableError,
 } from "@/lib/listings/listingUnavailable";
+import { buildLoginUrl } from "@/lib/authHelpers";
+import { buildChatConversationRoute } from "@/lib/chatUiRoutes";
 
 interface ListingDetailProps {
   adId: string | number | null;
@@ -110,6 +115,14 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [listingUnavailableMessage, setListingUnavailableMessage] = useState<string | null>(null);
+  const [showAnalyticsDialog, setShowAnalyticsDialog] = useState(false);
+  const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(false);
+  const [analytics, setAnalytics] = useState<ListingAnalytics | null>(null);
+  const [revealedPhone, setRevealedPhone] = useState<string | null>(null);
+  const [isPhoneMasked, setIsPhoneMasked] = useState(false);
+  const [phoneMessage, setPhoneMessage] = useState<string | null>(null);
+  const [isPhoneLoading, setIsPhoneLoading] = useState(false);
+  const trackedViewRef = useRef<string | null>(null);
   const { data: savedAds = [] } = useSavedAdsQuery({
     enabled: !!user,
   });
@@ -172,15 +185,6 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     return computedAdStatus;
   }, [ad, computedAdStatus, soldOverride]);
 
-
-
-
-
-
-  // Early return if ad not found - MUST be before any code that uses ad
-
-  // Now it's safe to use ad - it's guaranteed to exist after the check above
-
   // Canonical ownership policy (sellerId -> current user id)
   const isOwner = canUserPerformAction(
     ad
@@ -190,6 +194,96 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
       : null,
     user || null
   );
+
+  const analyticsSummary = useMemo(() => {
+    const analyticsViews = analytics?.views;
+    if (typeof analyticsViews === "number") {
+      return {
+        total: analyticsViews,
+        unique: analyticsViews,
+        lastViewedAt: null,
+      };
+    }
+
+    if (analyticsViews && typeof analyticsViews === "object") {
+      return {
+        total: typeof analyticsViews.total === "number" ? analyticsViews.total : viewCount,
+        unique: typeof analyticsViews.unique === "number" ? analyticsViews.unique : viewCount,
+        lastViewedAt: typeof analyticsViews.lastViewedAt === "string" ? analyticsViews.lastViewedAt : null,
+      };
+    }
+
+    const currentViews = ad?.views && typeof ad.views === "object"
+      ? ad.views as { unique?: number; lastViewedAt?: string }
+      : null;
+
+    return {
+      total: viewCount,
+      unique: typeof currentViews?.unique === "number" ? currentViews.unique : viewCount,
+      lastViewedAt: typeof currentViews?.lastViewedAt === "string" ? currentViews.lastViewedAt : null,
+    };
+  }, [ad?.views, analytics, viewCount]);
+
+  useEffect(() => {
+    setAnalytics(null);
+    setShowAnalyticsDialog(false);
+    setRevealedPhone(null);
+    setIsPhoneMasked(false);
+    setPhoneMessage(null);
+    trackedViewRef.current = null;
+  }, [ad?.id]);
+
+  useEffect(() => {
+    if (!ad?.id || isOwner) {
+      return;
+    }
+
+    const trackingKey = String(ad.id);
+    if (trackedViewRef.current === trackingKey) {
+      return;
+    }
+
+    trackedViewRef.current = trackingKey;
+    let cancelled = false;
+
+    void incrementListingView(ad.id)
+      .then(() => {
+        if (!cancelled) {
+          queryClient.setQueryData<Ad | undefined>(queryKeys.ads.detail(String(ad.id)), (current) => {
+            if (!current) return current;
+
+            if (typeof current.views === "number") {
+              return {
+                ...current,
+                views: current.views + 1,
+              };
+            }
+
+            const currentViews = current.views && typeof current.views === "object"
+              ? current.views as { total?: number; unique?: number; lastViewedAt?: string }
+              : {};
+
+            return {
+              ...current,
+              views: {
+                ...currentViews,
+                total: (typeof currentViews.total === "number" ? currentViews.total : 0) + 1,
+                unique: typeof currentViews.unique === "number" ? currentViews.unique : 0,
+              },
+            };
+          });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          trackedViewRef.current = null;
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ad?.id, isOwner]);
   const isPendingOwner = Boolean(isOwner && ad?.status === "pending");
 
   const handleListingUnavailable = useCallback((message = DEFAULT_LISTING_UNAVAILABLE_MESSAGE) => {
@@ -304,15 +398,87 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     }
   };
 
-  const handleViewAnalytics = () => {
-    notify.info("Viewing detailed analytics...");
+  const handleViewAnalytics = async () => {
+    if (!ad?.id) return;
+
+    setShowAnalyticsDialog(true);
+    setIsAnalyticsLoading(true);
+    try {
+      const result = await getListingAnalytics(ad.id);
+      if (result) {
+        setAnalytics(result);
+      } else {
+        notify.info("No analytics available yet for this listing.");
+      }
+    } catch {
+      notify.error("Failed to load listing analytics");
+    } finally {
+      setIsAnalyticsLoading(false);
+    }
+  };
+
+  const handleRevealPhone = async () => {
+    if (!ad?.id || isPhoneLoading) return;
+
+    if (revealedPhone && !isPhoneMasked) {
+      window.location.href = `tel:${revealedPhone}`;
+      return;
+    }
+
+    if (revealedPhone && isPhoneMasked && !user) {
+      const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      void router.push(buildLoginUrl(returnTo));
+      return;
+    }
+
+    setIsPhoneLoading(true);
+    setPhoneMessage(null);
+
+    try {
+      const result = await getListingPhone(ad.id);
+      if (result?.mobile || result?.phone) {
+        const phone = result.mobile || result.phone || null;
+        setRevealedPhone(phone);
+        setIsPhoneMasked(false);
+        setPhoneMessage("Tap again to call the seller.");
+        return;
+      }
+
+      if (result?.masked) {
+        setRevealedPhone(result.masked);
+        setIsPhoneMasked(true);
+        setPhoneMessage("Login to reveal the full phone number.");
+        return;
+      }
+
+      setPhoneMessage("Phone number is unavailable for this listing.");
+    } catch (phoneError) {
+      const backendCode = String(
+        (phoneError as { context?: { backendErrorCode?: unknown } })?.context?.backendErrorCode || ""
+      );
+      if (backendCode === "PHONE_REQUEST_REQUIRED") {
+        const message = "Seller shares phone numbers on request only. Use chat first.";
+        setPhoneMessage(message);
+        notify.info(message);
+      } else if (backendCode === "PHONE_HIDDEN") {
+        const message = "Seller chose not to share a phone number for this listing.";
+        setPhoneMessage(message);
+        notify.info(message);
+      } else {
+        notify.error(phoneError instanceof Error ? phoneError.message : "Failed to reveal phone number");
+      }
+    } finally {
+      setIsPhoneLoading(false);
+    }
   };
 
   const handleChatWithSeller = async () => {
+    const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
     if (!user) {
       if (!isAuthResolved) return;
       notify.info("Please login to chat with the seller");
-      navigateTo(ROUTES.LOGIN);
+      void router.push(buildLoginUrl(returnTo));
       return;
     }
 
@@ -323,7 +489,8 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
 
     try {
       const result = await chatApi.start(String(ad.id), { silent: true });
-      window.location.assign(`/chat/${encodeURIComponent(result.conversationId)}`);
+      const chatUrl = buildChatConversationRoute(String(result.conversationId), { returnTo });
+      void router.push(chatUrl);
     } catch (chatError) {
       if (isListingUnavailableError(chatError)) {
         handleListingUnavailable();
@@ -472,7 +639,6 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
                       ad={ad}
                       categoryLabel={categoryLabel}
                       viewCount={viewCount}
-                      navigateTo={navigateTo}
                       variant="mobile"
                     />
 
@@ -493,19 +659,19 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
                     isOwner={isOwner}
                     adStatus={adStatus}
                     onChat={handleChatWithSeller}
+                    onRevealPhone={handleRevealPhone}
+                    isPhoneLoading={isPhoneLoading}
+                    revealedPhone={revealedPhone}
+                    isPhoneMasked={isPhoneMasked}
+                    phoneMessage={phoneMessage}
                     onEdit={handleEdit}
                     onDelete={handleDeleteClick}
                     onMarkSold={handleMarkSoldClick}
                     onPromote={handlePromote}
+                    onViewAnalytics={handleViewAnalytics}
                     onReport={() => setShowReportDialog(true)}
                   />
                 </div>
-
-                {/* Similar Listings Section */}
-                <SimilarAds
-                  currentAdId={ad.id}
-                  category={categoryLabel}
-                />
 
                 {/* Near Service Centers Section - Real Businesses */}
                 <ListingRelatedBusinessesSection
@@ -540,6 +706,10 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
             setShowSoldDialog={setShowSoldDialog}
             showDeleteDialog={showDeleteDialog}
             setShowDeleteDialog={setShowDeleteDialog}
+            showAnalyticsDialog={showAnalyticsDialog}
+            setShowAnalyticsDialog={setShowAnalyticsDialog}
+            analyticsSummary={analyticsSummary}
+            isAnalyticsLoading={isAnalyticsLoading}
             isDeleting={isDeleting}
             onDeleteConfirm={handleDeleteConfirm}
             onSoldConfirm={handleSoldConfirm}

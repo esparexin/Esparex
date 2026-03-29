@@ -60,14 +60,6 @@ export interface Business {
     registrationNumber?: string;
     businessTypes: string[];
     
-    deviceCategories: string[] | Array<{
-        category: string;
-        services: boolean;
-        spareParts: boolean;
-        isLocked: boolean;
-    }>;
-    deviceCategoryIds?: string[];
-    
     locationId?: string;
     location: BusinessLocation;
     
@@ -115,4 +107,9 @@ export interface Business {
     coverImage?: string;
     rating?: number;
     totalReviews?: number;
+
+    // Public discovery summaries
+    distanceKm?: number;
+    activeServicesCount?: number;
+    matchingServicesCount?: number;
 }

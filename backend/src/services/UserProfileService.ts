@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import User from '../models/User';
 import * as adService from './AdService';
-import { getSellerReputation } from './SellerTrustSignalsService';
 
 export type SellerPublicUser = {
     id: string;
@@ -18,9 +17,10 @@ export type SellerPublicUser = {
 
 export type SellerProfilePayload = {
     user: SellerPublicUser;
-    reputation: {
-        score: number;
-        adsPosted: number;
+    listingSummary: {
+        totalActive: number;
+        visibleCount: number;
+        hasMore: boolean;
     };
     ads: Array<Record<string, unknown>>;
 };
@@ -57,17 +57,20 @@ export const getUserProfileById = async (
         return null;
     }
 
-    const [reputation, sellerAds] = await Promise.all([
-        getSellerReputation(objectId),
-            adService.getAds(
-                {
-                    sellerId: userId,
-                    status: 'active',
-                },
-                { page: 1, limit: 20 },
-                {} // options argument required by new signature
-            )
-    ]);
+    const sellerAds = await adService.getAds(
+        {
+            sellerId: userId,
+            status: 'active',
+        },
+        { page: 1, limit: 20 },
+        {}
+    );
+
+    const visibleAds = Array.isArray(sellerAds.data) ? sellerAds.data.slice(0, 20) : [];
+    const totalActive =
+        typeof sellerAds.pagination?.total === 'number'
+            ? sellerAds.pagination.total
+            : visibleAds.length;
 
     const normalizedUser: SellerPublicUser = {
         id: seller._id.toHexString(),
@@ -86,7 +89,11 @@ export const getUserProfileById = async (
 
     return {
         user: normalizedUser,
-        reputation,
-        ads: Array.isArray(sellerAds.data) ? sellerAds.data.slice(0, 20) : []
+        listingSummary: {
+            totalActive,
+            visibleCount: visibleAds.length,
+            hasMore: totalActive > visibleAds.length,
+        },
+        ads: visibleAds
     };
 };

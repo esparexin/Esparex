@@ -260,14 +260,17 @@ export async function handleCatalogToggleStatus<T extends Document>(
 
         const isActive = !(item as any).isActive;
         const status = isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE;
+        const nextState = model.schema.path('status')
+            ? { isActive, status }
+            : { isActive };
 
-        await model.findByIdAndUpdate(req.params.id, { isActive, status });
+        await model.findByIdAndUpdate(req.params.id, nextState);
 
         if (options.auditAction) {
             logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any, { isActive, status });
         }
 
-        return sendSuccessResponse(res, { isActive, status }, `${model.modelName} status updated to ${status}`);
+        return sendSuccessResponse(res, nextState, `${model.modelName} status updated to ${status}`);
     } catch (error) {
         return sendCatalogError(req, res, error);
     }
@@ -297,7 +300,11 @@ export async function handleCatalogDelete<T extends Document>(
             }
         }
 
-        const item = await model.findByIdAndUpdate(id, { isDeleted: true, status: CATALOG_STATUS.INACTIVE }, { new: true });
+        const softDeleteUpdate = model.schema.path('status')
+            ? { isDeleted: true, status: CATALOG_STATUS.INACTIVE }
+            : { isDeleted: true };
+
+        const item = await model.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
         if (!item) {
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }

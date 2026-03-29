@@ -10,6 +10,7 @@ import Ad from '../models/Ad';
 import Category from '../models/Category';
 import Brand from '../models/Brand';
 import ProductModel from '../models/Model';
+import Business from '../models/Business';
 import Report from '../models/Report';
 import BlockedUser from '../models/BlockedUser';
 import SparePart from '../models/SparePart';
@@ -35,6 +36,7 @@ import {
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { FeatureFlag, isEnabled } from '../config/featureFlags';
 import AdminMetrics from '../models/AdminMetrics';
+import { isBusinessPublishedStatus } from '../utils/businessStatus';
 
 // ─────────────────────────────────────────────────
 // TYPES & CONSTANTS
@@ -1169,13 +1171,86 @@ export const getListingDetailById = async (adId: string) => {
 
     const objectId = new mongoose.Types.ObjectId(adId);
     const ad = await Ad.findById(objectId)
-        .populate('sellerId', 'name avatar trustScore')
-        .populate({ path: 'categoryId', select: 'name slug', model: Category })
-        .populate({ path: 'brandId', select: 'name slug', model: Brand })
-        .populate({ path: 'modelId', select: 'name slug', model: ProductModel })
+        .populate('sellerId', 'name avatar trustScore isVerified status mobileVisibility role')
         .lean();
 
-    return ad as Record<string, unknown> | null;
+    if (!ad) {
+        return null;
+    }
+
+    await hydrateAdMetadata([ad]);
+
+    const detail = ad as unknown as Record<string, unknown> & {
+        categoryId?: unknown;
+        brandId?: unknown;
+        modelId?: unknown;
+        businessId?: unknown;
+        sellerId?: unknown;
+        sellerType?: unknown;
+    };
+
+    if (detail.categoryId) detail.categoryId = String(detail.categoryId);
+    if (detail.brandId) detail.brandId = String(detail.brandId);
+    if (detail.modelId) detail.modelId = String(detail.modelId);
+    if (detail.businessId) detail.businessId = String(detail.businessId);
+
+    const seller = detail.sellerId && typeof detail.sellerId === 'object'
+        ? detail.sellerId as Record<string, unknown>
+        : null;
+
+    if (seller?.name && typeof seller.name === 'string') {
+        detail.sellerName = seller.name;
+    }
+    if (typeof seller?.isVerified === 'boolean') {
+        detail.verified = seller.isVerified;
+    }
+    detail.isBusiness = detail.sellerType === 'business' || Boolean(detail.businessId);
+
+    if (detail.businessId && mongoose.Types.ObjectId.isValid(String(detail.businessId))) {
+        const business = await Business.findById(detail.businessId)
+            .select('name businessTypes location expiresAt isVerified status slug')
+            .lean();
+
+        if (business) {
+            const businessRecord = business as unknown as Record<string, unknown> & {
+                name?: string;
+                businessTypes?: string[];
+                location?: { city?: string; state?: string } | null;
+                expiresAt?: Date | string | null;
+                isVerified?: boolean;
+                status?: unknown;
+            };
+
+            if (typeof businessRecord.name === 'string' && businessRecord.name.trim().length > 0) {
+                detail.businessName = businessRecord.name.trim();
+            }
+            if (Array.isArray(businessRecord.businessTypes) && businessRecord.businessTypes.length > 0) {
+                const primaryType = businessRecord.businessTypes.find(
+                    (type): type is string => typeof type === 'string' && type.trim().length > 0
+                );
+                if (primaryType) {
+                    detail.businessType = primaryType;
+                    detail.businessCategory = primaryType;
+                }
+            }
+            if (businessRecord.location && typeof businessRecord.location === 'object') {
+                const location = businessRecord.location;
+                if (typeof location.city === 'string') {
+                    detail.businessCity = location.city;
+                }
+                if (typeof location.state === 'string') {
+                    detail.businessState = location.state;
+                }
+            }
+            if (businessRecord.expiresAt) {
+                detail.businessExpiresAt = businessRecord.expiresAt;
+            }
+            detail.verified =
+                businessRecord.isVerified === true || isBusinessPublishedStatus(businessRecord.status);
+        }
+    }
+
+    return detail;
 };
 
 export const getReportedAdsAggregation = async (filters: { status?: string, reason?: string, search?: string }, pagination: { skip: number, limit: number }) => {

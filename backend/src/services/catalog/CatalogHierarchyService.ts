@@ -57,6 +57,40 @@ export interface RepairSummary {
     screenSizesDeactivated: number;
 }
 
+export interface HierarchyTreeModelNode {
+    id: string;
+    name: string;
+    isActive: boolean;
+    status?: string;
+}
+
+export interface HierarchyTreeBrandNode {
+    id: string;
+    name: string;
+    isActive: boolean;
+    status?: string;
+    models: HierarchyTreeModelNode[];
+}
+
+export interface HierarchyTreeCategoryNode {
+    id: string;
+    name: string;
+    slug: string;
+    listingType: string[];
+    hasScreenSizes: boolean;
+    isActive: boolean;
+    brands: HierarchyTreeBrandNode[];
+}
+
+export interface HierarchyTreeResponse {
+    summary: {
+        categories: number;
+        brands: number;
+        models: number;
+    };
+    categories: HierarchyTreeCategoryNode[];
+}
+
 // ─── Read-only hierarchy scan ─────────────────────────────────────────────────
 
 /**
@@ -173,6 +207,77 @@ export async function scanHierarchyIntegrity(): Promise<HierarchyReport> {
     };
 }
 
+export async function getHierarchyTree(): Promise<HierarchyTreeResponse> {
+    const [categories, brands, models] = await Promise.all([
+        Category.find({ isDeleted: { $ne: true } })
+            .select('_id name slug listingType hasScreenSizes isActive')
+            .sort({ name: 1 })
+            .lean(),
+        Brand.find({ isDeleted: { $ne: true } })
+            .select('_id name categoryIds isActive status')
+            .sort({ name: 1 })
+            .lean(),
+        Model.find({ isDeleted: { $ne: true } })
+            .select('_id name brandId categoryId categoryIds isActive status')
+            .sort({ name: 1 })
+            .lean(),
+    ]);
+
+    const modelsByBrand = new Map<string, typeof models>();
+    models.forEach((model) => {
+        const brandId = model.brandId ? String(model.brandId) : '';
+        if (!brandId) return;
+        const existing = modelsByBrand.get(brandId) ?? [];
+        existing.push(model);
+        modelsByBrand.set(brandId, existing);
+    });
+
+    const categoriesTree = categories.map((category) => {
+        const categoryId = String(category._id);
+        const categoryBrands = brands
+            .filter((brand) => ((brand.categoryIds ?? []) as unknown[]).some((id) => String(id) === categoryId))
+            .map((brand) => {
+                const brandModels = (modelsByBrand.get(String(brand._id)) ?? []).filter((model) => {
+                    const legacyCategoryId = model.categoryId ? String(model.categoryId) : null;
+                    const mappedCategoryIds = ((model.categoryIds ?? []) as unknown[]).map((id) => String(id));
+                    return legacyCategoryId === categoryId || mappedCategoryIds.includes(categoryId);
+                });
+
+                return {
+                    id: String(brand._id),
+                    name: brand.name,
+                    isActive: Boolean(brand.isActive),
+                    status: typeof brand.status === 'string' ? brand.status : undefined,
+                    models: brandModels.map((model) => ({
+                        id: String(model._id),
+                        name: model.name,
+                        isActive: Boolean(model.isActive),
+                        status: typeof model.status === 'string' ? model.status : undefined,
+                    })),
+                };
+            });
+
+        return {
+            id: categoryId,
+            name: category.name,
+            slug: category.slug,
+            listingType: Array.isArray(category.listingType) ? category.listingType : [],
+            hasScreenSizes: Boolean(category.hasScreenSizes),
+            isActive: Boolean(category.isActive),
+            brands: categoryBrands,
+        };
+    });
+
+    return {
+        summary: {
+            categories: categories.length,
+            brands: brands.length,
+            models: models.length,
+        },
+        categories: categoriesTree,
+    };
+}
+
 // ─── Write — lightweight repair ───────────────────────────────────────────────
 
 /**
@@ -276,7 +381,7 @@ export async function repairHierarchy(): Promise<RepairSummary> {
             partRepairOps.push({
                 updateOne: {
                     filter: { _id: part._id },
-                    update: { $set: { categoryIds: [derivedCatId], needsReview: false } },
+                    update: { $set: { categoryIds: [derivedCatId] } },
                 },
             });
             summary.sparePartsRepaired++;
@@ -284,7 +389,7 @@ export async function repairHierarchy(): Promise<RepairSummary> {
             partOrphanOps.push({
                 updateOne: {
                     filter: { _id: part._id },
-                    update: { $set: { isActive: false, needsReview: true } },
+                    update: { $set: { isActive: false, categoryIds: [] } },
                 },
             });
             summary.sparePartsOrphaned++;
@@ -306,7 +411,7 @@ export async function repairHierarchy(): Promise<RepairSummary> {
             partOrphanOps.push({
                 updateOne: {
                     filter: { _id: part._id },
-                    update: { $set: { isActive: false, needsReview: true, categoryIds: [] } },
+                    update: { $set: { isActive: false, categoryIds: [] } },
                 },
             });
             summary.sparePartsOrphaned++;
@@ -386,12 +491,10 @@ export async function activateValidRecords(): Promise<{
 
     if (activateBrandOps.length) await Brand.bulkWrite(activateBrandOps, { ordered: false });
 
-    // SpareParts: status=active + valid categoryIds + not flagged
+    // SpareParts: inactive + valid categoryIds
     const inactiveParts = await SparePartModel.find({
         isDeleted: { $ne: true },
         isActive: false,
-        status: CATALOG_STATUS.ACTIVE,
-        needsReview: { $ne: true },
         categoryIds: { $exists: true, $not: { $size: 0 } },
     }).select('_id categoryIds').lean();
 

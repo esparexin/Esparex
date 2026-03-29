@@ -21,12 +21,6 @@ export interface CreateBusinessDTO {
     name: string;
     description: string;
     businessTypes: string[];
-    deviceCategories?: Array<{
-        category: string;
-        services: boolean;
-        spareParts: boolean;
-        isLocked?: boolean;
-    }>;
     location: {
         city: string;
         state: string;
@@ -52,10 +46,11 @@ export interface CreateBusinessDTO {
 import { normalizeToAppLocation as normalizeLocation } from '@/lib/location/locationService';
 import logger from "@/lib/logger";
 import { toSafeImageArray } from '@/lib/image/imageUrl';
+import { fetchUserApiJson, type ServerFetchOptions } from './server';
 
 // ...
 
-function normalizeBusiness(
+export function normalizeBusiness(
     apiBusiness: ApiBusiness | null | undefined
 ): Business | null {
     if (!apiBusiness) return null;
@@ -103,14 +98,41 @@ function normalizeBusiness(
     } as Business;
 }
 
+interface BusinessRequestOptions {
+    fetchOptions?: ServerFetchOptions;
+    headers?: Record<string, string>;
+}
+
 // --- API Functions ---
 
-export const getBusinesses = async (filters: { city?: string; category?: string; limit?: number } = {}): Promise<Business[]> => {
+export const getBusinesses = async (
+    filters: {
+        city?: string;
+        category?: string;
+        limit?: number;
+        latitude?: number;
+        longitude?: number;
+        radiusKm?: number;
+        locationId?: string;
+        listingCategoryId?: string;
+        brandId?: string;
+        excludeBusinessId?: string;
+        serviceOnly?: boolean;
+    } = {}
+): Promise<Business[]> => {
     try {
         const queryParams = new URLSearchParams();
         if (filters.city) queryParams.append('city', filters.city);
         if (filters.category) queryParams.append('category', filters.category);
         if (filters.limit) queryParams.append('limit', String(filters.limit));
+        if (typeof filters.latitude === 'number') queryParams.append('latitude', String(filters.latitude));
+        if (typeof filters.longitude === 'number') queryParams.append('longitude', String(filters.longitude));
+        if (typeof filters.radiusKm === 'number') queryParams.append('radiusKm', String(filters.radiusKm));
+        if (filters.locationId) queryParams.append('locationId', filters.locationId);
+        if (filters.listingCategoryId) queryParams.append('listingCategoryId', filters.listingCategoryId);
+        if (filters.brandId) queryParams.append('brandId', filters.brandId);
+        if (filters.excludeBusinessId) queryParams.append('excludeBusinessId', filters.excludeBusinessId);
+        if (filters.serviceOnly) queryParams.append('serviceOnly', 'true');
 
         const { data: apiData } = await toApiResult<ApiBusiness[]>(
             apiClient.get(`${API_ROUTES.USER.BUSINESSES_PUBLIC}?${queryParams.toString()}`)
@@ -165,39 +187,48 @@ export const uploadBusinessImage = async (
     return url;
 };
 
-export const getMyBusinesses = async (): Promise<Business[]> => {
+export const getMyBusiness = async (): Promise<Business | null> => {
     try {
-        const { data: apiData } = await toApiResult<ApiBusiness[]>(
+        const { data: apiData } = await toApiResult<ApiBusiness>(
             apiClient.get(API_ROUTES.USER.BUSINESS_ME)
         );
-        if (!Array.isArray(apiData)) {
-            throw new Error('Invalid businesses response');
+        if (!apiData) {
+            return null;
         }
-        return apiData
-            .map(normalizeBusiness)
-            .filter((b): b is Business => b !== null);
+
+        return normalizeBusiness(apiData);
     } catch (e) {
-        logger.error('Failed to load businesses', e);
+        logger.error('Failed to load business', e);
         throw e;
     }
 };
 
-export const getMyBusiness = async (): Promise<Business | null> => {
-    const businesses = await getMyBusinesses();
-    return businesses.length > 0 ? (businesses[0] ?? null) : null;
-};
-
 export const getBusinessById = async (
-    id: string
+    id: string,
+    options?: BusinessRequestOptions
 ): Promise<Business | null> => {
     if (!id || id === 'undefined' || id === 'null') {
         return null;
     }
 
     try {
-        const { data: apiData } = await toApiResult<ApiBusiness>(
-            apiClient.get(API_ROUTES.USER.BUSINESS_DETAIL(id))
-        );
+        const { data: apiData } =
+            typeof window === 'undefined'
+                ? await toApiResult<ApiBusiness>(
+                    Promise.resolve(
+                        fetchUserApiJson(
+                            API_ROUTES.USER.BUSINESS_DETAIL(id),
+                            {
+                                ...(options?.fetchOptions ?? {}),
+                                ...(options?.headers ? { headers: options.headers } : {}),
+                            },
+                            { returnNullOnHttpError: true }
+                        )
+                    )
+                )
+                : await toApiResult<ApiBusiness>(
+                    apiClient.get(API_ROUTES.USER.BUSINESS_DETAIL(id))
+                );
         if (!apiData) return null;
         return normalizeBusiness(apiData);
     } catch (e) {
@@ -258,12 +289,27 @@ export const getMyBusinessStats = async (): Promise<BusinessStats> => {
 };
 
 export const getBusinessServices = async (
-    id: string
+    id: string,
+    options?: BusinessRequestOptions
 ): Promise<Service[]> => {
     try {
-        const { data: result } = await toApiResult<Service[]>(
-            apiClient.get(API_ROUTES.USER.BUSINESS_SERVICES(id))
-        );
+        const { data: result } =
+            typeof window === 'undefined'
+                ? await toApiResult<Service[]>(
+                    Promise.resolve(
+                        fetchUserApiJson(
+                            API_ROUTES.USER.BUSINESS_SERVICES(id),
+                            {
+                                ...(options?.fetchOptions ?? {}),
+                                ...(options?.headers ? { headers: options.headers } : {}),
+                            },
+                            { returnNullOnHttpError: true }
+                        )
+                    )
+                )
+                : await toApiResult<Service[]>(
+                    apiClient.get(API_ROUTES.USER.BUSINESS_SERVICES(id))
+                );
         if (!Array.isArray(result)) {
             throw new Error('Invalid services response');
         }
@@ -274,11 +320,28 @@ export const getBusinessServices = async (
     }
 };
 
-export const getBusinessAds = async (id: string): Promise<Ad[]> => {
+export const getBusinessAds = async (
+    id: string,
+    options?: BusinessRequestOptions
+): Promise<Ad[]> => {
     try {
-        const { data: result } = await toApiResult<Ad[]>(
-            apiClient.get(API_ROUTES.USER.BUSINESS_ADS(id))
-        );
+        const { data: result } =
+            typeof window === 'undefined'
+                ? await toApiResult<Ad[]>(
+                    Promise.resolve(
+                        fetchUserApiJson(
+                            API_ROUTES.USER.BUSINESS_ADS(id),
+                            {
+                                ...(options?.fetchOptions ?? {}),
+                                ...(options?.headers ? { headers: options.headers } : {}),
+                            },
+                            { returnNullOnHttpError: true }
+                        )
+                    )
+                )
+                : await toApiResult<Ad[]>(
+                    apiClient.get(API_ROUTES.USER.BUSINESS_ADS(id))
+                );
         return Array.isArray(result) ? result : [];
     } catch (e) {
         logger.error('Failed to load business ads', e);
@@ -286,11 +349,28 @@ export const getBusinessAds = async (id: string): Promise<Ad[]> => {
     }
 };
 
-export const getBusinessSpareParts = async (id: string): Promise<Ad[]> => {
+export const getBusinessSpareParts = async (
+    id: string,
+    options?: BusinessRequestOptions
+): Promise<Ad[]> => {
     try {
-        const { data: result } = await toApiResult<Ad[]>(
-            apiClient.get(API_ROUTES.USER.BUSINESS_SPARE_PARTS(id))
-        );
+        const { data: result } =
+            typeof window === 'undefined'
+                ? await toApiResult<Ad[]>(
+                    Promise.resolve(
+                        fetchUserApiJson(
+                            API_ROUTES.USER.BUSINESS_SPARE_PARTS(id),
+                            {
+                                ...(options?.fetchOptions ?? {}),
+                                ...(options?.headers ? { headers: options.headers } : {}),
+                            },
+                            { returnNullOnHttpError: true }
+                        )
+                    )
+                )
+                : await toApiResult<Ad[]>(
+                    apiClient.get(API_ROUTES.USER.BUSINESS_SPARE_PARTS(id))
+                );
         return Array.isArray(result) ? result : [];
     } catch (e) {
         logger.error('Failed to load business spare parts', e);

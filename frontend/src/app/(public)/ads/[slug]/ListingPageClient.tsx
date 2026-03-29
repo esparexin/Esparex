@@ -1,10 +1,11 @@
 "use client";
-import { useParams, notFound } from 'next/navigation';
+import { useCallback } from 'react';
+import { useParams, notFound, useRouter } from 'next/navigation';
 import { ListingDetail } from '@/components/user/ListingDetail';
-import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { isValidAdIdentifier } from "@/lib/api/user/listings";
 import { useLoginCallback } from '@/hooks/useLoginCallback';
 import type { Listing as Ad } from '@/lib/api/user/listings';
+import { getPageRoute, type SellerType, type UserPage } from '@/lib/routeUtils';
 
 // Note: Title management is now handled by Server Component Metadata, 
 // but we keep this hook if we want dynamic client-side updates during navigation?
@@ -12,6 +13,7 @@ import type { Listing as Ad } from '@/lib/api/user/listings';
 
 export function ListingPageClient({ ad }: { ad?: Ad }) {
     const params = useParams();
+    const router = useRouter();
     const routeSlug = typeof params?.slug === 'string' ? params.slug : undefined;
 
     // Server payload `ad.id` is the exact DB identifier. 
@@ -24,7 +26,29 @@ export function ListingPageClient({ ad }: { ad?: Ad }) {
         notFound();
     }
 
-    const { navigateTo } = useAppNavigation();
+    // Public listing detail is read-only, so it should not depend on the
+    // unsaved-changes navigation context used by form flows.
+    const navigateTo = useCallback((
+        page: UserPage,
+        adId?: string | number,
+        category?: string,
+        businessId?: string,
+        serviceId?: string,
+        sellerId?: string,
+        sellerType?: SellerType
+    ) => {
+        const path = getPageRoute(page, {
+            adId,
+            serviceId,
+            category,
+            businessId,
+            businessSlug: businessId,
+            sellerId,
+            sellerType,
+        });
+
+        void router.push(path);
+    }, [router]);
     const { navigateBack } = useLoginCallback();
 
     return (

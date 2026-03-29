@@ -1,14 +1,13 @@
-import Link from "next/link";
-import { BadgeCheck, Megaphone, ArrowLeft, LayoutGrid, Clock, Star } from "lucide-react";
+import { Megaphone, LayoutGrid } from "lucide-react";
 import { AdCardGrid } from "@/components/user/ad-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { type Listing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
 import { formatStableDate } from "@/lib/formatters";
 import { formatLocationDisplay } from "@/lib/location/locationService";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
+import { BackButton } from "@/components/common/BackButton";
 
 interface SellerProfilePageProps {
     profile: SellerProfilePayload;
@@ -34,26 +33,19 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
         : "N/A";
     const initials = sellerName.trim().charAt(0).toUpperCase() || "S";
     const locationLabel = toLocationLabel(profile);
-    
-    // Default fallback if reputation is missing in some environments
-    const rep = profile.reputation || {
-        score: 0,
-        adsPosted: profile.ads?.length || 0,
-        responseRate: 0,
-        averageResponseTime: 0
+    const listingSummary = profile.listingSummary || {
+        totalActive: profile.ads?.length || 0,
+        visibleCount: profile.ads?.length || 0,
+        hasMore: false,
     };
 
     return (
         <main className="min-h-screen bg-slate-50 pb-16">
             <div className="mx-auto w-full max-w-5xl px-4 py-8 space-y-6">
-                
-                {/* Back Button */}
-                <Link href="/search" className="inline-block">
-                    <Button variant="ghost" size="sm" className="gap-2 text-slate-600 hover:text-slate-900 border border-transparent hover:border-slate-200">
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to Search
-                    </Button>
-                </Link>
+                <BackButton
+                    label="Back"
+                    className="text-slate-600 hover:text-slate-900 border border-transparent hover:border-slate-200"
+                />
 
                 {/* Hero Profile Card */}
                 <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-[2rem]">
@@ -97,43 +89,32 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                 </div>
                                 
                                 {/* Compact Stats Grid */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-left mx-auto md:mx-0 w-full max-w-2xl">
+                                <div className="grid grid-cols-2 gap-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-left mx-auto md:mx-0 w-full max-w-xl">
                                     <div className="space-y-1">
                                         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                                            <Megaphone className="w-3.5 h-3.5" /> Published
+                                            <Megaphone className="w-3.5 h-3.5" /> Live Listings
                                         </p>
-                                        <p className="text-lg font-bold text-slate-900">{profile.ads.length}</p>
+                                        <p className="text-lg font-bold text-slate-900">{listingSummary.totalActive}</p>
                                     </div>
                                     <div className="space-y-1 sm:border-l sm:border-slate-200/60 sm:pl-3">
                                         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                                            <Star className="w-3.5 h-3.5" /> Score
+                                            <LayoutGrid className="w-3.5 h-3.5" /> Showing Here
                                         </p>
-                                        <p className="text-lg font-bold text-slate-900">{typeof rep.score === 'number' ? rep.score.toFixed(1) : 'N/A'}</p>
-                                    </div>
-                                    <div className="space-y-1 sm:border-l sm:border-slate-200/60 sm:pl-3">
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                                            <BadgeCheck className="w-3.5 h-3.5" /> Resp. Rate
-                                        </p>
-                                        <p className="text-lg font-bold text-slate-900">
-                                            {rep.responseRate ? `${Math.round(rep.responseRate)}%` : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div className="space-y-1 sm:border-l sm:border-slate-200/60 sm:pl-3">
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                                            <Clock className="w-3.5 h-3.5" /> Response
-                                        </p>
-                                        <p className="text-lg font-bold text-slate-900">
-                                            {rep.averageResponseTime ? `${Math.round(rep.averageResponseTime)}m` : 'N/A'}
-                                        </p>
+                                        <p className="text-lg font-bold text-slate-900">{listingSummary.visibleCount}</p>
                                     </div>
                                 </div>
+                                <p className="text-sm text-slate-500">
+                                    {listingSummary.hasMore
+                                        ? `Showing the latest ${listingSummary.visibleCount} public listings from this seller.`
+                                        : "All active listings from this seller are shown below."}
+                                </p>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* Listings Section */}
-                <section className="space-y-4 pt-4">
+                <section id="seller-active-listings" className="space-y-4 pt-4 scroll-mt-24">
                      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
                         <h2 className="text-xl font-bold text-slate-900">
                             Active Listings

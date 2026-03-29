@@ -9,7 +9,7 @@ import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../shared/enums/actor';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { PromotionPolicyService } from '../services/PromotionPolicyService';
-import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
+import { buildPublicAdFilter, isPublicAdVisible } from '../utils/FeedVisibilityGuard';
 import * as adService from '../services/AdService';
 import { mutateStatus } from '../services/StatusMutationService';
 import { getAndVerifyOwnedListing } from '../utils/controllerUtils';
@@ -61,7 +61,10 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
                 : sellerNode
         );
         const isOwner = Boolean(viewerId && sellerId && String(sellerId) === viewerId);
-        const adStatus = String((ad as { status?: unknown }).status ?? '');
+        if (!isAdmin && !isOwner && !isPublicAdVisible(ad as Record<string, unknown>)) {
+            return sendErrorResponse(req, res, 404, 'Listing not found');
+        }
+
         return sendSuccessResponse(res, ad);
     } catch (error) {
         next(error);
@@ -299,7 +302,20 @@ export const getListingPhone = async (req: Request, res: Response, next: NextFun
         const result = await getSellerPhone(id, LISTING_TYPE.AD, requesterId, metadata);
 
         if (!result || result.error) {
-            return sendErrorResponse(req, res, 404, result?.error || 'Phone number not found');
+            switch (result?.error) {
+                case 'HIDDEN':
+                    return sendErrorResponse(req, res, 403, 'Seller chose not to share a phone number for this listing.', {
+                        code: 'PHONE_HIDDEN',
+                    });
+                case 'REQUEST_REQUIRED':
+                    return sendErrorResponse(req, res, 403, 'Seller shares phone numbers on request only. Use chat first.', {
+                        code: 'PHONE_REQUEST_REQUIRED',
+                    });
+                case 'Listing not found':
+                    return sendErrorResponse(req, res, 404, 'Listing not found');
+                default:
+                    return sendErrorResponse(req, res, 404, result?.error || 'Phone number not found');
+            }
         }
 
         return sendSuccessResponse(res, result);

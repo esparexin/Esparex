@@ -23,6 +23,7 @@ export {
 export {
     getBrands,
     getBrandById,
+    getBrandBySlug,
     createBrand,
     updateBrand,
     toggleBrandStatus,
@@ -31,6 +32,7 @@ export {
     rejectBrand,
     getModels,
     getModelById,
+    getModelBySlug,
     createModel,
     updateModel,
     deleteModel,
@@ -66,6 +68,7 @@ export {
 // Export governance functions
 export {
     getHierarchyReport,
+    getHierarchyTree,
     runHierarchyRepair,
     getCategoryHealth
 } from './catalogGovernanceController';

@@ -115,8 +115,51 @@ export const getBrands = async (req: Request, res: Response) => {
  */
 export const getBrandById = async (req: Request, res: Response) => {
     try {
-        const brand = await Brand.findById(req.params.id).populate('categoryIds');
+        const isAdminView = req.originalUrl.includes('/admin');
+        const brand = await Brand.findOne({
+            _id: req.params.id,
+            ...(isAdminView
+                ? {}
+                : {
+                    isActive: true,
+                    isDeleted: { $ne: true },
+                    $or: [
+                        { status: CATALOG_STATUS.ACTIVE },
+                        { status: { $exists: false } }
+                    ]
+                })
+        }).populate('categoryIds');
         if (!brand) return sendAdminError(req, res, 'Brand not found', 404);
+        sendSuccessResponse(res, brand);
+    } catch (error) {
+        sendCatalogError(req, res, error);
+    }
+};
+
+/**
+ * Get single public brand by slug
+ */
+export const getBrandBySlug = async (req: Request, res: Response) => {
+    try {
+        const slug = String(req.params.slug || '').trim().toLowerCase();
+        if (!slug) {
+            return sendAdminError(req, res, 'Brand slug is required', 400);
+        }
+
+        const brand = await Brand.findOne({
+            slug,
+            isActive: true,
+            isDeleted: { $ne: true },
+            $or: [
+                { status: CATALOG_STATUS.ACTIVE },
+                { status: { $exists: false } }
+            ]
+        }).populate('categoryIds');
+
+        if (!brand) {
+            return sendAdminError(req, res, 'Brand not found', 404);
+        }
+
         sendSuccessResponse(res, brand);
     } catch (error) {
         sendCatalogError(req, res, error);
@@ -368,9 +411,67 @@ export const getModels = async (req: Request, res: Response) => {
  */
 export const getModelById = async (req: Request, res: Response) => {
     try {
-        const model = await Model.findById(req.params.id).populate('brandId categoryIds');
+        const isAdminView = req.originalUrl.includes('/admin');
+        const model = await Model.findOne({
+            _id: req.params.id,
+            ...(isAdminView
+                ? {}
+                : {
+                    isActive: true,
+                    isDeleted: { $ne: true },
+                    $or: [
+                        { status: CATALOG_STATUS.ACTIVE },
+                        { status: { $exists: false } }
+                    ]
+                })
+        }).populate('brandId categoryIds');
         if (!model) return sendAdminError(req, res, 'Model not found', 404);
         sendSuccessResponse(res, model);
+    } catch (error) {
+        sendCatalogError(req, res, error);
+    }
+};
+
+/**
+ * Get single public model by slug.
+ * Models do not persist a dedicated slug, so we resolve against the canonicalized name.
+ */
+export const getModelBySlug = async (req: Request, res: Response) => {
+    try {
+        const slug = String(req.params.slug || '').trim().toLowerCase();
+        if (!slug) {
+            return sendAdminError(req, res, 'Model slug is required', 400);
+        }
+
+        const humanizedSlug = slug.replace(/-/g, ' ');
+        const slugPattern = new RegExp(
+            `^${escapeRegExp(humanizedSlug).replace(/\s+/g, '[-\\s]+')}$`,
+            'i'
+        );
+
+        const candidates = await Model.find({
+            name: slugPattern,
+            isActive: true,
+            isDeleted: { $ne: true },
+            $or: [
+                { status: CATALOG_STATUS.ACTIVE },
+                { status: { $exists: false } }
+            ]
+        }).populate('brandId categoryIds');
+
+        const matches = candidates.filter((candidate) =>
+            slugify(candidate.name || '', { lower: true, strict: true, trim: true }) === slug
+        );
+
+        if (matches.length === 0) {
+            return sendAdminError(req, res, 'Model not found', 404);
+        }
+
+        if (matches.length > 1) {
+            return sendAdminError(req, res, 'Model slug is ambiguous', 409);
+        }
+
+        sendSuccessResponse(res, matches[0]);
     } catch (error) {
         sendCatalogError(req, res, error);
     }
