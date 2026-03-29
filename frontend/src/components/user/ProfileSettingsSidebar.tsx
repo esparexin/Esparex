@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { notify } from "@/lib/notify";
 import type { User } from "@/types/User";
 import {
   PROFILE_TAB_ITEMS,
@@ -9,13 +8,8 @@ import {
   type ProfileTabValue,
 } from "@/config/navigation";
 
-// Account settings hook (uses legacy profile hook)
-import {
-  useProfileSettings,
-  type ProfileUser,
-  type SmartAlertItem,
-  toSmartAlertItem,
-} from "@/hooks/useProfileSettings";
+import { useProfileSettings } from "@/hooks/useProfileSettings";
+import type { ProfileUser } from "@/components/user/profile/types";
 
 // UI Components
 import { Card } from "@/components/ui/card";
@@ -37,9 +31,11 @@ import { useDynamicPlans } from "@/hooks/useDynamicPlans";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
 import { usePurchases } from "@/hooks/usePurchases";
+import { useChatUnreadCount } from "@/hooks/useChatUnreadCount";
 import { formatPrice, formatDate } from "@/lib/formatters";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
+import { PROFILE_PHOTO_ACCEPT } from "@/lib/uploads/profilePhotoUpload";
 
 // Dialogs
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
@@ -55,8 +51,11 @@ import { BusinessTab } from "./profile/tabs/BusinessTab";
 import { PurchasesTab } from "./profile/tabs/PurchasesTab";
 import { MyListingsTab } from "./profile/tabs/MyListingsTab";
 import { SavedAds } from "./SavedAds";
+import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorkspace";
 import AccountHeader from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
+import type { ConversationListView } from "@/lib/api/chatApi";
+import type { IConversationDTO } from "@shared/contracts/chat.contracts";
 
 interface ProfileSettingsProps {
   navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => void;
@@ -64,32 +63,51 @@ interface ProfileSettingsProps {
   onUpdateUser: (userData: User) => void;
   onLogout: () => void;
   initialTab?: string;
+  initialListingSubTab?: "ads" | "services" | "spare-parts";
+  initialMessagesView?: ConversationListView;
+  initialConversationId?: string;
+  initialConversation?: IConversationDTO | null;
 }
 
-export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogout, initialTab }: ProfileSettingsProps) {
+export function ProfileSettingsSidebar({
+  navigateTo,
+  user,
+  onUpdateUser,
+  onLogout,
+  initialTab,
+  initialListingSubTab = "ads",
+  initialMessagesView = "active",
+  initialConversationId,
+  initialConversation,
+}: ProfileSettingsProps) {
   const router = useRouter();
-  // Navigation & Shell State
   const [activeTab, setActiveTab] = useState<ProfileTabValue>((initialTab as ProfileTabValue) || "personal");
   const [isMobileMenuView, setIsMobileMenuView] = useState(!initialTab);
 
-  // Custom Hooks for Data Fetching
-  // Custom Hooks for Data Fetching
+  const isBusinessLive = normalizeBusinessStatus(user?.businessStatus, "pending") === "live";
+
   const { data: adCounts = {} } = useMyListingsStatsQuery({ 
-    enabled: (activeTab === "mylistings" || activeTab === "services" || activeTab === "spareparts") && !!user 
+    enabled: activeTab === "mylistings" && !!user,
   });
 
-  // Service data is now handled through the consolidated MyListingsTab flow.
-  const { dynamicPlans } = useDynamicPlans(activeTab);
-  const { businessData, businessStats, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(user);
+  const { dynamicPlans } = useDynamicPlans(activeTab, user);
+  const { businessData, businessStats, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(
+    user,
+    undefined,
+    { enabled: activeTab === "business" }
+  );
   const {
-    smartAlerts,
+    smartAlertItems,
     savedSearches,
     loading: loadingAlerts,
     createSmartAlert,
+    updateSmartAlert,
     toggleSmartAlertStatus,
+    deleteSmartAlert,
     deleteSavedSearch,
-  } = useSmartAlerts();
-  const { purchaseHistory, loading: loadingPurchased } = usePurchases();
+  } = useSmartAlerts(activeTab === "smartalerts");
+  const { purchaseHistory, loading: loadingPurchased } = usePurchases(activeTab === "purchases");
+  const chatUnreadCount = useChatUnreadCount(user?.id ?? null, !!user);
 
   const {
     formData, setFormData,
@@ -100,30 +118,31 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
     handleSaveProfile,
     notifications, setNotifications,
     mobileVisibility, setMobileVisibility,
-    mobileRequests, setMobileRequests,
     showPhotoDialog, setShowPhotoDialog,
     showDeleteDialog, setShowDeleteDialog,
     deleteConfirmText, setDeleteConfirmText,
+    deleteReason, setDeleteReason,
+    deleteFeedback, setDeleteFeedback,
+    deleteAccountErrors,
+    deleteAccountGlobalError,
     showPlanDialog, setShowPlanDialog,
     selectedPlan, setSelectedPlan,
     showBusinessEditForm, setShowBusinessEditForm,
-    newAlertName, setNewAlertName,
-    newAlertKeywords, setNewAlertKeywords,
-    newAlertCategory, setNewAlertCategory,
-    newAlertLocation, setNewAlertLocation,
-    newAlertRadius, setNewAlertRadius,
-    createAlertEmail, setCreateAlertEmail,
-    createAlertErrors, setCreateAlertErrors,
-    createAlertGlobalError, setCreateAlertGlobalError,
-    alertPreferences, setAlertPreferences,
-    alertPreferencesError,
-    isSavingAlertPreferences,
+    smartAlertForm, updateSmartAlertForm,
+    smartAlertErrors,
+    smartAlertGlobalError,
+    clearSmartAlertError,
+    editingAlertId,
+    notificationSettingsError,
+    isSavingNotificationSettings,
     handlePhotoSelect,
     handlePhotoDelete,
     handleDeleteAccount,
+    handleEditAlert,
     handleCreateAlert,
-    handleSaveAlertPreferences,
-  } = useProfileSettings({ user, onUpdateUser, onLogout, createSmartAlert });
+    handleSaveNotificationSettings,
+    resetAlertForm,
+  } = useProfileSettings({ user, onUpdateUser, onLogout, createSmartAlert, updateSmartAlert });
 
   useEffect(() => {
     if (initialTab) {
@@ -134,12 +153,20 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
 
   // Event Handlers
   const handleTabChange = (value: ProfileTabValue) => {
+    setActiveTab(value);
     const targetPage = PROFILE_TAB_PAGE_ROUTES[value];
     if (targetPage) {
       navigateTo(targetPage);
-    } else {
-      setActiveTab(value);
     }
+  };
+
+  const renderTabBadge = (value: ProfileTabValue) => {
+    if (value !== "messages" || chatUnreadCount <= 0) return null;
+    return (
+      <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+        {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
+      </span>
+    );
   };
 
   const visibleProfileTabItems = PROFILE_TAB_ITEMS.filter((item) => {
@@ -159,7 +186,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
     ];
     if (!allowedRoles.includes(user.role)) return false;
     if (item.businessOnly) {
-      return normalizeBusinessStatus(businessData?.status, "pending") === "live";
+      return isBusinessLive;
     }
     return true;
   });
@@ -207,15 +234,19 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
   };
 
   const handleMobileTabClick = (tab: ProfileTabValue) => {
-    setActiveTab(tab);
     setIsMobileMenuView(false);
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    handleTabChange(tab);
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
 
   // Rendering logic
   const renderContent = () => {
-    const smartAlertItems: SmartAlertItem[] = smartAlerts.map(toSmartAlertItem);
-    const setActiveTabFromChild = (tab: string) => setActiveTab(tab as ProfileTabValue);
+    const setActiveTabFromChild = (tab: string) => {
+      if (PROFILE_TAB_ITEMS.some((item) => item.value === tab)) {
+        handleTabChange(tab as ProfileTabValue);
+      }
+    };
+
     switch (activeTab) {
       case "personal": return (
         <PersonalTab
@@ -226,7 +257,6 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
             if (profileGlobalError) setProfileGlobalError(null);
           }}
           mobileVisibility={mobileVisibility} setMobileVisibility={(v) => setMobileVisibility(v)}
-          mobileRequests={mobileRequests} setMobileRequests={setMobileRequests}
           handleSaveProfile={handleSaveProfile} onPhotoClick={() => setShowPhotoDialog(true)}
           handlePhotoDelete={handlePhotoDelete}
           profileErrors={profileErrors}
@@ -236,44 +266,53 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
             setProfileErrors((prev) => ({ ...prev, [field]: undefined }));
             if (profileGlobalError) setProfileGlobalError(null);
           }}
-          businessData={businessData}
-          onEditBusinessApplication={() => navigateTo("profile-settings-business")}
-          navigateToBusinessTab={() => setActiveTabFromChild("business")}
         />
       );
-      case "mylistings":
-      case "services":
-      case "spareparts": return (
+      case "mylistings": return (
         <MyListingsTab
           adCounts={adCounts as ListingStatsResponse}
           user={user as any}
           navigateTo={(page, adId, category, businessId, serviceId) => navigateTo(page as UserPage, adId, category, businessId as string, serviceId as string)}
           getStatusBadge={getStatusBadge}
           formatDate={formatDate}
-          isBusinessApproved={businessData?.status === "live"}
-          onRegisterBusiness={() => setShowBusinessEditForm(true)}
-          initialSubTab={activeTab === "services" ? "services" : activeTab === "spareparts" ? "spare-parts" : "ads"}
+          isBusinessApproved={isBusinessLive}
+          onRegisterBusiness={() => {
+            setShowBusinessEditForm(true);
+            handleTabChange("business");
+          }}
+          initialSubTab={initialListingSubTab}
+        />
+      );
+      case "messages": return (
+        <AccountMessagesWorkspace
+          currentUserId={user?.id ?? ""}
+          conversationId={initialConversationId}
+          initialView={initialMessagesView}
+          initialConversation={initialConversation}
         />
       );
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
       case "plans": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
-      case "business": return <BusinessTab businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} showBusinessEditForm={showBusinessEditForm} setShowBusinessEditForm={setShowBusinessEditForm} user={user} onUpdateUser={onUpdateUser} navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)} setActiveTab={setActiveTabFromChild} />;
-      case "settings": return <SettingsTab notifications={notifications} setNotifications={setNotifications} setShowDeleteDialog={setShowDeleteDialog} />;
+      case "business": return <BusinessTab businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} showBusinessEditForm={showBusinessEditForm} setShowBusinessEditForm={setShowBusinessEditForm} user={user} navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)} setActiveTab={setActiveTabFromChild} />;
+      case "settings": return (
+        <SettingsTab
+          notifications={notifications}
+          setNotifications={setNotifications}
+          handleSaveNotificationSettings={handleSaveNotificationSettings}
+          isSavingNotificationSettings={isSavingNotificationSettings}
+          notificationSettingsError={notificationSettingsError}
+          setShowDeleteDialog={setShowDeleteDialog}
+        />
+      );
       case "smartalerts": return (
         <SmartAlertsTab
           smartAlerts={smartAlertItems}
           savedSearches={savedSearches}
-          newAlertName={newAlertName} setNewAlertName={setNewAlertName}
-          newAlertKeywords={newAlertKeywords} setNewAlertKeywords={setNewAlertKeywords}
-          newAlertCategory={newAlertCategory} setNewAlertCategory={setNewAlertCategory}
-          newAlertLocation={newAlertLocation} setNewAlertLocation={setNewAlertLocation}
-          newAlertRadius={newAlertRadius} setNewAlertRadius={setNewAlertRadius}
-          createAlertEmail={createAlertEmail} setCreateAlertEmail={setCreateAlertEmail}
-          alertPreferences={alertPreferences} setAlertPreferences={setAlertPreferences}
+          smartAlertForm={smartAlertForm}
+          updateSmartAlertForm={updateSmartAlertForm}
           handleCreateAlert={handleCreateAlert}
-          handleDeleteAlert={(id) => {
-            void toggleSmartAlertStatus(id);
-          }}
+          handleToggleAlertStatus={(id) => { void toggleSmartAlertStatus(id); }}
+          handleDeleteAlert={(id) => { void deleteSmartAlert(id); }}
           handleDeleteSavedSearch={(id) => {
             void deleteSavedSearch(id);
           }}
@@ -286,17 +325,14 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
               location: alert.locationId ? undefined : alert.location,
               radiusKm: alert.radius,
             }));
-          }} handleEditAlert={() => notify.info("Coming soon!")}
-          handleSavePreferences={handleSaveAlertPreferences}
-          setActiveTab={setActiveTabFromChild} loading={loadingAlerts}
-          createAlertErrors={createAlertErrors}
-          createAlertGlobalError={createAlertGlobalError}
-          preferencesGlobalError={alertPreferencesError}
-          isSavingPreferences={isSavingAlertPreferences}
-          clearCreateAlertError={(field) => {
-            setCreateAlertErrors((prev) => ({ ...prev, [field]: undefined }));
-            if (createAlertGlobalError) setCreateAlertGlobalError(null);
           }}
+          handleEditAlert={(alert) => handleEditAlert(alert)}
+          editingAlertId={editingAlertId}
+          resetAlertForm={resetAlertForm}
+          setActiveTab={setActiveTabFromChild} loading={loadingAlerts}
+          smartAlertErrors={smartAlertErrors}
+          smartAlertGlobalError={smartAlertGlobalError}
+          clearSmartAlertError={clearSmartAlertError}
         />
       );
       case "purchases": return <PurchasesTab purchaseHistory={purchaseHistory} formatDate={formatDate} formatCurrency={formatPrice} setActiveTab={setActiveTabFromChild} loading={loadingPurchased} />;
@@ -346,7 +382,8 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
                   >
                     <Icon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`} />
                     <span>{item.label}</span>
-                    {isActive && <ChevronRight className="h-4 w-4 ml-auto opacity-50" />}
+                    {renderTabBadge(item.value)}
+                    {isActive && <ChevronRight className="h-4 w-4 opacity-50" />}
                   </button>
                 );
               })}
@@ -362,7 +399,7 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
               <p className="text-xs font-semibold text-blue-100 uppercase tracking-wider mb-1">Current Plan</p>
               <p className="text-lg font-bold flex items-center gap-2"><Crown className="h-4 w-4 text-amber-400 fill-amber-400" />{user?.plan || "Free"}</p>
               {(!user?.plan || user.plan === "Free") && (
-                <Button onClick={() => setActiveTab("plans")} size="sm" className="w-full mt-3 bg-white/10 hover:bg-white/20 border-0 text-white text-xs h-8">Upgrade</Button>
+                <Button onClick={() => handleTabChange("plans")} size="sm" className="w-full mt-3 bg-white/10 hover:bg-white/20 border-0 text-white text-xs h-8">Upgrade</Button>
               )}
             </div>
           </aside>
@@ -383,7 +420,9 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
                     {visibleProfileTabItems.map((item) => (
                       <button key={item.value} onClick={() => handleMobileTabClick(item.value)} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-slate-700 border-b border-gray-50 last:border-0">
                         <div className="p-1.5 bg-gray-100 rounded-lg text-gray-500"><item.icon className="h-4.5 w-4.5" /></div>
-                        <span className="text-sm font-semibold flex-1">{item.label}</span><ChevronRight className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm font-semibold flex-1">{item.label}</span>
+                        {renderTabBadge(item.value)}
+                        <ChevronRight className="h-4 w-4 text-gray-400" />
                       </button>
                     ))}
                     <Separator className="my-1" />
@@ -408,12 +447,24 @@ export function ProfileSettingsSidebar({ navigateTo, user, onUpdateUser, onLogou
       </div>
 
       {/* Extracted Dialogs */}
-      <DeleteAccountDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog} deleteConfirmText={deleteConfirmText} setDeleteConfirmText={setDeleteConfirmText} onDelete={handleDeleteAccount} />
+      <DeleteAccountDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        deleteConfirmText={deleteConfirmText}
+        setDeleteConfirmText={setDeleteConfirmText}
+        deleteReason={deleteReason}
+        setDeleteReason={setDeleteReason}
+        deleteFeedback={deleteFeedback}
+        setDeleteFeedback={setDeleteFeedback}
+        onDelete={handleDeleteAccount}
+        deleteAccountErrors={deleteAccountErrors}
+        deleteAccountGlobalError={deleteAccountGlobalError}
+      />
       <PlanPurchaseDialog open={showPlanDialog} onOpenChange={setShowPlanDialog} selectedPlan={selectedPlan} plans={dynamicPlans} formatCurrency={formatPrice} onConfirm={() => setShowPlanDialog(false)} />
       <PhotoOptionsDialog open={showPhotoDialog} onOpenChange={setShowPhotoDialog} onPhotoSelect={() => document.getElementById('photo-upload')?.click()} onPhotoDelete={handlePhotoDelete} />
 
       {/* Hidden File Input for Photo Upload */}
-      <input type="file" id="photo-upload" name="profile-photo-upload" className="hidden" accept="image/*" onChange={handlePhotoSelect} />
+      <input type="file" id="photo-upload" name="profile-photo-upload" className="hidden" accept={PROFILE_PHOTO_ACCEPT} onChange={handlePhotoSelect} />
     </div>
   );
 

@@ -6,6 +6,7 @@ import { apiClient } from '@/lib/api/client';
 import { USER_ROUTES } from "@/lib/api/routes";
 import type {
   IChatStartResponse,
+  IConversationResponse,
   IConversationListResponse,
   IMessageListResponse,
   IChatSendResponse,
@@ -18,8 +19,9 @@ import type {
 export interface SendMessagePayload {
   conversationId: string;
   text: string;
-  attachments?: Array<{ url: string; mimeType: string; size: number }>;
 }
+
+export type ConversationListView = 'active' | 'archived';
 
 /* -------------------------------------------------------------------------- */
 /* API Methods                                                                 */
@@ -35,9 +37,17 @@ export const chatApi = {
   /**
    * Paginated inbox — buyer & seller conversations.
    */
-  list: (before?: string): Promise<IConversationListResponse> =>
+  list: (before?: string, view: ConversationListView = 'active'): Promise<IConversationListResponse> =>
     apiClient.get<IConversationListResponse>(
-      `${USER_ROUTES.CHAT_LIST}${before ? `?before=${encodeURIComponent(before)}` : ''}`
+      `${USER_ROUTES.CHAT_LIST}?view=${encodeURIComponent(view)}${before ? `&before=${encodeURIComponent(before)}` : ''}`
+    ),
+
+  /**
+   * Single conversation detail.
+   */
+  conversation: (conversationId: string): Promise<IConversationResponse> =>
+    apiClient.get<IConversationResponse>(
+      USER_ROUTES.CHAT_CONVERSATION(conversationId)
     ),
 
   /**
@@ -85,6 +95,12 @@ export const chatApi = {
    */
   hide: (conversationId: string): Promise<{ success: boolean }> =>
     apiClient.post<{ success: boolean }>(USER_ROUTES.CHAT_HIDE, { conversationId }),
+
+  /**
+   * Restore a hidden conversation back to the active inbox.
+   */
+  unhide: (conversationId: string): Promise<{ success: boolean }> =>
+    apiClient.post<{ success: boolean }>(USER_ROUTES.CHAT_UNHIDE, { conversationId }),
 
   /**
    * Report a conversation or specific message.

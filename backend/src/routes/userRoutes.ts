@@ -4,6 +4,12 @@ import * as savedAdController from '../controllers/savedAd';
 import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
+import { validateRequest } from '../middleware/validateRequest';
+import { deleteAccountSchema, updateUserProfileSchema } from '../validators/user.validator';
+import { saveAdSchema, savedAdParamSchema, getSavedAdsQuerySchema } from '../validators/savedAd.validator';
+import { createUploadMiddleware } from '../utils/uploadFactory';
+import * as walletController from '../controllers/wallet';
+import * as boostController from '../controllers/boost';
 
 const router = express.Router();
 
@@ -49,9 +55,6 @@ const router = express.Router();
  *                       type: string
  *                       enum: [NONE, PENDING, APPROVED, REJECTED]
  */
-import multer from 'multer';
-import os from 'os';
-import { createUploadMiddleware } from '../utils/uploadFactory';
 
 // Allowed image MIME types for user profile / file uploads
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
@@ -63,15 +66,7 @@ const upload = createUploadMiddleware({
     errorLabel: 'image type'
 });
 
-import * as walletController from '../controllers/wallet';
-
-import * as boostController from '../controllers/boost';
-
-import { validateRequest } from '../middleware/validateRequest';
-import { updateUserProfileSchema } from '../validators/user.validator';
-
 router.get('/me', protect, userController.getMe);
-router.get('/:id/reputation', validateObjectId, searchLimiter, userController.getUserReputationById);
 router.get('/:id/profile', validateObjectId, searchLimiter, userController.getUserProfileById);
 router.post('/:id/block', protect, validateObjectId, mutationLimiter, userController.blockUser);
 router.delete('/:id/block', protect, validateObjectId, mutationLimiter, userController.unblockUser);
@@ -80,21 +75,7 @@ router.get('/me/posting-balance', protect, walletController.getPostingBalance);
 router.get('/me/transactions', protect, walletController.getTransactionHistory);
 router.get('/me/boosts', protect, boostController.getMyBoosts);
 router.patch('/me', protect, upload.single('profilePhoto'), validateRequest(updateUserProfileSchema), userController.updateMe);
-import logger from '../utils/logger';
-
-router.post(
-    '/upload',
-    (req, res) => {
-        return res.status(410).json({
-            success: false,
-            error: "Endpoint removed. Use PATCH /api/v1/users/me",
-            status: 410
-        });
-    }
-);
-router.delete('/me', protect, userController.deleteMe);
-
-import { saveAdSchema, savedAdParamSchema, getSavedAdsQuerySchema } from '../validators/savedAd.validator';
+router.delete('/me', protect, validateRequest(deleteAccountSchema), userController.deleteMe);
 
 // --- Saved Ads ---
 router.post('/saved-ads', protect, mutationLimiter, validateRequest(saveAdSchema), savedAdController.saveAd);

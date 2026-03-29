@@ -11,12 +11,19 @@ import { ProfileSettingsSidebar } from "@/components/user/ProfileSettingsSidebar
 import { UserPage, getPageRoute } from "@/lib/routeUtils";
 import { useUser } from "@/hooks/useUser";
 import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
+import type { ProfileTabValue } from "@/config/navigation";
+import type { ConversationListView } from "@/lib/api/chatApi";
+import type { IConversationDTO } from "@shared/contracts/chat.contracts";
 
 interface AccountPageShellProps {
-    tab: string;
+    tab: ProfileTabValue;
+    listingSubTab?: "ads" | "services" | "spare-parts";
+    messagesView?: ConversationListView;
+    conversationId?: string;
+    initialConversation?: IConversationDTO | null;
 }
 
-export function AccountPageShell({ tab }: AccountPageShellProps) {
+export function AccountPageShell({ tab, listingSubTab, messagesView, conversationId, initialConversation }: AccountPageShellProps) {
     const router = useRouter();
     const { user, loading, refreshUser, logout } = useUser();
 
@@ -42,6 +49,10 @@ export function AccountPageShell({ tab }: AccountPageShellProps) {
                 void router.push("/");
             }}
             initialTab={tab}
+            initialListingSubTab={listingSubTab}
+            initialMessagesView={messagesView}
+            initialConversationId={conversationId}
+            initialConversation={initialConversation}
         />
     );
 }

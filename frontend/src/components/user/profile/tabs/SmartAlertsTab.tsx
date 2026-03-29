@@ -7,15 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Eye, Edit2, Trash2, Crown, Save } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Bell, Eye, Edit2, Trash2, Crown, Settings2 } from "lucide-react";
 import LocationSelector from "@/components/location/LocationSelector";
 import type { Location } from "@/lib/api/user/locations";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
 import type {
+    SmartAlertFieldErrors,
+    SmartAlertFormData,
     SmartAlertListItem,
-    SmartAlertPreferences,
 } from "../types";
 
 type SmartAlertSelection = Pick<Location, "id" | "locationId" | "name" | "display" | "city" | "coordinates">;
@@ -23,81 +24,60 @@ type SmartAlertSelection = Pick<Location, "id" | "locationId" | "name" | "displa
 interface SmartAlertsTabProps {
     smartAlerts: SmartAlertListItem[];
     savedSearches: SavedSearch[];
-    newAlertName: string;
-    setNewAlertName: (v: string) => void;
-    newAlertKeywords: string;
-    setNewAlertKeywords: (v: string) => void;
-    newAlertCategory: string;
-    setNewAlertCategory: (v: string) => void;
-    newAlertLocation: string;
-    setNewAlertLocation: (v: string) => void;
-    newAlertRadius: number;
-    setNewAlertRadius: (v: number) => void;
-    createAlertEmail: boolean;
-    setCreateAlertEmail: (v: boolean) => void;
-    alertPreferences: SmartAlertPreferences;
-    setAlertPreferences: (v: SmartAlertPreferences) => void;
+    smartAlertForm: SmartAlertFormData;
+    updateSmartAlertForm: (updates: Partial<SmartAlertFormData>) => void;
     handleCreateAlert: (location: SmartAlertSelection | null) => void;
+    handleToggleAlertStatus: (id: string) => void;
     handleDeleteAlert: (id: string) => void;
     handleDeleteSavedSearch: (id: string) => void;
     handleViewAlertMatches: (alert: SmartAlertListItem) => void;
-    handleEditAlert: () => void;
-    handleSavePreferences?: () => void;
+    handleEditAlert: (alert: SmartAlertListItem) => void;
+    editingAlertId: string | null;
+    resetAlertForm: () => void;
     setActiveTab: (tab: string) => void;
     loading?: boolean;
-    createAlertErrors?: {
-        name?: string;
-        keywords?: string;
-    };
-    createAlertGlobalError?: string | null;
-    preferencesGlobalError?: string | null;
-    isSavingPreferences?: boolean;
-    clearCreateAlertError?: (field: "name" | "keywords") => void;
+    smartAlertErrors?: SmartAlertFieldErrors;
+    smartAlertGlobalError?: string | null;
+    clearSmartAlertError?: (field: keyof SmartAlertFieldErrors) => void;
 }
 
 export function SmartAlertsTab({
     smartAlerts,
     savedSearches,
-    newAlertName,
-    setNewAlertName,
-    newAlertKeywords,
-    setNewAlertKeywords,
-    newAlertCategory,
-    setNewAlertCategory,
-    newAlertLocation,
-    setNewAlertLocation,
-    newAlertRadius,
-    setNewAlertRadius,
-    createAlertEmail,
-    setCreateAlertEmail,
-    alertPreferences,
-    setAlertPreferences,
+    smartAlertForm,
+    updateSmartAlertForm,
     handleCreateAlert,
+    handleToggleAlertStatus,
     handleDeleteAlert,
     handleDeleteSavedSearch,
     handleViewAlertMatches,
     handleEditAlert,
-    handleSavePreferences,
+    editingAlertId,
+    resetAlertForm,
     setActiveTab,
     loading,
-    createAlertErrors,
-    createAlertGlobalError,
-    preferencesGlobalError,
-    isSavingPreferences,
-    clearCreateAlertError,
+    smartAlertErrors,
+    smartAlertGlobalError,
+    clearSmartAlertError,
 }: SmartAlertsTabProps) {
     const [selectedLocation, setSelectedLocation] = useState<SmartAlertSelection | null>(null);
+    const activeAlerts = smartAlerts.filter((alert) => alert.active !== false).length;
+    const isEditing = Boolean(editingAlertId);
 
     useEffect(() => {
-        if (!newAlertLocation.trim()) {
+        if (!smartAlertForm.location.trim()) {
             setSelectedLocation(null);
         }
-    }, [newAlertLocation]);
+    }, [smartAlertForm.location]);
+
+    useEffect(() => {
+        setSelectedLocation(null);
+    }, [editingAlertId]);
 
     const handleLocationSelect = (loc: Location | null) => {
         if (!loc?.coordinates) {
             setSelectedLocation(null);
-            setNewAlertLocation("");
+            updateSmartAlertForm({ location: "", locationId: null });
             return;
         }
 
@@ -109,7 +89,10 @@ export function SmartAlertsTab({
             city: loc.city,
             coordinates: loc.coordinates,
         });
-        setNewAlertLocation(loc.display || loc.name || loc.city || "");
+        updateSmartAlertForm({
+            location: loc.display || loc.name || loc.city || "",
+            locationId: loc.locationId || loc.id || null,
+        });
     };
 
     if (loading) return <div className="p-12 text-center text-muted-foreground animate-pulse">Loading Alerts...</div>;
@@ -122,9 +105,9 @@ export function SmartAlertsTab({
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium">Active Alerts</p>
-                            <p className="text-xs text-muted-foreground">{smartAlerts.length} active alerts</p>
+                            <p className="text-xs text-muted-foreground">{activeAlerts} currently running</p>
                         </div>
-                        <Badge className="bg-blue-600 text-white">{smartAlerts.length} Active</Badge>
+                        <Badge className="bg-blue-600 text-white">{activeAlerts} Active</Badge>
                     </div>
                 </CardContent>
             </Card>
@@ -142,8 +125,11 @@ export function SmartAlertsTab({
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
                                             <h4 className="font-semibold">{alert.name}</h4>
-                                            <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
-                                                Active
+                                            <Badge
+                                                variant="secondary"
+                                                className={`text-xs ${alert.active === false ? "bg-slate-100 text-slate-700" : "bg-green-100 text-green-700"}`}
+                                            >
+                                                {alert.active === false ? "Paused" : "Active"}
                                             </Badge>
                                         </div>
                                         <p className="text-sm text-muted-foreground">
@@ -182,10 +168,19 @@ export function SmartAlertsTab({
                                         variant="outline"
                                         size="sm"
                                         className="gap-2 flex-1"
-                                        onClick={() => handleEditAlert()}
+                                        onClick={() => handleEditAlert(alert)}
                                     >
                                         <Edit2 className="h-3 w-3" />
                                         Edit
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="gap-2 flex-1"
+                                        onClick={() => handleToggleAlertStatus(alert.id)}
+                                    >
+                                        <Bell className="h-3 w-3" />
+                                        {alert.active === false ? "Resume" : "Pause"}
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -194,7 +189,7 @@ export function SmartAlertsTab({
                                         onClick={() => handleDeleteAlert(alert.id)}
                                     >
                                         <Trash2 className="h-3 w-3" />
-                                        Deactivate
+                                        Delete
                                     </Button>
                                 </div>
                             </div>
@@ -262,9 +257,9 @@ export function SmartAlertsTab({
                     {/* Create New Alert */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">Create New Alert</CardTitle>
+                            <CardTitle className="text-base">{isEditing ? "Edit Alert" : "Create New Alert"}</CardTitle>
                             <CardDescription>
-                                Set up a new smart alert for your search
+                                {isEditing ? "Update this smart alert without leaving the page" : "Set up a new smart alert for your search"}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -274,56 +269,63 @@ export function SmartAlertsTab({
                                     <Input
                                         id="smart-alert-name"
                                         placeholder="e.g., iPhone 14 Pro in New York"
-                                        className={`mt-1.5 ${createAlertErrors?.name ? "border-red-500" : ""}`}
-                                        value={newAlertName}
+                                        className={`mt-1.5 ${smartAlertErrors?.name ? "border-red-500" : ""}`}
+                                        value={smartAlertForm.name}
                                         onChange={(e) => {
-                                            if (createAlertErrors?.name) clearCreateAlertError?.("name");
-                                            setNewAlertName(e.target.value);
+                                            if (smartAlertErrors?.name) clearSmartAlertError?.("name");
+                                            updateSmartAlertForm({ name: e.target.value });
                                         }}
-                                        aria-invalid={!!createAlertErrors?.name}
-                                        aria-describedby={createAlertErrors?.name ? "smart-alert-name-error" : undefined}
+                                        aria-invalid={!!smartAlertErrors?.name}
+                                        aria-describedby={smartAlertErrors?.name ? "smart-alert-name-error" : undefined}
                                     />
-                                    <FormError id="smart-alert-name-error" message={createAlertErrors?.name} />
+                                    <FormError id="smart-alert-name-error" message={smartAlertErrors?.name} />
                                 </div>
                                 <div>
                                     <Label htmlFor="smart-alert-keywords" className="text-sm">Search Keywords</Label>
                                     <Input
                                         id="smart-alert-keywords"
                                         placeholder="e.g., iPhone 14 Pro Max 256GB"
-                                        className={`mt-1.5 ${createAlertErrors?.keywords ? "border-red-500" : ""}`}
-                                        value={newAlertKeywords}
+                                        className={`mt-1.5 ${smartAlertErrors?.keywords ? "border-red-500" : ""}`}
+                                        value={smartAlertForm.keywords}
                                         onChange={(e) => {
-                                            if (createAlertErrors?.keywords) clearCreateAlertError?.("keywords");
-                                            setNewAlertKeywords(e.target.value);
+                                            if (smartAlertErrors?.keywords) clearSmartAlertError?.("keywords");
+                                            updateSmartAlertForm({ keywords: e.target.value });
                                         }}
-                                        aria-invalid={!!createAlertErrors?.keywords}
-                                        aria-describedby={createAlertErrors?.keywords ? "smart-alert-keywords-error" : undefined}
+                                        aria-invalid={!!smartAlertErrors?.keywords}
+                                        aria-describedby={smartAlertErrors?.keywords ? "smart-alert-keywords-error" : undefined}
                                     />
-                                    <FormError id="smart-alert-keywords-error" message={createAlertErrors?.keywords} />
+                                    <FormError id="smart-alert-keywords-error" message={smartAlertErrors?.keywords} />
                                 </div>
                                 <div>
                                     <Label htmlFor="smart-alert-category" className="text-sm">Category</Label>
                                     <Input
                                         id="smart-alert-category"
                                         placeholder="Mobile Phones"
-                                        className="mt-1.5"
-                                        value={newAlertCategory}
-                                        onChange={(e) => setNewAlertCategory(e.target.value)}
+                                        className={`mt-1.5 ${smartAlertErrors?.category ? "border-red-500" : ""}`}
+                                        value={smartAlertForm.category}
+                                        onChange={(e) => {
+                                            if (smartAlertErrors?.category) clearSmartAlertError?.("category");
+                                            updateSmartAlertForm({ category: e.target.value });
+                                        }}
+                                        aria-invalid={!!smartAlertErrors?.category}
+                                        aria-describedby={smartAlertErrors?.category ? "smart-alert-category-error" : undefined}
                                     />
+                                    <FormError id="smart-alert-category-error" message={smartAlertErrors?.category} />
                                 </div>
                                 <div>
                                     <Label htmlFor="smart-alert-location" className="text-sm">Location</Label>
                                     <div className="mt-1.5">
                                         <LocationSelector variant="inline"
-                                            currentDisplay={newAlertLocation || undefined}
+                                            currentDisplay={smartAlertForm.location || undefined}
                                             onLocationSelect={handleLocationSelect}
                                         />
                                     </div>
+                                    <FormError message={smartAlertErrors?.location} />
                                 </div>
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
                                         <Label htmlFor="smart-alert-radius" className="text-sm">Location Radius</Label>
-                                        <span className="text-sm font-medium text-green-600">{newAlertRadius} km</span>
+                                        <span className="text-sm font-medium text-green-600">{smartAlertForm.radius} km</span>
                                     </div>
                                     <input
                                         id="smart-alert-radius"
@@ -331,102 +333,59 @@ export function SmartAlertsTab({
                                         type="range"
                                         min="5"
                                         max="500"
-                                        value={newAlertRadius}
-                                        onChange={(e) => setNewAlertRadius(parseInt(e.target.value))}
+                                        value={smartAlertForm.radius}
+                                        onChange={(e) => {
+                                            if (smartAlertErrors?.radius) clearSmartAlertError?.("radius");
+                                            updateSmartAlertForm({ radius: parseInt(e.target.value, 10) });
+                                        }}
                                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600"
                                     />
                                     <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
                                         <span>5 km</span>
                                         <span>500 km</span>
                                     </div>
+                                    <FormError message={smartAlertErrors?.radius} />
                                 </div>
                                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <div>
                                         <Label htmlFor="smart-alert-email-notify" className="text-sm font-medium">Email Notifications</Label>
-                                        <p className="text-xs text-muted-foreground">Get email when new ads match</p>
+                                        <p className="text-xs text-muted-foreground">Prefer email for this alert. Final delivery still respects account notification settings.</p>
                                     </div>
                                     <Switch
                                         id="smart-alert-email-notify"
-                                        checked={createAlertEmail}
-                                        onCheckedChange={setCreateAlertEmail}
+                                        checked={smartAlertForm.emailNotifications}
+                                        onCheckedChange={(checked) => updateSmartAlertForm({ emailNotifications: checked })}
                                     />
                                 </div>
-                                <FormError message={createAlertGlobalError} />
+                                <FormError message={smartAlertGlobalError} />
                                 <Button
                                     className="w-full bg-green-600 hover:bg-green-700 gap-2 text-white"
                                     onClick={() => handleCreateAlert(selectedLocation)}
                                 >
                                     <Bell className="h-4 w-4" />
-                                    Create Alert
+                                    {isEditing ? "Save Changes" : "Create Alert"}
+                                </Button>
+                                {isEditing && (
+                                    <Button
+                                        className="w-full gap-2"
+                                        variant="outline"
+                                        onClick={resetAlertForm}
+                                    >
+                                        Cancel Edit
+                                    </Button>
+                                )}
+                                <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-700">
+                                    Smart alert delivery is managed from Account Settings now. Use email, push, and instant-alert toggles there to control how alerts are delivered.
+                                </div>
+                                <Button
+                                    className="w-full gap-2"
+                                    variant="outline"
+                                    onClick={() => setActiveTab("settings")}
+                                >
+                                    <Settings2 className="h-4 w-4" />
+                                    Open Notification Settings
                                 </Button>
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Alert Preferences */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Alert Preferences</CardTitle>
-                            <CardDescription>
-                                Configure how you receive alert notifications
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label htmlFor="alert-pref-email" className="text-sm font-medium">Email Notifications</Label>
-                                    <p className="text-xs text-muted-foreground">Receive alerts via email</p>
-                                </div>
-                                <Switch
-                                    id="alert-pref-email"
-                                    checked={alertPreferences.email}
-                                    onCheckedChange={(checked) => setAlertPreferences({ ...alertPreferences, email: checked })}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label htmlFor="alert-pref-push" className="text-sm font-medium">Push Notifications</Label>
-                                    <p className="text-xs text-muted-foreground">Receive instant push alerts</p>
-                                </div>
-                                <Switch
-                                    id="alert-pref-push"
-                                    checked={alertPreferences.push}
-                                    onCheckedChange={(checked) => setAlertPreferences({ ...alertPreferences, push: checked })}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label htmlFor="alert-pref-daily" className="text-sm font-medium">Daily Summary</Label>
-                                    <p className="text-xs text-muted-foreground">Get daily digest of matches</p>
-                                </div>
-                                <Switch
-                                    id="alert-pref-daily"
-                                    checked={alertPreferences.dailySummary}
-                                    onCheckedChange={(checked) => setAlertPreferences({ ...alertPreferences, dailySummary: checked })}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label htmlFor="alert-pref-instant" className="text-sm font-medium">Instant Alerts</Label>
-                                    <p className="text-xs text-muted-foreground">Get notified immediately for new matches</p>
-                                </div>
-                                <Switch
-                                    id="alert-pref-instant"
-                                    checked={alertPreferences.instant}
-                                    onCheckedChange={(checked) => setAlertPreferences({ ...alertPreferences, instant: checked })}
-                                />
-                            </div>
-                            <Separator />
-                            <FormError message={preferencesGlobalError} />
-                            <Button
-                                className="w-full"
-                                variant="outline"
-                                onClick={handleSavePreferences}
-                                disabled={isSavingPreferences}
-                            >
-                                <Save className="h-4 w-4 mr-2" />
-                                {isSavingPreferences ? "Saving..." : "Save Preferences"}
-                            </Button>
                         </CardContent>
                     </Card>
                 </div>

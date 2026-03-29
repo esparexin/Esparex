@@ -40,11 +40,10 @@ export type WalletSummary = {
     smartAlertSlots: number;
 };
 
-export type SellerReputation = {
-    score: number;
-    adsPosted: number;
-    responseRate: number;
-    averageResponseTime: number;
+export type SellerListingSummary = {
+    totalActive: number;
+    visibleCount: number;
+    hasMore: boolean;
 };
 
 export type SellerPublicUser = {
@@ -62,19 +61,12 @@ export type SellerPublicUser = {
 
 export type SellerProfilePayload = {
     user: SellerPublicUser;
-    reputation: SellerReputation;
+    listingSummary: SellerListingSummary;
     ads: Ad[];
 };
 
 export const getWalletSummary = async (): Promise<WalletSummary | null> => {
     const { data } = await toApiResult<WalletSummary>(apiClient.get(API_ROUTES.USER.USERS_WALLET));
-    return data || null;
-};
-
-export const getUserReputation = async (userId: string | number): Promise<SellerReputation | null> => {
-    const { data } = await toApiResult<SellerReputation>(
-        apiClient.get(API_ROUTES.USER.USERS_REPUTATION(userId), { silent: true })
-    );
     return data || null;
 };
 
@@ -85,10 +77,10 @@ export const getUserProfile = async (
     const route = API_ROUTES.USER.USERS_PROFILE(userId);
     const { data } =
         typeof window === 'undefined'
-            ? await toApiResult<{ user?: SellerPublicUser; reputation?: SellerReputation; ads?: unknown[] }>(
+            ? await toApiResult<{ user?: SellerPublicUser; listingSummary?: SellerListingSummary; ads?: unknown[] }>(
                 Promise.resolve(fetchUserApiJson(route, options?.fetchOptions, { returnNullOnHttpError: true }))
             )
-            : await toApiResult<{ user?: SellerPublicUser; reputation?: SellerReputation; ads?: unknown[] }>(
+            : await toApiResult<{ user?: SellerPublicUser; listingSummary?: SellerListingSummary; ads?: unknown[] }>(
                 apiClient.get(route, { silent: true })
             );
 
@@ -106,18 +98,17 @@ export const getUserProfile = async (
         profilePhoto: toSafeImageSrc(user.profilePhoto, '')
     };
 
-    const reputation: SellerReputation = data.reputation || {
-        score: 0,
-        adsPosted: 0,
-        responseRate: 0,
-        averageResponseTime: 0
+    const listingSummary: SellerListingSummary = data.listingSummary || {
+        totalActive: 0,
+        visibleCount: 0,
+        hasMore: false,
     };
 
     const ads = Array.isArray(data.ads) ? data.ads.map(normalizeAd) : [];
 
     return {
         user: normalizedUser,
-        reputation,
+        listingSummary,
         ads
     };
 };

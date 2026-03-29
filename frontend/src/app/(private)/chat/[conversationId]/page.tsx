@@ -1,71 +1,22 @@
-/**
- * /chat/[conversationId] — Individual conversation page (private route)
- */
-import type { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
-import { ConversationView } from '@/components/chat/ConversationView';
-import { getServerSession } from '@/lib/auth/session';
-import { buildLoginUrl } from '@/lib/authHelpers';
-import { buildUserApiUrl } from '@/lib/api/user/server';
-import type { IConversationDTO } from '@shared/contracts/chat.contracts';
+import { redirect } from 'next/navigation';
+import { buildChatConversationRoute, resolveChatInboxView } from '@/lib/chatUiRoutes';
 
-export const metadata: Metadata = {
-  title: 'Chat | Esparex',
-};
-
-interface Props {
+interface LegacyConversationPageProps {
   params: Promise<{ conversationId: string }>;
+  searchParams: Promise<{ returnTo?: string | string[]; view?: string | string[] }>;
 }
 
-async function fetchConversation(id: string): Promise<IConversationDTO | null> {
-  try {
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore.toString();
-    if (!cookieHeader) return null;
+const getSingleSearchParam = (value?: string | string[]): string | undefined =>
+  Array.isArray(value) ? value[0] : value;
 
-    const response = await fetch(buildUserApiUrl('chat/list'), {
-      method: 'GET',
-      headers: {
-        Cookie: cookieHeader,
-        Accept: 'application/json',
-      },
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const payload = await response.json().catch(() => null) as { data?: IConversationDTO[] } | null;
-    const conversations = Array.isArray(payload?.data) ? payload.data : [];
-    return conversations.find((c) => c.id === id) ?? null;
-  } catch {
-    return null;
-  }
-}
-
-export default async function ConversationPage({ params }: Props) {
+export default async function LegacyConversationRedirectPage({
+  params,
+  searchParams,
+}: LegacyConversationPageProps) {
   const { conversationId } = await params;
-  const session = await getServerSession();
-  if (!session?.user) {
-    redirect(buildLoginUrl(`/chat/${conversationId}`));
-  }
+  const resolvedSearchParams = await searchParams;
+  const returnTo = getSingleSearchParam(resolvedSearchParams?.returnTo);
+  const view = resolveChatInboxView(resolvedSearchParams?.view);
 
-  const conversation = await fetchConversation(conversationId);
-  if (!conversation) notFound();
-
-  const userId = session.user.id ?? session.user._id?.toString() ?? '';
-
-  // IDOR guard — ensure the logged-in user is a participant
-  const isMember =
-    conversation.buyer.id === userId || conversation.seller.id === userId;
-  if (!isMember) notFound();
-
-  return (
-    <ConversationView
-      conversation={conversation}
-      currentUserId={userId}
-    />
-  );
+  redirect(buildChatConversationRoute(conversationId, { returnTo, view }));
 }

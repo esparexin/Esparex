@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, FileText, CreditCard, Crown } from "lucide-react";
+import { ShoppingCart, FileText, Crown } from "lucide-react";
 import { notify } from "@/lib/notify";
 import type { Transaction } from "@/lib/api/user/transactions";
 
@@ -21,8 +21,12 @@ export function PurchasesTab({
     loading,
 }: PurchasesTabProps) {
     if (loading) return <div className="p-12 text-center text-muted-foreground animate-pulse">Loading History...</div>;
-    const activePlans = purchaseHistory.filter(p => p.status === "SUCCESS").length;
-    const initiatedPlans = purchaseHistory.filter(p => p.status === "INITIATED").length;
+    const successfulOrders = purchaseHistory.filter((purchase) => purchase.status === "SUCCESS").length;
+    const pendingOrders = purchaseHistory.filter((purchase) => purchase.status === "INITIATED").length;
+    const activeEntitlements = purchaseHistory.filter((purchase) => {
+        if (purchase.status !== "SUCCESS" || !purchase.validUntil) return false;
+        return new Date(purchase.validUntil).getTime() > Date.now();
+    }).length;
 
     return (
         <div className="space-y-4">
@@ -41,21 +45,21 @@ export function PurchasesTab({
                     <div className="grid grid-cols-3 gap-4 text-center">
                         <div>
                             <p className="text-2xl font-bold text-purple-600">
-                                {activePlans}
+                                {activeEntitlements}
                             </p>
-                            <p className="text-xs text-muted-foreground">Active Plans</p>
+                            <p className="text-xs text-muted-foreground">Active Entitlements</p>
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-blue-600">
-                                {initiatedPlans}
+                                {pendingOrders}
                             </p>
-                            <p className="text-xs text-muted-foreground">Initiated</p>
+                            <p className="text-xs text-muted-foreground">Pending Orders</p>
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-gray-600">
-                                {purchaseHistory.length}
+                                {successfulOrders}
                             </p>
-                            <p className="text-xs text-muted-foreground">Total Orders</p>
+                            <p className="text-xs text-muted-foreground">Successful Orders</p>
                         </div>
                     </div>
                 </CardContent>
@@ -138,24 +142,6 @@ export function PurchasesTab({
                             </div>
                         ))
                     )}
-                </CardContent>
-            </Card>
-
-            {/* Payment Methods Card */}
-            <Card>
-                <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                        <CreditCard className="h-5 w-5" />
-                        Payment Information
-                    </CardTitle>
-                    <CardDescription>Your saved payment methods and billing details</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="bg-gray-50 border rounded-lg p-4 text-center">
-                        <CreditCard className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                        <p className="text-sm text-muted-foreground">No saved payment methods</p>
-                        <p className="text-xs text-muted-foreground mt-1">Payment methods will be saved during checkout</p>
-                    </div>
                 </CardContent>
             </Card>
 

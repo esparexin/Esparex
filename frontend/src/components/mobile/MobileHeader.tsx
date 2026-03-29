@@ -1,5 +1,5 @@
 "use client";
-import { Menu, MapPin, Bell, Search, LogIn, ChevronDown } from "lucide-react";
+import { Menu, MapPin, Search, LogIn, ChevronDown } from "lucide-react";
 import { useEffect } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import LocationSelector from "@/components/location/LocationSelector";
@@ -13,6 +13,7 @@ import type { UserPage } from "@/lib/routeUtils";
 import { usePathname } from "next/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
+import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 interface MobileHeaderProps {
     navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string) => void;
     isLoggedIn: boolean;
@@ -29,7 +30,9 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
     const chromePolicy = getMobileChromePolicy(pathname);
 
     const {
+        notificationsData,
         notifUnreadCount,
+        refetchNotifications,
         showLocationSelector,
         setShowLocationSelector,
         globalLocation: location,
@@ -133,18 +136,12 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                         )}
 
                         {isLoggedIn && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full hover:bg-muted relative"
-                                onClick={() => navigateTo('notifications')}
-                                aria-label="Open notifications"
-                            >
-                                <Bell className="h-6 w-6 text-foreground/80" />
-                                {notifUnreadCount > 0 && (
-                                    <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full border-2 border-background" />
-                                )}
-                            </Button>
+                            <NotificationBellDropdown
+                                notificationsData={notificationsData}
+                                unreadCount={notifUnreadCount}
+                                onRefresh={refetchNotifications}
+                                variant="mobile"
+                            />
                         )}
                     </div>
                 </div>

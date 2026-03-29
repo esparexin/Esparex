@@ -3,11 +3,9 @@
  * All mounted under /api/v1/chat
  *
  * User routes: require user JWT (protect middleware)
- * Admin routes: require admin JWT (adminAuth middleware)
  */
 import express from 'express';
 import { protect } from '../middleware/authMiddleware';
-import { requireAdmin } from '../middleware/adminAuth';
 import {
   chatSendLimiter,
   chatStartLimiter,
@@ -16,22 +14,16 @@ import {
 import {
   startChat,
   getChatList,
+  getChatConversation,
   getConversationMessages,
   sendChatMessage,
   markChatRead,
   blockChat,
   hideChat,
+  unhideChat,
   reportChat,
   getChatUploadUrl,
 } from '../controllers/chat/chatController';
-import {
-  adminListChats,
-  adminGetChat,
-  adminDeleteMsg,
-  adminMuteChat,
-  adminExportChat,
-  adminResolveReport,
-} from '../controllers/chat/chatAdminController';
 
 const router = express.Router();
 
@@ -53,9 +45,15 @@ router.get('/list', protect, getChatList);
 
 /**
  * POST /api/v1/chat/upload-url
- * Contract-safe placeholder for chat attachment upload URL generation.
+ * Generate direct-upload URL for chat attachments.
  */
 router.post('/upload-url', protect, chatSendLimiter, getChatUploadUrl);
+
+/**
+ * GET /api/v1/chat/:id
+ * Single conversation detail for a participant.
+ */
+router.get('/:id', protect, getChatConversation);
 
 /**
  * GET /api/v1/chat/:id/messages
@@ -88,49 +86,15 @@ router.post('/block', protect, blockChat);
 router.post('/hide', protect, hideChat);
 
 /**
+ * POST /api/v1/chat/unhide
+ * Restore an archived conversation back to the inbox.
+ */
+router.post('/unhide', protect, unhideChat);
+
+/**
  * POST /api/v1/chat/report
  * Report a conversation or specific message.
  */
 router.post('/report', protect, chatReportLimiter, reportChat);
-
-/* -------------------------------------------------------------------------- */
-/* ADMIN ROUTES (admin JWT required)                                           */
-/* -------------------------------------------------------------------------- */
-
-/**
- * GET /api/v1/chat/admin/list
- * Admin: paginated list of all conversations with moderation filters.
- */
-router.get('/admin/list', requireAdmin, adminListChats);
-
-/**
- * GET /api/v1/chat/admin/:id
- * Admin: full conversation detail including messages and reports.
- */
-router.get('/admin/:id', requireAdmin, adminGetChat);
-
-/**
- * DELETE /api/v1/chat/admin/message/:msgId
- * Admin: delete (replace) a specific message.
- */
-router.delete('/admin/message/:msgId', requireAdmin, adminDeleteMsg);
-
-/**
- * POST /api/v1/chat/admin/mute/:id
- * Admin: block/mute a conversation.
- */
-router.post('/admin/mute/:id', requireAdmin, adminMuteChat);
-
-/**
- * POST /api/v1/chat/admin/export/:id
- * Admin: export full chat history as JSON.
- */
-router.post('/admin/export/:id', requireAdmin, adminExportChat);
-
-/**
- * PATCH /api/v1/chat/admin/report/:id
- * Admin: resolve or dismiss a chat report.
- */
-router.patch('/admin/report/:id', requireAdmin, adminResolveReport);
 
 export default router;

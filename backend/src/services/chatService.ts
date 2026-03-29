@@ -11,8 +11,14 @@ import { ChatMessage } from '../models/ChatMessage';
 import { ChatReport } from '../models/ChatReport';
 import Ad from '../models/Ad';
 import BlockedUser from '../models/BlockedUser';
+import { User } from '../models/User';
 import logger from '../utils/logger';
+import { escapeRegExp } from '../utils/stringUtils';
 import type { IConversationDTO } from '@shared/contracts/chat.contracts';
+import {
+  CHAT_CLOSED_STATUSES,
+  isListingChatClosed,
+} from './chatAvailabilityService';
 
 /* -------------------------------------------------------------------------- */
 /* Inline HTML-entity encoder (no external dep needed)                         */
@@ -80,6 +86,42 @@ function maskSensitiveData(text: string): string {
     .replace(EMAIL_REGEX, '[email hidden]');
 }
 
+function isImageAttachment(attachment: IChatAttachment): boolean {
+  return attachment.mimeType.toLowerCase().startsWith('image/');
+}
+
+function buildAttachmentInboxSummary(attachments: IChatAttachment[]): string | null {
+  if (attachments.length === 0) return null;
+
+  const imageCount = attachments.filter(isImageAttachment).length;
+  if (imageCount === attachments.length) {
+    return imageCount === 1 ? '📷 Photo' : `📷 ${imageCount} photos`;
+  }
+
+  if (attachments.length === 1) {
+    const onlyAttachment = attachments[0];
+    return `📎 ${onlyAttachment?.name?.trim() || 'Attachment'}`;
+  }
+
+  return `📎 ${attachments.length} attachments`;
+}
+
+function buildConversationPreview(text: string, attachments: IChatAttachment[]): string {
+  const trimmedText = text.trim();
+  const attachmentSummary = buildAttachmentInboxSummary(attachments);
+  if (!attachmentSummary) {
+    return trimmedText.slice(0, 120);
+  }
+
+  if (!trimmedText) {
+    return attachmentSummary;
+  }
+
+  const availableTextLength = Math.max(0, 120 - attachmentSummary.length - 3);
+  const snippet = trimmedText.slice(0, availableTextLength).trim();
+  return snippet ? `${attachmentSummary} · ${snippet}` : attachmentSummary;
+}
+
 /* ============================================================================
    CONVERSATION
    ============================================================================ */
@@ -92,7 +134,7 @@ export async function startConversation(
   adId: string,
   buyerId: string
 ): Promise<{ conversationId: string; isNew: boolean }> {
-  const ad = await Ad.findById(adId).select('sellerId status').lean();
+  const ad = await Ad.findById(adId).select('sellerId status isDeleted isChatLocked').lean();
   if (!ad) throw Object.assign(new Error('Ad not found'), { status: 404 });
 
   const sellerId = String(ad.sellerId);
@@ -100,7 +142,7 @@ export async function startConversation(
     throw Object.assign(new Error('You cannot chat with yourself'), { status: 400 });
   }
 
-  if (ad.status === 'deleted' || ad.status === 'inactive') {
+  if (isListingChatClosed(ad)) {
     throw Object.assign(new Error('This ad is no longer available'), { status: 410 });
   }
 
@@ -129,13 +171,19 @@ export async function startConversation(
   }
 
   const existing = await Conversation.findOne({ adId, buyerId }).lean();
-  if (existing) return { conversationId: String(existing._id), isNew: false };
+  if (existing) {
+    await Conversation.updateOne(
+      { _id: existing._id },
+      { $pull: { deletedFor: new Types.ObjectId(buyerId) } }
+    );
+    return { conversationId: String(existing._id), isNew: false };
+  }
 
   const conv = await Conversation.create({
     adId: new Types.ObjectId(adId),
     buyerId: new Types.ObjectId(buyerId),
     sellerId: new Types.ObjectId(sellerId),
-    isAdClosed: ad.status === 'sold' || ad.status === 'expired',
+    isAdClosed: isListingChatClosed(ad),
   });
 
   return { conversationId: String(conv._id), isNew: true };
@@ -145,11 +193,15 @@ export async function startConversation(
  * Paginated inbox — returns conversations where userId is buyer OR seller.
  * Excludes conversations the user has soft-hidden.
  */
-export async function listConversations(userId: string, before?: string) {
+export async function listConversations(
+  userId: string,
+  before?: string,
+  view: 'active' | 'archived' = 'active'
+) {
   const query: Record<string, unknown> = {
     $or: [{ buyerId: userId }, { sellerId: userId }],
-    deletedFor: { $ne: userId },
   };
+  query.deletedFor = view === 'archived' ? userId : { $ne: userId };
   if (before) {
     query.lastMessageAt = { $lt: new Date(before) };
   }
@@ -157,7 +209,7 @@ export async function listConversations(userId: string, before?: string) {
   const convs = await Conversation.find(query)
     .sort({ lastMessageAt: -1 })
     .limit(PAGE_SIZE_INBOX)
-    .populate('adId', 'title images price status')
+    .populate('adId', 'title images price status listingType seoSlug isDeleted isChatLocked')
     .populate('buyerId', 'name avatar')
     .populate('sellerId', 'name avatar')
     .lean();
@@ -169,9 +221,29 @@ export async function listConversations(userId: string, before?: string) {
       : undefined;
 
   return {
-    convs: convs.map((conversation) => toConversationDto(conversation as unknown as PopulatedConv)),
+    convs: convs.map((conversation) => toConversationDto(
+      conversation as unknown as PopulatedConv,
+      userId
+    )),
     nextCursor,
   };
+}
+
+export async function getConversationForUser(conversationId: string, userId: string): Promise<IConversationDTO> {
+  const conv = await Conversation.findOne({
+    _id: conversationId,
+    $or: [{ buyerId: userId }, { sellerId: userId }],
+  })
+    .populate('adId', 'title images price status listingType seoSlug isDeleted isChatLocked')
+    .populate('buyerId', 'name avatar')
+    .populate('sellerId', 'name avatar')
+    .lean();
+
+  if (!conv) {
+    throw Object.assign(new Error('Conversation not found'), { status: 404 });
+  }
+
+  return toConversationDto(conv as unknown as PopulatedConv, userId);
 }
 
 /* ============================================================================
@@ -245,6 +317,13 @@ export async function sendMessage(
 ): Promise<InstanceType<typeof ChatMessage>> {
   const conv = await Conversation.findById(conversationId);
   if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
+  const listing = await Ad.findById(conv.adId).select('status isDeleted isChatLocked').lean();
+  const derivedClosed = isListingChatClosed(listing);
+
+  if (conv.isAdClosed !== derivedClosed) {
+    conv.isAdClosed = derivedClosed;
+    await conv.save();
+  }
 
   const buyerStr = String(conv.buyerId);
   const sellerStr = String(conv.sellerId);
@@ -253,7 +332,7 @@ export async function sendMessage(
     throw Object.assign(new Error('Forbidden'), { status: 403 });
   }
   if (conv.isBlocked) throw Object.assign(new Error('This chat has been blocked'), { status: 403, code: 'CHAT_BLOCKED' });
-  if (conv.isAdClosed) throw Object.assign(new Error('This ad is closed — chat is read-only'), { status: 403, code: 'CHAT_CLOSED' });
+  if (derivedClosed) throw Object.assign(new Error('This ad is closed — chat is read-only'), { status: 403, code: 'CHAT_CLOSED' });
 
   const receiverId = senderId === buyerStr ? sellerStr : buyerStr;
 
@@ -279,8 +358,12 @@ export async function sendMessage(
   await Conversation.updateOne(
     { _id: conversationId },
     {
-      $set: { lastMessage: storedText.slice(0, 120), lastMessageAt: msg.createdAt },
+      $set: {
+        lastMessage: buildConversationPreview(storedText, attachments),
+        lastMessageAt: msg.createdAt,
+      },
       $inc: { [unreadField]: 1 },
+      $pull: { deletedFor: new Types.ObjectId(senderId) },
     }
   );
 
@@ -357,6 +440,19 @@ export async function hideConversation(conversationId: string, userId: string) {
   );
 }
 
+export async function restoreConversation(conversationId: string, userId: string) {
+  const conv = await Conversation.findById(conversationId).lean();
+  if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
+
+  const isMember = [String(conv.buyerId), String(conv.sellerId)].includes(userId);
+  if (!isMember) throw Object.assign(new Error('Forbidden'), { status: 403 });
+
+  await Conversation.updateOne(
+    { _id: conversationId },
+    { $pull: { deletedFor: new Types.ObjectId(userId) } }
+  );
+}
+
 /* ============================================================================
    REPORTING
    ============================================================================ */
@@ -423,6 +519,11 @@ interface PopulatedAd  {
   title?: string;
   images?: string[];
   price?: number;
+  listingType?: string;
+  seoSlug?: string;
+  status?: string;
+  isDeleted?: boolean;
+  isChatLocked?: boolean;
 }
 interface PopulatedConv {
   _id: unknown;
@@ -435,6 +536,7 @@ interface PopulatedConv {
   isAdClosed?: boolean;
   unreadBuyer?: number;
   unreadSeller?: number;
+  deletedFor?: unknown[];
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }
@@ -457,10 +559,23 @@ function extractLastMessage(raw?: string | { text?: string } | null): string | u
   return raw.text ?? undefined;
 }
 
-function toConversationDto(c: PopulatedConv): IConversationDTO {
+function isConversationArchivedForViewer(c: PopulatedConv, viewerId?: string): boolean {
+  if (!viewerId || !Array.isArray(c.deletedFor)) return false;
+  return c.deletedFor.some((entry) => {
+    if (entry == null) return false;
+    if (typeof entry === 'string') return entry === viewerId;
+    if (typeof entry === 'object' && '_id' in (entry as Record<string, unknown>)) {
+      return String((entry as { _id?: unknown })._id) === viewerId;
+    }
+    return String(entry) === viewerId;
+  });
+}
+
+function toConversationDto(c: PopulatedConv, viewerId?: string): IConversationDTO {
   const thumbnail = Array.isArray(c.adId?.images)
     ? c.adId.images.find((image): image is string => typeof image === 'string' && image.trim().length > 0)
     : undefined;
+  const isAdClosed = isListingChatClosed(c.adId);
 
   return {
     id: String(c._id),
@@ -469,6 +584,8 @@ function toConversationDto(c: PopulatedConv): IConversationDTO {
       title: c.adId?.title ?? 'Untitled',
       thumbnail,
       price: typeof c.adId?.price === 'number' ? c.adId.price : undefined,
+      listingType: c.adId?.listingType,
+      seoSlug: c.adId?.seoSlug,
     },
     buyer: {
       id: normalizeNestedId(c.buyerId),
@@ -485,7 +602,8 @@ function toConversationDto(c: PopulatedConv): IConversationDTO {
     unreadBuyer: Number(c.unreadBuyer ?? 0),
     unreadSeller: Number(c.unreadSeller ?? 0),
     isBlocked: Boolean(c.isBlocked),
-    isAdClosed: Boolean(c.isAdClosed),
+    isAdClosed,
+    isArchivedForViewer: isConversationArchivedForViewer(c, viewerId),
     createdAt: toIso(c.createdAt) ?? '',
     updatedAt: toIso(c.updatedAt) ?? '',
   };
@@ -500,7 +618,7 @@ function shapeConv(c: PopulatedConv): AdminConvSummary {
     lastMessage: extractLastMessage(c.lastMessage),
     lastMessageAt: toIso(c.lastMessageAt),
     isBlocked: Boolean(c.isBlocked),
-    isAdClosed: Boolean(c.isAdClosed),
+    isAdClosed: isListingChatClosed(c.adId),
     unreadBuyer: Number(c.unreadBuyer ?? 0),
     unreadSeller: Number(c.unreadSeller ?? 0),
     updatedAt: toIso(c.updatedAt) ?? '',
@@ -517,7 +635,16 @@ export async function adminListConversations(
   const query: Record<string, unknown> = {};
 
   if (filter === 'blocked') query.isBlocked = true;
-  if (filter === 'closed') query.isAdClosed = true;
+  if (filter === 'closed') {
+    const closedAdIds = await Ad.distinct('_id', {
+      $or: [
+        { status: { $in: [...CHAT_CLOSED_STATUSES] } },
+        { isDeleted: true },
+        { isChatLocked: true },
+      ],
+    });
+    query.adId = { $in: closedAdIds };
+  }
   if (filter === 'high_risk') {
     const highRiskMsgConvIds = await ChatMessage.distinct('conversationId', {
       riskScore: { $gte: riskMin },
@@ -529,6 +656,58 @@ export async function adminListConversations(
     query._id = { $in: reportedConvIds };
   }
 
+  const normalizedSearch = search.trim();
+  if (normalizedSearch) {
+    const searchRegex = new RegExp(escapeRegExp(normalizedSearch), 'i');
+    const [userMatches, adMatches] = await Promise.all([
+      User.find({
+        $or: [
+          { name: searchRegex },
+          { mobile: searchRegex },
+        ],
+      })
+        .select('_id')
+        .limit(50)
+        .lean(),
+      Ad.find({ title: searchRegex })
+        .select('_id')
+        .limit(50)
+        .lean(),
+    ]);
+
+    const userIds = userMatches.map((user) => user._id);
+    const adIds = adMatches.map((ad) => ad._id);
+    const searchConditions: Record<string, unknown>[] = [];
+
+    if (Types.ObjectId.isValid(normalizedSearch)) {
+      const objectId = new Types.ObjectId(normalizedSearch);
+      searchConditions.push(
+        { _id: objectId },
+        { buyerId: objectId },
+        { sellerId: objectId },
+        { adId: objectId }
+      );
+    }
+
+    if (userIds.length > 0) {
+      searchConditions.push(
+        { buyerId: { $in: userIds } },
+        { sellerId: { $in: userIds } }
+      );
+    }
+
+    if (adIds.length > 0) {
+      searchConditions.push({ adId: { $in: adIds } });
+    }
+
+    query.$and = [
+      ...(Array.isArray(query.$and) ? query.$and : []),
+      searchConditions.length > 0
+        ? { $or: searchConditions }
+        : { _id: { $in: [] } },
+    ];
+  }
+
   const skip = (page - 1) * limit;
   const [rawConvs, total] = await Promise.all([
     Conversation.find(query)
@@ -537,7 +716,7 @@ export async function adminListConversations(
       .limit(limit)
       .populate('buyerId', 'name mobile')
       .populate('sellerId', 'name mobile')
-      .populate('adId', 'title')
+      .populate('adId', 'title status isDeleted isChatLocked')
       .lean()
       .then((conversations) => conversations as unknown as PopulatedConv[]),
     Conversation.countDocuments(query),
@@ -550,7 +729,7 @@ export async function adminGetConversation(conversationId: string) {
   const conv = await Conversation.findById(conversationId)
     .populate('buyerId', 'name mobile avatar')
     .populate('sellerId', 'name mobile avatar')
-    .populate('adId', 'title images price status')
+    .populate('adId', 'title images price status listingType seoSlug isDeleted isChatLocked')
     .lean();
   if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
 

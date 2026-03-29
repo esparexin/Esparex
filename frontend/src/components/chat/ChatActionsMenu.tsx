@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { chatApi } from "@/lib/api/chatApi";
+import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { CHAT_REPORT_REASON } from '@shared/enums/chatStatus';
 import type { ChatReportReasonValue } from '@shared/enums/chatStatus';
 import { BlockChatDialog } from './BlockChatDialog';
@@ -10,8 +11,9 @@ import { HideChatDialog } from './HideChatDialog';
 
 interface ChatActionsMenuProps {
   conversationId: string;
+  isArchived?: boolean;
   /** Called after block/hide so parent can refresh conv state */
-  onActionComplete: (action: 'block' | 'hide') => void;
+  onActionComplete: (action: 'block' | 'hide' | 'restore') => void;
 }
 
 const REPORT_REASONS = [
@@ -22,7 +24,7 @@ const REPORT_REASONS = [
   { value: CHAT_REPORT_REASON.OTHER, label: 'Other' },
 ];
 
-export function ChatActionsMenu({ conversationId, onActionComplete }: ChatActionsMenuProps) {
+export function ChatActionsMenu({ conversationId, isArchived = false, onActionComplete }: ChatActionsMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [modal, setModal] = useState<null | 'block' | 'report' | 'hide'>(null);
   const [reportReason, setReportReason] = useState<ChatReportReasonValue>(REPORT_REASONS[0]!.value);
@@ -48,6 +50,7 @@ export function ChatActionsMenu({ conversationId, onActionComplete }: ChatAction
       await chatApi.block(conversationId);
       setFeedback('User blocked. This chat is now read-only.');
       setModal(null);
+      dispatchChatInboxUpdated();
       onActionComplete('block');
     } catch {
       setFeedback('Failed to block. Please try again.');
@@ -80,9 +83,24 @@ export function ChatActionsMenu({ conversationId, onActionComplete }: ChatAction
       await chatApi.hide(conversationId);
       setFeedback('Conversation hidden from your inbox.');
       setModal(null);
+      dispatchChatInboxUpdated();
       onActionComplete('hide');
     } catch {
       setFeedback('Failed to hide. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    setIsSubmitting(true);
+    try {
+      await chatApi.unhide(conversationId);
+      setFeedback('Conversation restored to your inbox.');
+      dispatchChatInboxUpdated();
+      onActionComplete('restore');
+    } catch {
+      setFeedback('Failed to restore. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -111,13 +129,26 @@ export function ChatActionsMenu({ conversationId, onActionComplete }: ChatAction
       {/* Dropdown */}
       {isOpen && (
         <div className="chat-actions__menu" role="menu">
-          <button
-            role="menuitem"
-            className="chat-actions__item chat-actions__item--hide"
-            onClick={() => { setIsOpen(false); setModal('hide'); }}
-          >
-            📦 Archive / Hide
-          </button>
+          {isArchived ? (
+            <button
+              role="menuitem"
+              className="chat-actions__item chat-actions__item--restore"
+              onClick={() => {
+                setIsOpen(false);
+                void handleRestore();
+              }}
+            >
+              ↩ Restore to inbox
+            </button>
+          ) : (
+            <button
+              role="menuitem"
+              className="chat-actions__item chat-actions__item--hide"
+              onClick={() => { setIsOpen(false); setModal('hide'); }}
+            >
+              📦 Archive / Hide
+            </button>
+          )}
           <button
             role="menuitem"
             className="chat-actions__item chat-actions__item--block"

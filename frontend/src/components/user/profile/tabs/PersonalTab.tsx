@@ -4,19 +4,15 @@ import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { User, Camera, Upload, Trash2, Building2, Save, Phone, Eye, EyeOff, Bell, CheckCircle2, XCircle, Shield } from "lucide-react";
+import { User, Camera, Upload, Trash2, Building2, Save, Phone, Eye, EyeOff, Shield } from "lucide-react";
 import { PhoneInput } from "@/components/ui/PhoneInput";
-import { notify } from "@/lib/notify";
 import type {
-    MobileRequest,
     MobileVisibility,
     ProfileFormData,
 } from "../types";
-import { type Business } from "@/lib/api/user/businesses";
-import { BusinessApplicationStatus } from "../BusinessApplicationStatus";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
+import { PROFILE_PHOTO_ALLOWED_LABEL } from "@/lib/uploads/profilePhotoUpload";
 
 interface PersonalTabProps {
     profilePhoto: string | null;
@@ -24,8 +20,6 @@ interface PersonalTabProps {
     setFormData: (data: ProfileFormData) => void;
     mobileVisibility: MobileVisibility;
     setMobileVisibility: (v: MobileVisibility) => void;
-    mobileRequests: MobileRequest[];
-    setMobileRequests: (reqs: MobileRequest[]) => void;
     handleSaveProfile: () => void;
     onPhotoClick: () => void;
     handlePhotoDelete: () => void;
@@ -39,9 +33,6 @@ interface PersonalTabProps {
     profileGlobalError?: string | null;
     isSavingProfile?: boolean;
     clearProfileError?: (field: "name" | "email" | "businessName" | "gstNumber" | "photo") => void;
-    businessData?: Business | null;
-    onEditBusinessApplication?: () => void;
-    navigateToBusinessTab?: () => void;
 }
 
 export function PersonalTab({
@@ -50,8 +41,6 @@ export function PersonalTab({
     setFormData,
     mobileVisibility,
     setMobileVisibility,
-    mobileRequests,
-    setMobileRequests,
     handleSaveProfile,
     onPhotoClick,
     handlePhotoDelete,
@@ -59,22 +48,11 @@ export function PersonalTab({
     profileGlobalError,
     isSavingProfile,
     clearProfileError,
-    businessData,
-    onEditBusinessApplication,
-    navigateToBusinessTab
 }: PersonalTabProps) {
     const safeProfilePhoto = toSafeImageSrc(profilePhoto, "");
 
     return (
         <div className="space-y-4">
-            {businessData && (
-                <BusinessApplicationStatus
-                    businessData={businessData}
-                    onEditApplication={onEditBusinessApplication}
-                    navigateToBusinessTab={navigateToBusinessTab}
-                />
-            )}
-
             <Card className="border-0 shadow-sm md:border md:shadow-sm">
                 <CardHeader className="pb-2 px-4 md:px-6">
                     <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
@@ -137,7 +115,7 @@ export function PersonalTab({
                                     )}
                                 </div>
                                 <p className="text-[10px] md:text-xs text-muted-foreground mt-1.5">
-                                    JPG, PNG. Max 5MB.
+                                    {PROFILE_PHOTO_ALLOWED_LABEL}. Max 5MB.
                                 </p>
                                 <FormError message={profileErrors?.photo} />
                             </div>
@@ -278,7 +256,7 @@ export function PersonalTab({
                     <div className="space-y-3">
                         <p className="text-sm font-semibold text-slate-700">Choose who can view your number:</p>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {/* Show to All */}
                             <div
                                 onClick={() => setMobileVisibility("show")}
@@ -310,22 +288,6 @@ export function PersonalTab({
                                     <p className="text-[10px] text-slate-500 leading-tight">Buyers will not be able to see your number.</p>
                                 </div>
                             </div>
-
-                            {/* On Request */}
-                            <div
-                                onClick={() => setMobileVisibility("on-request")}
-                                className={`cursor-pointer p-4 rounded-2xl border-2 transition-all flex flex-col gap-2 
-                                ${mobileVisibility === "on-request" ? "border-amber-600 bg-amber-50/50" : "border-slate-100 hover:border-slate-200 bg-white"}`}
-                            >
-                                <div className="flex items-center justify-between">
-                                    <Bell className={`h-5 w-5 ${mobileVisibility === "on-request" ? "text-amber-600" : "text-slate-400"}`} />
-                                    {mobileVisibility === "on-request" && <div className="h-2 w-2 rounded-full bg-amber-600 animate-pulse" />}
-                                </div>
-                                <div>
-                                    <p className="font-bold text-sm text-slate-900">On Request</p>
-                                    <p className="text-[10px] text-slate-500 leading-tight">Buyers must ask for permission to view your number.</p>
-                                </div>
-                            </div>
                         </div>
 
                         <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 mt-2">
@@ -335,71 +297,6 @@ export function PersonalTab({
                             </p>
                         </div>
                     </div>
-
-                    {/* Mobile Number Requests Section */}
-                    {mobileVisibility === "on-request" && mobileRequests.filter(r => r.status === "pending").length > 0 && (
-                        <>
-                            <Separator />
-                            <div>
-                                <div className="flex items-center justify-between mb-3">
-                                    <p className="text-sm font-medium">Pending Requests ({mobileRequests.filter(r => r.status === "pending").length})</p>
-                                    <Badge className="bg-blue-600">{mobileRequests.filter(r => r.status === "pending").length} New</Badge>
-                                </div>
-                                <div className="space-y-2">
-                                    {mobileRequests.filter(r => r.status === "pending").map((request) => (
-                                        <div key={request.id} className="bg-gray-50 p-3 rounded-lg">
-                                            <div className="flex items-start justify-between gap-2">
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="font-medium text-sm">{request.buyerName}</p>
-                                                    <p className="text-xs text-muted-foreground truncate">{request.adTitle}</p>
-                                                    <p className="text-xs text-muted-foreground mt-0.5">{request.requestedAt}</p>
-                                                </div>
-                                                <div className="flex gap-1 flex-shrink-0">
-                                                    <Button
-                                                        size="sm"
-                                                        className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white border-0"
-                                                        onClick={() => {
-                                                            setMobileRequests(mobileRequests.map(r =>
-                                                                r.id === request.id ? { ...r, status: "approved" } : r
-                                                            ));
-                                                            notify.success(`Mobile number shared with ${request.buyerName} `);
-                                                        }}
-                                                    >
-                                                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                        Approve
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        className="h-7 text-xs"
-                                                        onClick={() => {
-                                                            setMobileRequests(mobileRequests.map(r =>
-                                                                r.id === request.id ? { ...r, status: "denied" } : r
-                                                            ));
-                                                            notify.info("Request denied");
-                                                        }}
-                                                    >
-                                                        <XCircle className="h-3 w-3 mr-1" />
-                                                        Deny
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </>
-                    )}
-
-                    {mobileVisibility === "on-request" && mobileRequests.filter(r => r.status === "pending").length === 0 && (
-                        <>
-                            <Separator />
-                            <div className="text-center py-4">
-                                <Bell className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                                <p className="text-xs text-muted-foreground">No pending mobile number requests</p>
-                            </div>
-                        </>
-                    )}
                 </CardContent>
             </Card>
         </div>

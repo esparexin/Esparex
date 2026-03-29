@@ -1,18 +1,47 @@
 import Notification from '../../models/Notification';
 import { NotificationIntent } from '../../domain/NotificationIntent';
 import logger from '../../utils/logger';
+import { resolveNotificationDeliveryPlan } from './NotificationPreferenceService';
 
 interface DispatchOptions {
     shadowDispatch?: boolean;
+}
+
+export interface NotificationDispatchResult {
+    success: boolean;
+    skipped?: boolean;
+}
+
+export interface NotificationBulkDispatchResult {
+    successCount: number;
+    skippedCount: number;
+    failureCount: number;
 }
 
 export class NotificationDispatcher {
     /**
      * Centralized gateway for all notifications.
      */
-    static async dispatch(intent: NotificationIntent, options: DispatchOptions = {}): Promise<void> {
+    static async dispatch(intent: NotificationIntent, options: DispatchOptions = {}): Promise<NotificationDispatchResult> {
         try {
             const { shadowDispatch = false } = options;
+            const { suppress, channels } = await resolveNotificationDeliveryPlan({
+                userId: intent.userId,
+                type: intent.type,
+                entityDomain: intent.entityRef.domain,
+                channels: intent.channels,
+            });
+
+            if (suppress) {
+                logger.info("[Dispatcher] Notification suppressed by user preferences", {
+                    userId: intent.userId,
+                    type: intent.type,
+                    entityDomain: intent.entityRef.domain,
+                });
+                return { success: true, skipped: true };
+            }
+
+            intent.channels = channels;
 
             // 1. Persist to Inbox (Handles Deduplication Unique Constraint)
             const dbRecord = new Notification({
@@ -26,10 +55,16 @@ export class NotificationDispatcher {
                 dedupKey: intent.dedupKey,
                 isRead: false,
                 deliveryStatus: {
-                    fcm: 'pending',
+                    fcm: intent.channels.includes('push') ? 'pending' : 'skipped',
                     email: 'skipped',
                     sms: 'skipped'
                 },
+                actionUrl:
+                    typeof intent.message.data?.link === 'string'
+                        ? intent.message.data.link
+                        : typeof intent.message.data?.actionUrl === 'string'
+                            ? intent.message.data.actionUrl
+                            : undefined,
                 entityRef: intent.entityRef,
                 version: 1,
                 retryCount: 0
@@ -41,7 +76,7 @@ export class NotificationDispatcher {
                 if (err.code === 11000) {
                     // E11000 duplicate key error, means idempotency protected the user
                     logger.debug(`[Dispatcher] Ignored duplicate NotificationIntent`, { dedupKey: intent.dedupKey, userId: intent.userId });
-                    return;
+                    return { success: true, skipped: true };
                 }
                 throw err;
             }
@@ -73,7 +108,7 @@ export class NotificationDispatcher {
             // 3. Shadow Mode Guard
             if (shadowDispatch) {
                 logger.info(`[Dispatcher:SHADOW] Skipped push dispatch for NotificationIntent`, { recordId: dbRecord._id });
-                return;
+                return { success: true, skipped: true };
             }
 
             // 4. Channel Dispatch (FCM Push)
@@ -98,6 +133,7 @@ export class NotificationDispatcher {
                     throw pushError;
                 }
             }
+            return { success: true };
         } catch (error: any) {
             logger.error(`[Dispatcher] Critical failure processing intent`, { error: error.message, intent });
             throw error;
@@ -107,14 +143,32 @@ export class NotificationDispatcher {
     /**
      * Batch API for worker optimisation
      */
-    static async bulkDispatch(intents: NotificationIntent[], options: DispatchOptions = {}): Promise<void> {
+    static async bulkDispatch(
+        intents: NotificationIntent[],
+        options: DispatchOptions = {}
+    ): Promise<NotificationBulkDispatchResult> {
         // Simple Promise.all dispatcher. 
         // Note: For massive scale, this would break into chunks of X or use Notification.insertMany
         // with `ordered: false` to silently catch duplicates en-masse, then dispatch the successful inserts.
-        const promises = intents.map(intent => this.dispatch(intent, options).catch(err => {
-            logger.warn(`[Dispatcher:Bulk] Single intent failed inside batch`, { dedupKey: intent.dedupKey, error: err.message });
-        }));
-        
+        let successCount = 0;
+        let skippedCount = 0;
+        let failureCount = 0;
+
+        const promises = intents.map(async (intent) => {
+            try {
+                const result = await this.dispatch(intent, options);
+                if (result.skipped) {
+                    skippedCount += 1;
+                    return;
+                }
+                successCount += 1;
+            } catch (err: any) {
+                failureCount += 1;
+                logger.warn(`[Dispatcher:Bulk] Single intent failed inside batch`, { dedupKey: intent.dedupKey, error: err.message });
+            }
+        });
+
         await Promise.all(promises);
+        return { successCount, skippedCount, failureCount };
     }
 }

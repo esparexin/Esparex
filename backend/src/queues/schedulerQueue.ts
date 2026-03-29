@@ -10,6 +10,7 @@ export type SchedulerJobName =
     | 'database_backup_job'
     | 'location_analytics_refresh'
     | 'notification_scheduler_poll'
+    | 'cleanup_read_notifications'
     | 's3_garbage_collector_job'
     | 'admin_metrics_cache_job'
     | 'home_feed_warmup'
@@ -29,6 +30,7 @@ const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
     database_backup_job: process.env.BACKUP_CRON_SCHEDULE || '0 2 * * *',
     location_analytics_refresh: '0 2 * * *',
     notification_scheduler_poll: '* * * * *',
+    cleanup_read_notifications: '0 * * * *',
     s3_garbage_collector_job: '0 2 * * *',
     admin_metrics_cache_job: '0 1 * * *',
     home_feed_warmup: '* * * * *',

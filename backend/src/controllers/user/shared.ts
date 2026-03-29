@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { User as SharedUser, UserRole, BusinessStatus } from '../../../../shared/types/User';
+import { normalizeMobileVisibility } from '../../../../shared/constants/mobileVisibility';
 import { serializeDoc } from '../../utils/serialize';
 
 type UploadedFile = {
@@ -34,6 +35,8 @@ type SanitizedUser = {
   isEmailVerified?: boolean;
   createdAt?: string | Date;
   location?: SerializedLocation;
+  notificationSettings?: Record<string, unknown>;
+  mobileVisibility?: unknown;
 } & Record<string, unknown>;
 
 export const getUploadedFile = (req: Request): UploadedFile | null => {
@@ -103,6 +106,11 @@ export const toSharedUser = (
     businessId,
     isEmailVerified: typeof safeUser.isEmailVerified === 'boolean' ? safeUser.isEmailVerified : undefined,
     createdAt: safeUser.createdAt ? new Date(safeUser.createdAt).toISOString() : undefined,
+    mobileVisibility: normalizeMobileVisibility(safeUser.mobileVisibility),
+    notificationSettings:
+      safeUser.notificationSettings && typeof safeUser.notificationSettings === 'object'
+        ? (safeUser.notificationSettings as SharedUser['notificationSettings'])
+        : undefined,
     location: locationCity
       ? {
         ...location,

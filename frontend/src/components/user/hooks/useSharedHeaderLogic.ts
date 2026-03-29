@@ -17,9 +17,12 @@ export function useSharedHeaderLogic({
 }: UseSharedHeaderLogicOptions) {
     // 1. Notifications logic
     const shouldFetchNotifications = isLoggedIn && !disableNotificationsFetch;
-    const { data: notificationsData } = useNotificationsQuery({
+    const {
+        data: notificationsData,
+        refetch: refetchNotifications,
+    } = useNotificationsQuery({
         page: 1,
-        limit: 20,
+        limit: 10,
         enabled: shouldFetchNotifications,
     });
     const notifUnreadCount = typeof notificationsData?.unreadCount === 'number' ? notificationsData.unreadCount : 0;
@@ -45,7 +48,9 @@ export function useSharedHeaderLogic({
         ...locationProps,
         ...searchProps,
         resolvedHeaderLocation,
+        notificationsData,
         notifUnreadCount,
+        refetchNotifications,
         handleSearchSubmit
     };
 }

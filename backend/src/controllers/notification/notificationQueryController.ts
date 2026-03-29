@@ -1,44 +1,84 @@
-import logger from '../../utils/logger';
-import { Request, Response } from 'express';
-import Notification from '../../models/Notification';
-import { respond } from '../../utils/respond';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { getUserId } from './shared';
+import { Request, Response } from "express";
+
+import Notification from "../../models/Notification";
+import logger from "../../utils/logger";
+import { respond } from "../../utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { getUserId } from "./shared";
+import { getVisibleNotificationWindowQuery } from "../../services/notification/NotificationRetentionService";
+
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const getNotifications = async (req: Request, res: Response) => {
     try {
         const userId = getUserId(req);
-        if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
-        const page = parseInt(req.query.page as string) || 1;
-        let limit = parseInt(req.query.limit as string) || 20;
+        if (!userId) return sendErrorResponse(req, res, 401, "Unauthorized");
 
-        if (limit > 100) limit = 100;
+        const {
+            page = 1,
+            limit = 20,
+            filter = "all",
+            type = "all",
+            q,
+        } = req.query as {
+            page?: number;
+            limit?: number;
+            filter?: "all" | "unread";
+            type?: string;
+            q?: string;
+        };
 
         const skip = (page - 1) * limit;
+        const now = new Date();
+        const queryClauses: Record<string, unknown>[] = [{ userId }];
 
-        const notifications = await Notification.find({ userId })
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
+        if (filter === "unread") {
+            queryClauses.push({ isRead: false });
+        } else {
+            queryClauses.push(getVisibleNotificationWindowQuery(now));
+        }
 
-        const total = await Notification.countDocuments({ userId });
-        const unreadCount = await Notification.countDocuments({ userId, isRead: false });
+        if (type && type !== "all") {
+            queryClauses.push({ type });
+        }
 
-        res.json(respond({
-            success: true,
-            data: {
-                notifications,
-                pagination: {
-                    page,
-                    limit,
-                    total,
-                    pages: Math.ceil(total / limit)
+        if (typeof q === "string" && q.trim().length > 0) {
+            queryClauses.push({
+                $or: [
+                    { title: { $regex: escapeRegex(q.trim()), $options: "i" } },
+                    { message: { $regex: escapeRegex(q.trim()), $options: "i" } },
+                ],
+            });
+        }
+
+        const query = queryClauses.length === 1 ? queryClauses[0] : { $and: queryClauses };
+
+        const [notifications, total, unreadCount] = await Promise.all([
+            Notification.find(query)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            Notification.countDocuments(query),
+            Notification.countDocuments({ userId, isRead: false }),
+        ]);
+
+        return res.json(
+            respond({
+                success: true,
+                data: {
+                    notifications,
+                    pagination: {
+                        page,
+                        limit,
+                        total,
+                        pages: Math.ceil(total / limit),
+                    },
+                    unreadCount,
                 },
-                unreadCount
-            }
-        }));
+            })
+        );
     } catch (error) {
-        logger.error('Get Notifications Error:', error);
-        sendErrorResponse(req, res, 500, 'Failed to fetch notifications');
+        logger.error("Get Notifications Error:", error);
+        return sendErrorResponse(req, res, 500, "Failed to fetch notifications");
     }
 };

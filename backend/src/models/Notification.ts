@@ -54,6 +54,7 @@ const NotificationSchema: Schema = new Schema({
 /* -------------------------------------------------------------------------- */
 
 NotificationSchema.index({ userId: 1, isRead: 1, createdAt: -1 }, { name: 'idx_notification_user_read_freshness_idx' });
+NotificationSchema.index({ isRead: 1, readAt: 1 }, { name: 'idx_notification_read_retention_idx' });
 NotificationSchema.index({ userId: 1, dedupKey: 1 }, { unique: true, partialFilterExpression: { dedupKey: { $exists: true } }, name: 'idx_notification_dedup_idempotency_idx' });
 NotificationSchema.index({ createdAt: 1 }, { name: 'idx_notification_createdAt_ttl_idx', expireAfterSeconds: 7776000 }); // 90 days
 

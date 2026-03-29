@@ -5,11 +5,13 @@ import { respond } from '../../utils/respond';
 import {
   startConversation,
   listConversations,
+  getConversationForUser,
   getMessages,
   sendMessage,
   markRead,
   blockConversation,
   hideConversation,
+  restoreConversation,
   reportConversation,
 } from '../../services/chatService';
 import {
@@ -20,7 +22,19 @@ import {
   reportChatSchema,
   conversationListQuerySchema,
   messagesQuerySchema,
+  chatUploadUrlSchema,
 } from '../../validators/chatValidator';
+import { generatePresignedUploadUrl } from '../../utils/s3';
+
+const MIME_TO_EXT: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/heic': 'heic',
+  'image/heif': 'heif',
+  'video/mp4': 'mp4',
+  'application/pdf': 'pdf',
+};
 
 /* -------------------------------------------------------------------------- */
 /* Helpers                                                                     */
@@ -66,12 +80,34 @@ export const getChatList = async (req: Request, res: Response): Promise<void> =>
       sendErrorResponse(req, res, 400, parsed.error.errors[0]?.message ?? 'Invalid query');
       return;
     }
-    const { convs, nextCursor } = await listConversations(userId, parsed.data.before);
+    const { convs, nextCursor } = await listConversations(userId, parsed.data.before, parsed.data.view);
     res.json(respond({ success: true, data: convs, nextCursor }));
   } catch (err: unknown) {
     const e = err as { message?: string; status?: number };
     logger.error('[Chat] getChatList error', err);
     sendErrorResponse(req, res, e.status ?? 500, e.message ?? 'Failed to load chat list');
+  }
+};
+
+/* -------------------------------------------------------------------------- */
+/* GET /api/v1/chat/:id                                                        */
+/* -------------------------------------------------------------------------- */
+
+export const getChatConversation = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = getUserId(req);
+    const conversationId = String(req.params.id ?? '');
+    if (!conversationId) {
+      sendErrorResponse(req, res, 400, 'Missing conversation id');
+      return;
+    }
+
+    const conversation = await getConversationForUser(conversationId, userId);
+    res.json(respond({ success: true, data: conversation }));
+  } catch (err: unknown) {
+    const e = err as { message?: string; status?: number };
+    logger.error('[Chat] getChatConversation error', err);
+    sendErrorResponse(req, res, e.status ?? 500, e.message ?? 'Failed to load conversation');
   }
 };
 
@@ -187,6 +223,27 @@ export const hideChat = async (req: Request, res: Response): Promise<void> => {
 };
 
 /* -------------------------------------------------------------------------- */
+/* POST /api/v1/chat/unhide                                                    */
+/* -------------------------------------------------------------------------- */
+
+export const unhideChat = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = getUserId(req);
+    const parsed = blockChatSchema.safeParse(req.body);
+    if (!parsed.success) {
+      sendErrorResponse(req, res, 400, parsed.error.errors[0]?.message ?? 'Invalid payload');
+      return;
+    }
+    await restoreConversation(parsed.data.conversationId, userId);
+    res.json(respond({ success: true, message: 'Conversation restored' }));
+  } catch (err: unknown) {
+    const e = err as { message?: string; status?: number };
+    logger.error('[Chat] unhideChat error', err);
+    sendErrorResponse(req, res, e.status ?? 500, e.message ?? 'Failed to restore chat');
+  }
+};
+
+/* -------------------------------------------------------------------------- */
 /* POST /api/v1/chat/report                                                    */
 /* -------------------------------------------------------------------------- */
 
@@ -212,16 +269,43 @@ export const reportChat = async (req: Request, res: Response): Promise<void> => 
 /* POST /api/v1/chat/upload-url                                               */
 /* -------------------------------------------------------------------------- */
 
-export const getChatUploadUrl = async (_req: Request, res: Response): Promise<void> => {
-  // Placeholder endpoint to keep API contract synchronized while chat attachments
-  // continue to use existing send-message payload flow.
-  res.status(200).json(respond({
-    success: true,
-    data: {
-      uploadUrl: null,
-      expiresInSeconds: 0,
-      method: 'POST',
-    },
-    message: 'Chat upload URL is not configured on this environment.',
-  }));
+export const getChatUploadUrl = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = getUserId(req);
+    const parsed = chatUploadUrlSchema.safeParse(req.body);
+    if (!parsed.success) {
+      sendErrorResponse(req, res, 400, parsed.error.errors[0]?.message ?? 'Invalid payload');
+      return;
+    }
+
+    const { conversationId, contentType } = parsed.data;
+    await getConversationForUser(conversationId, userId);
+
+    const normalizedMime = contentType.split(';')[0]?.trim().toLowerCase() ?? '';
+    const ext = MIME_TO_EXT[normalizedMime];
+    if (!ext) {
+      sendErrorResponse(req, res, 400, 'Unsupported attachment type');
+      return;
+    }
+
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).slice(2, 8);
+    const key = `chat/${conversationId}/${userId}/${timestamp}-${random}.${ext}`;
+    const result = await generatePresignedUploadUrl(key, normalizedMime);
+
+    res.status(200).json(respond({
+      success: true,
+      data: {
+        uploadUrl: result.uploadUrl,
+        publicUrl: result.publicUrl,
+        key: result.key,
+        expiresIn: 300,
+        method: 'PUT',
+      },
+    }));
+  } catch (err: unknown) {
+    const e = err as { message?: string; status?: number };
+    logger.error('[Chat] getChatUploadUrl error', err);
+    sendErrorResponse(req, res, e.status ?? 500, e.message ?? 'Failed to prepare attachment upload');
+  }
 };

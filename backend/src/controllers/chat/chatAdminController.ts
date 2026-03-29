@@ -28,7 +28,7 @@ function getAdminId(req: Request): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* GET /api/v1/chat/admin/list                                                 */
+/* GET /api/v1/admin/chat/list                                                 */
 /* -------------------------------------------------------------------------- */
 
 export const adminListChats = async (req: Request, res: Response): Promise<void> => {
@@ -49,7 +49,7 @@ export const adminListChats = async (req: Request, res: Response): Promise<void>
 };
 
 /* -------------------------------------------------------------------------- */
-/* GET /api/v1/chat/admin/:id                                                  */
+/* GET /api/v1/admin/chat/:id                                                  */
 /* -------------------------------------------------------------------------- */
 
 export const adminGetChat = async (req: Request, res: Response): Promise<void> => {
@@ -66,7 +66,7 @@ export const adminGetChat = async (req: Request, res: Response): Promise<void> =
 };
 
 /* -------------------------------------------------------------------------- */
-/* DELETE /api/v1/chat/admin/message/:msgId                                   */
+/* DELETE /api/v1/admin/chat/message/:msgId                                   */
 /* -------------------------------------------------------------------------- */
 
 export const adminDeleteMsg = async (req: Request, res: Response): Promise<void> => {
@@ -89,7 +89,7 @@ export const adminDeleteMsg = async (req: Request, res: Response): Promise<void>
 };
 
 /* -------------------------------------------------------------------------- */
-/* POST /api/v1/chat/admin/mute/:id                                           */
+/* POST /api/v1/admin/chat/mute/:id                                           */
 /* -------------------------------------------------------------------------- */
 
 export const adminMuteChat = async (req: Request, res: Response): Promise<void> => {
@@ -112,7 +112,7 @@ export const adminMuteChat = async (req: Request, res: Response): Promise<void> 
 };
 
 /* -------------------------------------------------------------------------- */
-/* POST /api/v1/chat/admin/export/:id                                         */
+/* POST /api/v1/admin/chat/export/:id                                         */
 /* -------------------------------------------------------------------------- */
 
 export const adminExportChat = async (req: Request, res: Response): Promise<void> => {
@@ -132,7 +132,7 @@ export const adminExportChat = async (req: Request, res: Response): Promise<void
 };
 
 /* -------------------------------------------------------------------------- */
-/* PATCH /api/v1/chat/admin/report/:id                                         */
+/* PATCH /api/v1/admin/chat/report/:id                                         */
 /* -------------------------------------------------------------------------- */
 
 export const adminResolveReport = async (req: Request, res: Response): Promise<void> => {
@@ -153,4 +153,3 @@ export const adminResolveReport = async (req: Request, res: Response): Promise<v
     sendErrorResponse(req, res, e.status ?? 500, e.message ?? 'Failed to resolve report');
   }
 };
-

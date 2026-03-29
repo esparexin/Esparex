@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bell,
   Building2,
+  MessageSquare,
   User as UserIcon,
   Heart,
   Home,
@@ -49,8 +50,7 @@ export interface ResolvedNavigationItem extends NavigationItem {
 export type ProfileTabValue =
   | "personal"
   | "mylistings"
-  | "services"
-  | "spareparts"
+  | "messages"
   | "saved"
   | "business"
   | "plans"
@@ -67,6 +67,7 @@ export const PROFILE_TAB_ITEMS: Array<{
 }> = [
     { value: "personal", label: "Account", icon: UserIcon },
     { value: "mylistings", label: "My Listings", icon: Package },
+    { value: "messages", label: "Messages", icon: MessageSquare },
     { value: "saved", label: "Saved Ads", icon: Heart },
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
@@ -80,6 +81,7 @@ export const PROFILE_TAB_PAGE_ROUTES: Partial<Record<ProfileTabValue, UserPage>>
     personal: "profile",
     settings: "profile-settings",
     mylistings: "my-ads",
+    messages: "messages",
     saved: "saved-ads",
     smartalerts: "smart-alerts",
     plans: "plans-payments",
@@ -157,16 +159,6 @@ const BASE_NAVIGATION: NavigationItem[] = [
     showIn: ["profile-dropdown", "mobile-drawer"],
     section: "account",
     page: "saved-ads",
-  },
-  {
-    id: "notifications",
-    label: "Notifications",
-    slug: "notifications",
-    icon: Bell,
-    roles: ["user", "business"],
-    showIn: ["profile-dropdown", "mobile-drawer", "mobile-bottom-nav"],
-    section: "account",
-    page: "notifications",
   },
   {
     id: "smart-alerts",

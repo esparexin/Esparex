@@ -16,7 +16,9 @@ export const USER_ROUTES = {
   // Catalog
   CATEGORIES: "catalog/categories",
   BRANDS_BASE: "catalog/brands",
+  BRAND_BY_SLUG: (slug: string) => `catalog/brands/slug/${encodeURIComponent(String(slug))}`,
   MODELS_BASE: "catalog/models",
+  MODEL_BY_SLUG: (slug: string) => `catalog/models/slug/${encodeURIComponent(String(slug))}`,
   SPARE_PARTS_BASE: "catalog/spare-parts",
   SPARE_PARTS: (categoryId: string) => `catalog/spare-parts?categoryId=${categoryId}`,
   SERVICE_TYPES: "catalog/service-types",
@@ -27,7 +29,6 @@ export const USER_ROUTES = {
   ADS_NEARBY: "ads/nearby",
   ADS_SUGGESTIONS: "ads/suggestions",
   AD_DETAIL: (id: string | number) => `ads/${encodeURIComponent(String(id))}`,
-  AD_SIMILAR: (id: string | number) => `ads/${encodeURIComponent(String(id))}/similar`,
   AD_REPOST: (id: string | number) => `ads/${encodeURIComponent(String(id))}/repost`,
   ADS_UPLOAD_IMAGE: "ads/upload-image",
   ADS_UPLOAD_PRESIGN: "ads/upload-presign",
@@ -57,7 +58,6 @@ export const USER_ROUTES = {
   LOCATIONS_DEFAULT_CENTER: "locations/default-center",
   LOCATIONS_IP_LOCATE: "locations/ip-locate",
   LOCATIONS_GEOCODE: "locations/geocode",
-  LOCATIONS_INGEST: "locations/ingest",
   LOG_LOCATION_EVENT: "locations/log-event",
 
   // Smart Alerts
@@ -85,6 +85,7 @@ export const USER_ROUTES = {
 
   // Services
   SERVICES: "services",
+  SERVICE_DETAIL: (id: string) => `services/${encodeURIComponent(id)}`,
   SERVICE_VIEW: (id: string) => `services/${encodeURIComponent(id)}/view`,
   SERVICE_SOLD: (id: string) => `services/${id}/sold`,
   SERVICE_DEACTIVATE: (id: string) => `services/${id}/deactivate`,
@@ -99,10 +100,8 @@ export const USER_ROUTES = {
   // Users
   USERS: "users",
   USERS_ME: "users/me",
-  USERS_REPUTATION: (id: string | number) => `users/${encodeURIComponent(String(id))}/reputation`,
   USERS_PROFILE: (id: string | number) => `users/${encodeURIComponent(String(id))}/profile`,
   USERS_BLOCK: (id: string | number) => `users/${encodeURIComponent(String(id))}/block`,
-  USERS_UPLOAD: "users/upload",
   USERS_WALLET: "users/me/wallet",
   USERS_POSTING_BALANCE: "users/me/posting-balance",
   USERS_SAVED_ADS: "users/saved-ads",
@@ -122,17 +121,20 @@ export const USER_ROUTES = {
   NOTIFICATIONS: "notifications",
   NOTIF_MARK_READ: (id: string) => `notifications/${id}/read`,
   NOTIF_MARK_ALL_READ: "notifications/all/read",
+  NOTIF_DELETE: (id: string) => `notifications/${id}`,
   NOTIF_REGISTER: "notifications/register",
 
   // Chat / Messaging (v2 — polling-based)
   CHAT_START: "chat/start",
   CHAT_LIST: "chat/list",
+  CHAT_CONVERSATION: (id: string) => `chat/${encodeURIComponent(id)}`,
   CHAT_MESSAGES: (id: string) => `chat/${encodeURIComponent(id)}/messages`,
   CHAT_SEND: "chat/send",
   CHAT_READ: "chat/read",
   CHAT_BLOCK: "chat/block",
   CHAT_REPORT: "chat/report",
   CHAT_HIDE: "chat/hide",
+  CHAT_UNHIDE: "chat/unhide",
   CHAT_UPLOAD_URL: "chat/upload-url",
 
   // Reports

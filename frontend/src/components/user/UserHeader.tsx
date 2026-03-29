@@ -13,7 +13,6 @@ import {
   Clock,
   TrendingUp,
   Building2,
-  Bell,
   LayoutDashboard,
   LogOut,
 } from "@/icons/IconRegistry";
@@ -50,6 +49,7 @@ interface UserHeaderProps {
 const recentSearches = ["iPhone 14 Pro", "Samsung Galaxy", "MacBook Pro", "iPad Air"];
 
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
+import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
@@ -84,7 +84,9 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
     !pathname.startsWith("/business/edit");
 
   const {
+    notificationsData,
     notifUnreadCount,
+    refetchNotifications,
     showLocationSelector,
     setShowLocationSelector,
     locationDropdownRef,
@@ -240,20 +242,12 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
 
 
             {isLoggedIn && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full relative text-muted-foreground hover:text-foreground"
-                onClick={() => navigateTo('notifications')}
-                aria-label={notifUnreadCount > 0 ? `${notifUnreadCount} unread notifications` : 'Notifications'}
-              >
-                <Bell className="h-5 w-5" />
-                {notifUnreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 border-2 border-background">
-                    {notifUnreadCount > 99 ? '99+' : notifUnreadCount}
-                  </span>
-                )}
-              </Button>
+              <NotificationBellDropdown
+                notificationsData={notificationsData}
+                unreadCount={notifUnreadCount}
+                onRefresh={refetchNotifications}
+                variant="desktop"
+              />
             )}
 
             {isLoggedIn ? (

@@ -29,6 +29,3 @@ export function HideChatDialog({ open, isSubmitting, onCancel, onConfirm }: Hide
     </div>
   );
 }
-
-export default HideChatDialog;
-

@@ -215,8 +215,13 @@ export const deleteMe = async (
       return;
     }
 
+    const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : '';
+    const feedback = typeof req.body?.feedback === 'string' ? req.body.feedback.trim() : '';
+    const combinedReason = [reason, feedback].filter(Boolean).join(': ') || undefined;
+
     await updateUserStatus(userId, 'deleted', {
-      actor: 'USER'
+      actor: 'USER',
+      reason: combinedReason,
     });
 
     AuthService.clearUserSession(res);

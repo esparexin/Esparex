@@ -1,5 +1,4 @@
 export { API_ROUTES, USER_ROUTES } from "@shared/contracts/api/userRoutes";
-export { ADMIN_ROUTES } from "@shared/contracts/api/adminRoutes";
 export { API_RESOURCE_NAMES } from "@shared/contracts/api/resourceNames";
 export {
   API_V1_BASE_PATH,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildAuthCallbackUrl, buildLoginUrl, normalizeAuthCallbackUrl } from "@/lib/authHelpers";
+import { buildChatConversationRoute, buildChatInboxRoute, resolveChatReturnTo } from "@/lib/chatUiRoutes";
 import { buildPublicBrowseRoute, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
@@ -57,5 +58,22 @@ describe("route helpers", () => {
                 seoSlug: "board-repair",
             })
         ).toBe("/services/board-repair-svc-123");
+    });
+
+    it("builds canonical chat routes and preserves safe return targets", () => {
+        expect(buildChatConversationRoute("conv-123")).toBe("/account/messages/conv-123");
+        expect(
+            buildChatConversationRoute("conv-123", { returnTo: "/ads/iphone-15?ref=saved" })
+        ).toBe("/account/messages/conv-123?returnTo=%2Fads%2Fiphone-15%3Fref%3Dsaved");
+        expect(
+            buildChatConversationRoute("conv-123", { returnTo: "//evil.example" })
+        ).toBe("/account/messages/conv-123");
+        expect(
+            buildChatConversationRoute("conv-123", { view: "archived" })
+        ).toBe("/account/messages/conv-123?view=archived");
+        expect(buildChatInboxRoute()).toBe("/account/messages");
+        expect(buildChatInboxRoute("archived")).toBe("/account/messages?view=archived");
+        expect(resolveChatReturnTo("/services/board-repair-svc-123")).toBe("/services/board-repair-svc-123");
+        expect(resolveChatReturnTo("//evil.example")).toBe("/account/messages");
     });
 });

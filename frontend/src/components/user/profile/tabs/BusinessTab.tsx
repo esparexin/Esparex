@@ -18,7 +18,7 @@ import {
     BadgeCheck,
     ArrowRight,
 } from "lucide-react";
-import { BusinessEditFlow } from "../../BusinessEditFlow";
+import { BusinessProfileFlow } from "../../business-registration/BusinessProfileFlow";
 import { type Business } from "@/lib/api/user/businesses";
 import type { User } from "@/types/User";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
@@ -55,7 +55,6 @@ interface BusinessTabProps {
     showBusinessEditForm: boolean;
     setShowBusinessEditForm: (show: boolean) => void;
     user: User | null;
-    onUpdateUser: (userData: User) => void;
     navigateTo: (page: string, adId?: string | number, category?: string, sellerIdOrBusinessId?: string) => void;
     setActiveTab: (tab: string) => void;
 }
@@ -68,7 +67,6 @@ export function BusinessTab({
     showBusinessEditForm,
     setShowBusinessEditForm,
     user,
-    onUpdateUser,
     navigateTo,
 }: BusinessTabProps) {
     // 🧱 LOADING SKELETON (Prevent Flash)
@@ -104,9 +102,10 @@ export function BusinessTab({
                         Back to Business Overview
                     </Button>
 
-                    <BusinessEditFlow
+                    <BusinessProfileFlow
+                        mode="edit"
                         user={user}
-                        onUpdateUser={onUpdateUser}
+                        initialBusiness={businessData}
                         onComplete={() => setShowBusinessEditForm(false)}
                     />
                 </div>

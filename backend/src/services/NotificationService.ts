@@ -1,10 +1,10 @@
 import User from '../models/User';
 import admin from '../config/firebaseAdmin';
 import logger from '../utils/logger';
-import Notification from '../models/Notification';
 import { NotificationTypeValue } from '@shared/enums/notificationType';
 import { NotificationDispatcher } from './notification/NotificationDispatcher';
 import { NotificationIntent } from '../domain/NotificationIntent';
+import { getSystemConfigDoc } from '../utils/systemConfigHelper';
 
 interface TokenResponse {
     success: boolean;
@@ -34,11 +34,12 @@ interface MessagingService {
  * Register a Device Token
  */
 export const registerToken = async (userId: string, token: string, platform: 'web' | 'android' | 'ios' = 'web') => {
-    // Atomic: pull existing token entry then push fresh one in a single round-trip
+    // Keep one token mapped to one user at a time.
+    // Shared browsers/devices can otherwise leave the same token attached to multiple accounts.
     await User.bulkWrite([
         {
-            updateOne: {
-                filter: { _id: userId },
+            updateMany: {
+                filter: { 'fcmTokens.token': token },
                 update: { $pull: { fcmTokens: { token } } }
             }
         },
@@ -74,6 +75,18 @@ export const registerToken = async (userId: string, token: string, platform: 'we
  */
 export const sendNotification = async (userId: string, title: string, body: string, data: Record<string, string> = {}) => {
     try {
+        const config = await getSystemConfigDoc();
+        const pushConfig = config?.notifications?.push;
+        if ((pushConfig?.enabled ?? false) === false) {
+            return;
+        }
+        if (pushConfig?.provider && pushConfig.provider !== 'firebase') {
+            logger.warn('Push notification provider is not implemented; notification skipped', {
+                provider: pushConfig.provider
+            });
+            return;
+        }
+
         const user = await User.findById(userId).select('fcmTokens');
         if (!user || !user.fcmTokens || user.fcmTokens.length === 0) return;
 
@@ -143,7 +156,7 @@ export const createInAppNotification = async (
             entityRef: { domain: 'system', id: userId },
             message: { title, body: message, data },
             channels: ['in-app', 'push'],
-            priority: 'normal',
+            priority: 'medium',
         });
         await NotificationDispatcher.dispatch(intent);
     } catch (error) {

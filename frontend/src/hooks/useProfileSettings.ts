@@ -7,73 +7,50 @@ import { API_ROUTES } from "@/lib/api/routes";
 import type { User } from "@/types/User";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
+import {
+  describeWebPushStatus,
+  isBrowserPushConfigured,
+  isBrowserPushSupported,
+  syncBrowserPushRegistration,
+} from "@/lib/notifications/webPush";
 import { updateProfile } from "@/lib/api/user/users";
-import type { SmartAlert } from "@/hooks/useSmartAlerts";
-import { SmartAlertCreateSchema } from "@shared/schemas/smartAlert.schema";
+import {
+  isAllowedProfilePhotoType,
+  PROFILE_PHOTO_ALLOWED_LABEL,
+  PROFILE_PHOTO_MAX_BYTES,
+} from "@/lib/uploads/profilePhotoUpload";
+import {
+  deleteAccountFormSchema,
+  profileFormSchema,
+} from "@/schemas/profileSettings.schema";
+import { smartAlertFormSchema } from "@/schemas/smartAlertForm.schema";
+import {
+  SmartAlertCreateSchema,
+  SmartAlertUpdateSchema,
+} from "@shared/schemas/smartAlert.schema";
 import type { SmartAlertCreatePayload } from "@shared/schemas/smartAlert.schema";
 import type { Location as AppLocation } from "@/lib/api/user/locations";
 import { sanitizeMongoObjectId } from "@shared/listingUtils/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
+import {
+  MOBILE_VISIBILITY,
+  normalizeMobileVisibility as normalizeSharedMobileVisibility,
+} from "@shared/constants/mobileVisibility";
+import type {
+  DeleteAccountFieldErrors,
+  DeleteAccountPayload,
+  DeleteAccountReason,
+  MobileVisibility,
+  NotificationPreferences,
+  SmartAlertFieldErrors,
+  SmartAlertFormData,
+  ProfileFieldErrors,
+  ProfileFormData,
+  ProfileUser,
+  SmartAlertItem,
+} from "@/components/user/profile/types";
 
-/* ---- Local Types (re-exported for the sidebar to use) ---- */
-export type MobileVisibility = "show" | "hide" | "on-request";
-
-export type NotificationPreferences = {
-  adUpdates: boolean;
-  promotions: boolean;
-  emailNotifications: boolean;
-};
-
-export type UserNotificationSettings = NotificationPreferences & {
-  pushNotifications?: boolean;
-  dailyDigest?: boolean;
-  instantAlerts?: boolean;
-};
-
-export type ProfileUser = User & {
-  businessName?: string;
-  gstNumber?: string;
-  notificationSettings?: UserNotificationSettings;
-  mobileVisibility?: MobileVisibility | "public";
-  plan?: string;
-  phone?: string;
-};
-
-export type ProfileFormData = {
-  name: string;
-  email: string;
-  phone: string;
-  businessName?: string;
-  gstNumber?: string;
-};
-
-export type ProfileFieldErrors = {
-  name?: string;
-  email?: string;
-  businessName?: string;
-  gstNumber?: string;
-  photo?: string;
-};
-
-export type MobileRequest = {
-  id: string;
-  buyerName: string;
-  adTitle: string;
-  requestedAt: string;
-  status: "pending" | "approved" | "denied";
-};
-
-export type SmartAlertItem = {
-  id: string;
-  name: string;
-  keywords: string;
-  category: string;
-  location: string;
-  locationId?: string;
-  radius?: number;
-  lastMatch?: string;
-  totalMatches?: number;
-};
+export type { ProfileUser };
 
 type SmartAlertLocationSelection = Pick<
   AppLocation,
@@ -82,9 +59,10 @@ type SmartAlertLocationSelection = Pick<
 
 /* ---- Module-level helpers ---- */
 export const normalizeMobileVisibility = (value: unknown): MobileVisibility => {
-  if (value === "show" || value === "hide" || value === "on-request") return value;
-  if (value === "public") return "show";
-  return "show";
+  const normalized = normalizeSharedMobileVisibility(value, MOBILE_VISIBILITY.SHOW);
+  return normalized === MOBILE_VISIBILITY.ON_REQUEST
+    ? MOBILE_VISIBILITY.SHOW
+    : normalized;
 };
 
 const getErrorMessage = (rawError: unknown, fallback: string): string =>
@@ -160,34 +138,37 @@ const mapProfileValidationError = (
   return { fieldErrors, globalError };
 };
 
-export const toSmartAlertItem = (alert: SmartAlert): SmartAlertItem => {
-  const record = alert as Record<string, unknown>;
-  const name = typeof record.name === "string" ? record.name : "Smart Alert";
+const emptyProfileFieldErrors = (): ProfileFieldErrors => ({
+  name: undefined,
+  email: undefined,
+  businessName: undefined,
+  gstNumber: undefined,
+  photo: undefined,
+});
 
-  const criteriaRaw = record.criteria;
-  const criteria = typeof criteriaRaw === "object" && criteriaRaw !== null ? (criteriaRaw as Record<string, unknown>) : null;
+const emptyDeleteAccountFieldErrors = (): DeleteAccountFieldErrors => ({
+  reason: undefined,
+  feedback: undefined,
+  confirmText: undefined,
+});
 
-  const keywords = typeof criteria?.keywords === "string" ? criteria.keywords : "";
-  const category = typeof criteria?.category === "string" ? criteria.category : "";
-  const locationId = typeof criteria?.locationId === "string" ? criteria.locationId : undefined;
+const createInitialSmartAlertForm = (): SmartAlertFormData => ({
+  name: "",
+  keywords: "",
+  category: "",
+  location: "",
+  locationId: null,
+  radius: 50,
+  emailNotifications: true,
+});
 
-  let location = "";
-  let radius: number | undefined =
-    typeof record.radiusKm === "number" ? record.radiusKm : undefined;
-
-  if (typeof criteria?.location === "string") {
-    location = criteria.location;
-  } else if (typeof criteria?.location === "object" && criteria.location !== null) {
-    const locObj = criteria.location as { city?: string; radius?: number };
-    location = locObj.city || "";
-    radius = locObj.radius;
-  }
-
-  const lastMatch = typeof record.lastMatch === "string" ? record.lastMatch : undefined;
-  const totalMatches = typeof record.totalMatches === "number" ? record.totalMatches : undefined;
-
-  return { id: alert.id, name, keywords, category, location, locationId, radius, lastMatch, totalMatches };
-};
+const emptySmartAlertFieldErrors = (): SmartAlertFieldErrors => ({
+  name: undefined,
+  keywords: undefined,
+  category: undefined,
+  location: undefined,
+  radius: undefined,
+});
 
 /* ---- Hook params ---- */
 export interface UseProfileSettingsParams {
@@ -195,6 +176,7 @@ export interface UseProfileSettingsParams {
   onUpdateUser: (userData: User) => void;
   onLogout: () => void;
   createSmartAlert: (data: SmartAlertCreatePayload) => Promise<unknown>;
+  updateSmartAlert: (id: string, data: Partial<SmartAlertCreatePayload>) => Promise<unknown>;
 }
 
 /* ---- Hook ---- */
@@ -203,6 +185,7 @@ export function useProfileSettings({
   onUpdateUser,
   onLogout,
   createSmartAlert,
+  updateSmartAlert,
 }: UseProfileSettingsParams) {
   /* Profile form */
   const [formData, setFormData] = useState<ProfileFormData>(() => ({
@@ -223,18 +206,25 @@ export function useProfileSettings({
     adUpdates: user?.notificationSettings?.adUpdates ?? true,
     promotions: user?.notificationSettings?.promotions ?? false,
     emailNotifications: user?.notificationSettings?.emailNotifications ?? true,
+    pushNotifications: user?.notificationSettings?.pushNotifications ?? true,
+    instantAlerts: user?.notificationSettings?.instantAlerts ?? true,
   }));
 
   /* Mobile visibility */
   const [mobileVisibility, setMobileVisibility] = useState<MobileVisibility>(() =>
-    normalizeMobileVisibility((user as ProfileUser | null)?.mobileVisibility)
+    normalizeMobileVisibility(user?.mobileVisibility)
   );
-  const [mobileRequests, setMobileRequests] = useState<MobileRequest[]>([]);
 
   /* Dialog / visibility states */
   const [showPhotoDialog, setShowPhotoDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [showDeleteDialogState, setShowDeleteDialogState] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmTextState] = useState("");
+  const [deleteReason, setDeleteReasonState] = useState<DeleteAccountReason>("not_useful");
+  const [deleteFeedback, setDeleteFeedbackState] = useState("");
+  const [deleteAccountErrors, setDeleteAccountErrors] = useState<DeleteAccountFieldErrors>(
+    emptyDeleteAccountFieldErrors
+  );
+  const [deleteAccountGlobalError, setDeleteAccountGlobalError] = useState<string | null>(null);
   const [showPlanDialog, setShowPlanDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
@@ -242,28 +232,26 @@ export function useProfileSettings({
   const [showBusinessEditForm, setShowBusinessEditForm] = useState(false);
 
   /* Smart alert form states */
-  const [newAlertName, setNewAlertName] = useState("");
-  const [newAlertKeywords, setNewAlertKeywords] = useState("");
-  const [newAlertCategory, setNewAlertCategory] = useState("");
-  const [newAlertLocation, setNewAlertLocation] = useState("");
-  const [newAlertRadius, setNewAlertRadius] = useState(50);
-  const [createAlertEmail, setCreateAlertEmail] = useState(true);
-  const [createAlertErrors, setCreateAlertErrors] = useState<{ name?: string; keywords?: string }>({});
-  const [createAlertGlobalError, setCreateAlertGlobalError] = useState<string | null>(null);
-  const [alertPreferencesError, setAlertPreferencesError] = useState<string | null>(null);
-  const [isSavingAlertPreferences, setIsSavingAlertPreferences] = useState(false);
-  const [alertPreferences, setAlertPreferences] = useState({
-    email: user?.notificationSettings?.emailNotifications ?? true,
-    push: user?.notificationSettings?.pushNotifications ?? true,
-    dailySummary: user?.notificationSettings?.dailyDigest ?? false,
-    instant: user?.notificationSettings?.instantAlerts ?? true,
-  });
+  const [smartAlertForm, setSmartAlertForm] = useState<SmartAlertFormData>(createInitialSmartAlertForm);
+  const [smartAlertErrors, setSmartAlertErrors] = useState<SmartAlertFieldErrors>(
+    emptySmartAlertFieldErrors
+  );
+  const [smartAlertGlobalError, setSmartAlertGlobalError] = useState<string | null>(null);
+  const [editingAlertId, setEditingAlertId] = useState<string | null>(null);
+  const [notificationSettingsError, setNotificationSettingsError] = useState<string | null>(null);
+  const [isSavingNotificationSettings, setIsSavingNotificationSettings] = useState(false);
 
   /* Sync from user prop */
   useEffect(() => {
     if (!user) {
       setProfilePhoto(null);
       setSelectedPhotoFile(null);
+      setNotificationSettingsError(null);
+      setDeleteReasonState("not_useful");
+      setDeleteFeedbackState("");
+      setDeleteConfirmTextState("");
+      setDeleteAccountErrors(emptyDeleteAccountFieldErrors());
+      setDeleteAccountGlobalError(null);
       return;
     }
     const profileUser = user as ProfileUser;
@@ -276,50 +264,115 @@ export function useProfileSettings({
     });
     setProfilePhoto(user.profilePhoto || null);
     setSelectedPhotoFile(null);
+    setNotificationSettingsError(null);
+    setDeleteReasonState("not_useful");
+    setDeleteFeedbackState("");
+    setDeleteConfirmTextState("");
+    setDeleteAccountErrors(emptyDeleteAccountFieldErrors());
+    setDeleteAccountGlobalError(null);
     if (profileUser.mobileVisibility) setMobileVisibility(normalizeMobileVisibility(profileUser.mobileVisibility));
-    if (user.notificationSettings) {
-      setNotifications({
-        adUpdates: user.notificationSettings.adUpdates ?? true,
-        promotions: user.notificationSettings.promotions ?? false,
-        emailNotifications: user.notificationSettings.emailNotifications ?? true,
-      });
-    }
+    setNotifications({
+      adUpdates: user.notificationSettings?.adUpdates ?? true,
+      promotions: user.notificationSettings?.promotions ?? false,
+      emailNotifications: user.notificationSettings?.emailNotifications ?? true,
+      pushNotifications: user.notificationSettings?.pushNotifications ?? true,
+      instantAlerts: user.notificationSettings?.instantAlerts ?? true,
+    });
   }, [user]);
 
   /* ------ Handlers ------ */
 
+  const setShowDeleteDialog = (show: boolean) => {
+    setShowDeleteDialogState(show);
+    if (!show) {
+      setDeleteConfirmTextState("");
+      setDeleteReasonState("not_useful");
+      setDeleteFeedbackState("");
+    }
+    setDeleteAccountErrors(emptyDeleteAccountFieldErrors());
+    setDeleteAccountGlobalError(null);
+  };
+
+  const setDeleteConfirmText = (text: string) => {
+    setDeleteConfirmTextState(text);
+    setDeleteAccountErrors((prev) => ({ ...prev, confirmText: undefined }));
+    setDeleteAccountGlobalError(null);
+  };
+
+  const setDeleteReason = (reason: DeleteAccountReason) => {
+    setDeleteReasonState(reason);
+    setDeleteAccountErrors((prev) => ({ ...prev, reason: undefined }));
+    setDeleteAccountGlobalError(null);
+  };
+
+  const setDeleteFeedback = (feedback: string) => {
+    setDeleteFeedbackState(feedback);
+    setDeleteAccountErrors((prev) => ({ ...prev, feedback: undefined }));
+    setDeleteAccountGlobalError(null);
+  };
+
+  const updateSmartAlertForm = (updates: Partial<SmartAlertFormData>) => {
+    setSmartAlertForm((prev) => ({ ...prev, ...updates }));
+    const clearedErrors: Partial<SmartAlertFieldErrors> = {};
+    for (const key of Object.keys(updates)) {
+      if (key in emptySmartAlertFieldErrors()) {
+        (clearedErrors as Record<string, string | undefined>)[key] = undefined;
+      }
+    }
+    setSmartAlertErrors((prev) => ({ ...prev, ...clearedErrors }));
+    setSmartAlertGlobalError(null);
+  };
+
+  const clearSmartAlertError = (field: keyof SmartAlertFieldErrors) => {
+    setSmartAlertErrors((prev) => ({ ...prev, [field]: undefined }));
+    setSmartAlertGlobalError(null);
+  };
+
   const handleSaveProfile = async () => {
-    const nextErrors: ProfileFieldErrors = {};
-    const trimmedName = formData.name.trim();
-    const trimmedEmail = formData.email.trim();
+    const parsedProfile = profileFormSchema.safeParse({
+      name: formData.name,
+      email: formData.email,
+      businessName: formData.businessName,
+      gstNumber: formData.gstNumber,
+      mobileVisibility,
+    });
 
-    if (!trimmedName) {
-      nextErrors.name = "Name is required.";
-    } else if (trimmedName.length < 2) {
-      nextErrors.name = "Name must be at least 2 characters.";
-    }
-    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      nextErrors.email = "Please enter a valid email address.";
-    }
+    if (!parsedProfile.success) {
+      const nextErrors = emptyProfileFieldErrors();
+      let nextGlobalError: string | null = null;
 
-    if (Object.keys(nextErrors).length > 0) {
-      setProfileErrors((prev) => ({ ...prev, ...nextErrors }));
-      setProfileGlobalError(null);
+      for (const issue of parsedProfile.error.issues) {
+        const field = issue.path[0];
+        if (field === "name") nextErrors.name = issue.message;
+        else if (field === "email") nextErrors.email = issue.message;
+        else if (field === "businessName") nextErrors.businessName = issue.message;
+        else if (field === "gstNumber") nextErrors.gstNumber = issue.message;
+        else if (!nextGlobalError) nextGlobalError = issue.message;
+      }
+
+      setProfileErrors(nextErrors);
+      setProfileGlobalError(nextGlobalError || "Please correct the highlighted fields.");
       return;
     }
 
-    setProfileErrors((prev) => ({ ...prev, name: undefined, email: undefined, businessName: undefined, gstNumber: undefined }));
+    const {
+      name: trimmedName,
+      email: trimmedEmail,
+      businessName,
+      gstNumber,
+      mobileVisibility: nextMobileVisibility,
+    } = parsedProfile.data;
+
+    setProfileErrors(emptyProfileFieldErrors());
     setProfileGlobalError(null);
     setIsSavingProfile(true);
 
     const submitData = new FormData();
     submitData.append("name", trimmedName);
     if (trimmedEmail) submitData.append("email", trimmedEmail);
-    const businessName = formData.businessName?.trim();
     if (businessName) submitData.append("businessName", businessName);
-    const gstNumber = formData.gstNumber?.trim();
     if (gstNumber) submitData.append("gstNumber", gstNumber);
-    submitData.append("mobileVisibility", mobileVisibility);
+    submitData.append("mobileVisibility", nextMobileVisibility);
     submitData.append("notificationSettings", JSON.stringify(notifications));
     if (selectedPhotoFile) submitData.append("profilePhoto", selectedPhotoFile);
 
@@ -332,7 +385,7 @@ export function useProfileSettings({
       onUpdateUser(updatedUser);
       setProfilePhoto(updatedUser.profilePhoto || null);
       setSelectedPhotoFile(null);
-      setProfileErrors((prev) => ({ ...prev, photo: undefined }));
+      setProfileErrors(emptyProfileFieldErrors());
       notify.success("Profile updated successfully!");
     } catch (err) {
       const mappedValidation = mapProfileValidationError(err);
@@ -340,7 +393,7 @@ export function useProfileSettings({
         const hasFieldErrors = Object.values(mappedValidation.fieldErrors).some(Boolean);
         setProfileErrors((prev) => ({
           ...prev,
-          name: undefined, email: undefined, businessName: undefined, gstNumber: undefined, photo: undefined,
+          ...emptyProfileFieldErrors(),
           ...mappedValidation.fieldErrors,
         }));
         setProfileGlobalError(
@@ -355,27 +408,64 @@ export function useProfileSettings({
     }
   };
 
-  const handleDeleteAccount = () => {
-    apiClient.delete(API_ROUTES.USER.USERS_ME)
-      .then(() => {
-        notify.success("Account deleted successfully");
-        localStorage.removeItem("esparex_user_session");
-        onLogout();
-      })
-      .catch(err => {
-        logger.error("Delete account failed", err);
-        setProfileGlobalError("Failed to delete account");
+  const handleDeleteAccount = async () => {
+    const parsedDeleteAccount = deleteAccountFormSchema.safeParse({
+      reason: deleteReason,
+      feedback: deleteFeedback,
+      confirmText: deleteConfirmText,
+    });
+
+    if (!parsedDeleteAccount.success) {
+      const nextErrors = emptyDeleteAccountFieldErrors();
+      let nextGlobalError: string | null = null;
+
+      for (const issue of parsedDeleteAccount.error.issues) {
+        const field = issue.path[0];
+        if (field === "reason") nextErrors.reason = issue.message;
+        else if (field === "feedback") nextErrors.feedback = issue.message;
+        else if (field === "confirmText") nextErrors.confirmText = issue.message;
+        else if (!nextGlobalError) nextGlobalError = issue.message;
+      }
+
+      setDeleteAccountErrors(nextErrors);
+      setDeleteAccountGlobalError(nextGlobalError || "Please correct the highlighted fields.");
+      return;
+    }
+
+    const payload: DeleteAccountPayload = {
+      reason: parsedDeleteAccount.data.reason,
+      feedback: parsedDeleteAccount.data.feedback,
+    };
+
+    setDeleteAccountErrors(emptyDeleteAccountFieldErrors());
+    setDeleteAccountGlobalError(null);
+
+    try {
+      await apiClient.delete(API_ROUTES.USER.USERS_ME, {
+        data: payload,
+        silent: true,
       });
+      notify.success("Account deleted successfully");
+      localStorage.removeItem("esparex_user_session");
+      setShowDeleteDialog(false);
+      onLogout();
+    } catch (err) {
+      logger.error("Delete account failed", err);
+      setDeleteAccountGlobalError(getErrorMessage(err, "Failed to delete account"));
+    }
   };
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      setProfileErrors((prev) => ({ ...prev, photo: "Please select an image file." }));
+    if (!isAllowedProfilePhotoType(file.type)) {
+      setProfileErrors((prev) => ({
+        ...prev,
+        photo: `Unsupported image format. Use ${PROFILE_PHOTO_ALLOWED_LABEL}.`,
+      }));
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > PROFILE_PHOTO_MAX_BYTES) {
       setProfileErrors((prev) => ({ ...prev, photo: "Image size must be less than 5MB." }));
       return;
     }
@@ -400,94 +490,180 @@ export function useProfileSettings({
     notify.success("Photo removed! Click 'Save Changes' to apply.");
   };
 
+  const resetAlertForm = () => {
+    setSmartAlertForm(createInitialSmartAlertForm());
+    setSmartAlertErrors(emptySmartAlertFieldErrors());
+    setSmartAlertGlobalError(null);
+    setEditingAlertId(null);
+  };
+
+  const handleEditAlert = (alert: SmartAlertItem) => {
+    setEditingAlertId(alert.id);
+    setSmartAlertForm({
+      name: alert.name,
+      keywords: alert.keywords,
+      category: alert.category,
+      location: alert.location,
+      locationId: alert.locationId || null,
+      radius: alert.radius ?? 50,
+      emailNotifications: alert.notificationChannels?.includes("email") ?? true,
+    });
+    setSmartAlertErrors(emptySmartAlertFieldErrors());
+    setSmartAlertGlobalError(null);
+  };
+
   const handleCreateAlert = async (
     selectedLocation: SmartAlertLocationSelection | null = null
   ): Promise<void> => {
-    const nextErrors: { name?: string; keywords?: string } = {};
-    if (!newAlertName.trim()) nextErrors.name = "Alert name is required.";
-    if (!newAlertKeywords.trim()) nextErrors.keywords = "Search keywords are required.";
-    if (Object.keys(nextErrors).length > 0) {
-      setCreateAlertErrors(nextErrors);
-      setCreateAlertGlobalError(null);
+    const parsedForm = smartAlertFormSchema.safeParse(smartAlertForm);
+    if (!parsedForm.success) {
+      const nextErrors = emptySmartAlertFieldErrors();
+      let nextGlobalError: string | null = null;
+
+      for (const issue of parsedForm.error.issues) {
+        const field = issue.path[0];
+        if (field === "name") nextErrors.name = issue.message;
+        else if (field === "keywords") nextErrors.keywords = issue.message;
+        else if (field === "category") nextErrors.category = issue.message;
+        else if (field === "location") nextErrors.location = issue.message;
+        else if (field === "radius") nextErrors.radius = issue.message;
+        else if (!nextGlobalError) nextGlobalError = issue.message;
+      }
+
+      setSmartAlertErrors(nextErrors);
+      setSmartAlertGlobalError(nextGlobalError || "Please correct the highlighted fields.");
       return;
     }
-    setCreateAlertErrors({});
-    setCreateAlertGlobalError(null);
+
+    const {
+      name,
+      keywords,
+      category,
+      location,
+      locationId,
+      radius,
+      emailNotifications,
+    } = parsedForm.data;
 
     const canonicalCoordinates = toCanonicalGeoPoint(selectedLocation?.coordinates);
     const canonicalLocationId = sanitizeMongoObjectId(
-      selectedLocation?.locationId || selectedLocation?.id
+      selectedLocation?.locationId || selectedLocation?.id || locationId
     );
     const locationDisplay =
       selectedLocation?.display ||
       selectedLocation?.name ||
       selectedLocation?.city ||
-      newAlertLocation.trim() ||
+      location ||
       "";
 
-    if (!canonicalCoordinates || !canonicalLocationId || !locationDisplay) {
-      setCreateAlertGlobalError("Please select a valid location from the location search.");
+    setSmartAlertErrors(emptySmartAlertFieldErrors());
+    setSmartAlertGlobalError(null);
+
+    const basePayload = {
+      name,
+      criteria: {
+        keywords,
+        category: category || undefined,
+        location: locationDisplay || undefined,
+        locationId: canonicalLocationId || undefined,
+      },
+      ...(canonicalCoordinates ? { coordinates: canonicalCoordinates } : {}),
+      radiusKm: radius,
+      frequency: "instant" as const,
+      notificationChannels: emailNotifications ? ["email"] : ["push"],
+    };
+
+    if (!editingAlertId && (!canonicalCoordinates || !canonicalLocationId || !locationDisplay)) {
+      setSmartAlertErrors((prev) => ({
+        ...prev,
+        location: "Please select a valid location from the location search.",
+      }));
       return;
     }
 
-    const parsedPayload = SmartAlertCreateSchema.safeParse({
-      name: newAlertName,
-      criteria: {
-        keywords: newAlertKeywords,
-        category: newAlertCategory || undefined,
-        location: locationDisplay,
-        locationId: canonicalLocationId,
-      },
-      coordinates: canonicalCoordinates,
-      radiusKm: newAlertRadius,
-      frequency: "instant",
-      notificationChannels: createAlertEmail ? ["email"] : ["push"],
-    });
+    const parsedPayload = editingAlertId
+      ? SmartAlertUpdateSchema.safeParse(basePayload)
+      : SmartAlertCreateSchema.safeParse(basePayload);
 
     if (!parsedPayload.success) {
-      const firstIssue = parsedPayload.error.issues[0];
-      setCreateAlertGlobalError(firstIssue?.message || "Please check alert details and try again.");
+      const nextErrors = emptySmartAlertFieldErrors();
+      let nextGlobalError: string | null = null;
+
+      for (const issue of parsedPayload.error.issues) {
+        const [root, nested] = issue.path;
+        if (root === "name") nextErrors.name = issue.message;
+        else if (root === "criteria" && nested === "keywords") nextErrors.keywords = issue.message;
+        else if (root === "criteria" && nested === "category") nextErrors.category = issue.message;
+        else if (root === "criteria" && (nested === "location" || nested === "locationId")) nextErrors.location = issue.message;
+        else if (root === "radiusKm") nextErrors.radius = issue.message;
+        else if (!nextGlobalError) nextGlobalError = issue.message;
+      }
+
+      setSmartAlertErrors(nextErrors);
+      setSmartAlertGlobalError(nextGlobalError || "Please check alert details and try again.");
       return;
     }
 
-    const requestPayload = {
-      ...parsedPayload.data,
-      criteria: {
-        ...(parsedPayload.data.criteria || {}),
-        coordinates: canonicalCoordinates,
-      },
-    } as SmartAlertCreatePayload;
+    const requestPayload = parsedPayload.data as SmartAlertCreatePayload;
+    const result = editingAlertId
+      ? await updateSmartAlert(editingAlertId, requestPayload)
+      : await createSmartAlert(requestPayload);
 
-    const result = await createSmartAlert(requestPayload);
     if (typeof result === "object" && result !== null && "success" in result && (result as any).success) {
-      setNewAlertName(""); setNewAlertKeywords(""); setNewAlertCategory(""); setNewAlertLocation("");
-      setNewAlertRadius(50);
-      setCreateAlertEmail(true);
+      resetAlertForm();
+      notify.success(editingAlertId ? "Alert updated successfully." : "Alert created successfully.");
     } else {
-      setCreateAlertGlobalError((result as any).error);
+      setSmartAlertGlobalError((result as any).error);
     }
   };
 
-  const handleSaveAlertPreferences = async () => {
-    setAlertPreferencesError(null);
-    setIsSavingAlertPreferences(true);
-    const updatedSettings = {
-      ...notifications,
-      emailNotifications: alertPreferences.email,
-      pushNotifications: alertPreferences.push,
-      dailyDigest: alertPreferences.dailySummary,
-      instantAlerts: alertPreferences.instant,
-    };
+  const handleSaveNotificationSettings = async () => {
+    setNotificationSettingsError(null);
+    setIsSavingNotificationSettings(true);
     try {
-      const updatedUser = await updateProfile({ notificationSettings: updatedSettings });
-      if (!updatedUser) { setAlertPreferencesError("Failed to save preferences"); return; }
+      if (
+        notifications.pushNotifications &&
+        isBrowserPushSupported() &&
+        isBrowserPushConfigured() &&
+        window.Notification.permission === "default"
+      ) {
+        try {
+          await window.Notification.requestPermission();
+        } catch {
+          // Permission failures are handled after save through the sync status message.
+        }
+      }
+
+      const updatedUser = await updateProfile({ notificationSettings: notifications });
+      if (!updatedUser) {
+        setNotificationSettingsError("Failed to save notification settings");
+        return;
+      }
       onUpdateUser(updatedUser);
-      notify.success("Alert preferences saved!");
+
+      if (notifications.pushNotifications) {
+        const pushSync = await syncBrowserPushRegistration({
+          user: updatedUser as User & { notificationSettings?: { pushNotifications?: boolean } },
+          interactive: false,
+        });
+
+        if (pushSync.status === "connected") {
+          notify.success("Notification settings saved. Browser push is enabled.");
+        } else {
+          notify.success("Notification settings saved.");
+          const pushMessage = pushSync.reason ?? describeWebPushStatus(pushSync.status);
+          if (pushMessage) {
+            notify.info(pushMessage);
+          }
+        }
+      } else {
+        notify.success("Notification settings saved!");
+      }
     } catch (err) {
-      logger.error("Update preferences failed", err);
-      setAlertPreferencesError(getErrorMessage(err, "Failed to save preferences"));
+      logger.error("Update notification settings failed", err);
+      setNotificationSettingsError(getErrorMessage(err, "Failed to save notification settings"));
     } finally {
-      setIsSavingAlertPreferences(false);
+      setIsSavingNotificationSettings(false);
     }
   };
 
@@ -503,32 +679,33 @@ export function useProfileSettings({
     // Notifications & visibility
     notifications, setNotifications,
     mobileVisibility, setMobileVisibility,
-    mobileRequests, setMobileRequests,
     // Dialogs
     showPhotoDialog, setShowPhotoDialog,
-    showDeleteDialog, setShowDeleteDialog,
+    showDeleteDialog: showDeleteDialogState, setShowDeleteDialog,
     deleteConfirmText, setDeleteConfirmText,
+    deleteReason, setDeleteReason,
+    deleteFeedback, setDeleteFeedback,
+    deleteAccountErrors,
+    deleteAccountGlobalError,
     showPlanDialog, setShowPlanDialog,
     selectedPlan, setSelectedPlan,
     // Business forms
     showBusinessEditForm, setShowBusinessEditForm,
     // Smart alert form
-    newAlertName, setNewAlertName,
-    newAlertKeywords, setNewAlertKeywords,
-    newAlertCategory, setNewAlertCategory,
-    newAlertLocation, setNewAlertLocation,
-    newAlertRadius, setNewAlertRadius,
-    createAlertEmail, setCreateAlertEmail,
-    createAlertErrors, setCreateAlertErrors,
-    createAlertGlobalError, setCreateAlertGlobalError,
-    alertPreferences, setAlertPreferences,
-    alertPreferencesError,
-    isSavingAlertPreferences,
+    smartAlertForm, setSmartAlertForm, updateSmartAlertForm,
+    smartAlertErrors,
+    smartAlertGlobalError,
+    clearSmartAlertError,
+    editingAlertId,
+    notificationSettingsError,
+    isSavingNotificationSettings,
     // Handlers
     handlePhotoSelect,
     handlePhotoDelete,
     handleDeleteAccount,
+    handleEditAlert,
     handleCreateAlert,
-    handleSaveAlertPreferences,
+    handleSaveNotificationSettings,
+    resetAlertForm,
   };
 }

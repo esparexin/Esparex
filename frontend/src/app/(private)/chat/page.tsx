@@ -1,30 +1,15 @@
-/**
- * /chat — Chat inbox page (private route)
- * Lists all conversations for the logged-in user.
- */
-import type { Metadata } from 'next';
-import { ChatList } from '@/components/chat/ChatList';
-import { getServerSession } from '@/lib/auth/session';
-import { buildLoginUrl } from '@/lib/authHelpers';
 import { redirect } from 'next/navigation';
+import { buildChatInboxRoute, resolveChatInboxView } from '@/lib/chatUiRoutes';
 
-export const metadata: Metadata = {
-  title: 'Messages | Esparex',
-  description: 'Your conversations with buyers and sellers on Esparex.',
-};
+interface LegacyChatInboxRedirectPageProps {
+  searchParams?: Promise<{ view?: string | string[] }>;
+}
 
-export default async function ChatInboxPage() {
-    const session = await getServerSession();
-    if (!session?.user) {
-    redirect(buildLoginUrl('/chat'));
-    }
+export default async function LegacyChatInboxRedirectPage({
+  searchParams,
+}: LegacyChatInboxRedirectPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const view = resolveChatInboxView(resolvedSearchParams?.view);
 
-  return (
-    <main className="chat-inbox-page">
-      <div className="chat-inbox-page__header">
-        <h1 className="chat-inbox-page__title">Messages</h1>
-      </div>
-      <ChatList currentUserId={session.user.id ?? session.user._id?.toString() ?? ''} />
-    </main>
-  );
+  redirect(buildChatInboxRoute(view));
 }

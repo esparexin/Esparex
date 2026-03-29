@@ -211,9 +211,15 @@ export function customErrorHandler(
     }
 
     // Global Multer / File Upload Error Handling
-    if (err.name === 'MulterError' || (err.message && err.message.toLowerCase().includes('invalid file type'))) {
+    if (
+        err.name === 'MulterError' ||
+        err.code === 'INVALID_UPLOAD_TYPE' ||
+        (err.message && /^invalid .*type:/i.test(err.message))
+    ) {
         const message = err.name === 'MulterError' ? `Upload failed: ${err.message}` : err.message;
-        const code = err.name === 'MulterError' ? `UPLOAD_${(err as any).code || 'ERROR'}` : 'INVALID_FILE_TYPE';
+        const code = err.name === 'MulterError'
+            ? `UPLOAD_${(err as any).code || 'ERROR'}`
+            : ((err.code as string | undefined) || 'INVALID_FILE_TYPE');
         
         return sendErrorResponse(req, res, 400, message, {
             code,

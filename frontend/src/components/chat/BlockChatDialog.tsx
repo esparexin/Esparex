@@ -29,6 +29,3 @@ export function BlockChatDialog({ open, isSubmitting, onCancel, onConfirm }: Blo
     </div>
   );
 }
-
-export default BlockChatDialog;
-

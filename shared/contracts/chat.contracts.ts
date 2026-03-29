@@ -20,12 +20,15 @@ export interface ChatAdRef {
   title: string;
   thumbnail?: string;
   price?: number;
+  listingType?: string;
+  seoSlug?: string;
 }
 
 export interface ChatAttachment {
   url: string;
   mimeType: string;
   size: number; // bytes
+  name?: string;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -43,6 +46,7 @@ export interface IConversationDTO {
   unreadSeller: number;
   isBlocked: boolean;
   isAdClosed: boolean;
+  isArchivedForViewer?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -52,6 +56,11 @@ export interface IConversationListResponse {
   data: IConversationDTO[];
   nextCursor?: string; // ISO lastMessageAt for next page
   total?: number;
+}
+
+export interface IConversationResponse {
+  success: true;
+  data: IConversationDTO;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -116,12 +125,29 @@ export interface IChatReportPayload {
   description?: string;
 }
 
+export interface IChatUploadUrlPayload {
+  conversationId: string;
+  contentType: string;
+  filename?: string;
+}
+
+export interface IChatUploadUrlResponse {
+  success: true;
+  data: {
+    uploadUrl: string;
+    publicUrl: string;
+    key: string;
+    expiresIn: number;
+    method: 'PUT';
+  };
+}
+
 /* -------------------------------------------------------------------------- */
 /* Admin Payloads                                                              */
 /* -------------------------------------------------------------------------- */
 
 export interface IAdminChatListQuery {
-  filter?: 'reported' | 'high_risk' | 'blocked' | 'all';
+  filter?: 'reported' | 'high_risk' | 'blocked' | 'closed' | 'all';
   riskMin?: number;
   page?: number;
   limit?: number;

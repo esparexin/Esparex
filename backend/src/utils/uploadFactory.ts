@@ -1,6 +1,7 @@
 import multer from 'multer';
 import os from 'os';
 import path from 'path';
+import { AppError } from './AppError';
 
 /**
  * Universal Multer Upload Factory
@@ -37,7 +38,11 @@ export const createUploadMiddleware = (config: UploadConfig) => {
                 cb(null, true);
             } else {
                 const label = config.errorLabel || 'file type';
-                cb(new Error(`Invalid ${label}: ${file.mimetype}. Allowed: ${config.allowedMimeTypes.join(', ')}`));
+                cb(new AppError(
+                    `Invalid ${label}: ${file.mimetype}. Allowed: ${config.allowedMimeTypes.join(', ')}`,
+                    400,
+                    'INVALID_UPLOAD_TYPE'
+                ));
             }
         }
     });

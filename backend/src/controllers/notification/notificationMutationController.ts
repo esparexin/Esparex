@@ -35,8 +35,6 @@ export const registerToken = async (req: Request, res: Response) => {
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
         const { token, platform } = req.body;
 
-        if (!token) return sendErrorResponse(req, res, 400, 'Token is required');
-
         await notificationService.registerToken(userId, token, platform || 'web');
         res.json(respond({ success: true, message: 'Token registered' }));
 

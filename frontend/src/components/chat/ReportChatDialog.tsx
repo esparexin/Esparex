@@ -71,6 +71,3 @@ export function ReportChatDialog({
     </div>
   );
 }
-
-export default ReportChatDialog;
-

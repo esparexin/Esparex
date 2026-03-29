@@ -35,6 +35,7 @@ export const sendMessageSchema = z.object({
         url: z.string().url('Attachment URL must be valid'),
         mimeType: z.string().min(1),
         size: z.number().positive().max(8 * 1024 * 1024, 'Attachment too large (max 8 MB)'),
+        name: z.string().trim().max(160).optional(),
       })
     )
     .max(5, 'Max 5 attachments per message')
@@ -60,12 +61,29 @@ export const reportChatSchema = z.object({
 
 export const conversationListQuerySchema = z.object({
   before: isoDate(),
+  view: z.enum(['active', 'archived']).optional().default('active'),
 });
 
-export const messagesQuerySchema = z.object({
-  before: isoDate(),
-  /** `after` is used for incremental polling — returns only messages NEWER than this timestamp */
-  after: isoDate(),
+export const messagesQuerySchema = z
+  .object({
+    before: isoDate(),
+    /** `after` is used for incremental polling — returns only messages NEWER than this timestamp */
+    after: isoDate(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.before && value.after) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Use either "before" or "after", not both',
+        path: ['after'],
+      });
+    }
+  });
+
+export const chatUploadUrlSchema = z.object({
+  conversationId: objectId(),
+  contentType: z.string().min(1, 'contentType is required'),
+  filename: z.string().trim().max(160).optional(),
 });
 
 /* -------------------------------------------------------------------------- */

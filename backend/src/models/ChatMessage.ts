@@ -9,6 +9,7 @@ export interface IChatAttachment {
   url: string;
   mimeType: string;
   size: number;
+  name?: string;
 }
 
 export interface IChatMessage extends Document {
@@ -45,6 +46,7 @@ const AttachmentSchema = new Schema<IChatAttachment>(
     url: { type: String, required: true },
     mimeType: { type: String, required: true },
     size: { type: Number, required: true },
+    name: { type: String, maxlength: 160 },
   },
   { _id: false }
 );

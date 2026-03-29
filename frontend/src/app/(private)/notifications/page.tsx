@@ -1,16 +1,5 @@
-"use client";
+import { redirect } from "next/navigation";
 
-
-import { Notifications } from '@/components/user/Notifications';
-import { withGuard } from '@/guards/withGuard';
-import { requireUserAuth } from '@/guards/routeGuards';
-
-function NotificationsPage() {
-    return (
-        <div className="p-4 md:p-8">
-            <Notifications />
-        </div>
-    );
+export default function NotificationsPage() {
+    redirect("/");
 }
-
-export default withGuard(NotificationsPage, requireUserAuth);

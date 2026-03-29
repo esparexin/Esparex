@@ -9,8 +9,8 @@
 import { z } from 'zod';
 import { commonSchemas, sanitizeString } from '../middleware/validateRequest';
 import { ROLE_VALUES } from '../../../shared/enums/roles';
-import { USER_STATUS_VALUES } from '../../../shared/enums/userStatus';
-import { BUSINESS_STATUS_VALUES } from '../../../shared/enums/businessStatus';
+import { USER_STATUS } from '../../../shared/enums/userStatus';
+import { MOBILE_VISIBILITY_VALUES } from '../../../shared/constants/mobileVisibility';
 
 /**
  * User role enum
@@ -20,17 +20,24 @@ const userRoleEnum = z.enum(ROLE_VALUES);
 /**
  * User status enum
  */
-const userStatusEnum = z.enum(USER_STATUS_VALUES);
+const userStatusEnum = z.enum([
+    USER_STATUS.LIVE,
+    USER_STATUS.SUSPENDED,
+    USER_STATUS.BANNED,
+    USER_STATUS.DELETED,
+    USER_STATUS.INACTIVE,
+]);
 
-/**
- * Business status enum
- */
-const businessStatusEnum = z.enum(['none', ...BUSINESS_STATUS_VALUES]);
+const actionableUserStatusEnum = z.enum([
+    USER_STATUS.LIVE,
+    USER_STATUS.SUSPENDED,
+    USER_STATUS.BANNED,
+]);
 
 /**
  * Mobile visibility enum
  */
-const mobileVisibilityEnum = z.enum(['show', 'hide', 'on-request']);
+const mobileVisibilityEnum = z.enum(MOBILE_VISIBILITY_VALUES as [string, ...string[]]);
 // VALIDATION SSOT NOTE:
 // This schema mirrors shared/schemas/coordinates.schema.ts.
 // Direct import avoided due to Zod instance boundary across monorepo packages.
@@ -132,8 +139,12 @@ export const userIdParamSchema = z.object({
  * Update User Status Schema (Admin)
  */
 export const updateUserStatusSchema = z.object({
-    status: userStatusEnum,
+    status: actionableUserStatusEnum,
     reason: sanitizeString(undefined, 500).optional(),
+}).strict();
+
+export const updateUserVerificationSchema = z.object({
+    isVerified: z.boolean(),
 }).strict();
 
 /**
@@ -180,6 +191,7 @@ export default {
     getUsersQuerySchema,
     userIdParamSchema,
     updateUserStatusSchema,
+    updateUserVerificationSchema,
     updateTrustScoreSchema,
     addAdminBadgeSchema,
     registerFcmTokenSchema,
