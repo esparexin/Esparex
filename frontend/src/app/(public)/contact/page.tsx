@@ -18,21 +18,33 @@ export default function ContactPage() {
                 or want to partner with us, reach out.
             </p>
 
-            <div className="grid md:grid-cols-3 gap-6 my-8 not-prose">
-                <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 flex flex-col items-center text-center">
-                    <Mail className="h-8 w-8 text-blue-600 mb-3" />
-                    <h3 className="font-semibold text-blue-900">Email Support</h3>
-                    <p className="text-sm text-blue-700">support@esparex.com</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-6 not-prose">
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-50 border border-blue-100">
+                    <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <Mail className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-blue-400 uppercase tracking-wide">Email Support</p>
+                        <p className="text-sm font-semibold text-blue-800 mt-0.5">support@esparex.com</p>
+                    </div>
                 </div>
-                <div className="p-4 rounded-xl bg-green-50 border border-green-100 flex flex-col items-center text-center">
-                    <Phone className="h-8 w-8 text-green-600 mb-3" />
-                    <h3 className="font-semibold text-green-900">Phone</h3>
-                    <p className="text-sm text-green-700">+91 98765 43210</p>
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-green-50 border border-green-100">
+                    <div className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <Phone className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-green-400 uppercase tracking-wide">Phone</p>
+                        <p className="text-sm font-semibold text-green-800 mt-0.5">+91 98765 43210</p>
+                    </div>
                 </div>
-                <div className="p-4 rounded-xl bg-purple-50 border border-purple-100 flex flex-col items-center text-center">
-                    <MapPin className="h-8 w-8 text-purple-600 mb-3" />
-                    <h3 className="font-semibold text-purple-900">Office</h3>
-                    <p className="text-sm text-purple-700">Hyderabad, Telangana</p>
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-violet-50 border border-violet-100">
+                    <div className="h-10 w-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="h-5 w-5 text-violet-600" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-violet-400 uppercase tracking-wide">Office</p>
+                        <p className="text-sm font-semibold text-violet-800 mt-0.5">Hyderabad, Telangana</p>
+                    </div>
                 </div>
             </div>
 

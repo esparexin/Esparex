@@ -44,7 +44,7 @@ export function BusinessQuickActions() {
                     <Link
                         key={href}
                         href={href}
-                        className={`flex-shrink-0 flex items-center gap-2 h-10 px-4 rounded-xl border font-bold text-xs transition-colors active:scale-[0.97] ${className}`}
+                        className={`flex-shrink-0 flex items-center gap-2 h-11 px-4 rounded-xl border font-bold text-xs transition-colors active:scale-[0.97] ${className}`}
                     >
                         <Icon className="w-4 h-4" />
                         {label}

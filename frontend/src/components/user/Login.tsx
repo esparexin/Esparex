@@ -164,7 +164,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                     <Button
                       type="submit"
                       disabled={!backendReady || isSendingOTP || !isValidMobile || isSendRateLimited}
-                      className="w-full"
+                      className="w-full h-11"
                     >
                       {isSendingOTP && (
                         <Loader2 className="animate-spin mr-2" size={18} />
@@ -178,7 +178,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                       type="button"
                       variant="ghost"
                       onClick={onBack}
-                      className="w-full"
+                      className="w-full h-11"
                     >
                       <ArrowLeft size={16} className="mr-1" />
                       Back
@@ -201,7 +201,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         onClick={resetToMobileStep}
                         disabled={isSendingOTP}
                         aria-label="Edit phone number"
-                        className="h-7 w-7 text-blue-700 hover:text-blue-900"
+                        className="h-11 w-11 text-blue-700 hover:text-blue-900"
                       >
                         <Pencil size={14} />
                       </Button>
@@ -347,7 +347,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         (requiresName && !newUserName.trim())
                       }
                       onClick={() => void verifyOtpCode(otpValue)}
-                      className="mt-2 w-full"
+                      className="mt-2 w-full h-11"
                     >
                       {isVerifying && (
                         <Loader2 className="animate-spin mr-2" size={18} />

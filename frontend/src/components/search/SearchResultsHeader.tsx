@@ -50,10 +50,10 @@ function SortDropdownTrigger({
                 aria-haspopup="listbox"
                 aria-expanded={open}
                 aria-label="Sort listings"
-                className="gap-2 h-9 rounded-full border-slate-900 px-4 font-medium text-slate-900 text-sm shadow-none bg-white hover:bg-slate-50"
+                className="gap-1.5 h-11 rounded-full border-slate-200 px-4 font-semibold text-slate-700 text-sm shadow-none bg-white hover:bg-slate-50"
             >
-                <span>Sort By</span>
-                <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
+                <span>Sort</span>
+                <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
             </Button>
         );
     }
@@ -106,7 +106,7 @@ function SortDropdownMenu({
                         aria-selected={sort === key}
                         onClick={() => onSelect(key)}
                         className={cn(
-                            "w-full px-3 py-2 text-left text-sm rounded-lg transition-colors",
+                            "w-full px-3 py-2.5 text-left text-sm rounded-lg transition-colors min-h-[44px] flex items-center",
                             sort === key ? "bg-slate-900 text-white font-medium" : "text-slate-600 hover:bg-slate-50"
                         )}
                     >
@@ -146,37 +146,50 @@ export function SearchResultsHeader({
         <div className="sticky top-[100px] md:top-0 z-20 bg-white/95 backdrop-blur-md mb-4 md:mb-0 md:border-b md:border-slate-100">
             {/* ── MOBILE LAYOUT ────────────────────────────────────────── */}
             <div className="md:hidden">
-                {/* 1. Filter & Sort Row */}
-                <div className="flex items-center gap-4 px-4 py-3 border-b border-slate-100">
-                    <div className="flex-shrink-0">
-                        {filterNode}
-                    </div>
-                    <div className="flex-shrink-0">
-                        <div className="relative" ref={dropdownRef}>
-                            <SortDropdownTrigger
-                                mobile
-                                open={open}
-                                sort={sort}
-                                onToggle={() => setOpen((v) => !v)}
-                            />
-                            <SortDropdownMenu
-                                mobile
-                                open={open}
-                                sort={sort}
-                                onSelect={(value) => {
-                                    onSortChange(value);
-                                    setOpen(false);
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* 2. Count Row */}
-                <div className="px-4 py-4">
-                    <p className="text-sm text-slate-900">
-                        {total} listing{total === 1 ? "" : "s"} found
+                {/* Filter & Sort + Count in one row */}
+                <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-slate-100">
+                    <p className="text-sm font-semibold text-slate-900 min-w-0 truncate">
+                        <span className="text-slate-900">{total}</span>
+                        <span className="font-normal text-slate-400"> listing{total === 1 ? "" : "s"}</span>
                     </p>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {/* Filters */}
+                        <div className="flex-shrink-0">
+                            {filterNode}
+                        </div>
+                        {/* Sort */}
+                        <div className="flex-shrink-0">
+                            <div className="relative" ref={dropdownRef}>
+                                <SortDropdownTrigger
+                                    mobile
+                                    open={open}
+                                    sort={sort}
+                                    onToggle={() => setOpen((v) => !v)}
+                                />
+                                <SortDropdownMenu
+                                    mobile
+                                    open={open}
+                                    sort={sort}
+                                    onSelect={(value) => {
+                                        onSortChange(value);
+                                        setOpen(false);
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        {/* View toggle */}
+                        <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
+                            aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
+                            className="h-11 w-11 rounded-full border-slate-200 bg-white shadow-none flex-shrink-0"
+                        >
+                            {view === "grid"
+                                ? <List className="size-4 text-slate-600" />
+                                : <LayoutGrid className="size-4 text-slate-600" />}
+                        </Button>
+                    </div>
                 </div>
             </div>
 

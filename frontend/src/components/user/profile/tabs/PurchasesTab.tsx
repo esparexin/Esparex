@@ -31,9 +31,9 @@ export function PurchasesTab({
     return (
         <div className="space-y-4">
             {/* Purchases Overview Card */}
-            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 gap-0">
                 <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2 text-purple-700">
+                    <CardTitle className="text-base flex items-center gap-2 text-purple-700">
                         <ShoppingCart className="h-5 w-5 text-purple-600" />
                         My Purchases
                     </CardTitle>
@@ -66,9 +66,9 @@ export function PurchasesTab({
             </Card>
 
             {/* Purchase History */}
-            <Card>
+            <Card className="gap-0">
                 <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                    <CardTitle className="text-base flex items-center gap-2">
                         <FileText className="h-5 w-5" />
                         Transaction History
                     </CardTitle>
@@ -122,7 +122,7 @@ export function PurchasesTab({
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                className="h-7 text-xs gap-1"
+                                                className="h-11 text-xs gap-1"
                                                 onClick={async () => {
                                                     try {
                                                         const { downloadInvoice } = await import("@/lib/api/user/payments");
@@ -152,12 +152,12 @@ export function PurchasesTab({
                 </div>
                 <CardContent className="p-6 relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
-                        <h3 className="text-xl font-bold">Boost Your Presence</h3>
+                        <h3 className="text-base font-bold">Boost Your Presence</h3>
                         <p className="text-blue-100 text-xs">Unlock premium features and reach 10x more buyers</p>
                     </div>
                     <Button
                         onClick={() => setActiveTab("plans")}
-                        className="bg-white text-blue-700 hover:bg-blue-50 font-bold px-6 h-10 shadow-lg"
+                        className="bg-white text-blue-700 hover:bg-blue-50 font-bold px-6 h-11 shadow-lg"
                     >
                         Upgrade Now
                     </Button>

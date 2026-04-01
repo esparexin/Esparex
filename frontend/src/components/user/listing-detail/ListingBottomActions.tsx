@@ -84,7 +84,7 @@ export function ListingBottomActions({
             <div className="grid grid-cols-2 gap-2 p-3">
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs"
+                className="flex flex-col gap-1 h-11 text-xs"
                 onClick={onEditClick}
               >
                 <Edit2 className="h-5 w-5" />
@@ -92,7 +92,7 @@ export function ListingBottomActions({
               </Button>
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs text-red-700 border-red-200 hover:bg-red-50"
+                className="flex flex-col gap-1 h-11 text-xs text-red-700 border-red-200 hover:bg-red-50"
                 onClick={onDeleteClick}
               >
                 <Trash2 className="h-5 w-5" />
@@ -118,12 +118,12 @@ export function ListingBottomActions({
           </div>
 
           {/* Action Bar */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom">
-            <div className="grid grid-cols-3 gap-2 p-3">
+          <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)] z-40 safe-area-bottom">
+            <div className="grid grid-cols-3 gap-1.5 px-2 py-3">
               {/* Edit */}
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs"
+                className="flex flex-col gap-1 h-11 text-xs rounded-xl border-slate-200 text-slate-600"
                 onClick={onEditClick}
               >
                 <Edit2 className="h-5 w-5" />
@@ -133,7 +133,7 @@ export function ListingBottomActions({
               {/* Mark Sold */}
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs"
+                className="flex flex-col gap-1 h-11 text-xs rounded-xl border-slate-200 text-slate-600"
                 onClick={onMarkSoldClick}
               >
                 <svg
@@ -155,7 +155,7 @@ export function ListingBottomActions({
               {/* Promote */}
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs bg-purple-50 border-purple-300 text-purple-700"
+                className="flex flex-col gap-1 h-11 text-xs rounded-xl bg-violet-50 border-violet-200 text-violet-700"
                 onClick={onPromoteClick}
               >
                 <TrendingUp className="h-5 w-5" />
@@ -166,9 +166,9 @@ export function ListingBottomActions({
             {/* Analytics Quick View */}
             <button
               onClick={onAnalyticsClick}
-              className="w-full py-2 text-xs text-center text-gray-600 border-t hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              className="w-full py-2 text-xs text-center text-slate-400 border-t border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors"
             >
-              <span className="font-medium">View Analytics</span> • Tap for detailed stats
+              <span className="font-medium text-slate-500">View Analytics</span> · Tap for detailed stats
             </button>
           </div>
         </div>
@@ -194,11 +194,11 @@ export function ListingBottomActions({
 
   return (
     <div className="md:hidden">
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)] z-40 safe-area-bottom">
         <div className="p-3">
           <Button
             onClick={onChatClick}
-            className="w-full h-14 rounded-xl bg-green-600 hover:bg-green-700 active:scale-[0.98] text-white font-bold text-base gap-3 shadow-lg shadow-green-200 transition-all"
+            className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-base gap-3 shadow-lg shadow-blue-200/60 transition-all"
           >
             <MessageCircle className="h-5 w-5" />
             Chat with Seller

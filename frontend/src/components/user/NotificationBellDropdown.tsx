@@ -289,8 +289,8 @@ export function NotificationBellDropdown({
 
     const triggerClassName =
         variant === "mobile"
-            ? "rounded-full hover:bg-muted relative"
-            : "rounded-full relative text-muted-foreground hover:text-foreground";
+            ? "h-11 w-11 rounded-full hover:bg-muted relative"
+            : "h-11 w-11 rounded-full relative text-muted-foreground hover:text-foreground";
     const iconClassName = variant === "mobile" ? "h-6 w-6 text-foreground/80" : "h-5 w-5";
 
     return (
@@ -333,7 +333,7 @@ export function NotificationBellDropdown({
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="shrink-0 rounded-full px-3 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                                className="shrink-0 h-11 rounded-full px-3 text-xs font-medium text-slate-600 hover:bg-slate-100"
                                 onClick={() => markAllReadMutation.mutate()}
                                 disabled={markAllReadMutation.isPending}
                             >

@@ -148,61 +148,61 @@ export function BusinessPublicProfile({
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <Card className="overflow-hidden">
-        <div className="relative h-32">
+    <div className="space-y-4 p-4 md:p-6">
+      {/* Hero Card */}
+      <Card className="overflow-hidden rounded-2xl border-none shadow-sm">
+        <div className="relative h-28 md:h-36">
           <PlaceholderImage
             src={heroImage}
             alt={business.businessName}
-            containerClassName="h-32 w-full rounded-none"
+            containerClassName="h-28 md:h-36 w-full rounded-none"
             className="object-cover"
             text="Business cover"
             fallbackIcon={<Building2 className="h-10 w-10 opacity-50" />}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/55 via-blue-900/35 to-blue-700/25" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 via-blue-950/40 to-blue-800/20" />
         </div>
-        <CardContent className="pt-0">
-          <div className="relative mt-[-60px] grid grid-cols-1 gap-6 md:grid-cols-3">
+        <CardContent className="pt-0 px-4 md:px-6 pb-5">
+          <div className="relative mt-[-48px] md:mt-[-60px] grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="md:col-span-1">
-              <div className="w-fit rounded-2xl bg-white p-3 shadow-md">
-                <div className="h-24 w-24 overflow-hidden rounded-xl">
+              <div className="w-fit rounded-2xl bg-white p-2 shadow-md mx-0">
+                <div className="h-20 w-20 md:h-24 md:w-24 overflow-hidden rounded-xl">
                   <PlaceholderImage
                     src={logoImage}
                     alt={`${business.businessName} logo`}
-                    containerClassName="h-24 w-24 rounded-xl"
+                    containerClassName="h-20 w-20 md:h-24 md:w-24 rounded-xl"
                     className="object-cover"
                     text="Logo"
-                    fallbackIcon={<Building2 className="h-12 w-12 text-blue-600" />}
+                    fallbackIcon={<Building2 className="h-10 w-10 text-blue-600" />}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="space-y-3 pt-6 md:col-span-2">
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-2.5 pt-2 md:pt-6 md:col-span-2">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <h1 className="text-3xl font-bold">{business.businessName}</h1>
-                  <p className="text-lg text-muted-foreground">{business.tagline}</p>
+                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{business.businessName}</h1>
+                  {business.tagline && <p className="text-sm text-slate-400 mt-0.5">{business.tagline}</p>}
                 </div>
-                <Button variant="outline" size="sm" onClick={handleShare}>
-                  <Share2 className="mr-1 h-4 w-4" />
+                <Button variant="outline" size="sm" onClick={handleShare} className="h-11 rounded-xl border-slate-200 text-slate-600 text-xs w-fit">
+                  <Share2 className="mr-1.5 h-3.5 w-3.5" />
                   {shareLabel}
                 </Button>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">{business.businessType}</Badge>
+              <div className="flex flex-wrap gap-1.5">
+                <Badge variant="secondary" className="rounded-lg bg-slate-100 text-slate-600 border-none text-xs">{business.businessType}</Badge>
                 {business.verified ? (
-                  <Badge className="bg-green-100 text-green-800">Verified Business</Badge>
+                  <Badge className="bg-blue-50 text-blue-700 border-none rounded-lg text-xs">Verified Business</Badge>
                 ) : null}
               </div>
 
               {business.rating ? (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1 text-sm text-slate-500">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span>
-                    {business.rating.toFixed(1)} ({business.totalReviews || 0} reviews)
-                  </span>
+                  <span className="font-semibold text-slate-700">{business.rating.toFixed(1)}</span>
+                  <span className="text-slate-400">({business.totalReviews || 0} reviews)</span>
                 </div>
               ) : null}
             </div>
@@ -210,22 +210,18 @@ export function BusinessPublicProfile({
         </CardContent>
       </Card>
 
+      {/* About */}
       {business.description ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>About</CardTitle>
+        <Card className="rounded-2xl border-slate-100 shadow-none">
+          <CardHeader className="pb-2 pt-4 px-4 md:px-6">
+            <CardTitle className="text-sm font-bold text-slate-700 uppercase tracking-wide">About</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="leading-relaxed text-muted-foreground">{business.description}</p>
+          <CardContent className="space-y-3 px-4 md:px-6 pb-4">
+            <p className="leading-relaxed text-sm text-slate-500">{business.description}</p>
             {business.website ? (
               <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <a
-                  href={business.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
+                <Globe className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+                <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate">
                   {business.website}
                 </a>
               </div>
@@ -234,52 +230,49 @@ export function BusinessPublicProfile({
         </Card>
       ) : null}
 
-      <Separator />
+      <Separator className="bg-slate-100" />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Business Contact</CardTitle>
+      {/* Contact */}
+      <Card className="rounded-2xl border-slate-100 shadow-none">
+        <CardHeader className="pb-2 pt-4 px-4 md:px-6">
+          <CardTitle className="text-sm font-bold text-slate-700 uppercase tracking-wide">Contact</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Reach out using the channel that works best for you.
-          </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <CardContent className="px-4 md:px-6 pb-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {business.contactNumber ? (
-              <div className="flex items-start gap-3">
-                <Phone className="mt-1 h-5 w-5 shrink-0 text-blue-600" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <Phone className="h-4 w-4 text-blue-600" />
+                </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
-                  <a href={`tel:${business.contactNumber}`} className="font-semibold hover:text-blue-600">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Phone</p>
+                  <a href={`tel:${business.contactNumber}`} className="text-sm font-semibold text-slate-800 hover:text-blue-600">
                     {business.contactNumber}
                   </a>
                 </div>
               </div>
             ) : null}
-
             {business.whatsappNumber ? (
-              <div className="flex items-start gap-3">
-                <Phone className="mt-1 h-5 w-5 shrink-0 text-green-600" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="h-8 w-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+                  <Phone className="h-4 w-4 text-green-600" />
+                </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">WhatsApp</p>
-                  <a
-                    href={buildWhatsappHref(business.whatsappNumber)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold hover:text-green-600"
-                  >
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">WhatsApp</p>
+                  <a href={buildWhatsappHref(business.whatsappNumber)} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-slate-800 hover:text-green-600">
                     {business.whatsappNumber}
                   </a>
                 </div>
               </div>
             ) : null}
-
             {business.email ? (
-              <div className="flex items-start gap-3">
-                <Mail className="mt-1 h-5 w-5 shrink-0 text-red-600" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="h-8 w-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+                  <Mail className="h-4 w-4 text-red-500" />
+                </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <a href={`mailto:${business.email}`} className="font-semibold hover:text-red-600">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Email</p>
+                  <a href={`mailto:${business.email}`} className="text-sm font-semibold text-slate-800 hover:text-red-600 truncate block">
                     {business.email}
                   </a>
                 </div>
@@ -289,44 +282,36 @@ export function BusinessPublicProfile({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
+      {/* Location */}
+      <Card className="rounded-2xl border-slate-100 shadow-none">
+        <CardHeader className="pb-2 pt-4 px-4 md:px-6">
+          <CardTitle className="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-slate-400" />
             Location
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 px-4 md:px-6 pb-4">
           {mapData.addressQuery ? (
-            <address className="not-italic text-sm text-muted-foreground">
+            <address className="not-italic text-sm text-slate-500">
               {business.location?.address ? <>{business.location.address}<br /></> : null}
-              {[business.location?.city, business.location?.state, business.location?.pincode]
-                .filter(Boolean)
-                .join(", ")}
+              {[business.location?.city, business.location?.state, business.location?.pincode].filter(Boolean).join(", ")}
             </address>
           ) : null}
 
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-            <div className="flex h-64 flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,#eff6ff,#f8fafc)] px-6 text-center">
-              <MapPin className="h-8 w-8 text-blue-600" />
-              <div className="space-y-1">
-                <p className="font-semibold text-slate-900">Open business location in maps</p>
-                <p className="text-sm text-muted-foreground">
-                  {mapData.addressQuery || "Address details are available above."}
-                </p>
+          <div className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
+            <div className="flex h-48 flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,#eff6ff,#f8fafc)] px-6 text-center">
+              <div className="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+                <MapPin className="h-6 w-6 text-blue-600" />
               </div>
+              <p className="text-sm font-semibold text-slate-700">
+                {mapData.addressQuery || "Address details are available above."}
+              </p>
             </div>
-
             {mapData.externalUrl ? (
-              <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3">
-                <p className="text-sm text-muted-foreground">Open the full map in a new tab.</p>
-                <a
-                  href={mapData.externalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
-                >
-                  Open in Maps <ExternalLink className="h-4 w-4" />
+              <div className="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3">
+                <p className="text-xs text-slate-400">View on Google Maps</p>
+                <a href={mapData.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline">
+                  Open in Maps <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </div>
             ) : null}
@@ -334,27 +319,26 @@ export function BusinessPublicProfile({
         </CardContent>
       </Card>
 
+      {/* Listings Tabs */}
       {tabs.length > 0 ? (
-        <div className="space-y-4">
-          <div className="flex gap-1 border-b border-slate-200">
+        <div className="space-y-3">
+          <div className="flex gap-1 border-b border-slate-200 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`-mb-px flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                className={`-mb-px flex min-h-[44px] items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap ${
                   activeTab === tab.key
                     ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
+                    : "border-transparent text-slate-400 hover:text-slate-600"
                 }`}
                 type="button"
               >
                 {tab.icon}
                 {tab.label}
-                <span
-                  className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                    activeTab === tab.key ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
-                  }`}
-                >
+                <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  activeTab === tab.key ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
+                }`}>
                   {tab.count}
                 </span>
               </button>
@@ -362,17 +346,12 @@ export function BusinessPublicProfile({
           </div>
 
           {activeItems.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 md:gap-4">
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 md:gap-4">
               {activeItems.map((item, index) => {
                 const record = item as Record<string, unknown>;
                 const id = String(record.id || record._id || "");
                 return (
-                  <AdCardGrid
-                    key={id}
-                    ad={item as Ad}
-                    href={buildListingHref(item)}
-                    priority={index < 4}
-                  />
+                  <AdCardGrid key={id} ad={item as Ad} href={buildListingHref(item)} priority={index < 4} />
                 );
               })}
             </div>
@@ -383,8 +362,8 @@ export function BusinessPublicProfile({
           )}
         </div>
       ) : (
-        <Card>
-          <CardContent className="py-12 text-center text-sm text-slate-500">
+        <Card className="rounded-2xl border-slate-100 shadow-none">
+          <CardContent className="py-12 text-center text-sm text-slate-400">
             This business does not have any live public listings yet.
           </CardContent>
         </Card>

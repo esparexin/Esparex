@@ -100,7 +100,7 @@ export function FileUploadCard({
                             setLocalError(null);
                             onRemove();
                         }}
-                        className="h-10 w-10 shrink-0 rounded-full text-rose-500 hover:bg-rose-50"
+                        className="h-11 w-11 shrink-0 rounded-full text-rose-500 hover:bg-rose-50"
                     >
                         <X className="h-4 w-4" />
                     </Button>

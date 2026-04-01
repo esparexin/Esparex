@@ -14,7 +14,7 @@ import {
 } from "@/components/search/SearchFiltersPanel";
 
 const searchFiltersDesktopShellClassName =
-    "w-72 shrink-0 border border-slate-100 rounded-2xl bg-white p-5 h-fit sticky top-24 shadow-sm";
+    "w-72 shrink-0 border border-slate-100 rounded-2xl bg-white p-5 h-fit sticky top-[6.25rem] shadow-sm";
 
 export type SearchFiltersShellProps = SearchFiltersPanelSharedProps & {
     setSelectedCategory: (val: string | null) => void;
@@ -35,7 +35,7 @@ function SearchFiltersDesktopShell({
             className={className}
         >
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-slate-900">Filters</h3>
+                <h3 className="text-base font-bold text-slate-900">Filters</h3>
                 <SlidersHorizontal className="size-4 text-slate-400" />
             </div>
             {children}
@@ -98,8 +98,8 @@ export function SearchFiltersShell({
                         open={mobileDrawerOpen}
                         onOpenChange={setMobileDrawerOpen}
                         trigger={
-                            <Button variant="ghost" className="h-10 px-0 gap-2 text-blue-600 hover:text-blue-700 hover:bg-transparent font-medium text-base">
-                                <SlidersHorizontal className="size-5" />
+                            <Button variant="outline" className="h-11 px-4 gap-2 text-slate-700 border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none">
+                                <SlidersHorizontal className="size-4 text-slate-500" />
                                 Filters
                             </Button>
                         }

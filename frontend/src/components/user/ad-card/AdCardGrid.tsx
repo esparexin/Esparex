@@ -41,9 +41,9 @@ export const AdCardGrid = memo(function AdCardGrid({
   return (
     <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
       <Card
-        className={`overflow-hidden transition-all duration-500 group cursor-pointer border border-slate-200 bg-white hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1.5 rounded-2xl ${
-          ad.isSpotlight 
-            ? 'ring-1 ring-yellow-400/50 shadow-[0_0_20px_rgba(234,179,8,0.1)]' 
+        className={`overflow-hidden transition-all duration-300 group cursor-pointer border-0 bg-white shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 rounded-2xl ${
+          ad.isSpotlight
+            ? 'ring-1 ring-yellow-400/60 shadow-[0_4px_20px_rgba(234,179,8,0.12)]'
             : ''
         } ${className || ''}`}
         onClick={useDeclarativeLink ? undefined : handleCardClick}
@@ -53,7 +53,7 @@ export const AdCardGrid = memo(function AdCardGrid({
           imageUrl={imageUrl}
           priority={priority}
           showBusinessBadge={showBusinessBadge}
-          className="aspect-square w-full"
+          className="aspect-[4/3] w-full"
         >
           {getPlanBadge(ad, "absolute top-2 left-2 z-10")}
           {onToggleSave && (
@@ -69,7 +69,7 @@ export const AdCardGrid = memo(function AdCardGrid({
         </AdCardCover>
 
         {/* Content Section */}
-        <CardContent className="p-2.5 md:p-4 space-y-1 md:space-y-2">
+        <CardContent className="p-3 md:p-4 space-y-1 md:space-y-2">
           <AdCardMeta ad={ad} variant="default" />
         </CardContent>
       </Card>

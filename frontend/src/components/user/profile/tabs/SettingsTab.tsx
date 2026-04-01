@@ -29,7 +29,7 @@ type SettingRowProps = {
 
 function SettingRow({ icon, title, description, checked, onCheckedChange }: SettingRowProps) {
     return (
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 min-h-[44px]">
             <div className="flex items-start gap-3">
                 <div className="mt-0.5 text-slate-500">{icon}</div>
                 <div>
@@ -60,7 +60,7 @@ export function SettingsTab({
 }: SettingsTabProps) {
     return (
         <div className="space-y-4">
-            <Card>
+            <Card className="gap-0">
                 <FeatureCard
                     title={
                         <>
@@ -129,7 +129,7 @@ export function SettingsTab({
                     <Separator />
                     <FormError message={notificationSettingsError} />
                     <Button
-                        className="w-full gap-2"
+                        className="w-full h-11 gap-2"
                         variant="outline"
                         onClick={handleSaveNotificationSettings}
                         disabled={isSavingNotificationSettings}
@@ -140,13 +140,13 @@ export function SettingsTab({
                 </CardContent>
             </Card>
 
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-red-200 bg-red-50 gap-0">
                 <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2 text-red-600">
+                    <CardTitle className="text-base flex items-center gap-2 text-red-600">
                         <Trash2 className="h-5 w-5" />
                         Delete Account
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs">
                         Permanently delete your account. Secure confirmation required.
                     </CardDescription>
                 </CardHeader>
@@ -154,7 +154,7 @@ export function SettingsTab({
                     <Button
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
-                        className="gap-2"
+                        className="h-11 gap-2"
                     >
                         <AlertTriangle className="h-4 w-4" />
                         Delete My Account

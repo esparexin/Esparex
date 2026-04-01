@@ -8,17 +8,13 @@ import { AlertTriangle } from "lucide-react";
 export default function SafetyTipsPage() {
     return (
         <InfoPage title="Safety Tips">
-            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-8 not-prose">
-                <div className="flex">
-                    <div className="flex-shrink-0">
-                        <AlertTriangle className="h-5 w-5 text-yellow-600" aria-hidden="true" />
-                    </div>
-                    <div className="ml-3">
-                        <p className="text-sm text-yellow-700">
-                            Esparex is a marketplace. While we verify sellers, always exercise caution when making transactions.
-                        </p>
-                    </div>
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 not-prose">
+                <div className="h-8 w-8 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <AlertTriangle className="h-4 w-4 text-amber-600" aria-hidden="true" />
                 </div>
+                <p className="text-sm text-amber-800 leading-relaxed">
+                    Esparex is a marketplace. While we verify sellers, always exercise caution when making transactions.
+                </p>
             </div>
 
             <h3>Buying Safety</h3>

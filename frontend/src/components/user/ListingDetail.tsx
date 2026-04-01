@@ -510,8 +510,9 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     if (!user) {
       // Auth still hydrating — don't navigate yet; resolved state will update
       if (!isAuthResolved) return;
+      const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
       notify.info("Please login to save favorites");
-      navigateTo(ROUTES.LOGIN);
+      void router.push(buildLoginUrl(returnTo));
       return;
     }
 
@@ -575,6 +576,19 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
       notify.error("Failed to share. Please try again.");
     }
   };
+
+  const handleReport = useCallback(() => {
+    if (!user) {
+      if (!isAuthResolved) return;
+
+      const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      notify.info("Please login to report this listing");
+      void router.push(buildLoginUrl(returnTo));
+      return;
+    }
+
+    setShowReportDialog(true);
+  }, [isAuthResolved, router, user]);
 
   return (
     <ListingDetailShell
@@ -669,7 +683,7 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
                     onMarkSold={handleMarkSoldClick}
                     onPromote={handlePromote}
                     onViewAnalytics={handleViewAnalytics}
-                    onReport={() => setShowReportDialog(true)}
+                    onReport={handleReport}
                   />
                 </div>
 

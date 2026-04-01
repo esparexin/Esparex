@@ -26,10 +26,40 @@ import { useRouter } from "next/navigation";
 import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 import { API_ROUTES } from "@/lib/api/routes";
 
+type SparePartSubmitPayload = {
+    title: string;
+    categoryId: string;
+    brandId?: string;
+    sparePartTypeId: string;
+    price: number;
+    description: string;
+    images: string[];
+    location?: PostSparePartFormValues["location"];
+};
+
 export default function PostSparePartForm({ editSparePartId }: { editSparePartId?: string }) {
     const isEditMode = !!editSparePartId;
     const router = useRouter();
     const [submittedSparePart, setSubmittedSparePart] = React.useState(false);
+
+    const buildSparePartCreatePayload = React.useCallback((payload: SparePartSubmitPayload, fallbackLocationId?: string) => ({
+        title: payload.title,
+        categoryId: payload.categoryId,
+        brandId: payload.brandId || undefined,
+        sparePartId: payload.sparePartTypeId,
+        price: payload.price,
+        description: payload.description,
+        images: payload.images,
+        location: payload.location,
+        locationId: (payload.location as { locationId?: string } | undefined)?.locationId || fallbackLocationId,
+    }), []);
+
+    const buildSparePartEditPayload = React.useCallback((payload: SparePartSubmitPayload) => ({
+        title: payload.title,
+        description: payload.description,
+        price: payload.price,
+        images: payload.images,
+    }), []);
 
     const form = useForm<PostSparePartFormValues>({
         resolver: zodResolver(PostSparePartFormSchema),
@@ -121,21 +151,11 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         partialSchema: EditPostSparePartFormSchema,
         submitFn: async (payload) => {
             if (isEditMode && editSparePartId) {
-                return updateListing(editSparePartId, {
-                    title: payload.title,
-                    description: payload.description,
-                    price: payload.price,
-                    images: payload.images,
-                }, {
+                return updateListing(editSparePartId, buildSparePartEditPayload(payload), {
                     endpoint: API_ROUTES.USER.SPARE_PART_LISTING_DETAIL(String(editSparePartId)),
                 });
             }
-            return createListing({
-                ...payload,
-                sparePartId: payload.sparePartTypeId,
-                condition: "new",
-                locationId: (payload.location as any)?.locationId || businessData?.location?.locationId,
-            }, {
+            return createListing(buildSparePartCreatePayload(payload, businessData?.location?.locationId), {
                 endpoint: API_ROUTES.USER.SPARE_PART_LISTINGS,
             });
         },
@@ -227,7 +247,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                                         onClick={() => setValue("sparePartTypeId", id, { shouldValidate: true, shouldDirty: true })}
                                         disabled={isEditMode}
                                         className={cn(
-                                            "rounded-xl border px-2 py-2.5 text-sm font-semibold transition-all",
+                                            "rounded-xl border px-2 py-3 text-sm font-semibold transition-all",
                                             selected
                                                 ? "bg-primary border-primary text-white shadow-sm"
                                                 : "bg-white border-slate-100 text-slate-700 hover:border-slate-200",
@@ -264,6 +284,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                 registerProps={register("title")}
                 placeholder="e.g. iPhone 14 OEM Display Screen"
                 valueLength={(watch("title") || "").length}
+                maxLength={120}
             />
 
             <ListingPriceField

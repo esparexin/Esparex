@@ -41,7 +41,7 @@ export function PlansTab({
                 {plansToDisplay
                     .filter((p) => isProfilePlanType(p.type) && p.type === type)
                     .map((plan) => (
-                    <Card key={plan.id} className={plan.popular ? `border-2 ${colorClass} relative` : ""}>
+                    <Card key={plan.id} className={plan.popular ? `border-2 ${colorClass} relative gap-0` : "gap-0"}>
                         {plan.popular && (
                             <Badge className={`absolute -top-2 left-1/2 transform -translate-x-1/2 bg-${colorClass.split('-')[1]}-600 text-xs text-white`}>
                                 Popular
@@ -63,7 +63,7 @@ export function PlansTab({
                                     setSelectedPlan(plan.id);
                                     setShowPlanDialog(true);
                                 }}
-                                className={`w-full ${type === 'Alert Slots' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'} text-white h-10 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95`}
+                                className={`w-full ${type === 'Alert Slots' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'} text-white h-11 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95`}
                             >
                                 Buy Now
                             </Button>
@@ -83,11 +83,11 @@ export function PlansTab({
                 <CardContent className="p-8 relative z-10">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                         <div>
-                            <h2 className="text-3xl font-bold flex items-center gap-3 text-white">
-                                <Crown className="h-8 w-8 text-amber-400 fill-amber-400" />
+                            <h2 className="text-xl font-bold flex items-center gap-3 text-white">
+                                <Crown className="h-6 w-6 text-amber-400 fill-amber-400" />
                                 Plans & Boosting
                             </h2>
-                            <p className="text-blue-100 mt-2 text-lg">
+                            <p className="text-blue-100 mt-2 text-sm">
                                 Reach 10x more buyers and sell items faster
                             </p>
                         </div>

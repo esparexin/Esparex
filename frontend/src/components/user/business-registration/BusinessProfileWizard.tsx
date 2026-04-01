@@ -148,7 +148,7 @@ export function BusinessProfileWizard({
                             variant="ghost"
                             size="sm"
                             onClick={onHeaderBack}
-                            className="h-9 rounded-full px-3 text-slate-600 hover:bg-slate-100"
+                            className="h-11 rounded-full px-3 text-slate-600 hover:bg-slate-100"
                         >
                             <ArrowLeft className="mr-1.5 h-4 w-4" />
                             {wizardVariant === "registration" ? "Exit setup" : "Close"}

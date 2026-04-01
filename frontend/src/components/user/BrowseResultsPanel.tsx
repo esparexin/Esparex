@@ -44,7 +44,7 @@ function GridSkeleton() {
     <div className="grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 8 }).map((_, index) => (
         <div key={index} className="space-y-3">
-          <Skeleton className="aspect-video w-full rounded-xl" />
+          <Skeleton className="aspect-square w-full rounded-xl" />
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
         </div>
@@ -78,7 +78,7 @@ export function BrowseResultsPanel<TItem>({
     Boolean(VirtualizedListComponent) && items.length > virtualizationThreshold;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8 space-y-4">
+    <div className="mx-auto max-w-7xl px-4 pt-3 pb-8 md:px-6 lg:px-8 space-y-4">
       <SearchResultsHeader
         total={loading && items.length === 0 ? 0 : total}
         sort={sort}

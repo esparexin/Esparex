@@ -30,6 +30,22 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
     const router = useRouter();
     const [submittedService, setSubmittedService] = React.useState(false);
 
+    const buildServiceCreatePayload = React.useCallback((payload: ServiceListingFormData) => {
+        const { price, ...rest } = payload;
+        return {
+            ...rest,
+            priceMin: price,
+        };
+    }, []);
+
+    const buildServiceEditPayload = React.useCallback((payload: ServiceListingFormData) => ({
+        title: payload.title,
+        description: payload.description,
+        images: payload.images,
+        serviceTypeIds: payload.serviceTypeIds,
+        priceMin: payload.price,
+    }), []);
+
     const form = useForm<ServiceListingFormData>({
         resolver: zodResolver(ServiceListingPayloadSchema),
         mode: "all",
@@ -165,11 +181,11 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         schema: ServiceListingPayloadSchema,
         submitFn: async (payload) => {
             if (isEditMode && editServiceId) {
-                return updateListing(editServiceId, payload, {
+                return updateListing(editServiceId, buildServiceEditPayload(payload), {
                     endpoint: API_ROUTES.USER.SERVICE_DETAIL(editServiceId),
                 });
             }
-            return createListing(payload, {
+            return createListing(buildServiceCreatePayload(payload), {
                 endpoint: API_ROUTES.USER.SERVICES,
             });
         },
@@ -265,7 +281,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                                             type="button"
                                             onClick={() => toggleServiceType(typeId)}
                                             className={cn(
-                                                "rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition-all",
+                                                "rounded-xl border px-3 py-3 text-left text-sm font-semibold transition-all",
                                                 selected
                                                     ? "bg-primary border-primary text-white shadow-sm"
                                                     : "bg-white border-slate-100 text-slate-700 hover:border-slate-200"
@@ -303,6 +319,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                 registerProps={register("title")}
                 placeholder="e.g. iPhone Screen Replacement"
                 valueLength={titleVal.length}
+                maxLength={100}
             />
 
             <ListingPriceField

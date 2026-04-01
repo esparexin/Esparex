@@ -68,7 +68,7 @@ export function ListingImagesField({
                                 <button
                                     type="button"
                                     onClick={() => onRemove(img.id)}
-                                    className="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                                    className="absolute top-1 right-1 w-10 h-10 sm:w-7 sm:h-7 bg-black/60 text-white rounded-full flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
@@ -103,7 +103,7 @@ export function ListingLocationField({
         <Field label="Listing Location" error={error}>
             <div className="space-y-2">
                 {display ? (
-                    <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
+                    <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
                         <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                         <span className="truncate">{display}</span>
                         <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-500">
@@ -113,7 +113,7 @@ export function ListingLocationField({
                 ) : (
                     placeholder
                         ? (
-                            <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
+                            <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
                                 <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                                 <span className="truncate">{placeholder}</span>
                                 <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-500">
@@ -146,6 +146,7 @@ export function ListingTitleField({ label, error, registerProps, placeholder, va
                 <Input
                     {...registerProps}
                     placeholder={placeholder}
+                    maxLength={maxLength}
                     className="pr-16"
                 />
                 <span className={cn(
@@ -203,6 +204,7 @@ export function ListingDescriptionField({ label = "Description", error, register
                 <Textarea
                     {...registerProps}
                     placeholder={placeholder}
+                    maxLength={maxLength}
                     className="min-h-[132px] pb-6"
                 />
                 <span className={cn(
@@ -236,7 +238,7 @@ export function CategorySelectorGrid({
     return (
         <div className="space-y-1.5">
             <div className={cn(
-                "grid grid-cols-4 gap-2 rounded-xl p-1",
+                "grid grid-cols-3 sm:grid-cols-4 gap-2 rounded-xl p-1",
                 error ? "ring-2 ring-red-100 bg-red-50/30" : ""
             )}>
             {categories.map((cat) => {

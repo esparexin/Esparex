@@ -121,9 +121,9 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Main Footer Content */}
-                <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-10 mb-6 md:mb-10">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-10 mb-6 md:mb-10">
                     {/* Brand & Social */}
-                    <div className="space-y-4 text-center md:text-left col-span-3 md:col-span-1 order-last md:order-first">
+                    <div className="space-y-4 text-center md:text-left col-span-2 md:col-span-1 order-last md:order-first">
                         <div className="flex items-center gap-3 justify-center md:justify-start">
                             <Link href="/" className="flex items-center gap-2">
                                 <div className="h-8 w-8 rounded-lg bg-green-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">E</div>
@@ -138,7 +138,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                                 <button
                                     key={i}
                                     className={cn(
-                                        "transition-colors",
+                                        "h-11 w-11 flex items-center justify-center rounded-full transition-colors",
                                         isDark ? "text-slate-500 hover:text-white" : "text-slate-400 hover:text-green-600"
                                     )}
                                 >

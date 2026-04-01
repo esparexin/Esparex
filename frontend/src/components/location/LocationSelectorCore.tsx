@@ -252,7 +252,7 @@ export default function LocationSelectorCore({
                                         <button
                                             key={`fallback-${loc.id || index}`}
                                             onMouseDown={(e) => { e.preventDefault(); void handleSelect(loc); }}
-                                            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-accent text-left text-sm"
+                                            className="flex items-center gap-2 w-full px-3 py-3 rounded-xl hover:bg-accent text-left text-sm"
                                         >
                                             <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                                             <span>{normalizeLocationName(loc.display || loc.name || loc.city)}</span>
@@ -269,7 +269,7 @@ export default function LocationSelectorCore({
                                 key={`loc-${loc.id || index}`}
                                 onMouseDown={(e) => { e.preventDefault(); void handleSelect(loc); }}
                                 className={cn(
-                                    "flex items-center gap-3 w-full px-4 py-3 text-left transition-colors",
+                                    "flex items-center gap-3 w-full px-4 py-3 text-left transition-colors rounded-xl",
                                     "hover:bg-accent cursor-pointer",
                                     selectedIndex === index && "bg-accent"
                                 )}
@@ -298,7 +298,7 @@ export default function LocationSelectorCore({
                             <button
                                 key={`popular-${item.id || item.name || index}`}
                                 onMouseDown={(e) => { e.preventDefault(); void handleSelect(item); }}
-                                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg hover:bg-accent text-left"
+                                className="flex items-center gap-3 w-full px-3 py-3 rounded-xl hover:bg-accent text-left"
                             >
                                 <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                                 <span className="text-sm">{normalizeLocationName(item.city)}</span>
@@ -355,7 +355,7 @@ export default function LocationSelectorCore({
                 <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                     {(searchApi.isSearching || searchApi.isDetecting) && <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />}
                     {hasSelection && !disabled && (
-                        <button type="button" onClick={handleClear} className="p-1 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground" title="Change Location">
+                        <button type="button" onClick={handleClear} className="flex items-center px-2.5 py-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground" title="Change Location">
                             <span className="text-xs font-medium underline mr-1">Change</span>
                         </button>
                     )}
@@ -367,7 +367,7 @@ export default function LocationSelectorCore({
                     <div className="fixed inset-0 z-[9998] bg-transparent" onMouseDown={() => { setIsOpen(false); if (!hasSelection && query.length < 2) setQuery(""); }} />
                     <div ref={dropdownRef} style={dropdownStyle} className="bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
                     <div className="p-2 border-b">
-                        <Button variant="ghost" className="w-full justify-start text-muted-foreground h-10 px-3 font-normal" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>
+                        <Button variant="ghost" className="w-full justify-start text-muted-foreground h-11 px-3 font-normal" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>
                             <Target className={`mr-2 h-4 w-4 ${searchApi.isDetecting ? "animate-spin text-primary" : ""}`} />
                             {searchApi.isDetecting ? "Detecting location..." : "Use Current Location"}
                         </Button>
@@ -375,7 +375,7 @@ export default function LocationSelectorCore({
                             <div className="mt-2 space-y-2 px-1">
                                 <p className="text-xs text-destructive">{searchApi.detectFeedback}</p>
                                 {searchApi.showApproximateFallback && (
-                                    <Button type="button" variant="outline" size="sm" className="w-full justify-start h-8 px-2 text-xs" disabled={searchApi.isDetecting} onClick={() => searchApi.handleApproximateDetect(() => setIsOpen(false))}>
+                                    <Button type="button" variant="outline" size="sm" className="w-full justify-start h-11 px-2 text-xs" disabled={searchApi.isDetecting} onClick={() => searchApi.handleApproximateDetect(() => setIsOpen(false))}>
                                         <MapPin className="mr-2 h-3.5 w-3.5" /> Use Approximate Location
                                     </Button>
                                 )}

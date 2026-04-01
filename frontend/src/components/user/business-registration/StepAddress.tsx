@@ -310,7 +310,7 @@ export function StepAddress({
                     type="button"
                     variant="outline"
                     onClick={() => setShowLandmark(true)}
-                    className="h-10 w-full rounded-xl border-dashed border-slate-300 text-slate-600 hover:bg-slate-50"
+                    className="h-11 w-full rounded-xl border-dashed border-slate-300 text-slate-600 hover:bg-slate-50"
                 >
                     Add landmark (optional)
                 </Button>

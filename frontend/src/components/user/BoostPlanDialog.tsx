@@ -283,9 +283,9 @@ export function BoostPlanDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" className="h-11" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button
-            className="bg-indigo-600 hover:bg-indigo-700 gap-2"
+            className="h-11 bg-indigo-600 hover:bg-indigo-700 gap-2"
             onClick={handleUseCredits}
             disabled={isProcessing || !selectedPlan}
           >
@@ -293,7 +293,7 @@ export function BoostPlanDialog({
             Use Wallet Credits
           </Button>
           <Button
-            className="bg-green-600 hover:bg-green-700 gap-2"
+            className="h-11 bg-green-600 hover:bg-green-700 gap-2"
             onClick={handlePurchase}
             disabled={isProcessing || !selectedPlan}
           >

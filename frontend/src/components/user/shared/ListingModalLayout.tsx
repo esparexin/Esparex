@@ -39,7 +39,7 @@ export function ListingModalLayout({ title, onClose, children }: ListingModalLay
                                 type="button"
                                 onClick={onClose}
                                 aria-label="Close"
-                                className="h-9 w-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                                className="h-11 w-11 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>

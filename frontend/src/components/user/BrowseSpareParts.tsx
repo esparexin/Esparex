@@ -86,8 +86,8 @@ export function BrowseSpareParts({
       fetchPage={(filters) => getAdsPage(filters, { endpoint: API_ROUTES.USER.SPARE_PART_LISTINGS })}
       searchAriaLabel="Search spare parts"
       searchPlaceholder="Search spare parts..."
-      inputClassName="pl-9 h-10 rounded-xl"
-      selectTriggerClassName="w-[160px] h-10 rounded-xl"
+      inputClassName="pl-9 h-11 rounded-xl"
+      selectTriggerClassName="flex-1 sm:flex-none sm:w-[160px] h-11 rounded-xl"
       emptyTitle="No spare parts found"
       getEmptyDescription={(searchQuery) =>
         searchQuery ? `No spare parts matching "${searchQuery}".` : "No spare parts available in this area yet."

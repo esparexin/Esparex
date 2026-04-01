@@ -45,7 +45,7 @@ function ShopImageTile({
                     size="icon"
                     variant="secondary"
                     onClick={onRemove}
-                    className="h-8 w-8 rounded-full bg-white/90 text-slate-700 shadow-sm hover:bg-white"
+                    className="h-11 w-11 rounded-full bg-white/90 text-slate-700 shadow-sm hover:bg-white"
                 >
                     <X className="h-4 w-4" />
                 </Button>

@@ -54,19 +54,19 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                     key={item.id}
                     href={href}
                     className={cn(
-                        "flex flex-col items-center justify-center w-full h-full space-y-1",
-                        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                        "flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors",
+                        isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
                     )}
                 >
-                    <Icon className={cn("w-6 h-6", isActive && "fill-current")} />
-                    <span className="text-[10px] font-medium">{item.label}</span>
+                    <Icon className={cn("w-5 h-5", isActive && "fill-current")} />
+                    <span className={cn("text-[11px] font-semibold", isActive ? "text-blue-600" : "text-slate-400")}>{item.label}</span>
                 </Link>
             );
         });
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 pb-safe">
-            <div className="flex justify-around items-center h-16">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 z-50 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+            <div className="flex justify-around items-center h-[60px]">
                 {/* Left nav items */}
                 {renderNavItems(leftItems)}
 
@@ -75,24 +75,24 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                     onClick={handlePostAdClick}
                     disabled={!isBackendUp}
                     className={cn(
-                        "flex flex-col items-center justify-center w-full h-full space-y-1",
+                        "flex flex-col items-center justify-center w-full h-full space-y-1 -mt-5",
                         !isBackendUp && "cursor-not-allowed opacity-50"
                     )}
                 >
                     <div
                         className={cn(
-                            "rounded-full p-1 shadow-sm transition-transform",
+                            "rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-transform active:scale-95",
                             isBackendUp
-                                ? "bg-primary text-primary-foreground hover:scale-105"
+                                ? "bg-blue-600 text-white shadow-blue-200"
                                 : "bg-muted text-muted-foreground"
                         )}
                     >
-                        <PlusCircle className="w-5 h-5" />
+                        <PlusCircle className="w-6 h-6" />
                     </div>
                     <span
                         className={cn(
-                            "text-[10px] font-medium",
-                            isBackendUp ? "text-primary" : "text-muted-foreground"
+                            "text-[11px] font-semibold",
+                            isBackendUp ? "text-blue-600" : "text-muted-foreground"
                         )}
                     >
                         Post

@@ -55,14 +55,14 @@ export function AdSellerCard({
     const renderAvatar = () => {
         if (ad.isBusiness) {
             return (
-                <div className={`h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center flex-shrink-0 shadow-sm ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
-                    <Building2 className="h-7 w-7 text-white" />
+                <div className={`h-12 w-12 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-100 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
+                    <Building2 className="h-6 w-6 text-white" />
                 </div>
             );
         }
         return (
-            <div className={`h-14 w-14 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 shadow-sm ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
-                <span className="font-bold text-slate-600 text-lg">
+            <div className={`h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center flex-shrink-0 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
+                <span className="font-bold text-slate-600 text-base">
                     {ad.sellerName?.charAt(0) || sellerDisplayName.charAt(0) || 'E'}
                 </span>
             </div>
@@ -70,8 +70,8 @@ export function AdSellerCard({
     };
 
     return (
-        <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-[2rem] border border-slate-100/50">
-            <CardContent className="p-6 space-y-5">
+        <Card className="border-none shadow-sm md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-none md:rounded-[2rem] border-b border-slate-100 md:border-slate-100/50">
+            <CardContent className="p-4 md:p-6 space-y-4 md:space-y-5">
                 <SellerIdentityPanel
                     href={sellerProfileHref}
                     className={panelClassName}
@@ -89,11 +89,11 @@ export function AdSellerCard({
                 />
 
                 {showContactPanel && (
-                    <div className="grid gap-3">
+                    <div className="grid gap-2.5">
                         {showInlineChat && (
                             <Button
                                 onClick={onChat}
-                                className="hidden md:flex w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold gap-2 shadow-lg shadow-green-200"
+                                className="hidden md:flex w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all active:scale-[0.98]"
                             >
                                 <MessageCircle className="h-5 w-5" />
                                 Chat with Seller
@@ -104,7 +104,7 @@ export function AdSellerCard({
                                 onClick={onRevealPhone}
                                 variant="outline"
                                 disabled={isPhoneLoading}
-                                className="w-full h-12 rounded-xl font-semibold gap-2"
+                                className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-slate-700 hover:bg-slate-50"
                             >
                                 <Phone className="h-4 w-4" />
                                 {revealedPhone
@@ -113,9 +113,9 @@ export function AdSellerCard({
                             </Button>
                         )}
                         {(revealedPhone || phoneMessage) && (
-                            <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                            <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
                                 {revealedPhone && (
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm font-bold text-blue-700">
                                         {revealedPhone}
                                     </p>
                                 )}
@@ -128,13 +128,13 @@ export function AdSellerCard({
                 )}
 
                 {isChatLocked && (
-                    <div className="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-slate-200 flex items-center justify-center flex-shrink-0">
-                            <MessageSquareOff className="h-5 w-5 text-slate-500" />
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-xl bg-slate-200 flex items-center justify-center flex-shrink-0">
+                            <MessageSquareOff className="h-4 w-4 text-slate-400" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-slate-700">Chat Locked</p>
-                            <p className="text-[10px] text-slate-400">This listing is no longer accepting new messages.</p>
+                            <p className="text-xs font-bold text-slate-600">Chat Locked</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">This listing is no longer accepting new messages.</p>
                         </div>
                     </div>
                 )}

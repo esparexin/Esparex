@@ -82,7 +82,7 @@ export const AdCardList = memo(function AdCardList({
             <div className="flex-1 flex flex-col justify-between py-1">
               <div>
                 <div className="flex justify-between items-start gap-2">
-                  <AdCardPriceDisplay price={ad.price} className="text-xl" />
+                  <AdCardPriceDisplay price={ad.price} className="text-base md:text-xl" />
                   {onToggleSave && (
                     <Button
                       size="icon"

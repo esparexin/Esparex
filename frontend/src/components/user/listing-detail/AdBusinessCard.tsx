@@ -25,27 +25,25 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
     const locationLabel = [businessCity, businessState].filter(Boolean).join(", ");
 
     return (
-        <Card className="bg-white border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] overflow-hidden border border-slate-100/50">
-            <CardContent className="p-6 space-y-5">
+        <Card className="bg-white border-none shadow-none md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-none md:rounded-[2rem] overflow-hidden border-b md:border border-slate-100">
+            <CardContent className="p-4 md:p-6 space-y-4">
                 {/* Header */}
-                <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-100">
-                        <Building2 className="h-7 w-7 text-white" />
+                <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-100">
+                        <Building2 className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                            <h3 className="font-bold text-slate-900 truncate">{businessName}</h3>
-                            <Badge className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md border-none">
+                            <h3 className="font-bold text-slate-900 truncate text-sm">{businessName}</h3>
+                            <Badge className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md border-none flex-shrink-0">
                                 VERIFIED
                             </Badge>
                         </div>
-                        <p className="text-xs text-slate-400 font-medium">
-                            {businessType}
-                        </p>
+                        <p className="text-xs text-slate-400 font-medium">{businessType}</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 text-[11px]">
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
                     {[
                         businessCategory ? { icon: Store, label: "Category", value: businessCategory } : null,
                         locationLabel ? { icon: MapPin, label: "Location", value: locationLabel } : null,
@@ -54,23 +52,23 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                         if (!detail) return null;
                         const Icon = detail.icon;
                         return (
-                            <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/50 border border-slate-100/50">
-                                <div className="h-8 w-8 rounded-xl bg-white flex items-center justify-center shadow-sm shrink-0">
-                                    <Icon className="h-4 w-4 text-blue-600" />
+                            <div key={idx} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <div className="h-7 w-7 rounded-lg bg-white flex items-center justify-center shadow-sm shrink-0">
+                                    <Icon className="h-3.5 w-3.5 text-blue-600" />
                                 </div>
-                                <div>
-                                    <p className="text-[9px] uppercase font-bold text-slate-300 tracking-wider">{detail.label}</p>
-                                    <p className="font-bold text-slate-700">{detail.value}</p>
+                                <div className="min-w-0">
+                                    <p className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">{detail.label}</p>
+                                    <p className="font-bold text-slate-700 truncate">{detail.value}</p>
                                 </div>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* View All Products Button */}
+                {/* Visit Button */}
                 <Button
                     variant="outline"
-                    className="w-full gap-2 bg-slate-900 hover:bg-slate-800 border-none text-white text-sm h-12 rounded-2xl font-bold transition-all active:scale-95 shadow-xl shadow-slate-200"
+                    className="w-full gap-2 bg-blue-600 hover:bg-blue-700 border-none text-white text-sm h-11 rounded-xl font-semibold transition-all active:scale-95 shadow-md shadow-blue-100"
                     onClick={() => {
                         if (ad.businessId) {
                             navigateTo(ROUTES.PUBLIC_PROFILE, undefined, undefined, ad.businessId);
@@ -84,13 +82,13 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                 </Button>
 
                 {/* Trust Indicators */}
-                <div className="flex items-center justify-between px-2 pt-2">
+                <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-green-500 animate-pulse" />
+                        <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Partner</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <span className="text-[10px] font-black text-slate-900">100%</span>
+                        <span className="text-[10px] font-black text-slate-700">100%</span>
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verified</span>
                     </div>
                 </div>
