@@ -72,11 +72,9 @@ export const getServices = async (req: Request, res: Response) => {
             success: true,
             data: mappedData as unknown as Service[],
             pagination: {
+                ...result.pagination,
                 page: result.pagination.page || 1,
                 limit: result.pagination.limit || 20,
-                total: result.pagination.total,
-                hasMore: result.pagination.hasMore,
-                cursor: result.pagination.cursor
             }
         });
 

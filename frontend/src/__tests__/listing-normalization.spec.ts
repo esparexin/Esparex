@@ -37,4 +37,25 @@ describe("normalizeListing", () => {
         expect(listing.verified).toBe(true);
         expect(listing.views).toBe(24);
     });
+
+    it("preserves explicit sellerName from detail payloads for individual sellers", () => {
+        const listing = normalizeListing({
+            id: "507f1f77bcf86cd799439011",
+            title: "Pixel 9",
+            price: 700,
+            description: "Well maintained device",
+            images: ["https://example.com/a.jpg"],
+            sellerType: "user",
+            sellerName: "Rakesh Kumar",
+            sellerId: { _id: "507f1f77bcf86cd799439016", name: "Rakesh Kumar", isVerified: true },
+            location: { city: "Bengaluru", state: "Karnataka" },
+            status: "live",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        });
+
+        expect(listing.sellerName).toBe("Rakesh Kumar");
+        expect(listing.isBusiness).toBe(false);
+        expect(listing.verified).toBe(true);
+    });
 });

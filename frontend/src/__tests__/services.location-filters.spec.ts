@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getAdsPage as getServicesPage } from "@/lib/api/user/listings";
 import { apiClient } from "@/lib/api/client";
 
@@ -13,7 +13,12 @@ describe("Services location filters regression", () => {
         vi.clearAllMocks();
     });
 
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
     it("serializes locationId + level + radiusKm into the request query", async () => {
+        vi.stubGlobal("window", {});
         vi.mocked(apiClient.get).mockResolvedValueOnce({
             success: true,
             data: [],

@@ -36,7 +36,7 @@ const ACTIONS = [
  *  - Hidden on the post pages themselves (no need to FAB from within the form)
  *  - Collapses automatically on route change
  *  - Sits at z-40, below modals/drawers (z-50) but above page content
- *  - bottom-20 on mobile to clear MobileBottomNav (h-16 + gap)
+ *  - bottom offset tracks the mobile footer nav height on small screens
  *  - bottom-8 on desktop
  */
 export function BusinessPostFAB() {
@@ -66,7 +66,7 @@ export function BusinessPostFAB() {
 
     return (
         <div
-            className="fixed bottom-20 right-4 md:bottom-8 md:right-6 z-40 flex flex-col items-end gap-3"
+            className="fixed right-4 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-8 md:right-6 z-40 flex flex-col items-end gap-3"
             aria-label="Business posting actions"
         >
             {/* Sub-actions — stagger in from bottom */}

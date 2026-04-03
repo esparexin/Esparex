@@ -991,6 +991,7 @@ export const getAds = async (
                 }
                 : {
                     total,
+                    hasMore: total > page * limit,
                     totalPages: Math.ceil(total / limit),
                 }),
         }

@@ -20,6 +20,10 @@ interface ServiceLocationFilterShape extends ProximityFilterShape {
   location?: string;
 }
 
+interface RequestedLocationFilterShape extends ProximityFilterShape {
+  location?: string;
+}
+
 interface BuildBaseBrowseFilterArgs {
   page: number;
   pageSize: number;
@@ -47,6 +51,38 @@ export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
   }
 
   return filters;
+}
+
+export function applyRequestedLocationFilters<TFilter extends RequestedLocationFilterShape>({
+  filters,
+  urlLocationId,
+  urlLocationLabel,
+  radiusKm,
+}: {
+  filters: TFilter;
+  urlLocationId?: string;
+  urlLocationLabel?: string;
+  radiusKm?: number;
+}) {
+  const hasFiniteRadius = typeof radiusKm === "number" && Number.isFinite(radiusKm);
+
+  if (urlLocationId) {
+    filters.locationId = urlLocationId;
+    if (hasFiniteRadius) {
+      filters.radiusKm = radiusKm;
+    }
+    return true;
+  }
+
+  if (urlLocationLabel) {
+    filters.location = urlLocationLabel;
+    if (hasFiniteRadius) {
+      filters.radiusKm = radiusKm;
+    }
+    return true;
+  }
+
+  return false;
 }
 
 export function applyProximityLocationFilters<TFilter extends ProximityFilterShape>({

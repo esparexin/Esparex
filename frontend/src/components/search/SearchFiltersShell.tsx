@@ -19,6 +19,8 @@ const searchFiltersDesktopShellClassName =
 export type SearchFiltersShellProps = SearchFiltersPanelSharedProps & {
     setSelectedCategory: (val: string | null) => void;
     categories: Category[];
+    activeFilterCount?: number;
+    desktopShellClassName?: string;
 };
 
 function SearchFiltersDesktopShell({
@@ -58,7 +60,9 @@ export function SearchFiltersShell({
     setRadiusKm,
     dynamicSpecificFilters = [],
     onApply,
-    onReset
+    onReset,
+    activeFilterCount = 0,
+    desktopShellClassName,
 }: SearchFiltersShellProps) {
     const isMobile = useIsMobile();
     const [isHydrated, setIsHydrated] = useState(false);
@@ -84,7 +88,7 @@ export function SearchFiltersShell({
     return (
         <>
             {!isHydrated ? (
-                <SearchFiltersDesktopShell className={`hidden lg:block ${searchFiltersDesktopShellClassName}`}>
+                <SearchFiltersDesktopShell className={`hidden lg:block ${desktopShellClassName ?? searchFiltersDesktopShellClassName}`}>
                     <div className="space-y-3">
                         <div className="h-40 rounded-xl bg-slate-50" />
                         <div className="h-32 rounded-xl bg-slate-50" />
@@ -100,7 +104,12 @@ export function SearchFiltersShell({
                         trigger={
                             <Button variant="outline" className="h-11 px-4 gap-2 text-slate-700 border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none">
                                 <SlidersHorizontal className="size-4 text-slate-500" />
-                                Filters
+                                <span>Filters</span>
+                                {activeFilterCount > 0 && (
+                                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
+                                        {activeFilterCount}
+                                    </span>
+                                )}
                             </Button>
                         }
                     >
@@ -131,7 +140,7 @@ export function SearchFiltersShell({
                     </Drawer>
                 </div>
             ) : (
-                <SearchFiltersDesktopShell>
+                <SearchFiltersDesktopShell className={desktopShellClassName ?? searchFiltersDesktopShellClassName}>
                     <SearchFiltersPanel
                         {...panelProps}
                         onApply={onApply}

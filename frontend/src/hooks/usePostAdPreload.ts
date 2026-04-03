@@ -2,11 +2,27 @@
 
 import { useEffect, useRef } from "react";
 import { getListingById, type Listing as Ad } from "@/lib/api/user/listings";
-import { normalizeOptionalObjectId, resolveCanonicalLocationId } from "@/lib/listings/locationUtils";
+import { resolveCanonicalLocationId, sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { TOAST_MESSAGES } from "@/config/toastMessages";
 import logger from "@/lib/logger";
 import { ListingImage } from "@/types/listing";
+
+const resolveStrictObjectId = (...values: unknown[]): string => {
+    for (const value of values) {
+        const sanitized = sanitizeMongoObjectId(value);
+        if (sanitized) return sanitized;
+        if (value && typeof value === "object") {
+            const record = value as Record<string, unknown>;
+            const nestedSanitized =
+                sanitizeMongoObjectId(record.id) ||
+                sanitizeMongoObjectId(record._id) ||
+                sanitizeMongoObjectId(record.value);
+            if (nestedSanitized) return nestedSanitized;
+        }
+    }
+    return "";
+};
 
 interface UsePostAdPreloadProps {
     editAdId?: string;
@@ -62,12 +78,10 @@ export function usePostAdPreload({
                     }
 
                     // 1. Resolve Category ID
-                    const catId = normalizeOptionalObjectId(
-                        (adData.category as any)?.id || 
-                        (adData.category as any)?._id || 
-                        (typeof adData.category === 'string' ? adData.category : undefined) ||
-                        adData.categoryId
-                    ) || "";
+                    const catId = resolveStrictObjectId(
+                        adData.categoryId,
+                        adData.category
+                    );
                     setValue("categoryId", catId);
                     setValue("category", catId);
 
@@ -113,7 +127,7 @@ export function usePostAdPreload({
                     // 6. Preload Spare Parts
                     if (Array.isArray(adData.spareParts)) {
                         const normalizedIds = adData.spareParts
-                            .map((part: any) => normalizeOptionalObjectId(part))
+                            .map((part: any) => sanitizeMongoObjectId(part))
                             .filter((partId: any): partId is string => Boolean(partId));
                         setSpareParts(normalizedIds);
                         setValue("spareParts", normalizedIds);

@@ -16,7 +16,6 @@ interface AdSellerCardProps {
     onRevealPhone?: () => void;
     isPhoneLoading?: boolean;
     revealedPhone?: string | null;
-    isPhoneMasked?: boolean;
     phoneMessage?: string | null;
 }
 
@@ -29,7 +28,6 @@ export function AdSellerCard({
     onRevealPhone,
     isPhoneLoading,
     revealedPhone,
-    isPhoneMasked,
     phoneMessage,
 }: AdSellerCardProps) {
     if (isOwner) return null;
@@ -49,8 +47,10 @@ export function AdSellerCard({
     }`;
     const showInlineChat = !isChatLocked && Boolean(onChat);
     const showInlinePhone = Boolean(onRevealPhone);
-    const showContactPanel =
-        showInlineChat || showInlinePhone || Boolean(revealedPhone) || Boolean(phoneMessage);
+    const showDesktopActions = showInlineChat || showInlinePhone;
+    const phoneButtonLabel = isPhoneLoading
+        ? "Loading..."
+        : (revealedPhone || "Show number");
 
     const renderAvatar = () => {
         if (ad.isBusiness) {
@@ -83,46 +83,39 @@ export function AdSellerCard({
                         </p>
                     }
                     badge={ad.isBusiness && ad.verified ? (
-                        <Badge className="bg-blue-600 text-white text-[9px] h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
+                        <Badge className="bg-blue-600 text-white text-[10px] h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
                     ) : undefined}
                     trailing={isInteractive ? <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" /> : undefined}
                 />
 
-                {showContactPanel && (
-                    <div className="grid gap-2.5">
-                        {showInlineChat && (
-                            <Button
-                                onClick={onChat}
-                                className="hidden md:flex w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all active:scale-[0.98]"
-                            >
-                                <MessageCircle className="h-5 w-5" />
-                                Chat with Seller
-                            </Button>
-                        )}
-                        {showInlinePhone && (
-                            <Button
-                                onClick={onRevealPhone}
-                                variant="outline"
-                                disabled={isPhoneLoading}
-                                className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-slate-700 hover:bg-slate-50"
-                            >
-                                <Phone className="h-4 w-4" />
-                                {revealedPhone
-                                    ? (isPhoneMasked ? "Phone preview" : "Call seller")
-                                    : (isPhoneLoading ? "Loading phone..." : "Show phone")}
-                            </Button>
-                        )}
-                        {(revealedPhone || phoneMessage) && (
-                            <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
-                                {revealedPhone && (
-                                    <p className="text-sm font-bold text-blue-700">
-                                        {revealedPhone}
-                                    </p>
-                                )}
-                                {phoneMessage && (
-                                    <p className="text-xs text-slate-500 mt-1">{phoneMessage}</p>
-                                )}
-                            </div>
+                {showDesktopActions && (
+                    <div className="hidden md:block space-y-2.5">
+                        <div className={`grid gap-2 ${showInlineChat && showInlinePhone ? "grid-cols-2" : "grid-cols-1"}`}>
+                            {showInlinePhone && (
+                                <Button
+                                    onClick={onRevealPhone}
+                                    variant="outline"
+                                    disabled={isPhoneLoading}
+                                    className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-slate-700 hover:bg-slate-50"
+                                >
+                                    <Phone className="h-4 w-4" />
+                                    <span className="min-w-0 truncate">{phoneButtonLabel}</span>
+                                </Button>
+                            )}
+                            {showInlineChat && (
+                                <Button
+                                    onClick={onChat}
+                                    className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all active:scale-[0.98]"
+                                >
+                                    <MessageCircle className="h-5 w-5" />
+                                    Chat
+                                </Button>
+                            )}
+                        </div>
+                        {phoneMessage && (
+                            <p className="px-1 text-xs leading-5 text-slate-500">
+                                {phoneMessage}
+                            </p>
                         )}
                     </div>
                 )}

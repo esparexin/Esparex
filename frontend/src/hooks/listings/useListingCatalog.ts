@@ -11,7 +11,7 @@ import { IconRegistry } from "@/icons/IconRegistry";
 import type { LucideIcon } from "lucide-react";
 import logger from "@/lib/logger";
 import { TOAST_MESSAGES } from "@/config/toastMessages";
-import { normalizeOptionalObjectId } from "@/lib/listings/locationUtils";
+import { normalizeOptionalObjectId, sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 import { useCategoriesQuery } from "@/hooks/queries/useCategoriesQuery";
 
 interface CategorySchemaType {
@@ -105,18 +105,25 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
     }, [categoriesError, onError, listingType]);
 
     const loadBrandsForCategory = useCallback(async (categoryId: string) => {
-        if (!categoryId) return;
-        setActiveCategoryId(categoryId);
+        const normalizedCategoryId = sanitizeMongoObjectId(categoryId);
+        if (!normalizedCategoryId) {
+            setActiveCategoryId("");
+            setBrandMap({});
+            setAvailableBrands([]);
+            setAvailableSizes([]);
+            return;
+        }
+        setActiveCategoryId(normalizedCategoryId);
         try {
             const { getBrands, getScreenSizes } = await import("@/lib/api/user/masterData");
-            const brandsData = await getBrands(categoryId);
+            const brandsData = await getBrands(normalizedCategoryId);
 
             const map: Record<string, Brand> = {};
             brandsData.forEach((b: Brand) => (map[b.name] = b));
             setBrandMap(map);
             setAvailableBrands(brandsData.map((b: Brand) => b.name));
 
-            const catObj = categoryMap[categoryId];
+            const catObj = categoryMap[normalizedCategoryId];
             const normalizedCategoryText = `${catObj?.slug ?? ""} ${catObj?.name ?? ""}`.toLowerCase();
             const shouldLoadScreenSizes =
                 Boolean(catObj?.hasScreenSizes) ||
@@ -124,13 +131,13 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
                 normalizedCategoryText.includes("monitor");
 
             if (shouldLoadScreenSizes) {
-                const sizes: ScreenSize[] = await getScreenSizes(categoryId);
+                const sizes: ScreenSize[] = await getScreenSizes(normalizedCategoryId);
                 setAvailableSizes(normalizeScreenSizeOptions(sizes));
             } else {
                 setAvailableSizes([]);
             }
         } catch (err) {
-            logger.error(`[Catalog] Failed to load brands for ${categoryId}:`, err);
+            logger.error(`[Catalog] Failed to load brands for ${normalizedCategoryId}:`, err);
             setAvailableBrands([]);
             setAvailableSizes([]);
             onError?.("Failed to load brands");
@@ -190,13 +197,17 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
     }, [onError]);
 
     const loadSparePartsForCategory = useCallback(async (categoryId: string) => {
-        if (!categoryId) return;
+        const normalizedCategoryId = sanitizeMongoObjectId(categoryId);
+        if (!normalizedCategoryId) {
+            setAvailableSpareParts([]);
+            return;
+        }
         setIsLoadingSpareParts(true);
         try {
             const { getSpareParts } = await import("@/lib/api/user/masterData");
             const resolvedListingType: ListingTypeValue =
                 listingType === "postservice" ? LISTING_TYPE.AD : categoryEnumToRecord(listingType);
-            const parts = await getSpareParts(categoryId, resolvedListingType);
+            const parts = await getSpareParts(normalizedCategoryId, resolvedListingType);
             setAvailableSpareParts(
                 parts
                     .map((part) => ({
@@ -206,7 +217,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
                     .filter((part) => typeof part.id === "string" && part.id.length > 0)
             );
         } catch (err) {
-            logger.error(`[Catalog] Failed to load spare parts for ${categoryId}:`, err);
+            logger.error(`[Catalog] Failed to load spare parts for ${normalizedCategoryId}:`, err);
             setAvailableSpareParts([]);
             onError?.("Failed to load spare parts");
         } finally {

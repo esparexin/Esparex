@@ -41,7 +41,7 @@ export const AdCardGrid = memo(function AdCardGrid({
   return (
     <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
       <Card
-        className={`overflow-hidden transition-all duration-300 group cursor-pointer border-0 bg-white shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 rounded-2xl ${
+        className={`overflow-hidden transition-all duration-300 group cursor-pointer border border-black bg-white shadow-sm hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 rounded-2xl ${
           ad.isSpotlight
             ? 'ring-1 ring-yellow-400/60 shadow-[0_4px_20px_rgba(234,179,8,0.12)]'
             : ''

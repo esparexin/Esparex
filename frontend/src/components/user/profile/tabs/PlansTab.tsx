@@ -63,7 +63,7 @@ export function PlansTab({
                                     setSelectedPlan(plan.id);
                                     setShowPlanDialog(true);
                                 }}
-                                className={`w-full ${type === 'Alert Slots' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'} text-white h-11 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95`}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95"
                             >
                                 Buy Now
                             </Button>

@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { type Ad } from "@/schemas/ad.schema";
+import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
 import { Wrench, Info } from "lucide-react";
 
 interface ListingDescriptionCardProps {
@@ -9,6 +10,7 @@ interface ListingDescriptionCardProps {
 
 export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardProps) {
     const isMobile = variant === "mobile";
+    const description = cleanupListingDescription(String(ad.description || ""));
 
     // Service/Part specific data
     const hasAttributes = ad.listingType === 'service' || ad.listingType === 'spare_part';
@@ -18,7 +20,7 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
             ? "md:hidden rounded-none border-x-0 border-t-0 border-b border-slate-100"
             : "rounded-none md:rounded-2xl hidden md:block border-slate-100"}
         >
-            <CardContent className={isMobile ? "p-4 space-y-4" : "p-3 md:p-6 space-y-4 md:space-y-6"}>
+            <CardContent className={isMobile ? "p-4 space-y-4" : "p-4 md:p-6 space-y-4 md:space-y-6"}>
                 {hasAttributes && (
                     <div className="grid grid-cols-2 gap-3 pb-4 border-b border-slate-100">
                         {!!ad.warranty && (
@@ -71,7 +73,7 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                         Description
                     </h3>
                     <div className={`text-slate-500 whitespace-pre-wrap leading-7 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
-                        {String(ad.description)}
+                        {description}
                     </div>
                 </div>
             </CardContent>

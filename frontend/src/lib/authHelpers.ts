@@ -65,3 +65,36 @@ export const buildAuthCallbackUrl = (
 
 export const buildLoginUrl = (callbackUrl: string): string =>
     `/login?callbackUrl=${encodeURIComponent(normalizeAuthCallbackUrl(callbackUrl))}`;
+
+const LOGOUT_REDIRECT_BYPASS_KEY = "esparex_logout_redirect_bypass";
+const LOGOUT_REDIRECT_BYPASS_PREFIXES = [
+    "/account",
+    "/business/edit",
+    "/edit-ad",
+    "/edit-service",
+    "/edit-spare-part",
+    "/post-ad",
+    "/post-service",
+    "/post-spare-part-listing",
+] as const;
+
+export const shouldUseLogoutRedirectBypass = (pathname?: string | null): boolean => {
+    if (!pathname) return false;
+    return LOGOUT_REDIRECT_BYPASS_PREFIXES.some((prefix) =>
+        pathname === prefix || pathname.startsWith(`${prefix}/`)
+    );
+};
+
+export const markLogoutRedirectBypass = () => {
+    if (typeof window === "undefined") return;
+    window.sessionStorage.setItem(LOGOUT_REDIRECT_BYPASS_KEY, "1");
+};
+
+export const consumeLogoutRedirectBypass = (): boolean => {
+    if (typeof window === "undefined") return false;
+    const shouldBypass = window.sessionStorage.getItem(LOGOUT_REDIRECT_BYPASS_KEY) === "1";
+    if (shouldBypass) {
+        window.sessionStorage.removeItem(LOGOUT_REDIRECT_BYPASS_KEY);
+    }
+    return shouldBypass;
+};

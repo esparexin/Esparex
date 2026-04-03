@@ -37,7 +37,6 @@ interface ListingDetailSidebarProps {
     onRevealPhone: () => void;
     isPhoneLoading: boolean;
     revealedPhone: string | null;
-    isPhoneMasked: boolean;
     phoneMessage: string | null;
     onEdit: () => void;
     onDelete: () => void;
@@ -59,7 +58,6 @@ export function ListingDetailSidebar({
     onRevealPhone,
     isPhoneLoading,
     revealedPhone,
-    isPhoneMasked,
     phoneMessage,
     onEdit,
     onDelete,
@@ -91,7 +89,6 @@ export function ListingDetailSidebar({
                 onRevealPhone={onRevealPhone}
                 isPhoneLoading={isPhoneLoading}
                 revealedPhone={revealedPhone}
-                isPhoneMasked={isPhoneMasked}
                 phoneMessage={phoneMessage}
             />
             {ctaPolicy.businessProfileSurface === "business-card" ? (

@@ -64,7 +64,7 @@ export function AdTitlePriceCard({
 
                     <h1 className="text-lg font-bold text-slate-900 leading-snug">{ad.title}</h1>
 
-                    <div className="text-3xl font-black text-blue-600 tracking-tight">
+                    <div className="text-3xl font-black text-slate-900 tracking-tight">
                         {formatPrice(ad.price)}
                     </div>
 
@@ -147,14 +147,14 @@ export function AdTitlePriceCard({
                 {/* Meta Info Grid */}
                 <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-[11px] text-slate-400 pt-5 border-t border-slate-50">
                     <div className="flex flex-col gap-1">
-                        <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Location</span>
+                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Location</span>
                         <div className="flex items-center gap-1.5 text-slate-600 font-medium">
                             <MapPin className="h-3 w-3 text-slate-400" />
                             <span className="truncate">{formatLocation(ad.location)}</span>
                         </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Posted</span>
+                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Posted</span>
                         <div className="flex items-center gap-1.5 text-slate-600 font-medium">
                             <Clock className="h-3 w-3 text-slate-400" />
                             <span className="truncate">{ad.time}</span>
@@ -162,7 +162,7 @@ export function AdTitlePriceCard({
                     </div>
                     {viewCount !== undefined && viewCount > 0 && (
                         <div className="flex flex-col gap-1 text-[11px]">
-                            <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Views</span>
+                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Views</span>
                             <div className="flex items-center gap-1.5 text-slate-600 font-medium">
                                 <Eye className="h-3 w-3 text-slate-400" />
                                 <span className="truncate">{viewCount.toLocaleString()} views</span>
@@ -170,7 +170,7 @@ export function AdTitlePriceCard({
                         </div>
                     )}
                     <div className="flex flex-col gap-1">
-                        <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Ad ID</span>
+                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Ad ID</span>
                         <div className="flex items-center gap-1.5 text-slate-600 font-medium">
                             <span className="truncate font-bold">#{ad.id}</span>
                         </div>

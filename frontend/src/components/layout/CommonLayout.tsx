@@ -10,7 +10,7 @@ import { UserAppProviders } from '@/components/providers/UserAppProviders';
 import { HeaderWrapper } from '@/app/HeaderWrapper';
 import { ClientChromeLoader } from '@/components/layout/ClientChromeLoader';
 import { ScrollSentinel } from '@/components/common/ScrollSentinel';
-import { isChatRoute } from '@/lib/mobile/chromePolicy';
+import { getMobileChromePolicy, isChatRoute } from '@/lib/mobile/chromePolicy';
 
 interface CommonLayoutProps {
     children: ReactNode;
@@ -29,6 +29,7 @@ export function CommonLayout({
 }: CommonLayoutProps) {
     const pathname = usePathname();
     const chatRoute = isChatRoute(pathname);
+    const hasMobileBottomNav = !chatRoute && getMobileChromePolicy(pathname).showMobileBottomNav;
     const header = suspenseHeader ? (
         <Suspense fallback={null}>
             <HeaderWrapper />
@@ -45,7 +46,7 @@ export function CommonLayout({
                     {!chatRoute && header}
                     <ClientChromeLoader apiUnavailable={false} />
                     <RouteScrollReset />
-                    <main className={chatRoute ? "flex-1 min-h-0" : "flex-1 pb-20 md:pb-0"}>
+                    <main className={chatRoute ? "flex-1 min-h-0" : hasMobileBottomNav ? "flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0" : "flex-1"}>
                         {children}
                     </main>
                     {!chatRoute && <BusinessPostFAB />}

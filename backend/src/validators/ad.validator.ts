@@ -35,7 +35,7 @@ export const createAdSchema = SharedAdPayloadSchema;
 /**
  * Update Ad Request Schema
  */
-export const updateAdSchema = SharedPartialAdPayloadSchema;
+export const updateAdSchema = SharedPartialAdPayloadSchema.passthrough();
 
 import { normalizeStatus } from '../../../shared/utils/statusNormalization';
 

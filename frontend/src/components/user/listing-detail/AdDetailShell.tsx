@@ -40,8 +40,8 @@ export function ListingDetailShell({
                 <p className="text-gray-500 max-w-md mb-6">
                     {notFoundMessage || "The listing you are looking for might have been removed, expired, or the link is incorrect."}
                 </p>
-                <Button onClick={() => void router.push(ROUTES.BROWSE)} variant="default">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+                <Button onClick={() => void router.push(ROUTES.BROWSE)} variant="default" className="h-11 gap-2">
+                    <ArrowLeft className="h-4 w-4" />
                     Browse All Listings
                 </Button>
             </div>
@@ -60,12 +60,12 @@ export function ListingDetailShell({
                     {error || "We encountered an unexpected error while loading this listing. Please try again."}
                 </p>
                 <div className="flex gap-3">
-                    <Button onClick={() => void router.push(ROUTES.HOME)} variant="outline">
+                    <Button onClick={() => void router.push(ROUTES.HOME)} variant="outline" className="h-11">
                         Go Home
                     </Button>
                     {onRetry && (
-                        <Button onClick={onRetry}>
-                            <RefreshCcw className="h-4 w-4 mr-2" />
+                        <Button onClick={onRetry} className="h-11 gap-2">
+                            <RefreshCcw className="h-4 w-4" />
                             Retry
                         </Button>
                     )}

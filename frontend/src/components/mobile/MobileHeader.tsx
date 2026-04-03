@@ -1,6 +1,6 @@
 "use client";
 import { Menu, MapPin, Search, LogIn, ChevronDown } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import LocationSelector from "@/components/location/LocationSelector";
 import { HeaderLocationPrompts } from "@/components/location/HeaderLocationPrompts";
@@ -10,10 +10,11 @@ import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider"
 import { useMounted } from "@/hooks/useMounted";
 
 import type { UserPage } from "@/lib/routeUtils";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
+import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 interface MobileHeaderProps {
     navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string) => void;
     isLoggedIn: boolean;
@@ -25,9 +26,20 @@ interface MobileHeaderProps {
 
 export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onShowLogin, onSearch }: MobileHeaderProps) {
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const { isOpen, setIsOpen } = useMobileNavDrawer();
     const isMounted = useMounted();
     const chromePolicy = getMobileChromePolicy(pathname);
+    const browseParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
+    const stickySearchLabel = useMemo(() => {
+        const trimmedQuery = browseParams.q?.trim();
+        if (trimmedQuery) return trimmedQuery;
+        return browseParams.type === "service"
+            ? "Browse services"
+            : browseParams.type === "spare_part"
+                ? "Browse spare parts"
+                : "Browse ads";
+    }, [browseParams.q, browseParams.type]);
 
     const {
         notificationsData,
@@ -54,7 +66,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
 
     return (
         <>
-            <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md shadow-[0_1px_12px_rgba(0,0,0,0.06)] md:hidden font-inter pt-[env(safe-area-inset-top)]">
+            <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md shadow-[0_1px_12px_rgba(0,0,0,0.06)] md:hidden font-inter pt-[env(safe-area-inset-top)] relative">
                 {/* 1. Top Location Bar (44px) */}
                 <div className="h-11 bg-slate-50/80 border-b border-slate-100 flex items-center px-4">
                     <button
@@ -91,11 +103,12 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                     isMounted={isMounted}
                     showLocationSelector={showLocationSelector}
                     setShowLocationSelector={setShowLocationSelector}
-                    firstVisitWrapperClassName="border-b bg-background px-3 py-3"
+                    firstVisitWrapperClassName="pointer-events-none absolute inset-x-0 top-full z-[60] px-3 pt-3"
+                    firstVisitPromptClassName="pointer-events-auto border-slate-200 bg-white/98 shadow-[0_18px_45px_rgba(15,23,42,0.16)]"
                 />
 
                 {/* 2. Main Header (56px) - Menu, Search, Bell */}
-                <div className={`h-14 flex items-center px-3 bg-white ${chromePolicy.showStickySearch ? "justify-between" : "gap-2"}`}>
+                <div className={`flex items-center px-3 bg-white ${chromePolicy.showStickySearch ? "h-12 gap-2 border-b border-slate-100" : "h-14 gap-2"}`}>
                     {/* Hamburger Menu (Left) */}
                     <Button
                         variant="ghost"
@@ -108,7 +121,19 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                     </Button>
 
                     {/* Search Input */}
-                    {!chromePolicy.showStickySearch && (
+                    {chromePolicy.showStickySearch ? (
+                        <button
+                            type="button"
+                            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                            className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-left"
+                            aria-label={`Current search: ${stickySearchLabel}`}
+                        >
+                            <Search className="h-4 w-4 shrink-0 text-slate-400" />
+                            <span className="truncate text-sm font-medium text-slate-700">
+                                {stickySearchLabel}
+                            </span>
+                        </button>
+                    ) : (
                         <form onSubmit={handleSearchSubmit} className="flex-1 relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                             <Input

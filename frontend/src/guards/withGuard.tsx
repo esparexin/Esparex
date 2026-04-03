@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
 import { User } from '@/types/User';
 import logger from "@/lib/logger";
-import { buildAuthCallbackUrl, buildLoginUrl } from "@/lib/authHelpers";
+import { buildAuthCallbackUrl, buildLoginUrl, consumeLogoutRedirectBypass } from "@/lib/authHelpers";
 
 type GuardFunction = (user: User) => void;
 
@@ -31,6 +31,10 @@ export function withGuard<P extends object>(
 
         useEffect(() => {
             if (!user && !isLoading) {
+                if (consumeLogoutRedirectBypass()) {
+                    void router.replace('/');
+                    return;
+                }
                 const callbackUrl = buildAuthCallbackUrl(pathname || "/", searchParams);
                 void router.replace(buildLoginUrl(callbackUrl));
                 return;

@@ -20,6 +20,7 @@ interface BrowseListingCardProps {
   location?: string;
   createdAt?: string;
   fallbackIcon: LucideIcon;
+  view?: "grid" | "list";
 }
 
 export const BrowseListingCard = memo(function BrowseListingCard({
@@ -33,25 +34,78 @@ export const BrowseListingCard = memo(function BrowseListingCard({
   location,
   createdAt,
   fallbackIcon: FallbackIcon,
+  view = "grid",
 }: BrowseListingCardProps) {
+  const media = imageUrl ? (
+    <Image
+      src={imageUrl}
+      alt={title}
+      fill
+      unoptimized
+      className="object-cover group-hover:scale-105 transition-transform duration-500"
+      sizes={view === "list" ? "(max-width: 768px) 35vw, 180px" : "(max-width: 768px) 50vw, 33vw"}
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center">
+      <FallbackIcon className="h-10 w-10 text-slate-200" />
+    </div>
+  );
+
+  const metaRow = location || createdAt ? (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 pt-2 border-t">
+      {location ? (
+        <div className="flex items-center gap-1 min-w-0">
+          <MapPin className="h-3 w-3 shrink-0" />
+          <span className={view === "list" ? "break-words" : "truncate"}>{location}</span>
+        </div>
+      ) : null}
+      {createdAt ? (
+        <div className="flex items-center gap-1 shrink-0">
+          <Clock className="h-3 w-3" />
+          <span>
+            {formatStableDate(createdAt, {
+              day: "numeric",
+              month: "short",
+              year: undefined,
+            })}
+          </span>
+        </div>
+      ) : null}
+    </div>
+  ) : null;
+
+  if (view === "list") {
+    return (
+      <Link href={href} className="block">
+        <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border border-black rounded-xl">
+          <div className="flex min-w-0 items-stretch">
+            <div className="relative h-32 w-28 shrink-0 overflow-hidden bg-slate-100 sm:h-36 sm:w-32">
+              {media}
+              <Badge className={`absolute top-2 left-2 border-0 text-[10px] ${badgeClassName}`}>
+                {badgeLabel}
+              </Badge>
+            </div>
+
+            <CardContent className="flex min-w-0 flex-1 flex-col justify-between p-4">
+              <div className="min-w-0 space-y-2">
+                <div className={`text-base font-bold ${priceClassName}`}>{priceLabel}</div>
+                <h3 className="line-clamp-2 text-base font-semibold leading-tight text-slate-900">
+                  {title}
+                </h3>
+              </div>
+              {metaRow}
+            </CardContent>
+          </div>
+        </Card>
+      </Link>
+    );
+  }
+
   return (
     <Link href={href} className="block h-full">
-      <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border-slate-100 rounded-xl">
+      <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border border-black rounded-xl">
         <div className="relative aspect-square overflow-hidden bg-slate-100">
-          {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt={title}
-              fill
-              unoptimized
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width: 768px) 50vw, 33vw"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <FallbackIcon className="h-10 w-10 text-slate-200" />
-            </div>
-          )}
+          {media}
           <Badge className={`absolute top-2 left-2 border-0 text-[10px] ${badgeClassName}`}>
             {badgeLabel}
           </Badge>
@@ -62,26 +116,7 @@ export const BrowseListingCard = memo(function BrowseListingCard({
           <h3 className="font-semibold text-sm line-clamp-2 text-slate-900 leading-snug min-h-[2.5rem]">
             {title}
           </h3>
-          <div className="flex items-center justify-between text-[10px] md:text-xs text-slate-400 pt-1.5 border-t">
-            {location ? (
-              <div className="flex items-center gap-1 min-w-0">
-                <MapPin className="h-2.5 w-2.5 shrink-0" />
-                <span className="truncate">{location}</span>
-              </div>
-            ) : null}
-            {createdAt ? (
-              <div className="flex items-center gap-1 shrink-0 ml-1">
-                <Clock className="h-2.5 w-2.5" />
-                <span>
-                  {formatStableDate(createdAt, {
-                    day: "numeric",
-                    month: "short",
-                    year: undefined,
-                  })}
-                </span>
-              </div>
-            ) : null}
-          </div>
+          {metaRow}
         </CardContent>
       </Card>
     </Link>

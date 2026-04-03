@@ -128,8 +128,8 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
             disabled={isButtonDisabled}
             className={cn(
               "w-full rounded-xl font-semibold transition-all active:scale-[0.98]",
-              "h-12 text-base",
-              currentStep === 2 ? "bg-green-600 hover:bg-green-700 shadow-lg shadow-green-100" : "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100"
+              "h-11 text-base",
+              "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100"
             )}
           >
             {isSubmitting ? (

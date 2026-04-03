@@ -4,6 +4,9 @@ import { protect, extractUser } from "../middleware/authMiddleware";
 import { validateObjectId } from "../middleware/validateObjectId";
 import { validateIdOrSlug } from "../middleware/validateIdOrSlug";
 import { searchLimiter, mutationLimiter } from "../middleware/rateLimiter";
+import { validateRequest } from "../middleware/validateRequest";
+import { updateAdSchema } from "../validators/ad.validator";
+import type { ZodTypeAny } from "zod";
 
 const router = Router();
 
@@ -37,7 +40,7 @@ router.get("/:id/phone", validateObjectId, extractUser, searchLimiter, listingCo
 
 // PUT /api/v1/listings/:id/edit
 // Strict edit with ownership validation
-router.put("/:id/edit", protect, validateObjectId, mutationLimiter, listingController.editListing);
+router.put("/:id/edit", protect, validateObjectId, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), listingController.editListing);
 
 // PUT /api/v1/listings/:id/mark-sold
 // Terminal state transition

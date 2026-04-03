@@ -38,7 +38,25 @@ const SERVICE_ALLOWED_FIELDS = [
     'deviceType',
     'priceMin'
 ] as const;
-const SERVICE_TAXONOMY_FIELDS = ['categoryId', 'brandId', 'modelId'] as const;
+const SERVICE_EDIT_LOCK_MESSAGES: Record<string, string> = {
+    categoryId: 'Category cannot be changed while editing a service.',
+    brandId: 'Brand cannot be changed while editing a service.',
+    modelId: 'Model cannot be changed while editing a service.',
+    deviceType: 'Device type cannot be changed while editing a service.',
+    deviceModel: 'Device model cannot be changed while editing a service.',
+    location: 'Location is fixed to the business profile for services.',
+    locationId: 'Location is fixed to the business profile for services.',
+    listingType: 'Listing type cannot be changed while editing a service.',
+    sellerId: 'Seller cannot be changed while editing a service.',
+    businessId: 'Business cannot be changed while editing a service.',
+    status: 'Status cannot be changed while editing a service.',
+    moderationStatus: 'Moderation status cannot be changed while editing a service.',
+    approvedAt: 'Approval metadata cannot be changed while editing a service.',
+    approvedBy: 'Approval metadata cannot be changed while editing a service.',
+    isDeleted: 'Deletion state cannot be changed while editing a service.',
+    deletedAt: 'Deletion state cannot be changed while editing a service.',
+    expiresAt: 'Expiry cannot be changed while editing a service.',
+};
 
 const pickAllowedFields = (
     body: Record<string, unknown>,
@@ -125,6 +143,9 @@ export const createService = async (req: Request, res: Response) => {
         const user = req.user;
         const business = req.business; // 🔒 FROM MIDDLEWARE
         const body = req.body as Record<string, unknown>;
+        if (typeof body.price === 'number' && body.priceMin === undefined) {
+            body.priceMin = body.price;
+        }
         const safeBody = pickAllowedFields(body, SERVICE_ALLOWED_FIELDS, { allowUndefined: true });
         const createServiceTypeTokens = safeBody.serviceTypeIds ?? safeBody.serviceTypes;
         if (safeBody.serviceTypes !== undefined && safeBody.serviceTypeIds === undefined) {
@@ -287,10 +308,6 @@ export const updateService = async (req: Request, res: Response) => {
             return;
         }
 
-        const updates = pickAllowedFields(body, [...SERVICE_ALLOWED_FIELDS, 'deviceModel'], { allowUndefined: false });
-
-        const { categoryId: resolvedCategoryId, brandId: resolvedBrandId, modelId: resolvedModelId } = await resolveTaxonomyIds(body, { includeDeviceModel: true });
-
         const existingService = await AdModel.findOne({
             _id: id,
             listingType: LISTING_TYPE.SERVICE,
@@ -303,16 +320,30 @@ export const updateService = async (req: Request, res: Response) => {
             return;
         }
 
-        const categoryId = resolvedCategoryId;
-        const brandId = resolvedBrandId;
-        const modelId = resolvedModelId;
+        const lockErrors = Object.entries(SERVICE_EDIT_LOCK_MESSAGES)
+            .filter(([field]) => Object.prototype.hasOwnProperty.call(body, field))
+            .map(([field, message]) => ({
+                field,
+                message,
+                code: 'IMMUTABLE_FIELD',
+            }));
 
-        const hasTaxonomyUpdate = (categoryId && categoryId.toString() !== existingService.categoryId?.toString())
-            || (brandId && brandId.toString() !== existingService.brandId?.toString());
+        if (lockErrors.length > 0) {
+            sendErrorResponse(req, res, 400, 'Validation failed', {
+                code: 'LOCKED_FIELDS',
+                details: lockErrors,
+            });
+            return;
+        }
 
-        if (categoryId) updates.categoryId = categoryId;
-        if (brandId) updates.brandId = brandId;
-        if (modelId) updates.modelId = modelId;
+        if (typeof body.price === 'number' && body.priceMin === undefined) {
+            body.priceMin = body.price;
+        }
+
+        const updates = pickAllowedFields(body, [...SERVICE_ALLOWED_FIELDS, 'deviceModel'], { allowUndefined: false });
+
+        const categoryId = existingService.categoryId;
+        const brandId = existingService.brandId;
 
         if (updates.serviceTypeIds !== undefined || body.serviceTypes !== undefined) {
             const updateServiceTypeTokens = body.serviceTypeIds ?? body.serviceTypes;
@@ -322,7 +353,7 @@ export const updateService = async (req: Request, res: Response) => {
                     serviceId: id
                 });
             }
-            const categoryForServiceType = categoryId || existingService.categoryId;
+            const categoryForServiceType = existingService.categoryId;
             const resolvedServiceTypes = await resolveServiceTypes(
                 updateServiceTypeTokens,
                 categoryForServiceType
@@ -346,26 +377,9 @@ export const updateService = async (req: Request, res: Response) => {
             }
         }
 
-        if (body.locationId || body.location) {
-            try {
-                const normalizedLocation = await normalizeLocation(
-                    buildLocationInput(body),
-                    { requireLocationId: false }
-                );
-
-                if (normalizedLocation?.locationId) {
-                    updates.location = {
-                        locationId: normalizedLocation.locationId
-                    };
-                }
-            } catch (locationError: unknown) {
-                logger.warn('Non-fatal location resolution error in service update', { error: locationError });
-            }
-        }
-
         // Brand/Category validation if changed (Fix 1)
-        const finalCategoryId = (updates.categoryId || existingService.categoryId)?.toString();
-        const finalBrandId = (updates.brandId || existingService.brandId)?.toString();
+        const finalCategoryId = existingService.categoryId?.toString();
+        const finalBrandId = existingService.brandId?.toString();
 
         if (finalCategoryId && finalBrandId && finalBrandId !== 'all') {
             const capValidation = await CatalogValidationService.validateServiceCategoryCapability(finalCategoryId);

@@ -275,7 +275,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const renderGridCard = (ad: Ad, unavailable = false) => (
     <Card
       key={ad.id}
-      className={`overflow-hidden rounded-xl border-slate-100 transition-all duration-300 ${
+      className={`overflow-hidden rounded-xl border border-black transition-all duration-300 ${
         unavailable
           ? "opacity-60 cursor-default"
           : "hover:shadow-2xl hover:-translate-y-1 cursor-pointer group"
@@ -320,7 +320,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const renderListCard = (ad: Ad, unavailable = false) => (
     <Card
       key={ad.id}
-      className={`overflow-hidden rounded-xl border-slate-100 transition-all ${
+      className={`overflow-hidden rounded-xl border border-black transition-all ${
         unavailable ? "opacity-60 cursor-default" : "hover:shadow-xl cursor-pointer"
       }`}
       onClick={unavailable ? undefined : () => router.push(getDetailUrl(ad))}
@@ -442,7 +442,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-1.5 md:gap-2 h-11 md:h-10 text-xs md:text-sm">
+                      <Button variant="outline" size="sm" className="gap-1.5 md:gap-2 h-11 text-xs md:text-sm">
                         <ArrowUpDown className="h-3.5 w-3.5 md:h-4 md:w-4" />
                         <span className="hidden sm:inline">{SORT_LABELS[sortBy]}</span>
                         <span className="sm:hidden">Sort</span>
@@ -466,7 +466,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                     <Button
                       variant={viewMode === "grid" ? "default" : "ghost"}
                       size="sm"
-                      className={`h-7 px-2 md:px-3 ${viewMode === "grid" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+                      className={`h-8 px-2 md:px-3 ${viewMode === "grid" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
                       onClick={() => setViewMode("grid")}
                     >
                       <Grid3x3 className="h-3.5 w-3.5 md:h-4 md:w-4" />
@@ -474,7 +474,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                     <Button
                       variant={viewMode === "list" ? "default" : "ghost"}
                       size="sm"
-                      className={`h-7 px-2 md:px-3 ${viewMode === "list" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+                      className={`h-8 px-2 md:px-3 ${viewMode === "list" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
                       onClick={() => setViewMode("list")}
                     >
                       <List className="h-3.5 w-3.5 md:h-4 md:w-4" />

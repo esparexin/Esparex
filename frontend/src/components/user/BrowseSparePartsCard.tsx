@@ -9,7 +9,13 @@ import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
-export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({ listing }: { listing: SparePartListing }) {
+export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({
+  listing,
+  view = "grid",
+}: {
+  listing: SparePartListing;
+  view?: "grid" | "list";
+}) {
   const imageUrl = toSafeImageSrc(listing.images?.[0], "");
   const location =
     typeof listing.location === "object"
@@ -30,6 +36,7 @@ export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({ listing
       priceClassName="text-teal-700"
       badgeLabel="SPARE PART"
       badgeClassName="bg-teal-600 text-white"
+      view={view}
       location={location}
       createdAt={listing.createdAt}
       fallbackIcon={CircuitBoard}

@@ -8,6 +8,7 @@ import { getAdsPage } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";
 import { getCategories } from "@/lib/api/user/categories";
 import { buildPublicBrowseRoute, normalizePublicBrowseType, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
+import { PUBLIC_BROWSE_SORT_MAP, type SortOption } from "@/lib/publicBrowseSort";
 
 export const revalidate = 60;
 
@@ -40,13 +41,6 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
         redirect(buildPublicBrowseRoute(parsed));
     }
 
-    const sortMap: Record<string, string> = {
-        relevance: "relevance",
-        newest: "createdAt_desc",
-        price_low_high: "price_asc",
-        price_high_low: "price_desc",
-    };
-
     const endpointMap = {
         ad: API_ROUTES.USER.ADS,
         service: API_ROUTES.USER.SERVICES,
@@ -64,7 +58,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
                 ...(parsed.q ? { search: parsed.q } : {}),
                 ...(parsed.categoryId ? { categoryId: parsed.categoryId } : parsed.category ? { category: parsed.category } : {}),
                 ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
-                ...(parsed.sort ? { sortBy: sortMap[parsed.sort] } : {}),
+                ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
                 ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
                 ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
                 ...(parsed.location ? { location: parsed.location } : {}),

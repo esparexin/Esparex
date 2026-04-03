@@ -9,7 +9,13 @@ import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
-export const BrowseServicesCard = memo(function BrowseServicesCard({ service }: { service: Service }) {
+export const BrowseServicesCard = memo(function BrowseServicesCard({
+  service,
+  view = "grid",
+}: {
+  service: Service;
+  view?: "grid" | "list";
+}) {
   const imageUrl = toSafeImageSrc(service.images?.[0], "");
   const location =
     typeof service.location === "object"
@@ -37,6 +43,7 @@ export const BrowseServicesCard = memo(function BrowseServicesCard({ service }: 
       priceClassName="text-blue-600"
       badgeLabel="SERVICE"
       badgeClassName="bg-blue-600 text-white"
+      view={view}
       location={location}
       createdAt={service.createdAt}
       fallbackIcon={Wrench}

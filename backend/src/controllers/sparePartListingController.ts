@@ -25,11 +25,45 @@ import { ACTOR_TYPE } from '../../../shared/enums/actor';
 import { respond } from '../utils/respond';
 import { getSellerPhone } from '../services/ContactRevealService';
 import { getSingleParam } from '../utils/requestParams';
-import type { ApiResponse, ContactResponse } from '../../../shared/types/Api';
+import type { ApiResponse, ContactResponse, PaginatedResponse } from '../../../shared/types/Api';
 import { ListingMutationService } from '../services/ListingMutationService';
 
 import { normalizeImageTokens, toImageUrls } from '../utils/listingUtils';
 // ---------------------------------------------
+
+const SPARE_PART_EDIT_LOCK_MESSAGES: Record<string, string> = {
+    categoryId: 'Category cannot be changed while editing a spare-part listing.',
+    brandId: 'Brand cannot be changed while editing a spare-part listing.',
+    sparePartId: 'Spare-part mapping cannot be changed while editing a spare-part listing.',
+    sparePartTypeId: 'Spare-part mapping cannot be changed while editing a spare-part listing.',
+    location: 'Location is fixed to the business profile for spare-part listings.',
+    locationId: 'Location is fixed to the business profile for spare-part listings.',
+    listingType: 'Listing type cannot be changed while editing a spare-part listing.',
+    sellerId: 'Seller cannot be changed while editing a spare-part listing.',
+    businessId: 'Business cannot be changed while editing a spare-part listing.',
+    condition: 'Condition cannot be changed while editing a spare-part listing.',
+    status: 'Status cannot be changed while editing a spare-part listing.',
+    moderationStatus: 'Moderation status cannot be changed while editing a spare-part listing.',
+    approvedAt: 'Approval metadata cannot be changed while editing a spare-part listing.',
+    approvedBy: 'Approval metadata cannot be changed while editing a spare-part listing.',
+    isDeleted: 'Deletion state cannot be changed while editing a spare-part listing.',
+    deletedAt: 'Deletion state cannot be changed while editing a spare-part listing.',
+    expiresAt: 'Expiry cannot be changed while editing a spare-part listing.',
+};
+
+const hasOwn = (body: Record<string, unknown>, field: string) =>
+    Object.prototype.hasOwnProperty.call(body, field);
+
+const collectLockedFieldErrors = (
+    body: Record<string, unknown>,
+    fieldMessages: Record<string, string>
+) => Object.entries(fieldMessages)
+    .filter(([field]) => hasOwn(body, field))
+    .map(([field, message]) => ({
+        field,
+        message,
+        code: 'IMMUTABLE_FIELD',
+    }));
 
 // Schemas imported from shared — single source of truth with frontend
 const sparePartListingCreateSchema = SparePartPayloadSchema;
@@ -167,14 +201,13 @@ export const getSparePartListings = async (req: Request, res: Response) => {
             { enforcePublicVisibility: true }
         );
 
-        res.json(respond({
+        res.json(respond<PaginatedResponse<Record<string, unknown>>>({
             success: true,
-            data: {
-                items: result.data,
-                total: result.pagination.total,
-                page: result.pagination.page,
-                limit: result.pagination.limit,
-                hasMore: result.pagination.hasMore
+            data: result.data as Array<Record<string, unknown>>,
+            pagination: {
+                ...result.pagination,
+                page: result.pagination.page || 1,
+                limit: result.pagination.limit || 20,
             }
         }));
     } catch (error) {
@@ -199,9 +232,18 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
         });
         if (!listing) return;
 
+        const body = req.body as Record<string, unknown>;
+        const lockErrors = collectLockedFieldErrors(body, SPARE_PART_EDIT_LOCK_MESSAGES);
+        if (lockErrors.length > 0) {
+            return sendContractErrorResponse(req, res, 400, 'Validation failed', {
+                code: 'LOCKED_FIELDS',
+                details: lockErrors,
+            });
+        }
+
         const listingId = listing._id.toString();
 
-        const parsed = sparePartListingUpdateSchema.safeParse(req.body);
+        const parsed = sparePartListingUpdateSchema.safeParse(body);
         if (!parsed.success) {
             return sendContractErrorResponse(req, res, 400, 'Validation failed', { details: parsed.error.issues });
         }

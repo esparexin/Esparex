@@ -113,8 +113,8 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                     onClick={() => setCurrentImageIndex(index)}
                                     className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl overflow-hidden border-2 transition-all duration-200 relative ${
                                         index === currentImageIndex
-                                            ? "border-blue-500 ring-2 ring-blue-100 scale-95"
-                                            : "border-slate-100 hover:border-slate-300 opacity-50 hover:opacity-100"
+                                            ? "border-green-500 ring-2 ring-green-100 scale-95"
+                                            : "border-transparent hover:border-slate-300 opacity-50 hover:opacity-100"
                                     }`}
                                 >
                                     <Image
@@ -126,7 +126,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                         className="object-cover"
                                     />
                                     {index === currentImageIndex && (
-                                        <div className="absolute inset-0 bg-blue-500/5" />
+                                        <div className="absolute inset-0 bg-green-500/5" />
                                     )}
                                 </button>
                             ))}

@@ -14,6 +14,7 @@ import {
 import type { User } from "@/types/User";
 
 import { apiClient } from "@/lib/api/client";
+import { isAPIError } from "@/lib/api/APIError";
 import { normalizeError } from "@/lib/api/normalizeError";
 import { authApi } from "@/lib/api/auth";
 import { emitAppError } from "@/components/common/AppErrorBanner";
@@ -39,7 +40,7 @@ interface AuthContextType {
   backendReady: boolean;
   refreshUser: () => Promise<void>;
   updateUser: (user: User) => void;
-  logout: () => Promise<void>;
+  logout: (options?: { skipServerLogout?: boolean }) => Promise<void>;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -64,6 +65,22 @@ function isValidUser(data: unknown): data is User {
     typeof candidate.mobile === "string" &&
     typeof candidate.role === "string"
   );
+}
+
+function isBenignLogoutError(error: unknown): boolean {
+  if (!isAPIError(error)) return false;
+
+  if (error.status !== 401) return false;
+
+  const backendMessage = String(
+    error.context?.backendErrorMessage ??
+      (typeof error.details === "object" && error.details !== null && "error" in error.details
+        ? (error.details as { error?: unknown }).error
+        : "") ??
+      ""
+  ).toLowerCase();
+
+  return backendMessage.includes("no token") || error.message.toLowerCase().includes("no token");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -362,11 +379,17 @@ export function AuthProvider({
   /* Logout                                                                   */
   /* ------------------------------------------------------------------------ */
 
-  const logout = useCallback(async () => {
+  const logout = useCallback(async (options?: { skipServerLogout?: boolean }) => {
     try {
-      await authApi.logout();
+      if (!options?.skipServerLogout) {
+        await authApi.logout();
+      }
     } catch (error) {
-      logger.error("[Auth] Logout failed:", error);
+      if (isBenignLogoutError(error)) {
+        logger.info("[Auth] Logout skipped: session already cleared.");
+      } else {
+        logger.error("[Auth] Logout failed:", error);
+      }
     } finally {
       if (typeof window !== "undefined") {
         localStorage.removeItem("esparex_access_token");

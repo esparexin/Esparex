@@ -14,6 +14,39 @@ import * as adService from '../services/AdService';
 import { mutateStatus } from '../services/StatusMutationService';
 import { getAndVerifyOwnedListing } from '../utils/controllerUtils';
 import { getSellerPhone } from '../services/ContactRevealService';
+
+const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
+    categoryId: 'Category cannot be changed while editing a listing.',
+    brandId: 'Brand cannot be changed while editing a listing.',
+    modelId: 'Model cannot be changed while editing a listing.',
+    screenSize: 'Screen size cannot be changed while editing a listing.',
+    spareParts: 'Spare-part mapping cannot be changed while editing a listing.',
+    deviceCondition: 'Device condition cannot be changed while editing a listing.',
+    listingType: 'Listing type cannot be changed while editing a listing.',
+    sellerId: 'Seller cannot be changed while editing a listing.',
+    sellerType: 'Seller type cannot be changed while editing a listing.',
+    status: 'Status cannot be changed while editing a listing.',
+    moderationStatus: 'Moderation status cannot be changed while editing a listing.',
+    approvedAt: 'Approval metadata cannot be changed while editing a listing.',
+    approvedBy: 'Approval metadata cannot be changed while editing a listing.',
+    isDeleted: 'Deletion state cannot be changed while editing a listing.',
+    deletedAt: 'Deletion state cannot be changed while editing a listing.',
+    expiresAt: 'Expiry cannot be changed while editing a listing.',
+};
+
+const hasOwn = (body: Record<string, unknown>, field: string) =>
+    Object.prototype.hasOwnProperty.call(body, field);
+
+const collectLockedFieldErrors = (
+    body: Record<string, unknown>,
+    fieldMessages: Record<string, string>
+) => Object.entries(fieldMessages)
+    .filter(([field]) => hasOwn(body, field))
+    .map(([field, message]) => ({
+        field,
+        message,
+        code: 'IMMUTABLE_FIELD',
+    }));
 /**
  * Enterprise Listing Controller (SSOT)
  * Centralized logic for all listing types (Ads, Services, Spare Parts)
@@ -81,30 +114,34 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
         if (!id) return;
 
         const user = req.user as IAuthUser;
-
-        // Enterprise Rule: No category/brand/model/identity change in edit mode.
-        // Keep this controller aligned with the canonical ad update mutation contract.
-        const protectedFields = [
-            'categoryId',
-            'brandId',
-            'modelId',
-            'listingType',
-            'sellerId',
-            'status',
-            'moderationStatus',
-            'approvedAt',
-            'approvedBy',
-            'isDeleted',
-            'deletedAt',
-            'expiresAt',
-        ];
-        protectedFields.forEach(field => {
-            if (Object.prototype.hasOwnProperty.call(req.body, field)) {
-                delete req.body[field];
-            }
+        const listing = await getAndVerifyOwnedListing(req, res, {
+            errorMessage: 'Listing not found or access denied',
+            select: 'status listingType',
         });
+        if (!listing) return;
 
-        const updatedListing = await adService.updateAd(id, req.body, {
+        const body = req.body as Record<string, unknown>;
+        const lockErrors = collectLockedFieldErrors(body, LOCKED_AD_EDIT_FIELD_MESSAGES);
+
+        if (
+            (listing.status === AD_STATUS.LIVE || listing.status === AD_STATUS.PENDING)
+            && (hasOwn(body, 'location') || hasOwn(body, 'locationId'))
+        ) {
+            lockErrors.push({
+                field: hasOwn(body, 'location') ? 'location' : 'locationId',
+                message: 'Location cannot be changed once a listing is live or under review.',
+                code: 'IMMUTABLE_FIELD',
+            });
+        }
+
+        if (lockErrors.length > 0) {
+            return sendErrorResponse(req, res, 400, 'Validation failed', {
+                code: 'LOCKED_FIELDS',
+                details: lockErrors,
+            });
+        }
+
+        const updatedListing = await adService.updateAd(id, body, {
             actor: 'USER',
             authUserId: user._id.toString(),
             sellerId: user._id.toString()

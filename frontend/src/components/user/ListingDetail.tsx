@@ -9,6 +9,7 @@ import { Breadcrumbs } from "./Breadcrumbs";
 import { ListingDetailShell } from "./listing-detail/AdDetailShell";
 import { formatPrice } from "@/lib/formatters";
 import dynamic from "next/dynamic";
+import { BackButton } from "@/components/common/BackButton";
 
 const ListingBottomActions = dynamic(
   () => import("./listing-detail/ListingBottomActions").then((mod) => mod.ListingBottomActions),
@@ -29,7 +30,6 @@ const ListingRelatedBusinessesSection = dynamic(
   () => import("./listing-detail/ListingRelatedBusinessesSection").then((mod) => mod.ListingRelatedBusinessesSection),
   { ssr: false }
 );
-import { BackButton } from "@/components/common/BackButton";
 import {
   deleteListing,
   getListingAnalytics,
@@ -81,7 +81,14 @@ interface ListingDetailProps {
   };
 }
 
-export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showBackButton = true, user: userProp }: ListingDetailProps) {
+export function ListingDetail({
+  adId,
+  initialAd,
+  navigateTo,
+  navigateBack,
+  showBackButton = true,
+  user: userProp,
+}: ListingDetailProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { user: authUser, isAuthResolved } = useAuth();
@@ -302,11 +309,11 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
 
   // Get the correct display name for the seller/business
   const getSellerDisplayName = () => {
-    if (!ad) return "Esparex Seller";
+    if (!ad) return "Seller";
     if (ad.isBusiness) {
       if (ad.businessName) return ad.businessName;
     }
-    return ad.sellerName || "Esparex Seller";
+    return ad.sellerName || "Seller";
   };
 
   const sellerDisplayName = getSellerDisplayName();
@@ -440,7 +447,7 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
         const phone = result.mobile || result.phone || null;
         setRevealedPhone(phone);
         setIsPhoneMasked(false);
-        setPhoneMessage("Tap again to call the seller.");
+        setPhoneMessage(null);
         return;
       }
 
@@ -601,17 +608,15 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
     >
       {ad && (
         <>
-          {/* Back Button - Sticky Header */}
-          {showBackButton && navigateBack && (
-            <div className="sticky top-0 z-50 bg-white border-b shadow-sm transition-all duration-200">
-              <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-14 flex items-center">
-                <BackButton
-                  onClick={() => navigateBack()}
-                  className="gap-1"
-                />
-              </div>
+          {showBackButton && navigateBack ? (
+            <div className="mx-auto max-w-7xl px-4 pt-4 md:px-6 lg:px-8">
+              <BackButton
+                onClick={navigateBack}
+                variant="outline"
+                className="rounded-full border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              />
             </div>
-          )}
+          ) : null}
 
           {/* Breadcrumbs with Location */}
           <Breadcrumbs
@@ -629,7 +634,7 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
             ]}
           />
 
-          <div className="bg-gray-50 pb-20 md:pb-6">
+          <div className="bg-gray-50 pb-24 md:pb-6">
             <div className="w-full md:px-6 lg:px-8 md:py-6">
               <div className="max-w-7xl mx-auto">
 
@@ -676,7 +681,6 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
                     onRevealPhone={handleRevealPhone}
                     isPhoneLoading={isPhoneLoading}
                     revealedPhone={revealedPhone}
-                    isPhoneMasked={isPhoneMasked}
                     phoneMessage={phoneMessage}
                     onEdit={handleEdit}
                     onDelete={handleDeleteClick}
@@ -706,6 +710,10 @@ export function ListingDetail({ adId, initialAd, navigateTo, navigateBack, showB
               onAnalyticsClick={handleViewAnalytics}
               // Visitor props
               onChatClick={handleChatWithSeller}
+              onRevealPhone={handleRevealPhone}
+              isPhoneLoading={isPhoneLoading}
+              revealedPhone={revealedPhone}
+              phoneMessage={phoneMessage}
               isChatLocked={adStatus.isChatLocked}
             />
           </div>

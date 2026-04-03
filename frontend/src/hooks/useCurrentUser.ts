@@ -9,7 +9,7 @@ export interface UseCurrentUserResult {
     error: Error | null;
     refreshUser: () => Promise<void>;
     updateUser: (user: User) => void;
-    logout: () => Promise<void>;
+    logout: (options?: { skipServerLogout?: boolean }) => Promise<void>;
     status: "loading" | "authenticated" | "unauthenticated";
 }
 

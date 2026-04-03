@@ -1,7 +1,7 @@
 import express from 'express';
 import * as serviceController from '../controllers/service';
 import * as listingController from '../controllers/listingController';
-import { protect } from '../middleware/authMiddleware';
+import { protect, extractUser } from '../middleware/authMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
 import { mutationLimiter, searchLimiter, phoneRevealLimiter } from '../middleware/rateLimiter';
@@ -51,6 +51,6 @@ import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 router.get('/', searchLimiter, serviceController.getServices);
 router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), listingController.incrementListingView);
 
-router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, listingController.getListingPhone);
+router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, listingController.getListingPhone);
 
 export default router;

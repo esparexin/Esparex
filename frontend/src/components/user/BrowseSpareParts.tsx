@@ -6,21 +6,16 @@ import {
 } from "@/components/user/BrowseListingsView";
 import { BrowseSparePartsCard } from "@/components/user/BrowseSparePartsCard";
 import {
+  applyRequestedLocationFilters,
   applyProximityLocationFilters,
   buildBaseBrowseFilters,
 } from "@/components/user/browseFilterBuilders";
 import type { Category } from "@/lib/api/user/categories";
 import { getAdsPage, type Listing as SparePartListing, type ListingFilters as SparePartListingFilters, type ListingPageResult as SparePartListingPageResult } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";
-import type { SortOption } from "@/components/search/SearchResultsHeader";
+import { PUBLIC_BROWSE_SORT_MAP } from "@/lib/publicBrowseSort";
 
 const DEFAULT_RADIUS_KM = 50;
-const SORT_MAP: Record<SortOption, string> = {
-  relevance: "relevance",
-  newest: "createdAt_desc",
-  price_low_high: "price_asc",
-  price_high_low: "price_desc",
-};
 
 interface BrowseSparePartsProps {
   initialCategory?: string;
@@ -46,18 +41,15 @@ const buildSparePartFilters = ({
     query,
     selectedCategory,
   });
-  filters.sortBy = SORT_MAP[sort];
-  if (urlLocationId) {
-    filters.locationId = urlLocationId;
-    if (typeof radiusKm === "number" && Number.isFinite(radiusKm)) {
-      filters.radiusKm = radiusKm;
-    }
-  } else if (urlLocationLabel) {
-    filters.location = urlLocationLabel;
-    if (typeof radiusKm === "number" && Number.isFinite(radiusKm)) {
-      filters.radiusKm = radiusKm;
-    }
-  } else {
+  filters.sortBy = PUBLIC_BROWSE_SORT_MAP[sort];
+  if (
+    !applyRequestedLocationFilters({
+      filters,
+      urlLocationId,
+      urlLocationLabel,
+      radiusKm,
+    })
+  ) {
     applyProximityLocationFilters({
       filters,
       location,
@@ -92,7 +84,7 @@ export function BrowseSpareParts({
       getEmptyDescription={(searchQuery) =>
         searchQuery ? `No spare parts matching "${searchQuery}".` : "No spare parts available in this area yet."
       }
-      renderCard={(listing) => <BrowseSparePartsCard listing={listing} />}
+      renderCard={(listing, view) => <BrowseSparePartsCard listing={listing} view={view} />}
       getItemKey={(listing) => listing.id}
     />
   );
