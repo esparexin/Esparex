@@ -7,6 +7,10 @@
     "dev": "NODE_OPTIONS='--disable-warning=DEP0169' next dev -p 3000",
     "build": "next build",
     "build:webpack": "next build --webpack",
+    "mobile:sync": "cap sync",
+    "mobile:copy": "cap copy",
+    "mobile:open:android": "cap open android",
+    "mobile:open:ios": "cap open ios",
     "analyze:routes": "node scripts/analyze-next-build.cjs",
     "analyze:build": "npm run build:webpack && npm run analyze:routes",
     "start": "NODE_OPTIONS='--disable-warning=DEP0169' next start -p 3000",
@@ -22,6 +26,10 @@
     "guard:unused-imports": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0 --rule \"unused-imports/no-unused-imports:error\""
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
+    "@capacitor/ios": "^8.3.0",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",

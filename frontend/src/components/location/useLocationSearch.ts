@@ -28,7 +28,7 @@ export function useLocationSearch({
     onClose?: () => void;
 }) {
     const { loading: globalDetecting } = useLocationState();
-    const { detectLocation, detectApproximateLocation } = useLocationDispatch();
+    const { detectLocation } = useLocationDispatch();
 
     const [locations, setLocations] = useState<Location[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -37,7 +37,6 @@ export function useLocationSearch({
 
     const [localDetecting, setLocalDetecting] = useState(false);
     const [detectFeedback, setDetectFeedback] = useState<string | null>(null);
-    const [showApproximateFallback, setShowApproximateFallback] = useState(false);
 
     const [retryCount, setRetryCount] = useState(0);
     const [retryNonce, setRetryNonce] = useState(0);
@@ -173,22 +172,17 @@ export function useLocationSearch({
 
     const handleDetect = async (onDone?: () => void) => {
         setDetectFeedback(null);
-        setShowApproximateFallback(false);
         if (mode === "postAd") {
             setLocalDetecting(true);
             try {
-                const detectionResult = await getCurrentLocationResult({
-                    mode: "precise",
-                });
+                const detectionResult = await getCurrentLocationResult({ mode: "precise" });
                 const detected = toDetectedSelection(detectionResult.location as DetectedLocationShape);
                 if (!detected?.coordinates) {
-                    setDetectFeedback("Could not detect current location. You can try approximate location or search manually.");
-                    setShowApproximateFallback(true);
+                    setDetectFeedback("Could not detect current location. Please search manually.");
                     return;
                 }
                 onApplySelection(detected);
                 setDetectFeedback(null);
-                setShowApproximateFallback(false);
                 if (isPanel) onClose?.();
                 else onDone?.();
                 return;
@@ -198,46 +192,10 @@ export function useLocationSearch({
         }
         const detected = await detectLocation(true, true);
         if (!detected) {
-            setDetectFeedback("Could not detect current location. You can try approximate location or search manually.");
-            setShowApproximateFallback(true);
+            setDetectFeedback("Could not detect current location. Please search manually.");
             return;
         }
         setDetectFeedback(null);
-        setShowApproximateFallback(false);
-        if (isPanel) onClose?.();
-        else onDone?.();
-    };
-
-    const handleApproximateDetect = async (onDone?: () => void) => {
-        setDetectFeedback(null);
-        if (mode === "postAd") {
-            setLocalDetecting(true);
-            try {
-                const detectionResult = await getCurrentLocationResult({
-                    mode: "approximate",
-                });
-                const detected = toDetectedSelection(detectionResult.location as DetectedLocationShape);
-                if (!detected?.coordinates) {
-                    setDetectFeedback("Could not detect approximate location. Please search manually.");
-                    return;
-                }
-                onApplySelection(detected);
-                setDetectFeedback(null);
-                setShowApproximateFallback(false);
-                if (isPanel) onClose?.();
-                else onDone?.();
-                return;
-            } finally {
-                setLocalDetecting(false);
-            }
-        }
-        const detected = await detectApproximateLocation(true, true);
-        if (!detected) {
-            setDetectFeedback("Could not detect approximate location. Please search manually.");
-            return;
-        }
-        setDetectFeedback(null);
-        setShowApproximateFallback(false);
         if (isPanel) onClose?.();
         else onDone?.();
     };
@@ -261,9 +219,8 @@ export function useLocationSearch({
         showSkeleton,
         isDetecting,
         detectFeedback, setDetectFeedback,
-        showApproximateFallback,
         retryCount, handleRetry,
-        handleDetect, handleApproximateDetect,
+        handleDetect,
         clearSearchSession
     };
 }

@@ -214,8 +214,8 @@ export const adPostLimiter = createLimiter({
     max: 10, // 10 per hour
     keyPrefix: 'ads:post:',
     keyGenerator: (req: Request) => {
-        const userId = (req as any).user?.id || (req as any).user?._id;
-        return userId ? String(userId) : req.ip || 'unknown';
+        const userId = req.user?._id ? String(req.user._id) : undefined;
+        return userId ?? req.ip ?? 'unknown';
     }
 });
 
@@ -282,13 +282,13 @@ export const phoneRevealLimiter = [
         windowMs: 1 * 60 * 1000, // 1 minute
         max: 10,
         keyPrefix: 'phone:reveal:min:',
-        keyGenerator: (req: Request) => (req.user as any)?._id?.toString() || req.ip || 'unknown'
+        keyGenerator: (req: Request) => (req.user?._id ? String(req.user._id) : undefined) ?? req.ip ?? 'unknown'
     }),
     createLimiter({
         windowMs: 60 * 60 * 1000, // 1 hour
         max: 50,
         keyPrefix: 'phone:reveal:hour:',
-        keyGenerator: (req: Request) => (req.user as any)?._id?.toString() || req.ip || 'unknown'
+        keyGenerator: (req: Request) => (req.user?._id ? String(req.user._id) : undefined) ?? req.ip ?? 'unknown'
     })
 ];
 
@@ -342,8 +342,8 @@ export const chatSendLimiter = createLimiter({
     max: process.env.NODE_ENV === 'production' ? 20 : 200,
     keyPrefix: 'chat:send:',
     keyGenerator: (req: Request) => {
-        const userId = (req.user as any)?._id?.toString() || (req.user as any)?.id || req.ip || 'unknown';
-        return String(userId);
+        const userId = req.user?._id ? String(req.user._id) : undefined;
+        return userId ?? req.ip ?? 'unknown';
     }
 });
 
@@ -353,8 +353,8 @@ export const chatStartLimiter = createLimiter({
     max: process.env.NODE_ENV === 'production' ? 10 : 100,
     keyPrefix: 'chat:start:',
     keyGenerator: (req: Request) => {
-        const userId = (req.user as any)?._id?.toString() || (req.user as any)?.id || req.ip || 'unknown';
-        return String(userId);
+        const userId = req.user?._id ? String(req.user._id) : undefined;
+        return userId ?? req.ip ?? 'unknown';
     }
 });
 
@@ -364,7 +364,7 @@ export const chatReportLimiter = createLimiter({
     max: process.env.NODE_ENV === 'production' ? 3 : 30,
     keyPrefix: 'chat:report:',
     keyGenerator: (req: Request) => {
-        const userId = (req.user as any)?._id?.toString() || (req.user as any)?.id || req.ip || 'unknown';
-        return String(userId);
+        const userId = req.user?._id ? String(req.user._id) : undefined;
+        return userId ?? req.ip ?? 'unknown';
     }
 });

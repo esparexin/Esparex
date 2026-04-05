@@ -370,11 +370,11 @@ class APIClient {
                     !requestConfig?.silent &&
                     !isExpectedBusiness4xx
                 ) {
-                    console.groupCollapsed('[API Client] Unexpected API error');
-                    logger.warn('status', latestStatus || 'unknown');
-                    logger.warn('message', responseMessage || normalized.message);
-                    logger.warn('code', responseCode || 'none');
-                    console.groupEnd();
+                    logger.warn('[API Client] Unexpected API error', {
+                        status: latestStatus || 'unknown',
+                        message: responseMessage || normalized.message,
+                        code: responseCode || 'none',
+                    });
                 }
                 const source = normalized.response ? 'backend' : 'network';
 

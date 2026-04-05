@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { type Listing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
 import { formatStableDate } from "@/lib/formatters";
-import { formatLocationDisplay } from "@/lib/location/locationService";
+import { formatLocationDisplay } from "@/lib/listings/locationUtils";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { BackButton } from "@/components/common/BackButton";
 

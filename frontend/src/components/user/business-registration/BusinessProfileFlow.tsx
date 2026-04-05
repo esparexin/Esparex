@@ -65,7 +65,7 @@ type BusinessWizardFormShape = {
     businessDescription: string;
     fullAddress: string;
     currentLocationDisplay: string;
-    currentLocationSource?: "auto" | "ip" | "";
+    currentLocationSource?: "auto" | "";
     currentLocationCity?: string | null;
     currentLocationState?: string | null;
     currentLocationCountry?: string | null;

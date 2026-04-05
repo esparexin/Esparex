@@ -32,9 +32,8 @@ const buildDetectedLocationDisplay = (location: AppLocation): string =>
         || "Current location",
     );
 
-const getCurrentLocationSourceLabel = (source: "auto" | "ip" | ""): string => {
+const getCurrentLocationSourceLabel = (source: "auto" | ""): string => {
     if (source === "auto") return "GPS";
-    if (source === "ip") return "Approximate";
     return "";
 };
 
@@ -54,7 +53,7 @@ export const applyDetectedCurrentLocation = ({
     setFormData((previous) => ({
         ...previous,
         currentLocationDisplay: display,
-        currentLocationSource: detectedLocation.source === "ip" ? "ip" : "auto",
+        currentLocationSource: "auto",
         currentLocationCity: detectedLocation.city || previous.currentLocationCity,
         currentLocationState: detectedLocation.state || previous.currentLocationState,
         currentLocationCountry: detectedLocation.country || previous.currentLocationCountry,
@@ -167,7 +166,7 @@ export function StepAddress({
                 applyDetectedCurrentLocation({
                     detectedLocation: {
                         ...refreshedLocation,
-                        source: formData.currentLocationSource === "ip" ? "ip" : "auto",
+                        source: "auto",
                     },
                     setFormData,
                 });
@@ -194,7 +193,7 @@ export function StepAddress({
 
         try {
             const detectionResult = await getCurrentLocationResult({
-                mode: "precise_or_approximate",
+                mode: "precise",
             });
 
             if (!detectionResult.location) {
@@ -247,10 +246,8 @@ export function StepAddress({
                         hasCurrentLocation
                             ? isGenericCapturedLocation(normalizedDetectedDisplay)
                                 ? "Current coordinates recorded. Our location database could not name this spot yet, but you can continue with the full address."
-                                : formData.currentLocationSource === "ip"
-                                ? "Approximate location recorded. If GPS is available later, you can tap the location button again to improve accuracy."
                                 : "GPS location recorded. This proof is required for business registration."
-                            : "Required. Tap the location button to record your current position. GPS is preferred and approximate fallback is used only when GPS fails."
+                            : "Required. Tap the location button to record your current GPS position."
                     }
                     error={currentLocationError}
                     badge={(

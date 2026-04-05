@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageStateGuard, PageState } from "@/components/ui/PageStateGuard";
 import { Package, PlusCircle, AlertTriangle, Eye, Heart, Clock, Edit2, Trash2, CheckSquare, RefreshCw, PowerOff, Power } from "lucide-react";
-import type { Ad } from "@/api/user/ads";
+import type { Listing } from "@/lib/api/user/listings";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -27,9 +27,10 @@ import {
 } from "@/components/ui/dialog";
 import FeatureCard from '@/components/user/FeatureCard';
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
+import { normalizeAdStatus } from "@/lib/status/statusNormalization";
 
 type SoldReason = 'sold_on_platform' | 'sold_outside' | 'no_longer_available';
-type MyAd = Ad;
+type MyAd = Listing;
 
 interface MyAdsTabProps {
     ads: MyAd[];
@@ -48,7 +49,7 @@ interface MyAdsTabProps {
 }
 
 // Statuses for which the Edit action is meaningful / safe. Expired ads cannot be edited per NO RENEW rule.
-const EDITABLE_STATUSES = new Set(['active', 'rejected', 'pending', 'deactivated']);
+const EDITABLE_STATUSES = new Set(['live', 'rejected', 'pending', 'deactivated']);
 
 const SOLD_REASON_OPTIONS: { value: SoldReason; label: string }[] = [
     { value: 'sold_on_platform', label: 'Sold on Esparex' },
@@ -224,11 +225,12 @@ export function MyAdsTab({
                     >
                         <div className="grid grid-cols-1 gap-3">
                             {currentAds.map((ad) => {
-                                const canEdit = EDITABLE_STATUSES.has(ad.status || '');
-                                const isExpired = ad.status === 'expired';
-                                const isRejected = ad.status === 'rejected';
-                                const isActive = ad.status === 'active';
-                                const isDeactivated = ad.status === 'deactivated';
+                                const normalizedStatus = normalizeAdStatus(ad.status, 'pending');
+                                const canEdit = EDITABLE_STATUSES.has(normalizedStatus);
+                                const isExpired = normalizedStatus === 'expired';
+                                const isRejected = normalizedStatus === 'rejected';
+                                const isLive = normalizedStatus === 'live';
+                                const isDeactivated = normalizedStatus === 'deactivated';
 
                                 return (
                                     <div key={ad.id} className="flex gap-3 p-3 rounded-xl border bg-white hover:border-blue-200 hover:shadow-sm transition-all group">
@@ -247,7 +249,7 @@ export function MyAdsTab({
                                                     <Link href={`/ads/${ad.seoSlug || ad.id}`} target="_blank" className="hover:text-blue-600 hover:underline">
                                                         <h3 className="font-medium text-sm line-clamp-1">{ad.title}</h3>
                                                     </Link>
-                                                    {getStatusBadge(ad.status || "pending", ad.id)}
+                                                    {getStatusBadge(normalizedStatus, ad.id)}
                                                 </div>
                                                 <p className="text-xs font-semibold text-slate-900 mt-0.5">₹{ad.price.toLocaleString()}</p>
 
@@ -272,12 +274,12 @@ export function MyAdsTab({
                                                         views
                                                     </span>
                                                     <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {ad.likes || 0} likes</span>
-                                                    {ad.status === 'active' && ad.expiresAt && (
+                                                    {isLive && ad.expiresAt && (
                                                         <span className="flex items-center gap-1 text-amber-600 font-medium whitespace-nowrap">
                                                             <Clock className="h-3 w-3" /> Expires {formatDate(ad.expiresAt || new Date())}
                                                         </span>
                                                     )}
-                                                    {ad.status !== 'active' && (
+                                                    {!isLive && (
                                                         <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {formatDate(ad.createdAt || new Date())}</span>
                                                     )}
                                                 </div>
@@ -296,7 +298,7 @@ export function MyAdsTab({
                                                     )}
 
                                                     {/* Mark as Sold for expired/active/deactivated ads */}
-                                                    {(isExpired || isActive || isDeactivated) && (
+                                                    {(isExpired || isLive || isDeactivated) && (
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
@@ -308,7 +310,7 @@ export function MyAdsTab({
                                                     )}
 
                                                     {/* Deactivate standard active ads */}
-                                                    {isActive && (
+                                                    {isLive && (
                                                         <Button
                                                             size="sm"
                                                             variant="outline"

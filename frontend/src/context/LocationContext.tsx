@@ -53,7 +53,6 @@ export type LocationStateContextType = {
 
 export type LocationDispatchContextType = {
     detectLocation: (persist?: boolean, force?: boolean) => Promise<boolean>;
-    detectApproximateLocation: (persist?: boolean, force?: boolean) => Promise<boolean>;
     setManualLocation: (
         city: string,
         state?: string,
@@ -132,14 +131,11 @@ export function LocationProvider({
     const genericLocationRefreshKeyRef = useRef<string | null>(null);
     const detectDebounceTimersRef = useRef<{
         precise: ReturnType<typeof setTimeout> | null;
-        approximate: ReturnType<typeof setTimeout> | null;
     }>({
         precise: null,
-        approximate: null,
     });
     const detectDebounceResolversRef = useRef<{
         precise?: (value: boolean) => void;
-        approximate?: (value: boolean) => void;
     }>({});
 
     useEffect(() => {
@@ -208,7 +204,7 @@ export function LocationProvider({
         setLocation(nextLocation);
         setStatus(getLocationStatus(nextLocation.source));
         setDetectError(null);
-        autoDetectedRef.current = nextLocation.source === "auto" || nextLocation.source === "ip";
+        autoDetectedRef.current = nextLocation.source === "auto";
         persistPromptDismissed(true);
 
         if (typeof window !== "undefined" && autoDetectedRef.current) {
@@ -251,7 +247,7 @@ export function LocationProvider({
                 applyResolvedLocation(
                     {
                         ...refreshedLocation,
-                        source: location.source === "ip" ? "ip" : "auto",
+                        source: "auto",
                     },
                     true
                 );
@@ -331,7 +327,7 @@ export function LocationProvider({
 
     const queueDebouncedDetection = useCallback(
         (
-            mode: "precise" | "approximate",
+            mode: "precise",
             runner: () => Promise<boolean>,
             force: boolean
         ): Promise<boolean> => {
@@ -428,53 +424,6 @@ export function LocationProvider({
         [queueDebouncedDetection, runPreciseDetection]
     );
 
-    const runApproximateDetection = useCallback(
-        async (persist = false, force = false) => {
-            if (locationSourceRef.current === "manual" && !force) return false;
-            if (typeof window === "undefined" || detectingRef.current) return false;
-
-            detectingRef.current = true;
-            setStatus("detecting");
-            setDetectError(null);
-
-            try {
-                const detectionResult = await getCurrentLocationResult({
-                    mode: "approximate",
-                });
-                const detected = detectionResult.location;
-
-                if (!detected) {
-                    setStatus(locationSourceRef.current === "manual" ? "manual" : "unavailable");
-                    setDetectError(
-                        detectionResult.failure?.message ||
-                        "Could not detect approximate location. Please select manually."
-                    );
-                    return false;
-                }
-
-                applyResolvedLocation(detected, persist);
-                return true;
-            } catch {
-                setStatus(locationSourceRef.current === "manual" ? "manual" : "unavailable");
-                setDetectError("Could not detect approximate location. Please select manually.");
-                return false;
-            } finally {
-                detectingRef.current = false;
-            }
-        },
-        [applyResolvedLocation]
-    );
-
-    const detectApproximateLocation = useCallback(
-        async (persist = false, force = false) =>
-            queueDebouncedDetection(
-                "approximate",
-                () => runApproximateDetection(persist, force),
-                force
-            ),
-        [queueDebouncedDetection, runApproximateDetection]
-    );
-
     /* ---------------------------------------------------------------------- */
     /* INIT                                                                   */
     /* ---------------------------------------------------------------------- */
@@ -533,20 +482,12 @@ export function LocationProvider({
                 clearTimeout(detectDebounceTimersRef.current.precise);
                 detectDebounceTimersRef.current.precise = null;
             }
-            if (detectDebounceTimersRef.current.approximate) {
-                clearTimeout(detectDebounceTimersRef.current.approximate);
-                detectDebounceTimersRef.current.approximate = null;
-            }
             if (detectDebounceResolversRef.current.precise) {
                 detectDebounceResolversRef.current.precise(false);
                 detectDebounceResolversRef.current.precise = undefined;
             }
-            if (detectDebounceResolversRef.current.approximate) {
-                detectDebounceResolversRef.current.approximate(false);
-                detectDebounceResolversRef.current.approximate = undefined;
-            }
         };
-    }, [applyResolvedLocation, hydrateProfileLocation, readStoredLocation, readPermissionBlockedFlag, detectApproximateLocation]);
+    }, [applyResolvedLocation, hydrateProfileLocation, readStoredLocation, readPermissionBlockedFlag]);
 
     /* ---------------------------------------------------------------------- */
     /* MANUAL                                                                 */
@@ -666,7 +607,6 @@ export function LocationProvider({
     const actionsValue = useMemo(
         () => ({
             detectLocation,
-            detectApproximateLocation,
             setManualLocation,
             clearLocation,
             dismissFirstVisitPrompt,
@@ -675,7 +615,6 @@ export function LocationProvider({
         }),
         [
             clearLocation,
-            detectApproximateLocation,
             detectLocation,
             dismissFirstVisitPrompt,
             dismissPermissionBlockedModal,

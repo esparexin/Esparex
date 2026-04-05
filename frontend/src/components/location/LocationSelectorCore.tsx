@@ -291,11 +291,6 @@ export default function LocationSelectorCore({
                     {searchApi.detectFeedback && (
                         <div className="space-y-2 px-1">
                             <p className="text-xs text-destructive">{searchApi.detectFeedback}</p>
-                            {searchApi.showApproximateFallback && (
-                                <Button type="button" variant="outline" size="sm" className="gap-2" disabled={searchApi.isDetecting} onClick={() => searchApi.handleApproximateDetect()}>
-                                    <MapPin className="h-4 w-4" /> Use Approximate Location
-                                </Button>
-                            )}
                         </div>
                     )}
 
@@ -374,11 +369,6 @@ export default function LocationSelectorCore({
                         {searchApi.detectFeedback && (
                             <div className="mt-2 space-y-2 px-1">
                                 <p className="text-xs text-destructive">{searchApi.detectFeedback}</p>
-                                {searchApi.showApproximateFallback && (
-                                    <Button type="button" variant="outline" size="sm" className="w-full justify-start h-11 px-2 text-xs" disabled={searchApi.isDetecting} onClick={() => searchApi.handleApproximateDetect(() => setIsOpen(false))}>
-                                        <MapPin className="mr-2 h-3.5 w-3.5" /> Use Approximate Location
-                                    </Button>
-                                )}
                             </div>
                         )}
                     </div>

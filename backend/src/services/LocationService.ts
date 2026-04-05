@@ -4,7 +4,7 @@ import Location from '../models/Location';
 import AdminBoundary from '../models/AdminBoundary';
 import LocationAnalytics from '../models/LocationAnalytics';
 import logger from '../utils/logger';
-import { escapeRegExp } from '../utils/stringUtils';
+import { escapeRegExp, toTitleCase } from '../utils/stringUtils';
 import { formatLocationResponse } from '../lib/location/formatLocation';
 import { toGeoPoint } from '../../../shared/utils/geoUtils';
 export { toGeoPoint };
@@ -18,7 +18,6 @@ import {
     equalsIgnoreCase,
     extractObjectIdString,
     normalizeCoordinates,
-    toTitleCase,
     type LocationInputObject
 } from './location/LocationService.helpers';
 export { normalizeCoordinates } from './location/LocationService.helpers';

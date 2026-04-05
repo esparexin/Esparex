@@ -6,7 +6,7 @@ import { useIsMobile } from "@/components/ui/useMobile";
 import type { Category } from "@/lib/api/user/categories";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
-import { MobileStickyCTA } from "@/components/ui/mobile-sticky-cta";
+import { MobileStickyCTA } from "@/components/ui/MobileStickyCta";
 import { haptics } from "@/lib/haptics";
 import {
     SearchFiltersPanel,

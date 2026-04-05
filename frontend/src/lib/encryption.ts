@@ -2,7 +2,10 @@
 import CryptoJS from 'crypto-js';
 import logger from "@/lib/logger";
 
-const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY || process.env.ENCRYPTION_KEY || 'esparex-default-secret-key-change-this';
+const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY?.trim() || process.env.ENCRYPTION_KEY?.trim();
+if (!SECRET_KEY) {
+    throw new Error('[encryption] NEXT_PUBLIC_ENCRYPTION_KEY is not set. Add it to your .env.local file.');
+}
 
 /**
  * Encrypts data using AES-256

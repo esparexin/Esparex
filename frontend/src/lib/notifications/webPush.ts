@@ -3,6 +3,7 @@
 import type { User } from "@/types/User";
 
 import { notificationApi } from "@/lib/api/user/notifications";
+import { isNativeShell } from "@/lib/runtime/nativeShell";
 
 type WebPushStatus =
     | "connected"
@@ -75,6 +76,7 @@ const getFirebaseWebConfig = (): FirebaseWebConfig | null => {
 export const isBrowserPushSupported = () =>
     typeof window !== "undefined" &&
     typeof navigator !== "undefined" &&
+    !isNativeShell() &&
     window.isSecureContext &&
     "Notification" in window &&
     "serviceWorker" in navigator;

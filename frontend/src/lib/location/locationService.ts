@@ -3,7 +3,6 @@ import { DEFAULT_APP_LOCATION } from "@/types/location";
 import {
     reverseGeocode as reverseGeocodeApi,
 } from "@/lib/api/user/locations";
-import { detectLocationByIP } from "@/lib/api/ipGeolocation";
 import {
     createPoint,
     toCanonicalGeoPoint,
@@ -15,6 +14,8 @@ import {
     isGenericDetectedLocation,
     normalizeLocationText,
     sanitizeLocationLabel,
+    LABEL_CURRENT_LOCATION,
+    LABEL_CURRENT_LOCATION_CAPTURED,
 } from "@/lib/location/locationLabels";
 
 const GEOLOCATION_TIMEOUT_MS = 12000;
@@ -160,10 +161,7 @@ export async function reverseGeocode(
     return normalizeToAppLocation(location, "auto");
 }
 
-export type CurrentLocationMode =
-    | "precise"
-    | "approximate"
-    | "precise_or_approximate";
+export type CurrentLocationMode = "precise";
 
 type CurrentLocationOptions = {
     mode?: CurrentLocationMode;
@@ -176,7 +174,6 @@ export type LocationDetectFailureReason =
     | "unsupported"
     | "insecure_context"
     | "prompt_skipped"
-    | "ip_failed"
     | "unknown";
 
 export type LocationDetectFailure = {
@@ -186,7 +183,7 @@ export type LocationDetectFailure = {
 
 export type LocationDetectResult = {
     location: AppLocation | null;
-    source: "auto" | "ip" | "none";
+    source: "auto" | "none";
     failure?: LocationDetectFailure;
 };
 
@@ -221,16 +218,6 @@ const isSecureLocationContext = (): boolean => {
     if (typeof window === "undefined") return false;
     if (window.isSecureContext) return true;
     return /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname);
-};
-
-const reverseGeocodeWithSource = async (
-    latitude: number,
-    longitude: number,
-    source: AppLocationSource
-): Promise<AppLocation | null> => {
-    const location = await reverseGeocodeApi(latitude, longitude);
-    if (!location) return null;
-    return normalizeToAppLocation(location, source);
 };
 
 /**
@@ -326,13 +313,13 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
 
         return {
             location: buildAppLocation({
-                formattedAddress: "Current location captured",
-                city: "Current location",
+                formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED,
+                city: LABEL_CURRENT_LOCATION,
                 state: "",
                 country: "Unknown",
                 coordinates: createPoint(coords.longitude, coords.latitude),
                 source: "auto",
-                name: "Current location",
+                name: LABEL_CURRENT_LOCATION,
             }),
             source: "auto",
         };
@@ -341,103 +328,16 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
     }
 };
 
-const detectApproximateLocation = async (): Promise<LocationDetectResult> => {
-    if (typeof window === "undefined") {
-        return buildFailureResult({
-            reason: "unsupported",
-            message: "Location detection is unavailable on the server.",
-        });
-    }
-
-    const ipLocation = await detectLocationByIP();
-    if (!ipLocation) {
-        return buildFailureResult({
-            reason: "ip_failed",
-            message:
-                "Unable to detect location automatically. Please select location manually.",
-        });
-    }
-
-    const ipLng = ipLocation.coordinates.coordinates[0];
-    const ipLat = ipLocation.coordinates.coordinates[1];
-
-    const resolved = await reverseGeocodeWithSource(
-        ipLat,
-        ipLng,
-        "ip"
-    );
-    if (resolved) {
-        return {
-            location: resolved,
-            source: "ip",
-        };
-    }
-
-    return {
-        location: buildAppLocation({
-            formattedAddress: `${ipLocation.city}, ${ipLocation.state}` || "Approximate current location",
-            city: ipLocation.city,
-            state: ipLocation.state,
-            country: ipLocation.country,
-            coordinates: createPoint(ipLng, ipLat),
-            source: "ip",
-            name: ipLocation.city || "Approximate current location",
-        }),
-        source: "ip",
-    };
-};
-
 async function getCurrentLocationWithOptions(
-    options: CurrentLocationOptions = {}
+    _options: CurrentLocationOptions = {}
 ): Promise<LocationDetectResult> {
-    const mode = options.mode ?? "precise_or_approximate";
-
-    if (mode === "approximate") {
-        return detectApproximateLocation();
-    }
-
-    const preciseResult = await detectPreciseLocation();
-    if (preciseResult.location || mode === "precise") {
-        return preciseResult;
-    }
-
-    const approximateResult = await detectApproximateLocation();
-    if (approximateResult.location) {
-        return approximateResult;
-    }
-
-    return {
-        ...approximateResult,
-        failure: preciseResult.failure ?? approximateResult.failure,
-    };
+    return detectPreciseLocation();
 }
 
 export async function getCurrentLocationResult(
     options: CurrentLocationOptions = {}
 ): Promise<LocationDetectResult> {
     return getCurrentLocationWithOptions(options);
-}
-
-export function toLocationPayload(location: AppLocation): {
-    locationId?: string;
-    city: string;
-    state: string;
-    country: string;
-    display: string;
-    coordinates?: {
-        type: "Point";
-        coordinates: [number, number];
-    };
-} {
-    const locationId = location.locationId ?? location.id;
-    return {
-        locationId,
-        city: location.city,
-        state: location.state,
-        country: location.country,
-        display: location.formattedAddress,
-        coordinates: toCanonicalGeoPoint(location.coordinates),
-    };
 }
 
 export function normalizeLocationName(name: string | undefined | null): string {
@@ -453,19 +353,6 @@ type LocationLike = {
     name?: string;
 } | string | null | undefined;
 
-type LocationDisplayLike =
-    | {
-        display?: string;
-        formattedAddress?: string;
-        address?: string;
-        city?: string;
-        state?: string;
-        country?: string;
-    }
-    | string
-    | null
-    | undefined;
-
 export function formatLocation(location: LocationLike): string {
     if (!location) return "";
     if (typeof location === "string") return sanitizeLocationLabel(location) || "";
@@ -477,31 +364,6 @@ export function formatLocation(location: LocationLike): string {
     if (location.name) return sanitizeLocationLabel(location.name) || "";
 
     return "";
-}
-
-export function formatLocationDisplay(location: LocationDisplayLike): string {
-    if (!location) return "";
-    if (typeof location === "string") return sanitizeLocationLabel(location) || "";
-
-    const primary = formatLocation(location);
-    if (primary) return primary;
-
-    return [location.city, location.state, location.country]
-        .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
-        .map((value) => sanitizeLocationLabel(value))
-        .filter((value): value is string => Boolean(value))
-        .join(", ");
-}
-
-export function isNeutralLocation(location: LocationLike): boolean {
-    if (!location) return true;
-    const name = typeof location === 'string' ? location : (location.name || location.city || "");
-    return name === "Select Location" || name === "Unknown" || isGenericDetectedLocation({ source: "auto", name }) || !sanitizeLocationLabel(name);
-}
-
-export function extractCityFromLocation(location: string): string {
-    const parts = location.split(",");
-    return parts[0]?.trim() || "";
 }
 
 export {

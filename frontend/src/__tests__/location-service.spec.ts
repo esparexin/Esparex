@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { detectLocationByIP } from "@/lib/api/ipGeolocation";
-import { reverseGeocode as reverseGeocodeApi } from "@/lib/api/user/locations";
 import {
     getCurrentLocationResult,
     getHeaderLocationText,
@@ -12,10 +10,6 @@ import {
 
 vi.mock("@/lib/api/user/locations", () => ({
     reverseGeocode: vi.fn(),
-}));
-
-vi.mock("@/lib/api/ipGeolocation", () => ({
-    detectLocationByIP: vi.fn(),
 }));
 
 type PermissionStateLike = PermissionState | "unknown";
@@ -55,90 +49,13 @@ describe("getCurrentLocationResult", () => {
         vi.unstubAllGlobals();
     });
 
-    it("returns a precise failure without touching IP detection in precise mode", async () => {
+    it("returns a failure when GPS permission is denied", async () => {
         stubBrowser({ permissionState: "denied" });
 
         const result = await getCurrentLocationResult({ mode: "precise" });
 
         expect(result.location).toBeNull();
         expect(result.source).toBe("none");
-        expect(result.failure?.reason).toBe("permission_denied");
-        expect(vi.mocked(detectLocationByIP)).not.toHaveBeenCalled();
-    });
-
-    it("uses IP detection directly in approximate mode", async () => {
-        const geolocation = stubBrowser();
-        vi.mocked(detectLocationByIP).mockResolvedValueOnce({
-            city: "Hyderabad",
-            state: "Telangana",
-            country: "India",
-            coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
-        });
-        vi.mocked(reverseGeocodeApi).mockResolvedValueOnce(null);
-
-        const result = await getCurrentLocationResult({ mode: "approximate" });
-
-        expect(result.source).toBe("ip");
-        expect(result.location).toMatchObject({
-            formattedAddress: "Hyderabad, Telangana",
-            city: "Hyderabad",
-            state: "Telangana",
-            country: "India",
-            source: "ip",
-        });
-        expect(geolocation.getCurrentPosition).not.toHaveBeenCalled();
-    });
-
-    it("falls back from GPS to IP in precise_or_approximate mode", async () => {
-        const geolocation = stubBrowser({
-            geolocation: {
-                getCurrentPosition: vi.fn((_success, error) => {
-                    error?.({ code: 2 });
-                }),
-            },
-        });
-        vi.mocked(detectLocationByIP).mockResolvedValueOnce({
-            city: "Hyderabad",
-            state: "Telangana",
-            country: "India",
-            coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
-        });
-        vi.mocked(reverseGeocodeApi).mockResolvedValueOnce({
-            id: "65f0a1b2c3d4e5f607182930",
-            locationId: "65f0a1b2c3d4e5f607182930",
-            name: "Abids",
-            city: "Hyderabad",
-            state: "Telangana",
-            country: "India",
-            display: "Abids, Hyderabad",
-            level: "area",
-            coordinates: { type: "Point", coordinates: [78.4767, 17.3913] },
-            isActive: true,
-            isPopular: false,
-        });
-
-        const result = await getCurrentLocationResult({
-            mode: "precise_or_approximate",
-        });
-
-        expect(geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
-        expect(result.source).toBe("ip");
-        expect(result.location).toMatchObject({
-            display: "Abids, Hyderabad",
-            formattedAddress: "Abids, Hyderabad",
-            source: "ip",
-        });
-    });
-
-    it("preserves the precise failure when fallback also fails", async () => {
-        stubBrowser({ permissionState: "denied" });
-        vi.mocked(detectLocationByIP).mockResolvedValueOnce(null);
-
-        const result = await getCurrentLocationResult({
-            mode: "precise_or_approximate",
-        });
-
-        expect(result.location).toBeNull();
         expect(result.failure?.reason).toBe("permission_denied");
     });
 

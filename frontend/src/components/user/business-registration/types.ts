@@ -5,7 +5,7 @@ export interface StepData {
     businessDescription: string;
     fullAddress: string;
     currentLocationDisplay: string;
-    currentLocationSource: "auto" | "ip" | "";
+    currentLocationSource: "auto" | "";
     currentLocationCity: string;
     currentLocationState: string;
     currentLocationCountry: string;

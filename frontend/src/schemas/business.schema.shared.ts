@@ -105,7 +105,7 @@ const requiredBusinessFields = {
         .trim()
         .min(1, "Use current location to continue"),
 
-    currentLocationSource: z.enum(["auto", "ip"]).optional().or(z.literal("")),
+    currentLocationSource: z.enum(["auto"]).optional().or(z.literal("")),
 
     currentLocationCity: z.string().trim().max(50, "Detected city must be less than 50 characters").optional().or(z.literal("")),
 

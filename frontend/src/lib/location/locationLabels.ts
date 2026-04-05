@@ -1,8 +1,11 @@
 import type { AppLocationSource } from "@/types/location";
 
+export const LABEL_CURRENT_LOCATION_CAPTURED = "Current location captured";
+export const LABEL_CURRENT_LOCATION = "Current location";
+
 const GENERIC_DETECTED_LOCATION_LABELS = new Set([
-    "current location",
-    "current location captured",
+    LABEL_CURRENT_LOCATION.toLowerCase(),
+    LABEL_CURRENT_LOCATION_CAPTURED.toLowerCase(),
     "approximate current location",
 ]);
 const NEUTRAL_LOCATION_LABELS = new Set([

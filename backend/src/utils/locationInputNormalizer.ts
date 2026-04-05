@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { hasValidCoordinateArray } from '@shared/utils/geoUtils';
-import { asString, toTitleCase } from '../services/location/LocationService.helpers';
+import { asString } from '../services/location/LocationService.helpers';
+import { toTitleCase } from './stringUtils';
 import { toObjectId } from './idUtils';
 import { buildHierarchyPath } from './locationHierarchyUtils';
 

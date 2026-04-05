@@ -42,15 +42,6 @@ export const asString = (value: unknown): string | undefined => {
     return undefined;
 };
 
-export const toTitleCase = (value?: string): string => {
-    if (!value) return '';
-    return value
-        .split(' ')
-        .filter(Boolean)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-        .join(' ');
-};
-
 export const equalsIgnoreCase = (a?: string, b?: string): boolean => {
     if (!a && !b) return true;
     if (!a || !b) return false;
