@@ -1,4 +1,5 @@
 import type { LocationData } from "@/context/LocationContext";
+import { getSearchLocationLabel, sanitizeLocationLabel } from "@/lib/location/locationLabels";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 
 interface BaseBrowseFilterShape {
@@ -74,8 +75,9 @@ export function applyRequestedLocationFilters<TFilter extends RequestedLocationF
     return true;
   }
 
-  if (urlLocationLabel) {
-    filters.location = urlLocationLabel;
+  const sanitizedLocationLabel = sanitizeLocationLabel(urlLocationLabel);
+  if (sanitizedLocationLabel) {
+    filters.location = sanitizedLocationLabel;
     if (hasFiniteRadius) {
       filters.radiusKm = radiusKm;
     }
@@ -122,12 +124,7 @@ export function applyServiceLocationFilters<TFilter extends ServiceLocationFilte
   if (!location) return;
 
   const isRegionLevel = location.level === "state" || location.level === "country";
-  const regionLocationLabel =
-    location.level === "state"
-      ? location.state || location.city || undefined
-      : location.level === "country"
-        ? location.country || location.state || location.city || undefined
-        : undefined;
+  const regionLocationLabel = getSearchLocationLabel(location);
 
   if (location.locationId) {
     filters.locationId = location.locationId;

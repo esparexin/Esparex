@@ -11,7 +11,6 @@ import {
     getAreasByCityId,
     getCitiesByStateId,
     getStateLocations,
-    getPopularLocations as getPopularLocationsService,
     lookupLocationByPincode as lookupLocationByPincodeService,
     searchLocations as searchLocationsService,
     touchLocationSearchAnalytics,
@@ -80,13 +79,6 @@ export const formatLocationResponse = (loc: LocationLike) =>
 
 export const searchLocations = async (req: Request, res: Response) => {
     try {
-        const rawPopular = Array.isArray(req.query.popular) ? req.query.popular[0] : req.query.popular;
-        const isPopular = String(rawPopular) === "true";
-
-        if (isPopular) {
-            return getPopularLocations(req, res);
-        }
-
         const config = await getLocationConfig();
         if (!config.enableAutoComplete) {
             return res.json(respond({ success: true, data: [] }));
@@ -102,7 +94,7 @@ export const searchLocations = async (req: Request, res: Response) => {
         const cached = await getCache(cacheKey);
         if (cached) return res.json(respond({ success: true, data: cached }));
 
-        const response = await searchLocationsService(q, false);
+        const response = await searchLocationsService(q);
         const locationIds = response
             .map((item: any) => item.id)
             .filter((value: any): value is string => typeof value === 'string' && value.length > 0);
@@ -118,21 +110,6 @@ export const searchLocations = async (req: Request, res: Response) => {
     } catch (error: unknown) {
         logger.error('searchLocations error', { error: error instanceof Error ? error.message : String(error) });
         return sendErrorResponse(req, res, 500, "Failed to search locations");
-    }
-};
-
-export const getPopularLocations = async (req: Request, res: Response) => {
-    try {
-        const cacheKey = CACHE_KEYS.POPULAR_CITIES;
-        const cached = await getCache(cacheKey);
-        if (cached) return res.json(respond({ success: true, data: cached }));
-
-        const response = await getPopularLocationsService();
-        await setCache(cacheKey, response, CACHE_TTLS.POPULAR_CITIES);
-        return res.json(respond({ success: true, data: response }));
-    } catch (error: unknown) {
-        logger.error('getPopularLocations error', { error: error instanceof Error ? error.message : String(error) });
-        return sendErrorResponse(req, res, 500, "Failed to fetch popular locations");
     }
 };
 

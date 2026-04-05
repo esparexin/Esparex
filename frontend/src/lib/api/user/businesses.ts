@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib/api/client';
+import { apiClient, type EsparexRequestConfig } from '@/lib/api/client';
 import { toApiResult } from '@/lib/api/result';
 import { API_ROUTES } from '../routes';
 import type { GeoJSONPoint } from '@/types/location';
@@ -23,12 +23,12 @@ export interface CreateBusinessDTO {
     businessTypes?: string[];
     location: {
         locationId?: string;
-        city: string;
-        state: string;
-        pincode: string;
-        street: string;
-        shopNo: string;
-        landmark?: string;
+        address: string;
+        display?: string;
+        city?: string;
+        state?: string;
+        country?: string;
+        pincode?: string;
         coordinates?: GeoJSONPoint;
     };
     phone: string;
@@ -51,6 +51,20 @@ import { fetchUserApiJson, type ServerFetchOptions } from './server';
 
 // ...
 
+const asOptionalString = (value: unknown): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : undefined;
+};
+
+const joinLocationParts = (...parts: unknown[]): string | undefined => {
+    const normalizedParts = parts
+        .map((part) => asOptionalString(part))
+        .filter((part): part is string => Boolean(part));
+
+    return normalizedParts.length > 0 ? normalizedParts.join(", ") : undefined;
+};
+
 export function normalizeBusiness(
     apiBusiness: ApiBusiness | null | undefined
 ): Business | null {
@@ -58,25 +72,52 @@ export function normalizeBusiness(
 
     // Use shared normalization (handles coordinates & display logic)
     // We pass apiBusiness.location which has the raw structure
-    const normalizedLoc = normalizeLocation(apiBusiness.location);
+    const rawLocation =
+        apiBusiness.location && typeof apiBusiness.location === "object"
+            ? (apiBusiness.location as unknown as Record<string, unknown>)
+            : {};
+    const normalizedLoc = normalizeLocation(rawLocation);
 
     const normalizedStatus = normalizeBusinessStatus(apiBusiness.status);
+    const resolvedDisplay =
+        asOptionalString(rawLocation.display)
+        || normalizedLoc?.display
+        || normalizedLoc?.formattedAddress
+        || joinLocationParts(rawLocation.city, rawLocation.state)
+        || "Unknown Location";
+    const resolvedAddress =
+        asOptionalString(rawLocation.address)
+        || normalizedLoc?.formattedAddress
+        || resolvedDisplay;
+    const normalizedBusinessLocation = {
+        ...rawLocation,
+        ...(normalizedLoc ?? {}),
+        locationId:
+            asOptionalString(rawLocation.locationId)
+            || apiBusiness.locationId
+            || normalizedLoc?.locationId,
+        address: resolvedAddress,
+        formattedAddress: normalizedLoc?.formattedAddress || resolvedAddress,
+        display: resolvedDisplay,
+        shopNo: asOptionalString(rawLocation.shopNo),
+        street: asOptionalString(rawLocation.street),
+        landmark: asOptionalString(rawLocation.landmark),
+        city: normalizedLoc?.city || asOptionalString(rawLocation.city) || "",
+        state: normalizedLoc?.state || asOptionalString(rawLocation.state) || "",
+        country: normalizedLoc?.country || asOptionalString(rawLocation.country) || "India",
+        pincode: normalizedLoc?.pincode || asOptionalString(rawLocation.pincode),
+        coordinates: normalizedLoc?.coordinates || rawLocation.coordinates,
+    };
 
     return {
         ...apiBusiness,
-        businessName: apiBusiness.name, // Keep for backward compatibility with UI components
-        // Canonicalize mobile/phone/contactNumber — model stores as `mobile`, expose all aliases
+        sellerId: apiBusiness.sellerId || apiBusiness.userId || (apiBusiness as any).ownerId || "",
         mobile: apiBusiness.mobile || (apiBusiness as any).phone || "",
-        phone: apiBusiness.mobile || (apiBusiness as any).phone || "",
-        contactNumber: apiBusiness.mobile || (apiBusiness as any).phone || (apiBusiness as any).contactNumber || "",
         isVerified: !!apiBusiness.isVerified || !!(apiBusiness as any).verified,
-        verified: !!apiBusiness.isVerified || !!(apiBusiness as any).verified,
         status: normalizedStatus as ApiBusiness['status'],
         logo: apiBusiness.logo,
         coverImage: apiBusiness.coverImage,
         images: toSafeImageArray(apiBusiness.images),
-        shopImages: toSafeImageArray(apiBusiness.shopImages),
-        gallery: toSafeImageArray(apiBusiness.gallery),
         documents: Object.assign(
             Array.isArray(apiBusiness.documents) ? [...apiBusiness.documents] : [],
             {
@@ -94,17 +135,30 @@ export function normalizeBusiness(
                     : (apiBusiness.documents as any)?.certificates || []
             }
         ),
-        location: {
-            ...normalizedLoc,
-            address: normalizedLoc?.formattedAddress || normalizedLoc?.display || 'Unknown Location',
-            display: normalizedLoc?.display || 'Unknown Location'
-        }
+        location: normalizedBusinessLocation
     } as Business;
 }
 
 interface BusinessRequestOptions {
     fetchOptions?: ServerFetchOptions;
     headers?: Record<string, string>;
+    requestConfig?: EsparexRequestConfig;
+}
+
+function shouldLogBusinessApiError(
+    options?: EsparexRequestConfig | BusinessRequestOptions
+): boolean {
+    if (!options) return true;
+
+    if ('requestConfig' in options) {
+        return options.requestConfig?.silent !== true;
+    }
+
+    if ('silent' in options) {
+        return options.silent !== true;
+    }
+
+    return true;
 }
 
 // --- API Functions ---
@@ -191,18 +245,25 @@ export const uploadBusinessImage = async (
     return url;
 };
 
-export const getMyBusiness = async (): Promise<Business | null> => {
+export const getMyBusiness = async (
+    options?: EsparexRequestConfig
+): Promise<Business | null> => {
     try {
-        const { data: apiData } = await toApiResult<ApiBusiness>(
-            apiClient.get(API_ROUTES.USER.BUSINESS_ME)
+        const { data: apiData, error } = await toApiResult<ApiBusiness>(
+            apiClient.get(API_ROUTES.USER.BUSINESS_ME, options)
         );
+        if (error) {
+            throw error;
+        }
         if (!apiData) {
             return null;
         }
 
         return normalizeBusiness(apiData);
     } catch (e) {
-        logger.error('Failed to load business', e);
+        if (shouldLogBusinessApiError(options)) {
+            logger.error('Failed to load business', e);
+        }
         throw e;
     }
 };
@@ -216,7 +277,7 @@ export const getBusinessById = async (
     }
 
     try {
-        const { data: apiData } =
+        const result =
             typeof window === 'undefined'
                 ? await toApiResult<ApiBusiness>(
                     Promise.resolve(
@@ -231,12 +292,18 @@ export const getBusinessById = async (
                     )
                 )
                 : await toApiResult<ApiBusiness>(
-                    apiClient.get(API_ROUTES.USER.BUSINESS_DETAIL(id))
+                    apiClient.get(API_ROUTES.USER.BUSINESS_DETAIL(id), options?.requestConfig)
                 );
+        if (result.error) {
+            throw result.error;
+        }
+        const apiData = result.data;
         if (!apiData) return null;
         return normalizeBusiness(apiData);
     } catch (e) {
-        logger.error('Failed to load business', e);
+        if (shouldLogBusinessApiError(options)) {
+            logger.error('Failed to load business', e);
+        }
         throw e;
     }
 };
@@ -265,30 +332,45 @@ export type BusinessStats = {
     [key: string]: unknown;
 };
 
-export const getBusinessStats = async (id: string): Promise<BusinessStats> => {
+export const getBusinessStats = async (
+    id: string,
+    options?: EsparexRequestConfig
+): Promise<BusinessStats> => {
     try {
-        const { data: result } = await toApiResult<BusinessStats>(
-            apiClient.get(API_ROUTES.USER.BUSINESS_STATS(id))
+        const { data: result, error } = await toApiResult<BusinessStats>(
+            apiClient.get(API_ROUTES.USER.BUSINESS_STATS(id), options)
         );
+        if (error) {
+            throw error;
+        }
         if (!result) {
             throw new Error('Failed to load business stats');
         }
         return result;
     } catch (e) {
-        logger.error('Failed to load business stats', e);
+        if (shouldLogBusinessApiError(options)) {
+            logger.error('Failed to load business stats', e);
+        }
         throw e;
     }
 };
 
-export const getMyBusinessStats = async (): Promise<BusinessStats> => {
+export const getMyBusinessStats = async (
+    options?: EsparexRequestConfig
+): Promise<BusinessStats> => {
     try {
-        const { data: result } = await toApiResult<BusinessStats>(
-            apiClient.get(API_ROUTES.USER.BUSINESS_ME_STATS)
+        const { data: result, error } = await toApiResult<BusinessStats>(
+            apiClient.get(API_ROUTES.USER.BUSINESS_ME_STATS, options)
         );
+        if (error) {
+            throw error;
+        }
         return result || { totalServices: 0, approvedServices: 0, pendingServices: 0, views: 0 };
     } catch (e) {
-        logger.error('Failed to load my business stats', e);
-        return { totalServices: 0, approvedServices: 0, pendingServices: 0, views: 0 };
+        if (shouldLogBusinessApiError(options)) {
+            logger.error('Failed to load my business stats', e);
+        }
+        throw e;
     }
 };
 

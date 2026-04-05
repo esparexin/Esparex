@@ -48,6 +48,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
         showLocationSelector,
         setShowLocationSelector,
         globalLocation: location,
+        headerLocationDetails,
         resolvedHeaderLocation,
         searchQuery,
         setSearchQuery,
@@ -85,10 +86,13 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                         type="button"
                         className="active:bg-slate-100 transition-colors flex items-center flex-1 min-w-0 text-left"
                         onClick={() => isMounted && setShowLocationSelector(true)}
-                        aria-label="Open location selector"
+                        aria-label={headerLocationDetails.headerText
+                            ? `Change location. Current location: ${headerLocationDetails.headerText}`
+                            : "Open location selector"}
+                        title={headerLocationDetails.tooltipText || resolvedHeaderLocation}
                     >
                         <MapPin className="h-3.5 w-3.5 text-blue-500 mr-1.5 flex-shrink-0" />
-                        <span className="text-sm font-medium truncate flex-1 text-slate-600 max-w-[150px] sm:max-w-[200px]">
+                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-600">
                             <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
                                 {isMounted && location.source !== 'default'
                                     ? resolvedHeaderLocation

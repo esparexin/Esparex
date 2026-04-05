@@ -7,7 +7,6 @@ import {
     getDistinctStates,
     getLocations,
     toggleLocationStatus,
-    togglePopularStatus,
     deleteLocation,
     updateLocation,
 } from "@/lib/api/locations";
@@ -157,21 +156,6 @@ export function useAdminLocations({
         }
     };
 
-    const handleTogglePopular = async (id: string) => {
-        try {
-            const response = await togglePopularStatus(id);
-            if (!response.success) {
-                showToast(response.message || "Failed to update popularity", "error");
-                return;
-            }
-
-            await refresh();
-            showToast("Location popularity updated", "success");
-        } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to update popularity", "error");
-        }
-    };
-
     const handleCreate = async (data: MutableLocationPayload) => {
         try {
             const payload = stripLocationFormHelpers(data);
@@ -261,7 +245,6 @@ export function useAdminLocations({
         pagination,
         refresh,
         handleToggleStatus,
-        handleTogglePopular,
         handleDelete,
         handleCreate,
         handleUpdate,

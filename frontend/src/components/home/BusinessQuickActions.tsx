@@ -28,7 +28,9 @@ const ACTIONS = [
 
 export function BusinessQuickActions() {
     const { user, status } = useAuth();
-    const { businessData, isFetched } = useBusiness(user);
+    const { businessData, isFetched } = useBusiness(user, undefined, {
+        includeStats: false,
+    });
 
     // Only render for authenticated, verified business accounts
     if (status !== "authenticated" || !isFetched) return null;

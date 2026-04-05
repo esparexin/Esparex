@@ -29,6 +29,7 @@ import type { ApiResponse, ContactResponse, PaginatedResponse } from '../../../s
 import { ListingMutationService } from '../services/ListingMutationService';
 
 import { normalizeImageTokens, toImageUrls } from '../utils/listingUtils';
+import { collectImmutableFieldErrors } from '../utils/immutableFieldErrors';
 // ---------------------------------------------
 
 const SPARE_PART_EDIT_LOCK_MESSAGES: Record<string, string> = {
@@ -50,20 +51,6 @@ const SPARE_PART_EDIT_LOCK_MESSAGES: Record<string, string> = {
     deletedAt: 'Deletion state cannot be changed while editing a spare-part listing.',
     expiresAt: 'Expiry cannot be changed while editing a spare-part listing.',
 };
-
-const hasOwn = (body: Record<string, unknown>, field: string) =>
-    Object.prototype.hasOwnProperty.call(body, field);
-
-const collectLockedFieldErrors = (
-    body: Record<string, unknown>,
-    fieldMessages: Record<string, string>
-) => Object.entries(fieldMessages)
-    .filter(([field]) => hasOwn(body, field))
-    .map(([field, message]) => ({
-        field,
-        message,
-        code: 'IMMUTABLE_FIELD',
-    }));
 
 // Schemas imported from shared — single source of truth with frontend
 const sparePartListingCreateSchema = SparePartPayloadSchema;
@@ -101,14 +88,20 @@ export const createSparePartListing = async (req: Request, res: Response) => {
             description,
             price,
             images,
-            locationId: topLevelLocationId,
-            location
         } = parsed.data;
 
-        // Accept locationId from top-level field OR nested inside location object
-        const locationId = topLevelLocationId || location?.locationId;
+        const rawBusinessLocationId =
+            req.business?.locationId
+            || (typeof req.business?.location === 'object' && req.business?.location
+                ? (req.business.location as { locationId?: unknown }).locationId
+                : undefined);
+        const locationId =
+            rawBusinessLocationId instanceof mongoose.Types.ObjectId
+                ? rawBusinessLocationId
+                : (typeof rawBusinessLocationId === 'string' && mongoose.Types.ObjectId.isValid(rawBusinessLocationId)
+                    ? new mongoose.Types.ObjectId(rawBusinessLocationId)
+                    : undefined);
 
-        // Explicit check after optional parse — user-friendly error message
         if (!locationId) {
             return sendContractErrorResponse(req, res, 400, 'Business location ID is required. Please update your business profile to set a valid location.');
         }
@@ -154,7 +147,6 @@ export const createSparePartListing = async (req: Request, res: Response) => {
                 sellerType: 'business',
                 businessId, // Linked to businessId field in Ad model
                 location: {
-                    ...location,
                     locationId
                 },
                 status: INVENTORY_STATUS.PENDING,
@@ -233,7 +225,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
         if (!listing) return;
 
         const body = req.body as Record<string, unknown>;
-        const lockErrors = collectLockedFieldErrors(body, SPARE_PART_EDIT_LOCK_MESSAGES);
+        const lockErrors = collectImmutableFieldErrors(body, SPARE_PART_EDIT_LOCK_MESSAGES);
         if (lockErrors.length > 0) {
             return sendContractErrorResponse(req, res, 400, 'Validation failed', {
                 code: 'LOCKED_FIELDS',

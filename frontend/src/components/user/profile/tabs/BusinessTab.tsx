@@ -56,7 +56,7 @@ export function BusinessTab({
                             </div>
                             <div className="min-w-0 space-y-2">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <h2 className="text-2xl font-bold tracking-tight">{businessData.businessName || businessData.name}</h2>
+                                    <h2 className="text-2xl font-bold tracking-tight">{businessData.name}</h2>
                                     <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-blue-50">
                                         <CheckCircle2 className="h-3.5 w-3.5" />
                                         Verified business
@@ -78,7 +78,7 @@ export function BusinessTab({
                             <div className="flex items-start gap-3 rounded-2xl bg-white/10 px-4 py-3">
                                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-blue-100" />
                                 <span className="text-sm leading-6 text-blue-50">
-                                    +91 {businessData.contactNumber || businessData.mobile}
+                                    +91 {businessData.mobile}
                                 </span>
                             </div>
                             <div className="flex items-start gap-3 rounded-2xl bg-white/10 px-4 py-3">

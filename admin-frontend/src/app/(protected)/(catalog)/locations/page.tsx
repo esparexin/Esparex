@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Edit, MapPin, Trash2 } from "lucide-react";
 import { useAdminLocations } from "@/hooks/useAdminLocations";
+import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { getLocationOptions } from "@/lib/api/locations";
 import { type Location } from "@/types/location";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
@@ -22,10 +23,8 @@ import {
 import { adminLocationSchema } from "@/schemas/admin.schemas";
 import { locationsTabs } from "@/components/layout/adminModuleTabSets";
 import {
-    buildUrlWithSearchParams,
     normalizeSearchParamValue,
     parsePositiveIntParam,
-    updateSearchParams,
 } from "@/lib/urlSearchParams";
 
 type LocationFormLevel = "state" | "city" | "area";
@@ -38,13 +37,11 @@ type LocationFormData = {
     longitude: string;
     latitude: string;
     isActive: boolean;
-    isPopular: boolean;
     country: string;
 };
 
 const LOCATION_STATUS_VALUES = new Set(["all", "active", "inactive"]);
 const LOCATION_LEVEL_VALUES = new Set(["all", "state", "city", "area"]);
-const LOCATION_POPULAR_VALUES = new Set(["all", "true", "false"]);
 
 const normalizeStatusParam = (value: string | null) =>
     value && LOCATION_STATUS_VALUES.has(value) ? value : "all";
@@ -52,15 +49,11 @@ const normalizeStatusParam = (value: string | null) =>
 const normalizeLevelParam = (value: string | null) =>
     value && LOCATION_LEVEL_VALUES.has(value) ? value : "all";
 
-const normalizePopularParam = (value: string | null) =>
-    value && LOCATION_POPULAR_VALUES.has(value) ? value : "all";
-
 type LocationsPageContentProps = {
     initialSearch: string;
     initialStatus: string;
     initialState: string;
     initialLevel: string;
-    initialPopular: string;
     initialPage: number;
 };
 
@@ -209,16 +202,11 @@ function LocationFormFields({
                 />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 <CatalogCheckboxCard
                     checked={formData.isActive}
                     onChange={(isActive) => setFormData((prev) => ({ ...prev, isActive }))}
                     label="Active"
-                />
-                <CatalogCheckboxCard
-                    checked={formData.isPopular}
-                    onChange={(isPopular) => setFormData((prev) => ({ ...prev, isPopular }))}
-                    label="Popular"
                 />
             </div>
         </div>
@@ -230,12 +218,8 @@ function LocationsPageContent({
     initialStatus,
     initialState,
     initialLevel,
-    initialPopular,
     initialPage,
 }: LocationsPageContentProps) {
-    const pathname = usePathname();
-    const router = useRouter();
-    const searchParams = useSearchParams();
     const [searchInput, setSearchInput] = useState(initialSearch);
     const [stateOptions, setStateOptions] = useState<Location[]>([]);
 
@@ -245,9 +229,8 @@ function LocationsPageContent({
             status: initialStatus as "all" | "active" | "inactive",
             state: initialState || "all",
             level: initialLevel as "all" | "state" | "city" | "area",
-            isPopular: initialPopular as "all" | "true" | "false",
         }),
-        [initialLevel, initialPopular, initialSearch, initialState, initialStatus]
+        [initialLevel, initialSearch, initialState, initialStatus]
     );
 
     const {
@@ -256,7 +239,6 @@ function LocationsPageContent({
         loading,
         error,
         handleToggleStatus,
-        handleTogglePopular,
         handleDelete,
         handleCreate,
         handleUpdate,
@@ -270,6 +252,14 @@ function LocationsPageContent({
     useEffect(() => {
         setSearchInput(initialSearch);
     }, [initialSearch]);
+
+    const { replaceQueryState } = useCatalogQueryStateSync({
+        searchInput,
+        initialSearch,
+        loading,
+        initialPage,
+        totalPages: pagination.totalPages,
+    });
 
     useEffect(() => {
         let active = true;
@@ -293,36 +283,6 @@ function LocationsPageContent({
         };
     }, []);
 
-    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    };
-
-    useEffect(() => {
-        if (!loading && initialPage > pagination.totalPages && pagination.totalPages > 0) {
-            replaceQueryState({ page: pagination.totalPages > 1 ? pagination.totalPages : null });
-        }
-    }, [initialPage, loading, pagination.totalPages]);
-
-    useEffect(() => {
-        const normalizedSearch = normalizeSearchParamValue(searchInput);
-        if (normalizedSearch === initialSearch) {
-            return;
-        }
-
-        const timer = window.setTimeout(() => {
-            replaceQueryState({
-                search: normalizedSearch || null,
-                page: null,
-            });
-        }, 300);
-
-        return () => window.clearTimeout(timer);
-    }, [initialSearch, searchInput]);
-
     return (
         <CatalogPageTemplate<Location, LocationFormData>
             title="Location Management"
@@ -345,7 +305,6 @@ function LocationsPageContent({
                 longitude: "",
                 latitude: "",
                 isActive: true,
-                isPopular: false,
                 country: "India",
             }}
             customSubmitValidation={(formData) => {
@@ -386,7 +345,6 @@ function LocationsPageContent({
                     longitude: item.coordinates?.coordinates?.[0]?.toString() || "",
                     latitude: item.coordinates?.coordinates?.[1]?.toString() || "",
                     isActive: item.isActive,
-                    isPopular: item.isPopular,
                     country: item.country || "India",
                 });
             }}
@@ -408,17 +366,6 @@ function LocationsPageContent({
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600">
                             {location.level}
                         </span>
-                    ),
-                },
-                {
-                    header: "Popular",
-                    cell: (location) => (
-                        <CatalogActiveToggleButton
-                            isActive={location.isPopular}
-                            onClick={() => void handleTogglePopular(location.id)}
-                            activeLabel="Popular"
-                            inactiveLabel="Regular"
-                        />
                     ),
                 },
                 {
@@ -462,7 +409,7 @@ function LocationsPageContent({
                     ),
                 },
             ]}
-            filterLayoutClassName="md:grid-cols-6"
+            filterLayoutClassName="md:grid-cols-5"
             filtersRenderer={
                 <>
                     <CatalogSearchInput
@@ -494,15 +441,6 @@ function LocationsPageContent({
                             { value: "area", label: "Area" },
                         ]}
                     />
-                    <CatalogSelectFilter
-                        value={filters.isPopular ?? "all"}
-                        onChange={(isPopular) => replaceQueryState({ isPopular: isPopular === "all" ? null : isPopular, page: null })}
-                        options={[
-                            { value: "all", label: "All Popularity" },
-                            { value: "true", label: "Popular Only" },
-                            { value: "false", label: "Regular Only" },
-                        ]}
-                    />
                 </>
             }
             formRenderer={(formData, setFormData) => (
@@ -523,7 +461,6 @@ export default function LocationsPage() {
     const initialStatus = normalizeStatusParam(searchParams.get("status"));
     const initialState = normalizeSearchParamValue(searchParams.get("state"));
     const initialLevel = normalizeLevelParam(searchParams.get("level"));
-    const initialPopular = normalizePopularParam(searchParams.get("isPopular"));
     const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
 
     return (
@@ -532,7 +469,6 @@ export default function LocationsPage() {
             initialStatus={initialStatus}
             initialState={initialState}
             initialLevel={initialLevel}
-            initialPopular={initialPopular}
             initialPage={initialPage}
         />
     );

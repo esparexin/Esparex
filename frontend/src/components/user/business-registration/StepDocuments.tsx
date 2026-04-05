@@ -38,19 +38,19 @@ export function StepDocuments({
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
                 {isRegistration
                     ? "Upload the owner ID and one business proof document the review team needs for approval."
                     : "Replace these files only if details changed or the review team asked for fresh documents."}
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,260px),minmax(0,1fr)]">
+            <div className="grid gap-3 md:grid-cols-2">
                 <Field
                     label={`ID proof type${isRegistration ? "" : " (optional)"}`}
                     required={isRegistration}
                     error={formData.errors?.idProofType}
-                    className="space-y-2"
+                    className="space-y-1.5"
                 >
                     <p className="text-xs text-slate-500">Pick the owner ID you are uploading so admins can review it correctly.</p>
                     <Select
@@ -82,7 +82,7 @@ export function StepDocuments({
                 </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
                 <div className={canUploadIdProof ? "opacity-100" : "pointer-events-none opacity-60"}>
                     <FileUploadCard
                         title={`Owner ID proof${isRegistration ? " *" : ""}`}

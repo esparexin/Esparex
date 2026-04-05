@@ -56,7 +56,6 @@ export const adminLocationListQuerySchema = z.object({
     status: z.enum(['all', 'active', 'inactive']).optional(),
     state: z.string().trim().max(100).optional(),
     level: adminLocationLevelFilterSchema.optional(),
-    isPopular: z.enum(['true', 'false']).optional(),
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),
 }).strict();
@@ -76,7 +75,6 @@ const adminLocationMutationBaseSchema = z.object({
     latitude: latitudeSchema,
     longitude: longitudeSchema,
     isActive: z.boolean().optional(),
-    isPopular: z.boolean().optional(),
 }).strict();
 
 export const adminCreateStateLocationSchema = adminLocationMutationBaseSchema.extend({
@@ -105,7 +103,6 @@ export const adminUpdateLocationSchema = z.object({
     latitude: latitudeSchema.optional(),
     longitude: longitudeSchema.optional(),
     isActive: z.boolean().optional(),
-    isPopular: z.boolean().optional(),
 }).strict()
     .refine((value) => Object.keys(value).length > 0, {
         message: 'At least one location field must be provided',

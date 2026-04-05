@@ -8,6 +8,7 @@ import { mutationLimiter, searchLimiter, phoneRevealLimiter } from '../middlewar
 import { ServicePayloadSchema, PartialServicePayloadSchema } from '../../../shared/schemas/servicePayload.schema';
 import type { ZodTypeAny } from 'zod';
 import { createListingValidator } from '../validators/listing.validator';
+import { enforceCreateServiceIdempotency } from '../middleware/idempotency';
 
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
@@ -26,6 +27,7 @@ router.post(
     duplicateCooldownMiddleware(LISTING_TYPE.SERVICE),
     validateRequest(ServicePayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
+    enforceCreateServiceIdempotency,
     serviceController.createService
 );
 // router.get('/analytics', ...) — removed: admin-only endpoint moved exclusively to

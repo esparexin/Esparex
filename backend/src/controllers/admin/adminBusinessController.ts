@@ -11,9 +11,12 @@ import {
     sendAdminError
 } from './adminBaseController';
 import { normalizeBusinessStatus } from '../../utils/businessStatus';
+import { normalizeLocation } from '../../services/LocationService';
+import { serializeBusinessForAdmin } from '../business/shared';
 
 import { handlePaginatedContent } from '../../utils/contentHandler';
 import * as businessService from '../../services/BusinessService';
+import { buildBusinessLocationPayload } from '../../services/BusinessService';
 import * as adminBusinessService from '../../services/AdminBusinessService';
 import { mutateStatus, mutateStatuses } from '../../services/StatusMutationService';
 import { BUSINESS_STATUS } from '../../../../shared/enums/businessStatus';
@@ -69,7 +72,7 @@ export const getBusinessAccountById = async (req: Request, res: Response) => {
         if (!business) {
             return sendAdminError(req, res, 'Business not found', 404);
         }
-        sendSuccessResponse(res, business);
+        sendSuccessResponse(res, serializeBusinessForAdmin(business));
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -98,7 +101,7 @@ export const approveBusinessAccount = async (req: Request, res: Response) => {
         // 🏆 TRUST SCORE: Recalculate on business approval
         setImmediate(() => recalculateTrustScore(business.userId).catch(() => { }));
 
-        sendSuccessResponse(res, business, 'Business approved successfully');
+        sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business approved successfully');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -132,12 +135,11 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
         );
 
         // 🛑 CASCADE EXPIRY: Use mutateStatuses for governed termination
-        const listings = await AdModel.find({ businessId: business._id, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
         // 🛑 CASCADE EXPIRY: Use shared helper
         const actor: any = { type: ACTOR_TYPE.ADMIN, id: (req.user as any)?.id || (req.user as any)?._id };
         await cascadeExpireListings(business._id, actor, `Cascaded from business rejection: ${reason}`);
 
-        sendSuccessResponse(res, business, 'Business rejected');
+        sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business rejected');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -177,7 +179,7 @@ export const updateBusinessStatus = async (req: Request, res: Response) => {
             await logAdminAction(req, 'SUSPEND_BUSINESS', 'Business', req.params.id, {
                 reason: reason || 'Suspended by admin'
             });
-            sendSuccessResponse(res, business, 'Business suspended successfully');
+            sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business suspended successfully');
             return;
         }
 
@@ -198,7 +200,7 @@ export const updateBusinessStatus = async (req: Request, res: Response) => {
 export const updateBusinessByAdmin = async (req: Request, res: Response) => {
     try {
         const allowedFields = [
-            'name', 'description', 'mobile', 'email', 'website',
+            'name', 'description', 'mobile', 'phone', 'email', 'website',
             'gstNumber', 'registrationNumber', 'location', 'businessTypes',
         ];
         const patch: Record<string, unknown> = {};
@@ -207,9 +209,45 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
                 patch[field] = req.body[field];
             }
         }
+        if (typeof patch.phone === 'string' && typeof patch.mobile !== 'string') {
+            patch.mobile = patch.phone;
+        }
+        delete patch.phone;
         if (Object.keys(patch).length === 0) {
             return sendAdminError(req, res, 'No valid fields provided for update', 400);
         }
+
+        const existingBusiness = await Business.findById(req.params.id);
+        if (!existingBusiness) {
+            return sendAdminError(req, res, 'Business not found', 404);
+        }
+
+        if (patch.location && typeof patch.location === 'object' && !Array.isArray(patch.location)) {
+            const incomingLocation = patch.location as Record<string, unknown>;
+            const currentLocation = (existingBusiness as any).location;
+            const normalizedLocation = await normalizeLocation({
+                locationId: incomingLocation.locationId || (existingBusiness as any).locationId,
+                city: incomingLocation.city || currentLocation?.city,
+                state: incomingLocation.state || currentLocation?.state,
+                country: incomingLocation.country || currentLocation?.country || 'India',
+                display: incomingLocation.display || incomingLocation.address,
+                coordinates: incomingLocation.coordinates,
+                address: incomingLocation.address,
+                pincode: incomingLocation.pincode || currentLocation?.pincode,
+            });
+            const resolvedLocationPayload = buildBusinessLocationPayload({
+                currentLocation,
+                incomingLocation,
+                normalizedLocation,
+                fallbackLocationId: (existingBusiness as any).locationId,
+            });
+
+            patch.location = resolvedLocationPayload.location;
+            if (resolvedLocationPayload.locationId) {
+                patch.locationId = resolvedLocationPayload.locationId;
+            }
+        }
+
         const business = await Business.findByIdAndUpdate(
             req.params.id,
             { $set: patch },
@@ -219,7 +257,7 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Business not found', 404);
         }
         await logAdminAction(req, 'UPDATE_BUSINESS', 'Business', req.params.id, { patch });
-        sendSuccessResponse(res, business, 'Business updated successfully');
+        sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business updated successfully');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }

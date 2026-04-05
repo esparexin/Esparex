@@ -83,8 +83,6 @@ const requiredBusinessFields = {
         .max(2000, "Description must be less than 2000 characters")
         .refine(sanitizedBusinessText, "Description contains invalid characters"),
 
-    locationId: z.string().trim().optional().nullable(),
-
     contactNumber: z
         .string()
         .transform((value) => value.replace(/\D/g, "").slice(-10))
@@ -95,25 +93,25 @@ const requiredBusinessFields = {
 
     email: z.string().email("Please enter a valid email address").max(100, "Email must be less than 100 characters"),
 
-    shopNo: z
+    fullAddress: z
         .string()
         .trim()
-        .min(1, "Shop/Office number is required")
-        .max(50, "Shop number must be less than 50 characters"),
+        .min(15, "Enter the complete business address")
+        .max(300, "Business address must be less than 300 characters")
+        .refine((value) => /\b\d{6}\b/.test(value), "Enter full address including 6-digit pincode"),
 
-    street: z
+    currentLocationDisplay: z
         .string()
         .trim()
-        .min(3, "Street address must be at least 3 characters")
-        .max(100, "Street address must be less than 100 characters"),
+        .min(1, "Use current location to continue"),
 
-    landmark: z.string().trim().max(100, "Landmark must be less than 100 characters").optional().or(z.literal("")),
+    currentLocationSource: z.enum(["auto", "ip"]).optional().or(z.literal("")),
 
-    city: z.string().trim().min(2, "City name must be at least 2 characters").max(50, "City name must be less than 50 characters"),
+    currentLocationCity: z.string().trim().max(50, "Detected city must be less than 50 characters").optional().or(z.literal("")),
 
-    state: z.string().trim().min(2, "State name must be at least 2 characters").max(50, "State name must be less than 50 characters"),
+    currentLocationState: z.string().trim().max(50, "Detected state must be less than 50 characters").optional().or(z.literal("")),
 
-    pincode: z.string().length(6, "Pincode must be exactly 6 digits").regex(/^\d{6}$/, "Pincode must contain only digits"),
+    currentLocationCountry: z.string().trim().max(50, "Detected country must be less than 50 characters").optional().or(z.literal("")),
 
     coordinates: z
         .object({
@@ -122,7 +120,7 @@ const requiredBusinessFields = {
         })
         .readonly()
         .nullable()
-        .optional(),
+        .refine((value) => value !== null, "Use current location to continue"),
 };
 
 const requiredIdProofType = z

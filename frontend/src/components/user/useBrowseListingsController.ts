@@ -5,6 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { getCategories, type Category } from "@/lib/api/user/categories";
 import { useLocationState, type LocationData } from "@/context/LocationContext";
+import {
+  getDisplayLocationLabel,
+  getSearchLocationLabel,
+  sanitizeLocationLabel,
+} from "@/lib/location/locationLabels";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import logger from "@/lib/logger";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
@@ -86,14 +91,26 @@ export function useBrowseListingsController<TItem, TFilters>({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skippedInitialFetchRef = useRef(false);
   const urlLocationId = routeParams.locationId ?? "";
-  const urlLocationLabel = routeParams.location ?? "";
+  const urlLocationLabel = sanitizeLocationLabel(routeParams.location) ?? "";
   const urlRadiusKm = routeParams.radiusKm;
   const locationLatitude = getLatitude(location);
   const locationLongitude = getLongitude(location);
+  const locationSearchLabel = useMemo(
+    () => getSearchLocationLabel(location),
+    [
+      location.city,
+      location.country,
+      location.display,
+      location.level,
+      location.name,
+      location.source,
+      location.state,
+    ]
+  );
   const stableLocation = useMemo(
     () => location,
     [
-      location.city,
+      locationSearchLabel,
       location.country,
       location.display,
       location.level,
@@ -245,14 +262,7 @@ export function useBrowseListingsController<TItem, TFilters>({
   const activeLocationLabel = useMemo(() => {
     if (urlLocationLabel) return urlLocationLabel;
     if (stableLocation.source === "default") return null;
-    return (
-      stableLocation.display ||
-      stableLocation.name ||
-      stableLocation.city ||
-      stableLocation.state ||
-      stableLocation.country ||
-      null
-    );
+    return getDisplayLocationLabel(stableLocation) || null;
   }, [stableLocation, urlLocationLabel]);
 
   const activeFilterBadges = useMemo(() => {

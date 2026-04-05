@@ -6,6 +6,7 @@ describe('S3 bucket environment resolution', () => {
     beforeEach(() => {
         process.env = { ...originalEnv };
         delete process.env.S3_BUCKET_NAME;
+        delete process.env.AWS_S3_BUCKET;
     });
 
     afterAll(() => {

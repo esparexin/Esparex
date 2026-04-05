@@ -117,7 +117,6 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             serviceTypeIds: serviceTypeTokens,
             price: typeof payload.price === 'number' ? payload.price : (Number((payload as any).priceMin) || 0),
             description: payload.description || "",
-            location: payload.location,
         });
 
         if (catId) {
@@ -179,7 +178,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         isEditMode,
         editId: editServiceId,
         schema: ServiceListingPayloadSchema,
-        submitFn: async (payload) => {
+        submitFn: async (payload, options) => {
             if (isEditMode && editServiceId) {
                 return updateListing(editServiceId, buildServiceEditPayload(payload), {
                     endpoint: API_ROUTES.USER.SERVICE_DETAIL(editServiceId),
@@ -187,6 +186,8 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             }
             return createListing(buildServiceCreatePayload(payload), {
                 endpoint: API_ROUTES.USER.SERVICES,
+                idempotencyKey: options?.idempotencyKey,
+                errorMessage: "Failed to create service",
             });
         },
         onSuccess: () => {

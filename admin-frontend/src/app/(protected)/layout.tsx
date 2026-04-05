@@ -25,7 +25,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   return (
     <AdminRouteGuard>
       <div
-        className="flex h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#e2e8f0_0%,#f8fafc_30%,#f8fafc_100%)] [--sidebar-expanded:260px] [--sidebar-collapsed:72px]"
+        className="flex min-h-screen min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_top,#e2e8f0_0%,#f8fafc_30%,#f8fafc_100%)] [--sidebar-expanded:260px] [--sidebar-collapsed:72px] lg:h-screen lg:overflow-hidden"
         style={{
           ["--sidebar-width" as string]: isMinified ? "var(--sidebar-collapsed)" : "var(--sidebar-expanded)",
         }}
@@ -36,10 +36,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
           isMobileOpen={isMobileOpen}
           setIsMobileOpen={setIsMobileOpen}
         />
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-visible lg:overflow-hidden">
           <AdminHeader />
-          <main className="flex flex-1 min-h-0 flex-col overflow-hidden px-4 pb-6 pt-4 lg:px-8 lg:pb-8 lg:pt-6">
-            <div className="flex h-full min-h-0 flex-1 flex-col">
+          <main className="flex flex-1 min-h-0 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 pb-24 pt-4 lg:overflow-hidden lg:px-8 lg:pb-8 lg:pt-6">
+            <div className="flex min-h-full flex-1 flex-col lg:h-full lg:min-h-0">
               {children}
             </div>
           </main>

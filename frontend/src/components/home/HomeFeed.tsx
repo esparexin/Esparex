@@ -9,6 +9,7 @@ import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { Button } from "@/components/ui/button";
 import { getListingHref } from "@/lib/listingUtils";
+import { getSearchLocationLabel } from "@/lib/location/locationLabels";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 
@@ -30,31 +31,23 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
     const { location, isLoaded } = useLocationState();
     const latitude = getLatitude(location);
     const longitude = getLongitude(location);
+    const locationSearchLabel = useMemo(() => getSearchLocationLabel(location), [location]);
     const locationContextKey = useMemo(
         () =>
             [
                 location.locationId ?? "",
-                location.city ?? "",
+                locationSearchLabel ?? "",
                 location.level ?? "",
                 typeof latitude === "number" ? latitude.toFixed(3) : "",
                 typeof longitude === "number" ? longitude.toFixed(3) : "",
             ].join("|"),
-        [latitude, location.city, location.level, location.locationId, longitude]
+        [latitude, location.level, location.locationId, locationSearchLabel, longitude]
     );
     const previousContextKeyRef = useRef(locationContextKey);
 
     const isDefaultLocation = location.source === "default";
     const isRegionLevel = location.level === "state" || location.level === "country";
-    const locationLabel = useMemo(() => {
-        if (isDefaultLocation) return undefined;
-        if (location.level === "state") {
-            return location.state || location.city || undefined;
-        }
-        if (location.level === "country") {
-            return location.country || location.state || location.city || undefined;
-        }
-        return location.city || undefined;
-    }, [isDefaultLocation, location.city, location.country, location.level, location.state]);
+    const locationLabel = isDefaultLocation ? undefined : locationSearchLabel;
 
     const requestParams = useMemo(() => ({
         cursor,
@@ -71,7 +64,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
         !cursor &&
         (isDefaultLocation ||
             (!location.locationId &&
-                !location.city &&
+                !locationSearchLabel &&
                 !location.coordinates));
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(

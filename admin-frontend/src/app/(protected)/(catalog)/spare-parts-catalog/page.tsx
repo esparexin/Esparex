@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Wrench } from "lucide-react";
 import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
@@ -21,9 +21,10 @@ import {
     validateRequiredCategoryIds,
 } from "@/components/catalog/catalogDomainUtils";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
+import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { useAdminSpareParts } from "@/hooks/useAdminSparePartCatalog";
 import { categorySupportsSpareParts, useAssignableCategories } from "@/hooks/useAssignableCategories";
-import { buildUrlWithSearchParams, normalizeSearchParamValue, parsePositiveIntParam, updateSearchParams } from "@/lib/urlSearchParams";
+import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { type ISparePartAdmin } from "@/types/sparePartCatalog";
 
 type SparePartFormData = {
@@ -57,9 +58,6 @@ function SparePartsCatalogPageContent({
     initialIsActive,
     initialPage,
 }: SparePartsCatalogPageContentProps) {
-    const pathname = usePathname();
-    const router = useRouter();
-    const searchParams = useSearchParams();
     const [searchInput, setSearchInput] = useState(initialSearch);
 
     const {
@@ -92,35 +90,13 @@ function SparePartsCatalogPageContent({
         setSearchInput(initialSearch);
     }, [initialSearch]);
 
-    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    };
-
-    useEffect(() => {
-        if (!loading && initialPage > pagination.totalPages && pagination.totalPages > 0) {
-            replaceQueryState({ page: pagination.totalPages > 1 ? pagination.totalPages : null });
-        }
-    }, [initialPage, loading, pagination.totalPages]);
-
-    useEffect(() => {
-        const normalizedSearch = normalizeSearchParamValue(searchInput);
-        if (normalizedSearch === initialSearch) {
-            return;
-        }
-
-        const timer = window.setTimeout(() => {
-            replaceQueryState({
-                search: normalizedSearch || null,
-                page: null,
-            });
-        }, 300);
-
-        return () => window.clearTimeout(timer);
-    }, [initialSearch, searchInput]);
+    const { replaceQueryState } = useCatalogQueryStateSync({
+        searchInput,
+        initialSearch,
+        loading,
+        initialPage,
+        totalPages: pagination.totalPages,
+    });
 
     return (
         <CatalogPageTemplate<ISparePartAdmin, SparePartFormData>

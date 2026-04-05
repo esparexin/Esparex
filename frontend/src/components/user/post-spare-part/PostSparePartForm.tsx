@@ -34,7 +34,6 @@ type SparePartSubmitPayload = {
     price: number;
     description: string;
     images: string[];
-    location?: PostSparePartFormValues["location"];
 };
 
 export default function PostSparePartForm({ editSparePartId }: { editSparePartId?: string }) {
@@ -42,7 +41,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
     const router = useRouter();
     const [submittedSparePart, setSubmittedSparePart] = React.useState(false);
 
-    const buildSparePartCreatePayload = React.useCallback((payload: SparePartSubmitPayload, fallbackLocationId?: string) => ({
+    const buildSparePartCreatePayload = React.useCallback((payload: SparePartSubmitPayload) => ({
         title: payload.title,
         categoryId: payload.categoryId,
         brandId: payload.brandId || undefined,
@@ -50,8 +49,6 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         price: payload.price,
         description: payload.description,
         images: payload.images,
-        location: payload.location,
-        locationId: (payload.location as { locationId?: string } | undefined)?.locationId || fallbackLocationId,
     }), []);
 
     const buildSparePartEditPayload = React.useCallback((payload: SparePartSubmitPayload) => ({
@@ -98,7 +95,6 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
             sparePartTypeId: extractEntityId(payload.sparePartId || (payload as { sparePartTypeId?: unknown }).sparePartTypeId),
             price: typeof payload.price === 'number' ? payload.price : 0,
             description: payload.description || "",
-            location: payload.location as any
         });
         if (resolvedCategoryId) {
             await Promise.all([
@@ -155,7 +151,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                     endpoint: API_ROUTES.USER.SPARE_PART_LISTING_DETAIL(String(editSparePartId)),
                 });
             }
-            return createListing(buildSparePartCreatePayload(payload, businessData?.location?.locationId), {
+            return createListing(buildSparePartCreatePayload(payload), {
                 endpoint: API_ROUTES.USER.SPARE_PART_LISTINGS,
             });
         },

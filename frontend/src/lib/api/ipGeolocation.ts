@@ -36,7 +36,10 @@ export async function detectLocationByIP(): Promise<IPGeolocationResult | null> 
 
     try {
         const { data } = await toApiResult<IPGeolocationResult>(
-            apiClient.get(API_ROUTES.USER.LOCATIONS_IP_LOCATE, { skipHealthCheck: true })
+            apiClient.get(API_ROUTES.USER.LOCATIONS_IP_LOCATE, {
+                skipHealthCheck: true,
+                silent: true,
+            })
         );
 
         if (!data?.city || !data.coordinates) {

@@ -1,5 +1,5 @@
 import logger from '../../utils/logger';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import AdModel from '../../models/Ad';
 import Category from '../../models/Category';
@@ -12,7 +12,6 @@ import { respond } from '../../utils/respond';
 import { ListingSubmissionPolicy } from '../../services/ListingSubmissionPolicy';
 import { getSingleParam } from '../../utils/requestParams';
 import { deleteFromS3Url, sanitizeStoredImageUrls } from '../../utils/s3';
-import { normalizeLocation } from '../../services/LocationService';
 import { isBusinessPublishedStatus } from '../../utils/businessStatus';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { processImages } from '../../utils/imageProcessor';
@@ -58,6 +57,17 @@ const SERVICE_EDIT_LOCK_MESSAGES: Record<string, string> = {
     expiresAt: 'Expiry cannot be changed while editing a service.',
 };
 
+const sendServiceValidationError = (
+    req: Request,
+    res: Response,
+    message: string,
+    field: string,
+    code = 'VALIDATION_ERROR'
+) => sendErrorResponse(req, res, 400, message, {
+    code,
+    details: [{ field, message }]
+});
+
 const pickAllowedFields = (
     body: Record<string, unknown>,
     allowedFields: readonly string[],
@@ -75,15 +85,6 @@ const pickAllowedFields = (
     });
     return picked;
 };
-
-const buildLocationInput = (body: Record<string, unknown>) => ({
-    locationId: body.locationId,
-    ...(typeof body.location === 'object' ? body.location : {}),
-    ...(typeof body.location === 'string'
-        ? { city: body.location, display: body.location }
-        : {}),
-});
-
 
 const resolveTaxonomyIds = async (body: Record<string, unknown>, opts: { includeDeviceModel?: boolean } = {}) => {
     const resolvedCategory = resolveCategoryId(body.categoryId || body.category);
@@ -138,7 +139,7 @@ const requireOwnedService = async (req: Request, res: Response, fetchFull = fals
 /* ---------------------------------------------------
    Create Service (Business User)
 --------------------------------------------------- */
-export const createService = async (req: Request, res: Response) => {
+export const createService = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user;
         const business = req.business; // 🔒 FROM MIDDLEWARE
@@ -162,13 +163,19 @@ export const createService = async (req: Request, res: Response) => {
         }
 
         if (!categoryId) {
-            sendErrorResponse(req, res, 400, 'Valid category is required');
+            sendServiceValidationError(req, res, 'Valid category is required', 'categoryId', 'CATEGORY_REQUIRED');
             return;
         }
 
         const catCapability = await CatalogValidationService.validateServiceCategoryCapability(categoryId.toString());
         if (!catCapability.ok) {
-            sendErrorResponse(req, res, 400, catCapability.reason || 'Category does not support services');
+            sendServiceValidationError(
+                req,
+                res,
+                catCapability.reason || 'Category does not support services',
+                'categoryId',
+                'SERVICE_CATEGORY_UNSUPPORTED'
+            );
             return;
         }
 
@@ -183,34 +190,49 @@ export const createService = async (req: Request, res: Response) => {
 
         if (selectionMode === 'single' && resolvedServiceTypes && resolvedServiceTypes.serviceTypeIds.length > 1) {
             logger.warn('Selection mode violation in service creation', { categoryId, selectionMode, selectedCount: resolvedServiceTypes.serviceTypeIds.length });
-            sendErrorResponse(req, res, 400, 'This category only allows selecting a single service type');
+            sendServiceValidationError(
+                req,
+                res,
+                'This category only allows selecting a single service type',
+                'serviceTypeIds',
+                'SERVICE_TYPE_SELECTION_MODE'
+            );
             return;
         }
 
         if (!resolvedServiceTypes || resolvedServiceTypes.serviceTypeIds.length === 0) {
             logger.warn('No service types resolved in service creation', { categoryId, rawTypes: createServiceTypeTokens });
-            sendErrorResponse(req, res, 400, 'At least one valid service type is required for this category');
+            sendServiceValidationError(
+                req,
+                res,
+                'At least one valid service type is required for this category',
+                'serviceTypeIds',
+                'SERVICE_TYPE_REQUIRED'
+            );
             return;
         }
 
-        let locId: mongoose.Types.ObjectId | undefined;
-        try {
-            const normalizedLocation = await normalizeLocation(
-                buildLocationInput(body),
-                { requireLocationId: false } // Relaxed: fallback handled below
-            );
-            locId = normalizedLocation?.locationId;
-        } catch (locationError: unknown) {
-            logger.warn('Non-fatal location resolution error in service creation', { error: locationError });
-        }
+        const rawBusinessLocationId =
+            business.locationId
+            || (typeof business.location === 'object' && business.location
+                ? (business.location as { locationId?: unknown }).locationId
+                : undefined);
 
-        // 🛡️ Fix 2: Fallback to business location if not explicitly provided or resolved
-        if (!locId && business.locationId) {
-            locId = business.locationId as mongoose.Types.ObjectId;
-        }
+        const locId =
+            rawBusinessLocationId instanceof mongoose.Types.ObjectId
+                ? rawBusinessLocationId
+                : (typeof rawBusinessLocationId === 'string' && mongoose.Types.ObjectId.isValid(rawBusinessLocationId)
+                    ? new mongoose.Types.ObjectId(rawBusinessLocationId)
+                    : undefined);
 
         if (!locId) {
-            sendErrorResponse(req, res, 400, 'Valid location is required (business profile missing location)');
+            sendServiceValidationError(
+                req,
+                res,
+                'Complete your business profile location before posting a service.',
+                'location',
+                'BUSINESS_LOCATION_REQUIRED'
+            );
             return;
         }
 
@@ -222,7 +244,11 @@ export const createService = async (req: Request, res: Response) => {
             );
             if (!validation.ok) {
                 sendErrorResponse(req, res, 400, validation.reason || 'Brand does not belong to the selected category', {
-                    code: 'INVALID_BRAND_CATEGORY_COMBO'
+                    code: 'INVALID_BRAND_CATEGORY_COMBO',
+                    details: [{
+                        field: 'brandId',
+                        message: validation.reason || 'Brand does not belong to the selected category'
+                    }]
                 });
                 return;
             }
@@ -282,9 +308,9 @@ export const createService = async (req: Request, res: Response) => {
         });
 
         res.status(201).json(response);
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Create Service Error:', error);
-        sendErrorResponse(req, res, 500, 'Failed to create service');
+        next(error);
     }
 };
 

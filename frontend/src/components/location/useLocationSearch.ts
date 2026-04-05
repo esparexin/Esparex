@@ -178,8 +178,7 @@ export function useLocationSearch({
             setLocalDetecting(true);
             try {
                 const detectionResult = await getCurrentLocationResult({
-                    allowIpFallback: false,
-                    allowGeolocationPrompt: true,
+                    mode: "precise",
                 });
                 const detected = toDetectedSelection(detectionResult.location as DetectedLocationShape);
                 if (!detected?.coordinates) {
@@ -215,9 +214,7 @@ export function useLocationSearch({
             setLocalDetecting(true);
             try {
                 const detectionResult = await getCurrentLocationResult({
-                    allowIpFallback: true,
-                    allowGeolocationPrompt: false,
-                    skipGeolocation: true,
+                    mode: "approximate",
                 });
                 const detected = toDetectedSelection(detectionResult.location as DetectedLocationShape);
                 if (!detected?.coordinates) {

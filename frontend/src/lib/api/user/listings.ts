@@ -700,7 +700,8 @@ const executeListingMutationRequest = async (
 ): Promise<Listing | null> => {
     try {
         const { data, error } = await toApiResult<Listing>(requestPromise);
-        if (error) throw new Error(error.userMessage || error.technicalMessage || errorMessage);
+        if (error) throw error;
+        if (!data) throw new Error(errorMessage);
         return data ? normalizeListing(data) : null;
     } catch (e) {
         logger.error(errorMessage, e);
@@ -713,7 +714,7 @@ const executeListingMutationRequest = async (
  */
 export const createListing = async (
     listingData: Partial<Listing>,
-    options?: { endpoint?: string; idempotencyKey?: string }
+    options?: { endpoint?: string; idempotencyKey?: string; errorMessage?: string }
 ): Promise<Listing | null> => {
     const sanitizedPayload = stripEmptyObjectIdFields(listingData as Record<string, unknown>);
     const endpoint = options?.endpoint || API_ROUTES.USER.ADS;
@@ -726,7 +727,7 @@ export const createListing = async (
             silent: true,
             ...(headers ? { headers } : {}),
         }),
-        "Failed to create listing"
+        options?.errorMessage || "Failed to create listing"
     );
 };
 

@@ -136,13 +136,13 @@ export function RelatedBusinessesSection({
         <div className="relative aspect-[16/9] overflow-hidden bg-slate-100 rounded-t-2xl">
           <Image
             src={toSafeImageSrc(business.coverImage || business.images?.[0], DEFAULT_IMAGE_PLACEHOLDER)}
-            alt={business.businessName || business.name}
+            alt={business.name}
             fill
             unoptimized
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 300px"
           />
-          {business.verified ? (
+          {business.isVerified ? (
             <Badge className="absolute left-2.5 top-2.5 rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white border-none">
               <CheckCircle className="mr-1 h-2.5 w-2.5" />
               Verified
@@ -153,7 +153,7 @@ export function RelatedBusinessesSection({
         <CardContent className="space-y-3 p-3.5">
           <div className="space-y-1">
             <h3 className="line-clamp-1 text-sm font-bold text-slate-900">
-              {business.businessName || business.name}
+              {business.name}
             </h3>
             <div className="flex items-center gap-1 text-[11px] text-slate-400">
               <MapPin className="h-3 w-3 flex-shrink-0 text-slate-300" />

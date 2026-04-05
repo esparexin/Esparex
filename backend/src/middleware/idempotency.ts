@@ -7,6 +7,7 @@ import { sendErrorResponse } from '../utils/errorResponse';
 
 const MAX_KEY_LENGTH = 128;
 const IDEMPOTENCY_SCOPE_CREATE_AD = 'POST:/api/v1/ads';
+const IDEMPOTENCY_SCOPE_CREATE_SERVICE = 'POST:/api/v1/services';
 const IDEMPOTENCY_TTL_HOURS = 24;
 const PROCESSING_LOCK_MS = 90_000;
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -49,7 +50,7 @@ const idempotencyError = (
     conflictType: options.conflictType
 });
 
-export const enforceCreateAdIdempotency = async (req: Request, res: Response, next: NextFunction) => {
+const buildCreateListingIdempotencyGuard = (scope: string) => async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = req as Request & { idempotencyRecordId?: string; idempotencyKey?: string };
         const rawKey = req.header('Idempotency-Key') || req.header('x-idempotency-key');
@@ -79,7 +80,7 @@ export const enforceCreateAdIdempotency = async (req: Request, res: Response, ne
         const bodyHash = payloadHash(req.body);
         const requestFingerprint = {
             method: req.method.toUpperCase(),
-            route: IDEMPOTENCY_SCOPE_CREATE_AD,
+            route: scope,
             userId,
             bodyHash,
         };
@@ -95,7 +96,7 @@ export const enforceCreateAdIdempotency = async (req: Request, res: Response, ne
 
         const existing = await IdempotencyRequest.findOne({
             userId,
-            scope: IDEMPOTENCY_SCOPE_CREATE_AD,
+            scope,
             key,
         }).lean();
 
@@ -106,7 +107,7 @@ export const enforceCreateAdIdempotency = async (req: Request, res: Response, ne
                     userId,
                     idempotencyKey: key,
                     conflictCode: 'IDEMPOTENCY_KEY_REUSED',
-                    route: IDEMPOTENCY_SCOPE_CREATE_AD,
+                    route: scope,
                 });
                 return idempotencyError(
                     req,
@@ -134,7 +135,7 @@ export const enforceCreateAdIdempotency = async (req: Request, res: Response, ne
                     userId,
                     idempotencyKey: key,
                     conflictCode: 'IDEMPOTENCY_IN_PROGRESS',
-                    route: IDEMPOTENCY_SCOPE_CREATE_AD,
+                    route: scope,
                 });
                 return idempotencyError(
                     req,
@@ -154,7 +155,7 @@ export const enforceCreateAdIdempotency = async (req: Request, res: Response, ne
 
         try {
             const upserted = await IdempotencyRequest.findOneAndUpdate(
-                { userId, scope: IDEMPOTENCY_SCOPE_CREATE_AD, key },
+                { userId, scope, key },
                 {
                     $set: {
                         requestHash,
@@ -165,7 +166,7 @@ export const enforceCreateAdIdempotency = async (req: Request, res: Response, ne
                     },
                     $setOnInsert: {
                         userId,
-                        scope: IDEMPOTENCY_SCOPE_CREATE_AD,
+                        scope,
                         key,
                     },
                 },
@@ -176,13 +177,14 @@ export const enforceCreateAdIdempotency = async (req: Request, res: Response, ne
                 request.idempotencyRecordId = upserted._id.toString();
             }
         } catch (error) {
-                logger.warn('Failed to upsert idempotency request', {
-                    requestId: req.requestId,
-                    userId,
-                    idempotencyKey: key,
-                    error: error instanceof Error ? error.message : String(error),
-                });
-            }
+            logger.warn('Failed to upsert idempotency request', {
+                requestId: req.requestId,
+                userId,
+                idempotencyKey: key,
+                route: scope,
+                error: error instanceof Error ? error.message : String(error),
+            });
+        }
 
         const originalJson = res.json.bind(res);
         let persisted = false;
@@ -204,6 +206,7 @@ export const enforceCreateAdIdempotency = async (req: Request, res: Response, ne
                 logger.warn('Failed to persist idempotency response', {
                     requestId: req.requestId,
                     idempotencyRecordId: request.idempotencyRecordId,
+                    route: scope,
                     error: error instanceof Error ? error.message : String(error),
                 });
             });
@@ -216,15 +219,20 @@ export const enforceCreateAdIdempotency = async (req: Request, res: Response, ne
 
         return next();
     } catch (error) {
-        // Fail-open: idempotency storage must not block ad creation path.
-            logger.warn('Idempotency middleware failed-open', {
-                requestId: req.requestId,
-                idempotencyKey: (req as Request & { idempotencyKey?: string }).idempotencyKey,
-                error: error instanceof Error ? error.message : String(error)
-            });
+        // Fail-open: idempotency storage must not block creation path.
+        logger.warn('Idempotency middleware failed-open', {
+            requestId: req.requestId,
+            idempotencyKey: (req as Request & { idempotencyKey?: string }).idempotencyKey,
+            route: scope,
+            error: error instanceof Error ? error.message : String(error)
+        });
         return next();
     }
 };
+
+export const enforceCreateListingIdempotency = (scope: string) => buildCreateListingIdempotencyGuard(scope);
+export const enforceCreateAdIdempotency = buildCreateListingIdempotencyGuard(IDEMPOTENCY_SCOPE_CREATE_AD);
+export const enforceCreateServiceIdempotency = buildCreateListingIdempotencyGuard(IDEMPOTENCY_SCOPE_CREATE_SERVICE);
 
 export default enforceCreateAdIdempotency;
 

@@ -11,19 +11,6 @@ import { validatedTextSchema } from './text.schema';
 
 const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format');
 
-const locationSchema = z.object({
-    address: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    country: z.string().optional(),
-    display: z.string().optional(),
-    locationId: objectIdSchema.optional(),
-    coordinates: z.object({
-        type: z.literal('Point'),
-        coordinates: z.array(z.number()).length(2),
-    }).optional(),
-}).optional();
-
 export const BaseSparePartPayloadSchema = z.object({
     categoryId: objectIdSchema,
     sparePartId: objectIdSchema,
@@ -51,8 +38,6 @@ export const BaseSparePartPayloadSchema = z.object({
 
     price: z.number().min(0, 'Price must be at least 0'),
     images: z.array(z.string()).min(1, 'At least one image is required').max(10, 'Maximum 10 images allowed'),
-    locationId: objectIdSchema.optional(),
-    location: locationSchema,
 });
 
 /** Full create schema — used by backend POST handler */

@@ -182,6 +182,7 @@ const corsOptions: cors.CorsOptions = {
         'x-geo-lng',
         'Idempotency-Key',
         'Cache-Control',
+        'Pragma',
         'x-no-retry',         // ✅ REQUIRED FOR OTP REQUESTS
         'X-CSRF-Token',       // ✅ REQUIRED FOR CSRF PROTECTION
         'x-correlation-id',   // ✅ REQUIRED FOR DISTRIBUTED TRACING

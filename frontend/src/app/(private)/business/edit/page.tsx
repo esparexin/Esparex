@@ -3,18 +3,21 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { notify } from "@/lib/notify";
+import { Button } from "@/components/ui/button";
 
 import { normalizeBusinessStatus } from '@/lib/status/statusNormalization';
 
 import { useBusiness } from '@/hooks/useBusiness';
 import { useUser } from '@/hooks/useUser';
 import { BusinessProfileFlow } from '@/components/user/business-registration/BusinessProfileFlow';
+import { mapErrorToMessage } from '@/lib/errorMapper';
 
 export default function BusinessEditPage() {
     const router = useRouter();
     const { user, refreshUser, loading: authLoading } = useUser();
-    const { businessData, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(user, undefined, {
+    const { businessData, isLoading: businessLoading, isFetched: businessFetched, error: businessError, retry: retryBusiness } = useBusiness(user, undefined, {
         includeStats: false,
+        silent: true,
     });
     
     const businessStatus = normalizeBusinessStatus(businessData?.status || user?.businessStatus, 'pending');
@@ -24,7 +27,7 @@ export default function BusinessEditPage() {
     const isAuthorized = !!user && hasBusinessId && businessStatus !== 'suspended';
 
     useEffect(() => {
-        if (!isHydrated || !user) return;
+        if (businessError || !isHydrated || !user) return;
 
         if (!hasBusinessId) {
             notify.error("You need to register a business first");
@@ -37,7 +40,23 @@ export default function BusinessEditPage() {
             void router.push('/account/business');
             return;
         }
-    }, [isHydrated, user, hasBusinessId, businessStatus, router]);
+    }, [businessError, isHydrated, user, hasBusinessId, businessStatus, router]);
+
+    if (businessError) {
+        return (
+            <div className="flex min-h-[60vh] items-center justify-center px-4">
+                <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <h1 className="text-lg font-semibold text-slate-900">Unable to load business profile</h1>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {mapErrorToMessage(businessError, "We couldn't load your business profile. Try again.")}
+                    </p>
+                    <Button className="mt-5 w-full" onClick={() => retryBusiness()}>
+                        Retry
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     if (!isHydrated || !isAuthorized) {
         return (

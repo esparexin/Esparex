@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Edit, Trash2 } from "lucide-react";
 import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from "@shared/enums/listingType";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
@@ -19,7 +19,8 @@ import {
     getListingTypeIcon,
 } from "@/components/catalog/CatalogUiPrimitives";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
-import { buildUrlWithSearchParams, normalizeSearchParamValue, parsePositiveIntParam, updateSearchParams } from "@/lib/urlSearchParams";
+import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { adminCategorySchema } from "@/schemas/admin.schemas";
 import type { Category } from "@/types/category";
 
@@ -52,9 +53,6 @@ type CategoriesPageContentProps = {
 };
 
 function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: CategoriesPageContentProps) {
-    const pathname = usePathname();
-    const router = useRouter();
-    const searchParams = useSearchParams();
     const [searchInput, setSearchInput] = useState(initialSearch);
 
     const {
@@ -81,35 +79,13 @@ function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: Ca
         setSearchInput(initialSearch);
     }, [initialSearch]);
 
-    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    };
-
-    useEffect(() => {
-        if (!loading && initialPage > pagination.totalPages && pagination.totalPages > 0) {
-            replaceQueryState({ page: pagination.totalPages > 1 ? pagination.totalPages : null });
-        }
-    }, [initialPage, loading, pagination.totalPages]);
-
-    useEffect(() => {
-        const normalizedSearch = normalizeSearchParamValue(searchInput);
-        if (normalizedSearch === initialSearch) {
-            return;
-        }
-
-        const timer = window.setTimeout(() => {
-            replaceQueryState({
-                search: normalizedSearch || null,
-                page: null,
-            });
-        }, 300);
-
-        return () => window.clearTimeout(timer);
-    }, [initialSearch, searchInput]);
+    const { replaceQueryState } = useCatalogQueryStateSync({
+        searchInput,
+        initialSearch,
+        loading,
+        initialPage,
+        totalPages: pagination.totalPages,
+    });
 
     return (
         <CatalogPageTemplate<Category, CategoryFormData>

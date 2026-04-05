@@ -29,7 +29,7 @@ describe("route helpers", () => {
                 sort: "price_low_high",
                 radiusKm: 25,
             })
-        ).toBe("/search?type=service&q=screen+replacement&category=services&sort=price_low_high&radiusKm=25");
+        ).toBe("/search?type=service&q=screen+replacement&category=services&sort=price_low_high");
     });
 
     it("parses browse params and preserves categoryId separately", () => {
@@ -40,6 +40,23 @@ describe("route helpers", () => {
         expect(parsed.type).toBe("spare_part");
         expect(parsed.categoryId).toBe("507f1f77bcf86cd799439011");
         expect(parsed.q).toBe("iphone");
+    });
+
+    it("drops generic detected location labels from canonical browse routes", () => {
+        expect(
+            buildPublicBrowseRoute({
+                type: "ad",
+                location: "Current location",
+                radiusKm: 50,
+            })
+        ).toBe("/search?type=ad");
+
+        const parsed = parsePublicBrowseParams(
+            new URLSearchParams("type=ad&location=Current+location&radiusKm=50")
+        );
+
+        expect(parsed.location).toBeUndefined();
+        expect(parsed.radiusKm).toBe(50);
     });
 
     it("builds canonical listing detail routes across listing types", () => {

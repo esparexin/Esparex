@@ -14,6 +14,7 @@ import * as adService from '../services/AdService';
 import { mutateStatus } from '../services/StatusMutationService';
 import { getAndVerifyOwnedListing } from '../utils/controllerUtils';
 import { getSellerPhone } from '../services/ContactRevealService';
+import { collectImmutableFieldErrors, hasOwnField } from '../utils/immutableFieldErrors';
 
 const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     categoryId: 'Category cannot be changed while editing a listing.',
@@ -34,19 +35,6 @@ const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     expiresAt: 'Expiry cannot be changed while editing a listing.',
 };
 
-const hasOwn = (body: Record<string, unknown>, field: string) =>
-    Object.prototype.hasOwnProperty.call(body, field);
-
-const collectLockedFieldErrors = (
-    body: Record<string, unknown>,
-    fieldMessages: Record<string, string>
-) => Object.entries(fieldMessages)
-    .filter(([field]) => hasOwn(body, field))
-    .map(([field, message]) => ({
-        field,
-        message,
-        code: 'IMMUTABLE_FIELD',
-    }));
 /**
  * Enterprise Listing Controller (SSOT)
  * Centralized logic for all listing types (Ads, Services, Spare Parts)
@@ -121,14 +109,14 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
         if (!listing) return;
 
         const body = req.body as Record<string, unknown>;
-        const lockErrors = collectLockedFieldErrors(body, LOCKED_AD_EDIT_FIELD_MESSAGES);
+        const lockErrors = collectImmutableFieldErrors(body, LOCKED_AD_EDIT_FIELD_MESSAGES);
 
         if (
             (listing.status === AD_STATUS.LIVE || listing.status === AD_STATUS.PENDING)
-            && (hasOwn(body, 'location') || hasOwn(body, 'locationId'))
+            && (hasOwnField(body, 'location') || hasOwnField(body, 'locationId'))
         ) {
             lockErrors.push({
-                field: hasOwn(body, 'location') ? 'location' : 'locationId',
+                field: hasOwnField(body, 'location') ? 'location' : 'locationId',
                 message: 'Location cannot be changed once a listing is live or under review.',
                 code: 'IMMUTABLE_FIELD',
             });

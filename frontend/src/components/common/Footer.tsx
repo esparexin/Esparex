@@ -6,10 +6,6 @@ import type { ComponentType } from "react";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
 import {
-    Facebook,
-    Twitter,
-    Instagram,
-    Linkedin,
     MailOpen,
     MapPin,
     Phone,
@@ -45,8 +41,6 @@ const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
         links: [
             { label: "About Us", href: "/about", pageKey: "about" },
             { label: "Contact", href: "/contact", pageKey: "contact" },
-            { label: "Careers", href: "/faq", pageKey: "faq" },
-            { label: "Press", href: "/about", pageKey: "about" },
         ],
     },
     {
@@ -54,7 +48,6 @@ const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
         links: [
             { label: "Help Center", href: "/faq", pageKey: "faq" },
             { label: "Safety Tips", href: "/safety-tips", pageKey: "safety-tips" },
-            { label: "Posting Rules", href: "/safety-tips", pageKey: "safety-tips" },
             { label: "How It Works", href: "/how-it-works", pageKey: "how-it-works" },
         ],
     },
@@ -63,8 +56,6 @@ const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
         links: [
             { label: "Terms of Service", href: "/terms", pageKey: "terms" },
             { label: "Privacy Policy", href: "/privacy", pageKey: "privacy" },
-            { label: "Cookie Policy", href: "/privacy", pageKey: "privacy" },
-            { label: "Refund Policy", href: "/terms", pageKey: "terms" },
         ],
     },
 ];
@@ -74,6 +65,12 @@ const FOOTER_CONTACT_ITEMS: FooterContactItem[] = [
     { title: "Headquarters", value: "Hyderabad, Telangana", icon: MapPin },
     { title: "Support Hours", value: "Mon–Sat, 9 AM – 7 PM", icon: Phone },
 ];
+
+const FOOTER_BRAND_ACTIONS = [
+    { label: "Contact", href: "/contact", icon: MapPin },
+    { label: "Help", href: "/faq", icon: Phone },
+    { label: "Email", href: "mailto:support@esparex.com", icon: MailOpen },
+] as const;
 
 export function Footer({ theme = "light", onNavigate, className }: FooterProps) {
     const pathname = usePathname();
@@ -114,6 +111,51 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
         );
     };
 
+    const renderBrandBlock = (compact = false) => (
+        <div className="space-y-3 text-left">
+            <div className="flex items-center gap-3 justify-start">
+                <Link href="/" className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-green-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">E</div>
+                    <span className={cn("text-xl font-bold tracking-tight", isDark ? "text-white" : "text-green-600")}>Esparex</span>
+                </Link>
+            </div>
+            <p className={cn("text-sm leading-relaxed", isDark ? "text-slate-500" : "text-slate-500")}>
+                India's premium privacy-first marketplace for device spare parts and services.
+            </p>
+            <div className="flex flex-wrap items-center gap-2 justify-start">
+                {FOOTER_BRAND_ACTIONS.map(({ label, href, icon: Icon }) => {
+                    const classes = cn(
+                        "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
+                        isDark
+                            ? "border-slate-800 bg-slate-900/70 text-slate-300 hover:border-primary/30 hover:text-white"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-green-200 hover:text-green-700"
+                    );
+
+                    if (href.startsWith("mailto:")) {
+                        return (
+                            <a key={label} href={href} className={classes}>
+                                <Icon className="h-4 w-4" />
+                                <span>{label}</span>
+                            </a>
+                        );
+                    }
+
+                    return (
+                        <Link key={label} href={href} className={classes} prefetch={false}>
+                            <Icon className="h-4 w-4" />
+                            <span>{label}</span>
+                        </Link>
+                    );
+                })}
+            </div>
+            {!compact && (
+                <p className={cn("text-xs uppercase tracking-[0.2em] font-bold", isDark ? "text-slate-600" : "text-slate-400")}>
+                    India's Leading Spare Parts Exchange
+                </p>
+            )}
+        </div>
+    );
+
     return (
         <footer
             className={cn(
@@ -127,30 +169,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="md:hidden mb-6 space-y-5">
-                    <div className="space-y-3 text-left">
-                        <div className="flex items-center gap-3 justify-start">
-                            <Link href="/" className="flex items-center gap-2">
-                                <div className="h-8 w-8 rounded-lg bg-green-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">E</div>
-                                <span className={cn("text-xl font-bold tracking-tight", isDark ? "text-white" : "text-green-600")}>Esparex</span>
-                            </Link>
-                        </div>
-                        <p className={cn("text-sm leading-relaxed", isDark ? "text-slate-500" : "text-slate-500")}>
-                            India's premium privacy-first marketplace for device spare parts and services.
-                        </p>
-                        <div className="flex items-center gap-3 justify-start">
-                            {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
-                                <button
-                                    key={i}
-                                    className={cn(
-                                        "flex h-10 w-10 items-center justify-center rounded-full transition-colors md:h-11 md:w-11",
-                                        isDark ? "text-slate-500 hover:text-white" : "text-slate-400 hover:text-green-600"
-                                    )}
-                                >
-                                    <Icon className="h-5 w-5" />
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                    {renderBrandBlock(true)}
 
                     <div className="grid grid-cols-2 gap-4 min-[460px]:grid-cols-3">
                         {FOOTER_LINK_SECTIONS.map((section) => (
@@ -180,28 +199,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                 <div className="hidden md:grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-4 md:gap-10 mb-6 md:mb-10">
                     {/* Brand & Social */}
                     <div className="col-span-1 space-y-4 text-left sm:col-span-2 md:col-span-1 md:order-first">
-                        <div className="flex items-center gap-3 justify-start">
-                            <Link href="/" className="flex items-center gap-2">
-                                <div className="h-8 w-8 rounded-lg bg-green-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">E</div>
-                                <span className={cn("text-xl font-bold tracking-tight", isDark ? "text-white" : "text-green-600")}>Esparex</span>
-                            </Link>
-                        </div>
-                        <p className={cn("text-sm leading-relaxed", isDark ? "text-slate-500" : "text-slate-500")}>
-                            India's premium privacy-first marketplace for device spare parts and services.
-                        </p>
-                        <div className="flex items-center gap-3 justify-start">
-                            {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
-                                <button
-                                    key={i}
-                                    className={cn(
-                                        "flex h-10 w-10 items-center justify-center rounded-full transition-colors md:h-11 md:w-11",
-                                        isDark ? "text-slate-500 hover:text-white" : "text-slate-400 hover:text-green-600"
-                                    )}
-                                >
-                                    <Icon className="h-5 w-5" />
-                                </button>
-                            ))}
-                        </div>
+                        {renderBrandBlock()}
                     </div>
 
                     {FOOTER_LINK_SECTIONS.map((section) => (

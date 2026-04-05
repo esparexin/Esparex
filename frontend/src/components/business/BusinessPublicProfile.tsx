@@ -60,6 +60,7 @@ export function BusinessPublicProfile({
 }: BusinessPublicProfileProps) {
   const [activeTab, setActiveTab] = useState<ListingTab>("ads");
   const [shareLabel, setShareLabel] = useState("Share");
+  const primaryBusinessType = business.businessTypes[0] || "Professional seller";
 
   const tabs = useMemo(() => {
     const allTabs: { key: ListingTab; label: string; count: number; icon: React.ReactNode }[] = [
@@ -130,8 +131,8 @@ export function BusinessPublicProfile({
     try {
       if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
         await navigator.share({
-          title: business.businessName,
-          text: business.tagline || business.description || business.businessName,
+          title: business.name,
+          text: business.tagline || business.description || business.name,
           url,
         });
         return;
@@ -154,7 +155,7 @@ export function BusinessPublicProfile({
         <div className="relative h-28 md:h-36">
           <PlaceholderImage
             src={heroImage}
-            alt={business.businessName}
+            alt={business.name}
             containerClassName="h-28 md:h-36 w-full rounded-none"
             className="object-cover"
             text="Business cover"
@@ -169,7 +170,7 @@ export function BusinessPublicProfile({
                 <div className="h-20 w-20 md:h-24 md:w-24 overflow-hidden rounded-xl">
                   <PlaceholderImage
                     src={logoImage}
-                    alt={`${business.businessName} logo`}
+                    alt={`${business.name} logo`}
                     containerClassName="h-20 w-20 md:h-24 md:w-24 rounded-xl"
                     className="object-cover"
                     text="Logo"
@@ -182,7 +183,7 @@ export function BusinessPublicProfile({
             <div className="space-y-2.5 pt-2 md:pt-6 md:col-span-2">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{business.businessName}</h1>
+                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{business.name}</h1>
                   {business.tagline && <p className="text-sm text-slate-400 mt-0.5">{business.tagline}</p>}
                 </div>
                 <Button variant="outline" size="sm" onClick={handleShare} className="h-11 rounded-xl border-slate-200 text-slate-600 text-xs w-fit">
@@ -192,8 +193,8 @@ export function BusinessPublicProfile({
               </div>
 
               <div className="flex flex-wrap gap-1.5">
-                <Badge variant="secondary" className="rounded-lg bg-slate-100 text-slate-600 border-none text-xs">{business.businessType}</Badge>
-                {business.verified ? (
+                <Badge variant="secondary" className="rounded-lg bg-slate-100 text-slate-600 border-none text-xs">{primaryBusinessType}</Badge>
+                {business.isVerified ? (
                   <Badge className="bg-blue-50 text-blue-700 border-none rounded-lg text-xs">Verified Business</Badge>
                 ) : null}
               </div>
@@ -239,15 +240,15 @@ export function BusinessPublicProfile({
         </CardHeader>
         <CardContent className="px-4 md:px-6 pb-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {business.contactNumber ? (
+            {business.mobile ? (
               <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
                   <Phone className="h-4 w-4 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Phone</p>
-                  <a href={`tel:${business.contactNumber}`} className="text-sm font-semibold text-slate-800 hover:text-blue-600">
-                    {business.contactNumber}
+                  <a href={`tel:${business.mobile}`} className="text-sm font-semibold text-slate-800 hover:text-blue-600">
+                    {business.mobile}
                   </a>
                 </div>
               </div>

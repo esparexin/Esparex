@@ -70,6 +70,7 @@ export function BusinessApplicationStatus({
     const businessDataStatus = businessData
         ? normalizeBusinessStatus(businessData.status, "pending")
         : "pending";
+    const businessLabel = businessData?.name || "Pending Business";
 
     const handleWithdraw = async () => {
         if (!confirm("Are you sure you want to withdraw your business application? This action cannot be undone.")) {
@@ -95,7 +96,7 @@ export function BusinessApplicationStatus({
                 Icon={AlertTriangle}
                 title="Business Verification Pending"
                 description="Your application is under review"
-                businessName={businessData?.businessName || "Pending Business"}
+                businessName={businessLabel}
                 actions={
                     <>
                         <Button
@@ -169,7 +170,7 @@ export function BusinessApplicationStatus({
                 titleClass="text-red-900"
                 title="Business Verification Not Approved"
                 description="Your application needs attention"
-                businessName={businessData.businessName || "Pending Business"}
+                businessName={businessLabel}
                 businessNameAppended={
                     <>
                         <Separator className="my-3" />
@@ -227,7 +228,7 @@ export function BusinessApplicationStatus({
                 titleClass="text-orange-900"
                 title="Business Account Suspended"
                 description="Your business operations have been temporarily halted"
-                businessName={businessData.businessName || "Pending Business"}
+                businessName={businessLabel}
                 actions={
                     <Button
                         onClick={() => window.location.href = '/support'}
@@ -254,7 +255,7 @@ export function BusinessApplicationStatus({
                 titleClass="text-gray-900"
                 title="Business Profile Expired/Deleted"
                 description="Your registration validity has concluded or account was deleted"
-                businessName={businessData.businessName || "Pending Business"}
+                businessName={businessLabel}
                 actions={
                     <>
                         {navigateToBusinessTab && (

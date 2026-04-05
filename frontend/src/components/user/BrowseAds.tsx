@@ -15,6 +15,11 @@ import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocationState } from "@/context/LocationContext";
+import {
+  getDisplayLocationLabel,
+  getSearchLocationLabel,
+  sanitizeLocationLabel,
+} from "@/lib/location/locationLabels";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import { buildPublicBrowseRoute, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
@@ -136,8 +141,9 @@ export function BrowseAds({
 
   // ── Query Hook Integration ───────────────────────────────────────────────────
   const urlLocationId = routeParams.locationId ?? "";
-  const urlLocationLabel = routeParams.location ?? "";
+  const urlLocationLabel = sanitizeLocationLabel(routeParams.location) ?? "";
   const urlModelId = routeParams.modelId ?? "";
+  const globalLocationLabel = useMemo(() => getSearchLocationLabel(location), [location]);
 
   const filters: ListingFilters = useMemo(() => {
     const nextFilters: ListingFilters = {
@@ -175,12 +181,7 @@ export function BrowseAds({
       nextFilters.radiusKm = radiusKm;
     } else if (location) {
       const isRegionLevel = location.level === "state" || location.level === "country";
-      const regionLocationLabel =
-        location.level === "state"
-          ? (location.state || location.city || undefined)
-          : location.level === "country"
-            ? (location.country || location.state || location.city || undefined)
-            : undefined;
+      const regionLocationLabel = getSearchLocationLabel(location);
 
       if (location.locationId) {
         nextFilters.locationId = location.locationId;
@@ -196,8 +197,8 @@ export function BrowseAds({
         nextFilters.radiusKm = radiusKm;
       } else if (regionLocationLabel) {
         nextFilters.location = regionLocationLabel;
-      } else if (location.city) {
-        nextFilters.location = location.city;
+      } else if (regionLocationLabel) {
+        nextFilters.location = regionLocationLabel;
       }
     }
 
@@ -205,7 +206,7 @@ export function BrowseAds({
   }, [categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, sort, urlLocationId, urlLocationLabel, urlModelId]);
 
   const hasLocationFilter =
-    Boolean(urlLocationId || urlLocationLabel || location.locationId || location.city) ||
+    Boolean(urlLocationId || urlLocationLabel || location.locationId || globalLocationLabel) ||
     (typeof filters.lat === "number" && Number.isFinite(filters.lat)) ||
     (typeof filters.lng === "number" && Number.isFinite(filters.lng));
 
@@ -256,14 +257,14 @@ export function BrowseAds({
   const activeLocationLabel = useMemo(() => {
     if (urlLocationLabel) return urlLocationLabel;
     if (location.source === "default") return null;
-    return location.display || location.name || location.city || location.state || null;
+    return getDisplayLocationLabel(location) || null;
   }, [location, urlLocationLabel]);
 
   const activeFilterBadges = useMemo(() => {
     const badges: string[] = [];
     const trimmedQuery = query.trim();
     const priceSummary = buildPriceSummary(priceRange);
-    const hasActiveLocation = Boolean(urlLocationId || urlLocationLabel || location.source !== "default");
+    const hasActiveLocation = Boolean(urlLocationId || urlLocationLabel || location.locationId || globalLocationLabel);
 
     if (trimmedQuery) badges.push(`Search: "${trimmedQuery}"`);
     if (resolvedCategoryLabel) badges.push(`Category: ${resolvedCategoryLabel}`);
@@ -280,7 +281,7 @@ export function BrowseAds({
     if (sort !== "newest") badges.push(`Sort: ${PUBLIC_BROWSE_SORT_LABELS[sort]}`);
 
     return badges;
-  }, [activeLocationLabel, location.source, priceRange, query, radiusKm, resolvedCategoryLabel, selectedBrands, sort, urlLocationId, urlLocationLabel]);
+  }, [activeLocationLabel, globalLocationLabel, location.locationId, priceRange, query, radiusKm, resolvedCategoryLabel, selectedBrands, sort, urlLocationId, urlLocationLabel]);
 
   const activeFilterCount = activeFilterBadges.length;
   const isEmptyState = !isLoading && !error && displayAds.length === 0;

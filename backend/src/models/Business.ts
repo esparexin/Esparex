@@ -18,7 +18,7 @@ export interface IBusiness extends Document {
     name: string;
     description: string;
     businessTypes: string[];
-    locationId: mongoose.Types.ObjectId;
+    locationId?: mongoose.Types.ObjectId | null;
     location: SharedBusiness['location'];
     mobile: string; // Was phone
     phone?: string; // Virtual for backward compat
@@ -73,12 +73,14 @@ const BusinessSchema: Schema = new Schema({
     locationId: { type: Schema.Types.ObjectId, ref: 'Location' },
     location: {
         address: { type: String, required: true },
+        display: { type: String },
         shopNo: { type: String },
         street: { type: String },
         landmark: { type: String },
-        city: { type: String, required: true },
-        state: { type: String, required: true },
-        pincode: { type: String, required: true },
+        city: { type: String },
+        state: { type: String },
+        country: { type: String },
+        pincode: { type: String },
         coordinates: {
             type: { type: String, enum: ['Point'], default: 'Point' },
             coordinates: {

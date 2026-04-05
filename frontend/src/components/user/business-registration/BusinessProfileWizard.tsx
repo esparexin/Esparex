@@ -57,15 +57,15 @@ export function BusinessProfileWizard({
         {
             label: "Business info",
             title: "Business information",
-            description: "Add the business name, contact email, and shop location reviewers need to verify first.",
+            description: "Add the business name, contact email, current location proof, and full address reviewers need first.",
             content: (
-                <div className="space-y-8">
+                <div className="space-y-6">
                     <StepBasicDetails
                         formData={formData}
                         setFormData={setFormData}
                         user={user}
                     />
-                    <div className="border-t border-slate-100 pt-8">
+                    <div className="border-t border-slate-100 pt-6">
                         <StepAddress
                             formData={formData}
                             setFormData={setFormData}
@@ -82,14 +82,14 @@ export function BusinessProfileWizard({
                     ? "Refresh shop photos and review the business profile before saving."
                     : "Upload verification documents, add shop photos, and confirm everything before you submit.",
             content: (
-                <div className="space-y-8">
+                <div className="space-y-6">
                     <ShopPhotosField
                         formData={formData}
                         setFormData={setFormData}
                         helperText="Upload the workspace photos reviewers expect to see before they approve the business."
                     />
                     {showDocumentsStep ? (
-                        <div className="border-t border-slate-100 pt-8">
+                        <div className="border-t border-slate-100 pt-6">
                             <StepDocuments
                                 formData={formData}
                                 setFormData={setFormData}
@@ -97,7 +97,7 @@ export function BusinessProfileWizard({
                             />
                         </div>
                     ) : null}
-                    <div className="border-t border-slate-100 pt-8">
+                    <div className="border-t border-slate-100 pt-6">
                         <Accordion type="single" collapsible className="rounded-2xl border border-slate-200 bg-slate-50 px-4">
                             <AccordionItem value="review" className="border-b-0">
                                 <AccordionTrigger className="py-4 text-sm font-semibold text-slate-900 hover:no-underline">

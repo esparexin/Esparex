@@ -1,13 +1,13 @@
-import { AppError } from "./AppError";
+import { FrontendAppError } from "./FrontendAppError";
 import { isAPIError } from "@/lib/api/APIError";
 
-export function normalizeApiError(error: unknown): AppError {
-    if (error instanceof AppError) {
+export function normalizeApiError(error: unknown): FrontendAppError {
+    if (error instanceof FrontendAppError) {
         return error;
     }
 
     if (isAPIError(error)) {
-        return new AppError(error.message, {
+        return new FrontendAppError(error.message, {
             status: error.status,
             code: error.code,
             details: {
@@ -29,19 +29,19 @@ export function normalizeApiError(error: unknown): AppError {
         const code = data?.error?.code || data?.code || axiosError.code;
         const details = data?.error?.details || data?.details || data;
 
-        return new AppError(message, { status, code, details });
+        return new FrontendAppError(message, { status, code, details });
     }
 
     // Handle standard JS errors
     if (error instanceof Error) {
-        return new AppError(error.message, { details: { name: error.name, stack: error.stack } });
+        return new FrontendAppError(error.message, { details: { name: error.name, stack: error.stack } });
     }
 
     // Handle bare strings
     if (typeof error === 'string') {
-        return new AppError(error);
+        return new FrontendAppError(error);
     }
 
     // Ultimate fallback
-    return new AppError("An unknown error occurred", { details: error });
+    return new FrontendAppError("An unknown error occurred", { details: error });
 }

@@ -8,6 +8,14 @@ import {
     createPoint,
     toCanonicalGeoPoint,
 } from "@/lib/location/coordinates";
+import {
+    getDisplayLocationLabel,
+    getHeaderLocationText,
+    getSearchLocationLabel,
+    isGenericDetectedLocation,
+    normalizeLocationText,
+    sanitizeLocationLabel,
+} from "@/lib/location/locationLabels";
 
 const GEOLOCATION_TIMEOUT_MS = 12000;
 
@@ -152,10 +160,13 @@ export async function reverseGeocode(
     return normalizeToAppLocation(location, "auto");
 }
 
+export type CurrentLocationMode =
+    | "precise"
+    | "approximate"
+    | "precise_or_approximate";
+
 type CurrentLocationOptions = {
-    allowIpFallback?: boolean;
-    allowGeolocationPrompt?: boolean;
-    skipGeolocation?: boolean;
+    mode?: CurrentLocationMode;
 };
 
 export type LocationDetectFailureReason =
@@ -238,136 +249,113 @@ const autoDetectLocation = async (
     return null;
 };
 
-async function getCurrentLocationWithOptions(
-    options: CurrentLocationOptions = {}
-): Promise<LocationDetectResult> {
+const buildFailureResult = (
+    failure: LocationDetectFailure
+): LocationDetectResult => ({
+    location: null,
+    source: "none",
+    failure,
+});
+
+const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
     if (typeof window === "undefined") {
-        return {
-            location: null,
-            source: "none",
-            failure: {
-                reason: "unsupported",
-                message: "Location detection is unavailable on the server.",
-            },
-        };
+        return buildFailureResult({
+            reason: "unsupported",
+            message: "Location detection is unavailable on the server.",
+        });
     }
 
-    const allowIpFallback = options.allowIpFallback ?? true;
-    const allowGeolocationPrompt = options.allowGeolocationPrompt ?? true;
-    const skipGeolocation = options.skipGeolocation ?? false;
-    let geolocationFailure: LocationDetectFailure | undefined;
-
-    if (skipGeolocation) {
-        geolocationFailure = {
-            reason: "prompt_skipped",
-            message: "Using approximate location by request.",
-        };
-    } else if (!isSecureLocationContext()) {
-        geolocationFailure = {
+    if (!isSecureLocationContext()) {
+        return buildFailureResult({
             reason: "insecure_context",
             message:
                 "Location permission is blocked on insecure pages. Use HTTPS or localhost.",
-        };
+        });
     }
 
-    if (navigator.geolocation && !geolocationFailure) {
-        let permissionState: PermissionState | "unknown" = "unknown";
-        try {
-            if ("permissions" in navigator && navigator.permissions?.query) {
-                const result = await navigator.permissions.query({ name: "geolocation" });
-                permissionState = result.state;
-            }
-        } catch {
-            permissionState = "unknown";
-        }
-
-        if (permissionState === "denied") {
-            geolocationFailure = {
-                reason: "permission_denied",
-                message:
-                    "Location permission denied. Allow location access in your browser settings and try again.",
-            };
-        }
-
-        if (!geolocationFailure && !allowGeolocationPrompt && permissionState !== "granted") {
-            geolocationFailure = {
-                reason: "prompt_skipped",
-                message: "Using approximate location to avoid interrupting current flow.",
-            };
-        }
-
-        if (!geolocationFailure) {
-            try {
-                const coords = await new Promise<GeolocationCoordinates>(
-                    (resolve, reject) => {
-                        navigator.geolocation.getCurrentPosition(
-                            (position) => resolve(position.coords),
-                            reject,
-                            {
-                                enableHighAccuracy: false,
-                                timeout: GEOLOCATION_TIMEOUT_MS,
-                                maximumAge: 300000, // 5 min cache — avoids redundant GPS re-acquire
-                            }
-                        );
-                    }
-                );
-
-                const resolved = await autoDetectLocation(
-                    coords.latitude,
-                    coords.longitude
-                );
-                if (resolved) {
-                    return {
-                        location: resolved,
-                        source: "auto",
-                    };
-                }
-
-                return {
-                    location: buildAppLocation({
-                        formattedAddress: "Current Location",
-                        city: "Current Location",
-                        state: "Unknown",
-                        country: "Unknown",
-                        coordinates: createPoint(coords.longitude, coords.latitude),
-                        source: "auto",
-                        name: "Current Location",
-                    }),
-                    source: "auto",
-                };
-            } catch (error) {
-                geolocationFailure = mapGeolocationError(error);
-            }
-        }
-    } else if (!navigator.geolocation) {
-        geolocationFailure = {
+    if (!navigator.geolocation) {
+        return buildFailureResult({
             reason: "unsupported",
             message: "Geolocation is not supported by this browser.",
-        };
+        });
     }
 
-    if (!allowIpFallback) {
+    let permissionState: PermissionState | "unknown" = "unknown";
+    try {
+        if ("permissions" in navigator && navigator.permissions?.query) {
+            const result = await navigator.permissions.query({ name: "geolocation" });
+            permissionState = result.state;
+        }
+    } catch {
+        permissionState = "unknown";
+    }
+
+    if (permissionState === "denied") {
+        return buildFailureResult({
+            reason: "permission_denied",
+            message:
+                "Location permission denied. Allow location access in your browser settings and try again.",
+        });
+    }
+
+    try {
+        const coords = await new Promise<GeolocationCoordinates>(
+            (resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => resolve(position.coords),
+                    reject,
+                    {
+                        enableHighAccuracy: false,
+                        timeout: GEOLOCATION_TIMEOUT_MS,
+                        maximumAge: 300000, // 5 min cache — avoids redundant GPS re-acquire
+                    }
+                );
+            }
+        );
+
+        const resolved = await autoDetectLocation(
+            coords.latitude,
+            coords.longitude
+        );
+        if (resolved) {
+            return {
+                location: resolved,
+                source: "auto",
+            };
+        }
+
         return {
-            location: null,
-            source: "none",
-            failure: geolocationFailure || {
-                reason: "unknown",
-                message: "Unable to detect location.",
-            },
+            location: buildAppLocation({
+                formattedAddress: "Current location captured",
+                city: "Current location",
+                state: "",
+                country: "Unknown",
+                coordinates: createPoint(coords.longitude, coords.latitude),
+                source: "auto",
+                name: "Current location",
+            }),
+            source: "auto",
         };
+    } catch (error) {
+        return buildFailureResult(mapGeolocationError(error));
+    }
+};
+
+const detectApproximateLocation = async (): Promise<LocationDetectResult> => {
+    if (typeof window === "undefined") {
+        return buildFailureResult({
+            reason: "unsupported",
+            message: "Location detection is unavailable on the server.",
+        });
     }
 
     const ipLocation = await detectLocationByIP();
     if (!ipLocation) {
-        return {
-            location: null,
-            source: "none",
-            failure: geolocationFailure || {
-                reason: "ip_failed",
-                message:
-                    "Unable to detect location automatically. Please select location manually.",
-            },
-        };
+        return buildFailureResult({
+            reason: "ip_failed",
+            message:
+                "Unable to detect location automatically. Please select location manually.",
+        });
     }
 
     const ipLng = ipLocation.coordinates.coordinates[0];
@@ -387,15 +375,40 @@ async function getCurrentLocationWithOptions(
 
     return {
         location: buildAppLocation({
-            formattedAddress: `${ipLocation.city}, ${ipLocation.state}`,
+            formattedAddress: `${ipLocation.city}, ${ipLocation.state}` || "Approximate current location",
             city: ipLocation.city,
             state: ipLocation.state,
             country: ipLocation.country,
             coordinates: createPoint(ipLng, ipLat),
             source: "ip",
-            name: ipLocation.city,
+            name: ipLocation.city || "Approximate current location",
         }),
         source: "ip",
+    };
+};
+
+async function getCurrentLocationWithOptions(
+    options: CurrentLocationOptions = {}
+): Promise<LocationDetectResult> {
+    const mode = options.mode ?? "precise_or_approximate";
+
+    if (mode === "approximate") {
+        return detectApproximateLocation();
+    }
+
+    const preciseResult = await detectPreciseLocation();
+    if (preciseResult.location || mode === "precise") {
+        return preciseResult;
+    }
+
+    const approximateResult = await detectApproximateLocation();
+    if (approximateResult.location) {
+        return approximateResult;
+    }
+
+    return {
+        ...approximateResult,
+        failure: preciseResult.failure ?? approximateResult.failure,
     };
 }
 
@@ -431,40 +444,7 @@ export function normalizeLocationName(name: string | undefined | null): string {
     // Display-only formatter.
     // Must not be used in backend/search query construction to avoid
     // altering canonical lookup behavior for diacritic-sensitive names.
-    if (!name) return "";
-
-    return name
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-export function getHeaderLocationText(location: {
-    name?: string;
-    formattedAddress?: string;
-    city?: string;
-    level?: "area" | "city" | "district" | "state" | "country" | "village" | string;
-    source?: "auto" | "ip" | "manual" | "default" | string;
-}) {
-    const normalizedName = normalizeLocationName(
-        location.name || location.formattedAddress || location.city
-    );
-
-    const headerText = normalizedName;
-
-    return {
-        headerText,
-        tooltipText: normalizedName,
-        meta:
-            location.source === "auto"
-                ? "Auto-detected"
-                : location.source === "ip"
-                    ? "Approximate (IP)"
-                    : location.source === "manual"
-                        ? "Selected manually"
-                        : "Nationwide results",
-    };
+    return normalizeLocationText(name);
 }
 
 type LocationLike = {
@@ -488,37 +468,46 @@ type LocationDisplayLike =
 
 export function formatLocation(location: LocationLike): string {
     if (!location) return "";
-    if (typeof location === "string") return location;
+    if (typeof location === "string") return sanitizeLocationLabel(location) || "";
     
     // Prioritize City for brief "brief" indicators (e.g. Ad Cards).
     // The "display" field often contains full addresses which causes grid inconsistency.
-    if (location.city) return normalizeLocationName(location.city);
-    if (location.display) return normalizeLocationName(location.display);
-    if (location.name) return normalizeLocationName(location.name);
+    if (location.city) return sanitizeLocationLabel(location.city) || "";
+    if (location.display) return sanitizeLocationLabel(location.display) || "";
+    if (location.name) return sanitizeLocationLabel(location.name) || "";
 
     return "";
 }
 
 export function formatLocationDisplay(location: LocationDisplayLike): string {
     if (!location) return "";
-    if (typeof location === "string") return normalizeLocationName(location);
+    if (typeof location === "string") return sanitizeLocationLabel(location) || "";
 
     const primary = formatLocation(location);
     if (primary) return primary;
 
     return [location.city, location.state, location.country]
         .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
-        .map((value) => normalizeLocationName(value))
+        .map((value) => sanitizeLocationLabel(value))
+        .filter((value): value is string => Boolean(value))
         .join(", ");
 }
 
 export function isNeutralLocation(location: LocationLike): boolean {
     if (!location) return true;
     const name = typeof location === 'string' ? location : (location.name || location.city || "");
-    return name === "Select Location" || name === "Unknown" || !name;
+    return name === "Select Location" || name === "Unknown" || isGenericDetectedLocation({ source: "auto", name }) || !sanitizeLocationLabel(name);
 }
 
 export function extractCityFromLocation(location: string): string {
     const parts = location.split(",");
     return parts[0]?.trim() || "";
 }
+
+export {
+    getDisplayLocationLabel,
+    getHeaderLocationText,
+    getSearchLocationLabel,
+    isGenericDetectedLocation,
+    sanitizeLocationLabel,
+};

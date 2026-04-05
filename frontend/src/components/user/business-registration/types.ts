@@ -3,14 +3,12 @@ import type { GeoJSONPoint } from "@/types/location";
 export interface StepData {
     businessName: string;
     businessDescription: string;
-    // Structured Address
-    locationId?: string | null;
-    shopNo: string;
-    street: string;
-    landmark: string;
-    city: string;
-    state: string;
-    pincode: string;
+    fullAddress: string;
+    currentLocationDisplay: string;
+    currentLocationSource: "auto" | "ip" | "";
+    currentLocationCity: string;
+    currentLocationState: string;
+    currentLocationCountry: string;
     coordinates: GeoJSONPoint | null;
     // Contact
     contactNumber: string;
