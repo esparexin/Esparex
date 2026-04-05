@@ -12,6 +12,28 @@ import { fileToBase64 } from "@/components/user/business-registration/utils";
 
 import { generateIdempotencyKey } from "@/lib/listings/submissionUtils";
 import { injectApiErrors } from "@/lib/injectApiErrors";
+import { mapErrorToMessage } from "@/lib/errorMapper";
+
+function getBackendErrorCode(error: unknown): string | undefined {
+    if (!error || typeof error !== "object") return undefined;
+
+    const record = error as {
+        code?: unknown;
+        context?: { backendErrorCode?: unknown };
+        response?: { data?: { code?: unknown } };
+    };
+
+    if (typeof record.code === "string" && record.code.trim().length > 0) {
+        return record.code;
+    }
+
+    if (typeof record.context?.backendErrorCode === "string" && record.context.backendErrorCode.trim().length > 0) {
+        return record.context.backendErrorCode;
+    }
+
+    const responseCode = record.response?.data?.code;
+    return typeof responseCode === "string" && responseCode.trim().length > 0 ? responseCode : undefined;
+}
 
 interface UseListingSubmissionProps<TFieldValues extends Record<string, any>> {
     form: UseFormReturn<TFieldValues>;
@@ -152,8 +174,8 @@ export function useListingSubmission<T extends Record<string, any>>({
             logger.error("[Submission] Failed:", e);
             
             // 🛡️ Policy Guard: Intercept Business Required Threshold
-            if (e.code === 'BUSINESS_REQUIRED_THRESHOLD' || (e.response && e.response.data && e.response.data.code === 'BUSINESS_REQUIRED_THRESHOLD')) {
-                const limitMsg = e.response?.data?.message || e.message;
+            if (getBackendErrorCode(e) === 'BUSINESS_REQUIRED_THRESHOLD') {
+                const limitMsg = mapErrorToMessage(e, "Business account required.");
                 notify.error(limitMsg, {
                     duration: 6000,
                     // In a real app, we might trigger an 'Upgrade to Business' modal here via a global event or context
@@ -162,11 +184,12 @@ export function useListingSubmission<T extends Record<string, any>>({
                 return null;
             }
 
-            const msg = e instanceof Error ? e.message : "Submission failed. Please try again.";
-            if (onError) onError(msg);
-            else notify.error(msg);
             // Inject API field-level errors into the form (highlights specific fields)
-            if (form) injectApiErrors(form, e);
+            const injected = form ? injectApiErrors(form, e) : false;
+            const msg = mapErrorToMessage(e, "Submission failed. Please try again.");
+
+            if (onError) onError(msg);
+            else if (!injected) notify.error(msg);
             resetIdempotency();
         } finally {
             setIsSubmitting(false);

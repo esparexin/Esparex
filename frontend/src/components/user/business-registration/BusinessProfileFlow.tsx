@@ -63,30 +63,39 @@ interface BusinessProfileFlowProps {
 type BusinessWizardFormShape = {
     businessName: string;
     businessDescription: string;
-    locationId?: string | null;
-    shopNo: string;
-    street: string;
-    landmark?: string | null;
-    city: string;
-    state: string;
-    pincode: string;
+    fullAddress: string;
+    currentLocationDisplay: string;
+    currentLocationSource?: "auto" | "";
+    currentLocationCity?: string | null;
+    currentLocationState?: string | null;
+    currentLocationCountry?: string | null;
     coordinates?: unknown;
     contactNumber: string;
     email: string;
 };
+
+const asOptionalString = (value: unknown): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : undefined;
+};
+
+const joinAddressParts = (...parts: unknown[]): string =>
+    parts
+        .map((part) => asOptionalString(part))
+        .filter((part): part is string => Boolean(part))
+        .join(", ");
 
 function buildBusinessPayloadBase(data: BusinessWizardFormShape): Omit<CreateBusinessDTO, "images" | "documents"> {
     return {
         name: data.businessName.trim(),
         description: data.businessDescription.trim(),
         location: {
-            ...(data.locationId ? { locationId: data.locationId } : {}),
-            city: data.city.trim(),
-            state: data.state.trim(),
-            pincode: data.pincode.trim(),
-            street: data.street.trim(),
-            shopNo: data.shopNo.trim(),
-            landmark: data.landmark?.trim() || undefined,
+            address: data.fullAddress.trim(),
+            display: data.currentLocationDisplay.trim(),
+            ...(asOptionalString(data.currentLocationCity) ? { city: data.currentLocationCity?.trim() } : {}),
+            ...(asOptionalString(data.currentLocationState) ? { state: data.currentLocationState?.trim() } : {}),
+            ...(asOptionalString(data.currentLocationCountry) ? { country: data.currentLocationCountry?.trim() } : {}),
             coordinates: (data.coordinates as CreateBusinessDTO["location"]["coordinates"]) || undefined,
         },
         phone: data.contactNumber.replace(/\D/g, "").slice(-10),
@@ -95,18 +104,33 @@ function buildBusinessPayloadBase(data: BusinessWizardFormShape): Omit<CreateBus
 }
 
 function mapBusinessToEditDefaults(business: UserBusiness): BusinessEditFormInput {
+    const fullAddress =
+        asOptionalString(business.location.address)
+        || joinAddressParts(
+            business.location.shopNo,
+            business.location.street,
+            business.location.landmark,
+            business.location.city,
+            business.location.state,
+            business.location.pincode,
+        );
+    const currentLocationDisplay =
+        asOptionalString(business.location.display)
+        || asOptionalString(business.location.formattedAddress)
+        || joinAddressParts(business.location.city, business.location.state)
+        || fullAddress;
+
     return {
-        businessName: business.businessName || business.name || "",
+        businessName: business.name || "",
         businessDescription: business.description || "",
-        contactNumber: business.contactNumber || business.mobile || "",
+        contactNumber: business.mobile || "",
         email: business.email || "",
-        locationId: business.location.locationId || business.locationId || null,
-        shopNo: business.location.shopNo || "",
-        street: business.location.street || "",
-        city: business.location.city || "",
-        state: business.location.state || "",
-        pincode: business.location.pincode || "",
-        landmark: business.location.landmark || "",
+        fullAddress: fullAddress || "",
+        currentLocationDisplay: currentLocationDisplay || "",
+        currentLocationSource: "",
+        currentLocationCity: business.location.city || "",
+        currentLocationState: business.location.state || "",
+        currentLocationCountry: business.location.country || "",
         coordinates: business.location.coordinates || null,
         shopImages: business.images || [],
         idProof: business.documents?.idProof?.[0] || null,
@@ -211,13 +235,12 @@ function BusinessRegistrationFlow({
         defaultValues: {
             businessName: "",
             businessDescription: "",
-            locationId: null,
-            shopNo: "",
-            street: "",
-            landmark: "",
-            city: "",
-            state: "",
-            pincode: "",
+            fullAddress: "",
+            currentLocationDisplay: "",
+            currentLocationSource: "",
+            currentLocationCity: "",
+            currentLocationState: "",
+            currentLocationCountry: "",
             coordinates: null,
             contactNumber: normalizedContactNumber,
             email: user?.email || "",
@@ -374,21 +397,20 @@ function BusinessEditProfileFlow({
         : {
             businessName: "",
             businessDescription: "",
-            locationId: null,
-            shopNo: "",
-            street: "",
-                landmark: "",
-                city: "",
-                state: "",
-                pincode: "",
-                coordinates: null,
-                contactNumber: "",
-                email: "",
-                idProofType: undefined,
-                idProof: null,
-                businessProof: null,
-                certificates: [],
-                shopImages: [],
+            fullAddress: "",
+            currentLocationDisplay: "",
+            currentLocationSource: "",
+            currentLocationCity: "",
+            currentLocationState: "",
+            currentLocationCountry: "",
+            coordinates: null,
+            contactNumber: "",
+            email: "",
+            idProofType: undefined,
+            idProof: null,
+            businessProof: null,
+            certificates: [],
+            shopImages: [],
         };
 
     const form = useForm<BusinessEditFormInput, any, BusinessEditFormData>({
@@ -437,7 +459,7 @@ function BusinessEditProfileFlow({
                     return;
                 }
 
-                const business = await getMyBusiness();
+                const business = await getMyBusiness({ silent: true });
                 if (!business) {
                     setFormError("No business profile found.");
                     void router.push("/account/business/apply");

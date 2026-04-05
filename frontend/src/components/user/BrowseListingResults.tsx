@@ -16,6 +16,9 @@ export interface BrowseListingResultsProps<TItem>
     | "error"
     | "hasMore"
     | "query"
+    | "filterNode"
+    | "activeFilterCount"
+    | "activeFilterBadges"
     | "onSortChange"
     | "onViewChange"
     | "onRetry"
@@ -39,6 +42,9 @@ export function BrowseListingResults<TItem>({
   error,
   hasMore,
   query,
+  filterNode,
+  activeFilterCount,
+  activeFilterBadges,
   onSortChange,
   onViewChange,
   onRetry,
@@ -61,6 +67,9 @@ export function BrowseListingResults<TItem>({
       error={error}
       hasMore={hasMore}
       query={query}
+      filterNode={filterNode}
+      activeFilterCount={activeFilterCount}
+      activeFilterBadges={activeFilterBadges}
       onSortChange={onSortChange}
       onViewChange={onViewChange}
       onRetry={onRetry}

@@ -262,15 +262,27 @@ export function normalizeListing(data: unknown): Listing {
     const validated = parsed.success ? parsed.data : coerceListingFallback(compatible);
     const location = normalizeLocation(validated.location);
     const normalizedViews = typeof validated.views === 'number' ? validated.views : (validated.views && typeof validated.views === 'object' ? (validated.views as any).total : 0);
-
-    let sellerName = 'Esparex Seller';
-    if (typeof validated.seller === 'string') {
-        sellerName = validated.seller;
-    } else if (validated.seller && typeof validated.seller === 'object') {
-        const s = validated.seller as any;
-        sellerName = s.name || s.businessName || sellerName;
-    }
-    if (typeof validated.businessName === 'string') sellerName = validated.businessName;
+    const explicitSellerName =
+        typeof validated.sellerName === 'string' && validated.sellerName.trim().length > 0
+            ? validated.sellerName.trim()
+            : '';
+    const businessName =
+        typeof validated.businessName === 'string' && validated.businessName.trim().length > 0
+            ? validated.businessName.trim()
+            : '';
+    const legacySellerName =
+        typeof validated.seller === 'string'
+            ? validated.seller.trim()
+            : validated.seller && typeof validated.seller === 'object'
+                ? String((validated.seller as Record<string, unknown>).name || (validated.seller as Record<string, unknown>).businessName || '').trim()
+                : '';
+    const isBusiness =
+        validated.sellerType === 'business'
+        || (validated.seller && (validated.seller as any).role === 'business')
+        || !!validated.businessId;
+    const sellerName = (isBusiness && businessName)
+        ? businessName
+        : explicitSellerName || legacySellerName || businessName || 'Esparex Seller';
 
     return {
         ...validated,
@@ -279,7 +291,7 @@ export function normalizeListing(data: unknown): Listing {
         images: toSafeImageArray(Array.isArray(validated.images) ? validated.images.map((image) => normalizeImageUrl(String(image))) : validated.images),
         image: toSafeImageSrc(Array.isArray(validated.images) && validated.images.length > 0 ? normalizeImageUrl(String(validated.images[0])) : (typeof validated.image === 'string' ? normalizeImageUrl(validated.image) : validated.image)),
         time: typeof validated.createdAt === 'string' ? new Date(validated.createdAt).toLocaleDateString() : '',
-        isBusiness: validated.sellerType === 'business' || (validated.seller && (validated.seller as any).role === 'business') || !!validated.businessId,
+        isBusiness,
         verified: ((validated.seller as any)?.isVerified === true) || validated.verified === true,
         sellerName,
         sellerId: extractId(validated.sellerId) || '',
@@ -546,9 +558,32 @@ export const getAdsPage = async (
 
         if (!result) return createEmptyPageResult<Listing>(filters ?? {});
 
+        const fallbackPage = Number(filters?.page || 1);
+        const fallbackLimit = Number(filters?.limit || 20);
+        const resolvedPage =
+            typeof result.pagination.page === 'number' && result.pagination.page > 0
+                ? result.pagination.page
+                : fallbackPage;
+        const resolvedLimit =
+            typeof result.pagination.limit === 'number' && result.pagination.limit > 0
+                ? result.pagination.limit
+                : fallbackLimit;
+        const resolvedTotal =
+            typeof result.pagination.total === 'number' ? result.pagination.total : undefined;
+        const resolvedHasMore =
+            typeof result.pagination.hasMore === 'boolean'
+                ? result.pagination.hasMore
+                : (typeof resolvedTotal === 'number' ? resolvedPage * resolvedLimit < resolvedTotal : false);
+
         return {
             data: result.data.map(normalizeListing),
-            pagination: result.pagination,
+            pagination: {
+                ...result.pagination,
+                page: resolvedPage,
+                limit: resolvedLimit,
+                total: resolvedTotal,
+                hasMore: resolvedHasMore,
+            },
         };
     } catch {
         return createEmptyPageResult<Listing>(filters ?? {});
@@ -665,7 +700,8 @@ const executeListingMutationRequest = async (
 ): Promise<Listing | null> => {
     try {
         const { data, error } = await toApiResult<Listing>(requestPromise);
-        if (error) throw new Error(error.userMessage || error.technicalMessage || errorMessage);
+        if (error) throw error;
+        if (!data) throw new Error(errorMessage);
         return data ? normalizeListing(data) : null;
     } catch (e) {
         logger.error(errorMessage, e);
@@ -678,7 +714,7 @@ const executeListingMutationRequest = async (
  */
 export const createListing = async (
     listingData: Partial<Listing>,
-    options?: { endpoint?: string; idempotencyKey?: string }
+    options?: { endpoint?: string; idempotencyKey?: string; errorMessage?: string }
 ): Promise<Listing | null> => {
     const sanitizedPayload = stripEmptyObjectIdFields(listingData as Record<string, unknown>);
     const endpoint = options?.endpoint || API_ROUTES.USER.ADS;
@@ -691,7 +727,7 @@ export const createListing = async (
             silent: true,
             ...(headers ? { headers } : {}),
         }),
-        "Failed to create listing"
+        options?.errorMessage || "Failed to create listing"
     );
 };
 

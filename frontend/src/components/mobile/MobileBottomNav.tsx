@@ -43,65 +43,87 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
     const half = Math.floor(navItems.length / 2);
     const leftItems = navItems.slice(0, half);
     const rightItems = navItems.slice(half);
-    const renderNavItems = (items: typeof navItems) =>
-        items.map((item) => {
-            const href = item.href ?? (item.page ? `/${item.page}` : "/");
-            const isActive = pathname === href;
-            const Icon = item.icon;
+    const isActivePath = (href: string) => href === "/"
+        ? pathname === href
+        : pathname === href || pathname?.startsWith(`${href}/`);
 
-            return (
-                <Link
-                    key={item.id}
-                    href={href}
-                    className={cn(
-                        "flex flex-col items-center justify-center w-full h-full space-y-1",
-                        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                    )}
-                >
-                    <Icon className={cn("w-6 h-6", isActive && "fill-current")} />
-                    <span className="text-[10px] font-medium">{item.label}</span>
-                </Link>
-            );
-        });
+    const renderNavItems = (items: typeof navItems) => {
+        if (items.length === 0) {
+            return <div className="flex-1" />;
+        }
+
+        return (
+            <div
+                className="grid min-w-0 flex-1 gap-1.5"
+                style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+            >
+                {items.map((item) => {
+                    const href = item.href ?? (item.page ? `/${item.page}` : "/");
+                    const isActive = isActivePath(href);
+                    const Icon = item.icon;
+
+                    return (
+                        <Link
+                            key={item.id}
+                            href={href}
+                            aria-current={isActive ? "page" : undefined}
+                            className={cn(
+                                "flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-center transition-colors",
+                                isActive
+                                    ? "bg-blue-50 text-blue-700"
+                                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                            )}
+                        >
+                            <Icon className="h-5 w-5 shrink-0" />
+                            <span className="max-w-full truncate text-[10px] font-semibold leading-tight">
+                                {item.label}
+                            </span>
+                        </Link>
+                    );
+                })}
+            </div>
+        );
+    };
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 pb-safe">
-            <div className="flex justify-around items-center h-16">
-                {/* Left nav items */}
+        <nav
+            aria-label="Mobile footer navigation"
+            className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/80 bg-white/95 shadow-[0_-8px_28px_rgba(15,23,42,0.08)] backdrop-blur-xl md:hidden"
+        >
+            <div className="mx-auto flex max-w-screen-sm items-end gap-1.5 px-2 pt-2 pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.5rem,env(safe-area-inset-bottom))]">
                 {renderNavItems(leftItems)}
 
-                {/* Center: Post Ad Button (special-cased, not from config) */}
                 <button
                     onClick={handlePostAdClick}
                     disabled={!isBackendUp}
+                    aria-label="Create a new listing"
                     className={cn(
-                        "flex flex-col items-center justify-center w-full h-full space-y-1",
+                        "flex h-[72px] w-[76px] shrink-0 flex-col items-center justify-start gap-1 rounded-[24px] px-2 pt-0.5 text-center transition-transform active:scale-95",
                         !isBackendUp && "cursor-not-allowed opacity-50"
                     )}
                 >
                     <div
                         className={cn(
-                            "rounded-full p-1 shadow-sm transition-transform",
+                            "flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-transform",
                             isBackendUp
-                                ? "bg-primary text-primary-foreground hover:scale-105"
+                                ? "bg-blue-600 text-white shadow-blue-200"
                                 : "bg-muted text-muted-foreground"
                         )}
                     >
-                        <PlusCircle className="w-5 h-5" />
+                        <PlusCircle className="h-6 w-6" />
                     </div>
                     <span
                         className={cn(
-                            "text-[10px] font-medium",
-                            isBackendUp ? "text-primary" : "text-muted-foreground"
+                            "text-[10px] font-semibold leading-tight",
+                            isBackendUp ? "text-blue-600" : "text-muted-foreground"
                         )}
                     >
-                        Post
+                        Post Ad
                     </span>
                 </button>
 
-                {/* Right nav items */}
                 {renderNavItems(rightItems)}
             </div>
-        </div>
+        </nav>
     );
 }

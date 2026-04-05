@@ -28,7 +28,9 @@ const ACTIONS = [
 
 export function BusinessQuickActions() {
     const { user, status } = useAuth();
-    const { businessData, isFetched } = useBusiness(user);
+    const { businessData, isFetched } = useBusiness(user, undefined, {
+        includeStats: false,
+    });
 
     // Only render for authenticated, verified business accounts
     if (status !== "authenticated" || !isFetched) return null;
@@ -44,7 +46,7 @@ export function BusinessQuickActions() {
                     <Link
                         key={href}
                         href={href}
-                        className={`flex-shrink-0 flex items-center gap-2 h-10 px-4 rounded-xl border font-bold text-xs transition-colors active:scale-[0.97] ${className}`}
+                        className={`flex-shrink-0 flex items-center gap-2 h-11 px-4 rounded-xl border font-bold text-xs transition-colors active:scale-[0.97] ${className}`}
                     >
                         <Icon className="w-4 h-4" />
                         {label}

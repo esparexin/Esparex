@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "@/lib/api/routes";
 import { Button } from "../ui/button";
@@ -16,6 +17,8 @@ import { notify } from "@/lib/notify";
 import { AlertTriangle } from "lucide-react";
 import { FormError } from "../ui/FormError";
 import { mapErrorToMessage } from "@/lib/errorMapper";
+import { useAuth } from "@/context/AuthContext";
+import { buildLoginUrl } from "@/lib/authHelpers";
 
 interface ReportAdDialogProps {
   adId: string | number;
@@ -49,6 +52,8 @@ export function ReportAdDialog({
   open,
   onOpenChange,
 }: ReportAdDialogProps) {
+  const router = useRouter();
+  const { user, isAuthResolved } = useAuth();
   const [selectedReason, setSelectedReason] = useState<ReportReasonValue | "">("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,6 +65,20 @@ export function ReportAdDialog({
     e.preventDefault();
     setGlobalError(null);
     setAdditionalInfoError(null);
+
+    if (!user) {
+      if (!isAuthResolved) return;
+
+      const returnTo =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+          : "/";
+
+      notify.info("Please login to report this listing");
+      onOpenChange(false);
+      void router.push(buildLoginUrl(returnTo));
+      return;
+    }
 
     if (!selectedReason) {
       setReasonError("Please select a reason for reporting");
@@ -167,7 +186,7 @@ export function ReportAdDialog({
             <Button
               type="button"
               variant="outline"
-              className="flex-1"
+              className="flex-1 h-11"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
@@ -175,7 +194,7 @@ export function ReportAdDialog({
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-red-600 hover:bg-red-700"
+              className="flex-1 h-11 bg-red-600 hover:bg-red-700"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Submitting..." : "Submit Report"}

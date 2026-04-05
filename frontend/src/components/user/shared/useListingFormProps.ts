@@ -25,7 +25,7 @@ export function useListingFormProps({
     businessData: any;
 }) {
     const router = useRouter();
-    const { handleSubmit, watch } = form;
+    const { handleSubmit } = form;
 
     return {
         form,
@@ -36,6 +36,6 @@ export function useListingFormProps({
         images,
         onImageUpload: (files: File[]) => setImages(prev => appendListingImages(prev, files)),
         onImageRemove: (id: string) => setImages(prev => removeListingImageById(prev, id)),
-        locationDisplay: watch("location.display") || getBusinessLocationDisplay(businessData?.location),
+        locationDisplay: getBusinessLocationDisplay(businessData?.location),
     };
 }

@@ -10,6 +10,7 @@ export const LocationMetaSchema = z.object({
     city: z.string().optional(),
     state: z.string().optional(),
     country: z.string().optional(),
+    pincode: z.string().optional(),
     level: z.enum(['country', 'state', 'district', 'city', 'area', 'village']).optional(),
     isActive: z.boolean().optional(),
     verificationStatus: z.enum(['pending', 'verified', 'rejected']).optional(),

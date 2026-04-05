@@ -1,13 +1,14 @@
 import express from 'express';
 import * as serviceController from '../controllers/service';
 import * as listingController from '../controllers/listingController';
-import { protect } from '../middleware/authMiddleware';
+import { protect, extractUser } from '../middleware/authMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
 import { mutationLimiter, searchLimiter, phoneRevealLimiter } from '../middleware/rateLimiter';
 import { ServicePayloadSchema, PartialServicePayloadSchema } from '../../../shared/schemas/servicePayload.schema';
 import type { ZodTypeAny } from 'zod';
 import { createListingValidator } from '../validators/listing.validator';
+import { enforceCreateServiceIdempotency } from '../middleware/idempotency';
 
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
@@ -26,6 +27,7 @@ router.post(
     duplicateCooldownMiddleware(LISTING_TYPE.SERVICE),
     validateRequest(ServicePayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
+    enforceCreateServiceIdempotency,
     serviceController.createService
 );
 // router.get('/analytics', ...) — removed: admin-only endpoint moved exclusively to
@@ -51,6 +53,6 @@ import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 router.get('/', searchLimiter, serviceController.getServices);
 router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), listingController.incrementListingView);
 
-router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, listingController.getListingPhone);
+router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, listingController.getListingPhone);
 
 export default router;

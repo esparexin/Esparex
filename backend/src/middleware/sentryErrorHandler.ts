@@ -244,6 +244,10 @@ export function customErrorHandler(
 
     // Determine status code
     const statusCode = err.statusCode || err.status || 500;
+    const errorCode = typeof err.code === 'string' && err.code.trim().length > 0
+        ? err.code
+        : undefined;
+    const safeDetails = statusCode < 500 ? err.details : undefined;
 
     // Don't expose internal errors in production
     const message = statusCode >= 500 && env.NODE_ENV === 'production'
@@ -267,6 +271,8 @@ export function customErrorHandler(
     }
 
     sendErrorResponse(req, res, statusCode, message, {
+        ...(errorCode ? { code: errorCode } : {}),
+        ...(safeDetails !== undefined ? { details: safeDetails } : {}),
         ...(env.NODE_ENV === 'development' && {
             stack: err.stack,
             details: err.details,

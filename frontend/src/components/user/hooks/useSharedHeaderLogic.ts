@@ -32,7 +32,8 @@ export function useSharedHeaderLogic({
     // 2. Location Logic
     const locationProps = useLocationSelector({ mode: "header" });
     const { globalLocation: location } = locationProps;
-    const resolvedHeaderLocation = getHeaderLocationText(location).headerText || "Select Location";
+    const headerLocationDetails = getHeaderLocationText(location);
+    const resolvedHeaderLocation = headerLocationDetails.headerText || "Select Location";
 
     // 3. Search Logic
     const searchProps = useHeaderSearch({
@@ -47,6 +48,7 @@ export function useSharedHeaderLogic({
     return {
         ...locationProps,
         ...searchProps,
+        headerLocationDetails,
         resolvedHeaderLocation,
         notificationsData,
         notifUnreadCount,

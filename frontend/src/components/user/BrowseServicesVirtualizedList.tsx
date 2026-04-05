@@ -66,7 +66,7 @@ export default function BrowseServicesVirtualizedList({
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
           const service = items[virtualRow.index];
           if (!service) return null;
-          return <BrowseServicesCard key={service.id} service={service} />;
+          return <BrowseServicesCard key={service.id} service={service} view={view} />;
         })}
 
         {rowVirtualizer.getVirtualItems().length > 0 &&

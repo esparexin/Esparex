@@ -52,13 +52,13 @@ export const AdCardMeta = memo(function AdCardMeta({
   const isList = variant === "list";
 
   return (
-    <div className={cn("flex flex-col", className)}>
-      <div className="font-semibold line-clamp-2 text-sm leading-snug min-h-[2.5rem] text-slate-800">
+    <div className={cn("flex flex-col gap-1", className)}>
+      <div className="font-semibold line-clamp-2 text-sm leading-snug min-h-[2.4rem] text-slate-800">
         {ad.title.replace(/\*\*/g, '')}
       </div>
 
-      <div className="flex items-center justify-between gap-2 mt-1">
-        <span className={cn("font-bold", isDashboard ? "text-primary text-lg" : "text-green-600 text-sm md:text-base")}>
+      <div className="flex items-center justify-between gap-1.5">
+        <span className={cn("font-bold", isDashboard ? "text-primary text-lg" : "text-blue-600 text-sm md:text-base")}>
           {(() => {
             if (adRecord.listingType === 'service' && (adRecord.priceMin || adRecord.priceMax)) {
               if (adRecord.priceMin && adRecord.priceMax) return `${formatPrice(adRecord.priceMin as number)} - ${formatPrice(adRecord.priceMax as number)}`;
@@ -70,7 +70,7 @@ export const AdCardMeta = memo(function AdCardMeta({
         </span>
         {!isDashboard && (
           <span className={cn(
-            "shrink-0 text-[9px] md:text-[10px] font-semibold px-1.5 py-0.5 rounded border leading-tight",
+            "shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-md border leading-tight",
             listingTypeConfig.className
           )}>
             {listingTypeConfig.label}
@@ -79,7 +79,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       </div>
 
       <div className={cn(
-        "flex items-center justify-between text-[10px] md:text-xs text-muted-foreground pt-1.5 md:pt-2 border-t mt-1",
+        "flex items-center justify-between text-[10px] text-slate-400 pt-1.5 border-t border-slate-100 mt-0.5",
         isDashboard && "grid grid-cols-2 gap-2 justify-start",
         isList && "border-none pt-0 mt-0"
       )}>
@@ -100,13 +100,13 @@ export const AdCardMeta = memo(function AdCardMeta({
             <div className="flex items-center gap-1 flex-1 min-w-0">
               {formatLocation(ad.location) && (
                 <>
-                  <MapPin className="h-2.5 w-2.5 md:h-3 md:w-3 flex-shrink-0" />
+                  <MapPin className="h-2.5 w-2.5 flex-shrink-0 text-slate-300" />
                   <span className="truncate">{formatLocation(ad.location)}</span>
                 </>
               )}
             </div>
             <div className="flex items-center gap-1 flex-shrink-0 ml-1">
-              {!isList && <Clock className="h-2.5 w-2.5 md:h-3 md:w-3" />}
+              {!isList && <Clock className="h-2.5 w-2.5 text-slate-300" />}
               <span className="whitespace-nowrap">{'time' in ad ? ad.time : 'Just now'}</span>
             </div>
           </>

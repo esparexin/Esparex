@@ -51,7 +51,7 @@ export function AccountMessagesWorkspace({
             <p className="text-sm font-semibold text-red-600">Unable to load this conversation right now.</p>
             <button
               type="button"
-              className="mt-4 inline-flex min-h-10 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700"
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700"
               onClick={() => {
                 router.refresh();
               }}

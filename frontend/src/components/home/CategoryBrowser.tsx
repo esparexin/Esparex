@@ -34,18 +34,16 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
             role="region"
             aria-label="Popular Categories"
             aria-labelledby="browse-categories"
-            className="py-12 md:py-16"
+            className="py-6 md:py-14"
         >
             <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
-                <div className="mb-8">
-                    <div>
-                        <h2 id="browse-categories" className="text-xl font-bold md:text-3xl text-slate-900 tracking-tight">
-                            Browse Categories
-                        </h2>
-                        <p className="mt-1 text-slate-500 text-sm hidden md:block">
-                            Explore diverse categories to find exactly what you need.
-                        </p>
-                    </div>
+                <div className="mb-5 md:mb-8">
+                    <h2 id="browse-categories" className="text-base font-bold md:text-2xl text-slate-900 tracking-tight">
+                        Browse Categories
+                    </h2>
+                    <p className="mt-1 text-slate-400 text-xs hidden md:block">
+                        Explore diverse categories to find exactly what you need.
+                    </p>
                 </div>
 
                 <motion.div
@@ -54,10 +52,10 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                     whileInView="visible"
                     viewport={{ once: true }}
                     className="
-                        flex gap-4 md:gap-7
+                        flex gap-3 md:gap-6
                         md:grid md:grid-cols-6 lg:grid-cols-8
                         overflow-x-auto snap-x snap-mandatory
-                        pb-6 md:pb-2 scrollbar-hide
+                        pb-3 md:pb-2 scrollbar-hide
                         -mx-4 px-4 md:mx-0 md:px-0
                     "
                 >
@@ -73,22 +71,21 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                 <Link
                                     href={buildPublicBrowseRoute({ type: "ad", category: cat.slug || cat.id })}
                                     aria-label={`Browse ${cat.name}`}
-                                    className="group flex snap-start flex-col items-center justify-center gap-3 min-w-[90px] md:min-w-0"
+                                    className="group flex snap-start flex-col items-center justify-center gap-2 min-w-[72px] md:min-w-0"
                                 >
                                     <div
                                         className={`
-                                            flex h-16 w-16 md:h-20 md:w-20 items-center justify-center
-                                            rounded-2xl transition-all duration-500
+                                            flex h-14 w-14 md:h-18 md:w-18 items-center justify-center
+                                            rounded-2xl transition-all duration-300
                                             ${config.bg}
-                                            group-hover:scale-[1.15] group-hover:rotate-3
-                                            group-hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)]
-                                            group-hover:shadow-current/10
-                                            border border-white shadow-sm
+                                            group-hover:scale-110
+                                            group-hover:shadow-lg
+                                            border border-white/60 shadow-sm
                                         `}
                                     >
-                                        <Icon className={`h-7 w-7 md:h-9 md:w-9 ${config.color} transition-colors group-hover:scale-110`} />
+                                        <Icon className={`h-6 w-6 md:h-8 md:w-8 ${config.color}`} />
                                     </div>
-                                    <span className="text-xs md:text-[13px] font-bold text-slate-600 text-center line-clamp-1 group-hover:text-green-600 transition-colors">
+                                    <span className="text-[11px] md:text-xs font-semibold text-slate-500 text-center line-clamp-1 group-hover:text-blue-600 transition-colors">
                                         {cat.name}
                                     </span>
                                 </Link>

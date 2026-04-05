@@ -25,6 +25,7 @@ export interface Location {
     city: string;
     state: string;
     country: string;
+    pincode?: string;
     level: LocationLevel;
     coordinates: LocationCoordinates; // [lng, lat]
     isActive: boolean;

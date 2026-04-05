@@ -275,7 +275,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const renderGridCard = (ad: Ad, unavailable = false) => (
     <Card
       key={ad.id}
-      className={`overflow-hidden rounded-xl border-slate-100 transition-all duration-300 ${
+      className={`overflow-hidden rounded-xl border border-black transition-all duration-300 ${
         unavailable
           ? "opacity-60 cursor-default"
           : "hover:shadow-2xl hover:-translate-y-1 cursor-pointer group"
@@ -288,7 +288,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
         containerClassName="relative aspect-square bg-gray-100 overflow-hidden"
         imageClassName={`object-cover ${unavailable ? "" : "group-hover:scale-105 transition-transform duration-300"}`}
         imageSizes="(max-width: 768px) 50vw, 33vw"
-        removeButtonClassName={`absolute top-2 right-2 h-7 w-7 rounded-full hover:bg-white hover:scale-110 transition-all ${
+        removeButtonClassName={`absolute top-2 right-2 h-11 w-11 rounded-full hover:bg-white hover:scale-110 transition-all ${
           unavailable ? "bg-red-50 border border-red-200" : ""
         }`}
         removeIconClassName="h-3.5 w-3.5"
@@ -320,7 +320,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const renderListCard = (ad: Ad, unavailable = false) => (
     <Card
       key={ad.id}
-      className={`overflow-hidden rounded-xl border-slate-100 transition-all ${
+      className={`overflow-hidden rounded-xl border border-black transition-all ${
         unavailable ? "opacity-60 cursor-default" : "hover:shadow-xl cursor-pointer"
       }`}
       onClick={unavailable ? undefined : () => router.push(getDetailUrl(ad))}
@@ -333,7 +333,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
             containerClassName="relative w-24 sm:w-32 md:w-48 h-24 sm:h-28 md:h-36 flex-shrink-0 bg-gray-100 overflow-hidden"
             imageClassName="object-cover"
             imageSizes="(max-width: 640px) 100px, (max-width: 768px) 150px, 200px"
-            removeButtonClassName={`absolute top-1 right-1 md:top-2 md:right-2 h-6 w-6 md:h-7 md:w-7 rounded-full hover:bg-white ${
+            removeButtonClassName={`absolute top-1 right-1 md:top-2 md:right-2 h-11 w-11 rounded-full hover:bg-white ${
               unavailable ? "bg-red-50 border border-red-200" : ""
             }`}
             removeIconClassName="h-3 w-3 md:h-3.5 md:w-3.5"
@@ -442,7 +442,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-1.5 md:gap-2 h-8 md:h-9 text-xs md:text-sm">
+                      <Button variant="outline" size="sm" className="gap-1.5 md:gap-2 h-11 text-xs md:text-sm">
                         <ArrowUpDown className="h-3.5 w-3.5 md:h-4 md:w-4" />
                         <span className="hidden sm:inline">{SORT_LABELS[sortBy]}</span>
                         <span className="sm:hidden">Sort</span>
@@ -466,7 +466,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                     <Button
                       variant={viewMode === "grid" ? "default" : "ghost"}
                       size="sm"
-                      className={`h-7 px-2 md:px-3 ${viewMode === "grid" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+                      className={`h-8 px-2 md:px-3 ${viewMode === "grid" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
                       onClick={() => setViewMode("grid")}
                     >
                       <Grid3x3 className="h-3.5 w-3.5 md:h-4 md:w-4" />
@@ -474,7 +474,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                     <Button
                       variant={viewMode === "list" ? "default" : "ghost"}
                       size="sm"
-                      className={`h-7 px-2 md:px-3 ${viewMode === "list" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+                      className={`h-8 px-2 md:px-3 ${viewMode === "list" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
                       onClick={() => setViewMode("list")}
                     >
                       <List className="h-3.5 w-3.5 md:h-4 md:w-4" />

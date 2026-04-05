@@ -106,6 +106,6 @@ export const formatLocationResponse = (loc: LocationResponseLike) => {
         coordinates: resolvedCoordinates,
         isPopular: Boolean(loc.isPopular),
         isActive: loc.isActive !== undefined ? Boolean(loc.isActive) : true,
-        verificationStatus: loc.verificationStatus || "verified",
+        verificationStatus: loc.verificationStatus || "pending",
     };
 };

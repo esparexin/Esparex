@@ -117,18 +117,6 @@ export const getUserManagementOverview = async () => {
     const startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
 
-    const [newUsersToday, suspendedUsers, bannedUsers, totalUsers, activeUsers, verifiedUsers] = await Promise.all([
-        User.countDocuments({
-            status: { $ne: USER_STATUS.DELETED },
-            createdAt: { $gte: startOfDay }
-        }),
-        User.countDocuments({ status: USER_STATUS.SUSPENDED }),
-        User.countDocuments({ status: USER_STATUS.BANNED }),
-        User.countDocuments({ status: { $ne: USER_STATUS.DELETED } }),
-        User.countDocuments({ status: ACTIVE_USER_STATUS_QUERY }),
-        User.countDocuments({ status: { $ne: USER_STATUS.DELETED }, isVerified: true }),
-    ]);
-
     const payload = (cachedMetrics && typeof cachedMetrics.payload === 'object' && cachedMetrics.payload !== null)
         ? cachedMetrics.payload as Record<string, unknown>
         : {};
@@ -136,8 +124,36 @@ export const getUserManagementOverview = async () => {
     const toNumberIfFinite = (value: unknown): number | undefined =>
         typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 
+    const cachedTotalUsers = toNumberIfFinite(payload.totalUsers);
+    const cachedActiveUsers = toNumberIfFinite(payload.activeUsers);
+    const cachedVerifiedUsers = toNumberIfFinite(payload.verifiedUsers);
+    const cachedUnverifiedUsers = toNumberIfFinite(payload.unverifiedUsers);
+
+    const [newUsersToday, suspendedUsers, bannedUsers, liveTotalUsers, liveActiveUsers, liveVerifiedUsers] = await Promise.all([
+        User.countDocuments({
+            status: { $ne: USER_STATUS.DELETED },
+            createdAt: { $gte: startOfDay }
+        }),
+        User.countDocuments({ status: USER_STATUS.SUSPENDED }),
+        User.countDocuments({ status: USER_STATUS.BANNED }),
+        cachedTotalUsers === undefined
+            ? User.countDocuments({ status: { $ne: USER_STATUS.DELETED } })
+            : Promise.resolve(cachedTotalUsers),
+        cachedActiveUsers === undefined
+            ? User.countDocuments({ status: ACTIVE_USER_STATUS_QUERY })
+            : Promise.resolve(cachedActiveUsers),
+        cachedVerifiedUsers !== undefined
+            ? Promise.resolve(cachedVerifiedUsers)
+            : (cachedTotalUsers !== undefined && cachedUnverifiedUsers !== undefined)
+                ? Promise.resolve(Math.max(cachedTotalUsers - cachedUnverifiedUsers, 0))
+                : User.countDocuments({ status: { $ne: USER_STATUS.DELETED }, isVerified: true }),
+    ]);
+
     const newUsersThisWeek = toNumberIfFinite(payload.newUsersThisWeek) ?? 0;
     const businessUsers = toNumberIfFinite(payload.businessUsers) ?? 0;
+    const totalUsers = liveTotalUsers;
+    const activeUsers = liveActiveUsers;
+    const verifiedUsers = liveVerifiedUsers;
 
     const activeUsersPercentage =
         totalUsers > 0 ? Number(((activeUsers / totalUsers) * 100).toFixed(1)) : 0;

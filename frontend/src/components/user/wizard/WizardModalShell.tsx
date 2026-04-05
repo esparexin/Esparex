@@ -83,7 +83,7 @@ export function WizardModalShell({
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-700 transition-colors hover:bg-slate-100"
+              className="absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full text-slate-700 transition-colors hover:bg-slate-100"
               aria-label="Close"
             >
               <X className="h-5 w-5" />

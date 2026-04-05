@@ -30,6 +30,8 @@
     "test:ci": "NODE_NO_WARNINGS=1 jest --coverage --passWithNoTests --ci",
     "ops": "ts-node -r tsconfig-paths/register src/scripts/ops/index.ts",
     "ops:geo-repair": "npm run ops -- geo-repair",
+    "ops:location-audit": "npm run ops -- location-coverage-audit",
+    "ops:location-status-backfill": "npm run ops -- location-status-backfill",
     "ops:report-unify": "npm run ops -- report-unify-backfill",
     "ops:report-orphans": "npm run ops -- report-orphan-remediate",
     "migrate:ad-listingtype-backfill": "ts-node -r tsconfig-paths/register src/scripts/migrate_ad_listingtype_backfill.ts",

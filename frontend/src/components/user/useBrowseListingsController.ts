@@ -5,6 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { getCategories, type Category } from "@/lib/api/user/categories";
 import { useLocationState, type LocationData } from "@/context/LocationContext";
+import {
+  getDisplayLocationLabel,
+  getSearchLocationLabel,
+  sanitizeLocationLabel,
+} from "@/lib/location/locationLabels";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import logger from "@/lib/logger";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
@@ -13,6 +18,9 @@ import {
   parsePublicBrowseParams,
   type PublicBrowseType,
 } from "@/lib/publicBrowseRoutes";
+import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
+import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
+import { appendUniqueBrowseItems } from "@/lib/browse/appendUniqueBrowseItems";
 
 type BrowsePageResult<T> = {
   data: T[];
@@ -70,7 +78,7 @@ export function useBrowseListingsController<TItem, TFilters>({
   const [inputValue, setInputValue] = useState(routeParams.q ?? initialSearchQuery);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialSelectedCategory);
   const [sort, setSort] = useState<SortOption>(initialSort);
-  const [view, setView] = useState<"grid" | "list">("grid");
+  const [view, setView] = usePersistedBrowseView("grid");
   const [page, setPage] = useState(initialPage);
 
   const [items, setItems] = useState<TItem[]>(initialResults?.data ?? []);
@@ -83,8 +91,37 @@ export function useBrowseListingsController<TItem, TFilters>({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skippedInitialFetchRef = useRef(false);
   const urlLocationId = routeParams.locationId ?? "";
-  const urlLocationLabel = routeParams.location ?? "";
+  const urlLocationLabel = sanitizeLocationLabel(routeParams.location) ?? "";
   const urlRadiusKm = routeParams.radiusKm;
+  const locationLatitude = getLatitude(location);
+  const locationLongitude = getLongitude(location);
+  const locationSearchLabel = useMemo(
+    () => getSearchLocationLabel(location),
+    [
+      location.city,
+      location.country,
+      location.display,
+      location.level,
+      location.name,
+      location.source,
+      location.state,
+    ]
+  );
+  const stableLocation = useMemo(
+    () => location,
+    [
+      locationSearchLabel,
+      location.country,
+      location.display,
+      location.level,
+      location.locationId,
+      location.name,
+      location.source,
+      location.state,
+      locationLatitude,
+      locationLongitude,
+    ]
+  );
 
   useEffect(() => {
     if (initialCategories && initialCategories.length > 0) {
@@ -126,13 +163,11 @@ export function useBrowseListingsController<TItem, TFilters>({
   ]);
 
   const hasLocationFilter = useMemo(() => {
-    const latitude = getLatitude(location);
-    const longitude = getLongitude(location);
     return (
-      Boolean(urlLocationId || urlLocationLabel || location.locationId) ||
-      (latitude != null && longitude != null)
+      Boolean(urlLocationId || urlLocationLabel || stableLocation.locationId) ||
+      (locationLatitude != null && locationLongitude != null)
     );
-  }, [location, urlLocationId, urlLocationLabel]);
+  }, [locationLatitude, locationLongitude, stableLocation.locationId, urlLocationId, urlLocationLabel]);
 
   const shouldUseInitialResults = useMemo(
     () =>
@@ -155,20 +190,18 @@ export function useBrowseListingsController<TItem, TFilters>({
   );
 
   const fetchItems = useCallback(
-    async (overridePage?: number) => {
+    async (requestedPage: number) => {
       setLoading(true);
       setError(null);
-
-      const currentPage = overridePage ?? page;
 
       try {
         const result = await fetchPage(
           buildFilters({
-            page: currentPage,
+            page: requestedPage,
             pageSize,
             query,
             selectedCategory,
-            location,
+            location: stableLocation,
             sort,
             urlLocationId: urlLocationId || undefined,
             urlLocationLabel: urlLocationLabel || undefined,
@@ -176,7 +209,7 @@ export function useBrowseListingsController<TItem, TFilters>({
           })
         );
 
-        setItems((prev) => (currentPage === 1 ? result.data : [...prev, ...result.data]));
+        setItems((prev) => (requestedPage === 1 ? result.data : appendUniqueBrowseItems(prev, result.data)));
         setTotal(result.pagination.total ?? result.data.length);
         setHasMore(result.pagination.hasMore ?? false);
       } catch (fetchError) {
@@ -189,14 +222,13 @@ export function useBrowseListingsController<TItem, TFilters>({
     [
       buildFilters,
       fetchPage,
-      loadErrorMessage,
-      location,
-      logScope,
-      page,
       pageSize,
       query,
       selectedCategory,
       sort,
+      stableLocation,
+      loadErrorMessage,
+      logScope,
       urlLocationId,
       urlLocationLabel,
       urlRadiusKm,
@@ -212,18 +244,43 @@ export function useBrowseListingsController<TItem, TFilters>({
     }
     setPage(1);
     void fetchItems(1);
-  }, [fetchItems, isLoaded, query, selectedCategory, sort, shouldUseInitialResults, urlLocationId, urlLocationLabel, urlRadiusKm]);
+  }, [fetchItems, isLoaded, shouldUseInitialResults]);
 
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (!skippedInitialFetchRef.current && shouldUseInitialResults) {
-      skippedInitialFetchRef.current = true;
-      setLoading(false);
-      return;
+  const resolvedCategoryLabel = useMemo(() => {
+    if (!selectedCategory) return null;
+
+    const normalizedCategory = selectedCategory.trim();
+    const matchedCategory = categories.find(
+      (category) => category.id === normalizedCategory || category.slug === normalizedCategory
+    );
+
+    if (matchedCategory?.name) return matchedCategory.name;
+    if (matchedCategory?.slug) return matchedCategory.slug;
+    return normalizedCategory || null;
+  }, [categories, selectedCategory]);
+
+  const activeLocationLabel = useMemo(() => {
+    if (urlLocationLabel) return urlLocationLabel;
+    if (stableLocation.source === "default") return null;
+    return getDisplayLocationLabel(stableLocation) || null;
+  }, [stableLocation, urlLocationLabel]);
+
+  const activeFilterBadges = useMemo(() => {
+    const badges: string[] = [];
+    const trimmedQuery = query.trim();
+
+    if (trimmedQuery) badges.push(`Search: "${trimmedQuery}"`);
+    if (resolvedCategoryLabel) badges.push(`Category: ${resolvedCategoryLabel}`);
+    if (activeLocationLabel) badges.push(`Location: ${activeLocationLabel}`);
+    if (typeof urlRadiusKm === "number" && Number.isFinite(urlRadiusKm)) {
+      badges.push(`Within ${urlRadiusKm} km`);
     }
-    setPage(1);
-    void fetchItems(1);
-  }, [fetchItems, isLoaded, location.coordinates, location.locationId, shouldUseInitialResults]);
+    if (sort !== "newest") badges.push(`Sort: ${PUBLIC_BROWSE_SORT_LABELS[sort]}`);
+
+    return badges;
+  }, [activeLocationLabel, query, resolvedCategoryLabel, sort, urlRadiusKm]);
+
+  const activeFilterCount = activeFilterBadges.length;
 
   const buildNextUrl = useCallback(
     (
@@ -320,6 +377,8 @@ export function useBrowseListingsController<TItem, TFilters>({
     total,
     categories,
     items,
+    activeFilterCount,
+    activeFilterBadges,
     setSelectedCategory,
     handleCategoryChange,
     handleSortChange,

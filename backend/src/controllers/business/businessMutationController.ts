@@ -8,6 +8,7 @@ import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { resolveDuplicateBusinessMessage } from './shared';
 import User from '../../models/User';
+import { serializeBusinessForOwner } from './shared';
 
 export const registerBusiness = async (req: Request, res: Response) => {
     try {
@@ -43,7 +44,7 @@ export const registerBusiness = async (req: Request, res: Response) => {
 
         const response = respond<ApiResponse<Business>>({
             success: true,
-            data: business as unknown as Business,
+            data: serializeBusinessForOwner(business) as unknown as Business,
             message: 'Business application submitted successfully. Pending approval.'
         });
 
@@ -95,7 +96,7 @@ export const updateBusiness = async (req: Request, res: Response) => {
 
         const allowedUpdates = [
             'name', 'description', 'businessTypes',
-            'location', 'address', 'shopNo', 'street', 'landmark', 'city', 'state', 'pincode', 'coordinates',
+            'location',
             'mobile', 'phone', 'email', 'website', 'gstNumber', 'registrationNumber', 'workingHours',
             'images', 'documents'
         ];
@@ -118,7 +119,7 @@ export const updateBusiness = async (req: Request, res: Response) => {
 
         const response = respond<ApiResponse<Business>>({
             success: true,
-            data: updated as unknown as Business
+            data: serializeBusinessForOwner(updated) as unknown as Business
         });
 
         res.json(response);

@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { ensureForegroundPushListener, syncBrowserPushRegistration, clearBrowserPushCache } from "@/lib/notifications/webPush";
+import { isNativeShell } from "@/lib/runtime/nativeShell";
 import type { User } from "@/types/User";
 
 export function AppBootstrapProvider({ children }: { children: ReactNode }) {
@@ -41,6 +42,11 @@ export function AppBootstrapProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (status !== "authenticated" || !user) {
+            return;
+        }
+
+        if (isNativeShell()) {
+            clearBrowserPushCache();
             return;
         }
 

@@ -7,6 +7,7 @@ import { ID_PROOF_TYPE_VALUES } from '../../../shared/enums/idProofType';
 import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
 
 const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
+const FULL_ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;
 
 // VALIDATION SSOT NOTE:
 // This schema mirrors shared/schemas/coordinates.schema.ts.
@@ -66,22 +67,29 @@ const coordinatesSchema = z.object({
     ]).refine(([lng, lat]) => !(lng === 0 && lat === 0), 'Coordinates [0,0] are not allowed')
 });
 
-const locationSchema = z.object({
-    locationId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid location ID').optional(),
-    shopNo: sanitizeString(1, 50),
-    street: sanitizeString(2, 100),
-    landmark: sanitizeString(0, 100).optional(),
-    city: sanitizeString(2, 50),
-    state: sanitizeString(2, 50),
-    pincode: z.string().regex(BUSINESS_LIMITS.PINCODE.PATTERN, BUSINESS_LIMITS.PINCODE.ERROR_FORMAT),
-    coordinates: coordinatesSchema.optional()
-});
-
 const optionalTrimmedString = (max: number) =>
     z
         .string()
         .max(max)
         .transform((value) => value.trim());
+
+const locationSchema = z.object({
+    locationId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid location ID').optional(),
+    address: z.string()
+        .trim()
+        .min(15, 'Complete business address is required')
+        .max(300, 'Business address must be 300 characters or fewer')
+        .refine((value) => FULL_ADDRESS_PINCODE_PATTERN.test(value), 'Address must include a valid 6-digit pincode'),
+    display: optionalTrimmedString(150).optional(),
+    city: optionalTrimmedString(50).optional(),
+    state: optionalTrimmedString(50).optional(),
+    country: optionalTrimmedString(50).optional(),
+    pincode: z.union([
+        z.string().regex(BUSINESS_LIMITS.PINCODE.PATTERN, BUSINESS_LIMITS.PINCODE.ERROR_FORMAT),
+        z.literal(''),
+    ]).optional(),
+    coordinates: coordinatesSchema,
+});
 
 const documentsSchema = z.object({
     idProofType: z.enum(ID_PROOF_TYPE_VALUES, {
@@ -114,18 +122,20 @@ const businessBaseShape = {
     documents: documentsSchema
 };
 
-export const createBusinessSchema = z.object(businessBaseShape).strict().transform((data) => {
-    if (data.phone && !data.mobile) {
-        data.mobile = data.phone;
-    }
-    if (!Array.isArray(data.businessTypes) || data.businessTypes.length === 0) {
-        data.businessTypes = [...DEFAULT_BUSINESS_TYPES];
-    }
-    return data;
-}).refine((data) => !!data.mobile, {
-    message: "Phone number (mobile) is required",
-    path: ["mobile"]
-});
+export const createBusinessSchema = z.object(businessBaseShape).strict()
+    .transform((data) => {
+        if (data.phone && !data.mobile) {
+            data.mobile = data.phone;
+        }
+        if (!Array.isArray(data.businessTypes) || data.businessTypes.length === 0) {
+            data.businessTypes = [...DEFAULT_BUSINESS_TYPES];
+        }
+        return data;
+    })
+    .refine((data) => !!data.mobile, {
+        message: "Phone number (mobile) is required",
+        path: ["mobile"]
+    });
 
 export const updateBusinessSchema = z.object(businessBaseShape).partial().extend({
     location: locationSchema.partial().optional(),
@@ -199,12 +209,17 @@ export const adminBusinessUpdateSchema = z.object({
     ]).optional(),
     businessTypes: z.array(sanitizeString(2, 50)).min(1, 'Select at least one business type').optional(),
     location: z.object({
+        locationId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid location ID').optional(),
         address: optionalTrimmedString(200).optional(),
+        shopNo: optionalTrimmedString(50).optional(),
+        street: optionalTrimmedString(100).optional(),
+        landmark: optionalTrimmedString(100).optional(),
         city: optionalTrimmedString(50).optional(),
         state: optionalTrimmedString(50).optional(),
         pincode: z.union([
             z.string().regex(BUSINESS_LIMITS.PINCODE.PATTERN, BUSINESS_LIMITS.PINCODE.ERROR_FORMAT),
             z.literal(''),
         ]).optional(),
+        coordinates: coordinatesSchema.optional(),
     }).strict().optional(),
 }).strict();

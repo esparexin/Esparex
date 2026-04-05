@@ -16,7 +16,6 @@ export const getLocations = async (filters: LocationFilters & { page?: number; l
     if (filters.status && filters.status !== "all") query.append("status", filters.status);
     if (filters.state && filters.state !== "all") query.append("state", filters.state);
     if (filters.level && filters.level !== "all") query.append("level", filters.level);
-    if (filters.isPopular && filters.isPopular !== "all") query.append("isPopular", filters.isPopular);
     if (filters.page) query.append("page", filters.page.toString());
     if (filters.limit) query.append("limit", filters.limit.toString());
 
@@ -81,12 +80,6 @@ export const updateLocation = async (id: string, data: Partial<Location>) => {
 
 export const toggleLocationStatus = async (id: string) => {
     return adminFetch<Location>(`${BASE_PATH}/${id}/toggle`, {
-        method: "PATCH",
-    });
-};
-
-export const togglePopularStatus = async (id: string) => {
-    return adminFetch<Location>(`${BASE_PATH}/${id}/popular`, {
         method: "PATCH",
     });
 };

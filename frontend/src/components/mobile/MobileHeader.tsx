@@ -1,6 +1,6 @@
 "use client";
 import { Menu, MapPin, Search, LogIn, ChevronDown } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import LocationSelector from "@/components/location/LocationSelector";
 import { HeaderLocationPrompts } from "@/components/location/HeaderLocationPrompts";
@@ -10,10 +10,11 @@ import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider"
 import { useMounted } from "@/hooks/useMounted";
 
 import type { UserPage } from "@/lib/routeUtils";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
+import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 interface MobileHeaderProps {
     navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string) => void;
     isLoggedIn: boolean;
@@ -25,9 +26,20 @@ interface MobileHeaderProps {
 
 export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onShowLogin, onSearch }: MobileHeaderProps) {
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const { isOpen, setIsOpen } = useMobileNavDrawer();
     const isMounted = useMounted();
     const chromePolicy = getMobileChromePolicy(pathname);
+    const browseParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
+    const stickySearchLabel = useMemo(() => {
+        const trimmedQuery = browseParams.q?.trim();
+        if (trimmedQuery) return trimmedQuery;
+        return browseParams.type === "service"
+            ? "Browse services"
+            : browseParams.type === "spare_part"
+                ? "Browse spare parts"
+                : "Browse ads";
+    }, [browseParams.q, browseParams.type]);
 
     const {
         notificationsData,
@@ -36,6 +48,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
         showLocationSelector,
         setShowLocationSelector,
         globalLocation: location,
+        headerLocationDetails,
         resolvedHeaderLocation,
         searchQuery,
         setSearchQuery,
@@ -54,36 +67,39 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
 
     return (
         <>
-            <header className="sticky top-0 z-50 w-full bg-background shadow-sm md:hidden font-inter pt-[env(safe-area-inset-top)]">
+            <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md shadow-[0_1px_12px_rgba(0,0,0,0.06)] md:hidden font-inter pt-[env(safe-area-inset-top)] relative">
                 {/* 1. Top Location Bar (44px) */}
-                <div className="h-11 bg-muted/30 border-b flex items-center px-4">
+                <div className="h-11 bg-slate-50/80 border-b border-slate-100 flex items-center px-4">
                     <button
                         type="button"
-                        className="flex items-center gap-1.5 mr-3"
+                        className="flex items-center gap-2 mr-3"
                         onClick={() => navigateTo('home')}
                         aria-label="Go to homepage"
                     >
-                        <div className="h-6 w-6 bg-blue-600 rounded-md flex items-center justify-center text-white font-bold text-sm">E</div>
-                        <span className="font-bold text-sm text-slate-900 leading-none">Esparex</span>
+                        <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm shadow-blue-200">E</div>
+                        <span className="font-extrabold text-sm text-slate-900 leading-none tracking-tight">Esparex</span>
                     </button>
 
-                    <div className="h-4 w-[1px] bg-border mx-1"></div>
+                    <div className="h-4 w-[1px] bg-slate-200 mx-2"></div>
 
                     <button
                         type="button"
-                        className="active:bg-muted/50 transition-colors flex items-center flex-1 min-w-0 text-left ml-1"
+                        className="active:bg-slate-100 transition-colors flex items-center flex-1 min-w-0 text-left"
                         onClick={() => isMounted && setShowLocationSelector(true)}
-                        aria-label="Open location selector"
+                        aria-label={headerLocationDetails.headerText
+                            ? `Change location. Current location: ${headerLocationDetails.headerText}`
+                            : "Open location selector"}
+                        title={headerLocationDetails.tooltipText || resolvedHeaderLocation}
                     >
-                        <MapPin className="h-3.5 w-3.5 text-primary mr-1.5" />
-                        <span className="text-sm font-medium truncate flex-1 text-foreground/80 max-w-[200px]">
+                        <MapPin className="h-3.5 w-3.5 text-blue-500 mr-1.5 flex-shrink-0" />
+                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-600">
                             <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
                                 {isMounted && location.source !== 'default'
                                     ? resolvedHeaderLocation
                                     : "Select Location"}
                             </span>
                         </span>
-                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground ml-2" />
+                        <ChevronDown className="h-3.5 w-3.5 text-slate-400 ml-1.5 flex-shrink-0" />
                     </button>
                 </div>
 
@@ -91,29 +107,42 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                     isMounted={isMounted}
                     showLocationSelector={showLocationSelector}
                     setShowLocationSelector={setShowLocationSelector}
-                    firstVisitWrapperClassName="border-b bg-background px-3 py-3"
+                    firstVisitWrapperClassName="pointer-events-none absolute inset-x-0 top-full z-[60] px-3 pt-3"
+                    firstVisitPromptClassName="pointer-events-auto border-slate-200 bg-white/98 shadow-[0_18px_45px_rgba(15,23,42,0.16)]"
                 />
 
                 {/* 2. Main Header (56px) - Menu, Search, Bell */}
-                <div className={`h-14 flex items-center px-3 bg-background ${chromePolicy.showStickySearch ? "justify-between" : "gap-3"}`}>
+                <div className={`flex items-center px-3 bg-white ${chromePolicy.showStickySearch ? "h-12 gap-2 border-b border-slate-100" : "h-14 gap-2"}`}>
                     {/* Hamburger Menu (Left) */}
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="rounded-full -ml-2 hover:bg-muted" 
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-11 w-11 rounded-xl -ml-1 hover:bg-slate-100 text-slate-700"
                         aria-label="Open navigation menu"
                         onClick={() => setIsOpen(true)}
                     >
-                        <Menu className="h-6 w-6 text-foreground" />
+                        <Menu className="h-5 w-5" />
                     </Button>
 
                     {/* Search Input */}
-                    {!chromePolicy.showStickySearch && (
-                        <form onSubmit={handleSearchSubmit} className="flex-1 relative mx-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    {chromePolicy.showStickySearch ? (
+                        <button
+                            type="button"
+                            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                            className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-left"
+                            aria-label={`Current search: ${stickySearchLabel}`}
+                        >
+                            <Search className="h-4 w-4 shrink-0 text-slate-400" />
+                            <span className="truncate text-sm font-medium text-slate-700">
+                                {stickySearchLabel}
+                            </span>
+                        </button>
+                    ) : (
+                        <form onSubmit={handleSearchSubmit} className="flex-1 relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                             <Input
-                                className="w-full pl-9 h-10 bg-muted/40 border-transparent focus:bg-background focus:border-primary/30 transition-all rounded-full text-base"
-                                placeholder="Search..."
+                                className="w-full pl-9 h-11 bg-slate-100 border-transparent focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-slate-400"
+                                placeholder="Search listings..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 aria-label="Search listings"
@@ -122,12 +151,12 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                     )}
 
                     {/* Mobile Header Icons */}
-                    <div className={`flex items-center gap-1 ${chromePolicy.showStickySearch ? "" : "pl-1"}`}>
+                    <div className={`flex items-center gap-1 ${chromePolicy.showStickySearch ? "" : ""}`}>
                         {!isLoggedIn && !isAuthLoading && (
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="rounded-full text-primary hover:bg-muted"
+                                className="h-11 w-11 rounded-xl text-blue-600 hover:bg-blue-50"
                                 onClick={onShowLogin}
                                 aria-label="Login"
                             >

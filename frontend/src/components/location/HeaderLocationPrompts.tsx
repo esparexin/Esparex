@@ -11,6 +11,7 @@ interface HeaderLocationPromptsProps {
     setShowSearchDropdown?: (show: boolean) => void;
     isMounted?: boolean;
     firstVisitWrapperClassName?: string;
+    firstVisitPromptClassName?: string;
 }
 
 export function HeaderLocationPrompts({
@@ -19,6 +20,7 @@ export function HeaderLocationPrompts({
     setShowSearchDropdown,
     isMounted = true,
     firstVisitWrapperClassName,
+    firstVisitPromptClassName,
 }: HeaderLocationPromptsProps) {
     const { shouldShowFirstVisitPrompt, showPermissionBlockedModal } = useLocationState();
     const { detectLocation, dismissFirstVisitPrompt, dismissPermissionBlockedModal } = useLocationDispatch();
@@ -28,6 +30,7 @@ export function HeaderLocationPrompts({
             {isMounted && shouldShowFirstVisitPrompt && !showLocationSelector && (
                 <div className={firstVisitWrapperClassName}>
                     <LocationFirstVisitPrompt
+                        className={firstVisitPromptClassName}
                         onUseCurrentLocation={() => {
                             void detectLocation(true, true).then((detected) => {
                                 if (!detected) {

@@ -7,29 +7,28 @@ import { InfoPage } from "@/components/common/InfoPage";
 export default function HowItWorksPage() {
     return (
         <InfoPage title="How Esparex Works">
-            <div className="space-y-8">
-                <section>
-                    <h3>1. For Buyers</h3>
-                    <p>
-                        Browse thousands of spare parts and services. Use our advanced filters to find parts compatible
-                        with your specific device model. Contact sellers directly to negotiate and arrange pickup or delivery.
-                    </p>
-                </section>
-
-                <section>
-                    <h3>2. For Sellers</h3>
-                    <p>
-                        List your spare parts in minutes. Take clear photos, describe the condition, and set your price.
-                        Manage all your listings and offers from your dashboard.
-                    </p>
-                </section>
-
-                <section>
-                    <h3>3. For Service Providers</h3>
-                    <p>
-                        Register your repair shop to get discovered by local customers. Showcase your expertise and services offered.
-                    </p>
-                </section>
+            <div className="space-y-4 not-prose">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-blue-50 border border-blue-100">
+                    <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">1</div>
+                    <div>
+                        <h3 className="font-bold text-slate-800 text-sm mb-1">For Buyers</h3>
+                        <p className="text-sm text-slate-500 leading-relaxed">Browse thousands of spare parts and services. Use our advanced filters to find parts compatible with your specific device model. Contact sellers directly to negotiate and arrange pickup or delivery.</p>
+                    </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-green-50 border border-green-100">
+                    <div className="h-9 w-9 rounded-xl bg-green-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">2</div>
+                    <div>
+                        <h3 className="font-bold text-slate-800 text-sm mb-1">For Sellers</h3>
+                        <p className="text-sm text-slate-500 leading-relaxed">List your spare parts in minutes. Take clear photos, describe the condition, and set your price. Manage all your listings and offers from your dashboard.</p>
+                    </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-violet-50 border border-violet-100">
+                    <div className="h-9 w-9 rounded-xl bg-violet-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">3</div>
+                    <div>
+                        <h3 className="font-bold text-slate-800 text-sm mb-1">For Service Providers</h3>
+                        <p className="text-sm text-slate-500 leading-relaxed">Register your repair shop to get discovered by local customers. Showcase your expertise and services offered.</p>
+                    </div>
+                </div>
             </div>
         </InfoPage>
     );

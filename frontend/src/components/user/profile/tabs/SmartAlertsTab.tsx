@@ -99,7 +99,7 @@ export function SmartAlertsTab({
     return (
         <div className="space-y-4">
             {/* Smart Alerts Header */}
-            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 gap-0">
                 <FeatureCard title={(<><Bell className="h-5 w-5 text-blue-600" /> Smart Alerts</>)} description={"Get notified when new ads match your search criteria"} Icon={Bell} />
                 <CardContent>
                     <div className="flex items-center justify-between">
@@ -115,7 +115,7 @@ export function SmartAlertsTab({
             {/* Two Column Layout - Active Alerts & Create/Settings */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Left: Active Smart Alerts */}
-                <Card>
+                <Card className="gap-0">
                     <FeatureCard title={(<span>Your Active Alerts</span>)} description={ACCOUNT_COPY.smartAlertsDescription} />
                     <CardContent className="space-y-3">
                         {smartAlerts.length === 0 && <p className="text-center py-8 text-sm text-muted-foreground">No alerts set up yet.</p>}
@@ -154,11 +154,11 @@ export function SmartAlertsTab({
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 pt-2 border-t text-sm">
+                                <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="gap-2 flex-1"
+                                        className="gap-2 w-full h-11"
                                         onClick={() => handleViewAlertMatches(alert)}
                                     >
                                         <Eye className="h-3 w-3" />
@@ -167,7 +167,7 @@ export function SmartAlertsTab({
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="gap-2 flex-1"
+                                        className="gap-2 w-full h-11"
                                         onClick={() => handleEditAlert(alert)}
                                     >
                                         <Edit2 className="h-3 w-3" />
@@ -176,7 +176,7 @@ export function SmartAlertsTab({
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="gap-2 flex-1"
+                                        className="gap-2 w-full h-11"
                                         onClick={() => handleToggleAlertStatus(alert.id)}
                                     >
                                         <Bell className="h-3 w-3" />
@@ -185,7 +185,7 @@ export function SmartAlertsTab({
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="gap-2 flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        className="gap-2 w-full h-11 text-red-600 hover:text-red-700 hover:bg-red-50"
                                         onClick={() => handleDeleteAlert(alert.id)}
                                     >
                                         <Trash2 className="h-3 w-3" />
@@ -208,7 +208,7 @@ export function SmartAlertsTab({
                                     </div>
                                     <Button
                                         size="sm"
-                                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                                        className="bg-purple-600 hover:bg-purple-700 text-white h-11"
                                         onClick={() => setActiveTab("plans")}
                                     >
                                         Upgrade
@@ -238,7 +238,7 @@ export function SmartAlertsTab({
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                className="h-11 px-3 text-red-600 hover:text-red-700 hover:bg-red-50"
                                                 onClick={() => handleDeleteSavedSearch(search.id)}
                                             >
                                                 <Trash2 className="h-4 w-4 mr-1" />
@@ -255,7 +255,7 @@ export function SmartAlertsTab({
                 {/* Right: Create New Alert & Settings */}
                 <div className="space-y-4">
                     {/* Create New Alert */}
-                    <Card>
+                    <Card className="gap-0">
                         <CardHeader>
                             <CardTitle className="text-base">{isEditing ? "Edit Alert" : "Create New Alert"}</CardTitle>
                             <CardDescription>

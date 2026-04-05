@@ -6,7 +6,6 @@ import logger from "@/lib/logger";
 import { 
     createRemoteListingImages, 
     extractEntityId, 
-    toListingLocationFromBusiness 
 } from "./listingFormShared";
 import { getListingById } from "@/lib/api/user/listings";
 import type { ListingImage } from "@/types/listing";
@@ -25,18 +24,13 @@ export function useGenericListingForm<T extends Record<string, any>>({
     onDataLoaded,
 }: UseGenericListingFormProps<T>) {
     const { user } = useAuth();
-    const { businessData } = useBusiness(user);
+    const { businessData } = useBusiness(user, undefined, {
+        includeStats: false,
+    });
     const [images, setImages] = React.useState<ListingImage[]>([]);
     const [isFetchingData, setIsFetchingData] = React.useState(!!editId);
 
-    // 1. Pre-fill location from business
-    React.useEffect(() => {
-        if (!businessData?.location || editId) return;
-        const location = toListingLocationFromBusiness(businessData.location);
-        if (location) form.setValue("location" as any, location as any);
-    }, [businessData, editId, form]);
-
-    // 2. Load existing listing for edit
+    // 1. Load existing listing for edit
     React.useEffect(() => {
         if (!editId) return;
         let isMounted = true;

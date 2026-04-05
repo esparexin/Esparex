@@ -11,7 +11,7 @@ import { deleteFromS3Url, sanitizeStoredImageUrls } from '../utils/s3';
 import { normalizeLocation, normalizeLocationResponse, toGeoPoint } from './LocationService';
 import { serializeDoc } from '../utils/serialize';
 import { publishedBusinessStatusQuery } from '../utils/businessStatus';
-import { mutateStatus, mutateStatuses } from './StatusMutationService';
+import { mutateStatus } from './StatusMutationService';
 import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
 import { ACTOR_TYPE } from '../../../shared/enums/actor';
 import { SERVICE_STATUS } from '../../../shared/enums/serviceStatus';
@@ -20,6 +20,7 @@ import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { type IdProofTypeValue } from '../../../shared/enums/idProofType';
 
 const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
+const ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;
 
 import { IBusinessDocument, IBusiness } from '../models/Business';
 
@@ -64,11 +65,6 @@ type BusinessPayload = {
     images?: unknown;
     documents?: BusinessDocuments;
     location?: BusinessLocationInput;
-    locationId?: unknown;
-    city?: string;
-    state?: string;
-    country?: string;
-    pincode?: string;
 };
 
 type BusinessDocView = {
@@ -82,6 +78,7 @@ type BusinessDocView = {
     documents?: IBusinessDocument[];
     location?: {
         address?: string;
+        display?: string;
         shopNo?: string;
         street?: string;
         landmark?: string;
@@ -103,6 +100,90 @@ const toStringArray = (value: unknown): string[] =>
 
 const toImageUrls = (value: Array<{ url: string; hash: string }>): string[] =>
     sanitizeStoredImageUrls(value.map((item) => item.url));
+
+const asOptionalString = (value: unknown): string | undefined => {
+    if (typeof value !== 'string') return undefined;
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : undefined;
+};
+
+const extractPincodeFromAddress = (value: unknown): string | undefined => {
+    const address = asOptionalString(value);
+    if (!address) return undefined;
+    return address.match(ADDRESS_PINCODE_PATTERN)?.[0];
+};
+
+const joinLocationParts = (...parts: unknown[]): string | undefined => {
+    const normalizedParts = parts
+        .map((part) => asOptionalString(part))
+        .filter((part): part is string => Boolean(part));
+
+    return normalizedParts.length > 0 ? normalizedParts.join(', ') : undefined;
+};
+
+type ResolvedBusinessLocation = Awaited<ReturnType<typeof normalizeLocation>>;
+
+export const buildBusinessLocationPayload = ({
+    currentLocation,
+    incomingLocation,
+    normalizedLocation,
+    fallbackLocationId,
+}: {
+    currentLocation?: BusinessDocView['location'];
+    incomingLocation: BusinessLocationInput;
+    normalizedLocation: ResolvedBusinessLocation;
+    fallbackLocationId?: unknown;
+}) => {
+    const incomingAddress = asOptionalString(incomingLocation.address);
+    const resolvedShopNo = asOptionalString(incomingLocation.shopNo) ?? currentLocation?.shopNo;
+    const resolvedStreet = asOptionalString(incomingLocation.street) ?? currentLocation?.street;
+    const resolvedLandmark = asOptionalString(incomingLocation.landmark) ?? currentLocation?.landmark;
+    const resolvedCity = asOptionalString(incomingLocation.city) || normalizedLocation?.city || currentLocation?.city;
+    const resolvedState = asOptionalString(incomingLocation.state) || normalizedLocation?.state || currentLocation?.state;
+    const resolvedCountry = asOptionalString(incomingLocation.country) || normalizedLocation?.country || currentLocation?.country;
+    const resolvedPincode =
+        asOptionalString(incomingLocation.pincode)
+        || normalizedLocation?.pincode
+        || extractPincodeFromAddress(incomingAddress)
+        || currentLocation?.pincode;
+
+    const computedAddress =
+        joinLocationParts(resolvedShopNo, resolvedStreet, resolvedLandmark, resolvedCity, resolvedState, resolvedPincode)
+        || joinLocationParts(resolvedCity, resolvedState, resolvedPincode);
+
+    const resolvedAddress =
+        incomingAddress
+        || currentLocation?.address
+        || computedAddress
+        || 'Location TBD';
+
+    const resolvedDisplay =
+        asOptionalString(incomingLocation.display)
+        || normalizedLocation?.display
+        || currentLocation?.display
+        || joinLocationParts(resolvedCity, resolvedState)
+        || resolvedAddress;
+
+    return {
+        locationId: normalizedLocation?.locationId || fallbackLocationId,
+        location: {
+            ...currentLocation,
+            address: resolvedAddress,
+            display: resolvedDisplay,
+            shopNo: resolvedShopNo,
+            street: resolvedStreet,
+            landmark: resolvedLandmark,
+            city: resolvedCity,
+            state: resolvedState,
+            country: resolvedCountry,
+            pincode: resolvedPincode,
+            coordinates:
+                toGeoPoint(incomingLocation.coordinates)
+                || toGeoPoint(normalizedLocation?.coordinates)
+                || currentLocation?.coordinates
+        }
+    };
+};
 
 const cleanupRemovedS3Objects = async (previous: unknown, next: unknown) => {
     const previousUrls = Array.isArray(previous)
@@ -255,14 +336,17 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     const incomingLocation: BusinessLocationInput =
         data.location && typeof data.location === 'object' ? data.location : {};
     const normalizedLocation = await normalizeLocation({
-        locationId: incomingLocation.locationId || data.locationId,
-        city: incomingLocation.city || data.city,
-        state: incomingLocation.state || data.state,
-        country: incomingLocation.country || data.country,
-        display: incomingLocation.display || incomingLocation.address,
+        locationId: incomingLocation.locationId,
+        city: incomingLocation.city,
+        state: incomingLocation.state,
+        country: incomingLocation.country,
+        display: incomingLocation.display,
         coordinates: incomingLocation.coordinates,
         address: incomingLocation.address,
-        pincode: incomingLocation.pincode || data.pincode
+        pincode: incomingLocation.pincode
+    }, {
+        requireLocationId: false,
+        defaultCountry: 'India',
     });
 
     // 7. Surgical Field Extraction
@@ -297,21 +381,15 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     safePayload.documents = documents;
 
     // 7. Taxonomy & Location IDs
-    safePayload.locationId = normalizedLocation?.locationId || businessView.locationId;
-    const computedAddress = `${incomingLocation.shopNo || ''} ${incomingLocation.street || ''} ${normalizedLocation?.city || incomingLocation.city || ''}`.trim();
-    
-    safePayload.location = {
-        address: incomingLocation.address || computedAddress || `${normalizedLocation?.city || incomingLocation.city || 'N/A'}, ${normalizedLocation?.state || incomingLocation.state || 'N/A'}` || businessView.location?.address || 'Location TBD',
-        shopNo: incomingLocation.shopNo ?? businessView.location?.shopNo,
-        street: incomingLocation.street ?? businessView.location?.street,
-        landmark: incomingLocation.landmark ?? businessView.location?.landmark,
-        city: normalizedLocation?.city || incomingLocation.city || businessView.location?.city,
-        state: normalizedLocation?.state || incomingLocation.state || businessView.location?.state,
-        pincode: normalizedLocation?.pincode || incomingLocation.pincode || businessView.location?.pincode,
-        coordinates:
-            toGeoPoint(normalizedLocation?.coordinates) ||
-            businessView.location?.coordinates
-    };
+    const resolvedLocationPayload = buildBusinessLocationPayload({
+        currentLocation: businessView.location,
+        incomingLocation,
+        normalizedLocation,
+        fallbackLocationId: businessView.locationId,
+    });
+
+    safePayload.locationId = resolvedLocationPayload.locationId;
+    safePayload.location = resolvedLocationPayload.location;
 
     safePayload.status = BUSINESS_STATUS.PENDING;
     safePayload.isVerified = false;
@@ -341,8 +419,6 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
 export const getBusinessByUserId = async (userId: string) => {
     return await Business.findOne({ userId });
 };
-
-// countBusinessesByUserId removed as it was unused
 
 export const getBusinessById = async (id: string) => {
     return await Business.findById(id);
@@ -376,19 +452,6 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
             else if (existingChecks.registrationNumber === normalizedRegistration) field = 'Registration number';
 
             throw new AppError(`${field} is already registered with another business account.`, 409, 'BUSINESS_ALREADY_EXISTS');
-        }
-    }
-
-    const flatLocationFields = ['address', 'shopNo', 'street', 'landmark', 'city', 'state', 'pincode', 'coordinates'];
-    if (!data.location) {
-        const flatLocation: Record<string, unknown> = {};
-        for (const field of flatLocationFields) {
-            if (data[field] !== undefined) {
-                flatLocation[field] = data[field];
-            }
-        }
-        if (Object.keys(flatLocation).length > 0) {
-            data.location = flatLocation;
         }
     }
 
@@ -440,30 +503,28 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
     if (data.location) {
         const currentLoc = businessView.location || {};
         const normalizedLocation = await normalizeLocation({
-            locationId: data.location.locationId || data.locationId || businessView.locationId,
+            locationId: data.location.locationId || businessView.locationId,
             city: data.location.city || currentLoc.city,
             state: data.location.state || currentLoc.state,
-            country: data.location.country || currentLoc.country || 'Unknown',
-            display: data.location.display || data.location.address,
+            country: data.location.country || currentLoc.country || 'India',
+            display: data.location.display || currentLoc.display,
             coordinates: data.location.coordinates,
             address: data.location.address,
             pincode: data.location.pincode || currentLoc.pincode
+        }, {
+            requireLocationId: false,
+            defaultCountry: currentLoc.country || 'India',
         });
-        const computedAddress = `${data.location.shopNo || currentLoc.shopNo || ''} ${data.location.street || currentLoc.street || ''} ${normalizedLocation?.city || data.location.city || currentLoc.city || ''}`.trim();
+        const resolvedLocationPayload = buildBusinessLocationPayload({
+            currentLocation: currentLoc,
+            incomingLocation: data.location,
+            normalizedLocation,
+            fallbackLocationId: businessView.locationId,
+        });
 
-        safeUpdate.location = {
-            ...currentLoc,
-            address: data.location.address || computedAddress,
-            shopNo: data.location.shopNo ?? currentLoc.shopNo,
-            street: data.location.street ?? currentLoc.street,
-            landmark: data.location.landmark ?? currentLoc.landmark,
-            city: normalizedLocation?.city || data.location.city || currentLoc.city,
-            state: normalizedLocation?.state || data.location.state || currentLoc.state,
-            pincode: normalizedLocation?.pincode || data.location.pincode || currentLoc.pincode,
-            coordinates: toGeoPoint(normalizedLocation?.coordinates) || currentLoc.coordinates
-        };
-        if (normalizedLocation?.locationId) {
-            safeUpdate.locationId = normalizedLocation.locationId;
+        safeUpdate.location = resolvedLocationPayload.location;
+        if (resolvedLocationPayload.locationId) {
+            safeUpdate.locationId = resolvedLocationPayload.locationId;
         }
     }
 

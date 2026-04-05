@@ -197,7 +197,7 @@ export default function ListingDetailsFields() {
                                 size="sm"
                                 onClick={() => generateDescription('title')}
                                 disabled={isLoading}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 h-9 px-2 text-xs bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-semibold"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 h-11 px-2 text-xs bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-semibold"
                             >
                                 {isLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : "AI Suggest"}
                             </Button>
@@ -231,7 +231,7 @@ export default function ListingDetailsFields() {
                                 size="sm"
                                 onClick={() => generateDescription('description')}
                                 disabled={isLoading}
-                                className="absolute bottom-3 right-3 h-9 px-3 text-xs bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-semibold"
+                                className="absolute bottom-3 right-3 h-11 px-3 text-xs bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-semibold"
                             >
                                 {isLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : "AI Enhance"}
                             </Button>
@@ -263,7 +263,7 @@ export default function ListingDetailsFields() {
                                 <button
                                     type="button"
                                     onClick={() => removeImage(idx)}
-                                    className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+                                    className="absolute top-2 right-2 p-2 bg-black/60 text-white rounded-full opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                                 >
                                     <X className="w-3 h-3" />
                                 </button>

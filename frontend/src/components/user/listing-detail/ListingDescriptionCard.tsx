@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { type Ad } from "@/schemas/ad.schema";
+import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
 import { Wrench, Info } from "lucide-react";
 
 interface ListingDescriptionCardProps {
@@ -9,33 +10,34 @@ interface ListingDescriptionCardProps {
 
 export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardProps) {
     const isMobile = variant === "mobile";
+    const description = cleanupListingDescription(String(ad.description || ""));
 
     // Service/Part specific data
     const hasAttributes = ad.listingType === 'service' || ad.listingType === 'spare_part';
 
     return (
         <Card className={isMobile
-            ? "md:hidden rounded-none border-x-0 border-t-0 border-b"
-            : "rounded-none md:rounded-lg hidden md:block"}
+            ? "md:hidden rounded-none border-x-0 border-t-0 border-b border-slate-100"
+            : "rounded-none md:rounded-2xl hidden md:block border-slate-100"}
         >
-            <CardContent className={isMobile ? "p-4 space-y-4" : "p-3 md:p-6 space-y-4 md:space-y-6"}>
+            <CardContent className={isMobile ? "p-4 space-y-4" : "p-4 md:p-6 space-y-4 md:space-y-6"}>
                 {hasAttributes && (
-                    <div className="grid grid-cols-2 gap-4 pb-4 border-b border-slate-100">
+                    <div className="grid grid-cols-2 gap-3 pb-4 border-b border-slate-100">
                         {!!ad.warranty && (
-                            <div className="flex items-start gap-2">
-                                <Wrench className="h-4 w-4 text-slate-400 mt-0.5" />
+                            <div className="flex items-start gap-2.5 bg-slate-50 rounded-xl p-3">
+                                <Wrench className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Warranty</p>
-                                    <p className="text-sm font-semibold">{String(ad.warranty)}</p>
+                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Warranty</p>
+                                    <p className="text-sm font-semibold text-slate-800 mt-0.5">{String(ad.warranty)}</p>
                                 </div>
                             </div>
                         )}
                         {ad.listingType === 'service' && ad.onsiteService !== undefined && (
-                            <div className="flex items-start gap-2">
-                                <Wrench className="h-4 w-4 text-slate-400 mt-0.5" />
+                            <div className="flex items-start gap-2.5 bg-slate-50 rounded-xl p-3">
+                                <Wrench className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">On-site</p>
-                                    <p className="text-sm font-semibold">{ad.onsiteService ? 'Yes' : 'No'}</p>
+                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">On-site</p>
+                                    <p className="text-sm font-semibold text-slate-800 mt-0.5">{ad.onsiteService ? 'Yes' : 'No'}</p>
                                 </div>
                             </div>
                         )}
@@ -43,35 +45,35 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                 )}
 
                 {!!ad.included && (
-                    <div className="space-y-1">
-                        <h4 className="text-sm font-bold flex items-center gap-1.5">
+                    <div className="space-y-2">
+                        <h4 className="text-xs font-bold flex items-center gap-1.5 text-slate-500 uppercase tracking-wide">
                             <Info className="h-3.5 w-3.5 text-blue-500" />
                             What&apos;s Included
                         </h4>
-                        <div className="text-sm text-slate-600 leading-relaxed bg-blue-50/50 p-3 rounded-xl border border-blue-100/50">
+                        <div className="text-sm text-slate-600 leading-relaxed bg-blue-50 p-3.5 rounded-xl border border-blue-100">
                             {String(ad.included)}
                         </div>
                     </div>
                 )}
 
                 {!!ad.excluded && (
-                    <div className="space-y-1">
-                        <h4 className="text-sm font-bold flex items-center gap-1.5">
+                    <div className="space-y-2">
+                        <h4 className="text-xs font-bold flex items-center gap-1.5 text-slate-500 uppercase tracking-wide">
                             <Info className="h-3.5 w-3.5 text-slate-400" />
                             What&apos;s Excluded
                         </h4>
-                        <div className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                             {String(ad.excluded)}
                         </div>
                     </div>
                 )}
 
-                <div>
-                    <h3 className={`font-semibold mb-1.5 ${isMobile ? "text-sm" : "md:mb-2 text-sm md:text-base"}`}>
+                <div className="space-y-2">
+                    <h3 className={`font-bold text-slate-800 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
                         Description
                     </h3>
-                    <div className={`text-slate-600 whitespace-pre-wrap leading-relaxed ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
-                        {String(ad.description)}
+                    <div className={`text-slate-500 whitespace-pre-wrap leading-7 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
+                        {description}
                     </div>
                 </div>
             </CardContent>

@@ -1,6 +1,9 @@
 "use client";
 
-import { BrowseFiltersBar } from "@/components/user/BrowseFiltersBar";
+import {
+  BrowseFiltersBar,
+  BrowseFiltersHeaderTrigger,
+} from "@/components/user/BrowseFiltersBar";
 import { BrowseListingResults } from "@/components/user/BrowseListingResults";
 import type { BrowseResultsContentProps } from "@/components/user/BrowseResultsPanel";
 import { useBrowseListingsController } from "@/components/user/useBrowseListingsController";
@@ -84,6 +87,8 @@ export function BrowseListingsView<TItem, TFilters>({
     total,
     categories,
     items,
+    activeFilterCount,
+    activeFilterBadges,
     handleCategoryChange,
     handleSortChange,
     setView,
@@ -103,22 +108,26 @@ export function BrowseListingsView<TItem, TFilters>({
     fetchPage,
   });
 
+  const sharedFilterProps = {
+    inputId,
+    inputValue,
+    selectedCategory,
+    categories,
+    searchAriaLabel,
+    searchPlaceholder,
+    onInputChange: handleInputChange,
+    onCategoryChange: handleCategoryChange,
+    onReset: handleReset,
+    getCategoryValue,
+    inputClassName,
+    selectTriggerClassName,
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/40">
       <BrowseFiltersBar
-        inputId={inputId}
-        inputValue={inputValue}
-        selectedCategory={selectedCategory}
-        categories={categories}
-        searchAriaLabel={searchAriaLabel}
-        searchPlaceholder={searchPlaceholder}
-        onInputChange={handleInputChange}
-        onCategoryChange={handleCategoryChange}
-        onReset={handleReset}
-        getCategoryValue={getCategoryValue}
+        {...sharedFilterProps}
         respectMobileChromePolicy={respectMobileChromePolicy}
-        inputClassName={inputClassName}
-        selectTriggerClassName={selectTriggerClassName}
       />
 
       <BrowseListingResults
@@ -130,6 +139,14 @@ export function BrowseListingsView<TItem, TFilters>({
         error={error}
         hasMore={hasMore}
         query={query}
+        filterNode={
+          <BrowseFiltersHeaderTrigger
+            {...sharedFilterProps}
+            activeFilterCount={activeFilterCount}
+          />
+        }
+        activeFilterCount={activeFilterCount}
+        activeFilterBadges={activeFilterBadges}
         onSortChange={handleSortChange}
         onViewChange={setView}
         onRetry={handleRetry}

@@ -15,7 +15,9 @@ import { normalizeAdImagesForResponse } from '../../services/adQuery/AdQueryHelp
 import {
     BusinessStatsPayload,
     findBusinessByIdentifier,
-    sanitizeBusinessForPublic
+    sanitizeBusinessForPublic,
+    serializeBusinessForAdmin,
+    serializeBusinessForOwner,
 } from './shared';
 
 const requireBusiness = async (req: Request, res: Response, errorMsg = 'Invalid Business ID') => {
@@ -94,7 +96,7 @@ export const getBusinessById = async (req: Request, res: Response) => {
 
         const payload = (!isOwner && !isAdmin)
             ? sanitizeBusinessForPublic(business)
-            : business;
+            : (isAdmin ? serializeBusinessForAdmin(business) : serializeBusinessForOwner(business));
 
         const response = respond<ApiResponse<Business>>({
             success: true,

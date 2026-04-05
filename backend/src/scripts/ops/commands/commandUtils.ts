@@ -2,6 +2,7 @@
  * Shared utilities for ops commands.
  */
 
+import 'dotenv/config';
 import mongoose from 'mongoose';
 
 /** Resolve the MongoDB connection URI from environment variables. */

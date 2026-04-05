@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getMyAds, getMyListings, getMyListingsStats, deleteListing as deleteAd, repostListing } from "@/lib/api/user/listings";
+import { getAdsPage, getMyAds, getMyListings, getMyListingsStats, deleteListing as deleteAd, repostListing } from "@/lib/api/user/listings";
 import { apiClient } from '@/lib/api/client';
+import { fetchUserApiJson } from '@/lib/api/user/server';
 import { EsparexError, ErrorCategory, ErrorSeverity } from "@/lib/errorHandler";
 import { LISTING_TYPE } from "@shared/enums/listingType";
 
@@ -15,9 +16,16 @@ vi.mock('@/lib/api/client', () => {
     };
 });
 
+vi.mock('@/lib/api/user/server', () => {
+    return {
+        fetchUserApiJson: vi.fn(),
+    };
+});
+
 describe('MyAds API Regression Tests', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.mocked(fetchUserApiJson).mockReset();
     });
 
     describe('Test 1 — MyAds Unauthorized', () => {
@@ -126,6 +134,42 @@ describe('MyAds API Regression Tests', () => {
             const stats = await getMyListingsStats();
             expect(stats.ad?.live).toBe(1);
             expect(apiClient.get).toHaveBeenCalledWith('listings/mine/stats');
+        });
+    });
+
+    describe('Test 5 — Public Browse Pagination', () => {
+        it('should derive hasMore from total when the endpoint omits it in page mode', async () => {
+            const fakeDate = new Date().toISOString();
+            vi.mocked(fetchUserApiJson).mockResolvedValueOnce({
+                success: true,
+                data: [
+                    { _id: 'ad-page-1', title: 'Samsung S24', price: 80000, createdAt: fakeDate, status: 'live' }
+                ],
+                pagination: { page: 1, limit: 20, total: 21 }
+            });
+
+            const result = await getAdsPage({ page: 1, limit: 20 });
+            expect(result.pagination.hasMore).toBe(true);
+            expect(result.pagination.total).toBe(21);
+        });
+
+        it('should read standardized nested pagination envelopes for browse endpoints', async () => {
+            const fakeDate = new Date().toISOString();
+            vi.mocked(fetchUserApiJson).mockResolvedValueOnce({
+                success: true,
+                data: {
+                    items: [
+                        { _id: 'part-xyz', title: 'Display Combo', price: 4500, createdAt: fakeDate, status: 'live' }
+                    ],
+                    pagination: { page: 1, limit: 20, total: 1, hasMore: false }
+                }
+            });
+
+            const result = await getAdsPage({ page: 1, limit: 20 });
+            expect(result.data).toHaveLength(1);
+            expect(result.data[0]?.id).toBe('part-xyz');
+            expect(result.pagination.page).toBe(1);
+            expect(result.pagination.hasMore).toBe(false);
         });
     });
 });

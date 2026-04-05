@@ -9,6 +9,7 @@ import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { Button } from "@/components/ui/button";
 import { getListingHref } from "@/lib/listingUtils";
+import { getSearchLocationLabel } from "@/lib/location/locationLabels";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 
@@ -30,31 +31,23 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
     const { location, isLoaded } = useLocationState();
     const latitude = getLatitude(location);
     const longitude = getLongitude(location);
+    const locationSearchLabel = useMemo(() => getSearchLocationLabel(location), [location]);
     const locationContextKey = useMemo(
         () =>
             [
                 location.locationId ?? "",
-                location.city ?? "",
+                locationSearchLabel ?? "",
                 location.level ?? "",
                 typeof latitude === "number" ? latitude.toFixed(3) : "",
                 typeof longitude === "number" ? longitude.toFixed(3) : "",
             ].join("|"),
-        [latitude, location.city, location.level, location.locationId, longitude]
+        [latitude, location.level, location.locationId, locationSearchLabel, longitude]
     );
     const previousContextKeyRef = useRef(locationContextKey);
 
     const isDefaultLocation = location.source === "default";
     const isRegionLevel = location.level === "state" || location.level === "country";
-    const locationLabel = useMemo(() => {
-        if (isDefaultLocation) return undefined;
-        if (location.level === "state") {
-            return location.state || location.city || undefined;
-        }
-        if (location.level === "country") {
-            return location.country || location.state || location.city || undefined;
-        }
-        return location.city || undefined;
-    }, [isDefaultLocation, location.city, location.country, location.level, location.state]);
+    const locationLabel = isDefaultLocation ? undefined : locationSearchLabel;
 
     const requestParams = useMemo(() => ({
         cursor,
@@ -71,7 +64,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
         !cursor &&
         (isDefaultLocation ||
             (!location.locationId &&
-                !location.city &&
+                !locationSearchLabel &&
                 !location.coordinates));
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
@@ -120,23 +113,23 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
             role="region"
             aria-label="Recommended Ads"
             aria-labelledby="home-feed-heading"
-            className="bg-slate-50/50 py-16 md:py-20 border-t border-slate-100"
+            className="bg-slate-50 py-8 md:py-16 border-t border-slate-100"
         >
-            <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
-                <div className="mb-6">
+            <div className="mx-auto max-w-7xl px-3 md:px-6 lg:px-8">
+                <div className="mb-4 md:mb-8">
                     <h2
                         id="home-feed-heading"
-                        className="text-2xl font-bold md:text-4xl text-slate-900 tracking-tight"
+                        className="text-base font-bold md:text-2xl text-slate-900 tracking-tight"
                     >
                         Recommended for You
                     </h2>
-                    <p className="mt-2 text-sm md:text-base text-slate-500 max-w-2xl">
+                    <p className="mt-1 text-xs md:text-base text-slate-400 max-w-2xl hidden md:block">
                         Spotlight, boosted, and latest listings curated for your location.
                     </p>
                 </div>
 
                 {isLoading && recommendedAds.length === 0 && (
-                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
                         {Array.from({ length: HOME_FEED_PAGE_SIZE }).map((_, index) => (
                             <AdCardSkeleton key={index} />
                         ))}
@@ -165,7 +158,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
 
                 {recommendedAds.length > 0 && (
                     <>
-                        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
+                        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
                             {recommendedAds.map((ad, index) => (
                                 <AdCardGrid
                                     key={ad.id}
@@ -177,7 +170,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
                         </div>
 
                         {canLoadMore && (
-                            <div className="mt-8 flex justify-center">
+                            <div className="mt-6 md:mt-10 flex justify-center">
                                 <Button
                                     onClick={() => {
                                         if (!nextCursor?.createdAt) return;
@@ -186,7 +179,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
                                         });
                                     }}
                                     disabled={isFetching}
-                                    className="bg-green-600 hover:bg-green-700"
+                                    className="bg-blue-600 hover:bg-blue-700 rounded-xl px-8 h-11 font-semibold shadow-md shadow-blue-100 transition-all active:scale-95"
                                 >
                                     {isFetching ? (
                                         <>

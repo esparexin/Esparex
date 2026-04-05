@@ -1,4 +1,5 @@
 import type { LocationData } from "@/context/LocationContext";
+import { getSearchLocationLabel, sanitizeLocationLabel } from "@/lib/location/locationLabels";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 
 interface BaseBrowseFilterShape {
@@ -17,6 +18,10 @@ interface ProximityFilterShape {
 
 interface ServiceLocationFilterShape extends ProximityFilterShape {
   level?: string;
+  location?: string;
+}
+
+interface RequestedLocationFilterShape extends ProximityFilterShape {
   location?: string;
 }
 
@@ -47,6 +52,39 @@ export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
   }
 
   return filters;
+}
+
+export function applyRequestedLocationFilters<TFilter extends RequestedLocationFilterShape>({
+  filters,
+  urlLocationId,
+  urlLocationLabel,
+  radiusKm,
+}: {
+  filters: TFilter;
+  urlLocationId?: string;
+  urlLocationLabel?: string;
+  radiusKm?: number;
+}) {
+  const hasFiniteRadius = typeof radiusKm === "number" && Number.isFinite(radiusKm);
+
+  if (urlLocationId) {
+    filters.locationId = urlLocationId;
+    if (hasFiniteRadius) {
+      filters.radiusKm = radiusKm;
+    }
+    return true;
+  }
+
+  const sanitizedLocationLabel = sanitizeLocationLabel(urlLocationLabel);
+  if (sanitizedLocationLabel) {
+    filters.location = sanitizedLocationLabel;
+    if (hasFiniteRadius) {
+      filters.radiusKm = radiusKm;
+    }
+    return true;
+  }
+
+  return false;
 }
 
 export function applyProximityLocationFilters<TFilter extends ProximityFilterShape>({
@@ -86,12 +124,7 @@ export function applyServiceLocationFilters<TFilter extends ServiceLocationFilte
   if (!location) return;
 
   const isRegionLevel = location.level === "state" || location.level === "country";
-  const regionLocationLabel =
-    location.level === "state"
-      ? location.state || location.city || undefined
-      : location.level === "country"
-        ? location.country || location.state || location.city || undefined
-        : undefined;
+  const regionLocationLabel = getSearchLocationLabel(location);
 
   if (location.locationId) {
     filters.locationId = location.locationId;

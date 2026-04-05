@@ -35,11 +35,9 @@ export function getBusinessWizardFieldsForStep(
             "businessDescription",
             "contactNumber",
             "email",
-            "shopNo",
-            "street",
-            "city",
-            "state",
-            "pincode",
+            "currentLocationDisplay",
+            "coordinates",
+            "fullAddress",
         ];
     }
 

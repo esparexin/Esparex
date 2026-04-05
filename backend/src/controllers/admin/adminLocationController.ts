@@ -46,7 +46,7 @@ const getErrorCode = (error: unknown): number | undefined => {
 
 const ADMIN_STATES_CACHE_KEY = 'admin:locations:states';
 const ADMIN_STATES_CACHE_TTL_SECONDS = 300;
-const LOCATION_LIST_HINT = { isActive: 1, isPopular: -1, createdAt: -1 } as const;
+const LOCATION_LIST_HINT = { isActive: 1, createdAt: -1 } as const;
 let hasWarnedLocationListHintFailure = false;
 
 const toScopeQuery = (locationIds: mongoose.Types.ObjectId[] | null) => {
@@ -227,7 +227,6 @@ export const getAllLocations = async (req: Request, res: Response) => {
         const status = req.query.status as string;
         const state = req.query.state as string;
         const level = req.query.level as string;
-        const isPopular = req.query.isPopular as string;
 
         const query: Record<string, unknown> = {};
 
@@ -235,8 +234,6 @@ export const getAllLocations = async (req: Request, res: Response) => {
         if (status === 'inactive') query.isActive = false;
 
         if (level && level !== 'all') query.level = level;
-        if (isPopular === 'true') query.isPopular = true;
-        if (isPopular === 'false') query.isPopular = false;
 
         if (search) {
             const escaped = escapeRegExp(search);
@@ -258,9 +255,9 @@ export const getAllLocations = async (req: Request, res: Response) => {
 
         const buildLocationsQuery = () =>
             Location.find(query)
-                .select('_id name slug country level parentId path coordinates isActive isPopular verificationStatus createdAt updatedAt')
+                .select('_id name slug country level parentId path coordinates isActive verificationStatus createdAt updatedAt')
                 .lean()
-                .sort({ isPopular: -1, createdAt: -1 })
+                .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit);
 
@@ -318,7 +315,7 @@ export const getAllLocations = async (req: Request, res: Response) => {
  */
 export const createLocation = async (req: Request, res: Response) => {
     try {
-        const { country, latitude, longitude, isActive, isPopular, level, name } = req.body;
+        const { country, latitude, longitude, isActive, level, name } = req.body;
 
         // Use locationService to normalize coordinates and detect Null Island
         const coords = normalizeCoordinates({ lat: latitude, lng: longitude });
@@ -397,8 +394,7 @@ export const createLocation = async (req: Request, res: Response) => {
             path: buildHierarchyPath(locationId, parentLocation as any),
             slug,
             isActive: isActive !== undefined ? isActive : true,
-            isPopular: isPopular || false,
-            priority: isPopular ? 100 : 0
+            priority: 0
         });
 
         await invalidateLocationStateCache();
@@ -420,7 +416,7 @@ export const createLocation = async (req: Request, res: Response) => {
 export const updateLocation = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { country, latitude, longitude, isActive, isPopular, level, name } = req.body;
+        const { country, latitude, longitude, isActive, level, name } = req.body;
         const nextCountry = resolveStringField(country);
         const nextName = resolveStringField(name);
 
@@ -473,10 +469,6 @@ export const updateLocation = async (req: Request, res: Response) => {
             location.coordinates = coords;
         }
         if (isActive !== undefined) location.isActive = isActive;
-        if (isPopular !== undefined) {
-            location.isPopular = isPopular;
-            location.priority = isPopular ? 100 : 0;
-        }
 
         // Regenerate slug if Name/City/State changes
         if (name || country || level || hasParentMutation) {
@@ -525,30 +517,6 @@ export const toggleLocationStatus = async (req: Request, res: Response) => {
         location.isActive = !location.isActive;
         await location.save();
         await invalidateLocationStateCache();
-
-        return sendSuccessResponse(res, normalizeLocationResponse(location));
-
-    } catch (error: unknown) {
-        return sendBaseAdminError(req, res, error);
-    }
-};
-
-/**
- * Toggle Popular status for a location
- */
-export const togglePopularStatus = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const location = await Location.findById(id);
-
-        if (!location) {
-            return sendBaseAdminError(req, res, 'Location not found', 404);
-        }
-
-        location.isPopular = !location.isPopular;
-        location.priority = location.isPopular ? 100 : 0;
-        await location.save();
-        await invalidateLocationStateCache(); // Popular status affects hierarchy & search caches
 
         return sendSuccessResponse(res, normalizeLocationResponse(location));
 
@@ -675,7 +643,7 @@ export const getModerationQueue = async (req: Request, res: Response) => {
         const [total, locations] = await Promise.all([
             Location.countDocuments(query).hint({ verificationStatus: 1, createdAt: 1 }),
             Location.find(query)
-                .select('_id name city district state country level coordinates isActive isPopular verificationStatus requestedBy createdAt')
+                .select('_id name city district state country level coordinates isActive verificationStatus requestedBy createdAt')
                 .lean()
                 .populate('requestedBy', 'firstName lastName email')
                 .sort({ createdAt: 1 })

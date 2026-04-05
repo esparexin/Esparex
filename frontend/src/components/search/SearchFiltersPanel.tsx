@@ -58,13 +58,13 @@ function FilterCheckboxList({
   return (
     <div className={className}>
       {options.map((option) => (
-        <div key={option.id} className="flex items-center space-x-2">
+        <div key={option.id} className="flex items-center gap-3 min-h-[44px]">
           <Checkbox
             id={option.id}
             checked={option.checked}
             onCheckedChange={(checked) => option.onCheckedChange(checked === true)}
           />
-          <label htmlFor={option.id} className="text-sm font-medium leading-none cursor-pointer">
+          <label htmlFor={option.id} className="text-sm font-medium leading-none cursor-pointer flex-1">
             {option.label}
           </label>
         </div>
@@ -136,7 +136,7 @@ export function SearchFiltersPanel({
     <div className="flex flex-col h-full bg-white">
       <Accordion type="multiple" defaultValue={["price", "brands", "specs"]} className="flex-1">
         <AccordionItem value="price" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-3">
+          <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
             <div className="flex items-center gap-2">
               <IndianRupee className="size-4 text-green-600" />
               <span className="font-semibold text-sm">Price Range</span>
@@ -163,7 +163,7 @@ export function SearchFiltersPanel({
 
         {availableBrands.length > 0 && (
           <AccordionItem value="brands" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-3">
+            <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
               <div className="flex items-center gap-2">
                 <Tag className="size-4 text-purple-600" />
                 <span className="font-semibold text-sm">Brands</span>
@@ -189,7 +189,7 @@ export function SearchFiltersPanel({
         )}
 
         <AccordionItem value="radius" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-3">
+          <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
             <div className="flex items-center gap-2">
               <MapPin className="size-4 text-cyan-600" />
               <span className="font-semibold text-sm">Search Radius</span>

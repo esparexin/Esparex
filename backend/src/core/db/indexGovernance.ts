@@ -66,7 +66,8 @@ export function governSchema(
     collectionName: string;
   }
 ) {
-  // @ts-ignore - access internal index definitions
+  // @ts-ignore — schema.indexes() is a valid Mongoose Schema method but is not
+  // declared in the @types/mongoose public interface. Safe to call here.
   const indexes = schema.indexes();
   
   for (const [keys, options] of indexes) {

@@ -22,7 +22,9 @@ export function BusinessListingGatePage({
 }: BusinessListingGatePageProps) {
     const router = useRouter();
     const { user } = useAuth();
-    const { businessData, isLoading, isFetched } = useBusiness(user);
+    const { businessData, isLoading, isFetched } = useBusiness(user, undefined, {
+        includeStats: false,
+    });
 
     if (isLoading || !isFetched) {
         return (

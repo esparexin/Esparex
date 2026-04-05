@@ -164,7 +164,7 @@ export function ListingItem({
                     {onMarkSold && isActive && (
                         <Button 
                             size="sm" variant="outline"
-                            className="h-7 text-xs text-green-700 border-green-200 hover:bg-green-50"
+                            className="h-11 text-xs text-green-700 border-green-200 hover:bg-green-50"
                             onClick={(e) => { e.stopPropagation(); onMarkSold(); }}
                         >
                             <CheckSquare className="h-3 w-3 mr-1" /> Mark Sold
@@ -173,7 +173,7 @@ export function ListingItem({
                     {onDeactivate && isActive && (
                         <Button
                             size="sm" variant="outline"
-                            className="h-7 text-xs text-orange-600 border-orange-200 hover:bg-orange-50"
+                            className="h-11 text-xs text-orange-600 border-orange-200 hover:bg-orange-50"
                             onClick={(e) => { e.stopPropagation(); onDeactivate(); }}
                         >
                             <PowerOff className="h-3 w-3 mr-1" /> Hide
@@ -183,7 +183,7 @@ export function ListingItem({
                         <Button
                             variant="outline"
                             size="sm"
-                            className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                            className="h-11 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
                             onClick={(e) => { e.stopPropagation(); onRenew(); }}
                         >
                             <RefreshCw className="h-3 w-3 mr-1" /> Renew
@@ -191,7 +191,7 @@ export function ListingItem({
                     )}
                     {canEdit && (
                         <Link href={editHref} onClick={(e) => e.stopPropagation()}>
-                            <Button variant="outline" size="sm" className="h-7 text-xs">
+                            <Button variant="outline" size="sm" className="h-11 text-xs">
                                 <Edit2 className="h-3 w-3 mr-1" /> Edit
                             </Button>
                         </Link>
@@ -199,7 +199,7 @@ export function ListingItem({
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        className="h-11 w-11 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
                         onClick={(e) => { e.stopPropagation(); onDelete(); }}
                     >
                         <Trash2 className="h-3.5 w-3.5" />

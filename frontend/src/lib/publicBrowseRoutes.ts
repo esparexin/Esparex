@@ -1,3 +1,5 @@
+import { sanitizeLocationLabel } from "@/lib/location/locationLabels";
+
 export type PublicBrowseType = "ad" | "service" | "spare_part";
 
 export interface PublicBrowseRouteParams {
@@ -120,7 +122,7 @@ export const parsePublicBrowseParams = (
         sort: sort && PUBLIC_SORTS.has(sort) ? sort : undefined,
         minPrice: readNumber(read("minPrice")),
         maxPrice: readNumber(read("maxPrice")),
-        location: read("location"),
+        location: sanitizeLocationLabel(read("location")),
         locationId: read("locationId"),
         brands: read("brands"),
         radiusKm: readNumber(read("radiusKm")),
@@ -133,6 +135,8 @@ export const buildPublicBrowseRoute = (input: PublicBrowseRouteParams = {}): str
     const type = normalizePublicBrowseType(input.type);
     const normalizedCategoryId = readString(input.categoryId);
     const normalizedCategory = readString(input.category);
+    const normalizedLocation = sanitizeLocationLabel(readString(input.location));
+    const normalizedLocationId = readString(input.locationId);
     const resolvedCategoryId =
         normalizedCategoryId && OBJECT_ID_PATTERN.test(normalizedCategoryId)
             ? normalizedCategoryId
@@ -164,12 +168,12 @@ export const buildPublicBrowseRoute = (input: PublicBrowseRouteParams = {}): str
         params.set("maxPrice", String(maxPrice));
     }
 
-    appendIfPresent(params, "location", input.location);
-    appendIfPresent(params, "locationId", input.locationId);
+    appendIfPresent(params, "location", normalizedLocation);
+    appendIfPresent(params, "locationId", normalizedLocationId);
     appendIfPresent(params, "brands", Array.isArray(input.brands) ? input.brands.join(",") : input.brands);
 
     const radiusKm = readNumber(input.radiusKm);
-    if (typeof radiusKm === "number" && radiusKm > 0) {
+    if (typeof radiusKm === "number" && radiusKm > 0 && (normalizedLocation || normalizedLocationId)) {
         params.set("radiusKm", String(radiusKm));
     }
 

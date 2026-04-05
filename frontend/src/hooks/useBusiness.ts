@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { isAPIError } from "@/lib/api/APIError";
+import { ErrorCategory, EsparexError } from "@/lib/errorHandler";
 import { type Business, type BusinessStats } from "@/lib/api/user/businesses";
 import type { User } from "@/types/User";
 import logger from "@/lib/logger";
@@ -6,6 +8,23 @@ import logger from "@/lib/logger";
 interface UseBusinessOptions {
     enabled?: boolean;
     includeStats?: boolean;
+    silent?: boolean;
+}
+
+function isHandledBusinessLoadFailure(error: unknown): boolean {
+    if (isAPIError(error)) {
+        return error.source === "network" || error.source === "health-gate";
+    }
+
+    if (error instanceof EsparexError) {
+        return (
+            error.category === ErrorCategory.NETWORK ||
+            error.context?.source === "network" ||
+            error.context?.source === "health-gate"
+        );
+    }
+
+    return false;
 }
 
 export function useBusiness(user: User | null, businessId?: string, options?: UseBusinessOptions) {
@@ -21,6 +40,12 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
     const [error, setError] = useState<any>(null);
     const enabled = options?.enabled ?? true;
     const includeStats = options?.includeStats ?? true;
+    const silent = options?.silent ?? false;
+    const [requestNonce, setRequestNonce] = useState(0);
+
+    const retry = useCallback(() => {
+        setRequestNonce((current) => current + 1);
+    }, []);
 
     useEffect(() => {
         if (!isFetched || !businessData || !user) return;
@@ -54,20 +79,20 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
                 if (businessId) {
                     if (includeStats) {
                         [data, stats] = await Promise.all([
-                            getBusinessById(businessId),
-                            getBusinessStats(businessId)
+                            getBusinessById(businessId, { requestConfig: { silent } }),
+                            getBusinessStats(businessId, { silent })
                         ]);
                     } else {
-                        data = await getBusinessById(businessId);
+                        data = await getBusinessById(businessId, { requestConfig: { silent } });
                     }
                 } else {
                     if (includeStats) {
                         [data, stats] = await Promise.all([
-                            getMyBusiness(),
-                            getMyBusinessStats()
+                            getMyBusiness({ silent }),
+                            getMyBusinessStats({ silent })
                         ]);
                     } else {
-                        data = await getMyBusiness();
+                        data = await getMyBusiness({ silent });
                     }
                 }
                 
@@ -75,7 +100,11 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
                 setBusinessStats(stats);
                 setIsFetched(true);
             } catch (e) {
-                logger.error("Failed to load business", e);
+                if (isHandledBusinessLoadFailure(e)) {
+                    logger.warn("Failed to load business", e);
+                } else {
+                    logger.error("Failed to load business", e);
+                }
                 setError(e);
                 setIsFetched(true); // Mark as fetched even on error so pages don't hang
             } finally {
@@ -85,6 +114,7 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
 
         if (!enabled) {
             setIsLoading(false);
+            setError(null);
             return;
         }
 
@@ -94,8 +124,9 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
             setBusinessData(null);
             setIsFetched(false);
             setIsLoading(false);
+            setError(null);
         }
-    }, [businessId, enabled, includeStats, user]);
+    }, [businessId, enabled, includeStats, user, requestNonce, silent]);
 
     return { 
         businessData, 
@@ -103,6 +134,7 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
         businessStats, 
         isLoading, 
         isFetched, 
-        error 
+        error,
+        retry,
     };
 }

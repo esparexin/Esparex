@@ -153,6 +153,29 @@ class APIClient {
         return this.csrfTokenPromise;
     }
 
+    private createHealthGateError(config?: Pick<EsparexRequestConfig, 'url'>): APIError {
+        return new APIError({
+            status: 503,
+            code: 'BACKEND_UNAVAILABLE',
+            message: 'Backend service unavailable.',
+            details: { technicalMessage: 'Health check failed' },
+            source: 'health-gate',
+            context: {
+                backendErrorCode: 'BACKEND_UNAVAILABLE',
+                backendErrorMessage: 'Backend service unavailable.',
+                endpoint: config?.url?.toString(),
+            }
+        });
+    }
+
+    private triggerBackendHealthProbe(): void {
+        if (this.healthCheckPromise) {
+            return;
+        }
+
+        void this.checkHealth();
+    }
+
     /* ======================================================
        INTERCEPTORS
     ====================================================== */
@@ -165,24 +188,24 @@ class APIClient {
                 return config;
             }
 
+            if (this.healthCheckPromise) {
+                const ok = await this.healthCheckPromise;
+                if (!ok) {
+                    const error = this.createHealthGateError(config);
+                    if (!(config as EsparexRequestConfig).silent) {
+                        emitErrorPopup(error);
+                    }
+                    return Promise.reject(error);
+                }
+            }
+
             if (!this.isBackendHealthy) {
                 if (Date.now() - this.healthCheckTimestamp > this.HEALTH_CACHE_MS) {
                     const ok = await this.checkHealth();
                     if (ok) return config;
                 }
 
-                const error = new APIError({
-                        status: 503,
-                        code: 'BACKEND_UNAVAILABLE',
-                        message: 'Backend service unavailable.',
-                        details: { technicalMessage: 'Health check failed' },
-                        source: 'health-gate',
-                        context: {
-                            backendErrorCode: 'BACKEND_UNAVAILABLE',
-                            backendErrorMessage: 'Backend service unavailable.',
-                            endpoint: config.url?.toString(),
-                        }
-                    });
+                const error = this.createHealthGateError(config);
                 if (!(config as EsparexRequestConfig).silent) {
                     emitErrorPopup(error);
                 }
@@ -297,9 +320,11 @@ class APIClient {
                 let responseMessage = getResponseMessage(normalized);
                 let responseCode = getResponseCode(normalized);
                 const requestConfig = (rawError as { config?: AxiosRequestConfig })?.config as EsparexRequestConfig | undefined;
+                const requestUrl = requestConfig?.url?.toString();
                 const status = normalized.response?.status;
                 const isCsrfError = status === 403 && /csrf/i.test(responseMessage || '');
-                const isCsrfEndpoint = requestConfig?.url?.toString().endsWith(API_ROUTES.USER.CSRF_TOKEN);
+                const isCsrfEndpoint = requestUrl?.endsWith(API_ROUTES.USER.CSRF_TOKEN);
+                const isHealthEndpoint = requestUrl?.endsWith(API_ROUTES.USER.HEALTH);
 
                 if (isCsrfError && requestConfig && !requestConfig._csrfRetry && !isCsrfEndpoint) {
                     const csrfToken = await this.getCsrfToken(true);
@@ -345,20 +370,13 @@ class APIClient {
                     !requestConfig?.silent &&
                     !isExpectedBusiness4xx
                 ) {
-                    console.groupCollapsed('[API Client] Unexpected API error');
-                    logger.warn('status', latestStatus || 'unknown');
-                    logger.warn('message', responseMessage || normalized.message);
-                    logger.warn('code', responseCode || 'none');
-                    console.groupEnd();
+                    logger.warn('[API Client] Unexpected API error', {
+                        status: latestStatus || 'unknown',
+                        message: responseMessage || normalized.message,
+                        code: responseCode || 'none',
+                    });
                 }
                 const source = normalized.response ? 'backend' : 'network';
-
-                // Mark backend unhealthy on network failures so the health guard
-                // blocks subsequent requests until a health check passes.
-                if (source === 'network') {
-                    this.isBackendHealthy = false;
-                    this.healthCheckTimestamp = Date.now();
-                }
 
                 const message =
                     source === 'backend'
@@ -389,6 +407,15 @@ class APIClient {
                         _retryCount: currentRetryCount + 1
                     };
                     return this.client.request(retryConfig);
+                }
+
+                const normalizedMessage = normalized.message.toLowerCase();
+                const isAbortLikeNetworkError =
+                    normalizedMessage.includes('abort') ||
+                    normalizedMessage.includes('cancel');
+
+                if (source === 'network' && !isHealthEndpoint && !isAbortLikeNetworkError) {
+                    this.triggerBackendHealthProbe();
                 }
 
                 const apiError = new APIError({

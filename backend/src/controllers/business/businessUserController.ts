@@ -9,7 +9,7 @@ import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import BusinessModel from '../../models/Business';
 import { sendErrorResponse } from '../../utils/errorResponse';
-import { BusinessStatsPayload } from './shared';
+import { BusinessStatsPayload, serializeBusinessForOwner } from './shared';
 
 export const getMyBusiness = async (req: Request, res: Response) => {
     try {
@@ -23,7 +23,7 @@ export const getMyBusiness = async (req: Request, res: Response) => {
 
         const response = respond<ApiResponse<Business | null>>({
             success: true,
-            data: (business as unknown as Business) ?? null
+            data: (business ? serializeBusinessForOwner(business) : null) as Business | null
         });
 
         res.json(response);

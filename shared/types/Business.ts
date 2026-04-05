@@ -14,7 +14,7 @@ export interface BusinessLocation {
     state?: string;
     country?: string;
     pincode?: string;
-    coordinates: {
+    coordinates?: {
         type: 'Point';
         coordinates: [number, number]; // [lng, lat]
     };

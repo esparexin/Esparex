@@ -6,7 +6,7 @@ import { useIsMobile } from "@/components/ui/useMobile";
 import type { Category } from "@/lib/api/user/categories";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
-import { MobileStickyCTA } from "@/components/ui/mobile-sticky-cta";
+import { MobileStickyCTA } from "@/components/ui/MobileStickyCta";
 import { haptics } from "@/lib/haptics";
 import {
     SearchFiltersPanel,
@@ -14,11 +14,13 @@ import {
 } from "@/components/search/SearchFiltersPanel";
 
 const searchFiltersDesktopShellClassName =
-    "w-72 shrink-0 border border-slate-100 rounded-2xl bg-white p-5 h-fit sticky top-24 shadow-sm";
+    "w-72 shrink-0 border border-slate-100 rounded-2xl bg-white p-5 h-fit sticky top-[6.25rem] shadow-sm";
 
 export type SearchFiltersShellProps = SearchFiltersPanelSharedProps & {
     setSelectedCategory: (val: string | null) => void;
     categories: Category[];
+    activeFilterCount?: number;
+    desktopShellClassName?: string;
 };
 
 function SearchFiltersDesktopShell({
@@ -35,7 +37,7 @@ function SearchFiltersDesktopShell({
             className={className}
         >
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-slate-900">Filters</h3>
+                <h3 className="text-base font-bold text-slate-900">Filters</h3>
                 <SlidersHorizontal className="size-4 text-slate-400" />
             </div>
             {children}
@@ -58,7 +60,9 @@ export function SearchFiltersShell({
     setRadiusKm,
     dynamicSpecificFilters = [],
     onApply,
-    onReset
+    onReset,
+    activeFilterCount = 0,
+    desktopShellClassName,
 }: SearchFiltersShellProps) {
     const isMobile = useIsMobile();
     const [isHydrated, setIsHydrated] = useState(false);
@@ -84,7 +88,7 @@ export function SearchFiltersShell({
     return (
         <>
             {!isHydrated ? (
-                <SearchFiltersDesktopShell className={`hidden lg:block ${searchFiltersDesktopShellClassName}`}>
+                <SearchFiltersDesktopShell className={`hidden lg:block ${desktopShellClassName ?? searchFiltersDesktopShellClassName}`}>
                     <div className="space-y-3">
                         <div className="h-40 rounded-xl bg-slate-50" />
                         <div className="h-32 rounded-xl bg-slate-50" />
@@ -98,9 +102,14 @@ export function SearchFiltersShell({
                         open={mobileDrawerOpen}
                         onOpenChange={setMobileDrawerOpen}
                         trigger={
-                            <Button variant="ghost" className="h-10 px-0 gap-2 text-blue-600 hover:text-blue-700 hover:bg-transparent font-medium text-base">
-                                <SlidersHorizontal className="size-5" />
-                                Filters
+                            <Button variant="outline" className="h-11 px-4 gap-2 text-slate-700 border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none">
+                                <SlidersHorizontal className="size-4 text-slate-500" />
+                                <span>Filters</span>
+                                {activeFilterCount > 0 && (
+                                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
+                                        {activeFilterCount}
+                                    </span>
+                                )}
                             </Button>
                         }
                     >
@@ -131,7 +140,7 @@ export function SearchFiltersShell({
                     </Drawer>
                 </div>
             ) : (
-                <SearchFiltersDesktopShell>
+                <SearchFiltersDesktopShell className={desktopShellClassName ?? searchFiltersDesktopShellClassName}>
                     <SearchFiltersPanel
                         {...panelProps}
                         onApply={onApply}

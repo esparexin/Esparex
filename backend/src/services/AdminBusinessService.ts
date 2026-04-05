@@ -2,6 +2,7 @@ import Business from '../models/Business';
 import { GOVERNANCE, MS_IN_DAY } from '../config/constants';
 import { publishedBusinessStatusQuery } from '../utils/businessStatus';
 import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
+import { serializeBusinessForAdmin } from '../controllers/business/shared';
 
 /**
  * Service for advanced admin-only business management and metrics.
@@ -69,32 +70,11 @@ export const getBusinessOverview = async () => {
 
 export const transformBusinessDocs = (items: any[]): any[] =>
     items.map((doc) => {
-        const b = typeof doc.toObject === 'function' ? doc.toObject() : doc;
-        const user = (b.userId && typeof b.userId === 'object' ? b.userId : {});
-        const ownerName = typeof user.name === 'string'
-            ? user.name
-            : (typeof user.firstName === 'string'
-                ? `${user.firstName} ${typeof user.lastName === 'string' ? user.lastName : ''}`.trim()
-                : 'Unknown');
-        const ownerRef = user._id || user.id
-            ? {
-                id: String(user.id || user._id),
-                _id: String(user._id || user.id),
-                name: ownerName,
-                email: typeof user.email === 'string' ? user.email : undefined,
-                mobile: typeof user.mobile === 'string' ? user.mobile : undefined,
-            }
-            : b.userId;
-        const ownerId = user._id || user.id || b.userId;
+        const serialized = serializeBusinessForAdmin(doc);
         return {
-            ...b,
-            businessName: b.name,
-            ownerName,
-            businessPhone: b.mobile,
-            businessEmail: b.email,
-            sellerId: ownerRef,
-            userId: ownerId,
-            ownerId,
+            ...serialized,
+            businessPhone: serialized.mobile,
+            businessEmail: serialized.email,
         };
     });
 

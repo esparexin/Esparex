@@ -53,9 +53,9 @@ export function PersonalTab({
 
     return (
         <div className="space-y-4">
-            <Card className="border-0 shadow-sm md:border md:shadow-sm">
+            <Card className="border-0 shadow-sm md:border md:shadow-sm gap-0">
                 <CardHeader className="pb-2 px-4 md:px-6">
-                    <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                    <CardTitle className="flex items-center gap-2 text-base">
                         <User className="h-5 w-5 text-blue-600" />
                         Personal Information
                     </CardTitle>
@@ -84,7 +84,7 @@ export function PersonalTab({
                                 </div>
                                 <button
                                     onClick={onPhotoClick}
-                                    className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-md transition-transform active:scale-95 z-10 hover:bg-blue-700"
+                                    className="absolute -bottom-1 -right-1 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-md transition-transform active:scale-95 z-10 hover:bg-blue-700"
                                 >
                                     <Camera className="h-3 w-3" />
                                 </button>
@@ -244,9 +244,9 @@ export function PersonalTab({
             </Card>
 
             {/* Mobile Number Visibility Card */}
-            <Card>
+            <Card className="gap-0">
                 <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                    <CardTitle className="text-base flex items-center gap-2">
                         <Phone className="h-5 w-5" />
                         Mobile Number Visibility
                     </CardTitle>

@@ -75,18 +75,18 @@ export async function generateMetadata(
   const previousImages = (await parent).openGraph?.images || [];
   const mainImage = business.logo || business.images?.[0] || null;
   const businessId = String(business.id || "");
-  const canonicalSlug = business.slug || generateAdSlug(business.name || business.businessName || "");
+  const canonicalSlug = business.slug || generateAdSlug(business.name || "");
 
   return {
-    title: `${business.businessName || business.name || "Business Profile"} | Esparex`,
+    title: `${business.name || "Business Profile"} | Esparex`,
     description:
       business.description?.substring(0, 150) ||
-      `Check out ${business.businessName || business.name} on Esparex`,
+      `Check out ${business.name} on Esparex`,
     alternates: {
       canonical: `https://esparex.com/business/${canonicalSlug}-${businessId}`,
     },
     openGraph: {
-      title: `${business.businessName || business.name} | Esparex`,
+      title: `${business.name} | Esparex`,
       description: business.description?.substring(0, 200),
       images: mainImage ? [mainImage, ...previousImages] : previousImages,
     },
@@ -109,7 +109,7 @@ export default async function BusinessProfilePage({ params }: Props) {
   const businessId = String(pageData.business.id || "");
   const canonicalSlug =
     pageData.business.slug ||
-    generateAdSlug(pageData.business.name || pageData.business.businessName || "");
+    generateAdSlug(pageData.business.name || "");
   const canonicalParam = `${canonicalSlug}-${businessId}`;
 
   if (rawParam !== canonicalParam) {
@@ -119,10 +119,10 @@ export default async function BusinessProfilePage({ params }: Props) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name: pageData.business.businessName || pageData.business.name,
+    name: pageData.business.name,
     description: pageData.business.description,
     image: pageData.business.logo || pageData.business.images?.[0],
-    telephone: pageData.business.mobile || pageData.business.phone,
+    telephone: pageData.business.mobile,
     url: `https://esparex.com/business/${canonicalParam}`,
   };
 

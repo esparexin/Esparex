@@ -11,5 +11,4 @@ export interface LocationFilters {
     status?: 'active' | 'inactive' | 'all';
     state?: string;
     level?: LocationLevel | 'all';
-    isPopular?: 'true' | 'false' | 'all';
 }

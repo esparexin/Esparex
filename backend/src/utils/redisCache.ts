@@ -57,7 +57,6 @@ export const CACHE_NAMESPACES = {
 } as const;
 
 export const CACHE_KEYS = {
-    POPULAR_CITIES: 'location:popular:cities',
     DEFAULT_INDIA: 'location:default:india',
     CATEGORIES: 'catalog:categories:all',
     // Dynamic keys
@@ -67,7 +66,6 @@ export const CACHE_KEYS = {
 };
 
 export const CACHE_TTLS = {
-    POPULAR_CITIES: 86400,    // 24 Hours
     CITY_SEARCH: 3600,        // 1 Hour
     NEARBY_LOOKUP: 21600,     // 6 Hours
     REVERSE_GEOCODE: 3600,    // 1 Hour
@@ -115,10 +113,9 @@ const getDefaultTtlForKey = (key: string): number | null => {
     if (key.startsWith(`${CACHE_NAMESPACES.ADS_HOME}:`)) return CACHE_TTLS.HOME_PAGE;
     if (key.startsWith(`${CACHE_NAMESPACES.SEARCH_ADS}:`)) return 60;
     if (key.startsWith(`${CACHE_NAMESPACES.SEARCH}:{`)) return 60;
-    if (key === CACHE_KEYS.POPULAR_CITIES) return CACHE_TTLS.POPULAR_CITIES;
     if (key.startsWith('loc_search:')) return CACHE_TTLS.CITY_SEARCH;
     if (key.startsWith(`${CACHE_NAMESPACES.LOCATION}:search:city:`)) return CACHE_TTLS.CITY_SEARCH;
-    if (key.startsWith(`${CACHE_NAMESPACES.LOCATION}:`)) return CACHE_TTLS.POPULAR_CITIES;
+    if (key.startsWith(`${CACHE_NAMESPACES.LOCATION}:`)) return CACHE_TTLS.CITY_SEARCH;
     if (key.startsWith('user:status:')) return 300;
     if (key.startsWith('blacklist:token:')) return 3600;
     if (key.startsWith(`${CACHE_NAMESPACES.RATE_LIMIT}:`)) return 900;
@@ -386,7 +383,6 @@ export const invalidatePublicAdCache = async (
 
 export const invalidateLocationCaches = async (): Promise<void> => {
     await Promise.all([
-        delCache(CACHE_KEYS.POPULAR_CITIES),
         clearCachePattern(`${CACHE_NAMESPACES.LOCATION}:search:city:*`)
     ]);
 };

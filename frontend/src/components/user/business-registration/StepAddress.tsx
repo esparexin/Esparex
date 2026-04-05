@@ -1,73 +1,110 @@
-import { useEffect, useState } from "react";
-import { Loader2, Lock } from "lucide-react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { Loader2, Target } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
+import { FormError } from "@/components/ui/FormError";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
 import logger from "@/lib/logger";
+import {
+    getCurrentLocationResult,
+    normalizeLocationName,
+    reverseGeocode,
+} from "@/lib/location/locationService";
 import { normalizeCoordinates } from "@/lib/location/utils";
-import { lookupPincode, type Location } from "@/lib/api/user/locations";
+import type { AppLocation } from "@/types/location";
+
 import type { StepBaseProps } from "./types";
 
-interface StepAddressProps extends StepBaseProps { }
+interface StepAddressProps extends StepBaseProps {}
 
-type PincodeLookupState = "idle" | "searching" | "resolved" | "manual";
+const asOptionalString = (value: unknown): string => {
+    if (typeof value !== "string") return "";
+    return value.trim();
+};
 
-export const applyResolvedPincodeLocation = ({
-    bestMatch,
+const buildDetectedLocationDisplay = (location: AppLocation): string =>
+    normalizeLocationName(
+        location.display
+        || location.formattedAddress
+        || [location.city, location.state].filter(Boolean).join(", ")
+        || "Current location",
+    );
+
+const getCurrentLocationSourceLabel = (source: "auto" | ""): string => {
+    if (source === "auto") return "GPS";
+    return "";
+};
+
+const isGenericCapturedLocation = (display: string): boolean =>
+    ["current location", "current location captured", "approximate current location"].includes(display.toLowerCase());
+
+export const applyDetectedCurrentLocation = ({
+    detectedLocation,
     setFormData,
 }: {
-    bestMatch: Location;
+    detectedLocation: AppLocation;
     setFormData: StepAddressProps["setFormData"];
 }) => {
-    const normalizedCoordinates = normalizeCoordinates(bestMatch.coordinates) || null;
+    const normalizedCoordinates = normalizeCoordinates(detectedLocation.coordinates);
+    const display = buildDetectedLocationDisplay(detectedLocation);
+
     setFormData((previous) => ({
         ...previous,
-        locationId: bestMatch.locationId || bestMatch.id,
-        city: bestMatch.city || bestMatch.name,
-        state: bestMatch.state,
-        coordinates: normalizedCoordinates,
+        currentLocationDisplay: display,
+        currentLocationSource: "auto",
+        currentLocationCity: detectedLocation.city || previous.currentLocationCity,
+        currentLocationState: detectedLocation.state || previous.currentLocationState,
+        currentLocationCountry: detectedLocation.country || previous.currentLocationCountry,
+        coordinates: normalizedCoordinates || null,
     }));
 };
 
-function AddressField({
+function CompactReadonlyField({
     id,
     label,
-    placeholder,
     value,
-    error,
-    onChange,
+    placeholder,
     helperText,
-    autoDetected = false,
+    error,
+    badge,
+    fieldAction,
+    children,
 }: {
-    id: keyof StepAddressProps["formData"];
+    id: string;
     label: string;
-    placeholder: string;
     value: string;
-    error?: string;
-    onChange: (val: string) => void;
+    placeholder?: string;
     helperText?: string;
-    autoDetected?: boolean;
+    error?: string;
+    badge?: ReactNode;
+    fieldAction?: ReactNode;
+    children?: ReactNode;
 }) {
     return (
-        <Field label={label} error={error} className="space-y-2">
-            <div className="flex items-center justify-between gap-3">
-                <span className="text-xs text-slate-500">{helperText}</span>
-                {autoDetected && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600">
-                        <Lock className="h-3 w-3" />
-                        Auto-filled
-                    </span>
-                )}
+        <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+                <label className="text-sm font-medium leading-snug text-slate-800" htmlFor={id}>
+                    {label}
+                </label>
+                {badge}
             </div>
-            <Input
-                id={id as string}
-                placeholder={placeholder}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                aria-invalid={Boolean(error)}
-            />
-        </Field>
+            {helperText ? <p className="text-xs leading-5 text-slate-500">{helperText}</p> : null}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Input
+                    id={id}
+                    value={value}
+                    readOnly
+                    placeholder={placeholder}
+                    className="bg-slate-50 font-medium sm:flex-1"
+                    aria-invalid={Boolean(error)}
+                />
+                {fieldAction ? <div className="sm:shrink-0">{fieldAction}</div> : null}
+            </div>
+            {children}
+            <FormError message={error} className="text-xs font-medium text-destructive" />
+        </div>
     );
 }
 
@@ -75,246 +112,207 @@ export function StepAddress({
     formData,
     setFormData,
 }: StepAddressProps) {
-    const { pincode, city, state } = formData;
-    const [showLandmark, setShowLandmark] = useState(Boolean(formData.landmark));
-    const [lastFetchedPincode, setLastFetchedPincode] = useState("");
-    const [resolvedPincode, setResolvedPincode] = useState("");
-    const [lookupState, setLookupState] = useState<PincodeLookupState>("idle");
-    const [lookupMessage, setLookupMessage] = useState("Enter a 6-digit pincode to auto-fill city and state.");
+    const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+    const [detectFeedback, setDetectFeedback] = useState<string | null>(null);
+    const refreshedGenericLocationKeyRef = useRef<string | null>(null);
+
+    const hasCurrentLocation = useMemo(
+        () => Boolean(asOptionalString(formData.currentLocationDisplay) && formData.coordinates),
+        [formData.coordinates, formData.currentLocationDisplay],
+    );
+    const currentLocationError = formData.errors?.currentLocationDisplay || formData.errors?.coordinates;
+    const sourceLabel = getCurrentLocationSourceLabel(formData.currentLocationSource);
+    const normalizedDetectedDisplay = asOptionalString(formData.currentLocationDisplay);
+    const normalizedDetectedCoordinates = useMemo(
+        () => normalizeCoordinates(formData.coordinates),
+        [formData.coordinates],
+    );
+    const detectedLocationSignature = normalizedDetectedCoordinates
+        ? `${normalizedDetectedCoordinates.coordinates[0]}:${normalizedDetectedCoordinates.coordinates[1]}`
+        : "";
 
     useEffect(() => {
-        if (!pincode) {
-            setLastFetchedPincode("");
-            setResolvedPincode("");
-            setLookupState("idle");
-            setLookupMessage("Enter a 6-digit pincode to auto-fill city and state.");
+        if (
+            !normalizedDetectedCoordinates
+            || !normalizedDetectedDisplay
+            || !isGenericCapturedLocation(normalizedDetectedDisplay)
+        ) {
+            refreshedGenericLocationKeyRef.current = null;
             return;
         }
 
-        if (pincode.length < 6) {
-            setLastFetchedPincode("");
-            if (resolvedPincode && pincode !== resolvedPincode) {
-                setResolvedPincode("");
-                setFormData((previous) => ({
-                    ...previous,
-                    locationId: null,
-                    city: "",
-                    state: "",
-                    coordinates: null,
-                }));
-                setLookupState("manual");
-                setLookupMessage("Pincode changed, so the previous city and state were cleared. Finish all 6 digits to look up the new location.");
-                return;
-            }
-
-            setLookupState("idle");
-            setLookupMessage("Enter all 6 digits to auto-fill city and state, or type them manually.");
+        if (refreshedGenericLocationKeyRef.current === detectedLocationSignature) {
             return;
         }
 
-        if (pincode === resolvedPincode && formData.city && formData.state) {
-            setLookupState("resolved");
-            setLookupMessage("City and state were auto-filled from this pincode. You can still edit them if needed.");
-            return;
-        }
-
-        if (pincode === lastFetchedPincode) {
-            return;
-        }
-
+        refreshedGenericLocationKeyRef.current = detectedLocationSignature;
         let cancelled = false;
 
-        const fetchPincode = async () => {
-            setLastFetchedPincode(pincode);
-            setLookupState("searching");
-            setLookupMessage("Looking up city and state from this pincode...");
-
-            if (resolvedPincode && pincode !== resolvedPincode) {
-                setResolvedPincode("");
-                setFormData((previous) => ({
-                    ...previous,
-                    city: "",
-                    state: "",
-                    coordinates: null,
-                }));
-            }
-
+        void (async () => {
             try {
-                const result = await lookupPincode(pincode);
-
-                if (cancelled) {
+                const refreshedLocation = await reverseGeocode(
+                    normalizedDetectedCoordinates.coordinates[1],
+                    normalizedDetectedCoordinates.coordinates[0],
+                );
+                if (!refreshedLocation || cancelled) {
                     return;
                 }
 
-                if (result) {
-                    applyResolvedPincodeLocation({
-                        bestMatch: result,
-                        setFormData,
-                    });
-                    setResolvedPincode(pincode);
-                    setLookupState("resolved");
-                    setLookupMessage("City and state were auto-filled from this pincode. You can still edit them if needed.");
+                const refreshedDisplay = buildDetectedLocationDisplay(refreshedLocation);
+                if (!refreshedDisplay || isGenericCapturedLocation(refreshedDisplay)) {
                     return;
                 }
 
-                setResolvedPincode("");
-                setFormData((previous) => ({
-                    ...previous,
-                    locationId: null,
-                    city: "",
-                    state: "",
-                    coordinates: null,
-                }));
-                setLookupState("manual");
-                setLookupMessage("We could not find this pincode in our database. Please enter city and state manually.");
+                applyDetectedCurrentLocation({
+                    detectedLocation: {
+                        ...refreshedLocation,
+                        source: "auto",
+                    },
+                    setFormData,
+                });
             } catch (error) {
-                if (cancelled) {
-                    return;
-                }
-
-                logger.error("Pincode fetch error", error);
-                setResolvedPincode("");
-                setFormData((previous) => ({
-                    ...previous,
-                    locationId: null,
-                    city: "",
-                    state: "",
-                    coordinates: null,
-                }));
-                setLookupState("manual");
-                setLookupMessage("Location lookup failed. Please enter city and state manually.");
+                logger.warn("Failed to refresh generic detected location label", error);
             }
-        };
-
-        void fetchPincode();
+        })();
 
         return () => {
             cancelled = true;
         };
-    }, [city, lastFetchedPincode, pincode, resolvedPincode, setFormData, state]);
+    }, [
+        detectedLocationSignature,
+        formData.currentLocationSource,
+        normalizedDetectedCoordinates,
+        normalizedDetectedDisplay,
+        setFormData,
+    ]);
+
+    const handleDetectCurrentLocation = async () => {
+        setIsDetectingLocation(true);
+        setDetectFeedback(null);
+        refreshedGenericLocationKeyRef.current = null;
+
+        try {
+            const detectionResult = await getCurrentLocationResult({
+                mode: "precise",
+            });
+
+            if (!detectionResult.location) {
+                setDetectFeedback(
+                    detectionResult.failure?.message || "Use current location to continue.",
+                );
+                return;
+            }
+
+            const normalizedCoordinates = normalizeCoordinates(detectionResult.location.coordinates);
+            if (!normalizedCoordinates) {
+                setDetectFeedback("We found your location, but could not save the coordinates. Try again.");
+                return;
+            }
+
+            applyDetectedCurrentLocation({
+                detectedLocation: detectionResult.location,
+                setFormData,
+            });
+        } catch (error) {
+            logger.error("Current location detection failed", error);
+            setDetectFeedback("We couldn't detect your current location right now. Please try again.");
+        } finally {
+            setIsDetectingLocation(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
-            <div
-                className={cn(
-                    "rounded-2xl border px-4 py-3 text-sm",
-                    lookupState === "searching"
-                        ? "border-blue-200 bg-blue-50 text-blue-800"
-                        : lookupState === "manual"
-                            ? "border-amber-200 bg-amber-50 text-amber-900"
-                            : lookupState === "resolved"
-                                ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-                                : "border-slate-200 bg-slate-50 text-slate-700",
-                )}
-            >
-                <div className="flex items-start gap-3">
-                    {lookupState === "searching" ? (
-                        <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin" />
-                    ) : (
-                        <span className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-current" />
+            <div className="grid gap-3 md:grid-cols-2">
+                <CompactReadonlyField
+                    id="reg-contact-number"
+                    label="Business contact"
+                    value={formData.contactNumber}
+                    helperText="Uses your verified account mobile number."
+                    error={formData.errors?.contactNumber}
+                    badge={(
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
+                            Verified
+                        </span>
                     )}
-                    <p className="leading-6">{lookupMessage}</p>
-                </div>
-            </div>
+                />
 
-            <Field
-                label="Pincode"
-                required
-                error={formData.errors?.pincode}
-                className="space-y-2"
-            >
-                <p className="text-xs text-slate-500">Enter the shop pincode first. We’ll try to fill city and state automatically.</p>
-                <Input
-                    id="pincode"
-                    placeholder="500001"
-                    maxLength={6}
-                    value={formData.pincode}
-                    onChange={(e) => {
-                        const nextPincode = e.target.value.replace(/\D/g, "");
-                        const shouldResetResolvedLocation = nextPincode !== resolvedPincode;
-                        setFormData({
-                            ...formData,
-                            pincode: nextPincode,
-                            ...(shouldResetResolvedLocation ? { locationId: null, coordinates: null } : {}),
-                        });
-                    }}
-                    aria-invalid={Boolean(formData.errors?.pincode)}
-                />
-            </Field>
-
-            <div className="grid gap-4 md:grid-cols-2">
-                <AddressField
-                    id="city"
-                    label="City *"
-                    placeholder="Enter city name"
-                    value={formData.city}
-                    onChange={(value) => {
-                        setResolvedPincode("");
-                        setLookupState("manual");
-                        setLookupMessage("City was edited manually. Make sure it matches the pincode above.");
-                        setFormData({ ...formData, city: value, locationId: null, coordinates: null });
-                    }}
-                    error={formData.errors?.city}
-                    helperText="Customers see this on your public business profile."
-                    autoDetected={resolvedPincode === formData.pincode && Boolean(formData.city)}
-                />
-                <AddressField
-                    id="state"
-                    label="State *"
-                    placeholder="Enter state name"
-                    value={formData.state}
-                    onChange={(value) => {
-                        setResolvedPincode("");
-                        setLookupState("manual");
-                        setLookupMessage("State was edited manually. Make sure it matches the pincode above.");
-                        setFormData({ ...formData, state: value, locationId: null, coordinates: null });
-                    }}
-                    error={formData.errors?.state}
-                    helperText="This helps us place your store in local search correctly."
-                    autoDetected={resolvedPincode === formData.pincode && Boolean(formData.state)}
-                />
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-                <AddressField
-                    id="shopNo"
-                    label="Shop no. or building name *"
-                    placeholder="e.g. Shop 12, A-Block"
-                    value={formData.shopNo}
-                    onChange={(value) => setFormData({ ...formData, shopNo: value })}
-                    error={formData.errors?.shopNo}
-                    helperText="Use the exact shop, office, or unit identifier customers will see."
-                />
-                <AddressField
-                    id="street"
-                    label="Street, colony, or area *"
-                    placeholder="e.g. Main Road, Gandhi Nagar"
-                    value={formData.street}
-                    onChange={(value) => setFormData({ ...formData, street: value })}
-                    error={formData.errors?.street}
-                    helperText="This should match the main street or locality of your business."
-                />
-            </div>
-
-            {showLandmark || formData.landmark ? (
-                <AddressField
-                    id="landmark"
-                    label="Landmark"
-                    placeholder="e.g. Near HDFC Bank"
-                    value={formData.landmark}
-                    onChange={(value) => setFormData({ ...formData, landmark: value })}
-                    helperText="Optional, but useful if customers often ask for directions."
-                />
-            ) : (
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowLandmark(true)}
-                    className="h-10 w-full rounded-xl border-dashed border-slate-300 text-slate-600 hover:bg-slate-50"
+                <CompactReadonlyField
+                    id="reg-detected-location"
+                    label="Detected location"
+                    value={asOptionalString(formData.currentLocationDisplay)}
+                    placeholder="No location detected yet"
+                    helperText={
+                        hasCurrentLocation
+                            ? isGenericCapturedLocation(normalizedDetectedDisplay)
+                                ? "Current coordinates recorded. Our location database could not name this spot yet, but you can continue with the full address."
+                                : "GPS location recorded. This proof is required for business registration."
+                            : "Required. Tap the location button to record your current GPS position."
+                    }
+                    error={currentLocationError}
+                    badge={(
+                        <>
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700">
+                                Required
+                            </span>
+                            {sourceLabel ? (
+                                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-blue-700">
+                                    {sourceLabel}
+                                </span>
+                            ) : null}
+                        </>
+                    )}
+                    fieldAction={(
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleDetectCurrentLocation}
+                            disabled={isDetectingLocation}
+                            size="icon"
+                            aria-label={isDetectingLocation ? "Detecting current location" : "Use current location"}
+                            title={isDetectingLocation ? "Detecting current location" : "Use current location"}
+                            className="h-9 w-9 rounded-xl border-slate-300 bg-white text-slate-900 hover:bg-slate-100"
+                        >
+                            {isDetectingLocation ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Target className="h-4 w-4" />
+                            )}
+                        </Button>
+                    )}
                 >
-                    Add landmark (optional)
-                </Button>
-            )}
+                    {detectFeedback ? (
+                        <p className="text-xs font-medium text-red-600">{detectFeedback}</p>
+                    ) : null}
+                </CompactReadonlyField>
+            </div>
+
+            {hasCurrentLocation ? (
+                <Field
+                    label="Full address"
+                    required
+                    error={formData.errors?.fullAddress}
+                    className="space-y-1.5"
+                >
+                    <span className="text-xs leading-5 text-slate-500">
+                        Enter complete business address including shop/building name, street/area, pincode, and landmark if available.
+                    </span>
+                    <Textarea
+                        id="reg-full-address"
+                        value={formData.fullAddress}
+                        onChange={(event) =>
+                            setFormData({
+                                ...formData,
+                                fullAddress: event.target.value.slice(0, 300),
+                            })
+                        }
+                        placeholder="e.g. Shop 4, MG Road, Near Old Bus Stand, Guntur, Andhra Pradesh 522413"
+                        maxLength={300}
+                        rows={4}
+                        aria-invalid={Boolean(formData.errors?.fullAddress)}
+                    />
+                </Field>
+            ) : null}
         </div>
     );
 }

@@ -11,6 +11,7 @@ import { ProfileSettingsSidebar } from "@/components/user/ProfileSettingsSidebar
 import { UserPage, getPageRoute } from "@/lib/routeUtils";
 import { useUser } from "@/hooks/useUser";
 import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
+import { markLogoutRedirectBypass } from "@/lib/authHelpers";
 import type { ProfileTabValue } from "@/config/navigation";
 import type { ConversationListView } from "@/lib/api/chatApi";
 import type { IConversationDTO } from "@shared/contracts/chat.contracts";
@@ -44,9 +45,10 @@ export function AccountPageShell({ tab, listingSubTab, messagesView, conversatio
             navigateTo={navigateTo}
             user={user}
             onUpdateUser={() => { void refreshUser(); }}
-            onLogout={async () => {
-                await logout();
-                void router.push("/");
+            onLogout={async (options) => {
+                markLogoutRedirectBypass();
+                void router.replace("/");
+                await logout({ skipServerLogout: options?.skipServerLogout });
             }}
             initialTab={tab}
             initialListingSubTab={listingSubTab}

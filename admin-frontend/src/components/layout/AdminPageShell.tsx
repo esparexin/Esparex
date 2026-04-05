@@ -34,7 +34,7 @@ export function AdminPageShell({
     const [floatingSearchOpen, setFloatingSearchOpen] = useState(false);
 
     return (
-        <div className={cn("flex h-full min-h-0 flex-col gap-4", className)}>
+        <div className={cn("flex h-full min-h-0 flex-col gap-4 !overflow-visible lg:!overflow-hidden", className)}>
             <header className="shrink-0 space-y-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex-1">

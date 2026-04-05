@@ -65,7 +65,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
             {/* Header */}
             <div className="px-4 md:px-6 pt-5 pb-0">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                         {icon || <LayoutGrid className="h-5 w-5 text-blue-600" />}
                         {title}
                     </h2>
@@ -73,7 +73,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                         <Button
                             onClick={onPost}
                             size="sm"
-                            className={`${postBtnClass} text-white text-xs h-8 px-3`}
+                            className={`${postBtnClass} text-white text-xs h-11 px-3`}
                         >
                             <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
                             {postLabel || "Post New"}

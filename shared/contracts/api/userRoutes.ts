@@ -55,7 +55,6 @@ export const USER_ROUTES = {
   LOCATIONS_STATES: "locations/states",
   LOCATIONS_CITIES: "locations/cities",
   LOCATIONS_AREAS: "locations/areas",
-  LOCATIONS_POPULAR: "locations/popular",
   LOCATIONS_DEFAULT_CENTER: "locations/default-center",
   LOCATIONS_IP_LOCATE: "locations/ip-locate",
   LOCATIONS_GEOCODE: "locations/geocode",

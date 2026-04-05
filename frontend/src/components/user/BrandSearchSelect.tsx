@@ -93,7 +93,7 @@ export function BrandSearchSelect({
     if (selectedName && !isEditing) {
         return (
             <div className={cn(
-                "flex h-10 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3",
+                "flex h-11 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3",
                 className
             )}>
                 <div className="flex items-center gap-1.5 min-w-0">

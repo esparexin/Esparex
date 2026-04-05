@@ -53,28 +53,31 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
             {children}
 
             <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-                <DialogContent className="max-w-md z-[9999]">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-amber-500" />
+                <DialogContent
+                    className="z-[9999] !rounded-2xl !p-4 sm:!max-w-md sm:!p-6"
+                    style={{ width: "min(22rem, calc(100vw - 3rem))" }}
+                >
+                    <DialogHeader className="!mb-0 pr-8">
+                        <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                            <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" />
                             Unsaved Changes
                         </DialogTitle>
-                        <DialogDescription>
+                        <DialogDescription className="text-sm leading-6 sm:text-base">
                             You have unsaved changes. Are you sure you want to leave? All your progress will be lost.
                         </DialogDescription>
                     </DialogHeader>
-                    <DialogFooter className="gap-2 sm:gap-0">
+                    <DialogFooter className="!mt-4 !grid !grid-cols-2 gap-2 sm:!flex sm:justify-end sm:space-x-2">
                         <Button
                             variant="outline"
                             onClick={handleCancel}
-                            className="w-full sm:w-auto"
+                            className="h-11 w-full text-sm"
                         >
                             Stay on Page
                         </Button>
                         <Button
                             variant="destructive"
                             onClick={handleConfirm}
-                            className="w-full sm:w-auto"
+                            className="h-11 w-full text-sm"
                         >
                             Leave Anyway
                         </Button>

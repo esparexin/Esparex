@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { enforceCreateAdIdempotency } from '../../middleware/idempotency';
+import { enforceCreateAdIdempotency, enforceCreateServiceIdempotency } from '../../middleware/idempotency';
 import IdempotencyRequest from '../../models/IdempotencyRequest';
 
 jest.mock('../../models/IdempotencyRequest', () => ({
@@ -35,11 +35,11 @@ const payloadHash = (body: unknown): string => {
     return crypto.createHash('sha256').update(stableStringify(body || {})).digest('hex');
 };
 
-const buildRequestHash = (body: unknown, userId: string): string => {
+const buildRequestHash = (body: unknown, userId: string, route = 'POST:/api/v1/ads'): string => {
     const bodyHash = payloadHash(body);
     return payloadHash({
         method: 'POST',
-        route: 'POST:/api/v1/ads',
+        route,
         userId,
         bodyHash,
     });
@@ -146,6 +146,42 @@ describe('enforceCreateAdIdempotency', () => {
 
         await enforceCreateAdIdempotency(req, res, next);
 
+        expect(res.statusCode).toBe(429);
+        expect(res.payload).toMatchObject({
+            code: 'IDEMPOTENCY_IN_PROGRESS',
+            conflictType: 'IDEMPOTENCY',
+            idempotencyKey,
+        });
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('uses a distinct scope for service creation idempotency', async () => {
+        const idempotencyKey = 'c97f4265-bf10-4867-957a-e4f16f565627';
+        const req = makeReq({
+            body: { title: 'Screen replacement' },
+            originalUrl: '/api/v1/services',
+            path: '/api/v1/services',
+            header: (name: string) => (name.toLowerCase() === 'idempotency-key' ? idempotencyKey : undefined),
+        });
+        const userId = ((req.user as { _id: mongoose.Types.ObjectId })._id).toString();
+        const res = makeRes();
+        const next = jest.fn();
+
+        mockedIdempotencyModel.findOne.mockReturnValue({
+            lean: jest.fn().mockResolvedValue({
+                requestHash: buildRequestHash(req.body, userId, 'POST:/api/v1/services'),
+                status: 'processing',
+                updatedAt: new Date(),
+            }),
+        });
+
+        await enforceCreateServiceIdempotency(req, res, next);
+
+        expect(mockedIdempotencyModel.findOne).toHaveBeenCalledWith({
+            userId,
+            scope: 'POST:/api/v1/services',
+            key: idempotencyKey,
+        });
         expect(res.statusCode).toBe(429);
         expect(res.payload).toMatchObject({
             code: 'IDEMPOTENCY_IN_PROGRESS',

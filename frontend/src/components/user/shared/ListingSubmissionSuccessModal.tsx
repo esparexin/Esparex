@@ -41,14 +41,14 @@ export function ListingSubmissionSuccessModal({
                 <div className="space-y-3 pt-2">
                     <Button
                         onClick={onPrimaryAction}
-                        className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                        className="w-full h-11 bg-blue-600 text-white hover:bg-blue-700"
                     >
-                        OK
+                        Done
                     </Button>
                     <Button
                         variant="outline"
                         onClick={onSecondaryAction}
-                        className="w-full border-slate-200 text-slate-700 hover:bg-slate-50"
+                        className="w-full h-11 border-slate-200 text-slate-700 hover:bg-slate-50"
                     >
                         {pendingActionLabel}
                     </Button>

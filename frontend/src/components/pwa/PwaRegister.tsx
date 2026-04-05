@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isNativeShell } from "@/lib/runtime/nativeShell";
 
 function isLocalhost(hostname: string) {
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
@@ -13,6 +14,7 @@ export function PwaRegister() {
         }
 
         const shouldDisableOnThisHost =
+            isNativeShell() ||
             process.env.NODE_ENV !== "production" ||
             isLocalhost(window.location.hostname) ||
             window.location.protocol !== "https:";

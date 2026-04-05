@@ -174,7 +174,7 @@ const emptySmartAlertFieldErrors = (): SmartAlertFieldErrors => ({
 export interface UseProfileSettingsParams {
   user: ProfileUser | null;
   onUpdateUser: (userData: User) => void;
-  onLogout: () => void;
+  onLogout: (options?: { skipServerLogout?: boolean }) => void | Promise<void>;
   createSmartAlert: (data: SmartAlertCreatePayload) => Promise<unknown>;
   updateSmartAlert: (id: string, data: Partial<SmartAlertCreatePayload>) => Promise<unknown>;
 }
@@ -445,7 +445,7 @@ export function useProfileSettings({
       notify.success("Account deleted successfully");
       localStorage.removeItem("esparex_user_session");
       setShowDeleteDialog(false);
-      onLogout();
+      await onLogout({ skipServerLogout: true });
     } catch (err) {
       logger.error("Delete account failed", err);
       setDeleteAccountGlobalError(getErrorMessage(err, "Failed to delete account"));

@@ -57,7 +57,6 @@ export function ListingPageClient({ ad }: { ad?: Ad }) {
             initialAd={ad} // Pass pre-fetched data
             navigateTo={navigateTo}
             navigateBack={navigateBack}
-            showBackButton={false}
         />
     );
 }

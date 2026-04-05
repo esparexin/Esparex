@@ -46,16 +46,16 @@ export const AdCardList = memo(function AdCardList({
     <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
       <Card
         className={cn(
-          "overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border-slate-100 rounded-xl group",
+          "overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border border-black rounded-xl group",
           ad.isSpotlight ? 'ring-2 ring-yellow-500 ring-offset-2' : '',
           className
         )}
         onClick={useDeclarativeLink ? undefined : handleCardClick}
       >
         <CardContent className="p-3">
-          <div className="flex gap-4">
+          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
             {/* List View Image */}
-            <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 bg-slate-50 rounded-xl overflow-hidden">
+            <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-50 sm:h-32 sm:w-32">
               {imageUrl ? (
                 <Image
                   src={imageUrl}
@@ -79,10 +79,10 @@ export const AdCardList = memo(function AdCardList({
             </div>
 
             {/* List View Content */}
-            <div className="flex-1 flex flex-col justify-between py-1">
-              <div>
-                <div className="flex justify-between items-start gap-2">
-                  <AdCardPriceDisplay price={ad.price} className="text-xl" />
+            <div className="flex min-w-0 flex-1 flex-col justify-between py-1">
+              <div className="min-w-0">
+                <div className="flex min-w-0 items-start justify-between gap-2">
+                  <AdCardPriceDisplay price={ad.price} className="min-w-0 text-base md:text-xl" />
                   {onToggleSave && (
                     <Button
                       size="icon"
@@ -100,15 +100,21 @@ export const AdCardList = memo(function AdCardList({
                     </Button>
                   )}
                 </div>
-                <h3 className="font-semibold text-slate-900 leading-snug line-clamp-2 mt-1">{ad.title}</h3>
+                <h3 className="mt-1 line-clamp-2 break-words font-semibold leading-snug text-slate-900">
+                  {ad.title}
+                </h3>
               </div>
               
-              <div className="flex items-center gap-3 text-xs text-slate-400">
-                <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-medium">{ad.category}</span>
+              <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-400">
+                <span className="max-w-full rounded bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                  {ad.category}
+                </span>
                 {formatLocation(ad.location) && (
-                  <span className="truncate max-w-[150px]">{formatLocation(ad.location)}</span>
+                  <span className="min-w-0 max-w-full truncate sm:max-w-[150px]">
+                    {formatLocation(ad.location)}
+                  </span>
                 )}
-                <span className="ml-auto whitespace-nowrap">
+                <span className="whitespace-nowrap sm:ml-auto">
                   {'time' in ad ? ad.time : "Today"}
                 </span>
               </div>

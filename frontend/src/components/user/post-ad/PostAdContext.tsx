@@ -15,6 +15,7 @@ import { generateAIContent } from "@/lib/api/user/ai";
 import type { SparePart } from "@/lib/api/user/masterData";
 import { suppressGoogleMapsRetryErrors } from "@/lib/suppress-google-maps-errors";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
+import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 
 // FORM imports
 import { useNavigation } from "@/context/NavigationContext";
@@ -271,7 +272,7 @@ export function PostAdProvider({
 
     // Reactive category value — calling watch() inside useMemo is not reactive
     // (watch reference is stable). Subscribe at render scope instead.
-    const selectedCategoryId = String(watch("category") || "");
+    const selectedCategoryId = String(watch("categoryId") || watch("category") || "");
     const requiresScreenSize = useMemo(() => {
         const category = categoryMap[selectedCategoryId];
         if (!category) return false;
@@ -290,11 +291,64 @@ export function PostAdProvider({
     // Submission logic in dedicated hook
     const { setIsDirty } = useNavigation();
 
+    const buildEditAdPayload = useCallback((payload: any) => {
+        const editPayload: Record<string, unknown> = {
+            title: payload.title,
+            description: payload.description,
+            price: payload.price,
+            images: payload.images,
+            isFree: payload.isFree,
+        };
+
+        if (!isLocationLocked && payload.location) {
+            editPayload.location = payload.location;
+        }
+
+        return editPayload;
+    }, [isLocationLocked]);
+
+    const normalizeIdentityFieldsBeforeSubmit = useCallback(() => {
+        const rawCategoryId = form.getValues("categoryId");
+        const rawCategory = form.getValues("category");
+        const normalizedCategoryId =
+            sanitizeMongoObjectId(rawCategoryId) ||
+            sanitizeMongoObjectId(rawCategory) ||
+            "";
+
+        if (String(rawCategoryId || "") !== normalizedCategoryId) {
+            setValue("categoryId", normalizedCategoryId as any, { shouldValidate: false, shouldDirty: false });
+        }
+        if (String(rawCategory || "") !== normalizedCategoryId) {
+            setValue("category", normalizedCategoryId as any, { shouldValidate: false, shouldDirty: false });
+        }
+
+        const rawBrandId = form.getValues("brandId");
+        const normalizedBrandId = sanitizeMongoObjectId(rawBrandId) || "";
+        if (String(rawBrandId || "") !== normalizedBrandId) {
+            setValue("brandId", normalizedBrandId as any, { shouldValidate: false, shouldDirty: false });
+        }
+
+        const rawSpareParts = form.getValues("spareParts");
+        if (Array.isArray(rawSpareParts)) {
+            const normalizedSpareParts = rawSpareParts
+                .map((partId) => sanitizeMongoObjectId(partId))
+                .filter((partId): partId is string => Boolean(partId));
+            const hasChanged =
+                normalizedSpareParts.length !== rawSpareParts.length ||
+                normalizedSpareParts.some((partId, index) => partId !== rawSpareParts[index]);
+
+            if (hasChanged) {
+                setSpareParts(normalizedSpareParts);
+                setValue("spareParts", normalizedSpareParts as any, { shouldValidate: false, shouldDirty: false });
+            }
+        }
+    }, [form, setValue]);
+
     const submitAdApiCall = useCallback((payload: any, options?: { idempotencyKey?: string }) => {
         return (isEditMode && editAdId) 
-            ? updateListing(editAdId, payload)
+            ? updateListing(editAdId, buildEditAdPayload(payload))
             : createListing(payload, options);
-    }, [isEditMode, editAdId]);
+    }, [buildEditAdPayload, isEditMode, editAdId]);
 
     const { onValidSubmit, isSubmitting } = useListingSubmission({
         form,
@@ -519,78 +573,77 @@ export function PostAdProvider({
     const [isInternalUploading, setIsInternalUploading] = useState(false);
 
     const submitAd = useCallback(
-        () => handleSubmit(async (data: PostAdFormData) => {
-            setIsInternalUploading(true);
-            try {
-                // 1. Identify and Upload Local Images to S3 first
-                // This prevents large base64 payloads and UI hangs.
-                const updatedImages = [...listingImages];
-                const uploadPromises = updatedImages.map(async (img, idx) => {
-                    if (img.isRemote || !img.file) return;
+        async () => {
+            normalizeIdentityFieldsBeforeSubmit();
+            return handleSubmit(async (data: PostAdFormData) => {
+                setIsInternalUploading(true);
+                try {
+                    // 1. Identify and Upload Local Images to S3 first
+                    // This prevents large base64 payloads and UI hangs.
+                    const updatedImages = [...listingImages];
+                    const uploadPromises = updatedImages.map(async (img, idx) => {
+                        if (img.isRemote || !img.file) return;
 
-                    const formData = new FormData();
-                    formData.append("image", img.file);
-                    formData.append("folder", "ads");
+                        const formData = new FormData();
+                        formData.append("image", img.file);
+                        formData.append("folder", "ads");
 
-                    try {
-                        const response = await fetch("/api/upload/ad-image", {
-                            method: "POST",
-                            body: formData,
-                            credentials: "include",
-                        });
-                        const payload = await response.json().catch(() => ({} as { success?: boolean; url?: string; error?: string }));
-                        const remoteUrl = typeof payload?.url === "string" ? payload.url : "";
+                        try {
+                            const response = await fetch("/api/upload/ad-image", {
+                                method: "POST",
+                                body: formData,
+                                credentials: "include",
+                            });
+                            const payload = await response.json().catch(() => ({} as { success?: boolean; url?: string; error?: string }));
+                            const remoteUrl = typeof payload?.url === "string" ? payload.url : "";
 
-                        if (!response.ok || !remoteUrl) {
-                            throw new Error(payload?.error || "Image upload failed. Please try again.");
+                            if (!response.ok || !remoteUrl) {
+                                throw new Error(payload?.error || "Image upload failed. Please try again.");
+                            }
+
+                            if (payload.success) {
+                                updatedImages[idx] = {
+                                    ...img,
+                                    preview: remoteUrl,
+                                    isRemote: true
+                                };
+                            }
+                        } catch (uploadErr) {
+                            logger.error("[PostAdSubmit] Image upload failed:", uploadErr);
+                            throw new Error(`Failed to upload image ${idx + 1}. Please try again.`);
                         }
+                    });
 
-                        if (payload.success) {
-                            updatedImages[idx] = {
-                                ...img,
-                                preview: remoteUrl,
-                                isRemote: true
-                            };
-                        }
-                    } catch (uploadErr) {
-                        logger.error("[PostAdSubmit] Image upload failed:", uploadErr);
-                        throw new Error(`Failed to upload image ${idx + 1}. Please try again.`);
+                    await Promise.all(uploadPromises);
+
+                    // Update local state so it matches the remote reality
+                    setListingImages(updatedImages);
+
+                    // 2. Proceed with Final Submission (now contains only remote URLs)
+                    const ad = await onValidSubmit(data);
+                    if (ad) {
+                        setSubmittedAd(ad);
                     }
-                });
-
-                await Promise.all(uploadPromises);
-                
-                // Update local state so it matches the remote reality
-                setListingImages(updatedImages);
-
-                // 2. Proceed with Final Submission (now contains only remote URLs)
-                // We use a small timeout to let the state update propagate if needed, 
-                // though onValidSubmit uses the closure's listingImages which we just modified 
-                // but wait, onValidSubmit was created with the OLD listingImages.
-                // Re-running it manually with the new payload is safer.
-                const ad = await onValidSubmit(data);
-                if (ad) {
-                   setSubmittedAd(ad);
+                } catch (err: any) {
+                    logger.error("[PostAdSubmit] Overall submission failed:", err);
+                    setFormError(err.message || "Submission failed. Please try again.");
+                    notify.error(err.message || "Failed to post ad.");
+                } finally {
+                    setIsInternalUploading(false);
                 }
-            } catch (err: any) {
-                logger.error("[PostAdSubmit] Overall submission failed:", err);
-                setFormError(err.message || "Submission failed. Please try again.");
-                notify.error(err.message || "Failed to post ad.");
-            } finally {
-                setIsInternalUploading(false);
-            }
-        }, (errors) => {
-            logger.error("[PostAdSubmit] Form validation errors:", errors);
-            const firstErrorKey = Object.keys(errors)[0];
-            if (typeof document !== "undefined" && firstErrorKey) {
-                if (firstErrorKey === "images") {
-                    document.querySelector("input[type='file']")?.scrollIntoView({ behavior: "smooth", block: "center" });
-                } else {
-                    document.querySelector(`[name='${firstErrorKey}']`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, (errors) => {
+                logger.error("[PostAdSubmit] Form validation errors:", errors);
+                const firstErrorKey = Object.keys(errors)[0];
+                if (typeof document !== "undefined" && firstErrorKey) {
+                    if (firstErrorKey === "images") {
+                        document.querySelector("input[type='file']")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    } else {
+                        document.querySelector(`[name='${firstErrorKey}']`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
                 }
-            }
-        })(),
-        [handleSubmit, onValidSubmit, setSubmittedAd, listingImages, setListingImages]
+            })();
+        },
+        [handleSubmit, listingImages, normalizeIdentityFieldsBeforeSubmit, onValidSubmit, setSubmittedAd, setListingImages]
     );
 
     // Destructure stable function refs from images hook

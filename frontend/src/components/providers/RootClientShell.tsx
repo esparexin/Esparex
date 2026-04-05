@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { ErrorBoundary } from "@/errors";
 import { PopupProvider } from "@/context/PopupProvider";
 import { LocationProvider } from "@/context/LocationContext";
+import { CookieConsentBanner } from "@/components/common/CookieConsentBanner";
 
 export function RootClientShell({
     children,
@@ -18,6 +19,7 @@ export function RootClientShell({
             <PopupProvider>
                 <LocationProvider initialHasAuthCookie={initialHasAuthCookie}>
                     {children}
+                    <CookieConsentBanner />
                 </LocationProvider>
             </PopupProvider>
         </ErrorBoundary>

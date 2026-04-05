@@ -7,8 +7,19 @@
   --foreground: #0f172a;
 }
 
+html,
+body {
+  min-height: 100%;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+.custom-scrollbar {
+  -webkit-overflow-scrolling: touch;
 }

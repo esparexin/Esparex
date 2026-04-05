@@ -6,7 +6,12 @@ import { useRouter, useSearchParams, useSelectedLayoutSegments, usePathname } fr
 import { useMemo } from 'react';
 import { useAuth } from "@/context/AuthContext";
 import { useNavigation } from '@/context/NavigationContext';
-import { buildAuthCallbackUrl, buildLoginUrl } from "@/lib/authHelpers";
+import {
+    buildAuthCallbackUrl,
+    buildLoginUrl,
+    markLogoutRedirectBypass,
+    shouldUseLogoutRedirectBypass,
+} from "@/lib/authHelpers";
 import { buildPublicBrowseRouteFromPathname } from "@/lib/publicBrowseRoutes";
 
 import MobileHeader from "@/components/mobile/MobileHeader";
@@ -44,11 +49,13 @@ export function HeaderWrapper() {
     const handleLogout = () => {
         confirmNavigation(async () => {
             try {
+                if (shouldUseLogoutRedirectBypass(pathname)) {
+                    markLogoutRedirectBypass();
+                }
+                void router.replace('/');
                 await logout();
             } catch (e) {
                 logger.error("Logout failed", e);
-            } finally {
-                void router.replace('/');
             }
         });
     };

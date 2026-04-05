@@ -1,15 +1,21 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { ChevronDown, LayoutGrid, List, SortAsc } from "lucide-react";
+import {
+    PUBLIC_BROWSE_SORT_LABELS,
+    type SortOption,
+} from "@/lib/publicBrowseSort";
 
-export type SortOption =
-    | "relevance"
-    | "newest"
-    | "price_low_high"
-    | "price_high_low";
+export type { SortOption } from "@/lib/publicBrowseSort";
 
 type SearchResultsHeaderProps = {
     total: number;
@@ -18,103 +24,141 @@ type SearchResultsHeaderProps = {
     onSortChange: (v: SortOption) => void;
     onViewChange: (v: "grid" | "list") => void;
     filterNode?: React.ReactNode;
+    activeFilterCount?: number;
 };
 
-const SORT_LABELS: Record<SortOption, string> = {
-    relevance: "Relevance",
-    newest: "Newest",
-    price_low_high: "Price: Low → High",
-    price_high_low: "Price: High → Low",
-};
+const SORT_LABELS = PUBLIC_BROWSE_SORT_LABELS;
 
 const SORT_OPTIONS = Object.keys(SORT_LABELS) as SortOption[];
 
-type SortDropdownTriggerProps = {
+type SortDropdownTriggerProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
     open: boolean;
     sort: SortOption;
-    onToggle: () => void;
     mobile?: boolean;
 };
 
-function SortDropdownTrigger({
+const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTriggerProps>(function SortDropdownTrigger({
+    className,
     open,
     sort,
-    onToggle,
     mobile = false,
-}: SortDropdownTriggerProps) {
+    type = "button",
+    ...props
+}, ref) {
     if (mobile) {
         return (
-            <Button
-                variant="outline"
-                onClick={onToggle}
-                aria-haspopup="listbox"
+            <button
+                ref={ref}
+                type={type}
+                aria-haspopup="menu"
                 aria-expanded={open}
-                aria-label="Sort listings"
-                className="gap-2 h-9 rounded-full border-slate-900 px-4 font-medium text-slate-900 text-sm shadow-none bg-white hover:bg-slate-50"
+                aria-label={`Sort listings, current ${SORT_LABELS[sort]}`}
+                className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "h-11 max-w-[10.5rem] shrink-0 gap-1.5 rounded-full border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-none hover:bg-slate-50",
+                    className
+                )}
+                {...props}
             >
-                <span>Sort By</span>
-                <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
-            </Button>
+                <span className="truncate">{SORT_LABELS[sort]}</span>
+                <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
+            </button>
         );
     }
 
     return (
-        <Button
-            variant="outline"
-            size="sm"
-            onClick={onToggle}
-            aria-haspopup="listbox"
+        <button
+            ref={ref}
+            type={type}
+            aria-haspopup="menu"
             aria-expanded={open}
             aria-label="Sort listings"
-            className="gap-2 h-10 border-slate-200 hover:bg-slate-50 rounded-lg px-3 bg-white shadow-sm"
+            className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "h-10 shrink-0 gap-2 rounded-lg border-slate-200 bg-white px-3 shadow-sm hover:bg-slate-50",
+                className
+            )}
+            {...props}
         >
             <SortAsc className="size-4 text-slate-400" />
             <span className="font-semibold text-slate-700 text-sm">{SORT_LABELS[sort]}</span>
             <ChevronDown className={cn("size-4 text-slate-400 transition-transform", open && "rotate-180")} />
-        </Button>
+        </button>
     );
-}
+});
 
 type SortDropdownMenuProps = {
-    open: boolean;
     sort: SortOption;
     onSelect: (value: SortOption) => void;
     mobile?: boolean;
 };
 
 function SortDropdownMenu({
-    open,
     sort,
     onSelect,
     mobile = false,
 }: SortDropdownMenuProps) {
-    if (!open) {
-        return null;
-    }
-
     return (
-        <ul
-            role="listbox"
+        <DropdownMenuContent
+            align={mobile ? "start" : "end"}
+            sideOffset={8}
             className={cn(
-                "absolute mt-2 rounded-xl border border-slate-100 bg-white shadow-xl overflow-hidden z-50 p-1 animate-in fade-in-0 zoom-in-95",
-                mobile ? "left-0 w-48" : "right-0 w-52"
+                "rounded-xl border border-slate-100 p-1 shadow-xl",
+                mobile ? "w-48" : "w-52"
             )}
         >
             {SORT_OPTIONS.map((key) => (
-                <li key={key}>
-                    <button
-                        aria-selected={sort === key}
-                        onClick={() => onSelect(key)}
-                        className={cn(
-                            "w-full px-3 py-2 text-left text-sm rounded-lg transition-colors",
-                            sort === key ? "bg-slate-900 text-white font-medium" : "text-slate-600 hover:bg-slate-50"
-                        )}
-                    >
-                        {SORT_LABELS[key]}
-                    </button>
-                </li>
+                <DropdownMenuItem
+                    key={key}
+                    onSelect={() => onSelect(key)}
+                    aria-selected={sort === key}
+                    className={cn(
+                        "min-h-[44px] cursor-pointer rounded-lg px-3 py-2.5 text-sm",
+                        sort === key
+                            ? "bg-slate-900 text-white font-medium focus:bg-slate-900 focus:text-white"
+                            : "text-slate-600 focus:bg-slate-50 focus:text-slate-700"
+                    )}
+                >
+                    {SORT_LABELS[key]}
+                </DropdownMenuItem>
             ))}
-        </ul>
+        </DropdownMenuContent>
+    );
+}
+
+type SortDropdownProps = {
+    open: boolean;
+    onOpenChange: (nextOpen: boolean) => void;
+    sort: SortOption;
+    onSelect: (value: SortOption) => void;
+    mobile?: boolean;
+};
+
+function SortDropdown({
+    open,
+    onOpenChange,
+    sort,
+    onSelect,
+    mobile = false,
+}: SortDropdownProps) {
+    return (
+        <DropdownMenu open={open} onOpenChange={onOpenChange}>
+            <DropdownMenuTrigger asChild>
+                <SortDropdownTrigger
+                    mobile={mobile}
+                    open={open}
+                    sort={sort}
+                />
+            </DropdownMenuTrigger>
+            <SortDropdownMenu
+                mobile={mobile}
+                sort={sort}
+                onSelect={(value) => {
+                    onSelect(value);
+                    onOpenChange(false);
+                }}
+            />
+        </DropdownMenu>
     );
 }
 
@@ -125,58 +169,55 @@ export function SearchResultsHeader({
     onSortChange,
     onViewChange,
     filterNode,
+    activeFilterCount = 0,
 }: SearchResultsHeaderProps) {
-    const [open, setOpen] = React.useState(false);
-    const dropdownRef = React.useRef<HTMLDivElement>(null);
-
-    // Close dropdown on outside click
-    React.useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+    const [mobileOpen, setMobileOpen] = React.useState(false);
+    const [desktopOpen, setDesktopOpen] = React.useState(false);
 
     return (
-        <div className="sticky top-[100px] md:top-0 z-20 bg-white/95 backdrop-blur-md mb-4 md:mb-0 md:border-b md:border-slate-100">
+        <div className="sticky top-[92px] md:top-0 z-20 bg-white/95 backdrop-blur-md mb-4 md:mb-0 md:border-b md:border-slate-100">
             {/* ── MOBILE LAYOUT ────────────────────────────────────────── */}
             <div className="md:hidden">
-                {/* 1. Filter & Sort Row */}
-                <div className="flex items-center gap-4 px-4 py-3 border-b border-slate-100">
-                    <div className="flex-shrink-0">
-                        {filterNode}
-                    </div>
-                    <div className="flex-shrink-0">
-                        <div className="relative" ref={dropdownRef}>
-                            <SortDropdownTrigger
-                                mobile
-                                open={open}
-                                sort={sort}
-                                onToggle={() => setOpen((v) => !v)}
-                            />
-                            <SortDropdownMenu
-                                mobile
-                                open={open}
-                                sort={sort}
-                                onSelect={(value) => {
-                                    onSortChange(value);
-                                    setOpen(false);
-                                }}
-                            />
+                <div className="border-b border-slate-100 px-3 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-900">
+                                {total} listing{total === 1 ? "" : "s"}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                                Sorted by {SORT_LABELS[sort]}
+                                {activeFilterCount > 0 ? ` • ${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"} active` : ""}
+                            </p>
                         </div>
+                        <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
+                            aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
+                            className="h-10 w-10 flex-shrink-0 rounded-full border-slate-200 bg-white shadow-none"
+                        >
+                            {view === "grid"
+                                ? <List className="size-4 text-slate-600" />
+                                : <LayoutGrid className="size-4 text-slate-600" />}
+                        </Button>
                     </div>
-                </div>
-
-                {/* 2. Count Row */}
-                <div className="px-4 py-4">
-                    <p className="text-sm text-slate-900">
-                        {total} listing{total === 1 ? "" : "s"} found
-                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 pb-1">
+                        <div className="shrink-0">
+                            {filterNode}
+                        </div>
+                        <SortDropdown
+                            mobile
+                            open={mobileOpen}
+                            onOpenChange={(nextOpen) => {
+                                setMobileOpen(nextOpen);
+                                if (nextOpen) {
+                                    setDesktopOpen(false);
+                                }
+                            }}
+                            sort={sort}
+                            onSelect={onSortChange}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -184,30 +225,27 @@ export function SearchResultsHeader({
             <div className="hidden md:flex items-center justify-between gap-4 px-0 py-3 cursor-default">
                 {/* LEFT: Result count */}
                 <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className={cn("size-2 rounded-full", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
                     <p className="text-sm text-slate-500 font-medium whitespace-nowrap">
                         Showing <span className="text-slate-900">{total}</span> listing{total === 1 ? "" : "s"}
+                        {activeFilterCount > 0 ? ` • ${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"} active` : ""}
                     </p>
                 </div>
 
                 {/* RIGHT: Controls */}
                 <div className="flex items-center gap-2">
                     {/* Sort Dropdown */}
-                    <div className="relative" ref={dropdownRef}>
-                        <SortDropdownTrigger
-                            open={open}
-                            sort={sort}
-                            onToggle={() => setOpen((v) => !v)}
-                        />
-                        <SortDropdownMenu
-                            open={open}
-                            sort={sort}
-                            onSelect={(value) => {
-                                onSortChange(value);
-                                setOpen(false);
-                            }}
-                        />
-                    </div>
+                    <SortDropdown
+                        open={desktopOpen}
+                        onOpenChange={(nextOpen) => {
+                            setDesktopOpen(nextOpen);
+                            if (nextOpen) {
+                                setMobileOpen(false);
+                            }
+                        }}
+                        sort={sort}
+                        onSelect={onSortChange}
+                    />
 
                     <div className="h-4 w-px bg-slate-100 mx-1" />
 

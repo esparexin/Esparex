@@ -1,32 +1,10 @@
 import type { ListingImage } from "@/types/listing";
 
-type MaybeCoordinates = {
-    coordinates?: unknown;
-};
-
 type MaybeBusinessLocation = {
     city?: string | null;
     state?: string | null;
     display?: string | null;
-    locationId?: string | null;
-    coordinates?: MaybeCoordinates | null;
 } | null | undefined;
-
-const DEFAULT_COORDINATES: [number, number] = [0, 0];
-
-const toCoordinateTuple = (value: unknown): [number, number] => {
-    if (!Array.isArray(value) || value.length !== 2) {
-        return DEFAULT_COORDINATES;
-    }
-    const [lng, lat] = value;
-    if (typeof lng !== "number" || typeof lat !== "number") {
-        return DEFAULT_COORDINATES;
-    }
-    if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
-        return DEFAULT_COORDINATES;
-    }
-    return [lng, lat];
-};
 
 export const extractEntityId = (value: unknown): string => {
     if (typeof value === "string") return value;
@@ -66,28 +44,6 @@ export const createRemoteListingImages = (value: unknown): ListingImage[] => {
             file: undefined,
             isRemote: true,
         }));
-};
-
-export const toListingLocationFromBusiness = (location: MaybeBusinessLocation) => {
-    if (!location) return undefined;
-    const city = typeof location.city === "string" ? location.city : "";
-    const state = typeof location.state === "string" ? location.state : "";
-    const display =
-        (typeof location.display === "string" && location.display) ||
-        [city, state].filter(Boolean).join(", ");
-    const coordinates = toCoordinateTuple(location.coordinates?.coordinates);
-    const locationId = typeof location.locationId === "string" ? location.locationId : undefined;
-
-    return {
-        city,
-        state,
-        display,
-        coordinates: {
-            type: "Point" as const,
-            coordinates,
-        },
-        locationId,
-    };
 };
 
 export const getBusinessLocationDisplay = (location: MaybeBusinessLocation): string =>

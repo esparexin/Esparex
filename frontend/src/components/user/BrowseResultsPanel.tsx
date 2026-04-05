@@ -7,6 +7,7 @@ import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
 
 export type BrowseVirtualizedListProps<TItem> = {
   items: TItem[];
@@ -16,7 +17,7 @@ export type BrowseVirtualizedListProps<TItem> = {
 export interface BrowseResultsContentProps<TItem> {
   emptyTitle: string;
   getEmptyDescription: (query: string) => string;
-  renderCard: (item: TItem) => ReactNode;
+  renderCard: (item: TItem, view: "grid" | "list") => ReactNode;
   getItemKey: (item: TItem) => string | number;
   VirtualizedListComponent?: ComponentType<BrowseVirtualizedListProps<TItem>>;
   virtualizationThreshold?: number;
@@ -32,6 +33,9 @@ export interface BrowseResultsPanelProps<TItem>
   error: string | null;
   hasMore: boolean;
   query: string;
+  filterNode?: ReactNode;
+  activeFilterCount?: number;
+  activeFilterBadges?: string[];
   onSortChange: (value: SortOption) => void;
   onViewChange: (value: "grid" | "list") => void;
   onRetry: () => void;
@@ -44,7 +48,7 @@ function GridSkeleton() {
     <div className="grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 8 }).map((_, index) => (
         <div key={index} className="space-y-3">
-          <Skeleton className="aspect-video w-full rounded-xl" />
+          <Skeleton className="aspect-square w-full rounded-xl" />
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
         </div>
@@ -62,6 +66,9 @@ export function BrowseResultsPanel<TItem>({
   error,
   hasMore,
   query,
+  filterNode,
+  activeFilterCount = 0,
+  activeFilterBadges = [],
   onSortChange,
   onViewChange,
   onRetry,
@@ -78,11 +85,13 @@ export function BrowseResultsPanel<TItem>({
     Boolean(VirtualizedListComponent) && items.length > virtualizationThreshold;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8 space-y-4">
+    <div className="mx-auto max-w-7xl px-4 pt-3 pb-8 md:px-6 lg:px-8 space-y-4">
       <SearchResultsHeader
         total={loading && items.length === 0 ? 0 : total}
         sort={sort}
         view={view}
+        filterNode={filterNode}
+        activeFilterCount={activeFilterCount}
         onSortChange={onSortChange}
         onViewChange={onViewChange}
       />
@@ -99,12 +108,31 @@ export function BrowseResultsPanel<TItem>({
       {loading && items.length === 0 && !error ? <GridSkeleton /> : null}
 
       {!loading && !error && items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[28px] border border-slate-200 bg-white px-6 py-12 text-center shadow-sm sm:min-h-[380px] sm:px-10 sm:py-14">
           <div className="rounded-full bg-slate-100 p-6 mb-4">
             <PackageOpen className="h-10 w-10 text-slate-300" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">{emptyTitle}</h3>
-          <p className="text-slate-500 max-w-xs mb-6">{getEmptyDescription(query)}</p>
+          <h3 className="text-xl font-semibold text-slate-900 mb-2">
+            {activeFilterCount > 0 ? "No results match these filters" : emptyTitle}
+          </h3>
+          <p className="text-slate-500 max-w-xl mb-6 text-sm leading-6 sm:text-base">
+            {getEmptyDescription(query)}
+          </p>
+          {activeFilterBadges.length > 0 ? (
+            <div className="mb-6 flex max-w-2xl flex-wrap justify-center gap-2">
+              {activeFilterBadges.map((badge) => (
+                <span
+                  key={badge}
+                  className="max-w-full rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600"
+                >
+                  {badge}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          <p className="mb-6 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+            Sorted by {PUBLIC_BROWSE_SORT_LABELS[sort]}
+          </p>
           <Button variant="outline" onClick={onReset}>
             Clear Filters
           </Button>
@@ -123,7 +151,7 @@ export function BrowseResultsPanel<TItem>({
               }
             >
               {items.map((item) => (
-                <Fragment key={getItemKey(item)}>{renderCard(item)}</Fragment>
+                <Fragment key={getItemKey(item)}>{renderCard(item, view)}</Fragment>
               ))}
             </div>
           )

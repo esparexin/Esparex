@@ -13,6 +13,12 @@
  */
 
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
+import type {
+    HierarchyTreeBrandNode,
+    HierarchyTreeCategoryNode,
+    HierarchyTreeModelNode,
+    HierarchyTreeResponse,
+} from '../../../../shared/types/CatalogHierarchy';
 import type { AnyBulkWriteOperation } from 'mongoose';
 import mongoose from 'mongoose';
 import Category from '../../models/Category';
@@ -55,40 +61,6 @@ export interface RepairSummary {
     sparePartsRepaired:   number;
     sparePartsOrphaned:   number;
     screenSizesDeactivated: number;
-}
-
-export interface HierarchyTreeModelNode {
-    id: string;
-    name: string;
-    isActive: boolean;
-    status?: string;
-}
-
-export interface HierarchyTreeBrandNode {
-    id: string;
-    name: string;
-    isActive: boolean;
-    status?: string;
-    models: HierarchyTreeModelNode[];
-}
-
-export interface HierarchyTreeCategoryNode {
-    id: string;
-    name: string;
-    slug: string;
-    listingType: string[];
-    hasScreenSizes: boolean;
-    isActive: boolean;
-    brands: HierarchyTreeBrandNode[];
-}
-
-export interface HierarchyTreeResponse {
-    summary: {
-        categories: number;
-        brands: number;
-        models: number;
-    };
-    categories: HierarchyTreeCategoryNode[];
 }
 
 // ─── Read-only hierarchy scan ─────────────────────────────────────────────────

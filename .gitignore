@@ -67,6 +67,12 @@ firebase-messaging-sw.js
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/captures/
+frontend/ios/App/App.xcworkspace/xcuserdata/
+frontend/ios/App/App.xcodeproj/xcuserdata/
+frontend/ios/App/DerivedData/
 
 # MongoDB
 data/

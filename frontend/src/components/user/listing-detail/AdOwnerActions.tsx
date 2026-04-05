@@ -48,7 +48,7 @@ export function AdOwnerActions({
                         onClick={onEdit}
                         variant="outline"
                         disabled={isSold || isChatLocked}
-                        className="w-full gap-2 justify-start text-sm h-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full gap-2 justify-start text-sm h-11 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Edit2 className="h-4 w-4" />
                         Edit Listing
@@ -59,7 +59,7 @@ export function AdOwnerActions({
                     <Button
                         onClick={onDelete}
                         variant="outline"
-                        className="w-full gap-2 justify-start text-sm h-10 text-red-700 border-red-200 hover:bg-red-50"
+                        className="w-full gap-2 justify-start text-sm h-11 text-red-600 border-red-200 hover:bg-red-50"
                     >
                         <Trash2 className="h-4 w-4" />
                         Delete Listing
@@ -70,7 +70,7 @@ export function AdOwnerActions({
                     <Button
                         onClick={onMarkSold}
                         variant="outline"
-                        className="w-full gap-2 justify-start text-sm h-10"
+                        className="w-full gap-2 justify-start text-sm h-11"
                     >
                         <CheckCheck className="h-4 w-4" />
                         Mark as Sold
@@ -102,7 +102,7 @@ export function AdOwnerActions({
                     <Button
                         onClick={onPromote}
                         disabled={isSold}
-                        className="w-full gap-2 justify-start text-sm h-10 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full gap-2 justify-start text-sm h-11 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <TrendingUp className="h-4 w-4" />
                         Promote Listing
@@ -113,7 +113,7 @@ export function AdOwnerActions({
                     <Button
                         onClick={onViewAnalytics}
                         variant="outline"
-                        className="w-full gap-2 justify-start text-sm h-10"
+                        className="w-full gap-2 justify-start text-sm h-11"
                     >
                         <TrendingUp className="h-4 w-4" />
                         View Analytics

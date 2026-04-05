@@ -25,11 +25,32 @@ import { ACTOR_TYPE } from '../../../shared/enums/actor';
 import { respond } from '../utils/respond';
 import { getSellerPhone } from '../services/ContactRevealService';
 import { getSingleParam } from '../utils/requestParams';
-import type { ApiResponse, ContactResponse } from '../../../shared/types/Api';
+import type { ApiResponse, ContactResponse, PaginatedResponse } from '../../../shared/types/Api';
 import { ListingMutationService } from '../services/ListingMutationService';
 
 import { normalizeImageTokens, toImageUrls } from '../utils/listingUtils';
+import { collectImmutableFieldErrors } from '../utils/immutableFieldErrors';
 // ---------------------------------------------
+
+const SPARE_PART_EDIT_LOCK_MESSAGES: Record<string, string> = {
+    categoryId: 'Category cannot be changed while editing a spare-part listing.',
+    brandId: 'Brand cannot be changed while editing a spare-part listing.',
+    sparePartId: 'Spare-part mapping cannot be changed while editing a spare-part listing.',
+    sparePartTypeId: 'Spare-part mapping cannot be changed while editing a spare-part listing.',
+    location: 'Location is fixed to the business profile for spare-part listings.',
+    locationId: 'Location is fixed to the business profile for spare-part listings.',
+    listingType: 'Listing type cannot be changed while editing a spare-part listing.',
+    sellerId: 'Seller cannot be changed while editing a spare-part listing.',
+    businessId: 'Business cannot be changed while editing a spare-part listing.',
+    condition: 'Condition cannot be changed while editing a spare-part listing.',
+    status: 'Status cannot be changed while editing a spare-part listing.',
+    moderationStatus: 'Moderation status cannot be changed while editing a spare-part listing.',
+    approvedAt: 'Approval metadata cannot be changed while editing a spare-part listing.',
+    approvedBy: 'Approval metadata cannot be changed while editing a spare-part listing.',
+    isDeleted: 'Deletion state cannot be changed while editing a spare-part listing.',
+    deletedAt: 'Deletion state cannot be changed while editing a spare-part listing.',
+    expiresAt: 'Expiry cannot be changed while editing a spare-part listing.',
+};
 
 // Schemas imported from shared — single source of truth with frontend
 const sparePartListingCreateSchema = SparePartPayloadSchema;
@@ -67,14 +88,20 @@ export const createSparePartListing = async (req: Request, res: Response) => {
             description,
             price,
             images,
-            locationId: topLevelLocationId,
-            location
         } = parsed.data;
 
-        // Accept locationId from top-level field OR nested inside location object
-        const locationId = topLevelLocationId || location?.locationId;
+        const rawBusinessLocationId =
+            req.business?.locationId
+            || (typeof req.business?.location === 'object' && req.business?.location
+                ? (req.business.location as { locationId?: unknown }).locationId
+                : undefined);
+        const locationId =
+            rawBusinessLocationId instanceof mongoose.Types.ObjectId
+                ? rawBusinessLocationId
+                : (typeof rawBusinessLocationId === 'string' && mongoose.Types.ObjectId.isValid(rawBusinessLocationId)
+                    ? new mongoose.Types.ObjectId(rawBusinessLocationId)
+                    : undefined);
 
-        // Explicit check after optional parse — user-friendly error message
         if (!locationId) {
             return sendContractErrorResponse(req, res, 400, 'Business location ID is required. Please update your business profile to set a valid location.');
         }
@@ -120,7 +147,6 @@ export const createSparePartListing = async (req: Request, res: Response) => {
                 sellerType: 'business',
                 businessId, // Linked to businessId field in Ad model
                 location: {
-                    ...location,
                     locationId
                 },
                 status: INVENTORY_STATUS.PENDING,
@@ -167,14 +193,13 @@ export const getSparePartListings = async (req: Request, res: Response) => {
             { enforcePublicVisibility: true }
         );
 
-        res.json(respond({
+        res.json(respond<PaginatedResponse<Record<string, unknown>>>({
             success: true,
-            data: {
-                items: result.data,
-                total: result.pagination.total,
-                page: result.pagination.page,
-                limit: result.pagination.limit,
-                hasMore: result.pagination.hasMore
+            data: result.data as Array<Record<string, unknown>>,
+            pagination: {
+                ...result.pagination,
+                page: result.pagination.page || 1,
+                limit: result.pagination.limit || 20,
             }
         }));
     } catch (error) {
@@ -199,9 +224,18 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
         });
         if (!listing) return;
 
+        const body = req.body as Record<string, unknown>;
+        const lockErrors = collectImmutableFieldErrors(body, SPARE_PART_EDIT_LOCK_MESSAGES);
+        if (lockErrors.length > 0) {
+            return sendContractErrorResponse(req, res, 400, 'Validation failed', {
+                code: 'LOCKED_FIELDS',
+                details: lockErrors,
+            });
+        }
+
         const listingId = listing._id.toString();
 
-        const parsed = sparePartListingUpdateSchema.safeParse(req.body);
+        const parsed = sparePartListingUpdateSchema.safeParse(body);
         if (!parsed.success) {
             return sendContractErrorResponse(req, res, 400, 'Validation failed', { details: parsed.error.issues });
         }

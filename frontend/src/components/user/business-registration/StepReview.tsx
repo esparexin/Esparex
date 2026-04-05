@@ -65,16 +65,11 @@ export function StepReview({
                 content={
                     <>
                         <p className="text-sm font-semibold text-slate-900">
-                            {formData.shopNo}, {formData.street}
+                            {formData.currentLocationDisplay || "Current location pending"}
                         </p>
-                        {formData.landmark ? (
-                            <p className="text-sm text-slate-600">Landmark: {formData.landmark}</p>
-                        ) : null}
-                        <p className="text-sm text-slate-600">
-                            {formData.city}, {formData.state} - {formData.pincode}
-                        </p>
+                        <p className="text-sm leading-6 text-slate-600">{formData.fullAddress}</p>
                         <p className="text-sm text-slate-500">
-                            {formData.coordinates ? "Coordinates captured for local discovery." : "No map coordinates stored yet."}
+                            Current location is recorded first, then the full address is sent for admin review.
                         </p>
                     </>
                 }

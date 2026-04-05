@@ -41,7 +41,7 @@ export default function DeviceIdentityFields() {
         form,
     } = usePostAd();
 
-    const categoryId = String(watch("category") || "");
+    const categoryId = String(watch("categoryId") || watch("category") || "");
     // Use brand name (not ID) as value for BrandSearchSelect since PostAd
     // context maps names → IDs internally via handleBrandChange
     const brandNameValue = String(watch("brand") || "");
@@ -206,7 +206,7 @@ export default function DeviceIdentityFields() {
                                 type="button"
                                 onClick={() => setValue("deviceCondition", value as any, { shouldValidate: true, shouldTouch: true })}
                                 className={cn(
-                                    "flex items-center gap-2 h-10 px-4 rounded-xl border-2 text-sm font-bold transition-all",
+                                    "flex items-center gap-2 h-11 px-4 rounded-xl border-2 text-sm font-bold transition-all",
                                     deviceCondition === value
                                         ? active
                                         : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"

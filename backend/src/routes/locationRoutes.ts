@@ -27,9 +27,6 @@ router.get("/states", searchLimiter, locationController.getStates);
 router.get("/cities", searchLimiter, locationController.getCities);
 router.get("/areas", searchLimiter, locationController.getAreas);
 
-// Popular cities — dedicated route (SSOT, independently cacheable)
-router.get("/popular", searchLimiter, locationController.getPopularLocations);
-
 // Default map center/fallback city
 router.get("/default-center", searchLimiter, locationController.getDefaultCenter);
 

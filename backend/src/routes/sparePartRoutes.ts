@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { protect } from '../middleware/authMiddleware';
+import { protect, extractUser } from '../middleware/authMiddleware';
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import * as sparePartListingController from '../controllers/sparePartListingController';
@@ -41,9 +41,9 @@ router.get('/', sparePartListingController.getSparePartListings);
 /**
  * @route   GET /api/v1/spare-part-listings/:id/phone
  * @desc    Reveal seller phone for a spare part listing
- * @access  Private
+ * @access  Public with optional auth context
  */
-router.get('/:id/phone', protect, validateObjectId, phoneRevealLimiter, listingController.getListingPhone);
+router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, listingController.getListingPhone);
 
 
 
@@ -57,7 +57,7 @@ router.put(
     protect,
     requireBusinessApproved,
     validateObjectId,
-    validateRequest(PartialSparePartPayloadSchema as unknown as ZodTypeAny),
+    validateRequest(PartialSparePartPayloadSchema.passthrough() as unknown as ZodTypeAny),
     sparePartListingController.updateSparePartListing
 );
 

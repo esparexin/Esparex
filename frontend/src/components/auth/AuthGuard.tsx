@@ -4,7 +4,7 @@
 import { useEffect, ReactNode } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { buildAuthCallbackUrl, buildLoginUrl } from "@/lib/authHelpers";
+import { buildAuthCallbackUrl, buildLoginUrl, consumeLogoutRedirectBypass } from "@/lib/authHelpers";
 
 interface AuthGuardProps {
     children: ReactNode;
@@ -24,6 +24,10 @@ export function AuthGuard({
 
         // 2. Unauthenticated check
         if (status === "unauthenticated" || !user) {
+            if (consumeLogoutRedirectBypass()) {
+                void router.replace("/");
+                return;
+            }
             const callbackUrl = buildAuthCallbackUrl(pathname || "/", searchParams);
             void router.replace(buildLoginUrl(callbackUrl));
             return;

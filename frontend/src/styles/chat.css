@@ -38,7 +38,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
+  min-height: 44px;
   padding: 0.5rem 0.875rem;
   border: 1px solid #d1d5db;
   border-radius: 999px;
@@ -104,7 +104,7 @@
 }
 
 .chat-list__view-toggle {
-  min-height: 38px;
+  min-height: 44px;
   padding: 0.55rem 0.95rem;
   border: 1px solid #d1d5db;
   border-radius: 999px;
@@ -130,7 +130,7 @@
 
 .chat-list__retry {
   margin-top: 0.75rem;
-  min-height: 38px;
+  min-height: 44px;
   padding: 0.55rem 0.95rem;
   border: 1px solid #d1d5db;
   border-radius: 999px;
@@ -302,7 +302,7 @@
 }
 
 .conv-card__restore {
-  min-height: 34px;
+  min-height: 44px;
   padding: 0.45rem 0.85rem;
   border: 1px solid #bbf7d0;
   border-radius: 999px;
@@ -376,7 +376,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
+  min-height: 44px;
   padding: 0.45rem 0.85rem;
   border-radius: 999px;
   background: #e8f1ff;
@@ -539,7 +539,8 @@
   background: none;
   border: 1px solid #e5e7eb;
   border-radius: 999px;
-  padding: 0.375rem 1rem;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
   font-size: 0.8125rem;
   color: #6b7280;
   cursor: pointer;
@@ -812,7 +813,8 @@
 
 .quick-replies__chip {
   flex-shrink: 0;
-  padding: 0.375rem 0.875rem;
+  min-height: 36px;
+  padding: 0.5rem 0.875rem;
   background: #f0fdf4;
   color: #16a34a;
   border: 1px solid #bbf7d0;
@@ -888,8 +890,8 @@
 }
 
 .chat-input__send {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: #16a34a;
   border: none;
@@ -993,7 +995,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
+  min-height: 44px;
   padding: 0.5rem 0.9rem;
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.35);

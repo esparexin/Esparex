@@ -7,6 +7,7 @@ import {
   TrendingUp,
   Trash2,
   MessageCircle,
+  Phone,
 } from "lucide-react";
 import { ActionBarVariant } from "@/lib/logic/bottomBarActions";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
@@ -21,6 +22,10 @@ interface ListingBottomActionsProps {
   onAnalyticsClick?: () => void;
   // Visitor props
   onChatClick?: () => void;
+  onRevealPhone?: () => void;
+  isPhoneLoading?: boolean;
+  revealedPhone?: string | null;
+  phoneMessage?: string | null;
   isChatLocked?: boolean;
 }
 
@@ -32,10 +37,19 @@ export function ListingBottomActions({
   onPromoteClick,
   onAnalyticsClick,
   onChatClick,
+  onRevealPhone,
+  isPhoneLoading,
+  revealedPhone,
+  phoneMessage,
   isChatLocked,
 }: ListingBottomActionsProps) {
   const pathname = usePathname();
   const policy = getMobileChromePolicy(pathname);
+  const phoneButtonLabel = isPhoneLoading
+    ? "Loading..."
+    : (revealedPhone || "Show number");
+  const showPhoneMessage = Boolean(phoneMessage);
+  const chatLockedMessage = "This listing is no longer accepting messages";
 
   if (variant === "hidden" || !policy.showContextActionBar) {
     return null;
@@ -50,7 +64,7 @@ export function ListingBottomActions({
         <>
           {/* Mobile - Sold Status Bar */}
           <div className="md:hidden">
-            <div className="fixed bottom-0 left-0 right-0 bg-green-50 border-t-2 border-green-600 shadow-lg z-40 safe-area-bottom">
+            <div className="fixed bottom-0 left-0 right-0 bg-green-50 border-t-2 border-green-600 shadow-lg z-40">
               <div className="p-4">
                 <div className="flex items-center justify-center gap-3">
                   <CheckCircle className="h-6 w-6 text-green-600" />
@@ -73,18 +87,18 @@ export function ListingBottomActions({
     if (variant === "pending-owner") {
       return (
         <div className="md:hidden">
-          <div className="fixed bottom-20 left-0 right-0 px-4 py-2 bg-amber-50 border-t border-amber-200 z-40">
+          <div className="fixed bottom-[4rem] left-0 right-0 px-4 py-2 bg-amber-50 border-t border-amber-200 z-40">
             <p className="text-xs text-center text-amber-700">
               <Info className="h-3 w-3 inline mr-1" />
               Waiting for admin approval
             </p>
           </div>
 
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom">
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40">
             <div className="grid grid-cols-2 gap-2 p-3">
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs"
+                className="flex flex-col gap-1 h-11 text-xs"
                 onClick={onEditClick}
               >
                 <Edit2 className="h-5 w-5" />
@@ -92,7 +106,7 @@ export function ListingBottomActions({
               </Button>
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs text-red-700 border-red-200 hover:bg-red-50"
+                className="flex flex-col gap-1 h-11 text-xs text-red-700 border-red-200 hover:bg-red-50"
                 onClick={onDeleteClick}
               >
                 <Trash2 className="h-5 w-5" />
@@ -110,7 +124,7 @@ export function ListingBottomActions({
         {/* Mobile - Owner Action Bar */}
         <div className="md:hidden">
           {/* Owner Notice */}
-          <div className="fixed bottom-20 left-0 right-0 px-4 py-2 bg-green-50 border-t border-green-200 z-40">
+          <div className="fixed bottom-[4rem] left-0 right-0 px-4 py-2 bg-green-50 border-t border-green-200 z-40">
             <p className="text-xs text-center text-green-700">
               <Info className="h-3 w-3 inline mr-1" />
               You're viewing your active listing
@@ -118,12 +132,12 @@ export function ListingBottomActions({
           </div>
 
           {/* Action Bar */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom">
-            <div className="grid grid-cols-3 gap-2 p-3">
+          <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)] z-40">
+            <div className="grid grid-cols-3 gap-1.5 px-2 py-3">
               {/* Edit */}
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs"
+                className="flex flex-col gap-1 h-11 text-xs rounded-xl border-slate-200 text-slate-600"
                 onClick={onEditClick}
               >
                 <Edit2 className="h-5 w-5" />
@@ -133,7 +147,7 @@ export function ListingBottomActions({
               {/* Mark Sold */}
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs"
+                className="flex flex-col gap-1 h-11 text-xs rounded-xl border-slate-200 text-slate-600"
                 onClick={onMarkSoldClick}
               >
                 <svg
@@ -155,7 +169,7 @@ export function ListingBottomActions({
               {/* Promote */}
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-auto py-2 text-xs bg-purple-50 border-purple-300 text-purple-700"
+                className="flex flex-col gap-1 h-11 text-xs rounded-xl bg-violet-600 hover:bg-violet-700 border-none text-white"
                 onClick={onPromoteClick}
               >
                 <TrendingUp className="h-5 w-5" />
@@ -166,9 +180,9 @@ export function ListingBottomActions({
             {/* Analytics Quick View */}
             <button
               onClick={onAnalyticsClick}
-              className="w-full py-2 text-xs text-center text-gray-600 border-t hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              className="w-full py-2 text-xs text-center text-slate-400 border-t border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors"
             >
-              <span className="font-medium">View Analytics</span> • Tap for detailed stats
+              <span className="font-medium text-slate-500">View Analytics</span> · Tap for detailed stats
             </button>
           </div>
         </div>
@@ -179,32 +193,50 @@ export function ListingBottomActions({
   }
 
   // Visitor Action Bar
-  if (isChatLocked) {
+  if (variant === "visitor") {
+    const showPhoneAction = Boolean(onRevealPhone);
+    const showChatAction = Boolean(onChatClick) && !isChatLocked;
+    const hasVisitorActions = showPhoneAction || showChatAction;
+
     return (
       <div className="md:hidden">
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-50 border-t border-slate-200 shadow-lg z-40 safe-area-bottom">
-          <div className="p-4 flex items-center justify-center gap-3">
-            <MessageCircle className="h-5 w-5 text-slate-400" />
-            <p className="text-sm font-medium text-slate-500">This listing is no longer accepting messages</p>
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)] z-40">
+          <div className={`grid gap-2 p-3 ${showPhoneAction && showChatAction ? "grid-cols-2" : "grid-cols-1"}`}>
+            {showPhoneAction ? (
+              <Button
+                variant="outline"
+                onClick={onRevealPhone}
+                disabled={isPhoneLoading}
+                className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-slate-700 hover:bg-slate-50"
+              >
+                <Phone className="h-4 w-4" />
+                <span className="min-w-0 truncate">{phoneButtonLabel}</span>
+              </Button>
+            ) : null}
+            {showChatAction ? (
+              <Button
+                onClick={onChatClick}
+                className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all"
+              >
+                <MessageCircle className="h-5 w-5" />
+                Chat
+              </Button>
+            ) : null}
+            {isChatLocked ? (
+              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-[11px] leading-4 text-slate-500`}>
+                {chatLockedMessage}
+              </p>
+            ) : null}
+            {showPhoneMessage && (
+              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-[11px] leading-4 text-slate-500`}>
+                {phoneMessage}
+              </p>
+            )}
           </div>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="md:hidden">
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 safe-area-bottom">
-        <div className="p-3">
-          <Button
-            onClick={onChatClick}
-            className="w-full h-14 rounded-xl bg-green-600 hover:bg-green-700 active:scale-[0.98] text-white font-bold text-base gap-3 shadow-lg shadow-green-200 transition-all"
-          >
-            <MessageCircle className="h-5 w-5" />
-            Chat with Seller
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+  return null;
 }

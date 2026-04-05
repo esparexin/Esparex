@@ -4,7 +4,7 @@ import Location from '../models/Location';
 import AdminBoundary from '../models/AdminBoundary';
 import LocationAnalytics from '../models/LocationAnalytics';
 import logger from '../utils/logger';
-import { escapeRegExp } from '../utils/stringUtils';
+import { escapeRegExp, toTitleCase } from '../utils/stringUtils';
 import { formatLocationResponse } from '../lib/location/formatLocation';
 import { toGeoPoint } from '../../../shared/utils/geoUtils';
 export { toGeoPoint };
@@ -18,7 +18,6 @@ import {
     equalsIgnoreCase,
     extractObjectIdString,
     normalizeCoordinates,
-    toTitleCase,
     type LocationInputObject
 } from './location/LocationService.helpers';
 export { normalizeCoordinates } from './location/LocationService.helpers';
@@ -98,6 +97,13 @@ const LOCATION_POPULARITY_WEIGHTS = {
 const HOT_ZONE_SEARCH_THRESHOLD = 100;
 const HOT_ZONE_ADS_THRESHOLD = 50;
 type HierarchyLevel = LocationLevel;
+const VERIFIED_LOCATION_STATUS = 'verified' as const;
+const PUBLIC_CANONICAL_LOCATION_FILTER = {
+    isActive: true,
+    // Legacy canonical master-data rows were imported before verificationStatus
+    // existed. Treat missing status as public/verified until data is backfilled.
+    verificationStatus: { $in: [VERIFIED_LOCATION_STATUS, null] },
+} as const;
 const REVERSE_GEOCODE_LEVEL_PRIORITY: Record<HierarchyLevel, number> = {
     country: 1,
     state: 2,
@@ -106,6 +112,10 @@ const REVERSE_GEOCODE_LEVEL_PRIORITY: Record<HierarchyLevel, number> = {
     area: 5,
     village: 6
 };
+const REVERSE_GEOCODE_SETTLEMENT_LEVELS: HierarchyLevel[] = ['area', 'village', 'city', 'district'];
+const REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS = 50_000;
+const REVERSE_GEOCODE_REGIONAL_LEVELS: HierarchyLevel[] = ['state', 'country'];
+const REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS = 250_000;
 const LOCATION_AUTOCOMPLETE_LIMIT = 10;
 const ATLAS_LOCATION_SEARCH_INDEX = process.env.ATLAS_LOCATION_SEARCH_INDEX || 'location_autocomplete';
 const SEARCH_RESULT_LEVEL_PRIORITY: Record<string, number> = {
@@ -118,6 +128,10 @@ const SEARCH_RESULT_LEVEL_PRIORITY: Record<string, number> = {
 };
 let hasWarnedAtlasSearchFallback = false;
 
+const withPublicCanonicalLocationFilter = <T extends Record<string, unknown>>(query: T) => ({
+    ...PUBLIC_CANONICAL_LOCATION_FILTER,
+    ...query,
+});
 
 
 const buildNormalizedFromLocationDoc = (loc: LocationInputObject): NormalizedLocation => {
@@ -304,6 +318,9 @@ export const normalizeLocation = async (
     if (options.requireLocationId && !fromDb?.locationId) {
         throw new AppError('Valid location selection is required', 400, 'LOCATION_REQUIRED');
     }
+    if (options.requireLocationId && fromDb?.verificationStatus !== VERIFIED_LOCATION_STATUS) {
+        throw new AppError('Valid verified location selection is required', 400, 'LOCATION_REQUIRED');
+    }
 
     const hasCanonicalLocationId = Boolean(rawLocationId && fromDb?.locationId);
 
@@ -442,6 +459,15 @@ const getActiveLocationById = async (locationId: unknown) => {
     if (!objectId) return null;
 
     return Location.findOne({ _id: objectId, isActive: true })
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
+        .lean();
+};
+
+const getPublicCanonicalLocationById = async (locationId: unknown) => {
+    const objectId = toLocationObjectId(locationId);
+    if (!objectId) return null;
+
+    return Location.findOne(withPublicCanonicalLocationFilter({ _id: objectId }))
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .lean();
 };
@@ -684,14 +710,13 @@ export const lookupLocationByPincode = async (
     }
 
     const exactAliasRegex = new RegExp(`(^|\\b)${escapeRegExp(pincode)}(\\b|$)`, 'i');
-    const exactCandidates = await Location.find({
-        isActive: true,
+    const exactCandidates = await Location.find(withPublicCanonicalLocationFilter({
         $or: [
             { aliases: exactAliasRegex },
             { name: exactAliasRegex },
             { normalizedName: normalizeLocationNameForSearch(pincode) }
         ]
-    })
+    }))
         .select('name country level coordinates isPopular isActive verificationStatus parentId path aliases')
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .limit(5)
@@ -709,14 +734,9 @@ export const lookupLocationByPincode = async (
 };
 
 export const searchLocations = async (
-    q: string,
-    popular?: boolean
+    q: string
 ): Promise<NormalizedLocationResponse[]> => {
     const query = q?.trim() || '';
-
-    if (popular) {
-        return getPopularLocations();
-    }
 
     if (query.length < 2) return [];
 
@@ -743,6 +763,12 @@ export const searchLocations = async (
                                 equals: {
                                     path: 'isActive',
                                     value: true
+                                }
+                            },
+                            {
+                                equals: {
+                                    path: 'verificationStatus',
+                                    value: VERIFIED_LOCATION_STATUS
                                 }
                             }
                         ],
@@ -850,14 +876,13 @@ export const searchLocations = async (
 
     const normalizedRegex = new RegExp(`^${escapedNormalizedQuery}`, 'i');
     const rawPrefixRegex = new RegExp(`^${escapeRegExp(query)}`, 'i');
-    const primaryResults = await Location.find({
-        isActive: true,
+    const primaryResults = await Location.find(withPublicCanonicalLocationFilter({
         $or: [
             { normalizedName: normalizedRegex },
             { name: rawPrefixRegex },
             { aliases: rawPrefixRegex }
         ]
-    })
+    }))
         .select('name country level coordinates isPopular isActive verificationStatus parentId path aliases')
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .limit(LOCATION_AUTOCOMPLETE_LIMIT)
@@ -866,11 +891,10 @@ export const searchLocations = async (
     let results = primaryResults;
     if (results.length < LOCATION_AUTOCOMPLETE_LIMIT) {
         const aliasRegex = rawPrefixRegex;
-        const aliasResults = await Location.find({
-            isActive: true,
+        const aliasResults = await Location.find(withPublicCanonicalLocationFilter({
             aliases: aliasRegex,
             _id: { $nin: results.map((item) => item._id) }
-        })
+        }))
             .select('name country level coordinates isPopular isActive verificationStatus parentId path aliases')
             .sort({ isPopular: -1, priority: -1, name: 1 })
             .limit(LOCATION_AUTOCOMPLETE_LIMIT - results.length)
@@ -892,26 +916,11 @@ export const searchLocations = async (
     return mappedResponses;
 };
 
-export const getPopularLocations = async (): Promise<NormalizedLocationResponse[]> => {
-    const popularLocations = await Location.find({
-        isActive: true,
-        isPopular: true,
-        level: 'city'
-    })
-        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
-        .sort({ priority: -1, name: 1 })
-        .limit(12)
-        .lean();
-
-    return mapLocationDocsToResponses(popularLocations as LocationInputObject[]);
-};
-
 export const getStateLocations = async (): Promise<NormalizedLocationResponse[]> => {
     // Sprint 3: query by level='state' directly — no longer uses deprecated state field
-    const stateAnchors = await Location.find({
-        isActive: true,
+    const stateAnchors = await Location.find(withPublicCanonicalLocationFilter({
         level: 'state',
-    })
+    }))
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
@@ -926,21 +935,22 @@ export const getCitiesByStateId = async (
         throw new AppError('Invalid stateId', 400, 'INVALID_LOCATION_ID');
     }
 
-    const stateAnchorDoc = await Location.findById(new mongoose.Types.ObjectId(stateId))
+    const stateAnchorDoc = await Location.findOne(
+        withPublicCanonicalLocationFilter({ _id: new mongoose.Types.ObjectId(stateId) })
+    )
         .select('_id name level country')
         .lean<{ _id: mongoose.Types.ObjectId; name?: string; level?: string; country?: string } | null>();
 
     if (!stateAnchorDoc) return [];
 
     // Sprint 3: query entirely via parentId/path hierarchy — no deprecated city/state fields
-    const cities = await Location.find({
-        isActive: true,
+    const cities = await Location.find(withPublicCanonicalLocationFilter({
         level: 'city',
         $or: [
             { parentId: stateAnchorDoc._id },
             { path: stateAnchorDoc._id }
         ]
-    })
+    }))
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
@@ -955,21 +965,22 @@ export const getAreasByCityId = async (
         throw new AppError('Invalid cityId', 400, 'INVALID_LOCATION_ID');
     }
 
-    const cityAnchorDoc = await Location.findById(new mongoose.Types.ObjectId(cityId))
+    const cityAnchorDoc = await Location.findOne(
+        withPublicCanonicalLocationFilter({ _id: new mongoose.Types.ObjectId(cityId) })
+    )
         .select('_id name level country')
         .lean<{ _id: mongoose.Types.ObjectId; name?: string; level?: string; country?: string } | null>();
 
     if (!cityAnchorDoc) return [];
 
     // Sprint 3: query entirely via parentId/path hierarchy — no deprecated city/state fields
-    const areas = await Location.find({
-        isActive: true,
+    const areas = await Location.find(withPublicCanonicalLocationFilter({
         level: 'area',
         $or: [
             { parentId: cityAnchorDoc._id },
             { path: cityAnchorDoc._id }
         ]
-    })
+    }))
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
@@ -1027,11 +1038,44 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
         (a, b) => (REVERSE_GEOCODE_LEVEL_PRIORITY[b.level] || 0) - (REVERSE_GEOCODE_LEVEL_PRIORITY[a.level] || 0)
     )[0];
 
-    const location = await getActiveLocationById(boundary?.locationId);
+    const location = await getPublicCanonicalLocationById(boundary?.locationId);
     if (!location) return null;
 
     const [mappedBoundaryLocation] = await mapLocationDocsToResponses([location as LocationInputObject]);
     return mappedBoundaryLocation || null;
+};
+
+const findNearestReverseGeocodeCandidate = async (
+    lat: number,
+    lng: number
+): Promise<LocationInputObject | null> => {
+    const nearestSettlement = await Location.findOne(withPublicCanonicalLocationFilter({
+        level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
+        coordinates: {
+            $near: {
+                $geometry: { type: 'Point', coordinates: [lng, lat] },
+                $maxDistance: REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,
+            }
+        }
+    }))
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
+        .lean<LocationInputObject | null>();
+
+    if (nearestSettlement) {
+        return nearestSettlement;
+    }
+
+    return Location.findOne(withPublicCanonicalLocationFilter({
+        level: { $in: REVERSE_GEOCODE_REGIONAL_LEVELS },
+        coordinates: {
+            $near: {
+                $geometry: { type: 'Point', coordinates: [lng, lat] },
+                $maxDistance: REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS,
+            }
+        }
+    }))
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
+        .lean<LocationInputObject | null>();
 };
 
 export const reverseGeocode = async (
@@ -1060,17 +1104,7 @@ export const reverseGeocode = async (
         return boundaryMatch;
     }
 
-    const nearest = await Location.findOne({
-        isActive: true,
-        coordinates: {
-            $near: {
-                $geometry: { type: 'Point', coordinates: [lng, lat] },
-                $maxDistance: 2000,  // 2km — check nearby locations for reverse geocoding
-            }
-        }
-    })
-        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
-        .lean();
+    const nearest = await findNearestReverseGeocodeCandidate(lat, lng);
 
     if (!nearest) return null;
 
@@ -1135,15 +1169,14 @@ export const getDefaultCenterLocation = async (
         (configuredLat !== 0 || configuredLng !== 0);
 
     if (hasConfiguredCenter) {
-        const nearest = await Location.findOne({
-            isActive: true,
+        const nearest = await Location.findOne(withPublicCanonicalLocationFilter({
             coordinates: {
                 $near: {
                     $geometry: { type: 'Point', coordinates: [configuredLng, configuredLat] },
                     $maxDistance: 250000,
                 },
             },
-        })
+        }))
             .select('name country level coordinates isPopular isActive verificationStatus parentId path')
             .lean();
 
@@ -1175,7 +1208,9 @@ export const getDefaultCenterLocation = async (
         };
     }
 
-    const fallbackLocation = await Location.findOne({ isActive: true, level: 'city', isPopular: true })
+    const fallbackLocation = await Location.findOne(
+        withPublicCanonicalLocationFilter({ level: 'city', isPopular: true })
+    )
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ priority: -1, name: 1 })
         .lean();

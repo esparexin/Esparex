@@ -72,7 +72,6 @@ import {
     createStateLocation,
     updateLocation,
     toggleLocationStatus,
-    togglePopularStatus,
     deleteLocation,
     getGeofences,
     createGeofence,
@@ -216,7 +215,6 @@ router.post('/locations/cities', requirePermission('system:config'), adminMutati
 router.post('/locations/areas', requirePermission('system:config'), adminMutationLimiter, validateRequest({ body: adminCreateAreaLocationSchema }), createAreaLocation);
 router.post('/locations', requirePermission('system:config'), adminMutationLimiter, validateRequest({ body: adminCreateLocationSchema }), createLocation);
 router.patch('/locations/:id/toggle', requirePermission('system:config'), adminMutationLimiter, validateObjectId, toggleLocationStatus);
-router.patch('/locations/:id/popular', requirePermission('system:config'), adminMutationLimiter, validateObjectId, togglePopularStatus);
 router.post('/locations/:id/verify', requirePermission('system:config'), adminMutationLimiter, validateObjectId, validateRequest({ body: adminVerifyLocationSchema }), approveRejectLocation);
 
 // ✅ PARAM LAST

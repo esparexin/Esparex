@@ -100,6 +100,12 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
         fallbackDisplay: buildBusinessFallbackLocationDisplay(business.location),
         emptyText: "Location not available",
     });
+    const preferredLocationDisplay =
+        (business as any).locationLabel ||
+        business.location?.display ||
+        buildBusinessFallbackLocationDisplay(business.location) ||
+        [business.location?.city, business.location?.state].filter(Boolean).join(", ") ||
+        locationDisplay;
 
     return (
         <Dialog open={Boolean(business)} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
@@ -190,10 +196,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             <div className="flex gap-2">
                                 <MapPin size={13} className="text-primary shrink-0 mt-0.5" />
                                 <span className="text-xs text-slate-700 leading-snug">
-                                    {(business as any).locationLabel ||
-                                     (business.location as any)?.city ||
-                                     (business.location as any)?.display ||
-                                     (locationDisplay && !locationDisplay.includes('Lat') && !locationDisplay.includes('Lng') ? locationDisplay : 'Coordinates on file')}
+                                    {preferredLocationDisplay || "Location not available"}
                                 </span>
                             </div>
                         </div>

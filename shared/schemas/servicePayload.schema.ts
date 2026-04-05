@@ -43,8 +43,6 @@ const servicePayloadShape = {
     categoryId: ObjectIdSchema,
     brandId: ObjectIdSchema.optional(),
     modelId: ObjectIdSchema.optional(),
-    locationId: ObjectIdSchema.optional(),
-    location: z.any().optional(), // Allow legacy location object if sent
 
     priceMin: z.number()
         .min(0, 'Minimum price must be at least 0')
