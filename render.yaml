@@ -6,7 +6,7 @@ services:
     plan: free # Change to 'starter' or higher for production traffic
     # Build from repo root so npm workspaces links @esparex/shared correctly
     buildCommand: npm install --include=dev && npm run build -w backend
-    startCommand: cd backend && node -r tsconfig-paths/register dist/src/index.js
+    startCommand: cd backend && node -r tsconfig-paths/register dist/backend/src/index.js
     envVars:
       - key: NODE_ENV
         value: production
