@@ -127,3 +127,4 @@ cookies.txt
 
 # Keep only example/template env files — never real values
 # *.env.example and *.env.*.example are intentionally tracked
+\n# Temporary build scripts\nfrontend/android/app/new*.sh
