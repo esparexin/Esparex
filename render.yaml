@@ -18,4 +18,4 @@ services:
       - key: JWT_SECRET
         sync: false # Set this in the Render Dashboard for security
       - key: CORS_ORIGIN
-        sync: false # Set this in the Render Dashboard for security (e.g., https://esparex.vercel.app)
+        sync: false # Set this in the Render Dashboard: https://esparex.in
