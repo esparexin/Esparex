@@ -1,0 +1,4 @@
+    NEXT_PUBLIC_APP_URL=https://esparex.vercel.app
+    CAPACITOR_SERVER_URL=https://esparex.vercel.app
+    NEXT_PUBLIC_API_URL=https://esparex-backend.onrender.com/api/v1
+    
