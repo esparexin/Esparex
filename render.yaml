@@ -1,0 +1,35 @@
+services:
+  # --- Esparex Backend (Node.js API) ---
+  - type: web
+    name: esparex-backend
+    env: node
+    rootDir: backend
+    plan: free # Change to 'starter' or higher for production traffic
+    buildCommand: npm install && npm run build
+    startCommand: node -r tsconfig-paths/register dist/src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false # Set this in the Render Dashboard for security
+      - key: JWT_SECRET
+        sync: false # Set this in the Render Dashboard for security
+      - key: CORS_ORIGIN
+        sync: false # Set this in the Render Dashboard for security (e.g., https://esparex.vercel.app)
+
+  # --- Esparex Admin Frontend (Vercel is preferred, but here is a Render option) ---
+  - type: web
+    name: esparex-admin
+    env: node
+    rootDir: admin-frontend
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          name: esparex-backend
+          type: web
+          property: host

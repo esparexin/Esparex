@@ -136,7 +136,13 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-6">
           {/* Logo */}
           <button onClick={() => navigateTo("home")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-sm">E</div>
+            <Image
+              src="/icons/icon-512x512.png"
+              alt="Esparex Logo"
+              width={36}
+              height={36}
+              className="rounded-lg shadow-sm"
+            />
             <span className="text-xl font-bold tracking-tight text-primary">Esparex</span>
           </button>
 

@@ -152,9 +152,9 @@ const corsOptions: cors.CorsOptions = {
         if (!origin) return callback(null, true);
 
         // 🛡️ AUTOMATIC LOCAL DEV ALLOWANCE
-        // In development, automatically allow localhost/127.0.0.1 on any port.
+        // In development, automatically allow localhost/127.0.0.1 or any private IP (for mobile testing)
         if (env.NODE_ENV === 'development') {
-            const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+            const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin);
             if (isLocal) return callback(null, true);
         }
 
