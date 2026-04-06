@@ -28,9 +28,10 @@ export async function generateMetadata(
     };
 }
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
-    const canonicalSlugs = Array.from(new Set(Object.values(CANONICAL_SLUG_MAPPING)));
-    return canonicalSlugs.map((category) => ({ category }));
+    return [];
 }
 
 export default async function CategoryRoute({ params }: Props) {
