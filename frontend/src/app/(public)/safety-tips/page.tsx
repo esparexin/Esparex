@@ -1,9 +1,20 @@
 
 
+import type { Metadata } from "next";
 import { InfoPage } from "@/components/common/InfoPage";
 import { AlertTriangle } from "lucide-react";
 
-
+export const metadata: Metadata = {
+    title: "Safety Tips | Esparex",
+    description: "Stay safe when buying and selling on Esparex. Tips to avoid scams, verify sellers, and transact securely.",
+    alternates: { canonical: "https://esparex.in/safety-tips" },
+    openGraph: {
+        title: "Safety Tips | Esparex",
+        description: "Stay safe when buying and selling on Esparex. Tips to avoid scams, verify sellers, and transact securely.",
+        url: "https://esparex.in/safety-tips",
+        images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    },
+};
 
 export default function SafetyTipsPage() {
     return (

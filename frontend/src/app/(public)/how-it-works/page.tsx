@@ -1,8 +1,19 @@
 
 
+import type { Metadata } from "next";
 import { InfoPage } from "@/components/common/InfoPage";
 
-
+export const metadata: Metadata = {
+    title: "How It Works | Esparex",
+    description: "Learn how to buy, sell, and find repair services on Esparex — India's marketplace for mobile spare parts and electronics.",
+    alternates: { canonical: "https://esparex.in/how-it-works" },
+    openGraph: {
+        title: "How It Works | Esparex",
+        description: "Learn how to buy, sell, and find repair services on Esparex — India's marketplace for mobile spare parts and electronics.",
+        url: "https://esparex.in/how-it-works",
+        images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    },
+};
 
 export default function HowItWorksPage() {
     return (
