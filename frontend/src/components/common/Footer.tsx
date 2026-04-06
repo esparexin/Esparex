@@ -116,7 +116,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
         <div className="space-y-3 text-left">
             <div className="flex items-center gap-3 justify-start">
                 <Link href="/" className="flex items-center gap-2">
-                    <Image src="/icons/icon-512x512.png" alt="Esparex" width={32} height={32} className="rounded-lg shadow-lg" />
+                    <Image src="/icons/logo.png" alt="Esparex" width={512} height={206} style={{ height: '32px', width: 'auto' }} />
                 </Link>
             </div>
             <p className={cn("text-sm leading-relaxed", isDark ? "text-slate-500" : "text-slate-500")}>

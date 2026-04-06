@@ -78,11 +78,11 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                         aria-label="Go to homepage"
                     >
                         <Image
-                            src="/icons/icon-512x512.png"
+                            src="/icons/logo.png"
                             alt="Esparex"
-                            width={28}
-                            height={28}
-                            className="rounded-lg shadow-sm shadow-blue-200"
+                            width={512}
+                            height={206}
+                            style={{ height: '28px', width: 'auto' }}
                         />
                     </button>
 

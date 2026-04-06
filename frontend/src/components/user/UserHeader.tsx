@@ -137,11 +137,11 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
           {/* Logo */}
           <button onClick={() => navigateTo("home")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Image
-              src="/icons/icon-512x512.png"
+              src="/icons/logo.png"
               alt="Esparex Logo"
-              width={500}
-              height={500}
-              style={{ height: '48px', width: 'auto' }}
+              width={512}
+              height={206}
+              style={{ height: '40px', width: 'auto' }}
             />
           </button>
 
