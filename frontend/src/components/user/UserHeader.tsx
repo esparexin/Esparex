@@ -143,7 +143,6 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
               height={36}
               className="rounded-lg shadow-sm"
             />
-            <span className="text-xl font-bold tracking-tight text-primary">Esparex</span>
           </button>
 
           {/* Location Pill */}

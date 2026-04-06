@@ -84,7 +84,6 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                             height={28}
                             className="rounded-lg shadow-sm shadow-blue-200"
                         />
-                        <span className="font-extrabold text-sm text-slate-900 leading-none tracking-tight">Esparex</span>
                     </button>
 
                     <div className="h-4 w-[1px] bg-slate-200 mx-2"></div>
