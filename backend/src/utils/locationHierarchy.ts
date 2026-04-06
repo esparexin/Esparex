@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import Location from '../models/Location';
 import { escapeRegExp, toTitleCase } from './stringUtils';
-import { LOCATION_LEVELS, type LocationLevel } from './locationInputNormalizer';
+import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel } from './locationInputNormalizer';
 import { toObjectId } from './idUtils';
 import { buildHierarchyPath } from './locationHierarchyUtils';
 export { buildHierarchyPath };
@@ -170,16 +170,6 @@ const equalsIgnoreCase = (left: string | undefined, right: string | undefined) =
     return left.trim().toLowerCase() === right.trim().toLowerCase();
 };
 
-export const normalizeHierarchyLevel = (value: unknown): HierarchyLevel | undefined => {
-    const normalized = asString(value)?.toLowerCase();
-    if (!normalized) return undefined;
-    return (HIERARCHY_LEVELS as readonly string[]).includes(normalized)
-        ? (normalized as HierarchyLevel)
-        : undefined;
-};
-
-
-
 
 
 export const resolveParentLocation = async (params: {
@@ -190,7 +180,7 @@ export const resolveParentLocation = async (params: {
     city?: unknown;
     excludeId?: unknown;
 }): Promise<HierarchyLocationNode | null> => {
-    const level = normalizeHierarchyLevel(params.level);
+    const level = normalizeLocationLevel(params.level);
     if (!level || level === 'country') return null;
 
     const country = toTitleCase(asString(params.country));

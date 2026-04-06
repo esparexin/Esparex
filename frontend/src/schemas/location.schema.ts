@@ -28,7 +28,7 @@ export const logLocationEventSchema = z.object({
     'gps_allowed',
     'fallback',
   ]),
-  eventType: z.string().min(1),
+  eventType: z.enum(['location_search', 'ad_view', 'ad_post']),
   coordinates: coordinatesSchema.optional(),
   locationId: z.string().optional(),
 });

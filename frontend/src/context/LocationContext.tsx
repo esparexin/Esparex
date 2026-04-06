@@ -528,7 +528,7 @@ export function LocationProvider({
             setLocation(normalized);
             setStatus("manual");
             setDetectError(null);
-            autoDetectedRef.current = true;
+            autoDetectedRef.current = false;
             persistPromptDismissed(true);
 
             writeStoredLocation(normalized);
