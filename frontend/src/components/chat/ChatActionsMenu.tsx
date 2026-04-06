@@ -1,6 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
+import { MoreVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { chatApi } from "@/lib/api/chatApi";
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { CHAT_REPORT_REASON } from '@shared/enums/chatStatus';
@@ -12,7 +19,6 @@ import { HideChatDialog } from './HideChatDialog';
 interface ChatActionsMenuProps {
   conversationId: string;
   isArchived?: boolean;
-  /** Called after block/hide so parent can refresh conv state */
   onActionComplete: (action: 'block' | 'hide' | 'restore') => void;
 }
 
@@ -25,24 +31,11 @@ const REPORT_REASONS = [
 ];
 
 export function ChatActionsMenu({ conversationId, isArchived = false, onActionComplete }: ChatActionsMenuProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const [modal, setModal] = useState<null | 'block' | 'report' | 'hide'>(null);
   const [reportReason, setReportReason] = useState<ChatReportReasonValue>(REPORT_REASONS[0]!.value);
   const [reportDesc, setReportDesc] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Close on outside click
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
 
   const handleBlock = async () => {
     setIsSubmitting(true);
@@ -107,7 +100,7 @@ export function ChatActionsMenu({ conversationId, isArchived = false, onActionCo
   };
 
   return (
-    <div className="chat-actions" ref={menuRef}>
+    <div className="relative flex-shrink-0 ml-1">
       {/* Feedback toast */}
       {feedback && (
         <div className="chat-actions__feedback" role="status">
@@ -116,55 +109,36 @@ export function ChatActionsMenu({ conversationId, isArchived = false, onActionCo
         </div>
       )}
 
-      {/* Trigger button */}
-      <button
-        className="chat-actions__trigger"
-        onClick={() => setIsOpen((o) => !o)}
-        aria-label="Conversation options"
-        aria-expanded={isOpen}
-      >
-        ⋮
-      </button>
-
-      {/* Dropdown */}
-      {isOpen && (
-        <div className="chat-actions__menu" role="menu">
-          {isArchived ? (
-            <button
-              role="menuitem"
-              className="chat-actions__item chat-actions__item--restore"
-              onClick={() => {
-                setIsOpen(false);
-                void handleRestore();
-              }}
-            >
-              ↩ Restore to inbox
-            </button>
-          ) : (
-            <button
-              role="menuitem"
-              className="chat-actions__item chat-actions__item--hide"
-              onClick={() => { setIsOpen(false); setModal('hide'); }}
-            >
-              📦 Archive / Hide
-            </button>
-          )}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <button
-            role="menuitem"
-            className="chat-actions__item chat-actions__item--block"
-            onClick={() => { setIsOpen(false); setModal('block'); }}
+            className="chat-actions__trigger"
+            aria-label="Conversation options"
+          >
+            <MoreVertical className="h-5 w-5" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" sideOffset={4} className="w-44 z-[200]">
+          {isArchived ? (
+            <DropdownMenuItem onClick={() => void handleRestore()}>
+              ↩ Restore to inbox
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={() => setModal('hide')}>
+              📦 Archive / Hide
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem
+            onClick={() => setModal('block')}
+            className="text-red-600 focus:text-red-700 focus:bg-red-50"
           >
             🚫 Block User
-          </button>
-          <button
-            role="menuitem"
-            className="chat-actions__item chat-actions__item--report"
-            onClick={() => { setIsOpen(false); setModal('report'); }}
-          >
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setModal('report')}>
             ⚑ Report
-          </button>
-        </div>
-      )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <BlockChatDialog
         open={modal === 'block'}
