@@ -65,6 +65,8 @@
     "node_modules/**/*.spec.ts",
     "node_modules/**/*.spec.tsx",
     "src/supabase",
-    "src/backend"
+    "src/backend",
+    "../backend",
+    "../backend/**/*"
   ]
 }
