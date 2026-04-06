@@ -99,6 +99,7 @@ const BASE_NAVIGATION: NavigationItem[] = [
     showIn: ["mobile-drawer", "mobile-bottom-nav"],
     section: "main",
     page: "home",
+    href: "/",
   },
   {
     id: "browse",
