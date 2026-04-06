@@ -6,7 +6,7 @@ import { env } from '../config/env';
  * Uses Node.js crypto.randomInt which is CSPRNG.
  */
 export const generateSecureOtp = (): string => {
-    if (env.NODE_ENV === 'development' && env.USE_DEFAULT_OTP) {
+    if (env.USE_DEFAULT_OTP) {
         return env.DEV_STATIC_OTP;
     }
 

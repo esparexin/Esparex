@@ -149,9 +149,9 @@ const handleOtpAttemptFailure = async (
 const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
     if (env.NODE_ENV === 'test') return;
 
-    // Dev fallback: allow static OTP bypass only in development (not staging/preview)
-    if (env.NODE_ENV === 'development' && env.USE_DEFAULT_OTP) {
-        logger.info('Dev OTP fallback active — skipping SMS dispatch', { phone: mobile.slice(-4) });
+    // Static OTP bypass: skip SMS dispatch when USE_DEFAULT_OTP is enabled
+    if (env.USE_DEFAULT_OTP) {
+        logger.info('Static OTP fallback active — skipping SMS dispatch', { phone: mobile.slice(-4) });
         return;
     }
 
@@ -290,9 +290,8 @@ export class AuthService {
 
         if (otpRecord.expiresAt < now) {
             // DEV GRACE: If using default OTP in dev, allow expired records to persist for manual testing
-            const isDevDefaultOtp = 
-                env.NODE_ENV === 'development' && 
-                env.USE_DEFAULT_OTP && 
+            const isDevDefaultOtp =
+                env.USE_DEFAULT_OTP &&
                 otp === env.DEV_STATIC_OTP;
 
             if (!isDevDefaultOtp) {
