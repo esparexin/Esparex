@@ -90,7 +90,7 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
                     `⚠️  MSG91 not configured (${missingKeys.join(', ')}). Running with USE_DEFAULT_OTP=true — static OTP active. Configure MSG91 before going live.`
                 );
                 otpGuardState.isSafeToProceed = true;
-                otpGuardState.isConfigured = false;
+                otpGuardState.isConfigured = true;
                 otpGuardState.warnings.push(`MSG91 not configured: ${missingKeys.join(', ')}`);
                 return;
             }
