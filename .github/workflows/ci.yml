@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-backend:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm install --include=dev
+      - run: npm run build -w backend
+
+  build-admin-frontend:
+    name: Build Admin Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: cd admin-frontend && npm install
+      - run: cd admin-frontend && npm run build
+        env:
+          NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: cd frontend && npm install
+      - run: cd frontend && npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
+          NEXT_PUBLIC_APP_URL: https://esparex.in
+          NEXT_PUBLIC_ENCRYPTION_KEY: ci-placeholder-key-32-characters-x
+          NEXT_PUBLIC_USE_DEFAULT_OTP: "false"
+          NEXT_PUBLIC_LOCAL_DEV_AUTH: "false"
+          NEXT_PUBLIC_FIREBASE_API_KEY: placeholder
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: placeholder
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
+          NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
