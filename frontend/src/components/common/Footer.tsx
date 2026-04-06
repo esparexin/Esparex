@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentType } from "react";
@@ -115,7 +116,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
         <div className="space-y-3 text-left">
             <div className="flex items-center gap-3 justify-start">
                 <Link href="/" className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-green-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">E</div>
+                    <Image src="/icons/icon-512x512.png" alt="Esparex" width={32} height={32} className="rounded-lg shadow-lg" />
                     <span className={cn("text-xl font-bold tracking-tight", isDark ? "text-white" : "text-green-600")}>Esparex</span>
                 </Link>
             </div>

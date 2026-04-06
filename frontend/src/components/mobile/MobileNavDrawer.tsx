@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMobileNavDrawer } from "./MobileNavDrawerProvider";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,7 @@ export function MobileNavDrawer({
             ) : (
               <div className="space-y-4">
                 <div>
-                  <div className="h-9 w-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-base mb-3 shadow-lg shadow-blue-900/30">E</div>
+                  <Image src="/icons/icon-512x512.png" alt="Esparex" width={36} height={36} className="rounded-xl shadow-lg mb-3" />
                   <h2 className="text-lg font-bold text-white">Welcome to Esparex</h2>
                   <p className="text-xs text-slate-400 mt-0.5">Buy & sell mobile spares</p>
                 </div>

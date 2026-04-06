@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { Menu, MapPin, Search, LogIn, ChevronDown } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -76,7 +77,13 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                         onClick={() => navigateTo('home')}
                         aria-label="Go to homepage"
                     >
-                        <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm shadow-blue-200">E</div>
+                        <Image
+                            src="/icons/icon-512x512.png"
+                            alt="Esparex"
+                            width={28}
+                            height={28}
+                            className="rounded-lg shadow-sm shadow-blue-200"
+                        />
                         <span className="font-extrabold text-sm text-slate-900 leading-none tracking-tight">Esparex</span>
                     </button>
 
