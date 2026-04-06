@@ -46,7 +46,7 @@ export async function generateMetadata({
     title: `${profile.user.name || "Seller"} | Esparex`,
     description: "View seller profile and active listings on Esparex.",
     alternates: {
-      canonical: `https://esparex.com/seller/${sellerSlug}-${profile.user.id}`,
+      canonical: `https://esparex.in/seller/${sellerSlug}-${profile.user.id}`,
     },
   };
 }

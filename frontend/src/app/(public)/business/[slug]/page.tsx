@@ -83,7 +83,7 @@ export async function generateMetadata(
       business.description?.substring(0, 150) ||
       `Check out ${business.name} on Esparex`,
     alternates: {
-      canonical: `https://esparex.com/business/${canonicalSlug}-${businessId}`,
+      canonical: `https://esparex.in/business/${canonicalSlug}-${businessId}`,
     },
     openGraph: {
       title: `${business.name} | Esparex`,
@@ -123,7 +123,7 @@ export default async function BusinessProfilePage({ params }: Props) {
     description: pageData.business.description,
     image: pageData.business.logo || pageData.business.images?.[0],
     telephone: pageData.business.mobile,
-    url: `https://esparex.com/business/${canonicalParam}`,
+    url: `https://esparex.in/business/${canonicalParam}`,
   };
 
   return (
@@ -137,7 +137,7 @@ export default async function BusinessProfilePage({ params }: Props) {
         ads={pageData.ads}
         services={pageData.services}
         spareParts={pageData.spareParts}
-        shareUrl={`https://esparex.com/business/${canonicalParam}`}
+        shareUrl={`https://esparex.in/business/${canonicalParam}`}
       />
     </>
   );

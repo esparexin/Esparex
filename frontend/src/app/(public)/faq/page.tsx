@@ -6,8 +6,12 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
     title: "FAQ | Esparex",
     description: "Find answers to common questions about buying, selling, and repairing electronics on Esparex.",
-    alternates: {
-        canonical: "https://esparex.com/faq",
+    alternates: { canonical: "https://esparex.in/faq" },
+    openGraph: {
+        title: "FAQ | Esparex",
+        description: "Find answers to common questions about buying, selling, and repairing electronics on Esparex.",
+        url: "https://esparex.in/faq",
+        images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
 };
 

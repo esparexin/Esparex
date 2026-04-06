@@ -28,6 +28,6 @@ export default function robots(): MetadataRoute.Robots {
                 '/admin/',
             ],
         },
-        sitemap: 'https://esparex.com/sitemap.xml',
+        sitemap: 'https://esparex.in/sitemap.xml',
     };
 }

@@ -4,6 +4,13 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'Privacy Policy | Esparex',
     description: 'Read our Privacy Policy to understand how Esparex collects, uses, and protects your personal information.',
+    alternates: { canonical: 'https://esparex.in/privacy' },
+    openGraph: {
+        title: 'Privacy Policy | Esparex',
+        description: 'Read our Privacy Policy to understand how Esparex collects, uses, and protects your personal information.',
+        url: 'https://esparex.in/privacy',
+        images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    },
 };
 
 

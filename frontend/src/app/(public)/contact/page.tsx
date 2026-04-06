@@ -5,8 +5,12 @@ import { Mail, MapPin, Phone } from "lucide-react";
 export const metadata: Metadata = {
     title: "Contact Us | Esparex",
     description: "Get support, business inquiries, and contact details for Esparex.",
-    alternates: {
-        canonical: "https://esparex.com/contact",
+    alternates: { canonical: "https://esparex.in/contact" },
+    openGraph: {
+        title: "Contact Us | Esparex",
+        description: "Get support, business inquiries, and contact details for Esparex.",
+        url: "https://esparex.in/contact",
+        images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
 };
 

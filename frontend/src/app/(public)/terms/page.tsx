@@ -4,6 +4,13 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'Terms of Service | Esparex',
     description: 'Review the Terms of Service for using Esparex, the marketplace for electronics spare parts and repairs.',
+    alternates: { canonical: 'https://esparex.in/terms' },
+    openGraph: {
+        title: 'Terms of Service | Esparex',
+        description: 'Review the Terms of Service for using Esparex.',
+        url: 'https://esparex.in/terms',
+        images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    },
 };
 
 

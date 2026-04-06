@@ -9,7 +9,7 @@ import {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const BASE_url = process.env.NEXT_PUBLIC_APP_URL || 'https://esparex.com';
+const BASE_url = process.env.NEXT_PUBLIC_APP_URL || 'https://esparex.in';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
 
 type SitemapItem = {

@@ -23,7 +23,7 @@ export async function generateMetadata(
         title: `${formattedCategory} | Esparex`,
         description: `Browse ${formattedCategory} on Esparex. Find the best deals on used electronics and spare parts.`,
         alternates: {
-            canonical: `https://esparex.com/category/${canonical}`,
+            canonical: `https://esparex.in/category/${canonical}`,
         },
     };
 }

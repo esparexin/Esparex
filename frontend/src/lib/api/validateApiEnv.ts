@@ -67,7 +67,7 @@ export function validateApiEnv() {
     }
 
     // Legacy standard check (Node-specific)
-    if (nodeEnv === "production" && !url.includes("esparex.com") && !riskOverride) {
+    if (nodeEnv === "production" && !url.includes("esparex.in") && !url.includes("esparex.com") && !riskOverride) {
         // This serves as a secondary check if APP_ENV isn't set but we are in a production build
         if (url.includes("localhost") || url.includes("127.0.0.1")) {
             throw new Error(`[ESPAREX CONFIG ERROR] Production build cannot use localhost API: ${url}`);

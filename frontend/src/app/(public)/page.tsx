@@ -62,6 +62,23 @@ export const revalidate = 60;
 export const metadata: Metadata = {
     title: "Esparex - Buy & Sell Mobile Spares & Devices",
     description: "The best marketplace for mobile spare parts, used devices, and repair services.",
+    alternates: {
+        canonical: "https://esparex.in/",
+    },
+    openGraph: {
+        title: "Esparex - Buy & Sell Mobile Spares & Devices",
+        description: "The best marketplace for mobile spare parts, used devices, and repair services.",
+        url: "https://esparex.in/",
+        siteName: "Esparex",
+        images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Esparex — Buy & Sell Spare Parts" }],
+        type: "website",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Esparex - Buy & Sell Mobile Spares & Devices",
+        description: "The best marketplace for mobile spare parts, used devices, and repair services.",
+        images: ["/og-image.png"],
+    },
 };
 
 export default async function Home() {
@@ -82,10 +99,10 @@ export default async function Home() {
                         "@context": "https://schema.org",
                         "@type": "WebSite",
                         name: "Esparex",
-                        url: "https://esparex.com/",
+                        url: "https://esparex.in/",
                         potentialAction: {
                             "@type": "SearchAction",
-                            target: "https://esparex.com/search?q={search_term_string}",
+                            target: "https://esparex.in/search?q={search_term_string}",
                             "query-input": "required name=search_term_string",
                         },
                     }),

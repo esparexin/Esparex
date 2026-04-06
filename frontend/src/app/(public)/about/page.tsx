@@ -4,6 +4,13 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'About Us | Esparex',
     description: 'Esparex is India\'s leading marketplace for electronics spare parts and repair services. We connect device owners with trusted technicians and suppliers.',
+    alternates: { canonical: 'https://esparex.in/about' },
+    openGraph: {
+        title: 'About Us | Esparex',
+        description: 'Esparex is India\'s leading marketplace for electronics spare parts and repair services.',
+        url: 'https://esparex.in/about',
+        images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    },
 };
 
 

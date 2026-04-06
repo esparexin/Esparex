@@ -27,7 +27,7 @@ export async function generateMetadata(
         title: `${titlePrefix} | Esparex`,
         description: 'Browse thousands of electronics, spare parts, and repair services on Esparex.',
         alternates: {
-            canonical: `https://esparex.com${buildPublicBrowseRoute({ type: parsed.type })}`,
+            canonical: `https://esparex.in${buildPublicBrowseRoute({ type: parsed.type })}`,
         },
         robots: hasFilters ? { index: false, follow: true } : { index: true, follow: true },
     };

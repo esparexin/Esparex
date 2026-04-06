@@ -5,8 +5,12 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Sitemap | Esparex",
     description: "Explore all main, support, and legal pages available on Esparex.",
-    alternates: {
-        canonical: "https://esparex.com/site-map",
+    alternates: { canonical: "https://esparex.in/site-map" },
+    openGraph: {
+        title: "Sitemap | Esparex",
+        description: "Explore all main, support, and legal pages available on Esparex.",
+        url: "https://esparex.in/site-map",
+        images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
 };
 
