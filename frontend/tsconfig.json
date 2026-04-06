@@ -67,6 +67,8 @@
     "src/supabase",
     "src/backend",
     "../backend",
-    "../backend/**/*"
+    "../backend/**/*",
+    "../shared/location-engine",
+    "../shared/location-engine/**/*"
   ]
 }
