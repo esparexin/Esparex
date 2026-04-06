@@ -139,9 +139,9 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
             <Image
               src="/icons/icon-512x512.png"
               alt="Esparex Logo"
-              width={120}
-              height={120}
-              className="h-10 w-auto"
+              width={500}
+              height={500}
+              style={{ height: '48px', width: 'auto' }}
             />
           </button>
 
