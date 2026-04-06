@@ -18,7 +18,7 @@ interface OtpGuardConfig {
     msg91AuthKey?: string;
     msg91SenderId?: string;
     authBypassOtpLock?: string;
-    useDefaultOtp?: string;
+    useDefaultOtp?: boolean;
 }
 
 /**
@@ -85,7 +85,7 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
 
         if (missingKeys.length > 0) {
             // Allow USE_DEFAULT_OTP=true as a temporary bypass (e.g. pre-launch before SMS provider is configured)
-            if (useDefaultOtp === 'true') {
+            if (useDefaultOtp === true) {
                 bootstrapLogger.warn(
                     `⚠️  MSG91 not configured (${missingKeys.join(', ')}). Running with USE_DEFAULT_OTP=true — static OTP active. Configure MSG91 before going live.`
                 );
