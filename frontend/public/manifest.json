@@ -1,20 +1,48 @@
 {
     "name": "Esparex",
     "short_name": "Esparex",
+    "description": "India's marketplace for electronics spare parts and repair services",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
+    "orientation": "portrait",
     "theme_color": "#0F172A",
     "background_color": "#FFFFFF",
+    "categories": ["shopping", "utilities"],
     "icons": [
         {
             "src": "/icons/icon-192x192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/icons/icon-512x512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Post an Ad",
+            "short_name": "Post Ad",
+            "description": "List a spare part or device for sale",
+            "url": "/post-ad",
+            "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Browse Listings",
+            "short_name": "Browse",
+            "description": "Search spare parts and repair services",
+            "url": "/search",
+            "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
         }
     ]
 }

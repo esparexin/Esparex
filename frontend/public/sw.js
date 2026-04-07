@@ -2,9 +2,12 @@ const CACHE_NAME = 'temporary-v3-static';
 const DYNAMIC_CACHE_NAME = 'temporary-v3-dynamic';
 
 // Static assets to cache immediately
+const OFFLINE_URL = '/offline';
+
 const STATIC_ASSETS = [
     '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png'
+    '/icons/icon-512x512.png',
+    OFFLINE_URL,
 ];
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
@@ -103,6 +106,13 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (event.request.mode === 'navigate') {
+        // For page navigations: network-first, fall back to offline page
+        event.respondWith(
+            fetch(event.request).catch(async () => {
+                const cached = await caches.match(OFFLINE_URL);
+                return cached || Response.error();
+            })
+        );
         return;
     }
 
