@@ -85,7 +85,7 @@ function CompactReadonlyField({
     return (
         <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-                <label className="text-sm font-medium leading-snug text-slate-800" htmlFor={id}>
+                <label className="text-sm font-medium leading-snug text-foreground-secondary" htmlFor={id}>
                     {label}
                 </label>
                 {badge}
@@ -252,7 +252,7 @@ export function StepAddress({
                     error={currentLocationError}
                     badge={(
                         <>
-                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700">
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-foreground-secondary">
                                 Required
                             </span>
                             {sourceLabel ? (

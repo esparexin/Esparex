@@ -50,7 +50,7 @@ export function CookieConsentBanner() {
                         <div className="h-9 w-9 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
                             <ShieldCheck className="h-4 w-4 text-green-600" />
                         </div>
-                        <p className="text-sm text-slate-600 leading-relaxed">
+                        <p className="text-sm text-foreground-tertiary leading-relaxed">
                             We use essential cookies to keep you logged in and secure your account. Optional cookies help track ad view counts.{" "}
                             <Link
                                 href="/privacy"
@@ -68,7 +68,7 @@ export function CookieConsentBanner() {
                             variant="outline"
                             size="sm"
                             onClick={handleDecline}
-                            className="flex-1 sm:flex-none h-11 text-slate-600 border-slate-200 hover:bg-slate-50"
+                            className="flex-1 sm:flex-none h-11 text-foreground-tertiary border-slate-200 hover:bg-slate-50"
                         >
                             Decline Optional
                         </Button>

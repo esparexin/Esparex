@@ -79,7 +79,7 @@ export function PersonalTab({
                                             sizes="80px"
                                         />
                                     ) : (
-                                        <User className="h-8 w-8 md:h-10 md:w-10 text-slate-300" />
+                                        <User className="h-8 w-8 md:h-10 md:w-10 text-foreground-subtle" />
                                     )}
                                 </div>
                                 <button
@@ -254,7 +254,7 @@ export function PersonalTab({
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-3">
-                        <p className="text-sm font-semibold text-slate-700">Choose who can view your number:</p>
+                        <p className="text-sm font-semibold text-foreground-secondary">Choose who can view your number:</p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {/* Show to All */}
@@ -264,7 +264,7 @@ export function PersonalTab({
                                 ${mobileVisibility === "show" ? "border-blue-600 bg-blue-50/50" : "border-slate-100 hover:border-slate-200 bg-white"}`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <Eye className={`h-5 w-5 ${mobileVisibility === "show" ? "text-link" : "text-slate-400"}`} />
+                                    <Eye className={`h-5 w-5 ${mobileVisibility === "show" ? "text-link" : "text-foreground-subtle"}`} />
                                     {mobileVisibility === "show" && <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />}
                                 </div>
                                 <div>
@@ -280,7 +280,7 @@ export function PersonalTab({
                                 ${mobileVisibility === "hide" ? "border-red-600 bg-red-50/50" : "border-slate-100 hover:border-slate-200 bg-white"}`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <EyeOff className={`h-5 w-5 ${mobileVisibility === "hide" ? "text-red-600" : "text-slate-400"}`} />
+                                    <EyeOff className={`h-5 w-5 ${mobileVisibility === "hide" ? "text-red-600" : "text-foreground-subtle"}`} />
                                     {mobileVisibility === "hide" && <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse" />}
                                 </div>
                                 <div>

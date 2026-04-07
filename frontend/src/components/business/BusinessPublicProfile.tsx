@@ -184,16 +184,16 @@ export function BusinessPublicProfile({
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-foreground">{business.name}</h1>
-                  {business.tagline && <p className="text-sm text-slate-400 mt-0.5">{business.tagline}</p>}
+                  {business.tagline && <p className="text-sm text-foreground-subtle mt-0.5">{business.tagline}</p>}
                 </div>
-                <Button variant="outline" size="sm" onClick={handleShare} className="h-11 rounded-xl border-slate-200 text-slate-600 text-xs w-fit">
+                <Button variant="outline" size="sm" onClick={handleShare} className="h-11 rounded-xl border-slate-200 text-foreground-tertiary text-xs w-fit">
                   <Share2 className="mr-1.5 h-3.5 w-3.5" />
                   {shareLabel}
                 </Button>
               </div>
 
               <div className="flex flex-wrap gap-1.5">
-                <Badge variant="secondary" className="rounded-lg bg-slate-100 text-slate-600 border-none text-xs">{primaryBusinessType}</Badge>
+                <Badge variant="secondary" className="rounded-lg bg-slate-100 text-foreground-tertiary border-none text-xs">{primaryBusinessType}</Badge>
                 {business.isVerified ? (
                   <Badge className="bg-blue-50 text-link-dark border-none rounded-lg text-xs">Verified Business</Badge>
                 ) : null}
@@ -202,8 +202,8 @@ export function BusinessPublicProfile({
               {business.rating ? (
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-slate-700">{business.rating.toFixed(1)}</span>
-                  <span className="text-slate-400">({business.totalReviews || 0} reviews)</span>
+                  <span className="font-semibold text-foreground-secondary">{business.rating.toFixed(1)}</span>
+                  <span className="text-foreground-subtle">({business.totalReviews || 0} reviews)</span>
                 </div>
               ) : null}
             </div>
@@ -215,13 +215,13 @@ export function BusinessPublicProfile({
       {business.description ? (
         <Card className="rounded-2xl border-slate-100 shadow-none">
           <CardHeader className="pb-2 pt-4 px-4 md:px-6">
-            <CardTitle className="text-sm font-bold text-slate-700 uppercase tracking-wide">About</CardTitle>
+            <CardTitle className="text-sm font-bold text-foreground-secondary uppercase tracking-wide">About</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 px-4 md:px-6 pb-4">
             <p className="leading-relaxed text-sm text-muted-foreground">{business.description}</p>
             {business.website ? (
               <div className="flex items-center gap-2">
-                <Globe className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+                <Globe className="h-3.5 w-3.5 text-foreground-subtle flex-shrink-0" />
                 <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-link hover:underline truncate">
                   {business.website}
                 </a>
@@ -236,7 +236,7 @@ export function BusinessPublicProfile({
       {/* Contact */}
       <Card className="rounded-2xl border-slate-100 shadow-none">
         <CardHeader className="pb-2 pt-4 px-4 md:px-6">
-          <CardTitle className="text-sm font-bold text-slate-700 uppercase tracking-wide">Contact</CardTitle>
+          <CardTitle className="text-sm font-bold text-foreground-secondary uppercase tracking-wide">Contact</CardTitle>
         </CardHeader>
         <CardContent className="px-4 md:px-6 pb-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -246,8 +246,8 @@ export function BusinessPublicProfile({
                   <Phone className="h-4 w-4 text-link" />
                 </div>
                 <div>
-                  <p className="text-2xs text-slate-400 font-bold uppercase tracking-wide">Phone</p>
-                  <a href={`tel:${business.mobile}`} className="text-sm font-semibold text-slate-800 hover:text-link">
+                  <p className="text-2xs text-foreground-subtle font-bold uppercase tracking-wide">Phone</p>
+                  <a href={`tel:${business.mobile}`} className="text-sm font-semibold text-foreground-secondary hover:text-link">
                     {business.mobile}
                   </a>
                 </div>
@@ -259,8 +259,8 @@ export function BusinessPublicProfile({
                   <Phone className="h-4 w-4 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-2xs text-slate-400 font-bold uppercase tracking-wide">WhatsApp</p>
-                  <a href={buildWhatsappHref(business.whatsappNumber)} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-slate-800 hover:text-green-600">
+                  <p className="text-2xs text-foreground-subtle font-bold uppercase tracking-wide">WhatsApp</p>
+                  <a href={buildWhatsappHref(business.whatsappNumber)} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-foreground-secondary hover:text-green-600">
                     {business.whatsappNumber}
                   </a>
                 </div>
@@ -272,8 +272,8 @@ export function BusinessPublicProfile({
                   <Mail className="h-4 w-4 text-red-500" />
                 </div>
                 <div>
-                  <p className="text-2xs text-slate-400 font-bold uppercase tracking-wide">Email</p>
-                  <a href={`mailto:${business.email}`} className="text-sm font-semibold text-slate-800 hover:text-red-600 truncate block">
+                  <p className="text-2xs text-foreground-subtle font-bold uppercase tracking-wide">Email</p>
+                  <a href={`mailto:${business.email}`} className="text-sm font-semibold text-foreground-secondary hover:text-red-600 truncate block">
                     {business.email}
                   </a>
                 </div>
@@ -286,8 +286,8 @@ export function BusinessPublicProfile({
       {/* Location */}
       <Card className="rounded-2xl border-slate-100 shadow-none">
         <CardHeader className="pb-2 pt-4 px-4 md:px-6">
-          <CardTitle className="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-slate-400" />
+          <CardTitle className="text-sm font-bold text-foreground-secondary uppercase tracking-wide flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-foreground-subtle" />
             Location
           </CardTitle>
         </CardHeader>
@@ -304,13 +304,13 @@ export function BusinessPublicProfile({
               <div className="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center">
                 <MapPin className="h-6 w-6 text-link" />
               </div>
-              <p className="text-sm font-semibold text-slate-700">
+              <p className="text-sm font-semibold text-foreground-secondary">
                 {mapData.addressQuery || "Address details are available above."}
               </p>
             </div>
             {mapData.externalUrl ? (
               <div className="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3">
-                <p className="text-xs text-slate-400">View on Google Maps</p>
+                <p className="text-xs text-foreground-subtle">View on Google Maps</p>
                 <a href={mapData.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-link hover:underline">
                   Open in Maps <ExternalLink className="h-3.5 w-3.5" />
                 </a>
@@ -331,7 +331,7 @@ export function BusinessPublicProfile({
                 className={`-mb-px flex min-h-[44px] items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap ${
                   activeTab === tab.key
                     ? "border-blue-600 text-link"
-                    : "border-transparent text-slate-400 hover:text-slate-600"
+                    : "border-transparent text-foreground-subtle hover:text-foreground-tertiary"
                 }`}
                 type="button"
               >
@@ -357,14 +357,14 @@ export function BusinessPublicProfile({
               })}
             </div>
           ) : (
-            <p className="py-10 text-center text-sm text-slate-400">
+            <p className="py-10 text-center text-sm text-foreground-subtle">
               No {activeTab === "ads" ? "listings" : activeTab === "services" ? "services" : "spare parts"} available.
             </p>
           )}
         </div>
       ) : (
         <Card className="rounded-2xl border-slate-100 shadow-none">
-          <CardContent className="py-12 text-center text-sm text-slate-400">
+          <CardContent className="py-12 text-center text-sm text-foreground-subtle">
             This business does not have any live public listings yet.
           </CardContent>
         </Card>

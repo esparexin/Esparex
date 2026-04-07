@@ -224,11 +224,11 @@ export function ProfileSettingsSidebar({
       case "rejected":
         return renderBadge("Rejected", "bg-red-100 text-red-700");
       case "expired":
-        return renderBadge("Expired", "bg-slate-200 text-slate-700");
+        return renderBadge("Expired", "bg-slate-200 text-foreground-secondary");
       case "deactivated":
         return renderBadge("Deactivated", "bg-orange-100 text-orange-700");
       default:
-        return renderBadge(status || "Unknown", "bg-gray-100 text-slate-600");
+        return renderBadge(status || "Unknown", "bg-gray-100 text-foreground-tertiary");
     }
   };
 
@@ -353,7 +353,7 @@ export function ProfileSettingsSidebar({
           ) : (
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuView(true)} className="h-11 w-11 rounded-full hover:bg-gray-200 -ml-1">
-                <ChevronRight className="h-5 w-5 rotate-180 text-slate-700" />
+                <ChevronRight className="h-5 w-5 rotate-180 text-foreground-secondary" />
               </Button>
               <h1 className="text-lg font-bold text-foreground">
                 {activeTabLabel}
@@ -374,9 +374,9 @@ export function ProfileSettingsSidebar({
                   <button
                     key={item.value} onClick={() => handleTabChange(item.value)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 font-medium group text-sm
-                      ${isActive ? "bg-blue-50 text-link-dark shadow-sm shadow-blue-100 ring-1 ring-blue-200" : "text-slate-600 hover:bg-slate-50 hover:text-foreground"}`}
+                      ${isActive ? "bg-blue-50 text-link-dark shadow-sm shadow-blue-100 ring-1 ring-blue-200" : "text-foreground-tertiary hover:bg-slate-50 hover:text-foreground"}`}
                   >
-                    <Icon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${isActive ? "text-link" : "text-slate-400 group-hover:text-slate-600"}`} />
+                    <Icon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${isActive ? "text-link" : "text-foreground-subtle group-hover:text-foreground-tertiary"}`} />
                     <span>{item.label}</span>
                     {renderTabBadge(item.value)}
                     {isActive && <ChevronRight className="h-4 w-4 opacity-50" />}
@@ -414,11 +414,11 @@ export function ProfileSettingsSidebar({
                   </div>
                   <Card className="p-2 border-0 shadow-sm">
                     {visibleProfileTabItems.map((item) => (
-                      <button key={item.value} onClick={() => handleMobileTabClick(item.value)} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-slate-700 border-b border-gray-50 last:border-0">
+                      <button key={item.value} onClick={() => handleMobileTabClick(item.value)} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-foreground-secondary border-b border-gray-50 last:border-0">
                         <div className="p-1.5 bg-gray-100 rounded-lg text-muted-foreground"><item.icon className="h-4.5 w-4.5" /></div>
                         <span className="text-sm font-semibold flex-1">{item.label}</span>
                         {renderTabBadge(item.value)}
-                        <ChevronRight className="h-4 w-4 text-slate-400" />
+                        <ChevronRight className="h-4 w-4 text-foreground-subtle" />
                       </button>
                     ))}
                     <Separator className="my-1" />

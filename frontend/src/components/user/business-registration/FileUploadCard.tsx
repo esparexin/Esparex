@@ -51,7 +51,7 @@ export function FileUploadCard({
                         <p className="mt-1 text-sm leading-6 text-muted-foreground">{description}</p>
                     </div>
                     {file && (
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">
                             {file instanceof File ? "Ready" : "Attached"}
                         </span>
                     )}

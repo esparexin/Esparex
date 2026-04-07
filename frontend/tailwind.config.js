@@ -18,6 +18,10 @@ const config = {
 					dark: 'hsl(var(--link-dark))',
 					foreground: 'hsl(var(--link-foreground))',
 				},
+				/* Extended foreground tokens (fills gap between foreground ↔ muted-foreground) */
+				'foreground-secondary': 'hsl(var(--foreground-secondary))',  /* ≈ slate-700 */
+				'foreground-tertiary': 'hsl(var(--foreground-tertiary))',    /* ≈ slate-600 */
+				'foreground-subtle': 'hsl(var(--foreground-subtle))',        /* ≈ slate-400 */
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

@@ -105,8 +105,8 @@ export default function DeviceIdentityFields() {
                                             : "bg-white hover:bg-slate-50 border-slate-100"
                                     )}
                                 >
-                                    <Icon className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-slate-400")} />
-                                    <span className={cn("text-xs font-semibold text-center leading-tight truncate w-full px-1", selected ? "text-primary-foreground" : "text-slate-600")}>
+                                    <Icon className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-foreground-subtle")} />
+                                    <span className={cn("text-xs font-semibold text-center leading-tight truncate w-full px-1", selected ? "text-primary-foreground" : "text-foreground-tertiary")}>
                                         {cat.name}
                                     </span>
                                 </Button>
@@ -177,7 +177,7 @@ export default function DeviceIdentityFields() {
                                             "h-auto rounded-xl border px-2 py-2.5 text-sm font-semibold transition-all",
                                             isSelected
                                                 ? "bg-primary border-primary text-primary-foreground shadow-sm scale-[1.02]"
-                                                : "bg-white border-slate-100 text-slate-600 hover:border-slate-200"
+                                                : "bg-white border-slate-100 text-foreground-tertiary hover:border-slate-200"
                                         )}
                                     >
                                         <span className="truncate">{part.name}</span>
@@ -186,7 +186,7 @@ export default function DeviceIdentityFields() {
                             })}
                         </div>
                     ) : (
-                        <p className="text-xs text-slate-400 text-center py-3">
+                        <p className="text-xs text-foreground-subtle text-center py-3">
                             No spare parts listed for this category.
                         </p>
                     )}
@@ -209,7 +209,7 @@ export default function DeviceIdentityFields() {
                                     "flex items-center gap-2 h-11 px-4 rounded-xl border-2 text-sm font-bold transition-all",
                                     deviceCondition === value
                                         ? active
-                                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                                        : "bg-white border-slate-200 text-foreground-tertiary hover:border-slate-300"
                                 )}
                             >
                                 <div className={cn("w-2.5 h-2.5 rounded-full shrink-0", deviceCondition === value ? "bg-white/80" : dot)} />

@@ -155,8 +155,8 @@ export function RelatedBusinessesSection({
             <h3 className="line-clamp-1 text-sm font-bold text-foreground">
               {business.name}
             </h3>
-            <div className="flex items-center gap-1 text-xs text-slate-400">
-              <MapPin className="h-3 w-3 flex-shrink-0 text-slate-300" />
+            <div className="flex items-center gap-1 text-xs text-foreground-subtle">
+              <MapPin className="h-3 w-3 flex-shrink-0 text-foreground-subtle" />
               <span className="truncate">
                 {business.location?.city || business.location?.display || "Nearby"}
               </span>
@@ -171,7 +171,7 @@ export function RelatedBusinessesSection({
               </Badge>
             ) : null}
             {activeServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-semibold text-slate-600 border-none">
+              <Badge variant="secondary" className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-semibold text-foreground-tertiary border-none">
                 {activeServicesCount} live
               </Badge>
             ) : null}
@@ -202,7 +202,7 @@ export function RelatedBusinessesSection({
       <div className="mb-4 md:mb-6 flex items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold md:text-xl text-foreground">{sectionCopy.title}</h2>
-          <p className="mt-0.5 text-xs text-slate-400 hidden md:block">
+          <p className="mt-0.5 text-xs text-foreground-subtle hidden md:block">
             {sectionCopy.description}
           </p>
         </div>
@@ -259,13 +259,13 @@ export function RelatedBusinessesSection({
       ) : null}
 
       {!isLoading && !isError && !canSearch ? (
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600">
+        <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-foreground-tertiary">
           Nearby service-center suggestions are unavailable because this listing is missing location details.
         </div>
       ) : null}
 
       {!isLoading && !isError && canSearch && businesses.length === 0 ? (
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600">
+        <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-foreground-tertiary">
           {sectionCopy.empty}
         </div>
       ) : null}

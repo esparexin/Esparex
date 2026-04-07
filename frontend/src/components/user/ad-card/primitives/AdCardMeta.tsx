@@ -53,7 +53,7 @@ export const AdCardMeta = memo(function AdCardMeta({
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>
-      <div className="font-semibold line-clamp-2 text-sm leading-snug min-h-[2.4rem] text-slate-800">
+      <div className="font-semibold line-clamp-2 text-sm leading-snug min-h-[2.4rem] text-foreground-secondary">
         {ad.title.replace(/\*\*/g, '')}
       </div>
 
@@ -79,7 +79,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       </div>
 
       <div className={cn(
-        "flex items-center justify-between text-2xs text-slate-400 pt-1.5 border-t border-slate-100 mt-0.5",
+        "flex items-center justify-between text-2xs text-foreground-subtle pt-1.5 border-t border-slate-100 mt-0.5",
         isDashboard && "grid grid-cols-2 gap-2 justify-start",
         isList && "border-none pt-0 mt-0"
       )}>
@@ -100,13 +100,13 @@ export const AdCardMeta = memo(function AdCardMeta({
             <div className="flex items-center gap-1 flex-1 min-w-0">
               {formatLocation(ad.location) && (
                 <>
-                  <MapPin className="h-2.5 w-2.5 flex-shrink-0 text-slate-300" />
+                  <MapPin className="h-2.5 w-2.5 flex-shrink-0 text-foreground-subtle" />
                   <span className="truncate">{formatLocation(ad.location)}</span>
                 </>
               )}
             </div>
             <div className="flex items-center gap-1 flex-shrink-0 ml-1">
-              {!isList && <Clock className="h-2.5 w-2.5 text-slate-300" />}
+              {!isList && <Clock className="h-2.5 w-2.5 text-foreground-subtle" />}
               <span className="whitespace-nowrap">{'time' in ad ? ad.time : 'Just now'}</span>
             </div>
           </>

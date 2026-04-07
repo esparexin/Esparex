@@ -74,7 +74,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
             ) : (
               <>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                  <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-widest">
                     Step {currentStep} of 2
                   </span>
                   <span className="text-xs font-semibold text-link uppercase tracking-widest">

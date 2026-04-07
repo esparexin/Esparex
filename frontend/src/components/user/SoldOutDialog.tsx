@@ -161,7 +161,7 @@ export function SoldOutDialog({
                     htmlFor="others"
                     className="flex items-center gap-2 font-semibold cursor-pointer"
                   >
-                    <MoreHorizontal className="h-4 w-4 text-slate-600" />
+                    <MoreHorizontal className="h-4 w-4 text-foreground-tertiary" />
                     Others (Offline/Direct)
                   </Label>
                   <p className="text-xs text-muted-foreground mt-1">

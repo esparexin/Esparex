@@ -155,7 +155,7 @@ export function MyAdsTab({
                             onClick={() => setMyAdsTab(tab)}
                             className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${myAdsTab === tab
                                 ? "bg-slate-900 text-white shadow-lg"
-                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                : "bg-slate-100 text-foreground-tertiary hover:bg-slate-200"
                                 }`}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -184,14 +184,14 @@ export function MyAdsTab({
                         }
                         empty={
                             <div className="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                                <Package className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+                                <Package className="h-12 w-12 mx-auto text-foreground-subtle mb-3" />
                                 <h3 className="text-sm font-medium text-foreground">No {myAdsTab} ads</h3>
                                 <p className="text-xs text-muted-foreground mt-1 max-w-[200px] mx-auto">
                                     Ads marked as {myAdsTab} will appear here.
                                 </p>
                                 {myAdsTab === 'active' && (
                                     <>
-                                        <p className="text-2xs text-slate-400 mt-2">Active ads are visible on the Home Page until they expire.</p>
+                                        <p className="text-2xs text-foreground-subtle mt-2">Active ads are visible on the Home Page until they expire.</p>
                                         <Button
                                             variant="outline"
                                             size="sm"
@@ -204,8 +204,8 @@ export function MyAdsTab({
                                 )}
                                 {myAdsTab === 'pending' && <p className="text-2xs text-amber-600 mt-2">Pending ads are being reviewed and are NOT visible on Home Page yet.</p>}
                                 {myAdsTab === 'rejected' && <p className="text-2xs text-red-500 mt-2">Rejected ads are hidden from public view. Edit and resubmit for review.</p>}
-                                {myAdsTab === 'expired' && <p className="text-2xs text-slate-400 mt-2">Expired ads are no longer visible on the Home Page. You can mark them as sold or delete them.</p>}
-                                {myAdsTab === 'deactivated' && <p className="text-2xs text-slate-400 mt-2">Deactivated ads are hidden. Reactivate them to make them visible again.</p>}
+                                {myAdsTab === 'expired' && <p className="text-2xs text-foreground-subtle mt-2">Expired ads are no longer visible on the Home Page. You can mark them as sold or delete them.</p>}
+                                {myAdsTab === 'deactivated' && <p className="text-2xs text-foreground-subtle mt-2">Deactivated ads are hidden. Reactivate them to make them visible again.</p>}
                             </div>
                         }
                         error={

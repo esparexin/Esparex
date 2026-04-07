@@ -229,7 +229,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             formId="post-service-form"
         >
             {isEditMode ? (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-foreground-secondary">
                     <p className="font-semibold text-foreground">Catalog fields are partially locked while editing.</p>
                     <p className="mt-1">
                         Category and brand stay fixed so this service keeps the same catalog placement. Create a new listing if those details changed.
@@ -285,7 +285,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                                                 "rounded-xl border px-3 py-3 text-left text-sm font-semibold transition-all",
                                                 selected
                                                     ? "bg-primary border-primary text-white shadow-sm"
-                                                    : "bg-white border-slate-100 text-slate-700 hover:border-slate-200"
+                                                    : "bg-white border-slate-100 text-foreground-secondary hover:border-slate-200"
                                             )}
                                         >
                                             {selected ? <Check className="mr-1 inline h-3.5 w-3.5" /> : null}
@@ -296,7 +296,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                             </div>
                         </>
                     ) : isEditMode && selectedServiceTypes.length > 0 ? (
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-foreground-secondary">
                             <p className="font-semibold text-foreground">Existing service types are preserved.</p>
                             <p className="mt-1">
                                 This listing keeps its current service-type mapping while you edit pricing, photos, and description.

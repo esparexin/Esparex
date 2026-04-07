@@ -123,7 +123,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
                     >
                         Recommended for You
                     </h2>
-                    <p className="mt-1 text-xs md:text-base text-slate-400 max-w-2xl hidden md:block">
+                    <p className="mt-1 text-xs md:text-base text-foreground-subtle max-w-2xl hidden md:block">
                         Spotlight, boosted, and latest listings curated for your location.
                     </p>
                 </div>
@@ -149,7 +149,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
 
                 {!isLoading && !isError && recommendedAds.length === 0 && (
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-10 text-center">
-                        <PackageOpen className="mx-auto h-10 w-10 text-slate-300" />
+                        <PackageOpen className="mx-auto h-10 w-10 text-foreground-subtle" />
                         <p className="mt-3 text-sm text-muted-foreground">
                             No ads available right now.
                         </p>

@@ -37,7 +37,7 @@ function ShopImageTile({
                 className="object-cover"
             />
             <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-slate-900/65 via-slate-900/0 to-slate-900/0 p-3 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                <span className="rounded-full bg-white/90 px-2 py-1 text-xs font-semibold text-slate-700 shadow-sm">
+                <span className="rounded-full bg-white/90 px-2 py-1 text-xs font-semibold text-foreground-secondary shadow-sm">
                     Photo {index + 1}
                 </span>
                 <Button
@@ -45,7 +45,7 @@ function ShopImageTile({
                     size="icon"
                     variant="secondary"
                     onClick={onRemove}
-                    className="h-11 w-11 rounded-full bg-white/90 text-slate-700 shadow-sm hover:bg-white"
+                    className="h-11 w-11 rounded-full bg-white/90 text-foreground-secondary shadow-sm hover:bg-white"
                 >
                     <X className="h-4 w-4" />
                 </Button>
@@ -108,7 +108,7 @@ export function ShopPhotosField({
     return (
         <div className="space-y-3">
             <div className="space-y-1">
-                <p className="text-sm font-medium text-slate-800">
+                <p className="text-sm font-medium text-foreground-secondary">
                     Shop or workshop photos <span className="text-destructive">*</span>
                 </p>
                 <p className="text-xs leading-5 text-muted-foreground">
@@ -128,8 +128,8 @@ export function ShopPhotosField({
 
                 {formData.shopImages.length < 5 && (
                     <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center transition-colors hover:border-blue-400 hover:bg-blue-50">
-                        <Upload className="mb-3 h-6 w-6 text-slate-400" />
-                        <span className="text-sm font-semibold text-slate-700">Add photo</span>
+                        <Upload className="mb-3 h-6 w-6 text-foreground-subtle" />
+                        <span className="text-sm font-semibold text-foreground-secondary">Add photo</span>
                         <span className="mt-1 text-xs text-muted-foreground">{formData.shopImages.length}/5 uploaded</span>
                         <input
                             id="reg-shop-images"

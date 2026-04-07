@@ -20,7 +20,7 @@ export default function AboutPage() {
         <InfoPage title="About Esparex">
             <div className="space-y-6 not-prose">
                 <div>
-                    <h2 className="text-base font-bold text-slate-800 mb-2">Who We Are</h2>
+                    <h2 className="text-base font-bold text-foreground-secondary mb-2">Who We Are</h2>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                         Esparex is India&apos;s leading marketplace dedicated to electronics spare parts and repair services.
                         We bridge the gap between device owners, technicians, and spare part suppliers ensuring quality,
@@ -36,19 +36,19 @@ export default function AboutPage() {
                 </div>
 
                 <div>
-                    <h2 className="text-base font-bold text-slate-800 mb-3">Why Choose Us?</h2>
+                    <h2 className="text-base font-bold text-foreground-secondary mb-3">Why Choose Us?</h2>
                     <div className="space-y-2.5">
                         <div className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-100">
                             <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
-                            <p className="text-sm text-slate-600 leading-relaxed"><span className="font-semibold text-slate-800">Verified Sellers:</span> We vet our business partners to ensure quality parts.</p>
+                            <p className="text-sm text-foreground-tertiary leading-relaxed"><span className="font-semibold text-foreground-secondary">Verified Sellers:</span> We vet our business partners to ensure quality parts.</p>
                         </div>
                         <div className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-100">
                             <div className="h-2 w-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
-                            <p className="text-sm text-slate-600 leading-relaxed"><span className="font-semibold text-slate-800">Technician Network:</span> Find trusted repair experts in your locality.</p>
+                            <p className="text-sm text-foreground-tertiary leading-relaxed"><span className="font-semibold text-foreground-secondary">Technician Network:</span> Find trusted repair experts in your locality.</p>
                         </div>
                         <div className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-100">
                             <div className="h-2 w-2 rounded-full bg-violet-500 mt-1.5 flex-shrink-0" />
-                            <p className="text-sm text-slate-600 leading-relaxed"><span className="font-semibold text-slate-800">Transparent Pricing:</span> No hidden costs, direct deals between buyers and sellers.</p>
+                            <p className="text-sm text-foreground-tertiary leading-relaxed"><span className="font-semibold text-foreground-secondary">Transparent Pricing:</span> No hidden costs, direct deals between buyers and sellers.</p>
                         </div>
                     </div>
                 </div>

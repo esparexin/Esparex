@@ -31,7 +31,7 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                     <h2 className="text-xl font-bold text-foreground mb-2">
                         Service Unavailable
                     </h2>
-                    <p className="text-slate-600 mb-8">
+                    <p className="text-foreground-tertiary mb-8">
                         We are currently unable to connect to our servers. You cannot post new ads at this time.
                     </p>
                     <button
@@ -62,7 +62,7 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                     <h2 className="text-xl font-bold text-foreground mb-2">
                         Something went wrong
                     </h2>
-                    <p className="text-slate-600 mb-8">
+                    <p className="text-foreground-tertiary mb-8">
                         {mapErrorToMessage(loadError, "We encountered an issue loading the necessary data. Please try again.")}
                     </p>
                     <button

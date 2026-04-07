@@ -194,7 +194,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
             formId="post-spare-part-form"
         >
             {isEditMode ? (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-foreground-secondary">
                     <p className="font-semibold text-foreground">Catalog fields are locked while editing.</p>
                     <p className="mt-1">
                         Category, brand, and spare part type stay fixed so this listing remains mapped to the same catalog item.
@@ -246,7 +246,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                                             "rounded-xl border px-2 py-3 text-sm font-semibold transition-all",
                                             selected
                                                 ? "bg-primary border-primary text-white shadow-sm"
-                                                : "bg-white border-slate-100 text-slate-700 hover:border-slate-200",
+                                                : "bg-white border-slate-100 text-foreground-secondary hover:border-slate-200",
                                             isEditMode && !selected ? "opacity-40" : ""
                                         )}
                                     >
@@ -257,7 +257,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                             })}
                         </div>
                     ) : isEditMode && sparePartTypeId ? (
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-foreground-secondary">
                             <p className="font-semibold text-foreground">Existing spare-part mapping is preserved.</p>
                             <p className="mt-1">
                                 This listing keeps its current catalog mapping while you edit pricing, photos, and description.

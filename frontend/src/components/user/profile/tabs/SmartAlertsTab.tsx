@@ -127,7 +127,7 @@ export function SmartAlertsTab({
                                             <h4 className="font-semibold">{alert.name}</h4>
                                             <Badge
                                                 variant="secondary"
-                                                className={`text-xs ${alert.active === false ? "bg-slate-100 text-slate-700" : "bg-green-100 text-green-700"}`}
+                                                className={`text-xs ${alert.active === false ? "bg-slate-100 text-foreground-secondary" : "bg-green-100 text-green-700"}`}
                                             >
                                                 {alert.active === false ? "Paused" : "Active"}
                                             </Badge>

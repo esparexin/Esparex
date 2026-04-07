@@ -87,16 +87,16 @@ export function CatalogSlugPage({
             <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl">
               {config.heading(record.name)}
             </h1>
-            <p className="text-base leading-7 text-slate-600 sm:text-lg">
+            <p className="text-base leading-7 text-foreground-tertiary sm:text-lg">
               {config.description(record.name, record.contextLabel)}
             </p>
             {record.contextLabel ? (
               <p className="text-sm font-medium text-muted-foreground">
-                Connected to <span className="text-slate-800">{record.contextLabel}</span>
+                Connected to <span className="text-foreground-secondary">{record.contextLabel}</span>
               </p>
             ) : null}
             <div className="flex flex-wrap items-center gap-3 pt-2">
-              <div className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700">
+              <div className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary">
                 {total} live result{total === 1 ? "" : "s"}
               </div>
               <Button asChild className="rounded-full px-5">

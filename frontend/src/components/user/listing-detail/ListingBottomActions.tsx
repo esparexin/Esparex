@@ -137,7 +137,7 @@ export function ListingBottomActions({
               {/* Edit */}
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-11 text-xs rounded-xl border-slate-200 text-slate-600"
+                className="flex flex-col gap-1 h-11 text-xs rounded-xl border-slate-200 text-foreground-tertiary"
                 onClick={onEditClick}
               >
                 <Edit2 className="h-5 w-5" />
@@ -147,7 +147,7 @@ export function ListingBottomActions({
               {/* Mark Sold */}
               <Button
                 variant="outline"
-                className="flex flex-col gap-1 h-11 text-xs rounded-xl border-slate-200 text-slate-600"
+                className="flex flex-col gap-1 h-11 text-xs rounded-xl border-slate-200 text-foreground-tertiary"
                 onClick={onMarkSoldClick}
               >
                 <svg
@@ -180,7 +180,7 @@ export function ListingBottomActions({
             {/* Analytics Quick View */}
             <button
               onClick={onAnalyticsClick}
-              className="w-full py-2 text-xs text-center text-slate-400 border-t border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+              className="w-full py-2 text-xs text-center text-foreground-subtle border-t border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors"
             >
               <span className="font-medium text-muted-foreground">View Analytics</span> · Tap for detailed stats
             </button>
@@ -207,7 +207,7 @@ export function ListingBottomActions({
                 variant="outline"
                 onClick={onRevealPhone}
                 disabled={isPhoneLoading}
-                className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-slate-700 hover:bg-slate-50"
+                className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50"
               >
                 <Phone className="h-4 w-4" />
                 <span className="min-w-0 truncate">{phoneButtonLabel}</span>

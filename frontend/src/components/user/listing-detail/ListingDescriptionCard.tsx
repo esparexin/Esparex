@@ -25,19 +25,19 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                     <div className="grid grid-cols-2 gap-3 pb-4 border-b border-slate-100">
                         {!!ad.warranty && (
                             <div className="flex items-start gap-2.5 bg-slate-50 rounded-xl p-3">
-                                <Wrench className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                <Wrench className="h-4 w-4 text-foreground-subtle mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-2xs uppercase font-bold text-slate-400 tracking-wider">Warranty</p>
-                                    <p className="text-sm font-semibold text-slate-800 mt-0.5">{String(ad.warranty)}</p>
+                                    <p className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Warranty</p>
+                                    <p className="text-sm font-semibold text-foreground-secondary mt-0.5">{String(ad.warranty)}</p>
                                 </div>
                             </div>
                         )}
                         {ad.listingType === 'service' && ad.onsiteService !== undefined && (
                             <div className="flex items-start gap-2.5 bg-slate-50 rounded-xl p-3">
-                                <Wrench className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                                <Wrench className="h-4 w-4 text-foreground-subtle mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-2xs uppercase font-bold text-slate-400 tracking-wider">On-site</p>
-                                    <p className="text-sm font-semibold text-slate-800 mt-0.5">{ad.onsiteService ? 'Yes' : 'No'}</p>
+                                    <p className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">On-site</p>
+                                    <p className="text-sm font-semibold text-foreground-secondary mt-0.5">{ad.onsiteService ? 'Yes' : 'No'}</p>
                                 </div>
                             </div>
                         )}
@@ -50,7 +50,7 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                             <Info className="h-3.5 w-3.5 text-blue-500" />
                             What&apos;s Included
                         </h4>
-                        <div className="text-sm text-slate-600 leading-relaxed bg-blue-50 p-3.5 rounded-xl border border-blue-100">
+                        <div className="text-sm text-foreground-tertiary leading-relaxed bg-blue-50 p-3.5 rounded-xl border border-blue-100">
                             {String(ad.included)}
                         </div>
                     </div>
@@ -59,17 +59,17 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                 {!!ad.excluded && (
                     <div className="space-y-2">
                         <h4 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
-                            <Info className="h-3.5 w-3.5 text-slate-400" />
+                            <Info className="h-3.5 w-3.5 text-foreground-subtle" />
                             What&apos;s Excluded
                         </h4>
-                        <div className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <div className="text-sm text-foreground-tertiary leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                             {String(ad.excluded)}
                         </div>
                     </div>
                 )}
 
                 <div className="space-y-2">
-                    <h3 className={`font-bold text-slate-800 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
+                    <h3 className={`font-bold text-foreground-secondary ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
                         Description
                     </h3>
                     <div className={`text-muted-foreground whitespace-pre-wrap leading-7 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>

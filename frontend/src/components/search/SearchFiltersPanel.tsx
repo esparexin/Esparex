@@ -102,7 +102,7 @@ export function SearchFiltersPanel({
         <AccordionContent className="space-y-4 pt-2">
           {dynamicSpecificFilters.map((filter) => (
             <div key={filter.name} className="space-y-3">
-              <Label className="text-2xs font-bold text-slate-400 uppercase tracking-wider">
+              <Label className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider">
                 {filter.name}
               </Label>
 

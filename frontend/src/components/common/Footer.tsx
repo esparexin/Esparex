@@ -88,7 +88,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
             compact
                 ? "inline-flex items-center text-sm transition-colors"
                 : "inline-flex min-h-10 items-center text-left text-sm transition-colors md:min-h-0",
-            isDark ? "hover:text-primary text-slate-400" : "hover:text-green-600 text-slate-600"
+            isDark ? "hover:text-primary text-foreground-subtle" : "hover:text-green-600 text-foreground-tertiary"
         );
 
         if (onNavigate) {
@@ -127,8 +127,8 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                     const classes = cn(
                         "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
                         isDark
-                            ? "border-slate-800 bg-slate-900/70 text-slate-300 hover:border-primary/30 hover:text-white"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-green-200 hover:text-green-700"
+                            ? "border-slate-800 bg-slate-900/70 text-foreground-subtle hover:border-primary/30 hover:text-white"
+                            : "border-slate-200 bg-white text-foreground-tertiary hover:border-green-200 hover:text-green-700"
                     );
 
                     if (href.startsWith("mailto:")) {
@@ -149,7 +149,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                 })}
             </div>
             {!compact && (
-                <p className={cn("text-xs uppercase tracking-[0.2em] font-bold", isDark ? "text-slate-600" : "text-slate-400")}>
+                <p className={cn("text-xs uppercase tracking-[0.2em] font-bold", isDark ? "text-foreground-tertiary" : "text-foreground-subtle")}>
                     India's Leading Spare Parts Exchange
                 </p>
             )}
@@ -163,7 +163,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                 hasMobileBottomNav
                     ? "pt-6 pb-[calc(6.75rem+env(safe-area-inset-bottom))] md:py-12"
                     : "py-6 md:py-12",
-                isDark ? "bg-slate-950 border-slate-900 text-slate-400" : "bg-slate-50 border-slate-200 text-slate-600",
+                isDark ? "bg-slate-950 border-slate-900 text-foreground-subtle" : "bg-slate-50 border-slate-200 text-foreground-tertiary",
                 className
             )}
         >
@@ -180,7 +180,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                                     isDark ? "border-slate-800 bg-slate-900/60" : "border-slate-200 bg-white"
                                 )}
                             >
-                                <p className={cn("text-xs font-semibold uppercase tracking-[0.16em]", isDark ? "text-slate-300" : "text-muted-foreground")}>
+                                <p className={cn("text-xs font-semibold uppercase tracking-[0.16em]", isDark ? "text-foreground-subtle" : "text-muted-foreground")}>
                                     {section.title}
                                 </p>
                                 <ul className="mt-3 space-y-2">
@@ -204,7 +204,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
 
                     {FOOTER_LINK_SECTIONS.map((section) => (
                         <div key={section.title} className="col-span-1 text-left">
-                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-2xs md:text-xs", isDark ? "text-slate-300" : "text-foreground")}>
+                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-2xs md:text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
                                 {section.title}
                             </h3>
                             <ul className="space-y-0.5 md:space-y-2">
@@ -260,7 +260,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                             © {currentYear} Esparex Platform. Built for the future of tech repair.
                         </span>
                     </div>
-                    <p className={cn("text-left text-2xs uppercase tracking-[0.2em] font-bold", isDark ? "text-slate-600" : "text-slate-400")}>
+                    <p className={cn("text-left text-2xs uppercase tracking-[0.2em] font-bold", isDark ? "text-foreground-tertiary" : "text-foreground-subtle")}>
                         India's Leading Spare Parts Exchange
                     </p>
                 </div>

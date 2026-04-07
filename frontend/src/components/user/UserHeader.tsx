@@ -276,7 +276,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
                         onError={() => setAvatarSrc(DEFAULT_IMAGE_PLACEHOLDER)}
                       />
                     ) : (
-                      <div className="flex h-8 w-8 items-center justify-center bg-slate-100 text-slate-700 font-semibold border border-slate-200 rounded-full hover:bg-white hover:border-slate-300">
+                      <div className="flex h-8 w-8 items-center justify-center bg-slate-100 text-foreground-secondary font-semibold border border-slate-200 rounded-full hover:bg-white hover:border-slate-300">
                         {getUserInitials(user?.name || "", user?.mobile)}
                       </div>
                     )}

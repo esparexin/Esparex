@@ -81,7 +81,7 @@ export const BrowseFiltersBar = memo(function BrowseFiltersBar({
     <div className="sticky top-[6.25rem] md:top-0 z-30 bg-white border-b border-slate-100 shadow-sm">
       <div className="mx-auto max-w-7xl px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <div className="relative w-full sm:flex-1 sm:min-w-[180px] sm:max-w-md">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-foreground-subtle pointer-events-none" />
           <Input
             id={inputId}
             aria-label={searchAriaLabel}
@@ -147,7 +147,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
       trigger={
         <Button
           variant="outline"
-          className="h-11 px-4 gap-2 text-slate-700 border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none"
+          className="h-11 px-4 gap-2 text-foreground-secondary border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none"
         >
           <SlidersHorizontal className="size-4 text-muted-foreground" />
           <span>Filters</span>
@@ -161,7 +161,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
     >
       <div className="space-y-4 pb-8 pt-2">
         <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-foreground-subtle pointer-events-none" />
           <Input
             id={inputId}
             aria-label={searchAriaLabel}

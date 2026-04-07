@@ -55,7 +55,7 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
                 aria-label={`Sort listings, current ${SORT_LABELS[sort]}`}
                 className={cn(
                     buttonVariants({ variant: "outline" }),
-                    "h-11 max-w-[10.5rem] shrink-0 gap-1.5 rounded-full border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-none hover:bg-slate-50",
+                    "h-11 max-w-[10.5rem] shrink-0 gap-1.5 rounded-full border-slate-200 bg-white px-4 text-sm font-semibold text-foreground-secondary shadow-none hover:bg-slate-50",
                     className
                 )}
                 {...props}
@@ -80,9 +80,9 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
             )}
             {...props}
         >
-            <SortAsc className="size-4 text-slate-400" />
-            <span className="font-semibold text-slate-700 text-sm">{SORT_LABELS[sort]}</span>
-            <ChevronDown className={cn("size-4 text-slate-400 transition-transform", open && "rotate-180")} />
+            <SortAsc className="size-4 text-foreground-subtle" />
+            <span className="font-semibold text-foreground-secondary text-sm">{SORT_LABELS[sort]}</span>
+            <ChevronDown className={cn("size-4 text-foreground-subtle transition-transform", open && "rotate-180")} />
         </button>
     );
 });
@@ -116,7 +116,7 @@ function SortDropdownMenu({
                         "min-h-[44px] cursor-pointer rounded-lg px-3 py-2.5 text-sm",
                         sort === key
                             ? "bg-slate-900 text-white font-medium focus:bg-slate-900 focus:text-white"
-                            : "text-slate-600 focus:bg-slate-50 focus:text-slate-700"
+                            : "text-foreground-tertiary focus:bg-slate-50 focus:text-foreground-secondary"
                     )}
                 >
                     {SORT_LABELS[key]}
@@ -197,8 +197,8 @@ export function SearchResultsHeader({
                             className="h-10 w-10 flex-shrink-0 rounded-full border-slate-200 bg-white shadow-none"
                         >
                             {view === "grid"
-                                ? <List className="size-4 text-slate-600" />
-                                : <LayoutGrid className="size-4 text-slate-600" />}
+                                ? <List className="size-4 text-foreground-tertiary" />
+                                : <LayoutGrid className="size-4 text-foreground-tertiary" />}
                         </Button>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2 pb-1">
@@ -258,7 +258,7 @@ export function SearchResultsHeader({
                             aria-label="Grid view"
                             className={cn(
                                 "h-8 w-8 rounded-md",
-                                view === "grid" ? "bg-white shadow-sm text-foreground" : "text-slate-400 hover:text-slate-600"
+                                view === "grid" ? "bg-white shadow-sm text-foreground" : "text-foreground-subtle hover:text-foreground-tertiary"
                             )}
                         >
                             <LayoutGrid className="size-4" />
@@ -270,7 +270,7 @@ export function SearchResultsHeader({
                             aria-label="List view"
                             className={cn(
                                 "h-8 w-8 rounded-md",
-                                view === "list" ? "bg-white shadow-sm text-foreground" : "text-slate-400 hover:text-slate-600"
+                                view === "list" ? "bg-white shadow-sm text-foreground" : "text-foreground-subtle hover:text-foreground-tertiary"
                             )}
                         >
                             <List className="size-4" />

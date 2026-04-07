@@ -110,7 +110,7 @@ export function BrowseResultsPanel<TItem>({
       {!loading && !error && items.length === 0 ? (
         <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[28px] border border-slate-200 bg-white px-6 py-12 text-center shadow-sm sm:min-h-[380px] sm:px-10 sm:py-14">
           <div className="rounded-full bg-slate-100 p-6 mb-4">
-            <PackageOpen className="h-10 w-10 text-slate-300" />
+            <PackageOpen className="h-10 w-10 text-foreground-subtle" />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
             {activeFilterCount > 0 ? "No results match these filters" : emptyTitle}
@@ -123,14 +123,14 @@ export function BrowseResultsPanel<TItem>({
               {activeFilterBadges.map((badge) => (
                 <span
                   key={badge}
-                  className="max-w-full rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600"
+                  className="max-w-full rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-foreground-tertiary"
                 >
                   {badge}
                 </span>
               ))}
             </div>
           ) : null}
-          <p className="mb-6 text-xs font-medium uppercase tracking-widest text-slate-400">
+          <p className="mb-6 text-xs font-medium uppercase tracking-widest text-foreground-subtle">
             Sorted by {PUBLIC_BROWSE_SORT_LABELS[sort]}
           </p>
           <Button variant="outline" onClick={onReset}>
@@ -167,7 +167,7 @@ export function BrowseResultsPanel<TItem>({
 
       {loading && items.length > 0 ? (
         <div className="flex justify-center py-6">
-          <RefreshCw className="h-5 w-5 animate-spin text-slate-400" />
+          <RefreshCw className="h-5 w-5 animate-spin text-foreground-subtle" />
         </div>
       ) : null}
     </div>

@@ -41,7 +41,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                     <h2 id="browse-categories" className="text-base font-bold md:text-2xl text-foreground tracking-tight">
                         Browse Categories
                     </h2>
-                    <p className="mt-1 text-slate-400 text-xs hidden md:block">
+                    <p className="mt-1 text-foreground-subtle text-xs hidden md:block">
                         Explore diverse categories to find exactly what you need.
                     </p>
                 </div>

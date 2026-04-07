@@ -33,7 +33,7 @@ export default function GlobalError({
                         <h1 className="text-4xl font-bold text-foreground mb-4">
                             Critical Error
                         </h1>
-                        <p className="text-xl text-slate-600 mb-8">
+                        <p className="text-xl text-foreground-tertiary mb-8">
                             A critical error occurred. Please try refreshing the page.
                         </p>
 
@@ -48,7 +48,7 @@ export default function GlobalError({
                             </button>
                             <Link
                                 href="/"
-                                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-slate-800 px-8 py-3 rounded-lg transition-colors font-semibold border-2 border-gray-300"
+                                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-foreground-secondary px-8 py-3 rounded-lg transition-colors font-semibold border-2 border-gray-300"
                             >
                                 <Home size={20} />
                                 <span>Go to Homepage</span>
@@ -89,7 +89,7 @@ export default function GlobalError({
             color: #111827;
           }
 
-          .text-slate-600 {
+          .text-foreground-tertiary {
             color: #4b5563;
           }
 
@@ -97,7 +97,7 @@ export default function GlobalError({
             color: #6b7280;
           }
 
-          .text-slate-800 {
+          .text-foreground-secondary {
             color: #1f2937;
           }
 

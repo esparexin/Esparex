@@ -70,7 +70,7 @@ export const AdCardCover = memo(function AdCardCover({
           )}
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gray-200 text-slate-400">
+        <div className="w-full h-full flex items-center justify-center bg-gray-200 text-foreground-subtle">
           <span className="text-xs md:text-sm">No Image</span>
         </div>
       )}

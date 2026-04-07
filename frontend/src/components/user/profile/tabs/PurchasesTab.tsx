@@ -56,7 +56,7 @@ export function PurchasesTab({
                             <p className="text-xs text-muted-foreground">Pending Orders</p>
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-slate-600">
+                            <p className="text-2xl font-bold text-foreground-tertiary">
                                 {successfulOrders}
                             </p>
                             <p className="text-xs text-muted-foreground">Successful Orders</p>

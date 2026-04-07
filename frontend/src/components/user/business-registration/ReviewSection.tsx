@@ -17,7 +17,7 @@ export function ReviewSection({
         <div className="rounded-2xl border border-slate-200 p-4 sm:p-5">
             <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                    <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground-subtle">
                         {title}
                     </h4>
                     <div className="mt-3 space-y-2">{content}</div>
