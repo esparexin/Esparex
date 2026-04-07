@@ -344,6 +344,7 @@ export const createAuthError = (reason: string): EsparexError | null => {
   // � ARCHITECTURAL STANDARDS RULE: 
   // Authentication state is NOT an error. Expected transitions (logged out / expired) return null.
   if (reason === 'sessionExpired' || reason === 'notLoggedIn') {
+    console.info(`[Auth] Silent state transition: ${reason}`);
     return null; // Silent state transition
   }
 
@@ -637,36 +638,3 @@ export const requireOnline = (operation: string): void => {
   }
 };
 
-// ============================================================================
-// ERROR RECOVERY
-// ============================================================================
-
-export const createRecoveryAction = (
-  error: EsparexError
-): { text: string; action: () => void } | null => {
-  switch (error.code) {
-    case ErrorCode.NETWORK_OFFLINE:
-      return {
-        text: "Check Connection",
-        action: () => window.location.reload(),
-      };
-    case ErrorCode.AUTH_NOT_LOGGED_IN:
-    case ErrorCode.AUTH_SESSION_EXPIRED:
-      return {
-        text: "Log In",
-        action: () => {
-          // Navigate to login
-          window.location.href = "/";
-        },
-      };
-    case ErrorCode.DATA_LOAD_FAILED:
-      return {
-        text: "Refresh Page",
-        action: () => window.location.reload(),
-      };
-    default:
-      return error.retryable
-        ? { text: "Try Again", action: () => { } }
-        : null;
-  }
-};

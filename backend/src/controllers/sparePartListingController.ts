@@ -172,8 +172,10 @@ export const getSparePartListings = async (req: Request, res: Response) => {
     try {
         const { categoryId, typeId, status, page, limit, cursor, search, locationId, lat, lng, radiusKm } = req.query;
 
-        const parsedPage = Math.min(Number(page) || 1, 1000);
-        const parsedLimit = Math.min(Number(limit) || 20, 100);
+        const requestedPage = Number(page) || 1;
+        const requestedLimit = Number(limit) || 20;
+        const parsedPage = Math.min(requestedPage, 1000);
+        const parsedLimit = Math.min(requestedLimit, 100);
 
         // Redirect to unified AdQueryService
         const result = await adService.getAds(
@@ -201,8 +203,10 @@ export const getSparePartListings = async (req: Request, res: Response) => {
             data: result.data as Array<Record<string, unknown>>,
             pagination: {
                 ...result.pagination,
-                page: result.pagination.page || 1,
-                limit: result.pagination.limit || 20,
+                page: parsedPage,
+                limit: parsedLimit,
+                ...(parsedLimit !== requestedLimit ? { clampedLimit: true } : {}),
+                ...(parsedPage !== requestedPage ? { clampedPage: true } : {}),
             }
         }));
     } catch (error) {

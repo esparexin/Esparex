@@ -38,7 +38,8 @@ export function errorToPopup(
   let type: PopupType = "error";
 
   if (error.status === 404) type = "info";
-  else if (error.status === 400 || error.status === 409) type = "warning";
+  else if (error.status === 400) type = "warning";
+  else if (error.status === 409) type = "error";
   else if (error.status >= 500 || error.status === 0) type = "error";
   else if (error.status === 401 || error.status === 403) type = "error";
 
