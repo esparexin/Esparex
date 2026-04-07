@@ -612,13 +612,7 @@ export const deleteService = async (req: Request, res: Response) => {
         // 🛡️ Soft Delete
         await (service as unknown as { softDelete: () => Promise<void> }).softDelete();
 
-        const response = respond<ApiResponse<null>>({
-            success: true,
-            data: null,
-            message: 'Service deleted'
-        });
-
-        res.json(response);
+        res.status(204).end();
     } catch (error) {
         logger.error('Delete Service Error:', error);
         sendErrorResponse(req, res, 500, 'Failed to delete service');

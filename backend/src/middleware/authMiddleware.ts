@@ -146,7 +146,7 @@ export const protect = async (
         cacheKey,
         JSON.stringify({ status: userStatus, tokenVersion: storedTokenVersion }),
         'EX',
-        300
+        60
       );
     }
 

@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import User, { IUser } from '../../models/User';
 import Business from '../../models/Business';
+import AdModel from '../../models/Ad';
 import BlockedUser from '../../models/BlockedUser';
 import * as userService from '../../services/UserService';
 import {
@@ -224,9 +225,22 @@ export const deleteMe = async (
       reason: combinedReason,
     });
 
+    // Cascade soft-delete to all user-owned listings and business
+    const deletedAt = new Date();
+    await Promise.all([
+      AdModel.updateMany(
+        { sellerId: userId, isDeleted: { $ne: true } },
+        { $set: { isDeleted: true, deletedAt } }
+      ),
+      Business.updateMany(
+        { userId, isDeleted: { $ne: true } },
+        { $set: { isDeleted: true, deletedAt } }
+      ),
+    ]);
+
     AuthService.clearUserSession(res);
 
-    sendSuccessResponse(res, null, 'Account deleted');
+    res.status(204).end();
     return;
   } catch (err) {
     next(err);

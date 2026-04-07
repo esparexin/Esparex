@@ -126,10 +126,7 @@ const buildCreateListingIdempotencyGuard = (scope: string) => async (req: Reques
                 return res.status(existing.responseStatus || 200).json(existing.responseBody);
             }
 
-            const recentlyUpdated =
-                existing.updatedAt &&
-                now.getTime() - new Date(existing.updatedAt).getTime() <= PROCESSING_LOCK_MS;
-            if (recentlyUpdated) {
+            if (existing.status === 'processing') {
                 logger.warn('Idempotency request already in progress', {
                     requestId: req.requestId,
                     userId,
@@ -142,7 +139,7 @@ const buildCreateListingIdempotencyGuard = (scope: string) => async (req: Reques
                     res,
                     429,
                     'IDEMPOTENCY_IN_PROGRESS',
-                    'A request with this idempotency key is already being processed.',
+                    'A request with this idempotency key is already being processed. Please retry with exponential backoff.',
                     {
                         idempotencyKey: key,
                         conflictType: 'IDEMPOTENCY',

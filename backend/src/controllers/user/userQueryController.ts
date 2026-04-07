@@ -36,13 +36,13 @@ export const getMe = async (
       return;
     }
 
-    const [user, business] = await Promise.all([
-      User.findById(userId)
-        .select('-password -salt')
-        .lean(),
+    const user = await User.findById(userId)
+      .select('-password -salt')
+      .lean();
 
-      Business.findOne({ userId }).lean(),
-    ]);
+    const business = user?.businessId
+      ? await Business.findOne({ userId }).lean()
+      : null;
 
     if (!user) {
       sendErrorResponse(req, res, 404, 'User not found');

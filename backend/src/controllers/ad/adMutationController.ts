@@ -144,13 +144,7 @@ export const deleteAd = async (req: Request, res: Response, next: NextFunction) 
             return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
         }
 
-        const response = respond<ApiResponse<null>>({
-            success: true,
-            data: null,
-            message: 'Ad deleted successfully'
-        });
-
-        res.json(response);
+        res.status(204).end();
     } catch (error: unknown) {
         next(error);
     }

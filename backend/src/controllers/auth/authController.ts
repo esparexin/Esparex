@@ -6,7 +6,6 @@ import { verifyToken } from '../../utils/auth';
 import { respond, sendSuccessResponse } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { SendOtpResult, VerifyOtpResult } from '../../services/AuthService';
-
 import { env } from '../../config/env';
 
 const getAuthCookieOptions = (maxAge: number) => ({
@@ -27,17 +26,20 @@ export class AuthController {
         });
     }
 
-    private static normalizePhone(phone: string): string {
-        const cleaned = phone.replace(/\D/g, '');
+    private static parsePhone(req: Request, res: Response, phone: string): string | null {
+        const cleaned = (phone || '').replace(/\D/g, '');
         if (cleaned.length === 10) return cleaned;
         if (cleaned.length === 12 && cleaned.startsWith('91')) return cleaned.slice(2);
-        return cleaned.slice(-10);
+        // Invalid length — reject with 400 instead of silently truncating
+        sendErrorResponse(req, res, 400, 'Invalid phone number. Must be a 10-digit Indian mobile number.');
+        return null;
     }
 
     static async login(req: Request, res: Response, next: NextFunction) {
         try {
             const { mobile } = req.body;
-            const normalizedPhone = AuthController.normalizePhone(mobile);
+            const normalizedPhone = AuthController.parsePhone(req, res, mobile);
+            if (!normalizedPhone) return;
             const result = await AuthService.sendLoginOtp(normalizedPhone);
 
             if (!result.success) {
@@ -54,7 +56,8 @@ export class AuthController {
     static async verify(req: Request, res: Response, next: NextFunction) {
         try {
             const { mobile, otp, name } = req.body;
-            const normalizedPhone = AuthController.normalizePhone(mobile);
+            const normalizedPhone = AuthController.parsePhone(req, res, mobile);
+            if (!normalizedPhone) return;
             const result = await AuthService.verifyLoginOtp(normalizedPhone, otp, name);
 
             if (!result.success) {
@@ -77,7 +80,8 @@ export class AuthController {
     static async cancelOtp(req: Request, res: Response, next: NextFunction) {
         try {
             const { mobile } = req.body;
-            const normalizedPhone = AuthController.normalizePhone(mobile);
+            const normalizedPhone = AuthController.parsePhone(req, res, mobile);
+            if (!normalizedPhone) return;
             const result = await AuthService.cancelOtpSession(normalizedPhone);
             return sendSuccessResponse(res, result);
         } catch (error: unknown) {

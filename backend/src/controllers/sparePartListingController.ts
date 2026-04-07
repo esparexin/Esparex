@@ -172,6 +172,9 @@ export const getSparePartListings = async (req: Request, res: Response) => {
     try {
         const { categoryId, typeId, status, page, limit, cursor, search, locationId, lat, lng, radiusKm } = req.query;
 
+        const parsedPage = Math.min(Number(page) || 1, 1000);
+        const parsedLimit = Math.min(Number(limit) || 20, 100);
+
         // Redirect to unified AdQueryService
         const result = await adService.getAds(
             {
@@ -186,8 +189,8 @@ export const getSparePartListings = async (req: Request, res: Response) => {
                 ...(radiusKm ? { radiusKm: Number(radiusKm) } : {}),
             },
             {
-                page: Number(page) || 1,
-                limit: Number(limit) || 20,
+                page: parsedPage,
+                limit: parsedLimit,
                 cursor: cursor as string
             },
             { enforcePublicVisibility: true }
@@ -297,7 +300,7 @@ export const deleteSparePartListing = async (req: Request, res: Response) => {
         if (!listing) return;
 
         await listing.softDelete();
-        res.status(200).json({ success: true, data: null, message: 'Spare part listing deleted.' });
+        res.status(204).end();
     } catch (error) {
         sendContractErrorResponse(req, res, 500, 'Failed to delete spare part listing');
     }
