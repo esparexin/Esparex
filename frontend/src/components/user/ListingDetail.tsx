@@ -570,13 +570,13 @@ export function ListingDetail({
           notify.success("Shared successfully!");
         } catch (error) {
           if ((error as Error).name !== "AbortError") {
-            // If share fails, fall back to clipboard
-            await navigator.clipboard.writeText(shareUrl);
-            notify.success("Link copied to clipboard!");
+            // Share cancelled or failed — open WhatsApp as a rich fallback on mobile
+            const waText = encodeURIComponent(`${shareText}\n${shareUrl}`);
+            window.open(`https://wa.me/?text=${waText}`, "_blank", "noopener,noreferrer");
           }
         }
       } else {
-        // Fallback: copy to clipboard
+        // Desktop fallback: copy to clipboard
         await navigator.clipboard.writeText(shareUrl);
         notify.success("Link copied to clipboard!");
       }

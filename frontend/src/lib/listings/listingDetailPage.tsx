@@ -80,13 +80,17 @@ export async function buildListingMetadata({
     const previousImages = (await parent).openGraph?.images || [];
     const mainImage = listing.images?.[0];
 
+    const isIndexable = !listing.status || listing.status === "live";
+    const ogDescription = listing.description?.slice(0, 300);
+
     return {
         title: `${listingTitle} | Esparex`,
         description: listing.description?.slice(0, 160),
         alternates: { canonical: canonicalUrl },
+        robots: isIndexable ? undefined : { index: false, follow: false },
         openGraph: {
             title: listingTitle,
-            description: listing.description,
+            description: ogDescription,
             url: canonicalUrl,
             images: mainImage ? [mainImage, ...previousImages] : previousImages,
         },

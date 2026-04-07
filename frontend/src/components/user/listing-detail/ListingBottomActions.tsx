@@ -207,6 +207,7 @@ export function ListingBottomActions({
                 variant="outline"
                 onClick={onRevealPhone}
                 disabled={isPhoneLoading}
+                aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
                 className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50"
               >
                 <Phone className="h-4 w-4" />
@@ -216,6 +217,7 @@ export function ListingBottomActions({
             {showChatAction ? (
               <Button
                 onClick={onChatClick}
+                aria-label="Chat with seller"
                 className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all"
               >
                 <MessageCircle className="h-5 w-5" />

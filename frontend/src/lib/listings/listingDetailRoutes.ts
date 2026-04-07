@@ -47,14 +47,18 @@ const adListingRouteConfig: ListingDetailRouteConfig = {
     name: ad.title,
     description: ad.description,
     image: ad.images || [],
+    url: ad.id ? `https://esparex.in/ads/${ad.id}` : undefined,
     offers: {
       "@type": "Offer",
       price: ad.price,
-      priceCurrency: "IQD",
+      priceCurrency: "INR",
       availability:
         ad.status === "live"
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
+      seller: ad.sellerName
+        ? { "@type": "Person", name: ad.sellerName }
+        : undefined,
     },
   }),
 };
@@ -68,6 +72,7 @@ const serviceListingRouteConfig: ListingDetailRouteConfig = {
     name: service.title,
     description: service.description,
     image: service.images || [],
+    url: service.id ? `https://esparex.in/services/${service.id}` : undefined,
     provider: {
       "@type": "LocalBusiness",
       name: service.sellerName || "Service Provider",
@@ -75,7 +80,7 @@ const serviceListingRouteConfig: ListingDetailRouteConfig = {
     offers: {
       "@type": "Offer",
       price: service.price,
-      priceCurrency: "IQD",
+      priceCurrency: "INR",
       availability:
         service.status === "live"
           ? "https://schema.org/InStock"
@@ -93,14 +98,18 @@ const sparePartListingRouteConfig: ListingDetailRouteConfig = {
     name: listing.title,
     description: listing.description,
     image: listing.images || [],
+    url: listing.id ? `https://esparex.in/spare-part-listings/${listing.id}` : undefined,
     offers: {
       "@type": "Offer",
       price: listing.price,
-      priceCurrency: "IQD",
+      priceCurrency: "INR",
       availability:
         listing.status === "live"
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
+      seller: listing.sellerName
+        ? { "@type": "Person", name: listing.sellerName }
+        : undefined,
     },
   }),
 };

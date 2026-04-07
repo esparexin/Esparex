@@ -46,10 +46,10 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
 
                 {!!ad.included && (
                     <div className="space-y-2">
-                        <h4 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+                        <h3 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
                             <Info className="h-3.5 w-3.5 text-blue-500" />
                             What&apos;s Included
-                        </h4>
+                        </h3>
                         <div className="text-sm text-foreground-tertiary leading-relaxed bg-blue-50 p-3.5 rounded-xl border border-blue-100">
                             {String(ad.included)}
                         </div>
@@ -58,10 +58,10 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
 
                 {!!ad.excluded && (
                     <div className="space-y-2">
-                        <h4 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+                        <h3 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
                             <Info className="h-3.5 w-3.5 text-foreground-subtle" />
                             What&apos;s Excluded
-                        </h4>
+                        </h3>
                         <div className="text-sm text-foreground-tertiary leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                             {String(ad.excluded)}
                         </div>
@@ -69,12 +69,18 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                 )}
 
                 <div className="space-y-2">
-                    <h3 className={`font-bold text-foreground-secondary ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
+                    <h2 className={`font-bold text-foreground-secondary ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
                         Description
-                    </h3>
-                    <div className={`text-muted-foreground whitespace-pre-wrap leading-7 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
-                        {description}
-                    </div>
+                    </h2>
+                    {description ? (
+                        <div className={`text-muted-foreground whitespace-pre-wrap leading-7 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
+                            {description}
+                        </div>
+                    ) : (
+                        <p className={`text-foreground-subtle italic ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
+                            No description provided.
+                        </p>
+                    )}
                 </div>
             </CardContent>
         </Card>

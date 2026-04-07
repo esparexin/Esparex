@@ -71,9 +71,9 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                         </div>
                     )}
 
-                    {/* Image counter pill on mobile */}
+                    {/* Image counter pill */}
                     {safeImages.length > 1 && (
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 md:hidden bg-black/40 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full">
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full">
                             {currentImageIndex + 1} / {safeImages.length}
                         </div>
                     )}
