@@ -49,10 +49,10 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
     
     const activeSubTabColor = subTabs?.find(t => t.value === activeSubTab)?.color ?? "blue";
     const activeTabClass = {
-        blue: "border-blue-600 text-blue-700",
+        blue: "border-blue-600 text-link-dark",
         violet: "border-violet-600 text-violet-700",
         teal: "border-teal-600 text-teal-700",
-    }[activeSubTabColor as "blue" | "violet" | "teal"] || "border-blue-600 text-blue-700";
+    }[activeSubTabColor as "blue" | "violet" | "teal"] || "border-blue-600 text-link-dark";
 
     const postBtnClass = {
         blue: "bg-blue-600 hover:bg-blue-700",
@@ -65,7 +65,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
             {/* Header */}
             <div className="px-4 md:px-6 pt-5 pb-0">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <h2 className="text-base font-bold text-foreground flex items-center gap-2">
                         {icon || <LayoutGrid className="h-5 w-5 text-link" />}
                         {title}
                     </h2>
@@ -91,7 +91,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                                 className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap
                                     ${activeSubTab === t.value
                                         ? activeTabClass
-                                        : "border-transparent text-slate-500 hover:text-slate-700"
+                                        : "border-transparent text-muted-foreground hover:text-slate-700"
                                     }`}
                             >
                                 {t.icon}
@@ -129,14 +129,14 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                     <LoadingSkeleton />
                 ) : error ? (
                     <div className="py-12 text-center">
-                        <p className="text-slate-500 text-sm mb-4">{errorMessage}</p>
+                        <p className="text-muted-foreground text-sm mb-4">{errorMessage}</p>
                         {onRetry && <Button onClick={onRetry} variant="outline" size="sm">Retry</Button>}
                     </div>
                 ) : items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
                         <div className="mb-4 text-slate-200">{emptyState.icon}</div>
-                        <h3 className="text-sm font-semibold text-slate-900 mb-1">{emptyState.title}</h3>
-                        <p className="text-xs text-slate-500 max-w-[240px] mb-6">{emptyState.description}</p>
+                        <h3 className="text-sm font-semibold text-foreground mb-1">{emptyState.title}</h3>
+                        <p className="text-xs text-muted-foreground max-w-[240px] mb-6">{emptyState.description}</p>
                         {emptyState.cta}
                     </div>
                 ) : (

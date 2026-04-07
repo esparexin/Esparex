@@ -201,7 +201,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         onClick={resetToMobileStep}
                         disabled={isSendingOTP}
                         aria-label="Edit phone number"
-                        className="h-11 w-11 text-blue-700 hover:text-blue-900"
+                        className="h-11 w-11 text-link-dark hover:text-blue-900"
                       >
                         <Pencil size={14} />
                       </Button>
@@ -317,7 +317,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         variant="link"
                         disabled={isSendingOTP || isBlocked || isLocked || isSendRateLimited}
                         onClick={handleResendOtp}
-                        className="h-auto p-0 text-sm font-semibold text-link hover:text-blue-700"
+                        className="h-auto p-0 text-sm font-semibold text-link hover:text-link-dark"
                       >
                         {isSendingOTP && (
                           <Loader2 className="animate-spin mr-2" size={14} />

@@ -29,7 +29,7 @@ export function BusinessListingGatePage({
     if (isLoading || !isFetched) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-                <div className="text-slate-500 font-medium">Checking business verification...</div>
+                <div className="text-muted-foreground font-medium">Checking business verification...</div>
             </div>
         );
     }
@@ -42,7 +42,7 @@ export function BusinessListingGatePage({
                     <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2">
                         <Building2 className="w-8 h-8" />
                     </div>
-                    <h1 className="text-xl font-bold text-slate-900">Business Verification Required</h1>
+                    <h1 className="text-xl font-bold text-foreground">Business Verification Required</h1>
                     <p className="text-slate-600">
                         Only admin-verified business accounts can post {listingTypeLabel}. Your account is{" "}
                         <strong>{businessData?.status ?? "not registered"}</strong>.

@@ -79,9 +79,9 @@ export function AdOwnerActions({
 
                 {isSold && (
                     <div className="bg-slate-100 border-2 border-slate-200 rounded-xl p-4 text-center">
-                        <CheckCheck className="h-6 w-6 text-slate-500 mx-auto mb-2" />
+                        <CheckCheck className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm font-bold text-slate-700">Listing Marked as Sold</p>
-                        <p className="text-xs text-slate-500 mt-1">This listing is now archived</p>
+                        <p className="text-xs text-muted-foreground mt-1">This listing is now archived</p>
                     </div>
                 )}
 

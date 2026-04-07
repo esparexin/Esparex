@@ -300,7 +300,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
                         onClick={() => handleMenuItemClick(item)}
                         className="cursor-pointer rounded-lg focus:bg-slate-50"
                       >
-                        <Icon className="mr-2 h-4 w-4 text-slate-500" />
+                        <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
                         <span>{item.label}</span>
                       </DropdownMenuItem>
                     );

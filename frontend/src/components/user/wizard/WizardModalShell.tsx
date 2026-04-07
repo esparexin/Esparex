@@ -59,11 +59,11 @@ export function WizardModalShell({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {headerContent}
-                  <h2 className="text-sm font-bold text-slate-900 sm:text-base">
+                  <h2 className="text-sm font-bold text-foreground sm:text-base">
                     {title}
                   </h2>
                 </div>
-                <span className="text-xs font-semibold text-slate-500">
+                <span className="text-xs font-semibold text-muted-foreground">
                   Step {currentStep} of {totalSteps}
                 </span>
               </div>

@@ -183,8 +183,8 @@ export function PersonalTab({
                     <div className="pt-2">
                         <div className="p-3 md:p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
                             <div className="flex items-center gap-2 mb-1">
-                                <Building2 className="h-4 w-4 text-slate-500" />
-                                <h3 className="font-semibold text-sm text-slate-900">Billing Details (Optional)</h3>
+                                <Building2 className="h-4 w-4 text-muted-foreground" />
+                                <h3 className="font-semibold text-sm text-foreground">Billing Details (Optional)</h3>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="space-y-1.5">
@@ -268,8 +268,8 @@ export function PersonalTab({
                                     {mobileVisibility === "show" && <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-sm text-slate-900">Show to All</p>
-                                    <p className="text-xs text-slate-500 leading-tight">Visible on all your ads to verified buyers.</p>
+                                    <p className="font-bold text-sm text-foreground">Show to All</p>
+                                    <p className="text-xs text-muted-foreground leading-tight">Visible on all your ads to verified buyers.</p>
                                 </div>
                             </div>
 
@@ -284,15 +284,15 @@ export function PersonalTab({
                                     {mobileVisibility === "hide" && <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse" />}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-sm text-slate-900">Hide</p>
-                                    <p className="text-xs text-slate-500 leading-tight">Buyers will not be able to see your number.</p>
+                                    <p className="font-bold text-sm text-foreground">Hide</p>
+                                    <p className="text-xs text-muted-foreground leading-tight">Buyers will not be able to see your number.</p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 mt-2">
                             <Shield className="h-4 w-4 text-blue-500" />
-                            <p className="text-xs text-slate-500 font-medium italic">
+                            <p className="text-xs text-muted-foreground font-medium italic">
                                 Note: Visibility changes will apply across all your active listings when you click "Save Changes" above.
                             </p>
                         </div>

@@ -36,7 +36,7 @@ export function HomeBannerAd() {
                         </Link>
                         <Link
                             href="/post-ad"
-                            className="inline-flex items-center justify-center h-11 px-6 rounded-xl bg-white text-blue-700 hover:bg-blue-50 text-sm font-bold transition-colors shadow-md"
+                            className="inline-flex items-center justify-center h-11 px-6 rounded-xl bg-white text-link-dark hover:bg-blue-50 text-sm font-bold transition-colors shadow-md"
                         >
                             Post for Free
                         </Link>

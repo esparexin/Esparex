@@ -66,6 +66,7 @@
   --text-base: 1rem;
   --text-sm: 0.875rem;
   --text-xs: 0.75rem;
+  --text-2xs: 0.625rem;
 
   --font-weight-medium: 500;
   --font-weight-normal: 400;
@@ -102,6 +103,7 @@
 
   /* Link / interactive / trust blue — intentional companion to primary green */
   --link: 221.2 83.2% 53.3%;        /* blue-600 #2563eb */
+  --link-dark: 224.3 76.3% 48%;     /* blue-700 #1d4ed8 — hover/active state */
   --link-foreground: 0 0% 100%;
 }
 
@@ -157,6 +159,7 @@
 
   /* Link / interactive blue (slightly lighter in dark mode) */
   --link: 213.1 93.9% 67.8%;        /* blue-400 for better contrast on dark bg */
+  --link-dark: 217.2 91.2% 59.8%;   /* blue-500 — hover/active on dark bg */
   --link-foreground: 0 0% 100%;
 
   /* Charts Dark Mode (Adjusted for visibility if needed, or keep same) */
@@ -176,7 +179,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-normal;
+    @apply bg-background text-foreground font-normal antialiased;
     font-size: var(--text-base);
     line-height: 1.5;
   }

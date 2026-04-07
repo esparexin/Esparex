@@ -38,7 +38,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
         >
             <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
                 <div className="mb-5 md:mb-8">
-                    <h2 id="browse-categories" className="text-base font-bold md:text-2xl text-slate-900 tracking-tight">
+                    <h2 id="browse-categories" className="text-base font-bold md:text-2xl text-foreground tracking-tight">
                         Browse Categories
                     </h2>
                     <p className="mt-1 text-slate-400 text-xs hidden md:block">
@@ -85,7 +85,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                     >
                                         <Icon className={`h-6 w-6 md:h-8 md:w-8 ${config.color}`} />
                                     </div>
-                                    <span className="text-xs md:text-xs font-semibold text-slate-500 text-center line-clamp-1 group-hover:text-link transition-colors">
+                                    <span className="text-xs md:text-xs font-semibold text-muted-foreground text-center line-clamp-1 group-hover:text-link transition-colors">
                                         {cat.name}
                                     </span>
                                 </Link>

@@ -39,14 +39,14 @@ export function ListingModalLayout({ title, onClose, children }: ListingModalLay
                                 type="button"
                                 onClick={onClose}
                                 aria-label="Close"
-                                className="h-11 w-11 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                                className="h-11 w-11 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 hover:text-foreground transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
                         <h1
                             className={cn(
-                                "font-bold text-slate-900 text-base leading-none",
+                                "font-bold text-foreground text-base leading-none",
                                 "flex-1 text-center",
                                 "sm:flex-none sm:text-left"
                             )}
@@ -89,7 +89,7 @@ export function ListingModalLoading() {
     return (
         <div className="fixed inset-0 z-[1001] flex flex-col bg-white overflow-hidden sm:bg-slate-900/40 sm:backdrop-blur-md sm:items-center sm:justify-center sm:p-6">
             <div className="flex flex-col bg-white flex-1 overflow-hidden sm:flex-none sm:w-full sm:max-w-lg sm:max-h-[90dvh] sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-900/10">
-                <div className="flex-1 flex items-center justify-center text-slate-500 text-sm gap-2">
+                <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm gap-2">
                     <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
                 </div>
             </div>

@@ -31,7 +31,7 @@ function SettingRow({ icon, title, description, checked, onCheckedChange }: Sett
     return (
         <div className="flex items-center justify-between gap-3 min-h-[44px]">
             <div className="flex items-start gap-3">
-                <div className="mt-0.5 text-slate-500">{icon}</div>
+                <div className="mt-0.5 text-muted-foreground">{icon}</div>
                 <div>
                     <p className="font-medium text-sm">{title}</p>
                     <p className="text-xs text-muted-foreground">{description}</p>
@@ -71,7 +71,7 @@ export function SettingsTab({
                     Icon={SettingsIcon}
                 />
                 <CardContent className="space-y-4">
-                    <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-700">
+                    <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-link-dark">
                         These toggles control the notifications you actually receive. Smart alert delivery also respects
                         the email, push, and instant-alert settings below.
                     </div>

@@ -10,7 +10,7 @@ const ACTIONS = [
         label: "Post Ad",
         href: "/post-ad",
         icon: PlusCircle,
-        className: "bg-blue-50 text-blue-700 border-blue-100",
+        className: "bg-blue-50 text-link-dark border-blue-100",
     },
     {
         label: "Post Service",

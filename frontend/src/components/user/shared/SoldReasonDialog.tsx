@@ -36,7 +36,7 @@ export function SoldReasonDialog({
                 <DialogHeader>
                     <DialogTitle>Mark as Sold</DialogTitle>
                 </DialogHeader>
-                <p className="text-sm text-slate-500 mb-3">{description}</p>
+                <p className="text-sm text-muted-foreground mb-3">{description}</p>
                 <div className="space-y-2">
                     {SOLD_REASON_OPTIONS.map((option) => (
                         <label

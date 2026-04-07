@@ -135,7 +135,7 @@ export default function DeviceIdentityFields() {
                                 value={screenSize || undefined}
                                 onValueChange={(val) => setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}
                             >
-                                <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-bold text-slate-900 focus:border-primary transition-colors px-3 text-sm">
+                                <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-bold text-foreground focus:border-primary transition-colors px-3 text-sm">
                                     <SelectValue placeholder="Select size" />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-xl border-2 border-slate-100 shadow-xl z-[99999]">
@@ -154,7 +154,7 @@ export default function DeviceIdentityFields() {
             {/* Spare Parts — only show once a category is selected */}
             {categoryId && (
                 <section className="space-y-4">
-                    <label className="text-sm font-bold text-slate-900 text-center block w-full">
+                    <label className="text-sm font-bold text-foreground text-center block w-full">
                         Working Spare Parts
                     </label>
                     {isLoadingSpareParts ? (

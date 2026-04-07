@@ -100,13 +100,13 @@ export const AdCardList = memo(function AdCardList({
                     </Button>
                   )}
                 </div>
-                <h3 className="mt-1 line-clamp-2 break-words font-semibold leading-snug text-slate-900">
+                <h3 className="mt-1 line-clamp-2 break-words font-semibold leading-snug text-foreground">
                   {ad.title}
                 </h3>
               </div>
               
               <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-400">
-                <span className="max-w-full rounded bg-slate-100 px-2 py-0.5 text-2xs font-medium text-slate-500">
+                <span className="max-w-full rounded bg-slate-100 px-2 py-0.5 text-2xs font-medium text-muted-foreground">
                   {ad.category}
                 </span>
                 {formatLocation(ad.location) && (

@@ -28,7 +28,7 @@ export function PhoneInput({
     return (
         <div className="space-y-2">
             <div className="flex gap-2 relative">
-                <div className="h-10 px-3 bg-slate-50 border rounded-xl flex items-center text-sm text-slate-500 border-input w-[60px] justify-center flex-shrink-0">
+                <div className="h-10 px-3 bg-slate-50 border rounded-xl flex items-center text-sm text-muted-foreground border-input w-[60px] justify-center flex-shrink-0">
                     +91
                 </div>
                 <Input
@@ -38,7 +38,7 @@ export function PhoneInput({
                     onChange={handleChange}
                     className={cn(
                         "flex-1 h-10 rounded-xl",
-                        (disabled || isVerified) && "bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed",
+                        (disabled || isVerified) && "bg-slate-50 text-muted-foreground border-slate-200 cursor-not-allowed",
                         error && "border-red-500",
                         className
                     )}

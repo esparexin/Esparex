@@ -52,7 +52,7 @@ export const BrowseListingCard = memo(function BrowseListingCard({
   );
 
   const metaRow = location || createdAt ? (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 pt-2 border-t">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground pt-2 border-t">
       {location ? (
         <div className="flex items-center gap-1 min-w-0">
           <MapPin className="h-3 w-3 shrink-0" />
@@ -89,7 +89,7 @@ export const BrowseListingCard = memo(function BrowseListingCard({
             <CardContent className="flex min-w-0 flex-1 flex-col justify-between p-4">
               <div className="min-w-0 space-y-2">
                 <div className={`text-base font-bold ${priceClassName}`}>{priceLabel}</div>
-                <h3 className="line-clamp-2 text-base font-semibold leading-tight text-slate-900">
+                <h3 className="line-clamp-2 text-base font-semibold leading-tight text-foreground">
                   {title}
                 </h3>
               </div>
@@ -113,7 +113,7 @@ export const BrowseListingCard = memo(function BrowseListingCard({
 
         <CardContent className="p-3 md:p-4 space-y-2">
           <div className={`text-sm font-bold ${priceClassName}`}>{priceLabel}</div>
-          <h3 className="font-semibold text-sm line-clamp-2 text-slate-900 leading-snug min-h-[2.5rem]">
+          <h3 className="font-semibold text-sm line-clamp-2 text-foreground leading-snug min-h-[2.5rem]">
             {title}
           </h3>
           {metaRow}

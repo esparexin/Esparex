@@ -30,7 +30,7 @@ export function LoadingAnimation() {
 
         {/* Loading Text */}
         <div className="mt-8 text-center">
-          <p className="text-lg font-semibold text-slate-900 animate-pulse">
+          <p className="text-lg font-semibold text-foreground animate-pulse">
             Loading
             <span className="inline-flex ml-1">
               <span className="animate-bounce-dot delay-0">.</span>

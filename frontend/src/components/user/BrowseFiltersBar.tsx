@@ -111,7 +111,7 @@ export const BrowseFiltersBar = memo(function BrowseFiltersBar({
               variant="ghost"
               size="sm"
               onClick={onReset}
-              className="shrink-0 h-11 text-slate-500 hover:text-red-600"
+              className="shrink-0 h-11 text-muted-foreground hover:text-red-600"
             >
               Clear
             </Button>
@@ -149,7 +149,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
           variant="outline"
           className="h-11 px-4 gap-2 text-slate-700 border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none"
         >
-          <SlidersHorizontal className="size-4 text-slate-500" />
+          <SlidersHorizontal className="size-4 text-muted-foreground" />
           <span>Filters</span>
           {activeFilterCount > 0 ? (
             <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-xs font-bold leading-none text-white">

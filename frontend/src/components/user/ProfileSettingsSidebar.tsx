@@ -220,7 +220,7 @@ export function ProfileSettingsSidebar({
       case "pending":
         return renderBadge("Pending", "bg-amber-100 text-amber-700");
       case "sold":
-        return renderBadge("Sold", "bg-blue-100 text-blue-700");
+        return renderBadge("Sold", "bg-blue-100 text-link-dark");
       case "rejected":
         return renderBadge("Rejected", "bg-red-100 text-red-700");
       case "expired":
@@ -355,7 +355,7 @@ export function ProfileSettingsSidebar({
               <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuView(true)} className="h-11 w-11 rounded-full hover:bg-gray-200 -ml-1">
                 <ChevronRight className="h-5 w-5 rotate-180 text-slate-700" />
               </Button>
-              <h1 className="text-lg font-bold text-slate-900">
+              <h1 className="text-lg font-bold text-foreground">
                 {activeTabLabel}
               </h1>
             </div>
@@ -374,7 +374,7 @@ export function ProfileSettingsSidebar({
                   <button
                     key={item.value} onClick={() => handleTabChange(item.value)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 font-medium group text-sm
-                      ${isActive ? "bg-blue-50 text-blue-700 shadow-sm shadow-blue-100 ring-1 ring-blue-200" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                      ${isActive ? "bg-blue-50 text-link-dark shadow-sm shadow-blue-100 ring-1 ring-blue-200" : "text-slate-600 hover:bg-slate-50 hover:text-foreground"}`}
                   >
                     <Icon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${isActive ? "text-link" : "text-slate-400 group-hover:text-slate-600"}`} />
                     <span>{item.label}</span>
@@ -409,13 +409,13 @@ export function ProfileSettingsSidebar({
                     <div className="absolute top-0 right-0 p-3 opacity-10"><Crown className="w-20 h-20" /></div>
                     <div className="relative z-10 flex justify-between items-center">
                       <div><p className="text-xs text-blue-100 font-medium mb-1">Your Plan</p><p className="text-xl font-bold flex items-center gap-2">{user?.plan || "Free"} <Crown className="h-4 w-4 text-amber-300 fill-amber-300" /></p></div>
-                      {(!user?.plan || user.plan === "Free") && <Button onClick={() => handleMobileTabClick("plans")} size="sm" className="bg-white text-blue-700 hover:bg-blue-50 text-xs font-bold px-4 h-10 rounded-full">Upgrade</Button>}
+                      {(!user?.plan || user.plan === "Free") && <Button onClick={() => handleMobileTabClick("plans")} size="sm" className="bg-white text-link-dark hover:bg-blue-50 text-xs font-bold px-4 h-10 rounded-full">Upgrade</Button>}
                     </div>
                   </div>
                   <Card className="p-2 border-0 shadow-sm">
                     {visibleProfileTabItems.map((item) => (
                       <button key={item.value} onClick={() => handleMobileTabClick(item.value)} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-slate-700 border-b border-gray-50 last:border-0">
-                        <div className="p-1.5 bg-gray-100 rounded-lg text-slate-500"><item.icon className="h-4.5 w-4.5" /></div>
+                        <div className="p-1.5 bg-gray-100 rounded-lg text-muted-foreground"><item.icon className="h-4.5 w-4.5" /></div>
                         <span className="text-sm font-semibold flex-1">{item.label}</span>
                         {renderTabBadge(item.value)}
                         <ChevronRight className="h-4 w-4 text-slate-400" />

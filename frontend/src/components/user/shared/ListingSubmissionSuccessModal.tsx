@@ -27,7 +27,7 @@ export function ListingSubmissionSuccessModal({
                 </div>
 
                 <div className="space-y-2">
-                    <h2 className="text-xl font-bold text-slate-900">
+                    <h2 className="text-xl font-bold text-foreground">
                         {isEditMode ? `${entityLabel} Updated Successfully` : `${entityLabel} Submitted Successfully`}
                     </h2>
                     <p className="text-sm text-slate-600">

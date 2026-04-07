@@ -65,7 +65,7 @@ export default function BusinessApplyPage() {
         return (
             <div className="flex min-h-screen items-center justify-center px-4">
                 <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <h1 className="text-lg font-semibold text-slate-900">Unable to verify business status</h1>
+                    <h1 className="text-lg font-semibold text-foreground">Unable to verify business status</h1>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
                         {mapErrorToMessage(businessError, "We couldn't verify your current business status. Try again.")}
                     </p>

@@ -205,11 +205,11 @@ export function SearchFiltersPanel({
               className="mb-6"
             />
             <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-500">5 km</span>
+              <span className="text-muted-foreground">5 km</span>
               <div className="bg-cyan-50 text-cyan-700 px-3 py-1.5 rounded-lg border border-cyan-100 font-medium">
                 {radiusKm} km
               </div>
-              <span className="text-slate-500">500 km</span>
+              <span className="text-muted-foreground">500 km</span>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -226,7 +226,7 @@ export function SearchFiltersPanel({
 
         <Button
           variant="ghost"
-          className="w-full h-11 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+          className="w-full h-11 text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors"
           onClick={onReset}
         >
           Reset Filters

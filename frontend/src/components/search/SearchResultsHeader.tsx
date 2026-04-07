@@ -181,10 +181,10 @@ export function SearchResultsHeader({
                 <div className="border-b border-slate-100 px-3 py-3">
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                                 {total} listing{total === 1 ? "" : "s"}
                             </p>
-                            <p className="mt-1 text-xs text-slate-500">
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 Sorted by {SORT_LABELS[sort]}
                                 {activeFilterCount > 0 ? ` • ${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"} active` : ""}
                             </p>
@@ -226,8 +226,8 @@ export function SearchResultsHeader({
                 {/* LEFT: Result count */}
                 <div className="flex items-center gap-2">
                     <span className={cn("size-2 rounded-full", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
-                    <p className="text-sm text-slate-500 font-medium whitespace-nowrap">
-                        Showing <span className="text-slate-900">{total}</span> listing{total === 1 ? "" : "s"}
+                    <p className="text-sm text-muted-foreground font-medium whitespace-nowrap">
+                        Showing <span className="text-foreground">{total}</span> listing{total === 1 ? "" : "s"}
                         {activeFilterCount > 0 ? ` • ${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"} active` : ""}
                     </p>
                 </div>
@@ -258,7 +258,7 @@ export function SearchResultsHeader({
                             aria-label="Grid view"
                             className={cn(
                                 "h-8 w-8 rounded-md",
-                                view === "grid" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600"
+                                view === "grid" ? "bg-white shadow-sm text-foreground" : "text-slate-400 hover:text-slate-600"
                             )}
                         >
                             <LayoutGrid className="size-4" />
@@ -270,7 +270,7 @@ export function SearchResultsHeader({
                             aria-label="List view"
                             className={cn(
                                 "h-8 w-8 rounded-md",
-                                view === "list" ? "bg-white shadow-sm text-slate-900" : "text-slate-400 hover:text-slate-600"
+                                view === "list" ? "bg-white shadow-sm text-foreground" : "text-slate-400 hover:text-slate-600"
                             )}
                         >
                             <List className="size-4" />

@@ -9,7 +9,7 @@ export default function Loading() {
                 </div>
 
                 {/* Loading Text */}
-                <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                <h2 className="text-xl font-semibold text-foreground mb-2">
                     Loading...
                 </h2>
                 <p className="text-slate-600">

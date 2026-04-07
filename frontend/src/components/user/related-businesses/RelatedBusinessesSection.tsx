@@ -152,7 +152,7 @@ export function RelatedBusinessesSection({
 
         <CardContent className="space-y-3 p-3.5">
           <div className="space-y-1">
-            <h3 className="line-clamp-1 text-sm font-bold text-slate-900">
+            <h3 className="line-clamp-1 text-sm font-bold text-foreground">
               {business.name}
             </h3>
             <div className="flex items-center gap-1 text-xs text-slate-400">
@@ -166,7 +166,7 @@ export function RelatedBusinessesSection({
 
           <div className="flex flex-wrap gap-1.5">
             {matchingServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-full bg-blue-50 px-2 py-0.5 text-2xs font-semibold text-blue-700 border-none">
+              <Badge variant="secondary" className="rounded-full bg-blue-50 px-2 py-0.5 text-2xs font-semibold text-link-dark border-none">
                 {matchingServicesCount} matching
               </Badge>
             ) : null}
@@ -201,7 +201,7 @@ export function RelatedBusinessesSection({
     <section className="mt-8 md:mt-12 px-4 md:px-0">
       <div className="mb-4 md:mb-6 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold md:text-xl text-slate-900">{sectionCopy.title}</h2>
+          <h2 className="text-base font-bold md:text-xl text-foreground">{sectionCopy.title}</h2>
           <p className="mt-0.5 text-xs text-slate-400 hidden md:block">
             {sectionCopy.description}
           </p>

@@ -83,8 +83,8 @@ export const CATEGORY_VISUALS: Record<string, CategoryVisual> = {
     cameras: { icon: Camera, color: "text-yellow-600", bg: "bg-yellow-50" },
 
     "spare-parts": { icon: Wrench, color: "text-orange-600", bg: "bg-orange-50" },
-    laptops: { icon: Laptop, color: "text-blue-700", bg: "bg-blue-50" },
-    laptop: { icon: Laptop, color: "text-blue-700", bg: "bg-blue-50" },
+    laptops: { icon: Laptop, color: "text-link-dark", bg: "bg-blue-50" },
+    laptop: { icon: Laptop, color: "text-link-dark", bg: "bg-blue-50" },
 
     "led-tv": { icon: Monitor, color: "text-red-700", bg: "bg-red-50" },
     "led-tvs": { icon: Monitor, color: "text-red-700", bg: "bg-red-50" },

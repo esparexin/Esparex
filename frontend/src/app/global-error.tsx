@@ -30,7 +30,7 @@ export default function GlobalError({
                         </div>
 
                         {/* Error Message */}
-                        <h1 className="text-4xl font-bold text-slate-900 mb-4">
+                        <h1 className="text-4xl font-bold text-foreground mb-4">
                             Critical Error
                         </h1>
                         <p className="text-xl text-slate-600 mb-8">
@@ -57,7 +57,7 @@ export default function GlobalError({
 
                         {/* Error ID */}
                         {error.digest && (
-                            <p className="text-sm text-slate-500 mt-8">
+                            <p className="text-sm text-muted-foreground mt-8">
                                 Error ID: {error.digest}
                             </p>
                         )}
@@ -85,7 +85,7 @@ export default function GlobalError({
             background-color: #ffffff;
           }
 
-          .text-slate-900 {
+          .text-foreground {
             color: #111827;
           }
 
@@ -93,7 +93,7 @@ export default function GlobalError({
             color: #4b5563;
           }
 
-          .text-slate-500 {
+          .text-muted-foreground {
             color: #6b7280;
           }
 

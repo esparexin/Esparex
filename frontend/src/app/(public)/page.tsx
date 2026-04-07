@@ -91,7 +91,7 @@ export default async function Home() {
     ]);
 
     return (
-        <main className="min-h-screen bg-white text-slate-900">
+        <main className="min-h-screen bg-white text-foreground">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{

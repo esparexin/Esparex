@@ -35,8 +35,8 @@ export function AccountMessagesWorkspace({
       return (
         <div className="hidden md:flex min-h-[680px] items-center justify-center bg-slate-50/70 p-10">
           <div className="max-w-sm text-center">
-            <h3 className="text-lg font-bold text-slate-900">Select a conversation</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
+            <h3 className="text-lg font-bold text-foreground">Select a conversation</h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
               Pick a buyer or seller conversation from the inbox to keep chatting without leaving your account area.
             </p>
           </div>
@@ -75,8 +75,8 @@ export function AccountMessagesWorkspace({
   return (
     <Card className="overflow-hidden border-0 bg-white/80 shadow-sm backdrop-blur">
       <div className="border-b border-slate-100 px-5 py-4">
-        <h2 className="text-base font-bold text-slate-900">Messages</h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <h2 className="text-base font-bold text-foreground">Messages</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
           Continue conversations with buyers and sellers without leaving your account area.
         </p>
       </div>

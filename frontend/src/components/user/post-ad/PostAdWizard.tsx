@@ -113,7 +113,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="ghost"
                 size="sm"
                 onClick={() => prevStep()}
-                className="text-sm font-semibold text-slate-500 flex items-center gap-1 hover:text-slate-900 transition-colors h-11 px-2 -ml-2"
+                className="text-sm font-semibold text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors h-11 px-2 -ml-2"
               >
                 ← Back to Step {currentStep - 1}
               </Button>

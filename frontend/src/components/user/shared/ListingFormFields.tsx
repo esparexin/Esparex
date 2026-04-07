@@ -77,7 +77,7 @@ export function ListingImagesField({
                     </div>
                 )}
                 {helperText && !error ? (
-                    <p className="text-xs text-slate-500">{helperText}</p>
+                    <p className="text-xs text-muted-foreground">{helperText}</p>
                 ) : null}
             </div>
         </Field>
@@ -106,7 +106,7 @@ export function ListingLocationField({
                     <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
                         <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                         <span className="truncate">{display}</span>
-                        <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold uppercase text-slate-500">
+                        <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold uppercase text-muted-foreground">
                             {fixedLabel}
                         </span>
                     </div>
@@ -116,7 +116,7 @@ export function ListingLocationField({
                             <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
                                 <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                                 <span className="truncate">{placeholder}</span>
-                                <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold uppercase text-slate-500">
+                                <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold uppercase text-muted-foreground">
                                     {fixedLabel}
                                 </span>
                             </div>
@@ -124,7 +124,7 @@ export function ListingLocationField({
                         : <div className="h-10 rounded-xl bg-slate-100 animate-pulse" />
                 )}
                 {helperText && !error ? (
-                    <p className="text-xs text-slate-500">{helperText}</p>
+                    <p className="text-xs text-muted-foreground">{helperText}</p>
                 ) : null}
             </div>
         </Field>
@@ -172,7 +172,7 @@ export function ListingPriceField({ label = "Price (₹)", error, registerProps,
         <Field label={label} error={error}>
             <div className="relative">
                 {showCurrencySymbol && (
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-semibold text-sm pointer-events-none">₹</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm pointer-events-none">₹</span>
                 )}
                 <Input
                     type="number"

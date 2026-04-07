@@ -36,10 +36,10 @@ export default function NotFound() {
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-50 border border-green-100 text-green-700 text-xs font-bold uppercase tracking-widest mb-2">
                             Error 404
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight leading-tight">
                             Lost in the <span className="text-green-600">Marketplace?</span>
                         </h1>
-                        <p className="text-slate-500 text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
+                        <p className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
                             Oops! It seems this item or page has been moved, sold, or taken off the shelf. Let’s get you back on track.
                         </p>
                     </div>

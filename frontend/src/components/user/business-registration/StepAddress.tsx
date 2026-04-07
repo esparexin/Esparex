@@ -90,7 +90,7 @@ function CompactReadonlyField({
                 </label>
                 {badge}
             </div>
-            {helperText ? <p className="text-xs leading-5 text-slate-500">{helperText}</p> : null}
+            {helperText ? <p className="text-xs leading-5 text-muted-foreground">{helperText}</p> : null}
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Input
                     id={id}
@@ -256,7 +256,7 @@ export function StepAddress({
                                 Required
                             </span>
                             {sourceLabel ? (
-                                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
+                                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-link-dark">
                                     {sourceLabel}
                                 </span>
                             ) : null}
@@ -271,7 +271,7 @@ export function StepAddress({
                             size="icon"
                             aria-label={isDetectingLocation ? "Detecting current location" : "Use current location"}
                             title={isDetectingLocation ? "Detecting current location" : "Use current location"}
-                            className="h-9 w-9 rounded-xl border-slate-300 bg-white text-slate-900 hover:bg-slate-100"
+                            className="h-9 w-9 rounded-xl border-slate-300 bg-white text-foreground hover:bg-slate-100"
                         >
                             {isDetectingLocation ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -294,7 +294,7 @@ export function StepAddress({
                     error={formData.errors?.fullAddress}
                     className="space-y-1.5"
                 >
-                    <span className="text-xs leading-5 text-slate-500">
+                    <span className="text-xs leading-5 text-muted-foreground">
                         Enter complete business address including shop/building name, street/area, pincode, and landmark if available.
                     </span>
                     <Textarea

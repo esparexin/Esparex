@@ -119,7 +119,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                     <Image src="/icons/logo.png" alt="Esparex" width={512} height={206} style={{ height: '32px', width: 'auto' }} />
                 </Link>
             </div>
-            <p className={cn("text-sm leading-relaxed", isDark ? "text-slate-500" : "text-slate-500")}>
+            <p className={cn("text-sm leading-relaxed", isDark ? "text-muted-foreground" : "text-muted-foreground")}>
                 India's premium privacy-first marketplace for device spare parts and services.
             </p>
             <div className="flex flex-wrap items-center gap-2 justify-start">
@@ -180,7 +180,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                                     isDark ? "border-slate-800 bg-slate-900/60" : "border-slate-200 bg-white"
                                 )}
                             >
-                                <p className={cn("text-xs font-semibold uppercase tracking-[0.16em]", isDark ? "text-slate-300" : "text-slate-500")}>
+                                <p className={cn("text-xs font-semibold uppercase tracking-[0.16em]", isDark ? "text-slate-300" : "text-muted-foreground")}>
                                     {section.title}
                                 </p>
                                 <ul className="mt-3 space-y-2">
@@ -204,7 +204,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
 
                     {FOOTER_LINK_SECTIONS.map((section) => (
                         <div key={section.title} className="col-span-1 text-left">
-                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-2xs md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>
+                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-2xs md:text-xs", isDark ? "text-slate-300" : "text-foreground")}>
                                 {section.title}
                             </h3>
                             <ul className="space-y-0.5 md:space-y-2">
@@ -237,7 +237,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                                 <Icon className="h-5 w-5" />
                             </div>
                             <div>
-                                <div className={cn("text-xs font-bold uppercase tracking-wider mb-0.5", isDark ? "text-white" : "text-slate-900")}>
+                                <div className={cn("text-xs font-bold uppercase tracking-wider mb-0.5", isDark ? "text-white" : "text-foreground")}>
                                     {title}
                                 </div>
                                 <div className="text-sm">{value}</div>

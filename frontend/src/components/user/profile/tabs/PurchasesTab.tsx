@@ -157,7 +157,7 @@ export function PurchasesTab({
                     </div>
                     <Button
                         onClick={() => setActiveTab("plans")}
-                        className="bg-white text-blue-700 hover:bg-blue-50 font-bold px-6 h-11 shadow-lg"
+                        className="bg-white text-link-dark hover:bg-blue-50 font-bold px-6 h-11 shadow-lg"
                     >
                         Upgrade Now
                     </Button>

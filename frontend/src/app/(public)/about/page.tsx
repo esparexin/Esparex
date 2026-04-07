@@ -21,7 +21,7 @@ export default function AboutPage() {
             <div className="space-y-6 not-prose">
                 <div>
                     <h2 className="text-base font-bold text-slate-800 mb-2">Who We Are</h2>
-                    <p className="text-sm text-slate-500 leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                         Esparex is India&apos;s leading marketplace dedicated to electronics spare parts and repair services.
                         We bridge the gap between device owners, technicians, and spare part suppliers ensuring quality,
                         transparency, and trust in every transaction.
@@ -30,7 +30,7 @@ export default function AboutPage() {
 
                 <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100">
                     <h2 className="text-base font-bold text-blue-800 mb-1">Our Mission</h2>
-                    <p className="text-sm text-blue-700 leading-relaxed">
+                    <p className="text-sm text-link-dark leading-relaxed">
                         To extend the lifespan of electronics by making repair accessible, affordable, and reliable for everyone.
                     </p>
                 </div>

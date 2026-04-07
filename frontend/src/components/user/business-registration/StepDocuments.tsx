@@ -52,7 +52,7 @@ export function StepDocuments({
                     error={formData.errors?.idProofType}
                     className="space-y-1.5"
                 >
-                    <p className="text-xs text-slate-500">Pick the owner ID you are uploading so admins can review it correctly.</p>
+                    <p className="text-xs text-muted-foreground">Pick the owner ID you are uploading so admins can review it correctly.</p>
                     <Select
                         value={formData.idProofType || ""}
                         onValueChange={(value) => setFormData({ ...formData, idProofType: value })}

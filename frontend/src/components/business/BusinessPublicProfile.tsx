@@ -183,7 +183,7 @@ export function BusinessPublicProfile({
             <div className="space-y-2.5 pt-2 md:pt-6 md:col-span-2">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{business.name}</h1>
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground">{business.name}</h1>
                   {business.tagline && <p className="text-sm text-slate-400 mt-0.5">{business.tagline}</p>}
                 </div>
                 <Button variant="outline" size="sm" onClick={handleShare} className="h-11 rounded-xl border-slate-200 text-slate-600 text-xs w-fit">
@@ -195,12 +195,12 @@ export function BusinessPublicProfile({
               <div className="flex flex-wrap gap-1.5">
                 <Badge variant="secondary" className="rounded-lg bg-slate-100 text-slate-600 border-none text-xs">{primaryBusinessType}</Badge>
                 {business.isVerified ? (
-                  <Badge className="bg-blue-50 text-blue-700 border-none rounded-lg text-xs">Verified Business</Badge>
+                  <Badge className="bg-blue-50 text-link-dark border-none rounded-lg text-xs">Verified Business</Badge>
                 ) : null}
               </div>
 
               {business.rating ? (
-                <div className="flex items-center gap-1 text-sm text-slate-500">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   <span className="font-semibold text-slate-700">{business.rating.toFixed(1)}</span>
                   <span className="text-slate-400">({business.totalReviews || 0} reviews)</span>
@@ -218,7 +218,7 @@ export function BusinessPublicProfile({
             <CardTitle className="text-sm font-bold text-slate-700 uppercase tracking-wide">About</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 px-4 md:px-6 pb-4">
-            <p className="leading-relaxed text-sm text-slate-500">{business.description}</p>
+            <p className="leading-relaxed text-sm text-muted-foreground">{business.description}</p>
             {business.website ? (
               <div className="flex items-center gap-2">
                 <Globe className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
@@ -293,7 +293,7 @@ export function BusinessPublicProfile({
         </CardHeader>
         <CardContent className="space-y-3 px-4 md:px-6 pb-4">
           {mapData.addressQuery ? (
-            <address className="not-italic text-sm text-slate-500">
+            <address className="not-italic text-sm text-muted-foreground">
               {business.location?.address ? <>{business.location.address}<br /></> : null}
               {[business.location?.city, business.location?.state, business.location?.pincode].filter(Boolean).join(", ")}
             </address>
@@ -338,7 +338,7 @@ export function BusinessPublicProfile({
                 {tab.icon}
                 {tab.label}
                 <span className={`ml-1 rounded-full px-1.5 py-0.5 text-2xs font-bold ${
-                  activeTab === tab.key ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
+                  activeTab === tab.key ? "bg-blue-100 text-link-dark" : "bg-slate-100 text-muted-foreground"
                 }`}>
                   {tab.count}
                 </span>

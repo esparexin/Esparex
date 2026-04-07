@@ -25,7 +25,7 @@ export function AdTitlePriceCard({
                 <CardContent className="p-4 space-y-3">
                     <div className="flex items-start justify-between gap-2">
                         <div className="flex flex-wrap items-center gap-1.5">
-                            <Badge variant="outline" className="flex-shrink-0 text-xs font-medium border-slate-200 text-slate-500 rounded-lg">
+                            <Badge variant="outline" className="flex-shrink-0 text-xs font-medium border-slate-200 text-muted-foreground rounded-lg">
                                 {categoryLabel}
                             </Badge>
                             {ad.deviceCondition && (
@@ -50,7 +50,7 @@ export function AdTitlePriceCard({
                     </div>
 
                     {ad.isBusiness && ad.businessName && (
-                        <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-50 px-3 py-2.5 rounded-2xl border border-blue-100">
+                        <div className="flex items-center gap-2 text-xs text-link-dark bg-blue-50 px-3 py-2.5 rounded-2xl border border-blue-100">
                             <div className="h-6 w-6 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
                                 <Shield className="h-3.5 w-3.5 text-white" />
                             </div>
@@ -62,9 +62,9 @@ export function AdTitlePriceCard({
                         </div>
                     )}
 
-                    <h1 className="text-lg font-bold text-slate-900 leading-snug">{ad.title}</h1>
+                    <h1 className="text-lg font-bold text-foreground leading-snug">{ad.title}</h1>
 
-                    <div className="text-3xl font-black text-slate-900 tracking-tight">
+                    <div className="text-3xl font-black text-foreground tracking-tight">
                         {formatPrice(ad.price)}
                     </div>
 
@@ -78,7 +78,7 @@ export function AdTitlePriceCard({
                             <span className="truncate">{ad.time}</span>
                         </div>
                         {viewCount !== undefined && viewCount > 0 && (
-                            <div className="flex items-center gap-1.5 text-slate-500 font-medium">
+                            <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
                                 <Eye className="h-3 w-3 text-slate-300" />
                                 <span>{viewCount.toLocaleString()} views</span>
                             </div>
@@ -119,7 +119,7 @@ export function AdTitlePriceCard({
 
                 {ad.isBusiness && ad.businessName && (
                     <div className="mb-4">
-                        <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-50/50 px-3 py-2.5 rounded-2xl border border-blue-100/50 w-full">
+                        <div className="flex items-center gap-2 text-xs text-link-dark bg-blue-50/50 px-3 py-2.5 rounded-2xl border border-blue-100/50 w-full">
                             <div className="h-6 w-6 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                                 <Shield className="h-3.5 w-3.5 text-white" />
                             </div>
@@ -134,12 +134,12 @@ export function AdTitlePriceCard({
                     </div>
                 )}
 
-                <h1 className="text-xl md:text-2xl font-bold mb-2 text-slate-900 leading-tight">
+                <h1 className="text-xl md:text-2xl font-bold mb-2 text-foreground leading-tight">
                     {ad.title || "Ad Title"}
                 </h1>
 
                 <div className="flex items-baseline gap-1 mb-6">
-                    <span className="text-3xl font-black text-slate-900 tracking-tight">
+                    <span className="text-3xl font-black text-foreground tracking-tight">
                         {formatPrice(ad.price)}
                     </span>
                 </div>

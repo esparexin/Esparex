@@ -195,7 +195,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         >
             {isEditMode ? (
                 <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                    <p className="font-semibold text-slate-900">Catalog fields are locked while editing.</p>
+                    <p className="font-semibold text-foreground">Catalog fields are locked while editing.</p>
                     <p className="mt-1">
                         Category, brand, and spare part type stay fixed so this listing remains mapped to the same catalog item.
                     </p>
@@ -258,7 +258,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                         </div>
                     ) : isEditMode && sparePartTypeId ? (
                         <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                            <p className="font-semibold text-slate-900">Existing spare-part mapping is preserved.</p>
+                            <p className="font-semibold text-foreground">Existing spare-part mapping is preserved.</p>
                             <p className="mt-1">
                                 This listing keeps its current catalog mapping while you edit pricing, photos, and description.
                             </p>

@@ -83,7 +83,7 @@ export function MobileNavDrawer({
                 {!isAuthLoading ? (
                   <Button
                     variant="secondary"
-                    className="w-full justify-start gap-2 h-11 font-semibold text-slate-900 bg-white hover:bg-slate-100 rounded-xl"
+                    className="w-full justify-start gap-2 h-11 font-semibold text-foreground bg-white hover:bg-slate-100 rounded-xl"
                     onClick={() => { close(); onShowLogin(); }}
                   >
                     <LogIn className="h-4 w-4" /> Login / Sign Up
@@ -106,7 +106,7 @@ export function MobileNavDrawer({
                 <Button
                   key={item.id}
                   variant="ghost"
-                  className="w-full justify-start gap-3 h-11 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl"
+                  className="w-full justify-start gap-3 h-11 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-foreground rounded-xl"
                   onClick={() => handleNavigationItemClick(item)}
                 >
                   <Icon className="h-4.5 w-4.5 text-slate-400 flex-shrink-0" /> {item.label}

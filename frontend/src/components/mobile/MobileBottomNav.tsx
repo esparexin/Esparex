@@ -70,8 +70,8 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                             className={cn(
                                 "flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-center transition-colors",
                                 isActive
-                                    ? "bg-blue-50 text-blue-700"
-                                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                    ? "bg-blue-50 text-link-dark"
+                                    : "text-muted-foreground hover:bg-slate-50 hover:text-foreground"
                             )}
                         >
                             <Icon className="h-5 w-5 shrink-0" />

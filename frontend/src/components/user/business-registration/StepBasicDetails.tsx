@@ -24,7 +24,7 @@ export function StepBasicDetails({
                     className="space-y-1.5"
                 >
                     <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <span className="text-xs text-slate-500">Use the public-facing business name customers will recognize.</span>
+                        <span className="text-xs text-muted-foreground">Use the public-facing business name customers will recognize.</span>
                         <span className={cn("text-xs font-medium", formData.businessName.length > 100 ? "text-destructive" : "text-muted-foreground")}>
                             {formData.businessName.length}/100
                         </span>
@@ -45,7 +45,7 @@ export function StepBasicDetails({
                     error={formData.errors?.email}
                     className="space-y-1.5"
                 >
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-muted-foreground">
                         {user?.email ? "Pre-filled from your profile, but you can change it for business inquiries." : "Customers and reviewers will use this for business communication."}
                     </div>
                     <Input
@@ -66,7 +66,7 @@ export function StepBasicDetails({
                 className="space-y-1.5"
             >
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-xs text-slate-500">Explain your expertise, specialties, and what customers can expect.</span>
+                    <span className="text-xs text-muted-foreground">Explain your expertise, specialties, and what customers can expect.</span>
                     <span className={cn("text-xs font-medium", formData.businessDescription.length > 2000 ? "text-destructive" : "text-muted-foreground")}>
                         {formData.businessDescription.length}/2000
                     </span>

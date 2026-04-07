@@ -251,7 +251,7 @@ export default function ListingDetailsFields() {
             {/* Photos */}
             <section className="space-y-6">
                 <div className="text-center space-y-1">
-                    <label className="text-sm font-bold text-slate-900 block">Product Photos</label>
+                    <label className="text-sm font-bold text-foreground block">Product Photos</label>
                     <p className="text-xs text-slate-400 font-medium italic">Photos should be clear and product-focused</p>
                 </div>
 
@@ -375,8 +375,8 @@ export default function ListingDetailsFields() {
                                     <span className="font-bold text-xs">FREE</span>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-slate-900 text-sm">Mark as Free</p>
-                                    <p className="text-2xs text-slate-500 font-medium">This item is a giveaway</p>
+                                    <p className="font-bold text-foreground text-sm">Mark as Free</p>
+                                    <p className="text-2xs text-muted-foreground font-medium">This item is a giveaway</p>
                                 </div>
                             </div>
                             <div className={cn(

@@ -143,17 +143,17 @@ export function BusinessApplicationStatus({
                         </div>
                         <div className="flex items-start gap-3">
                             <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                                <AlertCircle className="h-4 w-4 text-slate-500" />
+                                <AlertCircle className="h-4 w-4 text-muted-foreground" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-slate-500">Approval Pending</p>
+                                <p className="text-sm font-medium text-muted-foreground">Approval Pending</p>
                                 <p className="text-xs text-muted-foreground">Usually takes 24-48 hours</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700 mb-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-link-dark mb-4">
                     <p className="font-medium mb-1">What happens next?</p>
                     <p className="text-xs">You'll receive a notification once your business is verified. After approval, you can start adding services and managing your business profile.</p>
                 </div>
@@ -205,7 +205,7 @@ export function BusinessApplicationStatus({
                 }
             >
                 <div className="space-y-3 mb-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-link-dark">
                         <p className="font-medium mb-1">What you can do:</p>
                         <ul className="text-xs space-y-1 list-disc list-inside">
                             <li>Review the rejection reason carefully</li>
@@ -252,7 +252,7 @@ export function BusinessApplicationStatus({
                 cardClass="from-gray-50 to-slate-100 border border-gray-300"
                 iconBgClass="bg-gray-600"
                 Icon={Clock}
-                titleClass="text-slate-900"
+                titleClass="text-foreground"
                 title="Business Profile Expired/Deleted"
                 description="Your registration validity has concluded or account was deleted"
                 businessName={businessLabel}

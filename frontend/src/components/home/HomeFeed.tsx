@@ -119,7 +119,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
                 <div className="mb-4 md:mb-8">
                     <h2
                         id="home-feed-heading"
-                        className="text-base font-bold md:text-2xl text-slate-900 tracking-tight"
+                        className="text-base font-bold md:text-2xl text-foreground tracking-tight"
                     >
                         Recommended for You
                     </h2>
@@ -150,7 +150,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
                 {!isLoading && !isError && recommendedAds.length === 0 && (
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-10 text-center">
                         <PackageOpen className="mx-auto h-10 w-10 text-slate-300" />
-                        <p className="mt-3 text-sm text-slate-500">
+                        <p className="mt-3 text-sm text-muted-foreground">
                             No ads available right now.
                         </p>
                     </div>

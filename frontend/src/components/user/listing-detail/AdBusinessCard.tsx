@@ -34,7 +34,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                            <h3 className="font-bold text-slate-900 truncate text-sm">{businessName}</h3>
+                            <h3 className="font-bold text-foreground truncate text-sm">{businessName}</h3>
                             <Badge className="bg-blue-600 text-white text-2xs font-bold px-1.5 py-0.5 rounded-md border-none flex-shrink-0">
                                 VERIFIED
                             </Badge>

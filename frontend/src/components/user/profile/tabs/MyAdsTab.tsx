@@ -185,8 +185,8 @@ export function MyAdsTab({
                         empty={
                             <div className="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                                 <Package className="h-12 w-12 mx-auto text-slate-300 mb-3" />
-                                <h3 className="text-sm font-medium text-slate-900">No {myAdsTab} ads</h3>
-                                <p className="text-xs text-slate-500 mt-1 max-w-[200px] mx-auto">
+                                <h3 className="text-sm font-medium text-foreground">No {myAdsTab} ads</h3>
+                                <p className="text-xs text-muted-foreground mt-1 max-w-[200px] mx-auto">
                                     Ads marked as {myAdsTab} will appear here.
                                 </p>
                                 {myAdsTab === 'active' && (
@@ -251,7 +251,7 @@ export function MyAdsTab({
                                                     </Link>
                                                     {getStatusBadge(normalizedStatus, ad.id)}
                                                 </div>
-                                                <p className="text-xs font-semibold text-slate-900 mt-0.5">₹{ad.price.toLocaleString()}</p>
+                                                <p className="text-xs font-semibold text-foreground mt-0.5">₹{ad.price.toLocaleString()}</p>
 
                                                 {/* Rejection reason */}
                                                 {isRejected && (ad as any).rejectionReason && (
@@ -260,7 +260,7 @@ export function MyAdsTab({
                                                     </p>
                                                 )}
 
-                                                <div className="flex items-center gap-3 mt-1 text-2xs text-slate-500">
+                                                <div className="flex items-center gap-3 mt-1 text-2xs text-muted-foreground">
                                                     <span className="flex items-center gap-1">
                                                         <Eye className="h-3 w-3" />{" "}
                                                         {typeof ad.views === "number"
@@ -394,7 +394,7 @@ export function MyAdsTab({
                     <DialogHeader>
                         <DialogTitle>Mark as Sold</DialogTitle>
                     </DialogHeader>
-                    <p className="text-sm text-slate-500 mb-3">How was this ad sold?</p>
+                    <p className="text-sm text-muted-foreground mb-3">How was this ad sold?</p>
                     <div className="space-y-2">
                         {SOLD_REASON_OPTIONS.map((opt) => (
                             <label

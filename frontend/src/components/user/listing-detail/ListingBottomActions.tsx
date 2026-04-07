@@ -182,7 +182,7 @@ export function ListingBottomActions({
               onClick={onAnalyticsClick}
               className="w-full py-2 text-xs text-center text-slate-400 border-t border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors"
             >
-              <span className="font-medium text-slate-500">View Analytics</span> · Tap for detailed stats
+              <span className="font-medium text-muted-foreground">View Analytics</span> · Tap for detailed stats
             </button>
           </div>
         </div>
@@ -223,12 +223,12 @@ export function ListingBottomActions({
               </Button>
             ) : null}
             {isChatLocked ? (
-              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-xs leading-4 text-slate-500`}>
+              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-xs leading-4 text-muted-foreground`}>
                 {chatLockedMessage}
               </p>
             ) : null}
             {showPhoneMessage && (
-              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-xs leading-4 text-slate-500`}>
+              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-xs leading-4 text-muted-foreground`}>
                 {phoneMessage}
               </p>
             )}

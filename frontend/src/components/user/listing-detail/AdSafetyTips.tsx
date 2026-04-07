@@ -19,7 +19,7 @@ export function AdSafetyTips() {
                         </div>
                         <div>
                             <p className="text-xs font-bold text-slate-700">Inspect Personally</p>
-                            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Meet in a public place to check the item status.</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">Meet in a public place to check the item status.</p>
                         </div>
                     </div>
 
@@ -29,7 +29,7 @@ export function AdSafetyTips() {
                         </div>
                         <div>
                             <p className="text-xs font-bold text-slate-700">Avoid Advance Payments</p>
-                            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Never pay before receiving and verifying the item.</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">Never pay before receiving and verifying the item.</p>
                         </div>
                     </div>
 
@@ -39,7 +39,7 @@ export function AdSafetyTips() {
                         </div>
                         <div>
                             <p className="text-xs font-bold text-slate-700">Fraud Protection</p>
-                            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Report suspicious activity to our support team.</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">Report suspicious activity to our support team.</p>
                         </div>
                     </div>
                 </div>

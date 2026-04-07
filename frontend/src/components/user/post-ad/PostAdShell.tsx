@@ -28,7 +28,7 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                     <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
                         <WifiOff className="w-8 h-8 text-amber-600" />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900 mb-2">
+                    <h2 className="text-xl font-bold text-foreground mb-2">
                         Service Unavailable
                     </h2>
                     <p className="text-slate-600 mb-8">
@@ -59,7 +59,7 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                     <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
                         <AlertCircle className="w-8 h-8 text-red-600" />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900 mb-2">
+                    <h2 className="text-xl font-bold text-foreground mb-2">
                         Something went wrong
                     </h2>
                     <p className="text-slate-600 mb-8">

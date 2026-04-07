@@ -35,7 +35,7 @@ export const AdCardMeta = memo(function AdCardMeta({
     ? { label: 'Service', className: 'bg-emerald-50 text-emerald-700 border-emerald-100' }
     : listingType === 'spare_part'
     ? { label: 'Spare Part', className: 'bg-violet-50 text-violet-700 border-violet-100' }
-    : { label: 'Device', className: 'bg-blue-50 text-blue-700 border-blue-100' };
+    : { label: 'Device', className: 'bg-blue-50 text-link-dark border-blue-100' };
 
   const rawViews = adRecord.views;
   const dashboardViews =

@@ -81,17 +81,17 @@ export function CatalogSlugPage({
       <section className="border-b border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)]">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="max-w-3xl space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-link">
+            <p className="text-sm font-semibold uppercase tracking-widest text-link">
               {entity === "brand" ? "Brand Landing" : "Model Landing"}
             </p>
-            <h1 className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
+            <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl">
               {config.heading(record.name)}
             </h1>
             <p className="text-base leading-7 text-slate-600 sm:text-lg">
               {config.description(record.name, record.contextLabel)}
             </p>
             {record.contextLabel ? (
-              <p className="text-sm font-medium text-slate-500">
+              <p className="text-sm font-medium text-muted-foreground">
                 Connected to <span className="text-slate-800">{record.contextLabel}</span>
               </p>
             ) : null}
@@ -112,8 +112,8 @@ export function CatalogSlugPage({
           <div className="space-y-6">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Featured results</h2>
-                <p className="mt-1 text-sm text-slate-500">
+                <h2 className="text-2xl font-bold text-foreground">Featured results</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
                   Live public listings tied to this {entity.replace("-", " ")}.
                   {total > items.length
                     ? ` Showing ${items.length} featured results here; use the browse action above for the full catalog view.`
@@ -130,8 +130,8 @@ export function CatalogSlugPage({
           </div>
         ) : (
           <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
-            <h2 className="text-2xl font-bold text-slate-900">No live listings yet</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-500">
+            <h2 className="text-2xl font-bold text-foreground">No live listings yet</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
               This {entity.replace("-", " ")} exists in the catalog, but there are no live public
               listings connected to it right now.
             </p>

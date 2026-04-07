@@ -63,7 +63,7 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
                     <Button 
                         onClick={onAction}
                         size="sm"
-                        className="bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 shadow-sm text-xs font-bold px-4 h-9 rounded-xl flex items-center gap-2 group shrink-0"
+                        className="bg-white hover:bg-slate-50 text-foreground border border-slate-200 shadow-sm text-xs font-bold px-4 h-9 rounded-xl flex items-center gap-2 group shrink-0"
                     >
                         {current.actionLabel}
                         <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

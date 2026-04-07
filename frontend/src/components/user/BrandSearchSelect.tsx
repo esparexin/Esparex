@@ -98,7 +98,7 @@ export function BrandSearchSelect({
             )}>
                 <div className="flex items-center gap-1.5 min-w-0">
                     <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                    <span className="truncate text-sm font-semibold text-slate-900">{selectedName}</span>
+                    <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
                 </div>
                 {!disabled && (
                     <button

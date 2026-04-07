@@ -355,10 +355,10 @@ function BusinessRegistrationFlow({
                             <CheckCircle2 className="h-10 w-10 text-emerald-500" />
                         </div>
                         <div className="space-y-2">
-                            <AlertDialogTitle className="text-2xl font-bold tracking-tight text-slate-900">
+                            <AlertDialogTitle className="text-2xl font-bold tracking-tight text-foreground">
                                 Application Submitted!
                             </AlertDialogTitle>
-                            <AlertDialogDescription className="leading-relaxed text-slate-500">
+                            <AlertDialogDescription className="leading-relaxed text-muted-foreground">
                                 Your business verification request has been received. Our team will review your documents and verify your account within 24-48 hours.
                             </AlertDialogDescription>
                         </div>

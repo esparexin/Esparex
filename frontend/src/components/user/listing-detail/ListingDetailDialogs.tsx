@@ -116,21 +116,21 @@ export function ListingDetailDialogs({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-2xl border bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total views</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total views</p>
+              <p className="mt-2 text-2xl font-bold text-foreground">
                 {isAnalyticsLoading ? "..." : analyticsSummary?.total ?? 0}
               </p>
             </div>
             <div className="rounded-2xl border bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Unique viewers</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Unique viewers</p>
+              <p className="mt-2 text-2xl font-bold text-foreground">
                 {isAnalyticsLoading ? "..." : analyticsSummary?.unique ?? 0}
               </p>
             </div>
           </div>
 
           <div className="rounded-2xl border bg-white p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Last activity</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last activity</p>
             <p className="mt-2 text-sm text-slate-700">
               {isAnalyticsLoading
                 ? "Loading latest activity..."

@@ -52,9 +52,9 @@ export function StepReview({
                 onEdit={() => onEditStep(detailsStepIndex)}
                 content={
                     <>
-                        <p className="text-sm font-semibold text-slate-900">{formData.businessName}</p>
+                        <p className="text-sm font-semibold text-foreground">{formData.businessName}</p>
                         <p className="text-sm leading-6 text-slate-600">{formData.businessDescription}</p>
-                        <p className="text-sm text-slate-500">{formData.email}</p>
+                        <p className="text-sm text-muted-foreground">{formData.email}</p>
                     </>
                 }
             />
@@ -64,11 +64,11 @@ export function StepReview({
                 onEdit={() => onEditStep(detailsStepIndex)}
                 content={
                     <>
-                        <p className="text-sm font-semibold text-slate-900">
+                        <p className="text-sm font-semibold text-foreground">
                             {formData.currentLocationDisplay || "Current location pending"}
                         </p>
                         <p className="text-sm leading-6 text-slate-600">{formData.fullAddress}</p>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-muted-foreground">
                             Current location is recorded first, then the full address is sent for admin review.
                         </p>
                     </>
@@ -81,10 +81,10 @@ export function StepReview({
                     onEdit={() => onEditStep(documentsStepIndex)}
                     content={
                         <>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                                 {formData.shopImages.length} shop photo{formData.shopImages.length === 1 ? "" : "s"} ready for review
                             </p>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                                 {formData.idProofType ? `${idProofTypeLabel} selected as owner ID` : idProofTypeLabel}
                             </p>
                             <p className="text-sm text-slate-600">
@@ -93,7 +93,7 @@ export function StepReview({
                             <p className="text-sm text-slate-600">
                                 {formData.businessProof ? "Business proof attached" : "Business proof missing"}
                             </p>
-                            <p className="text-sm text-slate-500">
+                            <p className="text-sm text-muted-foreground">
                                 {formData.certificates.length} optional certificate{formData.certificates.length === 1 ? "" : "s"} attached
                             </p>
                         </>

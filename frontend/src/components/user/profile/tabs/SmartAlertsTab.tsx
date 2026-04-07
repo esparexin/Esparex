@@ -220,13 +220,13 @@ export function SmartAlertsTab({
                         <Separator />
 
                         <div className="space-y-3">
-                            <h4 className="text-sm font-semibold text-slate-900">Saved Searches</h4>
+                            <h4 className="text-sm font-semibold text-foreground">Saved Searches</h4>
                             {savedSearches.length === 0 ? (
                                 <p className="text-xs text-muted-foreground">No saved searches yet.</p>
                             ) : (
                                 savedSearches.map((search) => (
                                     <div key={search.id} className="border rounded-lg p-3 space-y-2">
-                                        <p className="text-sm font-medium text-slate-900">
+                                        <p className="text-sm font-medium text-foreground">
                                             {search.query?.trim() || "Saved search"}
                                         </p>
                                         <p className="text-xs text-muted-foreground">
@@ -374,7 +374,7 @@ export function SmartAlertsTab({
                                         Cancel Edit
                                     </Button>
                                 )}
-                                <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-700">
+                                <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-link-dark">
                                     Smart alert delivery is managed from Account Settings now. Use email, push, and instant-alert toggles there to control how alerts are delivered.
                                 </div>
                                 <Button

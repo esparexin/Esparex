@@ -498,10 +498,10 @@ export function BrowseAds({
                 <div className="mb-4 rounded-full bg-slate-100 p-6">
                   <PackageOpen className="h-10 w-10 text-slate-300" />
                 </div>
-                <h3 className="mb-2 text-xl font-semibold text-slate-900">
+                <h3 className="mb-2 text-xl font-semibold text-foreground">
                   {emptyStateTitle}
                 </h3>
-                <p className="mb-6 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">
+                <p className="mb-6 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
                   {emptyStateDescription}
                 </p>
                 {activeFilterBadges.length > 0 && (
@@ -516,10 +516,10 @@ export function BrowseAds({
                     ))}
                   </div>
                 )}
-                <p className="mb-6 max-w-sm text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+                <p className="mb-6 max-w-sm text-xs font-medium uppercase tracking-widest text-slate-400">
                   Sorted by {PUBLIC_BROWSE_SORT_LABELS[sort]}
                 </p>
-                <p className="text-slate-500 max-w-xs mb-6">
+                <p className="text-muted-foreground max-w-xs mb-6">
                   {query
                     ? `No results for "${query}". Try different keywords or remove filters.`
                     : activeFilterCount > 0

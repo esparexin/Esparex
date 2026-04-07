@@ -15,6 +15,7 @@ const config = {
 			colors: {
 				link: {
 					DEFAULT: 'hsl(var(--link))',
+					dark: 'hsl(var(--link-dark))',
 					foreground: 'hsl(var(--link-foreground))',
 				},
 				border: 'hsl(var(--border))',

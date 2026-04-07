@@ -83,8 +83,8 @@ const NOTIFICATION_META: Record<NotificationTypeValue, NotificationMeta> = {
     ORDER_UPDATE: {
         label: "Order",
         icon: ShoppingBag,
-        iconTone: "text-blue-700",
-        badgeTone: "border-blue-200 bg-blue-100 text-blue-700",
+        iconTone: "text-link-dark",
+        badgeTone: "border-blue-200 bg-blue-100 text-link-dark",
     },
     PRICE_DROP: {
         label: "Price drop",
@@ -163,18 +163,18 @@ function NotificationDropdownRow({
                             {meta.label}
                         </Badge>
                         {!notification.isRead ? (
-                            <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700">
+                            <Badge variant="outline" className="border-blue-200 bg-blue-50 text-link-dark">
                                 New
                             </Badge>
                         ) : null}
                     </div>
 
-                    <p className={cn("mt-2 line-clamp-1 text-sm", notification.isRead ? "font-medium text-slate-800" : "font-semibold text-slate-950")}>
+                    <p className={cn("mt-2 line-clamp-1 text-sm", notification.isRead ? "font-medium text-slate-800" : "font-semibold text-foreground")}>
                         {notification.title}
                     </p>
                     <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">{notification.message}</p>
 
-                    <div className="mt-2 flex items-center justify-between gap-3 text-xs text-slate-500">
+                    <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
                         <span>{relativeTime}</span>
                         <span className="inline-flex items-center gap-1 font-medium text-slate-700">
                             {notification.actionUrl ? "Open" : notification.isRead ? "Read" : "Mark read"}
@@ -324,8 +324,8 @@ export function NotificationBellDropdown({
                 <div className="border-b border-slate-100 px-4 py-4">
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <p className="text-sm font-semibold text-slate-950">Notifications</p>
-                            <p className="mt-1 text-xs leading-5 text-slate-500">
+                            <p className="text-sm font-semibold text-foreground">Notifications</p>
+                            <p className="mt-1 text-xs leading-5 text-muted-foreground">
                                 Read messages stay here briefly and disappear after about {READ_NOTIFICATION_RETENTION_HOURS} hours.
                             </p>
                         </div>
@@ -350,8 +350,8 @@ export function NotificationBellDropdown({
                                 <Inbox className="h-5 w-5 text-slate-400" />
                             </div>
                             <div className="space-y-1">
-                                <p className="text-sm font-semibold text-slate-900">No new notifications</p>
-                                <p className="text-xs leading-5 text-slate-500">
+                                <p className="text-sm font-semibold text-foreground">No new notifications</p>
+                                <p className="text-xs leading-5 text-muted-foreground">
                                     Short updates will appear here and clear out automatically after you read them.
                                 </p>
                             </div>
@@ -364,7 +364,7 @@ export function NotificationBellDropdown({
                                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
                                             Unread now
                                         </p>
-                                        <p className="text-xs text-slate-500">{unreadCount} unread</p>
+                                        <p className="text-xs text-muted-foreground">{unreadCount} unread</p>
                                     </div>
                                     <div className="space-y-2">
                                         {unreadItems.map((notification) => (

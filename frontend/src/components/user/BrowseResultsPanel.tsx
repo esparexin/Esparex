@@ -112,10 +112,10 @@ export function BrowseResultsPanel<TItem>({
           <div className="rounded-full bg-slate-100 p-6 mb-4">
             <PackageOpen className="h-10 w-10 text-slate-300" />
           </div>
-          <h3 className="text-xl font-semibold text-slate-900 mb-2">
+          <h3 className="text-xl font-semibold text-foreground mb-2">
             {activeFilterCount > 0 ? "No results match these filters" : emptyTitle}
           </h3>
-          <p className="text-slate-500 max-w-xl mb-6 text-sm leading-6 sm:text-base">
+          <p className="text-muted-foreground max-w-xl mb-6 text-sm leading-6 sm:text-base">
             {getEmptyDescription(query)}
           </p>
           {activeFilterBadges.length > 0 ? (
@@ -130,7 +130,7 @@ export function BrowseResultsPanel<TItem>({
               ))}
             </div>
           ) : null}
-          <p className="mb-6 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+          <p className="mb-6 text-xs font-medium uppercase tracking-widest text-slate-400">
             Sorted by {PUBLIC_BROWSE_SORT_LABELS[sort]}
           </p>
           <Button variant="outline" onClick={onReset}>

@@ -46,7 +46,7 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
 
                 {!!ad.included && (
                     <div className="space-y-2">
-                        <h4 className="text-xs font-bold flex items-center gap-1.5 text-slate-500 uppercase tracking-wide">
+                        <h4 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
                             <Info className="h-3.5 w-3.5 text-blue-500" />
                             What&apos;s Included
                         </h4>
@@ -58,7 +58,7 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
 
                 {!!ad.excluded && (
                     <div className="space-y-2">
-                        <h4 className="text-xs font-bold flex items-center gap-1.5 text-slate-500 uppercase tracking-wide">
+                        <h4 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
                             <Info className="h-3.5 w-3.5 text-slate-400" />
                             What&apos;s Excluded
                         </h4>
@@ -72,7 +72,7 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                     <h3 className={`font-bold text-slate-800 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
                         Description
                     </h3>
-                    <div className={`text-slate-500 whitespace-pre-wrap leading-7 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
+                    <div className={`text-muted-foreground whitespace-pre-wrap leading-7 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
                         {description}
                     </div>
                 </div>

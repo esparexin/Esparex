@@ -113,7 +113,7 @@ export function AdSellerCard({
                             )}
                         </div>
                         {phoneMessage && (
-                            <p className="px-1 text-xs leading-5 text-slate-500">
+                            <p className="px-1 text-xs leading-5 text-muted-foreground">
                                 {phoneMessage}
                             </p>
                         )}

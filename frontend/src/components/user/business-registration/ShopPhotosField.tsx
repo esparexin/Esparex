@@ -111,7 +111,7 @@ export function ShopPhotosField({
                 <p className="text-sm font-medium text-slate-800">
                     Shop or workshop photos <span className="text-destructive">*</span>
                 </p>
-                <p className="text-xs leading-5 text-slate-500">
+                <p className="text-xs leading-5 text-muted-foreground">
                     {helperText} Supported formats: JPG, PNG, WebP, AVIF, HEIC, HEIF up to {BUSINESS_UPLOAD_MAX_MB}MB each.
                 </p>
             </div>
@@ -130,7 +130,7 @@ export function ShopPhotosField({
                     <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center transition-colors hover:border-blue-400 hover:bg-blue-50">
                         <Upload className="mb-3 h-6 w-6 text-slate-400" />
                         <span className="text-sm font-semibold text-slate-700">Add photo</span>
-                        <span className="mt-1 text-xs text-slate-500">{formData.shopImages.length}/5 uploaded</span>
+                        <span className="mt-1 text-xs text-muted-foreground">{formData.shopImages.length}/5 uploaded</span>
                         <input
                             id="reg-shop-images"
                             name="reg-shop-images"

@@ -61,7 +61,7 @@ export function ListingItem({
         blue: {
             bg: "bg-blue-50 text-blue-300",
             border: "hover:border-blue-200",
-            price: "text-blue-700"
+            price: "text-link-dark"
         },
         violet: {
             bg: "bg-violet-50 text-violet-300",
@@ -107,7 +107,7 @@ export function ListingItem({
                                 <h3 className="font-medium text-sm line-clamp-1">{title}</h3>
                             </Link>
                         ) : (
-                            <h3 className="font-medium text-sm line-clamp-1 text-slate-900">{title}</h3>
+                            <h3 className="font-medium text-sm line-clamp-1 text-foreground">{title}</h3>
                         )}
                         {getStatusBadge(status)}
                     </div>
@@ -119,7 +119,7 @@ export function ListingItem({
                     )}
 
                     {/* Meta Info */}
-                    <div className="flex flex-wrap items-center gap-3 mt-1.5 text-2xs text-slate-500">
+                    <div className="flex flex-wrap items-center gap-3 mt-1.5 text-2xs text-muted-foreground">
                         {totalViews > 0 && (
                             <span className="flex items-center gap-1">
                                 <Eye className="h-3 w-3" /> {totalViews}

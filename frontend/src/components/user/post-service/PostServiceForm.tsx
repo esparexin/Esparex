@@ -230,7 +230,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         >
             {isEditMode ? (
                 <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                    <p className="font-semibold text-slate-900">Catalog fields are partially locked while editing.</p>
+                    <p className="font-semibold text-foreground">Catalog fields are partially locked while editing.</p>
                     <p className="mt-1">
                         Category and brand stay fixed so this service keeps the same catalog placement. Create a new listing if those details changed.
                     </p>
@@ -268,7 +268,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                         </div>
                     ) : availableServiceTypes.length > 0 ? (
                         <>
-                            <p className="mb-2 text-sm text-slate-500">
+                            <p className="mb-2 text-sm text-muted-foreground">
                                 Select every service you offer for {selectedCategory?.name || "this category"}.
                             </p>
                             <div className="grid grid-cols-2 gap-2">
@@ -297,7 +297,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                         </>
                     ) : isEditMode && selectedServiceTypes.length > 0 ? (
                         <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                            <p className="font-semibold text-slate-900">Existing service types are preserved.</p>
+                            <p className="font-semibold text-foreground">Existing service types are preserved.</p>
                             <p className="mt-1">
                                 This listing keeps its current service-type mapping while you edit pricing, photos, and description.
                             </p>

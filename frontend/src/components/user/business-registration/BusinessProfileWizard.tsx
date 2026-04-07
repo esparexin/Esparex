@@ -100,7 +100,7 @@ export function BusinessProfileWizard({
                     <div className="border-t border-slate-100 pt-6">
                         <Accordion type="single" collapsible className="rounded-2xl border border-slate-200 bg-slate-50 px-4">
                             <AccordionItem value="review" className="border-b-0">
-                                <AccordionTrigger className="py-4 text-sm font-semibold text-slate-900 hover:no-underline">
+                                <AccordionTrigger className="py-4 text-sm font-semibold text-foreground hover:no-underline">
                                     Review everything before you submit
                                 </AccordionTrigger>
                                 <AccordionContent className="pb-1">
@@ -154,7 +154,7 @@ export function BusinessProfileWizard({
                             {wizardVariant === "registration" ? "Exit setup" : "Close"}
                         </Button>
 
-                        <h1 className="truncate text-base font-semibold text-slate-900 md:text-lg">
+                        <h1 className="truncate text-base font-semibold text-foreground md:text-lg">
                             {title}
                         </h1>
                     </div>
@@ -175,7 +175,7 @@ export function BusinessProfileWizard({
 
                 <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
                     <div className="border-b border-slate-100 px-5 py-5 md:px-8 md:py-6">
-                        <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
+                        <h2 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
                             {activeStep.title}
                         </h2>
                         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">

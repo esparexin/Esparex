@@ -44,7 +44,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
             <div className="mx-auto w-full max-w-5xl px-4 py-6 md:py-8 space-y-5">
                 <BackButton
                     label="Back"
-                    className="text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200 text-sm"
+                    className="text-muted-foreground hover:text-foreground border border-transparent hover:border-slate-200 text-sm"
                 />
 
                 {/* Hero Profile Card */}
@@ -75,7 +75,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                             <div className="flex-1 pt-2 md:pt-14 space-y-4 text-center md:text-left">
                                 <div>
                                     <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                                        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">{sellerName}</h1>
+                                        <h1 className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight">{sellerName}</h1>
                                         {profile.user.isVerified && (
                                             <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-none px-2 rounded-lg text-xs">
                                                 Verified
@@ -93,13 +93,13 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                         <p className="text-2xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                                             <Megaphone className="w-3 h-3" /> Live Listings
                                         </p>
-                                        <p className="text-xl font-bold text-slate-900">{listingSummary.totalActive}</p>
+                                        <p className="text-xl font-bold text-foreground">{listingSummary.totalActive}</p>
                                     </div>
                                     <div className="space-y-0.5 border-l border-slate-200 pl-3">
                                         <p className="text-2xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                                             <LayoutGrid className="w-3 h-3" /> Showing Here
                                         </p>
-                                        <p className="text-xl font-bold text-slate-900">{listingSummary.visibleCount}</p>
+                                        <p className="text-xl font-bold text-foreground">{listingSummary.visibleCount}</p>
                                     </div>
                                 </div>
                                 <p className="text-xs text-slate-400">
@@ -115,8 +115,8 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                 {/* Listings Section */}
                 <section id="seller-active-listings" className="space-y-3 pt-2 scroll-mt-24">
                     <div className="flex items-center gap-2 border-b border-slate-200 pb-2.5">
-                        <h2 className="text-base font-bold text-slate-900">Active Listings</h2>
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-500 font-bold px-2 rounded-full text-xs">
+                        <h2 className="text-base font-bold text-foreground">Active Listings</h2>
+                        <Badge variant="secondary" className="bg-slate-100 text-muted-foreground font-bold px-2 rounded-full text-xs">
                             {profile.ads.length}
                         </Badge>
                     </div>

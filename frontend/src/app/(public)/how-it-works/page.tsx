@@ -23,21 +23,21 @@ export default function HowItWorksPage() {
                     <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">1</div>
                     <div>
                         <h3 className="font-bold text-slate-800 text-sm mb-1">For Buyers</h3>
-                        <p className="text-sm text-slate-500 leading-relaxed">Browse thousands of spare parts and services. Use our advanced filters to find parts compatible with your specific device model. Contact sellers directly to negotiate and arrange pickup or delivery.</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">Browse thousands of spare parts and services. Use our advanced filters to find parts compatible with your specific device model. Contact sellers directly to negotiate and arrange pickup or delivery.</p>
                     </div>
                 </div>
                 <div className="flex items-start gap-4 p-4 rounded-2xl bg-green-50 border border-green-100">
                     <div className="h-9 w-9 rounded-xl bg-green-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">2</div>
                     <div>
                         <h3 className="font-bold text-slate-800 text-sm mb-1">For Sellers</h3>
-                        <p className="text-sm text-slate-500 leading-relaxed">List your spare parts in minutes. Take clear photos, describe the condition, and set your price. Manage all your listings and offers from your dashboard.</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">List your spare parts in minutes. Take clear photos, describe the condition, and set your price. Manage all your listings and offers from your dashboard.</p>
                     </div>
                 </div>
                 <div className="flex items-start gap-4 p-4 rounded-2xl bg-violet-50 border border-violet-100">
                     <div className="h-9 w-9 rounded-xl bg-violet-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">3</div>
                     <div>
                         <h3 className="font-bold text-slate-800 text-sm mb-1">For Service Providers</h3>
-                        <p className="text-sm text-slate-500 leading-relaxed">Register your repair shop to get discovered by local customers. Showcase your expertise and services offered.</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">Register your repair shop to get discovered by local customers. Showcase your expertise and services offered.</p>
                     </div>
                 </div>
             </div>

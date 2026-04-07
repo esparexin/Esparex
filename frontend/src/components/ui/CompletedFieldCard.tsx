@@ -34,7 +34,7 @@ export function CompletedFieldCard({
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                     <div className="min-w-0 flex-1">
-                        <span className="font-medium text-slate-900">{title}:</span>{" "}
+                        <span className="font-medium text-foreground">{title}:</span>{" "}
                         <span className="text-slate-600 truncate">{summary}</span>
                     </div>
                 </div>
@@ -67,8 +67,8 @@ export function CompletedFieldCard({
                         <CheckCircle2 className="h-6 w-6 text-emerald-600" />
                     </div>
                     <div className="min-w-0 flex-1">
-                        <h3 className="font-bold text-slate-900 leading-none mb-1">{title}</h3>
-                        <p className="text-sm text-slate-500 truncate">{summary}</p>
+                        <h3 className="font-bold text-foreground leading-none mb-1">{title}</h3>
+                        <p className="text-sm text-muted-foreground truncate">{summary}</p>
                     </div>
                 </div>
                 <Button

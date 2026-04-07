@@ -94,7 +94,7 @@ export function BusinessTab({
                         <div className="flex flex-wrap gap-3">
                             <Button
                                 onClick={() => navigateTo("profile-settings-business")}
-                                className="h-11 rounded-xl bg-white px-5 font-semibold text-blue-700 hover:bg-blue-50"
+                                className="h-11 rounded-xl bg-white px-5 font-semibold text-link-dark hover:bg-blue-50"
                             >
                                 Edit Business Profile
                             </Button>
@@ -112,25 +112,25 @@ export function BusinessTab({
                 <div className="grid grid-cols-2 gap-3">
                     <Card className="rounded-2xl">
                         <CardContent className="p-4">
-                            <p className="text-sm text-slate-500">Total Services</p>
-                            <p className="mt-1 text-2xl font-bold text-slate-900">{businessStats?.totalServices ?? 0}</p>
+                            <p className="text-sm text-muted-foreground">Total Services</p>
+                            <p className="mt-1 text-2xl font-bold text-foreground">{businessStats?.totalServices ?? 0}</p>
                         </CardContent>
                     </Card>
                     <Card className="rounded-2xl">
                         <CardContent className="p-4">
-                            <p className="text-sm text-slate-500">Approved</p>
+                            <p className="text-sm text-muted-foreground">Approved</p>
                             <p className="mt-1 text-2xl font-bold text-emerald-600">{businessStats?.approvedServices ?? 0}</p>
                         </CardContent>
                     </Card>
                     <Card className="rounded-2xl">
                         <CardContent className="p-4">
-                            <p className="text-sm text-slate-500">Pending</p>
+                            <p className="text-sm text-muted-foreground">Pending</p>
                             <p className="mt-1 text-2xl font-bold text-amber-600">{businessStats?.pendingServices ?? 0}</p>
                         </CardContent>
                     </Card>
                     <Card className="rounded-2xl">
                         <CardContent className="p-4">
-                            <p className="text-sm text-slate-500">Profile Views</p>
+                            <p className="text-sm text-muted-foreground">Profile Views</p>
                             <p className="mt-1 text-2xl font-bold text-link">{businessStats?.views ?? 0}</p>
                         </CardContent>
                     </Card>
