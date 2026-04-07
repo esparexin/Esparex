@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import User from '../models/User';
 import Ad from '../models/Ad';
+import Business from '../models/Business';
 import SmartAlert from '../models/SmartAlert';
 import { logAdminAction } from '../utils/adminLogger';
 import logger from '../utils/logger';
@@ -69,10 +70,17 @@ export const updateUserStatus = async (
 
         // --- Side Effects ---
         if (newStatus === USER_STATUS.DELETED) {
-            await Ad.updateMany(
-                { sellerId: userId, isDeleted: { $ne: true } },
-                { isDeleted: true, deletedAt: new Date() }
-            );
+            const deletedAt = new Date();
+            await Promise.all([
+                Ad.updateMany(
+                    { sellerId: userId, isDeleted: { $ne: true } },
+                    { isDeleted: true, deletedAt }
+                ),
+                Business.updateMany(
+                    { userId, isDeleted: { $ne: true } },
+                    { isDeleted: true, deletedAt }
+                ),
+            ]);
         } else {
             const liveListings = await Ad.find(
                 { sellerId: userId, status: AD_STATUS.LIVE, isDeleted: { $ne: true } }

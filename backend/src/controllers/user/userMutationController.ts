@@ -225,18 +225,11 @@ export const deleteMe = async (
       reason: combinedReason,
     });
 
-    // Cascade soft-delete to all user-owned listings and business
-    const deletedAt = new Date();
-    await Promise.all([
-      AdModel.updateMany(
-        { sellerId: userId, isDeleted: { $ne: true } },
-        { $set: { isDeleted: true, deletedAt } }
-      ),
-      Business.updateMany(
-        { userId, isDeleted: { $ne: true } },
-        { $set: { isDeleted: true, deletedAt } }
-      ),
-    ]);
+    // Business soft-delete cascade (Ads + SmartAlerts already handled by UserStatusService)
+    await Business.updateMany(
+      { userId, isDeleted: { $ne: true } },
+      { $set: { isDeleted: true, deletedAt: new Date() } }
+    );
 
     AuthService.clearUserSession(res);
 

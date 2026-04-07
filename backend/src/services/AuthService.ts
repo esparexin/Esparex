@@ -112,11 +112,8 @@ const getUserAuthFailure = (
             code: 'USER_SUSPENDED'
         });
     }
-    if (user.status === 'deleted') {
-        return createFailure(403, 'This account no longer exists. Please register with a new number.', {
-            code: 'USER_DELETED'
-        });
-    }
+    // Deleted accounts are treated as new users — handled in verifyLoginOtp
+    // so they can re-register with the same number with a clean slate.
 
     if (!isLocalOtpLockBypass && user.lockUntil && user.lockUntil > now) {
         logger.warn('Account temporarily locked', {
@@ -241,22 +238,22 @@ export class AuthService {
             Otp.findOne({ mobile: { $in: mobileVariants } }).sort({ createdAt: -1 })
         ]);
 
-        let userFailure = getUserAuthFailure(user, now);
+        // Treat deleted accounts as new users — they may re-register with the same number
+        const effectiveUser = user?.status === 'deleted' ? null : user;
+        let userFailure = getUserAuthFailure(effectiveUser, now);
         if (userFailure) {
             return userFailure;
         }
-
-
 
         const otpValue = generateSecureOtp();
         const otpHash = hashOtp(otpValue);
         const expiresAt = new Date(now.getTime() + OTP_EXPIRY_SECONDS * 1000);
 
         // Reset lock state on user if lock has expired (so next verify cycle starts clean)
-        if (user && (user.failedLoginAttempts || user.lockUntil)) {
-            user.failedLoginAttempts = 0;
-            user.lockUntil = undefined;
-            await user.save();
+        if (effectiveUser && (effectiveUser.failedLoginAttempts || effectiveUser.lockUntil)) {
+            effectiveUser.failedLoginAttempts = 0;
+            effectiveUser.lockUntil = undefined;
+            await effectiveUser.save();
         }
 
         await Otp.deleteMany({ mobile: { $in: mobileVariants } });
@@ -273,9 +270,9 @@ export class AuthService {
 
         return {
             success: true,
-            isNewUser: !user,
+            isNewUser: !effectiveUser,
             otpExpiresIn: OTP_EXPIRY_SECONDS,
-            name: user?.name || undefined
+            name: effectiveUser?.name || undefined
         };
     }
 
@@ -364,7 +361,9 @@ export class AuthService {
 
         await Otp.deleteMany({ mobile: { $in: mobileVariants } });
 
-        let user = userFromMobile;
+        // A previously deleted account re-registering with the same number
+        // gets a clean slate — treat them as a brand new user.
+        let user = (userFromMobile?.status === 'deleted') ? null : userFromMobile;
 
         if (!user) {
             if (!normalizedName) {
