@@ -211,7 +211,10 @@ function toListingSchemaCompatible(data: unknown): unknown {
     normalizeReferenceField("businessId", null);
 
     const OBJECTID_RE = /^[0-9a-f]{24}$/i;
-    if (record.category !== undefined) {
+    // Prefer the flat categoryName field emitted by the backend hydration
+    if (typeof record.categoryName === 'string' && record.categoryName.trim()) {
+        record.category = record.categoryName.trim();
+    } else if (record.category !== undefined) {
         const norm = toLegacyStringField(record.category);
         (norm && !OBJECTID_RE.test(norm)) ? record.category = norm : delete record.category;
     }

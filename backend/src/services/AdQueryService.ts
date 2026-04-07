@@ -427,7 +427,12 @@ export async function hydrateAdMetadata(ads: any[]) {
 
     ads.forEach(ad => {
         if (ad.categoryId) {
-            ad.category = categoryMap.get(String(ad.categoryId));
+            const cat = categoryMap.get(String(ad.categoryId));
+            ad.category = cat;
+            // Flat string field — reliable label even if object hydration is partial
+            if (cat && typeof (cat as any).name === 'string') {
+                (ad as any).categoryName = (cat as any).name;
+            }
         }
         if (ad.brandId) {
             ad.brand = brandMap.get(String(ad.brandId));
