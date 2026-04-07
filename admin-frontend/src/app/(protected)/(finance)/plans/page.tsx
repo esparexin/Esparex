@@ -96,6 +96,13 @@ export default function PlansPage() {
     }, [pathname, router, search, searchParams, typeFilter]);
 
     const handleToggleStatus = async (planId: string) => {
+        const plan = plans.find((p) => p.id === planId);
+        if (plan?.active) {
+            const confirmed = window.confirm(
+                "Are you sure you want to disable this plan? Disabling it will prevent new purchases but won't affect existing subscriptions."
+            );
+            if (!confirmed) return;
+        }
         try {
             await adminFetch(ADMIN_ROUTES.PLAN_TOGGLE(planId), {
                 method: "PATCH"

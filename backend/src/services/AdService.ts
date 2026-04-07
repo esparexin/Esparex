@@ -62,8 +62,8 @@ import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
 import {
     checkPostLimit,
     consumeAdPostingSlot,
-    getAdPostingBalance
 } from './PlanService';
+import { getAdPostingBalance } from './AdSlotService';
 import { consumeCredit } from './WalletService';
 import { recordSellerAdPosted } from './SellerTrustSignalsService';
 import { AdContext } from '../types/ad.types';

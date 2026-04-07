@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import mongoose from 'mongoose';
 import { PAYMENT_STATUS } from '../../../shared/enums/paymentStatus';
 
-const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format');
+const objectIdSchema = z.string().refine(v => mongoose.isValidObjectId(v), 'Invalid ObjectId format');
 const paymentStatusSchema = z.enum([
     PAYMENT_STATUS.PENDING,
     PAYMENT_STATUS.SUCCESS,

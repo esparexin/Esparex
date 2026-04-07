@@ -37,8 +37,6 @@ export const resetWalletsForNewCycle = async (now: Date = new Date()) => {
     return { cycleStart, modifiedCount: result.modifiedCount };
 };
 
-export const getAdPostingBalance = adSlotGetBalance;
-
 export const consumeAdPostingSlot = async (
     userId: string,
     session?: ClientSession,
@@ -71,14 +69,14 @@ export const checkPostLimit = async (
     const activeUserPlans = await activeUserPlansQuery.lean();
 
     // 2. Calculate Permissions from Plans
-    const plans = activeUserPlans.map((up) => (up as UserPlanWithPlanId).planId);
+    const plans = activeUserPlans.map((up) => (up as UserPlanWithPlanId).planId).filter(Boolean);
     const permissions = calculateUserPlan(plans);
 
     // 4. Determine Limits
     let limit = 0;
 
     if (type === 'ad') {
-        const balance = await getAdPostingBalance(userId, session);
+        const balance = await adSlotGetBalance(userId, session);
         if (balance.totalRemaining <= 0) {
             throw new AppError(
                 'No ad posting slots available this month. Buy Ad Pack credits or wait for monthly reset.',

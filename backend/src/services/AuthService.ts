@@ -393,13 +393,11 @@ export class AuthService {
                 const freePlan = await Plan.findOne({ isDefault: true });
 
                 if (freePlan) {
-                    await UserPlan.create({
-                        userId: user._id,
-                        planId: freePlan._id,
-                        startDate: now,
-                        endDate: null,
-                        status: 'active'
-                    });
+                    await UserPlan.findOneAndUpdate(
+                        { userId: user._id, planId: freePlan._id },
+                        { $set: { startDate: now, endDate: null, status: 'active' } },
+                        { upsert: true, new: true, setDefaultsOnInsert: true }
+                    );
                 }
             } catch (err) {
                 logger.error('Default plan assignment failed', {

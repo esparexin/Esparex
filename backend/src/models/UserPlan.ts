@@ -11,15 +11,16 @@ export interface IUserPlan {
 }
 
 const UserPlanSchema = new mongoose.Schema<IUserPlan>({
-    userId: mongoose.Types.ObjectId,
-    planId: mongoose.Types.ObjectId,
-    startDate: Date,
+    userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+    planId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Plan' },
+    startDate: { type: Date, required: true },
     endDate: Date,
     status: {
         type: String,
-        enum: ["active", "expired", "suspended"]
+        enum: ["active", "expired", "suspended"],
+        default: 'active'
     }
-});
+}, { timestamps: true });
 
 /* -------------------------------------------------------------------------- */
 /* Indexes (Explicitly Named)                                                 */
@@ -28,6 +29,7 @@ const UserPlanSchema = new mongoose.Schema<IUserPlan>({
 UserPlanSchema.index({ userId: 1 }, { name: 'idx_userplan_userId_idx' });
 UserPlanSchema.index({ planId: 1 }, { name: 'idx_userplan_planId_idx' });
 UserPlanSchema.index({ status: 1 }, { name: 'idx_userplan_status_idx' });
+UserPlanSchema.index({ userId: 1, status: 1 }, { name: 'idx_userplan_userId_status_compound' });
 
 const connection = getUserConnection();
 const UserPlan: Model<IUserPlan> =

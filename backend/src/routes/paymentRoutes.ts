@@ -3,7 +3,7 @@ import * as paymentController from '../controllers/payment';
 import { protect } from '../middleware/authMiddleware';
 import { paymentWebhook } from '../controllers/admin/paymentWebhook';
 import { validateObjectId } from '../middleware/validateObjectId';
-import { paymentRateLimiter } from '../middleware/rateLimiter';
+import { paymentRateLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
 import * as Validators from '../validators/finance.validator';
 
@@ -12,6 +12,12 @@ import { env } from '../config/env';
 
 if (process.env.NODE_ENV === 'production' && (!process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_WEBHOOK_SECRET.trim() === '')) {
     throw new Error('FATAL: RAZORPAY_WEBHOOK_SECRET must be defined in production to secure webhooks.');
+}
+if (process.env.NODE_ENV === 'production' && (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.trim() === '')) {
+    throw new Error('FATAL: RAZORPAY_KEY_ID must be defined in production.');
+}
+if (process.env.NODE_ENV === 'production' && (!process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET.trim() === '')) {
+    throw new Error('FATAL: RAZORPAY_KEY_SECRET must be defined in production.');
 }
 
 const router = express.Router();
@@ -29,7 +35,7 @@ import { idempotencyMiddleware } from '../middleware/idempotency';
 router.post('/orders', protect, paymentRateLimiter, idempotencyMiddleware, validateRequest(Validators.createPaymentOrderSchema), paymentController.createPaymentOrder);
 
 // Get Available Plans
-router.get('/plans', paymentController.getPlans);
+router.get('/plans', searchLimiter, paymentController.getPlans);
 
 // Webhook (Secured by HMAC Signature)
 // ⚠️  RAZORPAY_WEBHOOK_SECRET must be set in .env — passing '' causes

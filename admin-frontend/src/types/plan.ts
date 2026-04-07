@@ -1,3 +1,4 @@
+// TODO: unify with shared/types
 export interface Plan {
     id: string; // The backend uses the toJSON transform to convert _id to id
     code: string;
@@ -17,7 +18,7 @@ export interface Plan {
 
     smartAlertConfig?: {
         maxAlerts?: number;
-        matchFrequency?: "instant" | "hourly" | "daily";
+        matchFrequency?: "realtime" | "hourly" | "daily";
         radiusLimitKm?: number;
         notificationChannels?: string[];
     };

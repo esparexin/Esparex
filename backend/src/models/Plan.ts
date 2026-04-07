@@ -1,3 +1,4 @@
+// TODO: unify with shared/types
 // backend/src/models/Plan.ts
 import { Schema, Document } from "mongoose";
 import { getUserConnection } from "../config/db";
@@ -32,7 +33,7 @@ export interface IPlan extends Document {
     // Specific Configs
     smartAlertConfig?: {
         maxAlerts: number;
-        matchFrequency: 'instant' | 'hourly' | 'daily';
+        matchFrequency: 'realtime' | 'hourly' | 'daily';
         radiusLimitKm: number;
         notificationChannels: string[];
     };
@@ -83,12 +84,18 @@ const PlanSchema = new Schema<IPlan>(
         },
 
         smartAlertConfig: {
-            maxAlerts: Number,
-            matchFrequency: { type: String, enum: ['instant', 'hourly', 'daily'] },
-            radiusLimitKm: Number,
-            notificationChannels: [String]
+            maxAlerts: { type: Number, min: 0, default: 0 },
+            matchFrequency: { type: String, enum: ['realtime', 'hourly', 'daily'], default: 'daily' },
+            radiusLimitKm: { type: Number, min: 0, default: 50 },
+            notificationChannels: { type: [String], default: [] }
         },
 
+        /**
+         * @deprecated Legacy field kept for backward compatibility with old plans.
+         * New plans use `limits` (maxAds, spotlightCredits, smartAlerts).
+         * Used as a fallback in planEntitlements.ts via getPrimaryPlanCreditCount().
+         * Do NOT remove — old UserPlan records may reference plans that only have this field.
+         */
         credits: { type: Number, default: 0 }, // Legacy/Fallback
         price: { type: Number, required: true }, // final payable amount
         currency: { type: String, default: "INR" },

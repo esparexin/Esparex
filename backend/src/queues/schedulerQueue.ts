@@ -7,6 +7,7 @@ export type SchedulerJobName =
     | 'notify_business_expiry'
     | 'payment_reconciliation'
     | 'monthly_slot_reset'
+    | 'expire_user_plans'
     | 'database_backup_job'
     | 'location_analytics_refresh'
     | 'notification_scheduler_poll'
@@ -27,6 +28,7 @@ const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
     notify_business_expiry: '0 9 * * *',
     payment_reconciliation: '*/10 * * * *',
     monthly_slot_reset: '5 0 1 * *',
+    expire_user_plans: '0 1 * * *',
     database_backup_job: process.env.BACKUP_CRON_SCHEDULE || '0 2 * * *',
     location_analytics_refresh: '0 2 * * *',
     notification_scheduler_poll: '* * * * *',

@@ -10,7 +10,7 @@ import type { Plan } from "@/types/plan";
 import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
 type PlanType = "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";
-type MatchFrequency = "instant" | "hourly" | "daily";
+type MatchFrequency = "realtime" | "hourly" | "daily";
 
 const DEFAULT_FORM: PlanFormValues = {
     code: "",
@@ -27,7 +27,7 @@ const DEFAULT_FORM: PlanFormValues = {
     maxServices: 0,
     maxParts: 0,
     spotlightCredits: 0,
-    smartAlertSlots: 0,
+    smartAlerts: 0,
     matchFrequency: "daily",
     radiusLimitKm: 50,
     notificationChannels: ["push"],
@@ -78,7 +78,7 @@ function planToForm(plan: Plan): PlanFormValues {
         maxServices: plan.limits?.maxServices ?? 0,
         maxParts: plan.limits?.maxParts ?? 0,
         spotlightCredits: plan.limits?.spotlightCredits ?? 0,
-        smartAlertSlots: plan.limits?.smartAlerts ?? 0,
+        smartAlerts: plan.limits?.smartAlerts ?? 0,
         matchFrequency: plan.smartAlertConfig?.matchFrequency ?? "daily",
         radiusLimitKm: plan.smartAlertConfig?.radiusLimitKm ?? 50,
         notificationChannels: plan.smartAlertConfig?.notificationChannels ?? ["push"],
@@ -106,7 +106,7 @@ function formToPayload(f: PlanFormValues) {
             maxServices: Number(f.maxServices),
             maxParts: Number(f.maxParts),
             spotlightCredits: Number(f.spotlightCredits),
-            smartAlerts: Number(f.smartAlertSlots),
+            smartAlerts: Number(f.smartAlerts),
         },
         features: {
             priorityWeight: Number(f.priorityWeight),
@@ -118,7 +118,7 @@ function formToPayload(f: PlanFormValues) {
 
     if (f.type === "SMART_ALERT") {
         payload.smartAlertConfig = {
-            maxAlerts: Number(f.smartAlertSlots),
+            maxAlerts: Number(f.smartAlerts),
             matchFrequency: f.matchFrequency,
             radiusLimitKm: Number(f.radiusLimitKm),
             notificationChannels: f.notificationChannels,
@@ -348,12 +348,12 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Alert Slots</label>
-                                        <input type="number" min={1} {...register("smartAlertSlots", { valueAsNumber: true })} className={inputCls} />
+                                        <input type="number" min={1} {...register("smartAlerts", { valueAsNumber: true })} className={inputCls} />
                                     </div>
                                     <div>
                                         <label className={labelCls}>Match Frequency</label>
                                         <select {...register("matchFrequency")} className={inputCls}>
-                                            <option value="instant">Instant</option>
+                                            <option value="realtime">Realtime</option>
                                             <option value="hourly">Hourly</option>
                                             <option value="daily">Daily</option>
                                         </select>

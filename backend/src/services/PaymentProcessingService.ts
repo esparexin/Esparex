@@ -357,9 +357,7 @@ export async function processSuccessfulPayment(
             });
         }
 
-        await recordRevenue(tx, resolveCategoryName(tx), session);
-
-            let invoice: IInvoice | null = await Invoice.findOne({ transactionId: tx._id }).session(session);
+        let invoice: IInvoice | null = await Invoice.findOne({ transactionId: tx._id }).session(session);
             if (!invoice) {
                 const { invoiceData } = await buildInvoicePayload(tx, session);
                 const invoices = await Invoice.create([invoiceData], { session });
@@ -381,6 +379,16 @@ export async function processSuccessfulPayment(
             transactionId: committedTransactionId,
             invoiceId: committedInvoiceId
         });
+
+        // Analytics and PDF generation run after commit so they cannot roll back the payment
+        try {
+            await recordRevenue(tx, resolveCategoryName(tx));
+        } catch (analyticsError) {
+            logger.error("Revenue analytics recording failed after payment commit", {
+                transactionId: committedTransactionId,
+                error: analyticsError instanceof Error ? analyticsError.message : String(analyticsError)
+            });
+        }
 
         await ensureInvoicePdf(committedInvoiceId);
 

@@ -8,7 +8,8 @@ import { buildPlanPayload, getErrorMessage, getRequiredPlanId, PlanModel } from 
 
 export const createPlan = async (req: Request, res: Response) => {
     try {
-        const safeBody = buildPlanPayload(req.body as Record<string, unknown>);
+        const adminId = req.user?._id ? String(req.user._id) : undefined;
+        const safeBody = buildPlanPayload(req.body as Record<string, unknown>, adminId);
 
         const plan = await PlanModel.create(safeBody);
         const planId = Array.isArray(plan) ? plan[0]?._id : (plan as Record<string, unknown>)?._id;

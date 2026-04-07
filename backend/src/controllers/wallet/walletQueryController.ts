@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
-import { getAdPostingBalance } from '../../services/PlanService';
+import { getAdPostingBalance } from '../../services/AdSlotService';
 import { getErrorMessage, TransactionModel, WalletModel } from './shared';
 
 export const getWalletSummary = async (req: Request, res: Response) => {

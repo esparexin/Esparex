@@ -3,6 +3,7 @@ import { toApiResult } from "@/lib/api/result";
 import { API_ROUTES } from "../routes";
 import logger from "@/lib/logger";
 
+// TODO: unify with shared/types
 export interface Plan {
     id: string; // Standardized ID
     code: string;

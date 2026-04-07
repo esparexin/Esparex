@@ -266,13 +266,11 @@ export const updateInvoiceStatus = async (req: Request, res: Response) => {
                         const durationDays = typeof snapshotDurationRaw === 'number' ? snapshotDurationRaw : 30;
                         const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
-                        await UserPlan.create({
-                            userId: user._id,
-                            planId: transaction.planId, // Using planId from transaction if available
-                            startDate,
-                            endDate,
-                            status: PLAN_STATUS.ACTIVE
-                        });
+                        await UserPlan.findOneAndUpdate(
+                            { userId: user._id, planId: transaction.planId },
+                            { $set: { startDate, endDate, status: PLAN_STATUS.ACTIVE } },
+                            { upsert: true, new: true, setDefaultsOnInsert: true }
+                        );
 
                         transaction.applied = true;
                         logger.info('Plan applied to user via manual invoice success', { userId: user._id, invoiceId: invoice._id });

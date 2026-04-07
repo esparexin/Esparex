@@ -45,8 +45,10 @@ export const PLAN_SCALAR_FIELDS = [
     'isDefault',
 ] as const;
 
-export const buildPlanPayload = (body: Record<string, unknown>) => {
+export const buildPlanPayload = (body: Record<string, unknown>, adminId?: string) => {
     const safeBody: Record<string, unknown> = {};
+
+    if (adminId) safeBody.createdByAdmin = adminId;
 
     // Scalar fields
     PLAN_SCALAR_FIELDS.forEach((key) => {
