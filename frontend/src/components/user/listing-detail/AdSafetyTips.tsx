@@ -35,7 +35,7 @@ export function AdSafetyTips() {
 
                     <div className="flex items-start gap-3">
                         <div className="h-6 w-6 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Info className="h-3.5 w-3.5 text-blue-600" />
+                            <Info className="h-3.5 w-3.5 text-link" />
                         </div>
                         <div>
                             <p className="text-xs font-bold text-slate-700">Fraud Protection</p>
@@ -45,7 +45,7 @@ export function AdSafetyTips() {
                 </div>
 
                 <div className="border-t border-amber-100 pt-3">
-                    <p className="text-[10px] text-amber-400 font-semibold uppercase tracking-widest text-center">Safety First · Esparex Trust</p>
+                    <p className="text-2xs text-amber-400 font-semibold uppercase tracking-widest text-center">Safety First · Esparex Trust</p>
                 </div>
             </CardContent>
         </Card>

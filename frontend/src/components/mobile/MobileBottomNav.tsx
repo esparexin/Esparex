@@ -75,7 +75,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                             )}
                         >
                             <Icon className="h-5 w-5 shrink-0" />
-                            <span className="max-w-full truncate text-[10px] font-semibold leading-tight">
+                            <span className="max-w-full truncate text-2xs font-semibold leading-tight">
                                 {item.label}
                             </span>
                         </Link>
@@ -114,8 +114,8 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                     </div>
                     <span
                         className={cn(
-                            "text-[10px] font-semibold leading-tight",
-                            isBackendUp ? "text-blue-600" : "text-muted-foreground"
+                            "text-2xs font-semibold leading-tight",
+                            isBackendUp ? "text-link" : "text-muted-foreground"
                         )}
                     >
                         Post Ad

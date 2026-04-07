@@ -21,26 +21,26 @@ export default function SiteMapPage() {
                 <div>
                     <h3 className="font-bold mb-4 text-lg">Main</h3>
                     <ul className="space-y-2">
-                        <li><Link href="/" className="text-blue-600 hover:underline">Home</Link></li>
-                        <li><Link href="/search" className="text-blue-600 hover:underline">Browse Ads</Link></li>
-                        <li><Link href="/search" className="text-blue-600 hover:underline">All Categories</Link></li>
+                        <li><Link href="/" className="text-link hover:underline">Home</Link></li>
+                        <li><Link href="/search" className="text-link hover:underline">Browse Ads</Link></li>
+                        <li><Link href="/search" className="text-link hover:underline">All Categories</Link></li>
                     </ul>
                 </div>
 
                 <div>
                     <h3 className="font-bold mb-4 text-lg">Support</h3>
                     <ul className="space-y-2">
-                        <li><Link href="/faq" className="text-blue-600 hover:underline">Help Center</Link></li>
-                        <li><Link href="/contact" className="text-blue-600 hover:underline">Contact Us</Link></li>
-                        <li><Link href="/safety-tips" className="text-blue-600 hover:underline">Safety Tips</Link></li>
+                        <li><Link href="/faq" className="text-link hover:underline">Help Center</Link></li>
+                        <li><Link href="/contact" className="text-link hover:underline">Contact Us</Link></li>
+                        <li><Link href="/safety-tips" className="text-link hover:underline">Safety Tips</Link></li>
                     </ul>
                 </div>
 
                 <div>
                     <h3 className="font-bold mb-4 text-lg">Legal</h3>
                     <ul className="space-y-2">
-                        <li><Link href="/terms" className="text-blue-600 hover:underline">Terms of Service</Link></li>
-                        <li><Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link></li>
+                        <li><Link href="/terms" className="text-link hover:underline">Terms of Service</Link></li>
+                        <li><Link href="/privacy" className="text-link hover:underline">Privacy Policy</Link></li>
                     </ul>
                 </div>
             </div>

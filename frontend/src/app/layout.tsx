@@ -16,6 +16,7 @@ const inter = localFont({
             style: 'italic',
         },
     ],
+    variable: '--font-inter',
     display: 'swap',
     preload: true,
 });
@@ -54,7 +55,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
     return (
         <html lang="en">
-            <body className={inter.className}>
+            <body className={`${inter.variable} ${inter.className}`}>
                 <RootClientShell initialHasAuthCookie={initialHasAuthCookie}>{children}</RootClientShell>
             </body>
         </html>

@@ -223,12 +223,12 @@ export function ListingBottomActions({
               </Button>
             ) : null}
             {isChatLocked ? (
-              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-[11px] leading-4 text-slate-500`}>
+              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-xs leading-4 text-slate-500`}>
                 {chatLockedMessage}
               </p>
             ) : null}
             {showPhoneMessage && (
-              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-[11px] leading-4 text-slate-500`}>
+              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-xs leading-4 text-slate-500`}>
                 {phoneMessage}
               </p>
             )}

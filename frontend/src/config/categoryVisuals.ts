@@ -33,9 +33,9 @@ export const DEFAULT_CATEGORY_VISUAL: CategoryVisual = {
 };
 
 export const CATEGORY_VISUALS: Record<string, CategoryVisual> = {
-    mobiles: { icon: Smartphone, color: "text-blue-600", bg: "bg-blue-50" },
-    "mobile-phones": { icon: Smartphone, color: "text-blue-600", bg: "bg-blue-50" },
-    smartphone: { icon: Smartphone, color: "text-blue-600", bg: "bg-blue-50" },
+    mobiles: { icon: Smartphone, color: "text-link", bg: "bg-blue-50" },
+    "mobile-phones": { icon: Smartphone, color: "text-link", bg: "bg-blue-50" },
+    smartphone: { icon: Smartphone, color: "text-link", bg: "bg-blue-50" },
 
     vehicles: { icon: Car, color: "text-red-600", bg: "bg-red-50" },
     cars: { icon: Car, color: "text-red-600", bg: "bg-red-50" },

@@ -174,7 +174,7 @@ export function BusinessPublicProfile({
                     containerClassName="h-20 w-20 md:h-24 md:w-24 rounded-xl"
                     className="object-cover"
                     text="Logo"
-                    fallbackIcon={<Building2 className="h-10 w-10 text-blue-600" />}
+                    fallbackIcon={<Building2 className="h-10 w-10 text-link" />}
                   />
                 </div>
               </div>
@@ -222,7 +222,7 @@ export function BusinessPublicProfile({
             {business.website ? (
               <div className="flex items-center gap-2">
                 <Globe className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-                <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate">
+                <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-link hover:underline truncate">
                   {business.website}
                 </a>
               </div>
@@ -243,11 +243,11 @@ export function BusinessPublicProfile({
             {business.mobile ? (
               <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-4 w-4 text-blue-600" />
+                  <Phone className="h-4 w-4 text-link" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Phone</p>
-                  <a href={`tel:${business.mobile}`} className="text-sm font-semibold text-slate-800 hover:text-blue-600">
+                  <p className="text-2xs text-slate-400 font-bold uppercase tracking-wide">Phone</p>
+                  <a href={`tel:${business.mobile}`} className="text-sm font-semibold text-slate-800 hover:text-link">
                     {business.mobile}
                   </a>
                 </div>
@@ -259,7 +259,7 @@ export function BusinessPublicProfile({
                   <Phone className="h-4 w-4 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">WhatsApp</p>
+                  <p className="text-2xs text-slate-400 font-bold uppercase tracking-wide">WhatsApp</p>
                   <a href={buildWhatsappHref(business.whatsappNumber)} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-slate-800 hover:text-green-600">
                     {business.whatsappNumber}
                   </a>
@@ -272,7 +272,7 @@ export function BusinessPublicProfile({
                   <Mail className="h-4 w-4 text-red-500" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Email</p>
+                  <p className="text-2xs text-slate-400 font-bold uppercase tracking-wide">Email</p>
                   <a href={`mailto:${business.email}`} className="text-sm font-semibold text-slate-800 hover:text-red-600 truncate block">
                     {business.email}
                   </a>
@@ -302,7 +302,7 @@ export function BusinessPublicProfile({
           <div className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
             <div className="flex h-48 flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,#eff6ff,#f8fafc)] px-6 text-center">
               <div className="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <MapPin className="h-6 w-6 text-blue-600" />
+                <MapPin className="h-6 w-6 text-link" />
               </div>
               <p className="text-sm font-semibold text-slate-700">
                 {mapData.addressQuery || "Address details are available above."}
@@ -311,7 +311,7 @@ export function BusinessPublicProfile({
             {mapData.externalUrl ? (
               <div className="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3">
                 <p className="text-xs text-slate-400">View on Google Maps</p>
-                <a href={mapData.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline">
+                <a href={mapData.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-link hover:underline">
                   Open in Maps <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </div>
@@ -330,14 +330,14 @@ export function BusinessPublicProfile({
                 onClick={() => setActiveTab(tab.key)}
                 className={`-mb-px flex min-h-[44px] items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap ${
                   activeTab === tab.key
-                    ? "border-blue-600 text-blue-600"
+                    ? "border-blue-600 text-link"
                     : "border-transparent text-slate-400 hover:text-slate-600"
                 }`}
                 type="button"
               >
                 {tab.icon}
                 {tab.label}
-                <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                <span className={`ml-1 rounded-full px-1.5 py-0.5 text-2xs font-bold ${
                   activeTab === tab.key ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
                 }`}>
                   {tab.count}

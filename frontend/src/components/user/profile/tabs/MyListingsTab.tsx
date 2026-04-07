@@ -145,7 +145,7 @@ export function MyListingsTab({
     const currentConfig = {
         ads: {
             title: "My Classified Ads",
-            icon: <Package className="h-5 w-5 text-blue-600" />,
+            icon: <Package className="h-5 w-5 text-link" />,
             statusTabs: ACCOUNT_LISTING_STATUS_TABS.ads,
             selectedStatus: adsStatus,
             onStatusChange: handleStatusChange as any,

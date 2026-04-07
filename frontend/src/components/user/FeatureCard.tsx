@@ -16,7 +16,7 @@ export function FeatureCard({ title, description, Icon, rightAction, className =
         <div className="flex items-center gap-2 min-w-0">
           {Icon && (
             <div className="p-1.5 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
-              <Icon className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
+              <Icon className="h-4 w-4 md:h-5 md:w-5 text-link" />
             </div>
           )}
           <div className="min-w-0">

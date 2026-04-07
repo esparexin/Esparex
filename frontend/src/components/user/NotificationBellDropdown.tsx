@@ -174,7 +174,7 @@ function NotificationDropdownRow({
                     </p>
                     <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">{notification.message}</p>
 
-                    <div className="mt-2 flex items-center justify-between gap-3 text-[11px] text-slate-500">
+                    <div className="mt-2 flex items-center justify-between gap-3 text-xs text-slate-500">
                         <span>{relativeTime}</span>
                         <span className="inline-flex items-center gap-1 font-medium text-slate-700">
                             {notification.actionUrl ? "Open" : notification.isRead ? "Read" : "Mark read"}
@@ -307,7 +307,7 @@ export function NotificationBellDropdown({
                         variant === "mobile" ? (
                             <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full border-2 border-background bg-red-500" />
                         ) : (
-                            <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-[10px] font-bold text-white">
+                            <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-2xs font-bold text-white">
                                 {unreadCount > 99 ? "99+" : unreadCount}
                             </span>
                         )
@@ -361,10 +361,10 @@ export function NotificationBellDropdown({
                             {unreadItems.length > 0 ? (
                                 <section className="space-y-2">
                                     <div className="flex items-center justify-between px-1">
-                                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
                                             Unread now
                                         </p>
-                                        <p className="text-[11px] text-slate-500">{unreadCount} unread</p>
+                                        <p className="text-xs text-slate-500">{unreadCount} unread</p>
                                     </div>
                                     <div className="space-y-2">
                                         {unreadItems.map((notification) => (
@@ -384,7 +384,7 @@ export function NotificationBellDropdown({
                                     {unreadItems.length > 0 ? <DropdownMenuSeparator className="mx-1" /> : null}
                                     <section className="space-y-2">
                                         <div className="px-1">
-                                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
                                                 Read recently
                                             </p>
                                         </div>

@@ -27,7 +27,7 @@ export function ReviewSection({
                     variant="outline"
                     size="sm"
                     onClick={onEdit}
-                    className="h-11 shrink-0 rounded-lg border-slate-200 px-3 text-blue-600 hover:bg-blue-50 hover:border-blue-200"
+                    className="h-11 shrink-0 rounded-lg border-slate-200 px-3 text-link hover:bg-blue-50 hover:border-blue-200"
                 >
                     <Edit className="mr-1.5 h-3.5 w-3.5" />
                     Edit

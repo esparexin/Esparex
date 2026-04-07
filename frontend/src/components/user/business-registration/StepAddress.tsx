@@ -231,7 +231,7 @@ export function StepAddress({
                     helperText="Uses your verified account mobile number."
                     error={formData.errors?.contactNumber}
                     badge={(
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
                             Verified
                         </span>
                     )}
@@ -252,11 +252,11 @@ export function StepAddress({
                     error={currentLocationError}
                     badge={(
                         <>
-                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700">
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700">
                                 Required
                             </span>
                             {sourceLabel ? (
-                                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-blue-700">
+                                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
                                     {sourceLabel}
                                 </span>
                             ) : null}

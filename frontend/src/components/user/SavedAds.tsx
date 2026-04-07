@@ -101,7 +101,7 @@ const getUnavailableLabel = (status: string): string => {
 function SavedAdStatusOverlay({ status }: { status?: string }) {
   return (
     <div className="absolute inset-0 bg-gray-900/40 flex items-center justify-center">
-      <Badge className="bg-gray-800 text-white text-[10px] font-bold border-0 gap-1">
+      <Badge className="bg-gray-800 text-white text-2xs font-bold border-0 gap-1">
         <AlertCircle className="h-3 w-3" />
         {getUnavailableLabel(status ?? "")}
       </Badge>
@@ -149,7 +149,7 @@ function SavedAdTypeBadge({
   return (
     <Badge
       variant="secondary"
-      className={`text-[10px] font-bold border-0 ${unavailable ? "bg-gray-100 text-gray-400" : "bg-blue-50 text-blue-600"} ${className ?? ""}`}
+      className={`text-2xs font-bold border-0 ${unavailable ? "bg-gray-100 text-slate-400" : "bg-blue-50 text-link"} ${className ?? ""}`}
     >
       {label.toUpperCase()}
     </Badge>
@@ -296,10 +296,10 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
       />
 
       <CardContent className="p-3 space-y-1.5">
-        <h3 className={`font-semibold line-clamp-2 text-base leading-tight ${unavailable ? "text-gray-400" : ""}`}>
+        <h3 className={`font-semibold line-clamp-2 text-base leading-tight ${unavailable ? "text-slate-400" : ""}`}>
           {ad.title}
         </h3>
-        <div className={`text-xl font-extrabold ${unavailable ? "text-gray-400" : "text-blue-600"}`}>
+        <div className={`text-xl font-extrabold ${unavailable ? "text-slate-400" : "text-link"}`}>
           {formatPrice(ad.price)}
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -343,14 +343,14 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
           <div className="flex-1 py-2 pr-2 md:py-4 md:pr-4 min-w-0">
             <div className="flex flex-col gap-1.5 md:gap-2 mb-1.5 md:mb-2">
               <SavedAdTypeBadge label={getCategoryLabel(ad)} unavailable={unavailable} className="w-fit" />
-              <div className={`text-lg md:text-2xl font-extrabold ${unavailable ? "text-gray-400" : "text-blue-600"}`}>
+              <div className={`text-lg md:text-2xl font-extrabold ${unavailable ? "text-slate-400" : "text-link"}`}>
                 {formatPrice(ad.price)}
               </div>
-              <h3 className={`font-semibold line-clamp-2 text-xs md:text-base leading-tight ${unavailable ? "text-gray-400" : ""}`}>
+              <h3 className={`font-semibold line-clamp-2 text-xs md:text-base leading-tight ${unavailable ? "text-slate-400" : ""}`}>
                 {ad.title}
               </h3>
             </div>
-            <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-1 md:gap-4 text-[10px] md:text-sm text-muted-foreground">
+            <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-1 md:gap-4 text-2xs md:text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <MapPin className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
                 <span className="truncate">{formatLocation(ad.location)}</span>
@@ -454,7 +454,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                         <DropdownMenuItem
                           key={opt}
                           onClick={() => setSortBy(opt)}
-                          className={sortBy === opt ? "bg-blue-50 text-blue-600 font-bold" : ""}
+                          className={sortBy === opt ? "bg-blue-50 text-link font-bold" : ""}
                         >
                           {SORT_LABELS[opt]}
                         </DropdownMenuItem>
@@ -492,8 +492,8 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
               {unavailable.length > 0 && (
                 <div className="mt-8">
                   <div className="flex items-center gap-2 mb-3">
-                    <AlertCircle className="h-4 w-4 text-gray-400" />
-                    <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+                    <AlertCircle className="h-4 w-4 text-slate-400" />
+                    <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">
                       No longer available ({unavailable.length})
                     </h2>
                   </div>

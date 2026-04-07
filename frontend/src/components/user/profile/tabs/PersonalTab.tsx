@@ -56,7 +56,7 @@ export function PersonalTab({
             <Card className="border-0 shadow-sm md:border md:shadow-sm gap-0">
                 <CardHeader className="pb-2 px-4 md:px-6">
                     <CardTitle className="flex items-center gap-2 text-base">
-                        <User className="h-5 w-5 text-blue-600" />
+                        <User className="h-5 w-5 text-link" />
                         Personal Information
                     </CardTitle>
                     <CardDescription>Update your personal details</CardDescription>
@@ -175,7 +175,7 @@ export function PersonalTab({
                                 autoComplete="tel"
                             />
                             <p className="mt-1 text-xs text-muted-foreground">
-                                Need to change your number? <a href="mailto:support@esparex.com" className="text-blue-600 hover:underline">Contact Support</a>
+                                Need to change your number? <a href="mailto:support@esparex.com" className="text-link hover:underline">Contact Support</a>
                             </p>
                         </div>
                     </div>
@@ -264,7 +264,7 @@ export function PersonalTab({
                                 ${mobileVisibility === "show" ? "border-blue-600 bg-blue-50/50" : "border-slate-100 hover:border-slate-200 bg-white"}`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <Eye className={`h-5 w-5 ${mobileVisibility === "show" ? "text-blue-600" : "text-slate-400"}`} />
+                                    <Eye className={`h-5 w-5 ${mobileVisibility === "show" ? "text-link" : "text-slate-400"}`} />
                                     {mobileVisibility === "show" && <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />}
                                 </div>
                                 <div>

@@ -35,7 +35,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                             <h3 className="font-bold text-slate-900 truncate text-sm">{businessName}</h3>
-                            <Badge className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md border-none flex-shrink-0">
+                            <Badge className="bg-blue-600 text-white text-2xs font-bold px-1.5 py-0.5 rounded-md border-none flex-shrink-0">
                                 VERIFIED
                             </Badge>
                         </div>
@@ -43,7 +43,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                     {[
                         businessCategory ? { icon: Store, label: "Category", value: businessCategory } : null,
                         locationLabel ? { icon: MapPin, label: "Location", value: locationLabel } : null,
@@ -54,10 +54,10 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                         return (
                             <div key={idx} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                                 <div className="h-7 w-7 rounded-lg bg-white flex items-center justify-center shadow-sm shrink-0">
-                                    <Icon className="h-3.5 w-3.5 text-blue-600" />
+                                    <Icon className="h-3.5 w-3.5 text-link" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">{detail.label}</p>
+                                    <p className="text-2xs uppercase font-bold text-slate-300 tracking-wider">{detail.label}</p>
                                     <p className="font-bold text-slate-700 truncate">{detail.value}</p>
                                 </div>
                             </div>
@@ -85,11 +85,11 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                 <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
                         <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Partner</span>
+                        <span className="text-2xs font-bold text-slate-400 uppercase tracking-widest">Active Partner</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <span className="text-[10px] font-black text-slate-700">100%</span>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verified</span>
+                        <span className="text-2xs font-black text-slate-700">100%</span>
+                        <span className="text-2xs font-bold text-slate-400 uppercase tracking-widest">Verified</span>
                     </div>
                 </div>
             </CardContent>

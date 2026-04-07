@@ -34,10 +34,10 @@ export function ListingDetailShell({
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 text-center">
                 <div className="bg-gray-100 p-4 rounded-full mb-4">
-                    <SearchX className="h-8 w-8 text-gray-500" />
+                    <SearchX className="h-8 w-8 text-slate-500" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">{notFoundTitle || "Listing Not Found"}</h2>
-                <p className="text-gray-500 max-w-md mb-6">
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">{notFoundTitle || "Listing Not Found"}</h2>
+                <p className="text-slate-500 max-w-md mb-6">
                     {notFoundMessage || "The listing you are looking for might have been removed, expired, or the link is incorrect."}
                 </p>
                 <Button onClick={() => void router.push(ROUTES.BROWSE)} variant="default" className="h-11 gap-2">
@@ -55,8 +55,8 @@ export function ListingDetailShell({
                 <div className="bg-red-50 p-4 rounded-full mb-4">
                     <AlertCircle className="h-8 w-8 text-red-500" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-2">Unable to Load Listing</h2>
-                <p className="text-gray-500 max-w-md mb-6">
+                <h2 className="text-xl font-bold text-slate-900 mb-2">Unable to Load Listing</h2>
+                <p className="text-slate-500 max-w-md mb-6">
                     {error || "We encountered an unexpected error while loading this listing. Please try again."}
                 </p>
                 <div className="flex gap-3">

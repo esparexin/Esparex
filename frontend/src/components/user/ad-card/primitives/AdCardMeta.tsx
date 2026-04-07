@@ -58,7 +58,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       </div>
 
       <div className="flex items-center justify-between gap-1.5">
-        <span className={cn("font-bold", isDashboard ? "text-primary text-lg" : "text-blue-600 text-sm md:text-base")}>
+        <span className={cn("font-bold", isDashboard ? "text-primary text-lg" : "text-link text-sm md:text-base")}>
           {(() => {
             if (adRecord.listingType === 'service' && (adRecord.priceMin || adRecord.priceMax)) {
               if (adRecord.priceMin && adRecord.priceMax) return `${formatPrice(adRecord.priceMin as number)} - ${formatPrice(adRecord.priceMax as number)}`;
@@ -70,7 +70,7 @@ export const AdCardMeta = memo(function AdCardMeta({
         </span>
         {!isDashboard && (
           <span className={cn(
-            "shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-md border leading-tight",
+            "shrink-0 text-2xs font-semibold px-1.5 py-0.5 rounded-md border leading-tight",
             listingTypeConfig.className
           )}>
             {listingTypeConfig.label}
@@ -79,7 +79,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       </div>
 
       <div className={cn(
-        "flex items-center justify-between text-[10px] text-slate-400 pt-1.5 border-t border-slate-100 mt-0.5",
+        "flex items-center justify-between text-2xs text-slate-400 pt-1.5 border-t border-slate-100 mt-0.5",
         isDashboard && "grid grid-cols-2 gap-2 justify-start",
         isList && "border-none pt-0 mt-0"
       )}>

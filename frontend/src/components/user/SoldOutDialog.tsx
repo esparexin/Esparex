@@ -134,7 +134,7 @@ export function SoldOutDialog({
                     htmlFor="another"
                     className="flex items-center gap-2 font-semibold cursor-pointer"
                   >
-                    <ExternalLink className="h-4 w-4 text-blue-600" />
+                    <ExternalLink className="h-4 w-4 text-link" />
                     Sold on Another Platform
                   </Label>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -161,7 +161,7 @@ export function SoldOutDialog({
                     htmlFor="others"
                     className="flex items-center gap-2 font-semibold cursor-pointer"
                   >
-                    <MoreHorizontal className="h-4 w-4 text-gray-600" />
+                    <MoreHorizontal className="h-4 w-4 text-slate-600" />
                     Others (Offline/Direct)
                   </Label>
                   <p className="text-xs text-muted-foreground mt-1">

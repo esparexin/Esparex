@@ -47,7 +47,7 @@ export function PhoneInput({
                 {isVerified && (
                     <Badge
                         variant="outline"
-                        className="hidden md:flex absolute right-3 top-2 text-[10px] text-green-600 bg-green-50 border-green-200 pointer-events-none px-2 py-0"
+                        className="hidden md:flex absolute right-3 top-2 text-2xs text-green-600 bg-green-50 border-green-200 pointer-events-none px-2 py-0"
                     >
                         Verified
                     </Badge>

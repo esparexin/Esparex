@@ -25,7 +25,7 @@ export default function ContactPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-6 not-prose">
                 <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-50 border border-blue-100">
                     <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <Mail className="h-5 w-5 text-blue-600" />
+                        <Mail className="h-5 w-5 text-link" />
                     </div>
                     <div>
                         <p className="text-xs font-bold text-blue-400 uppercase tracking-wide">Email Support</p>

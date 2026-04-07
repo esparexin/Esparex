@@ -85,7 +85,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                     >
                                         <Icon className={`h-6 w-6 md:h-8 md:w-8 ${config.color}`} />
                                     </div>
-                                    <span className="text-[11px] md:text-xs font-semibold text-slate-500 text-center line-clamp-1 group-hover:text-blue-600 transition-colors">
+                                    <span className="text-xs md:text-xs font-semibold text-slate-500 text-center line-clamp-1 group-hover:text-link transition-colors">
                                         {cat.name}
                                     </span>
                                 </Link>

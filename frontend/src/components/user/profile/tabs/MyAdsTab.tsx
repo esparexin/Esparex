@@ -136,7 +136,7 @@ export function MyAdsTab({
         <div className="space-y-4">
             <Card className="border-0 shadow-sm md:border md:shadow-sm">
                 <FeatureCard
-                    title={(<><Package className="h-5 w-5 text-blue-600" /> My Ads</>)}
+                    title={(<><Package className="h-5 w-5 text-link" /> My Ads</>)}
                     description={ACCOUNT_COPY.myAdsDescription}
                     Icon={Package}
                     rightAction={
@@ -159,7 +159,7 @@ export function MyAdsTab({
                                 }`}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                            <span className="ml-1.5 opacity-60 text-[10px]">
+                            <span className="ml-1.5 opacity-60 text-2xs">
                                 {adCounts[tab] || 0}
                             </span>
                         </button>
@@ -191,7 +191,7 @@ export function MyAdsTab({
                                 </p>
                                 {myAdsTab === 'active' && (
                                     <>
-                                        <p className="text-[10px] text-slate-400 mt-2">Active ads are visible on the Home Page until they expire.</p>
+                                        <p className="text-2xs text-slate-400 mt-2">Active ads are visible on the Home Page until they expire.</p>
                                         <Button
                                             variant="outline"
                                             size="sm"
@@ -202,10 +202,10 @@ export function MyAdsTab({
                                         </Button>
                                     </>
                                 )}
-                                {myAdsTab === 'pending' && <p className="text-[10px] text-amber-600 mt-2">Pending ads are being reviewed and are NOT visible on Home Page yet.</p>}
-                                {myAdsTab === 'rejected' && <p className="text-[10px] text-red-500 mt-2">Rejected ads are hidden from public view. Edit and resubmit for review.</p>}
-                                {myAdsTab === 'expired' && <p className="text-[10px] text-slate-400 mt-2">Expired ads are no longer visible on the Home Page. You can mark them as sold or delete them.</p>}
-                                {myAdsTab === 'deactivated' && <p className="text-[10px] text-slate-400 mt-2">Deactivated ads are hidden. Reactivate them to make them visible again.</p>}
+                                {myAdsTab === 'pending' && <p className="text-2xs text-amber-600 mt-2">Pending ads are being reviewed and are NOT visible on Home Page yet.</p>}
+                                {myAdsTab === 'rejected' && <p className="text-2xs text-red-500 mt-2">Rejected ads are hidden from public view. Edit and resubmit for review.</p>}
+                                {myAdsTab === 'expired' && <p className="text-2xs text-slate-400 mt-2">Expired ads are no longer visible on the Home Page. You can mark them as sold or delete them.</p>}
+                                {myAdsTab === 'deactivated' && <p className="text-2xs text-slate-400 mt-2">Deactivated ads are hidden. Reactivate them to make them visible again.</p>}
                             </div>
                         }
                         error={
@@ -246,7 +246,7 @@ export function MyAdsTab({
                                         <div className="flex flex-1 flex-col justify-between">
                                             <div>
                                                 <div className="flex items-start justify-between gap-2">
-                                                    <Link href={`/ads/${ad.seoSlug || ad.id}`} target="_blank" className="hover:text-blue-600 hover:underline">
+                                                    <Link href={`/ads/${ad.seoSlug || ad.id}`} target="_blank" className="hover:text-link hover:underline">
                                                         <h3 className="font-medium text-sm line-clamp-1">{ad.title}</h3>
                                                     </Link>
                                                     {getStatusBadge(normalizedStatus, ad.id)}
@@ -255,12 +255,12 @@ export function MyAdsTab({
 
                                                 {/* Rejection reason */}
                                                 {isRejected && (ad as any).rejectionReason && (
-                                                    <p className="text-[10px] text-red-500 mt-0.5 line-clamp-2">
+                                                    <p className="text-2xs text-red-500 mt-0.5 line-clamp-2">
                                                         Reason: {(ad as any).rejectionReason}
                                                     </p>
                                                 )}
 
-                                                <div className="flex items-center gap-3 mt-1 text-[10px] text-slate-500">
+                                                <div className="flex items-center gap-3 mt-1 text-2xs text-slate-500">
                                                     <span className="flex items-center gap-1">
                                                         <Eye className="h-3 w-3" />{" "}
                                                         {typeof ad.views === "number"
@@ -290,7 +290,7 @@ export function MyAdsTab({
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
-                                                            className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                                                            className="h-7 text-xs text-link border-blue-200 hover:bg-blue-50"
                                                             onClick={() => navigateTo("edit-ad", ad.id)}
                                                         >
                                                             <RefreshCw className="h-3 w-3 mr-1" /> Resubmit
@@ -327,7 +327,7 @@ export function MyAdsTab({
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
-                                                            className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                                                            className="h-7 text-xs text-link border-blue-200 hover:bg-blue-50"
                                                             onClick={() => handleActivateClick(ad)}
                                                             disabled={isActivating}
                                                         >

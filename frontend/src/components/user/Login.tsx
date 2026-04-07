@@ -317,7 +317,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         variant="link"
                         disabled={isSendingOTP || isBlocked || isLocked || isSendRateLimited}
                         onClick={handleResendOtp}
-                        className="h-auto p-0 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                        className="h-auto p-0 text-sm font-semibold text-link hover:text-blue-700"
                       >
                         {isSendingOTP && (
                           <Loader2 className="animate-spin mr-2" size={14} />

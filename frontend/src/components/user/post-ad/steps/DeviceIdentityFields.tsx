@@ -106,7 +106,7 @@ export default function DeviceIdentityFields() {
                                     )}
                                 >
                                     <Icon className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-slate-400")} />
-                                    <span className={cn("text-[11px] font-semibold text-center leading-tight truncate w-full px-1", selected ? "text-primary-foreground" : "text-slate-600")}>
+                                    <span className={cn("text-xs font-semibold text-center leading-tight truncate w-full px-1", selected ? "text-primary-foreground" : "text-slate-600")}>
                                         {cat.name}
                                     </span>
                                 </Button>

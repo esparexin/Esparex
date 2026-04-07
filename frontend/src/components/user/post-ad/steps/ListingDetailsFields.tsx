@@ -268,7 +268,7 @@ export default function ListingDetailsFields() {
                                     <X className="w-3 h-3" />
                                 </button>
                                 {idx === 0 && (
-                                    <div className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white text-[11px] font-semibold text-center py-1">MAIN PHOTO</div>
+                                    <div className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white text-xs font-semibold text-center py-1">MAIN PHOTO</div>
                                 )}
                             </div>
                         ))}
@@ -293,8 +293,8 @@ export default function ListingDetailsFields() {
                                         <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-2 border border-slate-100">
                                             <Upload className="w-5 h-5 text-primary" />
                                         </div>
-                                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Add Photo</span>
-                                        <span className="text-[10px] text-slate-300 mt-0.5">{listingImages.length}/{MAX_AD_IMAGES}</span>
+                                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Add Photo</span>
+                                        <span className="text-2xs text-slate-300 mt-0.5">{listingImages.length}/{MAX_AD_IMAGES}</span>
                                     </>
                                 )}
                             </label>
@@ -376,7 +376,7 @@ export default function ListingDetailsFields() {
                                 </div>
                                 <div>
                                     <p className="font-bold text-slate-900 text-sm">Mark as Free</p>
-                                    <p className="text-[10px] text-slate-500 font-medium">This item is a giveaway</p>
+                                    <p className="text-2xs text-slate-500 font-medium">This item is a giveaway</p>
                                 </div>
                             </div>
                             <div className={cn(

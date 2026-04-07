@@ -103,7 +103,7 @@ export function ListingItem({
                 <div>
                     <div className="flex items-start justify-between gap-2">
                         {detailHref ? (
-                            <Link href={detailHref} className="hover:text-blue-600 transition-colors">
+                            <Link href={detailHref} className="hover:text-link transition-colors">
                                 <h3 className="font-medium text-sm line-clamp-1">{title}</h3>
                             </Link>
                         ) : (
@@ -115,11 +115,11 @@ export function ListingItem({
                     <p className={cn("text-xs font-bold mt-0.5", priceClassName || colors.price)}>{priceLabel}</p>
 
                     {status === "rejected" && rejectionReason && (
-                        <p className="text-[10px] text-red-500 mt-0.5 line-clamp-2">Reason: {rejectionReason}</p>
+                        <p className="text-2xs text-red-500 mt-0.5 line-clamp-2">Reason: {rejectionReason}</p>
                     )}
 
                     {/* Meta Info */}
-                    <div className="flex flex-wrap items-center gap-3 mt-1.5 text-[10px] text-slate-500">
+                    <div className="flex flex-wrap items-center gap-3 mt-1.5 text-2xs text-slate-500">
                         {totalViews > 0 && (
                             <span className="flex items-center gap-1">
                                 <Eye className="h-3 w-3" /> {totalViews}
@@ -151,7 +151,7 @@ export function ListingItem({
                     {tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1.5">
                             {tags.map((tag, idx) => (
-                                <span key={idx} className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium border", tag.className || "bg-slate-50 text-slate-600 border-slate-100")}>
+                                <span key={idx} className={cn("px-2 py-0.5 rounded-full text-2xs font-medium border", tag.className || "bg-slate-50 text-slate-600 border-slate-100")}>
                                     {tag.label}
                                 </span>
                             ))}
@@ -183,7 +183,7 @@ export function ListingItem({
                         <Button
                             variant="outline"
                             size="sm"
-                            className="h-11 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                            className="h-11 text-xs text-link border-blue-200 hover:bg-blue-50"
                             onClick={(e) => { e.stopPropagation(); onRenew(); }}
                         >
                             <RefreshCw className="h-3 w-3 mr-1" /> Renew

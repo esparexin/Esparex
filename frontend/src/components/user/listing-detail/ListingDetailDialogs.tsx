@@ -106,7 +106,7 @@ export function ListingDetailDialogs({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
+              <TrendingUp className="h-5 w-5 text-link" />
               Listing analytics
             </DialogTitle>
             <DialogDescription>

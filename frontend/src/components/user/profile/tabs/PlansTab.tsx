@@ -110,7 +110,7 @@ export function PlansTab({
                 "More Ads",
                 "More Ads Packs",
                 "Post more ads and reach a wider audience",
-                <Package className="h-5 w-5 text-blue-600" />,
+                <Package className="h-5 w-5 text-link" />,
                 "border-blue-500"
             )}
 

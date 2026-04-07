@@ -34,7 +34,7 @@ export const AdCardCover = memo(function AdCardCover({
 
   const getPlanBadge = () => {
     const isBoosted = adRecord.isBoosted === true;
-    const badgeClasses = "border-0 text-[10px] md:text-xs shadow-lg flex items-center";
+    const badgeClasses = "border-0 text-2xs md:text-xs shadow-lg flex items-center";
     if (ad.isSpotlight) {
       return (
         <Badge className={cn("bg-gradient-to-r from-yellow-500 to-orange-500 text-white", badgeClasses)}>
@@ -70,7 +70,7 @@ export const AdCardCover = memo(function AdCardCover({
           )}
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
+        <div className="w-full h-full flex items-center justify-center bg-gray-200 text-slate-400">
           <span className="text-xs md:text-sm">No Image</span>
         </div>
       )}

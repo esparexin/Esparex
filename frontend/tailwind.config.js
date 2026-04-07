@@ -6,7 +6,17 @@ const config = {
 	darkMode: ["class"],
 	theme: {
 		extend: {
+			fontFamily: {
+				inter: ['var(--font-inter)', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+			},
+			fontSize: {
+				'2xs': ['0.625rem', { lineHeight: '1rem' }],  // 10px
+			},
 			colors: {
+				link: {
+					DEFAULT: 'hsl(var(--link))',
+					foreground: 'hsl(var(--link-foreground))',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

@@ -120,7 +120,7 @@ export function PlanPurchaseDialog({
                         </CardContent>
                     </Card>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
-                        <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <AlertCircle className="h-4 w-4 text-link mt-0.5 flex-shrink-0" />
                         <p className="text-xs text-blue-900">
                             Credits are applied only after Razorpay webhook verification. Frontend checkout success alone does not activate the plan.
                         </p>

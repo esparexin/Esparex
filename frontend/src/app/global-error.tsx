@@ -30,10 +30,10 @@ export default function GlobalError({
                         </div>
 
                         {/* Error Message */}
-                        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                        <h1 className="text-4xl font-bold text-slate-900 mb-4">
                             Critical Error
                         </h1>
-                        <p className="text-xl text-gray-600 mb-8">
+                        <p className="text-xl text-slate-600 mb-8">
                             A critical error occurred. Please try refreshing the page.
                         </p>
 
@@ -48,7 +48,7 @@ export default function GlobalError({
                             </button>
                             <Link
                                 href="/"
-                                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-800 px-8 py-3 rounded-lg transition-colors font-semibold border-2 border-gray-300"
+                                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-slate-800 px-8 py-3 rounded-lg transition-colors font-semibold border-2 border-gray-300"
                             >
                                 <Home size={20} />
                                 <span>Go to Homepage</span>
@@ -57,7 +57,7 @@ export default function GlobalError({
 
                         {/* Error ID */}
                         {error.digest && (
-                            <p className="text-sm text-gray-500 mt-8">
+                            <p className="text-sm text-slate-500 mt-8">
                                 Error ID: {error.digest}
                             </p>
                         )}
@@ -85,19 +85,19 @@ export default function GlobalError({
             background-color: #ffffff;
           }
 
-          .text-gray-900 {
+          .text-slate-900 {
             color: #111827;
           }
 
-          .text-gray-600 {
+          .text-slate-600 {
             color: #4b5563;
           }
 
-          .text-gray-500 {
+          .text-slate-500 {
             color: #6b7280;
           }
 
-          .text-gray-800 {
+          .text-slate-800 {
             color: #1f2937;
           }
 

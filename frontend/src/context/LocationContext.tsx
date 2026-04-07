@@ -120,7 +120,7 @@ export function LocationProvider({
     const [promptDismissed, setPromptDismissed] = useState(false);
     const [showPermissionBlockedModal, setShowPermissionBlockedModal] = useState(false);
     const [isPermissionBlocked, setIsPermissionBlocked] = useState(false);
-    const [shouldShowPromptAfterDelay, setShouldShowPromptAfterDelay] = useState(false);
+    const [shouldShowPromptAfterDelay] = useState(false);
     const [locationExpired, setLocationExpired] = useState(false);
 
     const initializedRef = useRef(false);

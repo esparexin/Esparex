@@ -143,10 +143,10 @@ export function BusinessApplicationStatus({
                         </div>
                         <div className="flex items-start gap-3">
                             <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                                <AlertCircle className="h-4 w-4 text-gray-500" />
+                                <AlertCircle className="h-4 w-4 text-slate-500" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-500">Approval Pending</p>
+                                <p className="text-sm font-medium text-slate-500">Approval Pending</p>
                                 <p className="text-xs text-muted-foreground">Usually takes 24-48 hours</p>
                             </div>
                         </div>
@@ -252,7 +252,7 @@ export function BusinessApplicationStatus({
                 cardClass="from-gray-50 to-slate-100 border border-gray-300"
                 iconBgClass="bg-gray-600"
                 Icon={Clock}
-                titleClass="text-gray-900"
+                titleClass="text-slate-900"
                 title="Business Profile Expired/Deleted"
                 description="Your registration validity has concluded or account was deleted"
                 businessName={businessLabel}
@@ -262,7 +262,7 @@ export function BusinessApplicationStatus({
                             <Button
                                 onClick={navigateToBusinessTab}
                                 variant="outline"
-                                className="w-full text-gray-700 border-gray-300 hover:bg-gray-100"
+                                className="w-full text-slate-700 border-gray-300 hover:bg-gray-100"
                             >
                                 Manage Profile
                             </Button>
@@ -277,7 +277,7 @@ export function BusinessApplicationStatus({
                     </>
                 }
             >
-                <div className="bg-gray-100 border border-gray-200 rounded-lg p-3 text-sm text-gray-700 mb-4">
+                <div className="bg-gray-100 border border-gray-200 rounded-lg p-3 text-sm text-slate-700 mb-4">
                     <p className="font-medium mb-1">Action Required:</p>
                     <p className="text-xs">Your business registration has reached its expiry date. Your profile and services are currently offline. You must renew or re-verify your registration to continue operations.</p>
                 </div>

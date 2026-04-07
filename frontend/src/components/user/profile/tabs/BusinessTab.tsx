@@ -57,7 +57,7 @@ export function BusinessTab({
                             <div className="min-w-0 space-y-2">
                                 <div className="flex flex-wrap items-center gap-2">
                                     <h2 className="text-2xl font-bold tracking-tight">{businessData.name}</h2>
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-blue-50">
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-blue-50">
                                         <CheckCircle2 className="h-3.5 w-3.5" />
                                         Verified business
                                     </span>
@@ -131,7 +131,7 @@ export function BusinessTab({
                     <Card className="rounded-2xl">
                         <CardContent className="p-4">
                             <p className="text-sm text-slate-500">Profile Views</p>
-                            <p className="mt-1 text-2xl font-bold text-blue-600">{businessStats?.views ?? 0}</p>
+                            <p className="mt-1 text-2xl font-bold text-link">{businessStats?.views ?? 0}</p>
                         </CardContent>
                     </Card>
                 </div>
@@ -139,7 +139,7 @@ export function BusinessTab({
                 <Card className="rounded-3xl gap-0">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
-                            <Wrench className="h-5 w-5 text-blue-600" />
+                            <Wrench className="h-5 w-5 text-link" />
                             Business services
                         </CardTitle>
                         <CardDescription>Post new service listings or manage the ones already attached to your business.</CardDescription>
@@ -171,7 +171,7 @@ export function BusinessTab({
         <Card className="rounded-3xl gap-0">
             <CardHeader className="space-y-2">
                 <CardTitle className="flex items-center gap-2 text-base">
-                    <Building2 className="h-5 w-5 text-blue-600" />
+                    <Building2 className="h-5 w-5 text-link" />
                     Register your business
                 </CardTitle>
                 <CardDescription>
@@ -182,15 +182,15 @@ export function BusinessTab({
                 <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
                     <ul className="space-y-2 text-sm text-blue-900">
                         <li className="flex items-start gap-2">
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-link" />
                             <span>Get a verified public business profile customers can trust.</span>
                         </li>
                         <li className="flex items-start gap-2">
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-link" />
                             <span>Post services and manage business listings from one workspace.</span>
                         </li>
                         <li className="flex items-start gap-2">
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-link" />
                             <span>Use your real address and review documents once, then keep the profile updated.</span>
                         </li>
                     </ul>

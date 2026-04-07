@@ -66,7 +66,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
           <div className="space-y-2">
             {isEditMode ? (
               <>
-                <span className="text-xs font-semibold text-blue-600 uppercase tracking-widest">
+                <span className="text-xs font-semibold text-link uppercase tracking-widest">
                   Edit Listing Details
                 </span>
                 <div className="h-1 rounded-full bg-blue-400 w-full" />
@@ -77,7 +77,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
                     Step {currentStep} of 2
                   </span>
-                  <span className="text-xs font-semibold text-blue-600 uppercase tracking-widest">
+                  <span className="text-xs font-semibold text-link uppercase tracking-widest">
                     {STEP_LABELS[currentStep - 1]}
                   </span>
                 </div>

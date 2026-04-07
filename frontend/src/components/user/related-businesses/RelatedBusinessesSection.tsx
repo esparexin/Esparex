@@ -143,7 +143,7 @@ export function RelatedBusinessesSection({
             sizes="(max-width: 768px) 100vw, 300px"
           />
           {business.isVerified ? (
-            <Badge className="absolute left-2.5 top-2.5 rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white border-none">
+            <Badge className="absolute left-2.5 top-2.5 rounded-full bg-blue-600 px-2 py-0.5 text-2xs font-semibold text-white border-none">
               <CheckCircle className="mr-1 h-2.5 w-2.5" />
               Verified
             </Badge>
@@ -155,7 +155,7 @@ export function RelatedBusinessesSection({
             <h3 className="line-clamp-1 text-sm font-bold text-slate-900">
               {business.name}
             </h3>
-            <div className="flex items-center gap-1 text-[11px] text-slate-400">
+            <div className="flex items-center gap-1 text-xs text-slate-400">
               <MapPin className="h-3 w-3 flex-shrink-0 text-slate-300" />
               <span className="truncate">
                 {business.location?.city || business.location?.display || "Nearby"}
@@ -166,17 +166,17 @@ export function RelatedBusinessesSection({
 
           <div className="flex flex-wrap gap-1.5">
             {matchingServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 border-none">
+              <Badge variant="secondary" className="rounded-full bg-blue-50 px-2 py-0.5 text-2xs font-semibold text-blue-700 border-none">
                 {matchingServicesCount} matching
               </Badge>
             ) : null}
             {activeServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 border-none">
+              <Badge variant="secondary" className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-semibold text-slate-600 border-none">
                 {activeServicesCount} live
               </Badge>
             ) : null}
             {typeof business.trustScore === "number" ? (
-              <Badge variant="secondary" className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border-none">
+              <Badge variant="secondary" className="rounded-full bg-emerald-50 px-2 py-0.5 text-2xs font-semibold text-emerald-700 border-none">
                 Trust {business.trustScore}
               </Badge>
             ) : null}

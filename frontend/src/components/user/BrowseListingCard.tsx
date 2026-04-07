@@ -81,7 +81,7 @@ export const BrowseListingCard = memo(function BrowseListingCard({
           <div className="flex min-w-0 items-stretch">
             <div className="relative h-32 w-28 shrink-0 overflow-hidden bg-slate-100 sm:h-36 sm:w-32">
               {media}
-              <Badge className={`absolute top-2 left-2 border-0 text-[10px] ${badgeClassName}`}>
+              <Badge className={`absolute top-2 left-2 border-0 text-2xs ${badgeClassName}`}>
                 {badgeLabel}
               </Badge>
             </div>
@@ -106,7 +106,7 @@ export const BrowseListingCard = memo(function BrowseListingCard({
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border border-black rounded-xl">
         <div className="relative aspect-square overflow-hidden bg-slate-100">
           {media}
-          <Badge className={`absolute top-2 left-2 border-0 text-[10px] ${badgeClassName}`}>
+          <Badge className={`absolute top-2 left-2 border-0 text-2xs ${badgeClassName}`}>
             {badgeLabel}
           </Badge>
         </div>

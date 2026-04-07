@@ -66,7 +66,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
             <div className="px-4 md:px-6 pt-5 pb-0">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                        {icon || <LayoutGrid className="h-5 w-5 text-blue-600" />}
+                        {icon || <LayoutGrid className="h-5 w-5 text-link" />}
                         {title}
                     </h2>
                     {onPost && (
@@ -116,7 +116,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                         >
                             {status.charAt(0).toUpperCase() + status.slice(1)}
                             {getStatusCount ? (
-                                <span className="ml-1.5 text-[10px] opacity-60">
+                                <span className="ml-1.5 text-2xs opacity-60">
                                     {getStatusCount(status)}
                                 </span>
                             ) : null}

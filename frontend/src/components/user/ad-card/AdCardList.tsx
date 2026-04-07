@@ -67,8 +67,8 @@ export const AdCardList = memo(function AdCardList({
                   sizes="(max-width: 768px) 100px, 150px"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
-                  <span className="text-[10px]">No Image</span>
+                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-slate-400">
+                  <span className="text-2xs">No Image</span>
                 </div>
               )}
               {getPlanBadge(ad) && (
@@ -106,7 +106,7 @@ export const AdCardList = memo(function AdCardList({
               </div>
               
               <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-400">
-                <span className="max-w-full rounded bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                <span className="max-w-full rounded bg-slate-100 px-2 py-0.5 text-2xs font-medium text-slate-500">
                   {ad.category}
                 </span>
                 {formatLocation(ad.location) && (

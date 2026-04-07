@@ -39,10 +39,10 @@ export default function Error({
                 </div>
 
                 {/* Error Message */}
-                <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                <h2 className="text-4xl font-bold text-slate-900 mb-4">
                     Oops! Something Went Wrong
                 </h2>
-                <p className="text-xl text-gray-600 mb-8">
+                <p className="text-xl text-slate-600 mb-8">
                     We encountered an unexpected error. Don't worry, our team has been notified and we're working on it.
                 </p>
 
@@ -64,7 +64,7 @@ export default function Error({
                 {/* What Happened */}
                 <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                     <h3 className="text-lg font-semibold mb-4">What Happened?</h3>
-                    <p className="text-gray-700 mb-4">
+                    <p className="text-slate-700 mb-4">
                         The application encountered an unexpected error while processing your request.
                         This could be due to a temporary issue or a bug in our system.
                     </p>
@@ -87,14 +87,14 @@ export default function Error({
                     </button>
                     <Link
                         href="/"
-                        className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-800 px-8 py-3 rounded-lg transition-colors font-semibold border-2 border-gray-300"
+                        className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-slate-800 px-8 py-3 rounded-lg transition-colors font-semibold border-2 border-gray-300"
                     >
                         <Home size={20} />
                         <span>Go to Homepage</span>
                     </Link>
                     <Link
                         href="/contact"
-                        className="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-8 py-3 rounded-lg transition-colors font-semibold"
+                        className="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-slate-800 px-8 py-3 rounded-lg transition-colors font-semibold"
                     >
                         <Mail size={20} />
                         <span>Contact Support</span>

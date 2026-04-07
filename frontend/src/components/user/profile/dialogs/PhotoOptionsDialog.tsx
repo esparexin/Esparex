@@ -25,7 +25,7 @@ export function PhotoOptionsDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-blue-600">
+                    <DialogTitle className="flex items-center gap-2 text-link">
                         <Camera className="h-5 w-5" />
                         Profile Photo Options
                     </DialogTitle>

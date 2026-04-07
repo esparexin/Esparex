@@ -162,7 +162,7 @@ export function ProfileSettingsSidebar({
   const renderTabBadge = (value: ProfileTabValue) => {
     if (value !== "messages" || chatUnreadCount <= 0) return null;
     return (
-      <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+      <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-2xs font-bold text-white">
         {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
       </span>
     );
@@ -206,7 +206,7 @@ export function ProfileSettingsSidebar({
 
   const getStatusBadge = (status: string, _adId?: string | number) => {
     const renderBadge = (label: string, className: string) => (
-      <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-semibold ${className}`}>
+      <span className={`px-2 py-0.5 rounded text-2xs uppercase tracking-wider font-semibold ${className}`}>
         {label}
       </span>
     );
@@ -228,7 +228,7 @@ export function ProfileSettingsSidebar({
       case "deactivated":
         return renderBadge("Deactivated", "bg-orange-100 text-orange-700");
       default:
-        return renderBadge(status || "Unknown", "bg-gray-100 text-gray-600");
+        return renderBadge(status || "Unknown", "bg-gray-100 text-slate-600");
     }
   };
 
@@ -376,7 +376,7 @@ export function ProfileSettingsSidebar({
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 font-medium group text-sm
                       ${isActive ? "bg-blue-50 text-blue-700 shadow-sm shadow-blue-100 ring-1 ring-blue-200" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
                   >
-                    <Icon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`} />
+                    <Icon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${isActive ? "text-link" : "text-slate-400 group-hover:text-slate-600"}`} />
                     <span>{item.label}</span>
                     {renderTabBadge(item.value)}
                     {isActive && <ChevronRight className="h-4 w-4 opacity-50" />}
@@ -415,10 +415,10 @@ export function ProfileSettingsSidebar({
                   <Card className="p-2 border-0 shadow-sm">
                     {visibleProfileTabItems.map((item) => (
                       <button key={item.value} onClick={() => handleMobileTabClick(item.value)} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-slate-700 border-b border-gray-50 last:border-0">
-                        <div className="p-1.5 bg-gray-100 rounded-lg text-gray-500"><item.icon className="h-4.5 w-4.5" /></div>
+                        <div className="p-1.5 bg-gray-100 rounded-lg text-slate-500"><item.icon className="h-4.5 w-4.5" /></div>
                         <span className="text-sm font-semibold flex-1">{item.label}</span>
                         {renderTabBadge(item.value)}
-                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                        <ChevronRight className="h-4 w-4 text-slate-400" />
                       </button>
                     ))}
                     <Separator className="my-1" />

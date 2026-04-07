@@ -48,7 +48,6 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
         refetchNotifications,
         showLocationSelector,
         setShowLocationSelector,
-        globalLocation: location,
         headerLocationDetails,
         resolvedHeaderLocation,
         searchQuery,
@@ -160,7 +159,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-11 w-11 rounded-xl text-blue-600 hover:bg-blue-50"
+                                className="h-11 w-11 rounded-xl text-link hover:bg-blue-50"
                                 onClick={onShowLogin}
                                 aria-label="Login"
                             >

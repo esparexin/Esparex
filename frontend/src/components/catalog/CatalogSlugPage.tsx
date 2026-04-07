@@ -81,7 +81,7 @@ export function CatalogSlugPage({
       <section className="border-b border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)]">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="max-w-3xl space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-link">
               {entity === "brand" ? "Brand Landing" : "Model Landing"}
             </p>
             <h1 className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">

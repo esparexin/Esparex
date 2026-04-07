@@ -180,7 +180,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                                     isDark ? "border-slate-800 bg-slate-900/60" : "border-slate-200 bg-white"
                                 )}
                             >
-                                <p className={cn("text-[11px] font-semibold uppercase tracking-[0.16em]", isDark ? "text-slate-300" : "text-slate-500")}>
+                                <p className={cn("text-xs font-semibold uppercase tracking-[0.16em]", isDark ? "text-slate-300" : "text-slate-500")}>
                                     {section.title}
                                 </p>
                                 <ul className="mt-3 space-y-2">
@@ -204,7 +204,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
 
                     {FOOTER_LINK_SECTIONS.map((section) => (
                         <div key={section.title} className="col-span-1 text-left">
-                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[10px] md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>
+                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-2xs md:text-xs", isDark ? "text-slate-300" : "text-slate-900")}>
                                 {section.title}
                             </h3>
                             <ul className="space-y-0.5 md:space-y-2">
@@ -260,7 +260,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                             © {currentYear} Esparex Platform. Built for the future of tech repair.
                         </span>
                     </div>
-                    <p className={cn("text-left text-[10px] uppercase tracking-[0.2em] font-bold", isDark ? "text-slate-600" : "text-slate-400")}>
+                    <p className={cn("text-left text-2xs uppercase tracking-[0.2em] font-bold", isDark ? "text-slate-600" : "text-slate-400")}>
                         India's Leading Spare Parts Exchange
                     </p>
                 </div>

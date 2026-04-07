@@ -38,7 +38,7 @@ export function BusinessQuickActions() {
 
     return (
         <div className="bg-white border-b border-slate-100 px-4 py-3 md:hidden">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+            <p className="text-2xs font-bold text-slate-400 uppercase tracking-widest mb-2">
                 Quick Actions
             </p>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">

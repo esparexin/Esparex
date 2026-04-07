@@ -152,7 +152,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
           <SlidersHorizontal className="size-4 text-slate-500" />
           <span>Filters</span>
           {activeFilterCount > 0 ? (
-            <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
+            <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
               {activeFilterCount}
             </span>
           ) : null}

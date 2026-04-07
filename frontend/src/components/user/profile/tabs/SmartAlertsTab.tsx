@@ -100,7 +100,7 @@ export function SmartAlertsTab({
         <div className="space-y-4">
             {/* Smart Alerts Header */}
             <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 gap-0">
-                <FeatureCard title={(<><Bell className="h-5 w-5 text-blue-600" /> Smart Alerts</>)} description={"Get notified when new ads match your search criteria"} Icon={Bell} />
+                <FeatureCard title={(<><Bell className="h-5 w-5 text-link" /> Smart Alerts</>)} description={"Get notified when new ads match your search criteria"} Icon={Bell} />
                 <CardContent>
                     <div className="flex items-center justify-between">
                         <div>

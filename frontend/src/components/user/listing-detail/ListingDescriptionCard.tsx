@@ -27,7 +27,7 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                             <div className="flex items-start gap-2.5 bg-slate-50 rounded-xl p-3">
                                 <Wrench className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Warranty</p>
+                                    <p className="text-2xs uppercase font-bold text-slate-400 tracking-wider">Warranty</p>
                                     <p className="text-sm font-semibold text-slate-800 mt-0.5">{String(ad.warranty)}</p>
                                 </div>
                             </div>
@@ -36,7 +36,7 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                             <div className="flex items-start gap-2.5 bg-slate-50 rounded-xl p-3">
                                 <Wrench className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">On-site</p>
+                                    <p className="text-2xs uppercase font-bold text-slate-400 tracking-wider">On-site</p>
                                     <p className="text-sm font-semibold text-slate-800 mt-0.5">{ad.onsiteService ? 'Yes' : 'No'}</p>
                                 </div>
                             </div>

@@ -83,7 +83,7 @@ export function AdSellerCard({
                         </p>
                     }
                     badge={ad.isBusiness && ad.verified ? (
-                        <Badge className="bg-blue-600 text-white text-[10px] h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
+                        <Badge className="bg-blue-600 text-white text-2xs h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
                     ) : undefined}
                     trailing={isInteractive ? <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" /> : undefined}
                 />
@@ -127,7 +127,7 @@ export function AdSellerCard({
                         </div>
                         <div>
                             <p className="text-xs font-bold text-slate-600">Chat Locked</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5">This listing is no longer accepting new messages.</p>
+                            <p className="text-2xs text-slate-400 mt-0.5">This listing is no longer accepting new messages.</p>
                         </div>
                     </div>
                 )}
