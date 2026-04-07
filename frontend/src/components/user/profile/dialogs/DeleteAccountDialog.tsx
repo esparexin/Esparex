@@ -87,13 +87,19 @@ export function DeleteAccountDialog({
                         <FormError message={deleteAccountErrors?.reason} />
                     </div>
                     <div className="space-y-1.5">
-                        <Label htmlFor="delete-account-feedback">Optional feedback</Label>
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="delete-account-feedback">Optional feedback</Label>
+                            <span className={`text-xs font-medium ${deleteFeedback.length >= 500 ? "text-amber-600" : "text-muted-foreground"}`}>
+                                {deleteFeedback.length}/500
+                            </span>
+                        </div>
                         <Textarea
                             id="delete-account-feedback"
                             value={deleteFeedback}
-                            onChange={(e) => setDeleteFeedback(e.target.value)}
+                            onChange={(e) => setDeleteFeedback(e.target.value.slice(0, 500))}
                             placeholder="Tell us what went wrong or what we could improve"
                             rows={4}
+                            maxLength={500}
                             aria-invalid={!!deleteAccountErrors?.feedback}
                         />
                         <FormError message={deleteAccountErrors?.feedback} />

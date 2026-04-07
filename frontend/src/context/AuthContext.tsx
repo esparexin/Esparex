@@ -207,9 +207,6 @@ export function AuthProvider({
         }
 
         if (typeof window !== "undefined") {
-          localStorage.removeItem(
-            "esparex_access_token"
-          );
           localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
         }
 
@@ -392,8 +389,7 @@ export function AuthProvider({
       }
     } finally {
       if (typeof window !== "undefined") {
-        localStorage.removeItem("esparex_access_token");
-        localStorage.removeItem("esparex_user_session");
+        localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
         localStorage.removeItem("esparex_fcm_token");
         localStorage.removeItem("esparex_fcm_registration_v1");
       }

@@ -15,6 +15,7 @@ import {
     Tag,
     type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { READ_NOTIFICATION_RETENTION_HOURS } from "@shared/constants/notificationRetention";
@@ -403,6 +404,17 @@ export function NotificationBellDropdown({
                             ) : null}
                         </div>
                     )}
+                </div>
+
+                <div className="border-t border-slate-100 px-3 py-3">
+                    <Link
+                        href="/notifications"
+                        className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold text-foreground-tertiary transition hover:bg-slate-50 hover:text-foreground-secondary"
+                        onClick={() => setOpen(false)}
+                    >
+                        View all notifications
+                        <ChevronRight className="h-3.5 w-3.5" />
+                    </Link>
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>

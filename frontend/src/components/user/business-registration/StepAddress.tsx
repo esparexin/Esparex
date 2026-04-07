@@ -294,9 +294,14 @@ export function StepAddress({
                     error={formData.errors?.fullAddress}
                     className="space-y-1.5"
                 >
-                    <span className="text-xs leading-5 text-muted-foreground">
-                        Enter complete business address including shop/building name, street/area, pincode, and landmark if available.
-                    </span>
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs leading-5 text-muted-foreground">
+                            Include shop/building name, street/area, pincode, and landmark.
+                        </span>
+                        <span className={`shrink-0 ml-3 text-xs font-medium ${formData.fullAddress.length >= 300 ? "text-amber-600" : "text-muted-foreground"}`}>
+                            {formData.fullAddress.length}/300
+                        </span>
+                    </div>
                     <Textarea
                         id="reg-full-address"
                         value={formData.fullAddress}

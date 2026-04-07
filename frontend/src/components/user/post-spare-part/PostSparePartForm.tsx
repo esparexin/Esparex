@@ -224,7 +224,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
             )}
 
             {categoryId && (
-                <Field label="Spare Part" error={errors.sparePartTypeId?.message}>
+                <Field label="Spare Part" required error={errors.sparePartTypeId?.message}>
                     {isLoadingSpareParts ? (
                         <div className="grid grid-cols-3 gap-2">
                             {[1, 2, 3, 4, 5, 6].map(i => (

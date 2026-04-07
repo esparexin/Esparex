@@ -134,14 +134,15 @@ export function ListingLocationField({
 interface ListingTitleFieldProps {
     label: string;
     error?: string;
+    required?: boolean;
     registerProps: UseFormRegisterReturn;
     placeholder: string;
     valueLength: number;
     maxLength?: number;
 }
-export function ListingTitleField({ label, error, registerProps, placeholder, valueLength, maxLength = 60 }: ListingTitleFieldProps) {
+export function ListingTitleField({ label, error, required = true, registerProps, placeholder, valueLength, maxLength = 60 }: ListingTitleFieldProps) {
     return (
-        <Field label={label} error={error}>
+        <Field label={label} error={error} required={required}>
             <div className="relative">
                 <Input
                     {...registerProps}
@@ -163,13 +164,14 @@ export function ListingTitleField({ label, error, registerProps, placeholder, va
 interface ListingPriceFieldProps {
     label?: string;
     error?: string;
+    required?: boolean;
     registerProps: UseFormRegisterReturn;
     placeholder?: string;
     showCurrencySymbol?: boolean;
 }
-export function ListingPriceField({ label = "Price (₹)", error, registerProps, placeholder = "0", showCurrencySymbol = false }: ListingPriceFieldProps) {
+export function ListingPriceField({ label = "Price (₹)", error, required = true, registerProps, placeholder = "0", showCurrencySymbol = false }: ListingPriceFieldProps) {
     return (
-        <Field label={label} error={error}>
+        <Field label={label} error={error} required={required}>
             <div className="relative">
                 {showCurrencySymbol && (
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm pointer-events-none">₹</span>
@@ -192,14 +194,15 @@ export function ListingPriceField({ label = "Price (₹)", error, registerProps,
 interface ListingDescriptionFieldProps {
     label?: string;
     error?: string;
+    required?: boolean;
     registerProps: UseFormRegisterReturn;
     placeholder?: string;
     valueLength: number;
     maxLength?: number;
 }
-export function ListingDescriptionField({ label = "Description", error, registerProps, placeholder, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
+export function ListingDescriptionField({ label = "Description", error, required = true, registerProps, placeholder, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
     return (
-        <Field label={label} error={error}>
+        <Field label={label} error={error} required={required}>
             <div className="relative">
                 <Textarea
                     {...registerProps}

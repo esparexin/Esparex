@@ -259,7 +259,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             )}
 
             {categoryId && (
-                <Field label="Service Types" error={getFirstFormErrorMessage(errors.serviceTypeIds)}>
+                <Field label="Service Types" required error={getFirstFormErrorMessage(errors.serviceTypeIds)}>
                     {isLoadingServiceTypes ? (
                         <div className="grid grid-cols-2 gap-2">
                             {Array.from({ length: 4 }).map((_, index) => (

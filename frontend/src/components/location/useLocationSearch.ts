@@ -1,3 +1,5 @@
+const LOCATION_SEARCH_DEBOUNCE_MS = 300;
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { searchLocations, type Location } from "@/lib/api/user/locations";
 import { getCurrentLocationResult } from "@/lib/location/locationService";
@@ -145,7 +147,7 @@ export function useLocationSearch({
                 setIsSearching(false);
                 setShowSkeleton(false);
             }
-        }, 300);
+        }, LOCATION_SEARCH_DEBOUNCE_MS);
 
         return () => {
             clearTimeout(debounce);

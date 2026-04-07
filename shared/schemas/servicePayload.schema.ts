@@ -46,6 +46,7 @@ const servicePayloadShape = {
 
     priceMin: z.number()
         .min(0, 'Minimum price must be at least 0')
+        .max(10_000_000, 'Price cannot exceed ₹1 crore')
         .optional(),
 
     // Uses centralized text validation (bans profanity, gibberish, etc.)

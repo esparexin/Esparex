@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CONTACT_LIMITS } from "@shared/constants/fieldLimits";
 
 const ALLOWED_ID_PROOF_TYPES = ["aadhaar", "pan", "driving_license", "voter_id"] as const;
 
@@ -87,7 +88,7 @@ const requiredBusinessFields = {
         .string()
         .transform((value) => value.replace(/\D/g, "").slice(-10))
         .refine(
-            (value) => /^[6-9]\d{9}$/.test(value),
+            (value) => CONTACT_LIMITS.PHONE.PATTERN.test(value),
             "Contact number must be a valid 10-digit Indian mobile starting with 6-9",
         ),
 

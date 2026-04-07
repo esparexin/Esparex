@@ -87,7 +87,7 @@ export default function DeviceIdentityFields() {
 
             {/* Category */}
             <section className="space-y-4">
-                <Field error={categoryError} label="Select Category">
+                <Field error={categoryError} label="Select Category" required>
                     <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                         {dynamicCategories.map((cat) => {
                             const Icon = cat.icon || CircuitBoard;

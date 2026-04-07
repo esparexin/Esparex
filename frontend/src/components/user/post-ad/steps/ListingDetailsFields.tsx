@@ -182,7 +182,7 @@ export default function ListingDetailsFields() {
         <div className="space-y-6" data-testid="listing-details-fields">
             {/* Ad Title */}
             <section className="space-y-4">
-                <Field label="Choose a catchy title" error={titleError}>
+                <Field label="Choose a catchy title" required error={titleError}>
                     <div className="space-y-3">
                         <div className="relative">
                             <Input
@@ -216,7 +216,7 @@ export default function ListingDetailsFields() {
 
             {/* Description */}
             <section className="space-y-4">
-                <Field label="Describe your product" error={descriptionError}>
+                <Field label="Describe your product" required error={descriptionError}>
                     <div className="space-y-3">
                         <div className="relative">
                             <Textarea
@@ -305,7 +305,7 @@ export default function ListingDetailsFields() {
 
             {/* Location */}
             <section className="space-y-4">
-                <Field label="Where are you located?" error={locationError}>
+                <Field label="Where are you located?" required error={locationError}>
                     <div className="space-y-3">
                         <LocationSelector
                             variant="inline"
@@ -328,7 +328,7 @@ export default function ListingDetailsFields() {
 
             {/* Price */}
             <section className="space-y-6">
-                <Field label="Set your price" error={priceError}>
+                <Field label="Set your price" required error={priceError}>
                     <div className="space-y-4">
                         <div className="relative h-20">
                             <Input

@@ -70,7 +70,7 @@ export const BaseAdPayloadSchema = z.object({
         checkQuality: true
     }),
 
-    price: z.number().min(0, 'Price must be at least 0'),
+    price: z.number().min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore'),
     images: z
         .array(z.string())
         .min(MIN_AD_IMAGES, `At least ${MIN_AD_IMAGES} image is required`)

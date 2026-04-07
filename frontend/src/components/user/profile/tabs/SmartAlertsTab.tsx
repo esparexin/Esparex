@@ -265,12 +265,18 @@ export function SmartAlertsTab({
                         <CardContent>
                             <div className="space-y-3">
                                 <div>
-                                    <Label htmlFor="smart-alert-name" className="text-sm">Alert Name</Label>
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="smart-alert-name" className="text-sm">Alert Name</Label>
+                                        <span className={`text-xs font-medium ${smartAlertForm.name.length > 50 ? "text-destructive" : "text-muted-foreground"}`}>
+                                            {smartAlertForm.name.length}/50
+                                        </span>
+                                    </div>
                                     <Input
                                         id="smart-alert-name"
                                         placeholder="e.g., iPhone 14 Pro in New York"
                                         className={`mt-1.5 ${smartAlertErrors?.name ? "border-red-500" : ""}`}
                                         value={smartAlertForm.name}
+                                        maxLength={50}
                                         onChange={(e) => {
                                             if (smartAlertErrors?.name) clearSmartAlertError?.("name");
                                             updateSmartAlertForm({ name: e.target.value });
@@ -281,12 +287,18 @@ export function SmartAlertsTab({
                                     <FormError id="smart-alert-name-error" message={smartAlertErrors?.name} />
                                 </div>
                                 <div>
-                                    <Label htmlFor="smart-alert-keywords" className="text-sm">Search Keywords</Label>
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="smart-alert-keywords" className="text-sm">Search Keywords</Label>
+                                        <span className={`text-xs font-medium ${smartAlertForm.keywords.length > 150 ? "text-destructive" : "text-muted-foreground"}`}>
+                                            {smartAlertForm.keywords.length}/150
+                                        </span>
+                                    </div>
                                     <Input
                                         id="smart-alert-keywords"
                                         placeholder="e.g., iPhone 14 Pro Max 256GB"
                                         className={`mt-1.5 ${smartAlertErrors?.keywords ? "border-red-500" : ""}`}
                                         value={smartAlertForm.keywords}
+                                        maxLength={150}
                                         onChange={(e) => {
                                             if (smartAlertErrors?.keywords) clearSmartAlertError?.("keywords");
                                             updateSmartAlertForm({ keywords: e.target.value });
@@ -297,12 +309,18 @@ export function SmartAlertsTab({
                                     <FormError id="smart-alert-keywords-error" message={smartAlertErrors?.keywords} />
                                 </div>
                                 <div>
-                                    <Label htmlFor="smart-alert-category" className="text-sm">Category</Label>
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="smart-alert-category" className="text-sm">Category</Label>
+                                        <span className={`text-xs font-medium ${smartAlertForm.category.length > 80 ? "text-destructive" : "text-muted-foreground"}`}>
+                                            {smartAlertForm.category.length}/80
+                                        </span>
+                                    </div>
                                     <Input
                                         id="smart-alert-category"
                                         placeholder="Mobile Phones"
                                         className={`mt-1.5 ${smartAlertErrors?.category ? "border-red-500" : ""}`}
                                         value={smartAlertForm.category}
+                                        maxLength={80}
                                         onChange={(e) => {
                                             if (smartAlertErrors?.category) clearSmartAlertError?.("category");
                                             updateSmartAlertForm({ category: e.target.value });
