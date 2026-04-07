@@ -116,6 +116,8 @@ export function AuthProvider({
   const authBannerShownRef = useRef(false);
   const wasAuthenticatedRef = useRef(false);
   const staleSessionCleanupRef = useRef(false);
+  const networkRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const networkRetryCountRef = useRef(0);
 
   /* ------------------------------------------------------------------------ */
   /* Fetch User                                                               */
@@ -207,9 +209,6 @@ export function AuthProvider({
         }
 
         if (typeof window !== "undefined") {
-          localStorage.removeItem(
-            "esparex_access_token"
-          );
           localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
         }
 
@@ -224,6 +223,32 @@ export function AuthProvider({
           authBannerShownRef.current = true;
         }
 
+        return;
+      }
+
+      /* Network error — backend is sleeping (Render free tier) or unreachable.
+         Do NOT treat this as a session expiry. Stay in "loading" and retry so
+         the user isn't kicked to the login page just because the backend is cold. */
+      if (!err.response) {
+        const MAX_NETWORK_RETRIES = 3;
+        if (networkRetryCountRef.current < MAX_NETWORK_RETRIES) {
+          networkRetryCountRef.current += 1;
+          const delay = networkRetryCountRef.current * 5_000; // 5s, 10s, 15s
+          if (process.env.NODE_ENV === "development") {
+            logger.warn(`[Auth] Network error — retrying in ${delay / 1000}s (attempt ${networkRetryCountRef.current}/${MAX_NETWORK_RETRIES})`);
+          }
+          networkRetryTimerRef.current = setTimeout(() => {
+            fetchingRef.current = false;
+            void fetchUser();
+          }, delay);
+          // Stay in "loading" — withGuard shows null, no login redirect
+          return;
+        }
+        // Give up after MAX_NETWORK_RETRIES — backend is genuinely down
+        networkRetryCountRef.current = 0;
+        setUser(null);
+        setStatus("unauthenticated");
+        // Preserve hasAuthHint so next page load re-attempts without requiring re-login
         return;
       }
 
@@ -248,7 +273,6 @@ export function AuthProvider({
         );
       }
 
-      /* ✅ FIXED ERROR TYPE */
       setError(
         new Error(
           err.message ||
@@ -380,6 +404,11 @@ export function AuthProvider({
   /* ------------------------------------------------------------------------ */
 
   const logout = useCallback(async (options?: { skipServerLogout?: boolean }) => {
+    if (networkRetryTimerRef.current) {
+      clearTimeout(networkRetryTimerRef.current);
+      networkRetryTimerRef.current = null;
+    }
+    networkRetryCountRef.current = 0;
     try {
       if (!options?.skipServerLogout) {
         await authApi.logout();
@@ -392,8 +421,7 @@ export function AuthProvider({
       }
     } finally {
       if (typeof window !== "undefined") {
-        localStorage.removeItem("esparex_access_token");
-        localStorage.removeItem("esparex_user_session");
+        localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
         localStorage.removeItem("esparex_fcm_token");
         localStorage.removeItem("esparex_fcm_registration_v1");
       }
@@ -405,7 +433,7 @@ export function AuthProvider({
       authBannerShownRef.current = false;
       staleSessionCleanupRef.current = false;
     }
-  }, []);
+  }, [fetchUser]);
 
   /* ------------------------------------------------------------------------ */
   /* Provider                                                                 */

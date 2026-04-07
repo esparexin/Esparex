@@ -117,7 +117,7 @@ export function BrandSearchSelect({
     return (
         <div className={cn("relative", className)} ref={containerRef}>
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-subtle pointer-events-none" />
                 <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -139,7 +139,7 @@ export function BrandSearchSelect({
                         className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-y-auto"
                     >
                         {filtered.length === 0 ? (
-                            <div className="py-4 px-4 text-center text-sm text-slate-400">
+                            <div className="py-4 px-4 text-center text-sm text-foreground-subtle">
                                 No brands found for &ldquo;{search}&rdquo;
                             </div>
                         ) : (
@@ -151,7 +151,7 @@ export function BrandSearchSelect({
                                         e.preventDefault();
                                         handleSelect(b);
                                     }}
-                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100"
+                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
                                 >
                                     {b}
                                 </button>

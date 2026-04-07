@@ -172,6 +172,11 @@ export const getSparePartListings = async (req: Request, res: Response) => {
     try {
         const { categoryId, typeId, status, page, limit, cursor, search, locationId, lat, lng, radiusKm } = req.query;
 
+        const requestedPage = Number(page) || 1;
+        const requestedLimit = Number(limit) || 20;
+        const parsedPage = Math.min(requestedPage, 1000);
+        const parsedLimit = Math.min(requestedLimit, 100);
+
         // Redirect to unified AdQueryService
         const result = await adService.getAds(
             {
@@ -186,8 +191,8 @@ export const getSparePartListings = async (req: Request, res: Response) => {
                 ...(radiusKm ? { radiusKm: Number(radiusKm) } : {}),
             },
             {
-                page: Number(page) || 1,
-                limit: Number(limit) || 20,
+                page: parsedPage,
+                limit: parsedLimit,
                 cursor: cursor as string
             },
             { enforcePublicVisibility: true }
@@ -198,8 +203,10 @@ export const getSparePartListings = async (req: Request, res: Response) => {
             data: result.data as Array<Record<string, unknown>>,
             pagination: {
                 ...result.pagination,
-                page: result.pagination.page || 1,
-                limit: result.pagination.limit || 20,
+                page: parsedPage,
+                limit: parsedLimit,
+                ...(parsedLimit !== requestedLimit ? { clampedLimit: true } : {}),
+                ...(parsedPage !== requestedPage ? { clampedPage: true } : {}),
             }
         }));
     } catch (error) {
@@ -297,7 +304,7 @@ export const deleteSparePartListing = async (req: Request, res: Response) => {
         if (!listing) return;
 
         await listing.softDelete();
-        res.status(200).json({ success: true, data: null, message: 'Spare part listing deleted.' });
+        res.status(204).end();
     } catch (error) {
         sendContractErrorResponse(req, res, 500, 'Failed to delete spare part listing');
     }

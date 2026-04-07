@@ -141,7 +141,7 @@ export function ListingItem({
                             </span>
                         ))}
                         {!isActive && timeAgo && (
-                            <span className="flex items-center gap-1 text-slate-400">
+                            <span className="flex items-center gap-1 text-foreground-subtle">
                                 <Clock className="h-3 w-3" /> {timeAgo}
                             </span>
                         )}
@@ -151,7 +151,7 @@ export function ListingItem({
                     {tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1.5">
                             {tags.map((tag, idx) => (
-                                <span key={idx} className={cn("px-2 py-0.5 rounded-full text-2xs font-medium border", tag.className || "bg-slate-50 text-slate-600 border-slate-100")}>
+                                <span key={idx} className={cn("px-2 py-0.5 rounded-full text-2xs font-medium border", tag.className || "bg-slate-50 text-foreground-tertiary border-slate-100")}>
                                     {tag.label}
                                 </span>
                             ))}

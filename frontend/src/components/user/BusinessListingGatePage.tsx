@@ -43,7 +43,7 @@ export function BusinessListingGatePage({
                         <Building2 className="w-8 h-8" />
                     </div>
                     <h1 className="text-xl font-bold text-foreground">Business Verification Required</h1>
-                    <p className="text-slate-600">
+                    <p className="text-foreground-tertiary">
                         Only admin-verified business accounts can post {listingTypeLabel}. Your account is{" "}
                         <strong>{businessData?.status ?? "not registered"}</strong>.
                     </p>

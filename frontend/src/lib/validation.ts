@@ -4,6 +4,7 @@
  */
 
 import { createValidationError, EsparexError, sanitizeInput } from "./errorHandler";
+import { CONTACT_LIMITS } from "@shared/constants/fieldLimits";
 
 // ============================================================================
 // VALIDATION RESULT
@@ -169,8 +170,7 @@ export const formatPhoneForAPI = (mobile: string): string => {
  * @returns boolean
  */
 export const validateIndianMobile = (mobile: string): boolean => {
-  const regex = /^[6-9]\d{9}$/;
-  return regex.test(mobile.replace(/\D/g, ""));
+  return CONTACT_LIMITS.PHONE.PATTERN.test(mobile.replace(/\D/g, ""));
 };
 
 // ============================================================================

@@ -71,6 +71,11 @@
   --font-weight-medium: 500;
   --font-weight-normal: 400;
 
+  /* Extended foreground text tokens — fills gap between foreground and muted-foreground */
+  --foreground-secondary: 215.4 25% 26.7%;   /* ≈ slate-700 — secondary body text */
+  --foreground-tertiary: 215.3 19.3% 34.5%;  /* ≈ slate-600 — captions, labels */
+  --foreground-subtle: 215.4 16.3% 56.9%;    /* ≈ slate-400 — placeholder, disabled */
+
   /* Sidebar Tokens */
   --sidebar: 210 40% 98%;
   --sidebar-foreground: 0 0% 10.2%;
@@ -156,6 +161,11 @@
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217.2 32.6% 17.5%;
   --sidebar-ring: 142.1 76.2% 45.3%;
+
+  /* Extended foreground text tokens (dark mode) */
+  --foreground-secondary: 215 20.2% 75.1%;
+  --foreground-tertiary: 215 20.2% 65.1%;
+  --foreground-subtle: 215 20.2% 45.1%;
 
   /* Link / interactive blue (slightly lighter in dark mode) */
   --link: 213.1 93.9% 67.8%;        /* blue-400 for better contrast on dark bg */

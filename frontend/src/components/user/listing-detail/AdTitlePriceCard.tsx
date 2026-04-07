@@ -68,23 +68,23 @@ export function AdTitlePriceCard({
                         {formatPrice(ad.price)}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 border-t border-slate-100 pt-3">
+                    <div className="grid grid-cols-2 gap-2 text-xs text-foreground-subtle border-t border-slate-100 pt-3">
                         <div className="flex items-center gap-1.5">
-                            <MapPin className="h-3 w-3 flex-shrink-0 text-slate-300" />
+                            <MapPin className="h-3 w-3 flex-shrink-0 text-foreground-subtle" />
                             <span className="truncate">{formatLocation(ad.location)}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <Clock className="h-3 w-3 flex-shrink-0 text-slate-300" />
+                            <Clock className="h-3 w-3 flex-shrink-0 text-foreground-subtle" />
                             <span className="truncate">{ad.time}</span>
                         </div>
                         {viewCount !== undefined && viewCount > 0 && (
                             <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
-                                <Eye className="h-3 w-3 text-slate-300" />
+                                <Eye className="h-3 w-3 text-foreground-subtle" />
                                 <span>{viewCount.toLocaleString()} views</span>
                             </div>
                         )}
                         <div className="flex items-center gap-1.5">
-                            <span className="text-slate-400 truncate">Ad #{ad.id}</span>
+                            <span className="text-foreground-subtle truncate">Ad #{ad.id}</span>
                         </div>
                     </div>
                 </CardContent>
@@ -98,7 +98,7 @@ export function AdTitlePriceCard({
             <CardContent className="p-6">
                 <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-medium px-2.5 py-0.5 text-2xs">
+                        <Badge variant="secondary" className="bg-slate-100 text-foreground-tertiary border-none font-medium px-2.5 py-0.5 text-2xs">
                             {categoryLabel}
                         </Badge>
                         {ad.deviceCondition && (
@@ -145,33 +145,33 @@ export function AdTitlePriceCard({
                 </div>
 
                 {/* Meta Info Grid */}
-                <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-xs text-slate-400 pt-5 border-t border-slate-50">
+                <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-xs text-foreground-subtle pt-5 border-t border-slate-50">
                     <div className="flex flex-col gap-1">
-                        <span className="text-2xs uppercase font-bold text-slate-400 tracking-wider">Location</span>
-                        <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-                            <MapPin className="h-3 w-3 text-slate-400" />
+                        <span className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Location</span>
+                        <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
+                            <MapPin className="h-3 w-3 text-foreground-subtle" />
                             <span className="truncate">{formatLocation(ad.location)}</span>
                         </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <span className="text-2xs uppercase font-bold text-slate-400 tracking-wider">Posted</span>
-                        <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-                            <Clock className="h-3 w-3 text-slate-400" />
+                        <span className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Posted</span>
+                        <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
+                            <Clock className="h-3 w-3 text-foreground-subtle" />
                             <span className="truncate">{ad.time}</span>
                         </div>
                     </div>
                     {viewCount !== undefined && viewCount > 0 && (
                         <div className="flex flex-col gap-1 text-xs">
-                            <span className="text-2xs uppercase font-bold text-slate-400 tracking-wider">Views</span>
-                            <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-                                <Eye className="h-3 w-3 text-slate-400" />
+                            <span className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Views</span>
+                            <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
+                                <Eye className="h-3 w-3 text-foreground-subtle" />
                                 <span className="truncate">{viewCount.toLocaleString()} views</span>
                             </div>
                         </div>
                     )}
                     <div className="flex flex-col gap-1">
-                        <span className="text-2xs uppercase font-bold text-slate-400 tracking-wider">Ad ID</span>
-                        <div className="flex items-center gap-1.5 text-slate-600 font-medium">
+                        <span className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Ad ID</span>
+                        <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
                             <span className="truncate font-bold">#{ad.id}</span>
                         </div>
                     </div>

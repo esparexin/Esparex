@@ -182,7 +182,7 @@ export default function ListingDetailsFields() {
         <div className="space-y-6" data-testid="listing-details-fields">
             {/* Ad Title */}
             <section className="space-y-4">
-                <Field label="Choose a catchy title" error={titleError}>
+                <Field label="Choose a catchy title" required error={titleError}>
                     <div className="space-y-3">
                         <div className="relative">
                             <Input
@@ -205,7 +205,7 @@ export default function ListingDetailsFields() {
                         <div className="flex justify-end">
                             <span className={cn(
                                 "text-xs font-bold tracking-tight",
-                                (watch("title") || "").length >= MAX_AD_TITLE_CHARS ? "text-amber-600" : "text-slate-400"
+                                (watch("title") || "").length >= MAX_AD_TITLE_CHARS ? "text-amber-600" : "text-foreground-subtle"
                             )}>
                                 {(watch("title") || "").length} / {MAX_AD_TITLE_CHARS}
                             </span>
@@ -216,7 +216,7 @@ export default function ListingDetailsFields() {
 
             {/* Description */}
             <section className="space-y-4">
-                <Field label="Describe your product" error={descriptionError}>
+                <Field label="Describe your product" required error={descriptionError}>
                     <div className="space-y-3">
                         <div className="relative">
                             <Textarea
@@ -239,7 +239,7 @@ export default function ListingDetailsFields() {
                         <div className="flex justify-end">
                             <span className={cn(
                                 "text-xs font-bold tracking-tight",
-                                (watch("description") || "").length >= MAX_AD_DESCRIPTION_CHARS ? "text-amber-600" : "text-slate-400"
+                                (watch("description") || "").length >= MAX_AD_DESCRIPTION_CHARS ? "text-amber-600" : "text-foreground-subtle"
                             )}>
                                 {(watch("description") || "").length} / {MAX_AD_DESCRIPTION_CHARS}
                             </span>
@@ -252,7 +252,7 @@ export default function ListingDetailsFields() {
             <section className="space-y-6">
                 <div className="text-center space-y-1">
                     <label className="text-sm font-bold text-foreground block">Product Photos</label>
-                    <p className="text-xs text-slate-400 font-medium italic">Photos should be clear and product-focused</p>
+                    <p className="text-xs text-foreground-subtle font-medium italic">Photos should be clear and product-focused</p>
                 </div>
 
                 <Field error={imagesError}>
@@ -287,14 +287,14 @@ export default function ListingDetailsFields() {
                                     disabled={isUploadingImages}
                                 />
                                 {isUploadingImages ? (
-                                    <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+                                    <Loader2 className="w-6 h-6 animate-spin text-foreground-subtle" />
                                 ) : (
                                     <>
                                         <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-2 border border-slate-100">
                                             <Upload className="w-5 h-5 text-primary" />
                                         </div>
-                                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Add Photo</span>
-                                        <span className="text-2xs text-slate-300 mt-0.5">{listingImages.length}/{MAX_AD_IMAGES}</span>
+                                        <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-wider">Add Photo</span>
+                                        <span className="text-2xs text-foreground-subtle mt-0.5">{listingImages.length}/{MAX_AD_IMAGES}</span>
                                     </>
                                 )}
                             </label>
@@ -305,7 +305,7 @@ export default function ListingDetailsFields() {
 
             {/* Location */}
             <section className="space-y-4">
-                <Field label="Where are you located?" error={locationError}>
+                <Field label="Where are you located?" required error={locationError}>
                     <div className="space-y-3">
                         <LocationSelector
                             variant="inline"
@@ -320,7 +320,7 @@ export default function ListingDetailsFields() {
                                 Location cannot be changed once an ad is live or under review.
                             </p>
                         ) : (
-                            <p className="text-xs text-slate-400 text-center font-medium">Use GPS auto-detect or search manually for your city.</p>
+                            <p className="text-xs text-foreground-subtle text-center font-medium">Use GPS auto-detect or search manually for your city.</p>
                         )}
                     </div>
                 </Field>
@@ -328,7 +328,7 @@ export default function ListingDetailsFields() {
 
             {/* Price */}
             <section className="space-y-6">
-                <Field label="Set your price" error={priceError}>
+                <Field label="Set your price" required error={priceError}>
                     <div className="space-y-4">
                         <div className="relative h-20">
                             <Input
@@ -338,12 +338,12 @@ export default function ListingDetailsFields() {
                                 disabled={isFree}
                                 className={cn(
                                     "h-full pl-12 pr-4 rounded-2xl border-2 font-bold text-2xl transition-all",
-                                    isFree ? "bg-slate-50 border-slate-100 text-slate-300" : "bg-white border-slate-200 focus:border-primary"
+                                    isFree ? "bg-slate-50 border-slate-100 text-foreground-subtle" : "bg-white border-slate-200 focus:border-primary"
                                 )}
                             />
                             <span className={cn(
                                 "absolute left-5 top-1/2 -translate-y-1/2 font-bold text-2xl",
-                                isFree ? "text-slate-300" : "text-slate-400"
+                                isFree ? "text-foreground-subtle" : "text-foreground-subtle"
                             )}>₹</span>
                         </div>
 
@@ -365,7 +365,7 @@ export default function ListingDetailsFields() {
                             <div className="flex items-center gap-3">
                                 <div className={cn(
                                     "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
-                                    isFree ? "bg-green-600 text-white" : "bg-slate-100 text-slate-400"
+                                    isFree ? "bg-green-600 text-white" : "bg-slate-100 text-foreground-subtle"
                                 )}>
                                     <Checkbox
                                         id="isFree-check"

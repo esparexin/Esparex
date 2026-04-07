@@ -79,7 +79,7 @@ export function PersonalTab({
                                             sizes="80px"
                                         />
                                     ) : (
-                                        <User className="h-8 w-8 md:h-10 md:w-10 text-slate-300" />
+                                        <User className="h-8 w-8 md:h-10 md:w-10 text-foreground-subtle" />
                                     )}
                                 </div>
                                 <button
@@ -126,12 +126,18 @@ export function PersonalTab({
 
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                            <Label htmlFor="profile-name">Full Name *</Label>
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="profile-name">Full Name *</Label>
+                                <span className={`text-xs font-medium ${(formData.name || "").length > 50 ? "text-destructive" : "text-muted-foreground"}`}>
+                                    {(formData.name || "").length}/50
+                                </span>
+                            </div>
                             <Input
                                 id="profile-name"
                                 name="name"
                                 placeholder="Enter your name"
                                 value={formData.name}
+                                maxLength={50}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                     if (profileErrors?.name) clearProfileError?.("name");
                                     setFormData({ ...formData, name: e.target.value });
@@ -188,12 +194,18 @@ export function PersonalTab({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="billing-business-name">Business Name</Label>
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="billing-business-name">Business Name</Label>
+                                        <span className={`text-xs font-medium ${(formData.businessName || "").length > 100 ? "text-destructive" : "text-muted-foreground"}`}>
+                                            {(formData.businessName || "").length}/100
+                                        </span>
+                                    </div>
                                     <Input
                                         id="billing-business-name"
                                         name="businessName"
                                         placeholder="Registered Business Name"
                                         value={formData.businessName || ""}
+                                        maxLength={100}
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                             if (profileErrors?.businessName) clearProfileError?.("businessName");
                                             setFormData({ ...formData, businessName: e.target.value });
@@ -206,15 +218,21 @@ export function PersonalTab({
                                     <FormError id="profile-business-name-error" message={profileErrors?.businessName} />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="billing-gst-number">GST Number</Label>
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="billing-gst-number">GST Number</Label>
+                                        <span className={`text-xs font-medium ${(formData.gstNumber || "").length > 0 && (formData.gstNumber || "").length !== 15 ? "text-amber-600" : "text-muted-foreground"}`}>
+                                            {(formData.gstNumber || "").length}/15
+                                        </span>
+                                    </div>
                                     <Input
                                         id="billing-gst-number"
                                         name="gstNumber"
-                                        placeholder="GSTIN"
+                                        placeholder="22AAAAA0000A1Z5"
                                         value={formData.gstNumber || ""}
+                                        maxLength={15}
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                             if (profileErrors?.gstNumber) clearProfileError?.("gstNumber");
-                                            setFormData({ ...formData, gstNumber: e.target.value });
+                                            setFormData({ ...formData, gstNumber: e.target.value.toUpperCase() });
                                         }}
                                         className={`bg-white ${profileErrors?.gstNumber ? "border-red-500" : ""}`}
                                         aria-invalid={!!profileErrors?.gstNumber}
@@ -254,7 +272,7 @@ export function PersonalTab({
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-3">
-                        <p className="text-sm font-semibold text-slate-700">Choose who can view your number:</p>
+                        <p className="text-sm font-semibold text-foreground-secondary">Choose who can view your number:</p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {/* Show to All */}
@@ -264,7 +282,7 @@ export function PersonalTab({
                                 ${mobileVisibility === "show" ? "border-blue-600 bg-blue-50/50" : "border-slate-100 hover:border-slate-200 bg-white"}`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <Eye className={`h-5 w-5 ${mobileVisibility === "show" ? "text-link" : "text-slate-400"}`} />
+                                    <Eye className={`h-5 w-5 ${mobileVisibility === "show" ? "text-link" : "text-foreground-subtle"}`} />
                                     {mobileVisibility === "show" && <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />}
                                 </div>
                                 <div>
@@ -280,7 +298,7 @@ export function PersonalTab({
                                 ${mobileVisibility === "hide" ? "border-red-600 bg-red-50/50" : "border-slate-100 hover:border-slate-200 bg-white"}`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <EyeOff className={`h-5 w-5 ${mobileVisibility === "hide" ? "text-red-600" : "text-slate-400"}`} />
+                                    <EyeOff className={`h-5 w-5 ${mobileVisibility === "hide" ? "text-red-600" : "text-foreground-subtle"}`} />
                                     {mobileVisibility === "hide" && <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse" />}
                                 </div>
                                 <div>

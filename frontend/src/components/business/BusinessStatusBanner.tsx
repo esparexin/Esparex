@@ -55,7 +55,7 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
                 </div>
                 <div className="flex-1 space-y-1">
                     <h3 className={`font-bold text-sm ${current.textColor}`}>{current.title}</h3>
-                    <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                    <p className="text-xs text-foreground-tertiary leading-relaxed max-w-2xl">
                         {current.description}
                     </p>
                 </div>

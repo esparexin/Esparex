@@ -1,5 +1,7 @@
 "use client";
 
+const SEARCH_DEBOUNCE_MS = 350;
+
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -315,7 +317,7 @@ export function useBrowseListingsController<TItem, TFilters>({
       debounceRef.current = setTimeout(() => {
         setQuery(value);
         router.replace(buildNextUrl({ q: value }), { scroll: false });
-      }, 350);
+      }, SEARCH_DEBOUNCE_MS);
     },
     [buildNextUrl, router]
   );

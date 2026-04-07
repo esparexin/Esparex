@@ -30,12 +30,12 @@ export function ListingSubmissionSuccessModal({
                     <h2 className="text-xl font-bold text-foreground">
                         {isEditMode ? `${entityLabel} Updated Successfully` : `${entityLabel} Submitted Successfully`}
                     </h2>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-foreground-tertiary">
                         {isEditMode
                             ? "Your changes are pending admin review. They will go live after approval."
                             : "Pending admin review. It will go live after approval."}
                     </p>
-                    <p className="mt-1 text-xs text-slate-400">Typically reviewed within 24 hours.</p>
+                    <p className="mt-1 text-xs text-foreground-subtle">Typically reviewed within 24 hours.</p>
                 </div>
 
                 <div className="space-y-3 pt-2">
@@ -48,7 +48,7 @@ export function ListingSubmissionSuccessModal({
                     <Button
                         variant="outline"
                         onClick={onSecondaryAction}
-                        className="w-full h-11 border-slate-200 text-slate-700 hover:bg-slate-50"
+                        className="w-full h-11 border-slate-200 text-foreground-secondary hover:bg-slate-50"
                     >
                         {pendingActionLabel}
                     </Button>

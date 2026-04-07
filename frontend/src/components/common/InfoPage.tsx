@@ -12,7 +12,7 @@ export function InfoPage({ title, lastUpdated, children }: InfoPageProps) {
                     <div className="mb-6 md:mb-8 not-prose border-b border-slate-100 pb-5">
                         <h1 className="text-xl md:text-2xl font-bold tracking-tight text-foreground">{title}</h1>
                         {lastUpdated && (
-                            <p className="mt-1.5 text-xs text-slate-400 font-medium">Last updated: {lastUpdated}</p>
+                            <p className="mt-1.5 text-xs text-foreground-subtle font-medium">Last updated: {lastUpdated}</p>
                         )}
                     </div>
                     {children}

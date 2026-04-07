@@ -113,6 +113,27 @@ export const updateBusiness = async (req: Request, res: Response) => {
             delete filteredUpdates.phone;
         }
 
+        // Validate coordinates if provided
+        if (filteredUpdates.location !== undefined) {
+            const loc = filteredUpdates.location as Record<string, unknown> | undefined;
+            if (loc && loc.coordinates !== undefined) {
+                const coords = loc.coordinates;
+                const isValidCoords =
+                    Array.isArray(coords) &&
+                    coords.length === 2 &&
+                    typeof coords[0] === 'number' &&
+                    typeof coords[1] === 'number' &&
+                    coords[0] >= -180 && coords[0] <= 180 &&
+                    coords[1] >= -90 && coords[1] <= 90;
+                if (!isValidCoords) {
+                    sendErrorResponse(req, res, 400, 'Invalid coordinates. Longitude must be -180 to 180 and latitude -90 to 90.', {
+                        code: 'INVALID_COORDINATES'
+                    });
+                    return;
+                }
+            }
+        }
+
         // Note: Sensitive status mutation checks moved to `businessService.ts`.
 
         const updated = await businessService.updateBusinessById(id, filteredUpdates);

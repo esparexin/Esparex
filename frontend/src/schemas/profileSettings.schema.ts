@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
+import { BUSINESS_LIMITS } from "@shared/constants/fieldLimits";
 
 import { DELETE_ACCOUNT_REASONS } from "@/components/user/profile/types";
 
@@ -30,8 +31,20 @@ export const profileFormSchema = z.object({
   businessName: optionalTrimmedString(
     z.string().max(100, "Business name must be 100 characters or fewer.")
   ),
-  gstNumber: optionalTrimmedString(
-    z.string().max(20, "GST number must be 20 characters or fewer.")
+  gstNumber: z.preprocess(
+    (value) => {
+      if (typeof value !== "string") return value;
+      const trimmed = value.trim().toUpperCase();
+      return trimmed === "" ? undefined : trimmed;
+    },
+    z
+      .string()
+      .length(BUSINESS_LIMITS.GST.LENGTH, BUSINESS_LIMITS.GST.ERROR_FORMAT)
+      .refine(
+        (val) => BUSINESS_LIMITS.GST.PATTERN.test(val),
+        BUSINESS_LIMITS.GST.ERROR_FORMAT
+      )
+      .optional()
   ),
   mobileVisibility: z.enum([
     MOBILE_VISIBILITY.SHOW,

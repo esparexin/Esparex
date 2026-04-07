@@ -150,9 +150,14 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
     if (env.NODE_ENV === 'test') return;
 
     // Static OTP bypass: skip SMS dispatch when USE_DEFAULT_OTP is enabled
+    // Guard: never activate in production even if env var is accidentally set
     if (env.USE_DEFAULT_OTP) {
-        logger.info('Static OTP fallback active — skipping SMS dispatch', { phone: mobile.slice(-4) });
-        return;
+        if (env.NODE_ENV === 'production') {
+            logger.error('[SECURITY] USE_DEFAULT_OTP is set in production — bypass is DISABLED. Remove this env var immediately.');
+        } else {
+            logger.info('Static OTP fallback active — skipping SMS dispatch', { phone: mobile.slice(-4) });
+            return;
+        }
     }
 
     if (!env.MSG91_AUTH_KEY || !env.MSG91_SENDER_ID) {
@@ -289,9 +294,11 @@ export class AuthService {
         }
 
         if (otpRecord.expiresAt < now) {
-            // DEV GRACE: If using default OTP in dev, allow expired records to persist for manual testing
+            // DEV GRACE: If using default OTP in dev/test, allow expired records to persist for manual testing
+            // Never active in production even if env var is set
             const isDevDefaultOtp =
                 env.USE_DEFAULT_OTP &&
+                env.NODE_ENV !== 'production' &&
                 otp === env.DEV_STATIC_OTP;
 
             if (!isDevDefaultOtp) {

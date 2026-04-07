@@ -97,12 +97,12 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                         title={headerLocationDetails.tooltipText || resolvedHeaderLocation}
                     >
                         <MapPin className="h-3.5 w-3.5 text-blue-500 mr-1.5 flex-shrink-0" />
-                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-600">
+                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground-tertiary">
                             <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
                                 {isMounted ? (resolvedHeaderLocation || "India") : "India"}
                             </span>
                         </span>
-                        <ChevronDown className="h-3.5 w-3.5 text-slate-400 ml-1.5 flex-shrink-0" />
+                        <ChevronDown className="h-3.5 w-3.5 text-foreground-subtle ml-1.5 flex-shrink-0" />
                     </button>
                 </div>
 
@@ -120,7 +120,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-11 w-11 rounded-xl -ml-1 hover:bg-slate-100 text-slate-700"
+                        className="h-11 w-11 rounded-xl -ml-1 hover:bg-slate-100 text-foreground-secondary"
                         aria-label="Open navigation menu"
                         onClick={() => setIsOpen(true)}
                     >
@@ -135,16 +135,16 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                             className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-left"
                             aria-label={`Current search: ${stickySearchLabel}`}
                         >
-                            <Search className="h-4 w-4 shrink-0 text-slate-400" />
-                            <span className="truncate text-sm font-medium text-slate-700">
+                            <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
+                            <span className="truncate text-sm font-medium text-foreground-secondary">
                                 {stickySearchLabel}
                             </span>
                         </button>
                     ) : (
                         <form onSubmit={handleSearchSubmit} className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle" />
                             <Input
-                                className="w-full pl-9 h-11 bg-slate-100 border-transparent focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-slate-400"
+                                className="w-full pl-9 h-11 bg-slate-100 border-transparent focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-foreground-subtle"
                                 placeholder="Search listings..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}

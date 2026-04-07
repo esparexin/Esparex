@@ -28,7 +28,7 @@ export interface CategoryVisual {
 
 export const DEFAULT_CATEGORY_VISUAL: CategoryVisual = {
     icon: Package,
-    color: "text-slate-600",
+    color: "text-foreground-tertiary",
     bg: "bg-slate-50"
 };
 
@@ -64,7 +64,7 @@ export const CATEGORY_VISUALS: Record<string, CategoryVisual> = {
     consoles: { icon: Gamepad2, color: "text-emerald-600", bg: "bg-emerald-50" },
     gamepad: { icon: Gamepad2, color: "text-emerald-600", bg: "bg-emerald-50" },
 
-    jobs: { icon: Store, color: "text-slate-600", bg: "bg-slate-50" },
+    jobs: { icon: Store, color: "text-foreground-tertiary", bg: "bg-slate-50" },
     services: { icon: Wrench, color: "text-orange-600", bg: "bg-orange-50" },
 
     pets: { icon: PawPrint, color: "text-rose-600", bg: "bg-rose-50" },
@@ -79,7 +79,7 @@ export const CATEGORY_VISUALS: Record<string, CategoryVisual> = {
     watch: { icon: Watch, color: "text-teal-600", bg: "bg-teal-50" },
     smartwatch: { icon: Watch, color: "text-teal-600", bg: "bg-teal-50" },
 
-    components: { icon: HardDrive, color: "text-slate-600", bg: "bg-slate-50" },
+    components: { icon: HardDrive, color: "text-foreground-tertiary", bg: "bg-slate-50" },
     cameras: { icon: Camera, color: "text-yellow-600", bg: "bg-yellow-50" },
 
     "spare-parts": { icon: Wrench, color: "text-orange-600", bg: "bg-orange-50" },

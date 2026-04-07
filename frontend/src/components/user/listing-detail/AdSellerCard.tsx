@@ -62,7 +62,7 @@ export function AdSellerCard({
         }
         return (
             <div className={`h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center flex-shrink-0 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
-                <span className="font-bold text-slate-600 text-base">
+                <span className="font-bold text-foreground-tertiary text-base">
                     {ad.sellerName?.charAt(0) || sellerDisplayName.charAt(0) || 'E'}
                 </span>
             </div>
@@ -78,14 +78,14 @@ export function AdSellerCard({
                     avatar={renderAvatar()}
                     name={sellerDisplayName}
                     subtitle={
-                        <p className="text-xs text-slate-400 font-medium">
+                        <p className="text-xs text-foreground-subtle font-medium">
                             {ad.isBusiness ? "Verified Business Account" : "Registered Member"}
                         </p>
                     }
                     badge={ad.isBusiness && ad.verified ? (
                         <Badge className="bg-blue-600 text-white text-2xs h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
                     ) : undefined}
-                    trailing={isInteractive ? <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" /> : undefined}
+                    trailing={isInteractive ? <ChevronRight className="h-4 w-4 text-foreground-subtle group-hover:translate-x-1 transition-transform" /> : undefined}
                 />
 
                 {showDesktopActions && (
@@ -96,7 +96,7 @@ export function AdSellerCard({
                                     onClick={onRevealPhone}
                                     variant="outline"
                                     disabled={isPhoneLoading}
-                                    className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-slate-700 hover:bg-slate-50"
+                                    className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50"
                                 >
                                     <Phone className="h-4 w-4" />
                                     <span className="min-w-0 truncate">{phoneButtonLabel}</span>
@@ -123,11 +123,11 @@ export function AdSellerCard({
                 {isChatLocked && (
                     <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">
                         <div className="h-9 w-9 rounded-xl bg-slate-200 flex items-center justify-center flex-shrink-0">
-                            <MessageSquareOff className="h-4 w-4 text-slate-400" />
+                            <MessageSquareOff className="h-4 w-4 text-foreground-subtle" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-slate-600">Chat Locked</p>
-                            <p className="text-2xs text-slate-400 mt-0.5">This listing is no longer accepting new messages.</p>
+                            <p className="text-xs font-bold text-foreground-tertiary">Chat Locked</p>
+                            <p className="text-2xs text-foreground-subtle mt-0.5">This listing is no longer accepting new messages.</p>
                         </div>
                     </div>
                 )}

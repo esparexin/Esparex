@@ -66,7 +66,7 @@ const upload = createUploadMiddleware({
     errorLabel: 'image type'
 });
 
-router.get('/me', protect, userController.getMe);
+router.get('/me', protect, searchLimiter, userController.getMe);
 router.get('/:id/profile', validateObjectId, searchLimiter, userController.getUserProfileById);
 router.post('/:id/block', protect, validateObjectId, mutationLimiter, userController.blockUser);
 router.delete('/:id/block', protect, validateObjectId, mutationLimiter, userController.unblockUser);

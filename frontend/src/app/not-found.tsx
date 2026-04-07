@@ -55,7 +55,7 @@ export default function NotFound() {
                         </Link>
                         <Link
                             href="/search"
-                            className="group flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 px-8 py-4 rounded-2xl transition-all border-2 border-slate-200 shadow-sm active:scale-95 font-bold"
+                            className="group flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-foreground-secondary px-8 py-4 rounded-2xl transition-all border-2 border-slate-200 shadow-sm active:scale-95 font-bold"
                         >
                             <Search size={20} className="text-green-600" />
                             <span>Search Marketplace</span>
@@ -73,7 +73,7 @@ export default function NotFound() {
                             <Link
                                 key={link.label}
                                 href={link.href}
-                                className="text-slate-400 hover:text-green-600 text-sm font-semibold transition-colors"
+                                className="text-foreground-subtle hover:text-green-600 text-sm font-semibold transition-colors"
                             >
                                 {link.label}
                             </Link>
@@ -82,10 +82,10 @@ export default function NotFound() {
                 </div>
 
                 {/* Footer Note */}
-                <div className="mt-8 text-center text-slate-400">
+                <div className="mt-8 text-center text-foreground-subtle">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 hover:text-slate-600 transition-colors text-sm font-medium"
+                        className="inline-flex items-center gap-2 hover:text-foreground-tertiary transition-colors text-sm font-medium"
                     >
                         <ArrowLeft size={16} />
                         <span>Return to Main View</span>

@@ -55,7 +55,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                 onClick={onShare}
                                 aria-label="Share this ad"
                             >
-                                <Share2 className="h-4 w-4 text-slate-600" />
+                                <Share2 className="h-4 w-4 text-foreground-tertiary" />
                             </Button>
                             <Button
                                 size="icon"
@@ -65,7 +65,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                 aria-label="Add to favorites"
                             >
                                 <Heart
-                                    className={`h-4 w-4 ${isFavorited ? "fill-red-500 text-red-500" : "text-slate-600"}`}
+                                    className={`h-4 w-4 ${isFavorited ? "fill-red-500 text-red-500" : "text-foreground-tertiary"}`}
                                 />
                             </Button>
                         </div>
@@ -88,7 +88,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                 onClick={prevImage}
                                 aria-label="Previous image"
                             >
-                                <ChevronLeft className="h-5 w-5 md:h-6 md:w-6 text-slate-600" />
+                                <ChevronLeft className="h-5 w-5 md:h-6 md:w-6 text-foreground-tertiary" />
                             </Button>
                             <Button
                                 size="icon"
@@ -97,7 +97,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                 onClick={nextImage}
                                 aria-label="Next image"
                             >
-                                <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-slate-600" />
+                                <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-foreground-tertiary" />
                             </Button>
                         </>
                     )}

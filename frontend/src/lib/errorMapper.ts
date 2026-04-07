@@ -72,6 +72,12 @@ export function mapErrorToMessage(error: unknown, fallback?: string): string {
         return fallback || 'An unexpected error occurred';
     }
 
+    // If the error already carries a user-friendly message (e.g. EsparexError), return it directly.
+    if (typeof error === 'object' && error !== null && typeof (error as { userMessage?: unknown }).userMessage === 'string') {
+        const msg = ((error as { userMessage: string }).userMessage).trim();
+        if (msg.length > 0) return msg;
+    }
+
     // Handle ApiError with code
     if (typeof error === 'object' && error !== null) {
         const apiError = error as ApiError;

@@ -76,6 +76,9 @@ router.get("/:id/phone", validateObjectId, searchLimiter, listingController.getL
 // Repost expired/rejected ad (no Layer 2 equivalent — keep here)
 router.post("/:id/repost", validateObjectId, protect, mutationLimiter, idempotencyMiddleware, adController.repostAd);
 
+// Update ad
+router.patch("/:id", validateObjectId, protect, mutationLimiter, validateRequest(AdPayloadSchema as unknown as ZodTypeAny), adController.updateAd);
+
 // Delete ad
 router.delete("/:id", validateObjectId, protect, idempotencyMiddleware, adController.deleteAd);
 

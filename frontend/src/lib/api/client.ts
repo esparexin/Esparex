@@ -92,7 +92,7 @@ class APIClient {
     private healthCheckTimestamp = 0;
     private csrfToken: string | null = null;
     private csrfTokenPromise: Promise<string | null> | null = null;
-    private readonly HEALTH_CACHE_MS = 30_000;
+    private readonly HEALTH_CACHE_MS = 10_000;
 
     constructor() {
         validateApiEnv();
@@ -226,6 +226,8 @@ class APIClient {
                     const headers = new AxiosHeaders(config.headers);
                     headers.set('x-csrf-token', csrfToken);
                     config.headers = headers;
+                } else {
+                    logger.warn('[API Client] CSRF token unavailable for state-changing request. If this results in a 403, refresh the page. Endpoint:', config.url);
                 }
             }
 
@@ -297,6 +299,17 @@ class APIClient {
                 return response;
             },
             async (rawError: unknown) => {
+                // Decrypt encrypted error responses before processing
+                const rawErrorObj = rawError as { response?: { headers?: Record<string, string>; data?: unknown } };
+                if (rawErrorObj?.response?.headers?.['x-encrypted'] === 'true' && rawErrorObj.response.data) {
+                    try {
+                        const decrypted = decryptData((rawErrorObj.response.data as { payload?: string })?.payload ?? rawErrorObj.response.data as string);
+                        if (decrypted) rawErrorObj.response.data = decrypted;
+                    } catch {
+                        // Decryption failed — use original data
+                    }
+                }
+
                 let normalized = normalizeError(rawError);
 
                 const getResponseMessage = (current: typeof normalized) => {

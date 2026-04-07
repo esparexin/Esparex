@@ -31,8 +31,8 @@ export function ListingImagesField({
         <Field label="Photos (up to 10)" error={error}>
             <div className="space-y-3">
                 <label className="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/50 transition-colors hover:bg-slate-50">
-                    <Upload className="w-6 h-6 text-slate-400 mb-1" />
-                    <span className="text-sm font-medium text-slate-600">Tap to add photos</span>
+                    <Upload className="w-6 h-6 text-foreground-subtle mb-1" />
+                    <span className="text-sm font-medium text-foreground-tertiary">Tap to add photos</span>
                     <input
                         type="file"
                         accept="image/*"
@@ -103,8 +103,8 @@ export function ListingLocationField({
         <Field label="Listing Location" error={error}>
             <div className="space-y-2">
                 {display ? (
-                    <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
-                        <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                    <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-foreground-secondary">
+                        <MapPin className="w-4 h-4 text-foreground-subtle shrink-0" />
                         <span className="truncate">{display}</span>
                         <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold uppercase text-muted-foreground">
                             {fixedLabel}
@@ -113,8 +113,8 @@ export function ListingLocationField({
                 ) : (
                     placeholder
                         ? (
-                            <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
-                                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                            <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-foreground-secondary">
+                                <MapPin className="w-4 h-4 text-foreground-subtle shrink-0" />
                                 <span className="truncate">{placeholder}</span>
                                 <span className="ml-auto shrink-0 rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold uppercase text-muted-foreground">
                                     {fixedLabel}
@@ -134,14 +134,15 @@ export function ListingLocationField({
 interface ListingTitleFieldProps {
     label: string;
     error?: string;
+    required?: boolean;
     registerProps: UseFormRegisterReturn;
     placeholder: string;
     valueLength: number;
     maxLength?: number;
 }
-export function ListingTitleField({ label, error, registerProps, placeholder, valueLength, maxLength = 60 }: ListingTitleFieldProps) {
+export function ListingTitleField({ label, error, required = true, registerProps, placeholder, valueLength, maxLength = 60 }: ListingTitleFieldProps) {
     return (
-        <Field label={label} error={error}>
+        <Field label={label} error={error} required={required}>
             <div className="relative">
                 <Input
                     {...registerProps}
@@ -151,7 +152,7 @@ export function ListingTitleField({ label, error, registerProps, placeholder, va
                 />
                 <span className={cn(
                     "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium tabular-nums",
-                    valueLength > (maxLength - 5) ? "text-red-400" : "text-slate-400"
+                    valueLength > (maxLength - 5) ? "text-red-400" : "text-foreground-subtle"
                 )}>
                     {valueLength}/{maxLength}
                 </span>
@@ -163,13 +164,14 @@ export function ListingTitleField({ label, error, registerProps, placeholder, va
 interface ListingPriceFieldProps {
     label?: string;
     error?: string;
+    required?: boolean;
     registerProps: UseFormRegisterReturn;
     placeholder?: string;
     showCurrencySymbol?: boolean;
 }
-export function ListingPriceField({ label = "Price (₹)", error, registerProps, placeholder = "0", showCurrencySymbol = false }: ListingPriceFieldProps) {
+export function ListingPriceField({ label = "Price (₹)", error, required = true, registerProps, placeholder = "0", showCurrencySymbol = false }: ListingPriceFieldProps) {
     return (
-        <Field label={label} error={error}>
+        <Field label={label} error={error} required={required}>
             <div className="relative">
                 {showCurrencySymbol && (
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm pointer-events-none">₹</span>
@@ -192,14 +194,15 @@ export function ListingPriceField({ label = "Price (₹)", error, registerProps,
 interface ListingDescriptionFieldProps {
     label?: string;
     error?: string;
+    required?: boolean;
     registerProps: UseFormRegisterReturn;
     placeholder?: string;
     valueLength: number;
     maxLength?: number;
 }
-export function ListingDescriptionField({ label = "Description", error, registerProps, placeholder, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
+export function ListingDescriptionField({ label = "Description", error, required = true, registerProps, placeholder, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
     return (
-        <Field label={label} error={error}>
+        <Field label={label} error={error} required={required}>
             <div className="relative">
                 <Textarea
                     {...registerProps}
@@ -209,7 +212,7 @@ export function ListingDescriptionField({ label = "Description", error, register
                 />
                 <span className={cn(
                     "pointer-events-none absolute right-3 bottom-2 text-xs font-medium tabular-nums",
-                    valueLength > (maxLength - 100) ? "text-red-400" : "text-slate-400"
+                    valueLength > (maxLength - 100) ? "text-red-400" : "text-foreground-subtle"
                 )}>
                     {valueLength}/{maxLength}
                 </span>
@@ -254,11 +257,11 @@ export function CategorySelectorGrid({
                             "flex flex-col items-center gap-1 rounded-xl border px-1 py-3 text-center transition-all",
                             selected
                                 ? "bg-primary border-primary text-white"
-                                : "bg-white border-slate-200 text-slate-600 hover:border-slate-300",
+                                : "bg-white border-slate-200 text-foreground-tertiary hover:border-slate-300",
                             disabled && !selected ? "opacity-40" : ""
                         )}
                     >
-                        <Icon className={cn("w-5 h-5", selected ? "text-white" : "text-slate-400")} />
+                        <Icon className={cn("w-5 h-5", selected ? "text-white" : "text-foreground-subtle")} />
                         <span className="w-full truncate px-1 text-xs font-semibold leading-tight">
                             {cat.name}
                         </span>

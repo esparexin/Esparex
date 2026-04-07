@@ -64,7 +64,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                             className="h-20 w-20 md:h-24 md:w-24 rounded-xl object-cover"
                                         />
                                     ) : (
-                                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-2xl md:text-3xl font-bold">
+                                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl bg-slate-100 text-foreground-secondary flex items-center justify-center text-2xl md:text-3xl font-bold">
                                             {initials}
                                         </div>
                                     )}
@@ -82,7 +82,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                             </Badge>
                                         )}
                                     </div>
-                                    <p className="text-xs md:text-sm font-medium text-slate-400">
+                                    <p className="text-xs md:text-sm font-medium text-foreground-subtle">
                                         Active since {joinDate} {locationLabel && <span className="mx-1 opacity-50">·</span>} {locationLabel}
                                     </p>
                                 </div>
@@ -90,19 +90,19 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                 {/* Stats Grid */}
                                 <div className="grid grid-cols-2 gap-2 bg-slate-50 border border-slate-100 rounded-2xl p-3 text-left mx-auto md:mx-0 w-full max-w-sm md:max-w-xl">
                                     <div className="space-y-0.5">
-                                        <p className="text-2xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider flex items-center gap-1">
                                             <Megaphone className="w-3 h-3" /> Live Listings
                                         </p>
                                         <p className="text-xl font-bold text-foreground">{listingSummary.totalActive}</p>
                                     </div>
                                     <div className="space-y-0.5 border-l border-slate-200 pl-3">
-                                        <p className="text-2xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider flex items-center gap-1">
                                             <LayoutGrid className="w-3 h-3" /> Showing Here
                                         </p>
                                         <p className="text-xl font-bold text-foreground">{listingSummary.visibleCount}</p>
                                     </div>
                                 </div>
-                                <p className="text-xs text-slate-400">
+                                <p className="text-xs text-foreground-subtle">
                                     {listingSummary.hasMore
                                         ? `Showing the latest ${listingSummary.visibleCount} public listings from this seller.`
                                         : "All active listings from this seller are shown below."}
@@ -123,9 +123,9 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
 
                     {profile.ads.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-3 py-14 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-white">
-                            <LayoutGrid className="h-8 w-8 text-slate-300" />
-                            <p className="font-semibold text-slate-400 text-sm">No active listings</p>
-                            <p className="text-xs text-slate-400 max-w-xs">
+                            <LayoutGrid className="h-8 w-8 text-foreground-subtle" />
+                            <p className="font-semibold text-foreground-subtle text-sm">No active listings</p>
+                            <p className="text-xs text-foreground-subtle max-w-xs">
                                 {sellerName} does not have any active listings right now.
                             </p>
                         </div>

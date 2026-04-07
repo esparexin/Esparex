@@ -148,7 +148,7 @@ export function BusinessProfileWizard({
                             variant="ghost"
                             size="sm"
                             onClick={onHeaderBack}
-                            className="h-11 rounded-full px-3 text-slate-600 hover:bg-slate-100"
+                            className="h-11 rounded-full px-3 text-foreground-tertiary hover:bg-slate-100"
                         >
                             <ArrowLeft className="mr-1.5 h-4 w-4" />
                             {wizardVariant === "registration" ? "Exit setup" : "Close"}
@@ -178,7 +178,7 @@ export function BusinessProfileWizard({
                         <h2 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
                             {activeStep.title}
                         </h2>
-                        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                        <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground-tertiary">
                             {activeStep.description}
                         </p>
                     </div>

@@ -50,7 +50,9 @@ export function normalizeError(raw: unknown): NormalizedApiError {
                 status,
                 data: error.response.data
             },
-            category: status >= 500 ? ErrorCategory.SYSTEM : ErrorCategory.NETWORK,
+            // 5xx errors with a response came from the backend — not a true SYSTEM (no-response) failure.
+            // SYSTEM is reserved for errors with no HTTP response at all.
+            category: ErrorCategory.NETWORK,
             isExpected: status < 500 || status === 429,
             message: error.message || 'Request failed',
             retryAfter

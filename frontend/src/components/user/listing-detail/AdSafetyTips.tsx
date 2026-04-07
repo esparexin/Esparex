@@ -9,7 +9,7 @@ export function AdSafetyTips() {
                     <div className="h-8 w-8 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
                         <ShieldAlert className="h-4 w-4 text-amber-600" />
                     </div>
-                    <h3 className="font-bold text-sm text-slate-800">Buying Safely</h3>
+                    <h3 className="font-bold text-sm text-foreground-secondary">Buying Safely</h3>
                 </div>
 
                 <div className="space-y-3">
@@ -18,7 +18,7 @@ export function AdSafetyTips() {
                             <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-slate-700">Inspect Personally</p>
+                            <p className="text-xs font-bold text-foreground-secondary">Inspect Personally</p>
                             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">Meet in a public place to check the item status.</p>
                         </div>
                     </div>
@@ -28,7 +28,7 @@ export function AdSafetyTips() {
                             <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-slate-700">Avoid Advance Payments</p>
+                            <p className="text-xs font-bold text-foreground-secondary">Avoid Advance Payments</p>
                             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">Never pay before receiving and verifying the item.</p>
                         </div>
                     </div>
@@ -38,7 +38,7 @@ export function AdSafetyTips() {
                             <Info className="h-3.5 w-3.5 text-link" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-slate-700">Fraud Protection</p>
+                            <p className="text-xs font-bold text-foreground-secondary">Fraud Protection</p>
                             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">Report suspicious activity to our support team.</p>
                         </div>
                     </div>

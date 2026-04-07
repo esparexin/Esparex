@@ -131,7 +131,7 @@ export function ListingDetailDialogs({
 
           <div className="rounded-2xl border bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last activity</p>
-            <p className="mt-2 text-sm text-slate-700">
+            <p className="mt-2 text-sm text-foreground-secondary">
               {isAnalyticsLoading
                 ? "Loading latest activity..."
                 : analyticsSummary?.lastViewedAt

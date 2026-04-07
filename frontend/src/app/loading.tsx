@@ -12,7 +12,7 @@ export default function Loading() {
                 <h2 className="text-xl font-semibold text-foreground mb-2">
                     Loading...
                 </h2>
-                <p className="text-slate-600">
+                <p className="text-foreground-tertiary">
                     Please wait while we load your content
                 </p>
 

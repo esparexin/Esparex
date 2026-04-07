@@ -53,7 +53,7 @@ export function StepReview({
                 content={
                     <>
                         <p className="text-sm font-semibold text-foreground">{formData.businessName}</p>
-                        <p className="text-sm leading-6 text-slate-600">{formData.businessDescription}</p>
+                        <p className="text-sm leading-6 text-foreground-tertiary">{formData.businessDescription}</p>
                         <p className="text-sm text-muted-foreground">{formData.email}</p>
                     </>
                 }
@@ -67,7 +67,7 @@ export function StepReview({
                         <p className="text-sm font-semibold text-foreground">
                             {formData.currentLocationDisplay || "Current location pending"}
                         </p>
-                        <p className="text-sm leading-6 text-slate-600">{formData.fullAddress}</p>
+                        <p className="text-sm leading-6 text-foreground-tertiary">{formData.fullAddress}</p>
                         <p className="text-sm text-muted-foreground">
                             Current location is recorded first, then the full address is sent for admin review.
                         </p>
@@ -87,10 +87,10 @@ export function StepReview({
                             <p className="text-sm font-semibold text-foreground">
                                 {formData.idProofType ? `${idProofTypeLabel} selected as owner ID` : idProofTypeLabel}
                             </p>
-                            <p className="text-sm text-slate-600">
+                            <p className="text-sm text-foreground-tertiary">
                                 {formData.idProof ? "Owner ID proof attached" : "Owner ID proof missing"}
                             </p>
-                            <p className="text-sm text-slate-600">
+                            <p className="text-sm text-foreground-tertiary">
                                 {formData.businessProof ? "Business proof attached" : "Business proof missing"}
                             </p>
                             <p className="text-sm text-muted-foreground">

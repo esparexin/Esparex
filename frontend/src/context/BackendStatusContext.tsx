@@ -18,6 +18,8 @@ const BackendStatusContext = createContext<BackendStatus>({
     checked: false,
 });
 
+const HEALTH_CHECK_INTERVAL_MS = 2 * 60 * 1000; // re-check every 2 minutes
+
 export function BackendStatusProvider({
     children,
 }: {
@@ -30,12 +32,17 @@ export function BackendStatusProvider({
         const apiBase = resolveBrowserApiBaseUrl((
             process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`
         )).replace(/\/$/, "");
-        fetch(`${apiBase}/${API_ROUTES.USER.HEALTH}`, {
-            method: "GET",
-        })
-            .then(() => setIsBackendUp(true))
-            .catch(() => setIsBackendUp(false))
-            .finally(() => setChecked(true));
+
+        const check = () => {
+            fetch(`${apiBase}/${API_ROUTES.USER.HEALTH}`, { method: "GET" })
+                .then(() => setIsBackendUp(true))
+                .catch(() => setIsBackendUp(false))
+                .finally(() => setChecked(true));
+        };
+
+        check();
+        const interval = setInterval(check, HEALTH_CHECK_INTERVAL_MS);
+        return () => clearInterval(interval);
     }, []);
 
     const value = useMemo(

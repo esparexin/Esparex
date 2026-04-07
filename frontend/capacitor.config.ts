@@ -27,6 +27,11 @@ const config: CapacitorConfig = {
     CapacitorCookies: {
       enabled: true,
     },
+    Keyboard: {
+      resize: "body",
+      style: "default",
+      resizeOnFullScreen: true,
+    },
   },
 };
 

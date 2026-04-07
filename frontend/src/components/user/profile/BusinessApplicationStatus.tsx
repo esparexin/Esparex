@@ -262,7 +262,7 @@ export function BusinessApplicationStatus({
                             <Button
                                 onClick={navigateToBusinessTab}
                                 variant="outline"
-                                className="w-full text-slate-700 border-gray-300 hover:bg-gray-100"
+                                className="w-full text-foreground-secondary border-gray-300 hover:bg-gray-100"
                             >
                                 Manage Profile
                             </Button>
@@ -277,7 +277,7 @@ export function BusinessApplicationStatus({
                     </>
                 }
             >
-                <div className="bg-gray-100 border border-gray-200 rounded-lg p-3 text-sm text-slate-700 mb-4">
+                <div className="bg-gray-100 border border-gray-200 rounded-lg p-3 text-sm text-foreground-secondary mb-4">
                     <p className="font-medium mb-1">Action Required:</p>
                     <p className="text-xs">Your business registration has reached its expiry date. Your profile and services are currently offline. You must renew or re-verify your registration to continue operations.</p>
                 </div>

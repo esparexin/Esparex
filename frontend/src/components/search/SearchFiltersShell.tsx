@@ -38,7 +38,7 @@ function SearchFiltersDesktopShell({
         >
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-base font-bold text-foreground">Filters</h3>
-                <SlidersHorizontal className="size-4 text-slate-400" />
+                <SlidersHorizontal className="size-4 text-foreground-subtle" />
             </div>
             {children}
         </aside>
@@ -102,7 +102,7 @@ export function SearchFiltersShell({
                         open={mobileDrawerOpen}
                         onOpenChange={setMobileDrawerOpen}
                         trigger={
-                            <Button variant="outline" className="h-11 px-4 gap-2 text-slate-700 border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none">
+                            <Button variant="outline" className="h-11 px-4 gap-2 text-foreground-secondary border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none">
                                 <SlidersHorizontal className="size-4 text-muted-foreground" />
                                 <span>Filters</span>
                                 {activeFilterCount > 0 && (

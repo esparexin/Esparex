@@ -15,6 +15,7 @@ import {
     Tag,
     type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { READ_NOTIFICATION_RETENTION_HOURS } from "@shared/constants/notificationRetention";
@@ -53,8 +54,8 @@ const NOTIFICATION_META: Record<NotificationTypeValue, NotificationMeta> = {
     SYSTEM: {
         label: "System",
         icon: Megaphone,
-        iconTone: "text-slate-700",
-        badgeTone: "border-slate-200 bg-slate-100 text-slate-700",
+        iconTone: "text-foreground-secondary",
+        badgeTone: "border-slate-200 bg-slate-100 text-foreground-secondary",
     },
     CHAT: {
         label: "Message",
@@ -169,14 +170,14 @@ function NotificationDropdownRow({
                         ) : null}
                     </div>
 
-                    <p className={cn("mt-2 line-clamp-1 text-sm", notification.isRead ? "font-medium text-slate-800" : "font-semibold text-foreground")}>
+                    <p className={cn("mt-2 line-clamp-1 text-sm", notification.isRead ? "font-medium text-foreground-secondary" : "font-semibold text-foreground")}>
                         {notification.title}
                     </p>
-                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">{notification.message}</p>
+                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-foreground-tertiary">{notification.message}</p>
 
                     <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
                         <span>{relativeTime}</span>
-                        <span className="inline-flex items-center gap-1 font-medium text-slate-700">
+                        <span className="inline-flex items-center gap-1 font-medium text-foreground-secondary">
                             {notification.actionUrl ? "Open" : notification.isRead ? "Read" : "Mark read"}
                             <ChevronRight className="h-3 w-3" />
                         </span>
@@ -333,7 +334,7 @@ export function NotificationBellDropdown({
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="shrink-0 h-11 rounded-full px-3 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                                className="shrink-0 h-11 rounded-full px-3 text-xs font-medium text-foreground-tertiary hover:bg-slate-100"
                                 onClick={() => markAllReadMutation.mutate()}
                                 disabled={markAllReadMutation.isPending}
                             >
@@ -347,7 +348,7 @@ export function NotificationBellDropdown({
                     {notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-5 py-10 text-center">
                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
-                                <Inbox className="h-5 w-5 text-slate-400" />
+                                <Inbox className="h-5 w-5 text-foreground-subtle" />
                             </div>
                             <div className="space-y-1">
                                 <p className="text-sm font-semibold text-foreground">No new notifications</p>
@@ -361,7 +362,7 @@ export function NotificationBellDropdown({
                             {unreadItems.length > 0 ? (
                                 <section className="space-y-2">
                                     <div className="flex items-center justify-between px-1">
-                                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground-subtle">
                                             Unread now
                                         </p>
                                         <p className="text-xs text-muted-foreground">{unreadCount} unread</p>
@@ -384,7 +385,7 @@ export function NotificationBellDropdown({
                                     {unreadItems.length > 0 ? <DropdownMenuSeparator className="mx-1" /> : null}
                                     <section className="space-y-2">
                                         <div className="px-1">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground-subtle">
                                                 Read recently
                                             </p>
                                         </div>
@@ -403,6 +404,17 @@ export function NotificationBellDropdown({
                             ) : null}
                         </div>
                     )}
+                </div>
+
+                <div className="border-t border-slate-100 px-3 py-3">
+                    <Link
+                        href="/notifications"
+                        className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold text-foreground-tertiary transition hover:bg-slate-50 hover:text-foreground-secondary"
+                        onClick={() => setOpen(false)}
+                    >
+                        View all notifications
+                        <ChevronRight className="h-3.5 w-3.5" />
+                    </Link>
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>

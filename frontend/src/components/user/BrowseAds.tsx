@@ -496,7 +496,7 @@ export function BrowseAds({
             {isEmptyState && (
               <div className="flex min-h-[340px] flex-col items-center justify-center rounded-[28px] border border-slate-200 bg-white px-6 py-12 text-center shadow-sm sm:min-h-[400px] sm:px-10 sm:py-14">
                 <div className="mb-4 rounded-full bg-slate-100 p-6">
-                  <PackageOpen className="h-10 w-10 text-slate-300" />
+                  <PackageOpen className="h-10 w-10 text-foreground-subtle" />
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-foreground">
                   {emptyStateTitle}
@@ -509,14 +509,14 @@ export function BrowseAds({
                     {activeFilterBadges.map((badge) => (
                       <span
                         key={badge}
-                        className="max-w-full rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600"
+                        className="max-w-full rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-foreground-tertiary"
                       >
                         {badge}
                       </span>
                     ))}
                   </div>
                 )}
-                <p className="mb-6 max-w-sm text-xs font-medium uppercase tracking-widest text-slate-400">
+                <p className="mb-6 max-w-sm text-xs font-medium uppercase tracking-widest text-foreground-subtle">
                   Sorted by {PUBLIC_BROWSE_SORT_LABELS[sort]}
                 </p>
                 <p className="text-muted-foreground max-w-xs mb-6">
@@ -543,7 +543,7 @@ export function BrowseAds({
                   )}
                 </div>
                 {query && (
-                  <p className="mt-4 text-xs text-slate-400 max-w-xs">
+                  <p className="mt-4 text-xs text-foreground-subtle max-w-xs">
                     Set a Smart Alert and we&apos;ll notify you when a matching listing is posted.
                   </p>
                 )}
@@ -606,7 +606,7 @@ export function BrowseAds({
             {/* ── Inline load-more skeleton (pagination) ───────────────── */}
             {isFetching && displayAds.length > 0 && (
               <div className="flex justify-center py-6">
-                <RefreshCw className="h-5 w-5 animate-spin text-slate-400" />
+                <RefreshCw className="h-5 w-5 animate-spin text-foreground-subtle" />
               </div>
             )}
           </div>

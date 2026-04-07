@@ -39,7 +39,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                                 VERIFIED
                             </Badge>
                         </div>
-                        <p className="text-xs text-slate-400 font-medium">{businessType}</p>
+                        <p className="text-xs text-foreground-subtle font-medium">{businessType}</p>
                     </div>
                 </div>
 
@@ -57,8 +57,8 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                                     <Icon className="h-3.5 w-3.5 text-link" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-2xs uppercase font-bold text-slate-300 tracking-wider">{detail.label}</p>
-                                    <p className="font-bold text-slate-700 truncate">{detail.value}</p>
+                                    <p className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">{detail.label}</p>
+                                    <p className="font-bold text-foreground-secondary truncate">{detail.value}</p>
                                 </div>
                             </div>
                         );
@@ -85,11 +85,11 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                 <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
                         <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-2xs font-bold text-slate-400 uppercase tracking-widest">Active Partner</span>
+                        <span className="text-2xs font-bold text-foreground-subtle uppercase tracking-widest">Active Partner</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <span className="text-2xs font-black text-slate-700">100%</span>
-                        <span className="text-2xs font-bold text-slate-400 uppercase tracking-widest">Verified</span>
+                        <span className="text-2xs font-black text-foreground-secondary">100%</span>
+                        <span className="text-2xs font-bold text-foreground-subtle uppercase tracking-widest">Verified</span>
                     </div>
                 </div>
             </CardContent>

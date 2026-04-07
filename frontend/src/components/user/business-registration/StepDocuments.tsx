@@ -39,7 +39,7 @@ export function StepDocuments({
 
     return (
         <div className="space-y-5">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-foreground-secondary">
                 {isRegistration
                     ? "Upload the owner ID and one business proof document the review team needs for approval."
                     : "Replace these files only if details changed or the review team asked for fresh documents."}

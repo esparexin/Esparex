@@ -28,7 +28,7 @@ export const BaseSparePartPayloadSchema = z.object({
 
     description: validatedTextSchema({
         fieldName: 'Description',
-        minLength: 10,
+        minLength: 20,
         maxLength: 2000,
         strictMode: false,
         checkBannedWords: true,
@@ -36,7 +36,7 @@ export const BaseSparePartPayloadSchema = z.object({
         checkQuality: true,
     }),
 
-    price: z.number().min(0, 'Price must be at least 0'),
+    price: z.number().min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore'),
     images: z.array(z.string()).min(1, 'At least one image is required').max(10, 'Maximum 10 images allowed'),
 });
 

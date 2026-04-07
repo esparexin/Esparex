@@ -5,20 +5,21 @@ import { cookies } from 'next/headers';
 import '../styles/globals.css';
 import { RootClientShell } from '@/components/providers/RootClientShell';
 
+// Preload only the normal weight — italic is rarely needed on first paint
 const inter = localFont({
-    src: [
-        {
-            path: '../../public/fonts/Inter-VariableFont_opsz,wght.ttf',
-            style: 'normal',
-        },
-        {
-            path: '../../public/fonts/Inter-Italic-VariableFont_opsz,wght.ttf',
-            style: 'italic',
-        },
-    ],
+    src: '../../public/fonts/Inter-VariableFont_opsz,wght.ttf',
     variable: '--font-inter',
     display: 'swap',
     preload: true,
+    style: 'normal',
+});
+
+const interItalic = localFont({
+    src: '../../public/fonts/Inter-Italic-VariableFont_opsz,wght.ttf',
+    variable: '--font-inter-italic',
+    display: 'swap',
+    preload: false,
+    style: 'italic',
 });
 
 export const metadata: Metadata = {
@@ -55,7 +56,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
     return (
         <html lang="en">
-            <body className={`${inter.variable} ${inter.className}`}>
+            <body className={`${inter.variable} ${interItalic.variable} ${inter.className}`}>
                 <RootClientShell initialHasAuthCookie={initialHasAuthCookie}>{children}</RootClientShell>
             </body>
         </html>

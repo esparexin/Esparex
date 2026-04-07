@@ -70,7 +70,7 @@ export function MobileNavDrawer({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-base text-white truncate">{user?.name}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">View profile</p>
+                  <p className="text-xs text-foreground-subtle mt-0.5">View profile</p>
                 </div>
               </div>
             ) : (
@@ -78,7 +78,7 @@ export function MobileNavDrawer({
                 <div>
                   <Image src="/icons/logo.png" alt="Esparex" width={512} height={206} style={{ height: '36px', width: 'auto' }} className="mb-3" />
                   <h2 className="text-lg font-bold text-white">Welcome to Esparex</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Buy & sell mobile spares</p>
+                  <p className="text-xs text-foreground-subtle mt-0.5">Buy & sell mobile spares</p>
                 </div>
                 {!isAuthLoading ? (
                   <Button
@@ -89,7 +89,7 @@ export function MobileNavDrawer({
                     <LogIn className="h-4 w-4" /> Login / Sign Up
                   </Button>
                 ) : (
-                  <p className="text-sm text-slate-400">Checking session...</p>
+                  <p className="text-sm text-foreground-subtle">Checking session...</p>
                 )}
               </div>
             )}
@@ -97,7 +97,7 @@ export function MobileNavDrawer({
 
           {/* Nav Items */}
           <div className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-            <p className="px-3 text-2xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+            <p className="px-3 text-2xs font-bold text-foreground-subtle uppercase tracking-widest mb-2">
               {isLoggedIn ? "Account" : "Navigation"}
             </p>
             {visibleDrawerItems.map((item) => {
@@ -106,10 +106,10 @@ export function MobileNavDrawer({
                 <Button
                   key={item.id}
                   variant="ghost"
-                  className="w-full justify-start gap-3 h-11 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-foreground rounded-xl"
+                  className="w-full justify-start gap-3 h-11 text-sm font-medium text-foreground-secondary hover:bg-slate-50 hover:text-foreground rounded-xl"
                   onClick={() => handleNavigationItemClick(item)}
                 >
-                  <Icon className="h-4.5 w-4.5 text-slate-400 flex-shrink-0" /> {item.label}
+                  <Icon className="h-4.5 w-4.5 text-foreground-subtle flex-shrink-0" /> {item.label}
                 </Button>
               );
             })}

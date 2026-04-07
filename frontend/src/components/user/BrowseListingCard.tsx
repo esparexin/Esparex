@@ -47,7 +47,7 @@ export const BrowseListingCard = memo(function BrowseListingCard({
     />
   ) : (
     <div className="w-full h-full flex items-center justify-center">
-      <FallbackIcon className="h-10 w-10 text-slate-200" />
+      <FallbackIcon className="h-10 w-10 text-foreground-subtle" />
     </div>
   );
 

@@ -614,7 +614,7 @@ export function ListingDetail({
               <BackButton
                 onClick={navigateBack}
                 variant="outline"
-                className="rounded-full border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                className="rounded-full border-slate-200 bg-white text-foreground-secondary hover:bg-slate-50"
               />
             </div>
           ) : null}

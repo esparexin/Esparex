@@ -24,7 +24,7 @@ export function PlanFeatureList({
           <CheckCircle2
             className={cn("mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-link", iconClassName)}
           />
-          <span className={cn("text-slate-600", textClassName)}>{feature}</span>
+          <span className={cn("text-foreground-tertiary", textClassName)}>{feature}</span>
         </li>
       ))}
     </ul>

@@ -18,3 +18,21 @@ services:
         sync: false # Set this in the Render Dashboard for security
       - key: CORS_ORIGIN
         sync: false # Set this in the Render Dashboard: https://esparex.in
+
+  # --- Keep-alive cron (prevents free-tier cold starts) ---
+  - type: cron
+    name: esparex-keepalive
+    env: node
+    plan: free
+    schedule: "*/10 * * * *"
+    buildCommand: "echo 'no build needed'"
+    startCommand: >
+      node -e "
+        const https = require('https');
+        https.get('https://api.esparex.in/health', (res) => {
+          console.log('ping status:', res.statusCode);
+        }).on('error', (e) => {
+          console.error('ping failed:', e.message);
+          process.exit(1);
+        });
+      "
