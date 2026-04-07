@@ -140,8 +140,9 @@ export function ListingDetail({
     soldAt?: string;
   } | null>(null);
 
+  const OBJECTID_RE = /^[0-9a-f]{24}$/i;
   const categoryLabel = ad
-    ? (typeof ad.category === "string" ? ad.category : typeof ad.categoryId === "string" ? ad.categoryId : "Category")
+    ? (typeof ad.category === "string" && !OBJECTID_RE.test(ad.category) ? ad.category : "Category")
     : "Category";
   const hasCanonicalCategoryId = typeof ad?.categoryId === "string" && ad.categoryId.trim().length > 0;
   const hasFallbackCategoryLabel = typeof ad?.category === "string" && ad.category.trim().length > 0 && ad.category !== "Category";

@@ -465,10 +465,8 @@ export function LocationProvider({
             setDetectError(null);
             autoDetectedRef.current = false;
 
-            // IP pre-detection is intentionally bypassed.
-            // Show the first-visit prompt immediately on first boot so users 
-            // can manually select or explicitly approve GPS.
-            setShouldShowPromptAfterDelay(true);
+            // India is the default — no auto-prompt. Users can tap the location
+            // button in the header at any time to set GPS or manual location.
         };
 
         void initLocation();

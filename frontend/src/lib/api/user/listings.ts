@@ -198,7 +198,8 @@ function toListingSchemaCompatible(data: unknown): unknown {
 
         if (labelKey && record[labelKey] === undefined) {
             const normalizedLabel = toLegacyStringField(reference);
-            if (normalizedLabel) {
+            // Never use a raw 24-char ObjectId hex as a human-readable label
+            if (normalizedLabel && !/^[0-9a-f]{24}$/i.test(normalizedLabel)) {
                 record[labelKey] = normalizedLabel;
             }
         }
@@ -209,17 +210,18 @@ function toListingSchemaCompatible(data: unknown): unknown {
     normalizeReferenceField("modelId", "model");
     normalizeReferenceField("businessId", null);
 
+    const OBJECTID_RE = /^[0-9a-f]{24}$/i;
     if (record.category !== undefined) {
         const norm = toLegacyStringField(record.category);
-        norm ? record.category = norm : delete record.category;
+        (norm && !OBJECTID_RE.test(norm)) ? record.category = norm : delete record.category;
     }
     if (record.brand !== undefined) {
         const norm = toLegacyStringField(record.brand);
-        norm ? record.brand = norm : delete record.brand;
+        (norm && !OBJECTID_RE.test(norm)) ? record.brand = norm : delete record.brand;
     }
     if (record.model !== undefined) {
         const norm = toLegacyStringField(record.model);
-        norm ? record.model = norm : delete record.model;
+        (norm && !OBJECTID_RE.test(norm)) ? record.model = norm : delete record.model;
     }
     return record;
 }

@@ -100,9 +100,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                         <MapPin className="h-3.5 w-3.5 text-blue-500 mr-1.5 flex-shrink-0" />
                         <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-600">
                             <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
-                                {isMounted && location.source !== 'default'
-                                    ? resolvedHeaderLocation
-                                    : "Select Location"}
+                                {isMounted ? (resolvedHeaderLocation || "India") : "India"}
                             </span>
                         </span>
                         <ChevronDown className="h-3.5 w-3.5 text-slate-400 ml-1.5 flex-shrink-0" />
