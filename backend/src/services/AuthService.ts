@@ -102,9 +102,19 @@ const getUserAuthFailure = (
     }
 
     // Banned / suspended / deleted accounts → 403 (not an auth failure, an account restriction)
-    if (user.status === 'banned' || user.status === 'suspended' || user.status === 'deleted') {
-        return createFailure(403, 'Your account has been disabled. Please contact support.', {
-            code: 'ACCOUNT_DISABLED'
+    if (user.status === 'banned') {
+        return createFailure(403, 'Your account has been permanently banned. Contact support if you think this is a mistake.', {
+            code: 'USER_BANNED'
+        });
+    }
+    if (user.status === 'suspended') {
+        return createFailure(403, 'Your account has been temporarily suspended. Please contact support for more information.', {
+            code: 'USER_SUSPENDED'
+        });
+    }
+    if (user.status === 'deleted') {
+        return createFailure(403, 'This account no longer exists. Please register with a new number.', {
+            code: 'USER_DELETED'
         });
     }
 
