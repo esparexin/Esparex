@@ -29,10 +29,6 @@ const ListingRelatedBusinessesSection = dynamic(
   () => import("./listing-detail/ListingRelatedBusinessesSection").then((mod) => mod.ListingRelatedBusinessesSection),
   { ssr: false }
 );
-const SimilarListingsSection = dynamic(
-  () => import("./listing-detail/SimilarListingsSection").then((mod) => mod.SimilarListingsSection),
-  { ssr: false }
-);
 import {
   deleteListing,
   getListingAnalytics,
@@ -680,9 +676,6 @@ export function ListingDetail({
                     onReport={handleReport}
                   />
                 </div>
-
-                {/* Similar Listings in Same Category */}
-                <SimilarListingsSection ad={ad} />
 
                 {/* Near Service Centers Section - Real Businesses */}
                 <ListingRelatedBusinessesSection
