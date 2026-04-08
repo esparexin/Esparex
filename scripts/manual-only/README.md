@@ -7,3 +7,6 @@ Execution policy:
 
 Example:
 `ALLOW_MANUAL_SCRIPT=true node scripts/manual-only/test_payment_flow.js`
+
+Production smoke check:
+`ALLOW_MANUAL_SCRIPT=true bash scripts/manual-only/prod-smoke-check.sh`
