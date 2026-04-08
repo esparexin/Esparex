@@ -58,6 +58,7 @@ export function SearchFiltersShell({
     setCategoryFilters,
     radiusKm = 50,
     setRadiusKm,
+    showRadiusFilter = true,
     dynamicSpecificFilters = [],
     onApply,
     onReset,
@@ -78,6 +79,7 @@ export function SearchFiltersShell({
         setCategoryFilters,
         radiusKm,
         setRadiusKm,
+        showRadiusFilter,
         dynamicSpecificFilters
     };
 

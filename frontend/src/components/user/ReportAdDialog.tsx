@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { REPORT_REASON, type ReportReasonValue } from "@shared/enums/reportReason";
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "@/lib/api/routes";
+import { buildAdReportPayload } from "@/lib/listings/adReportPayload";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -27,23 +29,14 @@ interface ReportAdDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type ReportReasonValue =
-  | "SPAM"
-  | "SCAM"
-  | "PROHIBITED_ITEM"
-  | "OFFENSIVE_CONTENT"
-  | "MISLEADING_INFO"
-  | "SOLD_ELSEWHERE"
-  | "OTHER";
-
 const reportReasonOptions: Array<{ label: string; value: ReportReasonValue }> = [
-  { label: "Fraudulent or Scam", value: "SCAM" },
-  { label: "Inappropriate Content", value: "OFFENSIVE_CONTENT" },
-  { label: "Spam", value: "SPAM" },
-  { label: "Prohibited Item", value: "PROHIBITED_ITEM" },
-  { label: "Misleading Information", value: "MISLEADING_INFO" },
-  { label: "Sold Item Still Listed", value: "SOLD_ELSEWHERE" },
-  { label: "Other", value: "OTHER" },
+  { label: "Fraudulent or Scam", value: REPORT_REASON.SCAM },
+  { label: "Inappropriate Content", value: REPORT_REASON.OFFENSIVE_CONTENT },
+  { label: "Spam", value: REPORT_REASON.SPAM },
+  { label: "Prohibited Item", value: REPORT_REASON.PROHIBITED_ITEM },
+  { label: "Misleading Information", value: REPORT_REASON.MISLEADING_INFO },
+  { label: "Sold Item Still Listed", value: REPORT_REASON.SOLD_ELSEWHERE },
+  { label: "Other", value: REPORT_REASON.OTHER },
 ];
 
 export function ReportAdDialog({
@@ -81,6 +74,7 @@ export function ReportAdDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setGlobalError(null);
+    setReasonError(null);
     setAdditionalInfoError(null);
 
     if (!user) {
@@ -103,8 +97,13 @@ export function ReportAdDialog({
       setReasonError("Please select a reason for reporting");
       return;
     }
-    const normalizedAdId = String(adId ?? "").trim();
-    if (!/^[a-f\d]{24}$/i.test(normalizedAdId)) {
+    const reportPayload = buildAdReportPayload({
+      adId,
+      adTitle,
+      reason: selectedReason,
+      additionalInfo,
+    });
+    if (!reportPayload) {
       setGlobalError("Invalid ad identifier. Please refresh the page and try again.");
       return;
     }
@@ -117,15 +116,7 @@ export function ReportAdDialog({
     setIsSubmitting(true);
 
     try {
-      await apiClient.post(API_ROUTES.USER.REPORTS, {
-        adId: normalizedAdId,
-        adTitle,
-        reason: selectedReason,
-        // `additionalDetails` is canonical in backend validator; keep `description`
-        // for compatibility with existing controller fallback logic.
-        additionalDetails: additionalInfo.trim(),
-        description: additionalInfo.trim()
-      }, {
+      await apiClient.post(API_ROUTES.USER.REPORTS, reportPayload, {
         silent: true
       });
 

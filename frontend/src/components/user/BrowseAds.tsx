@@ -20,6 +20,9 @@ import {
   getSearchLocationLabel,
   sanitizeLocationLabel,
 } from "@/lib/location/locationLabels";
+import {
+  shouldUseGeoRadiusLocation,
+} from "@/lib/location/queryMode";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import { buildPublicBrowseRoute, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
@@ -144,6 +147,11 @@ export function BrowseAds({
   const urlLocationLabel = sanitizeLocationLabel(routeParams.location) ?? "";
   const urlModelId = routeParams.modelId ?? "";
   const globalLocationLabel = useMemo(() => getSearchLocationLabel(location), [location]);
+  const shouldUseContextGeoRadius = useMemo(
+    () => !urlLocationId && !urlLocationLabel && shouldUseGeoRadiusLocation(location),
+    [location, urlLocationId, urlLocationLabel]
+  );
+  const showRadiusFilter = Boolean(urlLocationId || urlLocationLabel) ? false : shouldUseContextGeoRadius;
 
   const filters: ListingFilters = useMemo(() => {
     const nextFilters: ListingFilters = {
@@ -175,12 +183,9 @@ export function BrowseAds({
 
     if (urlLocationId) {
       nextFilters.locationId = urlLocationId;
-      nextFilters.radiusKm = radiusKm;
     } else if (urlLocationLabel) {
       nextFilters.location = urlLocationLabel;
-      nextFilters.radiusKm = radiusKm;
     } else if (location) {
-      const isRegionLevel = location.level === "state" || location.level === "country";
       const regionLocationLabel = getSearchLocationLabel(location);
 
       if (location.locationId) {
@@ -191,19 +196,17 @@ export function BrowseAds({
       }
       const lat = getLatitude(location);
       const lng = getLongitude(location);
-      if (!isRegionLevel && lat != null && lng != null) {
+      if (shouldUseContextGeoRadius && lat != null && lng != null) {
         nextFilters.lat = lat;
         nextFilters.lng = lng;
         nextFilters.radiusKm = radiusKm;
-      } else if (regionLocationLabel) {
-        nextFilters.location = regionLocationLabel;
       } else if (regionLocationLabel) {
         nextFilters.location = regionLocationLabel;
       }
     }
 
     return nextFilters;
-  }, [categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, sort, urlLocationId, urlLocationLabel, urlModelId]);
+  }, [categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, shouldUseContextGeoRadius, sort, urlLocationId, urlLocationLabel, urlModelId]);
 
   const hasLocationFilter =
     Boolean(urlLocationId || urlLocationLabel || location.locationId || globalLocationLabel) ||
@@ -277,17 +280,19 @@ export function BrowseAds({
 
     if (priceSummary) badges.push(priceSummary);
     if (activeLocationLabel) badges.push(`Location: ${activeLocationLabel}`);
-    if (hasActiveLocation && radiusKm !== 50) badges.push(`Within ${radiusKm} km`);
+    if (showRadiusFilter && hasActiveLocation && radiusKm !== 50) badges.push(`Within ${radiusKm} km`);
     if (sort !== "newest") badges.push(`Sort: ${PUBLIC_BROWSE_SORT_LABELS[sort]}`);
 
     return badges;
-  }, [activeLocationLabel, globalLocationLabel, location.locationId, priceRange, query, radiusKm, resolvedCategoryLabel, selectedBrands, sort, urlLocationId, urlLocationLabel]);
+  }, [activeLocationLabel, globalLocationLabel, location.locationId, priceRange, query, radiusKm, resolvedCategoryLabel, selectedBrands, showRadiusFilter, sort, urlLocationId, urlLocationLabel]);
 
   const activeFilterCount = activeFilterBadges.length;
   const isEmptyState = !isLoading && !error && displayAds.length === 0;
   const emptyStateTitle = activeFilterCount > 0 ? "No listings match these filters" : "No listings available right now";
   const emptyStateDescription = activeFilterCount > 0
-    ? "Try widening the price, radius, or category filters below. You can also clear everything and start again."
+    ? showRadiusFilter
+      ? "Try widening the price, radius, or category filters below. You can also clear everything and start again."
+      : "Try widening the price or category filters below. You can also clear everything and start again."
     : "There are no live ads in this view yet. Check back soon or widen your location once sellers publish new listings.";
   const desktopShellClassName = isEmptyState ? EMPTY_FILTER_SHELL_CLASS_NAME : undefined;
 
@@ -362,9 +367,9 @@ export function BrowseAds({
         modelId: urlModelId || undefined,
         locationId: urlLocationId || undefined,
         location: urlLocationId ? undefined : urlLocationLabel || undefined,
-        radiusKm: urlLocationId || urlLocationLabel ? radiusKm : undefined,
+        radiusKm: showRadiusFilter ? radiusKm : undefined,
       }),
-    [priceRange, query, radiusKm, selectedBrands, selectedCategory, sort, urlLocationId, urlLocationLabel, urlModelId]
+    [priceRange, query, radiusKm, selectedBrands, selectedCategory, showRadiusFilter, sort, urlLocationId, urlLocationLabel, urlModelId]
   );
 
   const currentBrowseRoute = useMemo(
@@ -442,6 +447,7 @@ export function BrowseAds({
     setCategoryFilters,
     radiusKm,
     setRadiusKm,
+    showRadiusFilter,
     onReset: handleReset,
     activeFilterCount,
     desktopShellClassName,

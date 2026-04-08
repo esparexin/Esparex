@@ -41,6 +41,7 @@ export interface SearchFiltersPanelSharedProps {
   setCategoryFilters: (val: Record<string, string[]>) => void;
   radiusKm: number;
   setRadiusKm: (val: number) => void;
+  showRadiusFilter?: boolean;
   dynamicSpecificFilters?: SpecificFilter[];
   onApply?: () => void;
   onReset: () => void;
@@ -84,6 +85,7 @@ export function SearchFiltersPanel({
   setCategoryFilters,
   radiusKm = 50,
   setRadiusKm,
+  showRadiusFilter = true,
   dynamicSpecificFilters = [],
   onApply,
   onReset,
@@ -188,31 +190,33 @@ export function SearchFiltersPanel({
           </AccordionItem>
         )}
 
-        <AccordionItem value="radius" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
-            <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-cyan-600" />
-              <span className="font-semibold text-sm">Search Radius</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="px-1 pt-2 pb-6">
-            <Slider
-              value={[radiusKm]}
-              onValueChange={(val) => setRadiusKm(val[0] ?? 50)}
-              min={5}
-              max={500}
-              step={5}
-              className="mb-6"
-            />
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-muted-foreground">5 km</span>
-              <div className="bg-cyan-50 text-cyan-700 px-3 py-1.5 rounded-lg border border-cyan-100 font-medium">
-                {radiusKm} km
+        {showRadiusFilter && (
+          <AccordionItem value="radius" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
+              <div className="flex items-center gap-2">
+                <MapPin className="size-4 text-cyan-600" />
+                <span className="font-semibold text-sm">Search Radius</span>
               </div>
-              <span className="text-muted-foreground">500 km</span>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+            </AccordionTrigger>
+            <AccordionContent className="px-1 pt-2 pb-6">
+              <Slider
+                value={[radiusKm]}
+                onValueChange={(val) => setRadiusKm(val[0] ?? 50)}
+                min={5}
+                max={500}
+                step={5}
+                className="mb-6"
+              />
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-muted-foreground">5 km</span>
+                <div className="bg-cyan-50 text-cyan-700 px-3 py-1.5 rounded-lg border border-cyan-100 font-medium">
+                  {radiusKm} km
+                </div>
+                <span className="text-muted-foreground">500 km</span>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
 
         {renderSpecificFilters()}
       </Accordion>

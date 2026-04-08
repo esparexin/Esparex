@@ -10,6 +10,7 @@ import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { Button } from "@/components/ui/button";
 import { getListingHref } from "@/lib/listingUtils";
 import { getSearchLocationLabel } from "@/lib/location/locationLabels";
+import { shouldUseGeoRadiusLocation } from "@/lib/location/queryMode";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 
@@ -38,15 +39,16 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
                 location.locationId ?? "",
                 locationSearchLabel ?? "",
                 location.level ?? "",
+                location.source ?? "",
                 typeof latitude === "number" ? latitude.toFixed(3) : "",
                 typeof longitude === "number" ? longitude.toFixed(3) : "",
             ].join("|"),
-        [latitude, location.level, location.locationId, locationSearchLabel, longitude]
+        [latitude, location.level, location.locationId, locationSearchLabel, location.source, longitude]
     );
     const previousContextKeyRef = useRef(locationContextKey);
 
     const isDefaultLocation = location.source === "default";
-    const isRegionLevel = location.level === "state" || location.level === "country";
+    const shouldUseGeoSearch = !isDefaultLocation && shouldUseGeoRadiusLocation(location);
     const locationLabel = isDefaultLocation ? undefined : locationSearchLabel;
 
     const requestParams = useMemo(() => ({
@@ -55,10 +57,10 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
         location: locationLabel,
         locationId: isDefaultLocation ? undefined : location.locationId,
         level: isDefaultLocation ? undefined : location.level,
-        lat: !isDefaultLocation && !isRegionLevel && typeof latitude === "number" ? latitude : undefined,
-        lng: !isDefaultLocation && !isRegionLevel && typeof longitude === "number" ? longitude : undefined,
-        radiusKm: !isDefaultLocation && !isRegionLevel ? 50 : undefined,
-    }), [cursor, isDefaultLocation, isRegionLevel, latitude, location.level, location.locationId, locationLabel, longitude]);
+        lat: shouldUseGeoSearch && typeof latitude === "number" ? latitude : undefined,
+        lng: shouldUseGeoSearch && typeof longitude === "number" ? longitude : undefined,
+        radiusKm: shouldUseGeoSearch ? 50 : undefined,
+    }), [cursor, isDefaultLocation, latitude, location.level, location.locationId, locationLabel, longitude, shouldUseGeoSearch]);
 
     const shouldUseInitialData =
         !cursor &&

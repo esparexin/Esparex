@@ -271,7 +271,7 @@ export default function LocationSelectorCore({
                 )
             ) : (
                 <div className="p-8 text-center text-muted-foreground text-sm">
-                    Start typing to search for a state, district, city, area, or village.
+                    Start typing to search for a country, state, district, city, area, or village.
                 </div>
             )}
         </div>
@@ -297,7 +297,7 @@ export default function LocationSelectorCore({
 
                         <div className="relative">
                             <Search className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
-                            <Input placeholder="Search state, district, city, area or village..." className="pl-10 h-12 rounded-xl text-base" value={query} onChange={(e) => setQuery(e.target.value)} autoFocus disabled={disabled} />
+                            <Input placeholder="Search country, state, district, city, area or village..." className="pl-10 h-12 rounded-xl text-base" value={query} onChange={(e) => setQuery(e.target.value)} autoFocus disabled={disabled} />
                             {searchApi.isSearching && <div className="absolute right-3 top-3.5 h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />}
                             {query && !searchApi.isSearching && <button onClick={() => setQuery("")} className="absolute right-3 top-3.5" type="button"><X className="h-5 w-5" /></button>}
                         </div>
