@@ -74,7 +74,6 @@ export function ReportAdDialog({
           ? `${window.location.pathname}${window.location.search}${window.location.hash}`
           : "/";
 
-      notify.info("Please login to report this listing");
       onOpenChange(false);
       void router.push(buildLoginUrl(returnTo));
       return;

@@ -486,7 +486,6 @@ export function ListingDetail({
 
     if (!user) {
       if (!isAuthResolved) return;
-      notify.info("Please login to chat with the seller");
       void router.push(buildLoginUrl(returnTo));
       return;
     }
@@ -520,7 +519,6 @@ export function ListingDetail({
       // Auth still hydrating — don't navigate yet; resolved state will update
       if (!isAuthResolved) return;
       const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      notify.info("Please login to save favorites");
       void router.push(buildLoginUrl(returnTo));
       return;
     }
@@ -591,7 +589,6 @@ export function ListingDetail({
       if (!isAuthResolved) return;
 
       const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      notify.info("Please login to report this listing");
       void router.push(buildLoginUrl(returnTo));
       return;
     }
