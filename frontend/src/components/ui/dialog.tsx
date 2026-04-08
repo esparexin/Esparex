@@ -66,27 +66,40 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof RadixDialog.Content> & {
     /** When true, hides the default close (×) button in the top-right corner. */
     hideClose?: boolean;
+    /** When true, uses a mobile keyboard-safe top anchored layout. */
+    mobileSafe?: boolean;
   }
->(({ className, children, hideClose = false, ...props }, ref) => (
+>(({ className, children, hideClose = false, mobileSafe = false, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <RadixDialog.Content
       ref={ref}
       className={cn(
-        // Positioning — centred, fills up to 90vh
-        "fixed left-[50%] top-[50%] z-50",
-        "translate-x-[-50%] translate-y-[-50%]",
-        "w-full max-w-lg mx-4",
+        mobileSafe
+          ? [
+              // Mobile: anchor near the top so keyboard resize does not shift the whole dialog upward.
+              "fixed left-[50%] top-4 z-50 w-[calc(100vw-2rem)] max-w-lg outline-none",
+              "-translate-x-1/2",
+              "sm:top-[50%] sm:-translate-y-1/2",
+            ]
+          : [
+              // Positioning — centred, fills up to 90vh
+              "fixed left-[50%] top-[50%] z-50",
+              "translate-x-[-50%] translate-y-[-50%]",
+              "w-full max-w-lg mx-4",
+            ],
         // Appearance — matches the previous custom dialog exactly
-        "bg-white rounded-lg shadow-lg p-6",
-        "max-h-[90vh] overflow-y-auto",
+        mobileSafe
+          ? "flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-lg sm:max-h-[90vh]"
+          : "bg-white rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto",
         // Entry / exit animations via tailwindcss-animate
         "duration-200",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
-        "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+        mobileSafe
+          ? "sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%]"
+          : "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
         className
       )}
       {...props}

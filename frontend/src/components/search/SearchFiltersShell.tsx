@@ -117,10 +117,7 @@ export function SearchFiltersShell({
                             {mobileDrawerOpen && (
                                 <SearchFiltersPanel
                                     {...panelProps}
-                                    onApply={() => {
-                                        haptics.tap();
-                                        onApply?.();
-                                    }}
+                                    onApply={undefined}
                                     onReset={() => {
                                         haptics.impact();
                                         onReset();

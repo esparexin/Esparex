@@ -35,30 +35,34 @@ export function ReportChatDialog({
   return (
     <div className="chat-modal-overlay" role="dialog" aria-modal aria-label="Report conversation">
       <div className="chat-modal">
-        <h2 className="chat-modal__title">⚑ Report this conversation</h2>
-        <label className="chat-modal__label">
-          Reason
-          <select
-            className="chat-modal__select"
-            value={reportReason}
-            onChange={(e) => onReasonChange(e.target.value as ChatReportReasonValue)}
-          >
-            {reasons.map((r) => (
-              <option key={r.value} value={r.value}>{r.label}</option>
-            ))}
-          </select>
-        </label>
-        <label className="chat-modal__label">
-          Additional details (optional)
-          <textarea
-            className="chat-modal__textarea"
-            value={reportDesc}
-            onChange={(e) => onDescriptionChange(e.target.value.slice(0, 500))}
-            placeholder="Describe the issue…"
-            rows={3}
-            maxLength={500}
-          />
-        </label>
+        <div className="chat-modal__header">
+          <h2 className="chat-modal__title">⚑ Report this conversation</h2>
+        </div>
+        <div className="chat-modal__content chat-modal__content--stack">
+          <label className="chat-modal__label">
+            Reason
+            <select
+              className="chat-modal__select"
+              value={reportReason}
+              onChange={(e) => onReasonChange(e.target.value as ChatReportReasonValue)}
+            >
+              {reasons.map((r) => (
+                <option key={r.value} value={r.value}>{r.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className="chat-modal__label">
+            Additional details (optional)
+            <textarea
+              className="chat-modal__textarea"
+              value={reportDesc}
+              onChange={(e) => onDescriptionChange(e.target.value.slice(0, 500))}
+              placeholder="Describe the issue…"
+              rows={3}
+              maxLength={500}
+            />
+          </label>
+        </div>
         <div className="chat-modal__actions">
           <button className="chat-modal__cancel" onClick={onCancel} disabled={isSubmitting}>
             Cancel

@@ -28,6 +28,7 @@ export function Drawer({
             fixed right-0 top-0 z-50 h-full
             w-[90vw] max-w-sm
             bg-background p-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right
+            flex flex-col
           "
         >
           <div className="flex items-center justify-between mb-4">
@@ -46,7 +47,7 @@ export function Drawer({
             </Sheet.Close>
           </div>
 
-          <div className="h-full overflow-y-auto pb-8">
+          <div className="min-h-0 flex-1 overflow-y-auto pb-[max(2rem,env(safe-area-inset-bottom))]">
             {children}
           </div>
         </Sheet.Content>
