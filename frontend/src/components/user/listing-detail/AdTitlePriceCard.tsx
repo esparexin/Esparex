@@ -64,9 +64,15 @@ export function AdTitlePriceCard({
 
                     <h1 className="text-lg font-bold text-foreground leading-snug">{ad.title}</h1>
 
-                    <div className="text-3xl font-black text-foreground tracking-tight">
-                        {formatPrice(ad.price)}
-                    </div>
+                    {ad.price === 0 ? (
+                        <div className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1.5 w-fit">
+                            <span className="text-xs font-bold uppercase tracking-wide">Free</span>
+                        </div>
+                    ) : (
+                        <div className="text-3xl font-black text-foreground tracking-tight">
+                            {formatPrice(ad.price)}
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-2 text-xs text-foreground-subtle border-t border-slate-100 pt-3">
                         <div className="flex items-center gap-1.5">
@@ -139,9 +145,15 @@ export function AdTitlePriceCard({
                 </h1>
 
                 <div className="flex items-baseline gap-1 mb-6">
-                    <span className="text-3xl font-black text-foreground tracking-tight">
-                        {formatPrice(ad.price)}
-                    </span>
+                    {ad.price === 0 ? (
+                        <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1.5 text-sm font-bold uppercase tracking-wide">
+                            Free
+                        </span>
+                    ) : (
+                        <span className="text-3xl font-black text-foreground tracking-tight">
+                            {formatPrice(ad.price)}
+                        </span>
+                    )}
                 </div>
 
                 {/* Meta Info Grid */}

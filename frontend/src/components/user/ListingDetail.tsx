@@ -9,7 +9,6 @@ import { Breadcrumbs } from "./Breadcrumbs";
 import { ListingDetailShell } from "./listing-detail/AdDetailShell";
 import { formatPrice } from "@/lib/formatters";
 import dynamic from "next/dynamic";
-import { BackButton } from "@/components/common/BackButton";
 
 const ListingBottomActions = dynamic(
   () => import("./listing-detail/ListingBottomActions").then((mod) => mod.ListingBottomActions),
@@ -75,7 +74,6 @@ interface ListingDetailProps {
   initialAd?: Ad | null;
   navigateTo: (page: UserPage, adId?: string | number, category?: string, sellerIdOrBusinessId?: string, serviceId?: string, sellerId?: string, sellerType?: "business" | "individual") => void;
   navigateBack?: () => void;
-  showBackButton?: boolean;
   user?: User | null;
   navigationContext?: {
     returnPage?: string;
@@ -90,7 +88,6 @@ export function ListingDetail({
   initialAd,
   navigateTo,
   navigateBack,
-  showBackButton = true,
   user: userProp,
 }: ListingDetailProps) {
   const queryClient = useQueryClient();
@@ -613,15 +610,6 @@ export function ListingDetail({
     >
       {ad && (
         <>
-          {showBackButton && navigateBack ? (
-            <div className="mx-auto max-w-7xl px-4 pt-4 md:px-6 lg:px-8">
-              <BackButton
-                onClick={navigateBack}
-                variant="outline"
-                className="rounded-full border-slate-200 bg-white text-foreground-secondary hover:bg-slate-50"
-              />
-            </div>
-          ) : null}
 
           {/* Breadcrumbs with Location */}
           <Breadcrumbs
