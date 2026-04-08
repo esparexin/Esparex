@@ -279,29 +279,31 @@ export default function LocationSelectorCore({
 
     if (isPanel) {
         return (
-            <div className={cn("flex flex-col h-full bg-background", className)}>
-                <div className="p-4 space-y-4 flex-1 overflow-y-auto" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
-                    <Button variant="outline" className="w-full flex items-center justify-between gap-3 h-12 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 rounded-xl px-4" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect()}>
-                        <div className="flex items-center gap-3">
-                            <Target className={`h-5 w-5 ${searchApi.isDetecting ? "animate-spin" : ""}`} />
-                            <span className="font-medium text-base">{searchApi.isDetecting ? "Detecting location..." : "Use Current Location"}</span>
-                        </div>
-                        <span className="text-xs opacity-70">Enable GPS</span>
-                    </Button>
-                    {searchApi.detectFeedback && (
-                        <div className="space-y-2 px-1">
-                            <p className="text-xs text-destructive">{searchApi.detectFeedback}</p>
-                        </div>
-                    )}
+            <div className={cn("flex h-full min-h-0 flex-col bg-background", className)}>
+                <div className="flex min-h-0 flex-1 flex-col p-4" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
+                    <div className="shrink-0 space-y-4 pb-4">
+                        <Button variant="outline" className="w-full flex items-center justify-between gap-3 h-12 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 rounded-xl px-4" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect()}>
+                            <div className="flex items-center gap-3">
+                                <Target className={`h-5 w-5 ${searchApi.isDetecting ? "animate-spin" : ""}`} />
+                                <span className="font-medium text-base">{searchApi.isDetecting ? "Detecting location..." : "Use Current Location"}</span>
+                            </div>
+                            <span className="text-xs opacity-70">Enable GPS</span>
+                        </Button>
+                        {searchApi.detectFeedback && (
+                            <div className="space-y-2 px-1">
+                                <p className="text-xs text-destructive">{searchApi.detectFeedback}</p>
+                            </div>
+                        )}
 
-                    <div className="relative">
-                        <Search className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
-                        <Input placeholder="Search state, district, city, area or village..." className="pl-10 h-12 rounded-xl text-base" value={query} onChange={(e) => setQuery(e.target.value)} autoFocus disabled={disabled} />
-                        {searchApi.isSearching && <div className="absolute right-3 top-3.5 h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />}
-                        {query && !searchApi.isSearching && <button onClick={() => setQuery("")} className="absolute right-3 top-3.5" type="button"><X className="h-5 w-5" /></button>}
+                        <div className="relative">
+                            <Search className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
+                            <Input placeholder="Search state, district, city, area or village..." className="pl-10 h-12 rounded-xl text-base" value={query} onChange={(e) => setQuery(e.target.value)} autoFocus disabled={disabled} />
+                            {searchApi.isSearching && <div className="absolute right-3 top-3.5 h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />}
+                            {query && !searchApi.isSearching && <button onClick={() => setQuery("")} className="absolute right-3 top-3.5" type="button"><X className="h-5 w-5" /></button>}
+                        </div>
                     </div>
 
-                    <div className="max-h-[60vh] overflow-y-auto pr-1">
+                    <div className="min-h-0 flex-1 overflow-y-auto pr-1">
                         {renderResultsBody()}
                     </div>
                 </div>

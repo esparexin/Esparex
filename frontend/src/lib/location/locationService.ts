@@ -3,6 +3,7 @@ import { DEFAULT_APP_LOCATION } from "@/types/location";
 import {
     reverseGeocode as reverseGeocodeApi,
 } from "@/lib/api/user/locations";
+import { detectLocationByIP } from "@/lib/api/ipGeolocation";
 import {
     createPoint,
     toCanonicalGeoPoint,
@@ -183,7 +184,7 @@ export type LocationDetectFailure = {
 
 export type LocationDetectResult = {
     location: AppLocation | null;
-    source: "auto" | "none";
+    source: "auto" | "ip" | "none";
     failure?: LocationDetectFailure;
 };
 
@@ -244,6 +245,30 @@ const buildFailureResult = (
     failure,
 });
 
+const detectApproximateLocationByIP = async (): Promise<LocationDetectResult | null> => {
+    const detected = await detectLocationByIP();
+    if (!detected?.city || !detected.coordinates) {
+        return null;
+    }
+
+    const formattedAddress = [detected.city, detected.state, detected.country]
+        .filter((value) => typeof value === "string" && value.trim().length > 0)
+        .join(", ");
+
+    return {
+        location: buildAppLocation({
+            formattedAddress: formattedAddress || "Approximate current location",
+            city: detected.city,
+            state: detected.state,
+            country: detected.country,
+            coordinates: detected.coordinates,
+            source: "ip",
+            name: detected.city,
+        }),
+        source: "ip",
+    };
+};
+
 const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
     if (typeof window === "undefined") {
         return buildFailureResult({
@@ -253,6 +278,11 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
     }
 
     if (!isSecureLocationContext()) {
+        const approximate = await detectApproximateLocationByIP();
+        if (approximate) {
+            return approximate;
+        }
+
         return buildFailureResult({
             reason: "insecure_context",
             message:
@@ -261,6 +291,11 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
     }
 
     if (!navigator.geolocation) {
+        const approximate = await detectApproximateLocationByIP();
+        if (approximate) {
+            return approximate;
+        }
+
         return buildFailureResult({
             reason: "unsupported",
             message: "Geolocation is not supported by this browser.",
@@ -324,7 +359,15 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
             source: "auto",
         };
     } catch (error) {
-        return buildFailureResult(mapGeolocationError(error));
+        const failure = mapGeolocationError(error);
+        if (failure.reason !== "permission_denied") {
+            const approximate = await detectApproximateLocationByIP();
+            if (approximate) {
+                return approximate;
+            }
+        }
+
+        return buildFailureResult(failure);
     }
 };
 

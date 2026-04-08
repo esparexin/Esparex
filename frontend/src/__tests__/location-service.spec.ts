@@ -12,6 +12,10 @@ vi.mock("@/lib/api/user/locations", () => ({
     reverseGeocode: vi.fn(),
 }));
 
+vi.mock("@/lib/api/ipGeolocation", () => ({
+    detectLocationByIP: vi.fn(),
+}));
+
 type PermissionStateLike = PermissionState | "unknown";
 
 const stubBrowser = (params?: {
@@ -57,6 +61,37 @@ describe("getCurrentLocationResult", () => {
         expect(result.location).toBeNull();
         expect(result.source).toBe("none");
         expect(result.failure?.reason).toBe("permission_denied");
+    });
+
+    it("falls back to IP detection when precise geolocation is unavailable", async () => {
+        const geolocation = stubBrowser({
+            geolocation: {
+                getCurrentPosition: vi.fn((_: unknown, reject: (error: { code: number }) => void) => {
+                    reject({ code: 2 });
+                }),
+            },
+        });
+        const { detectLocationByIP } = await import("@/lib/api/ipGeolocation");
+
+        vi.mocked(detectLocationByIP).mockResolvedValue({
+            city: "Hyderabad",
+            state: "Telangana",
+            country: "India",
+            coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
+        });
+
+        const result = await getCurrentLocationResult({ mode: "precise" });
+
+        expect(geolocation.getCurrentPosition).toHaveBeenCalled();
+        expect(detectLocationByIP).toHaveBeenCalledTimes(1);
+        expect(result.source).toBe("ip");
+        expect(result.location).toMatchObject({
+            city: "Hyderabad",
+            state: "Telangana",
+            country: "India",
+            source: "ip",
+            coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
+        });
     });
 
     it("flags stale generic detected labels for self-healing", () => {
