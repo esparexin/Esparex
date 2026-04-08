@@ -39,7 +39,14 @@ const INDEX_SPECS = [
   {
     collection: 'conversations',
     key: { adId: 1, buyerId: 1 },
-    options: { name: 'idx_conversation_ad_buyer_unique_idx', unique: true },
+    options: {
+      name: 'idx_conversation_ad_buyer_unique_idx',
+      unique: true,
+      partialFilterExpression: {
+        adId: { $type: 'objectId' },
+        buyerId: { $type: 'objectId' },
+      },
+    },
   },
   {
     collection: 'conversations',
