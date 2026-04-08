@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-push] Running type-checks..."
+npm run type-check
+
+echo "[pre-push] Running duplication guard..."
+npm run guard:duplication
+

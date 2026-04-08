@@ -10,6 +10,8 @@
     "shared/observability"
   ],
   "scripts": {
+    "prepare": "bash scripts/install-git-hooks.sh",
+    "hooks:install": "bash scripts/install-git-hooks.sh",
     "build": "npm run build -w backend && npm run build -w frontend && npm run build -w admin-frontend",
     "type-check": "npm run type-check -w backend && npm run type-check -w frontend && npm run type-check -w admin-frontend",
     "lint:no-api-string-literals": "node scripts/enforce-no-api-string-literals.js",

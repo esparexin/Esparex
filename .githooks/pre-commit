@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-commit] Running lint on changed files..."
+npm run lint
+

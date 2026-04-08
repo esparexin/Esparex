@@ -313,7 +313,6 @@ export function BrowseAds({
   // ── Trigger fetch when filters change (reset to page 1) ─────────────────────
   useEffect(() => {
     setPage(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, selectedCategory, selectedBrands, priceRange, sort, radiusKm]);
 
   // ── Sync URL params → state ─────────────────────────────────────────────────

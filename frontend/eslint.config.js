@@ -24,8 +24,9 @@ const config = [
             // LOCATION LOOP GOVERNANCE: object references from useLocation()/useLocationState()
             // must NEVER appear directly in useEffect dep arrays — only scalar primitives.
             // Use useLocationPrimitives() or destructure scalars from the location object.
+            "react-hooks/rules-of-hooks": "error",
             "react-hooks/exhaustive-deps": [
-                "warn",
+                "error",
                 {
                     // Treat useLocation/useLocationState return values as requiring
                     // primitive extraction before use in dependency arrays.
@@ -37,8 +38,6 @@ const config = [
             "react/no-unescaped-entities": "off",
             "@next/next/no-img-element": "off",
             "next/no-img-element": "warn",
-            "react-hooks/rules-of-hooks": "warn",
-            "react-hooks/exhaustive-deps": "warn",
             "react-hooks/set-state-in-effect": "warn",
             "react-hooks/immutability": "off",
             "react-hooks/purity": "off",
