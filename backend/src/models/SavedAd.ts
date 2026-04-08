@@ -18,6 +18,9 @@ const SavedAdSchema: Schema = new Schema({
 
 SavedAdSchema.index({ userId: 1, adId: 1 }, { name: 'idx_savedad_user_ad_unique_idx', unique: true });
 
+// Covers getSavedAds sorted pagination: find({ userId }).sort({ createdAt: -1 })
+SavedAdSchema.index({ userId: 1, createdAt: -1 }, { name: 'idx_savedad_userId_createdAt_desc' });
+
 applyToJSONTransform(SavedAdSchema);
 
 import { getUserConnection } from '../config/db';

@@ -17,7 +17,7 @@ import { apiClient } from "@/lib/api/client";
 import { isAPIError } from "@/lib/api/APIError";
 import { normalizeError } from "@/lib/api/normalizeError";
 import { authApi } from "@/lib/api/auth";
-import { emitAppError } from "@/components/common/AppErrorBanner";
+import { showPopup } from "@/lib/popup/popupEvents";
 import logger from "@/lib/logger";
 
 /* -------------------------------------------------------------------------- */
@@ -219,7 +219,11 @@ export function AuthProvider({
         const hadActiveSession = wasAuthenticatedRef.current;
         wasAuthenticatedRef.current = false;
         if (hadActiveSession && !authBannerShownRef.current) {
-          emitAppError("Your session has expired. Please log in again.");
+          showPopup({
+            type: "error",
+            title: "Session expired",
+            message: "Your session has expired. Please log in again.",
+          });
           authBannerShownRef.current = true;
         }
 

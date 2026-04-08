@@ -31,12 +31,26 @@ export default function LoginPage() {
       <DialogPortal>
         <DialogOverlay className="bg-slate-900/40 backdrop-blur-[2px]" />
         <RadixDialog.Content
-          className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] outline-none animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
+          className={[
+            // Mobile: anchor near top so keyboard can't cover the form
+            "fixed left-1/2 top-4 z-50 w-full max-w-md -translate-x-1/2 outline-none",
+            // Desktop: vertically centre as before
+            "sm:top-1/2 sm:-translate-y-1/2",
+            // Animations
+            "animate-in fade-in-0 zoom-in-95 duration-200",
+            "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+          ].join(" ")}
           aria-describedby={undefined}
         >
           <RadixDialog.Title className="sr-only">Login</RadixDialog.Title>
-          <div className="rounded-2xl border bg-white shadow-2xl overflow-hidden mx-4 sm:mx-0">
-            <div className="flex items-center justify-end border-b px-3 py-2.5">
+
+          {/*
+           * max-h uses 100dvh (dynamic viewport height — shrinks when keyboard opens).
+           * flex-col lets the header stay fixed while only the form body scrolls.
+           */}
+          <div className="mx-4 sm:mx-0 rounded-2xl border bg-white shadow-2xl overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)]">
+            {/* Fixed header — always visible above keyboard */}
+            <div className="flex flex-shrink-0 items-center justify-end border-b px-3 py-2.5">
               <Button
                 type="button"
                 variant="ghost"
@@ -49,11 +63,14 @@ export default function LoginPage() {
               </Button>
             </div>
 
-            <LoginFlow
-              mode="modal"
-              callbackUrl={callbackUrl}
-              onBack={handleDismiss}
-            />
+            {/* Scrollable form area — scrolls under the fixed header when keyboard shrinks space */}
+            <div className="overflow-y-auto">
+              <LoginFlow
+                mode="modal"
+                callbackUrl={callbackUrl}
+                onBack={handleDismiss}
+              />
+            </div>
           </div>
         </RadixDialog.Content>
       </DialogPortal>

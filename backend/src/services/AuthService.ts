@@ -157,14 +157,16 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
     if (env.NODE_ENV === 'test') return;
 
     // Static OTP bypass: skip SMS dispatch when USE_DEFAULT_OTP is enabled
-    // Guard: never activate in production even if env var is accidentally set
     if (env.USE_DEFAULT_OTP) {
         if (env.NODE_ENV === 'production') {
-            logger.error('[SECURITY] USE_DEFAULT_OTP is set in production — bypass is DISABLED. Remove this env var immediately.');
+            // Pre-launch testing mode: static OTP (DEV_STATIC_OTP) is active and SMS is not sent.
+            // Real users cannot log in without knowing the static OTP.
+            // ACTION REQUIRED: remove USE_DEFAULT_OTP from Render and configure MSG91 before going live.
+            logger.warn('[OTP] USE_DEFAULT_OTP is set in production — static OTP active, SMS dispatch skipped. Configure MSG91 and remove this env var before real users sign up.');
         } else {
             logger.info('Static OTP fallback active — skipping SMS dispatch', { phone: mobile.slice(-4) });
-            return;
         }
+        return; // ← skip SMS dispatch regardless of environment
     }
 
     if (!env.MSG91_AUTH_KEY || !env.MSG91_SENDER_ID) {

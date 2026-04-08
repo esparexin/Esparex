@@ -1,18 +1,21 @@
-let currentCorrelationId: string | null = null;
+import { AsyncLocalStorage } from 'async_hooks';
+
+const storage = new AsyncLocalStorage<string>();
 
 export class TraceContext {
     static getCorrelationId(): string {
-        if (!currentCorrelationId) {
-            currentCorrelationId = crypto.randomUUID();
-        }
-        return currentCorrelationId!;
+        return storage.getStore() ?? 'no-context';
     }
 
+    /**
+     * Set the correlationId for the current async context (and all its children).
+     * Uses AsyncLocalStorage so concurrent requests never share state.
+     */
     static setCorrelationId(id: string): void {
-        currentCorrelationId = id;
+        storage.enterWith(id);
     }
 
     static clear(): void {
-        currentCorrelationId = null;
+        storage.enterWith('');
     }
 }

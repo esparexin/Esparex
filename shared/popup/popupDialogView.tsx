@@ -42,7 +42,12 @@ export function PopupDialogView({
             "fixed z-[12010] overflow-hidden outline-none",
             isConfirm
               ? "left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border p-6 shadow-2xl"
-              : "right-3 top-3 w-[calc(100vw-1rem)] max-w-[22rem] rounded-2xl border shadow-[0_20px_50px_rgba(15,23,42,0.18)] sm:right-5 sm:top-5",
+              : [
+                  // Mobile: anchor to bottom so it never hides behind the app header
+                  "inset-x-2 bottom-4 rounded-2xl border shadow-[0_20px_50px_rgba(15,23,42,0.18)]",
+                  // Desktop (sm+): top-right corner, fixed width
+                  "sm:inset-x-auto sm:bottom-auto sm:right-5 sm:top-5 sm:w-[calc(100vw-1rem)] sm:max-w-[22rem]",
+                ].join(" "),
             config.cardClass
           )}
           onInteractOutside={(event) => {

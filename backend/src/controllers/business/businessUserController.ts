@@ -42,7 +42,7 @@ export const getMyBusinessStats = async (req: Request, res: Response) => {
         }
 
         const userId = user._id.toString();
-        const business = await BusinessModel.findOne({ userId });
+        const business = await BusinessModel.findOne({ userId, isDeleted: false });
 
         if (!business) {
             const response = respond<ApiResponse<BusinessStatsPayload>>({

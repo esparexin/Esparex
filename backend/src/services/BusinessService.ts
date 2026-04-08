@@ -417,7 +417,7 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
 };
 
 export const getBusinessByUserId = async (userId: string) => {
-    return await Business.findOne({ userId });
+    return await Business.findOne({ userId, isDeleted: false });
 };
 
 export const getBusinessById = async (id: string) => {
