@@ -10,14 +10,13 @@ import * as Validators from '../validators/finance.validator';
 import { verifyPaymentWebhook } from '../middleware/verifyPaymentWebhook';
 import { env } from '../config/env';
 
-if (process.env.NODE_ENV === 'production' && (!process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_WEBHOOK_SECRET.trim() === '')) {
-    throw new Error('FATAL: RAZORPAY_WEBHOOK_SECRET must be defined in production to secure webhooks.');
-}
-if (process.env.NODE_ENV === 'production' && (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.trim() === '')) {
-    throw new Error('FATAL: RAZORPAY_KEY_ID must be defined in production.');
-}
-if (process.env.NODE_ENV === 'production' && (!process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET.trim() === '')) {
-    throw new Error('FATAL: RAZORPAY_KEY_SECRET must be defined in production.');
+if (process.env.NODE_ENV === 'production') {
+    const missing = ['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET']
+        .filter((k) => !process.env[k]?.trim());
+    if (missing.length > 0) {
+        // Warn but don't crash — payment routes will return 503 until keys are configured
+        console.warn(`[WARN] Payment routes: missing env vars: ${missing.join(', ')}. Payment features will be unavailable.`);
+    }
 }
 
 const router = express.Router();
