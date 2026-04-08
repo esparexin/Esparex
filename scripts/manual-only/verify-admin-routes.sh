@@ -2,11 +2,11 @@
 set -euo pipefail
 
 if [ "${ALLOW_MANUAL_SCRIPT:-}" != "true" ]; then
-  echo "Blocked: set ALLOW_MANUAL_SCRIPT=true to run scripts/verify-admin-routes.sh"
+  echo "Blocked: set ALLOW_MANUAL_SCRIPT=true to run scripts/manual-only/verify-admin-routes.sh"
   exit 1
 fi
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SHARED="${REPO_ROOT}/shared/contracts/api/adminRoutes.ts"
 BACKEND="${REPO_ROOT}/backend/src/routes/adminRoutes.ts"
 COOKIE_HELPER="${REPO_ROOT}/backend/src/utils/cookieHelper.ts"

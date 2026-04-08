@@ -2,11 +2,11 @@
 set -euo pipefail
 
 if [ "${ALLOW_MANUAL_SCRIPT:-}" != "true" ]; then
-  echo "Blocked: set ALLOW_MANUAL_SCRIPT=true to run scripts/pre-deployment-verification.sh"
+  echo "Blocked: set ALLOW_MANUAL_SCRIPT=true to run scripts/manual-only/pre-deployment-verification.sh"
   exit 1
 fi
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${REPO_ROOT}"
 
 run_check() {

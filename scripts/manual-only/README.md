@@ -10,3 +10,8 @@ Example:
 
 Production smoke check:
 `ALLOW_MANUAL_SCRIPT=true bash scripts/manual-only/prod-smoke-check.sh`
+
+Additional manual checks:
+`ALLOW_MANUAL_SCRIPT=true bash scripts/manual-only/health-check.sh`
+`ALLOW_MANUAL_SCRIPT=true bash scripts/manual-only/verify-admin-routes.sh`
+`ALLOW_MANUAL_SCRIPT=true bash scripts/manual-only/pre-deployment-verification.sh`

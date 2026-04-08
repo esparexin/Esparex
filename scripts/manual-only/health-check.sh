@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [ "${ALLOW_MANUAL_SCRIPT:-}" != "true" ]; then
-  echo "Blocked: set ALLOW_MANUAL_SCRIPT=true to run scripts/health-check.sh"
+  echo "Blocked: set ALLOW_MANUAL_SCRIPT=true to run scripts/manual-only/health-check.sh"
   exit 1
 fi
 
