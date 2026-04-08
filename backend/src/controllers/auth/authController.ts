@@ -6,15 +6,7 @@ import { verifyToken } from '../../utils/auth';
 import { respond, sendSuccessResponse } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { SendOtpResult, VerifyOtpResult } from '../../services/AuthService';
-import { env } from '../../config/env';
-
-const getAuthCookieOptions = (maxAge: number) => ({
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-    path: '/',
-    maxAge
-});
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../../utils/cookieHelper';
 
 export class AuthController {
     private static sendAuthFailure(req: Request, res: Response, result: SendOtpResult | VerifyOtpResult) {
@@ -68,6 +60,9 @@ export class AuthController {
             // Match the 7 day JWT expiration
             const cookieMaxAgeMs = 7 * 24 * 60 * 60 * 1000;
             if (result.token) {
+                // Migration cleanup: remove the old api.esparex.in host-only cookie
+                // before setting the shared parent-domain cookie.
+                res.clearCookie('esparex_auth', getLegacyHostOnlyAuthCookieOptions(0));
                 res.cookie('esparex_auth', result.token, getAuthCookieOptions(cookieMaxAgeMs));
             }
 
@@ -114,6 +109,7 @@ export class AuthController {
                 });
             }
 
+            res.clearCookie('esparex_auth', getLegacyHostOnlyAuthCookieOptions(0));
             res.clearCookie('esparex_auth', getAuthCookieOptions(0));
             return sendSuccessResponse(res, null, 'Logged out successfully');
         } catch (error) {

@@ -5,6 +5,7 @@ import { protect } from '../middleware/authMiddleware';
 import { otpIpLimiter, otpSendLimiter, otpVerifyLimiter } from '../middleware/rateLimiter';
 import { otpConfigurationCheck } from '../middleware/otpGuard';
 import { fraudMiddleware } from '../middleware/fraudMiddleware';
+import logger from '../utils/logger';
 
 import { validateRequest } from '../middleware/validateRequest';
 import { loginSchema, verifyOtpSchema } from '../validators/auth.validator';
@@ -26,8 +27,15 @@ import { idempotencyMiddleware } from '../middleware/idempotency';
  * @access  Public
  */
 router.post('/verify-otp', otpConfigurationCheck, (req, res, next) => {
-    import('../utils/logger').then(({ default: logger }) => {
-        logger.info("[DEBUG] VERIFY OTP PAYLOAD", req.body);
+    const mobile = typeof req.body?.mobile === 'string'
+        ? req.body.mobile.replace(/\D/g, '').slice(-4)
+        : undefined;
+    const otpLength = typeof req.body?.otp === 'string' ? req.body.otp.length : undefined;
+
+    logger.info('[AUTH] VERIFY OTP REQUEST', {
+        phone: mobile,
+        otpLength,
+        hasName: typeof req.body?.name === 'string' && req.body.name.trim().length > 0
     });
     next();
 }, validateRequest(verifyOtpSchema), otpVerifyLimiter, fraudMiddleware, idempotencyMiddleware, AuthController.verify);

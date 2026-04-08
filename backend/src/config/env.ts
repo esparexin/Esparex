@@ -44,6 +44,7 @@ const envSchema = z.object({
 
     // CORS
     CORS_ORIGIN: z.string().default('http://localhost:3000'),
+    COOKIE_DOMAIN: z.string().optional(),
 
     AWS_ACCESS_KEY_ID: z.string().optional(),
     AWS_SECRET_ACCESS_KEY: z.string().optional(),

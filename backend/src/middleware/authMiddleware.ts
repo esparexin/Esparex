@@ -6,6 +6,7 @@ import { isTokenBlacklisted } from "../utils/redisCache";
 import { sendErrorResponse } from "../utils/errorResponse";
 import logger from '../utils/logger';
 import { Role } from "@shared/enums/roles";
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../utils/cookieHelper';
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                      */
@@ -31,11 +32,8 @@ const extractToken = (req: Request): { token: string } | null => {
 };
 
 const clearAuthCookie = (res: Response) => {
-  res.clearCookie("esparex_auth", {
-    path: "/",
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-  });
+  res.clearCookie("esparex_auth", getLegacyHostOnlyAuthCookieOptions(0));
+  res.clearCookie("esparex_auth", getAuthCookieOptions(0));
 };
 
 type CachedUserStatus = {

@@ -13,6 +13,7 @@ import {
     getMobileVariants, 
     normalizeTo10Digits 
 } from '../utils/phoneUtils';
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../utils/cookieHelper';
 
 type AuthFailure = {
     success: false;
@@ -211,12 +212,8 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
  */
 export class AuthService {
     static clearUserSession(res: import('express').Response): void {
-        res.clearCookie('esparex_auth', {
-            httpOnly: true,
-            secure: env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/'
-        });
+        res.clearCookie('esparex_auth', getLegacyHostOnlyAuthCookieOptions(0));
+        res.clearCookie('esparex_auth', getAuthCookieOptions(0));
     }
 
     static async cancelOtpSession(mobile: string): Promise<{ success: true }> {
