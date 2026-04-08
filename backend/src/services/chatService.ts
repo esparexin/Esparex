@@ -424,15 +424,19 @@ export async function blockConversation(conversationId: string, userId: string) 
   );
 }
 
+async function assertConversationMember(conversationId: string, userId: string) {
+  const conv = await Conversation.findById(conversationId).lean();
+  if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
+
+  const isMember = String(conv.buyerId) === userId || String(conv.sellerId) === userId;
+  if (!isMember) throw Object.assign(new Error('Forbidden'), { status: 403 });
+}
+
 /**
  * Soft-hide a conversation from the caller's inbox (deletedFor).
  */
 export async function hideConversation(conversationId: string, userId: string) {
-  const conv = await Conversation.findById(conversationId).lean();
-  if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
-
-  const isMember = [String(conv.buyerId), String(conv.sellerId)].includes(userId);
-  if (!isMember) throw Object.assign(new Error('Forbidden'), { status: 403 });
+  await assertConversationMember(conversationId, userId);
 
   await Conversation.updateOne(
     { _id: conversationId },
@@ -441,11 +445,7 @@ export async function hideConversation(conversationId: string, userId: string) {
 }
 
 export async function restoreConversation(conversationId: string, userId: string) {
-  const conv = await Conversation.findById(conversationId).lean();
-  if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
-
-  const isMember = [String(conv.buyerId), String(conv.sellerId)].includes(userId);
-  if (!isMember) throw Object.assign(new Error('Forbidden'), { status: 403 });
+  await assertConversationMember(conversationId, userId);
 
   await Conversation.updateOne(
     { _id: conversationId },

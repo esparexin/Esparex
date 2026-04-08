@@ -2,29 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
 import {
     Bell,
-    Check,
     ChevronRight,
     Inbox,
-    Megaphone,
-    MessageCircleMore,
-    ShoppingBag,
-    Sparkles,
-    Tag,
-    type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { READ_NOTIFICATION_RETENTION_HOURS } from "@shared/constants/notificationRetention";
-import type { NotificationTypeValue } from "@shared/enums/notificationType";
 
 import { queryKeys } from "@/hooks/queries";
 import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -32,6 +21,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NotificationItemCard } from "@/components/user/NotificationItemCard";
 
 type NotificationBellDropdownProps = {
     notificationsData?: NotificationResponse;
@@ -40,60 +30,8 @@ type NotificationBellDropdownProps = {
     variant?: "desktop" | "mobile";
 };
 
-type NotificationMeta = {
-    label: string;
-    icon: LucideIcon;
-    iconTone: string;
-    badgeTone: string;
-};
-
 const MAX_UNREAD_ITEMS = 6;
 const MAX_RECENT_READ_ITEMS = 3;
-
-const NOTIFICATION_META: Record<NotificationTypeValue, NotificationMeta> = {
-    SYSTEM: {
-        label: "System",
-        icon: Megaphone,
-        iconTone: "text-foreground-secondary",
-        badgeTone: "border-slate-200 bg-slate-100 text-foreground-secondary",
-    },
-    CHAT: {
-        label: "Message",
-        icon: MessageCircleMore,
-        iconTone: "text-sky-700",
-        badgeTone: "border-sky-200 bg-sky-100 text-sky-700",
-    },
-    SMART_ALERT: {
-        label: "Smart alert",
-        icon: Sparkles,
-        iconTone: "text-amber-700",
-        badgeTone: "border-amber-200 bg-amber-100 text-amber-700",
-    },
-    AD_STATUS: {
-        label: "Listing",
-        icon: Tag,
-        iconTone: "text-violet-700",
-        badgeTone: "border-violet-200 bg-violet-100 text-violet-700",
-    },
-    BUSINESS_STATUS: {
-        label: "Business",
-        icon: Check,
-        iconTone: "text-emerald-700",
-        badgeTone: "border-emerald-200 bg-emerald-100 text-emerald-700",
-    },
-    ORDER_UPDATE: {
-        label: "Order",
-        icon: ShoppingBag,
-        iconTone: "text-link-dark",
-        badgeTone: "border-blue-200 bg-blue-100 text-link-dark",
-    },
-    PRICE_DROP: {
-        label: "Price drop",
-        icon: Tag,
-        iconTone: "text-rose-700",
-        badgeTone: "border-rose-200 bg-rose-100 text-rose-700",
-    },
-};
 
 const isExternalUrl = (href: string) => /^https?:\/\//i.test(href);
 
@@ -127,66 +65,6 @@ const sortNotifications = (items: Notification[]) =>
         }
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-
-function NotificationDropdownRow({
-    notification,
-    onSelect,
-    isProcessing,
-}: {
-    notification: Notification;
-    onSelect: (notification: Notification) => void;
-    isProcessing: boolean;
-}) {
-    const meta = NOTIFICATION_META[notification.type];
-    const Icon = meta.icon;
-    const relativeTime = formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true });
-
-    return (
-        <button
-            type="button"
-            className={cn(
-                "w-full rounded-2xl border px-3 py-3 text-left transition",
-                notification.isRead
-                    ? "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                    : "border-blue-100 bg-blue-50/70 hover:border-blue-200 hover:bg-blue-50"
-            )}
-            onClick={() => onSelect(notification)}
-            disabled={isProcessing}
-        >
-            <div className="flex gap-3">
-                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white">
-                    <Icon className={cn("h-4 w-4", meta.iconTone)} />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                        <Badge variant="outline" className={meta.badgeTone}>
-                            {meta.label}
-                        </Badge>
-                        {!notification.isRead ? (
-                            <Badge variant="outline" className="border-blue-200 bg-blue-50 text-link-dark">
-                                New
-                            </Badge>
-                        ) : null}
-                    </div>
-
-                    <p className={cn("mt-2 line-clamp-1 text-sm", notification.isRead ? "font-medium text-foreground-secondary" : "font-semibold text-foreground")}>
-                        {notification.title}
-                    </p>
-                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-foreground-tertiary">{notification.message}</p>
-
-                    <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                        <span>{relativeTime}</span>
-                        <span className="inline-flex items-center gap-1 font-medium text-foreground-secondary">
-                            {notification.actionUrl ? "Open" : notification.isRead ? "Read" : "Mark read"}
-                            <ChevronRight className="h-3 w-3" />
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </button>
-    );
-}
 
 export function NotificationBellDropdown({
     notificationsData,
@@ -369,11 +247,13 @@ export function NotificationBellDropdown({
                                     </div>
                                     <div className="space-y-2">
                                         {unreadItems.map((notification) => (
-                                            <NotificationDropdownRow
+                                            <NotificationItemCard
                                                 key={notification.id}
                                                 notification={notification}
                                                 onSelect={handleNotificationSelect}
                                                 isProcessing={markReadMutation.isPending}
+                                                density="compact"
+                                                actionHint="always"
                                             />
                                         ))}
                                     </div>
@@ -391,11 +271,13 @@ export function NotificationBellDropdown({
                                         </div>
                                         <div className="space-y-2">
                                             {recentReadItems.map((notification) => (
-                                                <NotificationDropdownRow
+                                                <NotificationItemCard
                                                     key={notification.id}
                                                     notification={notification}
                                                     onSelect={handleNotificationSelect}
                                                     isProcessing={markReadMutation.isPending}
+                                                    density="compact"
+                                                    actionHint="always"
                                                 />
                                             ))}
                                         </div>
