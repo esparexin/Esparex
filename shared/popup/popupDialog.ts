@@ -89,7 +89,10 @@ export function usePopupDialogState(
       }
 
       if (active?.type === "confirm") {
-        return [{ label: "Dismiss", action: onClose }];
+        return [
+          { label: "Confirm" },
+          { label: "Cancel", action: onClose },
+        ];
       }
 
       return [];

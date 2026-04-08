@@ -76,7 +76,7 @@ export function createPopupBus({ idPrefix = "" }: PopupBusOptions = {}): PopupBu
     },
     show(popup, options) {
       const dedupeKey = options?.dedupeKey ?? popupKey(popup);
-      const dedupeMs = options?.dedupeMs ?? 600;
+      const dedupeMs = options?.dedupeMs ?? 2000;
       const now = Date.now();
 
       if (

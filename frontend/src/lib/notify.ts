@@ -1,16 +1,14 @@
+import { toast } from 'sonner';
 import { mapErrorToMessage } from "@/lib/errorMapper";
-import { hidePopup, showPopup } from '@/lib/popup/popupEvents';
-import type { PopupAction } from '@/lib/popup/popupEvents';
 
 export const notify = {
-    success(message: string, options?: unknown) {
-        void options;
-        return showPopup({
-            type: "success",
-            title: "Success",
-            message
+    success(message: string, options?: { duration?: number; description?: string }) {
+        return toast.success(message, {
+            duration: options?.duration ?? 4000,
+            description: options?.description,
         });
     },
+
     error(
         error: unknown,
         fallbackOrOptions?: string | { onRetry?: () => void } | unknown,
@@ -19,42 +17,41 @@ export const notify = {
         let message = "";
         let onRetry: (() => void) | undefined;
 
-        if (typeof fallbackOrOptions === 'object' && fallbackOrOptions !== null) {
+        if (
+            typeof fallbackOrOptions === 'object' &&
+            fallbackOrOptions !== null &&
+            !Array.isArray(fallbackOrOptions)
+        ) {
             const opts = fallbackOrOptions as { onRetry?: () => void };
             message = typeof error === 'string' ? error : mapErrorToMessage(error);
             onRetry = opts.onRetry;
         } else {
-            message = typeof error === 'string' ? error : mapErrorToMessage(error, fallbackOrOptions as string | undefined);
+            message = typeof error === 'string'
+                ? error
+                : mapErrorToMessage(error, fallbackOrOptions as string | undefined);
             onRetry = options?.onRetry;
         }
 
-        const actions: PopupAction[] | undefined = onRetry
-            ? [{ label: "Retry", action: onRetry, isRetry: true }, { label: "Dismiss" }]
-            : undefined;
+        return toast.error(message, {
+            duration: Infinity,
+            ...(onRetry
+                ? { action: { label: 'Retry', onClick: onRetry } }
+                : {}),
+        });
+    },
 
-        return showPopup({
-            type: "error",
-            title: "Request Failed",
-            message,
-            ...(actions ? { actions } : {}),
+    info(message: string, options?: { duration?: number }) {
+        return toast.info(message, {
+            duration: options?.duration ?? 4000,
         });
     },
-    info(message: string, options?: unknown) {
-        void options;
-        return showPopup({
-            type: "info",
-            title: "Info",
-            message
+
+    warning(message: string, options?: { duration?: number }) {
+        return toast.warning(message, {
+            duration: options?.duration ?? Infinity,
         });
     },
-    warning(message: string, options?: unknown) {
-        void options;
-        return showPopup({
-            type: "warning",
-            title: "Warning",
-            message
-        });
-    },
+
     promise<T>(
         promise: Promise<T>,
         messages: {
@@ -63,36 +60,14 @@ export const notify = {
             error: string | ((error: unknown) => string);
         }
     ) {
-        const loadingId = showPopup({
-            type: "info",
-            title: "Please wait",
-            message: messages.loading
-        }, { dedupeMs: 0 });
-
-        return promise
-            .then((data) => {
-                hidePopup(loadingId);
-                showPopup({
-                    type: "success",
-                    title: "Success",
-                    message: typeof messages.success === "function" ? messages.success(data) : messages.success
-                });
-                return data;
-            })
-            .catch((error) => {
-                hidePopup(loadingId);
-                const errorMsg = typeof messages.error === 'function'
-                    ? messages.error(error)
-                    : messages.error;
-                showPopup({
-                    type: "error",
-                    title: "Request Failed",
-                    message: typeof error === 'string' ? error : mapErrorToMessage(error, errorMsg)
-                });
-                throw error;
-            });
+        return toast.promise(promise, {
+            loading: messages.loading,
+            success: messages.success,
+            error: messages.error,
+        });
     },
+
     dismiss(toastId?: string | number) {
-        hidePopup(typeof toastId === "number" ? String(toastId) : toastId);
-    }
+        toast.dismiss(toastId);
+    },
 };
