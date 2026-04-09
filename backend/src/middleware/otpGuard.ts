@@ -74,6 +74,16 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
 
     // Production environment: strict validation
     if (isProduction) {
+        if (useDefaultOtp === true) {
+            const errorMsg = '🚨 CRITICAL: USE_DEFAULT_OTP=true is set in production. Static OTP must never be enabled in production.';
+            bootstrapLogger.error(errorMsg);
+            otpGuardState.isSafeToProceed = false;
+            otpGuardState.isConfigured = false;
+            throw new Error(
+                'OTP Configuration Error: USE_DEFAULT_OTP must be false in production. Remove the static OTP override and configure MSG91 credentials.'
+            );
+        }
+
         const missingKeys: string[] = [];
 
         if (!msg91AuthKey) {
@@ -84,17 +94,6 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         }
 
         if (missingKeys.length > 0) {
-            // Allow USE_DEFAULT_OTP=true as a temporary bypass (e.g. pre-launch before SMS provider is configured)
-            if (useDefaultOtp === true) {
-                bootstrapLogger.warn(
-                    `⚠️  MSG91 not configured (${missingKeys.join(', ')}). Running with USE_DEFAULT_OTP=true — static OTP active. Configure MSG91 before going live.`
-                );
-                otpGuardState.isSafeToProceed = true;
-                otpGuardState.isConfigured = true;
-                otpGuardState.warnings.push(`MSG91 not configured: ${missingKeys.join(', ')}`);
-                return;
-            }
-
             const errorMsg = `🚨 CRITICAL: OTP provider not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive OTP SMS.`;
             bootstrapLogger.error(errorMsg);
             otpGuardState.isSafeToProceed = false;

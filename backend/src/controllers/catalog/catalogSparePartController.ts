@@ -54,6 +54,14 @@ const normalizeListingTypeFromQuery = (listingTypeParam?: unknown, placementPara
     return undefined;
 };
 
+const findCategoryIdBySlug = async (
+    categoryParam: string,
+    extraQuery: QueryRecord = {}
+): Promise<string | null> => {
+    const category = await Category.findOne({ slug: categoryParam, ...extraQuery });
+    return category ? category._id.toString() : null;
+};
+
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // SparePart CRUD now delegated to shared.ts generic handlers.
 
@@ -61,7 +69,6 @@ const normalizeListingTypeFromQuery = (listingTypeParam?: unknown, placementPara
  * Get spare parts for PUBLIC view (strict validation, active categories only)
  */
 const getSparePartsPublic = async (req: Request, res: Response) => {
-    const { status } = req.query;
     const categoryParam = (req.query.categoryId || req.query.category) as string | undefined;
     const requestedListingType = normalizeListingTypeFromQuery(req.query.listingType, req.query.placement);
 
@@ -69,12 +76,12 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
     
     // Resolve category slug to ObjectId if needed
     if (categoryParam && !mongoose.Types.ObjectId.isValid(categoryParam)) {
-        const cat = await Category.findOne({ slug: categoryParam, ...ACTIVE_CATEGORY_QUERY });
-        if (!cat) {
+        const resolvedCategoryId = await findCategoryIdBySlug(categoryParam, ACTIVE_CATEGORY_QUERY);
+        if (!resolvedCategoryId) {
             logger.debug('[Catalog] Category not found (public)', { categorySlug: categoryParam });
             return sendEmptyPublicList(res);
         }
-        categoryObjectId = cat._id.toString();
+        categoryObjectId = resolvedCategoryId;
     }
 
     // Validate category is active
@@ -180,9 +187,9 @@ const getSparePartsAdmin = async (req: Request, res: Response) => {
 
     // Resolve category slug to ObjectId if needed
     if (categoryParam && !mongoose.Types.ObjectId.isValid(categoryParam)) {
-        const cat = await Category.findOne({ slug: categoryParam });
-        if (cat) {
-            categoryObjectId = cat._id.toString();
+        const resolvedCategoryId = await findCategoryIdBySlug(categoryParam);
+        if (resolvedCategoryId) {
+            categoryObjectId = resolvedCategoryId;
         } else {
             logger.debug('[Catalog] Category not found (admin)', { categorySlug: categoryParam });
         }

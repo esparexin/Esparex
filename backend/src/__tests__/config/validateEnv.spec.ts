@@ -38,6 +38,14 @@ describe('validateProductionEnvOrThrow', () => {
             /Missing required production environment variables: S3_BUCKET_NAME/
         );
     });
+
+    it('throws when USE_DEFAULT_OTP is enabled in production', () => {
+        const env = { ...baseProductionEnv, USE_DEFAULT_OTP: 'true' };
+
+        expect(() => validateProductionEnvOrThrow(env)).toThrow(
+            /USE_DEFAULT_OTP must be false in production/
+        );
+    });
 });
 
 describe('validateS3BucketEnvAliasOrThrow', () => {

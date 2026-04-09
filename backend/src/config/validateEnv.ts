@@ -118,5 +118,9 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
         throw new Error('CORS_ORIGIN cannot include wildcard (*) in production');
     }
 
+    if ((sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase() === 'true') {
+        throw new Error('USE_DEFAULT_OTP must be false in production');
+    }
+
     bootstrapLogger.info('✅ Production environment secrets and origin constraints validated');
 }
