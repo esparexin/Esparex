@@ -77,15 +77,21 @@ function LoginForm() {
     } catch (err) {
       // Detect the 2FA required signal from the backend
       if (err instanceof AdminApiError && err.status === 403) {
-        const payload = err.payload as Record<string, unknown>;
-        const errorObj = payload.error as Record<string, unknown> | string | undefined;
+        const payload = err.payload;
+        const errorObj =
+          typeof payload.error === "object" && payload.error !== null
+            ? (payload.error as { code?: unknown; details?: unknown })
+            : undefined;
+        const errorDetails =
+          typeof errorObj?.details === "object" && errorObj.details !== null
+            ? (errorObj.details as { requires2FA?: unknown })
+            : undefined;
         const code =
-          (typeof errorObj === "object" && errorObj !== null ? errorObj.code : undefined) ??
+          (typeof errorObj?.code === "string" ? errorObj.code : undefined) ??
           payload.code;
         const requires2FASignal =
           code === "ADMIN_2FA_REQUIRED" ||
-          (typeof errorObj === "object" && errorObj !== null &&
-            (errorObj.details as Record<string, unknown>)?.requires2FA === true);
+          errorDetails?.requires2FA === true;
 
         if (requires2FASignal) {
           setRequires2FA(true);
