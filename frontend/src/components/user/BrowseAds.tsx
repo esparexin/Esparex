@@ -94,7 +94,6 @@ export function BrowseAds({
 }: BrowseAdsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const { location, isLoaded } = useLocationState();
   const routeParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
 

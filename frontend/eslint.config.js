@@ -21,18 +21,8 @@ const config = [
         rules: {
             // ─── React Hooks ─────────────────────────────────────────────────────────
             // Exhaustive deps at error level prevents missing or wrong dependencies.
-            // LOCATION LOOP GOVERNANCE: object references from useLocation()/useLocationState()
-            // must NEVER appear directly in useEffect dep arrays — only scalar primitives.
-            // Use useLocationPrimitives() or destructure scalars from the location object.
             "react-hooks/rules-of-hooks": "error",
-            "react-hooks/exhaustive-deps": [
-                "error",
-                {
-                    // Treat useLocation/useLocationState return values as requiring
-                    // primitive extraction before use in dependency arrays.
-                    "additionalHooks": "(useLocation|useLocationState|useLocationPrimitives)"
-                }
-            ],
+            "react-hooks/exhaustive-deps": "error",
             "@typescript-eslint/no-explicit-any": "warn",
             "@typescript-eslint/no-unused-vars": "off",
             "react/no-unescaped-entities": "off",
