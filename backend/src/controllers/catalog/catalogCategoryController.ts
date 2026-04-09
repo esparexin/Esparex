@@ -7,6 +7,7 @@
 import { Request, Response } from 'express';
 import slugify from 'slugify';
 import mongoose from 'mongoose';
+import type { Model as MongooseModel } from 'mongoose';
 import { getAdminConnection } from '../../config/db';
 import { handlePaginatedContent } from '../../utils/contentHandler';
 import Category from '../../models/Category';
@@ -40,6 +41,51 @@ import {
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { getCache, setCache, CACHE_TTLS } from '../../utils/redisCache';
+import logger from '../../utils/logger';
+
+const CATALOG_COUNT_MAX_TIME_MS = 1500;
+const CATALOG_COUNT_ESTIMATE_MAX_TIME_MS = 1000;
+
+const countCatalogCollectionSafely = async (
+    model: MongooseModel<any>,
+    filter: Record<string, unknown>,
+    hint?: Record<string, 1 | -1>
+): Promise<number> => {
+    const modelName = model.modelName || 'Unknown';
+    const countOptions: Record<string, unknown> = {
+        maxTimeMS: CATALOG_COUNT_MAX_TIME_MS,
+        ...(hint ? { hint } : {})
+    };
+
+    try {
+        return await model.collection.countDocuments(filter, countOptions);
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const isHintError = Boolean(hint) && /hint|index/i.test(message);
+
+        if (isHintError) {
+            try {
+                return await model.collection.countDocuments(filter, {
+                    maxTimeMS: CATALOG_COUNT_MAX_TIME_MS
+                });
+            } catch (retryError) {
+                logger.warn('[CatalogCounts] countDocuments retry without hint failed; using estimate', {
+                    model: modelName,
+                    error: retryError instanceof Error ? retryError.message : String(retryError)
+                });
+            }
+        } else {
+            logger.warn('[CatalogCounts] countDocuments failed; using estimate', {
+                model: modelName,
+                error: message
+            });
+        }
+
+        return model.collection.estimatedDocumentCount({
+            maxTimeMS: CATALOG_COUNT_ESTIMATE_MAX_TIME_MS
+        });
+    }
+};
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Category operations delegated to shared.ts or CatalogOrchestrator.
@@ -75,14 +121,16 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
             return;
         }
 
-        // Parallel count queries replacing the broken $facet union approach
+        const nonDeletedFilter = { isDeleted: { $ne: true } };
+
+        // Parallel count queries with bounded execution + safe fallback for drift/index issues.
         const [categories, brands, models, spareParts, serviceTypes, screenSizes] = await Promise.all([
-            Category.countDocuments({ isDeleted: { $ne: true } }),
-            Brand.countDocuments({ isDeleted: { $ne: true } }),
-            Model.countDocuments({ isDeleted: { $ne: true } }),
-            SparePart.countDocuments({ isDeleted: { $ne: true } }),
-            ServiceType.countDocuments({ isDeleted: { $ne: true } }),
-            ScreenSize.countDocuments()
+            countCatalogCollectionSafely(Category, nonDeletedFilter, { isDeleted: 1 }),
+            countCatalogCollectionSafely(Brand, nonDeletedFilter, { isDeleted: 1 }),
+            countCatalogCollectionSafely(Model, nonDeletedFilter, { isDeleted: 1 }),
+            countCatalogCollectionSafely(SparePart, nonDeletedFilter, { isDeleted: 1 }),
+            countCatalogCollectionSafely(ServiceType, nonDeletedFilter, { isDeleted: 1 }),
+            countCatalogCollectionSafely(ScreenSize, nonDeletedFilter, { isDeleted: 1 })
         ]);
 
         const counts = {

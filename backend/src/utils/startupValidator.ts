@@ -2,6 +2,27 @@ import logger from './logger';
 import Category from '../models/Category';
 import Brand from '../models/Brand';
 import ProductModel from '../models/Model';
+import type { Model as MongooseModel } from 'mongoose';
+
+const STARTUP_COUNT_MAX_TIME_MS = 1200;
+
+const getFastCollectionCount = async (model: MongooseModel<any>): Promise<number> => {
+    try {
+        return await model.collection.estimatedDocumentCount({
+            maxTimeMS: STARTUP_COUNT_MAX_TIME_MS
+        });
+    } catch (estimateError) {
+        const modelName = model.modelName || 'Unknown';
+        logger.warn('[MetadataHealth] estimatedDocumentCount failed; falling back to countDocuments', {
+            model: modelName,
+            error: estimateError instanceof Error ? estimateError.message : String(estimateError)
+        });
+
+        return model.collection.countDocuments({}, {
+            maxTimeMS: STARTUP_COUNT_MAX_TIME_MS
+        });
+    }
+};
 
 /**
  * Validates the integrity of metadata collections at startup.
@@ -11,9 +32,9 @@ import ProductModel from '../models/Model';
 export async function validateMetadataHealth() {
     try {
         const [categoryCount, brandCount, modelCount] = await Promise.all([
-            Category.countDocuments(),
-            Brand.countDocuments(),
-            ProductModel.countDocuments()
+            getFastCollectionCount(Category),
+            getFastCollectionCount(Brand),
+            getFastCollectionCount(ProductModel)
         ]);
 
         if (categoryCount === 0 || brandCount === 0) {
