@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Field } from "@/components/ui/field";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
+import { Z_INDEX } from "@/lib/zIndexConfig";
 
 const getNestedFieldMeta = (source: unknown, path: string): unknown =>
     path.split(".").reduce<unknown>((current, segment) => {
@@ -39,6 +40,10 @@ export default function DeviceIdentityFields() {
         stepValidationAttempts,
         currentStep,
         form,
+        sparePartsError,
+        brandsError,
+        loadSparePartsForCategory,
+        loadBrandsForCategory,
     } = usePostAd();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
@@ -127,6 +132,23 @@ export default function DeviceIdentityFields() {
                             onChange={(_id, name) => handleBrandChange(name)}
                         />
                     </Field>
+                    
+                    {brandsError && (
+                        <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                            <p className="text-xs text-red-700 text-center mb-2">
+                                {brandsError}
+                            </p>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => loadBrandsForCategory(categoryId)}
+                                className="w-full text-xs font-semibold text-red-600 border-red-200 hover:bg-red-50"
+                            >
+                                Try Again
+                            </Button>
+                        </div>
+                    )}
 
                     {/* Screen Size — only for LED-TV / monitor categories */}
                     {requiresScreenSize && (
@@ -138,7 +160,7 @@ export default function DeviceIdentityFields() {
                                 <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-bold text-foreground focus:border-primary transition-colors px-3 text-sm">
                                     <SelectValue placeholder="Select size" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-2 border-slate-100 shadow-xl z-[99999]">
+                                <SelectContent style={{ zIndex: Z_INDEX.selectContent }} className="rounded-xl border-2 border-slate-100 shadow-xl">
                                     {availableSizes.map((size) => (
                                         <SelectItem key={size} value={size} className="font-medium py-2.5 px-3 text-sm">
                                             {size}
@@ -158,10 +180,32 @@ export default function DeviceIdentityFields() {
                         Working Spare Parts
                     </label>
                     {isLoadingSpareParts ? (
-                        <div className="grid grid-cols-3 gap-2">
-                            {Array.from({ length: 6 }).map((_, i) => (
-                                <div key={i} className="h-10 rounded-xl bg-slate-100 animate-pulse" />
-                            ))}
+                        <div className="space-y-2">
+                            <p className="text-xs text-foreground-subtle text-center">
+                                Loading spare parts...
+                            </p>
+                            <div className="grid grid-cols-3 gap-2">
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} className="h-10 rounded-xl bg-slate-100 animate-pulse" />
+                                ))}
+                            </div>
+                        </div>
+                    ) : sparePartsError ? (
+                        <div className="space-y-3">
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                                <p className="text-xs text-red-700 text-center mb-2">
+                                    {sparePartsError}
+                                </p>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => loadSparePartsForCategory(categoryId)}
+                                    className="w-full text-xs font-semibold text-red-600 border-red-200 hover:bg-red-50"
+                                >
+                                    Try Again
+                                </Button>
+                            </div>
                         </div>
                     ) : availableSpareParts.length > 0 ? (
                         <div className="grid grid-cols-3 gap-2">
@@ -186,8 +230,8 @@ export default function DeviceIdentityFields() {
                             })}
                         </div>
                     ) : (
-                        <p className="text-xs text-foreground-subtle text-center py-3">
-                            No spare parts listed for this category.
+                        <p className="text-xs text-foreground-tertiary text-center py-3">
+                            No spare parts available for this category.
                         </p>
                     )}
                 </section>

@@ -57,6 +57,8 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
     const [availableServiceTypes, setAvailableServiceTypes] = useState<ServiceType[]>([]);
     const [isLoadingSpareParts, setIsLoadingSpareParts] = useState(false);
     const [isLoadingServiceTypes, setIsLoadingServiceTypes] = useState(false);
+    const [sparePartsError, setSparePartsError] = useState<string | null>(null);
+    const [brandsError, setBrandsError] = useState<string | null>(null);
     const [categorySchema, setCategorySchema] = useState<CategorySchemaType | null>(null);
     const [activeCategoryId, setActiveCategoryId] = useState<string>("");
 
@@ -122,6 +124,7 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
             brandsData.forEach((b: Brand) => (map[b.name] = b));
             setBrandMap(map);
             setAvailableBrands(brandsData.map((b: Brand) => b.name));
+            setBrandsError(null);
 
             const catObj = categoryMap[normalizedCategoryId];
             const normalizedCategoryText = `${catObj?.slug ?? ""} ${catObj?.name ?? ""}`.toLowerCase();
@@ -137,10 +140,12 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
                 setAvailableSizes([]);
             }
         } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : "Failed to load brands";
             logger.error(`[Catalog] Failed to load brands for ${normalizedCategoryId}:`, err);
             setAvailableBrands([]);
             setAvailableSizes([]);
-            onError?.("Failed to load brands");
+            setBrandsError(errorMsg);
+            onError?.(errorMsg);
         }
     }, [categoryMap, onError]);
 
@@ -200,9 +205,11 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         const normalizedCategoryId = sanitizeMongoObjectId(categoryId);
         if (!normalizedCategoryId) {
             setAvailableSpareParts([]);
+            setSparePartsError(null);
             return;
         }
         setIsLoadingSpareParts(true);
+        setSparePartsError(null);
         try {
             const { getSpareParts } = await import("@/lib/api/user/masterData");
             const resolvedListingType: ListingTypeValue =
@@ -216,10 +223,13 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
                     }))
                     .filter((part) => typeof part.id === "string" && part.id.length > 0)
             );
+            setSparePartsError(null);
         } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : "Failed to load spare parts";
             logger.error(`[Catalog] Failed to load spare parts for ${normalizedCategoryId}:`, err);
             setAvailableSpareParts([]);
-            onError?.("Failed to load spare parts");
+            setSparePartsError(errorMsg);
+            onError?.(errorMsg);
         } finally {
             setIsLoadingSpareParts(false);
         }
@@ -271,6 +281,8 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         loadSparePartsForCategory,
         loadCategorySchema,
         refreshBrands,
-        activeCategoryId
+        activeCategoryId,
+        sparePartsError,
+        brandsError
     };
 }

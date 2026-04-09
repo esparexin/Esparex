@@ -5,6 +5,7 @@
  */
 
 import { Request, Response } from 'express';
+import logger from '../../utils/logger';
 import { respond } from '../../utils/respond';
 import { handlePaginatedContent } from '../../utils/contentHandler';
 import mongoose from 'mongoose';
@@ -69,16 +70,19 @@ export const getBrands = async (req: Request, res: Response) => {
         if (!mongoose.Types.ObjectId.isValid(categoryId)) {
             const cat = await Category.findOne({ slug: categoryId, ...ACTIVE_CATEGORY_QUERY });
             if (cat) categoryObjectId = cat._id.toString();
+            else logger.debug('[Catalog] Category not found by slug (getBrands)', { categorySlug: categoryId });
         }
     }
 
     // Public view strictly requires categoryId
     if (!isAdminView && !categoryObjectId) {
+        logger.debug('[Catalog] getBrands missing categoryId (public)', { providedId: categoryId });
         return sendCatalogError(req, res, 'categoryId is required', 400);
     }
     if (!isAdminView && categoryObjectId) {
         const activeCategoryValidation = await validateActiveCategories([categoryObjectId]);
         if (!activeCategoryValidation.ok) {
+            logger.debug('[Catalog] Category not active (getBrands)', { categoryId: categoryObjectId });
             return sendEmptyPublicList(res);
         }
     }
@@ -87,9 +91,13 @@ export const getBrands = async (req: Request, res: Response) => {
     delete queryParams.categoryId;
     delete queryParams.categoryIds;
 
-    // Updated: filter brands by categoryIds
-    const categoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build();
-    const adminCategoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryId }).build();
+    // Updated: filter brands by categoryIds (array)
+    const categoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
+    const adminCategoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
+
+    if (!isAdminView) {
+        logger.debug('[Catalog] getBrands query', { categoryId: categoryObjectId });
+    }
 
     return handlePaginatedContent(req, res, asModel(Brand), {
         publicQuery: {

@@ -5,6 +5,7 @@
  */
 
 import { Request, Response } from 'express';
+import logger from '../../utils/logger';
 import { handlePaginatedContent } from '../../utils/contentHandler';
 import mongoose from 'mongoose';
 import slugify from 'slugify';
@@ -40,7 +41,9 @@ import { ISparePart } from '../../models/SparePart';
 import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
 import { categoryEnumToRecord } from '../../../../shared/utils/listingTypeMap';
 
-const normalizeSparePartListingType = (value: unknown): ListingTypeValue | undefined => {
+// ── Helper: Normalize listing type from query params ──────────────────────
+const normalizeListingTypeFromQuery = (listingTypeParam?: unknown, placementParam?: unknown): ListingTypeValue | undefined => {
+    const value = (listingTypeParam ?? placementParam) as unknown;
     if (typeof value !== 'string') return undefined;
     if (value === LISTING_TYPE.AD || value === LISTING_TYPE.SPARE_PART) {
         return value;
@@ -55,73 +58,69 @@ const normalizeSparePartListingType = (value: unknown): ListingTypeValue | undef
 // SparePart CRUD now delegated to shared.ts generic handlers.
 
 /**
- * Get all spare parts (with optional category filter and status)
+ * Get spare parts for PUBLIC view (strict validation, active categories only)
  */
-export const getSpareParts = async (req: Request, res: Response) => {
-    const isAdminView = req.originalUrl.includes('/admin');
+const getSparePartsPublic = async (req: Request, res: Response) => {
     const { status } = req.query;
     const categoryParam = (req.query.categoryId || req.query.category) as string | undefined;
-    const requestedListingType =
-        normalizeSparePartListingType(req.query.listingType) ??
-        normalizeSparePartListingType(req.query.placement);
+    const requestedListingType = normalizeListingTypeFromQuery(req.query.listingType, req.query.placement);
 
     let categoryObjectId: string | undefined = categoryParam;
+    
+    // Resolve category slug to ObjectId if needed
     if (categoryParam && !mongoose.Types.ObjectId.isValid(categoryParam)) {
-        const cat = await Category.findOne({ slug: categoryParam, ...(isAdminView ? {} : ACTIVE_CATEGORY_QUERY) });
-        if (cat) {
-            categoryObjectId = cat._id.toString();
-        } else if (!isAdminView) {
+        const cat = await Category.findOne({ slug: categoryParam, ...ACTIVE_CATEGORY_QUERY });
+        if (!cat) {
+            logger.debug('[Catalog] Category not found (public)', { categorySlug: categoryParam });
             return sendEmptyPublicList(res);
         }
+        categoryObjectId = cat._id.toString();
     }
-    if (!isAdminView && categoryObjectId) {
+
+    // Validate category is active
+    if (categoryObjectId) {
         const activeCategoryValidation = await validateActiveCategories([categoryObjectId]);
         if (!activeCategoryValidation.ok) {
+            logger.debug('[Catalog] Category not active (public)', { categoryId: categoryObjectId, invalidCategoryIds: activeCategoryValidation.invalidCategoryIds });
             return sendEmptyPublicList(res);
         }
     }
 
-    const activeCategoryIds = !isAdminView
-        ? (
-            categoryObjectId
-                ? await resolveEquivalentActiveCategoryIds(categoryObjectId)
-                : await getActiveCategoryIds()
-        )
-        : [];
-    if (!isAdminView && activeCategoryIds.length === 0) {
+    // Get active categories
+    const activeCategoryIds = categoryObjectId
+        ? await resolveEquivalentActiveCategoryIds(categoryObjectId)
+        : await getActiveCategoryIds();
+
+    if (activeCategoryIds.length === 0) {
+        logger.warn('[Catalog] No active categories found for spare parts query', { categoryParam });
         return sendEmptyPublicList(res);
     }
 
-    // Performance optimization: Instead of separate finds, we'll use the main query to filter by active categories/brands/models
-    // but only if they are provided. For the initial list, we rely on SparePart's own relation fields.
-    const [activeBrandsRaw, activeModelsRaw] = !isAdminView
-        ? await Promise.all([
-            // FIX: categoryIds → categoryId (legacy) is actually now categoryIds in Brand
-            Brand.find({
-                isActive: true,
-                isDeleted: { $ne: true },
-                $or: [
-                    { status: CATALOG_STATUS.ACTIVE },
-                    { status: { $exists: false } }
-                ],
-                categoryIds: { $in: activeCategoryIds }
-            }).select('_id').lean(),
-            Model.find({
-                isActive: true,
-                $or: [
-                    { status: CATALOG_STATUS.ACTIVE },
-                    { status: { $exists: false } }
-                ],
-                categoryId: { $in: activeCategoryIds }
-            }).select('_id').lean()
-        ])
-        : [[], []];
+    // Fetch active brands and models for filtering
+    const [activeBrandsRaw, activeModelsRaw] = await Promise.all([
+        Brand.find({
+            isActive: true,
+            isDeleted: { $ne: true },
+            $or: [
+                { status: CATALOG_STATUS.ACTIVE },
+                { status: { $exists: false } }
+            ],
+            categoryIds: { $in: activeCategoryIds }
+        }).select('_id').lean(),
+        Model.find({
+            isActive: true,
+            $or: [
+                { status: CATALOG_STATUS.ACTIVE },
+                { status: { $exists: false } }
+            ],
+            categoryId: { $in: activeCategoryIds }
+        }).select('_id').lean()
+    ]);
+
     const activeBrandIds = activeBrandsRaw.map((brand) => String(brand._id));
     const activeModelIds = activeModelsRaw.map((model) => String(model._id));
 
-    const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build();
-    if (status) adminQuery.status = status;
-
+    // Build public query
     const publicQuery: QueryRecord = {
         isActive: true,
         ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build()
@@ -143,24 +142,85 @@ export const getSpareParts = async (req: Request, res: Response) => {
         }
     ];
 
-    // Prevent handlePaginatedContent from applying raw query params (category/categoryId)
+    if (requestedListingType) {
+        publicQuery.listingType = requestedListingType;
+    }
+
+    logger.debug('[Catalog] getSparePartsPublic query', {
+        categoryId: categoryObjectId,
+        activeCategoryIds: activeCategoryIds.length,
+        activeBrandIds: activeBrandIds.length,
+        activeModelIds: activeModelIds.length,
+        listingType: requestedListingType
+    });
+
+    // Clean query params
     const cleanQuery = { ...req.query };
     delete cleanQuery.categoryId;
     delete cleanQuery.category;
     delete cleanQuery.listingType;
     delete cleanQuery.placement;
 
-    if (requestedListingType) {
-        publicQuery.listingType = requestedListingType;
-        adminQuery.listingType = requestedListingType;
-    }
-
     return handlePaginatedContent(req, res, SparePart, {
-        adminQuery,
         publicQuery,
         queryParams: cleanQuery,
         defaultSort: { sortOrder: 1 }
     });
+};
+
+/**
+ * Get spare parts for ADMIN view (no validation, all categories/statuses)
+ */
+const getSparePartsAdmin = async (req: Request, res: Response) => {
+    const { status } = req.query;
+    const categoryParam = (req.query.categoryId || req.query.category) as string | undefined;
+    const requestedListingType = normalizeListingTypeFromQuery(req.query.listingType, req.query.placement);
+
+    let categoryObjectId: string | undefined = categoryParam;
+
+    // Resolve category slug to ObjectId if needed
+    if (categoryParam && !mongoose.Types.ObjectId.isValid(categoryParam)) {
+        const cat = await Category.findOne({ slug: categoryParam });
+        if (cat) {
+            categoryObjectId = cat._id.toString();
+        } else {
+            logger.debug('[Catalog] Category not found (admin)', { categorySlug: categoryParam });
+        }
+    }
+
+    // Build admin query
+    const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
+    if (status) adminQuery.status = status;
+    if (requestedListingType) {
+        adminQuery.listingType = requestedListingType;
+    }
+
+    logger.debug('[Catalog] getSparePartsAdmin query', {
+        categoryId: categoryObjectId,
+        listingType: requestedListingType,
+        status
+    });
+
+    // Clean query params
+    const cleanQuery = { ...req.query };
+    delete cleanQuery.categoryId;
+    delete cleanQuery.category;
+    delete cleanQuery.listingType;
+    delete cleanQuery.placement;
+
+    return handlePaginatedContent(req, res, SparePart, {
+        adminQuery,
+        queryParams: cleanQuery,
+        defaultSort: { sortOrder: 1 }
+    });
+};
+
+/**
+ * Get all spare parts (routes to public or admin handler)
+ */
+export const getSpareParts = async (req: Request, res: Response) => {
+    const isAdminView = req.originalUrl.includes('/admin');
+    return isAdminView ? getSparePartsAdmin(req, res) : getSparePartsPublic(req, res);
 };
 
 /**

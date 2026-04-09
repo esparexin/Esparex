@@ -102,7 +102,11 @@ export interface PostAdContextType {
     requiresScreenSize: boolean;
 
     loadBrandsForCategory: (categoryId: string) => Promise<void>;
+    loadSparePartsForCategory: (categoryId: string) => Promise<void>;
     loadCategorySchema: (categoryId: string) => Promise<void>;
+
+    sparePartsError: string | null;
+    brandsError: string | null;
 
     generateDescription: (targetField: 'title' | 'description') => Promise<void>;
     submitAd: () => Promise<void>;
@@ -138,6 +142,7 @@ export type PostAdStateContextType = Omit<
     | "removeImage"
     | "setLocation"
     | "loadBrandsForCategory"
+    | "loadSparePartsForCategory"
     | "loadCategorySchema"
     | "generateDescription"
     | "submitAd"
@@ -164,6 +169,7 @@ export type PostAdActionContextType = Pick<
     | "removeImage"
     | "setLocation"
     | "loadBrandsForCategory"
+    | "loadSparePartsForCategory"
     | "loadCategorySchema"
     | "generateDescription"
     | "submitAd"
@@ -267,7 +273,9 @@ export function PostAdProvider({
         categorySchema, 
         loadBrandsForCategory, 
         loadSparePartsForCategory, 
-        loadCategorySchema 
+        loadCategorySchema,
+        sparePartsError,
+        brandsError
     } = catalogHook;
 
     // Reactive category value — calling watch() inside useMemo is not reactive
@@ -679,6 +687,8 @@ export function PostAdProvider({
         imageUploadError: imagesHook.imageUploadError,
         requiresScreenSize,
         submittedAd,
+        sparePartsError,
+        brandsError,
     }), [
         form,
         control,
@@ -710,6 +720,8 @@ export function PostAdProvider({
         imagesHook.imageUploadError,
         requiresScreenSize,
         submittedAd,
+        sparePartsError,
+        brandsError,
     ]);
 
     const actionValue = useMemo<PostAdActionContextType>(() => ({
@@ -724,6 +736,7 @@ export function PostAdProvider({
         removeImage,
         setLocation,
         loadBrandsForCategory,
+        loadSparePartsForCategory,
         loadCategorySchema,
         generateDescription,
         submitAd,
@@ -747,6 +760,7 @@ export function PostAdProvider({
         removeImage,
         setLocation,
         loadBrandsForCategory,
+        loadSparePartsForCategory,
         loadCategorySchema,
         generateDescription,
         submitAd,
