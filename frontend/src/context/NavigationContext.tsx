@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useMemo, useCallback } from
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
+import { Z_INDEX } from '@/lib/zIndexConfig';
 
 interface NavigationContextType {
     isDirty: boolean;
@@ -54,8 +55,8 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
 
             <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
                 <DialogContent
-                    className="z-[9999] !rounded-2xl !p-4 sm:!max-w-md sm:!p-6"
-                    style={{ width: "min(22rem, calc(100vw - 3rem))" }}
+                    style={{ zIndex: Z_INDEX.debugLayer, width: "min(22rem, calc(100vw - 3rem))" }}
+                    className="!rounded-2xl !p-4 sm:!max-w-md sm:!p-6"
                 >
                     <DialogHeader className="!mb-0 pr-8">
                         <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">

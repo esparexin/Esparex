@@ -11,6 +11,7 @@ import { cn } from "@/components/ui/utils";
 import LocationSkeleton from "./LocationSkeleton";
 import { MAX_DROPDOWN_RESULTS, toGeoPoint, type SelectorVariant } from "./locationSelectorCore.helpers";
 import { useLocationSearch } from "./useLocationSearch";
+import { Z_INDEX } from "@/lib/zIndexConfig";
 
 interface LocationSelectorCoreProps {
     variant: SelectorVariant;
@@ -364,7 +365,7 @@ export default function LocationSelectorCore({
 
             {isOpen && !hasSelection && !disabled && (
                 <>
-                    <div className="fixed inset-0 z-[9998] bg-transparent" onMouseDown={() => { setIsOpen(false); if (!hasSelection && query.length < 2) setQuery(""); }} />
+                    <div style={{ zIndex: Z_INDEX.locationSelectorBackdrop }} className="fixed inset-0 bg-transparent" onMouseDown={() => { setIsOpen(false); if (!hasSelection && query.length < 2) setQuery(""); }} />
                     <div ref={dropdownRef} style={dropdownStyle} className="bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
                     <div className="p-2 border-b">
                         <Button variant="ghost" className="w-full justify-start text-muted-foreground h-11 px-3 font-normal" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>

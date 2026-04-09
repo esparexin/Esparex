@@ -13,6 +13,7 @@ import { useMounted } from "@/hooks/useMounted";
 import type { UserPage } from "@/lib/routeUtils";
 import { usePathname, useSearchParams } from "next/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
+import { Z_INDEX } from "@/lib/zIndexConfig";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
@@ -110,8 +111,9 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                     isMounted={isMounted}
                     showLocationSelector={showLocationSelector}
                     setShowLocationSelector={setShowLocationSelector}
-                    firstVisitWrapperClassName="pointer-events-none absolute inset-x-0 top-full z-[60] px-3 pt-3"
+                    firstVisitWrapperClassName={`pointer-events-none absolute inset-x-0 top-full px-3 pt-3`}
                     firstVisitPromptClassName="pointer-events-auto border-slate-200 bg-white/98 shadow-[0_18px_45px_rgba(15,23,42,0.16)]"
+                    style={{ zIndex: Z_INDEX.mobileHeaderTooltip }}
                 />
 
                 {/* 2. Main Header (56px) - Menu, Search, Bell */}

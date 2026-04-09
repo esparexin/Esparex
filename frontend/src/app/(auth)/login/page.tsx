@@ -7,6 +7,7 @@ import { LoginFlow } from "@/components/auth/LoginFlow";
 import { Button } from "@/components/ui/button";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 import { Dialog, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
+import { Z_INDEX } from "@/lib/zIndexConfig";
 import * as RadixDialog from "@radix-ui/react-dialog";
 
 export default function LoginPage() {
@@ -29,11 +30,12 @@ export default function LoginPage() {
   return (
     <Dialog open={true} onOpenChange={(open) => { if (!open) handleDismiss(); }}>
       <DialogPortal>
-        <DialogOverlay className="bg-slate-900/40 backdrop-blur-[2px]" />
+        <DialogOverlay className="bg-slate-900/10 backdrop-blur-[1px]" />
         <RadixDialog.Content
+          style={{ zIndex: Z_INDEX.dialogContent }}
           className={[
             // Mobile: anchor near top so keyboard can't cover the form
-            "fixed left-1/2 top-4 z-50 w-full max-w-md -translate-x-1/2 outline-none",
+            "fixed left-1/2 top-4 w-full max-w-md -translate-x-1/2 outline-none",
             // Desktop: vertically centre as before
             "sm:top-1/2 sm:-translate-y-1/2",
             // Animations

@@ -441,7 +441,7 @@ export function PostAdProvider({
         await loadBrandsForCategory(id);
         await loadSparePartsForCategory(id);
         await loadCategorySchema(id);
-    }, [setValue, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
+    }, [setFormError, setValue, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
 
     const handleBrandChange = useCallback(async (name: string) => {
         setFormError(null);
@@ -456,7 +456,7 @@ export function PostAdProvider({
         setSpareParts([]);
         setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
         setBrandIsPending(false);
-    }, [setValue, catalogHook.brandMap]);
+    }, [catalogHook.brandMap, setFormError, setValue]);
 
 
 
@@ -496,7 +496,7 @@ export function PostAdProvider({
         } finally {
             setIsLoading(false);
         }
-    }, [categoryMap, form, setValue, trigger]);
+    }, [categoryMap, form, setFormError, setValue, trigger]);
 
 
     const toggleAllSpareParts = useCallback((selectAll: boolean) => {
@@ -567,7 +567,7 @@ export function PostAdProvider({
                 document.querySelector("[data-post-ad-scroll]")?.scrollTo({ top: 0, behavior: "smooth" });
             }
         }
-    }, [currentStep, form, trigger]);
+    }, [currentStep, form, requiresScreenSize, trigger]);
 
     const prevStep = useCallback(() => {
         if (currentStep > 1) {
@@ -651,7 +651,7 @@ export function PostAdProvider({
                 }
             })();
         },
-        [handleSubmit, listingImages, normalizeIdentityFieldsBeforeSubmit, onValidSubmit, setSubmittedAd, setListingImages]
+        [handleSubmit, listingImages, normalizeIdentityFieldsBeforeSubmit, onValidSubmit, setFormError, setSubmittedAd, setListingImages]
     );
 
     // Destructure stable function refs from images hook

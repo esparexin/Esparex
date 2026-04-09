@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import type { UserPage } from "@/lib/routeUtils";
+import { Z_INDEX } from "@/lib/zIndexConfig";
 import {
   getNavigationItems,
   getNavigationSections,
@@ -132,7 +133,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
   return (
     <>
       {/* Desktop Header */}
-      <header className="sticky top-0 z-[999] w-full border-b bg-background/80 backdrop-blur-md shadow-sm hidden md:block font-inter">
+      <header style={{ zIndex: Z_INDEX.userHeader }} className="sticky top-0 w-full border-b bg-background/80 backdrop-blur-md shadow-sm hidden md:block font-inter">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-6">
           {/* Logo */}
           <button onClick={() => navigateTo("home")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -154,12 +155,14 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
                 showLocationSelector={showLocationSelector}
                 setShowLocationSelector={setShowLocationSelector}
                 setShowSearchDropdown={setShowSearchDropdown}
-                firstVisitWrapperClassName="absolute left-0 top-full z-[105] mt-3 w-[360px]"
+                firstVisitWrapperClassName="absolute left-0 top-full mt-3 w-[360px]"
+                style={{ zIndex: Z_INDEX.userHeaderPopover }}
             />
 
             {/* Location Dropdown */}
             <div
-              className={`absolute top-full left-0 mt-2 w-96 max-h-[80vh] bg-popover border rounded-xl shadow-lg overflow-hidden transition-all duration-200 z-[110] flex flex-col ${showLocationSelector
+              style={{ zIndex: Z_INDEX.userHeaderDropdown }}
+              className={`absolute top-full left-0 mt-2 w-96 max-h-[80vh] bg-popover border rounded-xl shadow-lg overflow-hidden transition-all duration-200 flex flex-col ${showLocationSelector
                 ? "opacity-100 visible translate-y-0"
                 : "opacity-0 invisible -translate-y-2 pointer-events-none"
                 } `}
@@ -188,7 +191,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
               />
             </div>
             {showSearchDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-popover border rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-[110] p-2">
+              <div style={{ zIndex: Z_INDEX.userHeaderDropdown }} className="absolute top-full left-0 right-0 mt-2 bg-popover border rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 p-2">
                 <div className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-1">Recent</div>
                 {recentSearches.map(s => (
                   <button key={s} onClick={() => handleSearch(s)} className="w-full text-left px-2 py-2 hover:bg-muted rounded flex items-center gap-2 text-sm">

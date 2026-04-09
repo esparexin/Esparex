@@ -3,6 +3,7 @@
 import React from 'react';
 import { WifiOff, AlertTriangle } from 'lucide-react';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { Z_INDEX } from '@/lib/zIndexConfig';
 
 interface ConnectivityBannerProps {
     apiUnavailable?: boolean;
@@ -17,7 +18,7 @@ export const ConnectivityBanner: React.FC<ConnectivityBannerProps> = ({ apiUnava
     if (!showBanner) return null;
 
     return (
-        <div className={`w-full py-2 px-4 flex items-center justify-center gap-2 transition-all duration-300 sticky top-0 z-[9999] shadow-md
+        <div style={{ zIndex: Z_INDEX.connectivityBanner }} className={`w-full py-2 px-4 flex items-center justify-center gap-2 transition-all duration-300 sticky top-0 shadow-md
       ${isOffline ? 'bg-red-600 text-white' : 'bg-amber-500 text-white'}`}>
 
             {isOffline ? (

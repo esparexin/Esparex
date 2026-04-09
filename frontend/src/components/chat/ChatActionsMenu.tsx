@@ -11,6 +11,7 @@ import {
 import { chatApi } from "@/lib/api/chatApi";
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { CHAT_REPORT_REASON } from '@shared/enums/chatStatus';
+import { Z_INDEX } from "@/lib/zIndexConfig";
 import type { ChatReportReasonValue } from '@shared/enums/chatStatus';
 import { BlockChatDialog } from './BlockChatDialog';
 import { ReportChatDialog } from './ReportChatDialog';
@@ -118,7 +119,7 @@ export function ChatActionsMenu({ conversationId, isArchived = false, onActionCo
             <MoreVertical className="h-5 w-5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" sideOffset={4} className="w-44 z-[200]">
+        <DropdownMenuContent align="end" sideOffset={4} style={{ zIndex: Z_INDEX.dropdown }} className="w-44">
           {isArchived ? (
             <DropdownMenuItem onClick={() => void handleRestore()}>
               ↩ Restore to inbox

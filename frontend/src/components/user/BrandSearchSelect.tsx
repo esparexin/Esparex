@@ -4,6 +4,7 @@ import { useState, useRef, useLayoutEffect, useMemo, type CSSProperties } from "
 import { Check, Search } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
+import { Z_INDEX } from "@/lib/zIndexConfig";
 
 interface BrandSearchSelectProps {
     brands: string[];
@@ -131,11 +132,12 @@ export function BrandSearchSelect({
             {search && dropdownStyle && (
                 <>
                     <div
-                        className="fixed inset-0 z-[9998]"
+                        style={{ zIndex: Z_INDEX.brandSearchBackdrop }}
+                        className="fixed inset-0"
                         onPointerDown={() => setSearch("")}
                     />
                     <div
-                        style={{ ...dropdownStyle, zIndex: 9999, position: "fixed" }}
+                        style={{ ...dropdownStyle, zIndex: Z_INDEX.selectContent, position: "fixed" }}
                         className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-y-auto"
                     >
                         {filtered.length === 0 ? (

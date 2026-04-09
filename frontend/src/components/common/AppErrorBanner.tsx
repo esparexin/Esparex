@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
+import { Z_INDEX } from "@/lib/zIndexConfig";
 
 type AppErrorEventDetail = {
   message?: string;
@@ -38,7 +39,7 @@ export function AppErrorBanner() {
   if (!message) return null;
 
   return (
-    <div className="fixed inset-x-0 top-0 z-[12000] px-2 pt-2 sm:px-4 sm:pt-3">
+    <div style={{ zIndex: Z_INDEX.appErrorBanner }} className="fixed inset-x-0 top-0 px-2 pt-2 sm:px-4 sm:pt-3">
       <div
         className="mx-auto flex w-full max-w-4xl items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-red-700 shadow-lg sm:px-4 sm:py-3"
         role="alert"

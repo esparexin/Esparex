@@ -12,6 +12,7 @@ interface HeaderLocationPromptsProps {
     isMounted?: boolean;
     firstVisitWrapperClassName?: string;
     firstVisitPromptClassName?: string;
+    style?: React.CSSProperties;
 }
 
 export function HeaderLocationPrompts({
@@ -21,6 +22,7 @@ export function HeaderLocationPrompts({
     isMounted = true,
     firstVisitWrapperClassName,
     firstVisitPromptClassName,
+    style,
 }: HeaderLocationPromptsProps) {
     const { shouldShowFirstVisitPrompt, showPermissionBlockedModal } = useLocationState();
     const { detectLocation, dismissFirstVisitPrompt, dismissPermissionBlockedModal } = useLocationDispatch();
@@ -28,7 +30,7 @@ export function HeaderLocationPrompts({
     return (
         <>
             {isMounted && shouldShowFirstVisitPrompt && !showLocationSelector && (
-                <div className={firstVisitWrapperClassName}>
+                <div className={firstVisitWrapperClassName} style={style}>
                     <LocationFirstVisitPrompt
                         className={firstVisitPromptClassName}
                         onUseCurrentLocation={() => {
