@@ -5,9 +5,8 @@
  */
 
 import { Request, Response } from 'express';
-import * as adminService from '../../../services/AdminService';
 import { IAuthUser } from '../../../types/auth';
-import Admin from '../../../models/Admin';
+import Admin, { IAdmin } from '../../../models/Admin';
 import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
 import { getAdminCookieOptions, getAuthCookieOptions } from '../../../utils/cookieHelper';
 import logger from '../../../utils/logger';
@@ -20,7 +19,7 @@ import crypto from 'crypto';
 import speakeasy from 'speakeasy';
 import { emailService } from '../../../services/EmailService';
 import { logAdminAction } from '../../../utils/adminLogger';
-import { generateAdminToken, verifyAdminToken } from '../../../utils/auth';
+import { comparePassword, generateAdminToken, verifyAdminToken } from '../../../utils/auth';
 import { USER_STATUS } from '@shared/enums/userStatus';
 import { getSingleParam } from '../../../utils/requestParams';
 import {
@@ -189,12 +188,20 @@ export const adminLogin = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Invalid credentials', 401);
         }
 
-        const serviceResult = await adminService.loginAdmin(email, password);
+        const isMatch = admin.password ? await comparePassword(password, admin.password) : false;
+        if (!isMatch) {
+            logger.warn('Admin login failed: Invalid password', { email, ip: req.ip });
+            return sendAdminError(req, res, 'Invalid credentials', 401);
+        }
 
-        if (!serviceResult) return sendAdminError(req, res, 'Invalid credentials', 401);
+        // Use updateOne to bypass pre-save hooks — avoids accidental bcrypt re-hash
+        // when +password / +twoFactorSecret were explicitly selected on this doc.
+        await Admin.updateOne({ _id: admin._id }, { $set: { lastLogin: new Date() } });
 
-        const { admin: adminData } = serviceResult;
-        const adminDataWithId = adminData as Partial<typeof adminData> & {
+        const adminData = admin.toObject({ virtuals: true }) as Partial<IAdmin>;
+        delete (adminData as Record<string, unknown>).password;
+        delete (adminData as Record<string, unknown>).twoFactorSecret;
+        const adminDataWithId = adminData as Partial<IAdmin> & {
             _id?: { toString: () => string } | string;
             id?: string;
         };

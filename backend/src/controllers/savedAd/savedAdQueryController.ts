@@ -17,7 +17,7 @@ export const getSavedAds = async (req: Request, res: Response) => {
 
         const [saved, total] = await Promise.all([
             SavedAd.find({ userId })
-                .populate('adId')
+                .populate('adId', 'title images price location categoryId listingType seoSlug status createdAt')
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)

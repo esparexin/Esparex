@@ -66,6 +66,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       });
       const parsed = parseAdminResponse<never, { admin?: AdminUser }>(result);
       const nextAdmin = normalizeAdmin(parsed.data?.admin);
+      if (!nextAdmin) throw new Error("Login succeeded but admin profile could not be loaded. Please try again.");
       setAdmin(nextAdmin);
     } finally {
       setLoading(false);

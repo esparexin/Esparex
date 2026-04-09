@@ -287,7 +287,7 @@ export function AuthProvider({
     } finally {
       fetchingRef.current = false;
     }
-  }, [backendReady]);
+  }, [backendReady, router]);
 
   /* ------------------------------------------------------------------------ */
   /* Backend Health Check                                                     */
@@ -434,7 +434,7 @@ export function AuthProvider({
       authBannerShownRef.current = false;
       staleSessionCleanupRef.current = false;
     }
-  }, [fetchUser]);
+  }, []);
 
   /* ------------------------------------------------------------------------ */
   /* Provider                                                                 */

@@ -180,7 +180,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
 
                 {/* Location Picker Sheet */}
                 <Sheet open={showLocationSelector} onOpenChange={setShowLocationSelector}>
-                    <SheetContent side="bottom" className="h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] overflow-hidden rounded-t-2xl border-t-0 p-0 shadow-2xl sm:h-[90vh] sm:max-h-[90vh]">
+                    <SheetContent side="bottom" className="h-[calc(100svh-1rem)] max-h-[calc(100svh-1rem)] overflow-hidden rounded-t-2xl border-t-0 p-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl sm:h-[90vh] sm:max-h-[90vh]">
                         <SheetTitle className="sr-only">Select Location</SheetTitle>
                         <SheetDescription className="sr-only">Choose your city</SheetDescription>
                         <LocationSelector onClose={() => setShowLocationSelector(false)} />

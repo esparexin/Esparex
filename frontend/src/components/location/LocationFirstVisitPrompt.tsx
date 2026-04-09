@@ -18,11 +18,11 @@ export default function LocationFirstVisitPrompt({
     className,
 }: LocationFirstVisitPromptProps) {
     return (
-        <div className={cn("relative rounded-2xl border bg-background/95 p-4 shadow-lg backdrop-blur", className)}>
+        <div className={cn("relative rounded-2xl border bg-background/95 p-4 shadow-lg backdrop-blur animate-in fade-in slide-in-from-top-2 duration-200", className)}>
             <button
                 type="button"
                 onClick={onDismiss}
-                className="absolute right-3 top-3 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="absolute right-2 top-2 h-11 w-11 flex items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 aria-label="Dismiss location prompt"
             >
                 <X className="h-4 w-4" />
@@ -38,11 +38,11 @@ export default function LocationFirstVisitPrompt({
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
-                <Button type="button" size="sm" className="gap-2" onClick={onUseCurrentLocation}>
+                <Button type="button" className="gap-2 h-11" onClick={onUseCurrentLocation}>
                     <Crosshair className="h-4 w-4" />
                     Use Current Location
                 </Button>
-                <Button type="button" size="sm" variant="outline" className="gap-2" onClick={onChooseManually}>
+                <Button type="button" variant="outline" className="gap-2 h-11" onClick={onChooseManually}>
                     <MapPin className="h-4 w-4" />
                     Choose Manually
                 </Button>

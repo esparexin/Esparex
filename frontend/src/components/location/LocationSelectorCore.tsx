@@ -157,7 +157,10 @@ export default function LocationSelectorCore({
             };
 
             applySelection(finalLoc as Location);
-            if (isPanel) onClose?.();
+            if (isPanel) {
+                await new Promise<void>(r => setTimeout(r, 80));
+                onClose?.();
+            }
         } finally {
             searchApi.setIsSearching(false);
         }
@@ -223,7 +226,7 @@ export default function LocationSelectorCore({
                             )}
                         </div>
                         {searchApi.searchError.retryable && searchApi.retryCount < 3 && (
-                            <Button type="button" variant="outline" size="sm" onClick={searchApi.handleRetry} className="gap-2">
+                            <Button type="button" variant="outline" onClick={searchApi.handleRetry} className="gap-2 h-11">
                                 <RefreshCw className="w-4 h-4" /> Try Again
                             </Button>
                         )}
@@ -258,7 +261,7 @@ export default function LocationSelectorCore({
                                 )}
                             >
                                 <MapPin className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                                <span className="flex-1 text-sm font-medium truncate">
+                                <span className="flex-1 text-sm font-medium truncate line-clamp-1">
                                     {normalizeLocationName(loc.display || loc.name || loc.city)}
                                 </span>
                             </button>
@@ -303,7 +306,7 @@ export default function LocationSelectorCore({
                         </div>
                     </div>
 
-                    <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+                    <div className={cn("min-h-0 flex-1 overflow-y-auto pr-1", searchApi.isSearching && "pointer-events-none opacity-60")}>
                         {renderResultsBody()}
                     </div>
                 </div>
@@ -352,8 +355,8 @@ export default function LocationSelectorCore({
                 <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                     {(searchApi.isSearching || searchApi.isDetecting) && <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />}
                     {hasSelection && !disabled && (
-                        <button type="button" onClick={handleClear} className="flex items-center px-2.5 py-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground" title="Change location">
-                            <span className="text-xs font-medium underline mr-1">Change</span>
+                        <button type="button" onClick={handleClear} className="flex items-center justify-center h-11 px-3 rounded-lg bg-muted/60 hover:bg-muted text-xs font-medium text-muted-foreground hover:text-foreground transition-colors" title="Change location">
+                            Change
                         </button>
                     )}
                 </div>

@@ -239,7 +239,7 @@ export class AuthService {
 
         // Treat deleted accounts as new users — they may re-register with the same number
         const effectiveUser = user?.status === 'deleted' ? null : user;
-        let userFailure = getUserAuthFailure(effectiveUser, now);
+        const userFailure = getUserAuthFailure(effectiveUser, now);
         if (userFailure) {
             return userFailure;
         }
@@ -286,7 +286,7 @@ export class AuthService {
             Otp.findOne({ mobile: { $in: mobileVariants } }).sort({ createdAt: -1 })
         ]);
 
-        let userFailure = getUserAuthFailure(userFromMobile, now);
+        const userFailure = getUserAuthFailure(userFromMobile, now);
         if (userFailure) {
             return userFailure;
         }
