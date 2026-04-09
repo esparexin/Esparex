@@ -39,6 +39,7 @@ function LoginForm() {
     event.preventDefault();
     setSubmitting(true);
     setError("");
+    const nextPath = normalizeAdminRedirectUrl(params.get("next"));
 
     try {
       await login({
@@ -46,10 +47,12 @@ function LoginForm() {
         password,
         twoFactorCode: twoFactorCode || undefined
       });
-      // Redirection is handled by the useEffect above once state updates
+      // Redirect immediately after a successful login; auth effect remains as a fallback.
+      void router.replace(nextPath);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
+    } finally {
       setSubmitting(false);
     }
   };

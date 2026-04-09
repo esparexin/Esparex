@@ -15,16 +15,61 @@ if (!ADMIN_API_BASE.startsWith("http")) {
   throw new Error("ADMIN_API_BASE misconfigured. Check NEXT_PUBLIC_ADMIN_API_URL.");
 }
 
+const REQUEST_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_ADMIN_API_TIMEOUT_MS || 20000);
+
+async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutMs = Number.isFinite(REQUEST_TIMEOUT_MS) && REQUEST_TIMEOUT_MS > 0
+    ? REQUEST_TIMEOUT_MS
+    : 20000;
+  let timedOut = false;
+
+  const parentSignal = init.signal;
+  const abortFromParent = () => controller.abort();
+
+  if (parentSignal) {
+    if (parentSignal.aborted) {
+      controller.abort();
+    } else {
+      parentSignal.addEventListener("abort", abortFromParent, { once: true });
+    }
+  }
+
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (timedOut) {
+      const seconds = Math.max(1, Math.round(timeoutMs / 1000));
+      throw new Error(`Request timed out after ${seconds}s. Please try again.`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+    if (parentSignal) {
+      parentSignal.removeEventListener("abort", abortFromParent);
+    }
+  }
+}
+
 let cachedCsrfToken: string | null = null;
 
 async function fetchCsrfToken(): Promise<string> {
   if (cachedCsrfToken) return cachedCsrfToken;
 
-  const response = await fetch(`${ADMIN_API_BASE}${ADMIN_ROUTES.CSRF_TOKEN}`, {
+  const response = await fetchWithTimeout(`${ADMIN_API_BASE}${ADMIN_ROUTES.CSRF_TOKEN}`, {
     method: "GET",
     credentials: "include",
     cache: "no-store"
   });
+
+  if (!response.ok) {
+    throw new Error(`CSRF token request failed (${response.status})`);
+  }
 
   const data = await response.json();
   if (data.csrfToken) {
@@ -103,7 +148,7 @@ export async function adminFetch<T>(
     }
   }
 
-  const response = await fetch(url, {
+  const response = await fetchWithTimeout(url, {
     method: options.method || "GET",
     credentials: "include",
     cache: "no-store",
