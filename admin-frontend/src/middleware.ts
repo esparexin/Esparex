@@ -3,20 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 // Paths that don't require authentication
 const PUBLIC_PATHS = new Set(["/login"]);
 
-// Role-restricted paths: only super_admin or admin can access these
-// Moderators are blocked (backend will also enforce this)
-const ADMIN_ONLY_PATHS = [
-    "/admin-users",
-    "/admin-sessions",
-    "/api-keys",
-    "/audit-logs",
-    "/settings",
-    "/notifications",
-    "/finance",
-    "/invoices",
-    "/revenue",
-    "/plans",
-];
+const getApiHostname = (): string | null => {
+    const raw = process.env.NEXT_PUBLIC_ADMIN_API_URL;
+    if (!raw) return null;
+    try {
+        return new URL(raw).hostname;
+    } catch {
+        return null;
+    }
+};
 
 export function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
@@ -26,11 +21,14 @@ export function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
-    // Check for admin session cookie (httpOnly — we can only check presence, not validity)
-    // Actual JWT validation happens on every backend API call
+    // Best-effort cookie gate only when the admin app and API share the same host.
+    // In split-subdomain deployments (admin.esparex.in -> api.esparex.in),
+    // host-only admin_token cookies are not visible to this middleware.
+    const apiHostname = getApiHostname();
+    const canReliablyReadAdminCookie = !apiHostname || apiHostname === req.nextUrl.hostname;
     const hasAdminToken = req.cookies.has("admin_token");
 
-    if (!hasAdminToken) {
+    if (canReliablyReadAdminCookie && !hasAdminToken) {
         const loginUrl = req.nextUrl.clone();
         loginUrl.pathname = "/login";
         loginUrl.searchParams.set("next", pathname);

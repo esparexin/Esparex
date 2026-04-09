@@ -136,10 +136,15 @@ export function verifyCsrfToken(req: Request, res: Response, next: NextFunction)
  * Client can call this to get a fresh token
  */
 export function getCsrfToken(req: Request, res: Response) {
-    const token = req.cookies[CSRF_COOKIE_NAME] || generateCsrfToken();
+    // Prefer token generated earlier in this request (setCsrfToken middleware),
+    // then fall back to existing cookie, else create one.
+    const localToken = typeof res.locals.csrfToken === 'string' ? res.locals.csrfToken : undefined;
+    const cookieToken = req.cookies[CSRF_COOKIE_NAME];
+    const token = localToken || cookieToken || generateCsrfToken();
 
-    // Set cookie if not already set
-    if (!req.cookies[CSRF_COOKIE_NAME]) {
+    // Only set cookie here if it wasn't already set by setCsrfToken middleware
+    // and no CSRF cookie exists in the incoming request.
+    if (!localToken && !cookieToken) {
         res.cookie(CSRF_COOKIE_NAME, token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',

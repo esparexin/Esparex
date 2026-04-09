@@ -4,12 +4,8 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, Download, FileText } from "lucide-react";
 import { type ColumnDef } from "@/components/ui/DataTable";
-import { adminFetch } from "@/lib/api/adminClient";
-import {
-  ADMIN_ROUTES,
-  ADMIN_API_V1_BASE_PATH,
-  DEFAULT_LOCAL_API_ORIGIN,
-} from "@/lib/api/routes";
+import { adminFetch, getAdminApiBase } from "@/lib/api/adminClient";
+import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
 import {
@@ -35,9 +31,7 @@ type AdminInvoice = {
   };
 };
 
-const ADMIN_API_BASE =
-  process.env.NEXT_PUBLIC_ADMIN_API_URL ||
-  `${DEFAULT_LOCAL_API_ORIGIN}${ADMIN_API_V1_BASE_PATH}`;
+const ADMIN_API_BASE = getAdminApiBase();
 
 const INVOICE_STATUSES = new Set(["all", "PENDING", "SUCCESS", "FAILED", "CANCELLED"]);
 

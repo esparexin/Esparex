@@ -12,7 +12,6 @@
 import express from 'express';
 import { requireAdmin } from '../middleware/adminAuth';
 import { adminLimiter, otpIpLimiter } from '../middleware/rateLimiter';
-import logger from '../utils/logger';
 import { setupQueueDashboard } from '../queues/queueDashboard';
 import * as systemController from '../controllers/admin/system';
 import { getCsrfToken, setCsrfToken } from '../middleware/csrfProtection';

@@ -1,8 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import Admin, { type IAdmin } from '../models/Admin';
-import dotenv from 'dotenv';
-import { getAdminCookieOptions, getAuthCookieOptions } from '../utils/cookieHelper';
+import { getAdminCookieOptions } from '../utils/cookieHelper';
 import { verifyAdminToken } from '../utils/auth';
 import type { IAuthUser } from '../types/auth';
 import { sendErrorResponse } from '../utils/errorResponse';
@@ -11,20 +10,40 @@ import { getAdminSessionTtlMs, validateAdminSession } from '../services/AdminSes
 import { USER_STATUS } from '@shared/enums/userStatus';
 import { normalizeAdminPermission, roleGrantsPermission } from '../constants/adminPermissions';
 
-dotenv.config({ quiet: true });
+const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
+    const cookieToken = req.cookies?.admin_token;
+    if (typeof cookieToken === 'string' && cookieToken.trim().length > 0) {
+        return { token: cookieToken, source: 'cookie' };
+    }
+
+    const authHeader = req.headers?.authorization;
+    if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+        const bearerToken = authHeader.slice('Bearer '.length).trim();
+        if (bearerToken.length > 0) {
+            return { token: bearerToken, source: 'authorization' };
+        }
+    }
+
+    return null;
+};
 
 export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies.admin_token;
-    if (!token) {
+    const tokenData = extractAdminToken(req);
+    if (!tokenData) {
         // If no token, clear any potentially stale cookie with the correct path
         res.clearCookie('admin_token', getAdminCookieOptions(0));
         return sendErrorResponse(req, res, 401, 'Unauthorized: No token');
     }
 
+    const { token, source } = tokenData;
+    const shouldClearCookie = source === 'cookie';
+
     try {
         const decoded = verifyAdminToken(token) as { id?: string; role?: string; jti?: string } | null;
         if (!decoded?.id) {
-            res.clearCookie('admin_token', getAdminCookieOptions(0));
+            if (shouldClearCookie) {
+                res.clearCookie('admin_token', getAdminCookieOptions(0));
+            }
             return sendErrorResponse(req, res, 401, 'Unauthorized: Invalid token');
         }
 
@@ -34,7 +53,9 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
             tokenId: decoded.jti
         });
         if (!activeSession) {
-            res.clearCookie('admin_token', getAdminCookieOptions(0));
+            if (shouldClearCookie) {
+                res.clearCookie('admin_token', getAdminCookieOptions(0));
+            }
             return sendErrorResponse(req, res, 401, 'Unauthorized: Session expired. Please login again.');
         }
 
@@ -42,7 +63,9 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 
         if (!admin || admin.status !== USER_STATUS.LIVE) {
             // If admin is invalid, clear the cookie with the correct path
-            res.clearCookie('admin_token', getAdminCookieOptions(0));
+            if (shouldClearCookie) {
+                res.clearCookie('admin_token', getAdminCookieOptions(0));
+            }
             return sendErrorResponse(req, res, 401, 'Unauthorized: Invalid admin');
         }
 
@@ -68,7 +91,9 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         next();
     } catch {
         // If token is invalid, clear the cookie with the correct path
-        res.clearCookie('admin_token', getAdminCookieOptions(0));
+        if (shouldClearCookie) {
+            res.clearCookie('admin_token', getAdminCookieOptions(0));
+        }
         return sendErrorResponse(req, res, 401, 'Unauthorized: Invalid token');
     }
 };

@@ -36,7 +36,12 @@ export const getLegacyHostOnlyAuthCookieOptions = (
 export const getAdminCookieOptions = (
     maxAgeMs: number = 7 * 24 * 60 * 60 * 1000
 ): CookieOptions => {
-    return buildBaseCookieOptions(maxAgeMs);
+    const domain = resolveCookieDomain();
+
+    return {
+        ...buildBaseCookieOptions(maxAgeMs),
+        ...(domain ? { domain } : {})
+    };
 };
 
 export { resolveCookieDomain };

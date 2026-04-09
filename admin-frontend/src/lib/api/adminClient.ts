@@ -16,6 +16,14 @@ if (!ADMIN_API_BASE.startsWith("http")) {
 }
 
 const REQUEST_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_ADMIN_API_TIMEOUT_MS || 20000);
+let inMemoryAdminAccessToken: string | null = null;
+
+export const getAdminApiBase = (): string => ADMIN_API_BASE;
+
+export const setAdminAccessToken = (token: string | null | undefined) => {
+  const normalized = typeof token === "string" ? token.trim() : "";
+  inMemoryAdminAccessToken = normalized.length > 0 ? normalized : null;
+};
 
 async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
   const controller = new AbortController();
@@ -126,77 +134,88 @@ export async function adminFetch<T>(
   options: RequestOptions = {}
 ): Promise<AdminEnvelope<T>> {
   const makeRequest = async (csrfRetry: boolean): Promise<AdminEnvelope<T>> => {
-  const url = `${ADMIN_API_BASE}${path}`;
-  const headers = new Headers(options.headers || {});
+    const url = `${ADMIN_API_BASE}${path}`;
+    const headers = new Headers(options.headers || {});
+    const isFormDataBody = options.body instanceof FormData;
 
-  if (!headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
+    if (!isFormDataBody && !headers.has("Content-Type")) {
+      headers.set("Content-Type", "application/json");
+    } else if (isFormDataBody && headers.has("Content-Type")) {
+      headers.delete("Content-Type");
+    }
 
-  // Include CSRF token for state-changing requests
-  const isStateChangingRequest = options.method && !["GET", "HEAD", "OPTIONS"].includes(options.method.toUpperCase());
-  if (isStateChangingRequest) {
-    try {
-      if (csrfRetry) {
+    if (inMemoryAdminAccessToken && !headers.has("Authorization")) {
+      headers.set("Authorization", `Bearer ${inMemoryAdminAccessToken}`);
+    }
+
+    // Include CSRF token for state-changing requests
+    const isStateChangingRequest = options.method && !["GET", "HEAD", "OPTIONS"].includes(options.method.toUpperCase());
+    if (isStateChangingRequest) {
+      try {
+        if (csrfRetry) {
+          cachedCsrfToken = null;
+        }
+        const token = await fetchCsrfToken();
+        headers.set("x-csrf-token", token);
+      } catch {
+        // In case of error (e.g. initial request), we clear cache to retry later
         cachedCsrfToken = null;
       }
-      const token = await fetchCsrfToken();
-      headers.set("x-csrf-token", token);
-    } catch {
-      // In case of error (e.g. initial request), we clear cache to retry later
-      cachedCsrfToken = null;
-    }
-  }
-
-  const response = await fetchWithTimeout(url, {
-    method: options.method || "GET",
-    credentials: "include",
-    cache: "no-store",
-    ...options,
-    headers,
-    body:
-      options.body === undefined || options.body instanceof FormData
-        ? (options.body as BodyInit | undefined)
-        : JSON.stringify(options.body)
-  });
-
-  const payload = (await response.json().catch(() => ({}))) as AdminEnvelope<T>;
-
-  if (!response.ok) {
-    const errorText = `${payload.message || ""} ${payload.error || ""}`.toLowerCase();
-    const isCsrfError = response.status === 403 && errorText.includes("csrf");
-    if (isCsrfError && isStateChangingRequest && !csrfRetry) {
-      cachedCsrfToken = null;
-      return makeRequest(true);
-    }
-    if (isCsrfError) {
-      // Clear cache on CSRF errors to force refresh next time
-      cachedCsrfToken = null;
-    }
-    const details = payload.details && typeof payload.details === "object"
-      ? (payload.details as { message?: unknown })
-      : undefined;
-    const detailsMessage = typeof details?.message === "string" ? details.message : undefined;
-    
-    // Extract nested error message for the Error constructor message (fallback used in resolveMessage)
-    const nestedErrorMessage = (payload.error && typeof payload.error === 'object') 
-      ? (payload.error as any).message 
-      : undefined;
-
-    const message = payload.message || nestedErrorMessage || payload.error || detailsMessage || `Request failed (${response.status})`;
-    const error = new AdminApiError(String(message), response.status, payload);
-
-    // Surface unexpected failures (5xx, network) via popup. 4xx errors are
-    // expected business logic and should be handled by the calling hook.
-    const isUnexpected = response.status === 0 || response.status >= 500;
-    if (isUnexpected) {
-      emitAdminErrorPopup(response.status, message);
     }
 
-    throw error;
-  }
+    const response = await fetchWithTimeout(url, {
+      method: options.method || "GET",
+      credentials: "include",
+      cache: "no-store",
+      ...options,
+      headers,
+      body:
+        options.body === undefined || isFormDataBody
+          ? (options.body as BodyInit | undefined)
+          : JSON.stringify(options.body)
+    });
 
-  return payload;
+    const payload = (await response.json().catch(() => ({}))) as AdminEnvelope<T>;
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        inMemoryAdminAccessToken = null;
+      }
+
+      const errorText = `${payload.message || ""} ${payload.error || ""}`.toLowerCase();
+      const isCsrfError = response.status === 403 && errorText.includes("csrf");
+      if (isCsrfError && isStateChangingRequest && !csrfRetry) {
+        cachedCsrfToken = null;
+        return makeRequest(true);
+      }
+      if (isCsrfError) {
+        // Clear cache on CSRF errors to force refresh next time
+        cachedCsrfToken = null;
+      }
+      const details = payload.details && typeof payload.details === "object"
+        ? (payload.details as { message?: unknown })
+        : undefined;
+      const detailsMessage = typeof details?.message === "string" ? details.message : undefined;
+      
+      // Extract nested error message for the Error constructor message (fallback used in resolveMessage)
+      const nestedErrorMessage = (payload.error && typeof payload.error === 'object') 
+        ? (payload.error as any).message 
+        : undefined;
+
+      const message = payload.message || nestedErrorMessage || payload.error || detailsMessage || `Request failed (${response.status})`;
+      const error = new AdminApiError(String(message), response.status, payload);
+
+      // Surface unexpected failures (5xx, network) via popup. 4xx errors are
+      // expected business logic and should be handled by the calling hook.
+      const isUnexpected = response.status === 0 || response.status >= 500;
+      if (isUnexpected) {
+        emitAdminErrorPopup(response.status, message);
+      }
+
+      throw error;
+    }
+
+    return payload;
   };
 
   try {

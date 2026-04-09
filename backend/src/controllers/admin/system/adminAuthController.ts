@@ -8,7 +8,7 @@ import { Request, Response } from 'express';
 import { IAuthUser } from '../../../types/auth';
 import Admin, { IAdmin } from '../../../models/Admin';
 import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
-import { getAdminCookieOptions, getAuthCookieOptions } from '../../../utils/cookieHelper';
+import { getAdminCookieOptions } from '../../../utils/cookieHelper';
 import logger from '../../../utils/logger';
 import {
     sendSuccessResponse,
@@ -40,7 +40,12 @@ const sendAuthError = (req: Request, res: Response, error: unknown) => {
  */
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
-        const { email } = req.body;
+        const rawEmail = req.body?.email;
+        const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : '';
+        if (!email) {
+            return sendSuccessResponse(res, { message: 'If that email exists, a reset link has been sent.' });
+        }
+
         const admin = await Admin.findOne({ email });
 
         if (!admin) {
@@ -150,7 +155,9 @@ export const resetPassword = async (req: Request, res: Response) => {
  */
 export const adminLogin = async (req: Request, res: Response) => {
     try {
-        const { email, password, twoFactorCode } = req.body;
+        const rawEmail = req.body?.email;
+        const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : '';
+        const { password, twoFactorCode } = req.body;
         if (!email || !password) return sendAdminError(req, res, 'Email and password are required', 400);
 
         // 🛡️ SECURITY AUDIT: Load dynamic security settings
