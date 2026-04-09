@@ -1,8 +1,8 @@
 import { Redis } from "ioredis";
-import dotenv from "dotenv";
 import bootstrapLogger from "../utils/bootstrapLogger";
+import { loadEnvFiles } from "../config/loadEnvFiles";
 
-dotenv.config();
+loadEnvFiles();
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import { connectDB } from "../config/db";
+import { loadEnvFiles } from "../config/loadEnvFiles";
 import { seedSpareParts } from "./spareParts.seed";
 import { seedDevices } from "./devices.seed";
 import { seedServiceTypes } from "./serviceTypes.seed";
@@ -8,7 +8,7 @@ import { seedScreenSizes } from "./screenSizes.seed";
 import logger from "../utils/logger";
 
 // Load env vars
-dotenv.config({ quiet: true });
+loadEnvFiles();
 
 async function run() {
     logger.info("Connecting to MongoDB...");

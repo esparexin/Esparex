@@ -8,16 +8,16 @@
  */
 
 import { z } from 'zod';
-import dotenv from 'dotenv';
 import bootstrapLogger from '../utils/bootstrapLogger';
 import {
     validateProductionEnvOrThrow,
     validateS3BucketEnvAliasOrThrow,
     validateS3RuntimeEnvOrThrow
 } from './validateEnv';
+import { loadEnvFiles } from './loadEnvFiles';
 
 // Load environment variables
-dotenv.config({ quiet: true });
+loadEnvFiles();
 
 /**
  * Environment variable schema with strict validation
