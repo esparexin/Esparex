@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useCountdown } from "./useCountdown";
 import { OtpEntryStep, AuthStep, RateLimitScope, RateLimitState } from "./useOtpFlowTypes";
 
@@ -22,17 +22,26 @@ export function useOtpTimers(step: AuthStep, onLockReturnPhase: (step: OtpEntryS
         onLockReturnPhase(lockReturnStep);
     }, [lockReturnStep, step, onLockReturnPhase]);
 
+    // Stable refs prevent useCountdown from restarting its interval on every render.
+    const setResendAvailableAtMsRef = useRef(setResendAvailableAtMs);
+    setResendAvailableAtMsRef.current = setResendAvailableAtMs;
+    const setRateLimitRef = useRef(setRateLimit);
+    setRateLimitRef.current = setRateLimit;
+
+    const onResendComplete = useCallback(() => { setResendAvailableAtMsRef.current(null); }, []);
+    const onRateLimitComplete = useCallback(() => { setRateLimitRef.current(null); }, []);
+
     const { remainingSeconds: lockRemainingSeconds } = useCountdown(
         step === "locked" ? lockUntilMs : null,
         { onComplete: onLockCountdownComplete }
     );
     const { remainingSeconds: resendRemainingSeconds } = useCountdown(
         resendAvailableAtMs,
-        { onComplete: () => setResendAvailableAtMs(null) }
+        { onComplete: onResendComplete }
     );
     const { remainingSeconds: rateLimitRemainingSeconds } = useCountdown(
         rateLimit?.untilMs ?? null,
-        { onComplete: () => setRateLimit(null) }
+        { onComplete: onRateLimitComplete }
     );
 
     return {

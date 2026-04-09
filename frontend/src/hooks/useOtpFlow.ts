@@ -302,6 +302,10 @@ export function useOtpFlow(
             verifyingRef.current = true;
             sendMachine("VERIFY_OTP");
             const returnStep = resolveOtpReturnStep(authStepBeforeVerify);
+            // Track whether the machine was explicitly transitioned so the finally
+            // block can call FAIL on any early-return path that previously left the
+            // machine permanently stuck in "verifyingOtp" (→ inactive / frozen UI).
+            let machineTransitioned = false;
             try {
                 const result = await authApi.verify(
                     formatPhoneForAPI(mobile),
@@ -321,6 +325,7 @@ export function useOtpFlow(
                 clearRateLimit();
                 haptics.success();
                 sendMachine("SUCCESS");
+                machineTransitioned = true;
                 onLoginSuccess({ requiresProfileSetup: authStepBeforeVerify === "enterNameAndOtp" || !result.user?.name });
             } catch (err: unknown) {
                 const meta = extractAuthMeta(err);
@@ -335,6 +340,7 @@ export function useOtpFlow(
                     haptics.error();
                     setAuthError({ type: "blocked", message });
                     sendMachine("FAIL");
+                    machineTransitioned = true;
                     return;
                 }
                 haptics.warning();
@@ -344,8 +350,12 @@ export function useOtpFlow(
                     setAuthError({ type: "generic", message });
                 }
                 sendMachine("FAIL");
+                machineTransitioned = true;
             } finally {
                 verifyingRef.current = false;
+                // Guard: if any early-return path skipped the explicit machine transition,
+                // drive the machine out of "verifyingOtp" so the UI never stays frozen.
+                if (!machineTransitioned) sendMachine("FAIL");
             }
         },
         [applyLockedState, applyOtpExpiredState, applyRateLimitState, clearRateLimit, isBlocked, isLocked, isVerifyRateLimited, mobile, newUserName, onLoginSuccess, step, updateUser, sendMachine, setResendAvailableAtMs]
@@ -354,7 +364,7 @@ export function useOtpFlow(
     useEffect(() => { verifyOtpCodeRef.current = (nextOtpValue: string) => { void verifyOtpCode(nextOtpValue); }; }, [verifyOtpCode]);
 
     const handleResendOtp = async () => {
-        if (isSendingOTP || isBlocked || isLocked || isSendRateLimited) return;
+        if (isSendingOTP || isVerifying || isBlocked || isLocked || isSendRateLimited) return;
         await requestOtp({ lockReturnStep: resolveOtpReturnStep(step), fallbackMessage: "Resend failed. Please try again." });
     };
 

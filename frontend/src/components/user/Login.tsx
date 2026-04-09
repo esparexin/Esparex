@@ -326,7 +326,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                     {canResend && (
                       <Button
                         variant="link"
-                        disabled={isSendingOTP || isBlocked || isLocked || isSendRateLimited}
+                        disabled={isSendingOTP || isVerifying || isBlocked || isLocked || isSendRateLimited}
                         onClick={handleResendOtp}
                         className="h-auto p-0 text-sm font-semibold text-link hover:text-link-dark"
                       >
