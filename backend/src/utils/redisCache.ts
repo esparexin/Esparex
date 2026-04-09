@@ -72,7 +72,8 @@ export const CACHE_TTLS = {
     DEFAULT_INDIA: 604800,    // 7 Days
     CATEGORIES: 3600,         // 1 Hour
     HOME_PAGE: 1800,          // 30 Minutes
-    HOME_FEED: 60             // 60 Seconds
+    HOME_FEED: 300,           // 5 Minutes (was 60s — too short for meaningful reuse)
+    SEARCH: 300               // 5 Minutes
 };
 
 const REDIS_SCAN_BATCH_SIZE = 200;
@@ -111,8 +112,8 @@ const parseInfoStringMetric = (info: string, metric: string): string | null => {
 const getDefaultTtlForKey = (key: string): number | null => {
     if (/^feed:v[0-9]+:home:/.test(key)) return CACHE_TTLS.HOME_FEED;
     if (key.startsWith(`${CACHE_NAMESPACES.ADS_HOME}:`)) return CACHE_TTLS.HOME_PAGE;
-    if (key.startsWith(`${CACHE_NAMESPACES.SEARCH_ADS}:`)) return 60;
-    if (key.startsWith(`${CACHE_NAMESPACES.SEARCH}:{`)) return 60;
+    if (key.startsWith(`${CACHE_NAMESPACES.SEARCH_ADS}:`)) return CACHE_TTLS.SEARCH;
+    if (key.startsWith(`${CACHE_NAMESPACES.SEARCH}:{`)) return CACHE_TTLS.SEARCH;
     if (key.startsWith('loc_search:')) return CACHE_TTLS.CITY_SEARCH;
     if (key.startsWith(`${CACHE_NAMESPACES.LOCATION}:search:city:`)) return CACHE_TTLS.CITY_SEARCH;
     if (key.startsWith(`${CACHE_NAMESPACES.LOCATION}:`)) return CACHE_TTLS.CITY_SEARCH;
@@ -120,7 +121,7 @@ const getDefaultTtlForKey = (key: string): number | null => {
     if (key.startsWith('blacklist:token:')) return 3600;
     if (key.startsWith(`${CACHE_NAMESPACES.RATE_LIMIT}:`)) return 900;
     if (key.startsWith(`${CACHE_NAMESPACES.SCHEDULER}:metrics:lock:`)) return 8 * 24 * 60 * 60;
-    if (key.startsWith(`${CACHE_NAMESPACES.SYSTEM}:config:`)) return 60;
+    if (key.startsWith(`${CACHE_NAMESPACES.SYSTEM}:config:`)) return 120;
     return null;
 };
 

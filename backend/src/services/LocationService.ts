@@ -449,7 +449,7 @@ const toLocationObjectId = (locationId: unknown): mongoose.Types.ObjectId | null
     return new mongoose.Types.ObjectId(value);
 };
 
-const roundCacheCoord = (value: number): string => Number(value.toFixed(4)).toString();
+const roundCacheCoord = (value: number): string => Number(value.toFixed(3)).toString();
 
 const buildReverseGeocodeCacheKey = (lat: number, lng: number): string =>
     CACHE_KEYS.reverseGeocode(roundCacheCoord(lat), roundCacheCoord(lng));

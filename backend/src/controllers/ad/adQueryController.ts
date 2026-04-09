@@ -104,7 +104,8 @@ export const getAds = async (req: Request, res: Response, next: NextFunction) =>
         );
 
         if (cacheKey && shouldUseSearchCache) {
-            await setCache(cacheKey, result, 60); // 60 seconds TTL for search
+            const { CACHE_TTLS } = await import('../../utils/redisCache');
+            await setCache(cacheKey, result, CACHE_TTLS.SEARCH);
         }
 
         const pagination = {

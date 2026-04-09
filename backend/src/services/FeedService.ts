@@ -54,7 +54,7 @@ type WarmupResult = {
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 48;
-const HOME_FEED_CACHE_TTL_SECONDS = 60;
+const HOME_FEED_CACHE_TTL_SECONDS = 300;
 export const FEED_CACHE_VERSION = 'v1' as const;
 const PROMOTED_RATIO_CAP = 0.3;
 const PROMOTED_STREAK_CAP = 2;
