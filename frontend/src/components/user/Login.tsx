@@ -160,16 +160,22 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                     </div>
                   )}
 
+                  {!backendReady && (
+                    <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                      Connecting to server&hellip; please wait a moment before sending OTP.
+                    </p>
+                  )}
+
                   <div className="transition-transform active:scale-[0.985]">
                     <Button
                       type="submit"
-                      disabled={!backendReady || isSendingOTP || !isValidMobile || isSendRateLimited}
+                      disabled={isSendingOTP || !isValidMobile || isSendRateLimited || !backendReady}
                       className="w-full h-11"
                     >
                       {isSendingOTP && (
                         <Loader2 className="animate-spin mr-2" size={18} />
                       )}
-                      {isSendRateLimited ? `Send OTP (${formatSeconds(rateLimitRemainingSeconds)})` : "Send OTP"}
+                      {!backendReady ? "Connecting…" : isSendRateLimited ? `Send OTP (${formatSeconds(rateLimitRemainingSeconds)})` : "Send OTP"}
                     </Button>
                   </div>
 
@@ -262,7 +268,6 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         }}
                         disabled={isBlocked || isLocked}
                         className={cn(
-                          "",
                           !newUserName.trim() && nameError && "border-destructive"
                         )}
                         aria-label="Your name"
@@ -275,6 +280,12 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         className="text-xs text-destructive"
                       />
                     </div>
+                  )}
+
+                  {requiresName && !newUserName.trim() && (
+                    <p className="text-center text-xs text-muted-foreground -mb-1">
+                      Enter your name above to enable OTP entry
+                    </p>
                   )}
 
                   <div

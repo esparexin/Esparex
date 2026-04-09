@@ -539,6 +539,7 @@ export const adminResolveListingReport = async (req: Request, res: Response) => 
             ? REPORT_STATUS.DISMISSED
             : REPORT_STATUS.RESOLVED;
 
+        // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
         const reportResult = await Report.updateMany(
             {
                 $or: [
