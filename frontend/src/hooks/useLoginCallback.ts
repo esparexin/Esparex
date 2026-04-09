@@ -11,7 +11,7 @@
  *     `navigateBack` so the page can return the user to their original destination.
  */
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { buildAuthCallbackUrl, buildLoginUrl, normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
@@ -43,7 +43,7 @@ export function useLoginCallback(): UseLoginCallbackReturn {
         return normalizeAuthCallbackUrl(raw);
     }, [searchParams]);
 
-    const navigateBack = (fallback?: () => void) => {
+    const navigateBack = useCallback((fallback?: () => void) => {
         if (returnUrl) {
             // replace: login page must not remain in the history stack
             void router.replace(returnUrl);
@@ -54,11 +54,11 @@ export function useLoginCallback(): UseLoginCallbackReturn {
         } else {
             router.back();
         }
-    };
+    }, [returnUrl, router]);
 
-    const handleShowLogin = () => {
+    const handleShowLogin = useCallback(() => {
         void router.push(buildLoginUrl(loginCallbackUrl));
-    };
+    }, [loginCallbackUrl, router]);
 
     return { loginCallbackUrl, returnUrl, navigateBack, handleShowLogin };
 }

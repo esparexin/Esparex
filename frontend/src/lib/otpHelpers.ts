@@ -107,7 +107,7 @@ export const parseEpochMs = (value: string | number | undefined): number | null 
     return null;
 };
 
-export const isOtpExpiredError = (value: string | undefined): boolean =>
+const isOtpExpiredError = (value: string | undefined): boolean =>
     typeof value === "string" && /\bexpired\b/i.test(value);
 
 export const isRateLimitedError = (options: { status?: number; code?: string; message?: string }): boolean => {

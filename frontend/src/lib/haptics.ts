@@ -93,31 +93,3 @@ export const haptics = {
   error: () => haptic('error'),
 };
 
-/**
- * Hook for haptic feedback in React components
- * 
- * @example
- * ```tsx
- * import { useHaptics } from "@/lib/haptics";
- * 
- * function MyButton() {
- *   const { tap, success } = useHaptics();
- *   
- *   const handleClick = () => {
- *     tap(); // Immediate feedback
- *     // ... async operation
- *     success(); // Success feedback
- *   };
- * }
- * ```
- */
-export function useHaptics() {
-  return haptics;
-}
-
-/**
- * Utility to check if haptic feedback is supported
- */
-export function isHapticsSupported(): boolean {
-  return typeof window !== 'undefined' && 'vibrate' in window.navigator;
-}

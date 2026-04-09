@@ -273,9 +273,11 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         aria-label="Your name"
                         aria-required="true"
                         aria-invalid={!!nameError}
+                        aria-describedby={nameError ? "name-error" : undefined}
                         autoComplete="name"
                       />
                       <FormError
+                        id="name-error"
                         message={nameError}
                         className="text-xs text-destructive"
                       />

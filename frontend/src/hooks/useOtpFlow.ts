@@ -270,7 +270,7 @@ export function useOtpFlow(
         [applyLockedState, applyRateLimitState, mobile, transitionToOtpStep, sendMachine]
     );
 
-    const handleMobileSubmit = async (e: React.FormEvent) => {
+    const handleMobileSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setAuthError(null);
         if (!validateIndianMobile(mobile)) {
@@ -281,7 +281,7 @@ export function useOtpFlow(
         setMobileError("");
         setNameError("");
         await requestOtp({ lockReturnStep: "enterOtp", fallbackMessage: "Failed to send OTP. Please try again." });
-    };
+    }, [mobile, requestOtp]);
 
     const verifyOtpCode = useCallback(
         async (otpValue: string) => {
@@ -363,10 +363,10 @@ export function useOtpFlow(
 
     useEffect(() => { verifyOtpCodeRef.current = (nextOtpValue: string) => { void verifyOtpCode(nextOtpValue); }; }, [verifyOtpCode]);
 
-    const handleResendOtp = async () => {
+    const handleResendOtp = useCallback(async () => {
         if (isSendingOTP || isVerifying || isBlocked || isLocked || isSendRateLimited) return;
         await requestOtp({ lockReturnStep: resolveOtpReturnStep(step), fallbackMessage: "Resend failed. Please try again." });
-    };
+    }, [isSendingOTP, isVerifying, isBlocked, isLocked, isSendRateLimited, requestOtp, step]);
 
     const canResend = useMemo(
         () => isOtpStep && resendRemainingSeconds === 0 && !isLocked && !isBlocked && !isSendRateLimited,

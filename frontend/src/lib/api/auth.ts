@@ -1,6 +1,7 @@
-import { apiClient } from "@/lib/api/client";
+import { apiClient, EsparexRequestConfig } from "@/lib/api/client";
 import { User } from "@/types/User";
 import { API_ROUTES } from "./routes";
+import { getMe } from "./user/users";
 
 export interface AuthPayloadFields {
     user?: User;
@@ -89,8 +90,7 @@ export const authApi = {
     /**
      * Get Current User
      */
-    me: async (options?: any): Promise<{ success: boolean; user?: User }> => {
-        const { getMe } = await import("./user/users");
+    me: async (options?: EsparexRequestConfig): Promise<{ success: boolean; user?: User }> => {
         const user = await getMe(options);
         return {
             success: !!user,
