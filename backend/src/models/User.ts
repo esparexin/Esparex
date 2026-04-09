@@ -51,7 +51,7 @@ export interface IUser extends Document {
   }>;
   notificationSettings?: Record<string, any>;
 
-  mobileVisibility: 'show' | 'hide' | 'on-request';
+  mobileVisibility: 'show' | 'hide' | 'on-request' | 'public' | 'contacts' | 'private';
 
   isDeleted: boolean;
   deletedAt?: Date;
