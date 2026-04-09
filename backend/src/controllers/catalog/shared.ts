@@ -7,7 +7,7 @@
  */
 
 import { Request, Response } from 'express';
-import mongoose, { Document, Model as MongooseModel } from 'mongoose';
+import { Document, Model as MongooseModel } from 'mongoose';
 import { z } from 'zod';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';

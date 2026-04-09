@@ -5,19 +5,16 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
 import * as adService from '../../services/AdService';
 import * as feedService from '../../services/FeedService';
 import * as trendingService from '../../services/TrendingService';
-import { getSellerPhone } from '../../services/ContactRevealService';
 import { respond } from '../../utils/respond';
 import { getSingleParam } from '../../utils/requestParams';
 import { Ad } from '../../../../shared/schemas/ad.schema';
-import { ApiResponse, PaginatedResponse, HomeAdsResponse, HomeFeedResponse } from '../../../../shared/types/Api';
+import { ApiResponse, PaginatedResponse, HomeFeedResponse } from '../../../../shared/types/Api';
 import { getAdsQuerySchema } from '../../validators/ad.validator';
 import { IAuthUser } from '../../types/auth';
 import { sendErrorResponse } from '../../utils/errorResponse';
-import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 

@@ -14,9 +14,6 @@
 
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import type {
-    HierarchyTreeBrandNode,
-    HierarchyTreeCategoryNode,
-    HierarchyTreeModelNode,
     HierarchyTreeResponse,
 } from '../../../../shared/types/CatalogHierarchy';
 import type { AnyBulkWriteOperation } from 'mongoose';

@@ -8,7 +8,6 @@ import { Request, Response } from 'express';
 import { respond } from '../../utils/respond';
 import { handlePaginatedContent } from '../../utils/contentHandler';
 import mongoose from 'mongoose';
-import { z, ZodError } from 'zod';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import Category from '../../models/Category';
@@ -16,15 +15,13 @@ import Brand from '../../models/Brand';
 import Model from '../../models/Model';
 import Ad from '../../models/Ad';
 import SparePart from '../../models/SparePart';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES } from '../../../../shared/enums/catalogStatus';
-import { logAdminAction } from '../../utils/adminLogger';
+import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { 
     sendSuccessResponse 
 } from '../admin/adminBaseController';
 import { escapeRegExp } from '../../utils/stringUtils';
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import {
-    hasAdminAccess,
     sendCatalogError,
     asModel,
     QueryRecord,

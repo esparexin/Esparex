@@ -4,7 +4,6 @@
  * Standardizes mapping of canonical 'live', 'pending' statuses to multiple DB-level string values.
  */
 
-import { AD_STATUS } from '../../../shared/enums/adStatus';
 
 export type SearchableStatus = string | string[];
 

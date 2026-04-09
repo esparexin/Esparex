@@ -6,7 +6,7 @@
  */
 
 import 'dotenv/config';
-import { connectDB, getAdminConnection } from '../config/db';
+import { connectDB } from '../config/db';
 import { seedAdmin } from '../services/AdminService';
 import logger from '../utils/logger';
 

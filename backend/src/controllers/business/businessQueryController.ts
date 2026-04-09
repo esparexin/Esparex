@@ -5,7 +5,6 @@ import { respond } from '../../utils/respond';
 import { Request, Response } from 'express';
 import * as businessService from '../../services/BusinessService';
 import Ad from '../../models/Ad';
-import { Service as SharedService } from '../../../../shared/types/Service';
 import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';

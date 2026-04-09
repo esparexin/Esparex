@@ -13,7 +13,6 @@ import {
     PartialAdPayloadSchema as SharedPartialAdPayloadSchema
 } from '../../../shared/schemas/adPayload.schema';
 import { AD_STATUS_VALUES } from '../../../shared/enums/adStatus';
-import { coordinatesSchema } from '../../../shared/schemas/coordinates.schema';
 
 /**
  * Ad status enum

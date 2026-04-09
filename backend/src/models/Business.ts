@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { Business as SharedBusiness } from '@shared/types/Business';
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared/utils/geoUtils';
-import { BUSINESS_STATUS, BusinessStatusValue, BUSINESS_STATUS_VALUES } from '@shared/enums/businessStatus';
+import { BUSINESS_STATUS, BUSINESS_STATUS_VALUES } from '@shared/enums/businessStatus';
 import { ID_PROOF_TYPE_VALUES, type IdProofTypeValue } from '@shared/enums/idProofType';
 
 export interface IBusinessDocument {

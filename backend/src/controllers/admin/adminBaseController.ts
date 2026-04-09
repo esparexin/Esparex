@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 
-import { respond } from '../../utils/respond';
 export { respond } from '../../utils/respond';
 
 /**

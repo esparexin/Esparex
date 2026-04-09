@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import UserPlan from '../models/UserPlan';
 import { SERVICE_STATUS } from '../../../shared/enums/serviceStatus';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';

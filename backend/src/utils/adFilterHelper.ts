@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { AD_STATUS } from '@shared/enums/adStatus';
 import { normalizeGeoInput } from './GeoUtils';
 import { normalizeAdStatus } from '../services/adStatusService';
 import CategoryQueryBuilder from './CategoryQueryBuilder';

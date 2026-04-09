@@ -1,8 +1,7 @@
 import { 
     canonicalizeToIndian, 
     getMobileVariants, 
-    normalizeTo10Digits, 
-    INDIA_COUNTRY_PREFIX 
+    normalizeTo10Digits 
 } from '../../utils/phoneUtils';
 
 describe('Phone Utilities', () => {

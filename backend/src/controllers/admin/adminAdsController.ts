@@ -1,6 +1,5 @@
 import logger from '../../utils/logger';
 import { AppError } from '../../utils/AppError';
-import { env } from '../../config/env';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
@@ -11,12 +10,9 @@ import {
     isValidAdStatus,
     getAnyAdById,
     createAd,
-    updateAd,
     updateAdTransactional,
     promoteAd,
-    preparePayload,
     getAds,
-    getAdCounts,
     computeModerationSummaryByType,
     getReportedAdsAggregation,
     computeActiveExpiry,
@@ -24,7 +20,6 @@ import {
     extendAdExpiry
 } from '../../services/AdService';
 import * as adStatusService from '../../services/adStatusService';
-import { GOVERNANCE, MS_IN_DAY } from '../../config/constants';
 import { validateTransition } from '../../services/LifecycleGuard';
 import { getSingleParam } from '../../utils/requestParams';
 import type { AdFilters } from '../../types/ad.types';

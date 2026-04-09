@@ -6,7 +6,6 @@ import {
     sendSuccessResponse, 
     sendAdminError 
 } from './adminBaseController';
-import { respond } from '../../utils/respond';
 import { getSingleParam } from '../../utils/requestParams';
 import { logAdminAction } from '../../utils/adminLogger';
 import { mutateStatus } from '../../services/StatusMutationService';
@@ -20,7 +19,6 @@ import {
     isValidListingType,
     listModerationListings,
     normalizeModerationStatusFilter,
-    type ModerationListingType,
 } from '../../services/ListingModerationQueryService';
 import {
     serializeLegacyCountsAdapter,

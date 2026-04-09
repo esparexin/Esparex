@@ -1,4 +1,3 @@
-import logger from '../../utils/logger';
 import { Request, Response } from 'express';
 import { 
     sendSuccessResponse, 

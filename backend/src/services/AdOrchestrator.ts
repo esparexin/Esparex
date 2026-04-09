@@ -8,7 +8,6 @@ import { AppError } from '../utils/AppError';
 // Specialized Services
 import { AdDuplicateService, logDuplicateEvent, buildDuplicateFingerprint } from './AdDuplicateService';
 import { analyzeFraudRisk, FraudContext } from './FraudDetectionService';
-import { AdMediaService } from './AdMediaService';
 import { AdCreationService } from './AdCreationService';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { mutateStatus } from './StatusMutationService';

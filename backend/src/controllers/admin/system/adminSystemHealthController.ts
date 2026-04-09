@@ -7,7 +7,6 @@
 import { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError } from '../adminBaseController';
 import { connectDB, getUserConnection, getAdminConnection } from '../../../config/db';
-import logger from '../../../utils/logger';
 import { version as appVersion } from '../../../../package.json';
 import {
     clearCachePattern,

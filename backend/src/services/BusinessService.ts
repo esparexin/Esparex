@@ -14,7 +14,6 @@ import { publishedBusinessStatusQuery } from '../utils/businessStatus';
 import { mutateStatus } from './StatusMutationService';
 import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
 import { ACTOR_TYPE } from '../../../shared/enums/actor';
-import { SERVICE_STATUS } from '../../../shared/enums/serviceStatus';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { type IdProofTypeValue } from '../../../shared/enums/idProofType';
@@ -22,7 +21,7 @@ import { type IdProofTypeValue } from '../../../shared/enums/idProofType';
 const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
 const ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;
 
-import { IBusinessDocument, IBusiness } from '../models/Business';
+import { IBusinessDocument } from '../models/Business';
 
 type BusinessDocumentInput = {
     type: 'id_proof' | 'business_proof' | 'certificate';

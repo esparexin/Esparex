@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 
 import { NOTIFICATION_TYPE } from "../../../../shared/enums/notificationType";
-import NotificationLog, { type INotificationLog } from "../../models/NotificationLog";
-import ScheduledNotification, { type IScheduledNotification } from "../../models/ScheduledNotification";
+import NotificationLog from "../../models/NotificationLog";
+import ScheduledNotification from "../../models/ScheduledNotification";
 import { NotificationIntent } from "../../domain/NotificationIntent";
 import {
     getPaginationParams,

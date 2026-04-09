@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import User, { IUser } from '../../models/User';
 import Business from '../../models/Business';
-import AdModel from '../../models/Ad';
 import BlockedUser from '../../models/BlockedUser';
 import * as userService from '../../services/UserService';
 import {
@@ -13,9 +12,7 @@ import {
   isS3UploadConfigured
 } from '../../utils/s3';
 import { processSingleImage } from '../../utils/imageProcessor';
-import { respond, sendSuccessResponse } from '../../utils/respond';
-import { ApiResponse } from '../../../../shared/types/Api';
-import { User as SharedUser } from '../../../../shared/types/User';
+import { sendSuccessResponse } from '../../utils/respond';
 import { normalizeLocation } from '../../services/LocationService';
 import { updateUserStatus } from '../../services/UserStatusService';
 import { sendErrorResponse } from '../../utils/errorResponse';

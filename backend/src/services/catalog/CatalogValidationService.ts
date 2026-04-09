@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import Category from '../../models/Category';
 import Brand from '../../models/Brand';
 import Model from '../../models/Model';

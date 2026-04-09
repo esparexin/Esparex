@@ -45,35 +45,22 @@ function isAdCreationDTO(obj: unknown): obj is AdCreationDTO {
  */
 
 import mongoose from 'mongoose';
-import type { HydratedDocument } from 'mongoose';
 import { AppError } from '../utils/AppError';
 import logger from '../utils/logger';
 import Ad, { type IAd } from '../models/Ad';
-import Category from '../models/Category';
-import Brand from '../models/Brand';
-import ProductModel from '../models/Model';
 import { getUserConnection } from '../config/db';
-import { moderateContent } from './ModerationService';
-import { processImages } from '../utils/imageProcessor';
-import { deleteFromS3Url, sanitizePersistedImageUrls } from '../utils/s3';
-import { computeActiveExpiry, normalizeAdStatus, type StatusTransitionData, type AdStatus } from './adStatusService';
+import { normalizeAdStatus } from './adStatusService';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
-import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
 import {
-    checkPostLimit,
     consumeAdPostingSlot,
 } from './PlanService';
 import { getAdPostingBalance } from './AdSlotService';
 import { consumeCredit } from './WalletService';
-import { recordSellerAdPosted } from './SellerTrustSignalsService';
 import { AdContext } from '../types/ad.types';
 import { generateUniqueSlug } from '../utils/slugGenerator';
-import { GOVERNANCE, MS_IN_DAY } from '../config/constants';
 import { LIFECYCLE_STATUS } from '../../../shared/enums/lifecycle';
 import { AD_STATUS, AD_STATUS_VALUES } from '../../../shared/enums/adStatus';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
-import { resolveLocationPathIds } from '../utils/locationHierarchy';
-import type { DuplicatePayload } from './AdValidationService';
 import { AdCreationService } from './AdCreationService';
 import { mutateStatus } from './StatusMutationService';
 import { hydrateAdMetadata } from './AdQueryService';

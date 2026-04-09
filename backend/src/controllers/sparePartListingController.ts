@@ -5,27 +5,20 @@ import AdModel from '../models/Ad';
 // admin-connection-bound model; no additional connection context is needed here.
 import SparePart from '../models/SparePart';
 import Category from '../models/Category';
-import Brand from '../models/Brand';
-import Model from '../models/Model';
-import { sendSuccessResponse } from './admin/adminBaseController';
 import { sendErrorResponse as sendContractErrorResponse } from '../utils/errorResponse';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 import { processImages } from '../utils/imageProcessor';
-import { sanitizeStoredImageUrls } from '../utils/s3';
 import { INVENTORY_STATUS } from '../../../shared/enums/inventoryStatus';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { getAndVerifyOwnedListing } from '../utils/controllerUtils';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../shared/schemas/sparePartPayload.schema';
 import * as adService from '../services/AdService';
-import { ListingSubmissionPolicy } from '../services/ListingSubmissionPolicy';
-import { getUserConnection } from '../config/db';
 import { mutateStatus } from '../services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../shared/enums/actor';
 import { respond } from '../utils/respond';
-import { getSellerPhone } from '../services/ContactRevealService';
 import { getSingleParam } from '../utils/requestParams';
-import type { ApiResponse, ContactResponse, PaginatedResponse } from '../../../shared/types/Api';
+import type { PaginatedResponse } from '../../../shared/types/Api';
 import { ListingMutationService } from '../services/ListingMutationService';
 
 import { normalizeImageTokens, toImageUrls } from '../utils/listingUtils';

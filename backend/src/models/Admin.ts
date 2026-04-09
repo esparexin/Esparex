@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import { Schema, Document, Model } from "mongoose";
 import { getAdminConnection } from "../config/db";
 import softDeletePlugin from '../utils/softDeletePlugin';
 import bcrypt from 'bcryptjs';

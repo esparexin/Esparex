@@ -3,7 +3,7 @@ import { AuthService } from '../../services/AuthService';
 import User from '../../models/User';
 import { blacklistToken } from '../../utils/redisCache';
 import { verifyToken } from '../../utils/auth';
-import { respond, sendSuccessResponse } from '../../utils/respond';
+import { sendSuccessResponse } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { SendOtpResult, VerifyOtpResult } from '../../services/AuthService';
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../../utils/cookieHelper';

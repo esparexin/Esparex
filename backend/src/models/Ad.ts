@@ -1,5 +1,4 @@
-import mongoose, { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
-import { Ad as SharedAd } from '@shared/schemas/ad.schema';
+import { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
 import { ISoftDeleteDocument } from '../utils/softDeletePlugin';
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared/utils/geoUtils';
 import { AD_STATUS, AD_STATUS_VALUES, AdStatusValue } from '@shared/enums/adStatus';

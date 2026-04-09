@@ -6,7 +6,7 @@
 import { Router } from 'express';
 import { validateObjectId } from '../../middleware/validateObjectId';
 import { requirePermission, requireSuperAdmin } from '../../middleware/adminAuth';
-import { otpIpLimiter, searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
+import { searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
 import { validateRequest } from '../../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
 import { PlanPayloadSchema, PartialPlanPayloadSchema } from '../../../../shared/schemas/planPayload.schema';

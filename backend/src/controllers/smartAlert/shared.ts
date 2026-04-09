@@ -6,8 +6,7 @@ import UserWallet from '../../models/UserWallet';
 import {
     normalizeCoordinates,
     normalizeLocation,
-    normalizeLocationResponse,
-    toGeoPoint
+    normalizeLocationResponse
 } from '../../services/LocationService';
 import { serializeDoc } from '../../utils/serialize';
 import { GOVERNANCE, MS_IN_DAY } from '../../config/constants';

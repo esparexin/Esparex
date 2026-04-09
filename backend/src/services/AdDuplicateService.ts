@@ -1,14 +1,11 @@
 import mongoose, { ClientSession } from 'mongoose';
 import Ad from '../models/Ad';
-import logger from '../utils/logger';
 import {
     buildDuplicateFingerprint, 
     findExistingSelfDuplicate, 
     assessCrossUserDuplicateRisk,
     logDuplicateEvent,
-    DuplicatePayload,
-    DuplicateAwareError,
-    createDuplicateError
+    DuplicatePayload
 } from './AdValidationService';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 

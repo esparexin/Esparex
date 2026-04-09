@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { getUserConnection } from '../config/db';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { processImages } from '../utils/imageProcessor';

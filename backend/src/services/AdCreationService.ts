@@ -1,14 +1,11 @@
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError';
-import logger from '../utils/logger';
 import Ad from '../models/Ad';
 import { normalizeLocation, toGeoPoint } from './LocationService';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 import { GOVERNANCE, MS_IN_DAY } from '../config/constants';
 import { LIFECYCLE_STATUS } from '../../../shared/enums/lifecycle';
-import { AD_STATUS } from '../../../shared/enums/adStatus';
-import { CATALOG_STATUS } from '../../../shared/enums/catalogStatus';
 import { resolveLocationPathIds } from '../utils/locationHierarchy';
 import { processImages } from '../utils/imageProcessor';
 import { sanitizeStoredImageUrls } from '../utils/s3';

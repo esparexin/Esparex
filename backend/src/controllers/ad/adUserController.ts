@@ -15,7 +15,7 @@ import { ApiResponse, PaginatedResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { IAuthUser } from '../../types/auth';
 import { validateTransition } from '../../services/LifecycleGuard';
-import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
+import { type ListingTypeValue } from '../../../../shared/enums/listingType';
 
 const sendClientError = (
     req: Request,

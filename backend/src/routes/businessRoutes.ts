@@ -8,8 +8,6 @@ import { validateRequest } from '../middleware/validateRequest';
 import { createBusinessSchema, updateBusinessSchema } from '../validators/business.validator';
 
 import { idempotencyMiddleware } from '../middleware/idempotency';
-import multer from 'multer';
-import os from 'os';
 import { createUploadMiddleware } from '../utils/uploadFactory';
 import { uploadFile } from '../controllers/user';
 

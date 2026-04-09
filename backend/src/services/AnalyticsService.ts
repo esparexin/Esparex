@@ -1,7 +1,6 @@
 import User from '../models/User';
 import Ad from '../models/Ad';
 import RevenueAnalytics from '../models/RevenueAnalytics';
-import mongoose from 'mongoose';
 
 interface AggregationBucket {
     _id: {

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Ad from '../models/Ad';
 import { IAuthUser } from '../types/auth';
 import { sendErrorResponse } from '../utils/errorResponse';
-import { respond, sendSuccessResponse } from '../utils/respond';
+import { sendSuccessResponse } from '../utils/respond';
 import { getSingleParam } from '../utils/requestParams';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../shared/enums/actor';

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types, Model } from 'mongoose'
+import { Schema, Document, Types, Model } from 'mongoose'
 import { getUserConnection } from '../config/db'
 
 export interface ISmartAlert extends Document {

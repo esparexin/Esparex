@@ -1,5 +1,4 @@
 import { getSystemConfigDoc } from '../utils/systemConfigHelper';
-import logger from '../utils/logger';
 
 /* ────────────────────────────────────────────── */
 /* MODERATION SERVICE                             */

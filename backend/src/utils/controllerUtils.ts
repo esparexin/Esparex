@@ -3,7 +3,6 @@ import { IAuthUser } from '../types/auth';
 import { sendErrorResponse } from './errorResponse';
 import { getSingleParam } from './requestParams';
 import AdModel from '../models/Ad';
-import { LISTING_TYPE } from '../../../shared/enums/listingType';
 
 /**
  * Shared Controller Helpers

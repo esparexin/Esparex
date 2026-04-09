@@ -1,4 +1,3 @@
-import { env } from './env';
 import logger from '../utils/logger';
 import { getCache, setCache } from '../utils/redisCache';
 

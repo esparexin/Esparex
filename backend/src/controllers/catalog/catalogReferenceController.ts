@@ -6,7 +6,6 @@
 
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { z, ZodError } from 'zod';
 import Category from '../../models/Category';
 import Brand from '../../models/Brand';
 import ServiceType from '../../models/ServiceType';
@@ -16,7 +15,6 @@ import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import {
     asModel,
-    hasAdminAccess,
     sendCatalogError,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
@@ -26,12 +24,10 @@ import {
     handleCatalogUpdate,
     handleCatalogToggleStatus,
     handleCatalogDelete,
-    sendValidationError,
     sendEmptyPublicList,
     sendSuccessResponse,
     handlePaginatedContent
 } from './shared';
-import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { validateScreenSizeRelations } from '../../services/catalog/CatalogValidationService';
 import {
     screenSizeCreateSchema,

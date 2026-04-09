@@ -1,4 +1,4 @@
-import { LIFECYCLE_STATUS, type LifecycleStatus } from '../../../shared/enums/lifecycle';
+import { LIFECYCLE_STATUS } from '../../../shared/enums/lifecycle';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
 
 /**

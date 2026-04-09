@@ -5,7 +5,7 @@
  * Extracted from adService.ts for better separation of concerns
  */
 
-import mongoose, { ClientSession, PipelineStage } from 'mongoose';
+import mongoose, { PipelineStage } from 'mongoose';
 import Ad from '../models/Ad';
 import Category from '../models/Category';
 import Brand from '../models/Brand';
@@ -19,8 +19,7 @@ import { normalizeLocationResponse, touchLocationSearchAnalytics } from './Locat
 import { buildGeoNearStage, normalizeGeoInput } from '../utils/GeoUtils';
 import { normalizeAdStatus } from './adStatusService';
 import { buildAdFilterFromCriteria, AdFilterCriteria } from '../utils/adFilterHelper';
-import { getCache, setCache, CACHE_TTLS } from '../utils/redisCache';
-import type { HomeAdsResponse } from '../../../shared/types/Api';
+import { getCache, setCache } from '../utils/redisCache';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 import { type ListingTypeValue } from '../../../shared/enums/listingType';
 import logger from '../utils/logger';

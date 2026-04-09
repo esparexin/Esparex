@@ -270,7 +270,6 @@ if (env.NODE_ENV !== 'production') {
 /* -------------------------------------------------------------------------- */
 /* HEALTH & ROOT (NO DB GUARD)                                                  */
 /* -------------------------------------------------------------------------- */
-import { healthCheckHandler } from './utils/health';
 
 // app.get('/health', healthCheckHandler); // Handled by rootRoutes under /api/v1
 // app.get('/api/v1/health', healthCheckHandler); // Handled by rootRoutes
@@ -300,7 +299,7 @@ app.get('/', (_req, res) => {
 /* -------------------------------------------------------------------------- */
 /* CSRF PROTECTION                                                             */
 /* -------------------------------------------------------------------------- */
-import { getCsrfToken, verifyCsrfToken, setCsrfToken } from './middleware/csrfProtection';
+import { verifyCsrfToken } from './middleware/csrfProtection';
 
 // CSRF token endpoint (public, no auth required)
 // Handled by rootRoutes and adminRoutes

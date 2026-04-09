@@ -16,7 +16,6 @@ import Model from '../../models/Model';
 import SparePart from '../../models/SparePart';
 import ServiceType from '../../models/ServiceType';
 import ScreenSize from '../../models/ScreenSize';
-import Ad from '../../models/Ad';
 import { logAdminAction } from '../../utils/adminLogger';
 import { AppError } from '../../utils/AppError';
 import { sendSuccessResponse } from '../admin/adminBaseController';
@@ -35,11 +34,9 @@ import {
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
     sendValidationError,
-    sendEmptyPublicList,
     handleCatalogToggleStatus
 } from './shared';
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
-import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { getCache, setCache, CACHE_TTLS } from '../../utils/redisCache';
 import logger from '../../utils/logger';
 
