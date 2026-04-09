@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import logger from '../utils/logger';
 import { sendErrorResponse } from '../utils/errorResponse';
+import { getCsrfCookieOptions } from '../utils/cookieHelper';
 
 /**
  * 🛡️ CSRF Protection Middleware
@@ -44,12 +45,7 @@ export function setCsrfToken(req: Request, res: Response, next: NextFunction) {
     const token = generateCsrfToken();
 
     // Set HTTP-only cookie
-    res.cookie(CSRF_COOKIE_NAME, token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    });
+    res.cookie(CSRF_COOKIE_NAME, token, getCsrfCookieOptions());
 
     // Attach to response locals for easy access
     res.locals.csrfToken = token;
@@ -145,12 +141,7 @@ export function getCsrfToken(req: Request, res: Response) {
     // Only set cookie here if it wasn't already set by setCsrfToken middleware
     // and no CSRF cookie exists in the incoming request.
     if (!localToken && !cookieToken) {
-        res.cookie(CSRF_COOKIE_NAME, token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 24 * 60 * 60 * 1000
-        });
+        res.cookie(CSRF_COOKIE_NAME, token, getCsrfCookieOptions());
     }
 
     res.json({

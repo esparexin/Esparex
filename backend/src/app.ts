@@ -79,6 +79,7 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 /* -------------------------------------------------------------------------- */
 import { isDbReady } from './config/db';
 import logger from './utils/logger';
+import { resolveCookieDomain } from './utils/cookieHelper';
 
 /* -------------------------------------------------------------------------- */
 /* SWAGGER                                                                     */
@@ -147,6 +148,25 @@ app.set('trust proxy', 1);
 /* -------------------------------------------------------------------------- */
 /* CORS — MUST BE FIRST                                                        */
 /* -------------------------------------------------------------------------- */
+const normalizeOrigin = (value: string): string => value.trim().replace(/\/+$/, '').toLowerCase();
+
+const configuredAllowedOrigins = (env.CORS_ORIGIN || '')
+    .split(',')
+    .map(normalizeOrigin)
+    .filter(Boolean);
+
+const cookieDomain = resolveCookieDomain();
+const inferredFirstPartyOrigins = cookieDomain
+    ? cookieDomain.startsWith('admin.')
+        ? [`https://${cookieDomain}`]
+        : [`https://${cookieDomain}`, `https://admin.${cookieDomain}`]
+    : [];
+
+const allowedOrigins = new Set<string>([
+    ...configuredAllowedOrigins,
+    ...inferredFirstPartyOrigins.map(normalizeOrigin),
+]);
+
 const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
         // Allow server-to-server, curl, mobile apps
@@ -159,11 +179,7 @@ const corsOptions: cors.CorsOptions = {
             if (isLocal) return callback(null, true);
         }
 
-        const allowedOrigins = env.CORS_ORIGIN
-            ? env.CORS_ORIGIN.split(",").map(o => o.trim())
-            : [];
-
-        if (allowedOrigins.includes(origin)) {
+        if (allowedOrigins.has(normalizeOrigin(origin))) {
             return callback(null, true);
         }
 
