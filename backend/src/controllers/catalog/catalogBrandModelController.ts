@@ -19,7 +19,6 @@ import SparePart from '../../models/SparePart';
 import { CATALOG_STATUS, CATALOG_STATUS_VALUES } from '../../../../shared/enums/catalogStatus';
 import { logAdminAction } from '../../utils/adminLogger';
 import { 
-    sendAdminError,
     sendSuccessResponse 
 } from '../admin/adminBaseController';
 import { escapeRegExp } from '../../utils/stringUtils';
@@ -78,7 +77,7 @@ export const getBrands = async (req: Request, res: Response) => {
 
     // Public view strictly requires categoryId
     if (!isAdminView && !categoryObjectId) {
-        return sendAdminError(req, res, 'categoryId is required', 400);
+        return sendCatalogError(req, res, 'categoryId is required', 400);
     }
     if (!isAdminView && categoryObjectId) {
         const activeCategoryValidation = await validateActiveCategories([categoryObjectId]);
@@ -129,7 +128,7 @@ export const getBrandById = async (req: Request, res: Response) => {
                     ]
                 })
         }).populate('categoryIds');
-        if (!brand) return sendAdminError(req, res, 'Brand not found', 404);
+        if (!brand) return sendCatalogError(req, res, 'Brand not found', 404);
         sendSuccessResponse(res, brand);
     } catch (error) {
         sendCatalogError(req, res, error);
@@ -143,7 +142,7 @@ export const getBrandBySlug = async (req: Request, res: Response) => {
     try {
         const slug = String(req.params.slug || '').trim().toLowerCase();
         if (!slug) {
-            return sendAdminError(req, res, 'Brand slug is required', 400);
+            return sendCatalogError(req, res, 'Brand slug is required', 400);
         }
 
         const brand = await Brand.findOne({
@@ -157,7 +156,7 @@ export const getBrandBySlug = async (req: Request, res: Response) => {
         }).populate('categoryIds');
 
         if (!brand) {
-            return sendAdminError(req, res, 'Brand not found', 404);
+            return sendCatalogError(req, res, 'Brand not found', 404);
         }
 
         sendSuccessResponse(res, brand);
@@ -246,14 +245,14 @@ export const suggestBrand = async (req: Request, res: Response) => {
 
         const { name, categoryIds } = req.body;
         const validation = validateBrandSuggestion(name || '');
-        if (!validation.isValid) return sendAdminError(req, res, validation.error || 'Invalid name', 400);
+        if (!validation.isValid) return sendCatalogError(req, res, validation.error || 'Invalid name', 400);
 
         if (!categoryIds || !mongoose.Types.ObjectId.isValid(categoryIds)) {
-            return sendAdminError(req, res, 'Valid categoryIds is required', 400);
+            return sendCatalogError(req, res, 'Valid categoryIds is required', 400);
         }
         const categoryExists = await Category.exists({ _id: categoryIds, ...ACTIVE_CATEGORY_QUERY });
         if (!categoryExists) {
-            return sendAdminError(req, res, 'categoryIds must reference an active category', 400);
+            return sendCatalogError(req, res, 'categoryIds must reference an active category', 400);
         }
 
         const cleanName = validation.cleanName;
@@ -270,7 +269,7 @@ export const suggestBrand = async (req: Request, res: Response) => {
 
             if (alreadyHasCategory) {
                 // Brand is active and already covers this category — user should select from dropdown
-                return sendAdminError(req, res, `"${cleanName}" already exists in this category. Select it from the dropdown.`, 409);
+                return sendCatalogError(req, res, `"${cleanName}" already exists in this category. Select it from the dropdown.`, 409);
             }
 
             // Brand is already admin-approved in another category.
@@ -288,7 +287,7 @@ export const suggestBrand = async (req: Request, res: Response) => {
         }).lean();
 
         if (alreadyPending) {
-            return sendAdminError(req, res, 'You already have a pending suggestion for this brand.', 409);
+            return sendCatalogError(req, res, 'You already have a pending suggestion for this brand.', 409);
         }
 
         const brand = await Brand.create({
@@ -307,9 +306,9 @@ export const suggestBrand = async (req: Request, res: Response) => {
         }));
     } catch (error) {
         if (isDuplicateKeyError(error)) {
-            return sendAdminError(req, res, `"${req.body?.name || 'Brand'}" already exists. Select it from the dropdown.`, 409);
+            return sendCatalogError(req, res, new Error(`"${req.body?.name || 'Brand'}" already exists. Select it from the dropdown.`), { statusCode: 409 });
         }
-        return sendAdminError(req, res, error);
+        return sendCatalogError(req, res, error);
     }
 };
 
@@ -425,7 +424,7 @@ export const getModelById = async (req: Request, res: Response) => {
                     ]
                 })
         }).populate('brandId categoryIds');
-        if (!model) return sendAdminError(req, res, 'Model not found', 404);
+        if (!model) return sendCatalogError(req, res, 'Model not found', 404);
         sendSuccessResponse(res, model);
     } catch (error) {
         sendCatalogError(req, res, error);
@@ -440,7 +439,7 @@ export const getModelBySlug = async (req: Request, res: Response) => {
     try {
         const slug = String(req.params.slug || '').trim().toLowerCase();
         if (!slug) {
-            return sendAdminError(req, res, 'Model slug is required', 400);
+            return sendCatalogError(req, res, 'Model slug is required', 400);
         }
 
         const humanizedSlug = slug.replace(/-/g, ' ');
@@ -464,11 +463,11 @@ export const getModelBySlug = async (req: Request, res: Response) => {
         );
 
         if (matches.length === 0) {
-            return sendAdminError(req, res, 'Model not found', 404);
+            return sendCatalogError(req, res, 'Model not found', 404);
         }
 
         if (matches.length > 1) {
-            return sendAdminError(req, res, 'Model slug is ambiguous', 409);
+            return sendCatalogError(req, res, 'Model slug is ambiguous', 409);
         }
 
         sendSuccessResponse(res, matches[0]);
@@ -578,15 +577,15 @@ export const suggestModel = async (req: Request, res: Response) => {
 
         const { name, brandId } = req.body;
         const validation = validateModelSuggestion(name || '');
-        if (!validation.isValid) return sendAdminError(req, res, validation.error || 'Invalid name', 400);
+        if (!validation.isValid) return sendCatalogError(req, res, validation.error || 'Invalid name', 400);
 
         if (!brandId || !mongoose.Types.ObjectId.isValid(brandId)) {
-            return sendAdminError(req, res, 'Valid brandId is required', 400);
+            return sendCatalogError(req, res, 'Valid brandId is required', 400);
         }
 
         const brandActive = await Brand.exists({ _id: brandId, isActive: true, isDeleted: { $ne: true } });
         if (!brandActive) {
-            return sendAdminError(req, res, 'brandId must reference an active brand', 400);
+            return sendCatalogError(req, res, 'brandId must reference an active brand', 400);
         }
 
         const cleanName = validation.cleanName;
@@ -599,7 +598,7 @@ export const suggestModel = async (req: Request, res: Response) => {
         }).lean();
 
         if (existing) {
-            return sendAdminError(req, res, `"${cleanName}" already exists. Select it from the dropdown.`, 409);
+            return sendCatalogError(req, res, `"${cleanName}" already exists. Select it from the dropdown.`, 409);
         }
 
         const alreadyPending = await Model.findOne({
@@ -610,7 +609,7 @@ export const suggestModel = async (req: Request, res: Response) => {
         }).lean();
 
         if (alreadyPending) {
-            return sendAdminError(req, res, 'You already have a pending suggestion for this model.', 409);
+            return sendCatalogError(req, res, 'You already have a pending suggestion for this model.', 409);
         }
 
         const model = await Model.create({
@@ -628,9 +627,9 @@ export const suggestModel = async (req: Request, res: Response) => {
         }));
     } catch (error) {
         if (isDuplicateKeyError(error)) {
-            return sendAdminError(req, res, `"${req.body?.name || 'Model'}" already exists. Select it from the dropdown.`, 409);
+            return sendCatalogError(req, res, `"${req.body?.name || 'Model'}" already exists. Select it from the dropdown.`, 409);
         }
-        return sendAdminError(req, res, error);
+        return sendCatalogError(req, res, error);
     }
 };
 
@@ -643,11 +642,11 @@ export const ensureModel = async (req: Request, res: Response) => {
         const userId = (req as any).user?.id || (req as any).user?._id;
 
         if (!categoryId || !brandName || !modelName) {
-            return sendAdminError(req, res, 'Missing fields', 400);
+            return sendCatalogError(req, res, 'Missing fields', 400);
         }
         const categoryActive = await Category.exists({ _id: categoryId, ...ACTIVE_CATEGORY_QUERY });
         if (!categoryActive) {
-            return sendAdminError(req, res, 'categoryId must reference an active category', 400);
+            return sendCatalogError(req, res, 'categoryId must reference an active category', 400);
         }
 
         // Optimistically search for Brand and any Model with that name under it
@@ -675,7 +674,6 @@ export const ensureModel = async (req: Request, res: Response) => {
             model = await Model.create({
                 name: modelVal.cleanName || modelName,
                 brandId: brand._id,
-                categoryId: categoryId,
                 categoryIds: [categoryId],
                 isActive: false,
                 status: CATALOG_STATUS.PENDING,

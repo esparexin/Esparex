@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { LISTING_TYPE_VALUES, LISTING_TYPE } from "../enums/listingType";
+import { LISTING_TYPE } from "../enums/listingType";
 
 // Base Validations
 export const ObjectIdSchema = z.preprocess(
@@ -38,7 +38,24 @@ export const CreateCategorySchema = z.object({
     description: z.string().optional(),
     parentId: ObjectIdSchema.optional(),
     isActive: z.boolean().default(true),
-    listingType: z.array(z.enum(LISTING_TYPE_VALUES)).optional(),
+    listingType: z.array(
+        z.enum([
+            LISTING_TYPE.AD, 
+            LISTING_TYPE.SERVICE, 
+            LISTING_TYPE.SPARE_PART,
+            'postad',        // @deprecated FormPlacement legacy value
+            'postservice',   // @deprecated FormPlacement legacy value
+            'postsparepart'  // @deprecated FormPlacement legacy value
+        ])
+    )
+        .transform(arr => arr.map(v => {
+            // Normalize FormPlacement values to canonical LISTING_TYPE
+            if (v === 'postad') return LISTING_TYPE.AD;
+            if (v === 'postservice') return LISTING_TYPE.SERVICE;
+            if (v === 'postsparepart') return LISTING_TYPE.SPARE_PART;
+            return v;
+        }))
+        .optional(),
     // Deprecated: Use listingType.includes('spare_part')
     // supportsSpareParts: z.boolean().default(false),
     serviceSelectionMode: z.enum(['single', 'multi']).default('multi'),
@@ -94,7 +111,21 @@ export const ModelSchema = CreateModelSchema.extend({
 export const CreateSparePartSchema = z.object({
     name: z.string().min(2),
     slug: SlugSchema.optional(),
-    listingType: z.array(z.enum([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART])).optional(),
+    listingType: z.array(
+        z.enum([
+            LISTING_TYPE.AD, 
+            LISTING_TYPE.SPARE_PART,
+            'postad',        // @deprecated FormPlacement legacy value
+            'postsparepart'  // @deprecated FormPlacement legacy value
+        ])
+    )
+        .transform(arr => arr.map(v => {
+            // Normalize FormPlacement values to canonical LISTING_TYPE
+            if (v === 'postad') return LISTING_TYPE.AD;
+            if (v === 'postsparepart') return LISTING_TYPE.SPARE_PART;
+            return v;
+        }))
+        .optional(),
     categories: z.array(ObjectIdSchema).min(1, "At least one category is required"),
     brandId: ObjectIdSchema.optional(),
     modelId: ObjectIdSchema.optional(),

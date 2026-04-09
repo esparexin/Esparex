@@ -210,9 +210,8 @@ export async function getHierarchyTree(): Promise<HierarchyTreeResponse> {
             .filter((brand) => ((brand.categoryIds ?? []) as unknown[]).some((id) => String(id) === categoryId))
             .map((brand) => {
                 const brandModels = (modelsByBrand.get(String(brand._id)) ?? []).filter((model) => {
-                    const legacyCategoryId = model.categoryId ? String(model.categoryId) : null;
                     const mappedCategoryIds = ((model.categoryIds ?? []) as unknown[]).map((id) => String(id));
-                    return legacyCategoryId === categoryId || mappedCategoryIds.includes(categoryId);
+                    return mappedCategoryIds.includes(categoryId);
                 });
 
                 return {

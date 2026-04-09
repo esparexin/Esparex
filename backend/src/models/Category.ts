@@ -80,6 +80,10 @@ CategorySchema.index(
 import softDeletePlugin from '../utils/softDeletePlugin';
 CategorySchema.plugin(softDeletePlugin);
 
+// Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
+import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
+CategorySchema.plugin(installSafeSoftDeleteQuery);
+
 // ON-THE-FLY NORMALIZATION (Safe Migration)
 // Ensures legacy uppercase types and 'post' prefixes are mapped to the new standard at runtime.
 CategorySchema.post('init', function(doc) {

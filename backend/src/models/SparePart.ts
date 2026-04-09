@@ -53,6 +53,10 @@ const SparePartSchema = new Schema<ISparePart>(
 import softDeletePlugin from '../utils/softDeletePlugin';
 SparePartSchema.plugin(softDeletePlugin);
 
+// Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
+import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
+SparePartSchema.plugin(installSafeSoftDeleteQuery);
+
 // INDEXES
 /* -------------------------------------------------------------------------- */
 /* Indexes (Explicitly Named)                                                 */

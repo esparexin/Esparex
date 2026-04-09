@@ -129,9 +129,11 @@ const runFraudEscalation = async (): Promise<void> => {
             }
         );
     } catch (error) {
+        // No HTTP response: this is a cron job - errors are logged for monitoring
         logger.error('[FraudEscalation] Job failed', {
             error: error instanceof Error ? error.message : String(error)
         });
+        // TODO: Add telemetry/alerting if escalation failures spike
     }
 };
 

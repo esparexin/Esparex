@@ -29,7 +29,6 @@ import {
     sendValidationError,
     sendEmptyPublicList,
     sendSuccessResponse,
-    sendAdminError,
     handlePaginatedContent
 } from './shared';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
@@ -85,7 +84,7 @@ export const getServiceTypes = async (req: Request, res: Response) => {
 export const getServiceTypeById = async (req: Request, res: Response) => {
     try {
         const serviceType = await ServiceType.findById(req.params.id).populate('categoryIds');
-        if (!serviceType) return sendAdminError(req, res, 'Service type not found', 404);
+        if (!serviceType) return sendCatalogError(req, res, 'Service type not found', 404);
         sendSuccessResponse(res, serviceType);
     } catch (error) {
         sendCatalogError(req, res, error);
@@ -228,7 +227,7 @@ export const getScreenSizes = async (req: Request, res: Response) => {
 export const getScreenSizeById = async (req: Request, res: Response) => {
     try {
         const size = await ScreenSize.findById(req.params.id).populate('categoryId');
-        if (!size) return sendAdminError(req, res, 'Screen size not found', 404);
+        if (!size) return sendCatalogError(req, res, 'Screen size not found', 404);
         sendSuccessResponse(res, size);
     } catch (error) {
         sendCatalogError(req, res, error);

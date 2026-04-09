@@ -74,7 +74,10 @@ export class ListingMutationService {
             return createdListing as Record<string, unknown>;
         } catch (error) {
             logger.error(`ListingMutationService: Failed to create ${context.listingType}`, { error });
-            throw error;
+            // Add context before throwing to preserve error details for callers
+            const contextError = error instanceof Error ? error : new Error(String(error));
+            contextError.message = `ListingMutationService: Failed to create ${context.listingType} - ${contextError.message}`;
+            throw contextError;
         } finally {
             await dbSession.endSession();
         }

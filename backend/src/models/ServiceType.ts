@@ -43,6 +43,10 @@ ServiceTypeSchema.index(
 import softDeletePlugin from '../utils/softDeletePlugin';
 ServiceTypeSchema.plugin(softDeletePlugin);
 
+// Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
+import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
+ServiceTypeSchema.plugin(installSafeSoftDeleteQuery);
+
 import { getAdminConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 const ServiceType: Model<IServiceType> = getAdminConnection().models.ServiceType || getAdminConnection().model<IServiceType>('ServiceType', ServiceTypeSchema);

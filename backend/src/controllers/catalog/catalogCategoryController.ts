@@ -18,10 +18,7 @@ import ScreenSize from '../../models/ScreenSize';
 import Ad from '../../models/Ad';
 import { logAdminAction } from '../../utils/adminLogger';
 import { AppError } from '../../utils/AppError';
-import { 
-    sendAdminError,
-    sendSuccessResponse 
-} from '../admin/adminBaseController';
+import { sendSuccessResponse } from '../admin/adminBaseController';
 // import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import { clearCategoryCanonicalCache } from '../../utils/categoryCanonical';
@@ -114,7 +111,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
         const identifierParam = req.params.id;
         const identifier = Array.isArray(identifierParam) ? identifierParam[0] : identifierParam;
         if (!identifier) {
-            return sendAdminError(req, res, 'Category not found', 404);
+            return sendCatalogError(req, res, 'Category not found', 404);
         }
         const lookup = mongoose.Types.ObjectId.isValid(identifier)
             ? { _id: identifier }
@@ -125,7 +122,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
             ...(isAdminView ? {} : ACTIVE_CATEGORY_QUERY),
         });
         if (!category) {
-            return sendAdminError(req, res, 'Category not found', 404);
+            return sendCatalogError(req, res, 'Category not found', 404);
         }
         sendSuccessResponse(res, category);
     } catch (error) {
@@ -141,7 +138,7 @@ export const getCategorySchema = async (req: Request, res: Response) => {
         const { id } = req.params;
         const category = await Category.findById(id);
         if (!category) {
-            return sendAdminError(req, res, 'Category not found', 404);
+            return sendCatalogError(req, res, 'Category not found', 404);
         }
 
         const mergedFilters = category.filters || [];
@@ -162,7 +159,7 @@ export const getCategorySchema = async (req: Request, res: Response) => {
 export const updateCategorySchema = async (req: Request, res: Response) => {
     try {
         if (!hasAdminAccess(req)) {
-            return sendAdminError(req, res, 'Admin access required', 403);
+            return sendCatalogError(req, res, 'Admin access required', 403);
         }
 
         const { id } = req.params;
@@ -180,7 +177,7 @@ export const updateCategorySchema = async (req: Request, res: Response) => {
         );
 
         if (!category) {
-            return sendAdminError(req, res, 'Category not found', 404);
+            return sendCatalogError(req, res, 'Category not found', 404);
         }
 
         await CatalogOrchestrator.invalidateCatalogCache();
@@ -198,18 +195,18 @@ export const updateCategorySchema = async (req: Request, res: Response) => {
  */
 export const createCategory = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) return sendAdminError(req, res, 'Admin access required', 403);
+        if (!hasAdminAccess(req)) return sendCatalogError(req, res, 'Admin access required', 403);
         const parsed = categoryCreateSchema.safeParse(req.body);
         if (!parsed.success) return sendValidationError(req, res, parsed.error);
 
         const payload = { ...parsed.data };
         payload.slug = slugify(payload.slug || payload.name, { lower: true, strict: true });
         
-        if (!payload.slug) return sendAdminError(req, res, 'Invalid category slug', 400);
+        if (!payload.slug) return sendCatalogError(req, res, 'Invalid category slug', 400);
         
         if (payload.parentId) {
             if (!(await Category.exists({ _id: payload.parentId }))) {
-                return sendAdminError(req, res, 'Invalid parent category', 400);
+                return sendCatalogError(req, res, 'Invalid parent category', 400);
             }
         }
 
@@ -230,7 +227,7 @@ export const createCategory = async (req: Request, res: Response) => {
  */
 export const updateCategory = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) return sendAdminError(req, res, 'Admin access required', 403);
+        if (!hasAdminAccess(req)) return sendCatalogError(req, res, 'Admin access required', 403);
         const categoryId = req.params.id;
         
         // Strip immutable/internal fields that admin frontends might send
@@ -240,7 +237,7 @@ export const updateCategory = async (req: Request, res: Response) => {
         }
 
         const oldCategory = await Category.findById(categoryId);
-        if (!oldCategory) return sendAdminError(req, res, 'Category not found', 404);
+        if (!oldCategory) return sendCatalogError(req, res, 'Category not found', 404);
 
         const parsed = categoryUpdateSchema.safeParse(req.body);
         if (!parsed.success) return sendValidationError(req, res, parsed.error);
@@ -251,12 +248,12 @@ export const updateCategory = async (req: Request, res: Response) => {
         }
         
         if (payload.slug !== undefined && payload.slug.length === 0) {
-            return sendAdminError(req, res, 'Invalid category slug', 400);
+            return sendCatalogError(req, res, 'Invalid category slug', 400);
         }
 
         if (payload.parentId) {
-            if (payload.parentId === categoryId) return sendAdminError(req, res, 'Category cannot be its own parent', 400);
-            if (!(await Category.exists({ _id: payload.parentId }))) return sendAdminError(req, res, 'Invalid parent category', 400);
+            if (payload.parentId === categoryId) return sendCatalogError(req, res, 'Category cannot be its own parent', 400);
+            if (!(await Category.exists({ _id: payload.parentId }))) return sendCatalogError(req, res, 'Invalid parent category', 400);
         }
 
         const payloadWithStatus = payload.isActive !== undefined
@@ -264,7 +261,7 @@ export const updateCategory = async (req: Request, res: Response) => {
             : payload;
 
         const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId as string, payloadWithStatus as any);
-        if (!updatedCategory) return sendAdminError(req, res, 'Category not found', 404);
+        if (!updatedCategory) return sendCatalogError(req, res, 'Category not found', 404);
 
         clearCategoryCanonicalCache();
 
@@ -321,11 +318,11 @@ export const deleteCategory = async (req: Request, res: Response) => {
     } catch (e: any) {
         await session.abortTransaction();
         if (e.message === 'Admin access required') {
-             return sendAdminError(req, res, e.message, 403);
+             return sendCatalogError(req, res, e.message, 403);
         } else if (e.message === 'Category not found') {
-             return sendAdminError(req, res, e.message, 404);
+             return sendCatalogError(req, res, e.message, 404);
         } else {
-             return sendAdminError(req, res, e);
+             return sendCatalogError(req, res, e);
         }
     } finally {
         await session.endSession();

@@ -91,9 +91,11 @@ const runGeoAudit = async (): Promise<void> => {
             }
         );
     } catch (error) {
+        // No HTTP response: this is a cron job - errors are logged for monitoring
         logger.error('[GeoAudit] Audit job failed', {
             error: error instanceof Error ? error.message : String(error),
         });
+        // TODO: Add telemetry/alerting if audit gaps emerge
     }
 };
 

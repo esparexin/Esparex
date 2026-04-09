@@ -13,10 +13,10 @@ import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import Category from '../../models/Category';
 import { respond } from '../../utils/respond';
-import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
+import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from '../../utils/errorResponse';
 import { 
-    sendAdminError,
-    sendSuccessResponse 
+    sendSuccessResponse,
+    sendAdminError
 } from '../admin/adminBaseController';
 import { CatalogStatusValue, CATALOG_STATUS } from '@shared/enums/catalogStatus';
 
@@ -35,6 +35,7 @@ export type { CatalogStatusValue };
 export { 
     sendAdminError,
     sendSuccessResponse,
+    sendCatalogError,
     CATALOG_STATUS,
     ACTIVE_CATEGORY_QUERY,
     ACTIVE_BRAND_QUERY,
@@ -84,12 +85,7 @@ export const isCategoryActive = async (categoryId: string): Promise<boolean> => 
     return Boolean(exists);
 };
 
-/**
- * Send standardized catalog error response
- */
-export const sendCatalogError = (req: Request, res: Response, error: unknown) => {
-    return sendAdminError(req, res, error);
-};
+// sendCatalogError is imported and re-exported from '../../utils/errorResponse' (line 16)
 
 /**
  * Send Zod validation error response mapping issues to field-level details

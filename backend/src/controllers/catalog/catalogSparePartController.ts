@@ -13,10 +13,7 @@ import Brand from '../../models/Brand';
 import Model from '../../models/Model';
 import SparePart from '../../models/SparePart';
 import Ad from '../../models/Ad';
-import { 
-    sendAdminError,
-    sendSuccessResponse
-} from '../admin/adminBaseController';
+import { sendSuccessResponse } from '../admin/adminBaseController';
 import { resolveEquivalentActiveCategoryIds } from '../../utils/categoryCanonical';
 import {
     sendCatalogError,
@@ -244,7 +241,7 @@ export const deleteSparePart = async (req: Request, res: Response) => {
 export const getSparePartById = async (req: Request, res: Response) => {
     try {
         const sparePart = await SparePart.findById(req.params.id);
-        if (!sparePart) return sendAdminError(req, res, 'Spare part not found', 404);
+        if (!sparePart) return sendCatalogError(req, res, 'Spare part not found', 404);
         sendSuccessResponse(res, sparePart);
     } catch (error) {
         sendCatalogError(req, res, error);

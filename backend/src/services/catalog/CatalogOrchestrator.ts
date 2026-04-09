@@ -128,31 +128,9 @@ export class CatalogOrchestrator {
             }
 
             const remainingCategoryIds = toUniqueCategoryObjectIds(model.categoryIds, categoryId);
-            const primaryCategoryId = model.categoryId ? String(model.categoryId) : '';
-
-            if (primaryCategoryId === categoryId) {
-                if (remainingCategoryIds.length === 0) {
-                    modelIdsToDelete.push(model._id);
-                    continue;
-                }
-
-                try {
-                    await Model.updateOne(
-                        { _id: model._id },
-                        {
-                            $set: {
-                                categoryId: remainingCategoryIds[0],
-                                categoryIds: remainingCategoryIds,
-                            },
-                        }
-                    ).session(txSession);
-                } catch (error) {
-                    if (isDuplicateKeyError(error)) {
-                        modelIdsToDelete.push(model._id);
-                        continue;
-                    }
-                    throw error;
-                }
+            
+            if (remainingCategoryIds.length === 0) {
+                modelIdsToDelete.push(model._id);
                 continue;
             }
 

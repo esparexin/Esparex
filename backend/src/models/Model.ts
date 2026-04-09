@@ -4,7 +4,6 @@ import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../..
 export interface IModel extends Document {
     name: string;
     brandId: mongoose.Types.ObjectId;
-    categoryId?: mongoose.Types.ObjectId;
     categoryIds: mongoose.Types.ObjectId[];
     isActive: boolean;
     status: CatalogStatusValue;
@@ -19,7 +18,6 @@ export interface IModel extends Document {
 const ModelSchema: Schema = new Schema({
     name: { type: String, required: true },
     brandId: { type: Schema.Types.ObjectId, ref: 'Brand', required: true },
-    categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
     categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
     isActive: { type: Boolean, default: true },
     status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
@@ -54,7 +52,6 @@ ModelSchema.index(
 // Many-to-Many Indexes
 ModelSchema.index({ categoryIds: 1 }, { name: 'idx_model_categoryIds' });
 
-ModelSchema.index({ categoryId: 1 }, { name: 'idx_model_categoryId' });
 ModelSchema.index({ isActive: 1 }, { name: 'idx_model_isActive' });
 ModelSchema.index({ isDeleted: 1 }, { name: 'idx_model_isDeleted' });
 
@@ -66,6 +63,10 @@ ModelSchema.index({ isDeleted: 1 }, { name: 'idx_model_isDeleted' });
 
 import softDeletePlugin from '../utils/softDeletePlugin';
 ModelSchema.plugin(softDeletePlugin);
+
+// Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
+import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
+ModelSchema.plugin(installSafeSoftDeleteQuery);
 
 import { getAdminConnection } from '../config/db';
 const ProductModel: Model<IModel> = getAdminConnection().models.Model || getAdminConnection().model<IModel>('Model', ModelSchema);

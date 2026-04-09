@@ -47,6 +47,10 @@ const BrandSchema = new Schema<IBrand>({
 // Apply soft-delete plugin (adds isDeleted, deletedAt fields + auto-filter pre-hooks + softDelete()/restore() methods)
 BrandSchema.plugin(softDeletePlugin);
 
+// Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
+import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
+BrandSchema.plugin(installSafeSoftDeleteQuery);
+
 // 🚀 CORE INDEXES (Aligned with Atlas ground truth in migrations)
 BrandSchema.index({ categoryIds: 1 }, { name: 'idx_brand_categoryIds_idx' })
 BrandSchema.index({ status: 1 }, { name: 'idx_brand_status_idx' })

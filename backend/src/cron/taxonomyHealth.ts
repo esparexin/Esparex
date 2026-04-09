@@ -57,7 +57,9 @@ async function runTaxonomyHealthCheck(): Promise<void> {
             logger.info('[TaxonomyHealth] ✅ No orphaned models found. Taxonomy is clean.');
         }
     } catch (error) {
+        // No HTTP response: this is a cron job - errors are logged for monitoring
         logger.error('[TaxonomyHealth] ❌ Health check failed:', error);
+        // TODO: Add telemetry/alerting if critical threshold exceeded
     }
 }
 
