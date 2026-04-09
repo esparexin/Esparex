@@ -334,6 +334,7 @@ export function useOtpFlow(
                 if ((meta.code && BLOCKED_ERROR_CODES.has(meta.code)) || /permanently\s+(banned|blocked)|\bbanned\b|\bblocked\b/i.test(message)) {
                     haptics.error();
                     setAuthError({ type: "blocked", message });
+                    sendMachine("FAIL");
                     return;
                 }
                 haptics.warning();

@@ -65,7 +65,7 @@ export function ListingBottomActions({
           {/* Mobile - Sold Status Bar */}
           <div className="md:hidden">
             <div className="fixed bottom-0 left-0 right-0 bg-green-50 border-t-2 border-green-600 shadow-lg z-40">
-              <div className="p-4">
+              <div className="px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                 <div className="flex items-center justify-center gap-3">
                   <CheckCircle className="h-6 w-6 text-green-600" />
                   <div className="text-center">
@@ -87,7 +87,7 @@ export function ListingBottomActions({
     if (variant === "pending-owner") {
       return (
         <div className="md:hidden">
-          <div className="fixed bottom-[4rem] left-0 right-0 px-4 py-2 bg-amber-50 border-t border-amber-200 z-40">
+          <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 px-4 py-2 bg-amber-50 border-t border-amber-200 z-40">
             <p className="text-xs text-center text-amber-700">
               <Info className="h-3 w-3 inline mr-1" />
               Waiting for admin approval
@@ -95,7 +95,7 @@ export function ListingBottomActions({
           </div>
 
           <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40">
-            <div className="grid grid-cols-2 gap-2 p-3">
+            <div className="grid grid-cols-2 gap-2 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <Button
                 variant="outline"
                 className="flex flex-col gap-1 h-11 text-xs"
@@ -124,7 +124,7 @@ export function ListingBottomActions({
         {/* Mobile - Owner Action Bar */}
         <div className="md:hidden">
           {/* Owner Notice */}
-          <div className="fixed bottom-[4rem] left-0 right-0 px-4 py-2 bg-green-50 border-t border-green-200 z-40">
+          <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 px-4 py-2 bg-green-50 border-t border-green-200 z-40">
             <p className="text-xs text-center text-green-700">
               <Info className="h-3 w-3 inline mr-1" />
               You're viewing your active listing
@@ -133,7 +133,7 @@ export function ListingBottomActions({
 
           {/* Action Bar */}
           <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)] z-40">
-            <div className="grid grid-cols-3 gap-1.5 px-2 py-3">
+            <div className="grid grid-cols-3 gap-1.5 px-2 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               {/* Edit */}
               <Button
                 variant="outline"
@@ -201,7 +201,7 @@ export function ListingBottomActions({
     return (
       <div className="md:hidden">
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)] z-40">
-          <div className={`grid gap-2 p-3 ${showPhoneAction && showChatAction ? "grid-cols-2" : "grid-cols-1"}`}>
+          <div className={`grid gap-2 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] ${showPhoneAction && showChatAction ? "grid-cols-2" : "grid-cols-1"}`}>
             {showPhoneAction ? (
               <Button
                 variant="outline"

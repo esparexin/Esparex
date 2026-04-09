@@ -175,7 +175,7 @@ export function SearchResultsHeader({
     const [desktopOpen, setDesktopOpen] = React.useState(false);
 
     return (
-        <div className="sticky top-[92px] md:top-0 z-20 bg-white/95 backdrop-blur-md mb-4 md:mb-0 md:border-b md:border-slate-100">
+        <div className="sticky top-[6.25rem] md:top-0 z-20 bg-white/95 backdrop-blur-md mb-4 md:mb-0 md:border-b md:border-slate-100">
             {/* ── MOBILE LAYOUT ────────────────────────────────────────── */}
             <div className="md:hidden">
                 <div className="border-b border-slate-100 px-3 py-3">

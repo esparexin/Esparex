@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
+import { getUserConnection } from '../config/db';
 
 export interface IPhoneRevealLog extends Document {
     buyerId: mongoose.Types.ObjectId;
@@ -31,4 +32,8 @@ PhoneRevealLogSchema.index({ sellerId: 1 }, { name: 'idx_phonereveal_sellerId_id
 PhoneRevealLogSchema.index({ entityId: 1 }, { name: 'idx_phonereveal_entityId_idx' });
 PhoneRevealLogSchema.index({ revealedAt: -1 }, { name: 'idx_phonereveal_revealedAt_idx' });
 
-export default mongoose.model<IPhoneRevealLog>('PhoneRevealLog', PhoneRevealLogSchema, 'phone_reveal_logs');
+const PhoneRevealLog: Model<IPhoneRevealLog> =
+    getUserConnection().models.PhoneRevealLog ||
+    getUserConnection().model<IPhoneRevealLog>('PhoneRevealLog', PhoneRevealLogSchema, 'phone_reveal_logs');
+
+export default PhoneRevealLog;

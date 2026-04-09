@@ -109,7 +109,7 @@ const getUserAuthFailure = (
         });
     }
     if (user.status === 'suspended') {
-        return createFailure(403, 'Your account has been temporarily suspended. Please contact support for more information.', {
+        return createFailure(403, 'Your account is suspended. Please contact support.', {
             code: 'USER_SUSPENDED'
         });
     }

@@ -50,7 +50,7 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
     className={cn(
       // Radix injects data-[state] so we can animate in/out with tailwindcss-animate
-      "fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px]",
+      "fixed inset-0 z-[300] bg-black/50 backdrop-blur-[2px]",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
@@ -78,13 +78,13 @@ const DialogContent = React.forwardRef<
         mobileSafe
           ? [
               // Mobile: anchor near the top so keyboard resize does not shift the whole dialog upward.
-              "fixed left-[50%] top-4 z-50 w-[calc(100vw-2rem)] max-w-lg outline-none",
+              "fixed left-[50%] top-4 z-[301] w-[calc(100vw-2rem)] max-w-lg outline-none",
               "-translate-x-1/2",
               "sm:top-[50%] sm:-translate-y-1/2",
             ]
           : [
               // Positioning — centred, fills up to 90vh
-              "fixed left-[50%] top-[50%] z-50",
+              "fixed left-[50%] top-[50%] z-[301]",
               "translate-x-[-50%] translate-y-[-50%]",
               "w-full max-w-lg mx-4",
             ],

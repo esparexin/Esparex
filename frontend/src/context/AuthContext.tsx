@@ -11,13 +11,13 @@ import {
   useRef,
 } from "react";
 
+import { useRouter } from "next/navigation";
 import type { User } from "@/types/User";
 
 import { apiClient } from "@/lib/api/client";
 import { isAPIError } from "@/lib/api/APIError";
 import { normalizeError } from "@/lib/api/normalizeError";
 import { authApi } from "@/lib/api/auth";
-import { toast } from "sonner";
 import logger from "@/lib/logger";
 
 /* -------------------------------------------------------------------------- */
@@ -94,6 +94,7 @@ export function AuthProvider({
   children: ReactNode;
   initialHasAuthCookie?: boolean;
 }) {
+  const router = useRouter();
   const [user, setUser] =
     useState<User | null>(null);
 
@@ -219,11 +220,8 @@ export function AuthProvider({
         const hadActiveSession = wasAuthenticatedRef.current;
         wasAuthenticatedRef.current = false;
         if (hadActiveSession && !authBannerShownRef.current) {
-          toast.error("Your session has expired. Please log in again.", {
-            id: "session-expired",
-            duration: Infinity,
-          });
           authBannerShownRef.current = true;
+          router.replace("/");
         }
 
         return;

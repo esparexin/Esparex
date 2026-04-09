@@ -94,6 +94,7 @@ export function BrowseAds({
 }: BrowseAdsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const { location, isLoaded } = useLocationState();
   const routeParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
 
@@ -231,7 +232,7 @@ export function BrowseAds({
     initialData: shouldUseInitialResults ? initialResults : undefined,
   });
 
-  const pageAds = data?.data ?? [];
+  const pageAds = useMemo(() => data?.data ?? [], [data]);
   const [displayAds, setDisplayAds] = useState<Listing[]>(initialResults?.data ?? []);
 
   useEffect(() => {

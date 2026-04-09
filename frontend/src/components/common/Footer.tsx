@@ -161,7 +161,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
             className={cn(
                 "mt-auto w-full border-t",
                 hasMobileBottomNav
-                    ? "pt-6 pb-[calc(6.75rem+env(safe-area-inset-bottom))] md:py-12"
+                    ? "pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:py-12"
                     : "py-6 md:py-12",
                 isDark ? "bg-slate-950 border-slate-900 text-foreground-subtle" : "bg-slate-50 border-slate-200 text-foreground-tertiary",
                 className

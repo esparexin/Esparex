@@ -45,7 +45,7 @@ export function WizardModalShell({
         <DialogOverlay className="bg-black/60 backdrop-blur-sm" />
         <RadixDialog.Content
           className={cn(
-            "fixed z-50 left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full flex flex-col overflow-hidden bg-background shadow-2xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200",
+            "fixed z-[301] left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full flex flex-col overflow-hidden bg-background shadow-2xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200",
             "h-[100dvh] sm:h-[92vh] sm:rounded-t-2xl md:h-auto md:max-h-[88vh] md:max-w-2xl md:rounded-2xl",
             className
           )}

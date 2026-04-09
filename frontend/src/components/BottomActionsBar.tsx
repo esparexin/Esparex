@@ -21,7 +21,7 @@ export function BottomActionsBar({ enabled = true }: { enabled?: boolean }) {
     }
 
     return (
-        <div className="fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-200 p-4 md:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div className="fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-200 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
             <div className="flex gap-3 max-w-md mx-auto">
                 {actions.map((action, index) => {
                     const variant: ButtonProps["variant"] = action.variant ?? "outline";
