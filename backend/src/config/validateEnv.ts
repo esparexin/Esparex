@@ -142,7 +142,11 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
     }
 
     if ((sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase() === 'true') {
-        throw new Error('USE_DEFAULT_OTP must be false in production');
+        bootstrapLogger.warn(
+            '⚠️  USE_DEFAULT_OTP is enabled in production. ' +
+            'All users can log in with the static OTP. ' +
+            'Disable this immediately after DLT/SMS approval.'
+        );
     }
 
     bootstrapLogger.info('✅ Production environment secrets and origin constraints validated');
