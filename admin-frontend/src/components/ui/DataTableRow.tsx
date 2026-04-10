@@ -1,14 +1,16 @@
 import React from "react";
+import type { VirtualItem } from "@tanstack/react-virtual";
+import type { ColumnDef } from "./DataTable";
 
-export interface DataTableRowProps<T> {
+export interface DataTableRowProps<T extends { id: string | number }> {
     item: T;
-    virtualRow: any;
-    visibleColumns: any[];
+    virtualRow: VirtualItem;
+    visibleColumns: ColumnDef<T>[];
     measureElement: (element: HTMLElement | null) => void;
     onRowClick?: (item: T) => void;
 }
 
-export function DataTableRow<T>({ item, virtualRow, visibleColumns, measureElement, onRowClick }: DataTableRowProps<T>) {
+export function DataTableRow<T extends { id: string | number }>({ item, virtualRow, visibleColumns, measureElement, onRowClick }: DataTableRowProps<T>) {
     return (
         <tr
             data-index={virtualRow.index}

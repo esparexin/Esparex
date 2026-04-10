@@ -1,19 +1,21 @@
 import React from "react";
 import { MoreHorizontal } from "lucide-react";
 import { DataTableRow } from "./DataTableRow";
+import type { VirtualItem, Virtualizer } from "@tanstack/react-virtual";
+import type { ColumnDef } from "./DataTable";
 
-export interface DataTableBodyProps<T> {
+export interface DataTableBodyProps<T extends { id: string | number }> {
     data: T[];
-    virtualItems: any[];
-    firstVirtualItem: any;
-    lastVirtualItem: any;
-    visibleColumns: any[];
-    rowVirtualizer: any;
+    virtualItems: VirtualItem[];
+    firstVirtualItem: VirtualItem | undefined;
+    lastVirtualItem: VirtualItem | undefined;
+    visibleColumns: ColumnDef<T>[];
+    rowVirtualizer: Virtualizer<HTMLDivElement, Element>;
     emptyMessage: string;
     onRowClick?: (item: T) => void;
 }
 
-export function DataTableBody<T>({
+export function DataTableBody<T extends { id: string | number }>({
     data, virtualItems, firstVirtualItem, lastVirtualItem, visibleColumns, rowVirtualizer, emptyMessage, onRowClick
 }: DataTableBodyProps<T>) {
     return (
@@ -30,7 +32,7 @@ export function DataTableBody<T>({
                         if (!item) return null;
                         return (
                             <DataTableRow
-                                key={(item as any).id || virtualRow.index}
+                                key={virtualRow.key ?? virtualRow.index}
                                 item={item}
                                 virtualRow={virtualRow}
                                 visibleColumns={visibleColumns}
