@@ -12,8 +12,8 @@ const redisUrl = process.env.REDIS_URL || (() => {
 })();
 
 // 🔍 STARTUP AUDIT: Log the connection protocol and host (obfuscated)
-const auditUrl = redisUrl.replace(/:[^:@]+@/, ':****@');
-logger.info(`[REDIS_BOOT] Protocol: ${redisUrl.split(':')[0]} | URL: ${auditUrl}`);
+const auditUrl = (redisUrl || '').replace(/:[^:@]+@/, ':****@');
+logger.warn(`[REDIS_BOOT] Protocol: ${(redisUrl || '').split(':')[0]} | URL: ${auditUrl}`);
 
 if (process.env.NODE_ENV === 'production') {
     if (!redisPassword && !redisUrl.includes(':@') && !redisUrl.includes('//:')) {
