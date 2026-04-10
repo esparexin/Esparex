@@ -11,49 +11,29 @@ import type { Category } from "@/lib/api/user/categories";
 import { useAdsListQuery } from "@/hooks/queries/useListingsQuery";
 
 import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
-import type { SortOption } from "@/components/search/SearchResultsHeader";
+
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocationState } from "@/context/LocationContext";
 import {
-  getDisplayLocationLabel,
   getSearchLocationLabel,
   sanitizeLocationLabel,
 } from "@/lib/location/locationLabels";
 import {
   shouldUseGeoRadiusLocation,
 } from "@/lib/location/queryMode";
-import { getLatitude, getLongitude } from "@/lib/location/utils";
-import { buildPublicBrowseRoute, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
-import {
-  PUBLIC_BROWSE_SORT_LABELS,
-  PUBLIC_BROWSE_SORT_MAP,
-} from "@/lib/publicBrowseSort";
+import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
+import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
 import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
 import { appendUniqueBrowseItems } from "@/lib/browse/appendUniqueBrowseItems";
 
+import { useFilterState, DEFAULT_PRICE_RANGE } from "./hooks/useFilterState";
+import { useUrlSync } from "./hooks/useUrlSync";
+import { useFilterToQuery } from "./hooks/useFilterToQuery";
+import { useBrowseEmptyState } from "./hooks/useBrowseEmptyState";
+
 const PAGE_SIZE = 20;
-const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
-const DEFAULT_PRICE_RANGE: [number, number] = [0, 200000];
-const EMPTY_FILTER_SHELL_CLASS_NAME =
-  "w-64 shrink-0 h-fit sticky top-[6.25rem] rounded-3xl border border-slate-200/80 bg-white/85 p-4 shadow-none backdrop-blur-sm";
-
-const formatCurrency = (value: number) => `Rs ${value.toLocaleString()}`;
-
-const buildPriceSummary = (priceRange: [number, number]) => {
-  const [minPrice, maxPrice] = priceRange;
-  if (minPrice <= DEFAULT_PRICE_RANGE[0] && maxPrice >= DEFAULT_PRICE_RANGE[1]) {
-    return null;
-  }
-  if (minPrice > DEFAULT_PRICE_RANGE[0] && maxPrice < DEFAULT_PRICE_RANGE[1]) {
-    return `${formatCurrency(minPrice)} to ${formatCurrency(maxPrice)}`;
-  }
-  if (minPrice > DEFAULT_PRICE_RANGE[0]) {
-    return `From ${formatCurrency(minPrice)}`;
-  }
-  return `Up to ${formatCurrency(maxPrice)}`;
-};
 
 const SearchFilters = dynamic(
   () => import("@/components/search/SearchFilters").then((mod) => mod.SearchFilters),
@@ -97,25 +77,20 @@ export function BrowseAds({
   const { location, isLoaded } = useLocationState();
   const routeParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
 
-  // ── Filter state (derived from URL params on mount) ──────────────────────────
-  const [query, setQuery] = useState(
-    routeParams.q ?? initialSearchQuery
-  );
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    routeParams.categoryId ?? routeParams.category ?? initialCategory ?? null
-  );
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    routeParams.minPrice ?? DEFAULT_PRICE_RANGE[0],
-    routeParams.maxPrice ?? DEFAULT_PRICE_RANGE[1],
-  ]);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>(
-    routeParams.brands ? routeParams.brands.split(",").map((brand) => brand.trim()).filter(Boolean) : []
-  );
-  const [radiusKm, setRadiusKm] = useState(routeParams.radiusKm ?? 50);
-  const [categoryFilters, setCategoryFilters] = useState<Record<string, string[]>>({});
-  const [sort, setSort] = useState<SortOption>((routeParams.sort as SortOption | undefined) ?? "newest");
+  // ── Filter state ─────────────────────────────────────────────────────────────
+  const {
+    query, setQuery,
+    selectedCategory, setSelectedCategory,
+    priceRange, setPriceRange,
+    selectedBrands, setSelectedBrands,
+    radiusKm, setRadiusKm,
+    categoryFilters, setCategoryFilters,
+    sort, setSort,
+    page, setPage,
+    handleReset
+  } = useFilterState(routeParams, initialSearchQuery, initialCategory);
+  
   const [view, setView] = usePersistedBrowseView("grid");
-  const [page, setPage] = useState(routeParams.page && routeParams.page > 0 ? routeParams.page : 1);
 
   const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
 
@@ -153,60 +128,11 @@ export function BrowseAds({
   );
   const showRadiusFilter = Boolean(urlLocationId || urlLocationLabel) ? false : shouldUseContextGeoRadius;
 
-  const filters: ListingFilters = useMemo(() => {
-    const nextFilters: ListingFilters = {
-      status: "live",
-      page,
-      limit: PAGE_SIZE,
-      sortBy: PUBLIC_BROWSE_SORT_MAP[sort],
-    };
-
-    if (query.trim()) nextFilters.search = query.trim();
-    if (selectedCategory) {
-      const normalizedCategory = selectedCategory.trim();
-      const categoryById = categories.find((category) => category.id === normalizedCategory);
-      const categoryBySlug = categories.find((category) => category.slug === normalizedCategory);
-      const resolvedCategoryId = categoryById?.id || categoryBySlug?.id;
-
-      if (resolvedCategoryId && OBJECT_ID_PATTERN.test(resolvedCategoryId)) {
-        nextFilters.categoryId = resolvedCategoryId;
-      } else if (OBJECT_ID_PATTERN.test(normalizedCategory)) {
-        nextFilters.categoryId = normalizedCategory;
-      } else {
-        nextFilters.category = normalizedCategory;
-      }
-    }
-    if (selectedBrands.length > 0) nextFilters.brandId = selectedBrands.join(",");
-    if (urlModelId) nextFilters.modelId = urlModelId;
-    if (priceRange[0] > 0) nextFilters.minPrice = priceRange[0];
-    if (priceRange[1] < DEFAULT_PRICE_RANGE[1]) nextFilters.maxPrice = priceRange[1];
-
-    if (urlLocationId) {
-      nextFilters.locationId = urlLocationId;
-    } else if (urlLocationLabel) {
-      nextFilters.location = urlLocationLabel;
-    } else if (location) {
-      const regionLocationLabel = getSearchLocationLabel(location);
-
-      if (location.locationId) {
-        nextFilters.locationId = location.locationId;
-      }
-      if (location.level) {
-        nextFilters.level = location.level;
-      }
-      const lat = getLatitude(location);
-      const lng = getLongitude(location);
-      if (shouldUseContextGeoRadius && lat != null && lng != null) {
-        nextFilters.lat = lat;
-        nextFilters.lng = lng;
-        nextFilters.radiusKm = radiusKm;
-      } else if (regionLocationLabel) {
-        nextFilters.location = regionLocationLabel;
-      }
-    }
-
-    return nextFilters;
-  }, [categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, shouldUseContextGeoRadius, sort, urlLocationId, urlLocationLabel, urlModelId]);
+  const filters: ListingFilters = useFilterToQuery(
+    query, selectedCategory, categories, selectedBrands,
+    urlModelId, priceRange, urlLocationId, urlLocationLabel,
+    location, shouldUseContextGeoRadius, radiusKm, sort, page
+  );
 
   const hasLocationFilter =
     Boolean(urlLocationId || urlLocationLabel || location.locationId || globalLocationLabel) ||
@@ -244,57 +170,15 @@ export function BrowseAds({
     typeof data?.pagination.hasMore === "boolean"
       ? data.pagination.hasMore
       : total > page * PAGE_SIZE;
-  const resolvedCategoryLabel = useMemo(() => {
-    if (!selectedCategory) return null;
-
-    const normalizedCategory = selectedCategory.trim();
-    const matchedCategory = categories.find(
-      (category) => category.id === normalizedCategory || category.slug === normalizedCategory
-    );
-
-    if (matchedCategory?.name) return matchedCategory.name;
-    if (matchedCategory?.slug) return matchedCategory.slug;
-    return OBJECT_ID_PATTERN.test(normalizedCategory) ? null : normalizedCategory;
-  }, [categories, selectedCategory]);
-
-  const activeLocationLabel = useMemo(() => {
-    if (urlLocationLabel) return urlLocationLabel;
-    if (location.source === "default") return null;
-    return getDisplayLocationLabel(location) || null;
-  }, [location, urlLocationLabel]);
-
-  const activeFilterBadges = useMemo(() => {
-    const badges: string[] = [];
-    const trimmedQuery = query.trim();
-    const priceSummary = buildPriceSummary(priceRange);
-    const hasActiveLocation = Boolean(urlLocationId || urlLocationLabel || location.locationId || globalLocationLabel);
-
-    if (trimmedQuery) badges.push(`Search: "${trimmedQuery}"`);
-    if (resolvedCategoryLabel) badges.push(`Category: ${resolvedCategoryLabel}`);
-
-    if (selectedBrands.length === 1) {
-      badges.push(`Brand: ${selectedBrands[0]}`);
-    } else if (selectedBrands.length > 1) {
-      badges.push(`${selectedBrands.length} brands`);
-    }
-
-    if (priceSummary) badges.push(priceSummary);
-    if (activeLocationLabel) badges.push(`Location: ${activeLocationLabel}`);
-    if (showRadiusFilter && hasActiveLocation && radiusKm !== 50) badges.push(`Within ${radiusKm} km`);
-    if (sort !== "newest") badges.push(`Sort: ${PUBLIC_BROWSE_SORT_LABELS[sort]}`);
-
-    return badges;
-  }, [activeLocationLabel, globalLocationLabel, location.locationId, priceRange, query, radiusKm, resolvedCategoryLabel, selectedBrands, showRadiusFilter, sort, urlLocationId, urlLocationLabel]);
-
-  const activeFilterCount = activeFilterBadges.length;
-  const isEmptyState = !isLoading && !error && displayAds.length === 0;
-  const emptyStateTitle = activeFilterCount > 0 ? "No listings match these filters" : "No listings available right now";
-  const emptyStateDescription = activeFilterCount > 0
-    ? showRadiusFilter
-      ? "Try widening the price, radius, or category filters below. You can also clear everything and start again."
-      : "Try widening the price or category filters below. You can also clear everything and start again."
-    : "There are no live ads in this view yet. Check back soon or widen your location once sellers publish new listings.";
-  const desktopShellClassName = isEmptyState ? EMPTY_FILTER_SHELL_CLASS_NAME : undefined;
+  const {
+    activeFilterCount, activeFilterBadges, isEmptyState,
+    emptyStateTitle, emptyStateDescription, desktopShellClassName
+  } = useBrowseEmptyState(
+    selectedCategory, categories, urlLocationLabel, location,
+    query, priceRange, urlLocationId, globalLocationLabel,
+    selectedBrands, showRadiusFilter, radiusKm, sort,
+    isLoading, error, displayAds
+  );
 
   // Extract unique brands from results for filter sidebar (page 1)
   useEffect(() => {
@@ -316,105 +200,22 @@ export function BrowseAds({
   }, [query, selectedCategory, selectedBrands, priceRange, sort, radiusKm]);
 
   // ── Sync URL params → state ─────────────────────────────────────────────────
-  useEffect(() => {
-    const nextQuery = routeParams.q ?? "";
-    const nextCategory = routeParams.categoryId ?? routeParams.category ?? null;
-    const nextSort = (routeParams.sort as SortOption | undefined) ?? "newest";
-    const nextPriceRange: [number, number] = [
-      routeParams.minPrice ?? DEFAULT_PRICE_RANGE[0],
-      routeParams.maxPrice ?? DEFAULT_PRICE_RANGE[1],
-    ];
-    const nextBrands = routeParams.brands
-      ? routeParams.brands.split(",").map((brand) => brand.trim()).filter(Boolean)
-      : [];
-    const nextRadius = routeParams.radiusKm ?? 50;
-    const nextPage = routeParams.page && routeParams.page > 0 ? routeParams.page : 1;
-
-    setQuery((current) => (current === nextQuery ? current : nextQuery));
-    setSelectedCategory((current) => (current === nextCategory ? current : nextCategory));
-    setPriceRange((current) =>
-      current[0] === nextPriceRange[0] && current[1] === nextPriceRange[1] ? current : nextPriceRange
-    );
-    setSelectedBrands((current) =>
-      current.join(",") === nextBrands.join(",") ? current : nextBrands
-    );
-    setRadiusKm((current) => (current === nextRadius ? current : nextRadius));
-    setSort((current) => (current === nextSort ? current : nextSort));
-    setPage((current) => (current === nextPage ? current : nextPage));
-  }, [
-    routeParams.brands,
-    routeParams.category,
-    routeParams.categoryId,
-    routeParams.maxPrice,
-    routeParams.minPrice,
-    routeParams.page,
-    routeParams.q,
-    routeParams.radiusKm,
-    routeParams.sort,
-  ]);
-
-  const canonicalBrowseRoute = useMemo(
-    () =>
-      buildPublicBrowseRoute({
-        type: "ad",
-        q: query.trim() || undefined,
-        category: selectedCategory ?? undefined,
-        sort,
-        minPrice: priceRange[0] > DEFAULT_PRICE_RANGE[0] ? priceRange[0] : undefined,
-        maxPrice: priceRange[1] < DEFAULT_PRICE_RANGE[1] ? priceRange[1] : undefined,
-        brands: selectedBrands.length > 0 ? selectedBrands.join(",") : undefined,
-        modelId: urlModelId || undefined,
-        locationId: urlLocationId || undefined,
-        location: urlLocationId ? undefined : urlLocationLabel || undefined,
-        radiusKm: showRadiusFilter ? radiusKm : undefined,
-      }),
-    [priceRange, query, radiusKm, selectedBrands, selectedCategory, showRadiusFilter, sort, urlLocationId, urlLocationLabel, urlModelId]
+  useUrlSync(
+    routeParams, router,
+    query, setQuery,
+    selectedCategory, setSelectedCategory,
+    priceRange, setPriceRange,
+    selectedBrands, setSelectedBrands,
+    radiusKm, setRadiusKm,
+    sort, setSort,
+    page, setPage,
+    showRadiusFilter, urlModelId, urlLocationId, urlLocationLabel
   );
-
-  const currentBrowseRoute = useMemo(
-    () =>
-      buildPublicBrowseRoute({
-        type: routeParams.type,
-        q: routeParams.q,
-        category: routeParams.category,
-        categoryId: routeParams.categoryId,
-        modelId: routeParams.modelId,
-        sort: routeParams.sort,
-        minPrice: routeParams.minPrice,
-        maxPrice: routeParams.maxPrice,
-        location: routeParams.location,
-        locationId: routeParams.locationId,
-        brands: routeParams.brands,
-        radiusKm: routeParams.radiusKm,
-      }),
-    [routeParams]
-  );
-
-  useEffect(() => {
-    if (page !== 1) return;
-    if (currentBrowseRoute !== canonicalBrowseRoute) {
-      router.replace(canonicalBrowseRoute, { scroll: false });
-    }
-  }, [canonicalBrowseRoute, currentBrowseRoute, page, router]);
-
-  const handleReset = () => {
-    startTransition(() => {
-      setQuery("");
-      setSelectedCategory(null);
-      setPriceRange(DEFAULT_PRICE_RANGE);
-      setSelectedBrands([]);
-      setRadiusKm(50);
-      setCategoryFilters({});
-      setSort("newest");
-      setPage(1);
-      router.replace(buildPublicBrowseRoute({ type: "ad" }), { scroll: false });
-    });
-  };
 
   // ── Load More ────────────────────────────────────────────────────────────────
   const handleLoadMore = () => {
     startTransition(() => {
-      setPage(prev => prev + 1);
+      setPage((prev: number) => prev + 1);
     });
   };
 

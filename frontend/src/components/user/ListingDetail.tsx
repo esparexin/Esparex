@@ -1,5 +1,5 @@
 "use client";
-import { useState, useLayoutEffect, useMemo, useReducer, useCallback, useEffect, useRef } from "react";
+import { useState, useLayoutEffect, useMemo, useReducer, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatLocation } from "@/lib/location/locationService";
 import type { UserPage } from "@/lib/routeUtils";
@@ -31,11 +31,7 @@ const ListingRelatedBusinessesSection = dynamic(
 );
 import {
   deleteListing,
-  getListingAnalytics,
-  getListingPhone,
-  incrementListingView,
   markAsSold,
-  type ListingAnalytics,
 } from "@/lib/api/user/listings";
 import { chatApi } from "@/lib/api/chatApi";
 import type { Listing as Ad } from "@/lib/api/user/listings";
@@ -46,7 +42,7 @@ import { AdTitlePriceCard } from "./listing-detail/AdTitlePriceCard";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";
 import { AdPendingStatusCard } from "./listing-detail/AdPendingStatusCard";
 
-import { isAdSold, getSoldDetails } from "../../lib/logic/soldStatus";
+
 import { canUserPerformAction } from "../../lib/logic/ownership";
 import { getActionBarVariant } from "../../lib/logic/bottomBarActions";
 import { ROUTES } from "../../lib/logic/routes";
@@ -54,6 +50,10 @@ import { useListingDetailQuery, useSavedAdsQuery } from "@/hooks/queries/useList
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { useAuth } from "@/context/AuthContext";
 import logger from "@/lib/logger";
+import { useViewTracking } from "./hooks/useViewTracking";
+import { useAdStatus } from "./hooks/useAdStatus";
+import { usePhoneReveal } from "./hooks/usePhoneReveal";
+import { useAnalyticsDialog } from "./hooks/useAnalyticsDialog";
 import { adDetailUiReducer, initialAdDetailUiState } from "./listing-detail/adDetailUiState";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { useRouter } from "next/navigation";
@@ -119,23 +119,10 @@ export function ListingDetail({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [listingUnavailableMessage, setListingUnavailableMessage] = useState<string | null>(null);
-  const [showAnalyticsDialog, setShowAnalyticsDialog] = useState(false);
-  const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(false);
-  const [analytics, setAnalytics] = useState<ListingAnalytics | null>(null);
-  const [revealedPhone, setRevealedPhone] = useState<string | null>(null);
-  const [isPhoneMasked, setIsPhoneMasked] = useState(false);
-  const [phoneMessage, setPhoneMessage] = useState<string | null>(null);
-  const [isPhoneLoading, setIsPhoneLoading] = useState(false);
-  const trackedViewRef = useRef<string | null>(null);
+  
   const { data: savedAds = [] } = useSavedAdsQuery({
     enabled: !!user,
   });
-  const [soldOverride, setSoldOverride] = useState<{
-    adId: string;
-    isSold: boolean;
-    soldPlatform?: string;
-    soldAt?: string;
-  } | null>(null);
 
   const OBJECTID_RE = /^[0-9a-f]{24}$/i;
   const categoryLabel = ad
@@ -151,6 +138,11 @@ export function ListingDetail({
   const categoryRoute = categoryFilter;
   const viewCount = typeof ad?.views === "number" ? ad.views : (ad?.views as any)?.total || 0;
 
+  const { adStatus, setSoldOverride } = useAdStatus(ad);
+  const { revealedPhone, phoneMessage, isPhoneLoading, handleRevealPhone } = usePhoneReveal(ad, user, router);
+  const { showAnalyticsDialog, setShowAnalyticsDialog, isAnalyticsLoading, analyticsSummary, handleViewAnalytics } = useAnalyticsDialog(ad, viewCount);
+
+
   const isFavorited = useMemo(
     () =>
       !!user &&
@@ -159,36 +151,7 @@ export function ListingDetail({
     [adId, savedAds, user]
   );
 
-  const computedAdStatus = useMemo(() => {
-    if (ad && isAdSold({ ad })) {
-      const details = getSoldDetails(ad);
-      return {
-        isSold: true,
-        soldPlatform: details?.soldPlatform,
-        soldAt: details?.soldAt,
-        isChatLocked: Boolean(ad.isChatLocked)
-      };
-    }
 
-    return {
-      isSold: false as const,
-      isChatLocked: Boolean(ad?.isChatLocked)
-    };
-  }, [ad]);
-
-  const adStatus = useMemo(() => {
-    if (!ad) return computedAdStatus;
-    if (soldOverride && soldOverride.adId === String(ad.id)) {
-      return {
-        isSold: soldOverride.isSold,
-        soldPlatform: soldOverride.soldPlatform,
-        soldAt: soldOverride.soldAt,
-        isChatLocked: true,
-      };
-    }
-
-    return computedAdStatus;
-  }, [ad, computedAdStatus, soldOverride]);
 
   // Canonical ownership policy (sellerId -> current user id)
   const isOwner = canUserPerformAction(
@@ -200,95 +163,11 @@ export function ListingDetail({
     user || null
   );
 
-  const analyticsSummary = useMemo(() => {
-    const analyticsViews = analytics?.views;
-    if (typeof analyticsViews === "number") {
-      return {
-        total: analyticsViews,
-        unique: analyticsViews,
-        lastViewedAt: null,
-      };
-    }
 
-    if (analyticsViews && typeof analyticsViews === "object") {
-      return {
-        total: typeof analyticsViews.total === "number" ? analyticsViews.total : viewCount,
-        unique: typeof analyticsViews.unique === "number" ? analyticsViews.unique : viewCount,
-        lastViewedAt: typeof analyticsViews.lastViewedAt === "string" ? analyticsViews.lastViewedAt : null,
-      };
-    }
 
-    const currentViews = ad?.views && typeof ad.views === "object"
-      ? ad.views as { unique?: number; lastViewedAt?: string }
-      : null;
 
-    return {
-      total: viewCount,
-      unique: typeof currentViews?.unique === "number" ? currentViews.unique : viewCount,
-      lastViewedAt: typeof currentViews?.lastViewedAt === "string" ? currentViews.lastViewedAt : null,
-    };
-  }, [ad?.views, analytics, viewCount]);
 
-  useEffect(() => {
-    setAnalytics(null);
-    setShowAnalyticsDialog(false);
-    setRevealedPhone(null);
-    setIsPhoneMasked(false);
-    setPhoneMessage(null);
-    trackedViewRef.current = null;
-  }, [ad?.id]);
-
-  useEffect(() => {
-    if (!ad?.id || isOwner) {
-      return;
-    }
-
-    const trackingKey = String(ad.id);
-    if (trackedViewRef.current === trackingKey) {
-      return;
-    }
-
-    trackedViewRef.current = trackingKey;
-    let cancelled = false;
-
-    void incrementListingView(ad.id)
-      .then(() => {
-        if (!cancelled) {
-          queryClient.setQueryData<Ad | undefined>(queryKeys.ads.detail(String(ad.id)), (current) => {
-            if (!current) return current;
-
-            if (typeof current.views === "number") {
-              return {
-                ...current,
-                views: current.views + 1,
-              };
-            }
-
-            const currentViews = current.views && typeof current.views === "object"
-              ? current.views as { total?: number; unique?: number; lastViewedAt?: string }
-              : {};
-
-            return {
-              ...current,
-              views: {
-                ...currentViews,
-                total: (typeof currentViews.total === "number" ? currentViews.total : 0) + 1,
-                unique: typeof currentViews.unique === "number" ? currentViews.unique : 0,
-              },
-            };
-          });
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          trackedViewRef.current = null;
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [ad?.id, isOwner]);
+  useViewTracking(ad?.id, isOwner, queryClient);
   const isPendingOwner = Boolean(isOwner && ad?.status === "pending");
 
   const handleListingUnavailable = useCallback((message = DEFAULT_LISTING_UNAVAILABLE_MESSAGE) => {
@@ -403,79 +282,9 @@ export function ListingDetail({
     }
   };
 
-  const handleViewAnalytics = async () => {
-    if (!ad?.id) return;
 
-    setShowAnalyticsDialog(true);
-    setIsAnalyticsLoading(true);
-    try {
-      const result = await getListingAnalytics(ad.id);
-      if (result) {
-        setAnalytics(result);
-      } else {
-        notify.info("No analytics available yet for this listing.");
-      }
-    } catch {
-      notify.error("Failed to load listing analytics");
-    } finally {
-      setIsAnalyticsLoading(false);
-    }
-  };
 
-  const handleRevealPhone = async () => {
-    if (!ad?.id || isPhoneLoading) return;
 
-    if (revealedPhone && !isPhoneMasked) {
-      window.location.href = `tel:${revealedPhone}`;
-      return;
-    }
-
-    if (revealedPhone && isPhoneMasked && !user) {
-      const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      void router.push(buildLoginUrl(returnTo));
-      return;
-    }
-
-    setIsPhoneLoading(true);
-    setPhoneMessage(null);
-
-    try {
-      const result = await getListingPhone(ad.id);
-      if (result?.mobile || result?.phone) {
-        const phone = result.mobile || result.phone || null;
-        setRevealedPhone(phone);
-        setIsPhoneMasked(false);
-        setPhoneMessage(null);
-        return;
-      }
-
-      if (result?.masked) {
-        setRevealedPhone(result.masked);
-        setIsPhoneMasked(true);
-        setPhoneMessage("Login to reveal the full phone number.");
-        return;
-      }
-
-      setPhoneMessage("Phone number is unavailable for this listing.");
-    } catch (phoneError) {
-      const backendCode = String(
-        (phoneError as { context?: { backendErrorCode?: unknown } })?.context?.backendErrorCode || ""
-      );
-      if (backendCode === "PHONE_REQUEST_REQUIRED") {
-        const message = "Seller shares phone numbers on request only. Use chat first.";
-        setPhoneMessage(message);
-        notify.info(message);
-      } else if (backendCode === "PHONE_HIDDEN") {
-        const message = "Seller chose not to share a phone number for this listing.";
-        setPhoneMessage(message);
-        notify.info(message);
-      } else {
-        notify.error(phoneError instanceof Error ? phoneError.message : "Failed to reveal phone number");
-      }
-    } finally {
-      setIsPhoneLoading(false);
-    }
-  };
 
   const handleChatWithSeller = async () => {
     const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
