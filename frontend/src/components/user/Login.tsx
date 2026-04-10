@@ -162,6 +162,12 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                     </div>
                   )}
 
+                  {authError?.type === "blocked" && (
+                    <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-center">
+                      <p className="text-sm text-red-700 font-semibold">{authError.message}</p>
+                    </div>
+                  )}
+
                   {!backendReady && (
                     <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                       Connecting to server&hellip; please wait a moment before sending OTP.
