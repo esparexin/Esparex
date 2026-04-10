@@ -90,16 +90,10 @@ export { incrementAdView } from './AdEngagementService';
 export const assertOwnership = async (adId: string, userId: string): Promise<{ sellerId: mongoose.Types.ObjectId; status: string }> => {
     const ad = await Ad.findById(adId).select('sellerId status').lean();
     if (!ad) {
-        const err: any = new Error('Ad not found');
-        err.statusCode = 404;
-        err.code = 'NOT_FOUND';
-        throw err;
+        throw new AppError('Ad not found', 404, 'NOT_FOUND');
     }
     if (String(ad.sellerId) !== String(userId)) {
-        const err: any = new Error('Unauthorized');
-        err.statusCode = 403;
-        err.code = 'UNAUTHORIZED';
-        throw err;
+        throw new AppError('Unauthorized', 403, 'UNAUTHORIZED');
     }
     return ad as { sellerId: mongoose.Types.ObjectId; status: string };
 };
@@ -125,10 +119,10 @@ export const getAnyAdById = async (
         await hydrateAdMetadata([ad]);
 
         // Use DTO/interface for ad
-        const result = { ...ad } as Partial<IAd>;
-        delete (result as any).password;
-        delete (result as any).otp;
-        delete (result as any).otpExpiry;
+        const result = { ...ad } as Partial<IAd> & Record<string, unknown>;
+        delete result.password;
+        delete result.otp;
+        delete result.otpExpiry;
         return result;
     } catch (error) {
         logger.error('Failed to get ad by ID', {
@@ -162,7 +156,7 @@ export const updateAd = async (
     const isInternalSession = !externalSession;
 
     try {
-        let updatedAd: any | null = null;
+        let updatedAd: IAd | null = null;
         
         const executeUpdate = async () => {
             const ad = await Ad.findById(id).session(session);
@@ -176,8 +170,9 @@ export const updateAd = async (
             // 🔒 LOCATION LOCK: Location is a trust signal — once an ad reaches pending/live
             // it cannot be silently changed. Prevents location gaming and buyer trust breaks.
             if (context.actor === 'USER' && (ad.status === AD_STATUS.LIVE || ad.status === AD_STATUS.PENDING)) {
-                delete (data as any).location;
-                delete (data as any).locationId;
+                const untypedData = data as Record<string, unknown>;
+                delete untypedData.location;
+                delete untypedData.locationId;
             }
 
             if (context.actor === 'USER' && !context.allowSuspendedUser) {
@@ -191,11 +186,12 @@ export const updateAd = async (
             const requiresReviewTransition = context.actor === 'USER' && ad.status === AD_STATUS.LIVE;
 
             if (context.actor === 'USER') {
-                (payload as any).$inc = { ...((payload as any).$inc || {}), reviewVersion: 1 };
+                const untypedPayload = payload as Record<string, any>;
+                untypedPayload.$inc = { ...(untypedPayload.$inc || {}), reviewVersion: 1 };
             }
 
             // Status transitions must not be embedded in direct update queries.
-            delete (payload as any).status;
+            delete (payload as Record<string, unknown>).status;
 
             let slugRetries = 0;
             while (slugRetries < 3) {
@@ -208,11 +204,11 @@ export const updateAd = async (
                     updatedAd = updated;
                     break;
                 } catch (error: unknown) {
-                    const mongoError = error as any;
+                    const mongoError = error as { code?: number; keyPattern?: { seoSlug?: string } };
                     if (mongoError.code === 11000 && mongoError.keyPattern?.seoSlug) {
                         slugRetries++;
-                        const baseTitle = (payload as any).title || ad.title;
-                        (payload as any).seoSlug = await generateUniqueSlug(Ad, baseTitle, ad.seoSlug, adId);
+                        const baseTitle = (payload as Record<string, any>).title || ad.title;
+                        (payload as Record<string, any>).seoSlug = await generateUniqueSlug(Ad, baseTitle, ad.seoSlug, adId);
                     } else {
                         throw error;
                     }
@@ -332,29 +328,21 @@ export const promoteAd = async (
     // 🛡️ Phase 2: listingType Guard for Spotlight
     // Only 'ad' and 'service' types are eligible for spotlight.
     if (ad.listingType === LISTING_TYPE.SPARE_PART) {
-        const err: any = new Error('Spare parts are not eligible for Spotlight promotion.');
-        err.statusCode = 403;
-        throw err;
+        throw new AppError('Spare parts are not eligible for Spotlight promotion.', 403);
     }
 
     if (!isAdmin && ad.sellerId.toString() !== userId.toString()) {
-        const err: any = new Error('Unauthorized');
-        err.statusCode = 403;
-        throw err;
+        throw new AppError('Unauthorized', 403);
     }
 
     if (!isAdmin) {
         const user = await User.findById(userId).select('trustScore strikeCount');
         if (!user || user.trustScore < 30 || user.strikeCount >= 2) {
-            const err: any = new Error('Account ineligible for promotion due to trust or moderation standing.');
-            err.statusCode = 403;
-            throw err;
+            throw new AppError('Account ineligible for promotion due to trust or moderation standing.', 403);
         }
 
         if ((ad.moderationStatus as string) === 'auto_hidden' || ad.moderationStatus === LIFECYCLE_STATUS.REJECTED || ad.moderationStatus === 'held_for_review') {
-            const err: any = new Error('Ad must be in normal standing to be promoted.');
-            err.statusCode = 403;
-            throw err;
+            throw new AppError('Ad must be in normal standing to be promoted.', 403);
         }
 
         if (!ad.isSpotlight) {
@@ -364,9 +352,7 @@ export const promoteAd = async (
                 status: AD_STATUS.LIVE
             });
             if (activePromotions >= 3) {
-                const err: any = new Error('Maximum 3 active spotlight promotions allowed concurrently.');
-                err.statusCode = 403;
-                throw err;
+                throw new AppError('Maximum 3 active spotlight promotions allowed concurrently.', 403);
             }
         }
     }
@@ -380,9 +366,7 @@ export const promoteAd = async (
     endsAt.setDate(endsAt.getDate() + days);
 
     if (ad.expiresAt && ad.expiresAt < endsAt) {
-        const err: any = new Error('Ad expires before boost duration. Extend ad expiry first.');
-        err.statusCode = 400;
-        throw err;
+        throw new AppError('Ad expires before boost duration. Extend ad expiry first.', 400);
     }
 
     const connection = getUserConnection();
@@ -404,11 +388,10 @@ export const promoteAd = async (
                         session
                     });
                 } catch (error) {
-                    const err: any = new Error(
-                        error instanceof Error ? error.message : 'Insufficient spotlight credits'
+                    throw new AppError(
+                        error instanceof Error ? error.message : 'Insufficient spotlight credits',
+                        402
                     );
-                    err.statusCode = 402;
-                    throw err;
                 }
             }
 
@@ -471,9 +454,7 @@ export const repostAd = async (
             }).session(session);
 
             if (!ad) {
-                const err: any = new Error('Ad not found');
-                err.statusCode = 404;
-                throw err;
+                throw new AppError('Ad not found', 404);
             }
 
             const currentStatus = normalizeAdStatus(String(ad.status));
@@ -481,16 +462,12 @@ export const repostAd = async (
             const isRejected = currentStatus === AD_STATUS.REJECTED;
 
             if (!isExpired && !isRejected) {
-                const err: any = new Error('Only expired or rejected ads can be reposted');
-                err.statusCode = 400;
-                throw err;
+                throw new AppError('Only expired or rejected ads can be reposted', 400);
             }
 
             const postingBalance = await getAdPostingBalance(userId, session);
             if (!postingBalance || postingBalance.totalRemaining < 1) {
-                const err: any = new Error('Insufficient posting credits for repost');
-                err.statusCode = 402;
-                throw err;
+                throw new AppError('Insufficient posting credits for repost', 402);
             }
 
             await consumeAdPostingSlot(userId, session);

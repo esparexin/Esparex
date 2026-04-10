@@ -26,8 +26,8 @@ export interface MutationRequest {
     toStatus: string;
     actor: ActorMetadata;
     reason?: string;
-    patch?: Record<string, any>; // Status-specific updates like soldAt, rejectionReason
-    metadata?: Record<string, any>; // Audit metadata
+    patch?: Record<string, unknown>; // Status-specific updates like soldAt, rejectionReason
+    metadata?: Record<string, unknown>; // Audit metadata
     session?: ClientSession; // Optional external session
 }
 
@@ -56,6 +56,17 @@ const canBypassInvalidTransition = (params: {
     if (toLower(params.toStatus) !== AD_STATUS.DEACTIVATED) return false;
     return isModerationDeactivationAction(params.metadata);
 };
+
+interface IStatusable {
+    status: string;
+    statusChangedAt?: Date;
+    statusReason?: string;
+    moderationStatus?: string;
+    listingType?: string;
+    save: (options?: { session?: ClientSession }) => Promise<mongoose.Document>;
+    toObject: () => Record<string, unknown>;
+    [key: string]: unknown;
+}
 
 /**
  * 🛠️ Centralized Status Mutation Service
@@ -88,15 +99,15 @@ export const mutateStatus = async (request: MutationRequest) => {
 
         const executeOperations = async (activeSession: ClientSession) => {
             // 1. Resolve Model
-            const Model = getModelForDomain(domain) as any;
-            const doc = await Model.findById(entityId).setOptions({ withDeleted: true }).session(activeSession);
+            const Model = getModelForDomain(domain);
+            const doc = await (Model as mongoose.Model<mongoose.Document>).findById(entityId).setOptions({ withDeleted: true }).session(activeSession) as (mongoose.Document & IStatusable) | null;
             
             if (!doc) {
                 throw Object.assign(new Error(`Entity ${entityId} not found in domain ${domain}`), { statusCode: 404 });
             }
 
-            fromStatus = (doc as any).status;
-            const listingType = (doc as any).listingType;
+            fromStatus = doc.status;
+            const listingType = doc.listingType;
             resolvedListingType = listingType;
 
             // 2. Lifecycle Validation (Type-aware for unified ad model)
@@ -135,9 +146,9 @@ export const mutateStatus = async (request: MutationRequest) => {
             });
 
             // 4. Update Document
-            (doc as any).status = toStatus;
-            (doc as any).statusChangedAt = new Date();
-            if (reason) (doc as any).statusReason = reason;
+            doc.status = toStatus;
+            doc.statusChangedAt = new Date();
+            if (reason) doc.statusReason = reason;
 
             // 🛡️ DATA INTEGRITY: Coerce stale/legacy moderationStatus values that are
             // not in the current enum. These exist in documents written before the enum
@@ -147,7 +158,7 @@ export const mutateStatus = async (request: MutationRequest) => {
             const VALID_MODERATION_STATUSES = new Set([
                 'auto_approved', 'held_for_review', 'manual_approved', 'rejected', 'community_hidden'
             ]);
-            const currentModerationStatus = (doc as any).moderationStatus;
+            const currentModerationStatus = doc.moderationStatus;
             if (currentModerationStatus && !VALID_MODERATION_STATUSES.has(currentModerationStatus)) {
                 logger.warn('StatusMutationService: coercing stale moderationStatus', {
                     entityId: String(entityId),
@@ -155,7 +166,7 @@ export const mutateStatus = async (request: MutationRequest) => {
                     staleValue: currentModerationStatus,
                     coercedTo: 'manual_approved',
                 });
-                (doc as any).moderationStatus = 'manual_approved';
+                doc.moderationStatus = 'manual_approved';
             }
 
             // Apply status-specific patch (e.g., soldAt, rejectionReason, $push: { timeline })
@@ -163,12 +174,13 @@ export const mutateStatus = async (request: MutationRequest) => {
                 for (const [key, value] of Object.entries(patch)) {
                     if (key === '$push' && typeof value === 'object' && value !== null) {
                         for (const [pKey, pVal] of Object.entries(value)) {
-                            if (Array.isArray((doc as any)[pKey])) {
-                                (doc as any)[pKey].push(pVal);
+                            const field = doc[pKey];
+                            if (Array.isArray(field)) {
+                                field.push(pVal);
                             }
                         }
                     } else {
-                        (doc as any)[key] = value;
+                        doc[key] = value;
                     }
                 }
             }
@@ -192,7 +204,7 @@ export const mutateStatus = async (request: MutationRequest) => {
                 }
             }], { session: activeSession });
 
-            return typeof (doc as any).toObject === 'function' ? doc.toObject() : doc;
+            return typeof doc.toObject === 'function' ? doc.toObject() : doc;
         };
 
         if (isInternalSession && session) {
@@ -273,11 +285,12 @@ export const mutateStatus = async (request: MutationRequest) => {
         }
         
         return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
         const duration = Date.now() - startTime;
+        const err = error as { message?: string; code?: string };
         
         // Record Real-time Telemetry (Rejection/Failure)
-        const isValidationFailure = error.code === 'INVALID_LIFECYCLE_TRANSITION' || error.code === 'LIFECYCLE_LOCKED';
+        const isValidationFailure = err.code === 'INVALID_LIFECYCLE_TRANSITION' || err.code === 'LIFECYCLE_LOCKED';
         const metricStatus = isValidationFailure ? 'rejection' : 'failure';
         
         setImmediate(() => {
@@ -287,8 +300,8 @@ export const mutateStatus = async (request: MutationRequest) => {
         });
         
         logger.error(`Status Mutation FAILED: ${domain} ${entityId} -> ${toStatus}`, {
-            error: error.message,
-            code: error.code,
+            error: err.message,
+            code: err.code,
             durationMs: duration,
             actorType: actor.type
         });
@@ -325,14 +338,14 @@ export const mutateStatusesBulk = async (
 ): Promise<number> => {
     if (!entityIds.length) return 0;
     
-    const Model = getModelForDomain(domain) as any;
-    const docs = await Model.find({ _id: { $in: entityIds } })
+    const Model = getModelForDomain(domain);
+    const docs = await (Model as mongoose.Model<mongoose.Document>).find({ _id: { $in: entityIds } })
         .select('_id status listingType')
         .lean();
     if (!docs.length) return 0;
 
     await mutateStatuses(
-        docs.map((doc: any) => ({
+        docs.map((doc: Record<string, any>) => ({
             domain,
             entityId: String(doc._id),
             toStatus,
@@ -382,7 +395,7 @@ async function recordMutationMetric(
         const date = new Date();
         date.setHours(0, 0, 0, 0);
 
-        const update: any = {
+        const update: Record<string, any> = {
             $inc: {
                 [`payload.total`]: 1,
                 [`payload.${status}`]: 1,

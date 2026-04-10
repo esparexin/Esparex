@@ -48,7 +48,27 @@ import {
 } from './_shared/adFilterHelpers';
 
 import { buildAdMatchStage, buildAdSortStage } from './AdSearchService';
-export async function hydrateAdMetadata(ads: any[]) {
+
+export interface HydratedAd {
+    _id?: mongoose.Types.ObjectId | string;
+    id?: string;
+    categoryId?: mongoose.Types.ObjectId | string;
+    brandId?: mongoose.Types.ObjectId | string;
+    modelId?: mongoose.Types.ObjectId | string;
+    sparePartId?: mongoose.Types.ObjectId | string;
+    sparePartIds?: (mongoose.Types.ObjectId | string)[];
+    serviceTypeIds?: (mongoose.Types.ObjectId | string)[];
+    category?: any;
+    categoryName?: string;
+    brand?: any;
+    model?: any;
+    sparePart?: any;
+    spareParts?: any[];
+    serviceTypes?: any[];
+    [key: string]: any; // Relaxed for Mongoose Document & Aggregate compatibility
+}
+
+export async function hydrateAdMetadata(ads: HydratedAd[]) {
     if (!ads || ads.length === 0) return ads;
 
     const categoryIds = new Set<string>();
@@ -63,10 +83,10 @@ export async function hydrateAdMetadata(ads: any[]) {
         if (ad.modelId) modelIds.add(ad.modelId.toString());
         if (ad.sparePartId) sparePartIds.add(ad.sparePartId.toString());
         if (Array.isArray(ad.sparePartIds)) {
-            ad.sparePartIds.forEach((id: any) => sparePartIds.add(id.toString()));
+            ad.sparePartIds.forEach((id: string | mongoose.Types.ObjectId) => sparePartIds.add(id.toString()));
         }
         if (Array.isArray(ad.serviceTypeIds)) {
-            ad.serviceTypeIds.forEach((id: any) => serviceTypeIds.add(id.toString()));
+            ad.serviceTypeIds.forEach((id: string | mongoose.Types.ObjectId) => serviceTypeIds.add(id.toString()));
         }
     });
 
@@ -88,19 +108,19 @@ export async function hydrateAdMetadata(ads: any[]) {
             : Promise.resolve([])
     ]);
 
-    const categoryMap = new Map(categories.map((c: any) => [String(c._id), c]));
-    const brandMap = new Map(brands.map((b: any) => [String(b._id), b]));
-    const modelMap = new Map(models.map((m: any) => [String(m._id), m]));
-    const sparePartMap = new Map(spareParts.map((s: any) => [String(s._id), s]));
-    const serviceTypeMap = new Map(serviceTypes.map((st: any) => [String(st._id), st]));
+    const categoryMap = new Map<string, any>(categories.map((c: any) => [String(c._id), c]));
+    const brandMap = new Map<string, any>(brands.map((b: any) => [String(b._id), b]));
+    const modelMap = new Map<string, any>(models.map((m: any) => [String(m._id), m]));
+    const sparePartMap = new Map<string, any>(spareParts.map((s: any) => [String(s._id), s]));
+    const serviceTypeMap = new Map<string, any>(serviceTypes.map((st: any) => [String(st._id), st]));
 
     ads.forEach(ad => {
         if (ad.categoryId) {
             const cat = categoryMap.get(String(ad.categoryId));
             ad.category = cat;
             // Flat string field — reliable label even if object hydration is partial
-            if (cat && typeof (cat as any).name === 'string') {
-                (ad as any).categoryName = (cat as any).name;
+            if (cat && typeof (cat as { name?: string }).name === 'string') {
+                ad.categoryName = (cat as { name: string }).name;
             }
         }
         if (ad.brandId) {
@@ -114,12 +134,12 @@ export async function hydrateAdMetadata(ads: any[]) {
         }
         if (Array.isArray(ad.sparePartIds)) {
             ad.spareParts = ad.sparePartIds
-                .map((id: any) => sparePartMap.get(String(id)))
+                .map((id: string | mongoose.Types.ObjectId) => sparePartMap.get(String(id)))
                 .filter(Boolean);
         }
         if (Array.isArray(ad.serviceTypeIds)) {
             ad.serviceTypes = ad.serviceTypeIds
-                .map((id: any) => serviceTypeMap.get(String(id)))
+                .map((id: string | mongoose.Types.ObjectId) => serviceTypeMap.get(String(id)))
                 .filter(Boolean);
         }
     });
@@ -488,9 +508,9 @@ export const getAds = async (
     const total = useCursorStyleMeta ? results.length : countResult[0]?.total || 0;
 
     const data = results.map(ad => {
-        const serializedAd = serializeDoc(ad) as Record<string, any>;
+        const serializedAd = serializeDoc(ad) as HydratedAd;
         if (serializedAd.location) {
-            serializedAd.location = normalizeLocationResponse(serializedAd.location);
+            serializedAd.location = normalizeLocationResponse(serializedAd.location as Record<string, unknown>);
         }
         return normalizeAdImagesForResponse(serializedAd);
     });
@@ -677,7 +697,7 @@ export const getAds = async (
         setImmediate(() => {
             try {
                 const eventId = uuidv4();
-                const telemetryDocs = finalResponse.data.slice(0, 10).map((ad: any, index: number) => ({
+                const telemetryDocs = (finalResponse.data as any[]).slice(0, 10).map((ad: Record<string, any>, index: number) => ({
                     eventId,
                     adId: ad.id || ad._id,
                     position: index + 1,
@@ -690,7 +710,7 @@ export const getAds = async (
                         sellerTrust: ad.sellerTrustSnapshot || 50
                     }
                 }));
-                RankingTelemetry.insertMany(telemetryDocs).catch((err: any) => {
+                RankingTelemetry.insertMany(telemetryDocs).catch((err: Error) => {
                     logger.warn('Failed to insert ranking telemetry', { error: err.message });
                 });
             } catch (error) {
