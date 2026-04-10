@@ -18,4 +18,5 @@ if (process.env.NODE_ENV === 'production') {
 // We use maxRetriesPerRequest: null, which is required by BullMQ
 export const redisConnection = new Redis(REDIS_URL, {
     maxRetriesPerRequest: null,
+    tls: undefined, // 🔒 FORCE DISABLE TLS
 });

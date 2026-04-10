@@ -50,7 +50,7 @@ const parseRedisConnection = () => {
             db: Number.isFinite(dbFromPath) ? dbFromPath : Number(process.env.REDIS_DB || '0'),
             maxRetriesPerRequest: null,
             enableReadyCheck: false,
-            tls: parsedUrl.protocol === 'rediss:' ? {} : undefined,
+            tls: undefined, // 🔒 FORCE DISABLE TLS
         };
     }
 
@@ -61,6 +61,7 @@ const parseRedisConnection = () => {
         db: Number(process.env.REDIS_DB || '0'),
         maxRetriesPerRequest: null,
         enableReadyCheck: false,
+        tls: undefined, // 🔒 FORCE DISABLE TLS
     };
 };
 
