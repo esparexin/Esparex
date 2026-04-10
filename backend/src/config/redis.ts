@@ -11,6 +11,10 @@ const redisUrl = process.env.REDIS_URL || (() => {
     return `redis://${auth}${redisHost}:${redisPort}/${redisDb}`;
 })();
 
+// 🔍 STARTUP AUDIT: Log the connection protocol and host (obfuscated)
+const auditUrl = redisUrl.replace(/:[^:@]+@/, ':****@');
+logger.info(`[REDIS_BOOT] Protocol: ${redisUrl.split(':')[0]} | URL: ${auditUrl}`);
+
 if (process.env.NODE_ENV === 'production') {
     if (!redisPassword && !redisUrl.includes(':@') && !redisUrl.includes('//:')) {
         logger.warn('⚠️ Redis connection lacks a password. Ensure REDIS_PASSWORD is set in production.');
