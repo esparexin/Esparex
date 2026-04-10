@@ -87,7 +87,6 @@ services:
   - type: cron
     name: esparex-keepalive
     env: node
-    plan: free
     schedule: "*/10 * * * *"
     buildCommand: "echo 'no build needed'"
     startCommand: >
