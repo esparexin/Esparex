@@ -203,18 +203,28 @@ function coerceListingFallback(data: unknown): Listing {
     const price = typeof record.price === 'number' ? record.price : (typeof record.price === 'string' ? Number(record.price) : 0);
     const createdAt = typeof record.createdAt === 'string' ? record.createdAt : (record.createdAt instanceof Date ? record.createdAt.toISOString() : new Date(0).toISOString());
 
+    const rawLocation = (record.location && typeof record.location === 'object' && !Array.isArray(record.location)) 
+        ? (record.location as Record<string, unknown>) 
+        : {};
+
+    const fallbackLocation = {
+        city: typeof rawLocation.city === 'string' ? rawLocation.city : "",
+        state: typeof rawLocation.state === 'string' ? rawLocation.state : undefined,
+        country: typeof rawLocation.country === 'string' ? rawLocation.country : undefined,
+    };
+
     return {
         id, title, description,
         price: Number.isFinite(price) ? price : 0,
         images: Array.isArray(record.images) ? record.images.filter((img): img is string => typeof img === 'string').map(normalizeImageUrl) : [],
-        location: (record.location && typeof record.location === 'object' && !Array.isArray(record.location)) ? (record.location as any) : { city: "" },
+        location: fallbackLocation,
         userId: extractId(record.userId) ?? extractId(record.sellerId) ?? '',
         status: normalizeAdStatus(typeof record.status === 'string' ? record.status : 'pending'),
         sellerId: extractId(record.sellerId) || '',
         createdAt,
         updatedAt: typeof record.updatedAt === 'string' ? record.updatedAt : (record.updatedAt instanceof Date ? record.updatedAt.toISOString() : undefined),
         views: typeof record.views === 'number' ? record.views : 0,
-        spareParts: Array.isArray(record.spareParts) ? record.spareParts as string[] : undefined,
+        spareParts: Array.isArray(record.spareParts) ? (record.spareParts as (string | Record<string, unknown>)[]) : undefined,
     } as Listing;
 }
 
@@ -231,8 +241,16 @@ export function normalizeListing(data: unknown): Listing {
     const compatible = toListingSchemaCompatible(unwrapListingPayload(data));
     const parsed = AdSchema.safeParse(compatible);
     const validated = parsed.success ? parsed.data : coerceListingFallback(compatible);
+    
     const location = normalizeLocation(validated.location);
-    const normalizedViews = typeof validated.views === 'number' ? validated.views : (validated.views && typeof validated.views === 'object' ? (validated.views as any).total : 0);
+    
+    let normalizedViews = 0;
+    if (typeof validated.views === 'number') {
+        normalizedViews = validated.views;
+    } else if (validated.views && typeof validated.views === 'object') {
+        normalizedViews = (validated.views as { total: number }).total || 0;
+    }
+
     const explicitSellerName =
         typeof validated.sellerName === 'string' && validated.sellerName.trim().length > 0
             ? validated.sellerName.trim()
@@ -241,19 +259,28 @@ export function normalizeListing(data: unknown): Listing {
         typeof validated.businessName === 'string' && validated.businessName.trim().length > 0
             ? validated.businessName.trim()
             : '';
-    const legacySellerName =
-        typeof validated.seller === 'string'
-            ? validated.seller.trim()
-            : validated.seller && typeof validated.seller === 'object'
-                ? String((validated.seller as Record<string, unknown>).name || (validated.seller as Record<string, unknown>).businessName || '').trim()
-                : '';
+    
+    // Legacy seller name extraction
+    let legacySellerName = '';
+    const seller = validated.seller;
+    if (typeof seller === 'string') {
+        legacySellerName = seller.trim();
+    } else if (seller && typeof seller === 'object') {
+        const sr = seller as Record<string, unknown>;
+        legacySellerName = String(sr.name || sr.businessName || '').trim();
+    }
+
     const isBusiness =
         validated.sellerType === 'business'
-        || (validated.seller && (validated.seller as any).role === 'business')
+        || (typeof seller === 'object' && seller !== null && (seller as Record<string, unknown>).role === 'business')
         || !!validated.businessId;
+
     const sellerName = (isBusiness && businessName)
         ? businessName
         : explicitSellerName || legacySellerName || businessName || 'Esparex Seller';
+
+    const verified = (typeof seller === 'object' && seller !== null && (seller as Record<string, unknown>).isVerified === true) 
+        || validated.verified === true;
 
     return {
         ...validated,
@@ -263,11 +290,11 @@ export function normalizeListing(data: unknown): Listing {
         image: toSafeImageSrc(Array.isArray(validated.images) && validated.images.length > 0 ? normalizeImageUrl(String(validated.images[0])) : (typeof validated.image === 'string' ? normalizeImageUrl(validated.image) : validated.image)),
         time: typeof validated.createdAt === 'string' ? new Date(validated.createdAt).toLocaleDateString() : '',
         isBusiness,
-        verified: ((validated.seller as any)?.isVerified === true) || validated.verified === true,
+        verified,
         sellerName,
         sellerId: extractId(validated.sellerId) || '',
         views: normalizedViews,
-        location: location as any
+        location: (location || { city: "" }) as Listing['location']
     } as Listing;
 }
 

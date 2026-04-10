@@ -111,9 +111,9 @@ export function normalizeBusiness(
 
     return {
         ...apiBusiness,
-        sellerId: apiBusiness.sellerId || apiBusiness.userId || (apiBusiness as any).ownerId || "",
-        mobile: apiBusiness.mobile || (apiBusiness as any).phone || "",
-        isVerified: !!apiBusiness.isVerified || !!(apiBusiness as any).verified,
+        sellerId: apiBusiness.sellerId || apiBusiness.userId || apiBusiness.ownerId || "",
+        mobile: apiBusiness.mobile || apiBusiness.phone || "",
+        isVerified: !!apiBusiness.isVerified || !!apiBusiness.verified,
         status: normalizedStatus as ApiBusiness['status'],
         logo: apiBusiness.logo,
         coverImage: apiBusiness.coverImage,
@@ -123,16 +123,16 @@ export function normalizeBusiness(
             {
                 idProof: Array.isArray(apiBusiness.documents) 
                     ? apiBusiness.documents.filter(d => d.type === 'id_proof').map(d => d.url)
-                    : (apiBusiness.documents as any)?.idProof || [],
+                    : (apiBusiness.documents as Record<string, unknown> | undefined)?.idProof as string[] || [],
                 idProofType: Array.isArray(apiBusiness.documents)
                     ? apiBusiness.documents.find(d => d.type === 'id_proof')?.idProofType
-                    : (apiBusiness.documents as any)?.idProofType,
+                    : (apiBusiness.documents as Record<string, unknown> | undefined)?.idProofType as string,
                 businessProof: Array.isArray(apiBusiness.documents)
                     ? apiBusiness.documents.filter(d => d.type === 'business_proof').map(d => d.url)
-                    : (apiBusiness.documents as any)?.businessProof || [],
+                    : (apiBusiness.documents as Record<string, unknown> | undefined)?.businessProof as string[] || [],
                 certificates: Array.isArray(apiBusiness.documents)
                     ? apiBusiness.documents.filter(d => d.type === 'certificate').map(d => d.url)
-                    : (apiBusiness.documents as any)?.certificates || []
+                    : (apiBusiness.documents as Record<string, unknown> | undefined)?.certificates as string[] || []
             }
         ),
         location: normalizedBusinessLocation
@@ -155,7 +155,7 @@ function shouldLogBusinessApiError(
     }
 
     if ('silent' in options) {
-        return options.silent !== true;
+        return (options as EsparexRequestConfig).silent !== true;
     }
 
     return true;
@@ -215,7 +215,7 @@ export const registerBusiness = async (
         const response = await apiClient.post<{ data?: ApiBusiness; success?: boolean }>(
             API_ROUTES.USER.BUSINESSES_PUBLIC, data, { silent: true }
         );
-        const apiData = (response as { data?: ApiBusiness }).data ?? (response as unknown as ApiBusiness);
+        const apiData = response.data;
         if (!apiData) return null;
         return normalizeBusiness(apiData);
     } catch (e) {

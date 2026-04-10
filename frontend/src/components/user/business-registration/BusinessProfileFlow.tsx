@@ -12,6 +12,7 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
 import { injectApiErrors } from "@/lib/injectApiErrors";
 import logger from "@/lib/logger";
 import type { User } from "@/types/User";
+import type { Path, FieldValues } from "react-hook-form";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import {
     getMyBusiness,
@@ -69,7 +70,7 @@ type BusinessWizardFormShape = {
     currentLocationCity?: string | null;
     currentLocationState?: string | null;
     currentLocationCountry?: string | null;
-    coordinates?: unknown;
+    coordinates?: unknown | null;
     contactNumber: string;
     email: string;
 };
@@ -144,8 +145,8 @@ function getBusinessEditVariant(status: UserBusiness["status"] | undefined): Bus
     return normalizeBusinessStatus(status, "pending") === "live" ? "live-edit" : "application-edit";
 }
 
-function useBusinessProfileWizardController<TFormData extends Record<string, unknown>>(
-    form: UseFormReturn<any, any, TFormData>,
+function useBusinessProfileWizardController<TFormShape extends FieldValues>(
+    form: UseFormReturn<TFormShape, any, any>,
     options: { requireDocuments: boolean },
 ) {
     const [currentStep, setCurrentStep] = useState(0);
@@ -156,22 +157,22 @@ function useBusinessProfileWizardController<TFormData extends Record<string, unk
         setValue,
         formState: { errors, isSubmitting },
     } = form;
-
-    const formData = watch() as TFormData;
+ 
+    const formData = watch();
     const { legacyFormData, setLegacyFormData } = useBusinessWizardBridge({
-        formData,
-        errors: errors as FieldErrors<TFormData>,
-        setValue: setValue as UseFormSetValue<TFormData>,
+        formData: formData as TFormShape,
+        errors: errors as FieldErrors<TFormShape>,
+        setValue: setValue as unknown as UseFormSetValue<TFormShape>,
     });
-
+ 
     const handleNext = async () => {
         if (formError) setFormError(null);
-
+ 
         const isValid = await trigger(
-            getBusinessWizardFieldsForStep(currentStep, { requireDocuments: options.requireDocuments }) as string[],
+            getBusinessWizardFieldsForStep(currentStep, { requireDocuments: options.requireDocuments }) as Path<TFormShape>[],
         );
         if (!isValid) return;
-
+ 
         setCurrentStep((previous) => previous + 1);
     };
 
@@ -228,7 +229,7 @@ function BusinessRegistrationFlow({
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
     const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
 
-    const form = useForm<BusinessRegistrationFormInput, any, BusinessRegistrationFormData>({
+    const form = useForm<BusinessRegistrationFormInput, undefined, BusinessRegistrationFormData>({
         resolver: zodResolver(businessRegistrationSchema),
         mode: "onBlur",
         reValidateMode: "onChange",
@@ -252,7 +253,7 @@ function BusinessRegistrationFlow({
         },
     });
 
-    const wizard = useBusinessProfileWizardController<BusinessRegistrationFormData>(form, {
+    const wizard = useBusinessProfileWizardController<BusinessRegistrationFormInput>(form, {
         requireDocuments: true,
     });
 
@@ -413,14 +414,14 @@ function BusinessEditProfileFlow({
             shopImages: [],
         };
 
-    const form = useForm<BusinessEditFormInput, any, BusinessEditFormData>({
+    const form = useForm<BusinessEditFormInput, undefined, BusinessEditFormData>({
         resolver: zodResolver(businessEditSchema),
         mode: "onBlur",
         reValidateMode: "onChange",
         defaultValues: initialEditDefaults,
     });
 
-    const wizard = useBusinessProfileWizardController<BusinessEditFormData>(form, {
+    const wizard = useBusinessProfileWizardController<BusinessEditFormInput>(form, {
         requireDocuments: false,
     });
     const { setFormError } = wizard;
@@ -550,7 +551,7 @@ function BusinessEditProfileFlow({
         } catch (error: unknown) {
             setSubmissionStatus(null);
             logger.error(error);
-            const injected = injectApiErrors(form as any, error);
+            const injected = injectApiErrors(form, error);
             if (!injected) {
                 wizard.setFormError(mapErrorToMessage(error, TOAST_MESSAGES.LOAD_FAILED));
             }

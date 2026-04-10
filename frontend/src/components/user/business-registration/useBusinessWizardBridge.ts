@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { FieldErrors, UseFormSetValue } from "react-hook-form";
+import type { FieldErrors, UseFormSetValue, FieldValues, Path, PathValue } from "react-hook-form";
 import type { StepData } from "./types";
 
 const NON_FORM_FIELDS = new Set(["errors"]);
@@ -50,15 +50,15 @@ export function getBusinessWizardFieldsForStep(
     return [];
 }
 
-export function useBusinessWizardBridge<TFormData extends Record<string, unknown>>({
+export function useBusinessWizardBridge<TFieldValues extends FieldValues>({
     formData,
     errors,
     setValue,
     extraFields,
 }: {
-    formData: TFormData;
-    errors: FieldErrors<TFormData>;
-    setValue: UseFormSetValue<TFormData>;
+    formData: TFieldValues;
+    errors: FieldErrors<TFieldValues>;
+    setValue: UseFormSetValue<TFieldValues>;
     extraFields?: Partial<StepData>;
 }) {
     const legacyFormData: StepData = {
@@ -77,7 +77,7 @@ export function useBusinessWizardBridge<TFormData extends Record<string, unknown
                 return;
             }
 
-            setValue(key as never, value as never, {
+            setValue(key as Path<TFieldValues>, value as PathValue<TFieldValues, Path<TFieldValues>>, {
                 shouldDirty: true,
             });
         });

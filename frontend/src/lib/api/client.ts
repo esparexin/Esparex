@@ -2,8 +2,7 @@
 import axios, {
     AxiosInstance,
     AxiosRequestConfig,
-    AxiosHeaders,
-    AxiosHeaderValue
+    AxiosHeaders
 } from 'axios';
 
 import logger from "@/lib/logger";
@@ -289,11 +288,27 @@ class APIClient {
             },
             async (rawError: unknown) => {
                 // Decrypt encrypted error responses before processing
-                const rawErrorObj = rawError as { response?: { headers?: Record<string, string>; data?: unknown } };
-                if (rawErrorObj?.response?.headers?.['x-encrypted'] === 'true' && rawErrorObj.response.data) {
+                const axiosError = rawError as { 
+                    response?: { 
+                        headers?: Record<string, string | string[] | undefined>; 
+                        data?: unknown 
+                    };
+                    config?: AxiosRequestConfig;
+                };
+
+                const responseData = axiosError.response?.data;
+                const headers = axiosError.response?.headers;
+
+                if (headers?.['x-encrypted'] === 'true' && responseData) {
                     try {
-                        const decrypted = decryptData((rawErrorObj.response.data as { payload?: string })?.payload ?? rawErrorObj.response.data as string);
-                        if (decrypted) rawErrorObj.response.data = decrypted;
+                        const payload = typeof responseData === 'object' && responseData !== null && 'payload' in responseData
+                            ? (responseData as { payload: string }).payload
+                            : responseData as string;
+                        
+                        const decrypted = decryptData(payload);
+                        if (decrypted && axiosError.response) {
+                            axiosError.response.data = decrypted;
+                        }
                     } catch {
                         // Decryption failed — use original data
                     }
@@ -321,7 +336,9 @@ class APIClient {
 
                 let responseMessage = getResponseMessage(normalized);
                 let responseCode = getResponseCode(normalized);
+                
                 const requestConfig = (rawError as { config?: AxiosRequestConfig })?.config as EsparexRequestConfig | undefined;
+                
                 const requestUrl = requestConfig?.url?.toString();
                 const status = normalized.response?.status;
                 const isCsrfError = status === 403 && /csrf/i.test(responseMessage || '');
@@ -331,18 +348,7 @@ class APIClient {
                 if (isCsrfError && requestConfig && !requestConfig._csrfRetry && !isCsrfEndpoint) {
                     const csrfToken = await this.getCsrfToken(true);
                     if (csrfToken) {
-                        const retryHeaders = new AxiosHeaders();
-                        if (requestConfig.headers instanceof AxiosHeaders) {
-                            requestConfig.headers.forEach((value: AxiosHeaderValue, key: string) => {
-                                retryHeaders.set(key, value);
-                            });
-                        } else if (requestConfig.headers && typeof requestConfig.headers === 'object') {
-                            Object.entries(requestConfig.headers as Record<string, unknown>).forEach(([key, value]) => {
-                                if (value !== undefined) {
-                                    retryHeaders.set(key, String(value));
-                                }
-                            });
-                        }
+                        const retryHeaders = new AxiosHeaders(requestConfig.headers as Record<string, string>);
                         retryHeaders.set('x-csrf-token', csrfToken);
 
                         const retryConfig: EsparexRequestConfig = {

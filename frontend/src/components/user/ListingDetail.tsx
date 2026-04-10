@@ -136,7 +136,13 @@ export function ListingDetail({
       ? ad?.category
       : undefined;
   const categoryRoute = categoryFilter;
-  const viewCount = typeof ad?.views === "number" ? ad.views : (ad?.views as any)?.total || 0;
+  
+  let viewCount = 0;
+  if (typeof ad?.views === "number") {
+    viewCount = ad.views;
+  } else if (ad?.views && typeof ad.views === "object") {
+    viewCount = (ad.views as { total: number }).total || 0;
+  }
 
   const { adStatus, setSoldOverride } = useAdStatus(ad);
   const { revealedPhone, phoneMessage, isPhoneLoading, handleRevealPhone } = usePhoneReveal(ad, user, router);
