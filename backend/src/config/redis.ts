@@ -13,6 +13,7 @@ const redisUrl = process.env.REDIS_URL || (() => {
 
 // 🔍 STARTUP AUDIT: Log the connection protocol and host (obfuscated)
 const auditUrl = (redisUrl || '').replace(/:[^:@]+@/, ':****@');
+console.error(`[EMERGENCY_REDIS_AUDIT] Prot: ${(redisUrl || '').split(':')[0]} | URL: ${auditUrl}`);
 logger.warn(`[REDIS_BOOT] Protocol: ${(redisUrl || '').split(':')[0]} | URL: ${auditUrl}`);
 
 if (process.env.NODE_ENV === 'production') {
@@ -51,6 +52,7 @@ const redis: Redis = shouldDisableRedis
         enableOfflineQueue: true,
         enableReadyCheck: false,
         connectTimeout: 10000,
+        tls: undefined,
         retryStrategy(times) {
             const delay = Math.min(times * 50, 2000);
             return delay;
