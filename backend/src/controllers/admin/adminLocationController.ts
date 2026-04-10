@@ -20,7 +20,7 @@ import {
 import {
     normalizeLocationResponse,
     normalizeCoordinates
-} from '../../services/LocationService';
+} from '../../services/location/LocationNormalizer';
 import {
     buildLocationSummary,
     buildHierarchyPath,

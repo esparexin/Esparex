@@ -8,7 +8,7 @@
 import mongoose from 'mongoose';
 import Ad, { type IAd } from '../models/Ad';
 import logger from '../utils/logger';
-import { touchLocationAnalytics } from './LocationService';
+import { touchLocationAnalytics } from './location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from './TrendingService';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 

@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError';
 import Ad from '../models/Ad';
-import { normalizeLocation, toGeoPoint } from './LocationService';
+import { normalizeLocation } from './location/LocationNormalizer';
+import { toGeoPoint } from '../../../shared/utils/geoUtils';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 import { GOVERNANCE, MS_IN_DAY } from '../config/constants';

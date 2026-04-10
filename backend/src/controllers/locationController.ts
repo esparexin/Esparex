@@ -11,13 +11,19 @@ import {
     getAreasByCityId,
     getCitiesByStateId,
     getStateLocations,
+    ingestLocation as ingestLocationService
+} from '../services/location/LocationHierarchyService';
+import {
     lookupLocationByPincode as lookupLocationByPincodeService,
-    searchLocations as searchLocationsService,
+    searchLocations as searchLocationsService
+} from '../services/location/LocationSearchService';
+import {
     touchLocationSearchAnalytics,
-    ingestLocation as ingestLocationService,
-    logLocationEvent as logLocationAnalyticsEvent,
-    reverseGeocode as reverseGeocodeService,
-} from '../services/LocationService';
+    logLocationEvent as logLocationAnalyticsEvent
+} from '../services/location/LocationAnalyticsService';
+import {
+    reverseGeocode as reverseGeocodeService
+} from '../services/location/ReverseGeocodeService';
 import { formatLocationResponse as formatCanonicalLocationResponse, type LocationResponseLike } from '../lib/location/formatLocation';
 
 /* -------------------------------------------------------------------------- */

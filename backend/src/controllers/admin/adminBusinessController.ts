@@ -11,7 +11,7 @@ import {
     sendAdminError
 } from './adminBaseController';
 import { normalizeBusinessStatus } from '../../utils/businessStatus';
-import { normalizeLocation } from '../../services/LocationService';
+import { normalizeLocation } from '../../services/location/LocationNormalizer';
 import { serializeBusinessForAdmin } from '../business/shared';
 
 import { handlePaginatedContent } from '../../utils/contentHandler';

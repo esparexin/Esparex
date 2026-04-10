@@ -52,11 +52,11 @@ import {
     getAreasByCityId,
     getCitiesByStateId,
     getDefaultCenterLocation,
-    getStateLocations,
-    lookupLocationByPincode,
-    normalizeLocation,
-    reverseGeocode,
-} from "../../services/LocationService";
+    getStateLocations
+} from "../../services/location/LocationHierarchyService";
+import { lookupLocationByPincode } from "../../services/location/LocationSearchService";
+import { normalizeLocation } from "../../services/location/LocationNormalizer";
+import { reverseGeocode } from "../../services/location/ReverseGeocodeService";
 
 const mockLocationModel = Location as unknown as {
     findOne: jest.Mock;

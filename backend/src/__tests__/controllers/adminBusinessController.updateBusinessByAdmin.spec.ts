@@ -54,15 +54,14 @@ jest.mock("../../utils/contentHandler", () => ({
     handlePaginatedContent: jest.fn(),
 }));
 
-jest.mock("../../services/LocationService", () => ({
-    __esModule: true,
-    normalizeLocation: jest.fn(),
+jest.mock("../../services/location/LocationNormalizer", () => ({
+    normalizeLocation: jest.fn()
 }));
 
 import * as adminBusinessController from "../../controllers/admin/adminBusinessController";
 import Business from "../../models/Business";
 import { buildBusinessLocationPayload } from "../../services/BusinessService";
-import { normalizeLocation } from "../../services/LocationService";
+import { normalizeLocation } from "../../services/location/LocationNormalizer";
 
 const createMockRes = () => ({
     status: jest.fn().mockReturnThis(),

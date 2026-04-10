@@ -63,25 +63,46 @@ import { AD_STATUS, AD_STATUS_VALUES } from '../../../shared/enums/adStatus';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
 import { AdCreationService } from './AdCreationService';
 import { mutateStatus } from './StatusMutationService';
-import { hydrateAdMetadata } from './AdQueryService';
+import { hydrateAdMetadata, getAds } from './ad/AdAggregationService';
 export {
     getAds,
+    hydrateAdMetadata
+};
+export {
     getListingDetailById,
-    getAdCounts,
-    getSellerListingStats,
-    computeModerationSummaryByType,
     getReportedAdsAggregation,
     getAdSuggestions,
     getAdsByStatus,
-    getAdIdBySlug,
-    hydrateAdMetadata
-} from './AdQueryService';
+    getAdIdBySlug
+} from './ad/AdDetailService';
+export {
+    getAdCounts,
+    getSellerListingStats,
+    computeModerationSummaryByType
+} from './ad/AdMetricsService';
 export { updateAdStatus, expireOutdatedAds, expireBoosts, computeActiveExpiry, extendAdExpiry, deleteAd, restoreAd } from './adStatusService';
 export { incrementAdView } from './AdEngagementService';
 
 // ─────────────────────────────────────────────────
 // CORE CRUD - GET WITH DUPLICATE DETECTION
 // ─────────────────────────────────────────────────
+
+export const assertOwnership = async (adId: string, userId: string): Promise<{ sellerId: mongoose.Types.ObjectId; status: string }> => {
+    const ad = await Ad.findById(adId).select('sellerId status').lean();
+    if (!ad) {
+        const err: any = new Error('Ad not found');
+        err.statusCode = 404;
+        err.code = 'NOT_FOUND';
+        throw err;
+    }
+    if (String(ad.sellerId) !== String(userId)) {
+        const err: any = new Error('Unauthorized');
+        err.statusCode = 403;
+        err.code = 'UNAUTHORIZED';
+        throw err;
+    }
+    return ad as { sellerId: mongoose.Types.ObjectId; status: string };
+};
 
 export const getAnyAdById = async (
     adId: string,

@@ -13,7 +13,7 @@ import {
 } from '../../utils/s3';
 import { processSingleImage } from '../../utils/imageProcessor';
 import { sendSuccessResponse } from '../../utils/respond';
-import { normalizeLocation } from '../../services/LocationService';
+import { normalizeLocation } from '../../services/location/LocationNormalizer';
 import { updateUserStatus } from '../../services/UserStatusService';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import fs from 'fs/promises';

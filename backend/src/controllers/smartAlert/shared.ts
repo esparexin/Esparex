@@ -7,7 +7,7 @@ import {
     normalizeCoordinates,
     normalizeLocation,
     normalizeLocationResponse
-} from '../../services/LocationService';
+} from '../../services/location/LocationNormalizer';
 import { serializeDoc } from '../../utils/serialize';
 import { GOVERNANCE, MS_IN_DAY } from '../../config/constants';
 import { AppError } from '../../utils/AppError';

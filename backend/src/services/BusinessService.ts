@@ -8,7 +8,8 @@ import { getUserConnection } from '../config/db';
 
 import { processImages } from '../utils/imageProcessor';
 import { deleteFromS3Url, sanitizeStoredImageUrls } from '../utils/s3';
-import { normalizeLocation, normalizeLocationResponse, toGeoPoint } from './LocationService';
+import { normalizeLocation, normalizeLocationResponse } from './location/LocationNormalizer';
+import { toGeoPoint } from '../../../shared/utils/geoUtils';
 import { serializeDoc } from '../utils/serialize';
 import { publishedBusinessStatusQuery } from '../utils/businessStatus';
 import { mutateStatus } from './StatusMutationService';
