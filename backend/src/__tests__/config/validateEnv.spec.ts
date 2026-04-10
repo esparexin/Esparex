@@ -17,7 +17,7 @@ const baseProductionEnv: NodeJS.ProcessEnv = {
     AWS_ACCESS_KEY_ID: VALID_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: VALID_SECRET_ACCESS_KEY,
     S3_BUCKET_NAME: 'esparex-test-bucket',
-    CORS_ORIGIN: 'https://esparex.com',
+    CORS_ORIGIN: 'https://esparex.in',
 };
 
 describe('validateProductionEnvOrThrow', () => {
@@ -44,6 +44,31 @@ describe('validateProductionEnvOrThrow', () => {
 
         expect(() => validateProductionEnvOrThrow(env)).toThrow(
             /USE_DEFAULT_OTP must be false in production/
+        );
+    });
+
+    it('infers COOKIE_DOMAIN from split-subdomain production origins when it is omitted', () => {
+        const env = {
+            ...baseProductionEnv,
+            FRONTEND_URL: 'https://exparex.in',
+            ADMIN_FRONTEND_URL: 'https://admin.exparex.in',
+            CORS_ORIGIN: 'https://exparex.in,https://admin.exparex.in',
+        };
+
+        expect(() => validateProductionEnvOrThrow(env)).not.toThrow();
+        expect(env.COOKIE_DOMAIN).toBe('exparex.in');
+    });
+
+    it('throws when production split-domain auth lacks an inferable shared cookie domain', () => {
+        const env = {
+            ...baseProductionEnv,
+            FRONTEND_URL: 'https://shop.exparex.in',
+            ADMIN_FRONTEND_URL: 'https://console.other-root.in',
+            CORS_ORIGIN: 'https://shop.exparex.in,https://console.other-root.in',
+        };
+
+        expect(() => validateProductionEnvOrThrow(env)).toThrow(
+            /COOKIE_DOMAIN must be set in production for split-subdomain auth deployments/
         );
     });
 });

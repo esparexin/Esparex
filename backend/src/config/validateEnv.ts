@@ -1,4 +1,5 @@
 import bootstrapLogger from '../utils/bootstrapLogger';
+import { inferCookieDomainFromEnv, requiresSharedCookieDomain } from '../utils/originConfig';
 
 const REQUIRED_PRODUCTION_ENV_VARS = [
     'RAZORPAY_WEBHOOK_SECRET',
@@ -116,6 +117,28 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
 
     if (hasWildcardCorsOrigin(corsOrigin as string)) {
         throw new Error('CORS_ORIGIN cannot include wildcard (*) in production');
+    }
+
+    const runtimeOriginEnv = {
+        NODE_ENV: sourceEnv.NODE_ENV,
+        CORS_ORIGIN: sourceEnv.CORS_ORIGIN,
+        COOKIE_DOMAIN: sourceEnv.COOKIE_DOMAIN,
+        FRONTEND_URL: sourceEnv.FRONTEND_URL,
+        FRONTEND_INTERNAL_URL: sourceEnv.FRONTEND_INTERNAL_URL,
+        ADMIN_FRONTEND_URL: sourceEnv.ADMIN_FRONTEND_URL,
+        ADMIN_URL: sourceEnv.ADMIN_URL,
+    };
+
+    if (!sourceEnv.COOKIE_DOMAIN?.trim()) {
+        const inferredCookieDomain = inferCookieDomainFromEnv(runtimeOriginEnv);
+        if (inferredCookieDomain) {
+            sourceEnv.COOKIE_DOMAIN = inferredCookieDomain;
+            bootstrapLogger.warn(
+                `⚠️ COOKIE_DOMAIN was missing in production; inferred ${inferredCookieDomain} from configured origins.`
+            );
+        } else if (requiresSharedCookieDomain(runtimeOriginEnv)) {
+            throw new Error('COOKIE_DOMAIN must be set in production for split-subdomain auth deployments');
+        }
     }
 
     if ((sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase() === 'true') {

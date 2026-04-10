@@ -1,7 +1,25 @@
-import logger from "@/lib/logger";
 // src/lib/api/validateApiEnv.ts
 
 let validated = false;
+
+function inferExpectedProductionApiHost(rawAppUrl: string): string | null {
+    try {
+        const hostname = new URL(rawAppUrl).hostname.toLowerCase();
+        const normalizedAppHost = hostname.replace(/^www\./, '');
+
+        if (normalizedAppHost.startsWith('api.')) {
+            return normalizedAppHost;
+        }
+
+        if (normalizedAppHost.startsWith('app.')) {
+            return `api.${normalizedAppHost.slice(4)}`;
+        }
+
+        return `api.${normalizedAppHost}`;
+    } catch {
+        return null;
+    }
+}
 
 export function validateApiEnv() {
     // Prevent multiple executions (HMR / re-imports)
@@ -13,15 +31,12 @@ export function validateApiEnv() {
     if (process.env.SKIP_ENV_VALIDATION === "true") return;
 
     const url = process.env.NEXT_PUBLIC_API_URL?.trim();
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
     const nodeEnv = process.env.NODE_ENV;
     const appEnv = process.env.NEXT_PUBLIC_APP_ENV || 'local';
     const riskOverride = process.env.PROD_RISK_OVERRIDE === 'true';
 
     if (!url) {
-        if (process.env.NODE_ENV === 'production' || process.env.SKIP_ENV_VALIDATION === 'true') {
-            logger.error("[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL is missing during build/export. Skipping hard throw.");
-            return;
-        }
         throw new Error(
             "[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL is missing"
         );
@@ -37,7 +52,7 @@ export function validateApiEnv() {
     // Must include API base
     if (!url.includes("/api")) {
         throw new Error(
-            `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL must include /api (example: https://api.esparex.com/api/v1): ${url}`
+            `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL must include /api (example: https://api.exparex.in/api/v1): ${url}`
         );
     }
 
@@ -51,6 +66,23 @@ export function validateApiEnv() {
                 `The production environment cannot run while known RED risks exist (e.g. localhost API URL: ${url}).\n` +
                 `If this is intentional, set PROD_RISK_OVERRIDE=true.`
             );
+        }
+
+        if (appUrl && !riskOverride) {
+            try {
+                const apiHost = new URL(url).hostname.toLowerCase();
+                const expectedApiHost = inferExpectedProductionApiHost(appUrl);
+
+                if (expectedApiHost && apiHost !== expectedApiHost) {
+                    throw new Error(
+                        `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL must target ${expectedApiHost} for NEXT_PUBLIC_APP_URL=${appUrl}, received ${url}`
+                    );
+                }
+            } catch (error) {
+                if (error instanceof Error) {
+                    throw error;
+                }
+            }
         }
     }
 
@@ -67,11 +99,10 @@ export function validateApiEnv() {
     }
 
     // Legacy standard check (Node-specific)
-    if (nodeEnv === "production" && !url.includes("esparex.in") && !url.includes("esparex.com") && !riskOverride) {
+    if (nodeEnv === "production" && !url.includes("esparex.in") && !riskOverride) {
         // This serves as a secondary check if APP_ENV isn't set but we are in a production build
         if (url.includes("localhost") || url.includes("127.0.0.1")) {
             throw new Error(`[ESPAREX CONFIG ERROR] Production build cannot use localhost API: ${url}`);
         }
     }
 }
-

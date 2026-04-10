@@ -1,21 +1,19 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import {
-    API_ROUTES,
-    API_V1_BASE_PATH,
-    DEFAULT_LOCAL_API_ORIGIN,
-} from "@/lib/api/routes";
-import { resolveBrowserApiBaseUrl } from "@/lib/api/browserApiBase";
+import { API_ROUTES } from "@/lib/api/routes";
+import { resolveRuntimeApiBaseUrl } from "@/lib/api/runtimeApiBase";
 
 type BackendStatus = {
     isBackendUp: boolean;
     checked: boolean;
+    apiBaseUrl: string;
 };
 
 const BackendStatusContext = createContext<BackendStatus>({
     isBackendUp: false,
     checked: false,
+    apiBaseUrl: "",
 });
 
 const HEALTH_CHECK_INTERVAL_MS = 2 * 60 * 1000; // re-check every 2 minutes
@@ -27,11 +25,11 @@ export function BackendStatusProvider({
 }) {
     const [isBackendUp, setIsBackendUp] = useState(false);
     const [checked, setChecked] = useState(false);
+    const [apiBaseUrl, setApiBaseUrl] = useState("");
 
     useEffect(() => {
-        const apiBase = resolveBrowserApiBaseUrl((
-            process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`
-        )).replace(/\/$/, "");
+        const apiBase = resolveRuntimeApiBaseUrl();
+        setApiBaseUrl(apiBase);
 
         const check = () => {
             fetch(`${apiBase}/${API_ROUTES.USER.HEALTH}`, { method: "GET" })
@@ -46,8 +44,8 @@ export function BackendStatusProvider({
     }, []);
 
     const value = useMemo(
-        () => ({ isBackendUp, checked }),
-        [checked, isBackendUp]
+        () => ({ isBackendUp, checked, apiBaseUrl }),
+        [apiBaseUrl, checked, isBackendUp]
     );
 
     return (

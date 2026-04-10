@@ -6,34 +6,23 @@ import axios, {
     AxiosHeaderValue
 } from 'axios';
 
-import { validateApiEnv } from './validateApiEnv';
+import logger from "@/lib/logger";
 import { encryptData, decryptData } from '../encryption';
 import { normalizeError } from './normalizeError';
 import { APIError } from './APIError';
 import { emitErrorPopup } from '@/lib/popup/popupEvents';
 import {
     API_ROUTES,
-    API_V1_BASE_PATH,
-    DEFAULT_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
 import { TraceContext } from "@shared/observability/trace";
-import logger from "@/lib/logger";
-import { resolveBrowserApiBaseUrl } from "./browserApiBase";
+import { resolveRuntimeApiBaseUrl } from "./runtimeApiBase";
+import { validateApiEnv } from './validateApiEnv';
 
 /* ======================================================
    BASE_URL
 ====================================================== */
 
-let BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
-
-if (typeof window !== 'undefined') {
-    const resolvedBaseUrl = resolveBrowserApiBaseUrl(BASE_URL);
-    if (resolvedBaseUrl !== BASE_URL) {
-        logger.warn(`[API Client] Aligning API host to browser hostname: ${resolvedBaseUrl}`);
-        BASE_URL = resolvedBaseUrl;
-    }
-}
+let BASE_URL = resolveRuntimeApiBaseUrl();
 
 // 📐 STANDARDIZE TRAILING SLASH FOR RELATIVE PATH RESOLUTION
 BASE_URL = BASE_URL.replace(/\/$/, '') + '/';

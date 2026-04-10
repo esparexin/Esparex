@@ -3,6 +3,7 @@ import { emailService } from '../services/EmailService';
 import { jobRunner } from '../utils/jobRunner';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import { getFrontendAppUrl } from '../utils/appUrl';
 
 export const runNotifyBusinessJob = async () => {
     await runWithDistributedJobLock(
@@ -46,7 +47,7 @@ export const runNotifyBusinessJob = async () => {
                             <p>To ensure your business profile remains active and visible to customers, please renew your plan before it expires.</p>
                             <p>If your plan expires, your profile will be automatically suspended.</p>
                             <br/>
-                            <a href="${process.env.FRONTEND_URL || 'https://esparex.com'}/my-business" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Renew Now</a>
+                            <a href="${getFrontendAppUrl()}/my-business" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Renew Now</a>
                         </div>
                     `;
 

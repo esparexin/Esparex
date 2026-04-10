@@ -43,8 +43,12 @@ const envSchema = z.object({
     OTP_HASH_SECRET: z.string().optional(),
 
     // CORS
-    CORS_ORIGIN: z.string().default('http://localhost:3000'),
+    CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:3001'),
     COOKIE_DOMAIN: z.string().optional(),
+    FRONTEND_URL: z.string().optional(),
+    FRONTEND_INTERNAL_URL: z.string().optional(),
+    ADMIN_URL: z.string().optional(),
+    ADMIN_FRONTEND_URL: z.string().optional(),
 
     AWS_ACCESS_KEY_ID: z.string().optional(),
     AWS_SECRET_ACCESS_KEY: z.string().optional(),
@@ -121,12 +125,13 @@ function validateEnv(): EnvConfig {
     try {
         validateS3BucketEnvAliasOrThrow(process.env);
         validateS3RuntimeEnvOrThrow(process.env);
+        if ((process.env.NODE_ENV || 'development') === 'production') {
+            validateProductionEnvOrThrow(process.env);
+        }
         const config = envSchema.parse(process.env);
 
         // Additional security checks
         if (config.NODE_ENV === 'production') {
-            validateProductionEnvOrThrow(process.env);
-
             // Production-specific validations
             if (config.JWT_SECRET.length < 64) {
                 bootstrapLogger.warn('⚠️  WARNING: JWT_SECRET should be at least 64 characters in production');

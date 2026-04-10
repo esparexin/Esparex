@@ -3,8 +3,9 @@ import { lifecycleEvents } from '../LifecycleEventDispatcher';
 import { emailService } from '../../services/EmailService';
 import Ad from '../../models/Ad';
 import User from '../../models/User';
+import { getFrontendAppUrl } from '../../utils/appUrl';
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://esparex.com';
+const FRONTEND_URL = getFrontendAppUrl();
 
 const LISTING_TYPE_LABEL: Record<string, string> = {
     service: 'Service',

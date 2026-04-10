@@ -13,6 +13,8 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import logger from '../utils/logger';
 import { verifyToken } from '../utils/auth';
 import redisClient from '../utils/redisCache';
+import { getAllowedOriginList } from '../utils/originConfig';
+import { env } from './env';
 
 let io: Server | null = null;
 
@@ -21,12 +23,15 @@ let io: Server | null = null;
  * Must be called before startListening().
  */
 export function initIO(httpServer: HttpServer): Server {
-    const corsOrigins = process.env.CORS_ORIGIN 
-        ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-        : [
-            process.env.FRONTEND_URL ?? 'http://localhost:3000',
-            process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:3001',
-        ];
+    const corsOrigins = getAllowedOriginList({
+        NODE_ENV: env.NODE_ENV,
+        CORS_ORIGIN: env.CORS_ORIGIN,
+        COOKIE_DOMAIN: env.COOKIE_DOMAIN,
+        FRONTEND_URL: env.FRONTEND_URL,
+        FRONTEND_INTERNAL_URL: env.FRONTEND_INTERNAL_URL,
+        ADMIN_FRONTEND_URL: env.ADMIN_FRONTEND_URL,
+        ADMIN_URL: env.ADMIN_URL,
+    });
 
     io = new Server(httpServer, {
         cors: {

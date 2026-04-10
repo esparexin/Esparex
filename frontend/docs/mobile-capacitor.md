@@ -11,9 +11,9 @@ This frontend is a server-dependent Next.js app. The safest first mobile release
 Example production/staging values:
 
 ```env
-NEXT_PUBLIC_APP_URL=https://app.esparex.com
-NEXT_PUBLIC_API_URL=https://api.esparex.com/api/v1
-CAPACITOR_SERVER_URL=https://app.esparex.com
+NEXT_PUBLIC_APP_URL=https://esparex.in
+NEXT_PUBLIC_API_URL=https://api.exparex.in/api/v1
+CAPACITOR_SERVER_URL=https://esparex.in
 ```
 
 ## Device-Safe Rules

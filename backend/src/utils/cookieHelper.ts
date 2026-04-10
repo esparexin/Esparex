@@ -1,21 +1,20 @@
 import { CookieOptions } from 'express';
 import { env } from '../config/env';
+import { inferCookieDomainFromEnv, normalizeCookieDomainValue } from './originConfig';
 
 const resolveCookieDomain = (): string | undefined => {
-    const configured = env.COOKIE_DOMAIN?.trim();
-    if (!configured) return undefined;
-
-    const normalized = configured
-        .replace(/^\./, '')
-        .replace(/\.$/, '')
-        .toLowerCase();
-
-    if (!normalized) return undefined;
-    if (normalized.includes('://') || normalized.includes('/')) return undefined;
-    if (!/^[a-z0-9.-]+$/.test(normalized)) return undefined;
-    if (normalized.split('.').length < 2) return undefined;
-
-    return normalized;
+    return (
+        inferCookieDomainFromEnv({
+            NODE_ENV: process.env.NODE_ENV,
+            CORS_ORIGIN: process.env.CORS_ORIGIN,
+            COOKIE_DOMAIN: process.env.COOKIE_DOMAIN || env.COOKIE_DOMAIN,
+            FRONTEND_URL: process.env.FRONTEND_URL,
+            FRONTEND_INTERNAL_URL: process.env.FRONTEND_INTERNAL_URL,
+            ADMIN_FRONTEND_URL: process.env.ADMIN_FRONTEND_URL,
+            ADMIN_URL: process.env.ADMIN_URL,
+        }) ||
+        normalizeCookieDomainValue(process.env.COOKIE_DOMAIN || env.COOKIE_DOMAIN)
+    );
 };
 
 type SameSiteValue = Exclude<CookieOptions['sameSite'], boolean | undefined>;

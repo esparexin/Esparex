@@ -1,19 +1,11 @@
 import type { AdminEnvelope } from "@/types/admin";
 import {
-  ADMIN_API_V1_BASE_PATH,
   ADMIN_ROUTES,
-  DEFAULT_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
 import { emitAdminErrorPopup } from "@/lib/popup/popupEvents";
+import { resolveValidatedAdminApiBase } from "@/lib/api/validateAdminApiEnv";
 
-const rawBase =
-  process.env.NEXT_PUBLIC_ADMIN_API_URL ||
-  `${DEFAULT_LOCAL_API_ORIGIN}${ADMIN_API_V1_BASE_PATH}`;
-const ADMIN_API_BASE = rawBase.replace(/\/$/, "");
-
-if (!ADMIN_API_BASE.startsWith("http")) {
-  throw new Error("ADMIN_API_BASE misconfigured. Check NEXT_PUBLIC_ADMIN_API_URL.");
-}
+const ADMIN_API_BASE = resolveValidatedAdminApiBase();
 
 const REQUEST_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_ADMIN_API_TIMEOUT_MS || 20000);
 let inMemoryAdminAccessToken: string | null = null;

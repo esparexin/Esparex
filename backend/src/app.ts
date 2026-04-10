@@ -79,7 +79,7 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 /* -------------------------------------------------------------------------- */
 import { isDbReady } from './config/db';
 import logger from './utils/logger';
-import { resolveCookieDomain } from './utils/cookieHelper';
+import { getAllowedOriginList, normalizeOrigin } from './utils/originConfig';
 
 /* -------------------------------------------------------------------------- */
 /* SWAGGER                                                                     */
@@ -148,24 +148,15 @@ app.set('trust proxy', 1);
 /* -------------------------------------------------------------------------- */
 /* CORS — MUST BE FIRST                                                        */
 /* -------------------------------------------------------------------------- */
-const normalizeOrigin = (value: string): string => value.trim().replace(/\/+$/, '').toLowerCase();
-
-const configuredAllowedOrigins = (env.CORS_ORIGIN || '')
-    .split(',')
-    .map(normalizeOrigin)
-    .filter(Boolean);
-
-const cookieDomain = resolveCookieDomain();
-const inferredFirstPartyOrigins = cookieDomain
-    ? cookieDomain.startsWith('admin.')
-        ? [`https://${cookieDomain}`]
-        : [`https://${cookieDomain}`, `https://admin.${cookieDomain}`]
-    : [];
-
-const allowedOrigins = new Set<string>([
-    ...configuredAllowedOrigins,
-    ...inferredFirstPartyOrigins.map(normalizeOrigin),
-]);
+const allowedOrigins = new Set<string>(getAllowedOriginList({
+    NODE_ENV: env.NODE_ENV,
+    CORS_ORIGIN: env.CORS_ORIGIN,
+    COOKIE_DOMAIN: env.COOKIE_DOMAIN,
+    FRONTEND_URL: env.FRONTEND_URL,
+    FRONTEND_INTERNAL_URL: env.FRONTEND_INTERNAL_URL,
+    ADMIN_FRONTEND_URL: env.ADMIN_FRONTEND_URL,
+    ADMIN_URL: env.ADMIN_URL,
+}));
 
 const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {

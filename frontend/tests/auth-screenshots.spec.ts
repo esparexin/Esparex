@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('Auth and capture account pages', async ({ page }) => {
   // Use localhost dev server
   const base = 'http://127.0.0.1:3000';
-  const apiBase = 'http://127.0.0.1:5000/api/v1';
+  const apiBase = 'http://127.0.0.1:5001/api/v1';
 
   // Instead of interacting with flaky OTP UI, call backend verify and set cookie directly.
   const mobile = '9030787819';

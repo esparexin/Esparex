@@ -2,10 +2,11 @@ import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
 import axios from 'axios';
+import { getFrontendInternalUrl } from '../../utils/appUrl';
 
 const triggerNextJsRevalidation = async () => {
     try {
-        const baseUrl = process.env.FRONTEND_INTERNAL_URL || process.env.FRONTEND_URL || 'http://localhost:3000';
+        const baseUrl = getFrontendInternalUrl();
         await axios.post(`${baseUrl}/internal/revalidate`, { tag: 'homeFeed' }, { timeout: 3000 });
         logger.info('[CacheInvalidationListener] Next.js homeFeed cache revalidated successfully.');
     } catch (error) {

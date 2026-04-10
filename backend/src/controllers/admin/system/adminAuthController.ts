@@ -10,6 +10,7 @@ import Admin, { IAdmin } from '../../../models/Admin';
 import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
 import { getAdminCookieOptions } from '../../../utils/cookieHelper';
 import logger from '../../../utils/logger';
+import { getAdminAppUrl } from '../../../utils/appUrl';
 import {
     sendSuccessResponse,
     sendAdminError
@@ -68,7 +69,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         await admin.save();
 
         // Create reset URL
-        const resetUrl = `${process.env.ADMIN_URL || 'http://localhost:3000'}/admin/reset-password/${resetToken}`;
+        const resetUrl = `${getAdminAppUrl()}/admin/reset-password/${resetToken}`;
 
         const message = `
             <h1>Password Reset Request</h1>
