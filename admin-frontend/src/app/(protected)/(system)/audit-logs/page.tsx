@@ -1,5 +1,5 @@
-import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { AdminProviders } from "@/components/providers/AdminProviders";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Esparex Admin",
   description: "Admin control plane for Esparex"

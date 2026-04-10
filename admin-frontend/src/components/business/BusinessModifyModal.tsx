@@ -1,5 +1,5 @@
-import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
 import { useEffect, useState } from "react";
 import { Loader2, Pencil, MapPin, Search } from "lucide-react";
