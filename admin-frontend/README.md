@@ -1,6 +1,6 @@
 # admin-frontend
 
-Isolated admin web app for `admin.esparex.com`.
+Isolated admin web app for `admin.esparex.in`.
 
 ## Scope Rules
 
@@ -18,4 +18,7 @@ npm --workspace admin-frontend run dev
 
 Env:
 
-- `NEXT_PUBLIC_ADMIN_API_URL` (default: `http://localhost:5000/api/v1/admin`)
+- `NEXT_PUBLIC_ADMIN_API_URL` (default local: `http://localhost:5001/api/v1/admin`)
+- `NEXT_PUBLIC_APP_ENV` (`local` for local dev, `production` for deployment)
+- Production baseline: `https://api.exparex.in/api/v1/admin`
+- Copy `admin-frontend/.env.local.example` to `.env.local` for local development

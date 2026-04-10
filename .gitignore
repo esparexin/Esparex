@@ -50,6 +50,8 @@ frontend/.env.local
 frontend/.env.test
 admin-frontend/.env.local
 admin-frontend/.env.*
+!admin-frontend/.env.local.example
+!admin-frontend/.env.production.example
 
 # Service credentials
 service-account.json

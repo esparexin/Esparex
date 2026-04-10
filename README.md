@@ -1,12 +1,12 @@
 # Esparex Admin System
 
-This project is a comprehensive administrative and user platform for Esparex, featuring a completely separated Frontend and Backend architecture.
+This project is an npm workspaces monorepo for the Esparex marketplace, admin control plane, backend API, and shared packages.
 ## Governance & Safety Rules
 Esparex follows strict non-destructive engineering rules.
 
 📄 See: [docs/ANTIGRAVITY_SYSTEM_RULES.md](file:///Users/admin/Desktop/EsparexAdmin/docs/ANTIGRAVITY_SYSTEM_RULES.md)
 
-The project is divided into two main applications:
+The repo is organized as a monorepo workspace:
 
 ### 1. Backend (`/backend`)
 A Node.js + Express + TypeScript application that handles:
@@ -24,7 +24,7 @@ A Node.js + Express + TypeScript application that handles:
 - `src/validators`: Request validation logic.
 - `src/config`: Configuration (DB, Env).
 
-### 2. Frontend (`/frontend`)
+### 2. User Frontend (`/frontend`)
 A Next.js application that handles:
 - **User Interface** (React Components)
 - **Client-Side Routing** (App Router)
@@ -36,49 +36,78 @@ A Next.js application that handles:
 - `src/services`: API wrappers (e.g. `catalog.service`, `ad.service`).
 - `src/lib`: Core utilities (API client).
 
+### 3. Admin Frontend (`/admin-frontend`)
+A separate Next.js admin application that handles:
+- **Admin Interface** (moderation, catalog, finance, system tools)
+- **Admin Authentication** (isolated auth/session handling)
+- **Admin API Interaction** (`/api/v1/admin/*`)
+
+#### Key Directories
+- `src/app`: Admin pages and protected routes.
+- `src/components`: Admin UI modules.
+- `src/lib/api`: Admin API client and env validation.
+
+### 4. Shared Packages (`/shared`, `/shared/observability`)
+Shared contracts, schemas, types, utilities, and observability helpers consumed by multiple apps.
+
 ---
 
 ## Setup & Running
 
 ### Prerequisites
-- Node.js (v18+)
+- Node.js `>=24 <26`
+- npm `>=11.8 <12`
 - MongoDB (Running locally or Atlas URI)
 - AWS S3 Credentials (optional, for images)
 - Google Gemini API Key (optional, for AI)
 
-### 1. Backend Setup
+### 1. Install Workspace Dependencies
+From the repo root, install once:
+```bash
+npm install
+```
+
+Do not run `npm install` inside `backend`, `frontend`, `admin-frontend`, or `shared`. The repo uses one root lockfile and workspace-local installs create drift.
+
+### 2. Backend Setup
 1. Navigate to the backend directory:
    ```bash
    cd backend
    ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Configure Environment:
+2. Configure Environment:
    - The `.env` file should be present. Ensure `MONGODB_URI` and `JWT_SECRET` are set.
-4. Run the server:
+3. Run the server:
    ```bash
    npm run dev
    ```
-   *Server runs on port 5000 by default.*
+   *Server runs on port 5001 by default.*
 
-### 2. Frontend Setup
+### 3. Frontend Setup
 1. Navigate to the frontend directory:
    ```bash
    cd frontend
    ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Configure Environment:
-   - Check `.env.local` to ensure `NEXT_PUBLIC_API_URL` points to `http://localhost:5000/api/v1` (or your proxy path).
-4. Run the application:
+2. Configure Environment:
+   - Check `.env.local` to ensure `NEXT_PUBLIC_API_URL` points to `http://localhost:5001/api/v1` (or your proxy path).
+3. Run the application:
    ```bash
    npm run dev
    ```
    *App runs on port 3000.*
+
+### 4. Admin Frontend Setup
+1. Navigate to the admin frontend directory:
+   ```bash
+   cd admin-frontend
+   ```
+2. Configure Environment:
+   - Copy `admin-frontend/.env.local.example` to `.env.local`.
+   - Ensure `NEXT_PUBLIC_ADMIN_API_URL` points to `http://localhost:5001/api/v1/admin`.
+3. Run the application:
+   ```bash
+   npm run dev
+   ```
+   *App runs on port 3001.*
 
 ---
 

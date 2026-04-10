@@ -2,6 +2,11 @@
   "name": "esparex-admin-root",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "npm@11.8.0",
+  "engines": {
+    "node": ">=24.0.0 <26",
+    "npm": ">=11.8.0 <12"
+  },
   "workspaces": [
     "backend",
     "frontend",
@@ -12,6 +17,7 @@
   "scripts": {
     "prepare": "bash scripts/install-git-hooks.sh",
     "hooks:install": "bash scripts/install-git-hooks.sh",
+    "clean:workspace-installs": "rm -rf backend/node_modules frontend/node_modules admin-frontend/node_modules shared/node_modules",
     "build": "npm run build -w backend && npm run build -w frontend && npm run build -w admin-frontend",
     "type-check": "npm run type-check -w backend && npm run type-check -w frontend && npm run type-check -w admin-frontend",
     "lint:no-api-string-literals": "node scripts/enforce-no-api-string-literals.js",
@@ -40,6 +46,17 @@
     "guard:api-surface": "node scripts/enforce-api-surface-guard.js"
   },
   "dependencies": {},
+  "optionalDependencies": {
+    "@emnapi/runtime": "^1.8.1"
+  },
+  "overrides": {
+    "@tootallnate/once": "^3.0.1",
+    "http-proxy-agent": {
+      "@tootallnate/once": "^3.0.1"
+    },
+    "handlebars": "^4.7.9",
+    "socket.io-parser": "^4.2.6"
+  },
   "devDependencies": {
     "@types/validator": "^13.15.10"
   }

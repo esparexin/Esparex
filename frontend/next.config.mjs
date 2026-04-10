@@ -120,7 +120,6 @@ const nextConfig = {
             'framer-motion',
             'recharts',
             'socket.io-client',
-            'xlsx',
         ],
     },
     images: {
