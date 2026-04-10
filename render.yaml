@@ -16,8 +16,14 @@ services:
       # ── Core ──────────────────────────────────────────────────────────────
       - key: MONGODB_URI
         sync: false   # MongoDB Atlas connection string
+      - key: ADMIN_MONGODB_URI
+        sync: false   # Admin DB — same Atlas cluster, separate connection (REQUIRED — crashes without it)
       - key: JWT_SECRET
-        sync: false   # Strong random string (32+ chars)
+        sync: false   # Strong random string (64+ chars in production)
+      - key: ADMIN_JWT_SECRET
+        sync: false   # Separate secret for admin panel JWTs
+      - key: REFRESH_TOKEN_SECRET
+        sync: false   # Separate secret for refresh tokens
       - key: OTP_HASH_SECRET
         sync: false   # Strong random string for OTP hashing (32+ chars)
 
@@ -32,6 +38,10 @@ services:
         sync: false   # e.g. .esparex.in  (leading dot covers all subdomains)
       - key: FRONTEND_URL
         sync: false   # e.g. https://esparex.in
+      - key: FRONTEND_INTERNAL_URL
+        sync: false   # Same as FRONTEND_URL unless behind internal network
+      - key: ADMIN_URL
+        sync: false   # e.g. https://admin.esparex.in (used for cookie domain inference)
       - key: ADMIN_FRONTEND_URL
         sync: false   # e.g. https://admin.esparex.in
 
@@ -45,7 +55,25 @@ services:
       - key: S3_BUCKET_NAME
         sync: false   # canonical bucket name (replaces legacy AWS_S3_BUCKET)
 
+      # ── Firebase (push notifications) ────────────────────────────────────
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false   # Paste the full service account JSON as a single-line string
+
+      # ── SMS / OTP (MSG91) ─────────────────────────────────────────────────
+      - key: MSG91_AUTH_KEY
+        sync: false
+      - key: MSG91_SENDER_ID
+        sync: false
+
+      # ── AI Features ───────────────────────────────────────────────────────
+      - key: GEMINI_API_KEY
+        sync: false
+
       # ── Payments ──────────────────────────────────────────────────────────
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
       - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
 
