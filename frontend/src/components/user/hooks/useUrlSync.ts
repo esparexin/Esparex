@@ -1,19 +1,20 @@
 import { useEffect, useMemo } from "react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
+import { buildPublicBrowseRoute, type ParsedPublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { DEFAULT_PRICE_RANGE } from "./useFilterState";
+import { Dispatch, SetStateAction } from "react";
 
 export function useUrlSync(
-  routeParams: any,
+  routeParams: ParsedPublicBrowseParams,
   router: AppRouterInstance,
-  query: string, setQuery: (val: any) => void,
-  selectedCategory: string | null, setSelectedCategory: (val: any) => void,
-  priceRange: [number, number], setPriceRange: (val: any) => void,
-  selectedBrands: string[], setSelectedBrands: (val: any) => void,
-  radiusKm: number, setRadiusKm: (val: any) => void,
-  sort: SortOption, setSort: (val: any) => void,
-  page: number, setPage: (val: any) => void,
+  query: string, setQuery: Dispatch<SetStateAction<string>>,
+  selectedCategory: string | null, setSelectedCategory: Dispatch<SetStateAction<string | null>>,
+  priceRange: [number, number], setPriceRange: Dispatch<SetStateAction<[number, number]>>,
+  selectedBrands: string[], setSelectedBrands: Dispatch<SetStateAction<string[]>>,
+  radiusKm: number, setRadiusKm: Dispatch<SetStateAction<number>>,
+  sort: SortOption, setSort: Dispatch<SetStateAction<SortOption>>,
+  page: number, setPage: Dispatch<SetStateAction<number>>,
   showRadiusFilter: boolean,
   urlModelId: string,
   urlLocationId: string,

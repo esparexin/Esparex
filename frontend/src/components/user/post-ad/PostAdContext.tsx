@@ -14,9 +14,11 @@ import { suppressGoogleMapsRetryErrors } from "@/lib/suppress-google-maps-errors
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 // FORM imports
 import { useNavigation } from "@/context/NavigationContext";
-import { UseFormReturn, Control, FieldErrors, UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
+import { UseFormReturn, Control, FieldErrors, UseFormRegister, UseFormWatch, UseFormSetValue, Path } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { CategoryFilter } from "@shared/schemas/catalog.schema";
+import { Listing } from "@/lib/api/user/listings/normalizer";
+import { GeoJSONPoint } from "@/types/location";
 
 // Custom hooks
 import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
@@ -79,10 +81,10 @@ export interface PostAdContextType {
     // Location
     listingLocation: ListingLocation | null;
     locationDisplay: string;
-    coordinates: any;
+    coordinates: GeoJSONPoint | null | undefined;
     setLocation: (
         display: string,
-        coords?: any,
+        coords?: GeoJSONPoint | undefined,
         meta?: { city?: string; state?: string; id?: string }
     ) => void;
 
@@ -124,8 +126,8 @@ export interface PostAdContextType {
     imageUploadError: string | null;
     setImageUploadError: (message: string | null) => void;
 
-    submittedAd: any | null;
-    setSubmittedAd: (ad: any | null) => void;
+    submittedAd: Listing | null;
+    setSubmittedAd: (ad: Listing | null) => void;
 }
 
 export type PostAdStateContextType = Omit<
@@ -232,7 +234,7 @@ export function PostAdProvider({
 
     const locationHook = useListingLocation({
         onLocationChange: (location) => {
-            setValue("location", location as any, { 
+            setValue("location", location as PostAdFormData["location"], { 
                 shouldValidate: true, 
                 shouldDirty: true 
             });
@@ -253,7 +255,7 @@ export function PostAdProvider({
     const [spareParts, setSpareParts] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [brandIsPending, setBrandIsPending] = useState(false);
-    const [submittedAd, setSubmittedAd] = useState<any | null>(null);
+    const [submittedAd, setSubmittedAd] = useState<Listing | null>(null);
 
     // Derived state from images hook
     const { listingImages, setListingImages } = imagesHook;
@@ -296,10 +298,11 @@ export function PostAdProvider({
         setSpareParts
     );
 
-    const submitAdApiCall = useCallback((payload: any, options?: { idempotencyKey?: string }) => {
+    const submitAdApiCall = useCallback((payload: PostAdFormData, options?: { idempotencyKey?: string }) => {
+        const listingData = payload as unknown as Partial<Listing>;
         return (isEditMode && editAdId) 
             ? updateListing(editAdId, buildEditAdPayload(payload))
-            : createListing(payload, options);
+            : createListing(listingData, options);
     }, [buildEditAdPayload, isEditMode, editAdId]);
 
     const { onValidSubmit, isSubmitting } = useListingSubmission({
@@ -348,7 +351,7 @@ export function PostAdProvider({
     // 2. Synchronize the local spareParts state with the RHF form value
     useEffect(() => {
         const fieldValue = (availableSpareParts.length === 0 && !isLoadingSpareParts) ? undefined : spareParts;
-        setValue("spareParts", fieldValue as any, { 
+        setValue("spareParts", fieldValue as PostAdFormData["spareParts"], { 
             shouldValidate: userHasInteracted, 
             shouldDirty: true 
         });
@@ -412,17 +415,17 @@ export function PostAdProvider({
             const { categoryId: catId, deviceCondition: dc } = form.getValues();
             let hasErrors = false;
             if (!catId) {
-                form.setError("categoryId" as any, { type: "manual", message: "Please select a category" });
+                form.setError("categoryId" as Path<PostAdFormData>, { type: "manual", message: "Please select a category" });
                 hasErrors = true;
             }
             if (!dc) {
-                form.setError("deviceCondition" as any, { type: "manual", message: "Please select device condition" });
+                form.setError("deviceCondition" as Path<PostAdFormData>, { type: "manual", message: "Please select device condition" });
                 hasErrors = true;
             }
             if (hasErrors) return;
         }
 
-        let fieldsToValidate: any[] = [];
+        let fieldsToValidate: Path<PostAdFormData>[] = [];
 
         // Validate the fields the backend actually checks (IDs, not display strings).
         switch (currentStep) {
@@ -430,16 +433,16 @@ export function PostAdProvider({
             // 'brand' / 'brandId' are optional on the backend but we gate on brand display name
             // so the user always selects one before proceeding.
             case 1: 
-                fieldsToValidate = ["categoryId", "brand", "deviceCondition"];
-                if (requiresScreenSize) fieldsToValidate.push("screenSize");
+                fieldsToValidate = ["categoryId", "brand", "deviceCondition"] as Path<PostAdFormData>[];
+                if (requiresScreenSize) fieldsToValidate.push("screenSize" as Path<PostAdFormData>);
                 break;
             // Step 2: Listing details — backend requires title, description, price and a fully
             // populated location object (locationId + city + state + coordinates).
-            case 2: fieldsToValidate = ["title", "description", "price", "location"]; break;
+            case 2: fieldsToValidate = ["title", "description", "price", "location"] as Path<PostAdFormData>[]; break;
             default: break;
         }
 
-        const isValid = await trigger(fieldsToValidate as any);
+        const isValid = await trigger(fieldsToValidate);
         if (isValid) {
             if (currentStep < 2) {
                 setCurrentStep(prev => prev + 1);
@@ -543,7 +546,7 @@ export function PostAdProvider({
         toggleAllSpareParts,
         addImages,
         removeImage,
-        setLocation,
+        setLocation: setLocation as (display: string, coords?: GeoJSONPoint | undefined, meta?: { city?: string; state?: string; id?: string }) => void,
         loadBrandsForCategory,
         loadSparePartsForCategory,
         loadCategorySchema,

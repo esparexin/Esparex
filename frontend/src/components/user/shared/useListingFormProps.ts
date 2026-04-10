@@ -21,7 +21,7 @@ export function useListingFormProps({
     setImages: React.Dispatch<React.SetStateAction<ListingImage[]>>;
     isEditMode: boolean;
     isSubmitting: boolean;
-    onValidSubmit: (data: any) => Promise<void>;
+    onValidSubmit: (data: any) => Promise<void | unknown>;
     businessData: any;
 }) {
     const router = useRouter();

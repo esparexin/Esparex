@@ -141,16 +141,35 @@ export function MyListingsTab({
         }
     };
 
+    // ── Configuration Interface ───────────────────────────────────────────
+    interface SectionConfig {
+        title: string;
+        icon: React.ReactNode;
+        statusTabs: readonly string[];
+        selectedStatus: string;
+        onStatusChange: (status: any) => void;
+        getStatusCount: (s: any) => number;
+        items: Listing[];
+        loading: boolean;
+        error: any;
+        onRetry?: () => void | Promise<any>;
+        onPost?: () => void;
+        postLabel: string;
+        emptyTitle: string;
+        emptyDesc: string;
+        render: (item: Listing) => React.ReactNode;
+    }
+
     // Shared Configuration
-    const currentConfig = {
+    const configMap: Record<ListingSubTab, SectionConfig> = {
         ads: {
             title: "My Classified Ads",
             icon: <Package className="h-5 w-5 text-link" />,
             statusTabs: ACCOUNT_LISTING_STATUS_TABS.ads,
             selectedStatus: adsStatus,
-            onStatusChange: handleStatusChange as any,
+            onStatusChange: handleStatusChange,
             getStatusCount: (s: any) => {
-                const typeStats = adCounts?.ad || {};
+                const typeStats = (adCounts?.ad as Record<string, number | undefined>) || {};
                 if (s === 'live') {
                     return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
                 }
@@ -195,9 +214,9 @@ export function MyListingsTab({
             icon: <Wrench className="h-5 w-5 text-violet-600" />,
             statusTabs: ACCOUNT_LISTING_STATUS_TABS.services,
             selectedStatus: servicesStatus,
-            onStatusChange: handleStatusChange as any,
+            onStatusChange: handleStatusChange,
             getStatusCount: (s: any) => {
-                const typeStats = adCounts?.service || {};
+                const typeStats = (adCounts?.service as Record<string, number | undefined>) || {};
                 if (s === 'live') {
                     return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
                 }
@@ -229,7 +248,7 @@ export function MyListingsTab({
                     })}
                     onDelete={() => handleDeleteService(service.id)}
                     onRenew={() => handleRepostService(service.id)}
-                    metaBadges={[
+                    metaBadges={([
                         service.location?.city ? { label: service.location.city, icon: <MapPin className="h-3 w-3" /> } : null,
                         service.onsiteService !== undefined ? {
                             label: service.onsiteService ? "On-site" : "Remote",
@@ -237,20 +256,20 @@ export function MyListingsTab({
                             className: service.onsiteService ? "text-green-600" : "text-muted-foreground"
                         } : null,
                         service.turnaroundTime ? { label: service.turnaroundTime, icon: <Timer className="h-3 w-3" /> } : null
-                    ].filter(Boolean) as any}
-                    tags={[
+                    ].filter((v): v is NonNullable<typeof v> => v !== null))}
+                    tags={([
                         (() => {
-                            const name = (service.category as any)?.name || service.category;
+                            const name = (service.category as { name?: string })?.name || (typeof service.category === 'string' ? service.category : '');
                             return name ? { 
                                 label: name, 
                                 className: "bg-violet-50 text-violet-700 border-violet-100" 
                             } : null;
                         })(),
                         (() => {
-                            const name = (service.brand as any)?.name || service.brand;
+                            const name = (service.brand as { name?: string })?.name || (typeof service.brand === 'string' ? service.brand : '');
                             return name ? { label: name } : null;
                         })()
-                    ].filter(Boolean) as any}
+                    ].filter((v): v is NonNullable<typeof v> => v !== null))}
                 />
             )
         },
@@ -259,9 +278,9 @@ export function MyListingsTab({
             icon: <CircuitBoard className="h-5 w-5 text-teal-600" />,
             statusTabs: ACCOUNT_LISTING_STATUS_TABS["spare-parts"],
             selectedStatus: spareStatus,
-            onStatusChange: handleStatusChange as any,
+            onStatusChange: handleStatusChange,
             getStatusCount: (s: any) => {
-                const typeStats = adCounts?.spare_part || {};
+                const typeStats = (adCounts?.spare_part as Record<string, number | undefined>) || {};
                 if (s === 'live') {
                     return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
                 }
@@ -294,13 +313,16 @@ export function MyListingsTab({
                     onDelete={() => handleDeleteSpare(listing.id)}
                     onRenew={() => handleRepostSpare(listing.id)}
                     onMarkSold={listing.status === "live" ? () => { setSpareToSell(listing); setSparesSoldReason(null); setIsSparesSoldOpen(true); } : undefined}
-                    metaBadges={[
+                    metaBadges={([
                         listing.location?.city ? { label: listing.location.city, icon: <MapPin className="h-3 w-3" /> } : null
-                    ].filter(Boolean) as any}
+                    ].filter((v): v is NonNullable<typeof v> => v !== null))}
                 />
             )
         }
-    }[subTab];
+    } as const;
+
+    // Safety fallback to 'ads' if subTab search param is invalid
+    const currentConfig = (configMap[subTab as ListingSubTab] || configMap.ads) as SectionConfig;
 
     return (
         <div className="space-y-4">
@@ -320,8 +342,8 @@ export function MyListingsTab({
                 loading={currentConfig.loading}
                 error={currentConfig.error}
                 onRetry={currentConfig.onRetry}
-                getItemKey={(item) => (item as any).id}
-                renderItem={(item) => currentConfig.render(item as any)}
+                getItemKey={(item: Listing) => item.id}
+                renderItem={(item: Listing) => currentConfig.render(item)}
                 emptyState={{
                     icon: currentConfig.icon,
                     title: currentConfig.emptyTitle,

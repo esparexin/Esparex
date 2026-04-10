@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { useNavigation } from "@/context/NavigationContext";
 import logger from "@/lib/logger";
 import { notify } from "@/lib/notify";
@@ -9,6 +9,7 @@ import type { ListingImage } from "@/types/listing";
 import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { fileToBase64 } from "@/components/user/business-registration/utils";
+import { z } from "zod";
 
 import { generateIdempotencyKey } from "@/lib/listings/submissionUtils";
 import { injectApiErrors } from "@/lib/injectApiErrors";
@@ -35,15 +36,15 @@ function getBackendErrorCode(error: unknown): string | undefined {
     return typeof responseCode === "string" && responseCode.trim().length > 0 ? responseCode : undefined;
 }
 
-interface UseListingSubmissionProps<TFieldValues extends Record<string, any>> {
+interface UseListingSubmissionProps<TFieldValues extends FieldValues, TResult = unknown> {
     form: UseFormReturn<TFieldValues>;
     listingImages: ListingImage[];
     isEditMode: boolean;
     editId?: string;
-    schema: any;
-    partialSchema?: any;
-    submitFn: (payload: any, options?: { idempotencyKey?: string }) => Promise<any>;
-    onSuccess?: (result: any) => void;
+    schema: z.ZodTypeAny;
+    partialSchema?: z.ZodTypeAny;
+    submitFn: (payload: any, options?: { idempotencyKey?: string }) => Promise<TResult>;
+    onSuccess?: (result: TResult) => void;
     onError?: (error: string) => void;
 }
 
@@ -51,7 +52,7 @@ interface UseListingSubmissionProps<TFieldValues extends Record<string, any>> {
  * 🚀 Unified Submission Hook for Listings
  * Handles validation, image uploads, and API calls.
  */
-export function useListingSubmission<T extends Record<string, any>>({
+export function useListingSubmission<T extends FieldValues, R = unknown>({
     form,
     listingImages,
     isEditMode,
@@ -61,7 +62,7 @@ export function useListingSubmission<T extends Record<string, any>>({
     submitFn,
     onSuccess,
     onError,
-}: UseListingSubmissionProps<T>) {
+}: UseListingSubmissionProps<T, R>) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [idempotencyKey, setIdempotencyKey] = useState(generateIdempotencyKey);
     const { setIsDirty } = useNavigation();
@@ -74,7 +75,7 @@ export function useListingSubmission<T extends Record<string, any>>({
 
         try {
             if (listingImages.length === 0) {
-                form.setError("images" as any, {
+                form.setError("images" as Path<T>, {
                     type: "manual",
                     message: "Add at least one photo to continue.",
                 });
@@ -83,7 +84,7 @@ export function useListingSubmission<T extends Record<string, any>>({
                 }
                 return null;
             }
-            form.clearErrors("images" as any);
+            form.clearErrors("images" as Path<T>);
 
             // 1. Image Upload Pipeline (Sequential)
             const finalImageUrls: string[] = [];
@@ -107,7 +108,7 @@ export function useListingSubmission<T extends Record<string, any>>({
             }
 
             // 2. Payload Construction
-            const location = (data as any).location;
+            const location = (data as Record<string, any>).location;
             const canonicalLocation = location ? {
                 city: location.city || "",
                 state: location.state || "",
@@ -130,13 +131,13 @@ export function useListingSubmission<T extends Record<string, any>>({
             
             if (!validation.success) {
                 const [firstIssue] = validation.error.errors;
-                validation.error.errors.forEach((issue: { path: unknown[]; message: string }) => {
+                validation.error.errors.forEach((issue) => {
                     const fieldPath = issue.path
-                        .filter((segment: unknown): segment is string | number => typeof segment === "string" || typeof segment === "number")
+                        .filter((segment: string | number): segment is string | number => typeof segment === "string" || typeof segment === "number")
                         .join(".");
 
                     if (fieldPath) {
-                        form.setError(fieldPath as any, {
+                        form.setError(fieldPath as Path<T>, {
                             type: "manual",
                             message: issue.message,
                         });
@@ -144,7 +145,7 @@ export function useListingSubmission<T extends Record<string, any>>({
                 });
 
                 const firstPath = firstIssue?.path
-                    .filter((segment: unknown): segment is string | number => typeof segment === "string" || typeof segment === "number")
+                    .filter((segment: string | number): segment is string | number => typeof segment === "string" || typeof segment === "number")
                     .join(".");
 
                 if (typeof document !== "undefined") {
@@ -170,7 +171,7 @@ export function useListingSubmission<T extends Record<string, any>>({
             onSuccess?.(result);
             return result;
 
-        } catch (e: any) {
+        } catch (e: unknown) {
             logger.error("[Submission] Failed:", e);
             
             // 🛡️ Policy Guard: Intercept Business Required Threshold
