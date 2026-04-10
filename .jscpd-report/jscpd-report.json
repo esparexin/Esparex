@@ -1,12 +1,12 @@
 {
   "statistics": {
-    "detectionDate": "2026-04-03T14:32:37.207Z",
+    "detectionDate": "2026-04-10T08:08:18.283Z",
     "formats": {
       "typescript": {
         "sources": {
           "/Users/admin/Desktop/EsparexAdmin/shared/contracts/api/userRoutes.ts": {
-            "lines": 148,
-            "tokens": 1509,
+            "lines": 147,
+            "tokens": 1502,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -220,6 +220,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/shared/types/CatalogHierarchy.ts": {
+            "lines": 32,
+            "tokens": 201,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/shared/types/Business.ts": {
             "lines": 118,
             "tokens": 760,
@@ -282,7 +294,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/shared/schemas/sparePartPayload.schema.ts": {
             "lines": 49,
-            "tokens": 339,
+            "tokens": 348,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -317,8 +329,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/shared/schemas/servicePayload.schema.ts": {
-            "lines": 108,
-            "tokens": 627,
+            "lines": 109,
+            "tokens": 638,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -389,8 +401,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/shared/schemas/catalog.schema.ts": {
-            "lines": 132,
-            "tokens": 1434,
+            "lines": 163,
+            "tokens": 1655,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -402,7 +414,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/shared/schemas/adPayload.schema.ts": {
             "lines": 136,
-            "tokens": 1010,
+            "tokens": 1019,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -449,8 +461,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/shared/popup/popupDialog.ts": {
-            "lines": 104,
-            "tokens": 842,
+            "lines": 107,
+            "tokens": 858,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -485,8 +497,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/shared/observability/trace.ts": {
-            "lines": 19,
-            "tokens": 144,
+            "lines": 70,
+            "tokens": 583,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -497,8 +509,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/shared/observability/logger.ts": {
-            "lines": 66,
-            "tokens": 864,
+            "lines": 130,
+            "tokens": 1537,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -701,8 +713,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/shared/enums/listingType.ts": {
-            "lines": 40,
-            "tokens": 189,
+            "lines": 57,
+            "tokens": 202,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -940,6 +952,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/taxonomy/modelStatusClassName.ts": {
+            "lines": 6,
+            "tokens": 54,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/system/users/userManagement.ts": {
             "lines": 66,
             "tokens": 631,
@@ -991,6 +1015,18 @@
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/lib/location/display.ts": {
             "lines": 71,
             "tokens": 873,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/lib/api/validateAdminApiEnv.ts": {
+            "lines": 73,
+            "tokens": 544,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1097,8 +1133,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/lib/api/locations.ts": {
-            "lines": 125,
-            "tokens": 1519,
+            "lines": 118,
+            "tokens": 1429,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1133,14 +1169,14 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/lib/api/catalogGovernance.ts": {
-            "lines": 46,
-            "tokens": 352,
+            "lines": 20,
+            "tokens": 193,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 34,
-            "duplicatedTokens": 204,
-            "percentage": 73.91,
-            "percentageTokens": 57.95,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -1169,8 +1205,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/lib/api/adminClient.ts": {
-            "lines": 166,
-            "tokens": 1578,
+            "lines": 222,
+            "tokens": 2174,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1337,8 +1373,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/types/plan.ts": {
-            "lines": 38,
-            "tokens": 281,
+            "lines": 39,
+            "tokens": 283,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1373,8 +1409,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/types/location.ts": {
-            "lines": 14,
-            "tokens": 132,
+            "lines": 13,
+            "tokens": 116,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1492,9 +1528,33 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/lib/mapErrorToMessage.ts": {
+            "lines": 55,
+            "tokens": 432,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/lib/adminUiRoutes.ts": {
             "lines": 98,
             "tokens": 1060,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/hooks/useCatalogQueryStateSync.ts": {
+            "lines": 66,
+            "tokens": 575,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1589,8 +1649,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/hooks/useAdminLocations.ts": {
-            "lines": 268,
-            "tokens": 2239,
+            "lines": 251,
+            "tokens": 2094,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1613,8 +1673,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/hooks/useAdminCategories.ts": {
-            "lines": 166,
-            "tokens": 1622,
+            "lines": 167,
+            "tokens": 1603,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1672,9 +1732,141 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/middleware.ts": {
+            "lines": 51,
+            "tokens": 355,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/user/listings/userListingsAPI.ts": {
+            "lines": 65,
+            "tokens": 673,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/user/listings/normalizer.ts": {
+            "lines": 286,
+            "tokens": 3922,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/user/listings/listingMutationAPI.ts": {
+            "lines": 159,
+            "tokens": 1566,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/user/listings/listingMediaAPI.ts": {
+            "lines": 43,
+            "tokens": 357,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/user/listings/listingDiscoveryAPI.ts": {
+            "lines": 271,
+            "tokens": 3415,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/user/listings/listingDetailAPI.ts": {
+            "lines": 76,
+            "tokens": 953,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/tabs/useProfileListings.ts": {
             "lines": 76,
             "tokens": 715,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-ad/hooks/usePostAdFormNormalization.ts": {
+            "lines": 64,
+            "tokens": 717,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-ad/hooks/usePostAdAiGeneration.ts": {
+            "lines": 53,
+            "tokens": 591,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-ad/hooks/useImageUploadWorkflow.ts": {
+            "lines": 88,
+            "tokens": 961,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-ad/hooks/useCategoryDependents.ts": {
+            "lines": 62,
+            "tokens": 928,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1757,8 +1949,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/user/plans.ts": {
-            "lines": 95,
-            "tokens": 696,
+            "lines": 96,
+            "tokens": 698,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1805,8 +1997,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/user/locations.ts": {
-            "lines": 118,
-            "tokens": 1059,
+            "lines": 104,
+            "tokens": 949,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1825,18 +2017,6 @@
             "duplicatedTokens": 0,
             "percentage": 0,
             "percentageTokens": 0,
-            "newDuplicatedLines": 0,
-            "newClones": 0
-          },
-          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/user/listings.ts": {
-            "lines": 881,
-            "tokens": 10446,
-            "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 18,
-            "duplicatedTokens": 332,
-            "percentage": 2.04,
-            "percentageTokens": 3.18,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -1948,9 +2128,105 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/hooks/useViewTracking.ts": {
+            "lines": 67,
+            "tokens": 610,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/hooks/useUrlSync.ts": {
+            "lines": 102,
+            "tokens": 1321,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/hooks/useSharedHeaderLogic.ts": {
-            "lines": 55,
-            "tokens": 420,
+            "lines": 57,
+            "tokens": 434,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/hooks/usePhoneReveal.ts": {
+            "lines": 75,
+            "tokens": 790,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/hooks/useFilterToQuery.ts": {
+            "lines": 82,
+            "tokens": 903,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/hooks/useFilterState.ts": {
+            "lines": 52,
+            "tokens": 646,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/hooks/useBrowseEmptyState.ts": {
+            "lines": 99,
+            "tokens": 1175,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/hooks/useAnalyticsDialog.ts": {
+            "lines": 69,
+            "tokens": 686,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/hooks/useAdStatus.ts": {
+            "lines": 44,
+            "tokens": 415,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1998,7 +2274,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/business-registration/types.ts": {
             "lines": 29,
-            "tokens": 244,
+            "tokens": 240,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2056,9 +2332,21 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/runtime/nativeShell.ts": {
+            "lines": 36,
+            "tokens": 280,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/popup/popupEvents.ts": {
-            "lines": 23,
-            "tokens": 194,
+            "lines": 41,
+            "tokens": 428,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2093,8 +2381,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/notifications/webPush.ts": {
-            "lines": 310,
-            "tokens": 2542,
+            "lines": 312,
+            "tokens": 2563,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2176,9 +2464,33 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/location/queryMode.ts": {
+            "lines": 22,
+            "tokens": 289,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/location/locationService.ts": {
-            "lines": 557,
-            "tokens": 4487,
+            "lines": 417,
+            "tokens": 3276,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/location/locationLabels.ts": {
+            "lines": 143,
+            "tokens": 1180,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2249,8 +2561,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/listings/listingDetailRoutes.ts": {
-            "lines": 122,
-            "tokens": 853,
+            "lines": 131,
+            "tokens": 990,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2284,6 +2596,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/listings/adReportPayload.ts": {
+            "lines": 57,
+            "tokens": 395,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/image/imageUrl.ts": {
             "lines": 91,
             "tokens": 885,
@@ -2297,8 +2621,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/errors/errorToPopup.ts": {
-            "lines": 69,
-            "tokens": 630,
+            "lines": 70,
+            "tokens": 642,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2345,8 +2669,20 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/validateApiEnv.ts": {
-            "lines": 75,
-            "tokens": 569,
+            "lines": 107,
+            "tokens": 825,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/runtimeApiBase.ts": {
+            "lines": 30,
+            "tokens": 255,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2381,8 +2717,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/normalizeError.ts": {
-            "lines": 78,
-            "tokens": 542,
+            "lines": 80,
+            "tokens": 534,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2405,8 +2741,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/client.ts": {
-            "lines": 543,
-            "tokens": 5057,
+            "lines": 545,
+            "tokens": 5137,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2442,7 +2778,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/api/auth.ts": {
             "lines": 99,
-            "tokens": 952,
+            "tokens": 949,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2537,8 +2873,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/hooks/listings/useListingSubmission.ts": {
-            "lines": 185,
-            "tokens": 1713,
+            "lines": 208,
+            "tokens": 1958,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2573,8 +2909,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/hooks/listings/useListingCatalog.ts": {
-            "lines": 275,
-            "tokens": 2874,
+            "lines": 287,
+            "tokens": 3022,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2597,8 +2933,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/useBrowseListingsController.ts": {
-            "lines": 380,
-            "tokens": 3539,
+            "lines": 392,
+            "tokens": 3613,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2621,8 +2957,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/browseFilterBuilders.ts": {
-            "lines": 150,
-            "tokens": 1151,
+            "lines": 147,
+            "tokens": 1120,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2657,8 +2993,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/location/useLocationSearch.ts": {
-            "lines": 268,
-            "tokens": 2366,
+            "lines": 227,
+            "tokens": 2027,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2742,7 +3078,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/state-machines/otpAuthMachine.ts": {
             "lines": 27,
-            "tokens": 304,
+            "tokens": 294,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2802,7 +3138,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/schemas/serviceListingPayload.schema.ts": {
             "lines": 37,
-            "tokens": 239,
+            "tokens": 248,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2813,8 +3149,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/schemas/profileSettings.schema.ts": {
-            "lines": 56,
-            "tokens": 512,
+            "lines": 69,
+            "tokens": 646,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2838,7 +3174,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/schemas/location.schema.ts": {
             "lines": 49,
-            "tokens": 499,
+            "tokens": 503,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2885,8 +3221,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/schemas/business.schema.shared.ts": {
-            "lines": 172,
-            "tokens": 1703,
+            "lines": 173,
+            "tokens": 1717,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2932,9 +3268,21 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/zIndexConfig.ts": {
+            "lines": 84,
+            "tokens": 373,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/validation.ts": {
             "lines": 510,
-            "tokens": 3825,
+            "tokens": 3832,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3005,8 +3353,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/publicBrowseRoutes.ts": {
-            "lines": 186,
-            "tokens": 1944,
+            "lines": 190,
+            "tokens": 2000,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3018,7 +3366,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/otpHelpers.ts": {
             "lines": 119,
-            "tokens": 1714,
+            "tokens": 1712,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3029,8 +3377,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/notify.ts": {
-            "lines": 97,
-            "tokens": 961,
+            "lines": 72,
+            "tokens": 728,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3089,8 +3437,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/injectApiErrors.ts": {
-            "lines": 52,
-            "tokens": 457,
+            "lines": 96,
+            "tokens": 939,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3113,8 +3461,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/haptics.ts": {
-            "lines": 122,
-            "tokens": 492,
+            "lines": 93,
+            "tokens": 431,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3137,8 +3485,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/errorMapper.ts": {
-            "lines": 194,
-            "tokens": 1417,
+            "lines": 200,
+            "tokens": 1522,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3149,8 +3497,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/errorHandler.ts": {
-            "lines": 671,
-            "tokens": 5036,
+            "lines": 638,
+            "tokens": 4789,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3161,8 +3509,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/encryption.ts": {
-            "lines": 41,
-            "tokens": 297,
+            "lines": 44,
+            "tokens": 325,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3328,18 +3676,6 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
-          "/Users/admin/Desktop/EsparexAdmin/frontend/src/hooks/usePopularLocations.ts": {
-            "lines": 24,
-            "tokens": 221,
-            "sources": 1,
-            "clones": 0,
-            "duplicatedLines": 0,
-            "duplicatedTokens": 0,
-            "percentage": 0,
-            "percentageTokens": 0,
-            "newDuplicatedLines": 0,
-            "newClones": 0
-          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/hooks/usePlanCheckout.ts": {
             "lines": 120,
             "tokens": 928,
@@ -3353,8 +3689,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/hooks/useOtpTimers.ts": {
-            "lines": 47,
-            "tokens": 530,
+            "lines": 52,
+            "tokens": 583,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3389,8 +3725,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/hooks/useOtpFlow.ts": {
-            "lines": 374,
-            "tokens": 4468,
+            "lines": 385,
+            "tokens": 4579,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3413,8 +3749,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/hooks/useNotificationSync.ts": {
-            "lines": 110,
-            "tokens": 814,
+            "lines": 101,
+            "tokens": 719,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3450,7 +3786,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/hooks/useLoginCallback.ts": {
             "lines": 63,
-            "tokens": 440,
+            "tokens": 465,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3640,9 +3976,9 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
-          "/Users/admin/Desktop/EsparexAdmin/frontend/src/errors/AppError.ts": {
-            "lines": 12,
-            "tokens": 136,
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/errors/FrontendAppError.ts": {
+            "lines": 14,
+            "tokens": 150,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3677,8 +4013,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/config/navigation.ts": {
-            "lines": 281,
-            "tokens": 2305,
+            "lines": 282,
+            "tokens": 2312,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3736,6 +4072,30 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/location/_shared/hierarchyLoader.ts": {
+            "lines": 318,
+            "tokens": 2983,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/ad/_shared/adFilterHelpers.ts": {
+            "lines": 242,
+            "tokens": 1990,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/system/index.ts": {
             "lines": 35,
             "tokens": 115,
@@ -3749,8 +4109,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/system/adminSystemHealthController.ts": {
-            "lines": 163,
-            "tokens": 1714,
+            "lines": 162,
+            "tokens": 1705,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3773,8 +4133,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/system/adminAuthController.ts": {
-            "lines": 322,
-            "tokens": 2838,
+            "lines": 337,
+            "tokens": 3085,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3844,9 +4204,21 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/location/ReverseGeocodeService.ts": {
+            "lines": 156,
+            "tokens": 1349,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 253,
+            "duplicatedTokens": 1523,
+            "percentage": 162.18,
+            "percentageTokens": 112.9,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/location/LocationService.helpers.ts": {
-            "lines": 97,
-            "tokens": 1020,
+            "lines": 88,
+            "tokens": 918,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3856,9 +4228,57 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/location/LocationSearchService.ts": {
+            "lines": 321,
+            "tokens": 2914,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 63,
+            "duplicatedTokens": 378,
+            "percentage": 19.63,
+            "percentageTokens": 12.97,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/location/LocationNormalizer.ts": {
+            "lines": 216,
+            "tokens": 1912,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 63,
+            "duplicatedTokens": 374,
+            "percentage": 29.17,
+            "percentageTokens": 19.56,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/location/LocationHierarchyService.ts": {
+            "lines": 388,
+            "tokens": 3436,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 64,
+            "duplicatedTokens": 393,
+            "percentage": 16.49,
+            "percentageTokens": 11.44,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/location/LocationAnalyticsService.ts": {
+            "lines": 159,
+            "tokens": 1310,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 63,
+            "duplicatedTokens": 378,
+            "percentage": 39.62,
+            "percentageTokens": 28.85,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/catalog/CatalogValidationService.ts": {
-            "lines": 304,
-            "tokens": 2463,
+            "lines": 303,
+            "tokens": 2454,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3869,8 +4289,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/catalog/CatalogOrchestrator.ts": {
-            "lines": 290,
-            "tokens": 2702,
+            "lines": 268,
+            "tokens": 2538,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3881,14 +4301,14 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/catalog/CatalogHierarchyService.ts": {
-            "lines": 525,
-            "tokens": 5243,
+            "lines": 493,
+            "tokens": 5023,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 34,
-            "duplicatedTokens": 204,
-            "percentage": 6.48,
-            "percentageTokens": 3.89,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -3904,9 +4324,69 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/ad/AdSearchService.ts": {
+            "lines": 186,
+            "tokens": 1901,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 196,
+            "duplicatedTokens": 1676,
+            "percentage": 105.38,
+            "percentageTokens": 88.16,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/ad/AdMetricsService.ts": {
+            "lines": 175,
+            "tokens": 1615,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 49,
+            "duplicatedTokens": 420,
+            "percentage": 28,
+            "percentageTokens": 26.01,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/ad/AdFeedService.ts": {
+            "lines": 132,
+            "tokens": 1144,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 49,
+            "duplicatedTokens": 420,
+            "percentage": 37.12,
+            "percentageTokens": 36.71,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/ad/AdDetailService.ts": {
+            "lines": 300,
+            "tokens": 2981,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 49,
+            "duplicatedTokens": 416,
+            "percentage": 16.33,
+            "percentageTokens": 13.96,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/services/ad/AdAggregationService.ts": {
+            "lines": 706,
+            "tokens": 7101,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 49,
+            "duplicatedTokens": 420,
+            "percentage": 6.94,
+            "percentageTokens": 5.91,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/admin/system.routes.ts": {
-            "lines": 270,
-            "tokens": 2893,
+            "lines": 268,
+            "tokens": 2863,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3977,8 +4457,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/events/listeners/SellerListingNotificationListener.ts": {
-            "lines": 109,
-            "tokens": 1140,
+            "lines": 110,
+            "tokens": 1147,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4013,8 +4493,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/events/listeners/CacheInvalidationListener.ts": {
-            "lines": 62,
-            "tokens": 581,
+            "lines": 63,
+            "tokens": 580,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4025,8 +4505,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/core/db/indexGovernance.ts": {
-            "lines": 93,
-            "tokens": 594,
+            "lines": 94,
+            "tokens": 597,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4086,7 +4566,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/user/userQueryController.ts": {
             "lines": 99,
-            "tokens": 863,
+            "tokens": 867,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4097,8 +4577,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/user/userMutationController.ts": {
-            "lines": 413,
-            "tokens": 3737,
+            "lines": 417,
+            "tokens": 3769,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4145,8 +4625,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/smartAlert/shared.ts": {
-            "lines": 143,
-            "tokens": 1528,
+            "lines": 142,
+            "tokens": 1524,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4169,8 +4649,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/service/serviceQueryController.ts": {
-            "lines": 121,
-            "tokens": 1197,
+            "lines": 115,
+            "tokens": 1116,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4181,8 +4661,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/service/serviceMutationController.ts": {
-            "lines": 586,
-            "tokens": 5979,
+            "lines": 617,
+            "tokens": 6073,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4206,7 +4686,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/savedAd/savedAdQueryController.ts": {
             "lines": 60,
-            "tokens": 659,
+            "tokens": 662,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4241,8 +4721,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/plan/shared.ts": {
-            "lines": 88,
-            "tokens": 1213,
+            "lines": 90,
+            "tokens": 1237,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4253,8 +4733,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/plan/planAdminController.ts": {
-            "lines": 78,
-            "tokens": 1190,
+            "lines": 79,
+            "tokens": 1223,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4421,8 +4901,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/catalog/shared.ts": {
-            "lines": 365,
-            "tokens": 3568,
+            "lines": 361,
+            "tokens": 3522,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4445,8 +4925,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/catalog/catalogSparePartController.ts": {
-            "lines": 251,
-            "tokens": 2415,
+            "lines": 315,
+            "tokens": 2988,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4457,8 +4937,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/catalog/catalogReferenceController.ts": {
-            "lines": 274,
-            "tokens": 2572,
+            "lines": 269,
+            "tokens": 2527,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4481,8 +4961,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/catalog/catalogCategoryController.ts": {
-            "lines": 332,
-            "tokens": 3181,
+            "lines": 374,
+            "tokens": 3593,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4493,8 +4973,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/catalog/catalogBrandModelController.ts": {
-            "lines": 689,
-            "tokens": 6830,
+            "lines": 692,
+            "tokens": 6921,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4518,7 +4998,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/business/businessUserController.ts": {
             "lines": 77,
-            "tokens": 801,
+            "tokens": 807,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4529,8 +5009,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/business/businessQueryController.ts": {
-            "lines": 162,
-            "tokens": 1836,
+            "lines": 161,
+            "tokens": 1819,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4541,8 +5021,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/business/businessMutationController.ts": {
-            "lines": 169,
-            "tokens": 1528,
+            "lines": 190,
+            "tokens": 1758,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4566,7 +5046,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/auth/authController.ts": {
             "lines": 118,
-            "tokens": 1308,
+            "tokens": 1365,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4637,8 +5117,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/adminTransactionController.ts": {
-            "lines": 46,
-            "tokens": 423,
+            "lines": 45,
+            "tokens": 414,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4674,7 +5154,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/adminNotificationController.ts": {
             "lines": 343,
-            "tokens": 3332,
+            "tokens": 3314,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4685,8 +5165,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/adminLocationController.ts": {
-            "lines": 773,
-            "tokens": 7863,
+            "lines": 741,
+            "tokens": 7516,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4697,8 +5177,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/adminListingsController.ts": {
-            "lines": 593,
-            "tokens": 5457,
+            "lines": 592,
+            "tokens": 5441,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4709,8 +5189,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/adminInvoiceController.ts": {
-            "lines": 406,
-            "tokens": 3560,
+            "lines": 403,
+            "tokens": 3579,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4733,8 +5213,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/adminBaseController.ts": {
-            "lines": 78,
-            "tokens": 766,
+            "lines": 77,
+            "tokens": 753,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4781,8 +5261,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/admin/adminAdsController.ts": {
-            "lines": 747,
-            "tokens": 7307,
+            "lines": 743,
+            "tokens": 7269,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4817,8 +5297,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/ad/adUserController.ts": {
-            "lines": 341,
-            "tokens": 3286,
+            "lines": 330,
+            "tokens": 3139,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4829,8 +5309,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/ad/adQueryController.ts": {
-            "lines": 321,
-            "tokens": 3174,
+            "lines": 319,
+            "tokens": 3155,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4841,8 +5321,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/ad/adMutationController.ts": {
-            "lines": 181,
-            "tokens": 1767,
+            "lines": 171,
+            "tokens": 1644,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5021,8 +5501,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/validators/location.validator.ts": {
-            "lines": 169,
-            "tokens": 1979,
+            "lines": 166,
+            "tokens": 1928,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5045,8 +5525,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/validators/finance.validator.ts": {
-            "lines": 86,
-            "tokens": 1057,
+            "lines": 87,
+            "tokens": 1075,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5117,8 +5597,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/validators/ad.validator.ts": {
-            "lines": 114,
-            "tokens": 940,
+            "lines": 113,
+            "tokens": 927,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5189,8 +5669,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/statusQueryMapper.ts": {
-            "lines": 38,
-            "tokens": 329,
+            "lines": 37,
+            "tokens": 316,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5201,8 +5681,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/startupValidator.ts": {
-            "lines": 36,
-            "tokens": 261,
+            "lines": 57,
+            "tokens": 450,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5308,6 +5788,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/safeSoftDeleteQuery.ts": {
+            "lines": 70,
+            "tokens": 323,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/s3.ts": {
             "lines": 383,
             "tokens": 3315,
@@ -5345,8 +5837,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/redisCache.ts": {
-            "lines": 563,
-            "tokens": 5279,
+            "lines": 569,
+            "tokens": 5395,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5382,7 +5874,19 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/otpGenerator.ts": {
             "lines": 13,
-            "tokens": 97,
+            "tokens": 87,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/originConfig.ts": {
+            "lines": 158,
+            "tokens": 1475,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5441,8 +5945,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/locationInputNormalizer.ts": {
-            "lines": 212,
-            "tokens": 2053,
+            "lines": 213,
+            "tokens": 2063,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5465,8 +5969,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/locationHierarchy.ts": {
-            "lines": 430,
-            "tokens": 4672,
+            "lines": 420,
+            "tokens": 4575,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5524,6 +6028,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/immutableFieldErrors.ts": {
+            "lines": 12,
+            "tokens": 150,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/imageProcessor.ts": {
             "lines": 182,
             "tokens": 1706,
@@ -5561,8 +6077,20 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/errorResponse.ts": {
-            "lines": 41,
-            "tokens": 372,
+            "lines": 162,
+            "tokens": 1276,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/errorHelpers.ts": {
+            "lines": 187,
+            "tokens": 1443,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5597,8 +6125,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/cookieHelper.ts": {
-            "lines": 27,
-            "tokens": 239,
+            "lines": 87,
+            "tokens": 862,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5609,8 +6137,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/controllerUtils.ts": {
-            "lines": 48,
-            "tokens": 391,
+            "lines": 47,
+            "tokens": 378,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5621,8 +6149,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/contentHandler.ts": {
-            "lines": 225,
-            "tokens": 2331,
+            "lines": 223,
+            "tokens": 2301,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5680,6 +6208,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/appUrl.ts": {
+            "lines": 50,
+            "tokens": 445,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/aiSpamDetector.ts": {
             "lines": 39,
             "tokens": 305,
@@ -5717,8 +6257,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/utils/adFilterHelper.ts": {
-            "lines": 161,
-            "tokens": 1568,
+            "lines": 160,
+            "tokens": 1555,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5826,13 +6366,13 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/chatService.ts": {
             "lines": 817,
-            "tokens": 7936,
+            "tokens": 7867,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 18,
-            "duplicatedTokens": 312,
-            "percentage": 2.2,
-            "percentageTokens": 3.93,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5873,8 +6413,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/UserStatusService.ts": {
-            "lines": 141,
-            "tokens": 1182,
+            "lines": 149,
+            "tokens": 1254,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6017,8 +6557,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/SchedulerQueueEngine.ts": {
-            "lines": 65,
-            "tokens": 554,
+            "lines": 67,
+            "tokens": 574,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6077,8 +6617,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/PlanService.ts": {
-            "lines": 129,
-            "tokens": 1137,
+            "lines": 126,
+            "tokens": 1121,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6101,8 +6641,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/PaymentProcessingService.ts": {
-            "lines": 499,
-            "tokens": 4628,
+            "lines": 507,
+            "tokens": 4692,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6125,8 +6665,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/ModerationService.ts": {
-            "lines": 73,
-            "tokens": 546,
+            "lines": 72,
+            "tokens": 537,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6149,8 +6689,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/ListingMutationService.ts": {
-            "lines": 107,
-            "tokens": 956,
+            "lines": 109,
+            "tokens": 1002,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6198,7 +6738,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/LifecycleGuard.ts": {
             "lines": 121,
-            "tokens": 1238,
+            "tokens": 1233,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6245,8 +6785,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/FeedService.ts": {
-            "lines": 661,
-            "tokens": 6783,
+            "lines": 663,
+            "tokens": 6803,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6269,8 +6809,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/EmailService.ts": {
-            "lines": 132,
-            "tokens": 1213,
+            "lines": 133,
+            "tokens": 1220,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6329,8 +6869,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/AuthService.ts": {
-            "lines": 436,
-            "tokens": 3928,
+            "lines": 448,
+            "tokens": 4072,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6341,8 +6881,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/AnalyticsService.ts": {
-            "lines": 133,
-            "tokens": 1490,
+            "lines": 132,
+            "tokens": 1481,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6437,8 +6977,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/AdService.ts": {
-            "lines": 572,
-            "tokens": 5415,
+            "lines": 580,
+            "tokens": 5505,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6449,8 +6989,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/AdOrchestrator.ts": {
-            "lines": 221,
-            "tokens": 1970,
+            "lines": 220,
+            "tokens": 1957,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6497,8 +7037,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/AdDuplicateService.ts": {
-            "lines": 94,
-            "tokens": 656,
+            "lines": 91,
+            "tokens": 639,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6509,8 +7049,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/AdCreationService.ts": {
-            "lines": 235,
-            "tokens": 2966,
+            "lines": 233,
+            "tokens": 2941,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6558,7 +7098,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/seeds/runSeeds.ts": {
             "lines": 30,
-            "tokens": 244,
+            "tokens": 238,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6582,7 +7122,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/userRoutes.ts": {
             "lines": 84,
-            "tokens": 552,
+            "tokens": 555,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6617,8 +7157,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/serviceRoutes.ts": {
-            "lines": 55,
-            "tokens": 487,
+            "lines": 57,
+            "tokens": 504,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6629,8 +7169,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/rootRoutes.ts": {
-            "lines": 10,
-            "tokens": 86,
+            "lines": 9,
+            "tokens": 84,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6653,8 +7193,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/paymentRoutes.ts": {
-            "lines": 43,
-            "tokens": 347,
+            "lines": 48,
+            "tokens": 396,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6677,8 +7217,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/locationRoutes.ts": {
-            "lines": 49,
-            "tokens": 337,
+            "lines": 46,
+            "tokens": 318,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6773,8 +7313,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/businessRoutes.ts": {
-            "lines": 77,
-            "tokens": 566,
+            "lines": 75,
+            "tokens": 548,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6785,8 +7325,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/authRoutes.ts": {
-            "lines": 47,
-            "tokens": 321,
+            "lines": 55,
+            "tokens": 434,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6809,8 +7349,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/adminRoutes.ts": {
-            "lines": 65,
-            "tokens": 409,
+            "lines": 64,
+            "tokens": 400,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6821,8 +7361,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/routes/adRoutes.ts": {
-            "lines": 81,
-            "tokens": 594,
+            "lines": 84,
+            "tokens": 633,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6833,8 +7373,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/queues/schedulerQueue.ts": {
-            "lines": 175,
-            "tokens": 1520,
+            "lines": 177,
+            "tokens": 1532,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6846,7 +7386,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/queues/redisConnection.ts": {
             "lines": 20,
-            "tokens": 168,
+            "tokens": 170,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6929,8 +7469,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/UserPlan.ts": {
-            "lines": 38,
-            "tokens": 351,
+            "lines": 40,
+            "tokens": 454,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6942,7 +7482,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/User.ts": {
             "lines": 274,
-            "tokens": 2751,
+            "tokens": 2763,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6989,8 +7529,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/SparePart.ts": {
-            "lines": 101,
-            "tokens": 1190,
+            "lines": 105,
+            "tokens": 1214,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7002,7 +7542,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/SmartAlert.ts": {
             "lines": 73,
-            "tokens": 786,
+            "tokens": 783,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7013,8 +7553,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/ServiceType.ts": {
-            "lines": 51,
-            "tokens": 519,
+            "lines": 55,
+            "tokens": 543,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7037,8 +7577,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/ScreenSize.ts": {
-            "lines": 56,
-            "tokens": 586,
+            "lines": 60,
+            "tokens": 610,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7073,8 +7613,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/SavedAd.ts": {
-            "lines": 25,
-            "tokens": 279,
+            "lines": 28,
+            "tokens": 314,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7121,8 +7661,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/Plan.ts": {
-            "lines": 117,
-            "tokens": 1101,
+            "lines": 124,
+            "tokens": 1164,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7133,8 +7673,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/PhoneRevealLog.ts": {
-            "lines": 33,
-            "tokens": 440,
+            "lines": 38,
+            "tokens": 486,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7205,8 +7745,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/Model.ts": {
-            "lines": 72,
-            "tokens": 811,
+            "lines": 73,
+            "tokens": 774,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7397,8 +7937,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/Category.ts": {
-            "lines": 101,
-            "tokens": 1188,
+            "lines": 105,
+            "tokens": 1212,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7410,7 +7950,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/Business.ts": {
             "lines": 279,
-            "tokens": 2803,
+            "tokens": 2800,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7421,8 +7961,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/Brand.ts": {
-            "lines": 105,
-            "tokens": 940,
+            "lines": 109,
+            "tokens": 964,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7530,7 +8070,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/Admin.ts": {
             "lines": 128,
-            "tokens": 1030,
+            "tokens": 1027,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7565,8 +8105,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/models/Ad.ts": {
-            "lines": 553,
-            "tokens": 5983,
+            "lines": 552,
+            "tokens": 5963,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7625,8 +8165,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/middleware/sentryErrorHandler.ts": {
-            "lines": 282,
-            "tokens": 2072,
+            "lines": 288,
+            "tokens": 2192,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7685,8 +8225,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/middleware/rateLimiter.ts": {
-            "lines": 369,
-            "tokens": 3712,
+            "lines": 376,
+            "tokens": 3741,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7697,8 +8237,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/middleware/otpGuard.ts": {
-            "lines": 184,
-            "tokens": 1109,
+            "lines": 196,
+            "tokens": 1197,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7757,8 +8297,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/middleware/idempotency.ts": {
-            "lines": 270,
-            "tokens": 2255,
+            "lines": 275,
+            "tokens": 2300,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7805,8 +8345,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/middleware/csrfProtection.ts": {
-            "lines": 154,
-            "tokens": 986,
+            "lines": 150,
+            "tokens": 956,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7829,8 +8369,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/middleware/authMiddleware.ts": {
-            "lines": 251,
-            "tokens": 2013,
+            "lines": 249,
+            "tokens": 2015,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7841,8 +8381,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/middleware/adminAuth.ts": {
-            "lines": 130,
-            "tokens": 1298,
+            "lines": 155,
+            "tokens": 1568,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7913,8 +8453,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/jobs/notifyBusiness.job.ts": {
-            "lines": 60,
-            "tokens": 522,
+            "lines": 61,
+            "tokens": 529,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7927,6 +8467,18 @@
           "/Users/admin/Desktop/EsparexAdmin/backend/src/jobs/homeFeedWarmup.job.ts": {
             "lines": 18,
             "tokens": 170,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/jobs/expireUserPlans.job.ts": {
+            "lines": 36,
+            "tokens": 286,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8021,8 +8573,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/cron/taxonomyHealth.ts": {
-            "lines": 73,
-            "tokens": 521,
+            "lines": 75,
+            "tokens": 527,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8033,8 +8585,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/cron/geoAudit.ts": {
-            "lines": 110,
-            "tokens": 1093,
+            "lines": 112,
+            "tokens": 1099,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8045,8 +8597,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/cron/fraudEscalation.ts": {
-            "lines": 150,
-            "tokens": 1197,
+            "lines": 152,
+            "tokens": 1203,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8057,20 +8609,20 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/sparePartListingController.ts": {
-            "lines": 384,
-            "tokens": 3648,
+            "lines": 371,
+            "tokens": 3498,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 19,
-            "duplicatedTokens": 154,
-            "percentage": 4.95,
-            "percentageTokens": 4.22,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/locationController.ts": {
-            "lines": 346,
-            "tokens": 4581,
+            "lines": 329,
+            "tokens": 4292,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8081,14 +8633,14 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/controllers/listingController.ts": {
-            "lines": 441,
-            "tokens": 4063,
+            "lines": 429,
+            "tokens": 3928,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 19,
-            "duplicatedTokens": 154,
-            "percentage": 4.31,
-            "percentageTokens": 3.79,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -8117,8 +8669,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/config/validateEnv.ts": {
-            "lines": 121,
-            "tokens": 940,
+            "lines": 152,
+            "tokens": 1189,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8141,8 +8693,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/config/socket.ts": {
-            "lines": 137,
-            "tokens": 1147,
+            "lines": 142,
+            "tokens": 1176,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8177,8 +8729,20 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/config/mongoosePlugins.ts": {
-            "lines": 130,
-            "tokens": 1476,
+            "lines": 142,
+            "tokens": 1585,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/backend/src/config/loadEnvFiles.ts": {
+            "lines": 60,
+            "tokens": 568,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8213,8 +8777,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/config/featureFlags.ts": {
-            "lines": 53,
-            "tokens": 455,
+            "lines": 52,
+            "tokens": 442,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8225,8 +8789,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/config/env.ts": {
-            "lines": 198,
-            "tokens": 1780,
+            "lines": 204,
+            "tokens": 1874,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8285,8 +8849,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/app.ts": {
-            "lines": 365,
-            "tokens": 2496,
+            "lines": 372,
+            "tokens": 2548,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8298,14 +8862,14 @@
           }
         },
         "total": {
-          "lines": 75389,
-          "tokens": 706668,
-          "sources": 691,
-          "clones": 4,
-          "duplicatedLines": 71,
-          "duplicatedTokens": 680,
-          "percentage": 0.09,
-          "percentageTokens": 0.1,
+          "lines": 81237,
+          "tokens": 761646,
+          "sources": 738,
+          "clones": 8,
+          "duplicatedLines": 449,
+          "duplicatedTokens": 3199,
+          "percentage": 0.55,
+          "percentageTokens": 0.42,
           "newDuplicatedLines": 0,
           "newClones": 0
         }
@@ -8313,8 +8877,8 @@
       "javascript": {
         "sources": {
           "/Users/admin/Desktop/EsparexAdmin/shared/popup/popupDialogView.tsx": {
-            "lines": 76,
-            "tokens": 606,
+            "lines": 81,
+            "tokens": 628,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8482,7 +9046,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(system)/notifications/page.tsx": {
             "lines": 588,
-            "tokens": 5479,
+            "tokens": 5463,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8530,7 +9094,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(system)/admin-users/page.tsx": {
             "lines": 296,
-            "tokens": 2448,
+            "tokens": 2440,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8601,8 +9165,44 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/taxonomy/page.tsx": {
-            "lines": 252,
-            "tokens": 2408,
+            "lines": 167,
+            "tokens": 1557,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/taxonomy/ModelListItem.tsx": {
+            "lines": 0,
+            "tokens": 26,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/taxonomy/CategoryTreeRow.tsx": {
+            "lines": 61,
+            "tokens": 572,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/taxonomy/BrandTreeRow.tsx": {
+            "lines": 23,
+            "tokens": 257,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8661,8 +9261,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/locations/page.tsx": {
-            "lines": 410,
-            "tokens": 3431,
+            "lines": 353,
+            "tokens": 2801,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8828,9 +9428,57 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTableToolbar.tsx": {
+            "lines": 38,
+            "tokens": 305,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTableRow.tsx": {
+            "lines": 6,
+            "tokens": 87,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTablePagination.tsx": {
+            "lines": 38,
+            "tokens": 277,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTableBody.tsx": {
+            "lines": 27,
+            "tokens": 265,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTable.tsx": {
-            "lines": 194,
-            "tokens": 1732,
+            "lines": 70,
+            "tokens": 505,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9178,7 +9826,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/business/BusinessModifyModal.tsx": {
             "lines": 184,
-            "tokens": 1792,
+            "tokens": 1784,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9249,8 +9897,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/login/page.tsx": {
-            "lines": 97,
-            "tokens": 779,
+            "lines": 111,
+            "tokens": 909,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9308,6 +9956,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/error.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(private)/account/messages/[conversationId]/page.tsx": {
             "lines": 2,
             "tokens": 15,
@@ -9333,8 +9993,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/tabs/SmartAlertsTab.tsx": {
-            "lines": 280,
-            "tokens": 2715,
+            "lines": 298,
+            "tokens": 2922,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9381,8 +10041,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/tabs/PersonalTab.tsx": {
-            "lines": 210,
-            "tokens": 1924,
+            "lines": 228,
+            "tokens": 2184,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9395,6 +10055,18 @@
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/tabs/MyListingsTab.tsx": {
             "lines": 200,
             "tokens": 2032,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/tabs/MyAdsTab.tsx": {
+            "lines": 284,
+            "tokens": 2610,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9441,8 +10113,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/dialogs/DeleteAccountDialog.tsx": {
-            "lines": 71,
-            "tokens": 732,
+            "lines": 79,
+            "tokens": 828,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9454,7 +10126,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-ad/steps/ListingDetailsFields.tsx": {
             "lines": 200,
-            "tokens": 1638,
+            "tokens": 1644,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9465,8 +10137,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-ad/steps/DeviceIdentityFields.tsx": {
-            "lines": 125,
-            "tokens": 1105,
+            "lines": 164,
+            "tokens": 1383,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9633,8 +10305,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/wizard/WizardModalShell.tsx": {
-            "lines": 51,
-            "tokens": 381,
+            "lines": 52,
+            "tokens": 394,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9693,8 +10365,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/shared/ListingModalLayout.tsx": {
-            "lines": 68,
-            "tokens": 381,
+            "lines": 77,
+            "tokens": 444,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9717,8 +10389,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/shared/ListingFormFields.tsx": {
-            "lines": 230,
-            "tokens": 1741,
+            "lines": 233,
+            "tokens": 1804,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9778,7 +10450,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-spare-part/PostSparePartForm.tsx": {
             "lines": 119,
-            "tokens": 1102,
+            "tokens": 1104,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9790,7 +10462,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-service/PostServiceForm.tsx": {
             "lines": 125,
-            "tokens": 1120,
+            "tokens": 1122,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9885,8 +10557,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/ListingDescriptionCard.tsx": {
-            "lines": 56,
-            "tokens": 510,
+            "lines": 61,
+            "tokens": 557,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9897,8 +10569,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/ListingBottomActions.tsx": {
-            "lines": 129,
-            "tokens": 824,
+            "lines": 131,
+            "tokens": 847,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9909,8 +10581,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/AdTitlePriceCard.tsx": {
-            "lines": 76,
-            "tokens": 655,
+            "lines": 82,
+            "tokens": 711,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9921,8 +10593,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/AdSellerCard.tsx": {
-            "lines": 49,
-            "tokens": 407,
+            "lines": 50,
+            "tokens": 424,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9945,8 +10617,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/AdImageCarousel.tsx": {
-            "lines": 85,
-            "tokens": 527,
+            "lines": 162,
+            "tokens": 1159,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10029,8 +10701,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/business-registration/StepAddress.tsx": {
-            "lines": 226,
-            "tokens": 1627,
+            "lines": 229,
+            "tokens": 1647,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10172,9 +10844,21 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(private)/notifications/page.tsx": {
+            "lines": 33,
+            "tokens": 323,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(auth)/login/page.tsx": {
-            "lines": 25,
-            "tokens": 189,
+            "lines": 42,
+            "tokens": 254,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10209,8 +10893,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/UserHeader.tsx": {
-            "lines": 183,
-            "tokens": 1560,
+            "lines": 193,
+            "tokens": 1659,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10257,8 +10941,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/ReportAdDialog.tsx": {
-            "lines": 68,
-            "tokens": 547,
+            "lines": 71,
+            "tokens": 584,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10280,9 +10964,21 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/NotificationItemCard.tsx": {
+            "lines": 37,
+            "tokens": 269,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/NotificationBellDropdown.tsx": {
-            "lines": 251,
-            "tokens": 2246,
+            "lines": 119,
+            "tokens": 979,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10293,8 +10989,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/Login.tsx": {
-            "lines": 308,
-            "tokens": 2248,
+            "lines": 328,
+            "tokens": 2455,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10305,8 +11001,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/ListingDetail.tsx": {
-            "lines": 136,
-            "tokens": 870,
+            "lines": 127,
+            "tokens": 810,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10461,8 +11157,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/BrowseAds.tsx": {
-            "lines": 177,
-            "tokens": 1212,
+            "lines": 178,
+            "tokens": 1216,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10485,8 +11181,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/BrandSearchSelect.tsx": {
-            "lines": 58,
-            "tokens": 424,
+            "lines": 59,
+            "tokens": 439,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10569,8 +11265,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/ui/sheet.tsx": {
-            "lines": 89,
-            "tokens": 517,
+            "lines": 91,
+            "tokens": 543,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10677,8 +11373,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/ui/dialog.tsx": {
-            "lines": 118,
-            "tokens": 624,
+            "lines": 133,
+            "tokens": 698,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10833,8 +11529,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/search/SearchFiltersShell.tsx": {
-            "lines": 110,
-            "tokens": 729,
+            "lines": 109,
+            "tokens": 722,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10845,8 +11541,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/search/SearchFiltersPanel.tsx": {
-            "lines": 171,
-            "tokens": 1462,
+            "lines": 174,
+            "tokens": 1482,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10906,7 +11602,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/mobile/MobileNavDrawer.tsx": {
             "lines": 68,
-            "tokens": 632,
+            "tokens": 670,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10917,8 +11613,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/mobile/MobileHeader.tsx": {
-            "lines": 104,
-            "tokens": 795,
+            "lines": 111,
+            "tokens": 844,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10953,8 +11649,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/location/LocationSelectorCore.tsx": {
-            "lines": 150,
-            "tokens": 2097,
+            "lines": 157,
+            "tokens": 1853,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10990,7 +11686,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/location/LocationFirstVisitPrompt.tsx": {
             "lines": 24,
-            "tokens": 248,
+            "tokens": 236,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11002,7 +11698,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/location/HeaderLocationPrompts.tsx": {
             "lines": 29,
-            "tokens": 194,
+            "tokens": 200,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11013,8 +11709,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/layout/HeaderLocation.tsx": {
-            "lines": 6,
-            "tokens": 61,
+            "lines": 7,
+            "tokens": 78,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11122,7 +11818,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/common/Footer.tsx": {
             "lines": 166,
-            "tokens": 1401,
+            "tokens": 1393,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11146,7 +11842,19 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/common/ConnectivityBanner.tsx": {
             "lines": 10,
-            "tokens": 93,
+            "tokens": 106,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/common/BackendStatusBanner.tsx": {
+            "lines": 0,
+            "tokens": 10,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11169,8 +11877,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/common/AppErrorBanner.tsx": {
-            "lines": 0,
-            "tokens": 11,
+            "lines": 9,
+            "tokens": 88,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11181,8 +11889,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/chat/ReportChatDialog.tsx": {
-            "lines": 23,
-            "tokens": 236,
+            "lines": 24,
+            "tokens": 241,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11277,8 +11985,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/chat/ChatActionsMenu.tsx": {
-            "lines": 82,
-            "tokens": 572,
+            "lines": 58,
+            "tokens": 437,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11363,6 +12071,18 @@
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/auth/LoginFlow.tsx": {
             "lines": 2,
             "tokens": 42,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/offline/page.tsx": {
+            "lines": 15,
+            "tokens": 133,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11458,7 +12178,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/context/NavigationContext.tsx": {
             "lines": 27,
-            "tokens": 217,
+            "tokens": 224,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11530,7 +12250,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/layout.tsx": {
             "lines": 1,
-            "tokens": 16,
+            "tokens": 32,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11590,9 +12310,9 @@
           }
         },
         "total": {
-          "lines": 19054,
-          "tokens": 159770,
-          "sources": 273,
+          "lines": 19490,
+          "tokens": 163146,
+          "sources": 286,
           "clones": 0,
           "duplicatedLines": 0,
           "duplicatedTokens": 0,
@@ -11605,8 +12325,8 @@
       "tsx": {
         "sources": {
           "/Users/admin/Desktop/EsparexAdmin/shared/popup/popupDialogView.tsx": {
-            "lines": 119,
-            "tokens": 971,
+            "lines": 124,
+            "tokens": 993,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11749,8 +12469,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(system)/users/page.tsx": {
-            "lines": 436,
-            "tokens": 4454,
+            "lines": 437,
+            "tokens": 4459,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11773,8 +12493,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(system)/notifications/page.tsx": {
-            "lines": 676,
-            "tokens": 6382,
+            "lines": 677,
+            "tokens": 6379,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11785,8 +12505,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(system)/dashboard/page.tsx": {
-            "lines": 208,
-            "tokens": 2221,
+            "lines": 209,
+            "tokens": 2226,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11797,8 +12517,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(system)/audit-logs/page.tsx": {
-            "lines": 247,
-            "tokens": 2434,
+            "lines": 248,
+            "tokens": 2439,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11821,8 +12541,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(system)/admin-users/page.tsx": {
-            "lines": 332,
-            "tokens": 2810,
+            "lines": 333,
+            "tokens": 2815,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11845,8 +12565,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(finance)/revenue/page.tsx": {
-            "lines": 92,
-            "tokens": 862,
+            "lines": 93,
+            "tokens": 867,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11857,8 +12577,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(finance)/plans/page.tsx": {
-            "lines": 258,
-            "tokens": 2536,
+            "lines": 266,
+            "tokens": 2605,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11869,8 +12589,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(finance)/invoices/page.tsx": {
-            "lines": 245,
-            "tokens": 2273,
+            "lines": 240,
+            "tokens": 2256,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11881,8 +12601,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(finance)/finance/page.tsx": {
-            "lines": 271,
-            "tokens": 2481,
+            "lines": 272,
+            "tokens": 2486,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11893,8 +12613,44 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/taxonomy/page.tsx": {
-            "lines": 297,
-            "tokens": 2705,
+            "lines": 198,
+            "tokens": 1775,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/taxonomy/ModelListItem.tsx": {
+            "lines": 13,
+            "tokens": 164,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/taxonomy/CategoryTreeRow.tsx": {
+            "lines": 76,
+            "tokens": 701,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/taxonomy/BrandTreeRow.tsx": {
+            "lines": 40,
+            "tokens": 423,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -11905,14 +12661,14 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/spare-parts-catalog/page.tsx": {
-            "lines": 344,
-            "tokens": 2858,
+            "lines": 320,
+            "tokens": 2525,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 70,
-            "duplicatedTokens": 743,
-            "percentage": 20.35,
-            "percentageTokens": 26,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -11953,26 +12709,26 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/locations/page.tsx": {
-            "lines": 538,
-            "tokens": 4521,
+            "lines": 474,
+            "tokens": 3813,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 33,
-            "duplicatedTokens": 358,
-            "percentage": 6.13,
-            "percentageTokens": 7.92,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(catalog)/categories/page.tsx": {
-            "lines": 286,
-            "tokens": 2405,
+            "lines": 262,
+            "tokens": 2072,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 37,
-            "duplicatedTokens": 385,
-            "percentage": 12.94,
-            "percentageTokens": 16.01,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -12109,8 +12865,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/businesses/BusinessesView.tsx": {
-            "lines": 353,
-            "tokens": 3357,
+            "lines": 354,
+            "tokens": 3354,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12144,6 +12900,30 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(system)/layout.tsx": {
+            "lines": 32,
+            "tokens": 285,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/(protected)/(finance)/layout.tsx": {
+            "lines": 31,
+            "tokens": 283,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/dialog.tsx": {
             "lines": 55,
             "tokens": 547,
@@ -12168,9 +12948,57 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTableToolbar.tsx": {
+            "lines": 88,
+            "tokens": 768,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTableRow.tsx": {
+            "lines": 25,
+            "tokens": 285,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTablePagination.tsx": {
+            "lines": 69,
+            "tokens": 589,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTableBody.tsx": {
+            "lines": 59,
+            "tokens": 538,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/ui/DataTable.tsx": {
-            "lines": 358,
-            "tokens": 3352,
+            "lines": 224,
+            "tokens": 2096,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12517,8 +13345,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/business/BusinessReasonModal.tsx": {
-            "lines": 167,
-            "tokens": 1251,
+            "lines": 168,
+            "tokens": 1256,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12529,8 +13357,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/business/BusinessModifyModal.tsx": {
-            "lines": 316,
-            "tokens": 3106,
+            "lines": 317,
+            "tokens": 3111,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12613,8 +13441,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/login/page.tsx": {
-            "lines": 179,
-            "tokens": 1490,
+            "lines": 252,
+            "tokens": 2195,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12661,8 +13489,20 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/context/AdminAuthContext.tsx": {
-            "lines": 104,
-            "tokens": 1006,
+            "lines": 138,
+            "tokens": 1403,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/not-found.tsx": {
+            "lines": 29,
+            "tokens": 247,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12675,6 +13515,18 @@
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/layout.tsx": {
             "lines": 17,
             "tokens": 139,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/app/error.tsx": {
+            "lines": 52,
+            "tokens": 396,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12709,8 +13561,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/tabs/SmartAlertsTab.tsx": {
-            "lines": 394,
-            "tokens": 3781,
+            "lines": 412,
+            "tokens": 3988,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12757,8 +13609,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/tabs/PersonalTab.tsx": {
-            "lines": 303,
-            "tokens": 2792,
+            "lines": 321,
+            "tokens": 3052,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12771,6 +13623,18 @@
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/tabs/MyListingsTab.tsx": {
             "lines": 372,
             "tokens": 4003,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/tabs/MyAdsTab.tsx": {
+            "lines": 432,
+            "tokens": 4016,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12817,8 +13681,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/profile/dialogs/DeleteAccountDialog.tsx": {
-            "lines": 133,
-            "tokens": 1160,
+            "lines": 141,
+            "tokens": 1256,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12830,7 +13694,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-ad/steps/ListingDetailsFields.tsx": {
             "lines": 393,
-            "tokens": 3369,
+            "tokens": 3377,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12841,8 +13705,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-ad/steps/DeviceIdentityFields.tsx": {
-            "lines": 224,
-            "tokens": 1980,
+            "lines": 268,
+            "tokens": 2287,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -12925,8 +13789,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/category/[category]/page.tsx": {
-            "lines": 69,
-            "tokens": 605,
+            "lines": 70,
+            "tokens": 573,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13093,8 +13957,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/wizard/WizardModalShell.tsx": {
-            "lines": 106,
-            "tokens": 740,
+            "lines": 108,
+            "tokens": 766,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13153,8 +14017,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/shared/ListingModalLayout.tsx": {
-            "lines": 97,
-            "tokens": 590,
+            "lines": 99,
+            "tokens": 629,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13177,8 +14041,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/shared/ListingFormFields.tsx": {
-            "lines": 294,
-            "tokens": 2342,
+            "lines": 297,
+            "tokens": 2405,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13238,7 +14102,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-spare-part/PostSparePartForm.tsx": {
             "lines": 300,
-            "tokens": 2752,
+            "tokens": 2754,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13249,8 +14113,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-service/PostServiceForm.tsx": {
-            "lines": 339,
-            "tokens": 3353,
+            "lines": 341,
+            "tokens": 3375,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13297,8 +14161,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/post-ad/PostAdContext.tsx": {
-            "lines": 788,
-            "tokens": 6855,
+            "lines": 611,
+            "tokens": 4695,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13345,8 +14209,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/ListingDescriptionCard.tsx": {
-            "lines": 81,
-            "tokens": 728,
+            "lines": 87,
+            "tokens": 782,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13357,8 +14221,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/ListingBottomActions.tsx": {
-            "lines": 241,
-            "tokens": 1636,
+            "lines": 243,
+            "tokens": 1659,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13369,8 +14233,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/AdTitlePriceCard.tsx": {
-            "lines": 181,
-            "tokens": 1609,
+            "lines": 193,
+            "tokens": 1709,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13381,8 +14245,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/AdSellerCard.tsx": {
-            "lines": 136,
-            "tokens": 1140,
+            "lines": 138,
+            "tokens": 1163,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13429,8 +14293,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/listing-detail/AdImageCarousel.tsx": {
-            "lines": 138,
-            "tokens": 1015,
+            "lines": 229,
+            "tokens": 1846,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13513,8 +14377,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/business-registration/StepAddress.tsx": {
-            "lines": 320,
-            "tokens": 2429,
+            "lines": 322,
+            "tokens": 2415,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13574,7 +14438,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/business-registration/BusinessProfileFlow.tsx": {
             "lines": 599,
-            "tokens": 5149,
+            "tokens": 5145,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13657,8 +14521,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/terms/page.tsx": {
-            "lines": 38,
-            "tokens": 417,
+            "lines": 45,
+            "tokens": 490,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13669,8 +14533,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/site-map/page.tsx": {
-            "lines": 44,
-            "tokens": 496,
+            "lines": 48,
+            "tokens": 552,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13693,8 +14557,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/safety-tips/page.tsx": {
-            "lines": 30,
-            "tokens": 366,
+            "lines": 41,
+            "tokens": 483,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13705,8 +14569,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/privacy/page.tsx": {
-            "lines": 37,
-            "tokens": 414,
+            "lines": 44,
+            "tokens": 487,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13717,8 +14581,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/how-it-works/page.tsx": {
-            "lines": 32,
-            "tokens": 436,
+            "lines": 43,
+            "tokens": 553,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13729,8 +14593,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/faq/page.tsx": {
-            "lines": 42,
-            "tokens": 524,
+            "lines": 46,
+            "tokens": 580,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13741,8 +14605,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/contact/page.tsx": {
-            "lines": 57,
-            "tokens": 552,
+            "lines": 61,
+            "tokens": 608,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13789,8 +14653,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/about/page.tsx": {
-            "lines": 50,
-            "tokens": 594,
+            "lines": 57,
+            "tokens": 667,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13848,6 +14712,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(private)/notifications/page.tsx": {
+            "lines": 142,
+            "tokens": 1404,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(private)/chat/page.tsx": {
             "lines": 14,
             "tokens": 127,
@@ -13861,8 +14737,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(auth)/login/page.tsx": {
-            "lines": 61,
-            "tokens": 506,
+            "lines": 80,
+            "tokens": 589,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13873,8 +14749,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/lib/listings/listingDetailPage.tsx": {
-            "lines": 138,
-            "tokens": 1234,
+            "lines": 142,
+            "tokens": 1305,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13897,8 +14773,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/UserHeader.tsx": {
-            "lines": 333,
-            "tokens": 2728,
+            "lines": 341,
+            "tokens": 2813,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13945,8 +14821,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/ReportAdDialog.tsx": {
-            "lines": 206,
-            "tokens": 1725,
+            "lines": 214,
+            "tokens": 1851,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13968,9 +14844,21 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/NotificationItemCard.tsx": {
+            "lines": 154,
+            "tokens": 1112,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/NotificationBellDropdown.tsx": {
-            "lines": 409,
-            "tokens": 3450,
+            "lines": 303,
+            "tokens": 2674,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13981,8 +14869,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/Login.tsx": {
-            "lines": 364,
-            "tokens": 2717,
+            "lines": 386,
+            "tokens": 2953,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -13993,8 +14881,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/ListingDetail.tsx": {
-            "lines": 744,
-            "tokens": 6718,
+            "lines": 539,
+            "tokens": 4761,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14149,8 +15037,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/BrowseAds.tsx": {
-            "lines": 615,
-            "tokens": 6227,
+            "lines": 422,
+            "tokens": 3572,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14173,8 +15061,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/user/BrandSearchSelect.tsx": {
-            "lines": 164,
-            "tokens": 1354,
+            "lines": 166,
+            "tokens": 1382,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14257,8 +15145,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/ui/sheet.tsx": {
-            "lines": 140,
-            "tokens": 882,
+            "lines": 143,
+            "tokens": 921,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14295,18 +15183,6 @@
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/ui/radio-group.tsx": {
             "lines": 56,
             "tokens": 470,
-            "sources": 1,
-            "clones": 0,
-            "duplicatedLines": 0,
-            "duplicatedTokens": 0,
-            "percentage": 0,
-            "percentageTokens": 0,
-            "newDuplicatedLines": 0,
-            "newClones": 0
-          },
-          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/ui/mobile-sticky-cta.tsx": {
-            "lines": 25,
-            "tokens": 163,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14365,7 +15241,7 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/ui/drawer.tsx": {
-            "lines": 55,
+            "lines": 56,
             "tokens": 361,
             "sources": 1,
             "clones": 0,
@@ -14377,8 +15253,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/ui/dialog.tsx": {
-            "lines": 184,
-            "tokens": 904,
+            "lines": 206,
+            "tokens": 993,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14496,6 +15372,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/ui/MobileStickyCta.tsx": {
+            "lines": 25,
+            "tokens": 163,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/ui/LoadingAnimation.tsx": {
             "lines": 281,
             "tokens": 1368,
@@ -14569,8 +15457,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/search/SearchFiltersShell.tsx": {
-            "lines": 152,
-            "tokens": 1029,
+            "lines": 151,
+            "tokens": 1022,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14581,8 +15469,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/search/SearchFiltersPanel.tsx": {
-            "lines": 236,
-            "tokens": 1964,
+            "lines": 240,
+            "tokens": 1992,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14605,8 +15493,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/pwa/PwaRegister.tsx": {
-            "lines": 44,
-            "tokens": 373,
+            "lines": 46,
+            "tokens": 393,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14617,8 +15505,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/providers/UserAppProviders.tsx": {
-            "lines": 33,
-            "tokens": 238,
+            "lines": 31,
+            "tokens": 219,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14629,8 +15517,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/providers/RootClientShell.tsx": {
-            "lines": 26,
-            "tokens": 174,
+            "lines": 34,
+            "tokens": 234,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14653,8 +15541,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/providers/AppBootstrapProvider.tsx": {
-            "lines": 57,
-            "tokens": 573,
+            "lines": 63,
+            "tokens": 611,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14677,8 +15565,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/mobile/MobileNavDrawer.tsx": {
-            "lines": 132,
-            "tokens": 1180,
+            "lines": 133,
+            "tokens": 1227,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14689,8 +15577,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/mobile/MobileHeader.tsx": {
-            "lines": 186,
-            "tokens": 1603,
+            "lines": 195,
+            "tokens": 1671,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14725,8 +15613,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/location/LocationSelectorCore.tsx": {
-            "lines": 390,
-            "tokens": 4797,
+            "lines": 386,
+            "tokens": 4336,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14762,7 +15650,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/location/LocationFirstVisitPrompt.tsx": {
             "lines": 51,
-            "tokens": 434,
+            "tokens": 422,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14773,8 +15661,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/location/HeaderLocationPrompts.tsx": {
-            "lines": 63,
-            "tokens": 437,
+            "lines": 65,
+            "tokens": 457,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14785,8 +15673,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/layout/HeaderLocation.tsx": {
-            "lines": 31,
-            "tokens": 266,
+            "lines": 35,
+            "tokens": 314,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14833,8 +15721,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/home/HomeFeed.tsx": {
-            "lines": 206,
-            "tokens": 2040,
+            "lines": 201,
+            "tokens": 1946,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14941,14 +15829,14 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/common/Footer.tsx": {
-            "lines": 271,
-            "tokens": 2401,
+            "lines": 269,
+            "tokens": 2356,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 50,
-            "duplicatedTokens": 480,
-            "percentage": 18.45,
-            "percentageTokens": 19.99,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -14965,8 +15853,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/common/ConnectivityBanner.tsx": {
-            "lines": 35,
-            "tokens": 298,
+            "lines": 36,
+            "tokens": 324,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -14977,8 +15865,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/common/BackendStatusBanner.tsx": {
-            "lines": 14,
-            "tokens": 127,
+            "lines": 16,
+            "tokens": 173,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15001,8 +15889,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/common/AppErrorBanner.tsx": {
-            "lines": 58,
-            "tokens": 459,
+            "lines": 59,
+            "tokens": 485,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15013,8 +15901,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/chat/ReportChatDialog.tsx": {
-            "lines": 72,
-            "tokens": 574,
+            "lines": 76,
+            "tokens": 606,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15049,8 +15937,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/chat/HideChatDialog.tsx": {
-            "lines": 30,
-            "tokens": 306,
+            "lines": 34,
+            "tokens": 338,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15133,8 +16021,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/chat/ChatActionsMenu.tsx": {
-            "lines": 195,
-            "tokens": 1593,
+            "lines": 170,
+            "tokens": 1399,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15145,8 +16033,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/components/chat/BlockChatDialog.tsx": {
-            "lines": 30,
-            "tokens": 299,
+            "lines": 34,
+            "tokens": 331,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15240,9 +16128,21 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/offline/page.tsx": {
+            "lines": 45,
+            "tokens": 329,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/(public)/page.tsx": {
-            "lines": 103,
-            "tokens": 834,
+            "lines": 120,
+            "tokens": 970,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15337,8 +16237,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/context/NavigationContext.tsx": {
-            "lines": 96,
-            "tokens": 805,
+            "lines": 97,
+            "tokens": 825,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15349,8 +16249,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/context/LocationContext.tsx": {
-            "lines": 774,
-            "tokens": 5932,
+            "lines": 711,
+            "tokens": 5361,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15373,8 +16273,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/context/BackendStatusContext.tsx": {
-            "lines": 54,
-            "tokens": 424,
+            "lines": 59,
+            "tokens": 502,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15385,8 +16285,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/context/AuthContext.tsx": {
-            "lines": 450,
-            "tokens": 2905,
+            "lines": 479,
+            "tokens": 3183,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15433,8 +16333,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/app/layout.tsx": {
-            "lines": 37,
-            "tokens": 296,
+            "lines": 63,
+            "tokens": 536,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15482,14 +16382,14 @@
           }
         },
         "total": {
-          "lines": 43868,
-          "tokens": 371803,
-          "sources": 323,
-          "clones": 3,
-          "duplicatedLines": 95,
-          "duplicatedTokens": 983,
-          "percentage": 0.22,
-          "percentageTokens": 0.26,
+          "lines": 44639,
+          "tokens": 376706,
+          "sources": 338,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
           "newDuplicatedLines": 0,
           "newClones": 0
         }
@@ -15497,8 +16397,8 @@
       "json": {
         "sources": {
           "/Users/admin/Desktop/EsparexAdmin/shared/observability/package.json": {
-            "lines": 14,
-            "tokens": 77,
+            "lines": 18,
+            "tokens": 100,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15519,12 +16419,24 @@
             "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
+          },
+          "/Users/admin/Desktop/EsparexAdmin/shared/package.json": {
+            "lines": 10,
+            "tokens": 59,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
           }
         },
         "total": {
-          "lines": 56,
-          "tokens": 312,
-          "sources": 2,
+          "lines": 70,
+          "tokens": 394,
+          "sources": 3,
           "clones": 0,
           "duplicatedLines": 0,
           "duplicatedTokens": 0,
@@ -15565,8 +16477,8 @@
       "css": {
         "sources": {
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/styles/globals.css": {
-            "lines": 13,
-            "tokens": 69,
+            "lines": 24,
+            "tokens": 111,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15589,8 +16501,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/frontend/src/styles/globals.css": {
-            "lines": 272,
-            "tokens": 1623,
+            "lines": 295,
+            "tokens": 1800,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -15602,8 +16514,8 @@
           }
         },
         "total": {
-          "lines": 504,
-          "tokens": 2593,
+          "lines": 538,
+          "tokens": 2812,
           "sources": 3,
           "clones": 0,
           "duplicatedLines": 0,
@@ -15616,268 +16528,304 @@
       }
     },
     "total": {
-      "lines": 138950,
-      "tokens": 1241727,
-      "sources": 1293,
-      "clones": 7,
-      "duplicatedLines": 166,
-      "duplicatedTokens": 1663,
-      "percentage": 0.12,
-      "percentageTokens": 0.13,
+      "lines": 146053,
+      "tokens": 1305285,
+      "sources": 1369,
+      "clones": 8,
+      "duplicatedLines": 449,
+      "duplicatedTokens": 3199,
+      "percentage": 0.31,
+      "percentageTokens": 0.25,
       "newDuplicatedLines": 0,
       "newClones": 0
     }
   },
   "duplicates": [
     {
-      "format": "tsx",
-      "lines": 34,
-      "fragment": "]);\n\n    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {\n        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));\n        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));\n        if (nextUrl !== currentUrl) {\n            router.replace(nextUrl, { scroll: false });\n        }\n    };\n\n    useEffect(() => {\n        if (!loading && initialPage > pagination.totalPages && pagination.totalPages > 0) {\n            replaceQueryState({ page: pagination.totalPages > 1 ? pagination.totalPages : null });\n        }\n    }, [initialPage, loading, pagination.totalPages]);\n\n    useEffect(() => {\n        const normalizedSearch = normalizeSearchParamValue(searchInput);\n        if (normalizedSearch === initialSearch) {\n            return;\n        }\n\n        const timer = window.setTimeout(() => {\n            replaceQueryState({\n                search: normalizedSearch || null,\n                page: null,\n            });\n        }, 300);\n\n        return () => window.clearTimeout(timer);\n    }, [initialSearch, searchInput]);\n\n    return (\n        <CatalogPageTemplate<Location",
+      "format": "typescript",
+      "lines": 64,
+      "fragment": "import mongoose from 'mongoose';\nimport https from 'https';\nimport Location from '../../models/Location';\nimport AdminBoundary from '../../models/AdminBoundary';\nimport LocationAnalytics from '../../models/LocationAnalytics';\nimport logger from '../../utils/logger';\nimport { escapeRegExp, toTitleCase } from '../../utils/stringUtils';\nimport { formatLocationResponse } from '../../lib/location/formatLocation';\nimport { toGeoPoint } from '../../../../shared/utils/geoUtils';\nexport { toGeoPoint };\nimport { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../utils/redisCache';\nimport { AppError } from '../../utils/AppError';\nimport { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../../utils/locationHierarchy';\nimport {\n    asString,\n    buildDisplay,\n    coerceLocationInput,\n    equalsIgnoreCase,\n    extractObjectIdString,\n    normalizeCoordinates,\n    type LocationInputObject\n} from '../location/LocationService.helpers';\nexport { normalizeCoordinates } from '../location/LocationService.helpers';\nimport {\n    type LocationLevel,\n    normalizeLocationInput,\n    normalizeLocationLevel,\n    normalizeLocationNameForSearch\n} from '../../utils/locationInputNormalizer';\n\n\nimport {\n    LatLng,\n    GeoJSONPoint,\n    NormalizedLocation,\n    NormalizedLocationResponse,\n    NormalizeLocationOptions,\n    LocationAnalyticsEventType,\n    LOCATION_POPULARITY_WEIGHTS,\n    HOT_ZONE_SEARCH_THRESHOLD,\n    HOT_ZONE_ADS_THRESHOLD,\n    HierarchyLevel,\n    VERIFIED_LOCATION_STATUS,\n    PUBLIC_CANONICAL_LOCATION_FILTER,\n    REVERSE_GEOCODE_LEVEL_PRIORITY,\n    REVERSE_GEOCODE_SETTLEMENT_LEVELS,\n    REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,\n    REVERSE_GEOCODE_REGIONAL_LEVELS,\n    REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS,\n    LOCATION_AUTOCOMPLETE_LIMIT,\n    ATLAS_LOCATION_SEARCH_INDEX,\n    SEARCH_RESULT_LEVEL_PRIORITY,\n    withPublicCanonicalLocationFilter,\n    buildNormalizedFromLocationDoc,\n    buildCanonicalDisplay,\n    mapLocationDocsToResponses,\n    resolveLocationFromDb,\n    toLocationObjectId,\n    roundCacheCoord,\n    buildReverseGeocodeCacheKey,\n    getActiveLocationById,\n    getPublicCanonicalLocationById\n} from './_shared/hierarchyLoader';\nimport { normalizeLocation",
       "tokens": 0,
       "firstFile": {
-        "name": "admin-frontend/src/app/(protected)/(catalog)/locations/page.tsx",
-        "start": 294,
-        "end": 327,
+        "name": "backend/src/services/location/LocationSearchService.ts",
+        "start": 1,
+        "end": 64,
         "startLoc": {
-          "line": 294,
-          "column": 2,
-          "position": 2317
+          "line": 1,
+          "column": 1,
+          "position": 0
         },
         "endLoc": {
-          "line": 327,
-          "column": 9,
-          "position": 2675
+          "line": 64,
+          "column": 18,
+          "position": 378
         }
       },
       "secondFile": {
-        "name": "admin-frontend/src/app/(protected)/(catalog)/spare-parts-catalog/page.tsx",
-        "start": 93,
-        "end": 126,
+        "name": "backend/src/services/location/ReverseGeocodeService.ts",
+        "start": 1,
+        "end": 64,
         "startLoc": {
-          "line": 93,
-          "column": 14,
-          "position": 759
+          "line": 1,
+          "column": 1,
+          "position": 0
         },
         "endLoc": {
-          "line": 126,
-          "column": 16,
-          "position": 1117
-        }
-      }
-    },
-    {
-      "format": "tsx",
-      "lines": 38,
-      "fragment": ");\n\n    useEffect(() => {\n        setSearchInput(initialSearch);\n    }, [initialSearch]);\n\n    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {\n        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));\n        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));\n        if (nextUrl !== currentUrl) {\n            router.replace(nextUrl, { scroll: false });\n        }\n    };\n\n    useEffect(() => {\n        if (!loading && initialPage > pagination.totalPages && pagination.totalPages > 0) {\n            replaceQueryState({ page: pagination.totalPages > 1 ? pagination.totalPages : null });\n        }\n    }, [initialPage, loading, pagination.totalPages]);\n\n    useEffect(() => {\n        const normalizedSearch = normalizeSearchParamValue(searchInput);\n        if (normalizedSearch === initialSearch) {\n            return;\n        }\n\n        const timer = window.setTimeout(() => {\n            replaceQueryState({\n                search: normalizedSearch || null,\n                page: null,\n            });\n        }, 300);\n\n        return () => window.clearTimeout(timer);\n    }, [initialSearch, searchInput]);\n\n    return (\n        <CatalogPageTemplate<Category",
-      "tokens": 0,
-      "firstFile": {
-        "name": "admin-frontend/src/app/(protected)/(catalog)/categories/page.tsx",
-        "start": 78,
-        "end": 115,
-        "startLoc": {
-          "line": 78,
-          "column": 2,
-          "position": 664
-        },
-        "endLoc": {
-          "line": 115,
-          "column": 9,
-          "position": 1049
-        }
-      },
-      "secondFile": {
-        "name": "admin-frontend/src/app/(protected)/(catalog)/spare-parts-catalog/page.tsx",
-        "start": 89,
-        "end": 126,
-        "startLoc": {
-          "line": 89,
-          "column": 27,
-          "position": 732
-        },
-        "endLoc": {
-          "line": 126,
-          "column": 16,
-          "position": 1117
+          "line": 64,
+          "column": 26,
+          "position": 378
         }
       }
     },
     {
       "format": "typescript",
-      "lines": 10,
-      "fragment": "));\n        \n        const query = params.toString();\n        url = query ? (url.includes('?') ? `${url}&${query}` : `${url}?${query}`) : url;\n\n        const result = await (typeof window === 'undefined'\n            ? fetchUserApiJson(url, options?.fetchOptions).then(unwrapApiPayload) as Promise<any>\n            : apiClient.get(url).then((res: any) => unwrapApiPayload(res.data) as any));\n\n        if (!result) return { ads: [] }",
+      "lines": 64,
+      "fragment": "import mongoose from 'mongoose';\nimport https from 'https';\nimport Location from '../../models/Location';\nimport AdminBoundary from '../../models/AdminBoundary';\nimport LocationAnalytics from '../../models/LocationAnalytics';\nimport logger from '../../utils/logger';\nimport { escapeRegExp, toTitleCase } from '../../utils/stringUtils';\nimport { formatLocationResponse } from '../../lib/location/formatLocation';\nimport { toGeoPoint } from '../../../../shared/utils/geoUtils';\nexport { toGeoPoint };\nimport { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../utils/redisCache';\nimport { AppError } from '../../utils/AppError';\nimport { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../../utils/locationHierarchy';\nimport {\n    asString,\n    buildDisplay,\n    coerceLocationInput,\n    equalsIgnoreCase,\n    extractObjectIdString,\n    normalizeCoordinates,\n    type LocationInputObject\n} from '../location/LocationService.helpers';\nexport { normalizeCoordinates } from '../location/LocationService.helpers';\nimport {\n    type LocationLevel,\n    normalizeLocationInput,\n    normalizeLocationLevel,\n    normalizeLocationNameForSearch\n} from '../../utils/locationInputNormalizer';\n\n\nimport {\n    LatLng,\n    GeoJSONPoint,\n    NormalizedLocation,\n    NormalizedLocationResponse,\n    NormalizeLocationOptions,\n    LocationAnalyticsEventType,\n    LOCATION_POPULARITY_WEIGHTS,\n    HOT_ZONE_SEARCH_THRESHOLD,\n    HOT_ZONE_ADS_THRESHOLD,\n    HierarchyLevel,\n    VERIFIED_LOCATION_STATUS,\n    PUBLIC_CANONICAL_LOCATION_FILTER,\n    REVERSE_GEOCODE_LEVEL_PRIORITY,\n    REVERSE_GEOCODE_SETTLEMENT_LEVELS,\n    REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,\n    REVERSE_GEOCODE_REGIONAL_LEVELS,\n    REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS,\n    LOCATION_AUTOCOMPLETE_LIMIT,\n    ATLAS_LOCATION_SEARCH_INDEX,\n    SEARCH_RESULT_LEVEL_PRIORITY,\n    withPublicCanonicalLocationFilter,\n    buildNormalizedFromLocationDoc,\n    buildCanonicalDisplay,\n    mapLocationDocsToResponses,\n    resolveLocationFromDb,\n    toLocationObjectId,\n    roundCacheCoord,\n    buildReverseGeocodeCacheKey,\n    getActiveLocationById,\n    getPublicCanonicalLocationById\n} from './_shared/hierarchyLoader';\nexport",
       "tokens": 0,
       "firstFile": {
-        "name": "frontend/src/lib/api/user/listings.ts",
-        "start": 671,
-        "end": 680,
+        "name": "backend/src/services/location/LocationNormalizer.ts",
+        "start": 1,
+        "end": 64,
         "startLoc": {
-          "line": 671,
-          "column": 6,
-          "position": 8430
-        },
-        "endLoc": {
-          "line": 680,
-          "column": 2,
-          "position": 8596
-        }
-      },
-      "secondFile": {
-        "name": "frontend/src/lib/api/user/listings.ts",
-        "start": 632,
-        "end": 641,
-        "startLoc": {
-          "line": 632,
-          "column": 9,
-          "position": 7809
-        },
-        "endLoc": {
-          "line": 641,
-          "column": 2,
-          "position": 7975
-        }
-      }
-    },
-    {
-      "format": "tsx",
-      "lines": 26,
-      "fragment": "\">\n                        <div className=\"flex items-center gap-3 justify-start\">\n                            <Link href=\"/\" className=\"flex items-center gap-2\">\n                                <div className=\"h-8 w-8 rounded-lg bg-green-600 flex items-center justify-center text-white font-bold text-lg shadow-lg\">E</div>\n                                <span className={cn(\"text-xl font-bold tracking-tight\", isDark ? \"text-white\" : \"text-green-600\")}>Esparex</span>\n                            </Link>\n                        </div>\n                        <p className={cn(\"text-sm leading-relaxed\", isDark ? \"text-slate-500\" : \"text-slate-500\")}>\n                            India's premium privacy-first marketplace for device spare parts and services.\n                        </p>\n                        <div className=\"flex items-center gap-3 justify-start\">\n                            {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (\n                                <button\n                                    key={i}\n                                    className={cn(\n                                        \"flex h-10 w-10 items-center justify-center rounded-full transition-colors md:h-11 md:w-11\",\n                                        isDark ? \"text-slate-500 hover:text-white\" : \"text-slate-400 hover:text-green-600\"\n                                    )}\n                                >\n                                    <Icon className=\"h-5 w-5\" />\n                                </button>\n                            ))}\n                        </div>\n                    </div>\n\n                    {",
-      "tokens": 0,
-      "firstFile": {
-        "name": "frontend/src/components/common/Footer.tsx",
-        "start": 182,
-        "end": 207,
-        "startLoc": {
-          "line": 182,
-          "column": 74,
-          "position": 1594
-        },
-        "endLoc": {
-          "line": 207,
-          "column": 2,
-          "position": 1834
-        }
-      },
-      "secondFile": {
-        "name": "frontend/src/components/common/Footer.tsx",
-        "start": 130,
-        "end": 155,
-        "startLoc": {
-          "line": 130,
-          "column": 20,
-          "position": 1127
-        },
-        "endLoc": {
-          "line": 155,
-          "column": 2,
-          "position": 1367
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 35,
-      "fragment": "export interface HierarchyTreeModelNode {\n    id: string;\n    name: string;\n    isActive: boolean;\n    status?: string;\n}\n\nexport interface HierarchyTreeBrandNode {\n    id: string;\n    name: string;\n    isActive: boolean;\n    status?: string;\n    models: HierarchyTreeModelNode[];\n}\n\nexport interface HierarchyTreeCategoryNode {\n    id: string;\n    name: string;\n    slug: string;\n    listingType: string[];\n    hasScreenSizes: boolean;\n    isActive: boolean;\n    brands: HierarchyTreeBrandNode[];\n}\n\nexport interface HierarchyTreeResponse {\n    summary: {\n        categories: number;\n        brands: number;\n        models: number;\n    };\n    categories: HierarchyTreeCategoryNode[];\n}\n\n// ─── Read-only hierarchy scan ─────────────────────────────────────────────────",
-      "tokens": 0,
-      "firstFile": {
-        "name": "backend/src/services/catalog/CatalogHierarchyService.ts",
-        "start": 60,
-        "end": 94,
-        "startLoc": {
-          "line": 60,
+          "line": 1,
           "column": 1,
-          "position": 449
+          "position": 0
         },
         "endLoc": {
-          "line": 94,
-          "column": 82,
-          "position": 653
-        }
-      },
-      "secondFile": {
-        "name": "admin-frontend/src/lib/api/catalogGovernance.ts",
-        "start": 5,
-        "end": 39,
-        "startLoc": {
-          "line": 5,
-          "column": 1,
-          "position": 40
-        },
-        "endLoc": {
-          "line": 39,
+          "line": 64,
           "column": 7,
-          "position": 244
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 10,
-      "fragment": "(conversationId: string, userId: string) {\n  const conv = await Conversation.findById(conversationId).lean();\n  if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });\n\n  const isMember = [String(conv.buyerId), String(conv.sellerId)].includes(userId);\n  if (!isMember) throw Object.assign(new Error('Forbidden'), { status: 403 });\n\n  await Conversation.updateOne(\n    { _id: conversationId },\n    { $pull",
-      "tokens": 0,
-      "firstFile": {
-        "name": "backend/src/services/chatService.ts",
-        "start": 443,
-        "end": 452,
-        "startLoc": {
-          "line": 443,
-          "column": 20,
-          "position": 3972
-        },
-        "endLoc": {
-          "line": 452,
-          "column": 6,
-          "position": 4128
+          "position": 374
         }
       },
       "secondFile": {
-        "name": "backend/src/services/chatService.ts",
-        "start": 430,
-        "end": 439,
+        "name": "backend/src/services/location/ReverseGeocodeService.ts",
+        "start": 1,
+        "end": 64,
         "startLoc": {
-          "line": 430,
-          "column": 17,
-          "position": 3781
+          "line": 1,
+          "column": 1,
+          "position": 0
         },
         "endLoc": {
-          "line": 439,
-          "column": 10,
-          "position": 3937
+          "line": 64,
+          "column": 7,
+          "position": 374
         }
       }
     },
     {
       "format": "typescript",
-      "lines": 20,
-      "fragment": ",\n};\n\nconst hasOwn = (body: Record<string, unknown>, field: string) =>\n    Object.prototype.hasOwnProperty.call(body, field);\n\nconst collectLockedFieldErrors = (\n    body: Record<string, unknown>,\n    fieldMessages: Record<string, string>\n) => Object.entries(fieldMessages)\n    .filter(([field]) => hasOwn(body, field))\n    .map(([field, message]) => ({\n        field,\n        message,\n        code: 'IMMUTABLE_FIELD',\n    }));\n/**\n * Enterprise Listing Controller (SSOT)\n * Centralized logic for all listing types (Ads, Services, Spare Parts)\n */",
+      "lines": 65,
+      "fragment": "import mongoose from 'mongoose';\nimport https from 'https';\nimport Location from '../../models/Location';\nimport AdminBoundary from '../../models/AdminBoundary';\nimport LocationAnalytics from '../../models/LocationAnalytics';\nimport logger from '../../utils/logger';\nimport { escapeRegExp, toTitleCase } from '../../utils/stringUtils';\nimport { formatLocationResponse } from '../../lib/location/formatLocation';\nimport { toGeoPoint } from '../../../../shared/utils/geoUtils';\nexport { toGeoPoint };\nimport { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../utils/redisCache';\nimport { AppError } from '../../utils/AppError';\nimport { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../../utils/locationHierarchy';\nimport {\n    asString,\n    buildDisplay,\n    coerceLocationInput,\n    equalsIgnoreCase,\n    extractObjectIdString,\n    normalizeCoordinates,\n    type LocationInputObject\n} from '../location/LocationService.helpers';\nexport { normalizeCoordinates } from '../location/LocationService.helpers';\nimport {\n    type LocationLevel,\n    normalizeLocationInput,\n    normalizeLocationLevel,\n    normalizeLocationNameForSearch\n} from '../../utils/locationInputNormalizer';\n\n\nimport {\n    LatLng,\n    GeoJSONPoint,\n    NormalizedLocation,\n    NormalizedLocationResponse,\n    NormalizeLocationOptions,\n    LocationAnalyticsEventType,\n    LOCATION_POPULARITY_WEIGHTS,\n    HOT_ZONE_SEARCH_THRESHOLD,\n    HOT_ZONE_ADS_THRESHOLD,\n    HierarchyLevel,\n    VERIFIED_LOCATION_STATUS,\n    PUBLIC_CANONICAL_LOCATION_FILTER,\n    REVERSE_GEOCODE_LEVEL_PRIORITY,\n    REVERSE_GEOCODE_SETTLEMENT_LEVELS,\n    REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,\n    REVERSE_GEOCODE_REGIONAL_LEVELS,\n    REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS,\n    LOCATION_AUTOCOMPLETE_LIMIT,\n    ATLAS_LOCATION_SEARCH_INDEX,\n    SEARCH_RESULT_LEVEL_PRIORITY,\n    withPublicCanonicalLocationFilter,\n    buildNormalizedFromLocationDoc,\n    buildCanonicalDisplay,\n    mapLocationDocsToResponses,\n    resolveLocationFromDb,\n    toLocationObjectId,\n    roundCacheCoord,\n    buildReverseGeocodeCacheKey,\n    getActiveLocationById,\n    getPublicCanonicalLocationById\n} from './_shared/hierarchyLoader';\nimport { normalizeLocation, normalizeLocationResponse, mapToLocationResponse } from './LocationNormalizer';\nexport",
       "tokens": 0,
       "firstFile": {
-        "name": "backend/src/controllers/listingController.ts",
-        "start": 34,
-        "end": 53,
+        "name": "backend/src/services/location/LocationHierarchyService.ts",
+        "start": 1,
+        "end": 65,
         "startLoc": {
-          "line": 34,
-          "column": 52,
-          "position": 340
+          "line": 1,
+          "column": 1,
+          "position": 0
         },
         "endLoc": {
-          "line": 53,
+          "line": 65,
+          "column": 7,
+          "position": 393
+        }
+      },
+      "secondFile": {
+        "name": "backend/src/services/location/ReverseGeocodeService.ts",
+        "start": 1,
+        "end": 66,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 66,
           "column": 4,
-          "position": 494
+          "position": 394
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 64,
+      "fragment": "import mongoose from 'mongoose';\nimport https from 'https';\nimport Location from '../../models/Location';\nimport AdminBoundary from '../../models/AdminBoundary';\nimport LocationAnalytics from '../../models/LocationAnalytics';\nimport logger from '../../utils/logger';\nimport { escapeRegExp, toTitleCase } from '../../utils/stringUtils';\nimport { formatLocationResponse } from '../../lib/location/formatLocation';\nimport { toGeoPoint } from '../../../../shared/utils/geoUtils';\nexport { toGeoPoint };\nimport { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../utils/redisCache';\nimport { AppError } from '../../utils/AppError';\nimport { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../../utils/locationHierarchy';\nimport {\n    asString,\n    buildDisplay,\n    coerceLocationInput,\n    equalsIgnoreCase,\n    extractObjectIdString,\n    normalizeCoordinates,\n    type LocationInputObject\n} from '../location/LocationService.helpers';\nexport { normalizeCoordinates } from '../location/LocationService.helpers';\nimport {\n    type LocationLevel,\n    normalizeLocationInput,\n    normalizeLocationLevel,\n    normalizeLocationNameForSearch\n} from '../../utils/locationInputNormalizer';\n\n\nimport {\n    LatLng,\n    GeoJSONPoint,\n    NormalizedLocation,\n    NormalizedLocationResponse,\n    NormalizeLocationOptions,\n    LocationAnalyticsEventType,\n    LOCATION_POPULARITY_WEIGHTS,\n    HOT_ZONE_SEARCH_THRESHOLD,\n    HOT_ZONE_ADS_THRESHOLD,\n    HierarchyLevel,\n    VERIFIED_LOCATION_STATUS,\n    PUBLIC_CANONICAL_LOCATION_FILTER,\n    REVERSE_GEOCODE_LEVEL_PRIORITY,\n    REVERSE_GEOCODE_SETTLEMENT_LEVELS,\n    REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,\n    REVERSE_GEOCODE_REGIONAL_LEVELS,\n    REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS,\n    LOCATION_AUTOCOMPLETE_LIMIT,\n    ATLAS_LOCATION_SEARCH_INDEX,\n    SEARCH_RESULT_LEVEL_PRIORITY,\n    withPublicCanonicalLocationFilter,\n    buildNormalizedFromLocationDoc,\n    buildCanonicalDisplay,\n    mapLocationDocsToResponses,\n    resolveLocationFromDb,\n    toLocationObjectId,\n    roundCacheCoord,\n    buildReverseGeocodeCacheKey,\n    getActiveLocationById,\n    getPublicCanonicalLocationById\n} from './_shared/hierarchyLoader';\nexport const touchLocationAnalytics",
+      "tokens": 0,
+      "firstFile": {
+        "name": "backend/src/services/location/LocationAnalyticsService.ts",
+        "start": 1,
+        "end": 64,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 64,
+          "column": 23,
+          "position": 378
         }
       },
       "secondFile": {
-        "name": "backend/src/controllers/sparePartListingController.ts",
-        "start": 51,
-        "end": 68,
+        "name": "backend/src/services/location/ReverseGeocodeService.ts",
+        "start": 1,
+        "end": 64,
         "startLoc": {
-          "line": 51,
-          "column": 63,
-          "position": 503
+          "line": 1,
+          "column": 1,
+          "position": 0
         },
         "endLoc": {
-          "line": 68,
-          "column": 71,
-          "position": 658
+          "line": 64,
+          "column": 18,
+          "position": 378
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 50,
+      "fragment": "import mongoose, { PipelineStage } from 'mongoose';\nimport Ad from '../../models/Ad';\nimport Category from '../../models/Category';\nimport Brand from '../../models/Brand';\nimport ProductModel from '../../models/Model';\nimport Business from '../../models/Business';\nimport Report from '../../models/Report';\nimport BlockedUser from '../../models/BlockedUser';\nimport SparePart from '../../models/SparePart';\nimport { serializeDoc } from '../../utils/serialize';\nimport { normalizeLocationResponse } from '../location/LocationNormalizer';\nimport { touchLocationSearchAnalytics } from '../location/LocationAnalyticsService';\nimport { buildGeoNearStage, normalizeGeoInput } from '../../utils/GeoUtils';\nimport { normalizeAdStatus } from '../adStatusService';\nimport { buildAdFilterFromCriteria, AdFilterCriteria } from '../../utils/adFilterHelper';\nimport { getCache, setCache } from '../../utils/redisCache';\nimport { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';\nimport { type ListingTypeValue } from '../../../../shared/enums/listingType';\nimport logger from '../../utils/logger';\nimport RankingTelemetry from '../../models/RankingTelemetry';\nimport { v4 as uuidv4 } from 'uuid';\nimport { escapeRegExp } from '../../utils/stringUtils';\nimport {\n    buildAdSortStage as buildAdSortStageFromHelper,\n    extractLocationIdFromAd,\n    normalizeAdImagesForResponse,\n    type SortStage\n} from '../adQuery/AdQueryHelpers';\nimport { AD_STATUS } from '../../../../shared/enums/adStatus';\nimport { FeatureFlag, isEnabled } from '../../config/featureFlags';\nimport AdminMetrics from '../../models/AdminMetrics';\nimport { isBusinessPublishedStatus } from '../../utils/businessStatus';\n\nimport { \n    AdsListResult, \n    AdFilters, \n    getBlockedSellerIds, \n    recordListingTypeCompatMetric, \n    AD_DETAIL_CACHE_TTL_SECONDS,\n    UnknownRecord,\n    AggregationStage,\n    ListingTypeCompatMetricContext,\n    ListingTypeFilterBuildResult,\n    BuildAdMatchStageOptions,\n    PaginationOptions,\n    PublicQueryOptions,\n    buildListingTypeFilter\n} from './_shared/adFilterHelpers';\n\nexport const getAdCounts",
+      "tokens": 0,
+      "firstFile": {
+        "name": "backend/src/services/ad/AdMetricsService.ts",
+        "start": 1,
+        "end": 50,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 50,
+          "column": 12,
+          "position": 420
+        }
+      },
+      "secondFile": {
+        "name": "backend/src/services/ad/AdSearchService.ts",
+        "start": 1,
+        "end": 50,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 50,
+          "column": 18,
+          "position": 420
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 50,
+      "fragment": "import mongoose, { PipelineStage } from 'mongoose';\nimport Ad from '../../models/Ad';\nimport Category from '../../models/Category';\nimport Brand from '../../models/Brand';\nimport ProductModel from '../../models/Model';\nimport Business from '../../models/Business';\nimport Report from '../../models/Report';\nimport BlockedUser from '../../models/BlockedUser';\nimport SparePart from '../../models/SparePart';\nimport { serializeDoc } from '../../utils/serialize';\nimport { normalizeLocationResponse } from '../location/LocationNormalizer';\nimport { touchLocationSearchAnalytics } from '../location/LocationAnalyticsService';\nimport { buildGeoNearStage, normalizeGeoInput } from '../../utils/GeoUtils';\nimport { normalizeAdStatus } from '../adStatusService';\nimport { buildAdFilterFromCriteria, AdFilterCriteria } from '../../utils/adFilterHelper';\nimport { getCache, setCache } from '../../utils/redisCache';\nimport { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';\nimport { type ListingTypeValue } from '../../../../shared/enums/listingType';\nimport logger from '../../utils/logger';\nimport RankingTelemetry from '../../models/RankingTelemetry';\nimport { v4 as uuidv4 } from 'uuid';\nimport { escapeRegExp } from '../../utils/stringUtils';\nimport {\n    buildAdSortStage as buildAdSortStageFromHelper,\n    extractLocationIdFromAd,\n    normalizeAdImagesForResponse,\n    type SortStage\n} from '../adQuery/AdQueryHelpers';\nimport { AD_STATUS } from '../../../../shared/enums/adStatus';\nimport { FeatureFlag, isEnabled } from '../../config/featureFlags';\nimport AdminMetrics from '../../models/AdminMetrics';\nimport { isBusinessPublishedStatus } from '../../utils/businessStatus';\n\nimport { \n    AdsListResult, \n    AdFilters, \n    getBlockedSellerIds, \n    recordListingTypeCompatMetric, \n    AD_DETAIL_CACHE_TTL_SECONDS,\n    UnknownRecord,\n    AggregationStage,\n    ListingTypeCompatMetricContext,\n    ListingTypeFilterBuildResult,\n    BuildAdMatchStageOptions,\n    PaginationOptions,\n    PublicQueryOptions,\n    buildListingTypeFilter\n} from './_shared/adFilterHelpers';\n\nexport const buildHomeFeedPipeline",
+      "tokens": 0,
+      "firstFile": {
+        "name": "backend/src/services/ad/AdFeedService.ts",
+        "start": 1,
+        "end": 50,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 50,
+          "column": 22,
+          "position": 420
+        }
+      },
+      "secondFile": {
+        "name": "backend/src/services/ad/AdSearchService.ts",
+        "start": 1,
+        "end": 50,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 50,
+          "column": 18,
+          "position": 420
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 50,
+      "fragment": "import mongoose, { PipelineStage } from 'mongoose';\nimport Ad from '../../models/Ad';\nimport Category from '../../models/Category';\nimport Brand from '../../models/Brand';\nimport ProductModel from '../../models/Model';\nimport Business from '../../models/Business';\nimport Report from '../../models/Report';\nimport BlockedUser from '../../models/BlockedUser';\nimport SparePart from '../../models/SparePart';\nimport { serializeDoc } from '../../utils/serialize';\nimport { normalizeLocationResponse } from '../location/LocationNormalizer';\nimport { touchLocationSearchAnalytics } from '../location/LocationAnalyticsService';\nimport { buildGeoNearStage, normalizeGeoInput } from '../../utils/GeoUtils';\nimport { normalizeAdStatus } from '../adStatusService';\nimport { buildAdFilterFromCriteria, AdFilterCriteria } from '../../utils/adFilterHelper';\nimport { getCache, setCache } from '../../utils/redisCache';\nimport { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';\nimport { type ListingTypeValue } from '../../../../shared/enums/listingType';\nimport logger from '../../utils/logger';\nimport RankingTelemetry from '../../models/RankingTelemetry';\nimport { v4 as uuidv4 } from 'uuid';\nimport { escapeRegExp } from '../../utils/stringUtils';\nimport {\n    buildAdSortStage as buildAdSortStageFromHelper,\n    extractLocationIdFromAd,\n    normalizeAdImagesForResponse,\n    type SortStage\n} from '../adQuery/AdQueryHelpers';\nimport { AD_STATUS } from '../../../../shared/enums/adStatus';\nimport { FeatureFlag, isEnabled } from '../../config/featureFlags';\nimport AdminMetrics from '../../models/AdminMetrics';\nimport { isBusinessPublishedStatus } from '../../utils/businessStatus';\n\nimport { \n    AdsListResult, \n    AdFilters, \n    getBlockedSellerIds, \n    recordListingTypeCompatMetric, \n    AD_DETAIL_CACHE_TTL_SECONDS,\n    UnknownRecord,\n    AggregationStage,\n    ListingTypeCompatMetricContext,\n    ListingTypeFilterBuildResult,\n    BuildAdMatchStageOptions,\n    PaginationOptions,\n    PublicQueryOptions,\n    buildListingTypeFilter\n} from './_shared/adFilterHelpers';\n\nimport",
+      "tokens": 0,
+      "firstFile": {
+        "name": "backend/src/services/ad/AdDetailService.ts",
+        "start": 1,
+        "end": 50,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 50,
+          "column": 7,
+          "position": 416
+        }
+      },
+      "secondFile": {
+        "name": "backend/src/services/ad/AdSearchService.ts",
+        "start": 1,
+        "end": 50,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 50,
+          "column": 7,
+          "position": 416
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 50,
+      "fragment": "import mongoose, { PipelineStage } from 'mongoose';\nimport Ad from '../../models/Ad';\nimport Category from '../../models/Category';\nimport Brand from '../../models/Brand';\nimport ProductModel from '../../models/Model';\nimport Business from '../../models/Business';\nimport Report from '../../models/Report';\nimport BlockedUser from '../../models/BlockedUser';\nimport SparePart from '../../models/SparePart';\nimport { serializeDoc } from '../../utils/serialize';\nimport { normalizeLocationResponse } from '../location/LocationNormalizer';\nimport { touchLocationSearchAnalytics } from '../location/LocationAnalyticsService';\nimport { buildGeoNearStage, normalizeGeoInput } from '../../utils/GeoUtils';\nimport { normalizeAdStatus } from '../adStatusService';\nimport { buildAdFilterFromCriteria, AdFilterCriteria } from '../../utils/adFilterHelper';\nimport { getCache, setCache } from '../../utils/redisCache';\nimport { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';\nimport { type ListingTypeValue } from '../../../../shared/enums/listingType';\nimport logger from '../../utils/logger';\nimport RankingTelemetry from '../../models/RankingTelemetry';\nimport { v4 as uuidv4 } from 'uuid';\nimport { escapeRegExp } from '../../utils/stringUtils';\nimport {\n    buildAdSortStage as buildAdSortStageFromHelper,\n    extractLocationIdFromAd,\n    normalizeAdImagesForResponse,\n    type SortStage\n} from '../adQuery/AdQueryHelpers';\nimport { AD_STATUS } from '../../../../shared/enums/adStatus';\nimport { FeatureFlag, isEnabled } from '../../config/featureFlags';\nimport AdminMetrics from '../../models/AdminMetrics';\nimport { isBusinessPublishedStatus } from '../../utils/businessStatus';\n\nimport { \n    AdsListResult, \n    AdFilters, \n    getBlockedSellerIds, \n    recordListingTypeCompatMetric, \n    AD_DETAIL_CACHE_TTL_SECONDS,\n    UnknownRecord,\n    AggregationStage,\n    ListingTypeCompatMetricContext,\n    ListingTypeFilterBuildResult,\n    BuildAdMatchStageOptions,\n    PaginationOptions,\n    PublicQueryOptions,\n    buildListingTypeFilter\n} from './_shared/adFilterHelpers';\n\nimport { buildAdMatchStage",
+      "tokens": 0,
+      "firstFile": {
+        "name": "backend/src/services/ad/AdAggregationService.ts",
+        "start": 1,
+        "end": 50,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 50,
+          "column": 18,
+          "position": 420
+        }
+      },
+      "secondFile": {
+        "name": "backend/src/services/ad/AdSearchService.ts",
+        "start": 1,
+        "end": 50,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 50,
+          "column": 18,
+          "position": 420
         }
       }
     }

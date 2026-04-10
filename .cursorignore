@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.lock
+package-lock.json
+*.log
+build_errors.txt
+tail*.json
+last*.json
+*.pdf
+*.zip
+*.sql
+*.tar.gz
