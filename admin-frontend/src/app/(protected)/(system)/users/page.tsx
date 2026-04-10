@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -124,7 +125,7 @@ export default function UsersPage() {
                 verifiedUsers: Number(overviewData.verifiedUsers || 0)
             });
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to load users");
+            setError(mapErrorToMessage(err, "Failed to load users"));
         } finally {
             setLoading(false);
         }

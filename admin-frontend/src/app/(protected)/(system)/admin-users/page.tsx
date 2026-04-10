@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -55,7 +56,7 @@ export default function AdminUsersPage() {
             const parsed = parseAdminResponse<Record<string, unknown>>(response);
             setAdmins(parsed.items.map(normalizeAdmin));
         } catch (error) {
-            showToast(error instanceof Error ? error.message : "Failed to load admin users", "error");
+            showToast(mapErrorToMessage(error, "Failed to load admin users"), "error");
         } finally {
             setLoading(false);
         }

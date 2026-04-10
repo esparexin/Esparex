@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -92,7 +93,7 @@ export default function AuditLogsPage() {
                 limit: nextPagination.limit,
             });
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to load audit logs");
+            setError(mapErrorToMessage(err, "Failed to load audit logs"));
         } finally {
             setLoading(false);
         }

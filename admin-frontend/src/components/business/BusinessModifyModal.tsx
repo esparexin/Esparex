@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useState } from "react";
@@ -185,7 +186,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
             await onConfirm(patch as Partial<Business>);
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to update business");
+            setError(mapErrorToMessage(err, "Failed to update business"));
         } finally {
             setLoading(false);
         }

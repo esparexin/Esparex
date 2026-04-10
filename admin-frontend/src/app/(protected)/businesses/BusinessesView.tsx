@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useState } from "react";
@@ -124,7 +125,7 @@ export default function BusinessesView() {
             businessList.setSelectedBusiness(null);
             await businessList.fetchBusinesses();
         } catch (err) {
-            const message = err instanceof Error ? err.message : "Failed to suspend business";
+            const message = mapErrorToMessage(err, "Failed to suspend business");
             showToast(message, "error");
             throw err instanceof Error ? err : new Error(message);
         }
@@ -137,7 +138,7 @@ export default function BusinessesView() {
             businessList.setSelectedBusiness(null);
             await businessList.fetchBusinesses();
         } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to activate business", "error");
+            showToast(mapErrorToMessage(err, "Failed to activate business"), "error");
         }
     };
 

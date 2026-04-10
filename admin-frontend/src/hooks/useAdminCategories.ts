@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 import { useCallback } from "react";
 import { getCategories, toggleCategoryStatus, deleteCategory, createCategory, updateCategory } from "@/lib/api/categories";
 import { Category } from "@/types/category";
@@ -84,7 +85,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
                 showToast(response.message || "Failed to update status", "error");
             }
         } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to update status", "error");
+            showToast(mapErrorToMessage(err, "Failed to update status"), "error");
         }
     };
 
@@ -111,7 +112,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
 
                 showToast(`Cannot delete: Associated with ${details}. Deactivate it instead?`, "error");
             } else {
-                showToast(err instanceof Error ? err.message : "Failed to delete category", "error");
+                showToast(mapErrorToMessage(err, "Failed to delete category"), "error");
             }
         }
     };
@@ -128,7 +129,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
                 return false;
             }
         } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to create category", "error");
+            showToast(mapErrorToMessage(err, "Failed to create category"), "error");
             return false;
         }
     };
@@ -145,7 +146,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
                 return false;
             }
         } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to update category", "error");
+            showToast(mapErrorToMessage(err, "Failed to update category"), "error");
             return false;
         }
     };

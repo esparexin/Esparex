@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
 import type { LucideIcon } from "lucide-react";
 import {
     Dialog,
@@ -91,7 +92,7 @@ export function BusinessReasonModal({
             await onConfirm(trimmed);
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : failureMessage);
+            setError(mapErrorToMessage(err, failureMessage));
         } finally {
             setLoading(false);
         }

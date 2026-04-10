@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useState } from "react";
@@ -71,7 +72,7 @@ export default function DashboardPage() {
         setReportCount(Number(reportPagination?.total || 0));
         setPendingBusinessCount(Number(businessOverview.pending || 0));
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to load dashboard data";
+        const message = mapErrorToMessage(err, "Failed to load dashboard data");
         setError(message);
       }
     };

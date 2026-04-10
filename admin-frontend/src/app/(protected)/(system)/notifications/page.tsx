@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -217,7 +218,7 @@ export default function NotificationsPage() {
                 );
             } catch (err) {
                 setRecipientResults([]);
-                setRecipientSearchError(err instanceof Error ? err.message : "Failed to search users");
+                setRecipientSearchError(mapErrorToMessage(err, "Failed to search users"));
             } finally {
                 setRecipientSearchLoading(false);
             }
@@ -274,7 +275,7 @@ export default function NotificationsPage() {
             }
             void fetchHistory();
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to send notification");
+            setError(mapErrorToMessage(err, "Failed to send notification"));
         } finally {
             setSending(false);
         }

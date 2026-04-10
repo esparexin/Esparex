@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useState } from "react";
@@ -90,7 +91,7 @@ export default function InvoicesPage() {
           });
           setError("");
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to load invoices");
+          setError(mapErrorToMessage(err, "Failed to load invoices"));
         } finally {
           setLoading(false);
         }

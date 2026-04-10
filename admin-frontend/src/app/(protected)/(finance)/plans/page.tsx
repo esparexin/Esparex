@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useState } from "react";
@@ -68,7 +69,7 @@ export default function PlansPage() {
             const parsed = parseAdminResponse<Plan>(response);
             setPlans(parsed.items);
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to load plans");
+            setError(mapErrorToMessage(err, "Failed to load plans"));
         } finally {
             setLoading(false);
         }
@@ -109,7 +110,7 @@ export default function PlansPage() {
             });
             void fetchPlans();
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to toggle plan status");
+            setError(mapErrorToMessage(err, "Failed to toggle plan status"));
         }
     };
 

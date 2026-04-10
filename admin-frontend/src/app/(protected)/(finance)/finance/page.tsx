@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useState } from "react";
@@ -83,7 +84,7 @@ export default function FinancePage() {
             });
             setStats(statsData);
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to load finance data");
+            setError(mapErrorToMessage(err, "Failed to load finance data"));
         } finally {
             setLoading(false);
         }

@@ -1,3 +1,4 @@
+import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 "use client";
 
 import { useEffect, useState } from "react";
@@ -44,7 +45,7 @@ export default function RevenuePage() {
         setStats(aggregated);
         setError("");
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load revenue analytics");
+        setError(mapErrorToMessage(err, "Failed to load revenue analytics"));
       } finally {
         setLoading(false);
       }

@@ -152,13 +152,17 @@ export function createLimiter({
     windowMs,
     max,
     keyPrefix,
-    keyGenerator
+    keyGenerator,
+    errorCode
 }: {
     windowMs: number;
     max: number;
     keyPrefix: string;
     keyGenerator?: (req: Request) => string;
+    /** Machine-readable code included in the 429 response body. Defaults to RATE_LIMITED. */
+    errorCode?: string;
 }) {
+    const code = errorCode ?? 'RATE_LIMITED';
     return rateLimit({
         windowMs,
         max,
@@ -169,7 +173,7 @@ export function createLimiter({
         validate: keyGenerator ? false : { ip: false },
         handler: (req: Request, res: Response) => {
             const retryAfterSeconds = resolveRetryAfterSeconds(req, Math.ceil(windowMs / 1000));
-            respondRateLimited(req, res, 'Too many requests. Please try again later.', keyPrefix.replace(':', ''), { retryAfterSeconds });
+            respondRateLimited(req, res, 'Too many requests. Please try again later.', keyPrefix.replace(':', ''), { retryAfterSeconds, code });
         }
     });
 }
@@ -187,7 +191,7 @@ export const globalLimiter = rateLimit({
     },
     handler: (req: Request, res: Response) => {
         const retryAfterSeconds = resolveRetryAfterSeconds(req, 60);
-        respondRateLimited(req, res, 'Too many requests globally, please try again later.', 'global', { retryAfterSeconds });
+        respondRateLimited(req, res, 'Too many requests globally, please try again later.', 'global', { retryAfterSeconds, code: 'RATE_LIMIT_EXCEEDED' });
     }
 });
 
@@ -307,7 +311,8 @@ export const paymentRateLimiter = createLimiter({
 export const otpIpLimiter = createLimiter({
     windowMs: 10 * 60 * 1000,
     max: process.env.NODE_ENV === 'production' ? 5 : 15,
-    keyPrefix: 'otp:ip:'
+    keyPrefix: 'otp:ip:',
+    errorCode: 'OTP_SEND_IP_RATE_LIMIT'
 });
 
 /** Mobile-keyed limiter for /send-otp — isolated from verify-otp bucket */
@@ -315,6 +320,7 @@ export const otpSendLimiter = createLimiter({
     windowMs: 10 * 60 * 1000,
     max: process.env.NODE_ENV === 'production' ? 5 : 15,
     keyPrefix: 'otp:send:',
+    errorCode: 'OTP_SEND_MOBILE_RATE_LIMIT',
     keyGenerator: (req: Request) => {
         const mobile = (req.body?.mobile as string | undefined)?.trim().replace(/\D/g, '').slice(-10);
         return mobile || req.ip || 'unknown';
@@ -326,6 +332,7 @@ export const otpVerifyLimiter = createLimiter({
     windowMs: 10 * 60 * 1000,
     max: process.env.NODE_ENV === 'production' ? 10 : 30,
     keyPrefix: 'otp:verify:',
+    errorCode: 'OTP_VERIFY_RATE_LIMIT',
     keyGenerator: (req: Request) => {
         const mobile = (req.body?.mobile as string | undefined)?.trim().replace(/\D/g, '').slice(-10);
         return mobile || req.ip || 'unknown';
