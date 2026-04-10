@@ -25,17 +25,19 @@ export const getLocations = async (filters: LocationFilters & { page?: number; l
 export const getLocationOptions = async (
     filters: LocationFilters & { page?: number; limit?: number } = {}
 ): Promise<Location[]> => {
-    const response = await getLocations({
-        page: 1,
-        limit: 200,
-        ...filters,
-    });
+    try {
+        const response = await getLocations({
+            page: 1,
+            limit: 100,
+            ...filters,
+        });
 
-    if (!response.success) {
+        // Some payloads use { data: { items } }, parseAdminResponse normalizes this
+        return parseAdminResponse<Location>(response).items;
+    } catch (error) {
+        console.error("getLocationOptions failed:", error);
         return [];
     }
-
-    return parseAdminResponse<Location>(response).items;
 };
 
 export const getDistinctStates = async (): Promise<string[]> => {

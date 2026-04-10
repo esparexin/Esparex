@@ -87,7 +87,7 @@ function LocationFormFields({
                 level: "city",
                 state: parentState.name,
                 status: "active",
-                limit: 200,
+                limit: 100,
             });
 
             if (active) {
@@ -268,7 +268,7 @@ function LocationsPageContent({
             const nextStates = await getLocationOptions({
                 level: "state",
                 status: "active",
-                limit: 200,
+                limit: 100,
             });
 
             if (active) {
