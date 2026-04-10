@@ -8,7 +8,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as adService from '../../services/AdService';
 import * as adStatusService from '../../services/adStatusService';
 import * as AdOrchestrator from '../../services/AdOrchestrator';
-import AdModel from '../../models/Ad';
+
 import Business from '../../models/Business';
 import { isBusinessPublishedStatus } from '../../utils/businessStatus';
 import { respond } from '../../utils/respond';
@@ -132,11 +132,7 @@ export const deleteAd = async (req: Request, res: Response, next: NextFunction) 
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
 
-        // Optimization: checking specific fields only
-        const adToCheck = await AdModel.findById(id).select('sellerId');
-        if (!adToCheck) return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
-        if (adToCheck.sellerId.toString() !== (req.user as IAuthUser)._id.toString())
-            return sendClientError(req, res, 403, 'Unauthorized', 'UNAUTHORIZED');
+        await adService.assertOwnership(id, (req.user as IAuthUser)._id.toString());
 
         // Use canonical adStatusService (not deprecated adService.deleteAd)
         const ad = await adStatusService.deleteAd(id, (req.user as IAuthUser)._id.toString(), 'user');

@@ -1,6 +1,16 @@
 import mongoose from 'mongoose';
 import logger from '../utils/logger';
 
+interface MongooseHookContext {
+    model?: { 
+        modelName: string;
+        db?: { models?: Record<string, unknown> };
+    };
+    _model?: { modelName: string };
+    _startTime?: number;
+    op?: string;
+}
+
 const ADMIN_OWNED_REF_MODEL_BY_PATH: Record<string, 'Category' | 'Brand' | 'Model'> = {
     categoryId: 'Category',
     categoryIds: 'Category',
@@ -62,7 +72,7 @@ const installPopulateGovernanceGuard = () => {
     };
     const originalPopulate = queryProto.populate;
 
-    queryProto.populate = function patchedPopulate(this: any, ...args: unknown[]) {
+    queryProto.populate = function patchedPopulate(this: MongooseHookContext, ...args: unknown[]) {
         const modelName = this?.model?.modelName as string | undefined;
         const connectionModels = (this?.model?.db?.models ?? {}) as Record<string, unknown>;
 
@@ -88,11 +98,11 @@ installPopulateGovernanceGuard();
 
 // Apply global mongoose plugin to track query execution time
 mongoose.plugin((schema) => {
-    schema.pre(/^find|count|updateOne|updateMany|deleteOne|deleteMany|findOneAndUpdate/, function (this: any) {
+    schema.pre(/^find|count|updateOne|updateMany|deleteOne|deleteMany|findOneAndUpdate/, function (this: MongooseHookContext) {
         this._startTime = Date.now();
     });
 
-    schema.post(/^find|count|updateOne|updateMany|deleteOne|deleteMany|findOneAndUpdate/, function (this: any) {
+    schema.post(/^find|count|updateOne|updateMany|deleteOne|deleteMany|findOneAndUpdate/, function (this: MongooseHookContext) {
         if (this._startTime) {
             const time = Date.now() - this._startTime;
             const modelName = this.model?.modelName || 'Unknown';
@@ -109,14 +119,16 @@ mongoose.plugin((schema) => {
     });
 
     // Aggregations
-    schema.pre('aggregate', function (this: any) {
-        this._startTime = Date.now();
+    schema.pre('aggregate', function () {
+        const ctx = this as unknown as MongooseHookContext;
+        ctx._startTime = Date.now();
     });
 
-    schema.post('aggregate', function (this: any) {
-        if (this._startTime) {
-            const time = Date.now() - this._startTime;
-            const modelName = this._model?.modelName || 'Unknown';
+    schema.post('aggregate', function () {
+        const ctx = this as unknown as MongooseHookContext;
+        if (ctx._startTime) {
+            const time = Date.now() - ctx._startTime;
+            const modelName = ctx._model?.modelName || 'Unknown';
             const isLocationModel = modelName === 'Location';
             const warnThresholdMs = isLocationModel ? 800 : 300;
             const errorThresholdMs = isLocationModel ? 2000 : 1000;

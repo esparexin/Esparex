@@ -388,6 +388,8 @@ export const invalidateLocationCaches = async (): Promise<void> => {
     ]);
 };
 
+const buildProbeKey = (): string => `${CACHE_NAMESPACES.SYSTEM}:health:probe:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`;
+
 export const getRedisHealthProbe = async (): Promise<{
     connected: boolean;
     pingOk: boolean;
@@ -405,7 +407,7 @@ export const getRedisHealthProbe = async (): Promise<{
         };
     }
 
-    const probeKey = `${CACHE_NAMESPACES.SYSTEM}:health:probe:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`;
+    const probeKey = buildProbeKey();
     const probeValue = Date.now().toString(36);
     const startedAt = Date.now();
 
@@ -447,6 +449,25 @@ export const delCache = async (key: string): Promise<boolean> => {
     } catch {
         cacheMetrics.errors++;
         return false;
+    }
+};
+
+const auditKeyTtl = async (key: string): Promise<{ ttl: number | null; autoFixed: boolean }> => {
+    try {
+        const ttl = await client.ttl(key);
+        if (ttl === -1) {
+            const fallbackTtl = getDefaultTtlForKey(key);
+            if (fallbackTtl && fallbackTtl > 0) {
+                const repaired = await client.expire(key, fallbackTtl);
+                if (repaired === 1) {
+                    return { ttl: fallbackTtl, autoFixed: true };
+                }
+            }
+        }
+        return { ttl, autoFixed: false };
+    } catch {
+        cacheMetrics.errors++;
+        return { ttl: null, autoFixed: false };
     }
 };
 
@@ -494,27 +515,15 @@ export const getCacheStats = async () => {
             const sampledKeys = Array.from(sampled);
             if (sampledKeys.length > 0) {
                 let keysAutoFixed = 0;
-                const ttlValues = await Promise.all(
-                    sampledKeys.map(async (key) => {
-                        try {
-                            const ttl = await client.ttl(key);
-                            if (ttl === -1) {
-                                const fallbackTtl = getDefaultTtlForKey(key);
-                                if (fallbackTtl && fallbackTtl > 0) {
-                                    const repaired = await client.expire(key, fallbackTtl);
-                                    if (repaired === 1) {
-                                        keysAutoFixed += 1;
-                                        return fallbackTtl;
-                                    }
-                                }
-                            }
-                            return ttl;
-                        } catch {
-                            cacheMetrics.errors++;
-                            return null;
-                        }
-                    })
+                const results = await Promise.all(
+                    sampledKeys.map(key => auditKeyTtl(key))
                 );
+                
+                for (const res of results) {
+                    if (res.autoFixed) keysAutoFixed += 1;
+                }
+                const ttlValues = results.map(res => res.ttl);
+
                 ttlAudit = {
                     sampledKeys: sampledKeys.length,
                     keysWithoutTtl: ttlValues.filter((ttl) => ttl === -1).length,

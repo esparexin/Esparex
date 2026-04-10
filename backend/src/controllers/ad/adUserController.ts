@@ -7,7 +7,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as adService from '../../services/AdService';
 import * as adImageService from '../../services/AdImageService';
-import AdModel from '../../models/Ad';
+
 import { respond } from '../../utils/respond';
 import { getSingleParam } from '../../utils/requestParams';
 import { Ad } from '../../../../shared/schemas/ad.schema';
@@ -92,13 +92,7 @@ export const markAsSold = async (req: Request, res: Response, next: NextFunction
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
 
-        const adToCheck = await AdModel.findById(id).select('sellerId status');
-        if (!adToCheck) {
-            return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
-        }
-        if (adToCheck.sellerId.toString() !== (req.user as IAuthUser)._id.toString()) {
-            return sendClientError(req, res, 403, 'Unauthorized', 'UNAUTHORIZED');
-        }
+        const adToCheck = await adService.assertOwnership(id, (req.user as IAuthUser)._id.toString());
         validateTransition('ad', adToCheck.status as any, 'sold');
 
         const ad = await adService.updateAdStatus(id, 'sold', {
@@ -215,11 +209,6 @@ export const promoteAd = async (req: Request, res: Response, next: NextFunction)
 
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const adToCheck = await AdModel.findById(id).select('sellerId');
-        if (!adToCheck) {
-            return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
-        }
-
         const isAdmin = (req.user as IAuthUser).isAdmin || (req.user as IAuthUser).role === 'admin' || (req.user as IAuthUser).role === 'super_admin';
         const userId = (req.user as IAuthUser)._id.toString();
 
