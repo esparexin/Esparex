@@ -12,12 +12,48 @@ services:
         value: production
       - key: PORT
         value: 10000
+
+      # ── Core ──────────────────────────────────────────────────────────────
       - key: MONGODB_URI
-        sync: false # Set this in the Render Dashboard for security
+        sync: false   # MongoDB Atlas connection string
       - key: JWT_SECRET
-        sync: false # Set this in the Render Dashboard for security
+        sync: false   # Strong random string (32+ chars)
+      - key: OTP_HASH_SECRET
+        sync: false   # Strong random string for OTP hashing (32+ chars)
+
+      # ── Redis (required in production) ────────────────────────────────────
+      - key: REDIS_URL
+        sync: false   # e.g. rediss://:<password>@<host>:6379 (Upstash / Render Redis)
+
+      # ── CORS & Cookie ─────────────────────────────────────────────────────
       - key: CORS_ORIGIN
-        sync: false # Set this in the Render Dashboard: https://esparex.in
+        sync: false   # e.g. https://esparex.in,https://admin.esparex.in
+      - key: COOKIE_DOMAIN
+        sync: false   # e.g. .esparex.in  (leading dot covers all subdomains)
+      - key: FRONTEND_URL
+        sync: false   # e.g. https://esparex.in
+      - key: ADMIN_FRONTEND_URL
+        sync: false   # e.g. https://admin.esparex.in
+
+      # ── AWS / S3 (required when any S3 var is present) ────────────────────
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false   # e.g. ap-south-1
+      - key: S3_BUCKET_NAME
+        sync: false   # canonical bucket name (replaces legacy AWS_S3_BUCKET)
+
+      # ── Payments ──────────────────────────────────────────────────────────
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
+      # ── Optional / feature flags ──────────────────────────────────────────
+      - key: USE_DEFAULT_OTP
+        value: "false"   # MUST be false in production
+      - key: ATLAS_LOCATION_SEARCH_INDEX
+        sync: false   # Atlas Search index name (default: location_autocomplete)
 
   # --- Keep-alive cron (prevents free-tier cold starts) ---
   - type: cron
