@@ -75,13 +75,14 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
     // Production environment: strict validation
     if (isProduction) {
         if (useDefaultOtp === true) {
-            const errorMsg = '🚨 CRITICAL: USE_DEFAULT_OTP=true is set in production. Static OTP must never be enabled in production.';
-            bootstrapLogger.error(errorMsg);
-            otpGuardState.isSafeToProceed = false;
-            otpGuardState.isConfigured = false;
-            throw new Error(
-                'OTP Configuration Error: USE_DEFAULT_OTP must be false in production. Remove the static OTP override and configure MSG91 credentials.'
-            );
+            // DLT pending — allow startup with a loud warning.
+            // AuthService already skips SMS dispatch when USE_DEFAULT_OTP=true.
+            const warning = '⚠️  USE_DEFAULT_OTP=true in production. Static OTP active — disable after DLT/MSG91 approval.';
+            bootstrapLogger.warn(warning);
+            otpGuardState.warnings.push(warning);
+            otpGuardState.isSafeToProceed = true;
+            otpGuardState.isConfigured = true;
+            return;
         }
 
         const missingKeys: string[] = [];
