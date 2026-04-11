@@ -8,10 +8,11 @@
  * Data source (built-in default):
  *   https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson
  *
- * Or provide a local file path via --file=/path/to/india_states.geojson
+ * Or provide a local file path as an extra arg:
+ *   npm run ops -- admin-boundary-ingest --apply /path/to/india_states.geojson
  *
  * How it works:
- *   1. Loads GeoJSON (remote URL or local file).
+ *   1. Loads GeoJSON (remote URL or local file from first extra arg).
  *   2. For each Feature, extracts NAME_1 (state name) and geometry.
  *   3. Finds the matching Location document (level=state, name ~= NAME_1).
  *   4. Upserts an AdminBoundary record (locationId + geometry).
@@ -23,8 +24,8 @@
  * Usage (apply):
  *   npm run ops -- admin-boundary-ingest --apply
  *
- * Usage with local file:
- *   npm run ops -- admin-boundary-ingest --apply --file=/path/to/states.geojson
+ * Usage with local file (first positional arg after flags):
+ *   npm run ops -- admin-boundary-ingest --apply /path/to/states.geojson
  */
 
 import mongoose from 'mongoose';
@@ -62,6 +63,13 @@ interface GeoJsonCollection {
     features: GeoJsonFeature[];
 }
 
+interface LocationDoc {
+    _id: mongoose.Types.ObjectId;
+    name: string;
+    level?: string;
+    state?: string;
+}
+
 const resolveStateName = (rawName: string): string =>
     STATE_NAME_ALIASES[rawName] ?? rawName;
 
@@ -76,7 +84,7 @@ const fetchGeoJson = async (source: string): Promise<GeoJsonCollection> => {
                 let data = '';
                 res.on('data', (chunk: string) => { data += chunk; });
                 res.on('end', () => {
-                    try { resolve(JSON.parse(data)); }
+                    try { resolve(JSON.parse(data) as GeoJsonCollection); }
                     catch (e) { reject(e); }
                 });
                 res.on('error', reject);
@@ -96,24 +104,24 @@ export const adminBoundaryIngestCommand: OpsCommand = {
 
     run: async (context: OpsExecutionContext): Promise<OpsCommandResult> => {
         const isDryRun = !context.flags.apply;
-        const fileArg = typeof context.flags.file === 'string' ? context.flags.file : null;
+        // Extra positional arg: first arg that doesn't start with '--'
+        const fileArg = context.args.find((a) => !a.startsWith('--')) ?? null;
         const geoSource = fileArg ?? DEFAULT_GEOJSON_URL;
 
-        const [
-            { default: AdminBoundary },
-        ] = await Promise.all([
+        const [{ default: AdminBoundary }] = await Promise.all([
             import('../../../models/AdminBoundary'),
         ]);
 
-        // Use native driver for Location lookup (no Mongoose model import needed)
-        const db = (mongoose.connection.db) as unknown as {
-            collection: (name: string) => {
-                findOne: (q: object, opts?: object) => Promise<{ _id: mongoose.Types.ObjectId; name: string } | null>;
-                countDocuments: (q: object) => Promise<number>;
+        // Access the raw MongoDB connection for Location lookups (no Mongoose model needed)
+        const db = mongoose.connection.db;
+        if (!db) {
+            return {
+                summary: { mode: isDryRun ? 'DRY_RUN' : 'APPLY', result: 'ERROR', error: 'MongoDB connection not available.' },
+                warnings: [],
+                rollbackGuidance: [],
             };
-        };
-
-        const locations = db.collection<{ _id: mongoose.Types.ObjectId; name: string }>('locations');
+        }
+        const locations = db.collection('locations');
 
         context.emit('ops.command.admin-boundary-ingest.start', {
             mode: isDryRun ? 'DRY_RUN' : 'APPLY',
@@ -131,7 +139,7 @@ export const adminBoundaryIngestCommand: OpsCommand = {
                     result: 'ERROR',
                     error: `Failed to load GeoJSON from ${geoSource}: ${String(err)}`,
                 },
-                warnings: ['Check network access or provide a local --file path.'],
+                warnings: ['Check network access or provide a local file path as the first positional arg.'],
                 rollbackGuidance: [],
             };
         }
@@ -166,13 +174,13 @@ export const adminBoundaryIngestCommand: OpsCommand = {
             const resolvedName = resolveStateName(rawName);
 
             // Find matching Location (state level, name match)
-            const location = await (locations as any).findOne({
+            const location = await locations.findOne({
                 level: 'state',
                 $or: [
                     { name: { $regex: new RegExp(`^${resolvedName}$`, 'i') } },
                     { state: { $regex: new RegExp(`^${resolvedName}$`, 'i') } },
                 ],
-            });
+            }) as LocationDoc | null;
 
             if (!location) {
                 unmatched.push(`${rawName} (resolved: ${resolvedName})`);
@@ -187,7 +195,7 @@ export const adminBoundaryIngestCommand: OpsCommand = {
                     {
                         $set: {
                             name: resolvedName,
-                            level: 'state',
+                            level: 'state' as const,
                             locationId: location._id,
                             geometry: {
                                 type: feature.geometry.type,
