@@ -22,7 +22,8 @@
 
 import mongoose from 'mongoose';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../types';
-import { CATALOG_STATUS, CatalogStatusValue } from '../../../../shared/enums/catalogStatus';
+import { CATALOG_STATUS, CatalogStatusValue } from '@shared/enums/catalogStatus';
+
 
 const TEST_TAG = '[E2E-TEST]';
 const LISTENER_SETTLE_MS = 1500; // time to let the async listener complete
