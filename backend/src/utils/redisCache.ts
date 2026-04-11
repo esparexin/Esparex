@@ -60,9 +60,11 @@ export const CACHE_KEYS = {
     DEFAULT_INDIA: 'location:default:india',
     CATEGORIES: 'catalog:categories:all',
     // Dynamic keys
+    metadata: (type: string, id: string) => `meta:${type}:${id}`,
     searchCity: (query: string) => `loc_search:${query.toLowerCase().trim()}`,
     nearbyCity: (latRounded: number, lngRounded: number) => `location:nearby:city:${latRounded}:${lngRounded}`,
     reverseGeocode: (latRounded: string, lngRounded: string) => `geo:${latRounded}:${lngRounded}`
+
 };
 
 export const CACHE_TTLS = {
@@ -300,6 +302,52 @@ export const setCache = async (key: string, value: unknown, ttlSeconds: number =
         return false;
     }
 };
+
+/**
+ * Get multiple items from cache using MGET
+ */
+export const getMultiCache = async <T>(keys: string[]): Promise<(T | null)[]> => {
+    if (!isConnected || keys.length === 0) return keys.map(() => null);
+
+    try {
+        const results = await client.mget(...keys);
+        return results.map(data => {
+            if (data) {
+                cacheMetrics.hits++;
+                try {
+                    return JSON.parse(data) as T;
+                } catch {
+                    return null;
+                }
+            }
+            cacheMetrics.misses++;
+            return null;
+        });
+    } catch {
+        cacheMetrics.errors++;
+        return keys.map(() => null);
+    }
+};
+
+/**
+ * Set multiple items in cache using MSET with shared TTL (pipelined)
+ */
+export const setMultiCache = async (entries: { key: string; value: unknown }[], ttlSeconds: number = 3600): Promise<boolean> => {
+    if (!isConnected || entries.length === 0) return false;
+
+    try {
+        const pipeline = client.pipeline();
+        entries.forEach(entry => {
+            pipeline.set(entry.key, JSON.stringify(entry.value), 'EX', ttlSeconds);
+        });
+        await pipeline.exec();
+        return true;
+    } catch {
+        cacheMetrics.errors++;
+        return false;
+    }
+};
+
 
 const deleteKeysInBatches = async (keys: string[]): Promise<number> => {
     if (!isConnected || keys.length === 0) return 0;

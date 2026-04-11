@@ -36,6 +36,8 @@ export function useCategoryDependents(
 
         form.setValue("brand", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         setSpareParts([]);
         form.setValue("spareParts", [] as any, { shouldValidate: true, shouldDirty: true });
@@ -56,6 +58,8 @@ export function useCategoryDependents(
 
         setSpareParts([]);
         form.setValue("spareParts", [] as any, { shouldValidate: true, shouldDirty: true });
+        form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
         setBrandIsPending(false);
     }, [form, brandMap, setFormError, setSpareParts, setBrandIsPending]);
 

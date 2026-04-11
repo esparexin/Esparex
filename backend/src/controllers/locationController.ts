@@ -229,20 +229,23 @@ export const ipLocate = async (req: Request, res: Response) => {
             return res.json(respond({ success: false, data: null }));
         }
 
+        const response = formatCanonicalLocationResponse({
+            city: String(data.city),
+            state: String(data.region),
+            country: String(data.country_name || 'Unknown'),
+            coordinates: { type: 'Point', coordinates: [lng, lat] }
+        });
+
         return res.json(respond({
             success: true,
-            data: {
-                city: data.city,
-                state: data.region,
-                country: data.country_name || 'Unknown',
-                coordinates: { type: 'Point', coordinates: [lng, lat] as [number, number] },
-            },
+            data: response
         }));
     } catch (error: unknown) {
         logger.error('ipLocate error', { error: error instanceof Error ? error.message : String(error) });
         return res.json(respond({ success: false, data: null }));
     }
 };
+
 
 export const getDefaultCenter = async (req: Request, res: Response) => {
     try {

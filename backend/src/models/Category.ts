@@ -65,7 +65,9 @@ CategorySchema.index({ slug: 1 }, {
 CategorySchema.index({ parentId: 1 }, { name: 'idx_category_parent' });
 CategorySchema.index({ type: 1, isActive: 1 }, { name: 'idx_category_type_active' });
 CategorySchema.index({ status: 1 }, { name: 'idx_category_status' });
+CategorySchema.index({ isDeleted: 1, isActive: 1 }, { name: 'idx_category_isDeleted_isActive' });
 CategorySchema.index({ isDeleted: 1 }, { name: 'idx_category_isDeleted' });
+
 CategorySchema.index({ listingType: 1 }, { name: 'idx_category_listingType' });
 CategorySchema.index(
     { name: 1 },

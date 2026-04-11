@@ -74,18 +74,28 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
         .select('locationId level')
         .lean<Array<{ locationId: mongoose.Types.ObjectId; level: HierarchyLevel }>>();
 
-    if (boundaries.length === 0) return null;
+    if (boundaries.length === 0) {
+        logger.warn('No AdminBoundary found for coordinates; falling back to nearest point search.', { lat, lng });
+        return null;
+    }
 
     const boundary = [...boundaries].sort(
         (a, b) => (REVERSE_GEOCODE_LEVEL_PRIORITY[b.level] || 0) - (REVERSE_GEOCODE_LEVEL_PRIORITY[a.level] || 0)
     )[0];
 
     const location = await getPublicCanonicalLocationById(boundary?.locationId);
-    if (!location) return null;
+    if (!location) {
+        logger.warn('AdminBoundary matched but parent location is missing or inactive.', { 
+            boundaryId: boundary?.locationId,
+            coordinates: { lat, lng }
+        });
+        return null;
+    }
 
     const [mappedBoundaryLocation] = await mapLocationDocsToResponses([location as LocationInputObject]);
     return mappedBoundaryLocation || null;
 };
+
 
 const findNearestReverseGeocodeCandidate = async (
     lat: number,

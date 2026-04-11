@@ -13,7 +13,7 @@ import { touchLocationSearchAnalytics } from '../location/LocationAnalyticsServi
 import { buildGeoNearStage, normalizeGeoInput } from '../../utils/GeoUtils';
 import { normalizeAdStatus } from '../adStatusService';
 import { buildAdFilterFromCriteria, AdFilterCriteria } from '../../utils/adFilterHelper';
-import { getCache, setCache } from '../../utils/redisCache';
+import { getCache, setCache, getMultiCache, setMultiCache, CACHE_KEYS } from '../../utils/redisCache';
 import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
 import { type ListingTypeValue } from '../../../../shared/enums/listingType';
 import logger from '../../utils/logger';
@@ -68,6 +68,56 @@ export interface HydratedAd {
     [key: string]: any; // Relaxed for Mongoose Document & Aggregate compatibility
 }
 
+/**
+ * Helper to fetch metadata with batch caching
+ */
+async function fetchMetadataWithCache<T>(
+    ids: Set<string>,
+    type: string,
+    query: (missingIds: string[]) => Promise<T[]>,
+    idField: string = '_id'
+): Promise<T[]> {
+    if (ids.size === 0) return [];
+
+    const idArray = Array.from(ids);
+    const cacheKeys = idArray.map(id => CACHE_KEYS.metadata(type, id));
+
+    const cachedResults = await getMultiCache<T>(cacheKeys);
+    const results: T[] = [];
+    const missingIds: string[] = [];
+
+    cachedResults.forEach((val, index) => {
+        if (val) {
+            results.push(val);
+        } else {
+            const id = idArray[index];
+            if (id) missingIds.push(id);
+        }
+    });
+
+
+    if (missingIds.length > 0) {
+        try {
+            const fetched = await query(missingIds);
+            results.push(...fetched);
+
+            // Cache misses
+            const entries = fetched.map(item => ({
+                key: CACHE_KEYS.metadata(type, (item as any)[idField].toString()),
+                value: item
+            }));
+            if (entries.length > 0) {
+                // Background cache update - 6 Hours TTL for catalog metadata (rarely changes)
+                setMultiCache(entries, 21600).catch(err => logger.warn(`Metadata cache update failed for ${type}`, err));
+            }
+        } catch (error) {
+            logger.error(`Database fetch failed for metadata ${type}`, error);
+        }
+    }
+
+    return results;
+}
+
 export async function hydrateAdMetadata(ads: HydratedAd[]) {
     if (!ads || ads.length === 0) return ads;
 
@@ -91,7 +141,6 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
     };
 
     ads.forEach(ad => {
-        // Support both canonical *Id fields and legacy/denormalized fields
         const catId = extractId(ad.categoryId || ad.category);
         if (catId) categoryIds.add(catId);
 
@@ -119,21 +168,22 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
     });
 
     const [categories, brands, models, spareParts, serviceTypes] = await Promise.all([
-        categoryIds.size > 0 
-            ? Category.find({ _id: { $in: Array.from(categoryIds) } }).select('name slug').lean() 
-            : Promise.resolve([]),
-        brandIds.size > 0 
-            ? Brand.find({ _id: { $in: Array.from(brandIds) } }).select('name slug').lean() 
-            : Promise.resolve([]),
-        modelIds.size > 0 
-            ? ProductModel.find({ _id: { $in: Array.from(modelIds) } }).select('name slug').lean() 
-            : Promise.resolve([]),
-        sparePartIds.size > 0 
-            ? SparePart.find({ _id: { $in: Array.from(sparePartIds) } }).lean() 
-            : Promise.resolve([]),
-        serviceTypeIds.size > 0
-            ? (await import('../../models/ServiceType')).default.find({ _id: { $in: Array.from(serviceTypeIds) } }).select('name').lean()
-            : Promise.resolve([])
+        fetchMetadataWithCache(categoryIds, 'category', (missing) => 
+            Category.find({ _id: { $in: missing } }).select('name slug').lean()
+        ),
+        fetchMetadataWithCache(brandIds, 'brand', (missing) => 
+            Brand.find({ _id: { $in: missing } }).select('name slug').lean()
+        ),
+        fetchMetadataWithCache(modelIds, 'model', (missing) => 
+            ProductModel.find({ _id: { $in: missing } }).select('name slug').lean()
+        ),
+        fetchMetadataWithCache(sparePartIds, 'sparepart', (missing) => 
+            SparePart.find({ _id: { $in: missing } }).lean()
+        ),
+        fetchMetadataWithCache(serviceTypeIds, 'servicetype', async (missing) => {
+            const ServiceType = (await import('../../models/ServiceType')).default;
+            return ServiceType.find({ _id: { $in: missing } }).select('name').lean();
+        })
     ]);
 
     const categoryMap = new Map<string, any>(categories.map((c: any) => [String(c._id), c]));
@@ -141,6 +191,7 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
     const modelMap = new Map<string, any>(models.map((m: any) => [String(m._id), m]));
     const sparePartMap = new Map<string, any>(spareParts.map((s: any) => [String(s._id), s]));
     const serviceTypeMap = new Map<string, any>(serviceTypes.map((st: any) => [String(st._id), st]));
+
 
     ads.forEach(ad => {
         const catId = extractId(ad.categoryId || ad.category);
