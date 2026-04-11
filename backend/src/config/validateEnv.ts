@@ -7,6 +7,7 @@ const REQUIRED_PRODUCTION_ENV_VARS = [
     'JWT_SECRET',
     'REDIS_URL',
     'MONGODB_URI',
+    'ADMIN_MONGODB_URI',
     'AWS_ACCESS_KEY_ID',
     'AWS_SECRET_ACCESS_KEY',
     'S3_BUCKET_NAME',
@@ -31,15 +32,15 @@ export function validateS3BucketEnvAliasOrThrow(sourceEnv: NodeJS.ProcessEnv): v
 
     if (legacyBucket && !canonicalBucket) {
         bootstrapLogger.warn(
-            '⚠️ Deprecated env var detected: AWS_S3_BUCKET. Mirroring it to S3_BUCKET_NAME for backward compatibility.'
+            '⚠️  DEPRECATION: AWS_S3_BUCKET is deprecated. Please rename it to S3_BUCKET_NAME in your environment configuration.'
         );
         sourceEnv.S3_BUCKET_NAME = legacyBucket;
         return;
     }
 
     if (legacyBucket && canonicalBucket && legacyBucket !== canonicalBucket) {
-        bootstrapLogger.warn(
-            '⚠️ Both AWS_S3_BUCKET and S3_BUCKET_NAME are set with different values. S3_BUCKET_NAME will be used.'
+        bootstrapLogger.info(
+            'ℹ️  S3 CONFIG: Both AWS_S3_BUCKET and S3_BUCKET_NAME are set. Using S3_BUCKET_NAME.'
         );
     }
 }

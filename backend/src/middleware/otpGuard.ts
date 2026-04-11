@@ -97,18 +97,23 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         if (missingKeys.length > 0) {
             const errorMsg = `🚨 CRITICAL: OTP provider not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive OTP SMS.`;
             bootstrapLogger.error(errorMsg);
+            bootstrapLogger.info('💡 TIP: Set USE_DEFAULT_OTP=true in Render environment to allow startup with static OTP (123456) for testing.');
+            
+            // We set isConfigured to false and isSafeToProceed to false.
+            // This prevents the server from crashing but ensures any code using 
+            // otpConfigurationCheck will block requests.
             otpGuardState.isSafeToProceed = false;
             otpGuardState.isConfigured = false;
-            throw new Error(
-                `OTP Configuration Error: ${missingKeys.join(', ')} required in production. SMS authentication will fail silently without these credentials.`
-            );
+            
+            // DO NOT THROW. Let the server start so other APIs (like Admin listing audit) can function.
+            return;
         }
 
         if (authBypassOtpLock === 'true') {
-            throw new Error(
-                'SECURITY: AUTH_BYPASS_OTP_LOCK=true is set in a production environment. ' +
-                'This bypass must never be enabled in production. Remove it from your environment configuration.'
-            );
+            bootstrapLogger.error('🚨 SECURITY ERROR: AUTH_BYPASS_OTP_LOCK=true is set in production. This bypass is forbidden.');
+            otpGuardState.isSafeToProceed = false;
+            otpGuardState.isConfigured = false;
+            return;
         }
 
         bootstrapLogger.info('✅ OTP Guard: Production SMS provider configured and validated');

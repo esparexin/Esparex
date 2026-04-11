@@ -18,9 +18,10 @@ export const startScheduler = async () => {
         const acquired = await redis.set(SCHEDULER_LOCK_KEY, schedulerLockToken, 'EX', SCHEDULER_LOCK_TTL_SECONDS, 'NX');
 
         if (acquired !== 'OK') {
-            logger.error('Scheduler lock already exists in Redis. Another scheduler instance is already running.');
-            logger.error('Per single-instance policy, gracefully exiting this backend instance.');
-            process.exit(1);
+            logger.warn('Scheduler lock already exists in Redis. Another scheduler instance is already running.');
+            logger.warn('Will retry acquiring the lock in the background...');
+            setTimeout(() => startScheduler().catch(err => logger.error('Retry failed', { err })), 15000);
+            return;
         }
 
         holdsSchedulerLock = true;

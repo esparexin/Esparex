@@ -52,18 +52,27 @@ if (isProd && !process.env.ADMIN_MONGODB_URI) {
 }
 
 if (isProd) {
-    const uris = [process.env.MONGODB_URI, process.env.ADMIN_MONGODB_URI];
-    for (const uri of uris) {
-        if (!uri) continue;
+    const mongoUri = process.env.MONGODB_URI;
+    const adminUri = process.env.ADMIN_MONGODB_URI;
+
+    const validateUri = (uri: string | undefined, label: string) => {
+        if (!uri) return;
         if (uri.includes('root:')) {
-            throw new Error('❌ Root user detected in MONGODB_URI. Use a least-privilege DB user.');
+            throw new Error(`🚨 SECURITY ERROR: Root user detected in ${label} MONGODB_URI. Use a least-privilege DB user.`);
         }
         if (!uri.includes('tls=true') && !uri.includes('ssl=true')) {
-            logger.warn('⚠️ MONGODB_URI should enforce tls=true or ssl=true in production.');
+            logger.warn(`⚠️  SECURITY: ${label} MONGODB_URI should enforce tls=true or ssl=true in production.`);
         }
         if (!uri.includes('authMechanism=SCRAM')) {
-            logger.warn('⚠️ MONGODB_URI should explicitly use authMechanism=SCRAM-SHA-256 for secure handshakes.');
+            logger.warn(`⚠️  SECURITY: ${label} MONGODB_URI should explicitly use authMechanism=SCRAM-SHA-256 for secure handshakes.`);
         }
+    };
+
+    validateUri(mongoUri, 'Main');
+    
+    // Only validate Admin URI separately if it's different from Main URI to avoid duplicate logs
+    if (adminUri !== mongoUri) {
+        validateUri(adminUri, 'Admin');
     }
 }
 
