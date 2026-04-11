@@ -33,6 +33,7 @@ export interface DeviceModel {
     name: string;
     brandId?: string;
     categoryId?: string;
+    status?: string;
 }
 
 export interface ScreenSize {
@@ -114,10 +115,14 @@ export async function getBrands(categoryId: string): Promise<Brand[]> {
     }
 }
 
-export async function getModels(brandId: string, categoryId?: string): Promise<DeviceModel[]> {
+export async function getModels(brandId: string, categoryId?: string, search?: string): Promise<DeviceModel[]> {
     try {
         const response = await apiClient.get(API_ROUTES.USER.MODELS_BASE, {
-            params: { brandId, ...(categoryId && { categoryId }) },
+            params: { 
+                brandId, 
+                ...(categoryId && { categoryId }),
+                ...(search && { search })
+            },
         });
         return unwrapArrayPayload<DeviceModel>(response).map((model) => ({
             ...model,

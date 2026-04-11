@@ -4,6 +4,7 @@ import { registerSearchIndexListener } from './listeners/SearchIndexListener';
 import { registerWebsocketNotifierListener } from './listeners/WebsocketNotifierListener';
 import { registerNotificationTriggerListener } from './listeners/NotificationTriggerListener';
 import { registerSellerListingNotificationListener } from './listeners/SellerListingNotificationListener';
+import { installCatalogPromotionListener } from './listeners/CatalogPromotionListener';
 
 /**
  * Initializes the Central Lifecycle Event System
@@ -16,8 +17,10 @@ export const initializeEventDispatcher = () => {
         registerWebsocketNotifierListener();
         registerNotificationTriggerListener();
         registerSellerListingNotificationListener();
+        installCatalogPromotionListener();
         
         logger.info('🎯 [LifecycleEventSystem] Successfully initialized all dispatch listeners.');
+
     } catch (error) {
         logger.error('Failed to initialize LifecycleEventSystem:', { error });
     }

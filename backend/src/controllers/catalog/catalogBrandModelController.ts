@@ -372,10 +372,10 @@ export const getModels = async (req: Request, res: Response) => {
     }
 
     const publicQuery: QueryRecord = {
-        isActive: true,
+        isDeleted: { $ne: true },
         $or: [
-            { status: CATALOG_STATUS.ACTIVE },
-            { status: { $exists: false } }
+            { status: CATALOG_STATUS.ACTIVE, isActive: true },
+            { status: CATALOG_STATUS.PENDING }
         ]
     };
     if (!isAdminView) {
@@ -595,26 +595,21 @@ export const suggestModel = async (req: Request, res: Response) => {
 
         const cleanName = validation.cleanName;
 
-        // Existing check
+        // Check if model already exists (Active or Pending) regardless of who suggested it
         const existing = await Model.findOne({
             name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
             brandId,
-            status: CATALOG_STATUS.ACTIVE
+            status: { $in: [CATALOG_STATUS.ACTIVE, CATALOG_STATUS.PENDING] }
         }).lean();
 
         if (existing) {
-            return sendCatalogError(req, res, `"${cleanName}" already exists. Select it from the dropdown.`, 409);
-        }
-
-        const alreadyPending = await Model.findOne({
-            name: { $regex: new RegExp(`^${escapeRegExp(cleanName)}$`, 'i') },
-            status: CATALOG_STATUS.PENDING,
-            brandId,
-            suggestedBy: userId
-        }).lean();
-
-        if (alreadyPending) {
-            return sendCatalogError(req, res, 'You already have a pending suggestion for this model.', 409);
+            return res.status(200).json(respond({
+                success: true,
+                message: existing.status === CATALOG_STATUS.ACTIVE 
+                    ? `"${cleanName}" already exists and is active.` 
+                    : `"${cleanName}" is already suggested and awaiting approval.`,
+                data: existing
+            }));
         }
 
         const model = await Model.create({

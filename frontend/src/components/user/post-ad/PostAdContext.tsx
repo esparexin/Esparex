@@ -9,7 +9,7 @@ import {
     useCallback,
     useMemo
 } from "react";
-import type { SparePart } from "@/lib/api/user/masterData";
+import type { SparePart, DeviceModel } from "@/lib/api/user/masterData";
 import { suppressGoogleMapsRetryErrors } from "@/lib/suppress-google-maps-errors";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 // FORM imports
@@ -92,6 +92,7 @@ export interface PostAdContextType {
     dynamicCategories: ListingCategory[];
     categoryMap: Record<string, ListingCategory>;
     availableBrands: string[];
+    availableModels: DeviceModel[];
     availableSizes: string[];
     availableSpareParts: SparePart[];
     isLoadingSpareParts: boolean;
@@ -103,6 +104,7 @@ export interface PostAdContextType {
     requiresScreenSize: boolean;
 
     loadBrandsForCategory: (categoryId: string) => Promise<void>;
+    loadModelsForBrand: (brandId?: string, categoryId?: string, search?: string) => Promise<void>;
     loadSparePartsForCategory: (categoryId: string) => Promise<void>;
     loadCategorySchema: (categoryId: string) => Promise<void>;
 
@@ -143,6 +145,7 @@ export type PostAdStateContextType = Omit<
     | "removeImage"
     | "setLocation"
     | "loadBrandsForCategory"
+    | "loadModelsForBrand"
     | "loadSparePartsForCategory"
     | "loadCategorySchema"
     | "generateDescription"
@@ -170,6 +173,7 @@ export type PostAdActionContextType = Pick<
     | "removeImage"
     | "setLocation"
     | "loadBrandsForCategory"
+    | "loadModelsForBrand"
     | "loadSparePartsForCategory"
     | "loadCategorySchema"
     | "generateDescription"
@@ -268,11 +272,13 @@ export function PostAdProvider({
         dynamicCategories, 
         categoryMap, 
         availableBrands, 
+        availableModels,
         availableSizes, 
         availableSpareParts, 
         isLoadingSpareParts, 
         categorySchema, 
         loadBrandsForCategory, 
+        loadModelsForBrand,
         loadSparePartsForCategory, 
         loadCategorySchema,
         sparePartsError,
@@ -433,7 +439,7 @@ export function PostAdProvider({
             // 'brand' / 'brandId' are optional on the backend but we gate on brand display name
             // so the user always selects one before proceeding.
             case 1: 
-                fieldsToValidate = ["categoryId", "brand", "deviceCondition"] as Path<PostAdFormData>[];
+                fieldsToValidate = ["categoryId", "brand", "model", "deviceCondition"] as Path<PostAdFormData>[];
                 if (requiresScreenSize) fieldsToValidate.push("screenSize" as Path<PostAdFormData>);
                 break;
             // Step 2: Listing details — backend requires title, description, price and a fully
@@ -484,6 +490,7 @@ export function PostAdProvider({
         dynamicCategories,
         categoryMap,
         availableBrands,
+        availableModels,
         availableSizes,
         availableSpareParts,
         isLoadingSpareParts,
@@ -516,6 +523,7 @@ export function PostAdProvider({
         dynamicCategories,
         categoryMap,
         availableBrands,
+        availableModels,
         availableSizes,
         availableSpareParts,
         isLoadingSpareParts,
@@ -548,6 +556,7 @@ export function PostAdProvider({
         removeImage,
         setLocation: setLocation as (display: string, coords?: GeoJSONPoint | undefined, meta?: { city?: string; state?: string; id?: string }) => void,
         loadBrandsForCategory,
+        loadModelsForBrand,
         loadSparePartsForCategory,
         loadCategorySchema,
         generateDescription,
@@ -572,6 +581,7 @@ export function PostAdProvider({
         removeImage,
         setLocation,
         loadBrandsForCategory,
+        loadModelsForBrand,
         loadSparePartsForCategory,
         loadCategorySchema,
         generateDescription,

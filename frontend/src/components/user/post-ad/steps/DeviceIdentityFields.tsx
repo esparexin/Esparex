@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Field } from "@/components/ui/field";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
+import { ModelSearchSelect } from "@/components/user/ModelSearchSelect";
 import { Z_INDEX } from "@/lib/zIndexConfig";
 
 const getNestedFieldMeta = (source: unknown, path: string): unknown =>
@@ -40,16 +41,22 @@ export default function DeviceIdentityFields() {
         stepValidationAttempts,
         currentStep,
         form,
-        sparePartsError,
-        brandsError,
         loadSparePartsForCategory,
         loadBrandsForCategory,
+        brandsError,
+        sparePartsError,
     } = usePostAd();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     // Use brand name (not ID) as value for BrandSearchSelect since PostAd
     // context maps names → IDs internally via handleBrandChange
     const brandNameValue = String(watch("brand") || "");
+    const brandIdValue = String(watch("brandId") || "");
+    
+    // Model state
+    const modelId = String(watch("modelId") || "");
+    const modelNameValue = String(watch("model") || "");
+
     const screenSize = String(watch("screenSize") || "");
     const spareParts = watch("spareParts") || [];
     const deviceCondition = watch("deviceCondition");
@@ -71,6 +78,9 @@ export default function DeviceIdentityFields() {
         ? (errors.brand?.message ?? errors.brandId?.message)
         : undefined;
     const screenSizeError = shouldShowFieldError("screenSize") ? errors.screenSize?.message : undefined;
+    const modelError = shouldShowFieldError("model") || shouldShowFieldError("modelId")
+        ? (errors.model?.message ?? errors.modelId?.message)
+        : undefined;
     const deviceConditionError = shouldShowFieldError("deviceCondition") ? errors.deviceCondition?.message : undefined;
 
     // PostAd tracks brand as name string in form "brand" field.
@@ -83,6 +93,8 @@ export default function DeviceIdentityFields() {
         register("category");
         register("brand");
         register("brandId");
+        register("model");
+        register("modelId");
         register("screenSize");
         register("deviceCondition");
     }, [register]);
@@ -148,6 +160,21 @@ export default function DeviceIdentityFields() {
                                 Try Again
                             </Button>
                         </div>
+                    )}
+
+                    {/* Model — server-side search enabled */}
+                    {brandNameValue && (
+                        <Field label="Model" error={modelError} required>
+                            <ModelSearchSelect
+                                brandId={brandIdValue}
+                                categoryId={categoryId}
+                                value={modelId || modelNameValue}
+                                onChange={(mId, mName) => {
+                                    setValue("modelId", mId as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                    setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                }}
+                            />
+                        </Field>
                     )}
 
                     {/* Screen Size — only for LED-TV / monitor categories */}

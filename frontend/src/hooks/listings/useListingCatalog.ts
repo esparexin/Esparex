@@ -149,14 +149,14 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         }
     }, [categoryMap, onError]);
 
-    const loadModelsForBrand = useCallback(async (brandId?: string, categoryId?: string) => {
+    const loadModelsForBrand = useCallback(async (brandId?: string, categoryId?: string, search?: string) => {
         if (!brandId) {
             setAvailableModels([]);
             return;
         }
         try {
             const { getModels } = await import("@/lib/api/user/masterData");
-            const models = await getModels(brandId, categoryId);
+            const models = await getModels(brandId, categoryId, search);
             setAvailableModels(models);
         } catch (err) {
             logger.error(`[Catalog] Failed to load models for brand ${brandId}:`, err);
