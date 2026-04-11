@@ -302,12 +302,15 @@ export class AuthService {
                 return createFailure(400, 'Invalid OTP', { code: 'OTP_INVALID' });
             }
         } else {
-            if (otpRecord.expiresAt < now) {
+            // otpRecord is guaranteed non-null here (the if(!otpRecord) above handles null).
+            // Non-null assertions silence TS18047 which cannot narrow across the
+            // USE_DEFAULT_OTP early-return branch inside the if-block.
+            if (otpRecord!.expiresAt < now) {
                 // DEV GRACE: If using default OTP, allow expired records to persist for manual testing
                 const isDefaultOtp = env.USE_DEFAULT_OTP && otp === env.DEV_STATIC_OTP;
 
                 if (!isDefaultOtp) {
-                    await Otp.deleteOne({ _id: otpRecord._id });
+                    await Otp.deleteOne({ _id: otpRecord!._id });
                     return createFailure(400, 'OTP expired', {
                         code: 'OTP_EXPIRED'
                     });
@@ -315,14 +318,14 @@ export class AuthService {
                 logger.info('OTP grace: allowing verification of expired record for default OTP');
             }
 
-            if (!isLocalOtpLockBypass && otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
+            if (!isLocalOtpLockBypass && otpRecord!.attempts >= OTP_MAX_ATTEMPTS) {
                 return await handleOtpAttemptFailure(mobileDigits, userFromMobile, now);
             }
 
-            const isOtpValid = verifyOtpHash(otp, otpRecord.otpHash);
+            const isOtpValid = verifyOtpHash(otp, otpRecord!.otpHash);
 
             if (!isOtpValid) {
-                otpRecord.attempts += 1;
+                otpRecord!.attempts += 1;
                 let userLockedUntil: Date | null = null;
 
                 if (userFromMobile) {
@@ -345,15 +348,15 @@ export class AuthService {
                     });
                 }
 
-                if (!isLocalOtpLockBypass && otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
+                if (!isLocalOtpLockBypass && otpRecord!.attempts >= OTP_MAX_ATTEMPTS) {
                     return await handleOtpAttemptFailure(mobileDigits, userFromMobile, now);
                 }
 
-                await otpRecord.save();
+                await otpRecord!.save();
 
                 return createFailure(400, 'Invalid OTP', {
                     code: 'OTP_INVALID',
-                    attemptsLeft: Math.max(0, OTP_MAX_ATTEMPTS - otpRecord.attempts)
+                    attemptsLeft: Math.max(0, OTP_MAX_ATTEMPTS - otpRecord!.attempts)
                 });
             }
 

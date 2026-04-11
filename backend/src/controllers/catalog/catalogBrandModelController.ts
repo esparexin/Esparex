@@ -49,6 +49,16 @@ import {
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 import { IBrand } from '../../models/Brand';
 import { IModel } from '../../models/Model';
+import { getCache, setCache } from '../../utils/redisCache';
+
+// ── Cache helpers ──────────────────────────────────────────────────────────
+const CATALOG_CACHE_TTL = 300; // 5 minutes
+const catalogCacheKey = {
+    brands: (categoryId: string) => `catalog:brands:${categoryId}`,
+    models: (categoryId: string, brandId?: string) => brandId
+        ? `catalog:models:${categoryId}:${brandId}`
+        : `catalog:models:${categoryId}`,
+};
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Most brand/model logic now delegated to shared.ts generic handlers.
@@ -97,6 +107,21 @@ export const getBrands = async (req: Request, res: Response) => {
 
     if (!isAdminView) {
         logger.debug('[Catalog] getBrands query', { categoryId: categoryObjectId });
+
+        // ── Redis cache (public path only) ────────────────────────────────────
+        const cacheKey = catalogCacheKey.brands(categoryObjectId ?? 'all');
+        const cached = await getCache<unknown>(cacheKey);
+        if (cached) {
+            return res.json(cached);
+        }
+
+        const originalJson = res.json.bind(res);
+        res.json = (body: unknown) => {
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+                setCache(cacheKey, body, CATALOG_CACHE_TTL).catch(() => { /* silent */ });
+            }
+            return originalJson(body);
+        };
     }
 
     return handlePaginatedContent(req, res, asModel(Brand), {
@@ -400,6 +425,23 @@ export const getModels = async (req: Request, res: Response) => {
         if (!brandExists) {
             return sendEmptyPublicList(res);
         }
+    }
+
+    // ── Redis cache (public path only) ─────────────────────────────────────
+    if (!isAdminView) {
+        const cacheKey = catalogCacheKey.models(categoryObjectId ?? 'all', brandObjectId);
+        const cached = await getCache<unknown>(cacheKey);
+        if (cached) {
+            return res.json(cached);
+        }
+
+        const originalJson = res.json.bind(res);
+        res.json = (body: unknown) => {
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+                setCache(cacheKey, body, CATALOG_CACHE_TTL).catch(() => { /* silent */ });
+            }
+            return originalJson(body);
+        };
     }
 
     return handlePaginatedContent(req, res, asModel(Model), {

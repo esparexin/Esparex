@@ -40,6 +40,12 @@ import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 import { ISparePart } from '../../models/SparePart';
 import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
 import { categoryEnumToRecord } from '../../../../shared/utils/listingTypeMap';
+import { getCache, setCache } from '../../utils/redisCache';
+
+// ── Cache helpers ──────────────────────────────────────────────────────────
+const CATALOG_CACHE_TTL = 300; // 5 minutes
+const sparePartsCacheKey = (categoryId: string, listingType?: string) =>
+    `catalog:spare-parts:${categoryId}:${listingType ?? 'all'}`;
 
 // ── Helper: Normalize listing type from query params ──────────────────────
 const normalizeListingTypeFromQuery = (listingTypeParam?: unknown, placementParam?: unknown): ListingTypeValue | undefined => {
@@ -160,6 +166,21 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
         activeModelIds: activeModelIds.length,
         listingType: requestedListingType
     });
+
+    // ── Redis cache ─────────────────────────────────────────────────────────
+    const cacheKey = sparePartsCacheKey(categoryObjectId ?? 'all', requestedListingType);
+    const cached = await getCache<unknown>(cacheKey);
+    if (cached) {
+        return res.json(cached);
+    }
+
+    const originalJson = res.json.bind(res);
+    res.json = (body: unknown) => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+            setCache(cacheKey, body, CATALOG_CACHE_TTL).catch(() => { /* silent */ });
+        }
+        return originalJson(body);
+    };
 
     // Clean query params
     const cleanQuery = { ...req.query };

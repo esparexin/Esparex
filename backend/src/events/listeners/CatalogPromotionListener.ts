@@ -4,6 +4,7 @@ import Model from '../../models/Model';
 import Brand from '../../models/Brand';
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import logger from '../../utils/logger';
+import { clearCachePattern } from '../../utils/redisCache';
 
 /**
  * 🚀 Catalog Promotion Listener
@@ -26,6 +27,7 @@ export function installCatalogPromotionListener() {
             if (!ad) return;
 
             // 2. Atomic Model Promotion
+            let catalogInvalidated = false;
             if (ad.modelId) {
                 const model = await Model.findById(ad.modelId);
                 if (model && model.status === CATALOG_STATUS.PENDING) {
@@ -38,6 +40,7 @@ export function installCatalogPromotionListener() {
                     model.status = CATALOG_STATUS.ACTIVE;
                     model.isActive = true;
                     await model.save();
+                    catalogInvalidated = true;
                 }
             }
 
@@ -54,7 +57,19 @@ export function installCatalogPromotionListener() {
                     brand.status = CATALOG_STATUS.ACTIVE;
                     brand.isActive = true;
                     await brand.save();
+                    catalogInvalidated = true;
                 }
+            }
+
+            // 4. Invalidate catalog cache if any promotion occurred
+            if (catalogInvalidated) {
+                await Promise.all([
+                    clearCachePattern('catalog:brands:*'),
+                    clearCachePattern('catalog:models:*'),
+                ]);
+                logger.info('[CatalogPromotion] Catalog cache invalidated after promotion', {
+                    triggeredByAdId: listingId
+                });
             }
 
         } catch (error) {
