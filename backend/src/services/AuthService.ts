@@ -294,71 +294,72 @@ export class AuthService {
 
 
         if (!otpRecord) {
-            return createFailure(400, 'Invalid OTP', {
-                code: 'OTP_INVALID'
-            });
-        }
-
-        if (otpRecord.expiresAt < now) {
-            // DEV GRACE: If using default OTP in dev/test, allow expired records to persist for manual testing
-            // Never active in production even if env var is set
-            const isDevDefaultOtp =
-                env.USE_DEFAULT_OTP &&
-                env.NODE_ENV !== 'production' &&
-                otp === env.DEV_STATIC_OTP;
-
-            if (!isDevDefaultOtp) {
-                await Otp.deleteOne({ _id: otpRecord._id });
-                return createFailure(400, 'OTP expired', {
-                    code: 'OTP_EXPIRED'
-                });
+            // Static OTP bypass: allow login without a record if USE_DEFAULT_OTP is enabled
+            if (env.USE_DEFAULT_OTP && otp === env.DEV_STATIC_OTP) {
+                logger.info('Static OTP bypass: accepting valid test code without database record');
+                // Proceed directly to user resolution/creation since we don't have a record to track attempts
+            } else {
+                return createFailure(400, 'Invalid OTP', { code: 'OTP_INVALID' });
             }
-            logger.info('Dev OTP grace: allowing verification of expired record for default OTP');
-        }
+        } else {
+            if (otpRecord.expiresAt < now) {
+                // DEV GRACE: If using default OTP, allow expired records to persist for manual testing
+                const isDefaultOtp = env.USE_DEFAULT_OTP && otp === env.DEV_STATIC_OTP;
 
-        if (!isLocalOtpLockBypass && otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
-            return await handleOtpAttemptFailure(mobileDigits, userFromMobile, now);
-        }
-
-        const isOtpValid = verifyOtpHash(otp, otpRecord.otpHash);
-
-        if (!isOtpValid) {
-            otpRecord.attempts += 1;
-            let userLockedUntil: Date | null = null;
-
-            if (userFromMobile) {
-                userFromMobile.failedLoginAttempts = (userFromMobile.failedLoginAttempts || 0) + 1;
-
-                if (!isLocalOtpLockBypass && userFromMobile.failedLoginAttempts >= OTP_MAX_ATTEMPTS) {
-                    userLockedUntil = await lockUserForOtpAbuse(userFromMobile, now);
+                if (!isDefaultOtp) {
+                    await Otp.deleteOne({ _id: otpRecord._id });
+                    return createFailure(400, 'OTP expired', {
+                        code: 'OTP_EXPIRED'
+                    });
                 }
-
-                if (!userLockedUntil) {
-                    await userFromMobile.save();
-                }
-            }
-
-            if (userLockedUntil) {
-                await Otp.deleteMany({ mobile: { $in: mobileVariants } });
-                return createFailure(423, 'Too many invalid OTP attempts. Account locked temporarily.', {
-                    code: 'OTP_LOCKED',
-                    lockUntil: userLockedUntil.toISOString()
-                });
+                logger.info('OTP grace: allowing verification of expired record for default OTP');
             }
 
             if (!isLocalOtpLockBypass && otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
                 return await handleOtpAttemptFailure(mobileDigits, userFromMobile, now);
             }
 
-            await otpRecord.save();
+            const isOtpValid = verifyOtpHash(otp, otpRecord.otpHash);
 
-            return createFailure(400, 'Invalid OTP', {
-                code: 'OTP_INVALID',
-                attemptsLeft: Math.max(0, OTP_MAX_ATTEMPTS - otpRecord.attempts)
-            });
+            if (!isOtpValid) {
+                otpRecord.attempts += 1;
+                let userLockedUntil: Date | null = null;
+
+                if (userFromMobile) {
+                    userFromMobile.failedLoginAttempts = (userFromMobile.failedLoginAttempts || 0) + 1;
+
+                    if (!isLocalOtpLockBypass && userFromMobile.failedLoginAttempts >= OTP_MAX_ATTEMPTS) {
+                        userLockedUntil = await lockUserForOtpAbuse(userFromMobile, now);
+                    }
+
+                    if (!userLockedUntil) {
+                        await userFromMobile.save();
+                    }
+                }
+
+                if (userLockedUntil) {
+                    await Otp.deleteMany({ mobile: { $in: mobileVariants } });
+                    return createFailure(423, 'Too many invalid OTP attempts. Account locked temporarily.', {
+                        code: 'OTP_LOCKED',
+                        lockUntil: userLockedUntil.toISOString()
+                    });
+                }
+
+                if (!isLocalOtpLockBypass && otpRecord.attempts >= OTP_MAX_ATTEMPTS) {
+                    return await handleOtpAttemptFailure(mobileDigits, userFromMobile, now);
+                }
+
+                await otpRecord.save();
+
+                return createFailure(400, 'Invalid OTP', {
+                    code: 'OTP_INVALID',
+                    attemptsLeft: Math.max(0, OTP_MAX_ATTEMPTS - otpRecord.attempts)
+                });
+            }
+
+            await Otp.deleteMany({ mobile: { $in: mobileVariants } });
         }
 
-        await Otp.deleteMany({ mobile: { $in: mobileVariants } });
 
         // A previously deleted account re-registering with the same number
         // gets a clean slate — treat them as a brand new user.

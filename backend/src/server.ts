@@ -11,6 +11,8 @@ import { USER_STATUS } from '@shared/enums/userStatus';
 import { createServer } from 'http';
 import { initializeEventDispatcher } from './events';
 import { validateMetadataHealth } from './utils/startupValidator';
+import { warmAllCaches } from './utils/cacheWarmer';
+
 
 const PORT = env.PORT;
 
@@ -51,6 +53,10 @@ export async function startServer() {
 
         await connectDB();
         logger.info('MongoDB connected successfully');
+
+        // Proactive Cache Warming
+        await warmAllCaches();
+
         
         // Validate Metadata Integrity (Split-Safe Check)
         await validateMetadataHealth();

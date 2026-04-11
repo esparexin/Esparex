@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2026-04-10T15:25:22.823Z",
+    "detectionDate": "2026-04-11T12:17:44.964Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -1302,7 +1302,7 @@
           },
           "/Users/admin/Desktop/EsparexAdmin/admin-frontend/src/components/moderation/normalizeModerationAd.ts": {
             "lines": 173,
-            "tokens": 2289,
+            "tokens": 2316,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4637,14 +4637,14 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/ad/AdAggregationService.ts": {
-            "lines": 726,
-            "tokens": 7404,
+            "lines": 775,
+            "tokens": 7890,
             "sources": 1,
             "clones": 1,
             "duplicatedLines": 49,
             "duplicatedTokens": 420,
-            "percentage": 6.75,
-            "percentageTokens": 5.67,
+            "percentage": 6.32,
+            "percentageTokens": 5.32,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6821,8 +6821,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/services/SchedulerBoot.ts": {
-            "lines": 93,
-            "tokens": 825,
+            "lines": 94,
+            "tokens": 858,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8477,8 +8477,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/middleware/otpGuard.ts": {
-            "lines": 196,
-            "tokens": 1197,
+            "lines": 201,
+            "tokens": 1215,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8909,8 +8909,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/config/validateEnv.ts": {
-            "lines": 152,
-            "tokens": 1189,
+            "lines": 153,
+            "tokens": 1193,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9041,8 +9041,8 @@
             "newClones": 0
           },
           "/Users/admin/Desktop/EsparexAdmin/backend/src/config/db.ts": {
-            "lines": 313,
-            "tokens": 2224,
+            "lines": 322,
+            "tokens": 2298,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9102,8 +9102,8 @@
           }
         },
         "total": {
-          "lines": 82597,
-          "tokens": 775229,
+          "lines": 82662,
+          "tokens": 775871,
           "sources": 758,
           "clones": 8,
           "duplicatedLines": 449,
@@ -16840,8 +16840,8 @@
       }
     },
     "total": {
-      "lines": 146485,
-      "tokens": 1309349,
+      "lines": 146550,
+      "tokens": 1309991,
       "sources": 1395,
       "clones": 8,
       "duplicatedLines": 449,

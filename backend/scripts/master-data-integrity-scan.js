@@ -15,21 +15,24 @@ const normalizeId = (value) => {
 const isActiveCategory = (category) => {
     if (!category) return false;
     const status = category.status;
-    if (status === 'inactive' || status === 'rejected') return false;
+    if (status && !['active', 'live'].includes(status)) return false;
     return category.isActive === true;
 };
 
 const isActiveBrand = (brand) => {
     if (!brand) return false;
-    if (brand.status && brand.status !== 'active') return false;
+    const status = brand.status;
+    if (status && !['active', 'live'].includes(status)) return false;
     return brand.isActive === true;
 };
 
 const isActiveModel = (model) => {
     if (!model) return false;
-    if (model.status && model.status !== 'active') return false;
+    const status = model.status;
+    if (status && !['active', 'live'].includes(status)) return false;
     return model.isActive === true;
 };
+
 
 async function run() {
     await mongoose.connect(adminUri, { serverSelectionTimeoutMS: 20000 });
