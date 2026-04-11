@@ -3,7 +3,7 @@ services:
   - type: web
     name: esparex-backend
     env: node
-    plan: free # Change to 'starter' or higher for production traffic
+    plan: starter # Starter plan active: 0.5 CPU | 512 MB RAM
     # Build from repo root so npm workspaces links @esparex/shared correctly
     buildCommand: npm install --include=dev && npm run build -w backend
     startCommand: cd backend && node -r ./register.js dist/backend/src/index.js
@@ -83,19 +83,3 @@ services:
       - key: ATLAS_LOCATION_SEARCH_INDEX
         sync: false   # Atlas Search index name (default: location_autocomplete)
 
-  # --- Keep-alive cron (prevents free-tier cold starts) ---
-  - type: cron
-    name: esparex-keepalive
-    env: node
-    schedule: "*/10 * * * *"
-    buildCommand: "echo 'no build needed'"
-    startCommand: >
-      node -e "
-        const https = require('https');
-        https.get('https://api.esparex.in/health', (res) => {
-          console.log('ping status:', res.statusCode);
-        }).on('error', (e) => {
-          console.error('ping failed:', e.message);
-          process.exit(1);
-        });
-      "
