@@ -77,16 +77,44 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
     const sparePartIds = new Set<string>();
     const serviceTypeIds = new Set<string>();
 
+    const extractId = (val: unknown): string | null => {
+        if (!val) return null;
+        if (typeof val === 'string') return val;
+        if (typeof (val as any)._id === 'string' || (val as any)._id instanceof mongoose.Types.ObjectId) {
+            return (val as any)._id.toString();
+        }
+        if (typeof (val as any).id === 'string' || (val as any).id instanceof mongoose.Types.ObjectId) {
+            return (val as any).id.toString();
+        }
+        if (val instanceof mongoose.Types.ObjectId) return val.toString();
+        return null;
+    };
+
     ads.forEach(ad => {
-        if (ad.categoryId) categoryIds.add(ad.categoryId.toString());
-        if (ad.brandId) brandIds.add(ad.brandId.toString());
-        if (ad.modelId) modelIds.add(ad.modelId.toString());
-        if (ad.sparePartId) sparePartIds.add(ad.sparePartId.toString());
+        // Support both canonical *Id fields and legacy/denormalized fields
+        const catId = extractId(ad.categoryId || ad.category);
+        if (catId) categoryIds.add(catId);
+
+        const bId = extractId(ad.brandId || ad.brand);
+        if (bId) brandIds.add(bId);
+
+        const mId = extractId(ad.modelId || ad.model);
+        if (mId) modelIds.add(mId);
+
+        const spId = extractId(ad.sparePartId || ad.sparePart);
+        if (spId) sparePartIds.add(spId);
+
         if (Array.isArray(ad.sparePartIds)) {
-            ad.sparePartIds.forEach((id: string | mongoose.Types.ObjectId) => sparePartIds.add(id.toString()));
+            ad.sparePartIds.forEach((id: string | mongoose.Types.ObjectId) => {
+                const sid = extractId(id);
+                if (sid) sparePartIds.add(sid);
+            });
         }
         if (Array.isArray(ad.serviceTypeIds)) {
-            ad.serviceTypeIds.forEach((id: string | mongoose.Types.ObjectId) => serviceTypeIds.add(id.toString()));
+            ad.serviceTypeIds.forEach((id: string | mongoose.Types.ObjectId) => {
+                const sid = extractId(id);
+                if (sid) serviceTypeIds.add(sid);
+            });
         }
     });
 
@@ -115,31 +143,52 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
     const serviceTypeMap = new Map<string, any>(serviceTypes.map((st: any) => [String(st._id), st]));
 
     ads.forEach(ad => {
-        if (ad.categoryId) {
-            const cat = categoryMap.get(String(ad.categoryId));
-            ad.category = cat;
-            // Flat string field — reliable label even if object hydration is partial
-            if (cat && typeof (cat as { name?: string }).name === 'string') {
-                ad.categoryName = (cat as { name: string }).name;
+        const catId = extractId(ad.categoryId || ad.category);
+        if (catId) {
+            const cat = categoryMap.get(catId);
+            if (cat) {
+                ad.category = cat;
+                if (cat.name) ad.categoryName = cat.name;
             }
         }
-        if (ad.brandId) {
-            ad.brand = brandMap.get(String(ad.brandId));
+
+        const bId = extractId(ad.brandId || ad.brand);
+        if (bId) {
+            const brand = brandMap.get(bId);
+            if (brand) {
+                ad.brand = brand;
+                if (brand.name) ad.brandName = brand.name;
+            }
         }
-        if (ad.modelId) {
-            ad.model = modelMap.get(String(ad.modelId));
+
+        const mId = extractId(ad.modelId || ad.model);
+        if (mId) {
+            const model = modelMap.get(mId);
+            if (model) {
+                ad.model = model;
+                if (model.name) ad.modelName = model.name;
+            }
         }
-        if (ad.sparePartId) {
-            ad.sparePart = sparePartMap.get(String(ad.sparePartId));
+
+        const spId = extractId(ad.sparePartId || ad.sparePart);
+        if (spId) {
+            ad.sparePart = sparePartMap.get(spId);
         }
+
         if (Array.isArray(ad.sparePartIds)) {
             ad.spareParts = ad.sparePartIds
-                .map((id: string | mongoose.Types.ObjectId) => sparePartMap.get(String(id)))
+                .map((id: string | mongoose.Types.ObjectId) => {
+                    const sid = extractId(id);
+                    return sid ? sparePartMap.get(sid) : null;
+                })
                 .filter(Boolean);
         }
         if (Array.isArray(ad.serviceTypeIds)) {
             ad.serviceTypes = ad.serviceTypeIds
-                .map((id: string | mongoose.Types.ObjectId) => serviceTypeMap.get(String(id)))
+                .map((id: string | mongoose.Types.ObjectId) => {
+                    const sid = extractId(id);
+                    return sid ? serviceTypeMap.get(sid) : null;
+                })
                 .filter(Boolean);
         }
     });

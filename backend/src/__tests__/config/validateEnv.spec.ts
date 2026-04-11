@@ -3,6 +3,13 @@ import {
     validateS3BucketEnvAliasOrThrow,
     validateS3RuntimeEnvOrThrow
 } from '../../config/validateEnv';
+import bootstrapLogger from '../../utils/bootstrapLogger';
+
+jest.mock('../../utils/bootstrapLogger', () => ({
+    warn: jest.fn(),
+    info: jest.fn(),
+    error: jest.fn(),
+}));
 
 const VALID_ACCESS_KEY_ID = 'AKIAIOSFODNN7EXAMPLE';
 const VALID_SECRET_ACCESS_KEY = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY';
@@ -14,6 +21,7 @@ const baseProductionEnv: NodeJS.ProcessEnv = {
     JWT_SECRET: 'jwt_secret_value_long_enough_for_tests',
     REDIS_URL: 'redis://localhost:6379',
     MONGODB_URI: 'mongodb://localhost:27017/esparex_test',
+    ADMIN_MONGODB_URI: 'mongodb://localhost:27017/esparex_admin',
     AWS_ACCESS_KEY_ID: VALID_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: VALID_SECRET_ACCESS_KEY,
     S3_BUCKET_NAME: 'esparex-test-bucket',
@@ -26,7 +34,7 @@ describe('validateProductionEnvOrThrow', () => {
         delete env.JWT_SECRET;
 
         expect(() => validateProductionEnvOrThrow(env)).toThrow(
-            /Missing required production environment variables: JWT_SECRET/
+            /^Missing required production environment variables: .*JWT_SECRET/
         );
     });
 
@@ -35,7 +43,7 @@ describe('validateProductionEnvOrThrow', () => {
         delete env.S3_BUCKET_NAME;
 
         expect(() => validateProductionEnvOrThrow(env)).toThrow(
-            /Missing required production environment variables: S3_BUCKET_NAME/
+            /^Missing required production environment variables: .*S3_BUCKET_NAME/
         );
     });
 
@@ -47,7 +55,7 @@ describe('validateProductionEnvOrThrow', () => {
     });
 
     it('infers COOKIE_DOMAIN from split-subdomain production origins when it is omitted', () => {
-        const env = {
+        const env: NodeJS.ProcessEnv = {
             ...baseProductionEnv,
             FRONTEND_URL: 'https://exparex.in',
             ADMIN_FRONTEND_URL: 'https://admin.exparex.in',
@@ -56,6 +64,7 @@ describe('validateProductionEnvOrThrow', () => {
 
         expect(() => validateProductionEnvOrThrow(env)).not.toThrow();
         expect(env.COOKIE_DOMAIN).toBe('exparex.in');
+        expect(bootstrapLogger.warn).toHaveBeenCalledWith(expect.stringContaining('COOKIE_DOMAIN was missing'));
     });
 
     it('throws when production split-domain auth lacks an inferable shared cookie domain', () => {
@@ -69,6 +78,18 @@ describe('validateProductionEnvOrThrow', () => {
         expect(() => validateProductionEnvOrThrow(env)).toThrow(
             /COOKIE_DOMAIN must be set in production for split-subdomain auth deployments/
         );
+    });
+
+    it('accepts AWS_S3_BUCKET alias when canonical name is not provided', () => {
+        const env: NodeJS.ProcessEnv = {
+            ...baseProductionEnv,
+            AWS_S3_BUCKET: 'legacy-bucket',
+        };
+        delete env.S3_BUCKET_NAME;
+
+        expect(() => validateProductionEnvOrThrow(env)).not.toThrow();
+        expect(env.S3_BUCKET_NAME).toBe('legacy-bucket');
+        expect(bootstrapLogger.warn).toHaveBeenCalledWith(expect.stringContaining('DEPRECATION: AWS_S3_BUCKET is deprecated'));
     });
 });
 
@@ -90,20 +111,6 @@ describe('validateS3BucketEnvAliasOrThrow', () => {
         };
 
         expect(() => validateS3BucketEnvAliasOrThrow(env)).not.toThrow();
-    });
-});
-
-describe('validateProductionEnvOrThrow with AWS_S3_BUCKET alias', () => {
-    it('accepts AWS_S3_BUCKET when canonical name is not provided', () => {
-        const env = {
-            ...baseProductionEnv,
-            AWS_S3_BUCKET: 'legacy-bucket',
-        };
-        delete env.S3_BUCKET_NAME;
-
-        expect(() => validateS3BucketEnvAliasOrThrow(env)).not.toThrow();
-        expect(() => validateProductionEnvOrThrow(env)).not.toThrow();
-        expect(env.S3_BUCKET_NAME).toBe('legacy-bucket');
     });
 });
 
