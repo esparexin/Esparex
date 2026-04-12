@@ -1,13 +1,10 @@
-import { createModel, deleteModel, getModels, updateModel, type ModelData } from "@/lib/api/models";
+import { createModel, deleteModel, getModels, updateModel, toggleModelStatus } from "@/lib/api/models";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import { Model } from "@/types/model";
+import { useToast } from "@/context/ToastContext";
+import { useCallback } from "react";
+import { CreateModelDTO, UpdateModelDTO } from "@shared/schemas/catalog.schema";
 
-type ModelMutationData = {
-    name: string;
-    brandId: string;
-    categoryIds: string[];
-    status?: Model["status"];
-};
 
 export function useAdminModels() {
     const {
@@ -22,10 +19,13 @@ export function useAdminModels() {
         handleDelete,
         handleCreate,
         handleUpdate,
+        runAction,
+        setItems
     } = useAdminCatalogCollection<
         Model,
         { search: string; brandId: string; categoryId: string; status: string },
-        ModelMutationData
+        CreateModelDTO,
+        UpdateModelDTO
     >({
         initialFilters: {
             search: "",
@@ -35,25 +35,28 @@ export function useAdminModels() {
         },
         fetchList: getModels,
         listErrorMessage: "Failed to fetch models",
-        createItem: (data) =>
-            createModel({
-                ...data,
-                categoryId: data.categoryIds[0] || "",
-            } as ModelData),
+        createItem: createModel,
         createSuccessMessage: "Model created successfully",
         createErrorMessage: "Failed to create model",
-        updateItem: (id, data) =>
-            updateModel(id, {
-                ...data,
-                categoryId: data.categoryIds[0] || "",
-            } as ModelData),
+        updateItem: updateModel,
         updateSuccessMessage: "Model updated successfully",
         updateErrorMessage: "Failed to update model",
         deleteItem: deleteModel,
         deleteSuccessMessage: "Model deleted successfully",
         deleteErrorMessage: "Failed to delete model",
-        deleteConfirmMessage: "Are you sure you want to delete this model?",
     });
+
+    const { showToast } = useToast();
+
+    const handleToggleStatus = useCallback(async (id: string) => {
+        await runAction(() => toggleModelStatus(id), {
+            successMessage: "Model status toggled successfully",
+            errorMessage: "Failed to toggle model status",
+            onSuccess: async () => {
+                setItems((prev) => prev.map((m) => m.id === id ? { ...m, isActive: !m.isActive } : m));
+            }
+        });
+    }, [runAction, setItems]);
 
     return {
         models,
@@ -67,5 +70,6 @@ export function useAdminModels() {
         handleDelete,
         handleCreate,
         handleUpdate,
+        handleToggleStatus,
     };
 }

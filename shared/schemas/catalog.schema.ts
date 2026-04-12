@@ -77,8 +77,9 @@ export const CategorySchema = CreateCategorySchema.extend({
 /* ────────────────────────────────────────────── */
 export const CreateBrandSchema = z.object({
     name: z.string().min(2),
-    categoryId: ObjectIdSchema,
-    isActive: z.boolean().default(true)
+    categoryIds: z.array(ObjectIdSchema).min(1, "At least one category is required"),
+    isActive: z.boolean().default(true),
+    status: z.enum(['live', 'pending', 'rejected', 'inactive']).default('live')
 }).strict();
 
 export const UpdateBrandSchema = CreateBrandSchema.partial();
@@ -94,8 +95,9 @@ export const BrandSchema = CreateBrandSchema.extend({
 export const CreateModelSchema = z.object({
     name: z.string().min(1),
     brandId: ObjectIdSchema,
+    categoryIds: z.array(ObjectIdSchema).min(1, "At least one category is required"),
     isActive: z.boolean().default(true),
-    status: z.enum(['active', 'pending', 'rejected']).default('active')
+    status: z.enum(['live', 'pending', 'rejected', 'inactive']).default('live')
 }).strict();
 
 export const UpdateModelSchema = CreateModelSchema.partial();

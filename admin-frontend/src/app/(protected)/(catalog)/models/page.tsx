@@ -5,7 +5,8 @@ import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { Model } from "@/types/model";
 import { useAssignableCategories } from "@/hooks/useAssignableCategories";
-import { Layers } from "lucide-react";
+import { Layers, AlertTriangle, Loader2 } from "lucide-react";
+import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import { adminModelSchema } from "@/schemas/admin.schemas";
 import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
@@ -24,6 +25,7 @@ import {
     CatalogCategoryTags,
     CatalogEntityCell,
     CatalogEditDeleteActions,
+    CatalogActiveToggleButton,
     CatalogSelectField,
     CatalogSelectFilter,
 } from "@/components/catalog/CatalogUiPrimitives";
@@ -39,8 +41,20 @@ export default function ModelsPage() {
         handleCreate,
         handleUpdate,
         pagination,
-        setPage
+        setPage,
+        handleToggleStatus
     } = useAdminModels();
+
+    const [deletingModel, setDeletingModel] = useState<Model | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const confirmDelete = async () => {
+        if (!deletingModel) return;
+        setIsDeleting(true);
+        const success = await handleDelete(deletingModel.id);
+        setIsDeleting(false);
+        if (success) setDeletingModel(null);
+    };
 
     const { brands } = useAdminBrands();
     const { categories } = useAdminCategories();
@@ -50,7 +64,8 @@ export default function ModelsPage() {
     const [archivedCategoryCount, setArchivedCategoryCount] = useState(0);
 
     return (
-        <CatalogPageTemplate<Model, { name: string; brandId: string; categoryIds: string[]; status: Model['status'] }>
+        <>
+        <CatalogPageTemplate<Model, { name: string; brandId: string; categoryIds: string[]; status: Model['status']; isActive: boolean }>
             title="Model Management"
             description="Manage product models and their brand and category mappings."
             createLabel="Add Model"
@@ -62,7 +77,7 @@ export default function ModelsPage() {
             setPage={setPage}
             handleCreate={handleCreate}
             handleUpdate={handleUpdate}
-            defaultFormData={{ name: "", brandId: "", categoryIds: [], status: "live" }}
+            defaultFormData={{ name: "", brandId: "", categoryIds: [], status: "live", isActive: true }}
             validationSchema={adminModelSchema}
             customSubmitValidation={(formData) => {
                 const categoryError = validateRequiredCategoryIds(formData.categoryIds);
@@ -84,7 +99,8 @@ export default function ModelsPage() {
                         name: item.name,
                         brandId: normalizeObjectIdLike(item.brandId),
                         categoryIds: assignableCategoryIds,
-                        status: item.status
+                        status: item.status,
+                        isActive: item.isActive
                     });
                 } else {
                     setArchivedCategoryCount(0);
@@ -119,6 +135,17 @@ export default function ModelsPage() {
                 {
                     header: "Status",
                     cell: (model) => (
+                        <CatalogActiveToggleButton
+                            isActive={model.isActive}
+                            onClick={() => void handleToggleStatus(model.id)}
+                            disabled={false}
+                            loading={false}
+                        />
+                    )
+                },
+                {
+                    header: "Approval State",
+                    cell: (model) => (
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${model.status === 'live' ? "bg-emerald-100 text-emerald-700" :
                             model.status === 'pending' ? "bg-amber-100 text-amber-700" :
                                 "bg-red-100 text-red-700"
@@ -133,7 +160,7 @@ export default function ModelsPage() {
                     cell: (model) => (
                         <CatalogEditDeleteActions
                             onEdit={() => openEditModal(model)}
-                            onDelete={() => void handleDelete(model.id)}
+                            onDelete={() => setDeletingModel(model)}
                         />
                     )
                 }
@@ -215,5 +242,52 @@ export default function ModelsPage() {
                 );
             }}
         />
+        
+        <CatalogModal
+            isOpen={!!deletingModel}
+            onClose={() => !isDeleting && setDeletingModel(null)}
+            title="Delete Model"
+        >
+            <div className="p-6 space-y-4">
+                <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                    <div>
+                        <p className="text-sm font-semibold text-red-700">
+                            Cascade delete — this cannot be undone
+                        </p>
+                        <p className="mt-1 text-sm text-red-600">
+                            Deleting <strong>&ldquo;{deletingModel?.name}&rdquo;</strong> will also 
+                            soft-delete all Spare Parts linked exclusively to this model.
+                        </p>
+                    </div>
+                </div>
+                <p className="text-sm text-slate-600">
+                    To hide this model temporarily, <strong>deactivate it</strong> instead of deleting.
+                </p>
+                <div className="flex justify-end gap-3 pt-2">
+                    <button
+                        type="button"
+                        disabled={isDeleting}
+                        onClick={() => setDeletingModel(null)}
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        disabled={isDeleting}
+                        onClick={() => void confirmDelete()}
+                        className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
+                    >
+                        {isDeleting ? (
+                            <><Loader2 size={14} className="animate-spin" /> Deleting…</>
+                        ) : (
+                            "Yes, Delete Model"
+                        )}
+                    </button>
+                </div>
+            </div>
+        </CatalogModal>
+        </>
     );
 }

@@ -1,4 +1,6 @@
-import { createScreenSize, deleteScreenSize, getScreenSizes, updateScreenSize } from "@/lib/api/screenSizes";
+import { createScreenSize, deleteScreenSize, getScreenSizes, updateScreenSize, toggleScreenSizeStatus } from "@/lib/api/screenSizes";
+import { useToast } from "@/context/ToastContext";
+import { useCallback } from "react";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import { ScreenSize } from "@/types/screenSize";
 
@@ -15,6 +17,8 @@ export function useAdminScreenSizes() {
         handleDelete,
         handleCreate,
         handleUpdate,
+        runAction,
+        setItems
     } = useAdminCatalogCollection<
         ScreenSize,
         { search: string; categoryId: string },
@@ -32,8 +36,19 @@ export function useAdminScreenSizes() {
         deleteItem: deleteScreenSize,
         deleteSuccessMessage: "Screen size deleted successfully",
         deleteErrorMessage: "Failed to delete screen size",
-        deleteConfirmMessage: "Are you sure you want to delete this screen size?",
     });
+
+    const { showToast } = useToast();
+
+    const handleToggleStatus = useCallback(async (id: string) => {
+        await runAction(() => toggleScreenSizeStatus(id), {
+            successMessage: "Screen size status toggled successfully",
+            errorMessage: "Failed to toggle screen size status",
+            onSuccess: async () => {
+                setItems((prev) => prev.map((s) => s.id === id ? { ...s, isActive: !s.isActive } : s));
+            }
+        });
+    }, [runAction, setItems]);
 
     return {
         screenSizes,
@@ -47,5 +62,6 @@ export function useAdminScreenSizes() {
         handleDelete,
         handleCreate,
         handleUpdate,
+        handleToggleStatus,
     };
 }

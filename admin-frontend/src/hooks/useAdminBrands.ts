@@ -6,8 +6,8 @@ import {
     rejectBrand,
     toggleBrandStatus,
     updateBrand,
-    type BrandData,
 } from "@/lib/api/brands";
+import { CreateBrandDTO, UpdateBrandDTO } from "@shared/schemas/catalog.schema";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import { Brand } from "@/types/brand";
 
@@ -28,7 +28,8 @@ export function useAdminBrands() {
     } = useAdminCatalogCollection<
         Brand,
         { search: string; categoryId: string; status: string },
-        BrandData
+        CreateBrandDTO,
+        UpdateBrandDTO
     >({
         initialFilters: {
             search: "",
@@ -46,7 +47,6 @@ export function useAdminBrands() {
         deleteItem: deleteBrand,
         deleteSuccessMessage: "Brand deleted successfully",
         deleteErrorMessage: "Failed to delete brand",
-        deleteConfirmMessage: "Are you sure you want to delete this brand?",
         deleteStrategy: "refresh",
         initialPagination: { limit: 50 },
     });

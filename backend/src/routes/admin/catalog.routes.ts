@@ -55,6 +55,7 @@ router.get('/models', requirePermission('catalog:read'), catalogController.getMo
 router.get('/models/:id', requirePermission('catalog:read'), validateObjectId, catalogController.getModelById);
 router.post('/models', requirePermission('catalog:write'), adminMutationLimiter, validateRequest(Validators.modelCreateSchema), catalogController.createModel);
 router.put('/models/:id', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, validateRequest(Validators.modelUpdateSchema), catalogController.updateModel);
+router.patch('/models/:id/status', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, catalogController.toggleModelStatus);
 router.patch('/models/:id/approve', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, catalogController.approveModel);
 router.patch('/models/:id/reject', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, validateRequest(Validators.rejectionSchema), catalogController.rejectModel);
 router.delete('/models/:id', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, catalogController.deleteModel);
@@ -88,6 +89,7 @@ router.delete('/service-types/:id', requirePermission('catalog:write'), adminMut
 router.get('/screen-sizes', requirePermission('catalog:read'), catalogController.getScreenSizes);
 router.post('/screen-sizes', requirePermission('catalog:write'), adminMutationLimiter, validateRequest(Validators.screenSizeCreateSchema), catalogController.createScreenSize);
 router.put('/screen-sizes/:id', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, validateRequest(Validators.screenSizeUpdateSchema), catalogController.updateScreenSize);
+router.patch('/screen-sizes/:id/toggle-status', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, catalogController.toggleScreenSizeStatus);
 router.delete('/screen-sizes/:id', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, catalogController.deleteScreenSize);
 
 // ============================================

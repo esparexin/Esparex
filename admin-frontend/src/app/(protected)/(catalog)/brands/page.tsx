@@ -4,7 +4,8 @@ import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { Brand } from "@/types/brand";
 import { categorySupportsAds, useAssignableCategories } from "@/hooks/useAssignableCategories";
-import { Tag, CheckCircle, XCircle } from "lucide-react";
+import { Tag, CheckCircle, XCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import { adminBrandSchema } from "@/schemas/admin.schemas";
 import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
@@ -45,6 +46,17 @@ export default function BrandsPage() {
         handleReject
     } = useAdminBrands();
 
+    const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const confirmDelete = async () => {
+        if (!deletingBrand) return;
+        setIsDeleting(true);
+        const success = await handleDelete(deletingBrand.id);
+        setIsDeleting(false);
+        if (success) setDeletingBrand(null);
+    };
+
     const { categories } = useAdminCategories();
     const { assignableCategories, assignableCategoryIdSet } = useAssignableCategories(
         categories,
@@ -55,7 +67,8 @@ export default function BrandsPage() {
     const [archivedCategoryCount, setArchivedCategoryCount] = useState(0);
 
     return (
-        <CatalogPageTemplate<Brand, { name: string; categoryIds: string[]; isActive: boolean }>
+        <>
+        <CatalogPageTemplate<Brand, { name: string; categoryIds: string[]; isActive: boolean; status: Brand['status'] }>
             title="Brand Management"
             description="Manage product brands and their category assignments."
             createLabel="Add Brand"
@@ -67,7 +80,7 @@ export default function BrandsPage() {
             setPage={setPage}
             handleCreate={handleCreate}
             handleUpdate={handleUpdate}
-            defaultFormData={{ name: "", categoryIds: [], isActive: true }}
+            defaultFormData={{ name: "", categoryIds: [], isActive: true, status: "live" }}
             validationSchema={adminBrandSchema}
             onModalOpen={(item, setFormData) => {
                 if (item) {
@@ -79,7 +92,8 @@ export default function BrandsPage() {
                     setFormData({
                         name: item.name,
                         categoryIds: assignableCategoryIds,
-                        isActive: item.isActive
+                        isActive: item.isActive,
+                        status: item.status
                     });
                 } else {
                     setArchivedCategoryCount(0);
@@ -157,7 +171,7 @@ export default function BrandsPage() {
                                 )}
                                 <CatalogEditDeleteActionPair
                                     onEdit={() => openEditModal(brand)}
-                                    onDelete={() => void handleDelete(brand.id)}
+                                    onDelete={() => setDeletingBrand(brand)}
                                 />
                             </CatalogActionsRow>
                         );
@@ -211,5 +225,52 @@ export default function BrandsPage() {
                 </>
             )}
         />
+
+        <CatalogModal
+            isOpen={!!deletingBrand}
+            onClose={() => !isDeleting && setDeletingBrand(null)}
+            title="Delete Brand"
+        >
+            <div className="p-6 space-y-4">
+                <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                    <div>
+                        <p className="text-sm font-semibold text-red-700">
+                            Cascade delete — this cannot be undone
+                        </p>
+                        <p className="mt-1 text-sm text-red-600">
+                            Deleting <strong>&ldquo;{deletingBrand?.name}&rdquo;</strong> will also 
+                            soft-delete all Models and Spare Parts linked exclusively to this brand.
+                        </p>
+                    </div>
+                </div>
+                <p className="text-sm text-slate-600">
+                    To hide this brand temporarily, <strong>deactivate it</strong> instead of deleting.
+                </p>
+                <div className="flex justify-end gap-3 pt-2">
+                    <button
+                        type="button"
+                        disabled={isDeleting}
+                        onClick={() => setDeletingBrand(null)}
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        disabled={isDeleting}
+                        onClick={() => void confirmDelete()}
+                        className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
+                    >
+                        {isDeleting ? (
+                            <><Loader2 size={14} className="animate-spin" /> Deleting…</>
+                        ) : (
+                            "Yes, Delete Brand"
+                        )}
+                    </button>
+                </div>
+            </div>
+        </CatalogModal>
+        </>
     );
 }

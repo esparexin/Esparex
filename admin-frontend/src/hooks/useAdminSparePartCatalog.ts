@@ -54,7 +54,6 @@ export function useAdminSpareParts(options: UseAdminSparePartsOptions = {}) {
         deleteItem: deleteSparePart,
         deleteSuccessMessage: "Part deleted successfully",
         deleteErrorMessage: "Failed to delete part",
-        deleteConfirmMessage: "Are you sure you want to delete this catalog item?",
     });
 
     const toggleStatus = useCallback(
@@ -78,7 +77,7 @@ export function useAdminSpareParts(options: UseAdminSparePartsOptions = {}) {
     // Bypass default handleDelete since we want to handle the modal externally in the page component
     const handleDelete = useCallback(
         async (id: string) => {
-            await runAction(() => deleteSparePart(id), {
+            return await runAction(() => deleteSparePart(id), {
                 successMessage: "Part deleted successfully",
                 errorMessage: "Failed to delete part",
                 onSuccess: async () => {

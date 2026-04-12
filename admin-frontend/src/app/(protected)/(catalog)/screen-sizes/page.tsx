@@ -1,14 +1,18 @@
 "use client";
 
-import { Monitor } from "lucide-react";
+import { useState } from "react";
+
+import { Monitor, AlertTriangle, Loader2 } from "lucide-react";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminScreenSizes } from "@/hooks/useAdminScreenSizes";
 import { type ScreenSize } from "@/types/screenSize";
 import { useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
+import { CatalogModal } from "@/components/catalog/CatalogModal";
 import {
     CatalogActiveCheckboxField,
     CatalogActiveStatusFilter,
+    CatalogActiveToggleButton,
     CatalogEditDeleteActions,
     CatalogEntityCell,
     CatalogSelectField,
@@ -31,7 +35,19 @@ export default function ScreenSizesPage() {
         handleDelete,
         handleCreate,
         handleUpdate,
+        handleToggleStatus
     } = useAdminScreenSizes();
+
+    const [deletingScreenSize, setDeletingScreenSize] = useState<ScreenSize | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const confirmDelete = async () => {
+        if (!deletingScreenSize) return;
+        setIsDeleting(true);
+        const success = await handleDelete(deletingScreenSize.id);
+        setIsDeleting(false);
+        if (success) setDeletingScreenSize(null);
+    };
 
     const { assignableCategories } = useAssignableCategories(
         categories,
@@ -40,6 +56,7 @@ export default function ScreenSizesPage() {
     const categoryOptions = toCategoryOptions(assignableCategories);
 
     return (
+        <>
         <CatalogPageTemplate<ScreenSize, { size: string; name: string; value: number; categoryId: string; isActive: boolean }>
             title="Screen Sizes"
             description="Manage screen-size master data by category."
@@ -94,9 +111,9 @@ export default function ScreenSizesPage() {
                 {
                     header: "Status",
                     cell: (screenSize) => (
-                        <CatalogStatusBadge
-                            label={screenSize.isActive ? "Active" : "Inactive"}
-                            tone={screenSize.isActive ? "success" : "danger"}
+                        <CatalogActiveToggleButton
+                            isActive={screenSize.isActive}
+                            onClick={() => void handleToggleStatus(screenSize.id)}
                         />
                     ),
                 },
@@ -106,7 +123,7 @@ export default function ScreenSizesPage() {
                     cell: (screenSize) => (
                         <CatalogEditDeleteActions
                             onEdit={() => openEditModal(screenSize)}
-                            onDelete={() => void handleDelete(screenSize.id)}
+                            onDelete={() => setDeletingScreenSize(screenSize)}
                         />
                     ),
                 },
@@ -178,5 +195,48 @@ export default function ScreenSizesPage() {
                 </>
             )}
         />
+
+        <CatalogModal
+            isOpen={!!deletingScreenSize}
+            onClose={() => !isDeleting && setDeletingScreenSize(null)}
+            title="Delete Screen Size"
+        >
+            <div className="p-6 space-y-4">
+                <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                    <div>
+                        <p className="text-sm font-semibold text-red-700">
+                            Delete confirmation
+                        </p>
+                        <p className="mt-1 text-sm text-red-600">
+                            Are you sure you want to delete <strong>&ldquo;{deletingScreenSize?.size}&rdquo;</strong>?
+                        </p>
+                    </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                    <button
+                        type="button"
+                        disabled={isDeleting}
+                        onClick={() => setDeletingScreenSize(null)}
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        disabled={isDeleting}
+                        onClick={() => void confirmDelete()}
+                        className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
+                    >
+                        {isDeleting ? (
+                            <><Loader2 size={14} className="animate-spin" /> Deleting…</>
+                        ) : (
+                            "Yes, Delete Screen Size"
+                        )}
+                    </button>
+                </div>
+            </div>
+        </CatalogModal>
+        </>
     );
 }

@@ -587,6 +587,16 @@ export const updateModel = async (req: Request, res: Response) => {
 };
 
 /**
+ * Toggle model active status
+ */
+export const toggleModelStatus = async (req: Request, res: Response) => {
+    return handleCatalogToggleStatus(req, res, asModel<IModel>(Model) as any, { 
+        auditAction: 'TOGGLE_MODEL_STATUS',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
+};
+
+/**
  * Delete model (soft delete with dependency check)
  */
 export const deleteModel = async (req: Request, res: Response) => {

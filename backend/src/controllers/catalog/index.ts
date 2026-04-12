@@ -38,6 +38,7 @@ export {
     deleteModel,
     approveModel,
     rejectModel,
+    toggleModelStatus,
     ensureModel
 } from './catalogBrandModelController';
 
@@ -63,6 +64,7 @@ export {
     getScreenSizeById,
     createScreenSize,
     updateScreenSize,
+    toggleScreenSizeStatus,
     deleteScreenSize
 } from './catalogReferenceController';
 

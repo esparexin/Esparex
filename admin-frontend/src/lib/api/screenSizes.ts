@@ -26,3 +26,9 @@ export async function deleteScreenSize(id: string) {
         method: "DELETE"
     });
 }
+
+export async function toggleScreenSizeStatus(id: string) {
+    return adminFetch<any>(`${ADMIN_ROUTES.SCREEN_SIZES}/${id}/toggle-status`, {
+        method: "PATCH"
+    });
+}

@@ -272,6 +272,16 @@ export const updateScreenSize = async (req: Request, res: Response) => {
 };
 
 /**
+ * Toggle screen size active status
+ */
+export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
+    return handleCatalogToggleStatus(req, res, asModel<IScreenSize>(ScreenSize) as any, { 
+        auditAction: 'TOGGLE_SCREEN_SIZE_STATUS',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
+};
+
+/**
  * Delete screen size (soft delete)
  */
 export const deleteScreenSize = async (req: Request, res: Response) => {

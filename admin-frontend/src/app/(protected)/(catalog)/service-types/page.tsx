@@ -1,17 +1,19 @@
 "use client";
 
-import { Trash2, Edit, ToggleLeft, Wrench } from "lucide-react";
+import { useState } from "react";
+
+import { Wrench, AlertTriangle, Loader2 } from "lucide-react";
 
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import {
-    CatalogActionsRow,
-    CatalogActionIconButton,
     CatalogActiveCheckboxField,
     CatalogBoundSearchCategoryFilters,
     CatalogCategoryTags,
     CatalogEntityCell,
-    CatalogStatusBadge,
+    CatalogActiveToggleButton,
+    CatalogEditDeleteActions,
 } from "@/components/catalog/CatalogUiPrimitives";
+import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminServiceTypes, type ServiceType } from "@/hooks/useAdminServiceTypes";
 import { categorySupportsServices, useAssignableCategories } from "@/hooks/useAssignableCategories";
@@ -40,6 +42,17 @@ export default function ServiceTypesPage() {
         handleUpdate,
     } = useAdminServiceTypes();
 
+    const [deletingServiceType, setDeletingServiceType] = useState<ServiceType | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const confirmDelete = async () => {
+        if (!deletingServiceType) return;
+        setIsDeleting(true);
+        const success = await handleDelete(deletingServiceType.id);
+        setIsDeleting(false);
+        if (success) setDeletingServiceType(null);
+    };
+
     const { assignableCategories } = useAssignableCategories(
         categories,
         categorySupportsServices
@@ -47,6 +60,7 @@ export default function ServiceTypesPage() {
     const categoryOptions = toCategoryOptions(assignableCategories);
 
     return (
+        <>
         <CatalogPageTemplate<ServiceType, ServiceTypeFormData>
             title="Service Types"
             description="Manage service type master data used in business service listings."
@@ -95,9 +109,9 @@ export default function ServiceTypesPage() {
                 {
                     header: "Status",
                     cell: (serviceType) => (
-                        <CatalogStatusBadge
-                            label={serviceType.isActive ? "Active" : "Inactive"}
-                            tone={serviceType.isActive ? "success" : "danger"}
+                        <CatalogActiveToggleButton
+                            isActive={serviceType.isActive}
+                            onClick={() => void handleToggleStatus(serviceType)}
                         />
                     ),
                 },
@@ -105,26 +119,10 @@ export default function ServiceTypesPage() {
                     header: "Actions",
                     className: "text-right",
                     cell: (serviceType) => (
-                        <CatalogActionsRow>
-                            <CatalogActionIconButton
-                                onClick={() => openEditModal(serviceType)}
-                                className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
-                                title="Edit"
-                                icon={<Edit size={18} />}
-                            />
-                            <CatalogActionIconButton
-                                onClick={() => void handleToggleStatus(serviceType)}
-                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                                title={serviceType.isActive ? "Deactivate" : "Activate"}
-                                icon={<ToggleLeft size={18} />}
-                            />
-                            <CatalogActionIconButton
-                                onClick={() => void handleDelete(serviceType.id)}
-                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                title="Delete"
-                                icon={<Trash2 size={18} />}
-                            />
-                        </CatalogActionsRow>
+                        <CatalogEditDeleteActions
+                            onEdit={() => openEditModal(serviceType)}
+                            onDelete={() => setDeletingServiceType(serviceType)}
+                        />
                     ),
                 },
             ]}
@@ -166,5 +164,48 @@ export default function ServiceTypesPage() {
                 </>
             )}
         />
+        
+        <CatalogModal
+            isOpen={!!deletingServiceType}
+            onClose={() => !isDeleting && setDeletingServiceType(null)}
+            title="Delete Service Type"
+        >
+            <div className="p-6 space-y-4">
+                <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                    <div>
+                        <p className="text-sm font-semibold text-red-700">
+                            Delete confirmation
+                        </p>
+                        <p className="mt-1 text-sm text-red-600">
+                            Are you sure you want to delete <strong>&ldquo;{deletingServiceType?.name}&rdquo;</strong>?
+                        </p>
+                    </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                    <button
+                        type="button"
+                        disabled={isDeleting}
+                        onClick={() => setDeletingServiceType(null)}
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        disabled={isDeleting}
+                        onClick={() => void confirmDelete()}
+                        className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
+                    >
+                        {isDeleting ? (
+                            <><Loader2 size={14} className="animate-spin" /> Deleting…</>
+                        ) : (
+                            "Yes, Delete Service Type"
+                        )}
+                    </button>
+                </div>
+            </div>
+        </CatalogModal>
+        </>
     );
 }

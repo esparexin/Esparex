@@ -1,3 +1,4 @@
+import { Brand, CreateBrandDTO, UpdateBrandDTO } from "@shared/schemas/catalog.schema";
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 import { buildQueryString } from "./queryParams";
@@ -6,32 +7,25 @@ export interface BrandFilters {
     search?: string;
     categoryId?: string;
     status?: string;
+    page?: string | number;
+    limit?: string | number;
     [key: string]: string | number | boolean | undefined;
-}
-
-export interface BrandData {
-    id?: string;
-    name: string;
-    categoryId?: string;
-    categoryIds?: string[];
-    status?: string;
-    isActive?: boolean;
 }
 
 export async function getBrands(filters?: BrandFilters) {
     const query = buildQueryString(filters);
-    return adminFetch<BrandData[]>(`${ADMIN_ROUTES.BRANDS}?${query}`);
+    return adminFetch<{ items: Brand[], total: number } | Brand[]>(`${ADMIN_ROUTES.BRANDS}?${query}`);
 }
 
-export async function createBrand(data: BrandData) {
-    return adminFetch<BrandData>(ADMIN_ROUTES.BRANDS, {
+export async function createBrand(data: CreateBrandDTO) {
+    return adminFetch<Brand>(ADMIN_ROUTES.BRANDS, {
         method: "POST",
         body: data
     });
 }
 
-export async function updateBrand(id: string, data: BrandData) {
-    return adminFetch<BrandData>(`${ADMIN_ROUTES.BRANDS}/${id}`, {
+export async function updateBrand(id: string, data: UpdateBrandDTO) {
+    return adminFetch<Brand>(`${ADMIN_ROUTES.BRANDS}/${id}`, {
         method: "PUT",
         body: data
     });

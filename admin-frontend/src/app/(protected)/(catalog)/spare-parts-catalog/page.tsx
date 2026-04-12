@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Wrench } from "lucide-react";
+import { Wrench, AlertTriangle, Loader2 } from "lucide-react";
 import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { sparePartsMasterTabs } from "@/components/layout/adminModuleTabSets";
@@ -14,6 +14,7 @@ import {
     CatalogSearchAndCategoryFilters,
     CatalogSelectFilter,
     CatalogActiveToggleButton,
+    CatalogActiveCheckboxField,
 } from "@/components/catalog/CatalogUiPrimitives";
 import {
     buildSpareCategoryDisplayRows,
@@ -103,6 +104,15 @@ function SparePartsCatalogPageContent({
     });
 
     const [deletingItem, setDeletingItem] = useState<SparePart | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const confirmDelete = async () => {
+        if (!deletingItem) return;
+        setIsDeleting(true);
+        const success = await handleDelete(deletingItem.id);
+        setIsDeleting(false);
+        if (success) setDeletingItem(null);
+    };
 
     return (
         <>
@@ -293,18 +303,18 @@ function SparePartsCatalogPageContent({
                             ) : null}
                         </div>
 
-                        <div className="space-y-1.5">
+                        <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
-                            <select
-                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                value={String(formData.isActive)}
-                                onChange={(event) =>
-                                    setFormData((prev) => ({ ...prev, isActive: event.target.value === "true" }))
+                            <CatalogActiveCheckboxField
+                                checked={formData.isActive}
+                                onChange={(checked) => setFormData((prev) => ({ ...prev, isActive: checked }))}
+                                label={
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-semibold">Active Status</span>
+                                        <span className="text-[10px] text-slate-500 font-medium">Inactive parts are hidden from the public catalog and ad creation steps.</span>
+                                    </div>
                                 }
-                            >
-                                <option value="true">Active</option>
-                                <option value="false">Inactive (Hidden)</option>
-                            </select>
+                            />
                         </div>
                     </>
                 );
@@ -313,39 +323,54 @@ function SparePartsCatalogPageContent({
 
         <CatalogModal
             isOpen={!!deletingItem}
-            onClose={() => setDeletingItem(null)}
+            onClose={() => !isDeleting && setDeletingItem(null)}
             title="Delete Spare Part"
         >
-            <div className="space-y-4">
-                <p className="text-sm text-slate-600">
-                    Are you sure you want to delete <span className="font-bold text-slate-900">{deletingItem?.name}</span>?
-                </p>
+            <div className="space-y-6">
+                <div className="flex items-start gap-4 p-4 bg-amber-50 rounded-lg border border-amber-100">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                        <AlertTriangle size={24} />
+                    </div>
+                    <div className="space-y-1">
+                        <h4 className="text-sm font-bold text-amber-900 uppercase tracking-tight">Destructive Action</h4>
+                        <p className="text-sm text-amber-800 leading-relaxed">
+                            Are you sure you want to delete <span className="font-bold">"{deletingItem?.name}"</span>? 
+                            This cannot be undone.
+                        </p>
+                    </div>
+                </div>
+
                 <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                    <h4 className="flex items-center gap-2 text-sm font-semibold text-red-900">
-                        Cascade Delete Warning
+                    <h4 className="flex items-center gap-2 text-sm font-semibold text-red-900 leading-none mb-2">
+                        Cascade Impact Warning
                     </h4>
-                    <p className="mt-1 text-sm text-red-700">
-                        Any User Ads using this Master Part will lose their reference, but the ads themselves will not be deleted.
+                    <p className="text-xs text-red-700 leading-relaxed">
+                        Any User Ads using this Master Part will lose their reference, although the ads themselves will persist.
                     </p>
                 </div>
-                <div className="flex justify-end gap-3 pt-4">
+
+                <div className="flex justify-end gap-3 pt-2">
                     <button
+                        disabled={isDeleting}
                         onClick={() => setDeletingItem(null)}
-                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         autoFocus
-                        onClick={async () => {
-                            if (deletingItem) {
-                                await handleDelete(deletingItem.id);
-                                setDeletingItem(null);
-                            }
-                        }}
-                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                        disabled={isDeleting}
+                        onClick={confirmDelete}
+                        className="flex items-center gap-2 rounded-lg bg-red-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition-all shadow-sm active:transform active:scale-95 disabled:opacity-75"
                     >
-                        Yes, Delete It
+                        {isDeleting ? (
+                            <>
+                                <Loader2 size={18} className="animate-spin" />
+                                Deleting...
+                            </>
+                        ) : (
+                            "Confirm Delete"
+                        )}
                     </button>
                 </div>
             </div>

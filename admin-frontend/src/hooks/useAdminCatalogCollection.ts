@@ -40,7 +40,7 @@ interface UseAdminCatalogCollectionOptions<
     deleteItem: (id: string) => Promise<AdminResponseLike>;
     deleteSuccessMessage: string;
     deleteErrorMessage: string;
-    deleteConfirmMessage: string;
+    deleteConfirmMessage?: string;
     deleteStrategy?: "filter" | "refresh";
     initialPagination?: Partial<AdminListPagination>;
 }
@@ -182,7 +182,7 @@ export function useAdminCatalogCollection<
 
     const handleDelete = useCallback(
         async (id: string) => {
-            if (!window.confirm(deleteConfirmMessage)) {
+            if (deleteConfirmMessage && !window.confirm(deleteConfirmMessage)) {
                 return false;
             }
 

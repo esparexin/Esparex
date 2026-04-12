@@ -1,13 +1,4 @@
-import { z } from "zod";
-export const ModelDataSchema = z.object({
-    id: z.string().optional(),
-    name: z.string(),
-    brandId: z.string(),
-    categoryId: z.string(),
-    status: z.string().optional(),
-    modelId: z.string().optional(),
-});
-
+import { Model, CreateModelDTO, UpdateModelDTO } from "@shared/schemas/catalog.schema";
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 
@@ -16,20 +7,14 @@ export interface ModelFilters {
     brandId?: string;
     categoryId?: string;
     status?: string;
-    [key: string]: string | undefined;
-}
-
-export interface ModelData {
-    id?: string;
-    name: string;
-    brandId: string;
-    categoryId: string;
-    status?: string;
+    page?: string | number;
+    limit?: string | number;
+    [key: string]: string | number | undefined;
 }
 
 export async function getModels(filters?: ModelFilters) {
     const query = new URLSearchParams(filters as Record<string, string>).toString();
-    return adminFetch<ModelData[]>(`${ADMIN_ROUTES.MODELS}?${query}`);
+    return adminFetch<{ items: Model[], total: number } | Model[]>(`${ADMIN_ROUTES.MODELS}?${query}`);
 }
 
 export async function deleteModel(id: string) {
@@ -38,17 +23,23 @@ export async function deleteModel(id: string) {
     });
 }
 
-export async function createModel(data: ModelData) {
-    return adminFetch<ModelData>(ADMIN_ROUTES.MODELS, {
+export async function createModel(data: CreateModelDTO) {
+    return adminFetch<Model>(ADMIN_ROUTES.MODELS, {
         method: "POST",
         body: data
     });
 }
 
-export async function updateModel(id: string, data: ModelData) {
-    return adminFetch<ModelData>(`${ADMIN_ROUTES.MODELS}/${id}`, {
+export async function updateModel(id: string, data: UpdateModelDTO) {
+    return adminFetch<Model>(`${ADMIN_ROUTES.MODELS}/${id}`, {
         method: "PUT",
         body: data
+    });
+}
+
+export async function toggleModelStatus(id: string) {
+    return adminFetch<Model>(`${ADMIN_ROUTES.MODELS}/${id}/status`, {
+        method: "PATCH"
     });
 }
 

@@ -48,7 +48,6 @@ export function useAdminServiceTypes() {
         deleteItem: deleteServiceType,
         deleteSuccessMessage: "Service type deleted",
         deleteErrorMessage: "Failed to delete service type",
-        deleteConfirmMessage: "Delete this service type? This cannot be undone.",
     });
 
     const handleToggleStatus = async (serviceType: ServiceType) => {
