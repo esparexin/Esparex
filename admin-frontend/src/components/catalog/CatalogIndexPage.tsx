@@ -47,7 +47,7 @@ export function CatalogIndexPage<T extends { id: string | number }>({
     filters,
     filterLayoutClassName,
     error,
-    className = "h-full overflow-y-auto pr-1",
+    className = "",
     children,
 }: CatalogIndexPageProps<T>) {
     return (
@@ -59,7 +59,7 @@ export function CatalogIndexPage<T extends { id: string | number }>({
             className={className}
         >
             <>
-                <div className="space-y-6">
+                <div className="space-y-6 pb-2">
                     {filters ? (
                         <div
                             className={cn(

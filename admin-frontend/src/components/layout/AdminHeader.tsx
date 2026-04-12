@@ -133,7 +133,7 @@ export function AdminHeader() {
         return compactRoutes.includes(firstSegment);
     }, [pathname]);
     return (
-        <header className="relative z-30 shrink-0 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+        <header className="sticky top-0 z-30 shrink-0 border-b border-slate-200/80 bg-white/90 backdrop-blur">
             <div className="flex flex-col gap-4 px-4 py-4 lg:px-8">
                 <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">

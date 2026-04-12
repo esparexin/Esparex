@@ -38,8 +38,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         />
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-visible lg:overflow-hidden">
           <AdminHeader />
-          <main className="flex flex-1 min-h-0 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 pb-24 pt-4 lg:overflow-hidden lg:px-8 lg:pb-8 lg:pt-6">
-            <div className="flex min-h-full flex-1 flex-col lg:h-full lg:min-h-0">
+          <main className="flex flex-1 min-h-0 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 pb-24 pt-4 lg:px-8 lg:pb-8 lg:pt-6">
+            <div className="flex min-h-full flex-1 flex-col">
               {children}
             </div>
           </main>

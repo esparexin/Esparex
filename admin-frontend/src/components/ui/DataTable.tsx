@@ -141,7 +141,7 @@ export function DataTable<T extends { id: string | number }>({
     };
 
     return (
-        <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             {isLoading ? (
                 <div className="w-full bg-white border border-slate-200 rounded-xl overflow-hidden animate-pulse">
                     <div className="h-12 bg-slate-50 border-b border-slate-100" />
@@ -165,7 +165,7 @@ export function DataTable<T extends { id: string | number }>({
                     />
                     <div
                         ref={parentRef}
-                        className={`custom-scrollbar flex-1 min-h-0 overflow-auto ${viewportClassName || ""}`}
+                        className={`custom-scrollbar overflow-auto max-h-[70vh] ${viewportClassName || ""}`}
                     >
                         <table className="w-full text-left text-sm border-collapse min-w-[600px]">
                             <thead className="bg-slate-50 text-slate-500 border-b border-slate-200 sticky top-0 z-10">
