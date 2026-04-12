@@ -435,6 +435,50 @@ export const deactivateAdmin = async (req: Request, res: Response) => {
     }
 };
 
+export const toggleAdminStatus = async (req: Request, res: Response) => {
+    try {
+        const targetId = typeof req.params.id === 'string' ? req.params.id : '';
+        if (!targetId) {
+            return sendAdminError(req, res, 'Invalid admin id', 400);
+        }
+        const currentId = (req.user as IAuthUser)._id.toString();
+
+        const admin = await Admin.findById(targetId);
+        if (!admin) {
+            return sendAdminError(req, res, 'Admin not found', 404);
+        }
+
+        const isCurrentlyActive = admin.status === USER_STATUS.ACTIVE;
+        const nextStatus = isCurrentlyActive ? USER_STATUS.INACTIVE : USER_STATUS.ACTIVE;
+
+        if (targetId === currentId && !isCurrentlyActive === false) {
+             // Case: currently active, trying to set to inactive
+            if (nextStatus === USER_STATUS.INACTIVE) {
+                return sendAdminError(req, res, 'You cannot deactivate yourself', 400);
+            }
+        }
+
+        if (isCurrentlyActive && await isLastActiveSuperAdmin(targetId)) {
+            return sendAdminError(req, res, 'Cannot deactivate the last active Super Admin', 400);
+        }
+
+        admin.status = nextStatus;
+        await admin.save();
+
+        if (nextStatus === USER_STATUS.INACTIVE) {
+            await revokeAdminSessionsForAdmin(targetId);
+        }
+
+        const adminObj = admin.toObject();
+        delete (adminObj as any).password;
+
+        await logAdminAction(req, 'TOGGLE_ADMIN_STATUS', 'Admin', targetId, { status: nextStatus });
+        sendSuccessResponse(res, adminObj, `Admin status updated to ${nextStatus}`);
+    } catch (error: unknown) {
+        sendAdminError(req, res, error);
+    }
+};
+
 export const deleteUser = async (req: Request, res: Response) => {
     try {
         await userStatusService.updateUserStatus(req.params.id as string, USER_STATUS.DELETED, {

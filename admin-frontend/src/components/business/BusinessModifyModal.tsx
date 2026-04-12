@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Business } from "@/types/business";
 import { AdminApiError } from "@/lib/api/adminClient";
-import { getLocationOptions } from "@/lib/api/locations";
+import { getLocationOptions, reverseGeocode } from "@/lib/api/locations";
 import type { Location } from "@/types/location";
 
 type CanonicalCoordinates = Business["location"]["coordinates"] | null;
@@ -73,7 +73,25 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
             })
             : "",
     );
+    const [detecting, setDetecting] = useState(false);
     type FormTextKey = Exclude<keyof typeof form, "coordinates">;
+
+    // Smart Pincode Extraction from Address Summary
+    useEffect(() => {
+        if (form.pincode) return; // Don't override existing pincode
+        const match = form.address.match(/\b\d{6}\b/);
+        if (match) {
+            setForm(f => ({ ...f, pincode: match[0] }));
+        }
+    }, [form.address, form.pincode]);
+
+    // Auto-compute Address Summary from granular fields
+    useEffect(() => {
+        const parts = [form.shopNo, form.street, form.landmark, form.city].filter(Boolean);
+        if (parts.length > 0 && !form.address) {
+             setForm(f => ({ ...f, address: parts.join(', ') }));
+        }
+    }, [form.shopNo, form.street, form.landmark, form.city, form.address]);
 
     useEffect(() => {
         const nextQuery = locationQuery.trim();
@@ -148,11 +166,57 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
             coordinates: location.coordinates ?? null,
             city: location.city || location.name || previous.city,
             state: location.state || previous.state,
+            pincode: location.pincode || previous.pincode,
         }));
         setSelectedLocationLabel(formatLocationLabel(location));
         setLocationQuery("");
         setLocationResults([]);
         setLocationSearchError("");
+    };
+
+    const handleDetectLocation = () => {
+        if (!navigator.geolocation) {
+            setError("Geolocation is not supported by your browser.");
+            return;
+        }
+
+        setDetecting(true);
+        setError("");
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                try {
+                    const { latitude, longitude } = position.coords;
+                    const coords = { type: "Point", coordinates: [longitude, latitude] } as const;
+                    
+                    // Call reverse geocode to get city/state/pincode
+                    const match = await reverseGeocode(latitude, longitude);
+                    
+                    setForm(f => ({
+                        ...f,
+                        coordinates: coords,
+                        city: match?.city || f.city,
+                        state: match?.state || f.state,
+                        pincode: match?.pincode || f.pincode,
+                        locationId: match?.locationId || match?.id || f.locationId
+                    }));
+
+                    if (match) {
+                        setSelectedLocationLabel(formatLocationLabel(match));
+                    }
+                    
+                    setDetecting(false);
+                } catch (err) {
+                    setError("Failed to resolve address from your position.");
+                    setDetecting(false);
+                }
+            },
+            (err) => {
+                setError(`Location access denied or failed: ${err.message}`);
+                setDetecting(false);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
     };
 
     const handleSubmit = async () => {
@@ -226,8 +290,21 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
 
                     {/* Location */}
                     <section className="space-y-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                            <MapPin size={12} /> Location
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between gap-1.5">
+                            <span className="flex items-center gap-1.5"><MapPin size={12} /> Location</span>
+                            <button
+                                type="button"
+                                onClick={handleDetectLocation}
+                                disabled={detecting || loading}
+                                className="text-primary hover:text-primary/80 transition-colors flex items-center gap-1 normal-case font-semibold h-6 px-2 rounded-md hover:bg-primary/5"
+                            >
+                                {detecting ? (
+                                    <Loader2 size={12} className="animate-spin" />
+                                ) : (
+                                    <MapPin size={12} />
+                                )}
+                                {detecting ? "Detecting..." : "Detect Current Location"}
+                            </button>
                         </p>
                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                             <div className="space-y-1">

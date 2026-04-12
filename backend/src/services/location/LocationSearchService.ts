@@ -68,42 +68,74 @@ let hasWarnedAtlasSearchFallback = false;
 const lookupPincodeViaNominatim = (pincode: string): Promise<NormalizedLocationResponse | null> => {
     return new Promise((resolve) => {
         const url = `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(pincode)}&country=India&format=json&limit=1&addressdetails=1`;
-        const req = https.get(url, { headers: { 'User-Agent': 'EsparexApp/1.0' } }, (res) => {
-            let data = '';
-            res.on('data', (chunk: Buffer) => { data += chunk.toString(); });
-            res.on('end', () => {
-                try {
-                    const results = JSON.parse(data) as Array<{
-                        address?: { city?: string; town?: string; village?: string; county?: string; state?: string; postcode?: string };
-                        lat?: string; lon?: string; display_name?: string;
-                    }>;
-                    const first = results[0];
-                    if (!first?.address) return resolve(null);
-                    const addr = first.address;
-                    const city = addr.city || addr.town || addr.village || addr.county || '';
-                    const state = addr.state || '';
-                    if (!city || !state) return resolve(null);
-                    const lat = parseFloat(first.lat ?? '');
-                    const lon = parseFloat(first.lon ?? '');
-                    resolve(mapToLocationResponse({
-                        name: city,
-                        city,
-                        state,
-                        country: 'India',
-                        level: 'city',
-                        display: `${city}, ${state}`,
-                        address: `${city}, ${state} - ${pincode}`,
-                        pincode,
-                        isActive: true,
-                        coordinates: !isNaN(lat) && !isNaN(lon) ? { type: 'Point', coordinates: [lon, lat] } : undefined,
-                    }));
-                } catch {
-                    resolve(null);
-                }
+        
+        const req = https.get(
+            url, 
+            { 
+                headers: { 'User-Agent': 'EsparexAdmin/1.0 (admin-backend)' },
+                timeout: 5000 
+            }, 
+            (res) => {
+                let data = '';
+                res.on('data', (chunk: Buffer) => { data += chunk.toString(); });
+                res.on('end', () => {
+                    try {
+                        const results = JSON.parse(data) as Array<{
+                            address?: { city?: string; town?: string; village?: string; county?: string; state?: string; postcode?: string };
+                            lat?: string; lon?: string; display_name?: string;
+                        }>;
+                        const first = results[0];
+                        if (!first?.address) {
+                            logger.info('Nominatim: No address found for pincode', { pincode });
+                            return resolve(null);
+                        }
+                        const addr = first.address;
+                        const city = addr.city || addr.town || addr.village || addr.county || '';
+                        const state = addr.state || '';
+                        if (!city || !state) {
+                            logger.info('Nominatim: Incomplete data (city/state missing)', { pincode, addr });
+                            return resolve(null);
+                        }
+                        const lat = parseFloat(first.lat ?? '');
+                        const lon = parseFloat(first.lon ?? '');
+                        
+                        logger.info('Nominatim: Successfully resolved pincode', { pincode, city, state });
+                        resolve(mapToLocationResponse({
+                            name: city,
+                            city,
+                            state,
+                            country: 'India',
+                            level: 'city',
+                            display: `${city}, ${state}`,
+                            address: `${city}, ${state} - ${pincode}`,
+                            pincode,
+                            isActive: true,
+                            coordinates: !isNaN(lat) && !isNaN(lon) ? { type: 'Point', coordinates: [lon, lat] } : undefined,
+                        }));
+                    } catch (parseError) {
+                        logger.error('Nominatim: Failed to parse response', { 
+                            pincode, 
+                            error: parseError instanceof Error ? parseError.message : String(parseError) 
+                        });
+                        resolve(null);
+                    }
+                });
+            }
+        );
+
+        req.on('error', (err) => {
+            logger.warn('Nominatim: Request failed', { 
+                pincode, 
+                error: err.message 
             });
+            resolve(null);
         });
-        req.on('error', () => resolve(null));
-        req.setTimeout(4000, () => { req.destroy(); resolve(null); });
+
+        req.on('timeout', () => {
+            logger.warn('Nominatim: Request timed out', { pincode });
+            req.destroy();
+            resolve(null);
+        });
     });
 };
 

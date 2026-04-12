@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import https from 'https';
 import Location from '../../models/Location';
 import AdminBoundary from '../../models/AdminBoundary';
 import LocationAnalytics from '../../models/LocationAnalytics';

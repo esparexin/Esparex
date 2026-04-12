@@ -19,8 +19,10 @@ import {
 } from './adminBaseController';
 import {
     normalizeLocationResponse,
-    normalizeCoordinates
+    normalizeCoordinates,
+    reverseGeocode as runReverseGeocode
 } from '../../services/location/LocationNormalizer';
+import { reverseGeocode as getReverseGeocodeMatch } from '../../services/location/ReverseGeocodeService';
 import {
     buildLocationSummary,
     buildHierarchyPath,
@@ -212,6 +214,22 @@ export const getDistinctStates = async (req: Request, res: Response) => {
 
         await setCache(ADMIN_STATES_CACHE_KEY, sorted, ADMIN_STATES_CACHE_TTL_SECONDS);
         return sendSuccessResponse(res, sorted);
+    } catch (error: unknown) {
+        return sendBaseAdminError(req, res, error);
+    }
+};
+
+export const reverseGeocode = async (req: Request, res: Response) => {
+    try {
+        const lat = parseFloat(req.query.lat as string);
+        const lng = parseFloat(req.query.lng as string);
+
+        if (isNaN(lat) || isNaN(lng)) {
+            return sendBaseAdminError(req, res, 'Coordinates (lat, lng) are required.', 400);
+        }
+
+        const match = await getReverseGeocodeMatch(lat, lng);
+        sendSuccessResponse(res, match);
     } catch (error: unknown) {
         return sendBaseAdminError(req, res, error);
     }

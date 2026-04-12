@@ -153,6 +153,7 @@ router.post('/admin-users', requireSuperAdmin, requirePermission('system:config'
 router.get('/admin-users/:id', requireSuperAdmin, validateObjectId, usersController.getAdminById);
 router.patch('/admin-users/:id', requireSuperAdmin, adminMutationLimiter, validateObjectId, usersController.updateAdmin);
 router.patch('/admin-users/:id/deactivate', requireSuperAdmin, adminMutationLimiter, validateObjectId, usersController.deactivateAdmin);
+router.patch('/admin-users/:id/toggle', requireSuperAdmin, adminMutationLimiter, validateObjectId, usersController.toggleAdminStatus);
 router.delete('/admin-users/:id', requireSuperAdmin, adminMutationLimiter, validateObjectId, usersController.deleteAdmin);
 
 // ============================================
@@ -205,6 +206,7 @@ router.post('/locations/stats/refresh', requirePermission('system:config'), admi
 router.post('/locations/migrate-paths', requirePermission('system:config'), adminMutationLimiter, runLocationPathMigration);
 router.get('/locations/states', requirePermission('system:config'), searchLimiter, getDistinctStates);
 router.get('/locations/moderation', requirePermission('system:config'), getModerationQueue);
+router.get('/locations/reverse-geocode', requirePermission('users:write'), reverseGeocode);
 
 // ✅ FILTER / QUERY
 router.get('/locations', requirePermission('system:config'), searchLimiter, validateRequest({ query: adminLocationListQuerySchema }), getAllLocations);

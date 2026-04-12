@@ -1,28 +1,23 @@
 "use client";
-import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { UserPlus, Power, Trash2, Save, XCircle } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
-import { useToast } from "@/context/ToastContext";
-import { adminFetch } from "@/lib/api/adminClient";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { StatusChip } from "@/components/ui/StatusChip";
-import { useAdminMutation } from "@/hooks/useAdminMutation";
 import { AdminUserFormCard } from "@/components/system/adminUsers/AdminUserFormCard";
 import { AdminUserIdentityCell } from "@/components/system/adminUsers/AdminUserIdentityCell";
 import { AdminUserRoleBadge } from "@/components/system/adminUsers/AdminUserRoleBadge";
+import { useAdminUsers } from "@/hooks/useAdminUsers";
+import { CatalogModal } from "@/components/catalog/CatalogModal";
 import {
     DEFAULT_CREATE_FORM,
     getAdminStatusPresentation,
-    normalizeAdmin,
-    parsePermissionsText,
     toEditableAdminFormState,
+    getAdminDisplayName,
     type ManagedAdmin,
 } from "@/components/system/adminUsers/adminUsers";
 import type { AdminCreateUserFormValues, AdminEditUserFormValues } from "@/schemas/admin.schemas";
@@ -40,62 +35,37 @@ const ADMIN_IDENTITY_COLUMNS: ColumnDef<ManagedAdmin>[] = [
 
 export default function AdminUsersPage() {
     const searchParams = useSearchParams();
-    const { showToast } = useToast();
-    const { isPending: isSaving, runMutation } = useAdminMutation();
-    const [admins, setAdmins] = useState<ManagedAdmin[]>([]);
-    const [loading, setLoading] = useState(true);
+    
+    const {
+        admins,
+        loading,
+        isMutating,
+        handleCreate,
+        handleUpdate,
+        handleToggleStatus,
+        handleDelete
+    } = useAdminUsers();
+
     const [editingAdminId, setEditingAdminId] = useState<string | null>(null);
     const [editingAdmin, setEditingAdmin] = useState<ManagedAdmin | null>(null);
     const [permissionsDraft, setPermissionsDraft] = useState("");
+    const [deletingAdminId, setDeletingAdminId] = useState<string | null>(null);
+    const [showCreateForm, setShowCreateForm] = useState(false);
+    
     const isPermissionsView = searchParams.get("view") === "permissions";
 
-    const loadAdmins = async () => {
-        setLoading(true);
-        try {
-            const response = await adminFetch<Record<string, unknown>>(ADMIN_ROUTES.ADMIN_USERS);
-            const parsed = parseAdminResponse<Record<string, unknown>>(response);
-            setAdmins(parsed.items.map(normalizeAdmin));
-        } catch (error) {
-            showToast(mapErrorToMessage(error, "Failed to load admin users"), "error");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        void loadAdmins();
-    }, []);
-
     const onCreate = async (values: AdminCreateUserFormValues) => {
-        const name = `${values.firstName} ${values.lastName}`.trim();
-        await runMutation(
-            () =>
-                adminFetch(ADMIN_ROUTES.ADMIN_USERS, {
-                    method: "POST",
-                    body: {
-                        firstName: values.firstName.trim(),
-                        lastName: values.lastName.trim(),
-                        name,
-                        email: values.email.trim(),
-                        password: values.password,
-                        role: values.role,
-                        permissions: parsePermissionsText(values.permissionsText),
-                    },
-                }),
-            {
-                successMessage: "Admin created successfully",
-                failureMessage: "Failed to create admin",
-                onSuccess: async () => {
-                    await loadAdmins();
-                },
-            }
-        );
+        const result = await handleCreate(values);
+        if (result?.success) {
+            setShowCreateForm(false);
+        }
     };
 
     const onStartEdit = (admin: ManagedAdmin) => {
         setEditingAdminId(admin.id);
         setEditingAdmin(admin);
         setPermissionsDraft(admin.permissions.join(", "));
+        setShowCreateForm(false);
     };
 
     const onCancelEdit = () => {
@@ -105,62 +75,27 @@ export default function AdminUsersPage() {
     };
 
     const onSaveEdit = async (values: AdminEditUserFormValues) => {
-        if (!editingAdmin) return;
-
-        await runMutation(
-            () =>
-                adminFetch(ADMIN_ROUTES.ADMIN_USER_BY_ID(editingAdmin.id), {
-                    method: "PATCH",
-                    body: {
-                        firstName: values.firstName.trim(),
-                        lastName: values.lastName.trim(),
-                        email: values.email.trim(),
-                        role: values.role,
-                        status: values.status,
-                        permissions: parsePermissionsText(values.permissionsText),
-                    },
-                }),
-            {
-                successMessage: "Admin updated successfully",
-                failureMessage: "Failed to update admin",
-                onSuccess: async () => {
-                    onCancelEdit();
-                    await loadAdmins();
-                },
-            }
-        );
+        if (!editingAdminId) return;
+        const result = await handleUpdate(editingAdminId, values);
+        if (result?.success) {
+            onCancelEdit();
+        }
     };
 
-    const onDeactivate = async (admin: ManagedAdmin) => {
-        await runMutation(
-            () =>
-                adminFetch(ADMIN_ROUTES.ADMIN_USER_DEACTIVATE(admin.id), {
-                    method: "PATCH",
-                    body: {},
-                }),
-            {
-                successMessage: `Deactivated ${admin.email}`,
-                failureMessage: "Failed to deactivate admin",
-                onSuccess: async () => {
-                    await loadAdmins();
-                },
-            }
-        );
+    const confirmDelete = (id: string) => {
+        setDeletingAdminId(id);
     };
 
-    const onDelete = async (admin: ManagedAdmin) => {
-        if (!window.confirm(`Delete admin ${admin.email}?`)) return;
+    const onConfirmDelete = async () => {
+        if (!deletingAdminId) return;
+        const result = await handleDelete(deletingAdminId);
+        if (result?.success) {
+            setDeletingAdminId(null);
+        }
+    };
 
-        await runMutation(
-            () => adminFetch(ADMIN_ROUTES.ADMIN_USER_BY_ID(admin.id), { method: "DELETE" }),
-            {
-                successMessage: `Deleted ${admin.email}`,
-                failureMessage: "Failed to delete admin",
-                onSuccess: async () => {
-                    await loadAdmins();
-                },
-            }
-        );
+    const onToggleStatus = async (admin: ManagedAdmin) => {
+        await handleToggleStatus(admin.id);
     };
 
     const permissionsColumns: ColumnDef<ManagedAdmin>[] = useMemo(
@@ -181,7 +116,7 @@ export default function AdminUsersPage() {
                                 />
                                 <button
                                     className="inline-flex items-center gap-1 rounded-md bg-slate-900 px-2 py-1 text-xs font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
-                                    disabled={isSaving}
+                                    disabled={isMutating}
                                     onClick={() => {
                                         if (!editingAdmin) return;
                                         void onSaveEdit({
@@ -227,7 +162,7 @@ export default function AdminUsersPage() {
                 ),
             },
         ],
-        [editingAdmin, editingAdminId, isSaving, permissionsDraft]
+        [editingAdmin, editingAdminId, isMutating, permissionsDraft]
     );
 
     const columns: ColumnDef<ManagedAdmin>[] = useMemo(
@@ -257,31 +192,37 @@ export default function AdminUsersPage() {
                 cell: (admin) => (
                     <div className="flex items-center gap-2">
                         <button
-                            className="rounded-md border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                            onClick={() => onToggleStatus(admin)}
+                            disabled={isMutating}
+                            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-primary transition-all group"
+                            title={admin.status === "inactive" ? "Activate" : "Deactivate"}
+                        >
+                            <Power size={14} className={admin.status === "inactive" ? "text-slate-300" : "text-emerald-500"} />
+                        </button>
+                        <button
                             onClick={() => onStartEdit(admin)}
+                            disabled={isMutating}
+                            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600 transition-all"
+                            title="Edit Account"
                         >
-                            Edit
+                            <Save size={14} />
                         </button>
                         <button
-                            className="inline-flex items-center gap-1 rounded-md border border-amber-200 px-2 py-1 text-xs font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-50"
-                            disabled={isSaving || admin.status === "inactive"}
-                            onClick={() => void onDeactivate(admin)}
+                            onClick={() => confirmDelete(admin.id)}
+                            disabled={isMutating}
+                            className="p-1.5 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600 transition-all"
+                            title="Delete Account"
                         >
-                            <Power size={12} /> Deactivate
-                        </button>
-                        <button
-                            className="inline-flex items-center gap-1 rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-                            disabled={isSaving}
-                            onClick={() => void onDelete(admin)}
-                        >
-                            <Trash2 size={12} /> Delete
+                            <Trash2 size={14} />
                         </button>
                     </div>
                 ),
             },
         ],
-        [isSaving]
+        [isMutating]
     );
+
+    const deletingAdmin = admins.find(a => a.id === deletingAdminId);
 
     return (
         <AdminPageShell
@@ -289,46 +230,86 @@ export default function AdminUsersPage() {
             description={isPermissionsView
                 ? "Manage admin roles and explicit permission strings."
                 : "Create, update, deactivate, and review administrator accounts."}
-            tabs={<AdminModuleTabs tabs={administrationTabs} />}
+            actions={!isPermissionsView && !showCreateForm && !editingAdminId && (
+                <button 
+                    onClick={() => setShowCreateForm(true)}
+                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 text-sm font-bold"
+                >
+                    <UserPlus size={18} />
+                    <span>New Admin</span>
+                </button>
+            )}
         >
-        <div className="space-y-6">
+            <AdminModuleTabs tabs={administrationTabs} activeTab="admin-users" />
 
-          {isPermissionsView ? (
-            <DataTable data={admins} columns={permissionsColumns} isLoading={loading} emptyMessage="No admin users found." />
-          ) : (<>
+            <div className="space-y-6 mt-6">
+                {!isPermissionsView && showCreateForm && (
+                    <AdminUserFormCard
+                        mode="create"
+                        values={DEFAULT_CREATE_FORM}
+                        submitLabel="Create Admin"
+                        secondaryLabel="Cancel"
+                        submitIcon={UserPlus}
+                        secondaryIcon={XCircle}
+                        isSubmitting={isMutating}
+                        permissionsPlaceholder="Permissions, comma separated (example: users:read, ads:write)"
+                        onSubmit={onCreate}
+                        onSecondary={() => setShowCreateForm(false)}
+                    />
+                )}
 
-            <AdminUserFormCard
-                mode="create"
-                values={DEFAULT_CREATE_FORM}
-                submitLabel="Create Admin"
-                secondaryLabel="Clear"
-                submitIcon={UserPlus}
-                secondaryIcon={XCircle}
-                isSubmitting={isSaving}
-                permissionsPlaceholder="Permissions, comma separated (example: users:read, ads:write)"
-                onSubmit={(values) => void onCreate(values)}
-                onSecondary={() => undefined}
-            />
+                {!isPermissionsView && editingAdminId && editingAdmin && (
+                    <AdminUserFormCard
+                        mode="edit"
+                        title={`Edit Admin: ${getAdminDisplayName(editingAdmin)}`}
+                        values={toEditableAdminFormState(editingAdmin)}
+                        submitLabel="Save Changes"
+                        secondaryLabel="Cancel"
+                        submitIcon={Save}
+                        secondaryIcon={XCircle}
+                        isSubmitting={isMutating}
+                        permissionsPlaceholder="Permissions, comma separated"
+                        onSubmit={onSaveEdit}
+                        onSecondary={onCancelEdit}
+                    />
+                )}
 
-            {editingAdminId && editingAdmin ? (
-                <AdminUserFormCard
-                    mode="edit"
-                    title="Edit Admin"
-                    values={toEditableAdminFormState(editingAdmin)}
-                    submitLabel="Save"
-                    secondaryLabel="Cancel"
-                    submitIcon={Save}
-                    secondaryIcon={XCircle}
-                    isSubmitting={isSaving}
-                    permissionsPlaceholder="Permissions, comma separated"
-                    onSubmit={(values) => void onSaveEdit(values)}
-                    onSecondary={onCancelEdit}
+                <DataTable
+                    columns={isPermissionsView ? permissionsColumns : columns}
+                    data={admins}
+                    loading={loading}
+                    searchPlaceholder="Search admin users..."
                 />
-            ) : null}
+            </div>
 
-            <DataTable data={admins} columns={columns} isLoading={loading} emptyMessage="No admin users found." />
-          </>)}
-        </div>
+            {/* Delete Confirmation Modal */}
+            <CatalogModal
+                isOpen={!!deletingAdminId}
+                onClose={() => setDeletingAdminId(null)}
+                title="Confirm Account Deletion"
+            >
+                <div className="p-6">
+                    <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                        Are you sure you want to delete the administrator account for <span className="font-bold text-slate-900">{deletingAdmin ? getAdminDisplayName(deletingAdmin) : "this user"}</span>? This action is permanent and will immediately revoke all access.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <button
+                            onClick={() => setDeletingAdminId(null)}
+                            disabled={isMutating}
+                            className="px-5 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-all text-sm"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={onConfirmDelete}
+                            disabled={isMutating}
+                            className="px-5 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 shadow-lg shadow-red-200 transition-all text-sm flex items-center gap-2"
+                        >
+                            {isMutating ? "Deleting..." : "Confirm Delete"}
+                        </button>
+                    </div>
+                </div>
+            </CatalogModal>
         </AdminPageShell>
     );
 }
