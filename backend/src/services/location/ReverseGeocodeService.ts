@@ -84,7 +84,7 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
     )[0];
 
     const stateLocation = await getPublicCanonicalLocationById(boundary?.locationId);
-    if (!stateLocation) {
+    if (!boundary || !stateLocation) {
         logger.warn('AdminBoundary matched but parent location is missing or inactive.', {
             boundaryId: boundary?.locationId,
             coordinates: { lat, lng }
