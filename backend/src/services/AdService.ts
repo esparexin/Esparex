@@ -60,6 +60,7 @@ import { AdContext } from '../types/ad.types';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '../../../shared/enums/lifecycle';
 import { AD_STATUS, AD_STATUS_VALUES } from '../../../shared/enums/adStatus';
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
 import { AdCreationService } from './AdCreationService';
 import { mutateStatus } from './StatusMutationService';
 import { hydrateAdMetadata, getAds } from './ad/AdAggregationService';
@@ -252,8 +253,9 @@ export const updateAd = async (
 
         if (!updatedAd) return null;
         
-        if (Array.isArray(updatedAd.images) && updatedAd.images.length > 0) {
-            enqueueImageOptimization(adId, 'ad', updatedAd.images).catch(err => {
+        const updatedAdTyped = updatedAd as IAd;
+        if (Array.isArray(updatedAdTyped.images) && updatedAdTyped.images.length > 0) {
+            enqueueImageOptimization(adId, 'ad', updatedAdTyped.images as string[]).catch(err => {
                 logger.error('Failed to enqueue image optimization after Ad edit', err);
             });
         }

@@ -36,25 +36,35 @@ import { connectOpsDb } from './commandUtils';
 import { closeDB } from '../../../config/db';
 
 const DEFAULT_GEOJSON_URL =
-    'https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson';
+    'https://raw.githubusercontent.com/datameet/maps/master/States/admin2.geojson';
 
 // Common name aliases: GeoJSON NAME_1 → canonical state name in our DB
 const STATE_NAME_ALIASES: Record<string, string> = {
     'Orissa': 'Odisha',
     'Uttaranchal': 'Uttarakhand',
+    'Andaman & Nicobar': 'Andaman and Nicobar',
+    'Andaman and Nicobar Islands': 'Andaman and Nicobar',
     'Andaman and Nicobar': 'Andaman and Nicobar',
+    'Jammu & Kashmir': 'Jammu and Kashmir',
     'Jammu and Kashmir': 'Jammu and Kashmir',
     'Dadra and Nagar Haveli': 'Dadra and Nagar Haveli and Daman and Diu',
+    'Dadra & Nagar Haveli': 'Dadra and Nagar Haveli and Daman and Diu',
+    'Daman and Diu': 'Dadra and Nagar Haveli and Daman and Diu',
     'NCT of Delhi': 'Delhi',
+    'Delhi': 'Delhi',
     'Assam': 'Assam',
     'Chandigarh': 'Chandigarh',
     'Puducherry': 'Puducherry',
+    'Pondicherry': 'Puducherry',
+    'Telangana': 'Telangana',
 };
 
 interface GeoJsonFeature {
     type: 'Feature';
     properties: {
-        NAME_1: string;
+        NAME_1?: string;  // geohacker format
+        ST_NM?: string;   // datameet format
+        State?: string;   // alternative key
         [key: string]: unknown;
     };
     geometry: {
@@ -167,7 +177,8 @@ export const adminBoundaryIngestCommand: OpsCommand = {
 
         // 3. Process each feature
         for (const feature of geoJson.features) {
-            const rawName = feature.properties?.NAME_1;
+            // Support both geohacker (NAME_1) and datameet (ST_NM/State) property formats
+            const rawName = feature.properties?.ST_NM ?? feature.properties?.State ?? feature.properties?.NAME_1;
             if (!rawName || !feature.geometry) {
                 unmatched.push(rawName ?? '(no name)');
                 continue;

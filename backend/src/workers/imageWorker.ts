@@ -6,7 +6,6 @@ import { s3Client, getBucketName, extractS3KeyFromUrl, uploadToS3, deleteFromS3B
 import Ad from "../models/Ad";
 import logger from "../utils/logger";
 import { ImageOptimizationJobPayload } from "../queues/imageQueue";
-import { getPublicUrlFromKey } from "../utils/urlHelper";
 
 // Use a strict concurrency of 2 to avoid memory overloads when processing 10MB raw JPEGs natively.
 export const imageOptimizationWorker = new Worker<ImageOptimizationJobPayload>("image-optimization-events", async job => {
@@ -94,7 +93,7 @@ export const imageOptimizationWorker = new Worker<ImageOptimizationJobPayload>("
             });
 
             if (updatedCount > 0) {
-                ad.images = newImagesArray;
+                ad.images = newImagesArray.filter((img): img is string => typeof img === 'string');
                 await ad.save();
                 logger.info(`[ImageWorker] Updated MongoDB Ad ${entityId} with ${updatedCount} optimized URLs`);
             }
