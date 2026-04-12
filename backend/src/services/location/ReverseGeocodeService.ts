@@ -83,18 +83,40 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
         (a, b) => (REVERSE_GEOCODE_LEVEL_PRIORITY[b.level] || 0) - (REVERSE_GEOCODE_LEVEL_PRIORITY[a.level] || 0)
     )[0];
 
-    const location = await getPublicCanonicalLocationById(boundary?.locationId);
-    if (!location) {
-        logger.warn('AdminBoundary matched but parent location is missing or inactive.', { 
+    const stateLocation = await getPublicCanonicalLocationById(boundary?.locationId);
+    if (!stateLocation) {
+        logger.warn('AdminBoundary matched but parent location is missing or inactive.', {
             boundaryId: boundary?.locationId,
             coordinates: { lat, lng }
         });
         return null;
     }
 
-    const [mappedBoundaryLocation] = await mapLocationDocsToResponses([location as LocationInputObject]);
-    return mappedBoundaryLocation || null;
+    // After identifying the state, find the nearest city/district within it.
+    // This gives users "Hyderabad, Telangana" instead of just "Telangana".
+    const nearestCity = await Location.findOne(withPublicCanonicalLocationFilter({
+        level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
+        parentId: boundary.locationId,
+        coordinates: {
+            $near: {
+                $geometry: { type: 'Point', coordinates: [lng, lat] },
+                $maxDistance: REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,
+            }
+        }
+    }))
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
+        .lean<LocationInputObject | null>();
+
+    if (nearestCity) {
+        const [mappedCity] = await mapLocationDocsToResponses([nearestCity as LocationInputObject]);
+        if (mappedCity) return mappedCity;
+    }
+
+    // Fallback to state-level response if no city found within range
+    const [mappedState] = await mapLocationDocsToResponses([stateLocation as LocationInputObject]);
+    return mappedState || null;
 };
+
 
 
 const findNearestReverseGeocodeCandidate = async (
