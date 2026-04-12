@@ -36,7 +36,7 @@ import { connectOpsDb } from './commandUtils';
 import { closeDB } from '../../../config/db';
 
 const DEFAULT_GEOJSON_URL =
-    'https://raw.githubusercontent.com/datameet/maps/master/States/admin2.geojson';
+    'https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson';
 
 // Common name aliases: GeoJSON NAME_1 → canonical state name in our DB
 const STATE_NAME_ALIASES: Record<string, string> = {
