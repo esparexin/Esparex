@@ -67,7 +67,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
             categoryId: "",
             brandId: "",
             sparePartTypeId: "",
-            price: 0,
+            price: undefined as unknown as number, // A5: forces user to enter a price
             description: "",
         },
     });

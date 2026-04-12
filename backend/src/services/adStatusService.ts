@@ -29,11 +29,12 @@ import { MS_IN_DAY, GOVERNANCE } from '../config/constants';
 import logger from '../utils/logger';
 import { lifecycleEvents } from '../events';
 
+// E1: mutateStatus returns doc.toObject() — typed as Record<string, unknown> | null
 export const updateAdStatus = async (
     id: string,
     newStatus: string,
     data: StatusTransitionData
-): Promise<any> => {
+): Promise<Record<string, unknown> | null> => {
     return mutateStatus({
         domain: 'ad',
         entityId: id,
@@ -47,7 +48,9 @@ export const updateAdStatus = async (
     });
 };
 
-export const deleteAd = async (id: string, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'user'): Promise<any> => {
+
+export const deleteAd = async (id: string, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'user'): Promise<Record<string, unknown> | null> => {
+
     return mutateStatus({
         domain: 'ad',
         entityId: id,
@@ -66,7 +69,8 @@ export const deleteAd = async (id: string, actorId?: string, actorType: 'user' |
     });
 };
 
-export const restoreAd = async (id: string, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'user'): Promise<any> => {
+export const restoreAd = async (id: string, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'user'): Promise<Record<string, unknown> | null> => {
+
     return mutateStatus({
         domain: 'ad',
         entityId: id,
@@ -114,12 +118,13 @@ export const computeActiveExpiry = async (listingType: ListingTypeValue = LISTIN
     return new Date(Date.now() + days * MS_IN_DAY);
 };
 
-export const extendAdExpiry = async (id: string, daysToAdd: number, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'admin'): Promise<any> => {
-    const ad = await Ad.findById(id).lean() as any;
+export const extendAdExpiry = async (id: string, daysToAdd: number, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'admin'): Promise<Record<string, unknown> | null> => {
+    // E2: Use typed lean generic instead of 'as any' cast
+    const ad = await Ad.findById(id).lean<{ expiresAt?: Date; status?: string }>();
     if (!ad) return null;
     const currentExpiry = ad.expiresAt ? new Date(ad.expiresAt).getTime() : Date.now();
     const newExpiresAt = new Date(currentExpiry + daysToAdd * MS_IN_DAY);
-    const toStatus = ad.status === LIFECYCLE_STATUS.EXPIRED ? LIFECYCLE_STATUS.LIVE : ad.status;
+    const toStatus = (ad.status === LIFECYCLE_STATUS.EXPIRED ? LIFECYCLE_STATUS.LIVE : ad.status) ?? LIFECYCLE_STATUS.LIVE;
     
     return mutateStatus({
         domain: 'ad',
@@ -130,6 +135,7 @@ export const extendAdExpiry = async (id: string, daysToAdd: number, actorId?: st
         patch: { expiresAt: newExpiresAt }
     });
 };
+
 
 export const expireOutdatedAds = async (): Promise<number> => {
     const { ListingExpiryService } = await import('./ListingExpiryService');

@@ -1,22 +1,29 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { FieldErrors, UseFormSetValue, FieldValues, Path, PathValue } from "react-hook-form";
+import type { FieldError, FieldErrors, UseFormSetValue, FieldValues, Path, PathValue } from "react-hook-form";
 import type { StepData } from "./types";
 
 const NON_FORM_FIELDS = new Set(["errors"]);
 
-const resolveFieldErrorMessage = (fieldError: unknown): string => {
-    const err = fieldError as any;
-    if (!err) return "Invalid field";
-    if (typeof err.message === "string" && err.message.trim()) return err.message;
-    if (typeof err?.root?.message === "string" && err.root.message.trim()) return err.root.message;
-    if (Array.isArray(err)) {
-        const nested = err.find((item: any) => typeof item?.message === "string" && item.message.trim());
+type FieldErrorLike = FieldError | FieldError[] | Record<string, FieldError> | undefined;
+
+const resolveFieldErrorMessage = (fieldError: FieldErrorLike): string => {
+    if (!fieldError) return "Invalid field";
+    if (typeof (fieldError as FieldError).message === "string" && (fieldError as FieldError).message!.trim()) {
+        return (fieldError as FieldError).message!;
+    }
+    if (typeof (fieldError as { root?: FieldError }).root?.message === "string") {
+        return (fieldError as { root: FieldError }).root.message!;
+    }
+    if (Array.isArray(fieldError)) {
+        const nested = (fieldError as FieldError[]).find(
+            (item) => typeof item?.message === "string" && item.message.trim()
+        );
         if (nested?.message) return nested.message;
     }
-    if (err && typeof err === "object") {
-        for (const value of Object.values(err)) {
-            if (value && typeof (value as any).message === "string" && (value as any).message.trim()) {
-                return (value as any).message;
+    if (fieldError && typeof fieldError === "object") {
+        for (const value of Object.values(fieldError as Record<string, FieldError>)) {
+            if (value && typeof value.message === "string" && value.message.trim()) {
+                return value.message;
             }
         }
     }
@@ -65,7 +72,9 @@ export function useBusinessWizardBridge<TFieldValues extends FieldValues>({
         ...(formData as Record<string, unknown>),
         ...(extraFields ?? {}),
         errors: Object.keys(errors).reduce((acc, key) => {
-            acc[key as keyof StepData] = resolveFieldErrorMessage((errors as Record<string, unknown>)[key]);
+            acc[key as keyof StepData] = resolveFieldErrorMessage(
+                (errors as Record<string, FieldErrorLike>)[key]
+            );
             return acc;
         }, {} as NonNullable<StepData["errors"]>),
     } as StepData;

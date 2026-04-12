@@ -61,8 +61,11 @@ export function SmartAlertsTab({
     clearSmartAlertError,
 }: SmartAlertsTabProps) {
     const [selectedLocation, setSelectedLocation] = useState<SmartAlertSelection | null>(null);
+    // C4: Two-step delete confirmation — prevents accidental alert deletion
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const activeAlerts = smartAlerts.filter((alert) => alert.active !== false).length;
     const isEditing = Boolean(editingAlertId);
+
 
     useEffect(() => {
         if (!smartAlertForm.location.trim()) {
@@ -182,15 +185,41 @@ export function SmartAlertsTab({
                                         <Bell className="h-3 w-3" />
                                         {alert.active === false ? "Resume" : "Pause"}
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="gap-2 w-full h-11 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                        onClick={() => handleDeleteAlert(alert.id)}
-                                    >
-                                        <Trash2 className="h-3 w-3" />
-                                        Delete
-                                    </Button>
+                                    {pendingDeleteId === alert.id ? (
+                                        <>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="gap-2 w-full h-11 text-red-600 border-red-300 hover:bg-red-50"
+                                                onClick={() => {
+                                                    setPendingDeleteId(null);
+                                                    handleDeleteAlert(alert.id);
+                                                }}
+                                            >
+                                                <Trash2 className="h-3 w-3" />
+                                                Confirm Delete
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="w-full h-11"
+                                                onClick={() => setPendingDeleteId(null)}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="gap-2 w-full h-11 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            onClick={() => setPendingDeleteId(alert.id)}
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                            Delete
+                                        </Button>
+                                    )}
+
                                 </div>
                             </div>
                         ))}

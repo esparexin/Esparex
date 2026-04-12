@@ -9,7 +9,7 @@ import { normalizeAdmin, type ManagedAdmin, parsePermissionsText } from "@/compo
 import type { AdminCreateUserFormValues, AdminEditUserFormValues } from "@/schemas/admin.schemas";
 
 export function useAdminUsers() {
-    const { isPending: isMutating, runAction } = useAdminMutation();
+    const { isPending: isMutating, runMutation } = useAdminMutation();
     const [admins, setAdmins] = useState<ManagedAdmin[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function useAdminUsers() {
 
     const handleCreate = useCallback(async (values: AdminCreateUserFormValues) => {
         const name = `${values.firstName} ${values.lastName}`.trim();
-        return runAction(
+        return runMutation(
             () => adminFetch(ADMIN_ROUTES.ADMIN_USERS, {
                 method: "POST",
                 body: {
@@ -49,15 +49,16 @@ export function useAdminUsers() {
                 },
             }),
             {
+                failureMessage: "Failed to create admin",
                 successMessage: "Admin created successfully",
                 onSuccess: fetchAdmins
             }
         );
-    }, [runAction, fetchAdmins]);
+    }, [runMutation, fetchAdmins]);
 
     const handleUpdate = useCallback(async (id: string, values: AdminEditUserFormValues) => {
         const name = `${values.firstName} ${values.lastName}`.trim();
-        return runAction(
+        return runMutation(
             () => adminFetch(`${ADMIN_ROUTES.ADMIN_USERS}/${id}`, {
                 method: "PATCH",
                 body: {
@@ -71,35 +72,38 @@ export function useAdminUsers() {
                 },
             }),
             {
+                failureMessage: "Failed to update admin",
                 successMessage: "Admin updated successfully",
                 onSuccess: fetchAdmins
             }
         );
-    }, [runAction, fetchAdmins]);
+    }, [runMutation, fetchAdmins]);
 
     const handleToggleStatus = useCallback(async (id: string) => {
-        return runAction(
+        return runMutation(
             () => adminFetch(`${ADMIN_ROUTES.ADMIN_USERS}/${id}/toggle`, {
                 method: "PATCH"
             }),
             {
+                failureMessage: "Failed to toggle admin status",
                 successMessage: "Admin status toggled",
                 onSuccess: fetchAdmins
             }
         );
-    }, [runAction, fetchAdmins]);
+    }, [runMutation, fetchAdmins]);
 
     const handleDelete = useCallback(async (id: string) => {
-        return runAction(
+        return runMutation(
             () => adminFetch(`${ADMIN_ROUTES.ADMIN_USERS}/${id}`, {
                 method: "DELETE"
             }),
             {
+                failureMessage: "Failed to delete admin",
                 successMessage: "Admin deleted successfully",
                 onSuccess: fetchAdmins
             }
         );
-    }, [runAction, fetchAdmins]);
+    }, [runMutation, fetchAdmins]);
 
     return {
         admins,

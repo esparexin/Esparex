@@ -80,8 +80,8 @@ import {
     getModerationQueue,
     approveRejectLocation,
     refreshLocationStats,
-    runLocationPathMigration,
     getDistinctStates,
+    reverseGeocode,
 } from '../../controllers/admin/adminLocationController';
 import {
     getSystemConfig,
@@ -203,7 +203,6 @@ router.get('/notifications/recipients', requirePermission('content:write'), sear
 // ============================================
 // ✅ STATIC
 router.post('/locations/stats/refresh', requirePermission('system:config'), adminMutationLimiter, refreshLocationStats);
-router.post('/locations/migrate-paths', requirePermission('system:config'), adminMutationLimiter, runLocationPathMigration);
 router.get('/locations/states', requirePermission('system:config'), searchLimiter, getDistinctStates);
 router.get('/locations/moderation', requirePermission('system:config'), getModerationQueue);
 router.get('/locations/reverse-geocode', requirePermission('users:write'), reverseGeocode);

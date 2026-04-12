@@ -182,10 +182,6 @@ export function useAdminCatalogCollection<
 
     const handleDelete = useCallback(
         async (id: string) => {
-            if (deleteConfirmMessage && !window.confirm(deleteConfirmMessage)) {
-                return false;
-            }
-
             return runAction(() => deleteItem(id), {
                 successMessage: deleteSuccessMessage,
                 errorMessage: deleteErrorMessage,
@@ -200,7 +196,6 @@ export function useAdminCatalogCollection<
             });
         },
         [
-            deleteConfirmMessage,
             deleteErrorMessage,
             deleteItem,
             deleteStrategy,

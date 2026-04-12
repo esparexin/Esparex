@@ -47,7 +47,10 @@ export default function BrandsPage() {
     } = useAdminBrands();
 
     const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
+    const [rejectingBrand, setRejectingBrand] = useState<Brand | null>(null);
+    const [rejectionReason, setRejectionReason] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isRejecting, setIsRejecting] = useState(false);
 
     const confirmDelete = async () => {
         if (!deletingBrand) return;
@@ -55,6 +58,15 @@ export default function BrandsPage() {
         const success = await handleDelete(deletingBrand.id);
         setIsDeleting(false);
         if (success) setDeletingBrand(null);
+    };
+
+    const confirmReject = async () => {
+        if (!rejectingBrand || !rejectionReason.trim()) return;
+        setIsRejecting(true);
+        await handleReject(rejectingBrand.id, rejectionReason.trim());
+        setIsRejecting(false);
+        setRejectingBrand(null);
+        setRejectionReason("");
     };
 
     const { categories } = useAdminCategories();
@@ -160,8 +172,8 @@ export default function BrandsPage() {
                                         />
                                         <CatalogActionIconButton
                                             onClick={() => {
-                                                const reason = prompt("Reason for rejection:");
-                                                if (reason) void handleReject(brand.id, reason);
+                                                setRejectionReason("");
+                                                setRejectingBrand(brand);
                                             }}
                                             className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
                                             title="Reject"
@@ -266,6 +278,63 @@ export default function BrandsPage() {
                             <><Loader2 size={14} className="animate-spin" /> Deleting…</>
                         ) : (
                             "Yes, Delete Brand"
+                        )}
+                    </button>
+                </div>
+            </div>
+        </CatalogModal>
+
+        <CatalogModal
+            isOpen={!!rejectingBrand}
+            onClose={() => !isRejecting && setRejectingBrand(null)}
+            title="Reject Brand Application"
+        >
+            <div className="p-6 space-y-4">
+                <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 p-4">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
+                    <div>
+                        <p className="text-sm font-semibold text-orange-700">
+                            Rejection Action
+                        </p>
+                        <p className="mt-1 text-sm text-orange-600">
+                            You are rejecting <strong>&ldquo;{rejectingBrand?.name}&rdquo;</strong>. 
+                            Please provide a reason to notify the submitter.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Rejection Reason
+                    </label>
+                    <textarea
+                        autoFocus
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                        placeholder="e.g. Logo missing, Invalid category mapping..."
+                        className="w-full min-h-[100px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                    <button
+                        type="button"
+                        disabled={isRejecting}
+                        onClick={() => setRejectingBrand(null)}
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        disabled={isRejecting || !rejectionReason.trim()}
+                        onClick={() => void confirmReject()}
+                        className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
+                    >
+                        {isRejecting ? (
+                            <><Loader2 size={14} className="animate-spin" /> Submitting…</>
+                        ) : (
+                            "Confirm Rejection"
                         )}
                     </button>
                 </div>

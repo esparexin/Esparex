@@ -192,11 +192,20 @@ export function useProfileSmartAlerts({
       ? await updateSmartAlert(editingAlertId, requestPayload)
       : await createSmartAlert(requestPayload);
 
-    if (typeof result === "object" && result !== null && "success" in result && (result as any).success) {
+    // C2: Type-safe result check — createSmartAlert/updateSmartAlert return { success, error? }
+    type ApiActionResult = { success: boolean; error?: string };
+    const isActionResult = (v: unknown): v is ApiActionResult =>
+      typeof v === "object" && v !== null && "success" in v;
+
+    if (isActionResult(result) && result.success) {
       resetAlertForm();
       notify.success(editingAlertId ? "Alert updated successfully." : "Alert created successfully.");
     } else {
-      setSmartAlertGlobalError((result as any).error);
+      setSmartAlertGlobalError(
+        isActionResult(result) && result.error
+          ? result.error
+          : "Something went wrong. Please try again."
+      );
     }
   };
 

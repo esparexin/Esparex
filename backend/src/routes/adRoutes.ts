@@ -9,7 +9,9 @@ import { validateRequest } from "../middleware/validateRequest";
 import { enforceCreateAdIdempotency, idempotencyMiddleware } from "../middleware/idempotency";
 import { fraudMiddleware } from "../middleware/fraudMiddleware";
 import { AdPayloadSchema } from "../../../shared/schemas/adPayload.schema";
+import { updateAdSchema } from "../validators/ad.validator";
 import type { ZodTypeAny } from "zod";
+
 import { duplicateCooldownMiddleware } from "../middleware/duplicateCooldownMiddleware";
 import { createListingValidator } from "../validators/listing.validator";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/requireVerifiedBusiness";
@@ -77,9 +79,11 @@ router.get("/:id/phone", validateObjectId, searchLimiter, listingController.getL
 router.post("/:id/repost", validateObjectId, protect, mutationLimiter, idempotencyMiddleware, adController.repostAd);
 
 // Update ad
-router.patch("/:id", validateObjectId, protect, mutationLimiter, validateRequest(AdPayloadSchema as unknown as ZodTypeAny), adController.updateAd);
+// D1: PATCH update uses partial schema (updateAdSchema = PartialAdPayloadSchema.passthrough())
+router.patch("/:id", validateObjectId, protect, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), adController.updateAd);
 
-// Delete ad
-router.delete("/:id", validateObjectId, protect, idempotencyMiddleware, adController.deleteAd);
+// D4: DELETE now rate-limited via mutationLimiter to prevent delete flooding
+router.delete("/:id", validateObjectId, protect, mutationLimiter, idempotencyMiddleware, adController.deleteAd);
+
 
 export default router;

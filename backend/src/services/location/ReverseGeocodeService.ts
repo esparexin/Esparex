@@ -103,7 +103,7 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
             }
         }
     }))
-        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path pincode')
         .lean<LocationInputObject | null>();
 
     if (nearestCity) {
@@ -131,7 +131,7 @@ const findNearestReverseGeocodeCandidate = async (
             }
         }
     }))
-        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path pincode')
         .lean<LocationInputObject | null>();
 
     if (nearestSettlement) {
@@ -147,7 +147,7 @@ const findNearestReverseGeocodeCandidate = async (
             }
         }
     }))
-        .select('name country level coordinates isPopular isActive verificationStatus parentId path')
+        .select('name country level coordinates isPopular isActive verificationStatus parentId path pincode')
         .lean<LocationInputObject | null>();
 };
 

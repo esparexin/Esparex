@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
 import { useToast } from "@/context/ToastContext";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
@@ -179,6 +180,32 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
         }
     };
 
+    const handleSuspend = async (id: string, reason: string) => {
+        try {
+            await adminFetch(ADMIN_ROUTES.BUSINESS_STATUS(id), {
+                method: "PATCH",
+                body: { status: "suspended", reason },
+            });
+            showToast("Business suspended", "success");
+            setSelectedBusiness(null);
+            await fetchBusinesses();
+        } catch (err) {
+            showToast(mapErrorToMessage(err, "Failed to suspend business"), "error");
+            throw err;
+        }
+    };
+
+    const handleActivate = async (id: string) => {
+        try {
+            await adminFetch(ADMIN_ROUTES.BUSINESS_APPROVE(id), { method: "PATCH" });
+            showToast("Business reactivated successfully", "success");
+            setSelectedBusiness(null);
+            await fetchBusinesses();
+        } catch (err) {
+            showToast(mapErrorToMessage(err, "Failed to activate business"), "error");
+        }
+    };
+
     return {
         businesses,
         loading,
@@ -200,5 +227,7 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
         handleReject,
         handleModify,
         handleDelete,
+        handleSuspend,
+        handleActivate,
     };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef } from "react";
-import { AlertCircle, RefreshCcw, EyeOff, ChevronDown } from "lucide-react";
+import { AlertCircle, RefreshCcw, EyeOff, ChevronDown, Loader2 } from "lucide-react";
 import { AdsTable } from "@/components/moderation/AdsTable";
 import { RejectAdModal } from "@/components/moderation/RejectAdModal";
 import { ViewAdModal } from "@/components/moderation/ViewAdModal";
@@ -11,6 +11,7 @@ import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { moderationTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminErrorBoundary } from "@/components/common/AdminErrorBoundary";
 import { getListingPresentation } from "@/components/moderation/listingPresentation";
+import { CatalogModal } from "@/components/catalog/CatalogModal";
 
 import { useAdFilters } from "./hooks/useAdFilters";
 import { useAdSelection } from "./hooks/useAdSelection";
@@ -69,10 +70,13 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
 
     const {
         viewAd, viewModalOpen, setViewModalOpen, viewLoading, viewError, handleView, setViewAd, setViewError,
-        rejectModalOpen, setRejectModalOpen, rejectTitle, rejectTargetIds, rejectSubmitting, setRejectTargetIds, setRejectTitle,
+        rejectModalOpen, setRejectModalOpen, rejectTitle, rejectTargetIds, isMutating, setRejectTargetIds, setRejectTitle,
         openSingleReject, openBulkReject, handleRejectSubmit,
         handleApprove, handleDeactivate, handleActivate, handleDelete, handleBanSeller, handleBulkApprove, handleBulkDelete,
         handleModalApprove, handleModalDeactivate, handleModalActivate, handleModalBlockSeller, handleModalExtend,
+        // Added confirmations
+        deleteModalOpen, setDeleteModalOpen, deleteTargetIds, deleteDisplayTitle, handleConfirmDelete,
+        banModalOpen, setBanModalOpen, banTargetSellerName, handleConfirmBan,
     } = useAdActions({
         items,
         entityLabel,
@@ -305,7 +309,7 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
                         title={rejectTitle}
                         entityLabel={entityLabel}
                         affectedCount={rejectTargetIds.length}
-                        isSubmitting={rejectSubmitting}
+                        isSubmitting={isMutating}
                         onClose={() => {
                             setRejectModalOpen(false);
                             setRejectTargetIds([]);
@@ -313,6 +317,82 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
                         }}
                         onSubmit={handleRejectSubmit}
                     />
+
+                    {/* Hardened Deletion Modal */}
+                    <CatalogModal
+                        isOpen={deleteModalOpen}
+                        onClose={() => !isMutating && setDeleteModalOpen(false)}
+                        title={`Delete ${entityLabelPlural}`}
+                    >
+                        <div className="p-6 space-y-4">
+                            <div className="flex items-start gap-4 p-4 bg-red-50 rounded-xl border border-red-200">
+                                <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                                <div>
+                                    <h3 className="text-sm font-bold text-red-900">Permanent Action</h3>
+                                    <p className="mt-1 text-sm text-red-800 leading-relaxed">
+                                        Are you sure you want to delete {deleteTargetIds.length === 1 ? `"${deleteDisplayTitle || "this " + entityLabel}"` : `${deleteTargetIds.length} selected ${entityLabelPlural}`}? 
+                                        This action cannot be undone and will remove all associated data.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    disabled={isMutating}
+                                    onClick={() => setDeleteModalOpen(false)}
+                                    className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={isMutating}
+                                    onClick={handleConfirmDelete}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200"
+                                >
+                                    {isMutating ? <><Loader2 size={16} className="animate-spin" /> Deleting...</> : "Confirm Delete"}
+                                </button>
+                            </div>
+                        </div>
+                    </CatalogModal>
+
+                    {/* Hardened Ban Modal */}
+                    <CatalogModal
+                        isOpen={banModalOpen}
+                        onClose={() => !isMutating && setBanModalOpen(false)}
+                        title="Block Seller"
+                    >
+                        <div className="p-6 space-y-4">
+                            <div className="flex items-start gap-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                                <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                                <div>
+                                    <h3 className="text-sm font-bold text-amber-900">Restrict Platform Access</h3>
+                                    <p className="mt-1 text-sm text-amber-800 leading-relaxed">
+                                        You are about to block <strong>{banTargetSellerName || "this seller"}</strong>. 
+                                        They will be unable to post new {entityLabelPlural} or manage existing ones until globally reinstated by an admin.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    disabled={isMutating}
+                                    onClick={() => setBanModalOpen(false)}
+                                    className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={isMutating}
+                                    onClick={handleConfirmBan}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-700 transition-all shadow-lg shadow-amber-200"
+                                >
+                                    {isMutating ? <><Loader2 size={16} className="animate-spin" /> Blocking...</> : "Block Seller"}
+                                </button>
+                            </div>
+                        </div>
+                    </CatalogModal>
 
                     <ViewAdModal
                         open={viewModalOpen}

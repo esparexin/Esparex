@@ -12,7 +12,7 @@ export function FormError({ message, id, className }: FormErrorProps) {
   }
 
   return (
-    <p id={id} role="alert" className={cn("mt-1 text-xs font-medium text-red-500", className)}>
+    <p id={id} role="alert" className={cn("mt-1 text-xs font-medium text-destructive", className)}>
       {message}
     </p>
   );

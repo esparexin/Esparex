@@ -69,6 +69,7 @@ type BusinessWizardFormShape = {
     currentLocationSource?: "auto" | "";
     currentLocationCity?: string | null;
     currentLocationState?: string | null;
+    currentLocationPincode?: string | null;
     currentLocationCountry?: string | null;
     coordinates?: unknown | null;
     contactNumber: string;
@@ -96,6 +97,7 @@ function buildBusinessPayloadBase(data: BusinessWizardFormShape): Omit<CreateBus
             display: data.currentLocationDisplay.trim(),
             ...(asOptionalString(data.currentLocationCity) ? { city: data.currentLocationCity?.trim() } : {}),
             ...(asOptionalString(data.currentLocationState) ? { state: data.currentLocationState?.trim() } : {}),
+            ...(asOptionalString(data.currentLocationPincode) ? { pincode: data.currentLocationPincode?.trim() } : {}),
             ...(asOptionalString(data.currentLocationCountry) ? { country: data.currentLocationCountry?.trim() } : {}),
             coordinates: (data.coordinates as CreateBusinessDTO["location"]["coordinates"]) || undefined,
         },
@@ -131,6 +133,7 @@ function mapBusinessToEditDefaults(business: UserBusiness): BusinessEditFormInpu
         currentLocationSource: "",
         currentLocationCity: business.location.city || "",
         currentLocationState: business.location.state || "",
+        currentLocationPincode: business.location.pincode || "",
         currentLocationCountry: business.location.country || "",
         coordinates: business.location.coordinates || null,
         shopImages: business.images || [],
@@ -241,6 +244,7 @@ function BusinessRegistrationFlow({
             currentLocationSource: "",
             currentLocationCity: "",
             currentLocationState: "",
+            currentLocationPincode: "",
             currentLocationCountry: "",
             coordinates: null,
             contactNumber: normalizedContactNumber,
@@ -403,6 +407,7 @@ function BusinessEditProfileFlow({
             currentLocationSource: "",
             currentLocationCity: "",
             currentLocationState: "",
+            currentLocationPincode: "",
             currentLocationCountry: "",
             coordinates: null,
             contactNumber: "",
@@ -477,7 +482,7 @@ function BusinessEditProfileFlow({
         }
 
         void loadBusiness();
-    }, [businessId, form, initialBusiness, loadedBusiness, router, setFormError]);
+    }, [businessId, form, initialBusiness, router, setFormError]);
 
     const onValidSubmit = async (data: BusinessEditFormData) => {
         if (!businessId) return;

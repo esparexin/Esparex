@@ -19,8 +19,7 @@ import {
 } from './adminBaseController';
 import {
     normalizeLocationResponse,
-    normalizeCoordinates,
-    reverseGeocode as runReverseGeocode
+    normalizeCoordinates
 } from '../../services/location/LocationNormalizer';
 import { reverseGeocode as getReverseGeocodeMatch } from '../../services/location/ReverseGeocodeService';
 import {
@@ -726,25 +725,6 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * POST /admin/system/locations/migrate-paths
- * Trigger the path-population migration for Location documents.
- * Pass { apply: true } in body to persist; omit for dry-run.
- * Prerequisites: all locations must have correct parentId chains.
- * Remove after Sprint 3 deprecation of city/state fields is complete.
- */
-export const runLocationPathMigration = async (req: Request, res: Response) => {
-    const applyMode = req.body?.apply === true;
-    try {
-        logger.info('[AdminLocationController] Location path migration requested', { applyMode });
-        const { runLocationPathMigrationJob } = await import('../../scripts/_archive/migrate_location_path_population_job');
-        const result = await runLocationPathMigrationJob({ apply: applyMode });
-        await logAdminAction(req, 'LOCATION_PATH_MIGRATION', 'System', 'Location', { applyMode, ...result });
-        return sendSuccessResponse(res, result, applyMode ? 'Path migration applied' : 'Dry run complete — pass { apply: true } to persist');
-    } catch (error: unknown) {
-        return sendBaseAdminError(req, res, error);
-    }
-};
 
 export const refreshLocationStats = async (req: Request, res: Response) => {
     try {

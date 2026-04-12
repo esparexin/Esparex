@@ -112,6 +112,8 @@ const requiredBusinessFields = {
 
     currentLocationState: z.string().trim().max(50, "Detected state must be less than 50 characters").optional().or(z.literal("")),
 
+    currentLocationPincode: z.string().trim().max(10, "Detected pincode must be less than 10 characters").optional().or(z.literal("")),
+
     currentLocationCountry: z.string().trim().max(50, "Detected country must be less than 50 characters").optional().or(z.literal("")),
 
     coordinates: z

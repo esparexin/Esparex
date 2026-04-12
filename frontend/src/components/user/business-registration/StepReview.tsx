@@ -67,6 +67,11 @@ export function StepReview({
                         <p className="text-sm font-semibold text-foreground">
                             {formData.currentLocationDisplay || "Current location pending"}
                         </p>
+                        {formData.currentLocationPincode ? (
+                            <p className="text-sm text-muted-foreground">
+                                Pincode: <span className="font-semibold text-foreground">{formData.currentLocationPincode}</span>
+                            </p>
+                        ) : null}
                         <p className="text-sm leading-6 text-foreground-tertiary">{formData.fullAddress}</p>
                         <p className="text-sm text-muted-foreground">
                             Current location is recorded first, then the full address is sent for admin review.

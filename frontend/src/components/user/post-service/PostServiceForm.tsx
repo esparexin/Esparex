@@ -24,27 +24,65 @@ import { ListingSubmissionSuccessModal } from "../shared/ListingSubmissionSucces
 import { useRouter } from "next/navigation";
 import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 import { API_ROUTES } from "@/lib/api/routes";
+import type { ServiceType } from "@/lib/api/user/masterData";
 
-export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
-    const isEditMode = !!editServiceId;
-    const router = useRouter();
-    const [submittedService, setSubmittedService] = React.useState(false);
+// A6: Partial edit schema — allows edits without re-validating immutable catalog fields
+const ServiceListingEditSchema = ServiceListingPayloadSchema.partial({
+    categoryId: true,
+    brandId: true,
+    modelId: true,
+    serviceTypeIds: true,
+});
 
-    const buildServiceCreatePayload = React.useCallback((payload: ServiceListingFormData) => {
-        const { price, ...rest } = payload;
-        return {
-            ...rest,
-            priceMin: price,
-        };
-    }, []);
+// A7: Typed payload builders extracted from inline callbacks
+type ServiceCreatePayload = ServiceListingFormData & { priceMin: number };
+type ServiceEditPayload = Pick<ServiceListingFormData, 'title' | 'description' | 'images' | 'serviceTypeIds'> & { priceMin: number };
 
-    const buildServiceEditPayload = React.useCallback((payload: ServiceListingFormData) => ({
+function buildServiceCreatePayload(payload: ServiceListingFormData): Omit<ServiceCreatePayload, 'price'> {
+    const { price, ...rest } = payload;
+    return { ...rest, priceMin: price };
+}
+
+function buildServiceEditPayload(payload: ServiceListingFormData): ServiceEditPayload {
+    return {
         title: payload.title,
         description: payload.description,
         images: payload.images,
         serviceTypeIds: payload.serviceTypeIds,
         priceMin: payload.price,
-    }), []);
+    };
+}
+
+// A2: Typed resolver helper — replaces any[] in resolveServiceTypeIds
+function resolveServiceTypeIds(tokens: string[], availableItems: ServiceType[]): string[] {
+    const validIds = new Set<string>();
+    const byName = new Map<string, string>();
+    availableItems.forEach((item) => {
+        const id = item.id?.trim();
+        const name = item.name?.trim().toLowerCase();
+        if (!id) return;
+        validIds.add(id);
+        if (name) byName.set(name, id);
+    });
+    return Array.from(new Set(tokens.map((token) => {
+        if (validIds.has(token)) return token;
+        return byName.get(token.toLowerCase()) || token;
+    })));
+}
+
+// A2: Typed token normalizer — replaces any
+function normalizeServiceTypeTokens(value: unknown): string[] {
+    if (!value) return [];
+    const tokens = Array.isArray(value) ? value : [String(value)];
+    return tokens
+        .map((t) => (typeof t === 'string' ? t : ((t as Record<string, unknown>)?.id ?? (t as Record<string, unknown>)?._id ?? '')))
+        .filter((t): t is string => typeof t === 'string' && t.length > 0);
+}
+
+export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
+    const isEditMode = !!editServiceId;
+    const router = useRouter();
+    const [submittedService, setSubmittedService] = React.useState(false);
 
     const form = useForm<ServiceListingFormData>({
         resolver: zodResolver(ServiceListingPayloadSchema),
@@ -55,7 +93,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
             categoryId: "",
             brandId: "",
             serviceTypeIds: [],
-            price: 0,
+            price: undefined as unknown as number, // A5: forces user to enter a price
             description: "",
         },
     });
@@ -83,40 +121,24 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         [dynamicCategories, categoryId]
     );
 
-    const resolveServiceTypeIds = React.useCallback((tokens: string[], availableItems: any[]) => {
-        const validIds = new Set<string>();
-        const byName = new Map<string, string>();
-        availableItems.forEach((typeItem: any) => {
-            const id = typeItem.id?.trim();
-            const name = typeItem.name?.trim().toLowerCase();
-            if (!id) return;
-            validIds.add(id);
-            if (name) byName.set(name, id);
-        });
-        return Array.from(new Set(tokens.map((token) => {
-            if (validIds.has(token)) return token;
-            return byName.get(token.toLowerCase()) || token;
-        })));
-    }, []);
+    // A2: Use module-level typed resolveServiceTypeIds / normalizeServiceTypeTokens
+    const onDataLoaded = React.useCallback(async (payload: Partial<ServiceListingFormData> & Record<string, unknown>) => {
+        const catId = extractEntityId(payload.category ?? payload.categoryId);
+        const bId = extractEntityId(payload.brand ?? payload.brandId);
+        const rawServiceTypes = (payload.serviceTypeIds ?? (payload as Record<string, unknown>).serviceTypes);
+        const serviceTypeTokens = normalizeServiceTypeTokens(rawServiceTypes);
+        const priceMin = typeof payload.price === 'number' ? payload.price
+            : (typeof (payload as Record<string, unknown>).priceMin === 'number'
+                ? (payload as Record<string, unknown>).priceMin as number
+                : undefined);
 
-    const normalizeServiceTypeTokens = React.useCallback((value: any): string[] => {
-        if (!value) return [];
-        const tokens = Array.isArray(value) ? value : [String(value)];
-        return tokens.map(t => typeof t === 'string' ? t : (t?.id || t?._id || '')).filter(Boolean);
-    }, []);
-
-    const onDataLoaded = React.useCallback(async (payload: any) => {
-        const catId = extractEntityId(payload.category || payload.categoryId);
-        const bId = extractEntityId(payload.brand || payload.brandId);
-        const serviceTypeTokens = normalizeServiceTypeTokens(payload.serviceTypeIds || payload.serviceTypes);
-        
         form.reset({
-            title: payload.title || "",
+            title: payload.title ?? "",
             categoryId: catId,
             brandId: bId,
             serviceTypeIds: serviceTypeTokens,
-            price: typeof payload.price === 'number' ? payload.price : (Number((payload as any).priceMin) || 0),
-            description: payload.description || "",
+            price: priceMin,
+            description: payload.description ?? "",
         });
 
         if (catId) {
@@ -129,7 +151,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                 setValue("serviceTypeIds", resolvedIds, { shouldValidate: true });
             }
         }
-    }, [form, loadBrandsForCategory, loadServiceTypes, normalizeServiceTypeTokens, resolveServiceTypeIds, setValue]);
+    }, [form, loadBrandsForCategory, loadServiceTypes, setValue]);
 
     const { images, setImages, isFetchingData, businessData } = useGenericListingForm({
         form,
@@ -178,6 +200,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         isEditMode,
         editId: editServiceId,
         schema: ServiceListingPayloadSchema,
+        partialSchema: ServiceListingEditSchema, // A6: partial schema for edit mode
         submitFn: async (payload, options) => {
             if (isEditMode && editServiceId) {
                 return updateListing(editServiceId, buildServiceEditPayload(payload), {

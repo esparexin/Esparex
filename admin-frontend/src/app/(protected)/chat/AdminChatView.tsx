@@ -60,6 +60,9 @@ export default function AdminChatView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [mutingChat, setMutingChat] = useState<AdminConvSummary | null>(null);
+  const [muteReason, setMuteReason] = useState("");
+  const [isMuting, setIsMuting] = useState(false);
 
   useEffect(() => {
     setSearchInput((prev) => (prev === search ? prev : search));
@@ -117,14 +120,18 @@ export default function AdminChatView() {
 
   const refresh = () => setRefreshKey((k) => k + 1);
 
-  const handleMute = async (id: string) => {
-    const reason = window.prompt("Reason for muting (optional):") ?? undefined;
+  const handleMute = async (id: string, reason?: string) => {
     try {
+      setIsMuting(true);
       await adminMuteChat(id, reason || undefined);
       showToast("Conversation muted", "success");
+      setMutingChat(null);
+      setMuteReason("");
       refresh();
     } catch (e) {
       showToast(e instanceof Error ? e.message : "Failed to mute", "error");
+    } finally {
+      setIsMuting(false);
     }
   };
 
@@ -261,7 +268,10 @@ export default function AdminChatView() {
                         {!conv.isBlocked && (
                           <button
                             type="button"
-                            onClick={() => handleMute(conv.id)}
+                            onClick={() => {
+                              setMuteReason("");
+                              setMutingChat(conv);
+                            }}
                             className="text-amber-600 hover:underline text-xs font-medium"
                           >
                             Mute
@@ -309,6 +319,57 @@ export default function AdminChatView() {
             </div>
           </div>
         )}
+      </div>
+
+      <div
+        className={`fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 transition-all ${
+          mutingChat ? "opacity-100 backdrop-blur-sm" : "pointer-events-none opacity-0"
+        }`}
+      >
+        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+              <AlertTriangle size={20} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">Mute Conversation</h3>
+              <p className="text-sm text-slate-500">Silence this chat for all participants.</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-400">
+                Reason for Muting (Optional)
+              </label>
+              <textarea
+                value={muteReason}
+                onChange={(e) => setMuteReason(e.target.value)}
+                placeholder="e.g. Offensive language, Spam..."
+                className="w-full min-h-[80px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setMutingChat(null)}
+                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isMuting}
+                onClick={() => mutingChat && handleMute(mutingChat.id, muteReason)}
+                className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+              >
+                {isMuting && <RefreshCcw size={14} className="animate-spin" />}
+                Confirm Mute
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </AdminPageShell>
   );

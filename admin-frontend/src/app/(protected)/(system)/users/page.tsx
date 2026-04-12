@@ -1,13 +1,9 @@
 "use client";
-import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
-import { adminFetch } from "@/lib/api/adminClient";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import {
     User as UserIcon,
     Mail,
@@ -17,20 +13,19 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
 import { StatusChip } from "@/components/ui/StatusChip";
-import { useAdminMutation } from "@/hooks/useAdminMutation";
 import { UserActionDialog } from "@/components/system/users/UserActionDialog";
 import { UserActionMenu } from "@/components/system/users/UserActionMenu";
 import { UserQuickDetailsPanel } from "@/components/system/users/UserQuickDetailsPanel";
 import {
     DEFAULT_USER_ACTION_STATE,
     getUserStatusPresentation,
-    normalizeManagedUser,
     normalizeUserManagementStatusFilter,
     type ManagedUser,
     type UserActionState,
     type UserActionType,
 } from "@/components/system/users/userManagement";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
+import { useClientUsers } from "@/hooks/useClientUsers";
 
 const USER_STATUS_OPTIONS = [
     { value: "all", label: "All Status" },
@@ -49,24 +44,19 @@ export default function UsersPage() {
     const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { isPending: isActionLoading, runMutation } = useAdminMutation();
-    const [users, setUsers] = useState<ManagedUser[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [searchInput, setSearchInput] = useState("");
-    const [pagination, setPagination] = useState({
-        total: 0,
-        pages: 1,
-        limit: 20
-    });
-    const [overview, setOverview] = useState({
-        totalUsers: 0,
-        activeUsers: 0,
-        suspendedUsers: 0,
-        bannedUsers: 0,
-        verifiedUsers: 0
-    });
 
+    const {
+        users,
+        loading,
+        isMutating,
+        error,
+        pagination,
+        overview,
+        fetchUsers,
+        handleUserAction
+    } = useClientUsers();
+
+    const [searchInput, setSearchInput] = useState("");
     const [selectedUser, setSelectedUser] = useState<ManagedUser | null>(null);
     const [actionModal, setActionModal] = useState<UserActionState>(DEFAULT_USER_ACTION_STATE);
     const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
@@ -81,65 +71,20 @@ export default function UsersPage() {
     const committedSearch = readStringParam(searchParams.get("search"));
     const page = readPositiveIntParam(searchParams.get("page"), 1);
 
-    const fetchUsers = async () => {
-        setLoading(true);
-        setError("");
-        try {
-            const queryParams = new URLSearchParams({
-                page: String(page),
-                limit: "20",
-            });
-            if (committedSearch) {
-                queryParams.set("search", committedSearch);
-            }
-            if (statusFilter !== "all") {
-                queryParams.set("status", statusFilter);
-            }
-            if (verifiedFilter !== "all") {
-                queryParams.set("isVerified", verifiedFilter);
-            }
-            const query = queryParams.toString();
-
-            const [response, overviewResponse] = await Promise.all([
-                adminFetch<any>(`${ADMIN_ROUTES.USERS}?${query}`),
-                adminFetch<any>(ADMIN_ROUTES.USER_OVERVIEW)
-            ]);
-            const parsed = parseAdminResponse<ManagedUser>(response);
-            setUsers(parsed.items.map(normalizeManagedUser));
-            if (parsed.pagination) {
-                setPagination({
-                    total: parsed.pagination.total ?? 0,
-                    pages: parsed.pagination.pages ?? parsed.pagination.totalPages ?? 1,
-                    limit: parsed.pagination.limit ?? 20
-                });
-            }
-            const overviewParsed = parseAdminResponse<never, Record<string, unknown>>(overviewResponse);
-            const overviewData = overviewParsed.data || {};
-            const banned = Number(overviewData.bannedUsers || 0);
-            const suspended = Number(overviewData.suspendedUsers || 0);
-            setOverview({
-                totalUsers: Number(overviewData.totalUsers || 0),
-                activeUsers: Number(overviewData.activeUsers || 0),
-                suspendedUsers: suspended,
-                bannedUsers: banned,
-                verifiedUsers: Number(overviewData.verifiedUsers || 0)
-            });
-        } catch (err) {
-            setError(mapErrorToMessage(err, "Failed to load users"));
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
         const timer = setTimeout(() => {
-            void fetchUsers();
+            void fetchUsers({
+                page,
+                search: committedSearch,
+                status: statusFilter,
+                isVerified: verifiedFilter
+            });
         }, 300);
         return () => clearTimeout(timer);
-    }, [committedSearch, page, statusFilter, verifiedFilter]);
+    }, [fetchUsers, committedSearch, page, statusFilter, verifiedFilter]);
 
     useEffect(() => {
-        setSearchInput((prev) => (prev === committedSearch ? prev : committedSearch));
+        setSearchInput((prev) => (prev === committedSearch ? prev : (committedSearch || "")));
     }, [committedSearch]);
 
     useEffect(() => {
@@ -199,32 +144,12 @@ export default function UsersPage() {
         const { type, user } = actionModal;
         if (!user) return;
 
-        await runMutation(
-            async () => {
-                if (["suspend", "ban", "activate"].includes(type)) {
-                    const newStatus =
-                        type === "activate" ? "active" : type === "suspend" ? "suspended" : "banned";
-                    return adminFetch(ADMIN_ROUTES.USER_STATUS(user.id), {
-                        method: "PATCH",
-                        body: { status: newStatus, reason },
-                    });
-                }
-
-                return adminFetch(ADMIN_ROUTES.USER_VERIFY(user.id), {
-                    method: "PATCH",
-                    body: { isVerified: type === "verify" },
-                });
-            },
-            {
-                successMessage: `User ${type} action completed successfully`,
-                failureMessage: `Failed to ${type} user`,
-                onSuccess: async () => {
-                    closeActionModal();
-                    setSelectedUser(null);
-                    await fetchUsers();
-                },
-            }
-        );
+        const result = await handleUserAction(type, user, reason);
+        if (result.success) {
+            closeActionModal();
+            setSelectedUser(null);
+            void fetchUsers({ page, search: committedSearch, status: statusFilter, isVerified: verifiedFilter });
+        }
     };
 
     const columns: ColumnDef<ManagedUser>[] = [
@@ -390,7 +315,7 @@ export default function UsersPage() {
                         }
                     />
 
-                    <AdminInlineAlert message={error} />
+                    <AdminInlineAlert message={error ?? ""} />
 
                     <div className="min-h-0 flex-1">
                         <DataTable
@@ -428,7 +353,7 @@ export default function UsersPage() {
                 open={actionModal.isOpen}
                 user={actionModal.user}
                 actionType={actionModal.type}
-                isSubmitting={isActionLoading}
+                isSubmitting={isMutating}
                 onClose={closeActionModal}
                 onConfirm={executeAction}
             />

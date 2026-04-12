@@ -66,9 +66,14 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
           <div className="space-y-2">
             {isEditMode ? (
               <>
-                <span className="text-xs font-semibold text-link uppercase tracking-widest">
-                  Edit Listing Details
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-link uppercase tracking-widest">
+                    Editing Listing
+                  </span>
+                  <span className="text-xs text-foreground-subtle">
+                    Catalog fields locked
+                  </span>
+                </div>
                 <div className="h-1 rounded-full bg-blue-400 w-full" />
               </>
             ) : (

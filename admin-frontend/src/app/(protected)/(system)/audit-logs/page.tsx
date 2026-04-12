@@ -1,11 +1,9 @@
 "use client";
-import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { AdminLog } from "@/types/audit";
-import { fetchAuditLogs } from "@/lib/api/auditLogs";
 import {
     Shield,
     User,
@@ -25,6 +23,7 @@ import {
     parsePositiveIntParam,
     updateSearchParams,
 } from "@/lib/urlSearchParams";
+import { useAuditLogs } from "@/hooks/useAuditLogs";
 
 const ACTION_OPTIONS = [
     { value: "all", label: "Every Action" },
@@ -39,19 +38,18 @@ export default function AuditLogsPage() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const [logs, setLogs] = useState<AdminLog[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [pagination, setPagination] = useState({
-        total: 0,
-        pages: 1,
-        limit: 50,
-    });
+
+    const {
+        logs,
+        loading,
+        error,
+        pagination,
+        getAuditLogs
+    } = useAuditLogs();
 
     const rawSearch = searchParams.get("search");
     const rawAction = searchParams.get("action");
     const rawPage = searchParams.get("page");
-    const rawView = searchParams.get("view");
 
     const search = normalizeSearchParamValue(rawSearch);
     const actionFilter = normalizeSearchParamValue(rawAction) || "all";
@@ -76,35 +74,17 @@ export default function AuditLogsPage() {
         ];
     }, [actionFilter]);
 
-    const fetchLogs = async () => {
-        setLoading(true);
-        setError("");
-        try {
-            const { items, pagination: nextPagination } = await fetchAuditLogs({
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            void getAuditLogs({
                 search,
                 action: actionFilter,
                 page,
                 limit: 50,
             });
-            setLogs(items);
-            setPagination({
-                total: nextPagination.total,
-                pages: nextPagination.pages,
-                limit: nextPagination.limit,
-            });
-        } catch (err) {
-            setError(mapErrorToMessage(err, "Failed to load audit logs"));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            void fetchLogs();
         }, 300);
         return () => clearTimeout(timer);
-    }, [actionFilter, page, search]);
+    }, [actionFilter, page, search, getAuditLogs]);
 
     useEffect(() => {
         const nextUrl = buildUrlWithSearchParams(
@@ -113,7 +93,6 @@ export default function AuditLogsPage() {
                 search,
                 action: actionFilter === "all" ? null : actionFilter,
                 page: page > 1 ? page : null,
-                view: null,
             })
         );
         const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
@@ -121,7 +100,7 @@ export default function AuditLogsPage() {
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    }, [actionFilter, page, pathname, rawView, router, search, searchParams]);
+    }, [actionFilter, page, pathname, router, search, searchParams]);
 
     useEffect(() => {
         if (!loading && page > pagination.pages) {

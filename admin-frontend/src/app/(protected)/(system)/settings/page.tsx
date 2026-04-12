@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
@@ -18,8 +18,6 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { getSystemConfig, updateSystemConfig } from "@/lib/api/systemConfig";
-import type { SystemConfig, SystemConfigPatch } from "@/types/systemConfig";
 import { PlatformSettings } from "./components/PlatformSettings";
 import { ModerationSettings } from "./components/ModerationSettings";
 import { PaymentSettings } from "./components/PaymentSettings";
@@ -28,6 +26,7 @@ import { SecuritySettings } from "./components/SecuritySettings";
 import { SearchSettings } from "./components/SearchSettings";
 import { ListingSettings } from "./components/ListingSettings";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { useSystemConfig } from "@/hooks/useSystemConfig";
 
 type SettingsTab =
   | "platform"
@@ -54,30 +53,23 @@ const isSettingsTab = (value: string | null): value is SettingsTab =>
 export default function SettingsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [config, setConfig] = useState<SystemConfig | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+
+  const {
+      config,
+      loading,
+      saving,
+      error,
+      success,
+      loadConfig,
+      handleSaveSection
+  } = useSystemConfig();
+
   const requestedTab = searchParams.get("tab");
   const activeTab: SettingsTab = isSettingsTab(requestedTab) ? requestedTab : "platform";
 
-  const loadConfig = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const data = await getSystemConfig();
-      setConfig(data);
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Failed to load system configuration");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     void loadConfig();
-  }, []);
+  }, [loadConfig]);
 
   useEffect(() => {
     if (requestedTab !== activeTab) {
@@ -85,38 +77,24 @@ export default function SettingsPage() {
     }
   }, [activeTab, requestedTab, router]);
 
-  const handleSaveSection = async (patch: SystemConfigPatch, successMessage: string) => {
-    setSaving(true);
-    setError("");
-    setSuccess("");
-    try {
-      const updated = await updateSystemConfig(patch);
-      setConfig(updated);
-      setSuccess(successMessage);
-    } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "Failed to update settings");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const props = { config, saving, onSave: handleSaveSection };
   const tabPanel = (() => {
+    if (!config) return null;
     switch (activeTab) {
       case "platform":
-        return <PlatformSettings {...props} />;
+        return <PlatformSettings {...props} config={config} />;
       case "listing":
-        return <ListingSettings {...props} />;
+        return <ListingSettings {...props} config={config} />;
       case "moderation":
-        return <ModerationSettings {...props} />;
+        return <ModerationSettings {...props} config={config} />;
       case "notifications":
-        return <NotificationSettings {...props} />;
+        return <NotificationSettings {...props} config={config} />;
       case "payments":
-        return <PaymentSettings {...props} />;
+        return <PaymentSettings {...props} config={config} />;
       case "security":
-        return <SecuritySettings {...props} />;
+        return <SecuritySettings {...props} config={config} />;
       case "location":
-        return <SearchSettings {...props} />;
+        return <SearchSettings {...props} config={config} />;
       default:
         return null;
     }
@@ -160,13 +138,13 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {loading ? (
+      {loading && !config ? (
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">Loading settings...</div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-          <aside className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-            <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-3 text-xs leading-5 text-slate-600">
-              Only runtime-backed sections are shown here. Experimental flags and env-only knobs were removed so this screen matches the live system contract.
+          <aside className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm h-fit">
+            <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-3 text-[10px] leading-relaxed text-slate-600 mb-4">
+              Runtime sections match the live system contract. Experimental flags are excluded.
             </div>
             <nav className="space-y-1">
               {SETTINGS_TABS.map((tab) => {
@@ -178,7 +156,7 @@ export default function SettingsPage() {
                     type="button"
                     onClick={() => router.replace(`/settings?tab=${tab.key}`, { scroll: false })}
                     className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                      isActive ? "bg-primary text-white" : "text-slate-700 hover:bg-slate-100"
+                      isActive ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-100"
                     }`}
                   >
                     <Icon size={15} />

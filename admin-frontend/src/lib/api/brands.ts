@@ -51,7 +51,7 @@ export async function rejectBrand(id: string, reason: string) {
 }
 
 export async function toggleBrandStatus(id: string) {
-    return adminFetch<any>(`${ADMIN_ROUTES.BRANDS}/${id}/status`, {
+    return adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.BRANDS}/${id}/status`, {
         method: "PATCH"
     });
 }

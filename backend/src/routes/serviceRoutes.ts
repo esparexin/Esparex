@@ -5,6 +5,7 @@ import { protect, extractUser } from '../middleware/authMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
 import { mutationLimiter, searchLimiter, phoneRevealLimiter } from '../middleware/rateLimiter';
+
 import { ServicePayloadSchema, PartialServicePayloadSchema } from '../../../shared/schemas/servicePayload.schema';
 import type { ZodTypeAny } from 'zod';
 import { createListingValidator } from '../validators/listing.validator';
@@ -41,11 +42,12 @@ router.put(
     validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
     serviceController.updateService
 );
-// Ownership verified in controller — no business approval needed to delete own listing
-router.delete('/:id', protect, validateObjectId, serviceController.deleteService);
-router.patch('/:id/sold', protect, validateObjectId, serviceController.markServiceAsSold);
-router.patch('/:id/deactivate', protect, validateObjectId, serviceController.deactivateService);
-router.post('/:id/repost', protect, validateObjectId, serviceController.repostService);
+// D2: Lifecycle routes now rate-limited to prevent state-transition abuse
+router.delete('/:id', protect, validateObjectId, mutationLimiter, serviceController.deleteService);
+router.patch('/:id/sold', protect, validateObjectId, mutationLimiter, serviceController.markServiceAsSold);
+router.patch('/:id/deactivate', protect, validateObjectId, mutationLimiter, serviceController.deactivateService);
+router.post('/:id/repost', protect, validateObjectId, mutationLimiter, serviceController.repostService);
+
 
 import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 

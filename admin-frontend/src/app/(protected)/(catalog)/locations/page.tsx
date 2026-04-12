@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Edit, MapPin, Trash2 } from "lucide-react";
+import { Edit, MapPin, Trash2, AlertTriangle, Loader2 } from "lucide-react";
 import { useAdminLocations } from "@/hooks/useAdminLocations";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { getLocationOptions } from "@/lib/api/locations";
 import { type Location } from "@/types/location";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
+import { CatalogModal } from "@/components/catalog/CatalogModal";
 import {
     CatalogActionsRow,
     CatalogActiveStatusFilter,
@@ -222,6 +223,8 @@ function LocationsPageContent({
 }: LocationsPageContentProps) {
     const [searchInput, setSearchInput] = useState(initialSearch);
     const [stateOptions, setStateOptions] = useState<Location[]>([]);
+    const [deletingLocation, setDeletingLocation] = useState<Location | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const filters = useMemo(
         () => ({
@@ -248,6 +251,14 @@ function LocationsPageContent({
         page: initialPage,
         limit: 20,
     });
+
+    const confirmDelete = async () => {
+        if (!deletingLocation) return;
+        setIsDeleting(true);
+        const success = await handleDelete(deletingLocation.id);
+        setIsDeleting(false);
+        if (success) setDeletingLocation(null);
+    };
 
     useEffect(() => {
         setSearchInput(initialSearch);
@@ -284,6 +295,7 @@ function LocationsPageContent({
     }, []);
 
     return (
+        <>
         <CatalogPageTemplate<Location, LocationFormData>
             title="Location Management"
             description="Manage hierarchy-based master locations used by posting, reverse geocoding, and location analytics."
@@ -400,7 +412,7 @@ function LocationsPageContent({
                                 icon={<Edit size={18} />}
                             />
                             <CatalogActionIconButton
-                                onClick={() => void handleDelete(location.id)}
+                                onClick={() => setDeletingLocation(location)}
                                 className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                 title="Delete"
                                 icon={<Trash2 size={18} />}
@@ -451,6 +463,62 @@ function LocationsPageContent({
                 />
             )}
         />
+
+        <CatalogModal
+            isOpen={!!deletingLocation}
+            onClose={() => !isDeleting && setDeletingLocation(null)}
+            title="Delete Location"
+        >
+            <div className="space-y-6">
+                <div className="flex items-start gap-4 p-4 bg-red-50 rounded-lg border border-red-100">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                        <AlertTriangle size={24} />
+                    </div>
+                    <div className="space-y-1">
+                        <h4 className="text-sm font-bold text-red-900 uppercase tracking-tight">Permanent Deletion</h4>
+                        <p className="text-sm text-red-800 leading-relaxed">
+                            Are you sure you want to delete <span className="font-bold">"{deletingLocation?.name || deletingLocation?.city}"</span>?
+                        </p>
+                    </div>
+                </div>
+
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                    <h4 className="flex items-center gap-2 text-sm font-semibold text-amber-900 leading-none mb-2">
+                        Dependencies Warning
+                    </h4>
+                    <p className="text-xs text-amber-700 leading-relaxed">
+                        This action may fail if this location is actively used by business profiles or existing ads.
+                        Consider <span className="font-bold">deactivating</span> it instead to hide it from new selections.
+                    </p>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                    <button
+                        disabled={isDeleting}
+                        onClick={() => setDeletingLocation(null)}
+                        className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        autoFocus
+                        disabled={isDeleting}
+                        onClick={() => void confirmDelete()}
+                        className="flex items-center gap-2 rounded-lg bg-red-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition-all shadow-sm active:transform active:scale-95 disabled:opacity-75"
+                    >
+                        {isDeleting ? (
+                            <>
+                                <Loader2 size={18} className="animate-spin" />
+                                Deleting...
+                            </>
+                        ) : (
+                            "Confirm Delete"
+                        )}
+                    </button>
+                </div>
+            </div>
+        </CatalogModal>
+        </>
     );
 }
 

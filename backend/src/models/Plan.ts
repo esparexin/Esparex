@@ -1,48 +1,10 @@
-// TODO: unify with shared/types
-// backend/src/models/Plan.ts
 import { Schema, Document } from "mongoose";
 import { getUserConnection } from "../config/db";
 import type { Model } from "mongoose";
 import { applyToJSONTransform } from '../utils/schemaOptions';
+import type { Plan as SharedPlan } from "@shared/types/Plan";
 
-export interface IPlan extends Document {
-    code: string;
-    name: string;
-    description?: string;
-    type: "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";
-    userType: "normal" | "business" | "both";
-    durationDays?: number; // 0 or null = infinite
-
-    // Core Limits
-    limits?: {
-        maxAds?: number;
-        maxServices?: number;
-        maxParts?: number;
-        smartAlerts?: number;
-        spotlightCredits?: number;
-    };
-
-    // Boolean Features
-    features?: {
-        priorityWeight?: number;
-        businessBadge?: boolean;
-        canEditAd?: boolean;
-        showOnHomePage?: boolean;
-    };
-
-    // Specific Configs
-    smartAlertConfig?: {
-        maxAlerts: number;
-        matchFrequency: 'realtime' | 'hourly' | 'daily';
-        radiusLimitKm: number;
-        notificationChannels: string[];
-    };
-
-    credits: number;
-    price: number;
-    currency: string;
-    active: boolean;
-    isDefault?: boolean; // For free plans
+export interface IPlan extends Document, Omit<SharedPlan, "id" | "createdAt" | "updatedAt"> {
     createdByAdmin: Schema.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;

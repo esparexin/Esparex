@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { notify } from "@/lib/notify";
+
 import { listSavedSearches, removeSavedSearch } from "@/lib/api/user/savedSearches";
 import {
     fetchSmartAlerts,
@@ -69,19 +71,24 @@ const mapAlertToListItem = (alert: SmartAlert): SmartAlertListItem => {
 export function useSmartAlerts(enabled = true) {
     const [smartAlerts, setSmartAlerts] = useState<SmartAlert[]>([]);
     const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
-    const [loading, setLoading] = useState(false);
+    // C7: Separate initial-load flag from mutation loading so tab isn't replaced during delete/toggle
+    const [isInitialLoading, setIsInitialLoading] = useState(false);
+    const [isMutating, setIsMutating] = useState(false);
+    const loading = isInitialLoading;
+
 
     // Fetch alerts and saved searches on mount
     useEffect(() => {
         if (!enabled) return;
-        setLoading(true);
+        setIsInitialLoading(true);
         Promise.all([
             fetchSmartAlerts(),
             listSavedSearches()
         ]).then(([alerts, searches]) => {
             setSmartAlerts(alerts);
             setSavedSearches(searches);
-        }).finally(() => setLoading(false));
+        }).finally(() => setIsInitialLoading(false));
+
     }, [enabled]);
 
     // Create smart alert
@@ -110,13 +117,12 @@ export function useSmartAlerts(enabled = true) {
         }
     }, []);
 
-    // Toggle smart alert status
     const handleToggleSmartAlertStatus = useCallback(async (smartAlertId: string) => {
-        setLoading(true);
+        setIsMutating(true);
         const prevAlerts = [...smartAlerts];
         const idx = smartAlerts.findIndex(a => a.id === smartAlertId);
         if (idx === -1) {
-            setLoading(false);
+            setIsMutating(false);
             return;
         }
         // Optimistically toggle
@@ -140,40 +146,49 @@ export function useSmartAlerts(enabled = true) {
         } catch {
             setSmartAlerts(prevAlerts);
         } finally {
-            setLoading(false);
+            setIsMutating(false);
         }
     }, [smartAlerts]);
 
+
+    // C5: deleteSmartAlert — show error toast on failure instead of silently failing
     const deleteSmartAlert = useCallback(async (id: string) => {
-        setLoading(true);
+        setIsMutating(true);
         try {
             await deleteSmartAlertApi(id);
             setSmartAlerts(prev => prev.filter((alert) => alert.id !== id));
+        } catch (err) {
+            notify.error(err, "Failed to delete alert. Please try again.");
         } finally {
-            setLoading(false);
+            setIsMutating(false);
         }
     }, []);
 
-    // Delete saved search
+    // C6: deleteSavedSearch — show error toast on failure instead of silently failing
     const deleteSavedSearch = useCallback(async (id: string) => {
-        setLoading(true);
+        setIsMutating(true);
         try {
             await removeSavedSearch(id);
             setSavedSearches(prev => prev.filter(s => s.id !== id));
+        } catch (err) {
+            notify.error(err, "Failed to remove saved search. Please try again.");
         } finally {
-            setLoading(false);
+            setIsMutating(false);
         }
     }, []);
+
 
     return {
         smartAlerts,
         smartAlertItems: smartAlerts.map(mapAlertToListItem),
         savedSearches,
-        loading,
+        loading,          // true only during initial fetch — safe for tab-level skeleton
+        isMutating,       // true during delete/toggle — use for button disabled states
         createSmartAlert,
         updateSmartAlert,
         toggleSmartAlertStatus: handleToggleSmartAlertStatus,
         deleteSmartAlert,
         deleteSavedSearch,
     };
+
 }

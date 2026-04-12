@@ -217,10 +217,6 @@ export function useAdminLocations({
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this location? This action might fail if the location is in use.")) {
-            return false;
-        }
-
         try {
             const response = await deleteLocation(id);
             if (!response.success) {

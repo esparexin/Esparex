@@ -89,7 +89,7 @@ export default function BusinessesView() {
             includeDeleted: activeTab === "deleted" || activeTab === "all" ? "true" : undefined,
         },
     });
-    const { businesses, loading, error, pagination, overview } = businessList;
+    const { businesses, loading, error, pagination, overview, handleSuspend, handleActivate } = businessList;
 
     useEffect(() => {
         const nextUrl = buildUrlWithSearchParams(
@@ -114,34 +114,6 @@ export default function BusinessesView() {
         }
     }, [loading, page, pagination.pages]);
 
-    const handleSuspend = async (id: string, reason: string) => {
-        try {
-            await adminFetch(ADMIN_ROUTES.BUSINESS_STATUS(id), {
-                method: "PATCH",
-                body: { status: "suspended", reason },
-            });
-            showToast("Business suspended", "success");
-            setSuspendTarget(null);
-            businessList.setSelectedBusiness(null);
-            await businessList.fetchBusinesses();
-        } catch (err) {
-            const message = mapErrorToMessage(err, "Failed to suspend business");
-            showToast(message, "error");
-            throw err instanceof Error ? err : new Error(message);
-        }
-    };
-
-    const handleActivate = async (id: string) => {
-        try {
-            await adminFetch(ADMIN_ROUTES.BUSINESS_APPROVE(id), { method: "PATCH" });
-            showToast("Business reactivated successfully", "success");
-            businessList.setSelectedBusiness(null);
-            await businessList.fetchBusinesses();
-        } catch (err) {
-            showToast(mapErrorToMessage(err, "Failed to activate business"), "error");
-        }
-    };
-
     const columns: ColumnDef<Business>[] = [
         {
             header: "Business",
@@ -161,14 +133,30 @@ export default function BusinessesView() {
             header: "Trust",
             cell: (biz) => {
                 const score = biz.trustScore ?? 0;
-                const color = score > 70 ? "text-emerald-500" : score > 40 ? "text-amber-500" : "text-red-500";
-                const bar = score > 70 ? "bg-emerald-500" : score > 40 ? "bg-amber-500" : "bg-red-500";
-
+                // Premium HSL-based dynamic colors
+                const hue = Math.round((score / 100) * 120); // 0 (red) to 120 (green)
+                const color = `hsl(${hue}, 84%, 45%)`;
+                const bg = `hsl(${hue}, 84%, 96%)`;
+                
                 return (
-                    <div className="flex flex-col gap-1 w-16">
-                        <div className={`text-xs font-bold ${color}`}>{score}</div>
-                        <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
-                            <div className={`h-full ${bar}`} style={{ width: `${score}%` }} />
+                    <div className="flex flex-col gap-1.5 w-16 group cursor-default">
+                        <div className="flex items-center justify-between">
+                             <div className="text-[10px] font-black tracking-tighter tabular-nums" style={{ color }}>
+                               {score}%
+                             </div>
+                             {score > 85 && (
+                               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_4px_theme(colors.emerald.400)]" />
+                             )}
+                        </div>
+                        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
+                            <div 
+                                className="h-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(0,0,0,0.1)]" 
+                                style={{ 
+                                    width: `${score}%`, 
+                                    backgroundColor: color,
+                                    backgroundImage: `linear-gradient(to right, transparent, rgba(255,255,255,0.3))` 
+                                }} 
+                            />
                         </div>
                     </div>
                 );
@@ -345,7 +333,10 @@ export default function BusinessesView() {
                         <BusinessSuspendModal
                             businessName={suspendTarget.name}
                             onClose={() => setSuspendTarget(null)}
-                            onConfirm={(reason) => handleSuspend(suspendTarget.id, reason)}
+                            onConfirm={async (reason) => {
+                                await handleSuspend(suspendTarget.id, reason);
+                                setSuspendTarget(null);
+                            }}
                         />
                     )
                 }

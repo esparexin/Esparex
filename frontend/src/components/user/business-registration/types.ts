@@ -8,6 +8,7 @@ export interface StepData {
     currentLocationSource: "auto" | "";
     currentLocationCity: string;
     currentLocationState: string;
+    currentLocationPincode: string;
     currentLocationCountry: string;
     coordinates: GeoJSONPoint | null;
     // Contact

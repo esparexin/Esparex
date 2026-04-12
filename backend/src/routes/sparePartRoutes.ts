@@ -6,7 +6,8 @@ import * as sparePartListingController from '../controllers/sparePartListingCont
 import * as listingController from '../controllers/listingController';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
 import { createListingValidator } from '../validators/listing.validator';
-import { phoneRevealLimiter } from '../middleware/rateLimiter';
+import { phoneRevealLimiter, mutationLimiter } from '../middleware/rateLimiter';
+
 import { validateRequest } from '../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
 import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../shared/schemas/sparePartPayload.schema';
@@ -73,7 +74,9 @@ router.delete(
     sparePartListingController.deleteSparePartListing
 );
 
-router.patch('/:id/deactivate', protect, validateObjectId, sparePartListingController.deactivateSparePartListing);
-router.post('/:id/repost', protect, validateObjectId, sparePartListingController.repostSparePartListing);
+// D3: Lifecycle routes now rate-limited to prevent state-transition abuse
+router.patch('/:id/deactivate', protect, validateObjectId, mutationLimiter, sparePartListingController.deactivateSparePartListing);
+router.post('/:id/repost', protect, validateObjectId, mutationLimiter, sparePartListingController.repostSparePartListing);
+
 
 export default router;

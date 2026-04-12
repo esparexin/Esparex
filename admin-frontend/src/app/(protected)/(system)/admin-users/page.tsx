@@ -240,7 +240,7 @@ export default function AdminUsersPage() {
                 </button>
             )}
         >
-            <AdminModuleTabs tabs={administrationTabs} activeTab="admin-users" />
+            <AdminModuleTabs tabs={administrationTabs} />
 
             <div className="space-y-6 mt-6">
                 {!isPermissionsView && showCreateForm && (
@@ -277,8 +277,7 @@ export default function AdminUsersPage() {
                 <DataTable
                     columns={isPermissionsView ? permissionsColumns : columns}
                     data={admins}
-                    loading={loading}
-                    searchPlaceholder="Search admin users..."
+                    isLoading={loading}
                 />
             </div>
 

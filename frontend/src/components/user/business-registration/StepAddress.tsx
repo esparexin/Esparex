@@ -56,6 +56,7 @@ export const applyDetectedCurrentLocation = ({
         currentLocationSource: "auto",
         currentLocationCity: detectedLocation.city || previous.currentLocationCity,
         currentLocationState: detectedLocation.state || previous.currentLocationState,
+        currentLocationPincode: detectedLocation.pincode || previous.currentLocationPincode,
         currentLocationCountry: detectedLocation.country || previous.currentLocationCountry,
         coordinates: normalizedCoordinates || null,
     }));
@@ -186,6 +187,13 @@ export function StepAddress({
         setFormData,
     ]);
 
+    // B4: Clear GPS feedback on unmount to prevent stale error on re-mount
+    useEffect(() => {
+        return () => {
+            setDetectFeedback(null);
+        };
+    }, []);
+
     const handleDetectCurrentLocation = async () => {
         setIsDetectingLocation(true);
         setDetectFeedback(null);
@@ -197,9 +205,21 @@ export function StepAddress({
             });
 
             if (!detectionResult.location) {
-                setDetectFeedback(
-                    detectionResult.failure?.message || "Use current location to continue.",
-                );
+                // B4: Map known GPS failure reasons to user-friendly messages
+                const failureReason = detectionResult.failure?.reason;
+                let feedbackMsg: string;
+                if (failureReason === "permission_denied") {
+                    feedbackMsg = "Location permission was denied. Please allow location access in your browser or device settings and try again.";
+                } else if (failureReason === "position_unavailable") {
+                    feedbackMsg = "Your location could not be determined. Make sure GPS is enabled on your device.";
+                } else if (failureReason === "timeout") {
+                    feedbackMsg = "Location detection timed out. You may be in a low-signal area — try moving to an open space and retry.";
+                } else if (failureReason === "insecure_context" || failureReason === "unsupported") {
+                    feedbackMsg = "Location is not supported in this browser or connection. Try using Chrome or Safari over HTTPS.";
+                } else {
+                    feedbackMsg = detectionResult.failure?.message || "Use current location to continue.";
+                }
+                setDetectFeedback(feedbackMsg);
                 return;
             }
 
@@ -285,6 +305,22 @@ export function StepAddress({
                         <p className="text-xs font-medium text-red-600">{detectFeedback}</p>
                     ) : null}
                 </CompactReadonlyField>
+
+                {asOptionalString(formData.currentLocationPincode) ? (
+                  <CompactReadonlyField
+                      id="reg-detected-pincode"
+                      label="Detected pincode"
+                      value={asOptionalString(formData.currentLocationPincode)}
+                      placeholder="—"
+                      helperText="Auto-resolved from your GPS position."
+                      error={formData.errors?.currentLocationPincode}
+                      badge={(
+                          <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-link-dark">
+                              Auto-filled
+                          </span>
+                      )}
+                  />
+                ) : null}
             </div>
 
             {hasCurrentLocation ? (

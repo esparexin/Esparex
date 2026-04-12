@@ -5,7 +5,6 @@ import { useToast } from "@/context/ToastContext";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { 
     type ModerationItem,
-    type ModerationFilters
 } from "@/components/moderation/moderationTypes";
 import {
     activateAdminAd,
@@ -18,6 +17,7 @@ import {
     rejectAdminAd
 } from "@/lib/api/moderation";
 import { normalizeModerationAd } from "@/components/moderation/normalizeModerationAd";
+import { useAdminMutation } from "@/hooks/useAdminMutation";
 
 interface UseAdActionsProps {
     items: ModerationItem[];
@@ -44,27 +44,21 @@ export function useAdActions({
     const [viewLoading, setViewLoading] = useState(false);
     const [viewError, setViewError] = useState("");
 
+    const { isPending: isMutating, runMutation } = useAdminMutation();
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
     const [rejectTargetIds, setRejectTargetIds] = useState<string[]>([]);
     const [rejectTitle, setRejectTitle] = useState<string | undefined>(undefined);
-    const [rejectSubmitting, setRejectSubmitting] = useState(false);
+
+    // Hardened Confirmation States (Standardized Replacement for window.confirm)
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteTargetIds, setDeleteTargetIds] = useState<string[]>([]);
+    const [deleteDisplayTitle, setDeleteDisplayTitle] = useState<string | undefined>(undefined);
+
+    const [banModalOpen, setBanModalOpen] = useState(false);
+    const [banTargetSellerId, setBanTargetSellerId] = useState<string | null>(null);
+    const [banTargetSellerName, setBanTargetSellerName] = useState<string | undefined>(undefined);
 
     const lastRequestId = useMemo(() => ({ current: 0 }), []);
-
-    const resolveActionErrorMessage = (actionError: unknown, fallbackMessage: string): string => {
-        return AdminApiError.resolveMessage(actionError, fallbackMessage);
-    };
-
-    const withActionGuard = async (operation: () => Promise<void>, successMessage: string, fallbackError: string) => {
-        try {
-            await operation();
-            showToast(successMessage, "success");
-            refresh();
-        } catch (actionError) {
-            const message = resolveActionErrorMessage(actionError, fallbackError);
-            showToast(message, "error");
-        }
-    };
 
     const resolveAdId = (item: ModerationItem) =>
         item.adId ||
@@ -97,10 +91,13 @@ export function useAdActions({
     };
 
     const handleApprove = async (item: ModerationItem) => {
-        await withActionGuard(
+        return runMutation(
             () => approveAdminAd(item.id),
-            `${entityLabel} approved`,
-            `Failed to approve ${entityLabel}`
+            {
+                successMessage: `${entityLabel} approved`,
+                failureMessage: `Failed to approve ${entityLabel}`,
+                onSuccess: refresh
+            }
         );
     };
 
@@ -119,143 +116,197 @@ export function useAdActions({
 
     const handleRejectSubmit = async (reason: string) => {
         if (rejectTargetIds.length === 0) return;
-        setRejectSubmitting(true);
-        try {
-            await Promise.all(rejectTargetIds.map((id) => rejectAdminAd(id, reason)));
-            showToast(`Rejected ${rejectTargetIds.length} ${entityLabel}(s)`, "success");
-            setRejectModalOpen(false);
-            setRejectTargetIds([]);
-            setRejectTitle(undefined);
-            setSelectedIds([]);
-            refresh();
-        } catch (submitError) {
-            const message = submitError instanceof Error ? submitError.message : `Failed to reject ${entityLabel}`;
-            showToast(message, "error");
-        } finally {
-            setRejectSubmitting(false);
-        }
+        await runMutation(
+            async () => {
+                await Promise.all(rejectTargetIds.map((id) => rejectAdminAd(id, reason)));
+            },
+            {
+                successMessage: `Rejected ${rejectTargetIds.length} ${entityLabel}(s)`,
+                failureMessage: `Failed to reject ${entityLabel}`,
+                onSuccess: () => {
+                    setRejectModalOpen(false);
+                    setRejectTargetIds([]);
+                    setRejectTitle(undefined);
+                    setSelectedIds([]);
+                    refresh();
+                }
+            }
+        );
     };
 
     const handleDeactivate = async (item: ModerationItem) => {
-        await withActionGuard(
+        await runMutation(
             () => deactivateAdminAd(item.id),
-            `${entityLabel} deactivated`,
-            `Failed to deactivate ${entityLabel}`
+            {
+                successMessage: `${entityLabel} deactivated`,
+                failureMessage: `Failed to deactivate ${entityLabel}`,
+                onSuccess: refresh
+            }
         );
     };
 
     const handleActivate = async (item: ModerationItem) => {
-        await withActionGuard(
+        await runMutation(
             () => activateAdminAd(item.id),
-            `${entityLabel} activated`,
-            `Failed to activate ${entityLabel}`
+            {
+                successMessage: `${entityLabel} activated`,
+                failureMessage: `Failed to activate ${entityLabel}`,
+                onSuccess: refresh
+            }
         );
     };
 
-    const handleDelete = async (item: ModerationItem) => {
-        const shouldDelete = window.confirm(`Delete ${entityLabel} \"${item.title}\"?`);
-        if (!shouldDelete) return;
-        await withActionGuard(
-            () => deleteAdminAd(item.id),
-            `${entityLabel} deleted`,
-            `Failed to delete ${entityLabel}`
+    // Replace window.confirm with state-triggered modals
+    const openSingleDelete = (item: ModerationItem) => {
+        setDeleteTargetIds([item.id]);
+        setDeleteDisplayTitle(item.title);
+        setDeleteModalOpen(true);
+    };
+
+    const openBulkDelete = () => {
+        if (selectedIds.length === 0) return;
+        setDeleteTargetIds(selectedIds);
+        setDeleteDisplayTitle(undefined);
+        setDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (deleteTargetIds.length === 0) return;
+        await runMutation(
+            async () => {
+                await Promise.all(deleteTargetIds.map(id => deleteAdminAd(id)));
+            },
+            {
+                successMessage: `${entityLabel}(s) deleted successfully`,
+                failureMessage: `Failed to delete ${entityLabelPlural}`,
+                onSuccess: () => {
+                    setDeleteModalOpen(false);
+                    setDeleteTargetIds([]);
+                    setSelectedIds([]);
+                    refresh();
+                }
+            }
         );
     };
 
-    const handleBanSeller = async (item: ModerationItem) => {
+    const openBanSellerModal = (item: ModerationItem) => {
         if (!item.sellerId) return;
-        const shouldBlock = window.confirm(`Block seller ${item.sellerName || item.sellerId}?`);
-        if (!shouldBlock) return;
+        setBanTargetSellerId(item.sellerId);
+        setBanTargetSellerName(item.sellerName || item.sellerId);
+        setBanModalOpen(true);
+    };
 
-        await withActionGuard(
-            () => blockAdminSeller(item.sellerId!, "Blocked via Ads Moderation"),
-            "Seller blocked",
-            "Failed to block seller"
+    const handleConfirmBan = async () => {
+        if (!banTargetSellerId) return;
+        await runMutation(
+            () => blockAdminSeller(banTargetSellerId, "Blocked via Ads Moderation UX Hardening"),
+            {
+                successMessage: "Seller blocked successfully",
+                failureMessage: "Failed to block seller",
+                onSuccess: () => {
+                    setBanModalOpen(false);
+                    setBanTargetSellerId(null);
+                    refresh();
+                }
+            }
         );
     };
 
     const handleBulkApprove = async () => {
         if (selectedIds.length === 0) return;
-        await withActionGuard(
+        await runMutation(
             async () => {
                 await Promise.all(selectedIds.map((id) => approveAdminAd(id)));
-                setSelectedIds([]);
             },
-            `Approved ${selectedIds.length} ${entityLabel}(s)`,
-            `Failed to bulk approve ${entityLabelPlural}`
-        );
-    };
-
-    const handleBulkDelete = async () => {
-        if (selectedIds.length === 0) return;
-        const shouldDelete = window.confirm(`Delete ${selectedIds.length} selected ${entityLabel}(s)?`);
-        if (!shouldDelete) return;
-
-        await withActionGuard(
-            async () => {
-                await Promise.all(selectedIds.map((id) => deleteAdminAd(id)));
-                setSelectedIds([]);
-            },
-            `Deleted ${selectedIds.length} ${entityLabel}(s)`,
-            `Failed to bulk delete ${entityLabelPlural}`
+            {
+                successMessage: `Approved ${selectedIds.length} ${entityLabel}(s)`,
+                failureMessage: `Failed to bulk approve ${entityLabelPlural}`,
+                onSuccess: () => {
+                    setSelectedIds([]);
+                    refresh();
+                }
+            }
         );
     };
 
     // View Ad Modal Actions (Special because they update modal state too)
     const handleModalApprove = async (adId: string) => {
-        await withActionGuard(
+        await runMutation(
             () => approveAdminAd(adId),
-            `${entityLabel} approved`,
-            `Failed to approve ${entityLabel}`
+            {
+                successMessage: `${entityLabel} approved`,
+                failureMessage: `Failed to approve ${entityLabel}`,
+                onSuccess: async () => {
+                    refresh();
+                    try {
+                        const detail = await fetchAdminAdDetail(adId);
+                        setViewAd(normalizeModerationAd(detail));
+                    } catch { /* table already refreshed */ }
+                }
+            }
         );
-        try {
-            const detail = await fetchAdminAdDetail(adId);
-            setViewAd(normalizeModerationAd(detail));
-        } catch { /* table already refreshed */ }
     };
 
     const handleModalDeactivate = async (adId: string) => {
-        await withActionGuard(
+        await runMutation(
             () => deactivateAdminAd(adId),
-            `${entityLabel} deactivated`,
-            `Failed to deactivate ${entityLabel}`
+            {
+                successMessage: `${entityLabel} deactivated`,
+                failureMessage: `Failed to deactivate ${entityLabel}`,
+                onSuccess: async () => {
+                    refresh();
+                    try {
+                        const detail = await fetchAdminAdDetail(adId);
+                        setViewAd(normalizeModerationAd(detail));
+                    } catch { /* table already refreshed */ }
+                }
+            }
         );
-        try {
-            const detail = await fetchAdminAdDetail(adId);
-            setViewAd(normalizeModerationAd(detail));
-        } catch { /* table already refreshed */ }
     };
 
     const handleModalActivate = async (adId: string) => {
-        await withActionGuard(
+        await runMutation(
             () => activateAdminAd(adId),
-            `${entityLabel} activated`,
-            `Failed to activate ${entityLabel}`
+            {
+                successMessage: `${entityLabel} activated`,
+                failureMessage: `Failed to activate ${entityLabel}`,
+                onSuccess: async () => {
+                    refresh();
+                    try {
+                        const detail = await fetchAdminAdDetail(adId);
+                        setViewAd(normalizeModerationAd(detail));
+                    } catch { /* table already refreshed */ }
+                }
+            }
         );
-        try {
-            const detail = await fetchAdminAdDetail(adId);
-            setViewAd(normalizeModerationAd(detail));
-        } catch { /* table already refreshed */ }
     };
 
     const handleModalBlockSeller = async (sellerId: string) => {
-        await withActionGuard(
+        await runMutation(
             () => blockAdminSeller(sellerId, "Blocked via Ads Moderation drawer"),
-            "Seller blocked",
-            "Failed to block seller"
+            {
+                successMessage: "Seller blocked",
+                failureMessage: "Failed to block seller",
+                onSuccess: refresh
+            }
         );
     };
 
     const handleModalExtend = async (adId: string) => {
-        await withActionGuard(
+        await runMutation(
             () => extendAdminListing(adId),
-            `${entityLabel} expiry extended`,
-            `Failed to extend ${entityLabel}`
+            {
+                successMessage: `${entityLabel} expiry extended`,
+                failureMessage: `Failed to extend ${entityLabel}`,
+                onSuccess: async () => {
+                    refresh();
+                    try {
+                        const detail = await fetchAdminAdDetail(adId);
+                        setViewAd(normalizeModerationAd(detail));
+                    } catch { /* table already refreshed */ }
+                }
+            }
         );
-        try {
-            const detail = await fetchAdminAdDetail(adId);
-            setViewAd(normalizeModerationAd(detail));
-        } catch { /* table already refreshed */ }
     };
 
     return {
@@ -274,29 +325,42 @@ export function useAdActions({
         setRejectModalOpen,
         rejectTitle,
         rejectTargetIds,
-        rejectSubmitting,
+        isMutating, // Refactored to unified mutation state
         setRejectTargetIds,
         setRejectTitle,
         openSingleReject,
         openBulkReject,
         handleRejectSubmit,
 
+        // Hardened Confirmation States
+        deleteModalOpen,
+        setDeleteModalOpen,
+        deleteTargetIds,
+        deleteDisplayTitle,
+        openSingleDelete,
+        openBulkDelete,
+        handleConfirmDelete,
+
+        banModalOpen,
+        setBanModalOpen,
+        banTargetSellerName,
+        openBanSellerModal,
+        handleConfirmBan,
+
         // Handlers
         handleApprove,
         handleDeactivate,
         handleActivate,
-        handleDelete,
-        handleBanSeller,
+        handleDelete: openSingleDelete,
+        handleBanSeller: openBanSellerModal,
         handleBulkApprove,
-        handleBulkDelete,
+        handleBulkDelete: openBulkDelete,
 
         // Modal Specific
         handleModalApprove,
         handleModalDeactivate,
         handleModalActivate,
         handleModalBlockSeller,
-        handleModalExtend,
-
-        withActionGuard
+        handleModalExtend
     };
 }

@@ -187,7 +187,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
             async (position) => {
                 try {
                     const { latitude, longitude } = position.coords;
-                    const coords = { type: "Point", coordinates: [longitude, latitude] } as const;
+                    const coords = { type: "Point" as const, coordinates: [longitude, latitude] as [number, number] };
                     
                     // Call reverse geocode to get city/state/pincode
                     const match = await reverseGeocode(latitude, longitude);

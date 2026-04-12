@@ -3,34 +3,8 @@ import { toApiResult } from "@/lib/api/result";
 import { API_ROUTES } from "../routes";
 import logger from "@/lib/logger";
 
-// TODO: unify with shared/types
-export interface Plan {
-    id: string; // Standardized ID
-    code: string;
-    name: string;
-    description?: string;
-    type: "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";
-    credits: number;
-    price: number;
-    currency: string;
-    active: boolean;
-    limits?: {
-        maxAds?: number;
-        maxServices?: number;
-        maxParts?: number;
-        smartAlerts?: number;
-        spotlightCredits?: number;
-    };
-    features?: {
-        priorityWeight?: number;
-        businessBadge?: boolean;
-        canEditAd?: boolean;
-        showOnHomePage?: boolean;
-    };
-    duration?: string;
-    durationDays?: number;
-    isDefault?: boolean;
-}
+import type { Plan } from "@shared/types/Plan";
+export type { Plan };
 
 export interface PlanQuery {
     type?: Plan["type"];

@@ -3,32 +3,14 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle, CheckCircle2, Eye, ShieldAlert, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, ShieldAlert, XCircle, Loader2 } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
-import { useToast } from "@/context/ToastContext";
-import { adminFetch } from "@/lib/api/adminClient";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
-
-type ReportQueueItem = {
-    id: string;
-    reportId: string;
-    reason: string;
-    status: string;
-    reportedAt?: string;
-    reportCount: number;
-    isAutoHidden?: boolean;
-    ad?: {
-        title?: string;
-        sellerId?: string;
-        status?: string;
-    };
-};
+import { useModerationReports, type ReportQueueItem } from "@/hooks/useModerationReports";
 
 const REPORT_STATUS_OPTIONS = [
     { value: "all", label: "All Reports" },
@@ -39,62 +21,48 @@ const REPORT_STATUS_OPTIONS = [
     { value: "dismissed", label: "Dismissed" },
 ];
 
-const normalizeReportItem = (raw: Record<string, unknown>): ReportQueueItem => ({
-    id: String(raw.id || raw._id || ""),
-    reportId: String(raw.reportId || raw._id || ""),
-    reason: String(raw.reason || "Report"),
-    status: String(raw.status || "open"),
-    reportedAt: typeof raw.reportedAt === "string" ? raw.reportedAt : undefined,
-    reportCount: typeof raw.reportCount === "number" ? raw.reportCount : 0,
-    isAutoHidden: Boolean(raw.isAutoHidden),
-    ad:
-        raw.ad && typeof raw.ad === "object"
-            ? {
-                  title: typeof (raw.ad as Record<string, unknown>).title === "string" ? String((raw.ad as Record<string, unknown>).title) : undefined,
-                  sellerId:
-                      typeof (raw.ad as Record<string, unknown>).sellerId === "string"
-                          ? String((raw.ad as Record<string, unknown>).sellerId)
-                          : undefined,
-                  status:
-                      typeof (raw.ad as Record<string, unknown>).status === "string"
-                          ? String((raw.ad as Record<string, unknown>).status)
-                          : undefined,
-              }
-            : undefined,
-});
-
 export default function ReportsPage() {
     const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { showToast } = useToast();
 
-    const [items, setItems] = useState<ReportQueueItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [search, setSearch] = useState("");
-    const [status, setStatus] = useState("open");
-    const [page, setPage] = useState(1);
-    const [pagination, setPagination] = useState({
-        total: 0,
-        pages: 1,
-        limit: 20,
-    });
+    const {
+        items,
+        loading,
+        isMutating,
+        error,
+        pagination,
+        fetchReports,
+        updateReportStatus
+    } = useModerationReports();
+
+    const [searchInput, setSearchInput] = useState("");
+
+    const requestedStatus = searchParams.get("status");
+    const requestedSearch = readStringParam(searchParams.get("search"));
+    const requestedPage = readPositiveIntParam(searchParams.get("page"), 1);
+
+    const status = REPORT_STATUS_OPTIONS.some((option) => option.value === requestedStatus)
+        ? (requestedStatus as string)
+        : "open";
+    const page = requestedPage;
+    const search = requestedSearch;
 
     useEffect(() => {
-        const requestedStatus = searchParams.get("status");
-        const requestedSearch = searchParams.get("search");
-        const requestedPage = searchParams.get("page");
-        const normalizedStatus = REPORT_STATUS_OPTIONS.some((option) => option.value === requestedStatus)
-            ? String(requestedStatus)
-            : "open";
-        const normalizedSearch = readStringParam(requestedSearch);
-        const normalizedPage = readPositiveIntParam(requestedPage, 1);
+        setSearchInput(search || "");
+    }, [search]);
 
-        setStatus((prev) => (prev === normalizedStatus ? prev : normalizedStatus));
-        setSearch((prev) => (prev === normalizedSearch ? prev : normalizedSearch));
-        setPage((prev) => (prev === normalizedPage ? prev : normalizedPage));
-    }, [searchParams]);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            void fetchReports({
+                status,
+                search,
+                page,
+                limit: 20,
+            });
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [fetchReports, status, search, page]);
 
     useEffect(() => {
         const nextUrl = ADMIN_UI_ROUTES.reports({
@@ -108,65 +76,18 @@ export default function ReportsPage() {
         }
     }, [page, pathname, router, search, searchParams, status]);
 
+    // Cleanup: search sync from input
     useEffect(() => {
-        const timer = window.setTimeout(async () => {
-            setLoading(true);
-            setError("");
-
-            try {
-                const query = new URLSearchParams({
-                    page: String(page),
-                    limit: "20",
-                });
-                if (status !== "all") {
-                    query.set("status", status);
-                }
-                if (search) {
-                    query.set("search", search);
-                }
-
-                const response = await adminFetch<unknown>(`${ADMIN_ROUTES.REPORTS}?${query.toString()}`);
-                const parsed = parseAdminResponse<Record<string, unknown>>(response);
-                setItems(parsed.items.map(normalizeReportItem));
-                setPagination({
-                    total: parsed.pagination?.total ?? parsed.items.length,
-                    pages: parsed.pagination?.pages ?? parsed.pagination?.totalPages ?? 1,
-                    limit: parsed.pagination?.limit ?? 20,
-                });
-            } catch (fetchError) {
-                setError(fetchError instanceof Error ? fetchError.message : "Failed to load reports");
-            } finally {
-                setLoading(false);
-            }
-        }, 250);
-
-        return () => window.clearTimeout(timer);
-    }, [page, search, status]);
-
-    const updateReportStatus = async (reportId: string, nextStatus: "reviewed" | "resolved" | "dismissed") => {
-        try {
-            await adminFetch(ADMIN_ROUTES.REPORT_STATUS(reportId), {
-                method: "PATCH",
-                body: { status: nextStatus },
+        const timer = setTimeout(() => {
+            if (searchInput === (search || "")) return;
+            const nextUrl = ADMIN_UI_ROUTES.reports({
+                status,
+                search: searchInput || undefined,
             });
-            showToast(`Report marked ${nextStatus}`, "success");
-            setItems((prev) =>
-                prev.map((item) =>
-                    item.reportId === reportId
-                        ? {
-                              ...item,
-                              status: nextStatus,
-                          }
-                        : item
-                )
-            );
-        } catch (mutationError) {
-            showToast(
-                mutationError instanceof Error ? mutationError.message : `Failed to mark report ${nextStatus}`,
-                "error"
-            );
-        }
-    };
+            void router.replace(nextUrl, { scroll: false });
+        }, 400);
+        return () => clearTimeout(timer);
+    }, [searchInput, search, status, router]);
 
     const columns = useMemo<ColumnDef<ReportQueueItem>[]>(
         () => [
@@ -224,8 +145,9 @@ export default function ReportsPage() {
                         {item.status === "open" || item.status === "pending" ? (
                             <button
                                 type="button"
+                                disabled={isMutating}
                                 onClick={() => void updateReportStatus(item.reportId, "reviewed")}
-                                className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 hover:underline"
+                                className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 hover:underline disabled:opacity-50"
                             >
                                 <AlertCircle size={12} /> Review
                             </button>
@@ -233,8 +155,9 @@ export default function ReportsPage() {
                         {item.status !== "resolved" ? (
                             <button
                                 type="button"
+                                disabled={isMutating}
                                 onClick={() => void updateReportStatus(item.reportId, "resolved")}
-                                className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline"
+                                className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline disabled:opacity-50"
                             >
                                 <CheckCircle2 size={12} /> Resolve
                             </button>
@@ -242,17 +165,19 @@ export default function ReportsPage() {
                         {item.status !== "dismissed" ? (
                             <button
                                 type="button"
+                                disabled={isMutating}
                                 onClick={() => void updateReportStatus(item.reportId, "dismissed")}
-                                className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:underline"
+                                className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:underline disabled:opacity-50"
                             >
                                 <XCircle size={12} /> Dismiss
                             </button>
                         ) : null}
+                        {isMutating && <Loader2 size={12} className="animate-spin text-slate-400" />}
                     </div>
                 ),
             },
         ],
-        [showToast]
+        [isMutating, updateReportStatus]
     );
 
     return (
@@ -274,11 +199,14 @@ export default function ReportsPage() {
                 />
 
                 <AdminFilterToolbar
-                    search={search}
-                    onSearchChange={setSearch}
+                    search={searchInput}
+                    onSearchChange={setSearchInput}
                     searchPlaceholder="Search reports by listing title or report note..."
                     status={status}
-                    onStatusChange={setStatus}
+                    onStatusChange={(val) => {
+                        const nextUrl = ADMIN_UI_ROUTES.reports({ status: val, search: searchInput || undefined });
+                        void router.replace(nextUrl, { scroll: false });
+                    }}
                     statusOptions={REPORT_STATUS_OPTIONS}
                 />
 
@@ -294,7 +222,10 @@ export default function ReportsPage() {
                         totalPages: pagination.pages,
                         totalItems: pagination.total,
                         pageSize: pagination.limit,
-                        onPageChange: setPage,
+                        onPageChange: (newPage) => {
+                            const nextUrl = ADMIN_UI_ROUTES.reports({ status, search, page: newPage });
+                            void router.replace(nextUrl, { scroll: false });
+                        },
                     }}
                 />
             </div>

@@ -99,21 +99,22 @@ export class AdminApiError<T = unknown> extends Error {
    */
   static resolveMessage(error: unknown, fallback: string): string {
     if (error instanceof AdminApiError) {
-      const payload = error.payload as any;
+      const payload = error.payload;
       
       // 1. Check SSOT nested object: { error: { message } }
-      if (payload.error && typeof payload.error === 'object' && typeof payload.error.message === 'string') {
-        return payload.error.message;
+      if (payload.error && typeof payload.error === 'object' && typeof (payload.error as Record<string, unknown>).message === 'string') {
+        return String((payload.error as Record<string, unknown>).message);
       }
       
       // 2. Check details if array (validation issues): { details: [{ message }] }
       if (Array.isArray(payload.details)) {
-        const first = payload.details.find((d: any) => typeof d?.message === 'string');
-        if (first) return first.message;
+        const first = payload.details.find((d: unknown) => typeof d === 'object' && d !== null && typeof (d as Record<string, unknown>).message === 'string');
+        if (first) return String((first as Record<string, unknown>).message);
       }
 
       // 3. Fallback to simple string properties
-      return payload.message || payload.error || error.message || fallback;
+      const msg = payload.message || (typeof payload.error === 'string' ? payload.error : undefined) || error.message || fallback;
+      return String(msg);
     }
 
     if (error instanceof Error) return error.message;
@@ -191,17 +192,17 @@ export async function adminFetch<T>(
       
       // Extract nested error message for the Error constructor message (fallback used in resolveMessage)
       const nestedErrorMessage = (payload.error && typeof payload.error === 'object') 
-        ? (payload.error as any).message 
+        ? String((payload.error as Record<string, unknown>).message)
         : undefined;
 
-      const message = payload.message || nestedErrorMessage || payload.error || detailsMessage || `Request failed (${response.status})`;
+      const message = payload.message || nestedErrorMessage || (typeof payload.error === 'string' ? payload.error : undefined) || detailsMessage || `Request failed (${response.status})`;
       const error = new AdminApiError(String(message), response.status, payload);
 
       // Surface unexpected failures (5xx, network) via popup. 4xx errors are
       // expected business logic and should be handled by the calling hook.
       const isUnexpected = response.status === 0 || response.status >= 500;
       if (isUnexpected) {
-        emitAdminErrorPopup(response.status, message);
+        emitAdminErrorPopup(response.status, String(message));
       }
 
       throw error;
