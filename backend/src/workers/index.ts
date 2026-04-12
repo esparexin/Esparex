@@ -2,6 +2,7 @@ import logger from '../utils/logger';
 import { adWorker, notificationDeliveryWorker } from './adWorker';
 import { notificationMatchWorker } from './notificationMatchWorker';
 import { paymentWorker } from './paymentWorker';
+import { imageOptimizationWorker } from './imageWorker';
 
 export const startWorkers = () => {
     logger.info('Starting background workers...');
@@ -20,6 +21,10 @@ export const startWorkers = () => {
     notificationMatchWorker.on('ready', () => {
         logger.info("NotificationMatchWorker is fully running and listening to 'notification.match.queue'.");
     });
+    
+    imageOptimizationWorker.on('ready', () => {
+        logger.info("ImageOptimizationWorker is fully running and listening to 'image-optimization-events'.");
+    });
 
     const { gracefulShutdown } = require('../utils/shutdownHandler');
     const mongoose = require('mongoose');
@@ -27,7 +32,7 @@ export const startWorkers = () => {
 
     const handleShutdown = async () => {
         await gracefulShutdown({
-            workers: [adWorker, notificationDeliveryWorker, notificationMatchWorker, paymentWorker],
+            workers: [adWorker, notificationDeliveryWorker, notificationMatchWorker, paymentWorker, imageOptimizationWorker],
             redisClient,
             mongooseConnection: mongoose.connection
         });

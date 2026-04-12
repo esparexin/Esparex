@@ -180,6 +180,7 @@ BusinessSchema.index({ locationId: 1 }, { name: 'idx_business_locationId' });
 BusinessSchema.index({ isVerified: 1 }, { name: 'idx_business_isVerified' });
 BusinessSchema.index({ slug: 1 }, { name: 'idx_business_slug_unique', unique: true, sparse: true });
 BusinessSchema.index({ isDeleted: 1 }, { name: 'idx_business_isDeleted' });
+BusinessSchema.index({ userId: 1 }, { name: 'idx_business_userId' });
 
 const activeBusinessPartialFilter = { isDeleted: false };
 

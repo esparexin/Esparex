@@ -60,10 +60,10 @@ import { AdContext } from '../types/ad.types';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '../../../shared/enums/lifecycle';
 import { AD_STATUS, AD_STATUS_VALUES } from '../../../shared/enums/adStatus';
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
 import { AdCreationService } from './AdCreationService';
 import { mutateStatus } from './StatusMutationService';
 import { hydrateAdMetadata, getAds } from './ad/AdAggregationService';
+import { enqueueImageOptimization } from '../queues/imageQueue';
 export {
     getAds,
     hydrateAdMetadata
@@ -251,6 +251,12 @@ export const updateAd = async (
         }
 
         if (!updatedAd) return null;
+        
+        if (Array.isArray(updatedAd.images) && updatedAd.images.length > 0) {
+            enqueueImageOptimization(adId, 'ad', updatedAd.images).catch(err => {
+                logger.error('Failed to enqueue image optimization after Ad edit', err);
+            });
+        }
 
         if (typeof (updatedAd as { toObject?: unknown }).toObject === 'function') {
             return (updatedAd as unknown as { toObject: () => Record<string, unknown> }).toObject();

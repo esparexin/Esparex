@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { LucideIcon } from "lucide-react";
@@ -63,26 +63,33 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
         isSubmitting,
         permissionsPlaceholder,
         onSecondary,
+        mode,
+        values
     } = props;
 
-    const normalizedValues =
-        props.mode === "create"
+    const { firstName, lastName, email, role, permissionsText } = values;
+    const password = "password" in values ? values.password : undefined;
+    const status = "status" in values ? values.status : undefined;
+
+    const normalizedValues = useMemo(() => {
+        return mode === "create"
             ? {
-                firstName: props.values.firstName,
-                lastName: props.values.lastName,
-                email: props.values.email,
-                password: props.values.password,
-                role: props.values.role,
-                permissionsText: props.values.permissionsText,
+                firstName,
+                lastName,
+                email,
+                password,
+                role,
+                permissionsText,
             }
             : {
-                firstName: props.values.firstName,
-                lastName: props.values.lastName,
-                email: props.values.email,
-                role: props.values.role,
-                status: props.values.status,
-                permissionsText: props.values.permissionsText,
+                firstName,
+                lastName,
+                email,
+                role,
+                status,
+                permissionsText,
             };
+    }, [mode, firstName, lastName, email, password, role, status, permissionsText]);
 
     const {
         register,

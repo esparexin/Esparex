@@ -54,6 +54,7 @@ ModelSchema.index({ categoryIds: 1 }, { name: 'idx_model_categoryIds' });
 
 ModelSchema.index({ isActive: 1 }, { name: 'idx_model_isActive' });
 ModelSchema.index({ isDeleted: 1 }, { name: 'idx_model_isDeleted' });
+ModelSchema.index({ brandId: 1 }, { name: 'idx_model_brandId' });
 
 /**
  * ATLAS-ONLY INDEXES (Drift)

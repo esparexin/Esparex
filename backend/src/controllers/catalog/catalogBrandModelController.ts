@@ -214,7 +214,8 @@ export const createBrand = async (req: Request, res: Response) => {
                 throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
             }
             return payload;
-        }
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 
@@ -237,7 +238,8 @@ export const updateBrand = async (req: Request, res: Response) => {
                 throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
             }
             return payload;
-        }
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 
@@ -245,7 +247,10 @@ export const updateBrand = async (req: Request, res: Response) => {
  * Toggle brand active status
  */
 export const toggleBrandStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, asModel<IBrand>(Brand) as any, { auditAction: 'TOGGLE_BRAND_STATUS' });
+    return handleCatalogToggleStatus(req, res, asModel<IBrand>(Brand) as any, { 
+        auditAction: 'TOGGLE_BRAND_STATUS',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 };
 
 /**
@@ -262,7 +267,10 @@ export const deleteBrand = async (req: Request, res: Response) => {
             count: modelsCount + listingsCount + sparePartsCount,
             details: { models: modelsCount, listings: listingsCount, spareParts: sparePartsCount }
         };
-    }, { auditAction: 'BRAND_DELETE' });
+    }, { 
+        auditAction: 'BRAND_DELETE',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 };
 
 /**
@@ -328,6 +336,8 @@ export const suggestBrand = async (req: Request, res: Response) => {
             isActive: false,
             suggestedBy: userId
         });
+
+        await CatalogOrchestrator.invalidateCatalogCache();
 
         res.status(201).json(respond({
             success: true,
@@ -548,7 +558,8 @@ export const createModel = async (req: Request, res: Response) => {
             if (!brandActive) throw new Error('brandId must reference an active, non-deleted brand');
             
             return payload;
-        }
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 
@@ -570,7 +581,8 @@ export const updateModel = async (req: Request, res: Response) => {
                 payload.categoryId = payload.categoryIds[0];
             }
             return payload;
-        }
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 
@@ -587,32 +599,47 @@ export const deleteModel = async (req: Request, res: Response) => {
             count: listingsCount + sparePartsCount,
             details: { listings: listingsCount, spareParts: sparePartsCount }
         };
-    }, { auditAction: 'MODEL_DELETE' });
+    }, { 
+        auditAction: 'MODEL_DELETE',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 };
 
 /**
  * Approve pending brand
  */
 export const approveBrand = (req: Request, res: Response) => 
-    handleCatalogReview(req, res, asModel<IBrand>(Brand), 'APPROVE', undefined, { auditAction: 'APPROVE_BRAND' });
+    handleCatalogReview(req, res, asModel<IBrand>(Brand), 'APPROVE', undefined, { 
+        auditAction: 'APPROVE_BRAND',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 
 /**
  * Reject pending brand
  */
 export const rejectBrand = (req: Request, res: Response) => 
-    handleCatalogReview(req, res, asModel<IBrand>(Brand), 'REJECT', rejectionSchema, { auditAction: 'REJECT_BRAND' });
+    handleCatalogReview(req, res, asModel<IBrand>(Brand), 'REJECT', rejectionSchema, { 
+        auditAction: 'REJECT_BRAND',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 
 /**
  * Approve pending model
  */
 export const approveModel = (req: Request, res: Response) => 
-    handleCatalogReview(req, res, asModel<IModel>(Model), 'APPROVE', undefined, { auditAction: 'APPROVE_MODEL' });
+    handleCatalogReview(req, res, asModel<IModel>(Model), 'APPROVE', undefined, { 
+        auditAction: 'APPROVE_MODEL',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 
 /**
  * Reject pending model
  */
 export const rejectModel = (req: Request, res: Response) => 
-    handleCatalogReview(req, res, asModel<IModel>(Model), 'REJECT', rejectionSchema, { auditAction: 'REJECT_MODEL' });
+    handleCatalogReview(req, res, asModel<IModel>(Model), 'REJECT', rejectionSchema, { 
+        auditAction: 'REJECT_MODEL',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 
 /**
  * Suggest a new model (User interaction)
@@ -661,6 +688,8 @@ export const suggestModel = async (req: Request, res: Response) => {
             isActive: false,
             suggestedBy: userId
         });
+
+        await CatalogOrchestrator.invalidateCatalogCache();
 
         res.status(201).json(respond({
             success: true,
@@ -722,6 +751,8 @@ export const ensureModel = async (req: Request, res: Response) => {
                 suggestedBy: userId
             });
         }
+
+        await CatalogOrchestrator.invalidateCatalogCache();
 
         res.status(201).json(respond({ success: true, data: model }));
     } catch (error) {

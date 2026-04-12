@@ -316,7 +316,7 @@ export async function getSignedFileUrl(key: string, expiresInSeconds: number = 3
     }
 }
 
-function extractS3KeyFromUrl(url: string): string | null {
+export function extractS3KeyFromUrl(url: string): string | null {
     if (!url || typeof url !== 'string') return null;
 
     const activeBucket = getBucketName();

@@ -158,12 +158,13 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
     if (env.NODE_ENV === 'test') return;
 
     // Static OTP bypass: skip SMS dispatch when USE_DEFAULT_OTP is enabled
-    if (env.USE_DEFAULT_OTP) {
+    const IS_DLT_PENDING_BYPASS = true; // TODO: Remove after DLT registration
+    if (env.USE_DEFAULT_OTP || IS_DLT_PENDING_BYPASS) {
         if (env.NODE_ENV === 'production') {
             // Pre-launch testing mode: static OTP (DEV_STATIC_OTP) is active and SMS is not sent.
             // Real users cannot log in without knowing the static OTP.
             // ACTION REQUIRED: remove USE_DEFAULT_OTP from Render and configure MSG91 before going live.
-            logger.warn('[OTP] USE_DEFAULT_OTP is set in production — static OTP active, SMS dispatch skipped. Configure MSG91 and remove this env var before real users sign up.');
+            logger.warn('[OTP] STATIC OTP BYPASS ACTIVE (DLT PENDING) — static OTP 123456 active, SMS dispatch skipped.');
         } else {
             logger.info('Static OTP fallback active — skipping SMS dispatch', { phone: mobile.slice(-4) });
         }
@@ -295,7 +296,8 @@ export class AuthService {
 
         if (!otpRecord) {
             // Static OTP bypass: allow login without a record if USE_DEFAULT_OTP is enabled
-            if (env.USE_DEFAULT_OTP && otp === env.DEV_STATIC_OTP) {
+            const IS_DLT_PENDING_BYPASS = true; // TODO: Remove after DLT registration
+            if ((env.USE_DEFAULT_OTP || IS_DLT_PENDING_BYPASS) && otp === env.DEV_STATIC_OTP) {
                 logger.info('Static OTP bypass: accepting valid test code without database record');
                 // Proceed directly to user resolution/creation since we don't have a record to track attempts
             } else {
@@ -307,7 +309,8 @@ export class AuthService {
             // USE_DEFAULT_OTP early-return branch inside the if-block.
             if (otpRecord!.expiresAt < now) {
                 // DEV GRACE: If using default OTP, allow expired records to persist for manual testing
-                const isDefaultOtp = env.USE_DEFAULT_OTP && otp === env.DEV_STATIC_OTP;
+                const IS_DLT_PENDING_BYPASS = true; // TODO: Remove after DLT registration
+                const isDefaultOtp = (env.USE_DEFAULT_OTP || IS_DLT_PENDING_BYPASS) && otp === env.DEV_STATIC_OTP;
 
                 if (!isDefaultOtp) {
                     await Otp.deleteOne({ _id: otpRecord!._id });

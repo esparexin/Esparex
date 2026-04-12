@@ -242,7 +242,10 @@ export async function handleCatalogToggleStatus<T extends Document>(
     req: Request,
     res: Response,
     model: MongooseModel<T>,
-    options: { auditAction?: string } = {}
+    options: { 
+        auditAction?: string;
+        postOp?: () => void;
+    } = {}
 ) {
     try {
         if (!hasAdminAccess(req)) {
@@ -261,6 +264,8 @@ export async function handleCatalogToggleStatus<T extends Document>(
             : { isActive };
 
         await model.findByIdAndUpdate(req.params.id, nextState);
+        
+        if (options.postOp) options.postOp();
 
         if (options.auditAction) {
             logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any, { isActive, status });
@@ -280,7 +285,10 @@ export async function handleCatalogDelete<T extends Document>(
     res: Response,
     model: MongooseModel<T>,
     checkDependencies?: (id: string) => Promise<{ count: number; details: any }>,
-    options: { auditAction?: string } = {}
+    options: { 
+        auditAction?: string;
+        postOp?: () => void;
+    } = {}
 ) {
     try {
         if (!hasAdminAccess(req)) {
@@ -305,6 +313,8 @@ export async function handleCatalogDelete<T extends Document>(
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }
 
+        if (options.postOp) options.postOp();
+
         if (options.auditAction) {
             logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any);
         }
@@ -324,7 +334,10 @@ export async function handleCatalogReview<T extends Document>(
     model: MongooseModel<T>,
     action: 'APPROVE' | 'REJECT',
     schema?: z.ZodTypeAny,
-    options: { auditAction?: string } = {}
+    options: { 
+        auditAction?: string;
+        postOp?: () => void;
+    } = {}
 ) {
     try {
         if (!hasAdminAccess(req)) {
@@ -350,6 +363,8 @@ export async function handleCatalogReview<T extends Document>(
         if (!item) {
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }
+
+        if (options.postOp) options.postOp();
 
         if (options.auditAction) {
             logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any, { updates });

@@ -320,7 +320,10 @@ export const deleteSparePart = async (req: Request, res: Response) => {
             count: adsCount,
             details: { ads: adsCount }
         };
-    }, { auditAction: 'SPARE_PART_DELETE' });
+    }, { 
+        auditAction: 'SPARE_PART_DELETE',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 };
 
 /**

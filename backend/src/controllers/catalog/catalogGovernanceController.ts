@@ -16,6 +16,12 @@ import { sendErrorResponse as sendContractErrorResponse } from '../../utils/erro
 import { logAdminAction } from '../../utils/adminLogger';
 import { IAuthUser } from '../../types/auth';
 
+import { getCache, setCache } from '../../utils/redisCache';
+import logger from '../../utils/logger';
+
+const HIERARCHY_TREE_CACHE_KEY = 'catalog:hierarchy-tree';
+const HIERARCHY_CACHE_TTL = 3600; // 1 hour
+
 /**
  * GET /governance/hierarchy-report
  * Returns a scan of the full catalog hierarchy and integrity issues.
@@ -42,7 +48,19 @@ export const getHierarchyTree = async (req: Request, res: Response) => {
             return sendContractErrorResponse(req, res, 403, 'Admin access required');
         }
 
+        // Try the cache first
+        const cached = await getCache<any>(HIERARCHY_TREE_CACHE_KEY);
+        if (cached) {
+            return sendSuccessResponse(res, cached);
+        }
+
         const tree = await buildHierarchyTree();
+        
+        // Cache the result
+        await setCache(HIERARCHY_TREE_CACHE_KEY, tree, HIERARCHY_CACHE_TTL).catch(err => {
+            logger.error('Failed to cache hierarchy tree', { error: err.message });
+        });
+
         sendSuccessResponse(res, tree);
     } catch (error) {
         sendCatalogError(req, res, error);

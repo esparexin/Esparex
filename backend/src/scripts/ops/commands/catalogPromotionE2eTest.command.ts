@@ -23,6 +23,10 @@
 import mongoose from 'mongoose';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../types';
 import { CATALOG_STATUS, CatalogStatusValue } from '@shared/enums/catalogStatus';
+import { connectOpsDb } from './commandUtils';
+import { closeDB } from '../../../config/db';
+import { installCatalogPromotionListener } from '../../../events/listeners/CatalogPromotionListener';
+
 
 
 const TEST_TAG = '[E2E-TEST]';
@@ -52,7 +56,9 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
             };
         }
 
-        // ── Import live models ──────────────────────────────────────────────
+        // Connect to MongoDB (ops runner does not bootstrap a connection)
+        await connectOpsDb();
+
         const [
             { default: Category },
             { default: Brand },
@@ -68,6 +74,9 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
             import('../../../models/User'),
             import('../../../events'),
         ]);
+
+        // Register the listener in this process so it catches the event we are about to fire
+        installCatalogPromotionListener();
 
         const warnings: string[] = [];
         let testModelId: mongoose.Types.ObjectId | null = null;
@@ -132,8 +141,14 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
                 brandId: brand._id,
                 modelId: testModelId,
                 price: 0,
-                condition: 'good',
+                condition: 'used',
                 images: [],
+                location: {
+                    coordinates: {
+                        type: 'Point',
+                        coordinates: [77.209, 28.613], // New Delhi default
+                    },
+                },
             }]);
             const testAd = testAdDoc[0];
             if (!testAd) throw new Error('Ad.create returned empty array');
@@ -198,7 +213,7 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
                 ],
             };
         } finally {
-            // 7. Always clean up test data
+            // 7. Always clean up test data and disconnect
             const [{ default: Ad }, { default: Model }] = await Promise.all([
                 import('../../../models/Ad'),
                 import('../../../models/Model'),
@@ -208,6 +223,8 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
             if (testAdId) cleanupOps.push(Ad.deleteOne({ _id: testAdId }));
             if (testModelId) cleanupOps.push(Model.deleteOne({ _id: testModelId }));
             await Promise.allSettled(cleanupOps);
+
+            await closeDB();
 
             context.emit('ops.command.catalog-promotion-e2e-test.step', {
                 step: 'cleanup_complete',

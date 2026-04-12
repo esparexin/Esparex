@@ -12,6 +12,7 @@ import { AdCreationService } from './AdCreationService';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { mutateStatus } from './StatusMutationService';
 import { computeActiveExpiry } from './adStatusService';
+import { enqueueImageOptimization } from '../queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
@@ -189,6 +190,18 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
                 });
 
                 createdAd = await Ad.findById((createdAd as any)._id).session(session) as IAd | null;
+            }
+
+            // 9. Dispatch Image Optimization
+            if (createdAd && Array.isArray(createdAd.images) && createdAd.images.length > 0) {
+                // Must not fail the transaction if queue push fails
+                enqueueImageOptimization(
+                    (createdAd as any)._id.toString(),
+                    'ad',
+                    createdAd.images
+                ).catch(err => {
+                    logger.error('Failed to enqueue image optimization from AdOrchestrator', err);
+                });
             }
         });
 

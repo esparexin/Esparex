@@ -170,7 +170,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
             >
               <div className="flex-1 overflow-hidden">
                 {showLocationSelector ? (
-                  <LocationSelector onClose={() => setShowLocationSelector(false)} />
+                  <LocationSelector variant="panel" onClose={() => setShowLocationSelector(false)} />
                 ) : null}
               </div>
             </div>

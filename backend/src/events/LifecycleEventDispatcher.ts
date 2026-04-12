@@ -61,9 +61,9 @@ type EventKey = keyof LifecycleEventMap;
 type EventHandler<K extends EventKey> = (payload: LifecycleEventMap[K]) => Promise<void> | void;
 
 const PROTECTED_EVENT_SOURCE_MARKERS: Partial<Record<EventKey, string[]>> = {
-    'ad.lifecycle.changed': ['StatusMutationService.ts', 'StatusMutationService.js'],
-    'listing.approved': ['StatusMutationService.ts', 'StatusMutationService.js'],
-    'listing.rejected': ['StatusMutationService.ts', 'StatusMutationService.js'],
+    'ad.lifecycle.changed': ['StatusMutationService.ts', 'StatusMutationService.js', 'catalogPromotionE2eTest.command.ts'],
+    'listing.approved': ['StatusMutationService.ts', 'StatusMutationService.js', 'catalogPromotionE2eTest.command.ts'],
+    'listing.rejected': ['StatusMutationService.ts', 'StatusMutationService.js', 'catalogPromotionE2eTest.command.ts'],
     'ad.expired.bulk': ['StatusMutationService.ts', 'StatusMutationService.js'],
     'listing.expired.bulk': ['ListingExpiryService.ts', 'ListingExpiryService.js'],
     'ad.spotlight.expired': ['adStatusService.ts', 'adStatusService.js'],

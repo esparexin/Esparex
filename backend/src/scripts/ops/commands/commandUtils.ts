@@ -1,9 +1,6 @@
-/**
- * Shared utilities for ops commands.
- */
-
 import 'dotenv/config';
 import mongoose from 'mongoose';
+import { connectDB, getUserConnection } from '../../../config/db';
 
 /** Resolve the MongoDB connection URI from environment variables. */
 export const getMongoUri = (): string => {
@@ -12,11 +9,10 @@ export const getMongoUri = (): string => {
   return uri;
 };
 
-/** Connect to MongoDB with a standard ops timeout and validate the db handle. */
+/** Connect to MongoDB using the app's connection manager and return the user DB handle. */
 export const connectOpsDb = async (): Promise<mongoose.mongo.Db> => {
-  const uri = getMongoUri();
-  await mongoose.connect(uri, { serverSelectionTimeoutMS: 20000 });
-  const db = mongoose.connection.db;
-  if (!db) throw new Error('Mongo connection established without database handle');
+  await connectDB();
+  const db = getUserConnection().db;
+  if (!db) throw new Error('User DB connection established without database handle');
   return db;
 };

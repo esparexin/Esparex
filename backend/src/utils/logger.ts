@@ -94,6 +94,7 @@ if (isProduction || isDevelopment) {
             level: 'error',
             maxSize: '20m',
             maxFiles: '14d',
+            zippedArchive: true,
             format: logFormat,
         })
     );
@@ -105,6 +106,7 @@ if (isProduction || isDevelopment) {
             datePattern: 'YYYY-MM-DD',
             maxSize: '20m',
             maxFiles: '14d',
+            zippedArchive: true,
             format: logFormat,
         })
     );
@@ -118,6 +120,7 @@ if (isProduction || isDevelopment) {
                 level: 'debug',
                 maxSize: '20m',
                 maxFiles: '7d',
+                zippedArchive: true,
                 format: logFormat,
             })
         );

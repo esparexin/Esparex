@@ -326,7 +326,8 @@ export const updateCategory = async (req: Request, res: Response) => {
  */
 export const toggleCategoryStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, asModel(Category) as any, { 
-        auditAction: 'TOGGLE_CATEGORY_STATUS' 
+        auditAction: 'TOGGLE_CATEGORY_STATUS',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 

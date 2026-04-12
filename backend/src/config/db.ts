@@ -282,21 +282,27 @@ function attachAdminDBLogs(conn: Connection) {
    GRACEFUL SHUTDOWN (NO ZOMBIE CONNECTIONS)
 ====================================================== */
 
-async function shutdown(signal: string) {
-    logger.warn(`${signal} received. Closing database connections...`, { signal });
-
+export async function closeDB() {
     try {
         await Promise.all([
             userCache.conn?.close(),
             adminCache.conn?.close(),
         ]);
+        userCache.isReady = false;
+        adminCache.isReady = false;
+        userCache.conn = null;
+        adminCache.conn = null;
     } catch (err) {
         logger.error('Error during DB shutdown', {
             error: err instanceof Error ? err.message : String(err),
         });
-    } finally {
-        process.exit(0);
     }
+}
+
+async function shutdown(signal: string) {
+    logger.warn(`${signal} received. Closing database connections...`, { signal });
+    await closeDB();
+    process.exit(0);
 }
 
 process.on('SIGINT', shutdown);

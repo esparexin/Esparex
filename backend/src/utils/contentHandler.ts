@@ -7,6 +7,7 @@ import {
     sendAdminError
 } from '../controllers/admin/adminBaseController';
 import { escapeRegExp } from './stringUtils';
+import { getCache, setCache, CACHE_TTLS } from './redisCache';
 
 interface ContentOptions {
     searchFields?: string[];
@@ -72,6 +73,31 @@ export async function handlePaginatedContent<T extends Document>(
         } = options;
 
         const effectiveQuery = queryParams || req.query;
+
+        const CATALOG_MODELS = ['Category', 'Brand', 'Model', 'ServiceType', 'ScreenSize', 'SparePart'];
+        let cacheKey: string | null = null;
+        
+        if (CATALOG_MODELS.includes(model.modelName)) {
+            const roleSuffix = isUrlAdmin ? 'admin' : 'public';
+            const sortedQuery = Object.keys(effectiveQuery)
+                .sort()
+                .map(k => `${k}=${encodeURIComponent(String(effectiveQuery[k]))}`)
+                .join('&');
+            
+            cacheKey = `catalog:list:${model.modelName.toLowerCase()}:${roleSuffix}:${req.path}?${sortedQuery}`;
+            
+            const cachedPayload = await getCache<any>(cacheKey);
+            if (cachedPayload) {
+                if (isUrlAdmin) {
+                    if (cachedPayload.page !== undefined && cachedPayload.limit !== undefined) {
+                        return sendPaginatedResponse(res, cachedPayload.items, cachedPayload.total, cachedPayload.page, cachedPayload.limit);
+                    }
+                    return sendSuccessResponse(res, cachedPayload);
+                } else {
+                    return sendSuccessResponse(res, cachedPayload);
+                }
+            }
+        }
 
         if (isAdmin && isUrlAdmin) {
             const { page, limit, skip } = getPaginationParams(req);
@@ -156,8 +182,12 @@ export async function handlePaginatedContent<T extends Document>(
                 ? await transformResponse(items as unknown[])
                 : (items as unknown[]);
             if (!Array.isArray(resolvedItems)) {
+                if (cacheKey) await setCache(cacheKey, resolvedItems, CACHE_TTLS.CATEGORIES);
                 return sendSuccessResponse(res, resolvedItems);
             }
+            
+            const payload = { items: resolvedItems, total, page, limit };
+            if (cacheKey) await setCache(cacheKey, payload, CACHE_TTLS.CATEGORIES);
             return sendPaginatedResponse(res, resolvedItems, total, page, limit);
         }
 
@@ -214,10 +244,13 @@ export async function handlePaginatedContent<T extends Document>(
             : (items as unknown[]);
 
         if (!Array.isArray(resolvedItems)) {
+            if (cacheKey) await setCache(cacheKey, resolvedItems, CACHE_TTLS.CATEGORIES);
             return sendSuccessResponse(res, resolvedItems);
         }
 
-        return sendSuccessResponse(res, { items: resolvedItems, total });
+        const payload = { items: resolvedItems, total };
+        if (cacheKey) await setCache(cacheKey, payload, CACHE_TTLS.CATEGORIES);
+        return sendSuccessResponse(res, payload);
     } catch (error) {
         sendAdminError(req, res, error);
     }

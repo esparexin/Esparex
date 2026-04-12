@@ -388,7 +388,30 @@ export const getAds = async (
     const countPipeline: AggregationStage[] = isCursorMode ? [] : [...pipeline];
 
     if (shouldUseRankScore) {
-        // Location-intelligence scoring: distance + freshness + popularity + promotion + engagement.
+        // Spotlight ads always jump to the front of Pass 1 (Lite Sort)
+        const liteSort: SortStage = { isSpotlight: -1, createdAt: -1 };
+        pipeline.push({ $sort: liteSort });
+    }
+
+    const sort = buildAdSortStage({ ...effectiveFilters, search: shouldUseGeo ? undefined : effectiveFilters.search });
+    
+    // Final sort for the Top candidates
+    if (!shouldUseRankScore) {
+        pipeline.push({ $sort: sort });
+    }
+
+    if (!isCursorMode && !shouldSkipExactCount) {
+        countPipeline.push({ $count: 'total' });
+        pipeline.push({ $skip: skip });
+        pipeline.push({ $limit: limit });
+    } else {
+        pipeline.push({ $skip: skip });
+        pipeline.push({ $limit: limit + 1 });
+    }
+
+    // --- DEFERRED HEAVY CALCULATIONS (Post-Pagination) ---
+    // Perform complex ranking and lookups only for the final 20 results.
+    if (shouldUseRankScore) {
         pipeline.push({
             $lookup: {
                 from: 'locationanalytics',
@@ -401,14 +424,10 @@ export const getAds = async (
                 as: 'locationAnalytics'
             }
         });
-        pipeline.push({
-            $addFields: {
-                locationAnalytics: { $arrayElemAt: ['$locationAnalytics', 0] }
-            }
-        });
 
         pipeline.push({
             $addFields: {
+                locationAnalytics: { $arrayElemAt: ['$locationAnalytics', 0] },
                 hoursSince: {
                     $divide: [{ $subtract: [new Date(), '$createdAt'] }, 1000 * 60 * 60]
                 },
@@ -477,20 +496,9 @@ export const getAds = async (
                 }
             }
         });
-    }
 
-    const sort = shouldUseRankScore
-        ? ({ rankScore: -1, createdAt: -1 } as SortStage)
-        : buildAdSortStage({ ...effectiveFilters, search: shouldUseGeo ? undefined : effectiveFilters.search });
-    pipeline.push({ $sort: sort });
-
-    if (!isCursorMode && !shouldSkipExactCount) {
-        countPipeline.push({ $count: 'total' });
-        pipeline.push({ $skip: skip });
-        pipeline.push({ $limit: limit });
-    } else {
-        pipeline.push({ $skip: skip });
-        pipeline.push({ $limit: limit + 1 });
+        // Re-sort within the paginated set for perfect recommendation order
+        pipeline.push({ $sort: { rankScore: -1, createdAt: -1 } });
     }
 
     // --- LEAK CLOSURE: DELAYED POPULATION (Post-Pagination) ---

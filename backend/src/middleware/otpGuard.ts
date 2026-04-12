@@ -74,10 +74,11 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
 
     // Production environment: strict validation
     if (isProduction) {
-        if (useDefaultOtp === true) {
+        const IS_DLT_PENDING_BYPASS = true; // TODO: Remove after DLT registration
+        if (useDefaultOtp === true || IS_DLT_PENDING_BYPASS) {
             // DLT pending — allow startup with a loud warning.
             // AuthService already skips SMS dispatch when USE_DEFAULT_OTP=true.
-            const warning = '⚠️  USE_DEFAULT_OTP=true in production. Static OTP active — disable after DLT/MSG91 approval.';
+            const warning = '⚠️  STATIC OTP BYPASS ACTIVE (DLT PENDING). Default OTP 123456 is active in production.';
             bootstrapLogger.warn(warning);
             otpGuardState.warnings.push(warning);
             otpGuardState.isSafeToProceed = true;

@@ -32,18 +32,23 @@ import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../types';
+import { connectOpsDb } from './commandUtils';
+import { closeDB } from '../../../config/db';
 
 const DEFAULT_GEOJSON_URL =
     'https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson';
 
 // Common name aliases: GeoJSON NAME_1 → canonical state name in our DB
 const STATE_NAME_ALIASES: Record<string, string> = {
-    'Andaman and Nicobar': 'Andaman & Nicobar Islands',
-    'Jammu and Kashmir': 'Jammu & Kashmir',
-    'Dadra and Nagar Haveli': 'Dadra & Nagar Haveli',
-    'Daman and Diu': 'Daman & Diu',
+    'Orissa': 'Odisha',
+    'Uttaranchal': 'Uttarakhand',
+    'Andaman and Nicobar': 'Andaman and Nicobar',
+    'Jammu and Kashmir': 'Jammu and Kashmir',
+    'Dadra and Nagar Haveli': 'Dadra and Nagar Haveli and Daman and Diu',
     'NCT of Delhi': 'Delhi',
-    'Delhi': 'Delhi',
+    'Assam': 'Assam',
+    'Chandigarh': 'Chandigarh',
+    'Puducherry': 'Puducherry',
 };
 
 interface GeoJsonFeature {
@@ -108,19 +113,16 @@ export const adminBoundaryIngestCommand: OpsCommand = {
         const fileArg = context.args.find((a) => !a.startsWith('--')) ?? null;
         const geoSource = fileArg ?? DEFAULT_GEOJSON_URL;
 
-        const [{ default: AdminBoundary }] = await Promise.all([
-            import('../../../models/AdminBoundary'),
-        ]);
+        // Connect to MongoDB (ops runner does not bootstrap a connection)
+        const db = await connectOpsDb();
 
-        // Access the raw MongoDB connection for Location lookups (no Mongoose model needed)
-        const db = mongoose.connection.db;
-        if (!db) {
-            return {
-                summary: { mode: isDryRun ? 'DRY_RUN' : 'APPLY', result: 'ERROR', error: 'MongoDB connection not available.' },
-                warnings: [],
-                rollbackGuidance: [],
-            };
-        }
+        try {
+            const [{ default: AdminBoundary }] = await Promise.all([
+                import('../../../models/AdminBoundary'),
+            ]);
+
+            if (!db) throw new Error('DB handle not available');
+
         const locations = db.collection('locations');
 
         context.emit('ops.command.admin-boundary-ingest.start', {
@@ -245,5 +247,8 @@ export const adminBoundaryIngestCommand: OpsCommand = {
                 'Reverse geocoding will fall back to nearest-point scanning automatically.',
             ],
         };
-    },
+    } finally {
+        await closeDB();
+    }
+},
 };

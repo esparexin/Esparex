@@ -13,6 +13,7 @@ import ScreenSize from '../../models/ScreenSize';
 import Ad from '../../models/Ad';
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
+import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import {
     asModel,
     sendCatalogError,
@@ -99,7 +100,8 @@ export const createServiceType = async (req: Request, res: Response) => {
                 payload.categoryIds = [payload.categoryId];
             }
             return payload;
-        }
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 
@@ -116,7 +118,8 @@ export const updateServiceType = async (req: Request, res: Response) => {
             }
             delete payload.categoryId;
             return payload;
-        }
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 
@@ -125,7 +128,8 @@ export const updateServiceType = async (req: Request, res: Response) => {
  */
 export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, asModel<IServiceType>(ServiceType) as any, { 
-        auditAction: 'TOGGLE_SERVICE_TYPE_STATUS' 
+        auditAction: 'TOGGLE_SERVICE_TYPE_STATUS',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 
@@ -148,7 +152,10 @@ export const deleteServiceType = async (req: Request, res: Response) => {
             count: inUseCount,
             details: { services: inUseCount }
         };
-    }, { auditAction: 'SERVICE_TYPE_DELETE' });
+    }, { 
+        auditAction: 'SERVICE_TYPE_DELETE',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 };
 
 /* ==========================================================
@@ -241,7 +248,8 @@ export const createScreenSize = async (req: Request, res: Response) => {
             const relation = await validateScreenSizeRelations({ categoryId: payload.categoryId, brandId: payload.brandId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;
-        }
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 
@@ -258,7 +266,8 @@ export const updateScreenSize = async (req: Request, res: Response) => {
             const relation = await validateScreenSizeRelations({ categoryId: nextCategoryId, brandId: nextBrandId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;
-        }
+        },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };
 
@@ -266,5 +275,8 @@ export const updateScreenSize = async (req: Request, res: Response) => {
  * Delete screen size (soft delete)
  */
 export const deleteScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, asModel<IScreenSize>(ScreenSize) as any, undefined, { auditAction: 'SCREEN_SIZE_DELETE' });
+    return handleCatalogDelete(req, res, asModel<IScreenSize>(ScreenSize) as any, undefined, { 
+        auditAction: 'SCREEN_SIZE_DELETE',
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
 };
