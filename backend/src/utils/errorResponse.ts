@@ -129,11 +129,21 @@ export function sendCatalogError(
 
     // If error is a string, use it as the message (legacy support)
     if (typeof error === 'string') {
-        return sendErrorResponse(req, res, statusCode, error);
+        const message = fallbackMessage || error || (isAdminView ? 'Catalog operation failed' : 'Not found');
+        return sendErrorResponse(req, res, statusCode, message);
     }
 
     // Default error response
-    const message = fallbackMessage || (isAdminView ? 'Catalog operation failed' : 'Not found');
+    if (statusCode >= 500) {
+        import('./logger').then(({ default: logger }) => {
+            logger.error(`[CatalogError] 500 on ${req.originalUrl}:`, {
+                error: error instanceof Error ? error.stack || error.message : error
+            });
+        }).catch(() => {});
+    }
+
+    const e = error as Error;
+    const message = fallbackMessage || (isAdminView ? `Catalog operation failed: ${e?.message || 'Unknown server error'}` : 'Not found');
     return sendErrorResponse(req, res, statusCode, message);
 }
 
