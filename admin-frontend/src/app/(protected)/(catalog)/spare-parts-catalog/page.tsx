@@ -13,7 +13,7 @@ import {
     CatalogEntityCell,
     CatalogSearchAndCategoryFilters,
     CatalogSelectFilter,
-    CatalogStatusBadge,
+    CatalogActiveToggleButton,
 } from "@/components/catalog/CatalogUiPrimitives";
 import {
     buildSpareCategoryDisplayRows,
@@ -25,13 +25,15 @@ import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { useAdminSpareParts } from "@/hooks/useAdminSparePartCatalog";
 import { categorySupportsSpareParts, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
-import { type ISparePartAdmin } from "@/types/sparePartCatalog";
+import type { SparePart } from "@shared/schemas/catalog.schema";
+import { CatalogModal } from "@/components/catalog/CatalogModal";
 
 type SparePartFormData = {
     name: string;
     categoryIds: string[];
-    listingType: ListingTypeValue[];
+    listingType: ("ad" | "spare_part")[];
     isActive: boolean;
+    sortOrder: number;
 };
 
 const VALID_IS_ACTIVE_VALUES = new Set(["all", "true", "false"]);
@@ -42,7 +44,7 @@ const normalizeActiveParam = (value: string | null) =>
 
 const normalizeCategoryParam = (value: string | null) => normalizeSearchParamValue(value) || "all";
 
-const isSparePartListingType = (value: string): value is ListingTypeValue =>
+const isSparePartListingType = (value: string): value is "ad" | "spare_part" =>
     VALID_SPARE_PART_LISTING_TYPES.has(value);
 
 type SparePartsCatalogPageContentProps = {
@@ -68,6 +70,8 @@ function SparePartsCatalogPageContent({
         handleCreate,
         handleUpdate,
         pagination,
+        toggleStatus,
+        isTogglingId,
     } = useAdminSpareParts({
         initialFilters: {
             search: initialSearch,
@@ -98,8 +102,11 @@ function SparePartsCatalogPageContent({
         totalPages: pagination.totalPages,
     });
 
+    const [deletingItem, setDeletingItem] = useState<SparePart | null>(null);
+
     return (
-        <CatalogPageTemplate<ISparePartAdmin, SparePartFormData>
+        <>
+        <CatalogPageTemplate<SparePart, SparePartFormData>
             title="Spare Parts Master"
             description="Global master list of spare parts — the SSOT for Post Ad Power-Off flow, spare parts marketplace, and repair service linking."
             createLabel="Add Master Part"
@@ -117,6 +124,7 @@ function SparePartsCatalogPageContent({
                 categoryIds: [],
                 listingType: [LISTING_TYPE.SPARE_PART],
                 isActive: true,
+                sortOrder: 0,
             }}
             customSubmitValidation={(formData) => {
                 const categoryError = validateRequiredCategoryIds(formData.categoryIds);
@@ -132,10 +140,11 @@ function SparePartsCatalogPageContent({
                     setFormData({
                         name: item.name,
                         categoryIds: getEntityCategoryIds(item),
-                        listingType: Array.isArray(item.listingType)
+                        listingType: (Array.isArray(item.listingType)
                             ? item.listingType.filter(isSparePartListingType)
-                            : [LISTING_TYPE.SPARE_PART],
+                            : [LISTING_TYPE.SPARE_PART]) as ("ad" | "spare_part")[],
                         isActive: item.isActive !== false,
+                        sortOrder: item.sortOrder || 0,
                     });
                 }
             }}
@@ -164,9 +173,11 @@ function SparePartsCatalogPageContent({
                 {
                     header: "Status",
                     cell: (part) => (
-                        <CatalogStatusBadge
-                            label={part.isActive ? "Active" : "Inactive (Hidden)"}
-                            tone={part.isActive ? "success" : "neutral"}
+                        <CatalogActiveToggleButton
+                            isActive={part.isActive !== false}
+                            onClick={() => toggleStatus(part.id, part.isActive !== false)}
+                            disabled={!!isTogglingId && isTogglingId !== part.id}
+                            loading={isTogglingId === part.id}
                         />
                     ),
                 },
@@ -176,7 +187,7 @@ function SparePartsCatalogPageContent({
                     cell: (part) => (
                         <CatalogEditDeleteActions
                             onEdit={() => openEditModal(part)}
-                            onDelete={() => void handleDelete(part.id)}
+                            onDelete={() => setDeletingItem(part)}
                         />
                     ),
                 },
@@ -259,13 +270,13 @@ function SparePartsCatalogPageContent({
                                         <input
                                             type="checkbox"
                                             className="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary/20"
-                                            checked={formData.listingType.includes(listingType.id)}
+                                            checked={formData.listingType.includes(listingType.id as "ad" | "spare_part")}
                                             onChange={() => {
                                                 setFormData((prev) => ({
                                                     ...prev,
-                                                    listingType: prev.listingType.includes(listingType.id)
+                                                    listingType: prev.listingType.includes(listingType.id as "ad" | "spare_part")
                                                         ? prev.listingType.filter((item) => item !== listingType.id)
-                                                        : [...prev.listingType, listingType.id],
+                                                        : [...prev.listingType, listingType.id as "ad" | "spare_part"],
                                                 }));
                                             }}
                                         />
@@ -299,6 +310,47 @@ function SparePartsCatalogPageContent({
                 );
             }}
         />
+
+        <CatalogModal
+            isOpen={!!deletingItem}
+            onClose={() => setDeletingItem(null)}
+            title="Delete Spare Part"
+        >
+            <div className="space-y-4">
+                <p className="text-sm text-slate-600">
+                    Are you sure you want to delete <span className="font-bold text-slate-900">{deletingItem?.name}</span>?
+                </p>
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                    <h4 className="flex items-center gap-2 text-sm font-semibold text-red-900">
+                        Cascade Delete Warning
+                    </h4>
+                    <p className="mt-1 text-sm text-red-700">
+                        Any User Ads using this Master Part will lose their reference, but the ads themselves will not be deleted.
+                    </p>
+                </div>
+                <div className="flex justify-end gap-3 pt-4">
+                    <button
+                        onClick={() => setDeletingItem(null)}
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        autoFocus
+                        onClick={async () => {
+                            if (deletingItem) {
+                                await handleDelete(deletingItem.id);
+                                setDeletingItem(null);
+                            }
+                        }}
+                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                    >
+                        Yes, Delete It
+                    </button>
+                </div>
+            </div>
+        </CatalogModal>
+        </>
     );
 }
 

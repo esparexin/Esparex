@@ -1,7 +1,7 @@
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { getCategories, toggleCategoryStatus, deleteCategory, createCategory, updateCategory } from "@/lib/api/categories";
-import { Category } from "@/types/category";
+import type { Category } from "@shared/schemas/catalog.schema";
 import { useToast } from "@/context/ToastContext";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useAdminCrudList, AdminListPagination } from "@/hooks/useAdminCrudList";
@@ -75,7 +75,11 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
         initialPagination: options.initialPagination
     });
 
+    const [isTogglingId, setIsTogglingId] = useState<string | null>(null);
+
     const handleToggleStatus = async (id: string) => {
+        if (isTogglingId) return; // prevent double-click
+        setIsTogglingId(id);
         try {
             const response = await toggleCategoryStatus(id);
             if (response.success) {
@@ -86,11 +90,14 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
             }
         } catch (err) {
             showToast(mapErrorToMessage(err, "Failed to update status"), "error");
+        } finally {
+            setIsTogglingId(null);
         }
     };
 
+    // Confirmation is handled by the UI (CatalogDeleteConfirmModal).
+    // This function is called only after the user explicitly confirms.
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this category?")) return;
         try {
             const response = await deleteCategory(id);
             if (response.success) {
@@ -99,18 +106,18 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
             } else {
                 showToast(response.message || "Failed to delete category", "error");
             }
-        } catch (err: any) {
-            if (err.status === 409 && err.payload?.dependencies) {
-                const deps = err.payload.dependencies;
+        } catch (err: unknown) {
+            const anyErr = err as { status?: number; payload?: { dependencies?: Record<string, number> } };
+            if (anyErr?.status === 409 && anyErr?.payload?.dependencies) {
+                const deps = anyErr.payload.dependencies;
                 const details = [
-                    deps.brands > 0 ? `${deps.brands} Brand(s)` : null,
-                    deps.models > 0 ? `${deps.models} Model(s)` : null,
-                    deps.spareParts > 0 ? `${deps.spareParts} Spare Part(s)` : null,
-                    deps.serviceTypes > 0 ? `${deps.serviceTypes} Service Type(s)` : null,
-                    deps.ads > 0 ? `${deps.ads} Ad(s)` : null,
+                    (deps.brands ?? 0) > 0 ? `${deps.brands} Brand(s)` : null,
+                    (deps.models ?? 0) > 0 ? `${deps.models} Model(s)` : null,
+                    (deps.spareParts ?? 0) > 0 ? `${deps.spareParts} Spare Part(s)` : null,
+                    (deps.serviceTypes ?? 0) > 0 ? `${deps.serviceTypes} Service Type(s)` : null,
+                    (deps.ads ?? 0) > 0 ? `${deps.ads} Ad(s)` : null,
                 ].filter(Boolean).join(", ");
-
-                showToast(`Cannot delete: Associated with ${details}. Deactivate it instead?`, "error");
+                showToast(`Cannot delete: Associated with ${details}. Deactivate it instead.`, "error");
             } else {
                 showToast(mapErrorToMessage(err, "Failed to delete category"), "error");
             }
@@ -163,6 +170,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
         handleToggleStatus,
         handleDelete,
         handleCreate,
-        handleUpdate
+        handleUpdate,
+        isTogglingId,
     };
 }

@@ -69,6 +69,7 @@ router.get('/spare-parts', requirePermission('catalog:read'), catalogController.
 router.get('/spare-parts/:id', requirePermission('catalog:read'), validateObjectId, catalogController.getSparePartById);
 router.post('/spare-parts', requirePermission('catalog:write'), adminMutationLimiter, validateRequest(Validators.sparePartCreateSchema), catalogController.createSparePart);
 router.put('/spare-parts/:id', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, validateRequest(Validators.sparePartUpdateSchema), catalogController.updateSparePart);
+router.patch('/spare-parts/:id/toggle-status', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, catalogController.toggleSparePartStatus);
 router.delete('/spare-parts/:id', requirePermission('catalog:write'), adminMutationLimiter, validateObjectId, catalogController.deleteSparePart);
 
 // ============================================

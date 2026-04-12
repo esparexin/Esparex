@@ -3,11 +3,12 @@ import {
     deleteSparePart,
     getSpareParts,
     updateSparePart,
-    type SparePartData,
+    toggleSparePartStatus,
 } from "@/lib/api/sparePartCatalog";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import type { AdminListPagination } from "@/hooks/useAdminCrudList";
-import { ISparePartAdmin } from "@/types/sparePartCatalog";
+import type { SparePart, CreateSparePartDTO, UpdateSparePartDTO } from "@shared/schemas/catalog.schema";
+import { useState, useCallback } from "react";
 
 interface UseAdminSparePartsOptions {
     initialFilters?: { search: string; categoryId: string; isActive: string };
@@ -15,6 +16,8 @@ interface UseAdminSparePartsOptions {
 }
 
 export function useAdminSpareParts(options: UseAdminSparePartsOptions = {}) {
+    const [isTogglingId, setIsTogglingId] = useState<string | null>(null);
+
     const {
         items: parts,
         loading,
@@ -24,13 +27,15 @@ export function useAdminSpareParts(options: UseAdminSparePartsOptions = {}) {
         setFilters,
         setPage,
         refresh: fetchParts,
-        handleDelete,
+        handleDelete: baseHandleDelete,
         handleCreate,
         handleUpdate,
+        runAction,
     } = useAdminCatalogCollection<
-        ISparePartAdmin,
+        SparePart,
         { search: string; categoryId: string; isActive: string },
-        SparePartData
+        CreateSparePartDTO,
+        UpdateSparePartDTO
     >({
         initialFilters: options.initialFilters ?? {
             search: "",
@@ -52,6 +57,38 @@ export function useAdminSpareParts(options: UseAdminSparePartsOptions = {}) {
         deleteConfirmMessage: "Are you sure you want to delete this catalog item?",
     });
 
+    const toggleStatus = useCallback(
+        async (id: string, currentStatus: boolean) => {
+            if (isTogglingId) return;
+            setIsTogglingId(id);
+
+            await runAction(() => toggleSparePartStatus(id), {
+                successMessage: `Part marked ${!currentStatus ? "active" : "inactive"} successfully`,
+                errorMessage: "Failed to toggle part status",
+                onSuccess: async () => {
+                    await fetchParts();
+                },
+            });
+
+            setIsTogglingId(null);
+        },
+        [fetchParts, isTogglingId, runAction]
+    );
+
+    // Bypass default handleDelete since we want to handle the modal externally in the page component
+    const handleDelete = useCallback(
+        async (id: string) => {
+            await runAction(() => deleteSparePart(id), {
+                successMessage: "Part deleted successfully",
+                errorMessage: "Failed to delete part",
+                onSuccess: async () => {
+                    await fetchParts();
+                },
+            });
+        },
+        [fetchParts, runAction]
+    );
+
     return {
         parts,
         loading,
@@ -64,5 +101,7 @@ export function useAdminSpareParts(options: UseAdminSparePartsOptions = {}) {
         handleDelete,
         handleCreate,
         handleUpdate,
+        toggleStatus,
+        isTogglingId,
     };
 }

@@ -719,7 +719,7 @@ export const runLocationPathMigration = async (req: Request, res: Response) => {
     const applyMode = req.body?.apply === true;
     try {
         logger.info('[AdminLocationController] Location path migration requested', { applyMode });
-        const { runLocationPathMigrationJob } = await import('../../scripts/migrations/migrate_location_path_population_job');
+        const { runLocationPathMigrationJob } = await import('../../scripts/_archive/migrate_location_path_population_job');
         const result = await runLocationPathMigrationJob({ apply: applyMode });
         await logAdminAction(req, 'LOCATION_PATH_MIGRATION', 'System', 'Location', { applyMode, ...result });
         return sendSuccessResponse(res, result, applyMode ? 'Path migration applied' : 'Dry run complete — pass { apply: true } to persist');

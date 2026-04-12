@@ -12,22 +12,11 @@ export interface SparePartFilters {
     [key: string]: string | number | boolean | undefined;
 }
 
-export interface SparePartData {
-    id?: string;
-    name: string;
-    categoryIds: string[];
-    slug?: string;
-    listingType?: ListingTypeValue[];
-    brandId?: string;
-    modelId?: string;
-    sortOrder?: number;
-    usageCount?: number;
-    isActive?: boolean;
-}
+import type { SparePart, CreateSparePartDTO, UpdateSparePartDTO } from "@shared/schemas/catalog.schema";
 
 export async function getSpareParts(filters?: SparePartFilters) {
     const query = buildQueryString(filters);
-    return adminFetch<SparePartData[]>(`${ADMIN_ROUTES.SPARE_PARTS}?${query}`);
+    return adminFetch<SparePart[]>(`${ADMIN_ROUTES.SPARE_PARTS}?${query}`);
 }
 
 export async function deleteSparePart(id: string) {
@@ -36,16 +25,22 @@ export async function deleteSparePart(id: string) {
     });
 }
 
-export async function createSparePart(data: SparePartData) {
-    return adminFetch<SparePartData>(ADMIN_ROUTES.SPARE_PARTS, {
+export async function createSparePart(data: CreateSparePartDTO) {
+    return adminFetch<SparePart>(ADMIN_ROUTES.SPARE_PARTS, {
         method: "POST",
         body: data
     });
 }
 
-export async function updateSparePart(id: string, data: SparePartData) {
-    return adminFetch<SparePartData>(ADMIN_ROUTES.SPARE_PART_BY_ID(id), {
+export async function updateSparePart(id: string, data: UpdateSparePartDTO) {
+    return adminFetch<SparePart>(ADMIN_ROUTES.SPARE_PART_BY_ID(id), {
         method: "PUT",
         body: data
+    });
+}
+
+export async function toggleSparePartStatus(id: string) {
+    return adminFetch<{ active: boolean }>(`${ADMIN_ROUTES.SPARE_PART_BY_ID(id)}/toggle-status`, {
+        method: "PATCH",
     });
 }

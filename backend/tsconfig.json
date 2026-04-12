@@ -53,6 +53,7 @@
     "src/__tests__",
     "**/*.spec.ts",
     "**/*.test.ts",
-    "src/seeds"
+    "src/seeds",
+    "src/scripts/_archive"
   ]
 }

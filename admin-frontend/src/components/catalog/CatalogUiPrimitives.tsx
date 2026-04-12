@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { CheckCircle, Edit, Filter, Search, Trash2, XCircle } from "lucide-react";
+import { CheckCircle, Edit, Filter, Loader2, Search, Trash2, XCircle } from "lucide-react";
 
 export type SelectOption = {
     value: string;
@@ -146,21 +146,32 @@ export function CatalogActiveToggleButton({
     onClick,
     activeLabel = "Active",
     inactiveLabel = "Inactive",
+    disabled = false,
+    loading = false,
 }: {
     isActive: boolean;
     onClick: () => void;
     activeLabel?: string;
     inactiveLabel?: string;
+    disabled?: boolean;
+    loading?: boolean;
 }) {
     return (
         <button
             type="button"
             onClick={onClick}
-            className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
+            disabled={disabled || loading}
+            className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                 isActive ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-red-100 text-red-700 hover:bg-red-200"
             }`}
         >
-            {isActive ? <CheckCircle size={12} /> : <XCircle size={12} />}
+            {loading ? (
+                <Loader2 size={12} className="animate-spin" />
+            ) : isActive ? (
+                <CheckCircle size={12} />
+            ) : (
+                <XCircle size={12} />
+            )}
             {isActive ? activeLabel : inactiveLabel}
         </button>
     );

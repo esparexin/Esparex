@@ -47,6 +47,7 @@ export {
     createSparePart,
     updateSparePart,
     deleteSparePart,
+    toggleSparePartStatus,
     getSparePartById
 } from './catalogSparePartController';
 

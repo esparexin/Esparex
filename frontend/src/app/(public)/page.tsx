@@ -109,7 +109,7 @@ export default async function Home() {
                 }}
             />
 
-            <section data-primary className="flex flex-col">
+            <section data-primary className="flex flex-col isolate">
                 <CategoryBrowser categories={categories} />
                 <BusinessQuickActionsShell />
 

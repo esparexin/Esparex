@@ -126,7 +126,7 @@ export const CreateSparePartSchema = z.object({
             return v;
         }))
         .optional(),
-    categories: z.array(ObjectIdSchema).min(1, "At least one category is required"),
+    categoryIds: z.array(ObjectIdSchema).min(1, "At least one category is required"),
     brandId: ObjectIdSchema.optional(),
     modelId: ObjectIdSchema.optional(),
     sortOrder: z.number().default(0),

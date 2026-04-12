@@ -25,6 +25,7 @@ import {
     getActiveCategoryIds,
     handleCatalogCreate,
     handleCatalogUpdate,
+    handleCatalogToggleStatus,
     handleCatalogDelete,
     sendEmptyPublicList,
     getAdminActorId
@@ -306,6 +307,16 @@ export const updateSparePart = async (req: Request, res: Response) => {
 
             return payload;
         },
+        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+    });
+};
+
+/**
+ * Toggle spare part status
+ */
+export const toggleSparePartStatus = async (req: Request, res: Response) => {
+    return handleCatalogToggleStatus(req, res, asModel(SparePart) as any, { 
+        auditAction: 'TOGGLE_SPARE_PART_STATUS',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
 };

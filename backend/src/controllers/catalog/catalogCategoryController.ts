@@ -22,6 +22,7 @@ import { sendSuccessResponse } from '../admin/adminBaseController';
 // import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import { clearCategoryCanonicalCache } from '../../utils/categoryCanonical';
+// Note: constants/categorySchema was removed; category filters are now DB-stored.
 import {
     categoryCreateSchema,
     categoryUpdateSchema,
@@ -152,20 +153,8 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
  */
 export const getCategoryById = async (req: Request, res: Response) => {
     try {
-        const isAdminView = req.originalUrl.includes('/admin');
-        const identifierParam = req.params.id;
-        const identifier = Array.isArray(identifierParam) ? identifierParam[0] : identifierParam;
-        if (!identifier) {
-            return sendCatalogError(req, res, 'Category not found', 404);
-        }
-        const lookup = mongoose.Types.ObjectId.isValid(identifier)
-            ? { _id: identifier }
-            : { slug: identifier.toLowerCase() };
-
-        const category = await Category.findOne({
-            ...lookup,
-            ...(isAdminView ? {} : ACTIVE_CATEGORY_QUERY),
-        });
+        // Admin route always uses validateObjectId middleware — ObjectId lookup only.
+        const category = await Category.findById(req.params.id);
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
         }
@@ -327,7 +316,10 @@ export const updateCategory = async (req: Request, res: Response) => {
 export const toggleCategoryStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, asModel(Category) as any, { 
         auditAction: 'TOGGLE_CATEGORY_STATUS',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: () => {
+            clearCategoryCanonicalCache();
+            void CatalogOrchestrator.invalidateCatalogCache();
+        }
     });
 };
 
@@ -339,37 +331,39 @@ export const deleteCategory = async (req: Request, res: Response) => {
     session.startTransaction();
 
     try {
-        if (!hasAdminAccess(req)) { 
+        if (!hasAdminAccess(req)) {
             throw new AppError('Admin access required', 403, 'FORBIDDEN');
         }
-        
+
         const categoryId = req.params.id;
         const category = await Category.findById(categoryId).session(session);
         if (!category) {
             throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
         }
 
-        category.isDeleted = true;
-        category.isActive = false;
-        category.deletedAt = new Date();
-        await category.save({ session });
+        // Soft-delete the category itself, then cascade to children.
+        // Single write here; cascadeCategoryDelete handles brands/models/parts/sizes.
+        await Category.updateOne(
+            { _id: category._id },
+            { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } },
+            { session }
+        );
 
-        // centralize cascade logic
         await CatalogOrchestrator.cascadeCategoryDelete(String(category._id), session);
 
         await session.commitTransaction();
         clearCategoryCanonicalCache();
-        
+
         sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
-    } catch (e: any) {
+    } catch (e: unknown) {
         await session.abortTransaction();
-        if (e.message === 'Admin access required') {
-             return sendCatalogError(req, res, e.message, 403);
-        } else if (e.message === 'Category not found') {
-             return sendCatalogError(req, res, e.message, 404);
-        } else {
-             return sendCatalogError(req, res, e);
+        const err = e instanceof AppError ? e : null;
+        if (err?.code === 'FORBIDDEN') {
+            return sendCatalogError(req, res, err.message, 403);
+        } else if (err?.code === 'CATEGORY_NOT_FOUND') {
+            return sendCatalogError(req, res, err.message, 404);
         }
+        return sendCatalogError(req, res, e);
     } finally {
         await session.endSession();
     }
