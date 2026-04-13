@@ -1,3 +1,7 @@
+// Force test semantics before any application modules read process.env.
+process.env.NODE_ENV ??= 'test';
+process.env.ALLOW_REDIS ??= 'false';
+
 // Test-only environment normalization to reduce noisy logs in CI/local test output.
 process.env.DOTENV_CONFIG_QUIET = 'true';
 

@@ -9,6 +9,7 @@ import { requirePermission } from '../../middleware/adminAuth';
 import { validateRequest } from '../../middleware/validateRequest';
 import * as transactionController from '../../controllers/admin/adminTransactionController';
 import * as adminInvoiceController from '../../controllers/admin/adminInvoiceController';
+import * as adminSmartAlertsController from '../../controllers/admin/adminSmartAlertsController';
 import * as smartAlertController from '../../controllers/smartAlert';
 import {
     adminCreateInvoiceSchema,
@@ -45,6 +46,7 @@ router.patch('/invoices/:id/status', requirePermission('finance:manage'), adminM
 // ============================================
 // SMART ALERTS
 // ============================================
+router.get('/smart-alerts/logs', requirePermission('content:read'), adminSmartAlertsController.getSmartAlertLogs);
 router.get('/smart-alerts', requirePermission('content:read'), smartAlertController.getSmartAlerts);
 router.delete('/smart-alerts/:id', requirePermission('content:write'), validateObjectId, smartAlertController.deleteSmartAlert);
 

@@ -14,6 +14,9 @@ import { env, isProduction, isDevelopment, isTest } from '../config/env';
 import { TraceContext } from '@shared/observability/trace';
 import type { Logger as BaseLogger, LogDetails, LogLevel } from '@shared/observability/types';
 
+const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
+const shouldSilenceForTests = isTest || isJestRuntime;
+
 const maskPII = winston.format((info) => {
     if (process.env.NODE_ENV !== 'production') return info;
 
@@ -72,8 +75,8 @@ const consoleFormat = winston.format.combine(
 const transports: winston.transport[] = [];
 const loggerLevel = process.env.LOG_LEVEL || (isProduction ? 'info' : 'info');
 
-// Console transport (always enabled except in test)
-if (!isTest) {
+// Console transport (always enabled except in tests)
+if (!shouldSilenceForTests) {
     transports.push(
         new winston.transports.Console({
             format: isDevelopment ? consoleFormat : logFormat,
@@ -82,8 +85,8 @@ if (!isTest) {
     );
 }
 
-// File transports (production and development)
-if (isProduction || isDevelopment) {
+// File transports (production and development, but never under Jest)
+if (!shouldSilenceForTests && (isProduction || isDevelopment)) {
     const logsDir = path.join(process.cwd(), 'logs');
 
     // Error logs (separate file)

@@ -26,11 +26,19 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Create .env for backend
+        run: |
+          echo "NODE_ENV=test" > backend/.env
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/.env
+          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/.env
+          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> backend/.env
+          echo "LOG_LEVEL=info" >> backend/.env
 
       - name: Type check backend
         run: npm run type-check -w backend
@@ -50,11 +58,19 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Create .env for backend tests
+        run: |
+          echo "NODE_ENV=test" > backend/.env
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/.env
+          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/.env
+          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> backend/.env
+          echo "LOG_LEVEL=info" >> backend/.env
 
       - name: Run backend tests
         run: npm run test:ci -w backend
@@ -78,11 +94,19 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Create .env for backend guards
+        run: |
+          echo "NODE_ENV=test" > backend/.env
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/.env
+          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/.env
+          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> backend/.env
+          echo "LOG_LEVEL=info" >> backend/.env
 
       - name: Lint repository
         run: npm run lint
@@ -124,11 +148,19 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Create .env for backend build
+        run: |
+          echo "NODE_ENV=test" > backend/.env
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/.env
+          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/.env
+          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> backend/.env
+          echo "LOG_LEVEL=info" >> backend/.env
 
       - name: Build backend
         run: npm run build -w backend
@@ -136,9 +168,20 @@ jobs:
       - name: Build frontend
         run: npm run build -w frontend
         env:
-          NEXT_PUBLIC_API_URL: https://api.esparex.in
+          NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
+          NEXT_PUBLIC_APP_URL: https://esparex.in
+          NEXT_PUBLIC_ENCRYPTION_KEY: ci-placeholder-key-32-characters-x
+          NEXT_PUBLIC_USE_DEFAULT_OTP: "false"
+          NEXT_PUBLIC_LOCAL_DEV_AUTH: "false"
+          NEXT_PUBLIC_FIREBASE_API_KEY: placeholder
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: placeholder
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
+          NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
 
       - name: Build admin-frontend
         run: npm run build -w admin-frontend
         env:
-          NEXT_PUBLIC_API_URL: https://api.esparex.in
+          NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin

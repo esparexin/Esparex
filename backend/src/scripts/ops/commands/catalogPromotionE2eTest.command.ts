@@ -220,7 +220,22 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
             ]);
 
             const cleanupOps: Promise<unknown>[] = [];
-            if (testAdId) cleanupOps.push(Ad.deleteOne({ _id: testAdId }));
+            if (testAdId) {
+                cleanupOps.push(
+                    Ad.updateOne(
+                        { _id: testAdId },
+                        {
+                            $set: {
+                                status: 'deactivated',
+                                isDeleted: true,
+                                deletedAt: new Date(),
+                                isSpotlight: false,
+                                isChatLocked: true,
+                            },
+                        }
+                    )
+                );
+            }
             if (testModelId) cleanupOps.push(Model.deleteOne({ _id: testModelId }));
             await Promise.allSettled(cleanupOps);
 

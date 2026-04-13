@@ -6,6 +6,7 @@ import { validateIdOrSlug } from "../middleware/validateIdOrSlug";
 import { searchLimiter, mutationLimiter } from "../middleware/rateLimiter";
 import { validateRequest } from "../middleware/validateRequest";
 import { updateAdSchema } from "../validators/ad.validator";
+import { idempotencyMiddleware } from "../middleware/idempotency";
 import type { ZodTypeAny } from "zod";
 
 const router = Router();
@@ -49,6 +50,14 @@ router.put("/:id/mark-sold", protect, validateObjectId, mutationLimiter, listing
 // PATCH /api/v1/listings/:id/deactivate
 // Lifecycle: LIVE -> DEACTIVATED
 router.patch("/:id/deactivate", protect, validateObjectId, mutationLimiter, listingController.deactivateListing);
+
+// DELETE /api/v1/listings/:id
+// Lifecycle: Soft delete
+router.delete("/:id", protect, validateObjectId, mutationLimiter, listingController.deleteListing);
+
+// POST /api/v1/listings/:id/repost
+// Lifecycle: Repost expired/rejected listing
+router.post("/:id/repost", protect, validateObjectId, mutationLimiter, idempotencyMiddleware, listingController.repostListing);
 
 // POST /api/v1/listings/:id/promote
 // Promotion entry point

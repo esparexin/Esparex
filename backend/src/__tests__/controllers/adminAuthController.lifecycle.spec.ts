@@ -4,12 +4,8 @@ jest.mock("../../models/Admin", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
+        updateOne: jest.fn(),
     },
-}));
-
-jest.mock("../../services/AdminService", () => ({
-    __esModule: true,
-    loginAdmin: jest.fn(),
 }));
 
 jest.mock("../../utils/systemConfigHelper", () => ({
@@ -25,6 +21,7 @@ jest.mock("../../utils/cookieHelper", () => ({
 
 jest.mock("../../utils/auth", () => ({
     __esModule: true,
+    comparePassword: jest.fn().mockResolvedValue(true),
     generateAdminToken: jest.fn(() => "jwt_admin_token"),
     verifyAdminToken: jest.fn(() => ({
         id: "admin_1",
@@ -44,7 +41,7 @@ jest.mock("../../services/AdminSessionService", () => ({
     getAdminSessionTtlMs: jest.fn(() => 8 * 60 * 60 * 1000),
 }));
 
-jest.mock("../../services/emailService", () => ({
+jest.mock("../../services/EmailService", () => ({
     __esModule: true,
     emailService: {
         sendEmail: jest.fn().mockResolvedValue(true),
@@ -70,7 +67,6 @@ jest.mock("@shared/enums/userStatus", () => ({
 }), { virtual: true });
 
 import Admin from "../../models/Admin";
-import * as adminService from "../../services/AdminService";
 import { createAdminSession, revokeAdminSessionsForAdmin } from "../../services/AdminSessionService";
 import { adminLogin, resetPassword } from "../../controllers/admin/system/adminAuthController";
 
@@ -85,8 +81,7 @@ const createMockRes = () => {
 };
 
 describe("admin auth lifecycle regressions", () => {
-    const mockAdmin = Admin as unknown as { findOne: jest.Mock };
-    const mockLoginAdmin = adminService.loginAdmin as jest.Mock;
+    const mockAdmin = Admin as unknown as { findOne: jest.Mock; updateOne: jest.Mock };
     const mockCreateAdminSession = createAdminSession as jest.Mock;
     const mockRevokeAdminSessionsForAdmin = revokeAdminSessionsForAdmin as jest.Mock;
 
@@ -100,25 +95,25 @@ describe("admin auth lifecycle regressions", () => {
             firstName: "Ops",
             lastName: "Lead",
             email: "ops@example.com",
-            status: "live", // Replaced legacy "active" with enforced "live"
+            password: "hashed-password",
+            role: "admin",
+            permissions: ["system:config"],
+            status: "live",
             twoFactorEnabled: false,
-        };
-
-        mockAdmin.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(activeAdmin),
-        });
-
-        mockLoginAdmin.mockResolvedValue({
-            token: "legacy_token_not_used",
-            admin: {
-                _id: "admin_1",
+            toObject: jest.fn(() => ({
+                _id: { toString: () => "admin_1" },
                 firstName: "Ops",
                 lastName: "Lead",
                 role: "admin",
                 permissions: ["system:config"],
                 email: "ops@example.com",
-            },
+            })),
+        };
+
+        mockAdmin.findOne.mockReturnValue({
+            select: jest.fn().mockResolvedValue(activeAdmin),
         });
+        mockAdmin.updateOne.mockResolvedValue({ acknowledged: true });
 
         const req = {
             body: {
@@ -133,7 +128,11 @@ describe("admin auth lifecycle regressions", () => {
 
         await adminLogin(req, res);
 
-        expect(mockLoginAdmin).toHaveBeenCalledWith("ops@example.com", "Admin@12345");
+        expect(mockAdmin.findOne).toHaveBeenCalledWith({ email: "ops@example.com" });
+        expect(mockAdmin.updateOne).toHaveBeenCalledWith(
+            { _id: activeAdmin._id },
+            { $set: { lastLogin: expect.any(Date) } }
+        );
         expect(res.cookie).toHaveBeenCalledWith(
             "admin_token",
             "jwt_admin_token",

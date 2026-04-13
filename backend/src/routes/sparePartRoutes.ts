@@ -62,21 +62,7 @@ router.put(
     sparePartListingController.updateSparePartListing
 );
 
-/**
- * @route   DELETE /api/v1/spare-part-listings/:id
- * @desc    Soft-delete own spare part listing (Owner only)
- * @access  Private — ownership verified in controller, no business approval required
- */
-router.delete(
-    '/:id',
-    protect,
-    validateObjectId,
-    sparePartListingController.deleteSparePartListing
-);
-
-// D3: Lifecycle routes now rate-limited to prevent state-transition abuse
-router.patch('/:id/deactivate', protect, validateObjectId, mutationLimiter, sparePartListingController.deactivateSparePartListing);
-router.post('/:id/repost', protect, validateObjectId, mutationLimiter, sparePartListingController.repostSparePartListing);
+// D3: Lifecycle routes now fully delegated to generic listingRoutes.ts
 
 
 export default router;

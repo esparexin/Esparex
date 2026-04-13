@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useToast } from "@/context/ToastContext";
-import type { Plan } from "@/types/plan";
+import type { Plan } from "@shared/types/Plan";
 
 export function useSubscriptionPlans() {
     const { showToast } = useToast();

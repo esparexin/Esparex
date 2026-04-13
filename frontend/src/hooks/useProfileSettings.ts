@@ -10,7 +10,6 @@ import type {
 import { useProfileIdentity } from "./profile/useProfileIdentity";
 import { useProfileNotifications, normalizeMobileVisibility } from "./profile/useProfileNotifications";
 import { useProfileTermination } from "./profile/useProfileTermination";
-import { useProfileSmartAlerts } from "./profile/useProfileSmartAlerts";
 import { emptyProfileFieldErrors } from "./profile/validationMapper";
 
 /* ---- Hook params ---- */
@@ -18,8 +17,6 @@ export interface UseProfileSettingsParams {
   user: ProfileUser | null;
   onUpdateUser: (userData: User) => void;
   onLogout: (options?: { skipServerLogout?: boolean }) => void | Promise<void>;
-  createSmartAlert: (data: any) => Promise<unknown>;
-  updateSmartAlert: (id: string, data: any) => Promise<unknown>;
 }
 
 /* ---- Hook ---- */
@@ -27,8 +24,6 @@ export function useProfileSettings({
   user,
   onUpdateUser,
   onLogout,
-  createSmartAlert,
-  updateSmartAlert,
 }: UseProfileSettingsParams) {
   // ── Domain Hooks ───────────────────────────────────────────────────────────
   const {
@@ -62,16 +57,7 @@ export function useProfileSettings({
     handleDeleteAccount,
   } = useProfileTermination({ onLogout });
 
-  const {
-    smartAlertForm, setSmartAlertForm, updateSmartAlertForm,
-    smartAlertErrors,
-    smartAlertGlobalError,
-    editingAlertId,
-    clearSmartAlertError,
-    handleEditAlert,
-    handleCreateAlert,
-    resetAlertForm,
-  } = useProfileSmartAlerts({ createSmartAlert, updateSmartAlert });
+  // Smart alerts state moved back to useSmartAlerts entirely
 
   // ── Non-Domain UI State ─────────────────────────────────────────────────────
   const [showPlanDialog, setShowPlanDialog] = useState(false);
@@ -148,14 +134,6 @@ export function useProfileSettings({
     showPlanDialog, setShowPlanDialog,
     selectedPlan, setSelectedPlan,
 
-    // Smart alerts
-    smartAlertForm, setSmartAlertForm, updateSmartAlertForm,
-    smartAlertErrors,
-    smartAlertGlobalError,
-    clearSmartAlertError,
-    editingAlertId,
-    handleEditAlert,
-    handleCreateAlert,
-    resetAlertForm,
+    // Smart alerts logic moved to ProfileSettingsSidebar directly using useSmartAlerts
   };
 }

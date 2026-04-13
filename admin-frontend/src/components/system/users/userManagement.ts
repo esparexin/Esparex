@@ -1,4 +1,4 @@
-import type { User } from "@/types/user";
+import type { User } from "@shared/types/User";
 import { USER_STATUS } from "@shared/enums/userStatus";
 import { isActiveUserStatus, normalizeUserStatus } from "@shared/utils/userStatus";
 

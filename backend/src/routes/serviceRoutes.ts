@@ -42,11 +42,7 @@ router.put(
     validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
     serviceController.updateService
 );
-// D2: Lifecycle routes now rate-limited to prevent state-transition abuse
-router.delete('/:id', protect, validateObjectId, mutationLimiter, serviceController.deleteService);
-router.patch('/:id/sold', protect, validateObjectId, mutationLimiter, serviceController.markServiceAsSold);
-router.patch('/:id/deactivate', protect, validateObjectId, mutationLimiter, serviceController.deactivateService);
-router.post('/:id/repost', protect, validateObjectId, mutationLimiter, serviceController.repostService);
+// D2: Lifecycle routes now fully delegated to generic listingRoutes.ts
 
 
 import { validateIdOrSlug } from '../middleware/validateIdOrSlug';

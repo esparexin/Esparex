@@ -2,7 +2,7 @@
 
 import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
-import { Brand } from "@/types/brand";
+import type { Brand } from "@shared/types";
 import { categorySupportsAds, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { Tag, CheckCircle, XCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { CatalogModal } from "@/components/catalog/CatalogModal";

@@ -1,6 +1,6 @@
 "use client";
 
-import { Business } from "@/types/business";
+import { Business } from "@shared/types";
 import {
     X,
     Building2,

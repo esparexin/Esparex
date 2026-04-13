@@ -75,15 +75,10 @@ router.post(
 // Reveal phone number (public with masking or private for authenticated users)
 router.get("/:id/phone", validateObjectId, searchLimiter, listingController.getListingPhone);
 
-// Repost expired/rejected ad (no Layer 2 equivalent — keep here)
-router.post("/:id/repost", validateObjectId, protect, mutationLimiter, idempotencyMiddleware, adController.repostAd);
-
 // Update ad
 // D1: PATCH update uses partial schema (updateAdSchema = PartialAdPayloadSchema.passthrough())
 router.patch("/:id", validateObjectId, protect, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), adController.updateAd);
 
-// D4: DELETE now rate-limited via mutationLimiter to prevent delete flooding
-router.delete("/:id", validateObjectId, protect, mutationLimiter, idempotencyMiddleware, adController.deleteAd);
 
 
 export default router;

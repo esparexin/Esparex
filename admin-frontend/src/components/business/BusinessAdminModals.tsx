@@ -5,7 +5,7 @@ import { BusinessDetailsModal } from "@/components/business/BusinessDetailsModal
 import { BusinessDeleteModal } from "@/components/business/BusinessDeleteModal";
 import { BusinessModifyModal } from "@/components/business/BusinessModifyModal";
 import { BusinessRejectModal } from "@/components/business/BusinessRejectModal";
-import type { Business } from "@/types/business";
+import type { Business } from "@shared/types";
 
 export interface BusinessAdminModalController {
     businesses: Business[];

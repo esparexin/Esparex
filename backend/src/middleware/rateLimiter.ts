@@ -4,8 +4,9 @@ import redisClient from '../config/redis';
 import { Request, Response } from 'express';
 import logger from '../utils/logger';
 
+const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedisStore =
-    process.env.NODE_ENV === 'test' && process.env.ALLOW_REDIS !== 'true';
+    (process.env.NODE_ENV === 'test' || isJestRuntime) && process.env.ALLOW_REDIS !== 'true';
 const isLocalRelaxedAuth =
     process.env.NODE_ENV === 'development' &&
     process.env.CI !== 'true' &&

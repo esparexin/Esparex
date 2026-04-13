@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 const { execSync, spawnSync } = require("node:child_process");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const WORKSPACE_ROOTS = ["frontend", "backend", "admin-frontend"];
 
@@ -28,7 +30,7 @@ function resolveMergeBase(baseRef) {
 
 function getChangedTsFiles(baseSha) {
   if (!baseSha) return [];
-  const raw = run(`git diff --name-only ${baseSha}...HEAD`);
+  const raw = run(`git diff --name-only --diff-filter=ACMR ${baseSha}...HEAD`);
   return raw
     .split("\n")
     .map((line) => line.trim())
@@ -86,7 +88,11 @@ function main() {
 
   for (const [workspace, files] of grouped.entries()) {
     console.log(`Checking unused imports in changed files (${workspace})...`);
-    const status = lintWorkspaceChangedFiles(workspace, files);
+    // Final safety check: filter out files that may have been deleted/moved
+    const existingFiles = files.filter(f => fs.existsSync(path.join(workspace, f)));
+    if (existingFiles.length === 0) continue;
+
+    const status = lintWorkspaceChangedFiles(workspace, existingFiles);
     if (status !== 0) {
       hasFailures = true;
     }
