@@ -100,8 +100,6 @@ export function ProfileSettingsSidebar({
     smartAlertItems,
     savedSearches,
     loading: loadingAlerts,
-    createSmartAlert,
-    updateSmartAlert,
     toggleSmartAlertStatus,
     deleteSmartAlert,
     deleteSavedSearch,
