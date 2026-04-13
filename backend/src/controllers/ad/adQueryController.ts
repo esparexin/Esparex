@@ -17,6 +17,7 @@ import { IAuthUser } from '../../types/auth';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
+import { warnIfLegacyAdUserIdAliasUsed } from '../../utils/legacyOwnerAliasTelemetry';
 
 const asControllerError = (error: unknown): any => error as any;
 const getViewerIdForFeed = (req: Request): string | undefined => {
@@ -31,6 +32,7 @@ const getViewerIdForFeed = (req: Request): string | undefined => {
  */
 export const getAds = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        warnIfLegacyAdUserIdAliasUsed(req, 'query');
         const viewerId = getViewerIdForFeed(req);
         const query = getAdsQuerySchema.parse(req.query);
         const requestedPage = Number(query.page ?? 1);
@@ -129,6 +131,7 @@ export const getAds = async (req: Request, res: Response, next: NextFunction) =>
  */
 export const getNearbyAds = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        warnIfLegacyAdUserIdAliasUsed(req, 'query');
         const viewerId = getViewerIdForFeed(req);
         const query = getAdsQuerySchema.parse({
             ...req.query,
