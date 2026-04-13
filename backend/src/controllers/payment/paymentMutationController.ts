@@ -1,7 +1,11 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import Transaction from '../../models/Transaction';
+import {
+    checkTransactionVelocity,
+    findPendingTransaction,
+    createPaymentTransaction,
+} from '../../services/PaymentProcessingService';
 import Plan from '../../models/Plan';
 import User from '../../models/User';
 import { respond } from '../../utils/respond';
@@ -32,11 +36,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 503, 'Payments are currently unavailable');
         }
 
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-        const velocityCount = await Transaction.countDocuments({
-            userId: user._id,
-            createdAt: { $gte: oneHourAgo }
-        });
+        const velocityCount = await checkTransactionVelocity(user._id, 60 * 60 * 1000);
 
         if (velocityCount >= 5) {
             logSecurity('payment_purchase_velocity_limit_exceeded', 'high', {
@@ -46,14 +46,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 429, 'Purchase rate limit exceeded. Please try again later.');
         }
 
-        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-        const existingPendingTransaction = await Transaction.findOne({
-            userId: user._id,
-            planId: plan._id,
-            status: 'INITIATED',
-            applied: false,
-            createdAt: { $gte: tenMinutesAgo }
-        }).sort({ createdAt: -1 });
+        const existingPendingTransaction = await findPendingTransaction(user._id, plan._id, 10 * 60 * 1000);
 
         if (existingPendingTransaction?.gatewayOrderId) {
             logBusiness('order_created', {
@@ -92,7 +85,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
             });
         }
 
-        const transaction = await Transaction.create({
+        const transaction = await createPaymentTransaction({
             userId: user._id,
             planId: plan._id,
             planSnapshot: {

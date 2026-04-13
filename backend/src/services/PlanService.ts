@@ -1,4 +1,5 @@
 import UserPlan from '../models/UserPlan';
+import Plan, { type IPlan } from '../models/Plan';
 import { SERVICE_STATUS } from '../../../shared/enums/serviceStatus';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { INVENTORY_STATUS } from '../../../shared/enums/inventoryStatus';
@@ -15,6 +16,22 @@ import UserWallet from '../models/UserWallet';
 import { withUserPostingLock } from './AdSlotService'; // Import the lock
 
 export type UserPlanWithPlanId = { planId: unknown };
+
+// ─── Admin Plan CRUD ─────────────────────────────────────────────────────────
+
+export const adminCreatePlan = (payload: Record<string, unknown>): Promise<IPlan> =>
+    Plan.create(payload);
+
+export const adminUpdatePlan = (planId: string, payload: Record<string, unknown>): Promise<IPlan | null> =>
+    Plan.findByIdAndUpdate(planId, payload, { new: true });
+
+export const adminGetPlans = (query: Record<string, unknown>): Promise<IPlan[]> =>
+    Plan.find(query).sort({ createdAt: -1 });
+
+export const adminGetPlanById = (planId: string): Promise<IPlan | null> =>
+    Plan.findById(planId);
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const resetWalletsForNewCycle = async (now: Date = new Date()) => {
     const cycleStart = getMonthlyCycleStart(now);
@@ -125,4 +142,3 @@ export const checkPostLimit = async (
     return true;
     });
 };
-
