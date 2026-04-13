@@ -129,7 +129,7 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         href: "/notifications",
         roles: ["admin", "super_admin"],
         section: "Management",
-        aliases: ["/notifications"],
+        aliases: ["/notifications", "/smart-alerts"],
     },
     {
         key: "chatModeration",
