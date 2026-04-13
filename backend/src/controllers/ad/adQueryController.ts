@@ -20,6 +20,27 @@ import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { warnIfLegacyAdUserIdAliasUsed } from '../../utils/legacyOwnerAliasTelemetry';
 
 const asControllerError = (error: unknown): any => error as any;
+const LEGACY_AD_OWNER_ALIAS_CODE = 'LEGACY_AD_USER_ID_ALIAS_REMOVED';
+const hasLegacyAdUserIdAlias = (value: unknown): boolean =>
+    Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'userId'));
+
+const sendLegacyAliasError = (req: Request, res: Response, source: 'query') =>
+    sendErrorResponse(
+        req,
+        res,
+        400,
+        '`userId` alias is no longer accepted in ad filters. Use `sellerId` instead.',
+        {
+            code: LEGACY_AD_OWNER_ALIAS_CODE,
+            details: {
+                alias: 'userId',
+                canonical: 'sellerId',
+                source,
+                rolloutPhase: 'PR-D',
+            },
+        }
+    );
+
 const getViewerIdForFeed = (req: Request): string | undefined => {
     const user = req.user as IAuthUser | undefined;
     if (!user) return undefined;
@@ -33,6 +54,9 @@ const getViewerIdForFeed = (req: Request): string | undefined => {
 export const getAds = async (req: Request, res: Response, next: NextFunction) => {
     try {
         warnIfLegacyAdUserIdAliasUsed(req, 'query');
+        if (hasLegacyAdUserIdAlias(req.query)) {
+            return sendLegacyAliasError(req, res, 'query');
+        }
         const viewerId = getViewerIdForFeed(req);
         const query = getAdsQuerySchema.parse(req.query);
         const requestedPage = Number(query.page ?? 1);
@@ -132,6 +156,9 @@ export const getAds = async (req: Request, res: Response, next: NextFunction) =>
 export const getNearbyAds = async (req: Request, res: Response, next: NextFunction) => {
     try {
         warnIfLegacyAdUserIdAliasUsed(req, 'query');
+        if (hasLegacyAdUserIdAlias(req.query)) {
+            return sendLegacyAliasError(req, res, 'query');
+        }
         const viewerId = getViewerIdForFeed(req);
         const query = getAdsQuerySchema.parse({
             ...req.query,
