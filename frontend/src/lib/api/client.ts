@@ -6,7 +6,6 @@ import axios, {
 } from 'axios';
 
 import logger from "@/lib/logger";
-import { encryptData, decryptData } from '../encryption';
 import { normalizeError } from './normalizeError';
 import { APIError } from './APIError';
 import { emitErrorPopup } from '@/lib/popup/popupEvents';
@@ -227,22 +226,6 @@ class APIClient {
                 config.headers = headers;
             }
 
-            // Encryption
-            if (
-                process.env.NEXT_PUBLIC_ENABLE_ENCRYPTION === 'true' &&
-                config.data &&
-                !(config.data instanceof FormData) &&
-                ['post', 'put', 'patch'].includes(config.method || '')
-            ) {
-                const encrypted = encryptData(config.data);
-                if (encrypted) {
-                    config.data = { payload: encrypted };
-                    const headers = new AxiosHeaders(config.headers);
-                    headers.set('X-Encrypted', 'true');
-                    config.headers = headers;
-                }
-            }
-
             return config;
         });
 
@@ -276,44 +259,9 @@ class APIClient {
                     return Promise.reject(error);
                 }
 
-                const encrypted =
-                    response.headers['x-encrypted'] === 'true' ||
-                    response.data?.encrypted === true;
-
-                if (encrypted && response.data?.payload) {
-                    response.data = decryptData(response.data.payload);
-                }
-
                 return response;
             },
             async (rawError: unknown) => {
-                // Decrypt encrypted error responses before processing
-                const axiosError = rawError as { 
-                    response?: { 
-                        headers?: Record<string, string | string[] | undefined>; 
-                        data?: unknown 
-                    };
-                    config?: AxiosRequestConfig;
-                };
-
-                const responseData = axiosError.response?.data;
-                const headers = axiosError.response?.headers;
-
-                if (headers?.['x-encrypted'] === 'true' && responseData) {
-                    try {
-                        const payload = typeof responseData === 'object' && responseData !== null && 'payload' in responseData
-                            ? (responseData as { payload: string }).payload
-                            : responseData as string;
-                        
-                        const decrypted = decryptData(payload);
-                        if (decrypted && axiosError.response) {
-                            axiosError.response.data = decrypted;
-                        }
-                    } catch {
-                        // Decryption failed — use original data
-                    }
-                }
-
                 let normalized = normalizeError(rawError);
 
                 const getResponseMessage = (current: typeof normalized) => {
