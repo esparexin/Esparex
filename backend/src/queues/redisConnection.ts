@@ -1,13 +1,11 @@
 import { Redis } from "ioredis";
 import bootstrapLogger from "../utils/bootstrapLogger";
-import { loadEnvFiles } from "../config/loadEnvFiles";
+import { env } from "../config/env";
 
-loadEnvFiles();
+const REDIS_URL = env.REDIS_URL || 'redis://127.0.0.1:6379';
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
-
-if (process.env.NODE_ENV === 'production') {
-    if (!REDIS_URL.includes('@') && !process.env.REDIS_PASSWORD) {
+if (env.NODE_ENV === 'production') {
+    if (!REDIS_URL.includes('@') && !env.REDIS_PASSWORD) {
         bootstrapLogger.warn('Queue Redis connection lacks a password in production environment.');
     }
     if (!REDIS_URL.startsWith('rediss://')) {

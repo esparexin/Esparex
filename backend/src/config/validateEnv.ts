@@ -143,10 +143,18 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
     }
 
     if ((sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase() === 'true') {
-        bootstrapLogger.warn(
-            '⚠️  USE_DEFAULT_OTP is enabled in production. ' +
-            'All users can log in with the static OTP. ' +
-            'Disable this immediately after DLT/SMS approval.'
+        throw new Error(
+            '🚨 SECURITY BLOCK: USE_DEFAULT_OTP=true is not allowed in production. ' +
+            'This flag enables authentication bypass with a static OTP for every user. ' +
+            'Remove it from your production environment before deploying.'
+        );
+    }
+
+    if ((sourceEnv.AUTH_BYPASS_OTP_LOCK || '').trim().toLowerCase() === 'true') {
+        throw new Error(
+            '🚨 SECURITY BLOCK: AUTH_BYPASS_OTP_LOCK=true is not allowed in production. ' +
+            'This flag disables OTP attempt-count locking, enabling brute-force attacks. ' +
+            'Remove it from your production environment before deploying.'
         );
     }
 

@@ -1,5 +1,6 @@
 import redisClient from '../config/redis';
 import logger from './logger';
+import { env } from '../config/env';
 
 /* ============================================================================
  * 📊 CACHE METRICS (In-Memory)
@@ -16,10 +17,10 @@ export const cacheMetrics = {
 /* ============================================================================
  * 🔌 REDIS CLIENT SETUP (SSOT)
  * ========================================================================== */
-const REDIS_MODE = process.env.REDIS_MODE || 'single';
+const REDIS_MODE = env.REDIS_MODE;
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedis =
-    (process.env.NODE_ENV === 'test' || isJestRuntime) && process.env.ALLOW_REDIS !== 'true';
+    (env.NODE_ENV === 'test' || isJestRuntime) && !env.ALLOW_REDIS;
 
 const client = redisClient;
 
@@ -193,7 +194,7 @@ const checkMemoryHealth = async () => {
             isHighMemoryPressure = false;
         }
 
-        if (process.env.NODE_ENV === 'production') {
+        if (env.NODE_ENV === 'production') {
             const configWarnings: string[] = [];
             if (max <= 0) {
                 configWarnings.push('maxmemory is not configured');

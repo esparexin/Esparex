@@ -49,7 +49,7 @@ export function initSentry() {
             // Error filtering
             beforeSend(event, hint) {
                 // Don't send errors in development unless explicitly enabled
-                if (isDevelopment && !process.env.SENTRY_ENABLE_DEV) {
+                if (isDevelopment && !env.SENTRY_ENABLE_DEV) {
                     return null;
                 }
 
