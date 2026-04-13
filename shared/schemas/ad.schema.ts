@@ -26,9 +26,7 @@ export const AdSchema = z.object({
         locationId: z.string().optional(),
         coordinates: coordinatesSchema.optional(),
     }).passthrough(),
-    sellerId: z.string(), // Canonical Ownership Key
-    userId: z.string().optional(), // Legacy Alias (Deprecated)
-    ownerId: z.string().optional(), // Future Canonical Key
+    sellerId: z.string(), // Canonical Ownership Key (SSOT)
     status: z.enum(AD_DISPLAY_STATUS_VALUES),
     sellerType: z.enum(['business', 'user']).optional(),
     createdAt: z.string().datetime({ offset: true }),
