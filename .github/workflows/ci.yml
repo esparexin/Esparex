@@ -14,9 +14,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
-      - run: npm install --include=dev
+      - run: npm ci
       - run: npm run build -w backend
 
   build-admin-frontend:
@@ -26,10 +26,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
-      - run: cd admin-frontend && npm install
-      - run: cd admin-frontend && npm run build
+      - run: npm ci
+      - run: npm run build -w admin-frontend
         env:
           NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
 
@@ -40,10 +40,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
-      - run: cd frontend && npm install
-      - run: cd frontend && npm run build
+      - run: npm ci
+      - run: npm run build -w frontend
         env:
           NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
           NEXT_PUBLIC_APP_URL: https://esparex.in
