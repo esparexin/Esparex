@@ -126,6 +126,9 @@ walkthrough_*.md
 home_ads_*.json
 category_usage_report.md
 cookies.txt
+build_errors.txt
+tail*.json
+last*.json
 .claude/
 .jscpd-report/
 
