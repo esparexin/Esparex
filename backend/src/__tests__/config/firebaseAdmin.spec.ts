@@ -1,7 +1,9 @@
 describe("firebaseAdmin", () => {
-    const originalEnv = process.env;
-
-    const loadFirebaseAdmin = () => {
+    const loadFirebaseAdmin = (envOverrides: {
+        NODE_ENV?: "development" | "production" | "test";
+        FIREBASE_SERVICE_ACCOUNT_JSON?: string;
+        ALLOW_FIREBASE_ADMIN?: boolean;
+    } = {}) => {
         const mockInitializeApp = jest.fn();
         const mockCert = jest.fn(() => ({ kind: "credential" }));
         const mockAdmin = {
@@ -26,6 +28,14 @@ describe("firebaseAdmin", () => {
             __esModule: true,
             default: mockLogger,
         }));
+        jest.doMock("../../config/env", () => ({
+            __esModule: true,
+            env: {
+                NODE_ENV: envOverrides.NODE_ENV ?? "development",
+                FIREBASE_SERVICE_ACCOUNT_JSON: envOverrides.FIREBASE_SERVICE_ACCOUNT_JSON,
+                ALLOW_FIREBASE_ADMIN: envOverrides.ALLOW_FIREBASE_ADMIN ?? false,
+            },
+        }));
 
         const firebaseAdmin = require("../../config/firebaseAdmin").default;
 
@@ -41,19 +51,12 @@ describe("firebaseAdmin", () => {
     beforeEach(() => {
         jest.resetModules();
         jest.clearAllMocks();
-        process.env = { ...originalEnv };
-        delete process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-        delete process.env.ALLOW_FIREBASE_ADMIN;
-    });
-
-    afterAll(() => {
-        process.env = originalEnv;
     });
 
     it("uses the fallback mock when service-account credentials are absent", async () => {
-        process.env.NODE_ENV = "development";
-
-        const { firebaseAdmin, mockCert, mockInitializeApp, mockLogger } = loadFirebaseAdmin();
+        const { firebaseAdmin, mockCert, mockInitializeApp, mockLogger } = loadFirebaseAdmin({
+            NODE_ENV: "development",
+        });
 
         expect(mockCert).not.toHaveBeenCalled();
         expect(mockInitializeApp).not.toHaveBeenCalled();
@@ -73,14 +76,16 @@ describe("firebaseAdmin", () => {
     });
 
     it("initializes firebase-admin with a cleaned private key when credentials are configured", () => {
-        process.env.NODE_ENV = "production";
-        process.env.FIREBASE_SERVICE_ACCOUNT_JSON = JSON.stringify({
+        const serviceAccountJson = JSON.stringify({
             project_id: "esparex-test",
             client_email: "firebase-adminsdk@test.example.com",
             private_key: "-----BEGIN PRIVATE KEY-----\\nabc123\\n-----END PRIVATE KEY-----\\n",
         });
 
-        const { firebaseAdmin, mockAdmin, mockCert, mockInitializeApp } = loadFirebaseAdmin();
+        const { firebaseAdmin, mockAdmin, mockCert, mockInitializeApp } = loadFirebaseAdmin({
+            NODE_ENV: "production",
+            FIREBASE_SERVICE_ACCOUNT_JSON: serviceAccountJson,
+        });
 
         expect(mockCert).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -96,14 +101,16 @@ describe("firebaseAdmin", () => {
     });
 
     it("skips initialization in test by default even when credentials are present", async () => {
-        process.env.NODE_ENV = "test";
-        process.env.FIREBASE_SERVICE_ACCOUNT_JSON = JSON.stringify({
+        const serviceAccountJson = JSON.stringify({
             project_id: "esparex-test",
             client_email: "firebase-adminsdk@test.example.com",
             private_key: "-----BEGIN PRIVATE KEY-----\\nabc123\\n-----END PRIVATE KEY-----\\n",
         });
 
-        const { firebaseAdmin, mockCert, mockInitializeApp } = loadFirebaseAdmin();
+        const { firebaseAdmin, mockCert, mockInitializeApp } = loadFirebaseAdmin({
+            NODE_ENV: "test",
+            FIREBASE_SERVICE_ACCOUNT_JSON: serviceAccountJson,
+        });
 
         expect(mockCert).not.toHaveBeenCalled();
         expect(mockInitializeApp).not.toHaveBeenCalled();
@@ -117,25 +124,27 @@ describe("firebaseAdmin", () => {
     });
 
     it("allows initialization in test when explicitly enabled", () => {
-        process.env.NODE_ENV = "test";
-        process.env.ALLOW_FIREBASE_ADMIN = "true";
-        process.env.FIREBASE_SERVICE_ACCOUNT_JSON = JSON.stringify({
+        const serviceAccountJson = JSON.stringify({
             project_id: "esparex-test",
             client_email: "firebase-adminsdk@test.example.com",
             private_key: "-----BEGIN PRIVATE KEY-----\\nabc123\\n-----END PRIVATE KEY-----\\n",
         });
 
-        const { mockCert, mockInitializeApp } = loadFirebaseAdmin();
+        const { mockCert, mockInitializeApp } = loadFirebaseAdmin({
+            NODE_ENV: "test",
+            ALLOW_FIREBASE_ADMIN: true,
+            FIREBASE_SERVICE_ACCOUNT_JSON: serviceAccountJson,
+        });
 
         expect(mockCert).toHaveBeenCalledTimes(1);
         expect(mockInitializeApp).toHaveBeenCalledTimes(1);
     });
 
     it("falls back to the mock admin when credential parsing fails", async () => {
-        process.env.NODE_ENV = "production";
-        process.env.FIREBASE_SERVICE_ACCOUNT_JSON = "{bad-json";
-
-        const { firebaseAdmin, mockInitializeApp, mockLogger } = loadFirebaseAdmin();
+        const { firebaseAdmin, mockInitializeApp, mockLogger } = loadFirebaseAdmin({
+            NODE_ENV: "production",
+            FIREBASE_SERVICE_ACCOUNT_JSON: "{bad-json",
+        });
 
         expect(mockInitializeApp).not.toHaveBeenCalled();
         expect(mockLogger.error).toHaveBeenCalledWith(

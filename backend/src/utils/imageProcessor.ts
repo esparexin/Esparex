@@ -2,6 +2,7 @@ import { getBucketName, uploadToS3 } from './s3';
 import crypto from 'crypto';
 import sharp from 'sharp';
 import logger from './logger';
+import { env } from '../config/env';
 import imageDomainRegistry from '@shared/constants/image-domain-registry.json';
 
 let hasWarnedMissingS3InTest = false;
@@ -70,7 +71,7 @@ const optimizeWithSharp = async (
 const warnMissingS3BucketOncePerTestRun = (folder: string) => {
     const message = `⚠️ S3_BUCKET_NAME missing. Using placeholder images for '${folder}' to prevent DB BSON crash.`;
 
-    if (process.env.NODE_ENV === 'test') {
+    if (env.NODE_ENV === 'test') {
         if (hasWarnedMissingS3InTest) {
             return;
         }

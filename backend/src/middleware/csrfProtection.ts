@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import logger from '../utils/logger';
 import { sendErrorResponse } from '../utils/errorResponse';
 import { getCsrfCookieOptions } from '../utils/cookieHelper';
+import { env } from '../config/env';
 
 /**
  * 🛡️ CSRF Protection Middleware
@@ -69,7 +70,7 @@ export function verifyCsrfToken(req: Request, res: Response, next: NextFunction)
     }
 
     // Skip in test and development environments
-    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+    if (env.NODE_ENV === 'test' || env.NODE_ENV === 'development') {
         return next();
     }
 

@@ -3,14 +3,15 @@ import RedisStore, { type RedisReply } from 'rate-limit-redis';
 import redisClient from '../config/redis';
 import { Request, Response } from 'express';
 import logger from '../utils/logger';
+import { env } from '../config/env';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedisStore =
-    (process.env.NODE_ENV === 'test' || isJestRuntime) && process.env.ALLOW_REDIS !== 'true';
+    (env.NODE_ENV === 'test' || isJestRuntime) && !env.ALLOW_REDIS;
 const isLocalRelaxedAuth =
-    process.env.NODE_ENV === 'development' &&
-    process.env.CI !== 'true' &&
-    process.env.AUTH_LOCAL_RELAXED === 'true';
+    env.NODE_ENV === 'development' &&
+    !env.CI &&
+    env.AUTH_LOCAL_RELAXED;
 
 type RedisCallable = {
     call: (...args: string[]) => Promise<RedisReply>;
@@ -83,7 +84,7 @@ const respondRateLimited = (
 };
 
 const createRedisStore = (prefix: string, windowMs: number) => {
-    if (process.env.NODE_ENV === 'production' && shouldDisableRedisStore) {
+    if (env.NODE_ENV === 'production' && shouldDisableRedisStore) {
         throw new Error('FATAL: Redis store is required in production. In-memory fallback is strictly banned by SSOT.');
     }
     return shouldDisableRedisStore
@@ -185,7 +186,7 @@ export function createLimiter({
  */
 export const globalLimiter = rateLimit({
     windowMs: 60 * 1000,
-    max: process.env.NODE_ENV === 'development' ? 3000 : 100,
+    max: env.NODE_ENV === 'development' ? 3000 : 100,
     store: createRedisStore('global:', 60 * 1000),
     skip: (req) => {
         return req.originalUrl === '/api/v1/health' || req.originalUrl === '/health' || req.originalUrl.includes('/webhook');
@@ -233,13 +234,7 @@ export const reportLimiter = createLimiter({
 /**
  * Strict Admin Limiter
  */
-const resolvedAdminLimiterMax = (() => {
-    const configured = Number(process.env.ADMIN_RATE_LIMIT_MAX);
-    if (Number.isFinite(configured) && configured > 0) {
-        return configured;
-    }
-    return process.env.NODE_ENV === 'development' ? 300 : 200;
-})();
+const resolvedAdminLimiterMax = env.ADMIN_RATE_LIMIT_MAX ?? (env.NODE_ENV === 'development' ? 300 : 200);
 
 export const adminLimiter = createLimiter({
     windowMs: 60 * 1000,
@@ -255,13 +250,7 @@ export const adminLimiter = createLimiter({
     }
 });
 
-const resolvedAdminMutationLimiterMax = (() => {
-    const configured = Number(process.env.ADMIN_MUTATION_RATE_LIMIT_MAX);
-    if (Number.isFinite(configured) && configured > 0) {
-        return configured;
-    }
-    return process.env.NODE_ENV === 'development' ? 300 : 100;
-})();
+const resolvedAdminMutationLimiterMax = env.ADMIN_MUTATION_RATE_LIMIT_MAX ?? (env.NODE_ENV === 'development' ? 300 : 100);
 
 export const adminMutationLimiter = createLimiter({
     windowMs: 5 * 60 * 1000,
@@ -311,7 +300,7 @@ export const paymentRateLimiter = createLimiter({
 
 export const otpIpLimiter = createLimiter({
     windowMs: 10 * 60 * 1000,
-    max: process.env.NODE_ENV === 'production' ? 5 : 15,
+    max: env.NODE_ENV === 'production' ? 5 : 15,
     keyPrefix: 'otp:ip:',
     errorCode: 'OTP_SEND_IP_RATE_LIMIT'
 });
@@ -319,7 +308,7 @@ export const otpIpLimiter = createLimiter({
 /** Mobile-keyed limiter for /send-otp — isolated from verify-otp bucket */
 export const otpSendLimiter = createLimiter({
     windowMs: 10 * 60 * 1000,
-    max: process.env.NODE_ENV === 'production' ? 5 : 15,
+    max: env.NODE_ENV === 'production' ? 5 : 15,
     keyPrefix: 'otp:send:',
     errorCode: 'OTP_SEND_MOBILE_RATE_LIMIT',
     keyGenerator: (req: Request) => {
@@ -331,7 +320,7 @@ export const otpSendLimiter = createLimiter({
 /** Mobile-keyed limiter for /verify-otp — isolated from send-otp bucket */
 export const otpVerifyLimiter = createLimiter({
     windowMs: 10 * 60 * 1000,
-    max: process.env.NODE_ENV === 'production' ? 10 : 30,
+    max: env.NODE_ENV === 'production' ? 10 : 30,
     keyPrefix: 'otp:verify:',
     errorCode: 'OTP_VERIFY_RATE_LIMIT',
     keyGenerator: (req: Request) => {
@@ -347,7 +336,7 @@ export const otpVerifyLimiter = createLimiter({
 /** Send message: 20 per minute per userId */
 export const chatSendLimiter = createLimiter({
     windowMs: 60 * 1000,
-    max: process.env.NODE_ENV === 'production' ? 20 : 200,
+    max: env.NODE_ENV === 'production' ? 20 : 200,
     keyPrefix: 'chat:send:',
     keyGenerator: (req: Request) => {
         const userId = req.user?._id ? String(req.user._id) : undefined;
@@ -358,7 +347,7 @@ export const chatSendLimiter = createLimiter({
 /** Start conversation: 10 per 10 minutes per userId */
 export const chatStartLimiter = createLimiter({
     windowMs: 10 * 60 * 1000,
-    max: process.env.NODE_ENV === 'production' ? 10 : 100,
+    max: env.NODE_ENV === 'production' ? 10 : 100,
     keyPrefix: 'chat:start:',
     keyGenerator: (req: Request) => {
         const userId = req.user?._id ? String(req.user._id) : undefined;
@@ -369,7 +358,7 @@ export const chatStartLimiter = createLimiter({
 /** Report conversation: 3 per hour per userId */
 export const chatReportLimiter = createLimiter({
     windowMs: 60 * 60 * 1000,
-    max: process.env.NODE_ENV === 'production' ? 3 : 30,
+    max: env.NODE_ENV === 'production' ? 3 : 30,
     keyPrefix: 'chat:report:',
     keyGenerator: (req: Request) => {
         const userId = req.user?._id ? String(req.user._id) : undefined;

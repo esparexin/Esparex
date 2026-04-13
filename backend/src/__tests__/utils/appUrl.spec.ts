@@ -1,22 +1,52 @@
-import { getAdminAppUrl, getFrontendAppUrl, getFrontendInternalUrl } from '../../utils/appUrl';
-
 describe('appUrl helpers', () => {
-    const originalEnv = process.env;
+    const loadAppUrl = (envOverrides: {
+        NODE_ENV?: 'development' | 'production' | 'test';
+        FRONTEND_URL?: string;
+        FRONTEND_INTERNAL_URL?: string;
+        ADMIN_URL?: string;
+        ADMIN_FRONTEND_URL?: string;
+    } = {}) => {
+        jest.resetModules();
 
-    beforeEach(() => {
-        process.env = { ...originalEnv };
-        delete process.env.FRONTEND_URL;
-        delete process.env.FRONTEND_INTERNAL_URL;
-        delete process.env.ADMIN_URL;
-        delete process.env.ADMIN_FRONTEND_URL;
-    });
+        const mockLogger = {
+            warn: jest.fn(),
+            info: jest.fn(),
+            error: jest.fn(),
+        };
 
-    afterAll(() => {
-        process.env = originalEnv;
+        jest.doMock('../../utils/logger', () => ({
+            __esModule: true,
+            default: mockLogger,
+        }));
+
+        jest.doMock('../../config/env', () => ({
+            __esModule: true,
+            env: {
+                NODE_ENV: envOverrides.NODE_ENV ?? 'development',
+                FRONTEND_URL: envOverrides.FRONTEND_URL,
+                FRONTEND_INTERNAL_URL: envOverrides.FRONTEND_INTERNAL_URL,
+                ADMIN_URL: envOverrides.ADMIN_URL,
+                ADMIN_FRONTEND_URL: envOverrides.ADMIN_FRONTEND_URL,
+            },
+        }));
+
+        const appUrl = require('../../utils/appUrl') as typeof import('../../utils/appUrl');
+
+        return {
+            ...appUrl,
+            mockLogger,
+        };
+    };
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        jest.resetModules();
     });
 
     it('uses local defaults outside production', () => {
-        process.env.NODE_ENV = 'development';
+        const { getFrontendAppUrl, getFrontendInternalUrl, getAdminAppUrl } = loadAppUrl({
+            NODE_ENV: 'development',
+        });
 
         expect(getFrontendAppUrl()).toBe('http://localhost:3000');
         expect(getFrontendInternalUrl()).toBe('http://localhost:3000');
@@ -24,7 +54,9 @@ describe('appUrl helpers', () => {
     });
 
     it('uses production-safe Esparex.in defaults when env vars are missing in production', () => {
-        process.env.NODE_ENV = 'production';
+        const { getFrontendAppUrl, getFrontendInternalUrl, getAdminAppUrl } = loadAppUrl({
+            NODE_ENV: 'production',
+        });
 
         expect(getFrontendAppUrl()).toBe('https://esparex.in');
         expect(getFrontendInternalUrl()).toBe('https://esparex.in');
@@ -32,10 +64,12 @@ describe('appUrl helpers', () => {
     });
 
     it('prefers configured runtime URLs when provided', () => {
-        process.env.NODE_ENV = 'production';
-        process.env.FRONTEND_URL = 'https://exparex.in/';
-        process.env.FRONTEND_INTERNAL_URL = 'https://frontend.internal.exparex.in/';
-        process.env.ADMIN_FRONTEND_URL = 'https://admin.exparex.in/';
+        const { getFrontendAppUrl, getFrontendInternalUrl, getAdminAppUrl } = loadAppUrl({
+            NODE_ENV: 'production',
+            FRONTEND_URL: 'https://exparex.in/',
+            FRONTEND_INTERNAL_URL: 'https://frontend.internal.exparex.in/',
+            ADMIN_FRONTEND_URL: 'https://admin.exparex.in/',
+        });
 
         expect(getFrontendAppUrl()).toBe('https://exparex.in');
         expect(getFrontendInternalUrl()).toBe('https://frontend.internal.exparex.in');

@@ -13,10 +13,10 @@
  * Browser / CORS concerns do NOT apply here.
  */
 
-import 'dotenv/config';
 import mongoose, { Connection } from 'mongoose';
 import logger from '../utils/logger';
 import { mongooseSerializationPlugin } from '../plugins/mongooseSerializationPlugin';
+import { env } from './env';
 
 /* ======================================================
    GLOBAL MONGOOSE SETTINGS
@@ -26,7 +26,7 @@ mongoose.plugin(mongooseSerializationPlugin);
 
 // Boot safety: index mutation is disabled on normal startup.
 // Use explicit maintenance commands/migrations for index changes.
-const shouldAutoIndex = process.env.ALLOW_BOOT_AUTO_INDEX === 'true';
+const shouldAutoIndex = env.ALLOW_BOOT_AUTO_INDEX;
 if (shouldAutoIndex) {
     logger.warn('⚠ ALLOW_BOOT_AUTO_INDEX=true — startup index mutation is enabled for maintenance mode only.');
 } else {
@@ -41,19 +41,19 @@ mongoose.set('autoIndex', shouldAutoIndex);
    ENV VALIDATION
 ====================================================== */
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = env.NODE_ENV === 'production';
 
-if (isProd && !process.env.MONGODB_URI) {
+if (isProd && !env.MONGODB_URI) {
     throw new Error('❌ MONGODB_URI is required in production');
 }
 
-if (isProd && !process.env.ADMIN_MONGODB_URI) {
+if (isProd && !env.ADMIN_MONGODB_URI) {
     throw new Error('❌ ADMIN_MONGODB_URI is required in production');
 }
 
 if (isProd) {
-    const mongoUri = process.env.MONGODB_URI;
-    const adminUri = process.env.ADMIN_MONGODB_URI;
+    const mongoUri = env.MONGODB_URI;
+    const adminUri = env.ADMIN_MONGODB_URI;
 
     const validateUri = (uri: string | undefined, label: string) => {
         if (!uri) return;
@@ -81,20 +81,20 @@ if (isProd) {
 ====================================================== */
 
 const USER_DB_URI =
-    process.env.MONGODB_URI || 'mongodb://localhost:27017/esparex_user';
+    env.MONGODB_URI || 'mongodb://localhost:27017/esparex_user';
 
 const ADMIN_DB_URI =
-    process.env.ADMIN_MONGODB_URI || 'mongodb://localhost:27017/esparex_admin';
+    env.ADMIN_MONGODB_URI || 'mongodb://localhost:27017/esparex_admin';
 
-if (!process.env.MONGODB_URI) {
+if (!env.MONGODB_URI) {
     logger.warn('Using local User MongoDB (development mode)');
 }
 
-if (!process.env.ADMIN_MONGODB_URI) {
+if (!env.ADMIN_MONGODB_URI) {
     logger.warn('ADMIN_MONGODB_URI not set. Using local Admin MongoDB default (development mode).');
 }
 
-if (process.env.MONGODB_URI && process.env.ADMIN_MONGODB_URI && process.env.MONGODB_URI === process.env.ADMIN_MONGODB_URI) {
+if (env.MONGODB_URI && env.ADMIN_MONGODB_URI && env.MONGODB_URI === env.ADMIN_MONGODB_URI) {
     logger.warn('User and Admin databases point to the same URI. Split architecture is disabled for this runtime.');
 }
 
@@ -124,7 +124,7 @@ const userCache = globalWithMongoose.mongooseUserCache;
 const adminCache = globalWithMongoose.mongooseAdminCache;
 
 const isUnified = USER_DB_URI === ADMIN_DB_URI;
-const skipDbConnect = process.env.NODE_ENV === 'test' && process.env.ALLOW_DB_CONNECT !== 'true';
+const skipDbConnect = env.NODE_ENV === 'test' && !env.ALLOW_DB_CONNECT;
 
 /* ======================================================
    READINESS CHECK

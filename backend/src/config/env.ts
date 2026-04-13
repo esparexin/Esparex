@@ -108,6 +108,44 @@ const envSchema = z.object({
     ENABLE_SCHEDULER: z.string().transform(val => val === 'true').default('true'),
     PROCESS_ROLE: z.enum(['api', 'scheduler']).default('api'),
     TZ: z.string().default('UTC'),
+
+    // Database boot flags
+    ALLOW_BOOT_AUTO_INDEX: z.string().transform(val => val === 'true').default('false'),
+    ALLOW_DB_CONNECT: z.string().transform(val => val === 'true').default('false'),
+
+    // Redis extras
+    REDIS_DB: z.string().default('0').transform(Number).pipe(z.number()),
+    ALLOW_REDIS: z.string().transform(val => val === 'true').default('false'),
+
+    // Auth dev flags (must be blocked in production — see validateProductionEnvOrThrow)
+    AUTH_LOCAL_RELAXED: z.string().transform(val => val === 'true').default('false'),
+    ALLOW_DEFAULT_ADMIN_SEED: z.string().transform(val => val === 'true').default('false'),
+
+    // AWS extras
+    AWS_CLOUDFRONT_URL: z.string().optional(),
+
+    // Fraud service tuning
+    FRAUD_DECISION_TIMEOUT_MS: z.string().default('1200').transform(Number).pipe(z.number().min(100)),
+
+    // Sentry dev override
+    SENTRY_ENABLE_DEV: z.string().transform(val => val === 'true').default('false'),
+
+    // Admin rate limiter overrides (optional; defaults applied in rateLimiter.ts)
+    ADMIN_RATE_LIMIT_MAX: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    ADMIN_MUTATION_RATE_LIMIT_MAX: z.string().transform(Number).pipe(z.number().positive()).optional(),
+
+    // Firebase dev flag
+    ALLOW_FIREBASE_ADMIN: z.string().transform(val => val === 'true').default('false'),
+
+    // Scheduler queue dev flag
+    ALLOW_SCHEDULER_QUEUE: z.string().transform(val => val === 'true').default('false'),
+
+    // Redis client mode (informational, used in cache stats)
+    REDIS_MODE: z.string().default('single'),
+
+    // Cookie configuration overrides
+    COOKIE_SAME_SITE: z.enum(['strict', 'lax', 'none']).optional(),
+    COOKIE_SECURE: z.string().transform(val => val === 'true').optional(),
 });
 
 /**

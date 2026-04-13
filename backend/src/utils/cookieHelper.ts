@@ -5,34 +5,30 @@ import { inferCookieDomainFromEnv, normalizeCookieDomainValue } from './originCo
 const resolveCookieDomain = (): string | undefined => {
     return (
         inferCookieDomainFromEnv({
-            NODE_ENV: process.env.NODE_ENV,
-            CORS_ORIGIN: process.env.CORS_ORIGIN,
-            COOKIE_DOMAIN: process.env.COOKIE_DOMAIN || env.COOKIE_DOMAIN,
-            FRONTEND_URL: process.env.FRONTEND_URL,
-            FRONTEND_INTERNAL_URL: process.env.FRONTEND_INTERNAL_URL,
-            ADMIN_FRONTEND_URL: process.env.ADMIN_FRONTEND_URL,
-            ADMIN_URL: process.env.ADMIN_URL,
+            NODE_ENV: env.NODE_ENV,
+            CORS_ORIGIN: env.CORS_ORIGIN,
+            COOKIE_DOMAIN: env.COOKIE_DOMAIN,
+            FRONTEND_URL: env.FRONTEND_URL,
+            FRONTEND_INTERNAL_URL: env.FRONTEND_INTERNAL_URL,
+            ADMIN_FRONTEND_URL: env.ADMIN_FRONTEND_URL,
+            ADMIN_URL: env.ADMIN_URL,
         }) ||
-        normalizeCookieDomainValue(process.env.COOKIE_DOMAIN || env.COOKIE_DOMAIN)
+        normalizeCookieDomainValue(env.COOKIE_DOMAIN)
     );
 };
 
 type SameSiteValue = Exclude<CookieOptions['sameSite'], boolean | undefined>;
 
 const resolveCookieSameSite = (): SameSiteValue => {
-    const raw = process.env.COOKIE_SAME_SITE?.trim().toLowerCase();
-    if (raw === 'strict' || raw === 'lax' || raw === 'none') {
-        return raw;
+    if (env.COOKIE_SAME_SITE) {
+        return env.COOKIE_SAME_SITE;
     }
-
     return env.NODE_ENV === 'production' ? 'none' : 'lax';
 };
 
 const resolveCookieSecure = (sameSite: SameSiteValue): boolean => {
-    const raw = process.env.COOKIE_SECURE?.trim().toLowerCase();
-    if (raw === 'true') return true;
-    if (raw === 'false') return sameSite === 'none' ? true : false;
-
+    if (env.COOKIE_SECURE === true) return true;
+    if (env.COOKIE_SECURE === false) return sameSite === 'none' ? true : false;
     if (sameSite === 'none') return true;
     return env.NODE_ENV === 'production';
 };
