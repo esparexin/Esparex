@@ -105,6 +105,14 @@ export function ProfileSettingsSidebar({
     toggleSmartAlertStatus,
     deleteSmartAlert,
     deleteSavedSearch,
+    smartAlertForm, updateSmartAlertForm,
+    smartAlertErrors,
+    smartAlertGlobalError,
+    clearSmartAlertError,
+    editingAlertId,
+    handleEditAlert,
+    handleCreateAlert,
+    resetAlertForm,
   } = useSmartAlerts(activeTab === "smartalerts");
   const { purchaseHistory, loading: loadingPurchased } = usePurchases(activeTab === "purchases");
   const chatUnreadCount = useChatUnreadCount(user?.id ?? null, !!user);
@@ -127,21 +135,13 @@ export function ProfileSettingsSidebar({
     deleteAccountGlobalError,
     showPlanDialog, setShowPlanDialog,
     selectedPlan, setSelectedPlan,
-    smartAlertForm, updateSmartAlertForm,
-    smartAlertErrors,
-    smartAlertGlobalError,
-    clearSmartAlertError,
-    editingAlertId,
     notificationSettingsError,
     isSavingNotificationSettings,
     handlePhotoSelect,
     handlePhotoDelete,
     handleDeleteAccount,
-    handleEditAlert,
-    handleCreateAlert,
     handleSaveNotificationSettings,
-    resetAlertForm,
-  } = useProfileSettings({ user, onUpdateUser, onLogout, createSmartAlert, updateSmartAlert });
+  } = useProfileSettings({ user, onUpdateUser, onLogout });
 
   useEffect(() => {
     if (initialTab) {

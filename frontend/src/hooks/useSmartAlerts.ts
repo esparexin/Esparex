@@ -12,9 +12,17 @@ import {
     updateSmartAlert as updateSmartAlertApi,
 } from "@/lib/api/user/smartAlerts";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
+import {
+  SmartAlertCreateSchema,
+  SmartAlertUpdateSchema,
+} from "@shared/schemas/smartAlert.schema";
 import type { SmartAlertCreatePayload } from "@shared/schemas/smartAlert.schema";
-import type { SmartAlertListItem } from "@/components/user/profile/types";
-// SmartAlert type should be imported from API or defined here
+import type { SmartAlertListItem, SmartAlertFieldErrors, SmartAlertFormData, SmartAlertItem } from "@/components/user/profile/types";
+import { smartAlertFormSchema } from "@/schemas/smartAlertForm.schema";
+import { sanitizeMongoObjectId } from "@shared/listingUtils/locationUtils";
+import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
+import type { Location as AppLocation } from "@/lib/api/user/locations";
+
 export interface SmartAlert {
     id: string;
     isActive?: boolean;
@@ -31,7 +39,7 @@ export interface SmartAlert {
     };
     lastMatch?: string;
     totalMatches?: number;
-    [key: string]: unknown;
+    [key: string]: unknown; // Type safety hatch
 }
 
 const mapAlertToListItem = (alert: SmartAlert): SmartAlertListItem => {
@@ -68,14 +76,41 @@ const mapAlertToListItem = (alert: SmartAlert): SmartAlertListItem => {
     };
 };
 
+const createInitialSmartAlertForm = (): SmartAlertFormData => ({
+  name: "",
+  keywords: "",
+  category: "",
+  location: "",
+  locationId: null,
+  radius: 50,
+  emailNotifications: true,
+});
+
+const emptySmartAlertFieldErrors = (): SmartAlertFieldErrors => ({
+  name: undefined,
+  keywords: undefined,
+  category: undefined,
+  location: undefined,
+  radius: undefined,
+});
+
+type SmartAlertLocationSelection = Pick<
+  AppLocation,
+  "id" | "locationId" | "name" | "display" | "city" | "coordinates"
+>;
+
 export function useSmartAlerts(enabled = true) {
     const [smartAlerts, setSmartAlerts] = useState<SmartAlert[]>([]);
     const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
-    // C7: Separate initial-load flag from mutation loading so tab isn't replaced during delete/toggle
     const [isInitialLoading, setIsInitialLoading] = useState(false);
     const [isMutating, setIsMutating] = useState(false);
     const loading = isInitialLoading;
 
+    // Form states
+    const [smartAlertForm, setSmartAlertForm] = useState<SmartAlertFormData>(createInitialSmartAlertForm);
+    const [smartAlertErrors, setSmartAlertErrors] = useState<SmartAlertFieldErrors>(emptySmartAlertFieldErrors);
+    const [smartAlertGlobalError, setSmartAlertGlobalError] = useState<string | null>(null);
+    const [editingAlertId, setEditingAlertId] = useState<string | null>(null);
 
     // Fetch alerts and saved searches on mount
     useEffect(() => {
@@ -88,11 +123,34 @@ export function useSmartAlerts(enabled = true) {
             setSmartAlerts(alerts);
             setSavedSearches(searches);
         }).finally(() => setIsInitialLoading(false));
-
     }, [enabled]);
 
-    // Create smart alert
-    const createSmartAlert = useCallback(async (payload: SmartAlertCreatePayload): Promise<{ success: boolean; error?: string }> => {
+    const resetAlertForm = useCallback(() => {
+        setSmartAlertForm(createInitialSmartAlertForm());
+        setSmartAlertErrors(emptySmartAlertFieldErrors());
+        setSmartAlertGlobalError(null);
+        setEditingAlertId(null);
+    }, []);
+
+    const updateSmartAlertForm = useCallback((updates: Partial<SmartAlertFormData>) => {
+        setSmartAlertForm((prev) => ({ ...prev, ...updates }));
+        const clearedErrors: Partial<SmartAlertFieldErrors> = {};
+        for (const key of Object.keys(updates)) {
+            if (key in emptySmartAlertFieldErrors()) {
+                (clearedErrors as Record<string, string | undefined>)[key] = undefined;
+            }
+        }
+        setSmartAlertErrors((prev) => ({ ...prev, ...clearedErrors }));
+        setSmartAlertGlobalError(null);
+    }, []);
+
+    const clearSmartAlertError = useCallback((field: keyof SmartAlertFieldErrors) => {
+        setSmartAlertErrors((prev) => ({ ...prev, [field]: undefined }));
+        setSmartAlertGlobalError(null);
+    }, []);
+
+    // API calls inside
+    const createSmartAlertApiCall = useCallback(async (payload: SmartAlertCreatePayload): Promise<{ success: boolean; error?: string }> => {
         try {
             const created = await createSmartAlertApi(payload);
             if (!created) return { success: false, error: 'Failed to create alert' };
@@ -103,7 +161,7 @@ export function useSmartAlerts(enabled = true) {
         }
     }, []);
 
-    const updateSmartAlert = useCallback(async (
+    const updateSmartAlertApiCall = useCallback(async (
         id: string,
         payload: Partial<SmartAlertCreatePayload>
     ): Promise<{ success: boolean; error?: string }> => {
@@ -117,32 +175,119 @@ export function useSmartAlerts(enabled = true) {
         }
     }, []);
 
+    const handleEditAlert = useCallback((alert: SmartAlertItem) => {
+        setEditingAlertId(alert.id);
+        setSmartAlertForm({
+            name: alert.name,
+            keywords: alert.keywords,
+            category: alert.category,
+            location: alert.location,
+            locationId: alert.locationId || null,
+            radius: alert.radius ?? 50,
+            emailNotifications: alert.notificationChannels?.includes("email") ?? true,
+        });
+        setSmartAlertErrors(emptySmartAlertFieldErrors());
+        setSmartAlertGlobalError(null);
+    }, []);
+
+    const handleCreateAlert = async (selectedLocation: SmartAlertLocationSelection | null = null): Promise<void> => {
+        setIsMutating(true);
+        const parsedForm = smartAlertFormSchema.safeParse(smartAlertForm);
+        if (!parsedForm.success) {
+            const nextErrors = emptySmartAlertFieldErrors();
+            let nextGlobalError: string | null = null;
+            for (const issue of parsedForm.error.issues) {
+                const field = issue.path[0];
+                if (field === "name") nextErrors.name = issue.message;
+                else if (field === "keywords") nextErrors.keywords = issue.message;
+                else if (field === "category") nextErrors.category = issue.message;
+                else if (field === "location") nextErrors.location = issue.message;
+                else if (field === "radius") nextErrors.radius = issue.message;
+                else if (!nextGlobalError) nextGlobalError = issue.message;
+            }
+            setSmartAlertErrors(nextErrors);
+            setSmartAlertGlobalError(nextGlobalError || "Please correct the highlighted fields.");
+            setIsMutating(false);
+            return;
+        }
+
+        const { name, keywords, category, location, locationId, radius, emailNotifications } = parsedForm.data;
+        const canonicalCoordinates = toCanonicalGeoPoint(selectedLocation?.coordinates);
+        const canonicalLocationId = sanitizeMongoObjectId(selectedLocation?.locationId || selectedLocation?.id || locationId);
+        const locationDisplay = selectedLocation?.display || selectedLocation?.name || selectedLocation?.city || location || "";
+
+        setSmartAlertErrors(emptySmartAlertFieldErrors());
+        setSmartAlertGlobalError(null);
+
+        const basePayload = {
+            name,
+            criteria: {
+                keywords,
+                category: category || undefined,
+                location: locationDisplay || undefined,
+                locationId: canonicalLocationId || undefined,
+            },
+            ...(canonicalCoordinates ? { coordinates: canonicalCoordinates } : {}),
+            radiusKm: radius,
+            frequency: "instant" as const,
+            notificationChannels: emailNotifications ? ["email"] : ["push"],
+        };
+
+        if (!editingAlertId && (!canonicalCoordinates || !canonicalLocationId || !locationDisplay)) {
+            setSmartAlertErrors((prev) => ({ ...prev, location: "Please select a valid location from the location search." }));
+            setIsMutating(false);
+            return;
+        }
+
+        const parsedPayload = editingAlertId ? SmartAlertUpdateSchema.safeParse(basePayload) : SmartAlertCreateSchema.safeParse(basePayload);
+
+        if (!parsedPayload.success) {
+            const nextErrors = emptySmartAlertFieldErrors();
+            let nextGlobalError: string | null = null;
+            for (const issue of parsedPayload.error.issues) {
+                const [root, nested] = issue.path;
+                if (root === "name") nextErrors.name = issue.message;
+                else if (root === "criteria" && nested === "keywords") nextErrors.keywords = issue.message;
+                else if (root === "criteria" && nested === "category") nextErrors.category = issue.message;
+                else if (root === "criteria" && (nested === "location" || nested === "locationId")) nextErrors.location = issue.message;
+                else if (root === "radiusKm") nextErrors.radius = issue.message;
+                else if (!nextGlobalError) nextGlobalError = issue.message;
+            }
+            setSmartAlertErrors(nextErrors);
+            setSmartAlertGlobalError(nextGlobalError || "Please check alert details and try again.");
+            setIsMutating(false);
+            return;
+        }
+
+        const requestPayload = parsedPayload.data as SmartAlertCreatePayload;
+        const result = editingAlertId
+            ? await updateSmartAlertApiCall(editingAlertId, requestPayload)
+            : await createSmartAlertApiCall(requestPayload);
+
+        if (result.success) {
+            resetAlertForm();
+            notify.success(editingAlertId ? "Alert updated successfully." : "Alert created successfully.");
+        } else {
+            setSmartAlertGlobalError(result.error || "Something went wrong. Please try again.");
+        }
+        setIsMutating(false);
+    };
+
     const handleToggleSmartAlertStatus = useCallback(async (smartAlertId: string) => {
         setIsMutating(true);
         const prevAlerts = [...smartAlerts];
         const idx = smartAlerts.findIndex(a => a.id === smartAlertId);
-        if (idx === -1) {
-            setIsMutating(false);
-            return;
-        }
-        // Optimistically toggle
+        if (idx === -1) { setIsMutating(false); return; }
         if (smartAlerts[idx]) {
             const prevStatus = typeof smartAlerts[idx].active === "boolean" ? smartAlerts[idx].active : true;
             const updatedAlerts = [...smartAlerts];
-            updatedAlerts[idx] = {
-                ...updatedAlerts[idx],
-                active: !prevStatus,
-                id: smartAlerts[idx].id ?? "",
-            };
+            updatedAlerts[idx] = { ...updatedAlerts[idx], active: !prevStatus, id: smartAlerts[idx].id ?? "" };
             setSmartAlerts(updatedAlerts);
         }
         try {
             const updated = await toggleSmartAlertStatus(smartAlertId);
-            if (updated) {
-                setSmartAlerts(alerts => alerts.map(a => a.id === smartAlertId ? { ...a, ...updated } : a));
-            } else {
-                setSmartAlerts(prevAlerts);
-            }
+            if (updated) { setSmartAlerts(alerts => alerts.map(a => a.id === smartAlertId ? { ...a, ...updated } : a)); }
+            else { setSmartAlerts(prevAlerts); }
         } catch {
             setSmartAlerts(prevAlerts);
         } finally {
@@ -150,8 +295,6 @@ export function useSmartAlerts(enabled = true) {
         }
     }, [smartAlerts]);
 
-
-    // C5: deleteSmartAlert — show error toast on failure instead of silently failing
     const deleteSmartAlert = useCallback(async (id: string) => {
         setIsMutating(true);
         try {
@@ -164,7 +307,6 @@ export function useSmartAlerts(enabled = true) {
         }
     }, []);
 
-    // C6: deleteSavedSearch — show error toast on failure instead of silently failing
     const deleteSavedSearch = useCallback(async (id: string) => {
         setIsMutating(true);
         try {
@@ -177,18 +319,29 @@ export function useSmartAlerts(enabled = true) {
         }
     }, []);
 
-
     return {
+        // List/Data states
         smartAlerts,
         smartAlertItems: smartAlerts.map(mapAlertToListItem),
         savedSearches,
-        loading,          // true only during initial fetch — safe for tab-level skeleton
-        isMutating,       // true during delete/toggle — use for button disabled states
-        createSmartAlert,
-        updateSmartAlert,
+        loading,
+        isMutating,
+        
+        // Form states
+        smartAlertForm, setSmartAlertForm, updateSmartAlertForm,
+        smartAlertErrors, setSmartAlertErrors,
+        smartAlertGlobalError, setSmartAlertGlobalError,
+        editingAlertId, setEditingAlertId,
+        resetAlertForm,
+        clearSmartAlertError,
+
+        // Actions
+        handleEditAlert,
+        handleCreateAlert,
+        createSmartAlert: createSmartAlertApiCall,
+        updateSmartAlert: updateSmartAlertApiCall,
         toggleSmartAlertStatus: handleToggleSmartAlertStatus,
         deleteSmartAlert,
         deleteSavedSearch,
     };
-
 }
