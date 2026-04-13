@@ -1,4 +1,5 @@
 import User from '../models/User';
+import Notification from '../models/Notification';
 import admin from '../config/firebaseAdmin';
 import logger from '../utils/logger';
 import { NotificationTypeValue } from '@shared/enums/notificationType';
@@ -134,6 +135,20 @@ export const sendNotification = async (userId: string, title: string, body: stri
     } catch (error) {
         logger.error('FCM send error', { error: error instanceof Error ? error.message : String(error) });
     }
+};
+
+export const queryNotificationsForUser = async (
+    query: Record<string, unknown>,
+    userId: string,
+    skip: number,
+    limit: number
+) => {
+    const [notifications, total, unreadCount] = await Promise.all([
+        Notification.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+        Notification.countDocuments(query),
+        Notification.countDocuments({ userId, isRead: false }),
+    ]);
+    return { notifications, total, unreadCount };
 };
 
 /**
