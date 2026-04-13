@@ -47,11 +47,20 @@ describe('validateProductionEnvOrThrow', () => {
         );
     });
 
-    it('does not throw when USE_DEFAULT_OTP is enabled in production (DLT-pending mode)', () => {
+    it('throws when USE_DEFAULT_OTP is enabled in production', () => {
         const env = { ...baseProductionEnv, USE_DEFAULT_OTP: 'true' };
 
-        // Guard was relaxed to a warning to allow startup while awaiting DLT/MSG91 approval.
-        expect(() => validateProductionEnvOrThrow(env)).not.toThrow();
+        expect(() => validateProductionEnvOrThrow(env)).toThrow(
+            /USE_DEFAULT_OTP=true is not allowed in production/
+        );
+    });
+
+    it('throws when AUTH_BYPASS_OTP_LOCK is enabled in production', () => {
+        const env = { ...baseProductionEnv, AUTH_BYPASS_OTP_LOCK: 'true' };
+
+        expect(() => validateProductionEnvOrThrow(env)).toThrow(
+            /AUTH_BYPASS_OTP_LOCK=true is not allowed in production/
+        );
     });
 
     it('infers COOKIE_DOMAIN from split-subdomain production origins when it is omitted', () => {

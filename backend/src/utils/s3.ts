@@ -2,6 +2,7 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } fro
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import logger from './logger';
 import imageDomainRegistry from '@shared/constants/image-domain-registry.json';
+import { env } from '../config/env';
 
 const ALLOWED_S3_MIME_TYPES = new Set([
     'image/jpeg',
@@ -24,9 +25,9 @@ const PLACEHOLDER_HOSTS = new Set(['placehold.co']);
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURATION UNIFICATION
 // ─────────────────────────────────────────────────────────────────────────────
-const getAwsRegion = (): string => (process.env.AWS_REGION || 'ap-south-1').trim();
+const getAwsRegion = (): string => (env.AWS_REGION || 'ap-south-1').trim();
 const getS3BaseUrl = (bucket: string): string => {
-    const cloudfrontUrl = process.env.AWS_CLOUDFRONT_URL;
+    const cloudfrontUrl = env.AWS_CLOUDFRONT_URL;
     if (cloudfrontUrl) {
         return cloudfrontUrl.trim().replace(/\/$/, '');
     }
@@ -36,20 +37,20 @@ const getS3BaseUrl = (bucket: string): string => {
 export const s3Client = new S3Client({
     region: getAwsRegion(),
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+        accessKeyId: env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY || '',
     },
 });
 
 export function getBucketName(): string {
-    return (process.env.S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || '').trim();
+    return (env.S3_BUCKET_NAME || env.AWS_S3_BUCKET || '').trim();
 }
 
 export function getMissingS3UploadConfigKeys(): string[] {
     const requiredConfig = {
-        AWS_ACCESS_KEY_ID: (process.env.AWS_ACCESS_KEY_ID || '').trim(),
-        AWS_SECRET_ACCESS_KEY: (process.env.AWS_SECRET_ACCESS_KEY || '').trim(),
-        AWS_REGION: (process.env.AWS_REGION || '').trim(),
+        AWS_ACCESS_KEY_ID: (env.AWS_ACCESS_KEY_ID || '').trim(),
+        AWS_SECRET_ACCESS_KEY: (env.AWS_SECRET_ACCESS_KEY || '').trim(),
+        AWS_REGION: (env.AWS_REGION || '').trim(),
         S3_BUCKET_NAME: getBucketName(),
     };
 
@@ -173,7 +174,7 @@ export function isValidS3PublicImageUrl(url: string): boolean {
         const pathname = decodeURIComponent(parsed.pathname).replace(/^\/+/, '');
         if (!pathname) return false;
 
-        const cloudfrontStr = process.env.AWS_CLOUDFRONT_URL;
+        const cloudfrontStr = env.AWS_CLOUDFRONT_URL;
         if (cloudfrontStr) {
             try {
                 const cdnHost = new URL(cloudfrontStr).hostname.toLowerCase();
@@ -328,7 +329,7 @@ export function extractS3KeyFromUrl(url: string): string | null {
         const normalizedPath = decodeURIComponent(parsed.pathname).replace(/^\/+/, '');
         if (!normalizedPath) return null;
 
-        const cloudfrontStr = process.env.AWS_CLOUDFRONT_URL;
+        const cloudfrontStr = env.AWS_CLOUDFRONT_URL;
         if (cloudfrontStr) {
             try {
                 const cdnHost = new URL(cloudfrontStr).hostname.toLowerCase();

@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
 import logger from '../utils/logger';
 import { sendErrorResponse } from '../utils/errorResponse';
+import { env } from '../config/env';
 
 /**
  * 🔐 PAYMENT WEBHOOK VERIFIER (HMAC)
@@ -15,7 +16,7 @@ import { sendErrorResponse } from '../utils/errorResponse';
  * - Sync crypto only
  */
 export function verifyPaymentWebhook(secret: string) {
-    const isProd = process.env.NODE_ENV === 'production';
+    const isProd = env.NODE_ENV === 'production';
 
     if (!secret) {
         if (isProd) {
@@ -67,8 +68,8 @@ export function verifyPaymentWebhook(secret: string) {
 
         // 🛡️ DEV BYPASS: Allow mock signature only in local development (not CI/staging)
         if (
-            process.env.NODE_ENV === 'development' &&
-            process.env.CI !== 'true' &&
+            env.NODE_ENV === 'development' &&
+            !env.CI &&
             signature === 'mock_verif_bypass'
         ) {
             logger.warn('⚠️ Webhook Signature Check BYPASSED (Development Mode)');

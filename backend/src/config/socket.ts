@@ -51,7 +51,7 @@ export function initIO(httpServer: HttpServer): Server {
         const pubClient = redisClient;
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const Redis = require('ioredis');
-        const subClient = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
+        const subClient = new Redis(env.REDIS_URL ?? `redis://localhost:${env.REDIS_PORT}`, {
             tls: undefined, // 🔒 FORCE DISABLE TLS
         }) as typeof redisClient;
         io.adapter(createAdapter(pubClient as any, subClient as any));

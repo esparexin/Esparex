@@ -1,5 +1,6 @@
 import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
 import logger from '../utils/logger';
+import { env } from '../config/env';
 
 export type SchedulerJobName =
     | 'expire_ads_job'
@@ -20,7 +21,7 @@ export type SchedulerJobName =
 type SchedulerProcessor = (job: Job) => Promise<unknown>;
 
 const shouldDisableSchedulerQueue =
-    process.env.NODE_ENV === 'test' && process.env.ALLOW_SCHEDULER_QUEUE !== 'true';
+    env.NODE_ENV === 'test' && !env.ALLOW_SCHEDULER_QUEUE;
 
 const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
     expire_ads_job: '1 0 * * *',
@@ -29,7 +30,7 @@ const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
     payment_reconciliation: '*/10 * * * *',
     monthly_slot_reset: '5 0 1 * *',
     expire_user_plans: '0 1 * * *',
-    database_backup_job: process.env.BACKUP_CRON_SCHEDULE || '0 2 * * *',
+    database_backup_job: env.BACKUP_CRON_SCHEDULE,
     location_analytics_refresh: '0 2 * * *',
     notification_scheduler_poll: '* * * * *',
     cleanup_read_notifications: '0 * * * *',
@@ -40,14 +41,14 @@ const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
 };
 
 const parseRedisConnection = () => {
-    if (process.env.REDIS_URL) {
-        const parsedUrl = new URL(process.env.REDIS_URL);
+    if (env.REDIS_URL) {
+        const parsedUrl = new URL(env.REDIS_URL);
         const dbFromPath = Number(parsedUrl.pathname.replace('/', '') || '0');
         return {
             host: parsedUrl.hostname || 'localhost',
             port: Number(parsedUrl.port || '6379'),
             password: parsedUrl.password ? decodeURIComponent(parsedUrl.password) : undefined,
-            db: Number.isFinite(dbFromPath) ? dbFromPath : Number(process.env.REDIS_DB || '0'),
+            db: Number.isFinite(dbFromPath) ? dbFromPath : env.REDIS_DB,
             maxRetriesPerRequest: null,
             enableReadyCheck: false,
             tls: undefined, // 🔒 FORCE DISABLE TLS
@@ -55,10 +56,10 @@ const parseRedisConnection = () => {
     }
 
     return {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: Number(process.env.REDIS_PORT || '6379'),
-        password: process.env.REDIS_PASSWORD,
-        db: Number(process.env.REDIS_DB || '0'),
+        host: env.REDIS_HOST,
+        port: env.REDIS_PORT,
+        password: env.REDIS_PASSWORD,
+        db: env.REDIS_DB,
         maxRetriesPerRequest: null,
         enableReadyCheck: false,
         tls: undefined, // 🔒 FORCE DISABLE TLS
@@ -135,7 +136,7 @@ export const registerSchedulerJobProcessors = async (
 export const registerSchedulerRepeatableJobs = async () => {
     if (shouldDisableSchedulerQueue || !schedulerQueue) return;
 
-    const timezone = process.env.TZ || 'Asia/Kolkata';
+    const timezone = env.TZ;
     for (const [jobName, cron] of Object.entries(schedulerRepeatCrons) as Array<[SchedulerJobName, string]>) {
         await schedulerQueue.upsertJobScheduler(
             `repeat:${jobName}`,

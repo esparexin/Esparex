@@ -7,13 +7,14 @@ import { detectAiSpam } from '../utils/aiSpamDetector';
 import logger from '../utils/logger';
 import { getUserConnection } from '../config/db';
 import { FeatureFlag, isEnabled } from '../config/featureFlags';
+import { env } from '../config/env';
 
 export interface FraudRequest extends Request {
     fraudRisk?: RiskLevel;
     fraudScore?: number;
 }
 
-const FRAUD_DECISION_TIMEOUT_MS = Math.max(100, Number(process.env.FRAUD_DECISION_TIMEOUT_MS || 1200));
+const FRAUD_DECISION_TIMEOUT_MS = env.FRAUD_DECISION_TIMEOUT_MS;
 const SHADOW_ONLY_PREFIXES = ['/api/v1/auth/', '/api/v1/health', '/health'];
 
 const shouldRunInShadowMode = (req: Request): boolean => {

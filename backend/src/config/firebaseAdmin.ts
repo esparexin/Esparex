@@ -1,9 +1,10 @@
 import admin from 'firebase-admin';
 import logger from '../utils/logger';
+import { env } from './env';
 
-const hasFirebaseServiceAccountJson = typeof process.env.FIREBASE_SERVICE_ACCOUNT_JSON === 'string'
-    && process.env.FIREBASE_SERVICE_ACCOUNT_JSON.trim().length > 0;
-const disableForTest = process.env.NODE_ENV === 'test' && process.env.ALLOW_FIREBASE_ADMIN !== 'true';
+const hasFirebaseServiceAccountJson = typeof env.FIREBASE_SERVICE_ACCOUNT_JSON === 'string'
+    && (env.FIREBASE_SERVICE_ACCOUNT_JSON as string).trim().length > 0;
+const disableForTest = env.NODE_ENV === 'test' && !env.ALLOW_FIREBASE_ADMIN;
 let shouldDisableFirebase = disableForTest || !hasFirebaseServiceAccountJson;
 
 type FirebaseServiceAccount = admin.ServiceAccount & Record<string, unknown>;
@@ -23,7 +24,7 @@ const mockAdmin = {
 // Prevent multiple initializations
 if (!shouldDisableFirebase && !admin.apps.length) {
     try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON as string) as FirebaseServiceAccount;
+        const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_JSON as string) as FirebaseServiceAccount;
         logger.info("🔥 Firebase Admin: Using credentials from environment");
 
         // Clean the private key
