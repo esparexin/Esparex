@@ -29,7 +29,7 @@ export function useSmartAlertLogs() {
             setLogs(items);
             setPagination({
                 total: nextPagination.total,
-                pages: nextPagination.totalPages || 1, // Ensure mapping matches standard
+                pages: nextPagination.pages,
                 limit: nextPagination.limit,
             });
         } catch (err) {

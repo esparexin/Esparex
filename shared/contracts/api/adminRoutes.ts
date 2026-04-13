@@ -134,6 +134,7 @@ export const ADMIN_ROUTES = {
 
   IMPORT_SEED: "/import/seed-devices",
   SMART_ALERTS: "/smart-alerts",
+  SMART_ALERT_LOGS: "/smart-alerts/logs",
 } as const;
 
 export type AdminRoutePath =
