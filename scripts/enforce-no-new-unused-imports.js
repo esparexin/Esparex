@@ -28,7 +28,7 @@ function resolveMergeBase(baseRef) {
 
 function getChangedTsFiles(baseSha) {
   if (!baseSha) return [];
-  const raw = run(`git diff --name-only ${baseSha}...HEAD`);
+  const raw = run(`git diff --name-only --diff-filter=ACMR ${baseSha}...HEAD`);
   return raw
     .split("\n")
     .map((line) => line.trim())
