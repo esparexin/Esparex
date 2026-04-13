@@ -23,7 +23,7 @@ import {
   conversationListQuerySchema,
   messagesQuerySchema,
   chatUploadUrlSchema,
-} from '../../validators/chatValidator';
+} from '../../validators/chat.validator';
 import { generatePresignedUploadUrl } from '../../utils/s3';
 
 const MIME_TO_EXT: Record<string, string> = {

@@ -14,7 +14,7 @@ import {
   adminListQuerySchema,
   adminDeleteMessageSchema,
   adminMuteSchema,
-} from '../../validators/chatValidator';
+} from '../../validators/chat.validator';
 
 /* -------------------------------------------------------------------------- */
 /* Helper                                                                      */
