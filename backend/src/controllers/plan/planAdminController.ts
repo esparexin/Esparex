@@ -4,15 +4,21 @@ import { respond } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { AppError } from '../../utils/AppError';
 import { escapeRegExp } from '../../utils/stringUtils';
-import { buildPlanPayload, getErrorMessage, getRequiredPlanId, PlanModel } from './shared';
+import { buildPlanPayload, getErrorMessage, getRequiredPlanId } from './shared';
+import {
+    adminCreatePlan,
+    adminUpdatePlan,
+    adminGetPlans,
+    adminGetPlanById,
+} from '../../services/PlanService';
 
 export const createPlan = async (req: Request, res: Response) => {
     try {
         const adminId = req.user?._id ? String(req.user._id) : undefined;
         const safeBody = buildPlanPayload(req.body as Record<string, unknown>, adminId);
 
-        const plan = await PlanModel.create(safeBody);
-        const planId = Array.isArray(plan) ? plan[0]?._id : (plan as Record<string, unknown>)?._id;
+        const plan = await adminCreatePlan(safeBody);
+        const planId = plan._id;
         await logAdminAction(req, 'CREATE_PLAN', 'Plan', planId == null ? undefined : String(planId));
         res.status(201).json(respond({ success: true, data: plan }));
     } catch (error: unknown) {
@@ -26,7 +32,7 @@ export const updatePlan = async (req: Request, res: Response) => {
         const planId = getRequiredPlanId(req);
         const safeBody = buildPlanPayload(req.body as Record<string, unknown>);
 
-        const plan = await PlanModel.findByIdAndUpdate(planId, safeBody, { new: true });
+        const plan = await adminUpdatePlan(planId, safeBody);
         if (!plan) {
             throw new AppError('Plan not found', 404, 'PLAN_NOT_FOUND');
         }
@@ -57,7 +63,7 @@ export const getPlans = async (req: Request, res: Response) => {
             ];
         }
 
-        const plans = await PlanModel.find(query).sort({ createdAt: -1 });
+        const plans = await adminGetPlans(query);
         res.json(respond({ success: true, data: plans }));
     } catch (error: unknown) {
         sendErrorResponse(req, res, 500, getErrorMessage(error));
@@ -67,7 +73,7 @@ export const getPlans = async (req: Request, res: Response) => {
 export const togglePlan = async (req: Request, res: Response) => {
     try {
         const planId = getRequiredPlanId(req);
-        const plan = await PlanModel.findById(planId);
+        const plan = await adminGetPlanById(planId);
         if (!plan) throw new AppError('Plan not found', 404, 'PLAN_NOT_FOUND');
         plan.active = !plan.active;
         await plan.save();

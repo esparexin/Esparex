@@ -506,3 +506,41 @@ export async function recoverPendingPayment(tx: ITransaction): Promise<ProcessPa
 
     return { result: "missing", transactionId: tx._id.toString(), reason: gatewayResult.reason };
 }
+
+// ─── Order-initiation helpers (used by paymentMutationController) ─────────────
+
+export async function checkTransactionVelocity(
+    userId: ITransaction['userId'],
+    windowMs: number
+): Promise<number> {
+    const since = new Date(Date.now() - windowMs);
+    const filter = {
+        userId,
+        createdAt: { $gte: since },
+    } as unknown as Parameters<typeof Transaction.countDocuments>[0];
+    return Transaction.countDocuments(filter);
+}
+
+export async function findPendingTransaction(
+    userId: ITransaction['userId'],
+    planId: NonNullable<ITransaction['planId']>,
+    windowMs: number
+): Promise<ITransaction | null> {
+    const since = new Date(Date.now() - windowMs);
+    const filter = {
+        userId,
+        planId,
+        status: 'INITIATED',
+        applied: false,
+        createdAt: { $gte: since },
+    } as unknown as Parameters<typeof Transaction.findOne>[0];
+    return Transaction.findOne(filter).sort({ createdAt: -1 });
+}
+
+export async function createPaymentTransaction(
+    payload: Record<string, unknown>
+): Promise<ITransaction> {
+    return Transaction.create(payload);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
