@@ -41,7 +41,7 @@ jest.mock("../../services/AdminSessionService", () => ({
     getAdminSessionTtlMs: jest.fn(() => 8 * 60 * 60 * 1000),
 }));
 
-jest.mock("../../services/emailService", () => ({
+jest.mock("../../services/EmailService", () => ({
     __esModule: true,
     emailService: {
         sendEmail: jest.fn().mockResolvedValue(true),
