@@ -1,7 +1,9 @@
 import Redis from 'ioredis';
 import logger from '../utils/logger';
 
-const shouldDisableRedis = process.env.NODE_ENV === 'test' && process.env.ALLOW_REDIS !== 'true';
+const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
+const shouldDisableRedis =
+    (process.env.NODE_ENV === 'test' || isJestRuntime) && process.env.ALLOW_REDIS !== 'true';
 const redisHost = process.env.REDIS_HOST || 'localhost';
 const redisPort = Number(process.env.REDIS_PORT || '6379');
 const redisPassword = process.env.REDIS_PASSWORD;
@@ -13,8 +15,10 @@ const redisUrl = process.env.REDIS_URL || (() => {
 
 // 🔍 STARTUP AUDIT: Log the connection protocol and host (obfuscated)
 const auditUrl = (redisUrl || '').replace(/:[^:@]+@/, ':****@');
-console.error(`[EMERGENCY_REDIS_AUDIT] Prot: ${(redisUrl || '').split(':')[0]} | URL: ${auditUrl}`);
-logger.warn(`[REDIS_BOOT] Protocol: ${(redisUrl || '').split(':')[0]} | URL: ${auditUrl}`);
+if (!shouldDisableRedis) {
+    console.error(`[EMERGENCY_REDIS_AUDIT] Prot: ${(redisUrl || '').split(':')[0]} | URL: ${auditUrl}`);
+    logger.warn(`[REDIS_BOOT] Protocol: ${(redisUrl || '').split(':')[0]} | URL: ${auditUrl}`);
+}
 
 if (process.env.NODE_ENV === 'production') {
     if (!redisPassword && !redisUrl.includes(':@') && !redisUrl.includes('//:')) {
