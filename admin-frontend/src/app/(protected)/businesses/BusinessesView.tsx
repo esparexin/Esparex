@@ -1,7 +1,7 @@
 "use client";
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
     Building2,
@@ -70,13 +70,13 @@ export default function BusinessesView() {
     const cityFilter = normalizeSearchParamValue(rawCity);
     const page = parsePositiveIntParam(rawPage, 1);
 
-    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
         const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
         const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    };
+    }, [pathname, router, searchParams]);
 
     const businessList = useAdminBusinessList({
         activeTab,
@@ -112,7 +112,7 @@ export default function BusinessesView() {
         if (!loading && page > pagination.pages) {
             replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
         }
-    }, [loading, page, pagination.pages]);
+    }, [loading, page, pagination.pages, replaceQueryState]);
 
     const columns: ColumnDef<Business>[] = [
         {

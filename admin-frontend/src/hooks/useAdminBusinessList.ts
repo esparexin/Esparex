@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
 import { useToast } from "@/context/ToastContext";
 import { adminFetch } from "@/lib/api/adminClient";
@@ -68,7 +68,8 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
 
     const extraQueryKey = JSON.stringify(extraQueryParams ?? {});
 
-    const fetchBusinesses = async () => {
+    const fetchBusinesses = useCallback(async () => {
+        const resolvedExtraQueryParams = JSON.parse(extraQueryKey) as Record<string, string>;
         setLoading(true);
         setError("");
 
@@ -80,7 +81,7 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 limit: String(DEFAULT_PAGINATION.limit),
             });
 
-            Object.entries(extraQueryParams ?? {}).forEach(([key, value]) => {
+            Object.entries(resolvedExtraQueryParams).forEach(([key, value]) => {
                 const nextValue = value?.trim();
                 if (nextValue) {
                     queryParams.set(key, nextValue);
@@ -116,7 +117,7 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
         } finally {
             setLoading(false);
         }
-    };
+    }, [activeTab, extraQueryKey, mapOverview, page, search]);
 
     useEffect(() => {
         const timer = window.setTimeout(() => {
@@ -124,7 +125,7 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
         }, 300);
 
         return () => window.clearTimeout(timer);
-    }, [search, activeTab, page, extraQueryKey]);
+    }, [fetchBusinesses]);
 
     const handleReject = async (id: string, reason: string) => {
         const validationMessage = rejectValidationMessage?.(reason);

@@ -37,7 +37,12 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ["@/components/ui/*"],
+              group: [
+                "@/components/ui/*",
+                "!@/components/ui/dialog",
+                "!@/components/ui/DataTable",
+                "!@/components/ui/StatusChip",
+              ],
               message:
                 "Only @/components/ui/dialog, @/components/ui/DataTable, and @/components/ui/StatusChip are approved SSOT primitives. Do not import other shadcn/Radix-style primitives.",
             },
