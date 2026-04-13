@@ -23,6 +23,20 @@ const adStatusEnum = z.enum(AD_STATUS_VALUES);
  * Seller type enum
  */
 const sellerTypeEnum = z.enum(['user', 'business']);
+const LEGACY_AD_USER_ID_ALIAS = 'userId';
+const LEGACY_AD_USER_ID_ALIAS_MESSAGE = '`userId` is no longer accepted in ad query filters. Use `sellerId` instead.';
+
+const hasOwn = (value: unknown, key: string): boolean =>
+    Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, key));
+
+const throwIfLegacyAdUserIdAliasPresent = (raw: unknown): void => {
+    if (!hasOwn(raw, LEGACY_AD_USER_ID_ALIAS)) return;
+    throw new z.ZodError([{
+        code: z.ZodIssueCode.custom,
+        path: [LEGACY_AD_USER_ID_ALIAS],
+        message: LEGACY_AD_USER_ID_ALIAS_MESSAGE,
+    }]);
+};
 
 
 
@@ -40,9 +54,9 @@ import { normalizeStatus } from '../../../shared/utils/statusNormalization';
 
 /**
  * Get Ads Query Schema
- * Implements Naming Coercion (Clean-At-Gate)
+ * Canonical ownership query key is sellerId.
  */
-export const getAdsQuerySchema = commonSchemas.pagination.extend({
+const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     ...commonSchemas.sort.shape,
     ...commonSchemas.search.shape,
     // Legacy alias kept for backward compatibility with older clients.
@@ -57,9 +71,8 @@ export const getAdsQuerySchema = commonSchemas.pagination.extend({
     locationId: commonSchemas.objectId.optional(),
     level: z.enum(['country', 'state', 'district', 'city', 'area', 'village']).optional(),
     
-    // Naming Coercion: sellerId vs userId
+    // Canonical ownership filter
     sellerId: commonSchemas.objectId.optional(),
-    userId: commonSchemas.objectId.optional(),
     
     sellerType: sellerTypeEnum.optional(),
 
@@ -82,13 +95,12 @@ export const getAdsQuerySchema = commonSchemas.pagination.extend({
     lng: z.string().transform(Number).pipe(z.number().min(-180).max(180)).optional(),
     coordinates: z.any().optional(),
     cursor: commonSchemas.objectId.optional(),
-}).transform((data: any) => {
-    // Coerce userId -> sellerId if sellerId is missing
-    if (data.userId && !data.sellerId) {
-        data.sellerId = data.userId;
-    }
-    return data;
 });
+
+export const getAdsQuerySchema = z.preprocess((raw) => {
+    throwIfLegacyAdUserIdAliasPresent(raw);
+    return raw;
+}, getAdsQuerySchemaBase);
 
 /**
  * Ad ID Param Schema
