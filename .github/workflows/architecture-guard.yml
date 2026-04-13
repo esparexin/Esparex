@@ -26,7 +26,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
@@ -58,7 +58,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
@@ -94,7 +94,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
@@ -148,7 +148,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
@@ -168,9 +168,20 @@ jobs:
       - name: Build frontend
         run: npm run build -w frontend
         env:
-          NEXT_PUBLIC_API_URL: https://api.esparex.in
+          NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
+          NEXT_PUBLIC_APP_URL: https://esparex.in
+          NEXT_PUBLIC_ENCRYPTION_KEY: ci-placeholder-key-32-characters-x
+          NEXT_PUBLIC_USE_DEFAULT_OTP: "false"
+          NEXT_PUBLIC_LOCAL_DEV_AUTH: "false"
+          NEXT_PUBLIC_FIREBASE_API_KEY: placeholder
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: placeholder
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
+          NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
 
       - name: Build admin-frontend
         run: npm run build -w admin-frontend
         env:
-          NEXT_PUBLIC_API_URL: https://api.esparex.in
+          NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin

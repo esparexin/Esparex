@@ -24,9 +24,11 @@
     "backend/scripts/cleanup-duplicate-locations.js",
     "backend/scripts/ensure-location-indexes.js",
     "backend/scripts/master-data-full-repair.js",
+    "backend/scripts/migrate_index_drift.mongosh.js",
     "backend/scripts/migrate-location-hierarchy.js",
     "backend/scripts/migrate_indexes.js",
     "backend/scripts/remap-null-category-models.js",
+    "backend/scripts/remediate_india_guntur_hierarchy.mongosh.js",
     "backend/scripts/remediate-master-data.js"
   ],
   "migrationShadowScripts": [
