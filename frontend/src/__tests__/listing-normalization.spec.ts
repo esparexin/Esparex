@@ -36,6 +36,7 @@ describe("normalizeListing", () => {
         expect(listing.businessName).toBe("Esparex Repairs");
         expect(listing.verified).toBe(true);
         expect(listing.views).toBe(24);
+        expect((listing as { userId?: unknown }).userId).toBeUndefined();
     });
 
     it("preserves explicit sellerName from detail payloads for individual sellers", () => {
@@ -57,5 +58,6 @@ describe("normalizeListing", () => {
         expect(listing.sellerName).toBe("Rakesh Kumar");
         expect(listing.isBusiness).toBe(false);
         expect(listing.verified).toBe(true);
+        expect((listing as { userId?: unknown }).userId).toBeUndefined();
     });
 });

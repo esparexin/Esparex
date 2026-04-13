@@ -139,9 +139,14 @@ function toListingSchemaCompatible(data: unknown): unknown {
 
     const rawSellerId = record.sellerId;
     const normalizedSellerId = extractId(rawSellerId);
-    const normalizedUserId = extractId(record.userId) ?? '';
     if (normalizedSellerId) record.sellerId = normalizedSellerId;
-    record.userId = normalizedUserId;
+    // Keep inbound legacy alias readable, but never synthesize/write it.
+    const normalizedUserId = extractId(record.userId);
+    if (normalizedUserId) {
+        record.userId = normalizedUserId;
+    } else {
+        delete record.userId;
+    }
 
     if (record.verified === undefined && rawSellerId && typeof rawSellerId === 'object') {
         const sellerRecord = rawSellerId as Record<string, unknown>;
@@ -218,9 +223,8 @@ function coerceListingFallback(data: unknown): Listing {
         price: Number.isFinite(price) ? price : 0,
         images: Array.isArray(record.images) ? record.images.filter((img): img is string => typeof img === 'string').map(normalizeImageUrl) : [],
         location: fallbackLocation,
-        userId: extractId(record.userId) ?? extractId(record.sellerId) ?? '',
         status: normalizeAdStatus(typeof record.status === 'string' ? record.status : 'pending'),
-        sellerId: extractId(record.sellerId) || '',
+        sellerId: extractId(record.sellerId) ?? extractId(record.userId) ?? '',
         createdAt,
         updatedAt: typeof record.updatedAt === 'string' ? record.updatedAt : (record.updatedAt instanceof Date ? record.updatedAt.toISOString() : undefined),
         views: typeof record.views === 'number' ? record.views : 0,
@@ -241,6 +245,8 @@ export function normalizeListing(data: unknown): Listing {
     const compatible = toListingSchemaCompatible(unwrapListingPayload(data));
     const parsed = AdSchema.safeParse(compatible);
     const validated = parsed.success ? parsed.data : coerceListingFallback(compatible);
+    const { userId: _legacyUserId, ...validatedWithoutLegacyUserId } =
+        validated as Listing & { userId?: string };
     
     const location = normalizeLocation(validated.location);
     
@@ -283,18 +289,18 @@ export function normalizeListing(data: unknown): Listing {
         || validated.verified === true;
 
     return {
-        ...validated,
-        status: normalizeAdStatus(validated.status),
-        id: String(validated.id || ''),
-        images: toSafeImageArray(Array.isArray(validated.images) ? validated.images.map((image) => normalizeImageUrl(String(image))) : validated.images),
-        image: toSafeImageSrc(Array.isArray(validated.images) && validated.images.length > 0 ? normalizeImageUrl(String(validated.images[0])) : (typeof validated.image === 'string' ? normalizeImageUrl(validated.image) : validated.image)),
-        time: typeof validated.createdAt === 'string' ? new Date(validated.createdAt).toLocaleDateString() : '',
+        ...validatedWithoutLegacyUserId,
+        status: normalizeAdStatus(validatedWithoutLegacyUserId.status),
+        id: String(validatedWithoutLegacyUserId.id || ''),
+        images: toSafeImageArray(Array.isArray(validatedWithoutLegacyUserId.images) ? validatedWithoutLegacyUserId.images.map((image) => normalizeImageUrl(String(image))) : validatedWithoutLegacyUserId.images),
+        image: toSafeImageSrc(Array.isArray(validatedWithoutLegacyUserId.images) && validatedWithoutLegacyUserId.images.length > 0 ? normalizeImageUrl(String(validatedWithoutLegacyUserId.images[0])) : (typeof validatedWithoutLegacyUserId.image === 'string' ? normalizeImageUrl(validatedWithoutLegacyUserId.image) : validatedWithoutLegacyUserId.image)),
+        time: typeof validatedWithoutLegacyUserId.createdAt === 'string' ? new Date(validatedWithoutLegacyUserId.createdAt).toLocaleDateString() : '',
         isBusiness,
         verified,
         sellerName,
-        sellerId: extractId(validated.sellerId) || '',
+        sellerId: extractId(validatedWithoutLegacyUserId.sellerId) || '',
         views: normalizedViews,
-        location: (location || { city: "" }) as Listing['location']
+        location: (location || { city: "" }) as Listing['location'],
     } as Listing;
 }
 
