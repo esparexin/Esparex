@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-
-import Notification from "../../models/Notification";
 import logger from "../../utils/logger";
 import { respond } from "../../utils/respond";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { getUserId } from "./shared";
 import { getVisibleNotificationWindowQuery } from "../../services/notification/NotificationRetentionService";
+import { queryNotificationsForUser } from "../../services/NotificationService";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -51,16 +50,10 @@ export const getNotifications = async (req: Request, res: Response) => {
             });
         }
 
-        const query = queryClauses.length === 1 ? queryClauses[0] : { $and: queryClauses };
+        const query: Record<string, unknown> =
+            queryClauses.length === 1 ? (queryClauses[0] ?? {}) : { $and: queryClauses };
 
-        const [notifications, total, unreadCount] = await Promise.all([
-            Notification.find(query)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit),
-            Notification.countDocuments(query),
-            Notification.countDocuments({ userId, isRead: false }),
-        ]);
+        const { notifications, total, unreadCount } = await queryNotificationsForUser(query, userId, skip, limit);
 
         return res.json(
             respond({

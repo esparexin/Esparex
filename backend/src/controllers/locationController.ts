@@ -5,7 +5,7 @@ import { sendErrorResponse } from '../utils/errorResponse';
 import { getSystemConfigDoc } from "../utils/systemConfigHelper";
 import { env } from '../config/env';
 import { respond } from "../utils/respond";
-import LocationEvent from "../models/LocationEvent";
+import { createLocationEvent } from '../services/location/LocationEventService';
 import {
     getDefaultCenterLocation,
     getAreasByCityId,
@@ -279,7 +279,7 @@ export const logLocationEvent = async (req: Request, res: Response) => {
                 });
             }
         }
-        await LocationEvent.create({
+        await createLocationEvent({
             source,
             city,
             state,

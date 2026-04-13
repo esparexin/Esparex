@@ -1,6 +1,6 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
-import ContactSubmission from '../../models/ContactSubmission';
+import { createContactSubmission } from '../../services/ContactService';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { respond } from '../../utils/respond';
 
@@ -16,14 +16,13 @@ export const submitContactForm = async (req: Request, res: Response) => {
         const { name, email, mobile, phone, subject, category, message } = req.body;
 
         // Create contact submission
-        const submission = await ContactSubmission.create({
+        const submission = await createContactSubmission({
             name,
             email,
             mobile: mobile || phone,
             subject,
             category,
-            message,
-            status: 'new'
+            message
         });
 
         res.status(201).json(respond({

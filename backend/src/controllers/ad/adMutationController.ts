@@ -9,7 +9,7 @@ import * as adService from '../../services/AdService';
 import * as adStatusService from '../../services/adStatusService';
 import * as AdOrchestrator from '../../services/AdOrchestrator';
 
-import Business from '../../models/Business';
+import { getBusinessByUserId } from '../../services/BusinessService';
 import { isBusinessPublishedStatus } from '../../utils/businessStatus';
 import { respond } from '../../utils/respond';
 import { getSingleParam } from '../../utils/requestParams';
@@ -96,7 +96,7 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
         }
 
         if (req.body.listingType === LISTING_TYPE.SERVICE) {
-            const business = await Business.findOne({ userId: authUserId });
+            const business = await getBusinessByUserId(authUserId);
             if (!business || !isBusinessPublishedStatus(business.status)) {
                 return sendClientError(req, res, 403, 'Approved Business Account Required', 'BUSINESS_NOT_APPROVED', {
                     message: 'You need an approved business account to post a service.'
