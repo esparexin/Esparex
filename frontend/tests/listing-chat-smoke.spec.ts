@@ -56,7 +56,7 @@ function extractItems(payload: unknown): Record<string, unknown>[] {
 
 function toCandidate(item: Record<string, unknown>): ListingCandidate | null {
   const id = String(item.id || item._id || "").trim();
-  const sellerId = String(item.sellerId || item.userId || "").trim();
+  const sellerId = String(item.sellerId || "").trim();
 
   if (!id || !sellerId) return null;
 
