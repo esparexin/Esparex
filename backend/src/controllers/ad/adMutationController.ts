@@ -18,6 +18,7 @@ import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { IAuthUser } from '../../types/auth';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
+import { warnIfLegacyAdUserIdAliasUsed } from '../../utils/legacyOwnerAliasTelemetry';
 
 const sendClientError = (
     req: Request,
@@ -37,6 +38,7 @@ const sendClientError = (
  */
 export const createAd = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        warnIfLegacyAdUserIdAliasUsed(req, 'body');
         const authUserId = (req.user as IAuthUser)._id.toString();
         const sellerId = req.body.sellerId || req.body.userId || authUserId;
 
@@ -83,6 +85,7 @@ export const createAd = async (req: Request, res: Response, next: NextFunction) 
  */
 export const updateAd = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        warnIfLegacyAdUserIdAliasUsed(req, 'body');
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
         const authUserId = (req.user as IAuthUser)._id.toString();
