@@ -1,4 +1,5 @@
 import logger from '../../utils/logger';
+import { env } from '../../config/env';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import {
@@ -70,7 +71,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
             }));
         }
 
-        const isMock = process.env.NODE_ENV === 'development'
+        const isMock = env.NODE_ENV === 'development'
             && (razorpayConfig.keyId === 'rzp_test_placeholder' || req.headers['x-mock-payment'] === 'true');
 
         let rzpOrder;
