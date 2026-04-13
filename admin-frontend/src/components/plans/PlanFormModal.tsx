@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { X, CreditCard, Zap, BellRing, Package } from "lucide-react";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
-import type { Plan } from "@/types/plan";
+import type { Plan } from "@shared/types/Plan";
 import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
 type PlanType = "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";
@@ -227,11 +227,10 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                                 key={t}
                                                 type="button"
                                                 onClick={() => field.onChange(t)}
-                                                className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all ${
-                                                    field.value === t
+                                                className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all ${field.value === t
                                                         ? TYPE_META[t].color + " ring-2 ring-offset-1 ring-sky-400"
                                                         : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-                                                }`}
+                                                    }`}
                                             >
                                                 {TYPE_META[t].icon}
                                                 {TYPE_META[t].label}

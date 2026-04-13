@@ -9,7 +9,7 @@ import {
 } from "@/lib/api/brands";
 import { CreateBrandDTO, UpdateBrandDTO } from "@shared/schemas/catalog.schema";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
-import { Brand } from "@/types/brand";
+import type { Brand } from "@shared/types";
 
 export function useAdminBrands() {
     const {

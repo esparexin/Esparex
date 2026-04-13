@@ -4,7 +4,7 @@ import { useToast } from "@/context/ToastContext";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
-import type { Business } from "@/types/business";
+import type { Business } from "@shared/types";
 
 type BusinessListPagination = {
     total: number;

@@ -1,6 +1,6 @@
 import { createModel, deleteModel, getModels, updateModel, toggleModelStatus } from "@/lib/api/models";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
-import { Model } from "@/types/model";
+import type { Model } from "@shared/types";
 import { useToast } from "@/context/ToastContext";
 import { useCallback } from "react";
 import { CreateModelDTO, UpdateModelDTO } from "@shared/schemas/catalog.schema";
