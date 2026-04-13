@@ -74,7 +74,6 @@ export interface IAd extends Document, ISoftDeleteDocument {
         timestamp: Date;
         reason?: string;
     }>;
-    userId?: Types.ObjectId;
     reviewVersion: number;
     freshnessScore: number;
 
@@ -239,10 +238,8 @@ const AdSchema: Schema = new Schema({
         virtuals: true,
         versionKey: false,
         transform: function (_doc, ret) {
-            const json = ret as Record<string, unknown> & { _id?: { toString(): string }; id?: string; sellerId?: any };
+            const json = ret as Record<string, unknown> & { _id?: { toString(): string }; id?: string };
             json.id = json._id?.toString();
-            // Harmonization alias
-            json.userId = json.sellerId;
             delete json._id;
             return json;
         }
@@ -537,13 +534,6 @@ AdSchema.post('findOneAndUpdate', async function (doc: IAd | null) {
         },
         (options.session as ClientSession | undefined) || undefined
     );
-});
-
-// Harmonization Virtuals
-AdSchema.virtual('userId').get(function() {
-    return this.sellerId;
-}).set(function(v) {
-    this.sellerId = v;
 });
 
 // POST-SAVE ERROR HOOK implementation removed (duplicate mutation of seoSlug)
