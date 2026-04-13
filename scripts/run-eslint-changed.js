@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 const { execSync, spawnSync } = require("node:child_process");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const WORKSPACES = ["frontend", "backend", "admin-frontend"];
 
@@ -78,7 +80,11 @@ function main() {
 
   for (const [workspace, files] of grouped.entries()) {
     console.log(`Running ESLint for changed files in ${workspace}...`);
-    const status = lintWorkspaceFiles(workspace, files);
+    // Final safety check: filter out files that may have been deleted/moved
+    const existingFiles = files.filter(f => fs.existsSync(path.join(workspace, f)));
+    if (existingFiles.length === 0) continue;
+    
+    const status = lintWorkspaceFiles(workspace, existingFiles);
     if (status !== 0) hasFailures = true;
   }
 
