@@ -308,6 +308,75 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
 };
 
 /**
+ * DELETE /api/v1/listings/:id
+ * Delete (soft delete) a listing
+ */
+export const deleteListing = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user as IAuthUser;
+        const listing = await getAndVerifyOwnedListing(req, res);
+        if (!listing) return;
+
+        // Use canonical mutated status logic for soft delete
+        await mutateStatus({
+            domain: 'ad',
+            entityId: listing._id.toString(),
+            toStatus: 'deactivated', 
+            actor: {
+                type: ACTOR_TYPE.USER,
+                id: user._id.toString(),
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+            },
+            reason: 'Listing soft deleted by owner',
+            metadata: {
+                action: 'soft_delete',
+                sourceRoute: '/api/v1/listings/:id',
+            },
+            patch: {
+                isDeleted: true,
+                deletedAt: new Date(),
+                isSpotlight: false,
+                isChatLocked: true,
+            },
+        });
+
+        res.status(204).end();
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * POST /api/v1/listings/:id/repost
+ * Repost an expired/rejected listing
+ */
+export const repostListing = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
+        if (!id) return;
+        const userId = (req.user as IAuthUser)._id.toString();
+
+        const reposted = await adService.repostAd(id, userId);
+        if (!reposted) {
+            return sendErrorResponse(req, res, 404, 'Listing not found');
+        }
+
+        return sendSuccessResponse(res, reposted, 'Listing reposted successfully');
+    } catch (error) {
+        const knownError = error as { statusCode?: number, message?: string, code?: string };
+        if (typeof knownError.statusCode === 'number') {
+            return sendErrorResponse(
+                req, res, knownError.statusCode, 
+                knownError.message || 'Unable to repost listing', 
+                { code: knownError.code }
+            );
+        }
+        next(error);
+    }
+};
+
+/**
  * GET /api/v1/listings/:id/phone
  * Unified phone reveal for all listing types
  */
