@@ -1,0 +1,164 @@
+{
+  "version": "2026-04-14",
+  "status": "active",
+  "primary": {
+    "ssot": "ai-governance/SSOT.md",
+    "sop": "ai-governance/SOP.md",
+    "promptTemplate": "ai-governance/PROMPT_TEMPLATE.md"
+  },
+  "platformAuthorities": [
+    "docs/00_README_ARCHITECTURE.md",
+    "SYSTEM_CONSTITUTION.md",
+    "docs/01_PLATFORM_BLUEPRINT.md",
+    "docs/02_ENGINEERING_GOVERNANCE.md",
+    "docs/03_ENUM_GOVERNANCE_ROLLOUT.md",
+    "docs/04_ADMIN_SYSTEM_ARCHITECTURE.md",
+    "docs/05_API_CONTRACTS.md",
+    "docs/06_DATA_LIFECYCLE_RULES.md",
+    "docs/07_FRONTEND_SYSTEM_RULES.md",
+    "docs/CONVENTIONS_ARCHITECTURE.md",
+    "docs/CONVENTIONS_API_LAYER.md",
+    "docs/CONVENTIONS_COMPONENTS.md",
+    "docs/CONVENTIONS_DEAD_CODE.md",
+    "docs/CONVENTIONS_NAMING.md",
+    "docs/CONVENTIONS_PATH_ALIASING.md",
+    "SSOT_REFACTOR.md"
+  ],
+  "developerAiTools": [
+    {
+      "tool": "Codex",
+      "status": "active",
+      "authoritativeSource": "ai-governance/*",
+      "notes": "Use SSOT, SOP, AI context, and prompt template. No additional repo-specific prompt file is authoritative."
+    },
+    {
+      "tool": "Antigravity",
+      "status": "local_compatibility_surface",
+      "paths": [
+        ".antigravity.system.prompt.md",
+        ".antigravityignore"
+      ],
+      "authoritativeSource": "ai-governance/*"
+    },
+    {
+      "tool": "Cursor",
+      "status": "local_compatibility_surface",
+      "paths": [
+        ".cursorrules",
+        "frontend/.cursorrules",
+        ".cursorignore"
+      ],
+      "authoritativeSource": "ai-governance/*"
+    },
+    {
+      "tool": "Claude",
+      "status": "local_permissions_surface",
+      "paths": [
+        ".claude/settings.local.json"
+      ],
+      "authoritativeSource": "ai-governance/*",
+      "notes": "This file is a local permission allowlist, not policy SSOT."
+    },
+    {
+      "tool": "Kombai",
+      "status": "local_compatibility_surface",
+      "paths": [
+        ".kombai/rules/Projectrule.md",
+        ".kombai/rules/kombai.config.yaml"
+      ],
+      "authoritativeSource": "ai-governance/*"
+    },
+    {
+      "tool": "Kilo",
+      "status": "local_compatibility_surface",
+      "paths": [
+        ".kilo/rules.md"
+      ],
+      "authoritativeSource": "ai-governance/*"
+    },
+    {
+      "tool": "Local IDE helpers",
+      "status": "local_compatibility_surface",
+      "paths": [
+        ".config/.commands/*.md",
+        ".config/.agent/workflows/*.md"
+      ],
+      "authoritativeSource": "ai-governance/*",
+      "notes": "These files are local helper wrappers only and must not carry independent governance logic."
+    }
+  ],
+  "runtimeAi": {
+    "provider": "OpenAI",
+    "route": "backend/src/routes/aiRoutes.ts",
+    "controller": "backend/src/controllers/ai/aiController.ts",
+    "validator": "backend/src/validators/ai.validator.ts",
+    "service": "backend/src/services/AiService.ts",
+    "settingsModel": "backend/src/models/SystemConfig.ts",
+    "settingsAdminUi": "admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx"
+  },
+  "duplicates": [
+    {
+      "paths": [
+        ".antigravityignore",
+        ".cursorignore"
+      ],
+      "status": "expected_compatibility_overlap",
+      "action": "keep local and non-authoritative unless one tool fully replaces the other"
+    }
+  ],
+  "activeConflicts": [],
+  "resolvedConflicts": [
+    {
+      "area": "runtime_ai_provider",
+      "sources": [
+        "README.md",
+        "backend/src/services/AiService.ts",
+        "admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx"
+      ],
+      "normalizedDecision": "OpenAI is canonical until runtime code changes"
+    },
+    {
+      "area": "admin_ui_location_and_api_client_policy",
+      "sources": [
+        "docs/04_ADMIN_SYSTEM_ARCHITECTURE.md",
+        "docs/CONVENTIONS_API_LAYER.md",
+        "docs/02_ENGINEERING_GOVERNANCE.md",
+        "scripts/enforce-admin-status-literals.js",
+        ".config/.commands/admin-ui.md",
+        ".config/.commands/pre-check.md"
+      ],
+      "normalizedDecision": "admin-frontend is canonical and app requests must use centralized API client layers"
+    },
+    {
+      "area": "react_component_naming",
+      "sources": [
+        "docs/02_ENGINEERING_GOVERNANCE.md",
+        "docs/CONVENTIONS_NAMING.md"
+      ],
+      "normalizedDecision": "PascalCase is canonical for React component filenames"
+    },
+    {
+      "area": "missing_referenced_files",
+      "sources": [
+        "scripts/eslint-rules/README.md",
+        "scripts/enforce-schema-migration-gate.sh"
+      ],
+      "normalizedDecision": "missing rules.md, GOVERNANCE.md, and CHANGE_PROOF.md are not active authorities"
+    }
+  ],
+  "workspaceCleanupCompleted": [
+    ".config/.kilo/",
+    ".config/.kombai/",
+    ".config/.rohkun/"
+  ],
+  "localCompatibilitySurfaces": [
+    ".antigravity.system.prompt.md",
+    ".cursorrules",
+    "frontend/.cursorrules",
+    ".claude/settings.local.json",
+    ".config/.commands/*",
+    ".config/.agent/workflows/*",
+    ".kilo/*",
+    ".kombai/*"
+  ]
+}

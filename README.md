@@ -4,7 +4,10 @@ This project is an npm workspaces monorepo for the Esparex marketplace, admin co
 ## Governance & Safety Rules
 Esparex follows strict non-destructive engineering rules.
 
-📄 See: [docs/ANTIGRAVITY_SYSTEM_RULES.md](file:///Users/admin/Desktop/EsparexAdmin/docs/ANTIGRAVITY_SYSTEM_RULES.md)
+📄 AI governance entry point: [ai-governance/README.md](./ai-governance/README.md)  
+📄 AI SSOT: [ai-governance/SSOT.md](./ai-governance/SSOT.md)  
+📄 AI SOP: [ai-governance/SOP.md](./ai-governance/SOP.md)  
+📄 Canonical architecture and platform SSOT hierarchy: [docs/00_README_ARCHITECTURE.md](./docs/00_README_ARCHITECTURE.md)
 
 The repo is organized as a monorepo workspace:
 
@@ -14,7 +17,7 @@ A Node.js + Express + TypeScript application that handles:
 - **Database Logic** (MongoDB / Mongoose)
 - **Authentication** (JWT, Sessions)
 - **Business Logic** (Services, Controllers)
-- **Integrations** (S3, Gemini AI, MSG91)
+- **Integrations** (S3, OpenAI-backed AI, MSG91)
 
 #### Key Directories
 - `src/controllers`: Handles incoming requests and sends responses.
@@ -59,7 +62,7 @@ Shared contracts, schemas, types, utilities, and observability helpers consumed 
 - npm `>=11.8 <12`
 - MongoDB (Running locally or Atlas URI)
 - AWS S3 Credentials (optional, for images)
-- Google Gemini API Key (optional, for AI)
+- OpenAI API Key via system configuration (optional, for runtime AI)
 
 ### 1. Install Workspace Dependencies
 From the repo root, install once:

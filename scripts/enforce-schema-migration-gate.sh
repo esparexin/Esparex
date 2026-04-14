@@ -67,7 +67,7 @@ if [ -z "$SCHEMA_CHANGES" ]; then
   exit 0
 fi
 
-MIGRATION_EVIDENCE="$(echo "$CHANGED_FILES" | grep -E '^backend/migrations/|^docs/schema-changelog\.md$|^CHANGE_PROOF\.md$' || true)"
+MIGRATION_EVIDENCE="$(echo "$CHANGED_FILES" | grep -E '^backend/migrations/|^docs/schema-changelog\.md$' || true)"
 
 if [ -n "$MIGRATION_EVIDENCE" ]; then
   echo "[governance] Schema change detected with migration evidence."
@@ -81,5 +81,4 @@ echo ""
 echo "Required with backend model changes (pick at least one):"
 echo "  1) Add/update a migration under backend/migrations/"
 echo "  2) Update docs/schema-changelog.md"
-echo "  3) Update CHANGE_PROOF.md with migration strategy"
 exit 1

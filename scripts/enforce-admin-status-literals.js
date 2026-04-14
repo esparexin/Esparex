@@ -1,14 +1,12 @@
 const fs = require("fs");
 const path = require("path");
 
-const ADMIN_VIEWS_ROOT = path.resolve(
+const ADMIN_COMPONENTS_ROOT = path.resolve(
   __dirname,
   "..",
-  "frontend",
+  "admin-frontend",
   "src",
   "components",
-  "admin",
-  "views"
 );
 
 const FILE_EXTENSIONS = new Set([".ts", ".tsx"]);
@@ -71,14 +69,14 @@ function findViolations(filePath) {
 }
 
 function main() {
-  if (!fs.existsSync(ADMIN_VIEWS_ROOT)) {
+  if (!fs.existsSync(ADMIN_COMPONENTS_ROOT)) {
     console.log(
-      "PASS: frontend/src/components/admin/views does not exist — nothing to scan."
+      "PASS: admin-frontend/src/components does not exist — nothing to scan."
     );
     return;
   }
 
-  const files = collectFiles(ADMIN_VIEWS_ROOT);
+  const files = collectFiles(ADMIN_COMPONENTS_ROOT);
   const allViolations = [];
 
   for (const filePath of files) {
@@ -93,13 +91,13 @@ function main() {
 
   if (allViolations.length === 0) {
     console.log(
-      "PASS: no raw admin status literals found in frontend/src/components/admin/views."
+      "PASS: no raw admin status literals found in admin-frontend/src/components."
     );
     return;
   }
 
   console.error(
-    "FAIL: raw admin status literals detected. Use shared constants from frontend/src/lib/status/adminStatusConstants.ts"
+    "FAIL: raw admin status literals detected. Use canonical shared enums or normalization helpers instead of hardcoded strings."
   );
 
   for (const fileEntry of allViolations) {
@@ -111,12 +109,11 @@ function main() {
     }
   }
 
-  console.error("\n[HINT] Do not use hardcoded status strings in Admin views.");
-  console.error("1. Import ADMIN_STATUS from '@/lib/status/adminStatusConstants'.");
-  console.error("2. Use constants like ADMIN_STATUS.ACTIVE instead of 'active'.\n");
+  console.error("\n[HINT] Do not use hardcoded status strings in admin-frontend components.");
+  console.error("1. Import canonical shared enums or approved status helpers.");
+  console.error("2. Normalize display labels through a mapper instead of inline literals.\n");
 
   process.exit(1);
 }
 
 main();
-

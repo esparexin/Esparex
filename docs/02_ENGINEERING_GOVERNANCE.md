@@ -20,7 +20,7 @@ The backend follows a strict 5-layer delegation model. **Logic leakage between l
 
 ## 🔤 Naming Conventions
 - **Files**: `camelCase` (e.g., `adService.ts`).
-- **React Components**: `PascalCase` or `kebab-case` (consistent across directories).
+- **React Components**: `PascalCase`.
 - **Entities**: Singular `PascalCase` (e.g., `Ad.ts`).
 - **Collections**: Plural `lowercase` (e.g., `users/`).
 - **Constants**: `UPPER_SNAKE_CASE`.

@@ -84,6 +84,19 @@ All documentation updates affecting platform architecture must include:
 • migration or rollback considerations
 • architectural review confirmation
 
+### Repository Operational Companion
+
+The repo folder `ai-governance/` is the operational companion for AI-assisted editing.
+
+It consolidates AI-specific execution guidance into:
+
+- `ai-governance/SSOT.md`
+- `ai-governance/SOP.md`
+- `ai-governance/AI_CONTEXT.json`
+- `ai-governance/PROMPT_TEMPLATE.md`
+
+It does not override this hierarchy. If there is any conflict, the canonical documents in `docs/` and `SYSTEM_CONSTITUTION.md` remain authoritative.
+
 ---
 
 This documentation hierarchy ensures Esparex maintains a stable, scalable, and enterprise-grade engineering foundation while enabling controlled platform evolution.
