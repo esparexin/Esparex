@@ -1,66 +1,18 @@
-import mongoose from 'mongoose';
-import https from 'https';
-import Location from '../../models/Location';
-import AdminBoundary from '../../models/AdminBoundary';
-import LocationAnalytics from '../../models/LocationAnalytics';
-import logger from '../../utils/logger';
-import { escapeRegExp, toTitleCase } from '../../utils/stringUtils';
-import { formatLocationResponse } from '../../lib/location/formatLocation';
-import { toGeoPoint } from '../../../../shared/utils/geoUtils';
-export { toGeoPoint };
-import { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../utils/redisCache';
-import { AppError } from '../../utils/AppError';
-import { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../../utils/locationHierarchy';
 import {
+    LocationAnalytics,
+    logger,
+    AppError,
     asString,
-    buildDisplay,
     coerceLocationInput,
-    equalsIgnoreCase,
     extractObjectIdString,
-    normalizeCoordinates,
-    type LocationInputObject
-} from '../location/LocationService.helpers';
-export { normalizeCoordinates } from '../location/LocationService.helpers';
-import {
-    type LocationLevel,
-    normalizeLocationInput,
-    normalizeLocationLevel,
-    normalizeLocationNameForSearch
-} from '../../utils/locationInputNormalizer';
-
-
-import {
-    LatLng,
-    GeoJSONPoint,
-    NormalizedLocation,
-    NormalizedLocationResponse,
-    NormalizeLocationOptions,
-    LocationAnalyticsEventType,
     LOCATION_POPULARITY_WEIGHTS,
     HOT_ZONE_SEARCH_THRESHOLD,
     HOT_ZONE_ADS_THRESHOLD,
-    HierarchyLevel,
-    VERIFIED_LOCATION_STATUS,
-    PUBLIC_CANONICAL_LOCATION_FILTER,
-    REVERSE_GEOCODE_LEVEL_PRIORITY,
-    REVERSE_GEOCODE_SETTLEMENT_LEVELS,
-    REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,
-    REVERSE_GEOCODE_REGIONAL_LEVELS,
-    REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS,
-    LOCATION_AUTOCOMPLETE_LIMIT,
-    ATLAS_LOCATION_SEARCH_INDEX,
-    SEARCH_RESULT_LEVEL_PRIORITY,
-    withPublicCanonicalLocationFilter,
-    buildNormalizedFromLocationDoc,
-    buildCanonicalDisplay,
-    mapLocationDocsToResponses,
-    resolveLocationFromDb,
     toLocationObjectId,
-    roundCacheCoord,
-    buildReverseGeocodeCacheKey,
-    getActiveLocationById,
-    getPublicCanonicalLocationById
-} from './_shared/hierarchyLoader';
+    getActiveLocationById
+} from './_shared/locationServiceBase';
+import type { LocationAnalyticsEventType } from './_shared/locationServiceBase';
+export { toGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
 export const touchLocationAnalytics = async (
     locationId: unknown,
     eventType: LocationAnalyticsEventType,
@@ -158,4 +110,3 @@ export const logLocationEvent = async (payload: unknown) => {
     }
     return true;
 };
-
