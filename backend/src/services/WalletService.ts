@@ -83,7 +83,7 @@ export const recordTransaction = async ({
     let descriptionStr = reason;
     if (isAmountObj) {
         const details = Object.entries(amount)
-            .filter(([_, v]) => v && Number(v) > 0)
+            .filter(([, v]) => v && Number(v) > 0)
             .map(([k, v]) => `${k}=${type === 'credit' ? '+' : '-'}${v}`)
             .join(', ');
         descriptionStr = `${reason} | ${descPrefix}: ${details}`;

@@ -301,7 +301,7 @@ export async function validateScreenSizeRelations(
 export async function validateCategoryIsActive(categoryId: string): Promise<ValidationResult> {
     try {
         validateObjectIdOrThrow('categoryId', categoryId);
-    } catch (error) {
+    } catch {
         return { ok: false, reason: 'categoryId is not a valid ObjectId.' };
     }
     const exists = await Category.exists({ _id: categoryId, ...ACTIVE_CATEGORY_QUERY });

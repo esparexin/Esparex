@@ -317,7 +317,7 @@ export const uploadFile = async (
       sendErrorResponse(req, res, 400, 'Valid entity ID is required for requested upload folder');
       return;
     }
-    const { url: s3Url, hash, key } = await (async () => {
+    const { url: s3Url, key } = await (async () => {
       const diskBuffer = await fs.readFile(file.path);
       const result = await processSingleImage(
         diskBuffer,

@@ -9,7 +9,6 @@ import logger from '../../utils/logger';
 import { handlePaginatedContent } from '../../utils/contentHandler';
 import mongoose from 'mongoose';
 import slugify from 'slugify';
-import type { ISparePart } from '../../models/SparePart';
 import { sendSuccessResponse } from '../../utils/respond';
 import {
     SparePartModel,

@@ -360,9 +360,6 @@ export const updateService = async (req: Request, res: Response) => {
 
         const updates = pickAllowedFields(body, [...SERVICE_ALLOWED_FIELDS, 'deviceModel'], { allowUndefined: false });
 
-        const categoryId = existingService.categoryId;
-        const brandId = existingService.brandId;
-
         if (updates.serviceTypeIds !== undefined || body.serviceTypes !== undefined) {
             const updateServiceTypeTokens = body.serviceTypeIds ?? body.serviceTypes;
             if (body.serviceTypes !== undefined && body.serviceTypeIds === undefined) {

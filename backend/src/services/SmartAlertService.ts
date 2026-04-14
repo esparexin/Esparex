@@ -155,7 +155,7 @@ const matchesAlertKeywords = (alertKeywords: unknown, adText: unknown): boolean 
  */
 export const findMatchingGeoAlerts = async (
     adCoords: [number, number],
-    criteria: any
+    criteria: Record<string, unknown>
 ) => {
     if (!adCoords || adCoords.length !== 2) return [];
 
@@ -258,14 +258,12 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
         if (matches.length > 0) {
             logger.info('[AlertMatch] Found matching smart alerts for new ad', { count: matches.length, adId: ad._id });
 
-            const Notification = (await import('../models/Notification')).default;
-
             // --- DUPLICATE GUARD: Filter out already delivered alerts ---
             const matchIds = matches.map(m => m._id);
             const alreadyDelivered = await AlertDeliveryLog.find({
                 adId: ad._id,
                 alertId: { $in: matchIds }
-            } as any).distinct('alertId');
+            } as Record<string, unknown>).distinct('alertId');
 
 
             const filteredMatches = matches.filter(m => !alreadyDelivered.some(id => id.toString() === m._id.toString()));

@@ -11,8 +11,6 @@ import { escapeRegExp } from '../../../utils/stringUtils';
 
 import { redis } from '../../../lib/redis';
 import { scanKeysByPattern } from '../../../utils/redisCache';
-import { AD_STATUS } from '../../../../../shared/enums/adStatus';
-import { USER_STATUS } from '../../../../../shared/enums/userStatus';
 import { buildPublicAdFilter } from '../../../utils/FeedVisibilityGuard';
 import {
     getDashboardOverviewStats,
@@ -30,6 +28,7 @@ import {
     loadHierarchyMapForLocations,
     normalizeStateLabel,
     resolveLocationScope,
+    type CanonicalLocationDoc,
 } from '../../../utils/locationHierarchy';
 
 import * as adminAnalyticsController from '../adminAnalyticsController';
@@ -338,7 +337,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
         );
         const hotZones = topHotZonesRaw.map((zone) => {
             const location = hotZoneLocationMap.get(String(zone.locationId));
-            const summary = location ? buildLocationSummary(location as any, hotZoneHierarchyMap as any) : undefined;
+            const summary = location ? buildLocationSummary(location as CanonicalLocationDoc, hotZoneHierarchyMap as Map<string, CanonicalLocationDoc>) : undefined;
             return {
                 _id: String(zone._id),
                 city: summary?.city ?? '',

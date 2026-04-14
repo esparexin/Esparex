@@ -13,6 +13,7 @@ import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../
 import * as adService from '../../services/AdService';
 import { mutateStatus } from '../../services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
+import type { IAuthUser } from '../../types/auth';
 import { respond } from '../../utils/respond';
 import { getSingleParam } from '../../utils/requestParams';
 import type { PaginatedResponse } from '../../../../shared/types/Api';
@@ -150,7 +151,7 @@ export const createSparePartListing = async (req: Request, res: Response) => {
             data: listing,
             message: 'Spare part listing created successfully. Pending moderation.'
         });
-    } catch (error) {
+    } catch {
         sendContractErrorResponse(req, res, 500, 'Failed to create spare part listing');
     }
 };
@@ -174,7 +175,7 @@ export const getSparePartListings = async (req: Request, res: Response) => {
                 listingType: LISTING_TYPE.SPARE_PART,
                 categoryId: categoryId as string,
                 sparePartId: typeId as string,
-                status: (status as any) || AD_STATUS.LIVE,
+                status: (status as string | undefined) || AD_STATUS.LIVE,
                 ...(search ? { search: search as string } : {}),
                 ...(locationId ? { locationId: locationId as string } : {}),
                 ...(lat ? { lat: lat as string } : {}),
@@ -200,7 +201,7 @@ export const getSparePartListings = async (req: Request, res: Response) => {
                 ...(parsedPage !== requestedPage ? { clampedPage: true } : {}),
             }
         }));
-    } catch (error) {
+    } catch {
         sendContractErrorResponse(req, res, 500, 'Failed to fetch listings');
     }
 };
@@ -268,7 +269,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
                     domain: 'spare_part_listing',
                     entityId: listing._id,
                     toStatus: INVENTORY_STATUS.PENDING,
-                    actor: { type: ACTOR_TYPE.USER, id: (req.user as any)?._id?.toString() },
+                    actor: { type: ACTOR_TYPE.USER, id: (req.user as IAuthUser)?._id?.toString() },
                     reason: 'Seller edited listing — re-review required'
                 });
             } catch {
@@ -277,7 +278,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
         }
 
         res.status(200).json({ success: true, data: finalData, message: 'Spare part listing updated.' });
-    } catch (error) {
+    } catch {
         sendContractErrorResponse(req, res, 500, 'Failed to update spare part listing');
     }
 };
@@ -296,7 +297,7 @@ export const deleteSparePartListing = async (req: Request, res: Response) => {
 
         await listing.softDelete();
         res.status(204).end();
-    } catch (error) {
+    } catch {
         sendContractErrorResponse(req, res, 500, 'Failed to delete spare part listing');
     }
 };
@@ -320,12 +321,12 @@ export const deactivateSparePartListing = async (req: Request, res: Response) =>
             domain: 'spare_part_listing',
             entityId: listingId,
             toStatus: 'deactivated',
-            actor: { type: ACTOR_TYPE.USER, id: (req.user as any)?._id?.toString() },
+            actor: { type: ACTOR_TYPE.USER, id: (req.user as IAuthUser)?._id?.toString() },
             reason: 'Deactivated by seller',
         });
 
         res.status(200).json({ success: true, data: updated, message: 'Spare part listing deactivated.' });
-    } catch (error) {
+    } catch {
         sendContractErrorResponse(req, res, 500, 'Failed to deactivate spare part listing');
     }
 };
@@ -354,13 +355,13 @@ export const repostSparePartListing = async (req: Request, res: Response) => {
             domain: 'spare_part_listing',
             entityId: listingId,
             toStatus: AD_STATUS.PENDING,
-            actor: { type: ACTOR_TYPE.USER, id: (req.user as any)?._id?.toString() },
+            actor: { type: ACTOR_TYPE.USER, id: (req.user as IAuthUser)?._id?.toString() },
             reason: 'Reposted by seller for review',
             metadata: { action: 'repost' },
         });
 
         res.status(200).json({ success: true, data: updated, message: 'Spare part listing reposted and under review.' });
-    } catch (error) {
+    } catch {
         sendContractErrorResponse(req, res, 500, 'Failed to repost spare part listing');
     }
 };

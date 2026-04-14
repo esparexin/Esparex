@@ -11,14 +11,11 @@ import { handlePaginatedContent } from '../../utils/contentHandler';
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import type { IBrand } from '../../models/Brand';
-import type { IModel } from '../../models/Model';
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import {
     BrandModel,
     CatalogModel,
     findCategoryBySlugForCatalog,
-    categoryExistsById,
     findBrandByFilter,
     getActiveBrandIds,
     checkBrandInCategories,

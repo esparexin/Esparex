@@ -6,8 +6,6 @@
 
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import type { IServiceType } from '../../models/ServiceType';
-import type { IScreenSize } from '../../models/ScreenSize';
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import {
     sendCatalogError,
