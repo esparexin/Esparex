@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Ad from '../models/Ad';
+import { env } from '../config/env';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 import logger from '../utils/logger';
 
@@ -159,7 +160,7 @@ export class FeedDecisionEngine {
             await fetchBatch({ ...baseMatch }, 'NATIONAL');
         }
 
-        if (process.env.FEED_DEBUG === 'true') {
+        if (env.FEED_DEBUG) {
             logger.debug(`[FeedDecisionEngine] Fallback triggered. Stage: ${currentStage}, Recovered: ${mergedAds.length}`);
         }
 

@@ -180,3 +180,23 @@ export const createInAppNotification = async (
         });
     }
 };
+
+export const markAllNotificationsRead = async (userId: string): Promise<number> => {
+    const result = await Notification.updateMany(
+        { userId, isRead: false },
+        { $set: { isRead: true, readAt: new Date() } }
+    );
+    return result.modifiedCount;
+};
+
+export const markNotificationReadById = async (id: string, userId: string) => {
+    return Notification.findOneAndUpdate(
+        { _id: id, userId },
+        { isRead: true, readAt: new Date() },
+        { new: true }
+    );
+};
+
+export const deleteUserNotification = async (id: string, userId: string) => {
+    return Notification.findOneAndDelete({ _id: id, userId });
+};

@@ -30,11 +30,11 @@ jest.mock("../../middleware/rateLimiter", () => ({
     phoneRevealLimiter: [(_req: express.Request, _res: express.Response, next: express.NextFunction) => next()],
 }));
 
-jest.mock("../../controllers/listingController", () => ({
+jest.mock("../../controllers/listing/listingController", () => ({
     getListingPhone: jest.fn(),
 }));
 
-jest.mock("../../controllers/sparePartListingController", () => ({
+jest.mock("../../controllers/sparePartListing/sparePartListingController", () => ({
     createSparePartListing: jest.fn(),
     getSparePartListings: jest.fn(),
     updateSparePartListing: jest.fn((req: express.Request, res: express.Response) => {

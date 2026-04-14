@@ -1,30 +1,30 @@
 import { Request, Response } from "express";
-import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "../utils/redisCache";
-import logger from "../utils/logger";
-import { sendErrorResponse } from '../utils/errorResponse';
-import { getSystemConfigDoc } from "../utils/systemConfigHelper";
-import { env } from '../config/env';
-import { respond } from "../utils/respond";
-import { createLocationEvent } from '../services/location/LocationEventService';
+import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "../../utils/redisCache";
+import logger from "../../utils/logger";
+import { sendErrorResponse } from '../../utils/errorResponse';
+import { getSystemConfigDoc } from "../../utils/systemConfigHelper";
+import { env } from '../../config/env';
+import { respond } from "../../utils/respond";
+import { createLocationEvent } from '../../services/location/LocationEventService';
 import {
     getDefaultCenterLocation,
     getAreasByCityId,
     getCitiesByStateId,
     getStateLocations,
     ingestLocation as ingestLocationService
-} from '../services/location/LocationHierarchyService';
+} from '../../services/location/LocationHierarchyService';
 import {
     lookupLocationByPincode as lookupLocationByPincodeService,
     searchLocations as searchLocationsService
-} from '../services/location/LocationSearchService';
+} from '../../services/location/LocationSearchService';
 import {
     touchLocationSearchAnalytics,
     logLocationEvent as logLocationAnalyticsEvent
-} from '../services/location/LocationAnalyticsService';
+} from '../../services/location/LocationAnalyticsService';
 import {
     reverseGeocode as reverseGeocodeService
-} from '../services/location/ReverseGeocodeService';
-import { formatLocationResponse as formatCanonicalLocationResponse, type LocationResponseLike } from '../lib/location/formatLocation';
+} from '../../services/location/ReverseGeocodeService';
+import { formatLocationResponse as formatCanonicalLocationResponse, type LocationResponseLike } from '../../lib/location/formatLocation';
 
 /* -------------------------------------------------------------------------- */
 /* LOCATION CONFIG & UTILS                                                    */
@@ -218,7 +218,6 @@ export const ipLocate = async (req: Request, res: Response) => {
             return res.json(respond({ success: false, data: null }));
         }
 
-        // ipapi.co returns the state/province as `region` (not `state`)
         if (!data || !data.city || !data.region) {
             return sendErrorResponse(req, res, 422, 'IP geolocation returned incomplete location data');
         }
@@ -236,16 +235,12 @@ export const ipLocate = async (req: Request, res: Response) => {
             coordinates: { type: 'Point', coordinates: [lng, lat] }
         });
 
-        return res.json(respond({
-            success: true,
-            data: response
-        }));
+        return res.json(respond({ success: true, data: response }));
     } catch (error: unknown) {
         logger.error('ipLocate error', { error: error instanceof Error ? error.message : String(error) });
         return res.json(respond({ success: false, data: null }));
     }
 };
-
 
 export const getDefaultCenter = async (req: Request, res: Response) => {
     try {
@@ -263,7 +258,6 @@ export const logLocationEvent = async (req: Request, res: Response) => {
     try {
         const { source, city, state, lat, lng, reason, eventType, locationId } = req.body;
 
-        // Extract userId if authenticated (optional — events logged for both anon and authed users)
         const userId = (req as any).user?._id ?? (req as any).user?.id ?? undefined;
 
         if (typeof locationId === 'string' && locationId.length > 0 && typeof eventType === 'string' && eventType.length > 0) {

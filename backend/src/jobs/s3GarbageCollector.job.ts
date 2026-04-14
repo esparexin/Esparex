@@ -1,4 +1,5 @@
 import logger from "../utils/logger";
+import { env } from '../config/env';
 import { runWithDistributedJobLock } from "../utils/distributedJobLock";
 import AdImage from '../models/AdImage';
 import { ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
@@ -58,7 +59,7 @@ export const runS3GarbageCollectorJob = async () => {
                 return;
             }
 
-            const isDryRun = process.env.DRY_RUN_S3_CLEANUP === 'true';
+            const isDryRun = env.DRY_RUN_S3_CLEANUP;
             logger.info('S3 Garbage Collector Job started', { isDryRun, gracePeriodHours: GRACE_PERIOD_HOURS });
 
             try {

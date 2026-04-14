@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../../services/AuthService';
-import User from '../../models/User';
+import { removeUserFcmToken } from '../../services/UserService';
 import { blacklistToken } from '../../utils/redisCache';
 import { verifyToken } from '../../utils/auth';
 import { sendSuccessResponse } from '../../utils/respond';
@@ -104,9 +104,7 @@ export class AuthController {
 
             const { fcmToken } = (req.body ?? {}) as { fcmToken?: string };
             if (fcmToken && req.user?._id) {
-                await User.findByIdAndUpdate(req.user._id, {
-                    $pull: { fcmTokens: { token: fcmToken } }
-                });
+                await removeUserFcmToken(req.user._id, fcmToken);
             }
 
             res.clearCookie('esparex_auth', getLegacyHostOnlyAuthCookieOptions(0));

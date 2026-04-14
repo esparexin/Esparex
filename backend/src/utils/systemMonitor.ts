@@ -9,13 +9,9 @@ export const startSystemMonitor = () => {
 
     // Resolve monitor settings once at startup so behavior is explicit and stable.
     const defaultLimitMb = env.NODE_ENV === 'production' ? 512 : 2048;
-    const parsedLimitMb = parseInt(process.env.CONTAINER_MEMORY_LIMIT_MB || `${defaultLimitMb}`, 10);
-    const CONTAINER_LIMIT_MB = Number.isFinite(parsedLimitMb) && parsedLimitMb > 0 ? parsedLimitMb : defaultLimitMb;
+    const CONTAINER_LIMIT_MB = env.CONTAINER_MEMORY_LIMIT_MB ?? defaultLimitMb;
     const defaultWarnRatio = env.NODE_ENV === 'production' ? 0.75 : 0.9;
-    const parsedWarnRatio = parseFloat(process.env.SYSTEM_MONITOR_WARN_RATIO || `${defaultWarnRatio}`);
-    const warnRatio = Number.isFinite(parsedWarnRatio) && parsedWarnRatio > 0 && parsedWarnRatio < 1
-        ? parsedWarnRatio
-        : defaultWarnRatio;
+    const warnRatio = env.SYSTEM_MONITOR_WARN_RATIO ?? defaultWarnRatio;
     const warnThresholdMb = CONTAINER_LIMIT_MB * warnRatio;
 
     logger.info(

@@ -1,7 +1,8 @@
-import type { ClientSession } from "mongoose";
+import mongoose, { type ClientSession } from "mongoose";
 import { getUserConnection } from "../config/db";
 import { Invoice, type IInvoice } from "../models/Invoice";
 import { Transaction, type ITransaction } from "../models/Transaction";
+import Plan from "../models/Plan";
 import User from "../models/User";
 import Business from "../models/Business";
 import { credit, type WalletAmount } from "./WalletService";
@@ -541,6 +542,24 @@ export async function createPaymentTransaction(
     payload: Record<string, unknown>
 ): Promise<ITransaction> {
     return Transaction.create(payload);
+}
+
+export async function getActivePlans(query: Record<string, unknown>) {
+    return Plan.find(query).sort({ price: 1 });
+}
+
+export async function getUserTransactions(userId: mongoose.Types.ObjectId | string) {
+    return Transaction.find({ userId }).sort({ createdAt: -1 }).lean();
+}
+
+export async function getInvoiceByIdOrTransaction(id: string): Promise<IInvoice | null> {
+    return Invoice.findOne({
+        $or: [{ _id: id }, { transactionId: id }]
+    }).lean() as Promise<IInvoice | null>;
+}
+
+export async function getTransactionWithUser(transactionId: string) {
+    return Transaction.findById(transactionId).populate('userId', 'name email mobile address');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

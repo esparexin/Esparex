@@ -11,7 +11,7 @@ interface MongooseHookContext {
     op?: string;
 }
 
-const ADMIN_OWNED_REF_MODEL_BY_PATH: Record<string, 'Category' | 'Brand' | 'Model'> = {
+const ADMIN_OWNED_REF_MODEL_BY_PATH: Record<string, 'Category' | 'Brand' | 'Model' | 'SparePart' | 'ServiceType'> = {
     categoryId: 'Category',
     categoryIds: 'Category',
     'criteria.categoryId': 'Category',
@@ -19,6 +19,9 @@ const ADMIN_OWNED_REF_MODEL_BY_PATH: Record<string, 'Category' | 'Brand' | 'Mode
     'criteria.brandId': 'Brand',
     modelId: 'Model',
     'criteria.modelId': 'Model',
+    sparePartId: 'SparePart',
+    sparePartIds: 'SparePart',
+    serviceTypeIds: 'ServiceType',
 };
 
 const toPopulateSpecs = (args: unknown[]): Array<{ path: string; hasExplicitModel: boolean }> => {

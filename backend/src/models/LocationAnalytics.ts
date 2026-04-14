@@ -47,8 +47,10 @@ LocationAnalyticsSchema.index({ popularityScore: -1 }, { name: 'idx_locanalytics
 LocationAnalyticsSchema.index({ isHotZone: 1, popularityScore: -1 }, { name: 'idx_locanalytics_hotzone_popularity_idx' });
 LocationAnalyticsSchema.index({ popularityScore: -1, lastUpdated: -1 }, { name: 'idx_locanalytics_popularity_freshness_idx' });
 
+const modelName = 'LocationAnalytics';
+const connection = getUserConnection();
 const LocationAnalytics: Model<ILocationAnalytics> =
-    getUserConnection().models.LocationAnalytics ||
-    getUserConnection().model<ILocationAnalytics>('LocationAnalytics', LocationAnalyticsSchema);
+    (connection.models[modelName] as Model<ILocationAnalytics>) ||
+    connection.model<ILocationAnalytics>(modelName, LocationAnalyticsSchema);
 
 export default LocationAnalytics;

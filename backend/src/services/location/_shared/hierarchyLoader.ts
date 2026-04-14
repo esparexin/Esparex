@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { env } from '../../../config/env';
 import https from 'https';
 import Location from '../../../models/Location';
 import AdminBoundary from '../../../models/AdminBoundary';
@@ -118,7 +119,7 @@ export const REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS = 50_000;
 export const REVERSE_GEOCODE_REGIONAL_LEVELS: HierarchyLevel[] = ['state', 'country'];
 export const REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS = 250_000;
 export const LOCATION_AUTOCOMPLETE_LIMIT = 10;
-export const ATLAS_LOCATION_SEARCH_INDEX = process.env.ATLAS_LOCATION_SEARCH_INDEX || 'location_autocomplete';
+export const ATLAS_LOCATION_SEARCH_INDEX = env.ATLAS_LOCATION_SEARCH_INDEX;
 export const SEARCH_RESULT_LEVEL_PRIORITY: Record<string, number> = {
     city: 1,
     district: 2,

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Admin from '../models/Admin';
+import { env } from '../config/env';
 import AdminLog from '../models/AdminLog';
 import FraudScore from '../models/FraudScore';
 import User from '../models/User';
@@ -11,7 +12,7 @@ const FRAUD_ESCALATION_INTERVAL_MS = 60 * 60 * 1000; // 1h
 const FRAUD_ESCALATION_STARTUP_DELAY_MS = 20_000;
 const FRAUD_ESCALATION_LOCK_TTL_MS = 15 * 60 * 1000;
 const FRAUD_ESCALATION_JOB_NAME = 'fraud_auto_escalation';
-const FRAUD_AUTO_SUSPEND_THRESHOLD = Number(process.env.FRAUD_AUTO_SUSPEND_THRESHOLD || 81);
+const FRAUD_AUTO_SUSPEND_THRESHOLD = env.FRAUD_AUTO_SUSPEND_THRESHOLD;
 
 type FraudScoreDoc = {
     _id: mongoose.Types.ObjectId;
@@ -33,7 +34,7 @@ const getAuditAdminId = async (): Promise<mongoose.Types.ObjectId | null> => {
 const runFraudEscalation = async (): Promise<void> => {
     if (!Number.isFinite(FRAUD_AUTO_SUSPEND_THRESHOLD) || FRAUD_AUTO_SUSPEND_THRESHOLD <= 0) {
         logger.warn('[FraudEscalation] Invalid FRAUD_AUTO_SUSPEND_THRESHOLD. Job skipped.', {
-            threshold: process.env.FRAUD_AUTO_SUSPEND_THRESHOLD
+            threshold: FRAUD_AUTO_SUSPEND_THRESHOLD
         });
         return;
     }

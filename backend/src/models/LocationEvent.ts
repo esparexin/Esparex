@@ -48,9 +48,11 @@ const LocationEventSchema: Schema = new Schema(
 
 LocationEventSchema.index({ userId: 1, createdAt: -1 }, { name: 'idx_locationevent_user_freshness_idx' });
 
+const modelName = 'LocationEvent';
+const connection = getUserConnection();
 const LocationEvent: Model<ILocationEvent> =
-    getUserConnection().models.LocationEvent ||
-    getUserConnection().model<ILocationEvent>('LocationEvent', LocationEventSchema);
+    (connection.models[modelName] as Model<ILocationEvent>) ||
+    connection.model<ILocationEvent>(modelName, LocationEventSchema);
 
 applyToJSONTransform(LocationEventSchema);
 

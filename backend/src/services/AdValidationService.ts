@@ -293,7 +293,7 @@ export const logDuplicateEvent = async (
                     duplicateFingerprint: event.duplicateFingerprint,
                     details: event.details,
                 },
-            ],
+            ] as any,
             session ? { session } : undefined
         );
     } catch (err) {

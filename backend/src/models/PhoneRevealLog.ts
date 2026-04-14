@@ -32,8 +32,10 @@ PhoneRevealLogSchema.index({ sellerId: 1 }, { name: 'idx_phonereveal_sellerId_id
 PhoneRevealLogSchema.index({ entityId: 1 }, { name: 'idx_phonereveal_entityId_idx' });
 PhoneRevealLogSchema.index({ revealedAt: -1 }, { name: 'idx_phonereveal_revealedAt_idx' });
 
+const modelName = 'PhoneRevealLog';
+const connection = getUserConnection();
 const PhoneRevealLog: Model<IPhoneRevealLog> =
-    getUserConnection().models.PhoneRevealLog ||
-    getUserConnection().model<IPhoneRevealLog>('PhoneRevealLog', PhoneRevealLogSchema, 'phone_reveal_logs');
+    (connection.models[modelName] as Model<IPhoneRevealLog>) ||
+    connection.model<IPhoneRevealLog>(modelName, PhoneRevealLogSchema, 'phone_reveal_logs');
 
 export default PhoneRevealLog;

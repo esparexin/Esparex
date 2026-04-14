@@ -10,9 +10,9 @@ import * as Validators from '../validators/finance.validator';
 import { verifyPaymentWebhook } from '../middleware/verifyPaymentWebhook';
 import { env } from '../config/env';
 
-if (process.env.NODE_ENV === 'production') {
-    const missing = ['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET']
-        .filter((k) => !process.env[k]?.trim());
+if (env.NODE_ENV === 'production') {
+    const missing = (['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'] as const)
+        .filter((k) => !(env[k] as string | undefined)?.trim());
     if (missing.length > 0) {
         // Warn but don't crash — payment routes will return 503 until keys are configured
         console.warn(`[WARN] Payment routes: missing env vars: ${missing.join(', ')}. Payment features will be unavailable.`);

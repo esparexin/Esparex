@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import Razorpay from 'razorpay';
 import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
+import { env } from '../../config/env';
 
 export type InvoiceUser = {
     _id: { toString: () => string };
@@ -9,8 +10,8 @@ export type InvoiceUser = {
     mobile?: string;
 };
 
-const DEFAULT_RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder';
-const DEFAULT_RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder';
+const DEFAULT_RAZORPAY_KEY_ID = env.RAZORPAY_KEY_ID || 'rzp_test_placeholder';
+const DEFAULT_RAZORPAY_KEY_SECRET = env.RAZORPAY_KEY_SECRET || 'secret_placeholder';
 
 export type RazorpayRuntimeConfig = {
     enabled: boolean;

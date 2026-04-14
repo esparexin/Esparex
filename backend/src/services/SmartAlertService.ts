@@ -1,8 +1,9 @@
 import SmartAlert from '../models/SmartAlert';
-import logger from '../utils/logger';
-import { Types } from 'mongoose';
-import { buildGeoNearStage } from '../utils/GeoUtils';
 import AlertDeliveryLog from '../models/AlertDeliveryLog';
+import { Types } from 'mongoose';
+import logger from '../utils/logger';
+import { buildGeoNearStage } from '../utils/GeoUtils';
+
 import { getCache, setCache } from '../utils/redisCache';
 import crypto from 'crypto';
 import { toObjectId } from '../utils/idUtils';
@@ -264,7 +265,8 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
             const alreadyDelivered = await AlertDeliveryLog.find({
                 adId: ad._id,
                 alertId: { $in: matchIds }
-            }).distinct('alertId');
+            } as any).distinct('alertId');
+
 
             const filteredMatches = matches.filter(m => !alreadyDelivered.some(id => id.toString() === m._id.toString()));
 

@@ -1,6 +1,6 @@
 import express from 'express';
 import * as serviceController from '../controllers/service';
-import * as listingController from '../controllers/listingController';
+import * as listingController from '../controllers/listing/listingController';
 import { protect, extractUser } from '../middleware/authMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';

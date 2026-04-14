@@ -1,11 +1,15 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
-import Transaction from '../../models/Transaction';
-import Plan from '../../models/Plan';
 import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { InvoiceUser } from './shared';
+import {
+    getActivePlans,
+    getUserTransactions,
+    getInvoiceByIdOrTransaction,
+    getTransactionWithUser,
+} from '../../services/PaymentProcessingService';
 
 /**
  * 3. GET PLANS
@@ -24,7 +28,7 @@ export const getPlans = async (req: Request, res: Response) => {
             query.userType = { $in: [userType.trim(), 'both'] };
         }
 
-        const plans = await Plan.find(query).sort({ price: 1 });
+        const plans = await getActivePlans(query);
         res.json(respond<ApiResponse<unknown>>({
             success: true,
             data: plans
@@ -45,11 +49,8 @@ export const getPurchaseHistory = async (req: Request, res: Response) => {
         if (!req.user) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
-        const userId = req.user._id;
 
-        const transactions = await Transaction.find({ userId })
-            .sort({ createdAt: -1 })
-            .lean();
+        const transactions = await getUserTransactions(req.user._id);
 
         res.json(respond<ApiResponse<unknown>>({
             success: true,
@@ -67,15 +68,9 @@ export const getInvoice = async (req: Request, res: Response) => {
         if (!req.user) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
-        const { id } = req.params;
+        const id = req.params.id as string;
 
-        const Invoice = (await import('../../models/Invoice')).default;
-        const invoice = await Invoice.findOne({
-            $or: [
-                { _id: id },
-                { transactionId: id }
-            ]
-        }).lean();
+        const invoice = await getInvoiceByIdOrTransaction(id);
 
         if (invoice) {
             const ownerId = invoice.userId?.toString?.() ?? String(invoice.userId);
@@ -89,7 +84,7 @@ export const getInvoice = async (req: Request, res: Response) => {
         }
 
         const transactionId = invoice?.transactionId?.toString?.() ?? String(invoice?.transactionId ?? id);
-        const transaction = await Transaction.findById(transactionId).populate('userId', 'name email mobile address');
+        const transaction = await getTransactionWithUser(transactionId);
 
         if (!transaction) {
             return sendErrorResponse(req, res, 404, 'Invoice not found');

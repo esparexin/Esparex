@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import logger from '../utils/logger';
+import { env } from '../config/env';
 
 // ---------------------------------------------------------
 // Event Payload Definitions
@@ -127,7 +128,7 @@ class LifecycleEventDispatcher {
                 allowedMarkers: sourceViolation.allowedMarkers,
                 payload,
             });
-            if (process.env.NODE_ENV !== 'production') {
+            if (env.NODE_ENV !== 'production') {
                 logger.error('[LifecycleEventDispatcher][PANIC_DEV] Invalid lifecycle emit stack detected.', {
                     eventName,
                     stack: sourceViolation.stack,

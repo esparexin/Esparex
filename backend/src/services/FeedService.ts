@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import { env } from '../config/env';
 import mongoose from 'mongoose';
 import redisClient from '../config/redis';
 import Ad from '../models/Ad';
@@ -367,7 +368,7 @@ const buildHomeFeed = async (
 
     const matchStage = await buildAdMatchStage(baseFilters);
 
-    if (process.env.FEED_DEBUG === 'true') {
+    if (env.FEED_DEBUG) {
         logger.debug(`[FeedDebug] Final Match Filter`, { matchStage });
     }
 
@@ -388,7 +389,7 @@ const buildHomeFeed = async (
         .map((entry) => entry.entityId)
         .filter((id): id is mongoose.Types.ObjectId => id instanceof mongoose.Types.ObjectId);
 
-    if (process.env.FEED_DEBUG === 'true') {
+    if (env.FEED_DEBUG) {
         logger.debug(`[FeedDebug] Boosted Ranking Injection`, { count: boostedIds.length, ids: boostedIds.map(String) });
     }
 
@@ -541,13 +542,13 @@ export const getHomeFeedAds = async (input: HomeFeedRequest = {}): Promise<HomeF
 
     const cached = await getCache<HomeFeedResponse>(cacheKey);
     if (cached) {
-        if (process.env.FEED_DEBUG === 'true') {
+        if (env.FEED_DEBUG) {
             logger.debug(`[FeedDebug] Cache HIT for key: ${cacheKey}`);
         }
         return cached;
     }
 
-    if (process.env.FEED_DEBUG === 'true') {
+    if (env.FEED_DEBUG) {
         logger.debug(`[FeedDebug] Cache MISS for key: ${cacheKey}`);
     }
 
@@ -593,7 +594,7 @@ export const getHomeFeedAds = async (input: HomeFeedRequest = {}): Promise<HomeF
 };
 
 const getWarmLocationInputs = (): Array<Pick<HomeFeedRequest, 'location'>> => {
-    const raw = process.env.HOME_FEED_WARM_LOCATIONS;
+    const raw = env.HOME_FEED_WARM_LOCATIONS;
     if (!raw) return [];
     return raw
         .split(',')

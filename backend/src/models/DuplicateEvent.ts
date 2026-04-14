@@ -1,4 +1,4 @@
-import { Schema, Document, Types } from 'mongoose';
+import { Schema, Document, Types, Model } from 'mongoose';
 import { getUserConnection } from '../config/db';
 
 export type DuplicateEventAction = 'blocked' | 'flagged' | 'bypass_allowed';
@@ -47,8 +47,10 @@ DuplicateEventSchema.index({ action: 1, createdAt: -1 }, { name: 'idx_duplicatee
 DuplicateEventSchema.index({ adId: 1, createdAt: -1 }, { name: 'idx_duplicateevent_adId_idx' });
 DuplicateEventSchema.index({ matchedAdId: 1, createdAt: -1 }, { name: 'idx_duplicateevent_matchedAdId_idx' });
 
-const DuplicateEvent =
-    getUserConnection().models.DuplicateEvent ||
-    getUserConnection().model<IDuplicateEvent>('DuplicateEvent', DuplicateEventSchema);
+const modelName = 'DuplicateEvent';
+const connection = getUserConnection();
+const DuplicateEvent: Model<IDuplicateEvent> =
+    (connection.models[modelName] as Model<IDuplicateEvent>) ||
+    connection.model<IDuplicateEvent>(modelName, DuplicateEventSchema);
 
 export default DuplicateEvent;

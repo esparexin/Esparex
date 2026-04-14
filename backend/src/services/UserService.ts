@@ -10,3 +10,9 @@ export const updateUser = async (id: string, updates: Partial<IUser>) => {
         runValidators: true,
     }).select('-password');
 };
+
+export const removeUserFcmToken = async (userId: unknown, token: string): Promise<void> => {
+    await User.findByIdAndUpdate(userId, {
+        $pull: { fcmTokens: { token } }
+    });
+};

@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import logger from '../utils/logger';
 import { getSystemConfigDoc } from '../utils/systemConfigHelper';
 import { getAdminAppUrl } from '../utils/appUrl';
+import { env } from '../config/env';
 
 // interface EmailOptions {
 //     to: string;
@@ -25,11 +26,11 @@ export class EmailService {
             enabled: emailConfig?.enabled ?? true,
             provider: emailConfig?.provider || 'smtp',
             senderName: emailConfig?.senderName?.trim() || 'Esparex Admin',
-            senderEmail: emailConfig?.senderEmail?.trim() || process.env.SMTP_FROM || 'noreply@esparex.com',
-            host: emailConfig?.host?.trim() || process.env.SMTP_HOST || '',
-            port: Number(emailConfig?.port || process.env.SMTP_PORT || 587),
-            username: emailConfig?.username?.trim() || process.env.SMTP_USER || '',
-            password: emailConfig?.password?.trim() || process.env.SMTP_PASSWORD || '',
+            senderEmail: emailConfig?.senderEmail?.trim() || env.SMTP_FROM || 'noreply@esparex.com',
+            host: emailConfig?.host?.trim() || env.SMTP_HOST || '',
+            port: Number(emailConfig?.port || env.SMTP_PORT || 587),
+            username: emailConfig?.username?.trim() || env.SMTP_USER || '',
+            password: emailConfig?.password?.trim() || env.SMTP_PASSWORD || '',
             encryption: emailConfig?.encryption || 'tls',
         };
     }

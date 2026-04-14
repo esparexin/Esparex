@@ -62,7 +62,10 @@ import { getUserConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 applyToJSONTransform(NotificationSchema);
 
+const modelName = 'Notification';
+const connection = getUserConnection();
 const Notification: Model<INotification> =
-    getUserConnection().models.Notification || getUserConnection().model<INotification>('Notification', NotificationSchema);
+    (connection.models[modelName] as Model<INotification>) ||
+    connection.model<INotification>(modelName, NotificationSchema);
 
 export default Notification;

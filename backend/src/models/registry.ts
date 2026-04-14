@@ -1,4 +1,5 @@
 import logger from '../utils/logger';
+import { env } from '../config/env';
 import '../config/mongoosePlugins';
 import './Admin';
 import './Category';
@@ -55,7 +56,7 @@ import { getUserConnection, getAdminConnection } from '../config/db';
 import { getIndexAuditTargets } from '../core/db/indexAuditTargets';
 import { governSchema, runStartupIndexAudit } from '../core/db/indexGovernance';
 
-if (process.env.NODE_ENV !== 'test') {
+if (env.NODE_ENV !== 'test') {
     logger.info('All Mongoose models registered. Initializing Index Governance Audit...');
 
     const userConn = getUserConnection();

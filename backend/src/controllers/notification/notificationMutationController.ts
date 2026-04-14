@@ -1,7 +1,6 @@
 import logger from '../../utils/logger';
 import * as notificationService from '../../services/NotificationService';
 import { Request, Response } from 'express';
-import Notification from '../../models/Notification';
 import { respond } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { getUserId } from './shared';
@@ -11,17 +10,12 @@ export const markAllRead = async (req: Request, res: Response) => {
         const userId = getUserId(req);
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
-        const result = await Notification.updateMany(
-            { userId, isRead: false },
-            { $set: { isRead: true, readAt: new Date() } }
-        );
+        const updated = await notificationService.markAllNotificationsRead(userId);
 
         res.json(respond({
             success: true,
             message: 'All notifications marked as read',
-            data: {
-                updated: result.modifiedCount
-            }
+            data: { updated }
         }));
     } catch (error) {
         logger.error('Mark All Read Error:', error);
@@ -48,32 +42,20 @@ export const markRead = async (req: Request, res: Response) => {
     try {
         const userId = getUserId(req);
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
-        const { id } = req.params;
+        const id = req.params.id as string;
 
         if (id === 'all') {
-            await Notification.updateMany(
-                { userId, isRead: false },
-                { isRead: true, readAt: new Date() }
-            );
+            await notificationService.markAllNotificationsRead(userId);
             return res.json(respond({ success: true, message: 'All notifications marked as read' }));
         }
 
-        const notification = await Notification.findOneAndUpdate(
-            { _id: id, userId },
-            { isRead: true, readAt: new Date() },
-            { new: true }
-        );
+        const notification = await notificationService.markNotificationReadById(id, userId);
 
         if (!notification) {
             return sendErrorResponse(req, res, 404, 'Notification not found');
         }
 
-        res.json(respond({
-            success: true,
-            data: {
-                notification
-            }
-        }));
+        res.json(respond({ success: true, data: { notification } }));
 
     } catch (error) {
         logger.error('Mark Read Error:', error);
@@ -85,12 +67,9 @@ export const deleteNotification = async (req: Request, res: Response) => {
     try {
         const userId = getUserId(req);
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
-        const { id } = req.params;
+        const id = req.params.id as string;
 
-        const notification = await Notification.findOneAndDelete({
-            _id: id,
-            userId
-        });
+        const notification = await notificationService.deleteUserNotification(id, userId);
 
         if (!notification) {
             return sendErrorResponse(req, res, 404, 'Notification not found');

@@ -3,7 +3,7 @@ jest.mock("../../services/AdService", () => ({
     getAds: jest.fn(),
 }));
 
-import { getSparePartListings } from "../../controllers/sparePartListingController";
+import { getSparePartListings } from "../../controllers/sparePartListing/sparePartListingController";
 import * as adService from "../../services/AdService";
 
 describe("sparePartListingController pagination envelope", () => {

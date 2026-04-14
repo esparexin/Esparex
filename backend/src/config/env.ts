@@ -146,6 +146,34 @@ const envSchema = z.object({
     // Cookie configuration overrides
     COOKIE_SAME_SITE: z.enum(['strict', 'lax', 'none']).optional(),
     COOKIE_SECURE: z.string().transform(val => val === 'true').optional(),
+
+    // Feed tuning
+    FEED_DEBUG: z.string().transform(val => val === 'true').default('false'),
+    HOME_FEED_WARM_LOCATIONS: z.string().optional(),
+
+    // Location search
+    ATLAS_LOCATION_SEARCH_INDEX: z.string().default('location_autocomplete'),
+
+    // Duplicate rollout guard
+    ENABLE_STRICT_DUPLICATE_INDEX: z.string().transform(val => val === 'true').default('false'),
+    DUPLICATE_ROLLOUT_MIGRATION_TAG: z.string().optional(),
+
+    // AI service tuning
+    AI_REQUEST_TIMEOUT_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    AI_MAX_IMAGE_BYTES: z.string().transform(Number).pipe(z.number().positive()).optional(),
+
+    // S3 garbage collector
+    DRY_RUN_S3_CLEANUP: z.string().transform(val => val === 'true').default('false'),
+
+    // Fraud escalation
+    FRAUD_AUTO_SUSPEND_THRESHOLD: z.string().transform(Number).pipe(z.number().positive()).default('81'),
+
+    // System monitor
+    CONTAINER_MEMORY_LIMIT_MB: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    SYSTEM_MONITOR_WARN_RATIO: z.string().transform(val => parseFloat(val)).pipe(z.number().min(0.01).max(0.99)).optional(),
+
+    // Admin session
+    ADMIN_SESSION_TTL_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
 });
 
 /**

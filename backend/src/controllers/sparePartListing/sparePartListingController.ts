@@ -1,28 +1,29 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import AdModel from '../models/Ad';
+import AdModel from '../../models/Ad';
 // NOTE: SparePart and Category are registered on getAdminConnection() — direct import IS the
 // admin-connection-bound model; no additional connection context is needed here.
-import SparePart from '../models/SparePart';
-import Category from '../models/Category';
-import { sendErrorResponse as sendContractErrorResponse } from '../utils/errorResponse';
-import { generateUniqueSlug } from '../utils/slugGenerator';
-import { processImages } from '../utils/imageProcessor';
-import { INVENTORY_STATUS } from '../../../shared/enums/inventoryStatus';
-import { AD_STATUS } from '../../../shared/enums/adStatus';
-import { getAndVerifyOwnedListing } from '../utils/controllerUtils';
-import { LISTING_TYPE } from '../../../shared/enums/listingType';
-import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../shared/schemas/sparePartPayload.schema';
-import * as adService from '../services/AdService';
-import { mutateStatus } from '../services/StatusMutationService';
-import { ACTOR_TYPE } from '../../../shared/enums/actor';
-import { respond } from '../utils/respond';
-import { getSingleParam } from '../utils/requestParams';
-import type { PaginatedResponse } from '../../../shared/types/Api';
-import { ListingMutationService } from '../services/ListingMutationService';
+import SparePart from '../../models/SparePart';
+import Category from '../../models/Category';
+import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
+import { generateUniqueSlug } from '../../utils/slugGenerator';
+import { processImages } from '../../utils/imageProcessor';
+import { INVENTORY_STATUS } from '../../../../shared/enums/inventoryStatus';
+import { AD_STATUS } from '../../../../shared/enums/adStatus';
+import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
+import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../../shared/schemas/sparePartPayload.schema';
+import * as adService from '../../services/AdService';
+import { mutateStatus } from '../../services/StatusMutationService';
+import { ACTOR_TYPE } from '../../../../shared/enums/actor';
+import { respond } from '../../utils/respond';
+import { getSingleParam } from '../../utils/requestParams';
+import type { PaginatedResponse } from '../../../../shared/types/Api';
+import { ListingMutationService } from '../../services/ListingMutationService';
+import { saveSparePartListing } from '../../services/SparePartListingService';
 
-import { normalizeImageTokens, toImageUrls } from '../utils/listingUtils';
-import { collectImmutableFieldErrors } from '../utils/immutableFieldErrors';
+import { normalizeImageTokens, toImageUrls } from '../../utils/listingUtils';
+import { collectImmutableFieldErrors } from '../../utils/immutableFieldErrors';
 // ---------------------------------------------
 
 const SPARE_PART_EDIT_LOCK_MESSAGES: Record<string, string> = {
@@ -259,7 +260,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
         }
 
         Object.assign(listing, updates);
-        await listing.save();
+        await saveSparePartListing(listing);
 
         // 🛡️ Governance: if the listing was LIVE or REJECTED, route status back to PENDING
         let finalData: unknown = listing;

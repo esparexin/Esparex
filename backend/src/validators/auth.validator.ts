@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import logger from '../utils/logger';
 import { normalizeTo10Digits } from '../utils/phoneUtils';
-
-const isProduction = process.env.NODE_ENV === 'production';
+import { isProduction } from '../config/env';
 
 /**
  * Mobile Number Schema

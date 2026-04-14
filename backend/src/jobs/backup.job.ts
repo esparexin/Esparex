@@ -16,7 +16,7 @@ import { runWithDistributedJobLock } from '../utils/distributedJobLock';
  * Run backup job
  */
 export async function runBackupJob() {
-    const enableBackups = process.env.ENABLE_AUTO_BACKUPS === 'true' || isProduction;
+    const enableBackups = env.ENABLE_AUTO_BACKUPS || isProduction;
     if (!enableBackups) {
         logger.info('Automated backups disabled (set ENABLE_AUTO_BACKUPS=true to enable)');
         return;

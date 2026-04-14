@@ -126,8 +126,25 @@ export type SmartAlertUpdatePayload = z.infer<typeof SmartAlertUpdateSchema>;
 
 export const SmartAlertDeliveryLogSchema = z.object({
     _id: z.string(),
-    alertId: z.string(),
-    adId: z.string(),
+    alertId: z.union([
+        z.string(),
+        z.object({
+            _id: z.string(),
+            name: z.string(),
+            criteria: z.record(z.string(), z.any()),
+            user: z.string().optional()
+        })
+    ]),
+    adId: z.union([
+        z.string(),
+        z.object({
+            _id: z.string(),
+            title: z.string(),
+            price: z.number(),
+            location: z.string().optional(),
+            status: z.string()
+        })
+    ]),
     deliveredAt: z.union([z.string(), z.date()]),
     userName: z.string().optional(),
     userEmail: z.string().optional(),

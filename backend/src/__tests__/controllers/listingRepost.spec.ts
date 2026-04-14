@@ -37,7 +37,7 @@ import { Request, Response } from 'express';
 import Ad from '../../models/Ad';
 import { mutateStatus } from '../../services/StatusMutationService';
 import { repostService } from '../../controllers/service/serviceMutationController';
-import { repostSparePartListing } from '../../controllers/sparePartListingController';
+import { repostSparePartListing } from '../../controllers/sparePartListing/sparePartListingController';
 
 const mockedAd = Ad as unknown as { findOne: jest.Mock };
 const mockedMutate = mutateStatus as jest.Mock;

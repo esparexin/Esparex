@@ -72,7 +72,7 @@ export async function startServer() {
         // Ensure at least one LIVE admin is present for operations
         await ensureLiveAdminPresence();
 
-        const shouldRunSchedulers = process.env.ENABLE_SCHEDULER === "true" || env.RUN_SCHEDULERS;
+        const shouldRunSchedulers = env.ENABLE_SCHEDULER || env.RUN_SCHEDULERS;
 
         if (shouldRunSchedulers) {
             logger.info('ENABLE_SCHEDULER is true. Attempting to start scheduler inside backend entry...');

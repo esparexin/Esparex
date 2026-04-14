@@ -1,5 +1,5 @@
 import express from "express";
-import * as locationController from "../controllers/locationController";
+import * as locationController from "../controllers/location/locationController";
 import { requireAdmin } from "../middleware/adminAuth";
 import { searchLimiter } from '../middleware/rateLimiter';
 import {

@@ -3,6 +3,7 @@ import { comparePassword, generateAdminToken } from '../utils/auth';
 import { USER_STATUS } from '@shared/enums/userStatus';
 import logger from '../utils/logger';
 import { AppError } from '../utils/AppError';
+import { env } from '../config/env';
 
 interface AdminLoginResult {
     token: string;
@@ -12,16 +13,16 @@ interface AdminLoginResult {
 export const seedAdmin = async (email: string) => {
     // Explicit local bootstrap only. Never seed defaults in production/CI.
     const canSeedDefaultAdmin =
-        process.env.NODE_ENV === 'development' &&
-        process.env.CI !== 'true' &&
-        process.env.ALLOW_DEFAULT_ADMIN_SEED === 'true';
+        env.NODE_ENV === 'development' &&
+        !env.CI &&
+        env.ALLOW_DEFAULT_ADMIN_SEED;
 
     if (!canSeedDefaultAdmin) return;
     if (email !== 'admin@esparex.com') return;
 
     // 🛡️ GOVERNANCE: Ensure we are using the Admin DB connection
     const adminConn = Admin.db;
-    const isCorrectDb = adminConn.name === 'esparex_admin' || !process.env.ADMIN_MONGODB_URI;
+    const isCorrectDb = adminConn.name === 'esparex_admin' || !env.ADMIN_MONGODB_URI;
 
     if (!isCorrectDb) {
         logger.error('❌ SEED FAILURE: Admin model is bound to incorrect database', {

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as listingController from "../controllers/listingController";
+import * as listingController from "../controllers/listing/listingController";
 import { protect, extractUser } from "../middleware/authMiddleware";
 import { validateObjectId } from "../middleware/validateObjectId";
 import { validateIdOrSlug } from "../middleware/validateIdOrSlug";

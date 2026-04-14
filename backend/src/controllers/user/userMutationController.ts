@@ -1,4 +1,5 @@
 import logger from '../../utils/logger';
+import { env } from '../../config/env';
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import User, { IUser } from '../../models/User';
@@ -88,7 +89,7 @@ export const updateMe = async (
         logger.error('[Avatar Upload] Missing S3 upload configuration', {
           missingConfig: getMissingS3UploadConfigKeys(),
         });
-        if (process.env.NODE_ENV !== 'development') {
+        if (env.NODE_ENV !== 'development') {
             sendErrorResponse(req, res, 503, 'Image upload service is not configured on this environment.');
             return;
         }
@@ -105,7 +106,7 @@ export const updateMe = async (
         if (file.path) await fs.unlink(file.path).catch(err => logger.error("Disk cleanup error", err));
 
         if (!s3Url || isPlaceholderImageUrl(s3Url)) {
-          if (process.env.NODE_ENV !== 'development') {
+          if (env.NODE_ENV !== 'development') {
               sendErrorResponse(req, res, 502, 'Profile photo upload failed. Please retry.');
               return;
           }
@@ -248,7 +249,7 @@ export const uploadFile = async (
         missingConfig: getMissingS3UploadConfigKeys(),
         url: req.originalUrl,
       });
-      if (process.env.NODE_ENV !== 'development') {
+      if (env.NODE_ENV !== 'development') {
           sendErrorResponse(req, res, 503, 'Image upload service is not configured on this environment.');
           return;
       }
@@ -320,7 +321,7 @@ export const uploadFile = async (
       );
       if (file.path) await fs.unlink(file.path).catch(err => logger.error("Disk cleanup error", err));
       if (!result.url || isPlaceholderImageUrl(result.url)) {
-        if (process.env.NODE_ENV !== 'development') {
+        if (env.NODE_ENV !== 'development') {
             throw new Error('UPLOAD_PLACEHOLDER_RESULT');
         }
       }

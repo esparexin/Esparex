@@ -1,5 +1,6 @@
 import logger from '../utils/logger';
 import { getSystemConfigDoc } from '../utils/systemConfigHelper';
+import { env } from '../config/env';
 
 type OpenAIMessageContent =
     | string
@@ -57,13 +58,8 @@ type ExecuteAiRequestInput = {
     contextText: string;
 };
 
-const readPositiveInt = (value: string | undefined, fallback: number): number => {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : fallback;
-};
-
-export const AI_REQUEST_TIMEOUT_MS = readPositiveInt(process.env.AI_REQUEST_TIMEOUT_MS, 12000);
-export const AI_MAX_IMAGE_BYTES = readPositiveInt(process.env.AI_MAX_IMAGE_BYTES, 4 * 1024 * 1024);
+export const AI_REQUEST_TIMEOUT_MS = env.AI_REQUEST_TIMEOUT_MS ?? 12000;
+export const AI_MAX_IMAGE_BYTES = env.AI_MAX_IMAGE_BYTES ?? (4 * 1024 * 1024);
 
 const parseJsonFromAi = (raw: string): Record<string, unknown> | null => {
     const cleaned = raw.replace(/```json|```/g, '').trim();

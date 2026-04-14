@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, Model } from 'mongoose';
 import { getUserConnection } from '../config/db';
 
 export interface IAlertDeliveryLog extends Document {
@@ -13,7 +13,6 @@ const AlertDeliveryLogSchema: Schema = new Schema({
     deliveredAt: { type: Date, default: Date.now }
 }, { timestamps: false });
 
-// TTL Index: We only need to store these logs for a while to prevent immediate re-notification.
 /* -------------------------------------------------------------------------- */
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
@@ -21,4 +20,11 @@ const AlertDeliveryLogSchema: Schema = new Schema({
 AlertDeliveryLogSchema.index({ deliveredAt: 1 }, { name: 'idx_alertlog_deliveredAt_ttl_idx', expireAfterSeconds: 60 * 60 * 24 * 7 });
 AlertDeliveryLogSchema.index({ alertId: 1, adId: 1 }, { name: 'idx_alertlog_alert_ad_unique_idx', unique: true });
 
-export default getUserConnection().models.AlertDeliveryLog || getUserConnection().model<IAlertDeliveryLog>('AlertDeliveryLog', AlertDeliveryLogSchema);
+const modelName = 'AlertDeliveryLog';
+const connection = getUserConnection();
+const AlertDeliveryLog: Model<IAlertDeliveryLog> = 
+    (connection.models[modelName] as Model<IAlertDeliveryLog>) || 
+    connection.model<IAlertDeliveryLog>(modelName, AlertDeliveryLogSchema);
+
+export default AlertDeliveryLog;
+
