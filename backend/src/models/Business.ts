@@ -180,7 +180,9 @@ BusinessSchema.index({ locationId: 1 }, { name: 'idx_business_locationId' });
 BusinessSchema.index({ isVerified: 1 }, { name: 'idx_business_isVerified' });
 BusinessSchema.index({ slug: 1 }, { name: 'idx_business_slug_unique', unique: true, sparse: true });
 BusinessSchema.index({ isDeleted: 1 }, { name: 'idx_business_isDeleted' });
-BusinessSchema.index({ userId: 1 }, { name: 'idx_business_userId' });
+// Keep a dedicated read-path index for owner lookups without colliding with the
+// partial unique ownership constraint below.
+BusinessSchema.index({ userId: 1, isDeleted: 1 }, { name: 'idx_business_userId_isDeleted' });
 
 const activeBusinessPartialFilter = { isDeleted: false };
 
