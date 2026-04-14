@@ -1,8 +1,9 @@
 import { Request } from 'express';
-import SmartAlert from '../../models/SmartAlert';
-import UserPlan from '../../models/UserPlan';
-import Plan from '../../models/Plan';
-import UserWallet from '../../models/UserWallet';
+import { SmartAlertModel, SmartAlertDocument } from '../../services/SmartAlertService';
+import { UserPlanModel, PlanModel } from '../../services/PlanService';
+import { WalletModel } from '../../services/WalletService';
+
+export { SmartAlertModel, SmartAlertDocument, UserPlanModel, PlanModel, WalletModel };
 import {
     normalizeCoordinates,
     normalizeLocation,
@@ -14,12 +15,6 @@ import { AppError } from '../../utils/AppError';
 
 export const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';
-
-export type SmartAlertDocument = {
-    userId: { toString: () => string } | string;
-    isActive: boolean;
-    save: () => Promise<unknown>;
-} & Record<string, unknown>;
 
 export type SmartAlertCriteriaPayload = {
     keywords?: string;
@@ -45,33 +40,6 @@ type SerializedSmartAlert = {
     criteria?: Record<string, unknown>;
     coordinates?: unknown;
 } & Record<string, unknown>;
-
-export const SmartAlertModel = SmartAlert as unknown as {
-    countDocuments: (query: Record<string, unknown>) => Promise<number>;
-    create: (payload: Record<string, unknown>) => Promise<SmartAlertDocument>;
-    find: (query: Record<string, unknown>) => {
-        sort: (sortBy: Record<string, 1 | -1>) => Promise<SmartAlertDocument[]>;
-    };
-    findById: (id: string) => Promise<SmartAlertDocument | null>;
-};
-
-export const UserPlanModel = UserPlan as unknown as {
-    find: (query: Record<string, unknown>) => {
-        lean: () => Promise<Array<{ planId: unknown }>>;
-    };
-};
-
-export const PlanModel = Plan as unknown as {
-    find: (query: Record<string, unknown>) => {
-        lean: () => Promise<unknown[]>;
-    };
-};
-
-export const WalletModel = UserWallet as unknown as {
-    findOne: (query: Record<string, unknown>) => {
-        lean: () => Promise<{ smartAlertSlots?: number } | null>;
-    };
-};
 
 export const getRequiredAlertId = (req: Request): string => {
     const id = req.params.id;

@@ -1,4 +1,5 @@
 import User from '../models/User';
+import Admin from '../models/Admin';
 import Ad from '../models/Ad';
 import AdminMetrics from '../models/AdminMetrics';
 import { USER_STATUS } from '../../../shared/enums/userStatus';
@@ -209,6 +210,77 @@ export const createAdminUser = async (data: any, actorId: string) => {
     const userObj = normalizeAdminManagedUser(newUser) as any;
     delete userObj.password;
     return userObj;
+};
+
+export const getAdmins = async () => {
+    return Admin.find().select('-password');
+};
+
+export const getAdminByIdForAdmin = async (id: string) => {
+    return Admin.findById(id).select('-password');
+};
+
+export const getUserByIdForAdmin = async (id: string) => {
+    return User.findById(id).select('-password');
+};
+
+export const verifyUserById = async (id: string, isVerified: boolean) => {
+    return User.findByIdAndUpdate(id, { isVerified }, { new: true }).select('-password');
+};
+
+export const isLastActiveSuperAdmin = async (adminId: string): Promise<boolean> => {
+    const [targetAdmin, superAdminCount] = await Promise.all([
+        Admin.findById(adminId).select('role status isDeleted').lean(),
+        Admin.countDocuments({
+            role: Role.SUPER_ADMIN,
+            status: USER_STATUS.ACTIVE,
+            isDeleted: { $ne: true },
+        }),
+    ]);
+
+    if (!targetAdmin) return false;
+    if ((targetAdmin as any).role !== Role.SUPER_ADMIN) return false;
+    if ((targetAdmin as any).status !== USER_STATUS.ACTIVE) return false;
+    return superAdminCount <= 1;
+};
+
+export const findAdminByEmail = async (email: string) => {
+    return Admin.findOne({ email });
+};
+
+export const createAdminAccount = async (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    mobile?: string;
+    password: string;
+    role: string;
+    permissions: string[];
+}) => {
+    return Admin.create({ ...data, status: USER_STATUS.ACTIVE });
+};
+
+export const updateAdminById = async (id: string, updateData: Record<string, unknown>) => {
+    return Admin.findByIdAndUpdate(id, { $set: updateData }, { new: true }).select('-password');
+};
+
+export const findAdminForUpdate = async (id: string) => {
+    return Admin.findById(id);
+};
+
+export const softDeleteAdminById = async (id: string) => {
+    const admin = await Admin.findById(id);
+    if (!admin) return null;
+    await (admin as any).softDelete();
+    return admin;
+};
+
+export const deactivateAdminById = async (id: string) => {
+    return Admin.findByIdAndUpdate(id, { status: USER_STATUS.INACTIVE }, { new: true }).select('-password');
+};
+
+export const saveAdminDocument = async (admin: { save: () => Promise<unknown> }) => {
+    return admin.save();
 };
 
 export const updateAdminUser = async (userId: string, data: any, actorId: string) => {

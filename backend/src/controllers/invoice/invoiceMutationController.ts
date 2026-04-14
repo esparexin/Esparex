@@ -1,7 +1,7 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
-import Invoice from '../../models/Invoice';
-import mongoose from 'mongoose';
+import { createInvoiceRecord } from '../../services/InvoiceService';
+import { findUserByEmail } from '../../services/UserService';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { respond } from '../../utils/respond';
 import { getErrorMessage } from './shared';
@@ -41,14 +41,13 @@ export const createInvoice = async (req: Request, res: Response) => {
         const taxAmount = subTotal * taxRate;
         const grandTotal = subTotal + taxAmount;
 
-        const User = mongoose.model('User');
-        const user = await User.findOne({ email: customerEmail });
+        const user = await findUserByEmail(customerEmail);
 
         if (!user) {
             return sendErrorResponse(req, res, 400, 'Customer email not found. Please register the user first.');
         }
 
-        const newInvoice = new Invoice({
+        const newInvoice = await createInvoiceRecord({
             invoiceNumber: await generateInvoiceNumber(),
             userId: user._id,
             amount: grandTotal,
@@ -73,8 +72,6 @@ export const createInvoice = async (req: Request, res: Response) => {
             },
             issuedAt: new Date()
         });
-
-        await newInvoice.save();
 
         res.status(201).json(respond({ success: true, data: newInvoice }));
 

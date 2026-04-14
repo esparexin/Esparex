@@ -9,16 +9,19 @@ import logger from '../../utils/logger';
 import { handlePaginatedContent } from '../../utils/contentHandler';
 import mongoose from 'mongoose';
 import slugify from 'slugify';
-import Category from '../../models/Category';
-import Brand from '../../models/Brand';
-import Model from '../../models/Model';
-import SparePart from '../../models/SparePart';
-import Ad from '../../models/Ad';
-import { sendSuccessResponse } from '../admin/adminBaseController';
+import type { ISparePart } from '../../models/SparePart';
+import { sendSuccessResponse } from '../../utils/respond';
+import {
+    SparePartModel,
+    findCategoryIdBySlug,
+    getActiveBrandIdsForCategories,
+    getActiveModelIdsForCategories,
+    findSparePartById,
+    checkSparePartDependencies,
+} from '../../services/catalog/CatalogSparePartService';
 import { resolveEquivalentActiveCategoryIds } from '../../utils/categoryCanonical';
 import {
     sendCatalogError,
-    asModel,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
     validateActiveCategories,
@@ -31,14 +34,12 @@ import {
     getAdminActorId
 } from './shared';
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
-import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { validateSparePartRelations } from '../../services/catalog/CatalogValidationService';
 import {
     sparePartCreateSchema,
     sparePartUpdateSchema
 } from '../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
-import { ISparePart } from '../../models/SparePart';
 import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
 import { categoryEnumToRecord } from '../../../../shared/utils/listingTypeMap';
 import { getCache, setCache } from '../../utils/redisCache';
@@ -59,14 +60,6 @@ const normalizeListingTypeFromQuery = (listingTypeParam?: unknown, placementPara
         return categoryEnumToRecord(value);
     }
     return undefined;
-};
-
-const findCategoryIdBySlug = async (
-    categoryParam: string,
-    extraQuery: QueryRecord = {}
-): Promise<string | null> => {
-    const category = await Category.findOne({ slug: categoryParam, ...extraQuery });
-    return category ? category._id.toString() : null;
 };
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
@@ -111,28 +104,10 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
     }
 
     // Fetch active brands and models for filtering
-    const [activeBrandsRaw, activeModelsRaw] = await Promise.all([
-        Brand.find({
-            isActive: true,
-            isDeleted: { $ne: true },
-            $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
-            ],
-            categoryIds: { $in: activeCategoryIds }
-        }).select('_id').lean(),
-        Model.find({
-            isActive: true,
-            $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
-            ],
-            categoryId: { $in: activeCategoryIds }
-        }).select('_id').lean()
+    const [activeBrandIds, activeModelIds] = await Promise.all([
+        getActiveBrandIdsForCategories(activeCategoryIds),
+        getActiveModelIdsForCategories(activeCategoryIds)
     ]);
-
-    const activeBrandIds = activeBrandsRaw.map((brand) => String(brand._id));
-    const activeModelIds = activeModelsRaw.map((model) => String(model._id));
 
     // Build public query
     const publicQuery: QueryRecord = {
@@ -190,7 +165,7 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
     delete cleanQuery.listingType;
     delete cleanQuery.placement;
 
-    return handlePaginatedContent(req, res, SparePart, {
+    return handlePaginatedContent(req, res, SparePartModel, {
         publicQuery,
         queryParams: cleanQuery,
         defaultSort: { sortOrder: 1 }
@@ -237,7 +212,7 @@ const getSparePartsAdmin = async (req: Request, res: Response) => {
     delete cleanQuery.listingType;
     delete cleanQuery.placement;
 
-    return handlePaginatedContent(req, res, SparePart, {
+    return handlePaginatedContent(req, res, SparePartModel, {
         adminQuery,
         queryParams: cleanQuery,
         defaultSort: { sortOrder: 1 }
@@ -256,7 +231,7 @@ export const getSpareParts = async (req: Request, res: Response) => {
  * Create new spare part (admin only)
  */
 export const createSparePart = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, asModel<ISparePart>(SparePart), sparePartCreateSchema, {
+    return handleCatalogCreate(req, res, SparePartModel as any, sparePartCreateSchema, {
         auditAction: 'SPARE_PART_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
@@ -284,7 +259,7 @@ export const createSparePart = async (req: Request, res: Response) => {
  * Update existing spare part
  */
 export const updateSparePart = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, asModel<ISparePart>(SparePart), sparePartUpdateSchema, {
+    return handleCatalogUpdate(req, res, SparePartModel as any, sparePartUpdateSchema, {
         auditAction: 'SPARE_PART_UPDATE',
         preUpdate: async (id, payload, existingPart) => {
             // Backward compatibility mapping
@@ -315,7 +290,7 @@ export const updateSparePart = async (req: Request, res: Response) => {
  * Toggle spare part status
  */
 export const toggleSparePartStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, asModel(SparePart) as any, { 
+    return handleCatalogToggleStatus(req, res, SparePartModel as any, {
         auditAction: 'TOGGLE_SPARE_PART_STATUS',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -325,13 +300,7 @@ export const toggleSparePartStatus = async (req: Request, res: Response) => {
  * Delete spare part (soft delete with dependency check)
  */
 export const deleteSparePart = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, asModel<ISparePart>(SparePart) as any, async (id) => {
-        const adsCount = await Ad.countDocuments({ sparePartIds: id });
-        return {
-            count: adsCount,
-            details: { ads: adsCount }
-        };
-    }, { 
+    return handleCatalogDelete(req, res, SparePartModel as any, checkSparePartDependencies, {
         auditAction: 'SPARE_PART_DELETE',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -342,7 +311,7 @@ export const deleteSparePart = async (req: Request, res: Response) => {
  */
 export const getSparePartById = async (req: Request, res: Response) => {
     try {
-        const sparePart = await SparePart.findById(req.params.id);
+        const sparePart = await findSparePartById(req.params.id);
         if (!sparePart) return sendCatalogError(req, res, 'Spare part not found', 404);
         sendSuccessResponse(res, sparePart);
     } catch (error) {

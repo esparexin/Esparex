@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import BusinessModel from '../../models/Business';
 import { sanitizePersistedImageUrls } from '../../utils/s3';
+
+export { findBusinessByIdentifier } from '../../services/business/BusinessCoreService';
 import { serializeDoc } from '../../utils/serialize';
 
 type DuplicateError = {
@@ -13,27 +13,6 @@ export type BusinessStatsPayload = {
     approvedServices: number;
     pendingServices: number;
     views: number;
-};
-
-/** Shared soft-delete filter — never expose deleted businesses to any query path. */
-const NOT_DELETED = { isDeleted: { $ne: true } } as const;
-
-export const findBusinessByIdentifier = async (identifier: string) => {
-    if (mongoose.Types.ObjectId.isValid(identifier)) {
-        return BusinessModel.findOne({ _id: identifier, ...NOT_DELETED });
-    }
-
-    const bySlug = await BusinessModel.findOne({ slug: identifier, ...NOT_DELETED });
-    if (bySlug) return bySlug;
-
-    // Legacy/canonical compatibility: support "slug-objectId" URLs.
-    const suffixMatch = identifier.match(/-([0-9a-fA-F]{24})$/);
-    const extractedId = suffixMatch?.[1];
-    if (extractedId && mongoose.Types.ObjectId.isValid(extractedId)) {
-        return BusinessModel.findOne({ _id: extractedId, ...NOT_DELETED });
-    }
-
-    return null;
 };
 
 const asRecord = (value: unknown): Record<string, unknown> =>

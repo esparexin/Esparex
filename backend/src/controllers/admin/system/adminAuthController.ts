@@ -6,7 +6,15 @@
 
 import { Request, Response } from 'express';
 import { IAuthUser } from '../../../types/auth';
-import Admin, { IAdmin } from '../../../models/Admin';
+import type { IAdmin } from '../../../models/Admin';
+import {
+    findAdminByEmailForAuth,
+    findAdminByResetToken,
+    findAdminForLogin,
+    updateAdminLastLogin,
+    getAdminProfileById,
+    saveAdmin,
+} from '../../../services/AdminService';
 import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
 import { getAdminCookieOptions } from '../../../utils/cookieHelper';
 import logger from '../../../utils/logger';
@@ -47,7 +55,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
             return sendSuccessResponse(res, { message: 'If that email exists, a reset link has been sent.' });
         }
 
-        const admin = await Admin.findOne({ email });
+        const admin = await findAdminByEmailForAuth(email);
 
         if (!admin) {
             // 🛡️ SECURITY: Don't reveal if user exists
@@ -66,7 +74,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         // Expire in 10 minutes
         admin.resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000);
 
-        await admin.save();
+        await saveAdmin(admin);
 
         // Create reset URL
         const resetUrl = `${getAdminAppUrl()}/admin/reset-password/${resetToken}`;
@@ -88,7 +96,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         if (!sent) {
             admin.resetPasswordToken = undefined;
             admin.resetPasswordExpire = undefined;
-            await admin.save();
+            await saveAdmin(admin);
             return sendAdminError(req, res, 'Email could not be sent', 500);
         }
 
@@ -124,10 +132,7 @@ export const resetPassword = async (req: Request, res: Response) => {
             .update(token)
             .digest('hex');
 
-        const admin = await Admin.findOne({
-            resetPasswordToken,
-            resetPasswordExpire: { $gt: Date.now() }
-        });
+        const admin = await findAdminByResetToken(resetPasswordToken);
 
         if (!admin) {
             return sendAdminError(req, res, 'Invalid or expired token', 400);
@@ -139,7 +144,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         admin.resetPasswordToken = undefined;
         admin.resetPasswordExpire = undefined;
 
-        await admin.save();
+        await saveAdmin(admin);
         await revokeAdminSessionsForAdmin(admin._id.toString());
 
         await logAdminAction(req, 'RESET_PASSWORD', 'Admin', admin._id.toString(), { email: admin.email });
@@ -177,8 +182,7 @@ export const adminLogin = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Sign-in is not allowed from this IP address', 403);
         }
 
-        // Direct DB Access for Auth (as per Step 1 of plan)
-        const admin = await Admin.findOne({ email }).select('+password +twoFactorSecret');
+        const admin = await findAdminForLogin(email);
         const adminRecord = admin as unknown as
             (typeof admin & { twoFactorEnabled?: boolean; twoFactorSecret?: string });
 
@@ -204,7 +208,7 @@ export const adminLogin = async (req: Request, res: Response) => {
 
         // Use updateOne to bypass pre-save hooks — avoids accidental bcrypt re-hash
         // when +password / +twoFactorSecret were explicitly selected on this doc.
-        await Admin.updateOne({ _id: admin._id }, { $set: { lastLogin: new Date() } });
+        await updateAdminLastLogin(admin._id);
 
         const adminData = admin.toObject({ virtuals: true }) as Partial<IAdmin>;
         delete (adminData as Record<string, unknown>).password;
@@ -313,7 +317,7 @@ export const getMe = async (req: Request, res: Response) => {
         // req.user is populated by requireAdmin middleware
         const adminId = (req.user as IAuthUser)._id;
 
-        const admin = await Admin.findById(adminId).lean();
+        const admin = await getAdminProfileById(adminId);
 
         if (!admin) {
             return sendAdminError(req, res, "Admin not found", 401);

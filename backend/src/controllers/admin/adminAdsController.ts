@@ -3,8 +3,6 @@ import { AppError } from '../../utils/AppError';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import Ad from '../../models/Ad';
-import Report from '../../models/Report';
 import { logAdminAction } from '../../utils/adminLogger';
 import {
     isValidAdStatus,
@@ -17,8 +15,15 @@ import {
     getReportedAdsAggregation,
     computeActiveExpiry,
     getAdsByStatus,
-    extendAdExpiry
+    extendAdExpiry,
+    getAdForModerationById,
 } from '../../services/AdService';
+import {
+    getAdminReportById,
+    findReportForUpdate,
+    saveReport,
+    updateReportById,
+} from '../../services/ReportService';
 import * as adStatusService from '../../services/adStatusService';
 import { validateTransition } from '../../services/LifecycleGuard';
 import { getSingleParam } from '../../utils/requestParams';
@@ -201,7 +206,7 @@ export const adminUpdateAd = async (req: Request, res: Response) => {
             if (!isValidAdStatus(status)) {
                 return sendAdminError(req, res, 'Invalid status value', 400);
             }
-            const currentAd = await Ad.findById(id).select('status').lean<{ status: string } | null>();
+            const currentAd = await getAdForModerationById(id);
             if (!currentAd) {
                 return sendAdminError(req, res, 'Ad not found', 404);
             }
@@ -282,7 +287,7 @@ export const adminChangeAdStatus = async (req: Request, res: Response) => {
         if (!isValidAdStatus(status)) {
             return sendAdminError(req, res, 'Invalid status value', 400);
         }
-        const currentAd = await Ad.findById(id).select('status listingType').lean<{ status: string, listingType?: string } | null>();
+        const currentAd = await getAdForModerationById(id);
         if (!currentAd) {
             return sendAdminError(req, res, 'Ad not found', 404);
         }
@@ -454,10 +459,7 @@ export const getReportedAdById = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Invalid Report ID', 400);
         }
 
-        const report = await Report.findById(id)
-            .populate('adId')
-            .populate('reportedBy', 'firstName lastName email')
-            .populate('resolvedBy', 'firstName lastName');
+        const report = await getAdminReportById(id);
 
         if (!report) return sendAdminError(req, res, 'Report not found', 404);
 
@@ -473,7 +475,7 @@ export const resolveReport = async (req: Request, res: Response) => {
         if (!id) return;
         const { action, note } = req.body;
 
-        const report = await Report.findById(id);
+        const report = await findReportForUpdate(id);
         if (!report) return sendAdminError(req, res, 'Report not found', 404);
 
         if (action === 'take_down') {
@@ -501,7 +503,7 @@ export const resolveReport = async (req: Request, res: Response) => {
         report.resolution = note;
         report.resolvedBy = new mongoose.Types.ObjectId(req.user!._id as string);
         report.resolvedAt = new Date();
-        await report.save();
+        await saveReport(report);
 
         await logAdminAction(req, 'RESOLVE_REPORT', 'Report', id, { action, note });
         sendSuccessResponse(res, report, 'Report resolved successfully');
@@ -523,16 +525,12 @@ export const updateReportStatus = async (req: Request, res: Response) => {
         }
 
         // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
-        const report = await Report.findByIdAndUpdate(
-            id,
-            {
-                status,
-                resolution: note,
-                resolvedBy: new mongoose.Types.ObjectId(req.user!._id as string),
-                resolvedAt: new Date()
-            },
-            { new: true }
-        );
+        const report = await updateReportById(id, {
+            status,
+            resolution: note,
+            resolvedBy: new mongoose.Types.ObjectId(req.user!._id as string),
+            resolvedAt: new Date(),
+        });
         if (!report) return sendAdminError(req, res, 'Report not found', 404);
 
         await logAdminAction(req, 'UPDATE_REPORT_STATUS', 'Report', id, { status, note });
@@ -678,7 +676,7 @@ export const approveAd = async (req: Request, res: Response) => {
         if (!id) return;
         const { reviewVersion } = req.body;
 
-        const currentAd = await Ad.findById(id).select('status reviewVersion listingType').lean<{ status: string, reviewVersion?: number, listingType?: string } | null>();
+        const currentAd = await getAdForModerationById(id);
         if (!currentAd) return sendAdminError(req, res, 'Ad not found', 404);
 
         if (typeof reviewVersion === 'number') {

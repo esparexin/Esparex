@@ -1,8 +1,12 @@
 import logger from '../../utils/logger';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import AdModel from '../../models/Ad';
-import Category from '../../models/Category';
+import {
+    findOwnedService,
+    findServiceForUpdate,
+    updateServiceByOwner,
+} from '../../services/AdService';
+import { getCategorySelectionMode } from '../../services/catalog/CatalogValidationService';
 import { resolveMasterDataIds } from '../../utils/masterDataResolver';
 import { calculateServiceQuality } from '../../utils/serviceQuality';
 import { Service } from '../../../../shared/types/Service';
@@ -121,11 +125,7 @@ const requireOwnedService = async (req: Request, res: Response, fetchFull = fals
         return null;
     }
 
-    const query = fetchFull 
-        ? AdModel.findOne({ _id: new mongoose.Types.ObjectId(id), listingType: LISTING_TYPE.SERVICE, sellerId: user._id })
-        : AdModel.findOne({ _id: new mongoose.Types.ObjectId(id), listingType: LISTING_TYPE.SERVICE, sellerId: user._id, isDeleted: { $ne: true } }).select('status');
-
-    const service = await query;
+    const service = await findOwnedService(id, user._id, LISTING_TYPE.SERVICE, fetchFull);
     if (!service) {
         sendErrorResponse(req, res, 404, 'Service not found or unauthorized');
         return null;
@@ -183,8 +183,7 @@ export const createService = async (req: Request, res: Response, next: NextFunct
         );
 
         // 🛡️ Selection Mode Validation
-        const categoryDoc = await Category.findById(categoryId).select('serviceSelectionMode').lean() as { serviceSelectionMode?: 'single' | 'multi' } | null;
-        const selectionMode = categoryDoc?.serviceSelectionMode || 'multi';
+        const selectionMode = await getCategorySelectionMode(categoryId);
 
         if (selectionMode === 'single' && resolvedServiceTypes && resolvedServiceTypes.serviceTypeIds.length > 1) {
             logger.warn('Selection mode violation in service creation', { categoryId, selectionMode, selectedCount: resolvedServiceTypes.serviceTypeIds.length });
@@ -332,12 +331,7 @@ export const updateService = async (req: Request, res: Response) => {
             return;
         }
 
-        const existingService = await AdModel.findOne({
-            _id: id,
-            listingType: LISTING_TYPE.SERVICE,
-            businessId: business?._id || { $exists: false },
-            sellerId: user._id
-        }).select('images status approvedAt categoryId brandId').lean();
+        const existingService = await findServiceForUpdate(id, user._id, business?._id, LISTING_TYPE.SERVICE);
 
         if (!existingService) {
             sendErrorResponse(req, res, 404, 'Service not found or unauthorized');
@@ -392,8 +386,7 @@ export const updateService = async (req: Request, res: Response) => {
             updates.serviceTypeIds = resolvedServiceTypes.serviceTypeIds;
 
             // 🛡️ Selection Mode Validation
-            const categoryDocForUpdate = await Category.findById(categoryForServiceType).select('serviceSelectionMode').lean() as { serviceSelectionMode?: 'single' | 'multi' } | null;
-            const selectionModeForUpdate = categoryDocForUpdate?.serviceSelectionMode || 'multi';
+            const selectionModeForUpdate = await getCategorySelectionMode(categoryForServiceType);
 
             if (selectionModeForUpdate === 'single' && Array.isArray(updates.serviceTypeIds) && (updates.serviceTypeIds as any[]).length > 1) {
                 sendErrorResponse(req, res, 400, 'This category only allows selecting a single service type');
@@ -448,11 +441,7 @@ export const updateService = async (req: Request, res: Response) => {
         }
 
         // 🔒 Ensure service belongs to this business
-        const service = await AdModel.findOneAndUpdate(
-            { _id: id, listingType: LISTING_TYPE.SERVICE, businessId: business?._id || { $exists: false }, sellerId: user._id },
-            updates,
-            { new: true }
-        );
+        const service = await updateServiceByOwner(id, user._id, business?._id, LISTING_TYPE.SERVICE, updates);
 
         // If not found, it might belong to another business or user
         if (!service) {

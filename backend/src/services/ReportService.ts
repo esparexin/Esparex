@@ -41,6 +41,53 @@ export const countActiveReports = async (
     });
 };
 
+export const getAdminReportById = async (id: string) => {
+    return Report.findById(id)
+        .populate('adId')
+        .populate('reportedBy', 'firstName lastName email')
+        .populate('resolvedBy', 'firstName lastName');
+};
+
+export const findReportForUpdate = async (id: string) => {
+    return Report.findById(id);
+};
+
+export const saveReport = async (report: { save: () => Promise<unknown> }) => {
+    return report.save();
+};
+
+export const updateReportById = async (
+    id: string,
+    fields: Record<string, unknown>
+) => {
+    return Report.findByIdAndUpdate(id, fields, { new: true });
+};
+
+export const bulkResolveReports = async (
+    listingObjectId: mongoose.Types.ObjectId,
+    resolvedStatus: string,
+    note: string | undefined,
+    actorId: string
+) => {
+    return Report.updateMany(
+        {
+            $or: [
+                { targetType: 'ad', targetId: listingObjectId },
+                { adId: listingObjectId },
+            ],
+            status: { $in: ACTIVE_REPORT_STATUSES },
+        },
+        {
+            $set: {
+                status: resolvedStatus,
+                resolution: note,
+                resolvedBy: new mongoose.Types.ObjectId(actorId),
+                resolvedAt: new Date(),
+            },
+        }
+    );
+};
+
 export const autoHideAdIfOverThreshold = async (
     adId: mongoose.Types.ObjectId,
     uniqueReports: number,

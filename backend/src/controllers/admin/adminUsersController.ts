@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import User from '../../models/User';
-import Admin from '../../models/Admin';
 import { logAdminAction } from '../../utils/adminLogger';
 import * as userStatusService from '../../services/UserStatusService';
 import { recalculateTrustScore } from '../../services/TrustService';
@@ -50,21 +48,6 @@ const ensureRoleAssignmentAllowed = (actorRole: string | undefined, targetRole: 
     return getRoleRank(targetRole) <= getRoleRank(actorRole);
 };
 
-const isLastActiveSuperAdmin = async (adminId: string): Promise<boolean> => {
-    const [targetAdmin, superAdminCount] = await Promise.all([
-        Admin.findById(adminId).select('role status isDeleted').lean(),
-        Admin.countDocuments({
-            role: Role.SUPER_ADMIN,
-            status: USER_STATUS.ACTIVE,
-            isDeleted: { $ne: true }
-        })
-    ]);
-
-    if (!targetAdmin) return false;
-    if (targetAdmin.role !== Role.SUPER_ADMIN) return false;
-    if (targetAdmin.status !== USER_STATUS.ACTIVE) return false;
-    return superAdminCount <= 1;
-};
 
 export const getUsers = async (req: Request, res: Response) => {
     try {
@@ -101,7 +84,7 @@ export const getUserManagementOverview = async (req: Request, res: Response) => 
 
 export const getAdmins = async (req: Request, res: Response) => {
     try {
-        const admins = await Admin.find().select('-password');
+        const admins = await adminUsersService.getAdmins();
         sendSuccessResponse(res, admins);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
@@ -110,7 +93,7 @@ export const getAdmins = async (req: Request, res: Response) => {
 
 export const getAdminById = async (req: Request, res: Response) => {
     try {
-        const admin = await Admin.findById(req.params.id).select('-password');
+        const admin = await adminUsersService.getAdminByIdForAdmin(req.params.id as string);
         if (!admin) {
             return sendAdminError(req, res, 'Admin not found', 404);
         }
@@ -122,7 +105,7 @@ export const getAdminById = async (req: Request, res: Response) => {
 
 export const getUserById = async (req: Request, res: Response) => {
     try {
-        const user = await User.findById(req.params.id).select('-password');
+        const user = await adminUsersService.getUserByIdForAdmin(req.params.id as string);
         if (!user) {
             return sendAdminError(req, res, 'User not found', 404);
         }
@@ -135,11 +118,7 @@ export const getUserById = async (req: Request, res: Response) => {
 export const verifyUser = async (req: Request, res: Response) => {
     try {
         const verified = req.body.isVerified;
-        const user = await User.findByIdAndUpdate(
-            req.params.id,
-            { isVerified: verified },
-            { new: true }
-        ).select('-password');
+        const user = await adminUsersService.verifyUserById(req.params.id as string, verified);
 
         if (!user) {
             return sendAdminError(req, res, 'User not found', 404);
@@ -257,7 +236,7 @@ export const createAdmin = async (req: Request, res: Response) => {
         }
 
         // Check if exists
-        const exists = await Admin.findOne({ email: normalizedEmail });
+        const exists = await adminUsersService.findAdminByEmail(normalizedEmail);
         if (exists) {
             return sendAdminError(req, res, 'Admin with this email already exists', 409);
         }
@@ -276,7 +255,7 @@ export const createAdmin = async (req: Request, res: Response) => {
             ? permissions.filter((value) => typeof value === 'string')
             : [];
 
-        const newAdmin = await Admin.create({
+        const newAdmin = await adminUsersService.createAdminAccount({
             firstName: derivedFirstName,
             lastName: derivedLastName,
             email: normalizedEmail,
@@ -285,7 +264,6 @@ export const createAdmin = async (req: Request, res: Response) => {
             password: normalizedPassword,
             role: normalizedRole,
             permissions: normalizedPermissions,
-            status: USER_STATUS.ACTIVE
         });
 
         const adminObj = newAdmin.toObject() as unknown as Record<string, unknown>;
@@ -318,7 +296,7 @@ export const updateAdmin = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'You cannot change your own role', 400);
         }
 
-        if (await isLastActiveSuperAdmin(targetId) && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(status)) {
+        if (await adminUsersService.isLastActiveSuperAdmin(targetId) && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(status)) {
             return sendAdminError(req, res, 'Cannot suspend/deactivate the last active Super Admin', 400);
         }
 
@@ -344,15 +322,11 @@ export const updateAdmin = async (req: Request, res: Response) => {
             updateData.password = await hashPassword(password);
         }
 
-        if (await isLastActiveSuperAdmin(targetId) && role && role !== Role.SUPER_ADMIN) {
+        if (await adminUsersService.isLastActiveSuperAdmin(targetId) && role && role !== Role.SUPER_ADMIN) {
             return sendAdminError(req, res, 'Cannot downgrade the last active Super Admin', 400);
         }
 
-        const updatedAdmin = await Admin.findByIdAndUpdate(
-            targetId,
-            { $set: updateData },
-            { new: true }
-        ).select('-password');
+        const updatedAdmin = await adminUsersService.updateAdminById(targetId, updateData);
 
         if (!updatedAdmin) {
             return sendAdminError(req, res, 'Admin not found', 404);
@@ -382,19 +356,18 @@ export const deleteAdmin = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'You cannot delete yourself', 400);
         }
 
-        if (await isLastActiveSuperAdmin(targetId)) {
+        if (await adminUsersService.isLastActiveSuperAdmin(targetId)) {
             return sendAdminError(req, res, 'Cannot delete the last active Super Admin', 400);
         }
 
-        const admin = await Admin.findById(targetId);
+        const admin = await adminUsersService.softDeleteAdminById(targetId);
         if (!admin) {
             return sendAdminError(req, res, 'Admin not found', 404);
         }
 
-        await admin.softDelete();
         await revokeAdminSessionsForAdmin(targetId);
 
-        await logAdminAction(req, 'DELETE_ADMIN', 'Admin', targetId, { email: admin.email });
+        await logAdminAction(req, 'DELETE_ADMIN', 'Admin', targetId, { email: (admin as any).email });
         sendSuccessResponse(res, null, 'Admin deleted successfully');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
@@ -413,15 +386,11 @@ export const deactivateAdmin = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'You cannot deactivate yourself', 400);
         }
 
-        if (await isLastActiveSuperAdmin(targetId)) {
+        if (await adminUsersService.isLastActiveSuperAdmin(targetId)) {
             return sendAdminError(req, res, 'Cannot deactivate the last active Super Admin', 400);
         }
 
-        const admin = await Admin.findByIdAndUpdate(
-            targetId,
-            { status: USER_STATUS.INACTIVE },
-            { new: true }
-        ).select('-password');
+        const admin = await adminUsersService.deactivateAdminById(targetId);
 
         if (!admin) {
             return sendAdminError(req, res, 'Admin not found', 404);
@@ -443,7 +412,7 @@ export const toggleAdminStatus = async (req: Request, res: Response) => {
         }
         const currentId = (req.user as IAuthUser)._id.toString();
 
-        const admin = await Admin.findById(targetId);
+        const admin = await adminUsersService.findAdminForUpdate(targetId);
         if (!admin) {
             return sendAdminError(req, res, 'Admin not found', 404);
         }
@@ -458,12 +427,12 @@ export const toggleAdminStatus = async (req: Request, res: Response) => {
             }
         }
 
-        if (isCurrentlyActive && await isLastActiveSuperAdmin(targetId)) {
+        if (isCurrentlyActive && await adminUsersService.isLastActiveSuperAdmin(targetId)) {
             return sendAdminError(req, res, 'Cannot deactivate the last active Super Admin', 400);
         }
 
         admin.status = nextStatus;
-        await admin.save();
+        await adminUsersService.saveAdminDocument(admin);
 
         if (nextStatus === USER_STATUS.INACTIVE) {
             await revokeAdminSessionsForAdmin(targetId);

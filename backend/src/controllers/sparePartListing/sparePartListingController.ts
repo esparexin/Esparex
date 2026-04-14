@@ -1,12 +1,9 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import AdModel from '../../models/Ad';
-// NOTE: SparePart and Category are registered on getAdminConnection() — direct import IS the
-// admin-connection-bound model; no additional connection context is needed here.
-import SparePart from '../../models/SparePart';
-import Category from '../../models/Category';
+import { generateUniqueSparePartSlug } from '../../services/SparePartListingService';
+import { findCategoryById } from '../../services/catalog/CatalogCategoryService';
+import { findSparePartById } from '../../services/catalog/CatalogSparePartService';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
-import { generateUniqueSlug } from '../../utils/slugGenerator';
 import { processImages } from '../../utils/imageProcessor';
 import { INVENTORY_STATUS } from '../../../../shared/enums/inventoryStatus';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
@@ -102,8 +99,8 @@ export const createSparePartListing = async (req: Request, res: Response) => {
 
         // Verify Master Data (read-only catalog lookups; safe outside transaction)
         const [category, type] = await Promise.all([
-            Category.findById(categoryId),
-            SparePart.findById(sparePartId)
+            findCategoryById(categoryId),
+            findSparePartById(sparePartId)
         ]);
 
         if (!category) return sendContractErrorResponse(req, res, 404, 'Category not found');
@@ -111,7 +108,7 @@ export const createSparePartListing = async (req: Request, res: Response) => {
 
         // Generate listing ID upfront for consistent S3 folder path
         const listingId = new mongoose.Types.ObjectId();
-        const seoSlug = await generateUniqueSlug(AdModel, title, undefined);
+        const seoSlug = await generateUniqueSparePartSlug(title);
 
         // Upload images to S3 — external operation, must run BEFORE the transaction
         const incomingImages = normalizeImageTokens(images ?? []);
@@ -256,7 +253,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
 
         // Regenerate SEO slug if title changed
         if (parsed.data.title && parsed.data.title !== listing.title) {
-            updates.seoSlug = await generateUniqueSlug(AdModel, parsed.data.title, listing._id.toString());
+            updates.seoSlug = await generateUniqueSparePartSlug(parsed.data.title, listing._id.toString());
         }
 
         Object.assign(listing, updates);

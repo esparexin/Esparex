@@ -1,11 +1,14 @@
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Ad from '../../models/Ad';
-import Report from '../../models/Report';
-import { 
-    sendSuccessResponse, 
-    sendAdminError 
+import {
+    sendSuccessResponse,
+    sendAdminError
 } from './adminBaseController';
+import {
+    getAdForModerationById,
+    extendListingExpiry,
+} from '../../services/AdService';
+import { bulkResolveReports } from '../../services/ReportService';
 import { getSingleParam } from '../../utils/requestParams';
 import { logAdminAction } from '../../utils/adminLogger';
 import { mutateStatus } from '../../services/StatusMutationService';
@@ -89,12 +92,7 @@ const resolveListingId = (req: Request, res: Response): string | null => {
 };
 
 const getListingForMutation = async (req: Request, res: Response, id: string) => {
-    const listing = await Ad.findById(id).select('status reviewVersion listingType isDeleted').lean<{
-        status: string;
-        reviewVersion?: number;
-        listingType?: string;
-        isDeleted?: boolean;
-    } | null>();
+    const listing = await getAdForModerationById(id);
 
     if (!listing) {
         sendAdminError(req, res, 'Listing not found', 404);
@@ -414,20 +412,7 @@ export const adminExtendListing = async (req: Request, res: Response) => {
                 },
             });
         } else {
-            updated = await Ad.findByIdAndUpdate(
-                id,
-                {
-                    expiresAt: newExpiresAt,
-                    $push: {
-                        timeline: {
-                            status: listing.status,
-                            timestamp: now,
-                            reason: 'Expiry extended by admin',
-                        },
-                    },
-                },
-                { new: true }
-            );
+            updated = await extendListingExpiry(id, newExpiresAt, listing.status, now);
         }
 
         await logAdminAction(req, 'LISTING_EXTEND', 'Ad', id, { expiresAt: newExpiresAt });
@@ -540,23 +525,7 @@ export const adminResolveListingReport = async (req: Request, res: Response) => 
             : REPORT_STATUS.RESOLVED;
 
         // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
-        const reportResult = await Report.updateMany(
-            {
-                $or: [
-                    { targetType: 'ad', targetId: listingObjectId },
-                    { adId: listingObjectId },
-                ],
-                status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.PENDING, REPORT_STATUS.REVIEWED] },
-            },
-            {
-                $set: {
-                    status: resolvedStatus,
-                    resolution: note,
-                    resolvedBy: new mongoose.Types.ObjectId(getActorId(req)),
-                    resolvedAt: new Date(),
-                },
-            }
-        );
+        const reportResult = await bulkResolveReports(listingObjectId, resolvedStatus, note, getActorId(req));
 
         await logAdminAction(req, 'LISTING_REPORT_RESOLVE', 'Ad', id, {
             action,

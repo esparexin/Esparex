@@ -169,6 +169,13 @@ export async function validateServiceCategoryCapability(categoryId: string): Pro
     return { ok: true };
 }
 
+export async function getCategorySelectionMode(categoryId: unknown): Promise<'single' | 'multi'> {
+    const doc = await Category.findById(categoryId)
+        .select('serviceSelectionMode')
+        .lean<{ serviceSelectionMode?: 'single' | 'multi' } | null>();
+    return doc?.serviceSelectionMode ?? 'multi';
+}
+
 // ─── SparePart validation ─────────────────────────────────────────────────────
 
 export interface SparePartRelationPayload {

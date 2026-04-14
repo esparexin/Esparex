@@ -1,7 +1,8 @@
 import { Request } from 'express';
-import Plan from '../../models/Plan';
-import UserPlan from '../../models/UserPlan';
+import { PlanModel, UserPlanModel } from '../../services/PlanService';
 import { AppError } from '../../utils/AppError';
+
+export { PlanModel, UserPlanModel };
 
 export const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';
@@ -12,23 +13,6 @@ export const getRequiredPlanId = (req: Request): string => {
         throw new AppError('Invalid plan ID', 400, 'INVALID_PLAN_ID');
     }
     return rawId;
-};
-
-export const PlanModel = Plan as unknown as {
-    create: (payload: Record<string, unknown>) => Promise<Record<string, unknown> | Record<string, unknown>[]>;
-    findByIdAndUpdate: (id: string, payload: Record<string, unknown>, options: { new: boolean }) => Promise<unknown>;
-    find: (query: Record<string, unknown>) => {
-        sort: (sort: Record<string, 1 | -1>) => Promise<unknown[]>;
-        lean: () => Promise<unknown[]>;
-    };
-    findById: (id: string) => Promise<{ active: boolean; save: () => Promise<unknown> } | null>;
-    findOne: (query: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
-};
-
-export const UserPlanModel = UserPlan as unknown as {
-    find: (query: Record<string, unknown>) => {
-        lean: () => Promise<Array<{ planId: unknown }>>;
-    } & PromiseLike<unknown>;
 };
 
 export const PLAN_SCALAR_FIELDS = [

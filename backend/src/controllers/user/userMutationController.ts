@@ -2,10 +2,18 @@ import logger from '../../utils/logger';
 import { env } from '../../config/env';
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import User, { IUser } from '../../models/User';
-import Business from '../../models/Business';
-import BlockedUser from '../../models/BlockedUser';
+import type { IUser } from '../../models/User';
 import * as userService from '../../services/UserService';
+import {
+  getUserAvatarById,
+  checkUserExistsById,
+  blockUserById,
+  unblockUserById,
+} from '../../services/UserService';
+import {
+  getBusinessByUserIdLean,
+  softDeleteBusinessesByUserId,
+} from '../../services/business/BusinessCoreService';
 import {
   deleteFromS3Url,
   getMissingS3UploadConfigKeys,
@@ -71,7 +79,7 @@ export const updateMe = async (
       return;
     }
 
-    const currentUser = await User.findById(userId).select('avatar').lean();
+    const currentUser = await getUserAvatarById(userId);
     const oldAvatarUrl = typeof currentUser?.avatar === 'string' ? currentUser.avatar : null;
     let oldAvatarDeleted = false;
 
@@ -173,7 +181,7 @@ export const updateMe = async (
 
     const [updated, business] = await Promise.all([
       userService.updateUser(userId, updates),
-      Business.findOne({ userId }).lean()
+      getBusinessByUserIdLean(userId)
     ]);
  
     if (!updated) {
@@ -224,10 +232,7 @@ export const deleteMe = async (
     });
 
     // Business soft-delete cascade (Ads + SmartAlerts already handled by UserStatusService)
-    await Business.updateMany(
-      { userId, isDeleted: { $ne: true } },
-      { $set: { isDeleted: true, deletedAt: new Date() } }
-    );
+    await softDeleteBusinessesByUserId(userId);
 
     AuthService.clearUserSession(res);
 
@@ -356,28 +361,13 @@ export const blockUser = async (
     if (!entities) return;
     const { blockerId, blockedUserId } = entities;
 
-    const blockedUserExists = await User.exists({
-      _id: new mongoose.Types.ObjectId(blockedUserId),
-      isDeleted: { $ne: true }
-    });
+    const blockedUserExists = await checkUserExistsById(blockedUserId);
     if (!blockedUserExists) {
       sendErrorResponse(req, res, 404, 'User not found');
       return;
     }
 
-    await BlockedUser.updateOne(
-      {
-        blockerId: new mongoose.Types.ObjectId(blockerId),
-        blockedId: new mongoose.Types.ObjectId(blockedUserId)
-      },
-      {
-        $setOnInsert: {
-          blockerId: new mongoose.Types.ObjectId(blockerId),
-          blockedId: new mongoose.Types.ObjectId(blockedUserId)
-        }
-      },
-      { upsert: true }
-    );
+    await blockUserById(blockerId, blockedUserId);
 
     logger.info('[BlockGuard] User blocked', {
       blockerId,
@@ -401,10 +391,7 @@ export const unblockUser = async (
     if (!entities) return;
     const { blockerId, blockedUserId } = entities;
 
-    await BlockedUser.deleteOne({
-      blockerId: new mongoose.Types.ObjectId(blockerId),
-      blockedId: new mongoose.Types.ObjectId(blockedUserId)
-    });
+    await unblockUserById(blockerId, blockedUserId);
 
     logger.info('[BlockGuard] User unblocked', {
       blockerId,

@@ -6,19 +6,20 @@
 
 import { Request, Response } from 'express';
 import slugify from 'slugify';
-import mongoose from 'mongoose';
-import type { Model as MongooseModel } from 'mongoose';
 import { getAdminConnection } from '../../config/db';
 import { handlePaginatedContent } from '../../utils/contentHandler';
-import Category from '../../models/Category';
-import Brand from '../../models/Brand';
-import Model from '../../models/Model';
-import SparePart from '../../models/SparePart';
-import ServiceType from '../../models/ServiceType';
-import ScreenSize from '../../models/ScreenSize';
+import {
+    CategoryModel,
+    getCatalogEntityCounts,
+    findCategoryById,
+    categoryParentExists,
+    updateCategorySchemaById,
+    findCategoryByIdWithSession,
+    softDeleteCategoryById,
+} from '../../services/catalog/CatalogCategoryService';
 import { logAdminAction } from '../../utils/adminLogger';
 import { AppError } from '../../utils/AppError';
-import { sendSuccessResponse } from '../admin/adminBaseController';
+import { sendSuccessResponse } from '../../utils/respond';
 // import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import { clearCategoryCanonicalCache } from '../../utils/categoryCanonical';
@@ -31,7 +32,6 @@ import {
 import {
     hasAdminAccess,
     sendCatalogError,
-    asModel,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
     sendValidationError,
@@ -39,51 +39,6 @@ import {
 } from './shared';
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { getCache, setCache, CACHE_TTLS } from '../../utils/redisCache';
-import logger from '../../utils/logger';
-
-const CATALOG_COUNT_MAX_TIME_MS = 1500;
-const CATALOG_COUNT_ESTIMATE_MAX_TIME_MS = 1000;
-
-const countCatalogCollectionSafely = async (
-    model: MongooseModel<any>,
-    filter: Record<string, unknown>,
-    hint?: Record<string, 1 | -1>
-): Promise<number> => {
-    const modelName = model.modelName || 'Unknown';
-    const countOptions: Record<string, unknown> = {
-        maxTimeMS: CATALOG_COUNT_MAX_TIME_MS,
-        ...(hint ? { hint } : {})
-    };
-
-    try {
-        return await model.collection.countDocuments(filter, countOptions);
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        const isHintError = Boolean(hint) && /hint|index/i.test(message);
-
-        if (isHintError) {
-            try {
-                return await model.collection.countDocuments(filter, {
-                    maxTimeMS: CATALOG_COUNT_MAX_TIME_MS
-                });
-            } catch (retryError) {
-                logger.warn('[CatalogCounts] countDocuments retry without hint failed; using estimate', {
-                    model: modelName,
-                    error: retryError instanceof Error ? retryError.message : String(retryError)
-                });
-            }
-        } else {
-            logger.warn('[CatalogCounts] countDocuments failed; using estimate', {
-                model: modelName,
-                error: message
-            });
-        }
-
-        return model.collection.estimatedDocumentCount({
-            maxTimeMS: CATALOG_COUNT_ESTIMATE_MAX_TIME_MS
-        });
-    }
-};
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Category operations delegated to shared.ts or CatalogOrchestrator.
@@ -99,7 +54,7 @@ export const getCategories = async (req: Request, res: Response) => {
         delete queryParams.status;
     }
 
-    return handlePaginatedContent(req, res, Category, {
+    return handlePaginatedContent(req, res, CategoryModel, {
         searchFields: ['name', 'slug'],
         defaultSort: { name: 1 },
         publicQuery: { ...ACTIVE_CATEGORY_QUERY },
@@ -119,26 +74,7 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
             return;
         }
 
-        const nonDeletedFilter = { isDeleted: { $ne: true } };
-
-        // Parallel count queries with bounded execution + safe fallback for drift/index issues.
-        const [categories, brands, models, spareParts, serviceTypes, screenSizes] = await Promise.all([
-            countCatalogCollectionSafely(Category, nonDeletedFilter, { isDeleted: 1 }),
-            countCatalogCollectionSafely(Brand, nonDeletedFilter, { isDeleted: 1 }),
-            countCatalogCollectionSafely(Model, nonDeletedFilter, { isDeleted: 1 }),
-            countCatalogCollectionSafely(SparePart, nonDeletedFilter, { isDeleted: 1 }),
-            countCatalogCollectionSafely(ServiceType, nonDeletedFilter, { isDeleted: 1 }),
-            countCatalogCollectionSafely(ScreenSize, nonDeletedFilter, { isDeleted: 1 })
-        ]);
-
-        const counts = {
-            categories,
-            brands,
-            models,
-            spareParts,
-            serviceTypes,
-            screenSizes
-        };
+        const counts = await getCatalogEntityCounts();
 
         // Cache for 1 hour — catalog counts change infrequently
         await setCache(CACHE_KEY, counts, CACHE_TTLS.CATEGORIES);
@@ -154,7 +90,7 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
 export const getCategoryById = async (req: Request, res: Response) => {
     try {
         // Admin route always uses validateObjectId middleware — ObjectId lookup only.
-        const category = await Category.findById(req.params.id);
+        const category = await findCategoryById(req.params.id);
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
         }
@@ -170,7 +106,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
 export const getCategorySchema = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const category = await Category.findById(id);
+        const category = await findCategoryById(id);
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
         }
@@ -204,11 +140,7 @@ export const updateCategorySchema = async (req: Request, res: Response) => {
         }
         const { filters } = parsed.data;
 
-        const category = await Category.findByIdAndUpdate(
-            id,
-            { filters },
-            { new: true, runValidators: true }
-        );
+        const category = await updateCategorySchemaById(id, filters);
 
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
@@ -239,7 +171,7 @@ export const createCategory = async (req: Request, res: Response) => {
         if (!payload.slug) return sendCatalogError(req, res, 'Invalid category slug', 400);
         
         if (payload.parentId) {
-            if (!(await Category.exists({ _id: payload.parentId }))) {
+            if (!(await categoryParentExists(payload.parentId))) {
                 return sendCatalogError(req, res, 'Invalid parent category', 400);
             }
         }
@@ -270,7 +202,7 @@ export const updateCategory = async (req: Request, res: Response) => {
             delete req.body[field];
         }
 
-        const oldCategory = await Category.findById(categoryId);
+        const oldCategory = await findCategoryById(categoryId);
         if (!oldCategory) return sendCatalogError(req, res, 'Category not found', 404);
 
         const parsed = categoryUpdateSchema.safeParse(req.body);
@@ -287,7 +219,7 @@ export const updateCategory = async (req: Request, res: Response) => {
 
         if (payload.parentId) {
             if (payload.parentId === categoryId) return sendCatalogError(req, res, 'Category cannot be its own parent', 400);
-            if (!(await Category.exists({ _id: payload.parentId }))) return sendCatalogError(req, res, 'Invalid parent category', 400);
+            if (!(await categoryParentExists(payload.parentId))) return sendCatalogError(req, res, 'Invalid parent category', 400);
         }
 
         const payloadWithStatus = payload.isActive !== undefined
@@ -314,7 +246,7 @@ export const updateCategory = async (req: Request, res: Response) => {
  * Toggle category active status
  */
 export const toggleCategoryStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, asModel(Category) as any, { 
+    return handleCatalogToggleStatus(req, res, CategoryModel as any, {
         auditAction: 'TOGGLE_CATEGORY_STATUS',
         postOp: () => {
             clearCategoryCanonicalCache();
@@ -336,18 +268,14 @@ export const deleteCategory = async (req: Request, res: Response) => {
         }
 
         const categoryId = req.params.id;
-        const category = await Category.findById(categoryId).session(session);
+        const category = await findCategoryByIdWithSession(categoryId, session);
         if (!category) {
             throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
         }
 
         // Soft-delete the category itself, then cascade to children.
         // Single write here; cascadeCategoryDelete handles brands/models/parts/sizes.
-        await Category.updateOne(
-            { _id: category._id },
-            { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } },
-            { session }
-        );
+        await softDeleteCategoryById(category._id, session);
 
         await CatalogOrchestrator.cascadeCategoryDelete(String(category._id), session);
 

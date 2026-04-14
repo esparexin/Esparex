@@ -110,3 +110,26 @@ export const getAdminWithTwoFactor = async (adminId: string) => {
 export const saveAdmin = async (admin: IAdmin) => {
     return admin.save();
 };
+
+export const findAdminByEmailForAuth = async (email: string) => {
+    return Admin.findOne({ email });
+};
+
+export const findAdminByResetToken = async (resetPasswordToken: string) => {
+    return Admin.findOne({
+        resetPasswordToken,
+        resetPasswordExpire: { $gt: Date.now() },
+    });
+};
+
+export const findAdminForLogin = async (email: string) => {
+    return Admin.findOne({ email }).select('+password +twoFactorSecret');
+};
+
+export const updateAdminLastLogin = async (id: unknown) => {
+    return Admin.updateOne({ _id: id }, { $set: { lastLogin: new Date() } });
+};
+
+export const getAdminProfileById = async (adminId: unknown) => {
+    return Admin.findById(adminId).lean();
+};

@@ -84,7 +84,7 @@ export default function SmartAlertLogsPage() {
                                                 <div className="flex flex-col">
                                                     <span className="font-medium text-slate-800 flex items-center gap-2">
                                                         <BellRing className="h-3 w-3 text-emerald-500" />
-                                                        {(log.alertId as any)?.name || 'Unnamed Alert'}
+                                                        {log.alertId.name || 'Unnamed Alert'}
                                                     </span>
                                                 </div>
                                             ) : (
@@ -95,17 +95,17 @@ export default function SmartAlertLogsPage() {
                                             {typeof log.adId === "object" ? (
                                                 <div className="flex flex-col">
                                                     <span className="font-medium text-slate-800 hover:text-blue-600 cursor-pointer flex items-center gap-2 transition-colors">
-                                                        <span className="line-clamp-1">{(log.adId as any)?.title}</span>
+                                                        <span className="line-clamp-1">{log.adId.title}</span>
                                                     </span>
                                                     <div className="flex items-center gap-1.5 mt-1.5">
-                                                        {(log.adId as any)?.location && (
+                                                        {log.adId.location && (
                                                             <>
                                                                 <Navigation className="h-3 w-3 text-slate-400" />
-                                                                <span className="text-xs text-slate-500 mr-1">{(log.adId as any)?.location}</span>
+                                                                <span className="text-xs text-slate-500 mr-1">{log.adId.location}</span>
                                                             </>
                                                         )}
                                                         <span className="text-2xs font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                                                            {(log.adId as any)?.price > 0 ? `$${(log.adId as any)?.price}` : "Free"}
+                                                            {log.adId.price > 0 ? `$${log.adId.price}` : "Free"}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -114,9 +114,9 @@ export default function SmartAlertLogsPage() {
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            {typeof log.alertId === "object" && (log.alertId as any)?.criteria ? (
+                                            {typeof log.alertId === "object" && log.alertId.criteria ? (
                                                 <div className="flex gap-1.5 flex-wrap">
-                                                    {Object.entries((log.alertId as any)?.criteria).map(([k, v]) => {
+                                                    {Object.entries(log.alertId.criteria).map(([k, v]) => {
                                                         if (!v) return null;
                                                         return (
                                                             <span key={k} className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-medium bg-slate-100 text-slate-600 border border-slate-200">

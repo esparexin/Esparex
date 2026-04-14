@@ -2,9 +2,13 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 
 import { NOTIFICATION_TYPE } from "../../../../shared/enums/notificationType";
-import NotificationLog from "../../models/NotificationLog";
-import ScheduledNotification from "../../models/ScheduledNotification";
 import { NotificationIntent } from "../../domain/NotificationIntent";
+import {
+    createNotificationLog,
+    createScheduledNotification,
+    getNotificationHistory,
+    searchNotificationRecipients,
+} from "../../services/AdminNotificationService";
 import {
     getPaginationParams,
     sendAdminError,
@@ -13,7 +17,7 @@ import {
 import { logAdminAction } from "../../utils/adminLogger";
 import { NotificationDispatcher } from "../../services/notification/NotificationDispatcher";
 import { createAdminNotificationTargetCursor } from "../../services/notification/AdminNotificationTargetingService";
-import User, { type IUser } from "../../models/User";
+import { type IUser } from "../../models/User";
 import { respond } from "../../utils/respond";
 
 const BATCH_SIZE = 500;
@@ -115,7 +119,7 @@ export async function sendNotification(req: Request, res: Response) {
                 return sendAdminError(req, res, "Scheduled time must be in the future", 400);
             }
 
-            const scheduled = await ScheduledNotification.create({
+            const scheduled = await createScheduledNotification({
                 title,
                 body,
                 type: NOTIFICATION_TYPE.SYSTEM,
@@ -152,7 +156,7 @@ export async function sendNotification(req: Request, res: Response) {
         });
 
         const status = successCount > 0 || skippedCount > 0 ? "sent" : "failed";
-        const log = await NotificationLog.create({
+        const log = await createNotificationLog({
             title,
             body,
             type: NOTIFICATION_TYPE.SYSTEM,
@@ -233,22 +237,11 @@ export async function getHistory(req: Request, res: Response) {
         const includeLogs = historyStatus === "all" || historyStatus === "sent" || historyStatus === "failed";
         const includeScheduled = historyStatus === "all" || historyStatus === "scheduled";
 
-        const [logs, logsTotal, scheduled, scheduledTotal] = await Promise.all([
-            includeLogs
-                ? NotificationLog.find(logMatch)
-                      .sort({ createdAt: -1 })
-                      .limit(mergeWindow)
-                      .populate("sentBy", "firstName lastName email")
-                : Promise.resolve([]),
-            includeLogs ? NotificationLog.countDocuments(logMatch) : Promise.resolve(0),
-            includeScheduled
-                ? ScheduledNotification.find(scheduledMatch)
-                      .sort({ sendAt: -1 })
-                      .limit(mergeWindow)
-                      .populate("sentBy", "firstName lastName email")
-                : Promise.resolve([]),
-            includeScheduled ? ScheduledNotification.countDocuments(scheduledMatch) : Promise.resolve(0),
-        ]);
+        const { logs, logsTotal, scheduled, scheduledTotal } = await getNotificationHistory(
+            logMatch as Record<string, unknown>,
+            scheduledMatch,
+            { includeLogs, includeScheduled, mergeWindow }
+        );
 
         const normalizedLogs: HistoryRecord[] = logs.map((log) => ({
             id: log._id.toString(),
@@ -319,23 +312,7 @@ export async function getRecipients(req: Request, res: Response) {
             return sendSuccessResponse(res, { items: [] });
         }
 
-        const searchRegex = new RegExp(escapeRegex(query), "i");
-        const items = await User.find({
-                isDeleted: { $ne: true },
-                status: { $nin: ["deleted", "banned"] },
-                role: { $in: ["user", "business"] },
-                $or: [
-                    { name: { $regex: searchRegex } },
-                    { email: { $regex: searchRegex } },
-                    { mobile: { $regex: searchRegex } },
-                    { firstName: { $regex: searchRegex } },
-                    { lastName: { $regex: searchRegex } },
-                ],
-            })
-            .select("name firstName lastName email mobile")
-            .sort({ createdAt: -1 })
-            .limit(limit)
-            .lean();
+        const items = await searchNotificationRecipients(query, typeof limit === 'number' ? limit : Number(limit) || 8);
 
         return sendSuccessResponse(res, { items });
     } catch (error) {

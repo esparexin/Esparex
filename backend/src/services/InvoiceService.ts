@@ -93,6 +93,19 @@ export async function getInvoices(
     };
 }
 
+export const findInvoiceForUpdate = async (id: string) => {
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return Invoice.findById(id);
+};
+
+export const saveInvoice = async (invoice: { save: () => Promise<unknown> }) => {
+    return invoice.save();
+};
+
+export const createInvoiceRecord = async (data: Record<string, unknown>) => {
+    return Invoice.create(data);
+};
+
 export const getInvoiceById = async (id: string, userId?: string) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return null;
 

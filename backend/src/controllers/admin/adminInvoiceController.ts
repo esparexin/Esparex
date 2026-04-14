@@ -1,17 +1,20 @@
 import { Request, Response } from 'express';
 import { randomInt } from 'crypto';
 import logger from '../../utils/logger';
-import Invoice from '../../models/Invoice';
-import Transaction from '../../models/Transaction';
-import Plan from '../../models/Plan';
-import User from '../../models/User';
-import UserPlan from '../../models/UserPlan';
 import { logAdminAction } from '../../utils/adminLogger';
 import { PAYMENT_STATUS } from '../../../../shared/enums/paymentStatus';
-import { PLAN_STATUS } from '@shared/enums/planStatus';
 import { generateInvoiceNumber } from '../../utils/invoiceNumber';
 import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
 import * as invoiceService from '../../services/InvoiceService';
+import {
+    findPlanByIdOrCode,
+    createPaymentTransaction,
+    findTransactionForUpdate,
+    saveTransaction,
+    upsertUserPlan,
+    getUserForPayment,
+} from '../../services/PaymentProcessingService';
+import { findUserByEmail } from '../../services/UserService';
 import { 
     sendSuccessResponse, 
     sendAdminError,
@@ -79,7 +82,7 @@ export const createInvoice = async (req: Request, res: Response) => {
         }
 
         // 1. Find User
-        const user = await User.findOne({ email: customerEmail });
+        const user = await findUserByEmail(customerEmail);
         if (!user) {
             // Option: Create a partial user? For now, strict: User must exist.
             return sendAdminError(req, res, 'User not found with this email.', 404);
@@ -92,8 +95,7 @@ export const createInvoice = async (req: Request, res: Response) => {
 
         // CASE A: Subscription Plan Invoice (Legacy/Strict)
         if (planId) {
-            let plan = await Plan.findById(planId);
-            if (!plan) plan = await Plan.findOne({ code: planId });
+            const plan = await findPlanByIdOrCode(planId);
 
             if (!plan) {
                 return sendAdminError(req, res, 'Plan not found.', 404);
@@ -146,7 +148,7 @@ export const createInvoice = async (req: Request, res: Response) => {
             : PAYMENT_STATUS.PENDING;
         const transactionStatus: typeof PAYMENT_STATUS.INITIATED | typeof PAYMENT_STATUS.SUCCESS = invoiceStatus === PAYMENT_STATUS.SUCCESS ? PAYMENT_STATUS.SUCCESS : PAYMENT_STATUS.INITIATED;
 
-        const transaction = await Transaction.create({
+        const transaction = await createPaymentTransaction({
             userId: user._id,
             planId: resolvedPlanId,
             planSnapshot: planSnapshot || undefined,
@@ -183,7 +185,7 @@ export const createInvoice = async (req: Request, res: Response) => {
             taxBreakdown.total = transactionAmount;
         }
 
-        const invoice = await Invoice.create({
+        const invoice = await invoiceService.createInvoiceRecord({
             invoiceNumber,
             userId: user._id,
             transactionId: transaction._id,
@@ -234,7 +236,7 @@ export const updateInvoiceStatus = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Invalid status provided.', 400);
         }
 
-        const invoice = await Invoice.findById(req.params.id);
+        const invoice = await invoiceService.findInvoiceForUpdate(req.params.id as string);
         if (!invoice) {
             return sendAdminError(req, res, 'Invoice not found.', 404);
         }
@@ -245,18 +247,18 @@ export const updateInvoiceStatus = async (req: Request, res: Response) => {
 
         const oldStatus = invoice.status;
         invoice.status = status as typeof invoice.status;
-        await invoice.save();
+        await invoiceService.saveInvoice(invoice);
 
         // If transitioning to SUCCESS, we MUST update the linked transaction and potentially apply the plan
         if (status === PAYMENT_STATUS.SUCCESS && oldStatus !== PAYMENT_STATUS.SUCCESS) {
-            const transaction = await Transaction.findById(invoice.transactionId);
+            const transaction = await findTransactionForUpdate(invoice.transactionId?.toString() || '');
             if (transaction) {
                 transaction.status = PAYMENT_STATUS.SUCCESS;
                 transaction.gatewayPaymentId = `MANUAL-ADMIN-${Date.now()}`;
 
                 // If it was a plan purchase, apply it
                 if (!transaction.applied) {
-                    const user = await User.findById(invoice.userId);
+                    const user = await getUserForPayment(invoice.userId?.toString() || '');
                     const planSnapshot = invoice.planSnapshot;
 
                     if (user && planSnapshot) {
@@ -265,17 +267,13 @@ export const updateInvoiceStatus = async (req: Request, res: Response) => {
                         const durationDays = typeof snapshotDurationRaw === 'number' ? snapshotDurationRaw : 30;
                         const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
-                        await UserPlan.findOneAndUpdate(
-                            { userId: user._id, planId: transaction.planId },
-                            { $set: { startDate, endDate, status: PLAN_STATUS.ACTIVE } },
-                            { upsert: true, new: true, setDefaultsOnInsert: true }
-                        );
+                        await upsertUserPlan(user._id, transaction.planId, startDate, endDate);
 
                         transaction.applied = true;
                         logger.info('Plan applied to user via manual invoice success', { userId: user._id, invoiceId: invoice._id });
                     }
                 }
-                await transaction.save();
+                await saveTransaction(transaction);
             }
         }
 
@@ -298,14 +296,11 @@ export const updateInvoiceStatus = async (req: Request, res: Response) => {
  */
 export const getPrintableInvoice = async (req: Request, res: Response) => {
     try {
-        const invoice = await Invoice.findById(req.params.id)
-            .populate('userId', 'name email mobile address');
-
-        if (!invoice) {
+        const invoiceDoc = await invoiceService.getInvoiceById(req.params.id as string);
+        if (!invoiceDoc) {
             return sendAdminError(req, res, 'Invoice not found', 404);
         }
-
-        const inv = invoice.toObject() as unknown as Record<string, unknown> & {
+        const inv = invoiceDoc as unknown as Record<string, unknown> & {
             invoiceNumber: string;
             issuedAt: string | Date;
             userId?: { name?: string; email?: string; mobile?: string };

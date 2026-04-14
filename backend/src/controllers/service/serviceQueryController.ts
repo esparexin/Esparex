@@ -1,7 +1,5 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
-import { Document, Model as MongooseModel } from 'mongoose';
-import AdModel from '../../models/Ad';
 import * as adService from '../../services/AdService';
 import { Service } from '../../../../shared/types/Service';
 import { ApiResponse, PaginatedResponse } from '../../../../shared/types/Api';
@@ -16,8 +14,6 @@ type ServiceAnalyticsPayload = {
     activeServices: number;
     growth: number;
 };
-
-const asModel = <T extends Document>(model: MongooseModel<T>): MongooseModel<T> => model;
 
 /* ---------------------------------------------------
    Get All Services (Public)
@@ -91,9 +87,7 @@ export const getServices = async (req: Request, res: Response) => {
 --------------------------------------------------- */
 export const getServiceAnalytics = async (req: Request, res: Response) => {
     try {
-        const totalServices = await AdModel.countDocuments({ listingType: LISTING_TYPE.SERVICE });
-        const pendingServices = await AdModel.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: 'pending' });
-        const activeServices = await AdModel.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE });
+        const { totalServices, pendingServices, activeServices } = await adService.getServiceAnalyticsStats();
 
         // Simple mock growth data for now (or aggregation if needed)
         const growth = 12; // Mock +12%

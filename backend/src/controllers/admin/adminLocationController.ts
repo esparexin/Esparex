@@ -1,9 +1,26 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Location from '../../models/Location';
-import Ad from '../../models/Ad';
-import User from '../../models/User';
-import Geofence from '../../models/Geofence';
+import {
+    findLocationById,
+    findLocationByIdLean,
+    findActiveParentById,
+    locationExists,
+    findLocationParent,
+    findDuplicateLocation,
+    getDistinctStateLocations,
+    generateLocationId,
+    createLocationRecord,
+    saveLocation,
+    softDeleteLocation,
+    getLocationsPaginated,
+    getModerationQueuePaginated,
+    countAdsForLocation,
+    countUsersForLocation,
+    getAllGeofences,
+    createGeofenceRecord,
+    updateGeofenceById,
+    deleteGeofenceById,
+} from '../../services/AdminLocationService';
 import { updateLocationStats as runStatsUpdate } from '../../workers/locationAnalyticsWorker';
 import { logAdminAction } from '../../utils/adminLogger';
 import slugify from 'slugify';
@@ -47,8 +64,6 @@ const getErrorCode = (error: unknown): number | undefined => {
 
 const ADMIN_STATES_CACHE_KEY = 'admin:locations:states';
 const ADMIN_STATES_CACHE_TTL_SECONDS = 300;
-const LOCATION_LIST_HINT = { isActive: 1, createdAt: -1 } as const;
-let hasWarnedLocationListHintFailure = false;
 
 const toScopeQuery = (locationIds: mongoose.Types.ObjectId[] | null) => {
     if (locationIds === null) return {};
@@ -138,9 +153,7 @@ export const createCityLocation = async (req: Request, res: Response) => {
         return sendBaseAdminError(req, res, 'Invalid stateId.', 400);
     }
 
-    const stateAnchor = await Location.findById(stateId)
-        .select('_id name country level parentId path')
-        .lean<CanonicalLocationDoc | null>();
+    const stateAnchor = await findLocationByIdLean<CanonicalLocationDoc>(stateId, '_id name country level parentId path');
     const stateSummary = await resolveLocationSummary(stateAnchor);
     if (!stateSummary?.state) {
         return sendBaseAdminError(req, res, 'State not found.', 404);
@@ -173,9 +186,7 @@ export const createAreaLocation = async (req: Request, res: Response) => {
         return sendBaseAdminError(req, res, 'Invalid cityId.', 400);
     }
 
-    const cityAnchor = await Location.findById(cityId)
-        .select('_id name country level parentId path')
-        .lean<CanonicalLocationDoc | null>();
+    const cityAnchor = await findLocationByIdLean<CanonicalLocationDoc>(cityId, '_id name country level parentId path');
     const citySummary = await resolveLocationSummary(cityAnchor);
     if (!citySummary?.city || !citySummary?.state) {
         return sendBaseAdminError(req, res, 'City not found.', 404);
@@ -203,9 +214,7 @@ export const getDistinctStates = async (req: Request, res: Response) => {
             return sendSuccessResponse(res, cachedStates);
         }
 
-        const states = await Location.find({ isActive: true, level: 'state' })
-            .select('name')
-            .lean<Array<{ name?: string }>>();
+        const states = await getDistinctStateLocations();
         const sorted = states
             .map((entry) => resolveStringField(entry.name))
             .filter((value): value is string => Boolean(value))
@@ -267,57 +276,7 @@ export const getAllLocations = async (req: Request, res: Response) => {
             : { locationIds: null as mongoose.Types.ObjectId[] | null };
         Object.assign(query, toScopeQuery(scope.locationIds));
 
-        const hasAnyFilter = Object.keys(query).length > 0;
-        const shouldAttemptHint = !search && hasAnyFilter && scope.locationIds === null;
-
-        const buildLocationsQuery = () =>
-            Location.find(query)
-                .select('_id name slug country level parentId path coordinates isActive verificationStatus createdAt updatedAt')
-                .lean()
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit);
-
-        const totalPromise = (async () => {
-            if (!hasAnyFilter) {
-                return Location.estimatedDocumentCount();
-            }
-            if (shouldAttemptHint) {
-                try {
-                    return await Location.countDocuments(query).hint(LOCATION_LIST_HINT);
-                } catch (error) {
-                    if (!hasWarnedLocationListHintFailure) {
-                        hasWarnedLocationListHintFailure = true;
-                        logger.warn('Location count hint unavailable; retrying without hint', {
-                            error: error instanceof Error ? error.message : String(error),
-                            hint: LOCATION_LIST_HINT
-                        });
-                    }
-                }
-            }
-            return Location.countDocuments(query);
-        })();
-
-        const locationsPromise = (async () => {
-            if (!shouldAttemptHint) {
-                return buildLocationsQuery();
-            }
-
-            try {
-                return await buildLocationsQuery().hint(LOCATION_LIST_HINT);
-            } catch (error) {
-                if (!hasWarnedLocationListHintFailure) {
-                    hasWarnedLocationListHintFailure = true;
-                    logger.warn('Location list hint unavailable; retrying without hint', {
-                        error: error instanceof Error ? error.message : String(error),
-                        hint: LOCATION_LIST_HINT
-                    });
-                }
-                return buildLocationsQuery();
-            }
-        })();
-
-        const [total, locations] = await Promise.all([totalPromise, locationsPromise]);
+        const { locations, total } = await getLocationsPaginated(query, skip, limit);
         const items = await hydrateLocationResponses(locations as CanonicalLocationDoc[]);
 
         return sendPaginatedResponse(res, items, total, page, limit);
@@ -362,9 +321,7 @@ export const createLocation = async (req: Request, res: Response) => {
             if (!/^[a-f\d]{24}$/i.test(explicitParentId)) {
                 return sendBaseAdminError(req, res, 'Invalid parentId.', 400);
             }
-            parentLocation = await Location.findOne({ _id: explicitParentId, isActive: true })
-                .select('_id level path')
-                .lean();
+            parentLocation = await findActiveParentById(explicitParentId);
             if (!parentLocation) {
                 return sendBaseAdminError(req, res, 'Parent location not found.', 404);
             }
@@ -389,19 +346,14 @@ export const createLocation = async (req: Request, res: Response) => {
         );
 
         // Check duplicate
-        const existing = await Location.findOne({
-            name: { $regex: new RegExp(`^${escapeRegExp(displayName)}$`, 'i') },
-            country: normalizedCountry,
-            level: finalLevel,
-            parentId: parentLocation?._id || null
-        });
+        const existing = await findDuplicateLocation(displayName, normalizedCountry, finalLevel, parentLocation?._id);
 
         if (existing) {
             return sendBaseAdminError(req, res, 'Location already exists in this state.', 400);
         }
 
-        const locationId = new Location()._id;
-        const location = await Location.create({
+        const locationId = generateLocationId();
+        const location = await createLocationRecord({
             _id: locationId,
             name: displayName,
             country: normalizedCountry,
@@ -437,7 +389,7 @@ export const updateLocation = async (req: Request, res: Response) => {
         const nextCountry = resolveStringField(country);
         const nextName = resolveStringField(name);
 
-        const location = await Location.findById(id);
+        const location = await findLocationById(id);
         if (!location) {
             return sendBaseAdminError(req, res, 'Location not found', 404);
         }
@@ -470,7 +422,7 @@ export const updateLocation = async (req: Request, res: Response) => {
                 if (!parentId || !/^[a-f\d]{24}$/i.test(parentId)) {
                     return sendBaseAdminError(req, res, 'Invalid parentId.', 400);
                 }
-                const parentExists = await Location.exists({ _id: parentId, isActive: true });
+                const parentExists = await locationExists(parentId);
                 if (!parentExists) {
                     return sendBaseAdminError(req, res, 'Parent location not found.', 404);
                 }
@@ -491,9 +443,7 @@ export const updateLocation = async (req: Request, res: Response) => {
         if (name || country || level || hasParentMutation) {
             let parentLocation = null;
             if (location.parentId) {
-                parentLocation = await Location.findById(location.parentId)
-                    .select('_id level path country')
-                    .lean();
+                parentLocation = await findLocationParent(location.parentId);
             }
             location.path = buildHierarchyPath(location._id as any, parentLocation as any) as any;
             const parentSummary = parentLocation
@@ -508,7 +458,7 @@ export const updateLocation = async (req: Request, res: Response) => {
             location.slug = safeSlugify(slugParts.join('-'));
         }
 
-        await location.save();
+        await saveLocation(location);
         await invalidateLocationStateCache();
 
         const [response] = await hydrateLocationResponses([location.toObject() as CanonicalLocationDoc]);
@@ -525,14 +475,14 @@ export const updateLocation = async (req: Request, res: Response) => {
 export const toggleLocationStatus = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const location = await Location.findById(id);
+        const location = await findLocationById(id);
 
         if (!location) {
             return sendBaseAdminError(req, res, 'Location not found', 404);
         }
 
         location.isActive = !location.isActive;
-        await location.save();
+        await saveLocation(location);
         await invalidateLocationStateCache();
 
         return sendSuccessResponse(res, normalizeLocationResponse(location));
@@ -548,7 +498,7 @@ export const toggleLocationStatus = async (req: Request, res: Response) => {
 export const deleteLocation = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const location = await Location.findById(id);
+        const location = await findLocationById(id);
 
         if (!location) {
             return sendBaseAdminError(req, res, 'Location not found', 404);
@@ -572,8 +522,8 @@ export const deleteLocation = async (req: Request, res: Response) => {
             userUsageQuery.$or.push({ 'location.city': locationSummary.city, 'location.state': locationSummary.state });
         }
         const [adsCount, usersCount] = await Promise.all([
-            Ad.countDocuments(adUsageQuery),
-            User.countDocuments(userUsageQuery)
+            countAdsForLocation(adUsageQuery),
+            countUsersForLocation(userUsageQuery)
         ]);
 
         if (adsCount > 0 || usersCount > 0) {
@@ -585,7 +535,7 @@ export const deleteLocation = async (req: Request, res: Response) => {
             );
         }
 
-        await location.softDelete();
+        await softDeleteLocation(location);
         await invalidateLocationStateCache();
         await logAdminAction(req, 'DELETE_LOCATION', 'Location', id, {
             name: locationSummary?.name || location.name,
@@ -606,7 +556,7 @@ export const deleteLocation = async (req: Request, res: Response) => {
 
 export const getGeofences = async (req: Request, res: Response) => {
     try {
-        const geofences = await Geofence.find().sort({ createdAt: -1 });
+        const geofences = await getAllGeofences();
         return sendSuccessResponse(res, geofences);
     } catch (error) {
         return sendBaseAdminError(req, res, error);
@@ -615,8 +565,8 @@ export const getGeofences = async (req: Request, res: Response) => {
 
 export const createGeofence = async (req: Request, res: Response) => {
     try {
-        const geofence = await Geofence.create(req.body);
-        await logAdminAction(req, 'CREATE_GEOFENCE', 'Geofence', geofence._id.toString(), { name: geofence.name });
+        const geofence = await createGeofenceRecord(req.body);
+        await logAdminAction(req, 'CREATE_GEOFENCE', 'Geofence', (geofence as any)._id.toString(), { name: (geofence as any).name });
         return sendSuccessResponse(res, geofence);
     } catch (error) {
         return sendBaseAdminError(req, res, error);
@@ -626,9 +576,9 @@ export const createGeofence = async (req: Request, res: Response) => {
 export const updateGeofence = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const geofence = await Geofence.findByIdAndUpdate(id, req.body, { new: true });
+        const geofence = await updateGeofenceById(id, req.body);
         if (!geofence) return sendBaseAdminError(req, res, 'Geofence not found', 404);
-        await logAdminAction(req, 'UPDATE_GEOFENCE', 'Geofence', id, { name: geofence.name });
+        await logAdminAction(req, 'UPDATE_GEOFENCE', 'Geofence', id, { name: (geofence as any).name });
         return sendSuccessResponse(res, geofence);
     } catch (error) {
         return sendBaseAdminError(req, res, error);
@@ -638,9 +588,9 @@ export const updateGeofence = async (req: Request, res: Response) => {
 export const deleteGeofence = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const geofence = await Geofence.findByIdAndDelete(id);
+        const geofence = await deleteGeofenceById(id);
         if (!geofence) return sendBaseAdminError(req, res, 'Geofence not found', 404);
-        await logAdminAction(req, 'DELETE_GEOFENCE', 'Geofence', id, { name: geofence.name });
+        await logAdminAction(req, 'DELETE_GEOFENCE', 'Geofence', id, { name: (geofence as any).name });
         return sendSuccessResponse(res, null, 'Geofence deleted');
     } catch (error) {
         return sendBaseAdminError(req, res, error);
@@ -656,17 +606,7 @@ export const getModerationQueue = async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as string) || 1;
         const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
 
-        const query = { verificationStatus: LOCATION_STATUS.PENDING };
-        const [total, locations] = await Promise.all([
-            Location.countDocuments(query).hint({ verificationStatus: 1, createdAt: 1 }),
-            Location.find(query)
-                .select('_id name city district state country level coordinates isActive verificationStatus requestedBy createdAt')
-                .lean()
-                .populate('requestedBy', 'firstName lastName email')
-                .sort({ createdAt: 1 })
-                .skip((page - 1) * limit)
-                .limit(limit)
-        ]);
+        const { total, locations } = await getModerationQueuePaginated(page, limit);
 
         return sendPaginatedResponse(res, locations, total, page, limit);
     } catch (error) {
@@ -683,14 +623,14 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
             return sendBaseAdminError(req, res, 'Invalid status', 400);
         }
 
-        const location = await Location.findById(id);
+        const location = await findLocationById(id);
         if (!location) return sendBaseAdminError(req, res, 'Location not found', 404);
         const locationSummary = await resolveLocationSummary(location.toObject());
 
         location.verificationStatus = status;
         if (status === LOCATION_STATUS.VERIFIED) location.isActive = true;
 
-        await location.save();
+        await saveLocation(location);
         await invalidateLocationStateCache();
         await logAdminAction(req, 'MODERATE_LOCATION', 'Location', id, { status, reason });
 

@@ -9,25 +9,21 @@ import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse, sendAd
 import { getSingleParam } from '../../../utils/requestParams';
 import { escapeRegExp } from '../../../utils/stringUtils';
 
-import User from '../../../models/User';
-import Ad from '../../../models/Ad';
-import Model from '../../../models/Model';
-import Report from '../../../models/Report';
-import Business from '../../../models/Business';
-import RevenueAnalytics from '../../../models/RevenueAnalytics';
-import ContactSubmission from '../../../models/ContactSubmission';
-import Location from '../../../models/Location';
-import LocationAnalytics from '../../../models/LocationAnalytics';
-import AdminLog from '../../../models/AdminLog';
 import { redis } from '../../../lib/redis';
 import { scanKeysByPattern } from '../../../utils/redisCache';
 import { AD_STATUS } from '../../../../../shared/enums/adStatus';
-import { LISTING_TYPE } from '../../../../../shared/enums/listingType';
-import { BUSINESS_STATUS } from '../../../../../shared/enums/businessStatus';
-import { CATALOG_STATUS } from '../../../../../shared/enums/catalogStatus';
-import { REPORT_STATUS } from '../../../../../shared/enums/reportStatus';
 import { USER_STATUS } from '../../../../../shared/enums/userStatus';
 import { buildPublicAdFilter } from '../../../utils/FeedVisibilityGuard';
+import {
+    getDashboardOverviewStats,
+    getDashboardCardStats,
+    getRecentAdminLogs,
+    getContactSubmissionsPaginated,
+    updateContactSubmissionById,
+    getLocationAnalyticsRawData,
+    getHotZoneLocations,
+    getAnalyticsLocations,
+} from '../../../services/AdminDashboardService';
 
 import {
     buildLocationSummary,
@@ -52,32 +48,8 @@ export const getStats = async (req: Request, res: Response) => {
         // This is the SSOT from FeedVisibilityGuard — must not be inlined here.
         const publicAdFilter = buildPublicAdFilter();
 
-        const [
-            totalUsers, unifiedStats,
-            pendingModels, openReports, pendingBusinesses, totalRevenueAgg
-        ] = await Promise.all([
-            User.countDocuments(),
-            Ad.aggregate([
-                {
-                    $facet: {
-                        totalAds:        [{ $match: { listingType: LISTING_TYPE.AD } }, { $count: "count" }],
-                        activeAds:       [{ $match: { listingType: LISTING_TYPE.AD,      ...publicAdFilter } }, { $count: "count" }],
-                        pendingAds:      [{ $match: { listingType: LISTING_TYPE.AD,      status: AD_STATUS.PENDING } }, { $count: "count" }],
-                        totalServices:    [{ $match: { listingType: LISTING_TYPE.SERVICE } }, { $count: "count" }],
-                        activeServices:   [{ $match: { listingType: LISTING_TYPE.SERVICE, ...publicAdFilter } }, { $count: "count" }],
-                        pendingServices:  [{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.PENDING } }, { $count: "count" }],
-                        rejectedServices: [{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.REJECTED } }, { $count: "count" }],
-                        totalSpareParts:  [{ $match: { listingType: LISTING_TYPE.SPARE_PART } }, { $count: "count" }],
-                        activeSpareParts: [{ $match: { listingType: LISTING_TYPE.SPARE_PART, ...publicAdFilter } }, { $count: "count" }],
-                        pendingSpareParts:[{ $match: { listingType: LISTING_TYPE.SPARE_PART, status: AD_STATUS.PENDING } }, { $count: "count" }]
-                    }
-                }
-            ]),
-            Model.countDocuments({ status: CATALOG_STATUS.PENDING }),
-            Report.countDocuments({ status: REPORT_STATUS.OPEN }),
-            Business.countDocuments({ status: BUSINESS_STATUS.PENDING }),
-            RevenueAnalytics.aggregate([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }])
-        ]);
+        const { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg } =
+            await getDashboardOverviewStats(publicAdFilter);
 
         const stats = unifiedStats[0];
         const totalAds = stats.totalAds[0]?.count || 0;
@@ -129,25 +101,8 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         // live = status:live AND not expired AND not deleted AND not moderation-hidden.
         const publicAdFilter = buildPublicAdFilter();
 
-        const [
-            totalUsers, adStats,
-            totalReports,
-            totalBusinesses,
-            totalRevenueAgg
-        ] = await Promise.all([
-            User.countDocuments(),
-            Ad.aggregate([
-                {
-                    $facet: {
-                        live:    [{ $match: { listingType: LISTING_TYPE.AD, ...publicAdFilter } }, { $count: "count" }],
-                        pending: [{ $match: { listingType: LISTING_TYPE.AD, status: AD_STATUS.PENDING } }, { $count: "count" }]
-                    }
-                }
-            ]),
-            Report.countDocuments({ status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.PENDING] } }),
-            Business.countDocuments({ isDeleted: { $ne: true } }),
-            RevenueAnalytics.aggregate([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }])
-        ]);
+        const { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg } =
+            await getDashboardCardStats(publicAdFilter);
 
         const activeAds = adStats[0].live[0]?.count || 0;
         const pendingAds = adStats[0].pending[0]?.count || 0;
@@ -179,10 +134,7 @@ export const getAnalytics = async (req: Request, res: Response) => {
  */
 export const getRecentActivity = async (req: Request, res: Response) => {
     try {
-        const logs = await AdminLog.find()
-            .sort({ createdAt: -1 })
-            .limit(10)
-            .populate('adminId', 'firstName lastName email');
+        const logs = await getRecentAdminLogs(10);
 
         const activity = logs.map(log => {
             const admin = (log.adminId || {}) as { firstName?: string; lastName?: string };
@@ -220,10 +172,7 @@ export const getContactSubmissions = async (req: Request, res: Response) => {
             ];
         }
 
-        const [submissions, total] = await Promise.all([
-            ContactSubmission.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
-            ContactSubmission.countDocuments(query)
-        ]);
+        const [submissions, total] = await getContactSubmissionsPaginated(query, skip, limit);
         sendPaginatedResponse(res, submissions, total, page, limit);
     } catch (error: unknown) {
         sendDashboardError(req, res, error);
@@ -243,11 +192,7 @@ export const updateContactSubmissionStatus = async (req: Request, res: Response)
             return sendAdminError(req, res, 'Invalid status', 400);
         }
 
-        const submission = await ContactSubmission.findByIdAndUpdate(
-            id,
-            { status },
-            { new: true }
-        );
+        const submission = await updateContactSubmissionById(id, status);
 
         if (!submission) {
             return sendAdminError(req, res, 'Submission not found', 404);
@@ -368,7 +313,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
             ...(Array.isArray(locationScopeIds) ? { locationId: { $in: locationScopeIds } } : {}),
         };
 
-        const [
+        const {
             totalLocations,
             totalAds,
             totalUsers,
@@ -376,75 +321,17 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
             monthlyAds,
             monthlyUsers,
             monthlyLocs,
-            topHotZonesRaw
-        ] = await Promise.all([
-            Location.countDocuments(buildScopedLocationQuery()),
-            Ad.countDocuments(buildScopedAdQuery({ status: AD_STATUS.LIVE })),
-            User.countDocuments(buildScopedUserQuery({ status: { $in: [USER_STATUS.LIVE, 'active'] } })),
-            Ad.aggregate([
-                {
-                    $match: {
-                        ...buildScopedAdQuery({ status: AD_STATUS.LIVE }),
-                        'location.locationId': { $exists: true, $ne: null },
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$location.locationId',
-                        adsCount: { $sum: 1 }
-                    }
-                },
-                { $sort: { adsCount: -1 } },
-                { $limit: 250 }
-            ]),
-
-            // Monthly Ad Trends
-            Ad.aggregate([
-                { $match: buildScopedAdQuery({ createdAt: { $gte: sixMonthsAgo } }) },
-                {
-                    $group: {
-                        _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
-                        count: { $sum: 1 }
-                    }
-                }
-            ]),
-
-            // Monthly User Trends
-            User.aggregate([
-                { $match: buildScopedUserQuery({ createdAt: { $gte: sixMonthsAgo } }) },
-                {
-                    $group: {
-                        _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
-                        count: { $sum: 1 }
-                    }
-                }
-            ]),
-
-            // Monthly Location Additions
-            Location.aggregate([
-                { $match: buildScopedLocationQuery({ createdAt: { $gte: sixMonthsAgo } }) },
-                {
-                    $group: {
-                        _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
-                        count: { $sum: 1 }
-                    }
-                }
-            ]),
-
-            // Location intelligence overview (hot zones/popularity)
-            LocationAnalytics.find(hotZoneQuery)
-                .select('locationId popularityScore searchCount adsCount')
-                .sort({ popularityScore: -1, searchCount: -1 })
-                .limit(10)
-                .lean()
-        ]);
+            topHotZonesRaw,
+        } = await getLocationAnalyticsRawData({
+            sixMonthsAgo,
+            buildScopedLocationQuery,
+            buildScopedAdQuery,
+            buildScopedUserQuery,
+            hotZoneQuery,
+        });
 
         const hotZoneLocationIds = topHotZonesRaw.map((zone) => zone.locationId);
-        const hotZoneLocations = hotZoneLocationIds.length > 0
-            ? await Location.find({ _id: { $in: hotZoneLocationIds } })
-                .select('_id name country level parentId path')
-                .lean()
-            : [];
+        const hotZoneLocations = await getHotZoneLocations(hotZoneLocationIds.map(String));
         const hotZoneHierarchyMap = await loadHierarchyMapForLocations(hotZoneLocations);
         const hotZoneLocationMap = new Map(
             hotZoneLocations.map((location) => [String(location._id), location])
@@ -486,11 +373,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
             .map((entry) => entry?._id)
             .filter((value): value is string => Boolean(value))
             .map((value) => String(value));
-        const analyticsLocations = adsByLocationIds.length > 0
-            ? await Location.find({ _id: { $in: adsByLocationIds } })
-                .select('_id name country level parentId path')
-                .lean()
-            : [];
+        const analyticsLocations = await getAnalyticsLocations(adsByLocationIds);
         const analyticsHierarchyMap = await loadHierarchyMapForLocations(analyticsLocations);
         const analyticsLocationMap = new Map(
             analyticsLocations.map((location) => [String(location._id), location])

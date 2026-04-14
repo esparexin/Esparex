@@ -277,3 +277,33 @@ export const getBusinessStats = async (userId: string) => {
     ]);
     return { totalServices, approvedServices, pendingServices, views: 0 };
 };
+
+const NOT_DELETED = { isDeleted: { $ne: true } } as const;
+
+export const findBusinessByIdentifier = async (identifier: string) => {
+    if (mongoose.Types.ObjectId.isValid(identifier)) {
+        return Business.findOne({ _id: identifier, ...NOT_DELETED });
+    }
+
+    const bySlug = await Business.findOne({ slug: identifier, ...NOT_DELETED });
+    if (bySlug) return bySlug;
+
+    const suffixMatch = identifier.match(/-([0-9a-fA-F]{24})$/);
+    const extractedId = suffixMatch?.[1];
+    if (extractedId && mongoose.Types.ObjectId.isValid(extractedId)) {
+        return Business.findOne({ _id: extractedId, ...NOT_DELETED });
+    }
+
+    return null;
+};
+
+export const getBusinessByUserIdLean = async (userId: string) => {
+    return Business.findOne({ userId }).lean();
+};
+
+export const softDeleteBusinessesByUserId = async (userId: string) => {
+    return Business.updateMany(
+        { userId, isDeleted: { $ne: true } },
+        { $set: { isDeleted: true, deletedAt: new Date() } }
+    );
+};

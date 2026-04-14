@@ -11,13 +11,9 @@ import { Document, Model as MongooseModel } from 'mongoose';
 import { z } from 'zod';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import Category from '../../models/Category';
-import { respond } from '../../utils/respond';
+import { respond, sendSuccessResponse } from '../../utils/respond';
 import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from '../../utils/errorResponse';
-import { 
-    sendSuccessResponse,
-    sendAdminError
-} from '../admin/adminBaseController';
+import { sendAdminError } from '../admin/adminBaseController';
 import { CatalogStatusValue, CATALOG_STATUS } from '@shared/enums/catalogStatus';
 
 // Re-export SSOT validation helpers so controllers import from one place.
@@ -79,13 +75,7 @@ export const getAdminActorId = (req: Request): string | undefined => {
  */
 export const asModel = <T extends Document>(model: MongooseModel<T>): MongooseModel<T> => model;
 
-/** Backwards-compat helper — prefer CatalogValidationService.validateCategoryIsActive */
-export const isCategoryActive = async (categoryId: string): Promise<boolean> => {
-    const exists = await Category.exists({ _id: categoryId, ...ACTIVE_CATEGORY_QUERY });
-    return Boolean(exists);
-};
-
-// sendCatalogError is imported and re-exported from '../../utils/errorResponse' (line 16)
+// sendCatalogError is imported and re-exported from '../../utils/errorResponse' (line above)
 
 /**
  * Send Zod validation error response mapping issues to field-level details

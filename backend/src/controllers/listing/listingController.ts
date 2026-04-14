@@ -1,11 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import Ad from '../../models/Ad';
-import Brand from '../../models/Brand';
-import Category from '../../models/Category';
-import ProductModel from '../../models/Model';
-import SparePart from '../../models/SparePart';
-import ServiceType from '../../models/ServiceType';
 import { IAuthUser } from '../../types/auth';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import logger from '../../utils/logger';
@@ -41,15 +35,6 @@ const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     expiresAt: 'Expiry cannot be changed while editing a listing.',
 };
 
-// Category / Brand / Model / SparePart / ServiceType live on the admin connection in split-DB
-// deployments, so populate() must receive the bound model instance explicitly.
-const MY_LISTING_POPULATE_SPECS = [
-    { path: 'categoryId', model: Category, select: 'name slug icon' },
-    { path: 'brandId', model: Brand, select: 'name slug' },
-    { path: 'modelId', model: ProductModel, select: 'name slug' },
-    { path: 'sparePartId', model: SparePart, select: 'name slug' },
-    { path: 'serviceTypeIds', model: ServiceType, select: 'name slug' },
-] as const;
 
 /**
  * Enterprise Listing Controller (SSOT)
@@ -272,7 +257,7 @@ export const incrementListingView = async (req: Request, res: Response, next: Ne
             ? { _id: idOrSlug }
             : { seoSlug: idOrSlug };
 
-        await Ad.findOneAndUpdate(filter, { $inc: { 'views.total': 1 } });
+        await adService.incrementAdView(filter);
 
         return sendSuccessResponse(res, { success: true });
     } catch (error) {
@@ -468,17 +453,7 @@ export const getMyListings = async (req: Request, res: Response) => {
             query.status = getStatusMatchCriteria(status as string);
         }
 
-        const itemsQuery = MY_LISTING_POPULATE_SPECS.reduce(
-            (builder, populateSpec) => builder.populate(populateSpec),
-            Ad.find(query)
-        );
-
-        const items = await itemsQuery
-            .sort({ createdAt: -1 })
-            .skip((Number(page) - 1) * Number(limit))
-            .limit(Number(limit));
-
-        const total = await Ad.countDocuments(query);
+        const { items, total } = await adService.getOwnerListings(query, Number(page), Number(limit));
 
         return sendSuccessResponse(res, {
             items,

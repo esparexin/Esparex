@@ -1,8 +1,15 @@
 import Business from '../models/Business';
+import Ad from '../models/Ad';
+import { Document, Model } from 'mongoose';
 import { GOVERNANCE, MS_IN_DAY } from '../config/constants';
 import { publishedBusinessStatusQuery } from '../utils/businessStatus';
 import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
+import { AD_STATUS } from '../../../shared/enums/adStatus';
+import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { serializeBusinessForAdmin } from '../controllers/business/shared';
+import { handlePaginatedContent } from '../utils/contentHandler';
+import { mutateStatuses } from './StatusMutationService';
+import type { Request, Response } from 'express';
 
 /**
  * Service for advanced admin-only business management and metrics.
@@ -77,6 +84,54 @@ export const transformBusinessDocs = (items: any[]): any[] =>
             businessEmail: serialized.email,
         };
     });
+
+export const getAdminBusinessById = async (id: string) => {
+    return Business.findOne({ _id: id })
+        .setOptions({ withDeleted: true })
+        .populate('userId');
+};
+
+export const findBusinessForAdmin = async (id: string) => {
+    return Business.findById(id);
+};
+
+export const updateAdminBusiness = async (id: string, patch: Record<string, unknown>) => {
+    return Business.findByIdAndUpdate(id, { $set: patch }, { new: true, runValidators: true }).populate('userId');
+};
+
+export const cascadeExpireBusinessListings = async (businessId: any, actor: any, reason: string) => {
+    const listings = await Ad.find({ businessId, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
+    if (listings.length > 0) {
+        await mutateStatuses(listings.map((l) => ({
+            domain: (l.listingType === LISTING_TYPE.SERVICE
+                ? LISTING_TYPE.SERVICE
+                : l.listingType === LISTING_TYPE.SPARE_PART
+                    ? 'spare_part_listing'
+                    : LISTING_TYPE.AD) as any,
+            entityId: l._id,
+            toStatus: AD_STATUS.EXPIRED,
+            actor,
+            reason,
+        })));
+    }
+    return listings.length;
+};
+
+export const getAdminBusinessAccountsPaginated = (
+    req: Request,
+    res: Response,
+    status?: string,
+    city?: string
+) => {
+    const adminQuery = getBusinessAccountsQuery(status);
+    if (city) (adminQuery as Record<string, unknown>)['location.city'] = city;
+    return handlePaginatedContent(req, res, Business as unknown as Model<Document>, {
+        populate: 'userId',
+        searchFields: ['name', 'email', 'mobile', 'location.city'],
+        adminQuery,
+        transformResponse: transformBusinessDocs,
+    });
+};
 
 export const getBusinessAccountsQuery = (status?: string) => {
     const adminQuery: Record<string, any> = {};

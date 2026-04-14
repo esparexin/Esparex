@@ -1,7 +1,7 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { ReportTargetTypeValue } from '../../models/Report';
+import type { ReportTargetTypeValue } from '../../models/Report';
 import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';

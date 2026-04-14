@@ -4,14 +4,10 @@
  */
 
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
 import { getHierarchyTree as buildHierarchyTree, scanHierarchyIntegrity, repairHierarchy } from '../../services/catalog/CatalogHierarchyService';
-import { sendSuccessResponse } from '../admin/adminBaseController';
+import { sendSuccessResponse } from '../../utils/respond';
 import { sendCatalogError, hasAdminAccess } from './shared';
-import Category from '../../models/Category';
-import Ad from '../../models/Ad';
-import Brand from '../../models/Brand';
-import Model from '../../models/Model';
+import { findCategoryByIdLean, getCategoryHealthMetrics } from '../../services/catalog/CatalogGovernanceService';
 import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
 import { logAdminAction } from '../../utils/adminLogger';
 import { IAuthUser } from '../../types/auth';
@@ -104,41 +100,13 @@ export const getCategoryHealth = async (req: Request, res: Response) => {
             return sendContractErrorResponse(req, res, 400, 'Invalid Category ID');
         }
 
-        const category = await Category.findById(id).lean();
+        const category = await findCategoryByIdLean(id);
         if (!category) {
             return sendContractErrorResponse(req, res, 404, 'Category not found');
         }
 
-        const categoryId = new mongoose.Types.ObjectId(id);
-
         // Metrics aggregation
-        const [adStats, brandCount, modelCount] = await Promise.all([
-            Ad.aggregate([
-                { $match: { categoryId, isDeleted: { $ne: true } } },
-                { 
-                    $group: { 
-                        _id: null, 
-                        count: { $sum: 1 }, 
-                        avgQuality: { $avg: "$listingQualityScore" },
-                        liveCount: { $sum: { $cond: [{ $eq: ["$status", "live"] }, 1, 0] } }
-                    } 
-                }
-            ]),
-            Brand.countDocuments({ categoryId: id, isDeleted: { $ne: true } }),
-            Model.aggregate([
-                {
-                    $lookup: {
-                        from: 'brands',
-                        localField: 'brandId',
-                        foreignField: '_id',
-                        as: 'brand'
-                    }
-                },
-                { $unwind: '$brand' },
-                { $match: { 'brand.categoryId': categoryId, isDeleted: { $ne: true } } },
-                { $count: 'total' }
-            ])
-        ]);
+        const { adStats, brandCount, modelCount } = await getCategoryHealthMetrics(id);
 
         const stats = adStats[0] || { count: 0, avgQuality: 0, liveCount: 0 };
         const totalModels = modelCount[0]?.total || 0;

@@ -564,3 +564,120 @@ export const isValidAdStatus = (status: string): boolean => {
 
 export const preparePayload = AdCreationService.preparePayload;
 export const createAd = orchestratorCreateAd;
+
+export const getAdForModerationById = async (id: string) => {
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return Ad.findById(id)
+        .select('status reviewVersion listingType isDeleted')
+        .lean<{ status: string; reviewVersion?: number; listingType?: string; isDeleted?: boolean } | null>();
+};
+
+export const extendListingExpiry = async (
+    id: string,
+    expiresAt: Date,
+    currentStatus: string,
+    now: Date
+) => {
+    return Ad.findByIdAndUpdate(
+        id,
+        {
+            expiresAt,
+            $push: {
+                timeline: {
+                    status: currentStatus,
+                    timestamp: now,
+                    reason: 'Expiry extended by admin',
+                },
+            },
+        },
+        { new: true }
+    );
+};
+
+export const getServiceAnalyticsStats = async () => {
+    const [totalServices, pendingServices, activeServices] = await Promise.all([
+        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE }),
+        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: 'pending' }),
+        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE }),
+    ]);
+    return { totalServices, pendingServices, activeServices };
+};
+
+export const findOwnedService = async (
+    id: string,
+    userId: unknown,
+    listingType: string,
+    fetchFull: boolean
+) => {
+    const objectId = new (await import('mongoose')).default.Types.ObjectId(id);
+    if (fetchFull) {
+        return Ad.findOne({ _id: objectId, listingType, sellerId: userId });
+    }
+    return Ad.findOne({ _id: objectId, listingType, sellerId: userId, isDeleted: { $ne: true } }).select('status');
+};
+
+export const findServiceForUpdate = async (
+    id: string,
+    userId: unknown,
+    businessId: unknown,
+    listingType: string
+) =>
+    Ad.findOne({
+        _id: id,
+        listingType,
+        businessId: businessId || { $exists: false },
+        sellerId: userId,
+    })
+    .select('images status approvedAt categoryId brandId')
+    .lean();
+
+export const updateServiceByOwner = async (
+    id: string,
+    userId: unknown,
+    businessId: unknown,
+    listingType: string,
+    updates: Record<string, unknown>
+) =>
+    Ad.findOneAndUpdate(
+        { _id: id, listingType, businessId: businessId || { $exists: false }, sellerId: userId },
+        updates,
+        { new: true }
+    );
+
+export const incrementAdView = async (
+    filter: Record<string, unknown>
+) => {
+    return Ad.findOneAndUpdate(filter, { $inc: { 'views.total': 1 } });
+};
+
+export const getOwnerListings = async (
+    query: Record<string, unknown>,
+    page: number,
+    limit: number
+) => {
+    const { default: Brand } = await import('../models/Brand');
+    const { default: Category } = await import('../models/Category');
+    const { default: ProductModel } = await import('../models/Model');
+    const { default: SparePart } = await import('../models/SparePart');
+    const { default: ServiceType } = await import('../models/ServiceType');
+
+    const populateSpecs = [
+        { path: 'categoryId', model: Category, select: 'name slug icon' },
+        { path: 'brandId', model: Brand, select: 'name slug' },
+        { path: 'modelId', model: ProductModel, select: 'name slug' },
+        { path: 'sparePartId', model: SparePart, select: 'name slug' },
+        { path: 'serviceTypeIds', model: ServiceType, select: 'name slug' },
+    ] as const;
+
+    const itemsQuery = populateSpecs.reduce(
+        (builder, spec) => builder.populate(spec),
+        Ad.find(query)
+    );
+
+    const [items, total] = await Promise.all([
+        itemsQuery.sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+        Ad.countDocuments(query),
+    ]);
+
+    return { items, total };
+};

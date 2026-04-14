@@ -6,19 +6,12 @@
 
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Category from '../../models/Category';
-import Brand from '../../models/Brand';
-import ServiceType from '../../models/ServiceType';
-import ScreenSize from '../../models/ScreenSize';
-import Ad from '../../models/Ad';
-import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
+import type { IServiceType } from '../../models/ServiceType';
+import type { IScreenSize } from '../../models/ScreenSize';
 import CatalogOrchestrator from '../../services/catalog/CatalogOrchestrator';
 import {
-    asModel,
     sendCatalogError,
     QueryRecord,
-    ACTIVE_CATEGORY_QUERY,
     validateActiveCategories,
     getActiveCategoryIds,
     handleCatalogCreate,
@@ -37,8 +30,16 @@ import {
     serviceTypeUpdateSchema
 } from '../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
-import { IServiceType } from '../../models/ServiceType';
-import { IScreenSize } from '../../models/ScreenSize';
+import {
+    ServiceTypeModel,
+    ScreenSizeModel,
+    findCategoryBySlug,
+    findActiveCategoryBySlug,
+    findServiceTypeById,
+    checkServiceTypeDependencies,
+    findScreenSizeById,
+    getActiveBrandsForScreenSizes,
+} from '../../services/catalog/CatalogReferenceService';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Reference data CRUD now delegated to shared.ts generic handlers.
@@ -57,7 +58,7 @@ export const getServiceTypes = async (req: Request, res: Response) => {
     let categoryObjectId: string | undefined = categoryId;
     if (!isAdminView && categoryId) {
         if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-            const cat = await Category.findOne({ slug: categoryId });
+            const cat = await findCategoryBySlug(categoryId);
             if (cat) categoryObjectId = cat._id.toString();
         }
     }
@@ -68,7 +69,7 @@ export const getServiceTypes = async (req: Request, res: Response) => {
         ...CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build()
     };
 
-    return handlePaginatedContent(req, res, ServiceType as any, {
+    return handlePaginatedContent(req, res, ServiceTypeModel as any, {
         populate: isAdminView ? undefined : 'categoryIds',
         adminQuery,
         publicQuery
@@ -80,7 +81,7 @@ export const getServiceTypes = async (req: Request, res: Response) => {
  */
 export const getServiceTypeById = async (req: Request, res: Response) => {
     try {
-        const serviceType = await ServiceType.findById(req.params.id).populate('categoryIds');
+        const serviceType = await findServiceTypeById(req.params.id);
         if (!serviceType) return sendCatalogError(req, res, 'Service type not found', 404);
         sendSuccessResponse(res, serviceType);
     } catch (error) {
@@ -92,7 +93,7 @@ export const getServiceTypeById = async (req: Request, res: Response) => {
  * Create new service type
  */
 export const createServiceType = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, asModel<IServiceType>(ServiceType), serviceTypeCreateSchema, {
+    return handleCatalogCreate(req, res, ServiceTypeModel as any, serviceTypeCreateSchema, {
         auditAction: 'SERVICE_TYPE_CREATE',
         preOp: async (payload) => {
             // Backward compatibility mapping
@@ -109,7 +110,7 @@ export const createServiceType = async (req: Request, res: Response) => {
  * Update existing service type
  */
 export const updateServiceType = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, asModel<IServiceType>(ServiceType), serviceTypeUpdateSchema, {
+    return handleCatalogUpdate(req, res, ServiceTypeModel as any, serviceTypeUpdateSchema, {
         auditAction: 'SERVICE_TYPE_UPDATE',
         preUpdate: async (id, payload) => {
             // Backward compatibility mapping
@@ -127,7 +128,7 @@ export const updateServiceType = async (req: Request, res: Response) => {
  * Toggle service type active status
  */
 export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, asModel<IServiceType>(ServiceType) as any, { 
+    return handleCatalogToggleStatus(req, res, ServiceTypeModel as any, {
         auditAction: 'TOGGLE_SERVICE_TYPE_STATUS',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -137,22 +138,7 @@ export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
  * Delete service type (soft delete with dependency check)
  */
 export const deleteServiceType = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, asModel<IServiceType>(ServiceType) as any, async (id) => {
-        const item = await ServiceType.findById(id);
-        if (!item) return { count: 0, details: {} };
-
-        const inUseCount = await Ad.countDocuments({
-            status: AD_STATUS.LIVE,
-            $or: [
-                { serviceTypeIds: item._id },
-                { serviceTypes: item.name }
-            ]
-        });
-        return {
-            count: inUseCount,
-            details: { services: inUseCount }
-        };
-    }, { 
+    return handleCatalogDelete(req, res, ServiceTypeModel as any, checkServiceTypeDependencies, {
         auditAction: 'SERVICE_TYPE_DELETE',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -172,7 +158,7 @@ export const getScreenSizes = async (req: Request, res: Response) => {
     let categoryObjectId: string | mongoose.Types.ObjectId | undefined = categoryId as string | undefined;
     if (!isAdminView && categoryId) {
         if (!mongoose.Types.ObjectId.isValid(categoryId as string)) {
-            const cat = await Category.findOne({ slug: categoryId as string, ...ACTIVE_CATEGORY_QUERY });
+            const cat = await findActiveCategoryBySlug(categoryId as string);
             if (cat) categoryObjectId = cat._id;
         }
     }
@@ -189,18 +175,10 @@ export const getScreenSizes = async (req: Request, res: Response) => {
     if (!isAdminView && activeCategoryIds.length === 0) {
         return sendEmptyPublicList(res);
     }
-    const activeBrands = !isAdminView
-        ? await Brand.find({
-            isActive: true,
-            isDeleted: { $ne: true },
-            $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
-            ],
-            categoryId: { $in: activeCategoryIds }
-        }).select('_id').lean()
+    const activeBrandDocs = !isAdminView
+        ? await getActiveBrandsForScreenSizes(activeCategoryIds)
         : [];
-    const activeBrandIds = activeBrands.map((brand) => String(brand._id));
+    const activeBrandIds = activeBrandDocs.map((brand) => String(brand._id));
 
     const adminQuery: QueryRecord = CategoryQueryBuilder.forSingular().withFilters({ categoryId: categoryId as string }).build();
 
@@ -217,7 +195,7 @@ export const getScreenSizes = async (req: Request, res: Response) => {
         ]
     };
 
-    return handlePaginatedContent(req, res, asModel(ScreenSize), {
+    return handlePaginatedContent(req, res, ScreenSizeModel, {
         adminQuery,
         publicQuery,
         searchFields: ['name', 'size']
@@ -229,7 +207,7 @@ export const getScreenSizes = async (req: Request, res: Response) => {
  */
 export const getScreenSizeById = async (req: Request, res: Response) => {
     try {
-        const size = await ScreenSize.findById(req.params.id).populate('categoryId');
+        const size = await findScreenSizeById(req.params.id);
         if (!size) return sendCatalogError(req, res, 'Screen size not found', 404);
         sendSuccessResponse(res, size);
     } catch (error) {
@@ -241,7 +219,7 @@ export const getScreenSizeById = async (req: Request, res: Response) => {
  * Create new screen size
  */
 export const createScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, asModel<IScreenSize>(ScreenSize), screenSizeCreateSchema, {
+    return handleCatalogCreate(req, res, ScreenSizeModel as any, screenSizeCreateSchema, {
         auditAction: 'SCREEN_SIZE_CREATE',
         preOp: async (payload) => {
             if (!payload.name && payload.size) payload.name = `${payload.size} Screen Size`;
@@ -257,7 +235,7 @@ export const createScreenSize = async (req: Request, res: Response) => {
  * Update existing screen size
  */
 export const updateScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, asModel<IScreenSize>(ScreenSize), screenSizeUpdateSchema, {
+    return handleCatalogUpdate(req, res, ScreenSizeModel as any, screenSizeUpdateSchema, {
         auditAction: 'SCREEN_SIZE_UPDATE',
         preUpdate: async (id, payload, existingSize) => {
             if (!payload.name && payload.size) payload.name = `${payload.size} Screen Size`;
@@ -275,7 +253,7 @@ export const updateScreenSize = async (req: Request, res: Response) => {
  * Toggle screen size active status
  */
 export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, asModel<IScreenSize>(ScreenSize) as any, { 
+    return handleCatalogToggleStatus(req, res, ScreenSizeModel as any, {
         auditAction: 'TOGGLE_SCREEN_SIZE_STATUS',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -285,7 +263,7 @@ export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
  * Delete screen size (soft delete)
  */
 export const deleteScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, asModel<IScreenSize>(ScreenSize) as any, undefined, { 
+    return handleCatalogDelete(req, res, ScreenSizeModel as any, undefined, {
         auditAction: 'SCREEN_SIZE_DELETE',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });

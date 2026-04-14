@@ -568,6 +568,35 @@ export async function getPlanById(planId: string) {
     return Plan.findById(planId);
 }
 
+export async function findPlanByIdOrCode(planId: string) {
+    const plan = await Plan.findById(planId).catch(() => null);
+    if (plan) return plan;
+    return Plan.findOne({ code: planId });
+}
+
+export async function findTransactionForUpdate(id: string) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    return Transaction.findById(id);
+}
+
+export async function saveTransaction(transaction: { save: () => Promise<unknown> }) {
+    return transaction.save();
+}
+
+export async function upsertUserPlan(
+    userId: mongoose.Types.ObjectId | string,
+    planId: mongoose.Types.ObjectId | string | undefined,
+    startDate: Date,
+    endDate: Date
+) {
+    const UserPlan = (await import('../models/UserPlan')).default;
+    return UserPlan.findOneAndUpdate(
+        { userId, planId },
+        { $set: { startDate, endDate, status: 'ACTIVE' } },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+}
+
 export async function getUserForPayment(userId: mongoose.Types.ObjectId | string) {
     return User.findById(userId).lean();
 }

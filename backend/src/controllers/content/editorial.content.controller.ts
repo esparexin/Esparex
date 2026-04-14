@@ -1,6 +1,6 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
-import PageContent from '../../models/PageContent';
+import { findContentBySlug, upsertContentBySlug, getAllContent as fetchAllContent } from '../../services/PageContentService';
 import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { respond } from '../../utils/respond';
@@ -17,7 +17,7 @@ export const getContentBySlug = async (req: Request, res: Response) => {
     try {
         const slug = getSingleParam(req, res, 'slug', { error: 'Invalid slug' });
         if (!slug) return;
-        const content = await PageContent.findOne({ slug });
+        const content = await findContentBySlug(slug);
 
         if (!content) {
             return res.status(200).json(respond({
@@ -45,11 +45,7 @@ export const updateContentBySlug = async (req: Request, res: Response) => {
         const { title, content, items, metadata } = req.body;
         const adminId = req.admin?.id;
 
-        const updatedContent = await PageContent.findOneAndUpdate(
-            { slug },
-            { title, content, items, metadata, updatedBy: adminId },
-            { new: true, upsert: true, runValidators: true }
-        );
+        const updatedContent = await upsertContentBySlug(slug, { title, content, items, metadata, updatedBy: adminId });
 
         res.status(200).json(respond({
             success: true,
@@ -64,7 +60,7 @@ export const updateContentBySlug = async (req: Request, res: Response) => {
 
 export const getAllContent = async (req: Request, res: Response) => {
     try {
-        const contents = await PageContent.find({}, 'slug title updatedAt');
+        const contents = await fetchAllContent();
         res.status(200).json(respond({ success: true, data: contents }));
     } catch (error) {
         logger.error('Error fetching all contents:', error);

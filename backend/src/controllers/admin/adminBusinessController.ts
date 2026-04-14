@@ -1,8 +1,5 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
-import Business from '../../models/Business';
-import AdModel from '../../models/Ad';
-import { Document, Model } from 'mongoose';
 import { logAdminAction } from '../../utils/adminLogger';
 import { createInAppNotification } from '../../services/NotificationService';
 import { recalculateTrustScore } from '../../services/TrustService';
@@ -13,31 +10,14 @@ import {
 import { normalizeBusinessStatus } from '../../utils/businessStatus';
 import { normalizeLocation } from '../../services/location/LocationNormalizer';
 import { serializeBusinessForAdmin } from '../business/shared';
-
-import { handlePaginatedContent } from '../../utils/contentHandler';
 import * as businessService from '../../services/BusinessService';
 import { buildBusinessLocationPayload } from '../../services/BusinessService';
 import * as adminBusinessService from '../../services/AdminBusinessService';
-import { mutateStatus, mutateStatuses } from '../../services/StatusMutationService';
+import { mutateStatus } from '../../services/StatusMutationService';
 import { BUSINESS_STATUS } from '../../../../shared/enums/businessStatus';
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
-import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 
 
-const cascadeExpireListings = async (businessId: any, actor: any, reason: string) => {
-    const listings = await AdModel.find({ businessId, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
-    if (listings.length > 0) {
-        await mutateStatuses(listings.map(l => ({
-            domain: (l.listingType === LISTING_TYPE.SERVICE ? LISTING_TYPE.SERVICE : (l.listingType === LISTING_TYPE.SPARE_PART ? 'spare_part_listing' : LISTING_TYPE.AD)) as any,
-            entityId: l._id,
-            toStatus: AD_STATUS.EXPIRED,
-            actor,
-            reason
-        })));
-        logger.info(`Business Cascade: Expired ${listings.length} listings for business ${businessId}`);
-    }
-};
 
 export const getBusinessOverview = async (req: Request, res: Response) => {
     try {
@@ -50,25 +30,13 @@ export const getBusinessOverview = async (req: Request, res: Response) => {
 
 export const getBusinessAccounts = async (req: Request, res: Response) => {
     const { status } = req.query;
-    const adminQuery = adminBusinessService.getBusinessAccountsQuery(status as string);
     const city = typeof req.query.city === 'string' ? req.query.city.trim() : '';
-    if (city) {
-        adminQuery['location.city'] = city;
-    }
-
-    return handlePaginatedContent(req, res, Business as unknown as Model<Document>, {
-        populate: 'userId',
-        searchFields: ['name', 'email', 'mobile', 'location.city'],
-        adminQuery,
-        transformResponse: adminBusinessService.transformBusinessDocs
-    });
+    return adminBusinessService.getAdminBusinessAccountsPaginated(req, res, status as string, city);
 };
 
 export const getBusinessAccountById = async (req: Request, res: Response) => {
     try {
-        const business = await Business.findOne({ _id: req.params.id })
-            .setOptions({ withDeleted: true })
-            .populate('userId');
+        const business = await adminBusinessService.getAdminBusinessById(req.params.id as string);
         if (!business) {
             return sendAdminError(req, res, 'Business not found', 404);
         }
@@ -134,10 +102,9 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
             { businessId: business._id.toString(), status: BUSINESS_STATUS.REJECTED, reason }
         );
 
-        // 🛑 CASCADE EXPIRY: Use mutateStatuses for governed termination
-        // 🛑 CASCADE EXPIRY: Use shared helper
         const actor: any = { type: ACTOR_TYPE.ADMIN, id: (req.user as any)?.id || (req.user as any)?._id };
-        await cascadeExpireListings(business._id, actor, `Cascaded from business rejection: ${reason}`);
+        const cascaded = await adminBusinessService.cascadeExpireBusinessListings(business._id, actor, `Cascaded from business rejection: ${reason}`);
+        if (cascaded > 0) logger.info(`Business Cascade: Expired ${cascaded} listings for business ${business._id}`);
 
         sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business rejected');
     } catch (error: unknown) {
@@ -217,7 +184,7 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'No valid fields provided for update', 400);
         }
 
-        const existingBusiness = await Business.findById(req.params.id);
+        const existingBusiness = await adminBusinessService.findBusinessForAdmin(req.params.id as string);
         if (!existingBusiness) {
             return sendAdminError(req, res, 'Business not found', 404);
         }
@@ -248,11 +215,7 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
             }
         }
 
-        const business = await Business.findByIdAndUpdate(
-            req.params.id,
-            { $set: patch },
-            { new: true, runValidators: true }
-        ).populate('userId');
+        const business = await adminBusinessService.updateAdminBusiness(req.params.id as string, patch);
         if (!business) {
             return sendAdminError(req, res, 'Business not found', 404);
         }
@@ -265,19 +228,17 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
 
 export const deleteBusinessAccount = async (req: Request, res: Response) => {
     try {
-        const business = await Business.findById(req.params.id);
+        const business = await adminBusinessService.findBusinessForAdmin(req.params.id as string);
         if (!business) {
             return sendAdminError(req, res, 'Business not found', 404);
         }
 
-        const businessName = business.name;
-        const userId = business.userId.toString();
-
-        const listings = await AdModel.find({ businessId: business._id, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
+        const businessName = (business as any).name;
+        const userId = (business as any).userId.toString();
 
         // Cascade: use shared helper
         const actor: any = { type: ACTOR_TYPE.ADMIN, id: (req.user as any)?.id || (req.user as any)?._id };
-        await cascadeExpireListings(business._id, actor, `Cascaded from business deletion`);
+        const cascadedCount = await adminBusinessService.cascadeExpireBusinessListings(business._id, actor, 'Cascaded from business deletion');
 
 
         // Soft delete the business
@@ -289,7 +250,7 @@ export const deleteBusinessAccount = async (req: Request, res: Response) => {
 
         await logAdminAction(req, 'DELETE_BUSINESS', 'Business', req.params.id, {
             businessName,
-            cascadedListings: listings.length
+            cascadedListings: cascadedCount
         });
 
         // Notify the user
