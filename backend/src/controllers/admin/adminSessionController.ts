@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-
-import AdminSession from '../../models/AdminSession';
+import { getAdminSessions as fetchAdminSessions, revokeAdminSessionById as revokeSessionById } from '../../services/AdminSessionService';
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from './adminBaseController';
 import { getSingleParam } from '../../utils/requestParams';
 import { logAdminAction } from '../../utils/adminLogger';
@@ -26,14 +25,7 @@ export const getAdminSessions = async (req: Request, res: Response) => {
             query.expiresAt = { $lte: now };
         }
 
-        const [items, total] = await Promise.all([
-            AdminSession.find(query)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .populate('adminId', 'firstName lastName email role'),
-            AdminSession.countDocuments(query)
-        ]);
+        const { items, total } = await fetchAdminSessions(query, skip, limit);
 
         sendPaginatedResponse(res, items, total, page, limit);
     } catch (error: unknown) {
@@ -46,11 +38,7 @@ export const revokeAdminSessionById = async (req: Request, res: Response) => {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid session ID' });
         if (!id) return;
 
-        const session = await AdminSession.findByIdAndUpdate(
-            id,
-            { revokedAt: new Date() },
-            { new: true }
-        );
+        const session = await revokeSessionById(id);
 
         if (!session) {
             return sendAdminError(req, res, 'Admin session not found', 404);

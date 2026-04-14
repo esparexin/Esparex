@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import AdminLog from '../../models/AdminLog';
+import { getAuditLogs as fetchAuditLogs } from '../../services/AdminService';
 import {
     getPaginationParams,
     sendPaginatedResponse,
@@ -29,14 +29,7 @@ export const getAuditLogs = async (req: Request, res: Response) => {
             query.adminId = adminId;
         }
 
-        const [logs, total] = await Promise.all([
-            AdminLog.find(query)
-                .skip(skip)
-                .limit(limit)
-                .populate('adminId', 'firstName lastName email')
-                .sort({ createdAt: -1 }),
-            AdminLog.countDocuments(query)
-        ]);
+        const { logs, total } = await fetchAuditLogs(query, skip, limit);
 
         sendPaginatedResponse(res, logs, total, page, limit);
     } catch (error: unknown) {

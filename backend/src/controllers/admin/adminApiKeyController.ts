@@ -1,15 +1,14 @@
-import crypto from 'crypto';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-
-import ApiKey from '../../models/ApiKey';
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from './adminBaseController';
 import { logAdminAction } from '../../utils/adminLogger';
 import { getSingleParam } from '../../utils/requestParams';
-import { API_KEY_STATUS } from '../../../../shared/enums/apiKeyStatus';
+import {
+    getApiKeys as getApiKeysService,
+    createApiKey as createApiKeyService,
+    revokeApiKey as revokeApiKeyService,
+} from '../../services/ApiKeyService';
 
-
-const hashApiKey = (rawKey: string) => crypto.createHash('sha256').update(rawKey).digest('hex');
 
 export const getApiKeys = async (req: Request, res: Response) => {
     try {
@@ -18,15 +17,7 @@ export const getApiKeys = async (req: Request, res: Response) => {
         const query: Record<string, unknown> = {};
         if (status && status !== 'all') query.status = status;
 
-        const [items, total] = await Promise.all([
-            ApiKey.find(query)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .populate('createdBy', 'firstName lastName email'),
-            ApiKey.countDocuments(query)
-        ]);
-
+        const { items, total } = await getApiKeysService(query, skip, limit);
         sendPaginatedResponse(res, items, total, page, limit);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
@@ -45,35 +36,25 @@ export const createApiKey = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'API key name is required', 400);
         }
 
-        const rawKey = `esk_live_${crypto.randomBytes(24).toString('hex')}`;
-        const keyHash = hashApiKey(rawKey);
-        const keyPrefix = rawKey.slice(0, 12);
-
         const createdBy = req.user?._id;
         if (!createdBy || !mongoose.Types.ObjectId.isValid(String(createdBy))) {
             return sendAdminError(req, res, 'Unauthorized', 401);
         }
 
-        const apiKey = await ApiKey.create({
+        const { apiKey, rawKey } = await createApiKeyService({
             name,
-            keyHash,
-            keyPrefix,
             scopes,
-            status: API_KEY_STATUS.ACTIVE,
+            expiresAt,
             createdBy: new mongoose.Types.ObjectId(String(createdBy)),
-            expiresAt
         });
 
         await logAdminAction(req, 'CREATE_API_KEY', 'ApiKey', apiKey._id.toString(), {
             name,
             scopes,
-            expiresAt
+            expiresAt,
         });
 
-        sendSuccessResponse(res, {
-            ...apiKey.toJSON(),
-            key: rawKey
-        }, 'API key created successfully');
+        sendSuccessResponse(res, { ...apiKey.toJSON(), key: rawKey }, 'API key created successfully');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -84,12 +65,7 @@ export const revokeApiKey = async (req: Request, res: Response) => {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid API key ID' });
         if (!id) return;
 
-        const apiKey = await ApiKey.findByIdAndUpdate(
-            id,
-            { status: API_KEY_STATUS.REVOKED, revokedAt: new Date() },
-            { new: true }
-        );
-
+        const apiKey = await revokeApiKeyService(id);
         if (!apiKey) {
             return sendAdminError(req, res, 'API key not found', 404);
         }

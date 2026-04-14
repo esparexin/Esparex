@@ -313,3 +313,17 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
         logger.error('Error processing smart alerts', { error: error instanceof Error ? error.message : String(error) });
     }
 };
+
+export const getAlertDeliveryLogs = async (skip: number, limit: number) => {
+    const [logs, total] = await Promise.all([
+        AlertDeliveryLog.find({})
+            .sort({ deliveredAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate('alertId', 'name criteria user')
+            .populate('adId', 'title price location status')
+            .lean(),
+        AlertDeliveryLog.countDocuments(),
+    ]);
+    return { logs, total };
+};

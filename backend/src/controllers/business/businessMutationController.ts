@@ -6,9 +6,8 @@ import { Request, Response } from 'express';
 import * as businessService from '../../services/BusinessService';
 import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from '../../utils/errorResponse';
-import { resolveDuplicateBusinessMessage } from './shared';
-import User from '../../models/User';
-import { serializeBusinessForOwner } from './shared';
+import { resolveDuplicateBusinessMessage, serializeBusinessForOwner } from './shared';
+import { getUserPhoneVerification } from '../../services/UserService';
 
 export const registerBusiness = async (req: Request, res: Response) => {
     try {
@@ -19,7 +18,7 @@ export const registerBusiness = async (req: Request, res: Response) => {
         }
 
         // Fetch user with phone verification status (not in JWT/middleware)
-        const user = await User.findById(authUser._id).select('isPhoneVerified mobile').lean();
+        const user = await getUserPhoneVerification(authUser._id.toString());
         if (!user) {
             sendErrorResponse(req, res, 401, 'User not found');
             return;

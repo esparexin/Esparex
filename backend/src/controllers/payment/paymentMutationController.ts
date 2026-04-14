@@ -6,9 +6,9 @@ import {
     checkTransactionVelocity,
     findPendingTransaction,
     createPaymentTransaction,
+    getPlanById,
+    getUserForPayment,
 } from '../../services/PaymentProcessingService';
-import Plan from '../../models/Plan';
-import User from '../../models/User';
 import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
@@ -27,10 +27,10 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
 
         if (!planId) return sendErrorResponse(req, res, 400, 'Plan ID required');
 
-        const user = await User.findById(req.user._id);
+        const user = await getUserForPayment(req.user._id);
         if (!user) return sendErrorResponse(req, res, 404, 'User not found');
 
-        const plan = await Plan.findById(planId);
+        const plan = await getPlanById(planId);
         if (!plan || !plan.active) return sendErrorResponse(req, res, 404, 'Invalid or inactive plan');
         const razorpayConfig = await getRazorpayRuntimeConfig();
         if (!razorpayConfig.enabled) {

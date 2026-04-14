@@ -1,6 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import User from '../../models/User';
-import Business from '../../models/Business';
 import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { User as SharedUser } from '../../../../shared/types/User';
@@ -8,6 +6,7 @@ import { serializeDoc } from '../../utils/serialize';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';
 import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '../../services/UserProfileService';
+import { getUserWithBusiness } from '../../services/UserService';
 
 const resolveUserId = (req: Request, res: Response): string | null => {
   const userId = typeof req.params.id === 'string' ? req.params.id : '';
@@ -36,10 +35,7 @@ export const getMe = async (
       return;
     }
 
-    const [user, business] = await Promise.all([
-      User.findById(userId).select('-password -salt').lean(),
-      Business.findOne({ userId }).lean()
-    ]);
+    const { user, business } = await getUserWithBusiness(userId);
 
     if (!user) {
       sendErrorResponse(req, res, 404, 'User not found');

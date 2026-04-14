@@ -4,13 +4,10 @@ import { ApiResponse } from '../../../../shared/types/Api';
 import { respond } from '../../utils/respond';
 import { Request, Response } from 'express';
 import * as businessService from '../../services/BusinessService';
-import Ad from '../../models/Ad';
 import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from '../../utils/errorResponse';
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { isBusinessPublishedStatus } from '../../utils/businessStatus';
-import { normalizeAdImagesForResponse } from '../../services/adQuery/AdQueryHelpers';
 import {
     BusinessStatsPayload,
     findBusinessByIdentifier,
@@ -31,20 +28,14 @@ const requireBusiness = async (req: Request, res: Response, errorMsg = 'Invalid 
     return business;
 };
 
-const getBusinessListings = async (sellerId: any, listingType: string) => {
-    const listings = await Ad.find({
-        sellerId,
-        listingType,
-        status: AD_STATUS.LIVE,
-        isDeleted: { $ne: true }
-    }).sort({ createdAt: -1 }).lean();
-    return listings.map((listing) => normalizeAdImagesForResponse(listing as unknown as Record<string, unknown>));
+const getBusinessListings = async (sellerId: string, listingType: string) => {
+    return businessService.getBusinessListings(sellerId, listingType);
 };
 
 const sendListingResponse = async (req: Request, res: Response, listingType: string): Promise<void> => {
     const business = await requireBusiness(req, res);
     if (!business) return;
-    const data = await getBusinessListings(business.userId, listingType);
+    const data = await getBusinessListings(business.userId.toString(), listingType);
     res.json(respond<ApiResponse<unknown[]>>({ success: true, data }));
 };
 
@@ -138,20 +129,11 @@ export const getBusinessStatsById = async (req: Request, res: Response) => {
         if (!business) return;
 
         const userId = business.userId.toString();
-        const [totalServices, approvedServices, pendingServices] = await Promise.all([
-            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE }),
-            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE }),
-            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE, status: 'pending' })
-        ]);
+        const stats = await businessService.getBusinessStats(userId);
 
         const response = respond<ApiResponse<BusinessStatsPayload>>({
             success: true,
-            data: {
-                totalServices,
-                approvedServices,
-                pendingServices,
-                views: 0
-            }
+            data: stats,
         });
 
         res.json(response);

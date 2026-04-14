@@ -1,13 +1,10 @@
 import { Request, Response } from 'express';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
-import Admin from '../../models/Admin';
 import logger from '../../utils/logger';
 import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
-import { 
-    sendSuccessResponse, 
-    sendAdminError 
-} from './adminBaseController';
+import { sendSuccessResponse, sendAdminError } from './adminBaseController';
+import { getAdminWithTwoFactor, saveAdmin } from '../../services/AdminService';
 
 const resolveAdminId = (req: Request): string | null => {
     const reqAdmin = req.admin?._id?.toString();
@@ -21,7 +18,7 @@ const resolveAdminId = (req: Request): string | null => {
 const getAdminWith2FA = async (req: Request) => {
     const adminId = resolveAdminId(req);
     if (!adminId) return null;
-    return Admin.findById(adminId).select('+twoFactorSecret +twoFactorEnabled');
+    return getAdminWithTwoFactor(adminId);
 };
 
 export const setup2FA = async (req: Request, res: Response) => {
@@ -40,7 +37,7 @@ export const setup2FA = async (req: Request, res: Response) => {
 
         admin.twoFactorSecret = secret.base32;
         admin.twoFactorEnabled = false;
-        await admin.save();
+        await saveAdmin(admin);
 
         const qrCodeDataUrl = await QRCode.toDataURL(secret.otpauth_url || '');
 
@@ -87,7 +84,7 @@ export const verify2FA = async (req: Request, res: Response) => {
         }
 
         admin.twoFactorEnabled = true;
-        await admin.save();
+        await saveAdmin(admin);
 
         logger.info('Admin 2FA enabled', { adminId: admin._id.toString() });
         return sendSuccessResponse(
@@ -129,7 +126,7 @@ export const disable2FA = async (req: Request, res: Response) => {
 
         admin.twoFactorEnabled = false;
         admin.twoFactorSecret = undefined;
-        await admin.save();
+        await saveAdmin(admin);
 
         logger.warn('Admin 2FA disabled', { adminId: admin._id.toString() });
         return sendSuccessResponse(

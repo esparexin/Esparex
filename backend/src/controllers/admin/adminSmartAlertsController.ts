@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getPaginationParams, sendAdminError, sendSuccessResponse } from "./adminBaseController";
-import AlertDeliveryLog from "../../models/AlertDeliveryLog";
+import { getAlertDeliveryLogs } from "../../services/SmartAlertService";
 
 /**
  * GET /api/v1/admin/smart-alerts/logs
@@ -10,16 +10,7 @@ export async function getSmartAlertLogs(req: Request, res: Response) {
     try {
         const { page, limit, skip } = getPaginationParams(req);
         
-        const [logs, total] = await Promise.all([
-            AlertDeliveryLog.find({})
-                .sort({ deliveredAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .populate("alertId", "name criteria user")
-                .populate("adId", "title price location status")
-                .lean(),
-            AlertDeliveryLog.countDocuments()
-        ]);
+        const { logs, total } = await getAlertDeliveryLogs(skip, limit);
 
         return sendSuccessResponse(res, {
             items: logs,

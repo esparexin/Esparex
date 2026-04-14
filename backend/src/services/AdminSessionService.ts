@@ -69,3 +69,27 @@ export const revokeAdminSessionsForAdmin = async (adminId: string) => {
         { $set: { revokedAt: new Date() } }
     );
 };
+
+export const getAdminSessions = async (
+    query: Record<string, unknown>,
+    skip: number,
+    limit: number
+) => {
+    const [items, total] = await Promise.all([
+        AdminSession.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate('adminId', 'firstName lastName email role'),
+        AdminSession.countDocuments(query),
+    ]);
+    return { items, total };
+};
+
+export const revokeAdminSessionById = async (id: string) => {
+    return AdminSession.findByIdAndUpdate(
+        id,
+        { revokedAt: new Date() },
+        { new: true }
+    );
+};

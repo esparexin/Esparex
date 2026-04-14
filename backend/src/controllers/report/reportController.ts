@@ -1,15 +1,19 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Report, { ReportTargetTypeValue } from '../../models/Report';
-import Ad from '../../models/Ad';
-import User from '../../models/User';
-import Business from '../../models/Business';
+import { ReportTargetTypeValue } from '../../models/Report';
 import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
+import {
+    checkAdExists,
+    checkUserExists,
+    checkBusinessExists,
+    createReport as createReportRecord,
+    countActiveReports,
+    autoHideAdIfOverThreshold,
+} from '../../services/ReportService';
 
 type ReportRequest = Request & {
     user?: {
@@ -18,7 +22,6 @@ type ReportRequest = Request & {
 };
 
 const normalizeReason = (reason: string) => reason.trim();
-const ACTIVE_REPORT_STATUSES = ['open', 'pending', 'reviewed'] as const;
 const REPORTABLE_TARGET_TYPES = new Set<ReportTargetTypeValue>(['ad', 'user', 'business']);
 
 const normalizeTargetType = (value: unknown): ReportTargetTypeValue | null => {
@@ -85,7 +88,7 @@ export const createReport = async (req: Request, res: Response) => {
 
         let ad: { _id: mongoose.Types.ObjectId; title?: string } | null = null;
         if (canonicalTargetType === 'ad') {
-            ad = await Ad.findById(canonicalTargetId).select('title').lean();
+            ad = await checkAdExists(canonicalTargetId);
             if (!ad) {
                 return sendErrorResponse(req, res, 404, 'Ad not found');
             }
@@ -93,18 +96,12 @@ export const createReport = async (req: Request, res: Response) => {
             if (canonicalTargetId === reporterId) {
                 return sendErrorResponse(req, res, 400, 'You cannot report yourself');
             }
-            const targetUser = await User.exists({
-                _id: new mongoose.Types.ObjectId(canonicalTargetId),
-                isDeleted: { $ne: true },
-            });
+            const targetUser = await checkUserExists(canonicalTargetId);
             if (!targetUser) {
                 return sendErrorResponse(req, res, 404, 'User not found');
             }
         } else if (canonicalTargetType === 'business') {
-            const targetBusiness = await Business.exists({
-                _id: new mongoose.Types.ObjectId(canonicalTargetId),
-                isDeleted: { $ne: true },
-            });
+            const targetBusiness = await checkBusinessExists(canonicalTargetId);
             if (!targetBusiness) {
                 return sendErrorResponse(req, res, 404, 'Business not found');
             }
@@ -112,9 +109,7 @@ export const createReport = async (req: Request, res: Response) => {
 
         const normalizedDescription = (description || additionalDetails || '').trim() || undefined;
 
-        // Dedup is enforced by unique partial indexes at DB level:
-        // legacy { adId, reportedBy } and canonical { targetType, targetId, reporterId }
-        // where status ∈ [open, pending, reviewed].
+        // Dedup is enforced by unique partial indexes at DB level.
         // We rely on the 11000 duplicate key error instead of a racy findOne.
         let report;
         try {
@@ -134,9 +129,7 @@ export const createReport = async (req: Request, res: Response) => {
                 payload.adTitle = adTitle || ad.title;
             }
 
-            report = await Report.create({
-                ...payload
-            });
+            report = await createReportRecord(payload);
         } catch (err: unknown) {
             if (err instanceof Error && 'code' in err && (err as any).code === 11000) {
                 return sendErrorResponse(req, res, 409, 'You have already reported this target');
@@ -151,45 +144,12 @@ export const createReport = async (req: Request, res: Response) => {
             reporterId,
         });
 
-        // 🔴 AUTO-HIDE THRESHOLD: configurable via SystemConfig (default: 5)
+        // AUTO-HIDE THRESHOLD: configurable via SystemConfig (default: 5)
         if (canonicalTargetType === 'ad' && ad) {
             const config = await getSystemConfigDoc();
             const autoHideThreshold: number = config?.ai?.moderation?.reportAutoHideThreshold ?? 5;
-
-            const uniqueReports = await Report.countDocuments({
-                targetType: 'ad',
-                targetId: ad._id,
-                status: { $in: ACTIVE_REPORT_STATUSES }
-            });
-
-            if (uniqueReports >= autoHideThreshold) {
-                await Ad.findByIdAndUpdate(ad._id, {
-                    // 'community_hidden' distinguishes community auto-hide from admin 'rejected'.
-                    moderationStatus: 'community_hidden',
-                    moderationReason: `Auto-hidden: Received ${uniqueReports} community reports (threshold: ${autoHideThreshold}).`
-                });
-
-                setImmediate(() => {
-                    invalidateAdFeedCaches().catch((err: unknown) => {
-                        logger.error('Failed to clear feed cache after community auto-hide', {
-                            error: String(err),
-                            adId: ad._id.toString()
-                        });
-                    });
-                    invalidatePublicAdCache(ad._id.toString()).catch((err: unknown) => {
-                        logger.error('Failed to clear ad cache after community auto-hide', {
-                            error: String(err),
-                            adId: ad._id.toString()
-                        });
-                    });
-                });
-
-                logger.warn('[FeedVisibility] Ad auto-hidden by report threshold', {
-                    adId: ad._id.toString(),
-                    uniqueReports,
-                    autoHideThreshold
-                });
-            }
+            const uniqueReports = await countActiveReports('ad', ad._id);
+            await autoHideAdIfOverThreshold(ad._id, uniqueReports, autoHideThreshold);
         }
 
         return res.status(201).json(respond<ApiResponse<unknown>>({

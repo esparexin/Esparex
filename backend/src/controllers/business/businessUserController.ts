@@ -4,10 +4,6 @@ import { ApiResponse } from '../../../../shared/types/Api';
 import { respond } from '../../utils/respond';
 import { Request, Response } from 'express';
 import * as businessService from '../../services/BusinessService';
-import Ad from '../../models/Ad';
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { LISTING_TYPE } from '../../../../shared/enums/listingType';
-import BusinessModel from '../../models/Business';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { BusinessStatsPayload, serializeBusinessForOwner } from './shared';
 
@@ -42,7 +38,7 @@ export const getMyBusinessStats = async (req: Request, res: Response) => {
         }
 
         const userId = user._id.toString();
-        const business = await BusinessModel.findOne({ userId, isDeleted: false });
+        const business = await businessService.getBusinessByUserId(userId);
 
         if (!business) {
             const response = respond<ApiResponse<BusinessStatsPayload>>({
@@ -53,20 +49,10 @@ export const getMyBusinessStats = async (req: Request, res: Response) => {
             return;
         }
 
-        const [totalServices, approvedServices, pendingServices] = await Promise.all([
-            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE }),
-            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE }),
-            Ad.countDocuments({ sellerId: userId, listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.PENDING })
-        ]);
-
+        const stats = await businessService.getBusinessStats(userId);
         const response = respond<ApiResponse<BusinessStatsPayload>>({
             success: true,
-            data: {
-                totalServices,
-                approvedServices,
-                pendingServices,
-                views: 0
-            }
+            data: stats,
         });
 
         res.json(response);

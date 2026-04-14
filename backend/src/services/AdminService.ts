@@ -1,4 +1,5 @@
 import Admin, { IAdmin } from '../models/Admin';
+import AdminLog from '../models/AdminLog';
 import { comparePassword, generateAdminToken } from '../utils/auth';
 import { USER_STATUS } from '@shared/enums/userStatus';
 import logger from '../utils/logger';
@@ -84,4 +85,28 @@ export const loginAdmin = async (email: string, password: string): Promise<Admin
     delete adminObj.password;
 
     return { token, admin: adminObj };
+};
+
+export const getAuditLogs = async (
+    query: Record<string, unknown>,
+    skip: number,
+    limit: number
+) => {
+    const [logs, total] = await Promise.all([
+        AdminLog.find(query)
+            .skip(skip)
+            .limit(limit)
+            .populate('adminId', 'firstName lastName email')
+            .sort({ createdAt: -1 }),
+        AdminLog.countDocuments(query),
+    ]);
+    return { logs, total };
+};
+
+export const getAdminWithTwoFactor = async (adminId: string) => {
+    return Admin.findById(adminId).select('+twoFactorSecret +twoFactorEnabled');
+};
+
+export const saveAdmin = async (admin: IAdmin) => {
+    return admin.save();
 };

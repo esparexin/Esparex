@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import Business from '../../models/Business';
 import User from '../../models/User';
+import Ad from '../../models/Ad';
+import { normalizeAdImagesForResponse } from '../adQuery/AdQueryHelpers';
+import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { AppError } from '../../utils/AppError';
 import { getUserConnection } from '../../config/db';
 import logger from '../../utils/logger';
@@ -254,4 +257,23 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
     });
 
     return updatedBusiness;
+};
+
+export const getBusinessListings = async (sellerId: string, listingType: string) => {
+    const listings = await Ad.find({
+        sellerId,
+        listingType,
+        status: AD_STATUS.LIVE,
+        isDeleted: { $ne: true },
+    }).sort({ createdAt: -1 }).lean();
+    return listings.map((l) => normalizeAdImagesForResponse(l as unknown as Record<string, unknown>));
+};
+
+export const getBusinessStats = async (userId: string) => {
+    const [totalServices, approvedServices, pendingServices] = await Promise.all([
+        Ad.countDocuments({ sellerId: userId, listingType: 'service' }),
+        Ad.countDocuments({ sellerId: userId, listingType: 'service', status: AD_STATUS.LIVE }),
+        Ad.countDocuments({ sellerId: userId, listingType: 'service', status: AD_STATUS.PENDING }),
+    ]);
+    return { totalServices, approvedServices, pendingServices, views: 0 };
 };

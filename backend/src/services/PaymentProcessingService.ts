@@ -563,3 +563,11 @@ export async function getTransactionWithUser(transactionId: string) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+
+export async function getPlanById(planId: string) {
+    return Plan.findById(planId);
+}
+
+export async function getUserForPayment(userId: mongoose.Types.ObjectId | string) {
+    return User.findById(userId).lean();
+}
