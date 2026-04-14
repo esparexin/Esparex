@@ -29,10 +29,6 @@ export const AdCreationSchema = z.object({
     images: z.array(z.string()).optional(),
     duplicateFingerprint: z.string().optional(),
 });
-
-function isAdCreationDTO(obj: unknown): obj is AdCreationDTO {
-    return AdCreationSchema.safeParse(obj).success;
-}
 /**
  * Ad Service (REFACTORED - Phase 2.1)
  * Legacy fallback ad creation function removed after orchestrator stability confirmation.
@@ -325,7 +321,6 @@ export const promoteAd = async (
     isAdmin: boolean = false
 ) => {
     const Boost = (await import('../models/Boost')).default;
-    const Transaction = (await import('../models/Transaction')).default;
     const User = (await import('../models/User')).default;
 
     if (!mongoose.Types.ObjectId.isValid(id)) throw new AppError('Invalid Ad ID', 400);
