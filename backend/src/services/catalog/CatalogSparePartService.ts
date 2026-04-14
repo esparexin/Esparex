@@ -56,7 +56,10 @@ export const getActiveModelIdsForCategories = async (activeCategoryIds: string[]
 
 // ─── Spare part queries ───────────────────────────────────────────────────────
 
-export const findSparePartById = async (id: string) => SparePartModelImport.findById(id);
+export const findSparePartById = async (id: string | undefined) => {
+    if (!id) return null;
+    return SparePartModelImport.findById(id);
+};
 
 // ─── Dependency checks ────────────────────────────────────────────────────────
 

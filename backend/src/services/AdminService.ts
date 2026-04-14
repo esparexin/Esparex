@@ -126,7 +126,7 @@ export const findAdminForLogin = async (email: string) => {
     return Admin.findOne({ email }).select('+password +twoFactorSecret');
 };
 
-export const updateAdminLastLogin = async (id: unknown) => {
+export const updateAdminLastLogin = async (id: string | { toString(): string }) => {
     return Admin.updateOne({ _id: id }, { $set: { lastLogin: new Date() } });
 };
 

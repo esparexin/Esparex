@@ -81,7 +81,7 @@ export const getServiceTypes = async (req: Request, res: Response) => {
  */
 export const getServiceTypeById = async (req: Request, res: Response) => {
     try {
-        const serviceType = await findServiceTypeById(req.params.id);
+        const serviceType = await findServiceTypeById(req.params.id as string);
         if (!serviceType) return sendCatalogError(req, res, 'Service type not found', 404);
         sendSuccessResponse(res, serviceType);
     } catch (error) {
@@ -207,7 +207,7 @@ export const getScreenSizes = async (req: Request, res: Response) => {
  */
 export const getScreenSizeById = async (req: Request, res: Response) => {
     try {
-        const size = await findScreenSizeById(req.params.id);
+        const size = await findScreenSizeById(req.params.id as string);
         if (!size) return sendCatalogError(req, res, 'Screen size not found', 404);
         sendSuccessResponse(res, size);
     } catch (error) {
@@ -239,8 +239,8 @@ export const updateScreenSize = async (req: Request, res: Response) => {
         auditAction: 'SCREEN_SIZE_UPDATE',
         preUpdate: async (id, payload, existingSize) => {
             if (!payload.name && payload.size) payload.name = `${payload.size} Screen Size`;
-            const nextCategoryId = payload.categoryId || String(existingSize.categoryId);
-            const nextBrandId = payload.brandId ?? (existingSize.brandId ? String(existingSize.brandId) : undefined);
+            const nextCategoryId = payload.categoryId || String((existingSize as any).categoryId);
+            const nextBrandId = payload.brandId ?? ((existingSize as any).brandId ? String((existingSize as any).brandId) : undefined);
             const relation = await validateScreenSizeRelations({ categoryId: nextCategoryId, brandId: nextBrandId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;

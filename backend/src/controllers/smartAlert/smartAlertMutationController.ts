@@ -77,7 +77,7 @@ export const createSmartAlert = async (req: Request, res: Response) => {
         const userRights = calculateUserPlan(plans);
 
         const wallet = await WalletModel.findOne({ userId }).lean();
-        const walletSlots = wallet?.smartAlertSlots || 0;
+        const walletSlots = (wallet?.smartAlertSlots as number | undefined) || 0;
         const planLimit = userRights.smartAlerts || 0;
 
         const alertsUsed = await SmartAlertModel.countDocuments({

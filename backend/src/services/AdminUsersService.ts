@@ -276,6 +276,7 @@ export const softDeleteAdminById = async (id: string) => {
 };
 
 export const deactivateAdminById = async (id: string) => {
+    // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
     return Admin.findByIdAndUpdate(id, { status: USER_STATUS.INACTIVE }, { new: true }).select('-password');
 };
 

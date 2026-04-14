@@ -524,7 +524,6 @@ export const updateReportStatus = async (req: Request, res: Response) => {
             return sendAdminError(req, res, `Invalid report status. Allowed: ${REPORT_STATUS.RESOLVED}, ${REPORT_STATUS.DISMISSED}`, 400);
         }
 
-        // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
         const report = await updateReportById(id, {
             status,
             resolution: note,

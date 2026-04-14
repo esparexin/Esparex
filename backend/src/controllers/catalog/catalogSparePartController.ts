@@ -271,8 +271,8 @@ export const updateSparePart = async (req: Request, res: Response) => {
             
             // Use renamed categoryIds from and to payload
             const nextCategories = payload.categoryIds || (existingPart as any).categoryIds.map((id: any) => String(id));
-            const nextBrandId = payload.brandId ?? (existingPart.brandId ? String(existingPart.brandId) : undefined);
-            const nextModelId = payload.modelId ?? (existingPart.modelId ? String(existingPart.modelId) : undefined);
+            const nextBrandId = payload.brandId ?? ((existingPart as any).brandId ? String((existingPart as any).brandId) : undefined);
+            const nextModelId = payload.modelId ?? ((existingPart as any).modelId ? String((existingPart as any).modelId) : undefined);
             const relation = await validateSparePartRelations({
                 categoryIds: nextCategories,
                 brandId: nextBrandId,
@@ -311,7 +311,7 @@ export const deleteSparePart = async (req: Request, res: Response) => {
  */
 export const getSparePartById = async (req: Request, res: Response) => {
     try {
-        const sparePart = await findSparePartById(req.params.id);
+        const sparePart = await findSparePartById(req.params.id as string);
         if (!sparePart) return sendCatalogError(req, res, 'Spare part not found', 404);
         sendSuccessResponse(res, sparePart);
     } catch (error) {

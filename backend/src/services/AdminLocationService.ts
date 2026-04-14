@@ -3,7 +3,6 @@ import Location from '../models/Location';
 import Ad from '../models/Ad';
 import User from '../models/User';
 import Geofence from '../models/Geofence';
-import { CanonicalLocationDoc } from '../utils/locationHierarchy';
 import { LOCATION_STATUS } from '@shared/enums/locationStatus';
 import logger from '../utils/logger';
 
@@ -12,10 +11,15 @@ let hasWarnedLocationListHintFailure = false;
 
 // ─── Location reads ───────────────────────────────────────────────────────────
 
-export const findLocationById = async (id: string) => Location.findById(id);
+export const findLocationById = async (id: string | undefined) => {
+    if (!id) return null;
+    return Location.findById(id);
+};
 
-export const findLocationByIdLean = async <T>(id: string, select: string) =>
-    Location.findById(id).select(select).lean<T | null>();
+export const findLocationByIdLean = async <T>(id: string | undefined, select: string) => {
+    if (!id) return null;
+    return Location.findById(id).select(select).lean<T | null>();
+};
 
 export const findActiveParentById = async (id: string) =>
     Location.findOne({ _id: id, isActive: true })
@@ -144,8 +148,12 @@ export const getAllGeofences = async () => Geofence.find().sort({ createdAt: -1 
 export const createGeofenceRecord = async (data: Record<string, unknown>) =>
     Geofence.create(data);
 
-export const updateGeofenceById = async (id: string, data: Record<string, unknown>) =>
-    Geofence.findByIdAndUpdate(id, data, { new: true });
+export const updateGeofenceById = async (id: string | undefined, data: Record<string, unknown>) => {
+    if (!id) return null;
+    return Geofence.findByIdAndUpdate(id, data, { new: true });
+};
 
-export const deleteGeofenceById = async (id: string) =>
-    Geofence.findByIdAndDelete(id);
+export const deleteGeofenceById = async (id: string | undefined) => {
+    if (!id) return null;
+    return Geofence.findByIdAndDelete(id);
+};

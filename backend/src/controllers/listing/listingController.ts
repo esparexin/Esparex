@@ -257,7 +257,7 @@ export const incrementListingView = async (req: Request, res: Response, next: Ne
             ? { _id: idOrSlug }
             : { seoSlug: idOrSlug };
 
-        await adService.incrementAdView(filter);
+        await adService.incrementAdViewByFilter(filter);
 
         return sendSuccessResponse(res, { success: true });
     } catch (error) {

@@ -12,8 +12,6 @@ import AdModel from '../../models/Ad';
 import { CATALOG_STATUS } from '../../../../shared/enums/catalogStatus';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
-import mongoose from 'mongoose';
-
 // Re-export model instances for generic handler calls in the controller layer
 export const ServiceTypeModel = ServiceTypeModelImport;
 export const ScreenSizeModel = ScreenSizeModelImport;
@@ -30,8 +28,10 @@ export const findActiveCategoryBySlug = async (slug: string) =>
 
 // ─── Service type queries ─────────────────────────────────────────────────────
 
-export const findServiceTypeById = async (id: string) =>
-    ServiceTypeModelImport.findById(id).populate('categoryIds');
+export const findServiceTypeById = async (id: string | undefined) => {
+    if (!id) return null;
+    return ServiceTypeModelImport.findById(id).populate('categoryIds');
+};
 
 // ─── Service type dependency checks ──────────────────────────────────────────
 
@@ -55,8 +55,10 @@ export const checkServiceTypeDependencies = async (id: string) => {
 
 // ─── Screen size queries ──────────────────────────────────────────────────────
 
-export const findScreenSizeById = async (id: string) =>
-    ScreenSizeModelImport.findById(id).populate('categoryId');
+export const findScreenSizeById = async (id: string | undefined) => {
+    if (!id) return null;
+    return ScreenSizeModelImport.findById(id).populate('categoryId');
+};
 
 // ─── Active brand IDs for screen sizes ───────────────────────────────────────
 

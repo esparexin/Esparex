@@ -69,13 +69,13 @@ export const findActiveBrandByName = async (nameRegex: RegExp) =>
 export const findPendingBrandSuggestion = async (
     nameRegex: RegExp,
     categoryIds: string,
-    suggestedBy: unknown
+    suggestedBy: string | { toString(): string } | null | undefined
 ) =>
     BrandModelImport.findOne({
         name: { $regex: nameRegex },
         status: CATALOG_STATUS.PENDING,
         categoryIds,
-        suggestedBy
+        suggestedBy: suggestedBy as string | undefined
     }).lean();
 
 /** Create a new brand record. */

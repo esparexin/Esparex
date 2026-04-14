@@ -3,7 +3,8 @@ import { SmartAlertModel, SmartAlertDocument } from '../../services/SmartAlertSe
 import { UserPlanModel, PlanModel } from '../../services/PlanService';
 import { WalletModel } from '../../services/WalletService';
 
-export { SmartAlertModel, SmartAlertDocument, UserPlanModel, PlanModel, WalletModel };
+export { SmartAlertModel, UserPlanModel, PlanModel, WalletModel };
+export type { SmartAlertDocument };
 import {
     normalizeCoordinates,
     normalizeLocation,

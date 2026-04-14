@@ -244,7 +244,7 @@ export const updateBrand = async (req: Request, res: Response) => {
             }
             delete payload.categoryId;
 
-            const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : (oldBrand.categoryIds || []).map(String);
+            const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : ((oldBrand as any).categoryIds || []).map(String);
             const categoryValidation = await validateActiveCategories(nextCategoryIds);
             if (!categoryValidation.ok) {
                 throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);

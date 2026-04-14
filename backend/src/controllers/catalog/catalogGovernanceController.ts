@@ -4,6 +4,7 @@
  */
 
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { getHierarchyTree as buildHierarchyTree, scanHierarchyIntegrity, repairHierarchy } from '../../services/catalog/CatalogHierarchyService';
 import { sendSuccessResponse } from '../../utils/respond';
 import { sendCatalogError, hasAdminAccess } from './shared';

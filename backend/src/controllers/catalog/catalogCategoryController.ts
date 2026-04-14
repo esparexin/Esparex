@@ -90,7 +90,7 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
 export const getCategoryById = async (req: Request, res: Response) => {
     try {
         // Admin route always uses validateObjectId middleware — ObjectId lookup only.
-        const category = await findCategoryById(req.params.id);
+        const category = await findCategoryById(req.params.id as string);
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
         }
@@ -105,7 +105,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
  */
 export const getCategorySchema = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const category = await findCategoryById(id);
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
@@ -132,7 +132,7 @@ export const updateCategorySchema = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, 'Admin access required', 403);
         }
 
-        const { id } = req.params;
+        const id = req.params.id as string;
         const parsed = categorySchemaUpdateBodySchema.safeParse(req.body);
         if (!parsed.success) {
             sendValidationError(req, res, parsed.error);
@@ -194,7 +194,7 @@ export const createCategory = async (req: Request, res: Response) => {
 export const updateCategory = async (req: Request, res: Response) => {
     try {
         if (!hasAdminAccess(req)) return sendCatalogError(req, res, 'Admin access required', 403);
-        const categoryId = req.params.id;
+        const categoryId = req.params.id as string;
         
         // Strip immutable/internal fields that admin frontends might send
         const PROTECTED_FIELDS = ['id', '_id', '__v', 'isDeleted', 'deletedAt', 'updatedAt', 'createdAt'];
@@ -267,7 +267,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
             throw new AppError('Admin access required', 403, 'FORBIDDEN');
         }
 
-        const categoryId = req.params.id;
+        const categoryId = req.params.id as string;
         const category = await findCategoryByIdWithSession(categoryId, session);
         if (!category) {
             throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');

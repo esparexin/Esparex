@@ -69,18 +69,27 @@ export async function getCatalogEntityCounts() {
 
 // ─── Category queries ─────────────────────────────────────────────────────────
 
-export const findCategoryById = async (id: string) => Category.findById(id);
+export const findCategoryById = async (id: string | undefined) => {
+    if (!id) return null;
+    return Category.findById(id);
+};
 
-export const categoryParentExists = async (parentId: string) =>
-    Category.exists({ _id: parentId });
+export const categoryParentExists = async (parentId: string | undefined) => {
+    if (!parentId) return false;
+    return Category.exists({ _id: parentId });
+};
 
-export const updateCategorySchemaById = async (id: string, filters: unknown[]) =>
-    Category.findByIdAndUpdate(id, { filters }, { new: true, runValidators: true });
+export const updateCategorySchemaById = async (id: string | undefined, filters: unknown[]) => {
+    if (!id) return null;
+    return Category.findByIdAndUpdate(id, { filters }, { new: true, runValidators: true });
+};
 
-export const findCategoryByIdWithSession = async (id: string, session: ClientSession) =>
-    Category.findById(id).session(session);
+export const findCategoryByIdWithSession = async (id: string | undefined, session: ClientSession) => {
+    if (!id) return null;
+    return Category.findById(id).session(session);
+};
 
-export const softDeleteCategoryById = async (id: unknown, session: ClientSession) =>
+export const softDeleteCategoryById = async (id: string | { toString(): string }, session: ClientSession) =>
     Category.updateOne(
         { _id: id },
         { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } },

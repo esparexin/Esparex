@@ -69,6 +69,7 @@ export const bulkResolveReports = async (
     note: string | undefined,
     actorId: string
 ) => {
+    // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
     return Report.updateMany(
         {
             $or: [

@@ -305,7 +305,7 @@ export const createLocation = async (req: Request, res: Response) => {
         }
 
         const requestedLevel = resolveStringField(level)?.toLowerCase();
-        let finalLevel: 'country' | 'state' | 'district' | 'city' | 'area' | 'village' =
+        const finalLevel: 'country' | 'state' | 'district' | 'city' | 'area' | 'village' =
             requestedLevel === 'country' ||
                 requestedLevel === 'state' ||
                 requestedLevel === 'district' ||
@@ -384,7 +384,7 @@ export const createLocation = async (req: Request, res: Response) => {
  */
 export const updateLocation = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const { country, latitude, longitude, isActive, level, name } = req.body;
         const nextCountry = resolveStringField(country);
         const nextName = resolveStringField(name);
@@ -474,7 +474,7 @@ export const updateLocation = async (req: Request, res: Response) => {
  */
 export const toggleLocationStatus = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const location = await findLocationById(id);
 
         if (!location) {
@@ -497,7 +497,7 @@ export const toggleLocationStatus = async (req: Request, res: Response) => {
  */
 export const deleteLocation = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const location = await findLocationById(id);
 
         if (!location) {
@@ -575,7 +575,7 @@ export const createGeofence = async (req: Request, res: Response) => {
 
 export const updateGeofence = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const geofence = await updateGeofenceById(id, req.body);
         if (!geofence) return sendBaseAdminError(req, res, 'Geofence not found', 404);
         await logAdminAction(req, 'UPDATE_GEOFENCE', 'Geofence', id, { name: (geofence as any).name });
@@ -587,7 +587,7 @@ export const updateGeofence = async (req: Request, res: Response) => {
 
 export const deleteGeofence = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const geofence = await deleteGeofenceById(id);
         if (!geofence) return sendBaseAdminError(req, res, 'Geofence not found', 404);
         await logAdminAction(req, 'DELETE_GEOFENCE', 'Geofence', id, { name: (geofence as any).name });
@@ -616,7 +616,7 @@ export const getModerationQueue = async (req: Request, res: Response) => {
 
 export const approveRejectLocation = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const { status, reason } = req.body;
 
         if (![LOCATION_STATUS.VERIFIED, LOCATION_STATUS.REJECTED].includes(status)) {

@@ -605,7 +605,7 @@ export const getServiceAnalyticsStats = async () => {
 
 export const findOwnedService = async (
     id: string,
-    userId: unknown,
+    userId: string | { toString(): string },
     listingType: string,
     fetchFull: boolean
 ) => {
@@ -618,8 +618,8 @@ export const findOwnedService = async (
 
 export const findServiceForUpdate = async (
     id: string,
-    userId: unknown,
-    businessId: unknown,
+    userId: string | { toString(): string },
+    businessId: string | { toString(): string } | null | undefined,
     listingType: string
 ) =>
     Ad.findOne({
@@ -633,8 +633,8 @@ export const findServiceForUpdate = async (
 
 export const updateServiceByOwner = async (
     id: string,
-    userId: unknown,
-    businessId: unknown,
+    userId: string | { toString(): string },
+    businessId: string | { toString(): string } | null | undefined,
     listingType: string,
     updates: Record<string, unknown>
 ) =>
@@ -644,11 +644,8 @@ export const updateServiceByOwner = async (
         { new: true }
     );
 
-export const incrementAdView = async (
-    filter: Record<string, unknown>
-) => {
-    return Ad.findOneAndUpdate(filter, { $inc: { 'views.total': 1 } });
-};
+export const incrementAdViewByFilter = async (filter: Record<string, unknown>) =>
+    Ad.findOneAndUpdate(filter, { $inc: { 'views.total': 1 } });
 
 export const getOwnerListings = async (
     query: Record<string, unknown>,
