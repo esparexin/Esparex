@@ -187,8 +187,8 @@ export const updateAd = async (
             const requiresReviewTransition = context.actor === 'USER' && ad.status === AD_STATUS.LIVE;
 
             if (context.actor === 'USER') {
-                const untypedPayload = payload as Record<string, any>;
-                untypedPayload.$inc = { ...(untypedPayload.$inc || {}), reviewVersion: 1 };
+                const untypedPayload = payload as Record<string, unknown>;
+                untypedPayload.$inc = { ...(untypedPayload.$inc as Record<string, number>), reviewVersion: 1 };
             }
 
             // Status transitions must not be embedded in direct update queries.
@@ -208,8 +208,8 @@ export const updateAd = async (
                     const mongoError = error as { code?: number; keyPattern?: { seoSlug?: string } };
                     if (mongoError.code === 11000 && mongoError.keyPattern?.seoSlug) {
                         slugRetries++;
-                        const baseTitle = (payload as Record<string, any>).title || ad.title;
-                        (payload as Record<string, any>).seoSlug = await generateUniqueSlug(Ad, baseTitle, ad.seoSlug, adId);
+                        const baseTitle = (payload as Record<string, unknown>).title as string || ad.title;
+                        (payload as Record<string, unknown>).seoSlug = await generateUniqueSlug(Ad, baseTitle, ad.seoSlug, adId);
                     } else {
                         throw error;
                     }
