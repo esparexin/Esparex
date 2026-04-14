@@ -1,16 +1,26 @@
 import {
-    mongoose, Ad, Category, Brand, ProductModel, Business, Report, BlockedUser, SparePart,
-    serializeDoc, normalizeLocationResponse, touchLocationSearchAnalytics,
-    buildGeoNearStage, normalizeGeoInput, normalizeAdStatus, buildAdFilterFromCriteria,
-    getCache, setCache, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, escapeRegExp,
-    buildAdSortStageFromHelper, extractLocationIdFromAd, normalizeAdImagesForResponse,
-    AD_STATUS, FeatureFlag, isEnabled, AdminMetrics, isBusinessPublishedStatus,
-    AdsListResult, AdFilters, getBlockedSellerIds, recordListingTypeCompatMetric,
-    AD_DETAIL_CACHE_TTL_SECONDS, UnknownRecord, AggregationStage, ListingTypeCompatMetricContext,
-    ListingTypeFilterBuildResult, BuildAdMatchStageOptions, PaginationOptions, PublicQueryOptions,
+    mongoose,
+    Category,
+    Report,
+    buildAdFilterFromCriteria,
+    getCache,
+    setCache,
+    escapeRegExp,
+    buildAdSortStageFromHelper,
+    AD_STATUS,
+    FeatureFlag,
+    isEnabled,
+    recordListingTypeCompatMetric,
     buildListingTypeFilter
 } from './_shared/adServiceBase';
-import type { PipelineStage, AdFilterCriteria, ListingTypeValue, SortStage } from './_shared/adServiceBase';
+import type {
+    AdFilters,
+    UnknownRecord,
+    ListingTypeCompatMetricContext,
+    BuildAdMatchStageOptions,
+    AdFilterCriteria,
+    SortStage
+} from './_shared/adServiceBase';
 
 export const buildAdMatchStage = async (
     filters: AdFilters,

@@ -1,16 +1,8 @@
 import {
-    mongoose, Ad, Category, Brand, ProductModel, Business, Report, BlockedUser, SparePart,
-    serializeDoc, normalizeLocationResponse, touchLocationSearchAnalytics,
-    buildGeoNearStage, normalizeGeoInput, normalizeAdStatus, buildAdFilterFromCriteria,
-    getCache, setCache, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, escapeRegExp,
-    buildAdSortStageFromHelper, extractLocationIdFromAd, normalizeAdImagesForResponse,
-    AD_STATUS, FeatureFlag, isEnabled, AdminMetrics, isBusinessPublishedStatus,
-    AdsListResult, AdFilters, getBlockedSellerIds, recordListingTypeCompatMetric,
-    AD_DETAIL_CACHE_TTL_SECONDS, UnknownRecord, AggregationStage, ListingTypeCompatMetricContext,
-    ListingTypeFilterBuildResult, BuildAdMatchStageOptions, PaginationOptions, PublicQueryOptions,
-    buildListingTypeFilter
+    mongoose,
+    buildPublicAdFilter
 } from './_shared/adServiceBase';
-import type { PipelineStage, AdFilterCriteria, ListingTypeValue, SortStage } from './_shared/adServiceBase';
+import type { UnknownRecord } from './_shared/adServiceBase';
 
 export const buildHomeFeedPipeline = (
     matchStage: UnknownRecord,
@@ -40,7 +32,7 @@ export const buildHomeFeedPipeline = (
     
     // SSOT Pipeline Protection
     const visibilityMatch = { ...(matchStage || {}), ...buildPublicAdFilter() };
-    pipeline.push({ $match: visibilityMatch as any });
+    pipeline.push({ $match: visibilityMatch as UnknownRecord });
 
     if (cursor?.id && mongoose.Types.ObjectId.isValid(cursor.id)) {
         pipeline.push({
@@ -67,7 +59,7 @@ export const buildHomeFeedPipeline = (
         {
             $facet: {
                 spotlight: [
-                    { $match: { ...visibilityMatch, ...effectiveSpotlightMatch } as any },
+                    { $match: { ...visibilityMatch, ...effectiveSpotlightMatch } as UnknownRecord },
                     { $limit: limit * 2 }
                 ],
                 boosted: [
@@ -76,7 +68,7 @@ export const buildHomeFeedPipeline = (
                             _id: { $in: boostedIds },
                             ...visibilityMatch,
                             ...nonSpotlightFallbackMatch
-                        } as any
+                        } as UnknownRecord
                     },
                     { $limit: limit * 2 }
                 ],
@@ -86,7 +78,7 @@ export const buildHomeFeedPipeline = (
                             _id: { $nin: boostedIds },
                             ...visibilityMatch,
                             ...nonSpotlightFallbackMatch
-                        } as any
+                        } as UnknownRecord
                     },
                     { $limit: limit * 2 }
                 ]

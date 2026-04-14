@@ -1,19 +1,59 @@
 import {
-    mongoose, Ad, Category, Brand, ProductModel, Business, Report, BlockedUser, SparePart,
-    serializeDoc, normalizeLocationResponse, touchLocationSearchAnalytics,
-    buildGeoNearStage, normalizeGeoInput, normalizeAdStatus, buildAdFilterFromCriteria,
-    getCache, setCache, getMultiCache, setMultiCache, CACHE_KEYS,
-    buildPublicAdFilter, logger, RankingTelemetry, uuidv4, escapeRegExp,
-    buildAdSortStageFromHelper, extractLocationIdFromAd, normalizeAdImagesForResponse,
-    AD_STATUS, FeatureFlag, isEnabled, AdminMetrics, isBusinessPublishedStatus,
-    AdsListResult, AdFilters, getBlockedSellerIds, recordListingTypeCompatMetric,
-    AD_DETAIL_CACHE_TTL_SECONDS, UnknownRecord, AggregationStage, ListingTypeCompatMetricContext,
-    ListingTypeFilterBuildResult, BuildAdMatchStageOptions, PaginationOptions, PublicQueryOptions,
-    buildListingTypeFilter
+    mongoose,
+    Ad,
+    Category,
+    Brand,
+    ProductModel,
+    SparePart,
+    serializeDoc,
+    normalizeLocationResponse,
+    touchLocationSearchAnalytics,
+    buildGeoNearStage,
+    normalizeGeoInput,
+    getMultiCache,
+    setMultiCache,
+    CACHE_KEYS,
+    buildPublicAdFilter,
+    logger,
+    RankingTelemetry,
+    uuidv4,
+    extractLocationIdFromAd,
+    normalizeAdImagesForResponse,
+    FeatureFlag,
+    isEnabled,
+    getBlockedSellerIds
 } from './_shared/adServiceBase';
-import type { PipelineStage, AdFilterCriteria, ListingTypeValue, SortStage } from './_shared/adServiceBase';
+import type {
+    AdsListResult,
+    AdFilters,
+    UnknownRecord,
+    AggregationStage,
+    PaginationOptions,
+    PublicQueryOptions,
+    SortStage
+} from './_shared/adServiceBase';
 
 import { buildAdMatchStage, buildAdSortStage } from './AdSearchService';
+
+type MetadataRef = mongoose.Types.ObjectId | string;
+
+type MetadataEntity = Record<string, unknown> & {
+    _id: MetadataRef;
+    id?: MetadataRef;
+    name?: string;
+    slug?: string;
+};
+
+type TelemetryAd = Record<string, unknown> & {
+    id?: unknown;
+    _id?: unknown;
+    rankScore?: unknown;
+    listingQualityScore?: unknown;
+    distanceScore?: unknown;
+    freshnessScore?: unknown;
+    popularityScore?: unknown;
+    sellerTrustSnapshot?: unknown;
+};
 
 export interface HydratedAd {
     _id?: mongoose.Types.ObjectId | string;
@@ -24,14 +64,16 @@ export interface HydratedAd {
     sparePartId?: mongoose.Types.ObjectId | string;
     sparePartIds?: (mongoose.Types.ObjectId | string)[];
     serviceTypeIds?: (mongoose.Types.ObjectId | string)[];
-    category?: any;
+    category?: unknown;
     categoryName?: string;
-    brand?: any;
-    model?: any;
-    sparePart?: any;
-    spareParts?: any[];
-    serviceTypes?: any[];
-    [key: string]: any; // Relaxed for Mongoose Document & Aggregate compatibility
+    brand?: unknown;
+    brandName?: string;
+    model?: unknown;
+    modelName?: string;
+    sparePart?: unknown;
+    spareParts?: unknown[];
+    serviceTypes?: unknown[];
+    location?: unknown;
 }
 
 /**
@@ -68,10 +110,17 @@ async function fetchMetadataWithCache<T>(
             results.push(...fetched);
 
             // Cache misses
-            const entries = fetched.map(item => ({
-                key: CACHE_KEYS.metadata(type, (item as any)[idField].toString()),
-                value: item
-            }));
+            const entries = fetched.flatMap(item => {
+                const itemRecord = item as Record<string, unknown>;
+                const itemId = itemRecord[idField];
+                if (typeof itemId !== 'string' && !(itemId instanceof mongoose.Types.ObjectId)) {
+                    return [];
+                }
+                return [{
+                    key: CACHE_KEYS.metadata(type, itemId.toString()),
+                    value: item
+                }];
+            });
             if (entries.length > 0) {
                 // Background cache update - 6 Hours TTL for catalog metadata (rarely changes)
                 setMultiCache(entries, 21600).catch(err => logger.warn(`Metadata cache update failed for ${type}`, err));
@@ -96,11 +145,16 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
     const extractId = (val: unknown): string | null => {
         if (!val) return null;
         if (typeof val === 'string') return val;
-        if (typeof (val as any)._id === 'string' || (val as any)._id instanceof mongoose.Types.ObjectId) {
-            return (val as any)._id.toString();
-        }
-        if (typeof (val as any).id === 'string' || (val as any).id instanceof mongoose.Types.ObjectId) {
-            return (val as any).id.toString();
+        if (typeof val === 'object') {
+            const record = val as Record<string, unknown>;
+            const objectId = record._id;
+            if (typeof objectId === 'string' || objectId instanceof mongoose.Types.ObjectId) {
+                return objectId.toString();
+            }
+            const id = record.id;
+            if (typeof id === 'string' || id instanceof mongoose.Types.ObjectId) {
+                return id.toString();
+            }
         }
         if (val instanceof mongoose.Types.ObjectId) return val.toString();
         return null;
@@ -134,29 +188,29 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
     });
 
     const [categories, brands, models, spareParts, serviceTypes] = await Promise.all([
-        fetchMetadataWithCache(categoryIds, 'category', (missing) => 
-            Category.find({ _id: { $in: missing } }).select('name slug').lean()
+        fetchMetadataWithCache<MetadataEntity>(categoryIds, 'category', (missing) => 
+            Category.find({ _id: { $in: missing } }).select('name slug').lean<MetadataEntity[]>()
         ),
-        fetchMetadataWithCache(brandIds, 'brand', (missing) => 
-            Brand.find({ _id: { $in: missing } }).select('name slug').lean()
+        fetchMetadataWithCache<MetadataEntity>(brandIds, 'brand', (missing) => 
+            Brand.find({ _id: { $in: missing } }).select('name slug').lean<MetadataEntity[]>()
         ),
-        fetchMetadataWithCache(modelIds, 'model', (missing) => 
-            ProductModel.find({ _id: { $in: missing } }).select('name slug').lean()
+        fetchMetadataWithCache<MetadataEntity>(modelIds, 'model', (missing) => 
+            ProductModel.find({ _id: { $in: missing } }).select('name slug').lean<MetadataEntity[]>()
         ),
-        fetchMetadataWithCache(sparePartIds, 'sparepart', (missing) => 
-            SparePart.find({ _id: { $in: missing } }).lean()
+        fetchMetadataWithCache<MetadataEntity>(sparePartIds, 'sparepart', (missing) => 
+            SparePart.find({ _id: { $in: missing } }).lean<MetadataEntity[]>()
         ),
-        fetchMetadataWithCache(serviceTypeIds, 'servicetype', async (missing) => {
+        fetchMetadataWithCache<MetadataEntity>(serviceTypeIds, 'servicetype', async (missing) => {
             const ServiceType = (await import('../../models/ServiceType')).default;
-            return ServiceType.find({ _id: { $in: missing } }).select('name').lean();
+            return ServiceType.find({ _id: { $in: missing } }).select('name').lean<MetadataEntity[]>();
         })
     ]);
 
-    const categoryMap = new Map<string, any>(categories.map((c: any) => [String(c._id), c]));
-    const brandMap = new Map<string, any>(brands.map((b: any) => [String(b._id), b]));
-    const modelMap = new Map<string, any>(models.map((m: any) => [String(m._id), m]));
-    const sparePartMap = new Map<string, any>(spareParts.map((s: any) => [String(s._id), s]));
-    const serviceTypeMap = new Map<string, any>(serviceTypes.map((st: any) => [String(st._id), st]));
+    const categoryMap = new Map<string, MetadataEntity>(categories.map((c) => [String(c._id), c]));
+    const brandMap = new Map<string, MetadataEntity>(brands.map((b) => [String(b._id), b]));
+    const modelMap = new Map<string, MetadataEntity>(models.map((m) => [String(m._id), m]));
+    const sparePartMap = new Map<string, MetadataEntity>(spareParts.map((s) => [String(s._id), s]));
+    const serviceTypeMap = new Map<string, MetadataEntity>(serviceTypes.map((st) => [String(st._id), st]));
 
 
     ads.forEach(ad => {
@@ -198,7 +252,7 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
                     const sid = extractId(id);
                     return sid ? sparePartMap.get(sid) : null;
                 })
-                .filter(Boolean);
+                .filter((value): value is MetadataEntity => Boolean(value));
         }
         if (Array.isArray(ad.serviceTypeIds)) {
             ad.serviceTypes = ad.serviceTypeIds
@@ -206,7 +260,7 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
                     const sid = extractId(id);
                     return sid ? serviceTypeMap.get(sid) : null;
                 })
-                .filter(Boolean);
+                .filter((value): value is MetadataEntity => Boolean(value));
         }
     });
 
@@ -586,7 +640,7 @@ export const getAds = async (
         if (serializedAd.location) {
             serializedAd.location = normalizeLocationResponse(serializedAd.location as Record<string, unknown>);
         }
-        return normalizeAdImagesForResponse(serializedAd);
+        return normalizeAdImagesForResponse(serializedAd as unknown as Record<string, unknown>);
     });
 
     const hasLocationContext = Boolean(
@@ -771,7 +825,7 @@ export const getAds = async (
         setImmediate(() => {
             try {
                 const eventId = uuidv4();
-                const telemetryDocs = (finalResponse.data as any[]).slice(0, 10).map((ad: Record<string, any>, index: number) => ({
+                const telemetryDocs = (finalResponse.data as TelemetryAd[]).slice(0, 10).map((ad, index: number) => ({
                     eventId,
                     adId: ad.id || ad._id,
                     position: index + 1,
@@ -799,4 +853,3 @@ export const getAds = async (
 // ─────────────────────────────────────────────────
 // AD COUNTS
 // ─────────────────────────────────────────────────
-

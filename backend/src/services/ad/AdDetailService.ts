@@ -1,16 +1,12 @@
 import {
-    mongoose, Ad, Category, Brand, ProductModel, Business, Report, BlockedUser, SparePart,
-    serializeDoc, normalizeLocationResponse, touchLocationSearchAnalytics,
-    buildGeoNearStage, normalizeGeoInput, normalizeAdStatus, buildAdFilterFromCriteria,
-    getCache, setCache, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, escapeRegExp,
-    buildAdSortStageFromHelper, extractLocationIdFromAd, normalizeAdImagesForResponse,
-    AD_STATUS, FeatureFlag, isEnabled, AdminMetrics, isBusinessPublishedStatus,
-    AdsListResult, AdFilters, getBlockedSellerIds, recordListingTypeCompatMetric,
-    AD_DETAIL_CACHE_TTL_SECONDS, UnknownRecord, AggregationStage, ListingTypeCompatMetricContext,
-    ListingTypeFilterBuildResult, BuildAdMatchStageOptions, PaginationOptions, PublicQueryOptions,
-    buildListingTypeFilter
+    mongoose,
+    Ad,
+    Business,
+    Report,
+    AD_STATUS,
+    isBusinessPublishedStatus
 } from './_shared/adServiceBase';
-import type { PipelineStage, AdFilterCriteria, ListingTypeValue, SortStage } from './_shared/adServiceBase';
+import type { PaginationOptions } from './_shared/adServiceBase';
 
 import { hydrateAdMetadata } from './AdAggregationService';
 export const getListingDetailById = async (adId: string) => {
@@ -176,7 +172,7 @@ export const getReportedAdsAggregation = async (filters: { status?: string, reas
             status: latestReport.status,
             ad: group.adDetails,
             reportedAt: latestReport.createdAt,
-            reporter: group.reports.map((r: any) => r.reportedBy),
+            reporter: group.reports.map((r: { reportedBy?: unknown }) => r.reportedBy),
             reportCount: group.reportCount,
             isAutoHidden: group.isAutoHidden
         };
