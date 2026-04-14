@@ -107,8 +107,7 @@ export const runWithDistributedJobLock = async <T>(
     }
 
     const token = randomUUID();
-    const setCommand = client.set;
-    if (typeof setCommand !== 'function') {
+    if (!hasCommand(client, 'set')) {
         logger.warn('Redis lock command unavailable for scheduler job', {
             jobName,
             lockKey,
@@ -121,7 +120,7 @@ export const runWithDistributedJobLock = async <T>(
     }
 
     try {
-        const acquired = await setCommand(lockKey, token, 'PX', options.ttlMs, 'NX');
+        const acquired = await client.set(lockKey, token, 'PX', options.ttlMs, 'NX');
         if (acquired !== 'OK') {
             await recordSchedulerLockMetric(client, jobName, 'skipped');
             logger.debug('Scheduler lock is already held; skipping run', {
