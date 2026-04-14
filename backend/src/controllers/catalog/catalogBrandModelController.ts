@@ -69,6 +69,17 @@ const catalogCacheKey = {
         : `catalog:models:${categoryId}`,
 };
 
+/** Wraps res.json to write-through to Redis on success (public path only). */
+const applyCacheWriteThrough = (res: Response, cacheKey: string) => {
+    const originalJson = res.json.bind(res);
+    res.json = (body: unknown) => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+            setCache(cacheKey, body, CATALOG_CACHE_TTL).catch(() => { /* silent */ });
+        }
+        return originalJson(body);
+    };
+};
+
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Most brand/model logic now delegated to shared.ts generic handlers.
 
@@ -123,14 +134,7 @@ export const getBrands = async (req: Request, res: Response) => {
         if (cached) {
             return res.json(cached);
         }
-
-        const originalJson = res.json.bind(res);
-        res.json = (body: unknown) => {
-            if (res.statusCode >= 200 && res.statusCode < 300) {
-                setCache(cacheKey, body, CATALOG_CACHE_TTL).catch(() => { /* silent */ });
-            }
-            return originalJson(body);
-        };
+        applyCacheWriteThrough(res, cacheKey);
     }
 
     return handlePaginatedContent(req, res, BrandModel, {
@@ -234,7 +238,7 @@ export const createBrand = async (req: Request, res: Response) => {
 export const updateBrand = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, BrandModel as any, brandUpdateSchema, {
         auditAction: 'BRAND_RENAME',
-        preUpdate: async (id, payload, oldBrand) => {
+        preUpdate: async (_id, payload, oldBrand) => {
             // Backward compatibility mapping
             if (!payload.categoryIds && payload.categoryId) {
                 payload.categoryIds = [payload.categoryId];
@@ -424,14 +428,7 @@ export const getModels = async (req: Request, res: Response) => {
         if (cached) {
             return res.json(cached);
         }
-
-        const originalJson = res.json.bind(res);
-        res.json = (body: unknown) => {
-            if (res.statusCode >= 200 && res.statusCode < 300) {
-                setCache(cacheKey, body, CATALOG_CACHE_TTL).catch(() => { /* silent */ });
-            }
-            return originalJson(body);
-        };
+        applyCacheWriteThrough(res, cacheKey);
     }
 
     return handlePaginatedContent(req, res, CatalogModel, {
@@ -548,7 +545,7 @@ export const createModel = async (req: Request, res: Response) => {
 export const updateModel = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, CatalogModel as any, modelUpdateSchema, {
         auditAction: 'MODEL_RENAME',
-        preUpdate: async (id, payload) => {
+        preUpdate: async (_id, payload) => {
             if (payload.brandId) {
                 const { ok, reason } = await validateBrandIsActive(payload.brandId);
                 if (!ok) throw new Error(reason || 'brandId must reference an active, non-deleted brand');
