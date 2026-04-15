@@ -12,7 +12,10 @@ import { DANGEROUS_HTML_PATTERNS, SQL_INJECTION_PATTERNS } from '../../../shared
  * Prevents spam, injection attacks, and invalid data.
  */
 export const validateContactSubmission = (req: Request, res: Response, next: NextFunction) => {
-    const { name, email, phone, subject, category, message } = req.body;
+    const { name, email, phone, subject, category, message } = req.body as {
+        name?: string; email?: string; phone?: string;
+        subject?: string; category?: string; message?: string;
+    };
 
     // Name validation
     if (!name || typeof name !== 'string') {
@@ -156,12 +159,13 @@ export const validateContactSubmission = (req: Request, res: Response, next: Nex
     }
 
     // Sanitize and trim all fields
-    req.body.name = trimmedName;
-    req.body.email = email.trim().toLowerCase();
-    req.body.phone = phone ? phone.replace(/\D/g, '') : undefined;
-    req.body.subject = subject ? subject.trim() : undefined;
-    req.body.category = category ? category.toLowerCase() : undefined;
-    req.body.message = trimmedMessage;
+    const sanitized = req.body as Record<string, unknown>;
+    sanitized.name = trimmedName;
+    sanitized.email = email.trim().toLowerCase();
+    sanitized.phone = phone ? phone.replace(/\D/g, '') : undefined;
+    sanitized.subject = subject ? subject.trim() : undefined;
+    sanitized.category = category ? category.toLowerCase() : undefined;
+    sanitized.message = trimmedMessage;
 
     next();
 };
@@ -173,7 +177,10 @@ export const validateContactSubmission = (req: Request, res: Response, next: Nex
  * Enforces data types, ranges, and business rules.
  */
 export const validateSmartAlert = (req: Request, res: Response, next: NextFunction) => {
-    const { alertName, name, criteria, frequency } = req.body;
+    const { alertName, name, criteria, frequency } = req.body as {
+        alertName?: string; name?: string;
+        criteria?: Record<string, unknown>; frequency?: unknown;
+    };
 
     const incomingName = typeof name === 'string'
         ? name
@@ -210,7 +217,7 @@ export const validateSmartAlert = (req: Request, res: Response, next: NextFuncti
     }
 
     // Category validation (optional)
-    if (criteria.categoryId && !mongoose.Types.ObjectId.isValid(criteria.categoryId)) {
+    if (criteria.categoryId && !mongoose.Types.ObjectId.isValid(criteria.categoryId as string)) {
         res.status(400).json({
             success: false,
             error: 'Invalid category ID',
@@ -229,7 +236,7 @@ export const validateSmartAlert = (req: Request, res: Response, next: NextFuncti
     }
 
     // Brand validation (optional)
-    if (criteria.brandId && !mongoose.Types.ObjectId.isValid(criteria.brandId)) {
+    if (criteria.brandId && !mongoose.Types.ObjectId.isValid(criteria.brandId as string)) {
         res.status(400).json({
             success: false,
             error: 'Invalid brand ID',
@@ -248,7 +255,7 @@ export const validateSmartAlert = (req: Request, res: Response, next: NextFuncti
     }
 
     // Model validation (optional)
-    if (criteria.modelId && !mongoose.Types.ObjectId.isValid(criteria.modelId)) {
+    if (criteria.modelId && !mongoose.Types.ObjectId.isValid(criteria.modelId as string)) {
         res.status(400).json({
             success: false,
             error: 'Invalid model ID',
@@ -291,7 +298,7 @@ export const validateSmartAlert = (req: Request, res: Response, next: NextFuncti
             return;
         }
 
-        if (criteria.minPrice !== undefined && maxPrice < criteria.minPrice) {
+        if (criteria.minPrice !== undefined && maxPrice < (criteria.minPrice as number)) {
             res.status(400).json({
                 success: false,
                 error: 'Maximum price must be greater than minimum price',
@@ -312,11 +319,12 @@ export const validateSmartAlert = (req: Request, res: Response, next: NextFuncti
             });
             return;
         }
-        req.body.frequency = normalized;
+        (req.body as Record<string, unknown>).frequency = normalized;
     }
 
     // Radius validation (Max 500km to match geoNear index bounds)
-    const { radiusKm } = req.body;
+    const reqBody = req.body as Record<string, unknown>;
+    const { radiusKm } = reqBody;
     if (radiusKm !== undefined) {
         const r = Number(radiusKm);
         if (isNaN(r) || r < 1 || r > 500) {
@@ -327,12 +335,12 @@ export const validateSmartAlert = (req: Request, res: Response, next: NextFuncti
             });
             return;
         }
-        req.body.radiusKm = r;
+        reqBody.radiusKm = r;
     }
 
     // Coordinates strict bounds validation — uses isValidGeoPoint() from shared/utils/geoUtils
     // Checks: GeoJSON Point structure, lng[-180..180], lat[-90..90], null-island [0,0] rejection
-    const { coordinates } = req.body;
+    const { coordinates } = reqBody;
     if (coordinates !== undefined) {
         if (!isValidGeoPoint(coordinates)) {
             res.status(400).json({
@@ -345,8 +353,8 @@ export const validateSmartAlert = (req: Request, res: Response, next: NextFuncti
     }
 
     // Normalize name field for controller
-    req.body.name = trimmedName;
-    req.body.alertName = trimmedName;
+    (req.body as Record<string, unknown>).name = trimmedName;
+    (req.body as Record<string, unknown>).alertName = trimmedName;
 
     next();
 };

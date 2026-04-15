@@ -83,7 +83,7 @@ export const updateMe = async (
     const oldAvatarUrl = typeof currentUser?.avatar === 'string' ? currentUser.avatar : null;
     let oldAvatarDeleted = false;
 
-    const updates: Partial<IUser> = { ...req.body };
+    const updates: Partial<IUser> = { ...(req.body as Partial<IUser>) };
 
     const updateRecord = updates as Record<string, unknown>;
     delete updateRecord.role;
@@ -140,11 +140,12 @@ export const updateMe = async (
       delete updates.avatar;
     }
 
-    if (req.body.profilePhoto && !updates.avatar) {
-      if (req.body.profilePhoto.startsWith('data:image')) {
+    const bodyProfilePhoto = (req.body as Record<string, unknown>).profilePhoto;
+    if (bodyProfilePhoto && typeof bodyProfilePhoto === 'string' && !updates.avatar) {
+      if (bodyProfilePhoto.startsWith('data:image')) {
         logger.warn(`[Blocked] Base64 upload attempt: ${userId}`);
       } else {
-        updates.avatar = req.body.profilePhoto;
+        updates.avatar = bodyProfilePhoto;
       }
       delete (updates as Record<string, unknown>).profilePhoto;
     }
@@ -222,8 +223,9 @@ export const deleteMe = async (
       return;
     }
 
-    const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : '';
-    const feedback = typeof req.body?.feedback === 'string' ? req.body.feedback.trim() : '';
+    const deleteBody = req.body as Record<string, unknown>;
+    const reason = typeof deleteBody.reason === 'string' ? deleteBody.reason.trim() : '';
+    const feedback = typeof deleteBody.feedback === 'string' ? deleteBody.feedback.trim() : '';
     const combinedReason = [reason, feedback].filter(Boolean).join(': ') || undefined;
 
     await updateUserStatus(userId, 'deleted', {
@@ -278,10 +280,11 @@ export const uploadFile = async (
     }
 
     const userId = getStorageSafeId(req.user);
-    const requestedFolder = typeof req.body.folder === 'string' ? req.body.folder : '';
-    const adId = typeof req.body.adId === 'string' ? req.body.adId.trim() : '';
-    const businessId = typeof req.body.businessId === 'string' ? req.body.businessId.trim() : '';
-    const serviceId = typeof req.body.serviceId === 'string' ? req.body.serviceId.trim() : '';
+    const uploadBody = req.body as Record<string, unknown>;
+    const requestedFolder = typeof uploadBody.folder === 'string' ? uploadBody.folder : '';
+    const adId = typeof uploadBody.adId === 'string' ? uploadBody.adId.trim() : '';
+    const businessId = typeof uploadBody.businessId === 'string' ? uploadBody.businessId.trim() : '';
+    const serviceId = typeof uploadBody.serviceId === 'string' ? uploadBody.serviceId.trim() : '';
     const normalizedFolder = requestedFolder.trim().toLowerCase();
     const keyFolder = (() => {
       const isValidObjectId = (value: string): boolean => mongoose.Types.ObjectId.isValid(value);

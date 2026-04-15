@@ -1,5 +1,28 @@
 import User from '../models/User';
 import Ad from '../models/Ad';
+
+interface CountResult { count: number }
+interface MonthlyCountResult { _id: { month: number; year: number }; count: number }
+interface AdsByLocationResult { _id: string; adsCount: number }
+
+interface OverviewFacetResult {
+    totalAds: CountResult[];
+    activeAds: CountResult[];
+    pendingAds: CountResult[];
+    totalServices: CountResult[];
+    activeServices: CountResult[];
+    pendingServices: CountResult[];
+    rejectedServices: CountResult[];
+    totalSpareParts: CountResult[];
+    activeSpareParts: CountResult[];
+    pendingSpareParts: CountResult[];
+}
+interface CardFacetResult {
+    live: CountResult[];
+    pending: CountResult[];
+}
+interface RevenueAggResult { _id: null; total: number }
+
 import CatalogModel from '../models/Model';
 import Report from '../models/Report';
 import Business from '../models/Business';
@@ -21,7 +44,7 @@ export const getDashboardOverviewStats = async (publicAdFilter: Record<string, u
         pendingModels, openReports, pendingBusinesses, totalRevenueAgg
     ] = await Promise.all([
         User.countDocuments(),
-        Ad.aggregate([
+        Ad.aggregate<OverviewFacetResult>([
             {
                 $facet: {
                     totalAds:        [{ $match: { listingType: LISTING_TYPE.AD } }, { $count: "count" }],
@@ -40,7 +63,7 @@ export const getDashboardOverviewStats = async (publicAdFilter: Record<string, u
         CatalogModel.countDocuments({ status: CATALOG_STATUS.PENDING }),
         Report.countDocuments({ status: REPORT_STATUS.OPEN }),
         Business.countDocuments({ status: BUSINESS_STATUS.PENDING }),
-        RevenueAnalytics.aggregate([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }])
+        RevenueAnalytics.aggregate<RevenueAggResult>([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }])
     ]);
 
     return { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg };
@@ -54,7 +77,7 @@ export const getDashboardCardStats = async (publicAdFilter: Record<string, unkno
         totalRevenueAgg
     ] = await Promise.all([
         User.countDocuments(),
-        Ad.aggregate([
+        Ad.aggregate<CardFacetResult>([
             {
                 $facet: {
                     live:    [{ $match: { listingType: LISTING_TYPE.AD, ...publicAdFilter } }, { $count: "count" }],
@@ -64,7 +87,7 @@ export const getDashboardCardStats = async (publicAdFilter: Record<string, unkno
         ]),
         Report.countDocuments({ status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.PENDING] } }),
         Business.countDocuments({ isDeleted: { $ne: true } }),
-        RevenueAnalytics.aggregate([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }])
+        RevenueAnalytics.aggregate<RevenueAggResult>([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }])
     ]);
 
     return { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg };
@@ -125,7 +148,7 @@ export const getLocationAnalyticsRawData = async (params: {
         Location.countDocuments(buildScopedLocationQuery()),
         Ad.countDocuments(buildScopedAdQuery({ status: AD_STATUS.LIVE })),
         User.countDocuments(buildScopedUserQuery({ status: { $in: [USER_STATUS.LIVE, 'active'] } })),
-        Ad.aggregate([
+        Ad.aggregate<AdsByLocationResult>([
             {
                 $match: {
                     ...buildScopedAdQuery({ status: AD_STATUS.LIVE }),
@@ -136,15 +159,15 @@ export const getLocationAnalyticsRawData = async (params: {
             { $sort: { adsCount: -1 } },
             { $limit: 250 }
         ]),
-        Ad.aggregate([
+        Ad.aggregate<MonthlyCountResult>([
             { $match: buildScopedAdQuery({ createdAt: { $gte: sixMonthsAgo } }) },
             { $group: { _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } }, count: { $sum: 1 } } }
         ]),
-        User.aggregate([
+        User.aggregate<MonthlyCountResult>([
             { $match: buildScopedUserQuery({ createdAt: { $gte: sixMonthsAgo } }) },
             { $group: { _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } }, count: { $sum: 1 } } }
         ]),
-        Location.aggregate([
+        Location.aggregate<MonthlyCountResult>([
             { $match: buildScopedLocationQuery({ createdAt: { $gte: sixMonthsAgo } }) },
             { $group: { _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } }, count: { $sum: 1 } } }
         ]),

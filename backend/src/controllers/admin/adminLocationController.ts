@@ -119,20 +119,21 @@ const invalidateLocationStateCache = async () => {
  * Uses canonical Location collection (no parallel schema).
  */
 export const createStateLocation = async (req: Request, res: Response) => {
+    const body = req.body as Record<string, unknown>;
     const stateName =
-        resolveStringField(req.body?.name) ||
-        resolveStringField(req.body?.state);
+        resolveStringField(body.name) ||
+        resolveStringField(body.state);
 
     if (!stateName) {
         return sendBaseAdminError(req, res, 'State name is required.', 400);
     }
 
     req.body = {
-        ...req.body,
+        ...(req.body as Record<string, unknown>),
         name: stateName,
         level: 'state',
         parentId: null,
-    };
+    } as Record<string, unknown>;
 
     return createLocation(req, res);
 };
@@ -142,10 +143,11 @@ export const createStateLocation = async (req: Request, res: Response) => {
  * Input: { stateId, name, latitude, longitude, ... }
  */
 export const createCityLocation = async (req: Request, res: Response) => {
-    const stateId = resolveStringField(req.body?.stateId);
+    const cityBody = req.body as Record<string, unknown>;
+    const stateId = resolveStringField(cityBody.stateId);
     const cityName =
-        resolveStringField(req.body?.name) ||
-        resolveStringField(req.body?.city);
+        resolveStringField(cityBody.name) ||
+        resolveStringField(cityBody.city);
 
     if (!stateId) return sendBaseAdminError(req, res, 'stateId is required.', 400);
     if (!cityName) return sendBaseAdminError(req, res, 'City name is required.', 400);
@@ -160,12 +162,12 @@ export const createCityLocation = async (req: Request, res: Response) => {
     }
 
     req.body = {
-        ...req.body,
+        ...(req.body as Record<string, unknown>),
         name: cityName,
-        country: resolveStringField(req.body?.country) || stateSummary.country || 'Unknown',
+        country: resolveStringField(cityBody.country) || stateSummary.country || 'Unknown',
         level: 'city',
         parentId: stateId,
-    };
+    } as Record<string, unknown>;
 
     return createLocation(req, res);
 };
@@ -175,10 +177,11 @@ export const createCityLocation = async (req: Request, res: Response) => {
  * Input: { cityId, name, latitude, longitude, ... }
  */
 export const createAreaLocation = async (req: Request, res: Response) => {
-    const cityId = resolveStringField(req.body?.cityId);
+    const areaBody = req.body as Record<string, unknown>;
+    const cityId = resolveStringField(areaBody.cityId);
     const areaName =
-        resolveStringField(req.body?.name) ||
-        resolveStringField(req.body?.area);
+        resolveStringField(areaBody.name) ||
+        resolveStringField(areaBody.area);
 
     if (!cityId) return sendBaseAdminError(req, res, 'cityId is required.', 400);
     if (!areaName) return sendBaseAdminError(req, res, 'Area name is required.', 400);
@@ -193,12 +196,12 @@ export const createAreaLocation = async (req: Request, res: Response) => {
     }
 
     req.body = {
-        ...req.body,
+        ...(req.body as Record<string, unknown>),
         name: areaName,
-        country: resolveStringField(req.body?.country) || citySummary.country || 'Unknown',
+        country: resolveStringField(areaBody.country) || citySummary.country || 'Unknown',
         level: 'area',
         parentId: cityId,
-    };
+    } as Record<string, unknown>;
 
     return createLocation(req, res);
 };
@@ -291,7 +294,8 @@ export const getAllLocations = async (req: Request, res: Response) => {
  */
 export const createLocation = async (req: Request, res: Response) => {
     try {
-        const { country, latitude, longitude, isActive, level, name } = req.body;
+        const createBody = req.body as Record<string, unknown>;
+        const { country, latitude, longitude, isActive, level, name } = createBody;
 
         // Use locationService to normalize coordinates and detect Null Island
         const coords = normalizeCoordinates({ lat: latitude, lng: longitude });
@@ -314,7 +318,7 @@ export const createLocation = async (req: Request, res: Response) => {
                 requestedLevel === 'village'
                 ? requestedLevel
                 : 'city';
-        const explicitParentId = resolveStringField(req.body?.parentId);
+        const explicitParentId = resolveStringField(createBody.parentId);
         let parentLocation: { _id: unknown; level?: string; path?: unknown } | null = null;
 
         if (explicitParentId) {
@@ -328,10 +332,10 @@ export const createLocation = async (req: Request, res: Response) => {
         } else {
             parentLocation = await resolveParentLocation({
                 level: finalLevel,
-                country: country || 'Unknown',
-                state: resolveStringField(req.body?.state),
-                district: resolveStringField(req.body?.district),
-                city: resolveStringField(req.body?.city) || displayName
+                country: resolveStringField(country) || 'Unknown',
+                state: resolveStringField(createBody.state),
+                district: resolveStringField(createBody.district),
+                city: resolveStringField(createBody.city) || displayName
             });
         }
 
@@ -385,7 +389,8 @@ export const createLocation = async (req: Request, res: Response) => {
 export const updateLocation = async (req: Request, res: Response) => {
     try {
         const id = req.params.id as string;
-        const { country, latitude, longitude, isActive, level, name } = req.body;
+        const updateBody = req.body as Record<string, unknown>;
+        const { country, latitude, longitude, isActive, level, name } = updateBody;
         const nextCountry = resolveStringField(country);
         const nextName = resolveStringField(name);
 
@@ -412,7 +417,7 @@ export const updateLocation = async (req: Request, res: Response) => {
             location.name = nextName;
         }
 
-        const parentIdFromBody = req.body?.parentId;
+        const parentIdFromBody = updateBody.parentId;
         const hasParentMutation = parentIdFromBody !== undefined;
         if (hasParentMutation) {
             if (parentIdFromBody === null || parentIdFromBody === '') {
@@ -437,7 +442,7 @@ export const updateLocation = async (req: Request, res: Response) => {
             }
             location.coordinates = coords;
         }
-        if (isActive !== undefined) location.isActive = isActive;
+        if (isActive !== undefined) location.isActive = Boolean(isActive);
 
         // Regenerate slug if Name/City/State changes
         if (name || country || level || hasParentMutation) {
@@ -565,7 +570,7 @@ export const getGeofences = async (req: Request, res: Response) => {
 
 export const createGeofence = async (req: Request, res: Response) => {
     try {
-        const geofence = await createGeofenceRecord(req.body);
+        const geofence = await createGeofenceRecord(req.body as Record<string, unknown>);
         await logAdminAction(req, 'CREATE_GEOFENCE', 'Geofence', (geofence as { _id: { toString(): string } })._id.toString(), { name: (geofence as { name?: string }).name });
         return sendSuccessResponse(res, geofence);
     } catch (error) {
@@ -576,7 +581,7 @@ export const createGeofence = async (req: Request, res: Response) => {
 export const updateGeofence = async (req: Request, res: Response) => {
     try {
         const id = req.params.id as string;
-        const geofence = await updateGeofenceById(id, req.body);
+        const geofence = await updateGeofenceById(id, req.body as Record<string, unknown>);
         if (!geofence) return sendBaseAdminError(req, res, 'Geofence not found', 404);
         await logAdminAction(req, 'UPDATE_GEOFENCE', 'Geofence', id, { name: (geofence as { name?: string }).name });
         return sendSuccessResponse(res, geofence);
@@ -617,7 +622,7 @@ export const getModerationQueue = async (req: Request, res: Response) => {
 export const approveRejectLocation = async (req: Request, res: Response) => {
     try {
         const id = req.params.id as string;
-        const { status, reason } = req.body;
+        const { status, reason } = req.body as { status: 'verified' | 'rejected'; reason?: string };
 
         if (![LOCATION_STATUS.VERIFIED, LOCATION_STATUS.REJECTED].includes(status)) {
             return sendBaseAdminError(req, res, 'Invalid status', 400);
