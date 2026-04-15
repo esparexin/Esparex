@@ -59,7 +59,7 @@ const normalizePermission = (permission: string): string =>
 
 export const roleGrantsPermission = (role: string | undefined, permission: string): boolean => {
     if (!role) return false;
-    if (role === Role.SUPER_ADMIN) return true;
+    if ((role as Role) === Role.SUPER_ADMIN) return true;
 
     const normalizedPermission = normalizePermission(permission);
     const roleAllowlist = PERMISSION_ROLE_ALLOWLIST[normalizedPermission];

@@ -33,7 +33,7 @@ export function serializeDoc<T>(doc: T): T {
     }
 
     if (Array.isArray(doc)) {
-        return doc.map((item) => serializeDoc(item)) as T;
+        return (doc as unknown[]).map((item) => serializeDoc(item)) as unknown as T;
     }
 
     if (doc instanceof Date) {

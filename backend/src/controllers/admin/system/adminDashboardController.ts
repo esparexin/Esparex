@@ -369,7 +369,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
         }
 
         const adsByLocationIds = adsByLocationAgg
-            .map((entry) => entry?._id)
+            .map((entry) => entry?._id as string | undefined)
             .filter((value): value is string => Boolean(value))
             .map((value) => String(value));
         const analyticsLocations = await getAnalyticsLocations(adsByLocationIds);

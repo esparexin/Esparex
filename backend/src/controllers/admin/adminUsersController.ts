@@ -44,7 +44,7 @@ const getRoleRank = (role: string | undefined): number => ADMIN_ROLE_RANK[role |
 
 const ensureRoleAssignmentAllowed = (actorRole: string | undefined, targetRole: string): boolean => {
     if (!actorRole) return false;
-    if (actorRole === Role.SUPER_ADMIN) return true;
+    if ((actorRole as Role) === Role.SUPER_ADMIN) return true;
     return getRoleRank(targetRole) <= getRoleRank(actorRole);
 };
 
@@ -127,7 +127,7 @@ export const verifyUser = async (req: Request, res: Response) => {
         await logAdminAction(req, 'VERIFY_USER', 'User', String(req.params.id), { isVerified: verified });
 
         // 🏆 TRUST SCORE: Recalculate on verification change
-        setImmediate(() => recalculateTrustScore(user._id).catch(() => { }));
+        setImmediate(() => void recalculateTrustScore(user._id).catch(() => { }));
 
         sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user as unknown as Record<string, unknown>), 'User verification updated');
     } catch (error: unknown) {
@@ -246,7 +246,7 @@ export const createAdmin = async (req: Request, res: Response) => {
                 ? role
                 : Role.ADMIN;
 
-        const actorRole = (req.user as IAuthUser | undefined)?.role;
+        const actorRole = (req.user)?.role;
         if (!ensureRoleAssignmentAllowed(actorRole, normalizedRole)) {
             return sendAdminError(req, res, 'Cannot assign a role higher than your own', 403);
         }
@@ -311,7 +311,7 @@ export const updateAdmin = async (req: Request, res: Response) => {
             if (typeof role !== 'string' || !ALLOWED_ADMIN_ROLES.has(role)) {
                 return sendAdminError(req, res, 'Invalid admin role', 400);
             }
-            const actorRole = (req.user as IAuthUser | undefined)?.role;
+            const actorRole = (req.user)?.role;
             if (!ensureRoleAssignmentAllowed(actorRole, role)) {
                 return sendAdminError(req, res, 'Cannot assign a role higher than your own', 403);
             }

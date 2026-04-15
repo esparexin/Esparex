@@ -36,7 +36,7 @@ export default tseslint.config(
             "@typescript-eslint/no-unsafe-assignment": "warn",
             "@typescript-eslint/no-unsafe-call": "warn",
             "@typescript-eslint/no-unsafe-member-access": "warn",
-            "@typescript-eslint/no-unsafe-return": "warn",
+            "@typescript-eslint/no-unsafe-return": "error",
             "@typescript-eslint/no-unsafe-argument": "warn",
 
             // ── Additional type-aware rules — warn while fixing ────────────
@@ -44,10 +44,10 @@ export default tseslint.config(
             "@typescript-eslint/require-await": "error",
             "@typescript-eslint/restrict-template-expressions": "error",
             "@typescript-eslint/no-floating-promises": "error",
-            "@typescript-eslint/no-misused-promises": "warn",
-            "@typescript-eslint/no-unsafe-enum-comparison": "warn",
-            "@typescript-eslint/unbound-method": "warn",
-            "@typescript-eslint/prefer-promise-reject-errors": "warn",
+            "@typescript-eslint/no-misused-promises": "error",
+            "@typescript-eslint/no-unsafe-enum-comparison": "error",
+            "@typescript-eslint/unbound-method": "error",
+            "@typescript-eslint/prefer-promise-reject-errors": "error",
 
             // ── Disable rules that fire on intentional patterns ────────────
             "@typescript-eslint/no-redundant-type-constituents": "off",

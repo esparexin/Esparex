@@ -15,7 +15,7 @@ export const getSystemConfigDoc = async () => {
         // 1. Try Cache
         const cached = await redis.get(SYSTEM_CONFIG_CACHE_KEY);
         if (cached) {
-            return JSON.parse(cached);
+            return JSON.parse(cached) as ISystemConfig;
         }
 
         // 2. Try DB

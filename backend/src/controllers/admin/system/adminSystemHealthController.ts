@@ -43,10 +43,10 @@ export const getCacheHealth = async (req: Request, res: Response) => {
 export const getSystemHealth = async (req: Request, res: Response) => {
     try {
         await connectDB();
-        const userDbStatus = getUserConnection().readyState === 1 ? 'connected' : 'disconnected';
-        const adminDbStatus = getAdminConnection().readyState === 1 ? 'connected' : 'disconnected';
+        const userDbStatus = (getUserConnection().readyState as number) === 1 ? 'connected' : 'disconnected';
+        const adminDbStatus = (getAdminConnection().readyState as number) === 1 ? 'connected' : 'disconnected';
         const redisHealth = await getRedisHealthProbe();
-        const dbHealthy = getUserConnection().readyState === 1 && getAdminConnection().readyState === 1;
+        const dbHealthy = (getUserConnection().readyState as number) === 1 && (getAdminConnection().readyState as number) === 1;
         const redisHealthy = redisHealth.pingOk && redisHealth.roundTripOk;
         const isHealthy = dbHealthy && redisHealthy;
         sendSuccessResponse(res, {
@@ -80,7 +80,7 @@ export const runSystemScan = async (req: Request, res: Response) => {
 
         // 1. DB Check
         const dbState = getUserConnection().readyState;
-        if (dbState !== 1) {
+        if ((dbState as number) !== 1) {
             issues.push({ id: 'db_conn', type: 'system', message: 'User database connection is unstable', severity: 'high', fixable: true, action: 'reconnect_db' });
             status = 'Critical';
             score -= 40;

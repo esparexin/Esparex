@@ -77,7 +77,7 @@ interface IStatusable {
  * 2. StatusHistory (Unified Audit Trail)
  * 3. Metrics Telemetry (Observability)
  */
-export const mutateStatus = async (request: MutationRequest) => {
+export const mutateStatus = async (request: MutationRequest): Promise<Record<string, unknown> | null> => {
     const { domain, entityId, toStatus, actor, reason, patch, metadata, session: externalSession } = request;
     const connection = getUserConnection();
     
@@ -204,7 +204,7 @@ export const mutateStatus = async (request: MutationRequest) => {
                 }
             }], { session: activeSession });
 
-            return typeof doc.toObject === 'function' ? doc.toObject() : doc;
+            return (typeof doc.toObject === 'function' ? doc.toObject() : doc) as Record<string, unknown>;
         };
 
         if (isInternalSession && session) {
@@ -321,8 +321,8 @@ export const mutateStatus = async (request: MutationRequest) => {
  * NOTE: For production safety and audit granularity, we process each mutation 
  * individually to ensure full LifecycleGuard validation and unique audit trails.
  */
-export const mutateStatuses = async (requests: MutationRequest[]) => {
-    const results = [];
+export const mutateStatuses = async (requests: MutationRequest[]): Promise<(Record<string, unknown> | null)[]> => {
+    const results: (Record<string, unknown> | null)[] = [];
     for (const request of requests) {
         results.push(await mutateStatus(request));
     }

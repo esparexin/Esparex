@@ -237,7 +237,7 @@ export const updateAd = async (
                         },
                     },
                     session,
-                });
+                }) as IAd | null;
             }
         };
 
@@ -251,7 +251,7 @@ export const updateAd = async (
         
         const updatedAdTyped = updatedAd as IAd;
         if (Array.isArray(updatedAdTyped.images) && updatedAdTyped.images.length > 0) {
-            enqueueImageOptimization(adId, 'ad', updatedAdTyped.images as string[]).catch(err => {
+            enqueueImageOptimization(adId, 'ad', updatedAdTyped.images).catch(err => {
                 logger.error('Failed to enqueue image optimization after Ad edit', err);
             });
         }
@@ -297,7 +297,7 @@ export const updateAdTransactional = async (options: {
                     actor: { type: context.actor === 'ADMIN' ? 'admin' : 'user', id: context.authUserId, ip: '', userAgent: '' },
                     reason: optionalStatusTransition.reason,
                     session
-                }) as Record<string, unknown> | null;
+                });
             }
         });
 
@@ -557,7 +557,7 @@ export const isValidAdStatus = (status: string): boolean => {
 };
 
 
-export const preparePayload = AdCreationService.preparePayload;
+export const preparePayload = (...args: Parameters<typeof AdCreationService.preparePayload>) => AdCreationService.preparePayload(...args);
 export const createAd = orchestratorCreateAd;
 
 export const getAdForModerationById = async (id: string) => {

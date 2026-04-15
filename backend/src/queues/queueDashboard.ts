@@ -12,5 +12,5 @@ export const setupQueueDashboard = () => {
         serverAdapter,
     });
 
-    return serverAdapter.getRouter();
+    return serverAdapter.getRouter() as import('express').Router;
 };

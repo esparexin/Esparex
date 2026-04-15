@@ -66,10 +66,10 @@ export const runAdminMetricsJob = async () => {
             { $limit: 10 }
         ]);
 
-        const topCities = topCitiesAgg.reduce((acc, curr) => {
-            if (curr._id) acc[curr._id] = curr.count;
+        const topCities = topCitiesAgg.reduce<Record<string, number>>((acc, curr) => {
+            if (curr._id) acc[curr._id as string] = curr.count as number;
             return acc;
-        }, {} as Record<string, number>);
+        }, {});
 
         const rejectedBusinesses = await Business.countDocuments({ status: BUSINESS_STATUS.REJECTED, isDeleted: false });
 

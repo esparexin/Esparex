@@ -17,6 +17,7 @@ import * as adminBusinessService from '../../services/AdminBusinessService';
 import { mutateStatus } from '../../services/StatusMutationService';
 import { BUSINESS_STATUS } from '../../../../shared/enums/businessStatus';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
+import type { IBusiness } from '../../models/Business';
 
 
 
@@ -49,13 +50,13 @@ export const getBusinessAccountById = async (req: Request, res: Response) => {
 
 export const approveBusinessAccount = async (req: Request, res: Response) => {
     try {
-        const business = await businessService.approveBusiness(req.params.id as string, (req.user as IAuthUser)?._id?.toString() || (req.user as IAuthUser)?.id);
+        const business = await businessService.approveBusiness(req.params.id as string, (req.user as IAuthUser)?._id?.toString() || (req.user as IAuthUser)?.id) as IBusiness | null;
 
         if (!business) {
             return sendAdminError(req, res, 'Business not found', 404);
         }
 
-        const expiresAt = (business as typeof business & { expiresAt?: Date }).expiresAt;
+        const expiresAt = (business).expiresAt;
         await logAdminAction(req, 'APPROVE_BUSINESS', 'Business', req.params.id, { expiresAt });
 
         // Trigger Notification
@@ -68,7 +69,7 @@ export const approveBusinessAccount = async (req: Request, res: Response) => {
         );
 
         // 🏆 TRUST SCORE: Recalculate on business approval
-        setImmediate(() => recalculateTrustScore(business.userId).catch(() => { }));
+        setImmediate(() => void recalculateTrustScore(business.userId).catch(() => { }));
 
         sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business approved successfully');
     } catch (error: unknown) {
@@ -86,7 +87,7 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
             req.params.id as string,
             reason,
             (req.user as IAuthUser)?._id?.toString() || (req.user as IAuthUser)?.id
-        );
+        ) as IBusiness | null;
 
         if (!business) {
             return sendAdminError(req, res, 'Business not found', 404);
@@ -105,7 +106,7 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
 
         const actor: { type: string; id: string | undefined } = { type: ACTOR_TYPE.ADMIN, id: (req.user as IAuthUser)?._id?.toString() || (req.user as IAuthUser)?.id };
         const cascaded = await adminBusinessService.cascadeExpireBusinessListings(business._id, actor, `Cascaded from business rejection: ${reason}`);
-        if (cascaded > 0) logger.info(`Business Cascade: Expired ${cascaded} listings for business ${business._id}`);
+        if (cascaded > 0) logger.info(`Business Cascade: Expired ${cascaded} listings for business ${String(business._id)}`);
 
         sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business rejected');
     } catch (error: unknown) {

@@ -131,7 +131,7 @@ export const requirePermission = (permission: string) => {
         }
 
         // Super Admin has all permissions
-        if (user.role === Role.SUPER_ADMIN) {
+        if ((user.role as Role) === Role.SUPER_ADMIN) {
             return next();
         }
 

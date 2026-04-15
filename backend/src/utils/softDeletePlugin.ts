@@ -83,14 +83,14 @@ const softDeletePlugin = (schema: Schema) => {
         this.isDeleted = true;
         this.deletedAt = new Date();
         if ('isActive' in this) this.isActive = false;
-        return this.save();
+        return this.save() as Promise<unknown>;
     };
 
     // Restore Instance Method
     schema.methods.restore = function () {
         this.isDeleted = false;
         this.deletedAt = undefined;
-        return this.save();
+        return this.save() as Promise<unknown>;
     };
 };
 

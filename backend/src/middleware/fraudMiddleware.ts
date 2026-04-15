@@ -23,7 +23,7 @@ const shouldRunInShadowMode = (req: Request): boolean => {
     return SHADOW_ONLY_PREFIXES.some((prefix) => url.startsWith(prefix));
 };
 
-const isFraudDatastoreReady = (): boolean => getUserConnection().readyState === 1;
+const isFraudDatastoreReady = (): boolean => (getUserConnection().readyState as number) === 1;
 
 const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T> =>
     new Promise<T>((resolve, reject) => {
@@ -38,7 +38,7 @@ const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T
             })
             .catch((error: unknown) => {
                 clearTimeout(timeoutHandle);
-                reject(error);
+                reject(error instanceof Error ? error : new Error(String(error)));
             });
     });
 

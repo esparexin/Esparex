@@ -107,7 +107,7 @@ export const protect = async (
       _id: new Types.ObjectId(decoded.id),
       id: decoded.id,
       role: decoded.role as Role,
-      isAdmin: decoded.role === Role.ADMIN || decoded.role === Role.SUPER_ADMIN
+      isAdmin: (decoded.role as Role) === Role.ADMIN || (decoded.role as Role) === Role.SUPER_ADMIN
     };
 
     // User Hydration (with Redis Caching)
@@ -188,7 +188,7 @@ export const extractUser = (
         _id: new Types.ObjectId(decoded.id),
         id: decoded.id,
         role: decoded.role as Role,
-        isAdmin: decoded.role === Role.ADMIN || decoded.role === Role.SUPER_ADMIN
+        isAdmin: (decoded.role as Role) === Role.ADMIN || (decoded.role as Role) === Role.SUPER_ADMIN
       };
     }
   } catch {

@@ -242,7 +242,7 @@ export const adminLimiter = createLimiter({
     keyGenerator: (req: Request) => {
         const r = req as Request & { admin?: { id?: string; _id?: unknown } };
         const adminId = r.admin?.id ?? (r.admin?._id ? String(r.admin._id) : undefined);
-        return adminId || req.ip || 'unknown';
+        return (adminId || req.ip || 'unknown') as string;
     }
 });
 
