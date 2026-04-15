@@ -11,7 +11,7 @@ type BackendStatus = {
 };
 
 const BackendStatusContext = createContext<BackendStatus>({
-    isBackendUp: false,
+    isBackendUp: true,
     checked: false,
     apiBaseUrl: "",
 });
@@ -23,7 +23,7 @@ export function BackendStatusProvider({
 }: {
     children: React.ReactNode;
 }) {
-    const [isBackendUp, setIsBackendUp] = useState(false);
+    const [isBackendUp, setIsBackendUp] = useState(true);
     const [checked, setChecked] = useState(false);
     const [apiBaseUrl, setApiBaseUrl] = useState("");
 

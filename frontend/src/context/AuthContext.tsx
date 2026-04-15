@@ -98,8 +98,6 @@ export function AuthProvider({
   const [user, setUser] =
     useState<User | null>(null);
 
-  const [status, setStatus] =
-    useState<AuthStatus>("loading");
 
   const [error, setError] =
     useState<Error | null>(null);
@@ -112,6 +110,9 @@ export function AuthProvider({
       if (typeof window === "undefined") return false;
       return localStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "1";
     });
+
+  const [status, setStatus] =
+    useState<AuthStatus>(hasAuthHint ? "loading" : "unauthenticated");
 
   const fetchingRef = useRef(false);
   const authBannerShownRef = useRef(false);
