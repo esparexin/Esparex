@@ -64,9 +64,10 @@ export const getAdminActorId = (req: Request): string | undefined => {
     const userId = catalogRequest.user?._id ?? catalogRequest.user?.id;
     if (typeof userId === 'string') return userId;
     if (userId && typeof userId.toString === 'function') return userId.toString();
-    const adminId = catalogRequest.admin?._id ?? catalogRequest.admin?.id;
+    const adminEntry = catalogRequest.admin as { _id?: string | { toString(): string }; id?: string } | undefined;
+    const adminId = adminEntry?._id ?? adminEntry?.id;
     if (typeof adminId === 'string') return adminId;
-    if (adminId && typeof adminId.toString === 'function') return (adminId as { toString(): string }).toString();
+    if (adminId && typeof (adminId as { toString?: unknown }).toString === 'function') return (adminId as { toString(): string }).toString();
     return undefined;
 };
 
@@ -135,7 +136,7 @@ export async function handleCatalogCreate<T extends Document>(
             return sendContractErrorResponse(req, res, 403, 'Admin access required');
         }
 
-        let payload = req.body;
+        let payload: Record<string, unknown> = req.body as Record<string, unknown>;
         if (options.preOp) {
             payload = await options.preOp(payload);
         }
@@ -145,12 +146,12 @@ export async function handleCatalogCreate<T extends Document>(
             return sendValidationError(req, res, parsed.error);
         }
 
-        const data = parsed.data;
+        const data = parsed.data as Record<string, unknown>;
         if (options.slugifyName && data.name) {
-            data.slug = slugify(data.name, { lower: true, strict: true }) + '-' + nanoid(6);
+            data.slug = slugify(data.name as string, { lower: true, strict: true }) + '-' + nanoid(6);
         }
 
-        const item = await model.create(data);
+        const item = await model.create(data as unknown as Partial<T>);
 
         if (options.postOp) options.postOp();
 
@@ -193,7 +194,7 @@ export async function handleCatalogUpdate<T extends Document>(
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }
 
-        let payload = req.body;
+        let payload: Record<string, unknown> = req.body as Record<string, unknown>;
         if (options.preUpdate) {
             payload = await options.preUpdate(id, payload, existing);
         }
@@ -203,12 +204,12 @@ export async function handleCatalogUpdate<T extends Document>(
             return sendValidationError(req, res, parsed.error);
         }
 
-        const data = parsed.data;
+        const data = parsed.data as Record<string, unknown>;
         if (options.slugifyName && data.name) {
-            data.slug = slugify(data.name, { lower: true, strict: true });
+            data.slug = slugify(data.name as string, { lower: true, strict: true });
         }
 
-        const item = await model.findByIdAndUpdate(id, data, { new: true });
+        const item = await model.findByIdAndUpdate(id, data as unknown as Partial<T>, { new: true });
         
         if (options.postOp) options.postOp();
 
@@ -249,7 +250,7 @@ export async function handleCatalogToggleStatus<T extends Document>(
 
         const isActive = !(item as T & { isActive?: boolean }).isActive;
         const status = isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE;
-        const nextState = model.schema.path('status')
+        const nextState = (model.schema as { path(f: string): unknown }).path('status')
             ? { isActive, status }
             : { isActive };
 
@@ -294,7 +295,7 @@ export async function handleCatalogDelete<T extends Document>(
             }
         }
 
-        const softDeleteUpdate = model.schema.path('status')
+        const softDeleteUpdate = (model.schema as { path(f: string): unknown }).path('status')
             ? { isDeleted: true, status: CATALOG_STATUS.INACTIVE }
             : { isDeleted: true };
 
@@ -345,7 +346,7 @@ export async function handleCatalogReview<T extends Document>(
             updates = {
                 status: CATALOG_STATUS.REJECTED,
                 isActive: false,
-                rejectionReason: parsed?.data?.reason || req.body.reason
+                rejectionReason: (parsed?.data as { reason?: string } | undefined)?.reason || (req.body as { reason?: string })?.reason
             };
         }
 

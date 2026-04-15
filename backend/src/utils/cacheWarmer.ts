@@ -9,7 +9,7 @@ import logger from './logger';
 export async function warmCategoryCache() {
     try {
         // Use standard query to match the frontend selection pattern
-        const categories = await (Category as typeof Category).find({
+        const categories = await (Category).find({
             isDeleted: { $ne: true }, 
             isActive: true 
         })

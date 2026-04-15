@@ -378,7 +378,7 @@ export const getListingPhone = async (req: Request, res: Response, next: NextFun
         const requesterId = req.user?._id?.toString();
         const metadata = {
             ip: req.ip || req.socket.remoteAddress,
-            device: req.headers['user-agent'] as string | undefined
+            device: req.headers['user-agent']
         };
 
         const result = await getSellerPhone(id, LISTING_TYPE.AD, requesterId, metadata);

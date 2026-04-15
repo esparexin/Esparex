@@ -55,7 +55,7 @@ export function initIO(httpServer: HttpServer): Server {
          
         const subClient = new Redis(env.REDIS_URL ?? `redis://localhost:${env.REDIS_PORT}`, {
             tls: undefined, // 🔒 FORCE DISABLE TLS
-        }) as typeof redisClient;
+        });
         io.adapter(createAdapter(pubClient, subClient));
         logger.info('[Socket] Redis adapter attached');
     } catch (err) {
@@ -141,7 +141,7 @@ export function getIO(): Server {
  */
 export async function closeIO(): Promise<void> {
     if (!io) return;
-    await new Promise<void>((resolve) => io!.close(() => resolve()));
+    await new Promise<void>((resolve) => { void io!.close(() => resolve()); });
     io = null;
     logger.info('[Socket] Socket.io server closed');
 }

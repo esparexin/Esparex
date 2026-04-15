@@ -57,7 +57,7 @@ const getWritableSystemConfig = async (): Promise<HydratedDocument<ISystemConfig
     const existing = await SystemConfig.findOne({ singletonKey: SYSTEM_CONFIG_KEY });
     if (existing) return existing;
     const created = await ensureSystemConfig();
-    return created as HydratedDocument<ISystemConfig>;
+    return created;
 };
 
 export const getSystemConfigForRead = async (defaults: Record<string, unknown> = {}) => {

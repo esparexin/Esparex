@@ -491,7 +491,7 @@ export const updateService = async (req: Request, res: Response) => {
 
         const response = respond<ApiResponse<Service>>({
             success: true,
-            data: finalServiceData as unknown as Service,
+            data: finalServiceData as Service,
             message: 'Service updated and submitted for re-approval.'
         });
 

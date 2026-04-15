@@ -98,7 +98,7 @@ CategorySchema.post('init', function(doc) {
             if (lt === 'postservice') return 'service';
             if (lt === 'postsparepart') return 'spare_part';
             return lt;
-        }) as typeof doc.listingType;
+        });
     }
 });
 

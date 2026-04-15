@@ -30,7 +30,7 @@ export const resolveMasterDataIds = async (data: {
             const cat = await Category.findOne({
                 $or: [{ slug: data.category }, { name: data.category }]
             }).select('_id');
-            if (cat) resolution.categoryId = cat._id as mongoose.Types.ObjectId;
+            if (cat) resolution.categoryId = cat._id;
         }
     }
 
@@ -46,7 +46,7 @@ export const resolveMasterDataIds = async (data: {
             if (resolution.categoryId) query.categoryIds = resolution.categoryId;
 
             const brand = await Brand.findOne(query).select('_id');
-            if (brand) resolution.brandId = brand._id as mongoose.Types.ObjectId;
+            if (brand) resolution.brandId = brand._id;
         }
     }
 
@@ -59,7 +59,7 @@ export const resolveMasterDataIds = async (data: {
             if (resolution.brandId) query.brandId = resolution.brandId;
 
             const model = await Model.findOne(query).select('_id');
-            if (model) resolution.modelId = model._id as mongoose.Types.ObjectId;
+            if (model) resolution.modelId = model._id;
         }
     }
 

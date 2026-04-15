@@ -46,7 +46,7 @@ export async function getMessages(
     const lastMsg = msgs[msgs.length - 1];
     const nextCursor =
         msgs.length === PAGE_SIZE_MESSAGES && lastMsg?.createdAt
-            ? (lastMsg.createdAt as Date).toISOString()
+            ? (lastMsg.createdAt).toISOString()
             : undefined;
 
     return { msgs: msgs.reverse(), nextCursor };

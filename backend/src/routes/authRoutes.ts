@@ -17,7 +17,7 @@ const router = express.Router();
  * @desc    Send OTP for login (or signup)
  * @access  Public
  */
-router.post('/send-otp', otpConfigurationCheck, validateRequest(loginSchema), otpIpLimiter, otpSendLimiter, fraudMiddleware, AuthController.login);
+router.post('/send-otp', otpConfigurationCheck, validateRequest(loginSchema), otpIpLimiter, otpSendLimiter, fraudMiddleware, (req, res, next) => AuthController.login(req, res, next));
 
 import { idempotencyMiddleware } from '../middleware/idempotency';
 
@@ -38,20 +38,20 @@ router.post('/verify-otp', otpConfigurationCheck, (req, res, next) => {
         hasName: typeof req.body?.name === 'string' && req.body.name.trim().length > 0
     });
     next();
-}, validateRequest(verifyOtpSchema), otpVerifyLimiter, fraudMiddleware, idempotencyMiddleware, AuthController.verify);
+}, validateRequest(verifyOtpSchema), otpVerifyLimiter, fraudMiddleware, idempotencyMiddleware, (req, res, next) => AuthController.verify(req, res, next));
 
 /**
  * @route   POST /api/v1/auth/cancel-otp
  * @desc    Invalidate current OTP session for a mobile number
  * @access  Public
  */
-router.post('/cancel-otp', otpConfigurationCheck, validateRequest(loginSchema), AuthController.cancelOtp);
+router.post('/cancel-otp', otpConfigurationCheck, validateRequest(loginSchema), (req, res, next) => AuthController.cancelOtp(req, res, next));
 
 /**
  * @route   POST /api/v1/auth/logout
  * @desc    Clear session cookie
  * @access  Private
  */
-router.post('/logout', protect, AuthController.logout);
+router.post('/logout', protect, (req, res, next) => AuthController.logout(req, res, next));
 
 export default router;

@@ -12,7 +12,7 @@ import { env } from '../config/env';
 
 if (env.NODE_ENV === 'production') {
     const missing = (['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'] as const)
-        .filter((k) => !(env[k] as string | undefined)?.trim());
+        .filter((k) => !(env[k])?.trim());
     if (missing.length > 0) {
         // Warn but don't crash — payment routes will return 503 until keys are configured
         console.warn(`[WARN] Payment routes: missing env vars: ${missing.join(', ')}. Payment features will be unavailable.`);

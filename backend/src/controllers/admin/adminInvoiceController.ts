@@ -263,7 +263,7 @@ export const updateInvoiceStatus = async (req: Request, res: Response) => {
 
                     if (user && planSnapshot) {
                         const startDate = new Date();
-                        const snapshotDurationRaw = (planSnapshot as Record<string, unknown>).durationDays;
+                        const snapshotDurationRaw = (planSnapshot).durationDays;
                         const durationDays = typeof snapshotDurationRaw === 'number' ? snapshotDurationRaw : 30;
                         const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
 

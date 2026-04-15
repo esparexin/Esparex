@@ -20,7 +20,7 @@ export const startScheduler = async () => {
         if (acquired !== 'OK') {
             logger.warn('Scheduler lock already exists in Redis. Another scheduler instance is already running.');
             logger.warn('Will retry acquiring the lock in the background...');
-            setTimeout(() => startScheduler().catch(err => logger.error('Retry failed', { err })), 15000);
+            setTimeout(() => void startScheduler().catch(err => logger.error('Retry failed', { err })), 15000);
             return;
         }
 

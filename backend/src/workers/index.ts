@@ -37,6 +37,6 @@ export const startWorkers = () => {
         });
     };
 
-    process.on('SIGTERM', handleShutdown);
-    process.on('SIGINT', handleShutdown);
+    process.on('SIGTERM', () => void handleShutdown());
+    process.on('SIGINT', () => void handleShutdown());
 };

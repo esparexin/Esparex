@@ -218,7 +218,7 @@ const checkMemoryHealth = async () => {
 };
 
 // Check memory every 5 minutes
-setInterval(checkMemoryHealth, 300000);
+setInterval(() => void checkMemoryHealth(), 300000);
 
 /* ============================================================================
  * 🛡️ TOKEN REPLAY BLACKLIST
@@ -384,7 +384,7 @@ export const scanKeysByPattern = async (
         do {
             const rawResult = await client.scan(cursor, 'MATCH', pattern, 'COUNT', count);
             const nextCursor = Array.isArray(rawResult) ? rawResult[0] : '0';
-            const batch = Array.isArray(rawResult) ? (rawResult[1] as string[]) : [];
+            const batch = Array.isArray(rawResult) ? (rawResult[1]) : [];
             if (Array.isArray(batch) && batch.length > 0) {
                 collected.push(...batch);
             }

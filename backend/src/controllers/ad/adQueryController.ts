@@ -13,7 +13,6 @@ import { getSingleParam } from '../../utils/requestParams';
 import { Ad } from '../../../../shared/schemas/ad.schema';
 import { ApiResponse, PaginatedResponse, HomeFeedResponse } from '../../../../shared/types/Api';
 import { getAdsQuerySchema } from '../../validators/ad.validator';
-import { IAuthUser } from '../../types/auth';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
@@ -67,7 +66,7 @@ const sendLegacyAliasError = (req: Request, res: Response, source: 'query') =>
     );
 
 const getViewerIdForFeed = (req: Request): string | undefined => {
-    const user = req.user as IAuthUser | undefined;
+    const user = req.user;
     if (!user) return undefined;
     if (user.isAdmin || user.role === 'admin' || user.role === 'super_admin') return undefined;
     return user._id?.toString();
@@ -113,7 +112,7 @@ export const getAds = async (req: Request, res: Response, next: NextFunction) =>
                 };
                 return res.json(respond<PaginatedResponse<Ad>>({
                     success: true,
-                    data: cachedResult.data as unknown as Ad[],
+                    data: cachedResult.data as Ad[],
                     pagination
                 }));
             }
@@ -289,7 +288,7 @@ export const getHomeFeedAds = async (req: Request, res: Response, next: NextFunc
 
         const response = respond<ApiResponse<HomeFeedResponse>>({
             success: true,
-            data: data as HomeFeedResponse
+            data: data
         });
 
         return res.json(response);
@@ -332,7 +331,7 @@ export const getTrendingAds = async (req: Request, res: Response, next: NextFunc
 export const getAnyAdById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // Admin only access
-        const isAdmin = req.admin || (req.user && ['admin', 'super_admin'].includes((req.user as IAuthUser).role));
+        const isAdmin = req.admin || (req.user && ['admin', 'super_admin'].includes((req.user).role));
         if (!isAdmin) {
             return sendErrorResponse(req, res, 403, 'Admin access required');
         }

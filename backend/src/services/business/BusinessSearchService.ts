@@ -211,7 +211,7 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
                 brandMatchedServicesCount,
                 ...(typeof distanceKm === 'number' ? { distanceKm } : {})
             } as EnrichedBusinessCandidate;
-        }) as EnrichedBusinessCandidate[])
+        }))
         .sort((left, right) => {
             const brandMatchedDiff = right.brandMatchedServicesCount - left.brandMatchedServicesCount;
             if (brandMatchedDiff !== 0) return brandMatchedDiff;

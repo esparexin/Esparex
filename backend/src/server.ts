@@ -175,12 +175,11 @@ function setupGracefulShutdown(server: Server) {
         });
     };
 
-    process.on('SIGTERM', handleShutdown);
-    process.on('SIGINT', handleShutdown);
+    process.on('SIGTERM', () => void handleShutdown());
+    process.on('SIGINT', () => void handleShutdown());
 
     // Nodemon / PM2 restarts
-    process.once('SIGUSR2', async () => {
-        await handleShutdown();
-        process.kill(process.pid, 'SIGUSR2');
+    process.once('SIGUSR2', () => {
+        void handleShutdown().then(() => process.kill(process.pid, 'SIGUSR2'));
     });
 }

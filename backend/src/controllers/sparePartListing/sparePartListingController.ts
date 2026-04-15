@@ -192,7 +192,7 @@ export const getSparePartListings = async (req: Request, res: Response) => {
 
         res.json(respond<PaginatedResponse<Record<string, unknown>>>({
             success: true,
-            data: result.data as Array<Record<string, unknown>>,
+            data: result.data,
             pagination: {
                 ...result.pagination,
                 page: parsedPage,

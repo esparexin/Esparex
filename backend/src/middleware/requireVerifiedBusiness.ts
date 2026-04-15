@@ -49,7 +49,7 @@ export const requireVerifiedBusiness = async (
 
         const businessStatus = await resolveBusinessStatus(req);
 
-        if (!businessStatus || !isBusinessPublishedStatus(businessStatus as string)) {
+        if (!businessStatus || !isBusinessPublishedStatus(businessStatus)) {
             sendErrorResponse(req, res, 403, 'BUSINESS_NOT_VERIFIED', {
                 details: {
                     message:

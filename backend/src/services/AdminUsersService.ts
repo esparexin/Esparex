@@ -119,7 +119,7 @@ export const getUserManagementOverview = async () => {
     startOfDay.setUTCHours(0, 0, 0, 0);
 
     const payload = (cachedMetrics && typeof cachedMetrics.payload === 'object' && cachedMetrics.payload !== null)
-        ? cachedMetrics.payload as Record<string, unknown>
+        ? cachedMetrics.payload
         : {};
 
     const toNumberIfFinite = (value: unknown): number | undefined =>

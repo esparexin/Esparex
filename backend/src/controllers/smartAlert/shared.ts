@@ -52,7 +52,7 @@ export const getRequiredAlertId = (req: Request): string => {
 
 export const toAlertContract = (alert: unknown) => {
     const serialized = serializeDoc(alert) as SerializedSmartAlert;
-    const serializedCriteria = (serialized.criteria ?? {}) as Record<string, unknown>;
+    const serializedCriteria = (serialized.criteria ?? {});
     const location = normalizeLocationResponse({
         locationId: serializedCriteria.locationId,
         display: serializedCriteria.location,

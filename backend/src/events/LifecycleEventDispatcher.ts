@@ -104,15 +104,13 @@ class LifecycleEventDispatcher {
      * Subscribe to a lifecycle event
      */
     public on<K extends EventKey>(eventName: K, handler: EventHandler<K>, listenerName?: string): void {
-        this.emitter.on(eventName, async (payload: LifecycleEventMap[K]) => {
-            try {
-                await Promise.resolve(handler(payload));
-            } catch (error) {
+        this.emitter.on(eventName, (payload: LifecycleEventMap[K]) => {
+            void Promise.resolve(handler(payload)).catch(error => {
                 logger.error(`[LifecycleEventDispatcher] Error in listener '${listenerName || 'Anonymous'}' for event '${eventName}':`, {
                     error: error instanceof Error ? error.message : String(error),
                     payload
                 });
-            }
+            });
         });
     }
 

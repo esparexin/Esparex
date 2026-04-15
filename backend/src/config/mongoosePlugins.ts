@@ -25,8 +25,8 @@ const ADMIN_OWNED_REF_MODEL_BY_PATH: Record<string, 'Category' | 'Brand' | 'Mode
 };
 
 const toPopulateSpecs = (args: unknown[]): Array<{ path: string; hasExplicitModel: boolean }> => {
-    const first = args[0] as unknown;
-    const third = args[2] as unknown;
+    const first = args[0];
+    const third = args[2];
     const specs: Array<{ path: string; hasExplicitModel: boolean }> = [];
 
     const addPathSpecs = (rawPath: unknown, hasExplicitModel: boolean) => {
@@ -76,8 +76,8 @@ const installPopulateGovernanceGuard = () => {
     const originalPopulate = queryProto.populate;
 
     queryProto.populate = function patchedPopulate(this: MongooseHookContext, ...args: unknown[]) {
-        const modelName = this?.model?.modelName as string | undefined;
-        const connectionModels = (this?.model?.db?.models ?? {}) as Record<string, unknown>;
+        const modelName = this?.model?.modelName;
+        const connectionModels = (this?.model?.db?.models ?? {});
 
         const populateSpecs = toPopulateSpecs(args);
         for (const spec of populateSpecs) {

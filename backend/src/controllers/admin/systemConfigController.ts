@@ -34,8 +34,8 @@ const maskSecrets = (obj: unknown): unknown => {
 
     const recurse = (current: Record<string, unknown>) => {
         for (const key in current) {
-            if (sensitiveKeys.includes(key) && typeof current[key] === 'string' && (current[key] as string).length > 0) {
-                const val = current[key] as string;
+            if (sensitiveKeys.includes(key) && typeof current[key] === 'string' && (current[key]).length > 0) {
+                const val = current[key];
                 if (val.length > 8) {
                     current[key] = `${val.substring(0, 4)}****${val.substring(val.length - 4)}`;
                 } else {

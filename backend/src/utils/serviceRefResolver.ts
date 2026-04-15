@@ -58,7 +58,7 @@ const toLookup = <T extends LookupDoc>(docs: T[], extra?: (doc: T) => Record<str
 export const hydrateServiceRefs = async (services: ServiceRecord[]) => {
     if (!services || services.length === 0) return services;
 
-    const normalized = serializeDocs(services) as ServiceRecord[];
+    const normalized = serializeDocs(services);
 
     const categoryIds = new Set<string>();
     const brandIds = new Set<string>();
@@ -87,9 +87,9 @@ export const hydrateServiceRefs = async (services: ServiceRecord[]) => {
     ]);
 
     // Serialize lookup data to ensure 'id' field exists
-    const serializedCategories = serializeDocs(categories) as LookupDoc[];
-    const serializedBrands = serializeDocs(brands) as LookupDoc[];
-    const serializedModels = serializeDocs(models) as LookupDoc[];
+    const serializedCategories = serializeDocs(categories);
+    const serializedBrands = serializeDocs(brands);
+    const serializedModels = serializeDocs(models);
 
     const categoryLookup = toLookup(serializedCategories);
     const brandLookup = toLookup(serializedBrands);

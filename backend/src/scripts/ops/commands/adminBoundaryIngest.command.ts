@@ -100,7 +100,7 @@ const fetchGeoJson = async (source: string): Promise<GeoJsonCollection> => {
                 res.on('data', (chunk: string) => { data += chunk; });
                 res.on('end', () => {
                     try { resolve(JSON.parse(data) as GeoJsonCollection); }
-                    catch (e) { reject(e); }
+                    catch (e) { reject(e instanceof Error ? e : new Error(String(e))); }
                 });
                 res.on('error', reject);
             }).on('error', reject);

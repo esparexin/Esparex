@@ -149,7 +149,7 @@ export const getAdminBusinessAccountsPaginated = (
     city?: string
 ) => {
     const adminQuery = getBusinessAccountsQuery(status);
-    if (city) (adminQuery as Record<string, unknown>)['location.city'] = city;
+    if (city) (adminQuery)['location.city'] = city;
     return handlePaginatedContent(req, res, Business as unknown as Model<Document>, {
         populate: 'userId',
         searchFields: ['name', 'email', 'mobile', 'location.city'],

@@ -755,14 +755,14 @@ export const ensureModel = async (req: Request, res: Response) => {
             });
         }
 
-        const brandId = String(brand!._id);
+        const brandId = String(brand._id);
         let model = await findModelByNameAndBrand(modelRegex, brandId);
 
         if (!model) {
             const modelVal = validateModelSuggestion(modelName);
             model = await createModelRecord({
                 name: modelVal.cleanName || modelName,
-                brandId: brand!._id,
+                brandId: brand._id,
                 categoryIds: [categoryId],
                 isActive: false,
                 status: CATALOG_STATUS.PENDING,

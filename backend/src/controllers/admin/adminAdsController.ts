@@ -452,7 +452,7 @@ export const getReportedAds = async (req: Request, res: Response) => {
             { skip, limit }
         );
         const data = reportedResult.data as unknown[];
-        const total = reportedResult.total as number;
+        const total = reportedResult.total;
 
         sendPaginatedResponse(res, data, total, page, limit);
     } catch (err) {

@@ -69,7 +69,7 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
         .lean<LocationInputObject | null>();
 
     if (nearestCity) {
-        const [mappedCity] = await mapLocationDocsToResponses([nearestCity as LocationInputObject]);
+        const [mappedCity] = await mapLocationDocsToResponses([nearestCity]);
         if (mappedCity) return mappedCity;
     }
 
@@ -143,7 +143,7 @@ export const reverseGeocode = async (
 
     if (!nearest) return null;
 
-    const [response] = await mapLocationDocsToResponses([nearest as LocationInputObject]);
+    const [response] = await mapLocationDocsToResponses([nearest]);
     if (!response) return null;
     await setCache(cacheKey, response, CACHE_TTLS.REVERSE_GEOCODE);
     return response;

@@ -432,7 +432,7 @@ const touchesChatAvailability = (update?: Record<string, unknown>): boolean => {
 };
 
 AdSchema.pre('save', async function (this: IAd) {
-    (this.$locals as Record<string, unknown>).syncChatAvailability =
+    (this.$locals).syncChatAvailability =
         !this.isNew && (
             this.isModified('status') ||
             this.isModified('isDeleted') ||
@@ -474,7 +474,7 @@ AdSchema.pre('save', async function (this: IAd) {
     }
 
     if (!this.seoSlug) {
-        this.seoSlug = await generateUniqueSlug(Ad, this.title as string, undefined);
+        this.seoSlug = await generateUniqueSlug(Ad, this.title, undefined);
     }
 });
 
@@ -504,7 +504,7 @@ AdSchema.pre('findOneAndUpdate', function () {
 });
 
 AdSchema.post('save', async function (doc: IAd) {
-    const shouldSync = Boolean((doc.$locals as Record<string, unknown>).syncChatAvailability);
+    const shouldSync = Boolean((doc.$locals).syncChatAvailability);
     if (!shouldSync) return;
 
     const session = typeof doc.$session === 'function' ? doc.$session() : undefined;

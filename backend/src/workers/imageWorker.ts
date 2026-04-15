@@ -84,7 +84,7 @@ export const imageOptimizationWorker = new Worker<ImageOptimizationJobPayload>("
         if (ad && Array.isArray(ad.images)) {
             let updatedCount = 0;
             const newImagesArray = ad.images.map(image => {
-                const replacements = replacementMap.get(image as string);
+                const replacements = replacementMap.get(image);
                 if (replacements && replacements.length > 0) {
                     updatedCount++;
                     return replacements[0]; // Replace with new HD variant

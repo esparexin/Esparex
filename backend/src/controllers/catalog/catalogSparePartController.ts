@@ -70,7 +70,7 @@ const toStringArray = (value: unknown): string[] | undefined => {
 
 // ── Helper: Normalize listing type from query params ──────────────────────
 const normalizeListingTypeFromQuery = (listingTypeParam?: unknown, placementParam?: unknown): ListingTypeValue | undefined => {
-    const value = (listingTypeParam ?? placementParam) as unknown;
+    const value = (listingTypeParam ?? placementParam);
     if (typeof value !== 'string') return undefined;
     if (value === LISTING_TYPE.AD || value === LISTING_TYPE.SPARE_PART) {
         return value;

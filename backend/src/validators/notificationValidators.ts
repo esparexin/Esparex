@@ -14,10 +14,7 @@ const adminNotificationTargetTypeEnum = z.enum([
 ]);
 
 const adminNotificationTopicEnum = z.enum(
-    ADMIN_NOTIFICATION_TOPIC_VALUES as [
-        (typeof ADMIN_NOTIFICATION_TOPIC_VALUES)[number],
-        ...(typeof ADMIN_NOTIFICATION_TOPIC_VALUES)[number][]
-    ]
+    ADMIN_NOTIFICATION_TOPIC_VALUES
 );
 
 const notificationHistoryStatusEnum = z.enum(["all", "sent", "failed", "scheduled"]);

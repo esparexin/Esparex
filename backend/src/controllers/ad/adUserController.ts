@@ -93,7 +93,7 @@ export const markAsSold = async (req: Request, res: Response, next: NextFunction
         if (!id) return;
 
         const adToCheck = await adService.assertOwnership(id, (req.user as IAuthUser)._id.toString());
-        validateTransition('ad', adToCheck.status as string, 'sold');
+        validateTransition('ad', adToCheck.status, 'sold');
 
         const ad = await adService.updateAdStatus(id, 'sold', {
             soldReason: req.body.soldReason as 'sold_on_platform' | 'sold_outside' | 'no_longer_available' | undefined,
@@ -142,7 +142,7 @@ export const repostAd = async (req: Request, res: Response, next: NextFunction) 
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
 
-        const userId = (req.user as IAuthUser)._id.toString();
+        const userId = (req.user)._id.toString();
         const reposted = await adService.repostAd(id, userId);
         if (!reposted) {
             return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
@@ -208,8 +208,8 @@ export const promoteAd = async (req: Request, res: Response, next: NextFunction)
 
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const isAdmin = (req.user as IAuthUser).isAdmin || (req.user as IAuthUser).role === 'admin' || (req.user as IAuthUser).role === 'super_admin';
-        const userId = (req.user as IAuthUser)._id.toString();
+        const isAdmin = (req.user).isAdmin || (req.user).role === 'admin' || (req.user).role === 'super_admin';
+        const userId = (req.user)._id.toString();
 
         const { days, type } = req.body;
 

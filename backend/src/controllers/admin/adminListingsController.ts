@@ -62,7 +62,7 @@ const toControllerError = (status: number, message: string, code?: string) => {
 
 const resolveListingTypeFilter = (raw: unknown): ListingTypeValue | undefined => {
     const val = typeof raw === 'string' ? raw.trim().toLowerCase() : undefined;
-    return val && isValidListingType(val) ? (val as ListingTypeValue) : undefined;
+    return val && isValidListingType(val) ? (val) : undefined;
 };
 
 const getActorId = (req: Request): string => {

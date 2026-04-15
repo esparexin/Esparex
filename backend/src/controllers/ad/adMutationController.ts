@@ -166,10 +166,10 @@ export const deleteAd = async (req: Request, res: Response, next: NextFunction) 
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
 
-        await adService.assertOwnership(id, (req.user as IAuthUser)._id.toString());
+        await adService.assertOwnership(id, (req.user)._id.toString());
 
         // Use canonical adStatusService (not deprecated adService.deleteAd)
-        const ad = await adStatusService.deleteAd(id, (req.user as IAuthUser)._id.toString(), 'user');
+        const ad = await adStatusService.deleteAd(id, (req.user)._id.toString(), 'user');
         if (!ad) {
             return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
         }

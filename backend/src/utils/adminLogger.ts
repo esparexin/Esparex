@@ -1,6 +1,5 @@
 import { Request } from 'express';
 import AdminLog from '../models/AdminLog';
-import { IAuthUser } from '../types/auth';
 import logger from './logger';
 
 /**
@@ -24,7 +23,7 @@ export const logAdminAction = async (
     actorIdOverride?: string
 ) => {
     try {
-        const authUser = req.user as IAuthUser | undefined;
+        const authUser = req.user;
         const adminId = actorIdOverride || authUser?._id || authUser?.id;
 
         if (!adminId) {

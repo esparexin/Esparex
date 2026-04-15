@@ -118,7 +118,7 @@ export function validateRequest(
             }
 
             // Handle multiple schemas
-            const schemas = schema as ValidationSchema;
+            const schemas = schema;
 
             if (schemas.body) {
                 assignValidatedTarget(req, 'body', await schemas.body.parseAsync(req.body));

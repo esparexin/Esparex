@@ -156,23 +156,38 @@ export const getReportedAdsAggregation = async (filters: { status?: string, reas
         }
     ];
 
+    interface ReportDoc {
+        _id: unknown;
+        reason: string;
+        status: string;
+        createdAt: Date;
+        reportedBy?: unknown;
+    }
+    interface ReportGroupDoc {
+        _id: unknown;
+        reportCount: number;
+        reports: ReportDoc[];
+        adDetails: unknown;
+        isAutoHidden: boolean;
+    }
+
     const [results, totalResults] = await Promise.all([
-        Report.aggregate([...pipeline, { $skip: skip }, { $limit: limit }]),
-        Report.aggregate([...pipeline, { $count: 'count' }])
+        Report.aggregate<ReportGroupDoc>([...pipeline, { $skip: skip }, { $limit: limit }]),
+        Report.aggregate<{ count: number }>([...pipeline, { $count: 'count' }])
     ]);
 
-    const total = totalResults[0]?.count || 0;
+    const total = totalResults[0]?.count ?? 0;
 
     const transformedData = results.map(group => {
-        const latestReport = group.reports[group.reports.length - 1];
+        const latestReport = group.reports[group.reports.length - 1] as ReportDoc;
         return {
-            id: group._id.toString(),
-            reportId: latestReport._id.toString(),
+            id: String(group._id),
+            reportId: String(latestReport._id),
             reason: latestReport.reason,
             status: latestReport.status,
             ad: group.adDetails,
             reportedAt: latestReport.createdAt,
-            reporter: group.reports.map((r: { reportedBy?: unknown }) => r.reportedBy),
+            reporter: group.reports.map((r) => r.reportedBy),
             reportCount: group.reportCount,
             isAutoHidden: group.isAutoHidden
         };
@@ -197,7 +212,7 @@ export const getAdSuggestions = async (q: string, limit = 10): Promise<string[]>
         { title: regex, status: AD_STATUS.LIVE, isDeleted: { $ne: true } },
         { title: 1 }
     ).limit(limit).lean();
-    return Array.from(new Set(docs.map((d) => d.title as string).filter(Boolean)));
+    return Array.from(new Set(docs.map((d) => d.title).filter(Boolean)));
 };
 
 // ─────────────────────────────────────────────────
@@ -240,7 +255,7 @@ export const getAdIdBySlug = async (
     // 1. Direct match (canonical behavior)
     const slugQuery: Record<string, unknown> = { seoSlug: slug, ...visibilityFilter };
     const found = await Ad.findOne(slugQuery).select('_id').lean();
-    if (found) return (found._id as mongoose.Types.ObjectId).toString();
+    if (found) return (found._id).toString();
 
     // 2. Fallback: Check if the slug is in 'name-slug-ID' format (common in frontend routing)
     // Extract the last 24 hex characters at the end of a hyphenated string.
@@ -250,7 +265,7 @@ export const getAdIdBySlug = async (
         const foundById = await Ad.findOne({ _id: potentialId, ...visibilityFilter })
             .select('_id')
             .lean();
-        if (foundById) return (foundById._id as mongoose.Types.ObjectId).toString();
+        if (foundById) return (foundById._id).toString();
     }
 
     return null;
