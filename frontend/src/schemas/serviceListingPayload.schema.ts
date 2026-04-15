@@ -32,7 +32,7 @@ export const ServiceListingPayloadSchema = BaseServicePayloadSchema
         // serviceTypeIds uses ObjectIdSchema (z.preprocess → unknown output); override with plain string[]
         serviceTypeIds: z.array(z.string()).min(1, 'Select at least one service type'),
         // Single price field — mapped to priceMin on submit (backend expects priceMin)
-        price: z.number({ invalid_type_error: 'Enter a valid price' }).min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore'),
+        price: z.number({ message: 'Enter a valid price' }).min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore'),
     }));
 
 export type ServiceListingFormData = z.infer<typeof ServiceListingPayloadSchema>;

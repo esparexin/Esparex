@@ -130,8 +130,10 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
             const validation = activeSchema.safeParse(finalPayload);
             
             if (!validation.success) {
-                const [firstIssue] = validation.error.errors;
-                validation.error.errors.forEach((issue) => {
+                const { issues } = validation.error;
+                const [firstIssue] = issues;
+
+                issues.forEach((issue: z.ZodIssue) => {
                     const fieldPath = issue.path
                         .filter((segment: string | number): segment is string | number => typeof segment === "string" || typeof segment === "number")
                         .join(".");

@@ -34,7 +34,7 @@ export const smartAlertFormSchema = z.object({
     z.string().max(120, "Location must be 120 characters or fewer.")
   ),
   radius: z.coerce
-    .number({ invalid_type_error: "Radius must be a number." })
+    .number({ message: "Radius must be a number." })
     .min(1, "Radius must be between 1 and 500 km.")
     .max(500, "Radius must be between 1 and 500 km."),
   emailNotifications: z.boolean(),
