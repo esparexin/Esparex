@@ -4,7 +4,7 @@ import { getAdminConnection } from '../config/db';
 export interface IAdminMetrics extends Document {
     metricModule: string;
     aggregationDate: Date;
-    payload: Record<string, any>;
+    payload: Record<string, unknown>;
     createdAt: Date;
     updatedAt: Date;
 }

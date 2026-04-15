@@ -75,7 +75,7 @@ const toObjectIdString = (value: unknown): string | undefined => {
 export const validateSparePartsForCategory = async (
     sparePartIds: string[],
     categoryId: string
-): Promise<any[]> => {
+): Promise<Array<{ _id: unknown; name: unknown; brandId?: unknown }>> => {
     const uniqueSparePartIds = Array.from(new Set(sparePartIds));
     if (uniqueSparePartIds.length === 0) return [];
 
@@ -163,7 +163,8 @@ export class AdCreationService {
             
             if (await isEnabled(FeatureFlag.ENABLE_SPAREPARTS_SNAPSHOT)) {
                 const Brand = (await import('../models/Brand')).default;
-                const brands = await Brand.find({ _id: { $in: validParts.map((p) => p.brandId).filter(Boolean) } }).select('_id name').lean();
+                const brandIds = validParts.map((p) => p.brandId).filter(Boolean) as import('mongoose').Types.ObjectId[];
+                const brands = await Brand.find({ _id: { $in: brandIds } }).select('_id name').lean();
                 const brandMap = new Map(brands.map((b) => [String(b._id), b.name]));
                 payload.sparePartsSnapshot = validParts.map((part) => ({
                     _id: part._id,

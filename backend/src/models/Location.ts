@@ -129,7 +129,7 @@ LocationSchema.pre("save", async function () {
 });
 
 LocationSchema.pre("findOneAndUpdate", function () {
-    const update = this.getUpdate() as Record<string, any> | undefined;
+    const update = this.getUpdate() as Record<string, unknown> | undefined;
     if (!update) return;
 
     if ('coordinates' in update) {
@@ -152,7 +152,7 @@ LocationSchema.pre("findOneAndUpdate", function () {
         }
     }
 
-    const target = update.$set && typeof update.$set === "object" ? update.$set : update;
+    const target = (update.$set && typeof update.$set === "object" ? update.$set : update) as Record<string, unknown>;
     const nextName = typeof target.name === "string" ? target.name : undefined;
     const nextCountry = typeof target.country === "string" ? target.country : undefined;
 

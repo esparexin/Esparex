@@ -16,7 +16,7 @@ export const getTransactions = async (filters: TransactionFilters = {}, paginati
     const { status, search, startDate, endDate } = filters;
     const { skip, limit } = pagination;
 
-    const query: Record<string, any> = {};
+    const query: Record<string, unknown> = {};
 
     if (status && status !== 'All' && typeof status === 'string') {
         if (['INITIATED', 'SUCCESS', 'FAILED'].includes(status)) {
@@ -57,9 +57,10 @@ export const getTransactions = async (filters: TransactionFilters = {}, paginati
     }
 
     if (startDate || endDate) {
-        query.createdAt = {};
-        if (startDate) query.createdAt.$gte = new Date(startDate as string);
-        if (endDate) query.createdAt.$lte = new Date(endDate as string);
+        const createdAtFilter: Record<string, unknown> = {};
+        if (startDate) createdAtFilter.$gte = new Date(startDate as string);
+        if (endDate) createdAtFilter.$lte = new Date(endDate as string);
+        query.createdAt = createdAtFilter;
     }
 
     const [data, total] = await Promise.all([

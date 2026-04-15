@@ -29,7 +29,7 @@ const ScheduledNotificationSchema = new Schema<IScheduledNotification>({
         virtuals: true,
         versionKey: false,
         transform: function (_doc, ret) {
-            const json = ret as Record<string, any>;
+            const json = ret as Record<string, unknown>;
             json.id = json._id?.toString();
             delete json._id;
             return json;

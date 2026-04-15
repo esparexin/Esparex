@@ -10,7 +10,7 @@ export interface IStatusHistory extends Document {
     actorType: (typeof ACTOR_TYPE_VALUES)[number];
     actorId?: mongoose.Types.ObjectId;
     reason?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     createdAt: Date;
     updatedAt: Date;
 }

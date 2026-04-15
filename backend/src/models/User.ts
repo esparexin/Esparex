@@ -49,7 +49,7 @@ export interface IUser extends Document {
     platform?: string;
     lastActive?: Date;
   }>;
-  notificationSettings?: Record<string, any>;
+  notificationSettings?: Record<string, unknown>;
 
   mobileVisibility: 'show' | 'hide' | 'on-request' | 'public' | 'contacts' | 'private';
 

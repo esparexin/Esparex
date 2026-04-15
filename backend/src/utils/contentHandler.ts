@@ -17,7 +17,7 @@ interface ContentOptions {
     populate?: unknown;
     select?: string;
     transformResponse?: (items: unknown[]) => unknown | Promise<unknown>;
-    queryParams?: Record<string, any>;
+    queryParams?: Record<string, unknown>;
 }
 
 type CachedPaginatedPayload = Record<string, unknown> & {

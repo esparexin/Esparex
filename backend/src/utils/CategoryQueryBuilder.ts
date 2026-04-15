@@ -44,7 +44,7 @@ export class CategoryQueryBuilder {
     }
 
     /** Build the MongoDB query object */
-    build(): Record<string, any> {
+    build(): Record<string, unknown> {
         const value = this.getFilterValue();
         if (value === undefined) return {};
         const fieldName = this.field === CategoryFieldType.SINGULAR ? 'categoryId' : 'categoryIds';
