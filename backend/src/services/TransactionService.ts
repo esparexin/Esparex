@@ -25,7 +25,7 @@ export const getTransactions = async (filters: TransactionFilters = {}, paginati
     }
 
     if (search) {
-        const safeSearch = escapeRegExp(search as string);
+        const safeSearch = escapeRegExp(search);
 
         // Find users matching search term
         const users = await User.find({
@@ -45,7 +45,7 @@ export const getTransactions = async (filters: TransactionFilters = {}, paginati
             { gatewayOrderId: { $regex: safeSearch, $options: 'i' } }
         ];
 
-        if ((search as string).match(/^[0-9a-fA-F]{24}$/)) {
+        if ((search).match(/^[0-9a-fA-F]{24}$/)) {
             searchOr.push({ _id: search });
         }
 
@@ -58,8 +58,8 @@ export const getTransactions = async (filters: TransactionFilters = {}, paginati
 
     if (startDate || endDate) {
         const createdAtFilter: Record<string, unknown> = {};
-        if (startDate) createdAtFilter.$gte = new Date(startDate as string);
-        if (endDate) createdAtFilter.$lte = new Date(endDate as string);
+        if (startDate) createdAtFilter.$gte = new Date(startDate);
+        if (endDate) createdAtFilter.$lte = new Date(endDate);
         query.createdAt = createdAtFilter;
     }
 

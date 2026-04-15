@@ -227,6 +227,6 @@ export class AdCreationService {
         // --- Compute Lightweight Listing Quality Score ---
         payload.listingQualityScore = computeListingQualityScore(payload);
 
-        return payload as PreparedPayload;
+        return payload;
     }
 }
