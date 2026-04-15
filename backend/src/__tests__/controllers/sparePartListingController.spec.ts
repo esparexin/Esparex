@@ -3,6 +3,7 @@ jest.mock("../../services/AdService", () => ({
     getAds: jest.fn(),
 }));
 
+import type { Request, Response } from "express";
 import { getSparePartListings } from "../../controllers/sparePartListing/sparePartListingController";
 import * as adService from "../../services/AdService";
 
@@ -23,11 +24,11 @@ describe("sparePartListingController pagination envelope", () => {
                 page: "2",
                 limit: "20",
             },
-        } as any;
+        } as unknown as Request;
 
         const res = {
             json: jest.fn(),
-        } as any;
+        } as unknown as Response;
 
         await getSparePartListings(req, res);
 

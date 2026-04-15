@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { createHash } from 'crypto';
 import mongoose from 'mongoose';
 import { enforceCreateAdIdempotency, enforceCreateServiceIdempotency } from '../../middleware/idempotency';
 import IdempotencyRequest from '../../models/IdempotencyRequest';
@@ -31,8 +32,7 @@ const stableStringify = (value: unknown): string => {
 };
 
 const payloadHash = (body: unknown): string => {
-    const crypto = require('crypto') as typeof import('crypto');
-    return crypto.createHash('sha256').update(stableStringify(body || {})).digest('hex');
+    return createHash('sha256').update(stableStringify(body || {})).digest('hex');
 };
 
 const buildRequestHash = (body: unknown, userId: string, route = 'POST:/api/v1/ads'): string => {

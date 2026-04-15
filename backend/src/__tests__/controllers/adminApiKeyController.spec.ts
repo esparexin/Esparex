@@ -13,6 +13,7 @@ jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
+import type { Request, Response } from "express";
 import * as apiKeyController from "../../controllers/admin/adminApiKeyController";
 import ApiKey from "../../models/ApiKey";
 
@@ -47,8 +48,8 @@ describe("adminApiKeyController", () => {
             body: { name: "Ops Integration", scopes: ["ads:read"] },
             user: { _id: "65f0a1b2c3d4e5f607182930" },
             originalUrl: "/api/v1/admin/api-keys",
-        } as any;
-        const res = createMockRes() as any;
+        } as unknown as Request;
+        const res = createMockRes() as unknown as Response;
 
         await apiKeyController.createApiKey(req, res);
 
@@ -81,8 +82,8 @@ describe("adminApiKeyController", () => {
             params: { id: "65f0a1b2c3d4e5f607182930" },
             user: { _id: "65f0a1b2c3d4e5f607182931" },
             originalUrl: "/api/v1/admin/api-keys/65f0a1b2c3d4e5f607182930/revoke",
-        } as any;
-        const res = createMockRes() as any;
+        } as unknown as Request;
+        const res = createMockRes() as unknown as Response;
 
         await apiKeyController.revokeApiKey(req, res);
 

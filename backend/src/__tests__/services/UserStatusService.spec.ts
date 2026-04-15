@@ -29,6 +29,7 @@ jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
+import type { Request } from "express";
 import User from "../../models/User";
 import Ad from "../../models/Ad";
 import SmartAlert from "../../models/SmartAlert";
@@ -49,7 +50,7 @@ describe("userStatusService audit integration", () => {
     });
 
     it("logs STATUS_UPDATE_SUSPENDED when admin suspends user", async () => {
-        const req = { originalUrl: "/api/v1/admin/users/user_1/suspend", user: { _id: "admin_1" } } as any;
+        const req = { originalUrl: "/api/v1/admin/users/user_1/suspend", user: { _id: "admin_1" } } as unknown as Request;
 
         await updateUserStatus("user_1", "suspended", {
             actor: "ADMIN",
@@ -67,7 +68,7 @@ describe("userStatusService audit integration", () => {
     });
 
     it("logs STATUS_UPDATE_BANNED and disables alerts", async () => {
-        const req = { originalUrl: "/api/v1/admin/users/user_1/ban", user: { _id: "admin_1" } } as any;
+        const req = { originalUrl: "/api/v1/admin/users/user_1/ban", user: { _id: "admin_1" } } as unknown as Request;
 
         await updateUserStatus("user_1", "banned", {
             actor: "ADMIN",

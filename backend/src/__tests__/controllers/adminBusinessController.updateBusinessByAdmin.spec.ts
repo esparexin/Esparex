@@ -58,6 +58,7 @@ jest.mock("../../services/location/LocationNormalizer", () => ({
     normalizeLocation: jest.fn()
 }));
 
+import type { Request, Response } from "express";
 import * as adminBusinessController from "../../controllers/admin/adminBusinessController";
 import Business from "../../models/Business";
 import { buildBusinessLocationPayload } from "../../services/BusinessService";
@@ -142,8 +143,8 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
             },
             user: { id: "admin_1" },
             originalUrl: "/api/v1/admin/businesses/65f0a1b2c3d4e5f607182930",
-        } as any;
-        const res = createMockRes() as any;
+        } as unknown as Request;
+        const res = createMockRes() as unknown as Response;
 
         await adminBusinessController.updateBusinessByAdmin(req, res);
 
@@ -256,8 +257,8 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
             },
             user: { id: "admin_1" },
             originalUrl: "/api/v1/admin/businesses/65f0a1b2c3d4e5f607182930",
-        } as any;
-        const res = createMockRes() as any;
+        } as unknown as Request;
+        const res = createMockRes() as unknown as Response;
 
         await adminBusinessController.updateBusinessByAdmin(req, res);
 

@@ -27,6 +27,7 @@ jest.mock("../../services/AdminSessionService", () => ({
     revokeAdminSessionsForAdmin: jest.fn().mockResolvedValue(undefined),
 }));
 
+import type { Request, Response } from "express";
 import * as adminUsersController from "../../controllers/admin/adminUsersController";
 import Admin from "../../models/Admin";
 
@@ -34,7 +35,7 @@ const createMockRes = () => {
     const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
-    } as any;
+    } as unknown as Response;
     return res;
 };
 
@@ -55,7 +56,7 @@ describe("adminUsersController.updateAdmin", () => {
             body: { role: "moderator" },
             user: { _id: { toString: () => "admin_1" }, role: "super_admin" },
             originalUrl: "/api/v1/admin/admin-users/admin_1",
-        } as any;
+        } as unknown as Request;
         const res = createMockRes();
 
         await adminUsersController.updateAdmin(req, res);

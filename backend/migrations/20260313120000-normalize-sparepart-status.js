@@ -32,7 +32,7 @@ module.exports = {
         );
     },
 
-    async down(_db) {
+    async down() {
         // Intentionally a no-op: we cannot know which documents were originally
         // 'live' vs 'approved', so reversing the migration would be lossy.
         console.warn(

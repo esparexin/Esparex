@@ -61,6 +61,7 @@ jest.mock('../../utils/logger', () => ({
     default: mockLogger,
 }));
 
+import type { Request, Response } from 'express';
 import { getMyListings } from '../../controllers/listing/listingController';
 
 describe('listingController.getMyListings', () => {
@@ -82,8 +83,8 @@ describe('listingController.getMyListings', () => {
         const req = {
             user: { _id: 'seller-1' },
             query: { type: 'ad', status: 'live', page: '2', limit: '5' },
-        } as any;
-        const res = {} as any;
+        } as unknown as Request;
+        const res = {} as unknown as Response;
 
         await getMyListings(req, res);
 
@@ -125,8 +126,8 @@ describe('listingController.getMyListings', () => {
         const req = {
             user: { _id: 'seller-9', toString: () => 'seller-9' },
             query: { type: 'ad', status: 'live' },
-        } as any;
-        const res = {} as any;
+        } as unknown as Request;
+        const res = {} as unknown as Response;
 
         await getMyListings(req, res);
 

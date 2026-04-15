@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import type { Request, Response } from "express";
 
 jest.mock("../../models/Admin", () => ({
     __esModule: true,
@@ -76,7 +77,7 @@ const createMockRes = () => {
         json: jest.fn().mockReturnThis(),
         cookie: jest.fn(),
         clearCookie: jest.fn(),
-    } as any;
+    } as unknown as Response;
     return res;
 };
 
@@ -123,7 +124,7 @@ describe("admin auth lifecycle regressions", () => {
             headers: { "user-agent": "jest-agent" },
             socket: { remoteAddress: "127.0.0.1" },
             originalUrl: "/api/v1/admin/login",
-        } as any;
+        } as unknown as Request;
         const res = createMockRes();
 
         await adminLogin(req, res);
@@ -175,7 +176,7 @@ describe("admin auth lifecycle regressions", () => {
             params: { token: plainResetToken },
             body: { password: "NewPass123" },
             originalUrl: "/api/v1/admin/reset-password/reset_token_123",
-        } as any;
+        } as unknown as Request;
         const res = createMockRes();
 
         await resetPassword(req, res);

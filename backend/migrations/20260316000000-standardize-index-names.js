@@ -10,13 +10,13 @@
  * to match what is already live.
  */
 module.exports = {
-  async up(db) {
+  async up() {
     // This is a code-only alignment. 
     // We document the standardization here for audit trails.
     console.log('Index names aligned in model files to match Atlas ground truth.');
   },
 
-  async down(db) {
+  async down() {
     // Reverting this would mean changing names back in model files.
     console.log('Rollback of index naming convention in model files is required to reverse this.');
   }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 'use strict';
 
 /**
@@ -42,7 +43,7 @@ async function up(db) {
 }
 
 /** @param {import('mongodb').Db} db */
-async function down(_db) {
+async function down() {
     console.log('[down] remap-orphaned-category-refs: no-op (IDs no longer exist, cannot reverse)');
 }
 

@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import Model from '../src/models/Model';
 import { getAdminConnection } from '../src/config/db';
 

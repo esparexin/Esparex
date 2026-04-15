@@ -181,7 +181,7 @@ describe("PaymentProcessingService", () => {
             metadata: {},
         };
 
-        const result = await recoverPendingPayment(tx as any);
+        const result = await recoverPendingPayment(tx as unknown as Parameters<typeof recoverPendingPayment>[0]);
 
         expect(result.result).toBe("failed");
         expect(Transaction.updateOne).toHaveBeenCalledWith(

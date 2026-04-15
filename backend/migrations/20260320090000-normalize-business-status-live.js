@@ -26,10 +26,9 @@ module.exports = {
         );
     },
 
-    async down(_db) {
+    async down() {
         console.warn(
             '[migrate] normalize-business-status-live DOWN: not reversible without original status snapshots. No changes made.'
         );
     },
 };
-

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 require('dotenv').config({ path: require('path').resolve(__dirname, '..', '.env') });
 const mongoose = require('mongoose');
@@ -244,7 +245,7 @@ run().catch(async (error) => {
     console.error('[master-data-integrity-scan] failed:', error instanceof Error ? error.message : String(error));
     try {
         await mongoose.disconnect();
-    } catch (_error) {
+    } catch {
         // no-op
     }
     process.exit(1);

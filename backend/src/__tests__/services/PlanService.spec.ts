@@ -52,15 +52,6 @@ import { checkPostLimit } from '../../services/PlanService';
 const mockedAd = Ad as unknown as { countDocuments: jest.Mock };
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;
 
-const makeCountMock = (count: number) => {
-    const chainable: any = { then: undefined, session: jest.fn().mockReturnThis() };
-    chainable.then = (resolve: (v: number) => void) => Promise.resolve(count).then(resolve);
-    Object.defineProperty(chainable, Symbol.toStringTag, { value: 'Promise' });
-    // Make it thenable so await works
-    chainable[Symbol.for('nodejs.rejection')] = undefined;
-    return chainable;
-};
-
 beforeEach(() => {
     jest.clearAllMocks();
 });

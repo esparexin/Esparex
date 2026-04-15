@@ -39,6 +39,7 @@ import NotificationLog from "../../models/NotificationLog";
 import { NotificationDispatcher } from "../../services/notification/NotificationDispatcher";
 import { NotificationIntent } from "../../domain/NotificationIntent";
 import { createAdminNotificationTargetCursor } from "../../services/notification/AdminNotificationTargetingService";
+import type { Request, Response } from "express";
 import { sendNotification } from "../../controllers/admin/adminNotificationController";
 
 const mockedNotificationLog = NotificationLog as unknown as { create: jest.Mock };
@@ -59,13 +60,13 @@ const makeReq = (body: Record<string, unknown> = {}) =>
         originalUrl: "/api/v1/admin/notifications/send",
         method: "POST",
         path: "/api/v1/admin/notifications/send",
-    }) as any;
+    }) as unknown as Request;
 
 const makeRes = () =>
     ({
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
-    }) as any;
+    }) as unknown as Response;
 
 function makeCursor(users: Array<{ _id: string }>) {
     return {

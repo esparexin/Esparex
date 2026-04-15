@@ -79,12 +79,6 @@ const mockFindOneResult = (value: unknown) => {
     };
 };
 
-const mockFindByIdResult = (value: unknown) => ({
-    select: jest.fn().mockReturnValue({
-        lean: jest.fn().mockResolvedValue(value),
-    }),
-});
-
 const mockFindChain = (value: unknown[] = []) => ({
     select: jest.fn().mockReturnValue({
         sort: jest.fn().mockReturnThis(),
@@ -385,7 +379,7 @@ describe("locationService regression", () => {
                     isActive: true,
                     verificationStatus: "pending",
                 }),
-            } as any
+            } as unknown as ReturnType<typeof mockLocationModel.findOne>
         );
 
         await expect(

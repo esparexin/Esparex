@@ -22,6 +22,7 @@ jest.mock("../../models/Ad", () => ({
     default: {},
 }));
 
+import type { Request, Response } from "express";
 import * as adminUsersController from "../../controllers/admin/adminUsersController";
 import User from "../../models/User";
 import AdminMetrics from "../../models/AdminMetrics";
@@ -30,7 +31,7 @@ const createMockRes = () => {
     const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
-    } as any;
+    } as unknown as Response;
     return res;
 };
 
@@ -58,7 +59,7 @@ describe("adminUsersController.getUserManagementOverview", () => {
             .mockResolvedValueOnce(6) // activeUsers (live fallback)
             .mockResolvedValueOnce(5); // verifiedUsers (live fallback)
 
-        const req = { originalUrl: "/api/v1/admin/user-management/overview" } as any;
+        const req = { originalUrl: "/api/v1/admin/user-management/overview" } as unknown as Request;
         const res = createMockRes();
 
         await adminUsersController.getUserManagementOverview(req, res);
@@ -95,7 +96,7 @@ describe("adminUsersController.getUserManagementOverview", () => {
             .mockResolvedValueOnce(2) // suspendedUsers
             .mockResolvedValueOnce(3); // bannedUsers
 
-        const req = { originalUrl: "/api/v1/admin/user-management/overview" } as any;
+        const req = { originalUrl: "/api/v1/admin/user-management/overview" } as unknown as Request;
         const res = createMockRes();
 
         await adminUsersController.getUserManagementOverview(req, res);

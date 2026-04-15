@@ -3,6 +3,7 @@ jest.mock("../../services/AdService", () => ({
     getAds: jest.fn(),
 }));
 
+import type { Request, Response } from "express";
 import { getServices } from "../../controllers/service/serviceQueryController";
 import * as adService from "../../services/AdService";
 
@@ -26,11 +27,11 @@ describe("serviceQueryController location filters regression", () => {
                 page: "1",
                 limit: "20",
             },
-        } as any;
+        } as unknown as Request;
 
         const res = {
             json: jest.fn(),
-        } as any;
+        } as unknown as Response;
 
         await getServices(req, res);
 

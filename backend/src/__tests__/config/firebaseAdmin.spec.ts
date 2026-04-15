@@ -37,6 +37,7 @@ describe("firebaseAdmin", () => {
             },
         }));
 
+        // eslint-disable-next-line @typescript-eslint/no-require-imports -- resetModules requires a fresh module load.
         const firebaseAdmin = require("../../config/firebaseAdmin").default;
 
         return {

@@ -30,7 +30,7 @@ async function up(db) {
 }
 
 /** @param {import('mongodb').Db} db */
-async function down(db) {
+async function down() {
     // Cannot restore the array; this is intentional data-shape cleanup.
     console.log('[down] drop-brand-categoryIds: no-op — field removal is irreversible');
 }

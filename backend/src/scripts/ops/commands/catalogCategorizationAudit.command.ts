@@ -1,5 +1,5 @@
 import { connectOpsDb } from './commandUtils';
-import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../types';
+import { OpsCommand, OpsCommandResult } from '../types';
 
 /**
  * 📋 Catalog Categorization Audit
@@ -8,7 +8,7 @@ export const catalogCategorizationAuditCommand: OpsCommand = {
     name: 'catalog-categorization-audit',
     description: 'Diagnoses inconsistencies in Model-Category assignments',
     blastRadius: 'low',
-    run: async (context: OpsExecutionContext): Promise<OpsCommandResult> => {
+    run: async (): Promise<OpsCommandResult> => {
         const db = await connectOpsDb();
         const models = db.collection('models');
         const categories = db.collection('categories');

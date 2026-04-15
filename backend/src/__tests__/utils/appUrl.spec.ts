@@ -30,6 +30,7 @@ describe('appUrl helpers', () => {
             },
         }));
 
+        // eslint-disable-next-line @typescript-eslint/no-require-imports -- resetModules requires a fresh module load.
         const appUrl = require('../../utils/appUrl') as typeof import('../../utils/appUrl');
 
         return {

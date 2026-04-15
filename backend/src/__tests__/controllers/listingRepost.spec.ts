@@ -20,7 +20,7 @@ jest.mock('../../services/StatusMutationService', () => ({
 }));
 
 jest.mock('../../utils/errorResponse', () => ({
-    sendErrorResponse: jest.fn((req: any, res: any, status: number, msg: string) => {
+    sendErrorResponse: jest.fn((req: unknown, res: { status: (n: number) => { json: (v: unknown) => void } }, status: number, msg: string) => {
         res.status(status).json({ error: msg });
     }),
 }));
@@ -30,7 +30,7 @@ jest.mock('../../utils/respond', () => ({
 }));
 
 jest.mock('../../utils/requestParams', () => ({
-    getSingleParam: jest.fn((req: any, _res: any, param: string) => req.params[param]),
+    getSingleParam: jest.fn((req: { params: Record<string, string> }, _res: unknown, param: string) => req.params[param]),
 }));
 
 import { Request, Response } from 'express';
@@ -43,7 +43,7 @@ const mockedAd = Ad as unknown as { findOne: jest.Mock };
 const mockedMutate = mutateStatus as jest.Mock;
 
 const makeRes = (): Response => {
-    const res: any = {};
+    const res = {} as Response;
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
     return res;

@@ -68,7 +68,7 @@ async function up(db) {
 }
 
 /** @param {import('mongodb').Db} db */
-async function down(db) {
+async function down() {
     // We cannot safely undo — we don't know the original missing-field state.
     // This is a data normalisation migration; mark as intentional no-op.
     console.log('[down] normalize-catalog-entity-status: no-op (irreversible normalisation)');

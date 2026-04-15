@@ -24,7 +24,7 @@ jest.mock('../../services/StatusMutationService', () => ({
 }));
 
 jest.mock('../../utils/requestParams', () => ({
-    getSingleParam: jest.fn((req: any, res: any, key: string, options: any = {}) => {
+    getSingleParam: jest.fn((req: { params?: Record<string, string> }, res: { status: (n: number) => { json: (v: unknown) => void } }, key: string, options: { error?: string } = {}) => {
         const val = req.params?.[key];
         if (!val && options?.error) {
             res.status(400).json({ error: options.error });
@@ -35,7 +35,7 @@ jest.mock('../../utils/requestParams', () => ({
 }));
 
 jest.mock('../../utils/errorResponse', () => ({
-    sendErrorResponse: jest.fn((req: any, res: any, status: number, msg: string) => {
+    sendErrorResponse: jest.fn((req: unknown, res: { status: (n: number) => { json: (v: unknown) => void } }, status: number, msg: string) => {
         res.status(status).json({ error: msg });
     }),
 }));
@@ -51,6 +51,7 @@ jest.mock('../../utils/respond', () => ({
 
 // ─── Imports ─────────────────────────────────────────────────────────────────
 
+import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Ad from '../../models/Ad';
 import { deactivateService } from '../../controllers/service/serviceMutationController';
@@ -86,7 +87,7 @@ describe('requireOwnedService (via deactivateService)', () => {
         jest.clearAllMocks();
         // Default: match real getSingleParam behavior including error side-effect
         mockedGetSingleParam.mockImplementation(
-            (req: any, res: any, key: string, options: any = {}) => {
+            (req: { params?: Record<string, string> }, res: { status: (n: number) => { json: (v: unknown) => void } }, key: string, options: { error?: string } = {}) => {
                 const val = req.params?.[key];
                 if (!val && options?.error) {
                     res.status(400).json({ error: options.error });
@@ -98,8 +99,8 @@ describe('requireOwnedService (via deactivateService)', () => {
     });
 
     it('returns 401 when req.user is absent', async () => {
-        const req = makeReq({ user: undefined }) as any;
-        const res = makeRes() as any;
+        const req = makeReq({ user: undefined }) as unknown as Request;
+        const res = makeRes() as unknown as Response;
 
         await deactivateService(req, res);
 
@@ -107,8 +108,8 @@ describe('requireOwnedService (via deactivateService)', () => {
     });
 
     it('returns 400 when :id is missing', async () => {
-        const req = makeReq({ params: { id: '' } }) as any;
-        const res = makeRes() as any;
+        const req = makeReq({ params: { id: '' } }) as unknown as Request;
+        const res = makeRes() as unknown as Response;
 
         await deactivateService(req, res);
 
@@ -117,8 +118,8 @@ describe('requireOwnedService (via deactivateService)', () => {
 
     it('returns 400 for a non-ObjectId :id string', async () => {
         mockedGetSingleParam.mockReturnValue('not-an-objectid');
-        const req = makeReq({ params: { id: 'not-an-objectid' } }) as any;
-        const res = makeRes() as any;
+        const req = makeReq({ params: { id: 'not-an-objectid' } }) as unknown as Request;
+        const res = makeRes() as unknown as Response;
 
         await deactivateService(req, res);
 
@@ -130,8 +131,8 @@ describe('requireOwnedService (via deactivateService)', () => {
             select: jest.fn().mockResolvedValue(null),
         });
 
-        const req = makeReq() as any;
-        const res = makeRes() as any;
+        const req = makeReq() as unknown as Request;
+        const res = makeRes() as unknown as Response;
 
         await deactivateService(req, res);
 
@@ -146,12 +147,13 @@ describe('requireOwnedService (via deactivateService)', () => {
             select: jest.fn().mockResolvedValue({ _id: VALID_ID, status: 'live' }),
         });
 
-        const req = makeReq() as any;
-        const res = makeRes() as any;
+        const req = makeReq() as unknown as Request;
+        const res = makeRes() as unknown as Response;
 
         await deactivateService(req, res);
 
         // mutateStatus was called → auth guard passed
+        // eslint-disable-next-line @typescript-eslint/no-require-imports -- module state is mocked per test.
         const { mutateStatus } = require('../../services/StatusMutationService');
         expect(mutateStatus).toHaveBeenCalledWith(
             expect.objectContaining({ entityId: VALID_ID, toStatus: 'deactivated' })

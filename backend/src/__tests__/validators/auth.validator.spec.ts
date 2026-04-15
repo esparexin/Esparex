@@ -57,7 +57,7 @@ describe('Auth Validation Schemas', () => {
             
             // Should strip extra fields gracefully
             if (result.success) {
-                expect((result.data as any).extraMetadata).toBeUndefined();
+                expect((result.data as Record<string, unknown>).extraMetadata).toBeUndefined();
                 expect(result.data.mobile).toBe('1234567890');
                 expect(result.data.otp).toBe('123456');
             }

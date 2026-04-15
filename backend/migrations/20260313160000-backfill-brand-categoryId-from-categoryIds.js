@@ -30,7 +30,7 @@ async function up(db) {
 }
 
 /** @param {import('mongodb').Db} db */
-async function down(_db) {
+async function down() {
     console.log('[down] backfill-brand-categoryId: no-op (cannot safely un-set categoryId)');
 }
 
