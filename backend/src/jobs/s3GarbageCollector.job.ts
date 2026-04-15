@@ -48,6 +48,9 @@ const extractKey = (url: string | undefined): string | null => {
     }
 };
 
+const isStringArray = (value: unknown): value is string[] =>
+    Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+
 export const runS3GarbageCollectorJob = async () => {
     await runWithDistributedJobLock(
         's3_garbage_collector_job',
@@ -93,7 +96,7 @@ export const runS3GarbageCollectorJob = async () => {
                 const businesses = await Business.find().select('images documents logo').lean();
                 businesses.forEach(b => {
                     // Logo
-                    const logoKey = extractKey((b as any).logo);
+                    const logoKey = extractKey((b as { logo?: string }).logo);
                     if (logoKey) validKeys.add(logoKey);
 
                     // Image array
@@ -103,12 +106,23 @@ export const runS3GarbageCollectorJob = async () => {
                     });
 
                     // Document fields
-                    if (b.documents) {
-                        const docs = b.documents as any;
+                    const rawDocuments = (b as { documents?: unknown }).documents;
+                    if (Array.isArray(rawDocuments)) {
+                        rawDocuments.forEach((doc) => {
+                            const url = typeof doc === 'string'
+                                ? doc
+                                : typeof doc === 'object' && doc !== null && typeof (doc as { url?: unknown }).url === 'string'
+                                    ? (doc as { url: string }).url
+                                    : undefined;
+                            const key = extractKey(url);
+                            if (key) validKeys.add(key);
+                        });
+                    } else if (rawDocuments && typeof rawDocuments === 'object') {
+                        const docs = rawDocuments as Record<string, unknown>;
                         const docFields = ['idProof', 'businessProof', 'certificates'];
                         docFields.forEach(field => {
-                            if (Array.isArray(docs[field])) {
-                                docs[field].forEach((url: string) => {
+                            if (isStringArray(docs[field])) {
+                                docs[field].forEach((url) => {
                                     const key = extractKey(url);
                                     if (key) validKeys.add(key);
                                 });

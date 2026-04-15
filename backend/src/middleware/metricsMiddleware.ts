@@ -39,29 +39,45 @@ export const memoryUsageMiddleware = (req: Request, res: Response, next: NextFun
 
 export const initializeDatabaseMonitoring = () => {
     const slowQueryThresholdMs = 200; // 200ms
+    type QueryContext = { _startTime?: number; mongooseCollection?: { name?: string }; op?: string; _conditions?: unknown };
+    type AggregateContext = { _startTime?: number; _model?: { collection?: { name?: string } }; pipeline?: () => unknown[] };
+    type MonitoringSchema = mongoose.Schema & {
+        pre: (method: string, fn: (this: unknown, next: () => void) => void) => void;
+        post: (method: string, fn: (this: unknown, docs: unknown, next: () => void) => void) => void;
+    };
+
+    const markStartTime = function (this: unknown, next: () => void) {
+        (this as QueryContext & AggregateContext)._startTime = Date.now();
+        next();
+    };
+
+    const logSlowOperation = function (this: unknown, _docs: unknown, next: () => void) {
+        const ctx = this as QueryContext & AggregateContext;
+        if (ctx._startTime) {
+            const duration = Date.now() - ctx._startTime;
+            if (duration > slowQueryThresholdMs) {
+                const collectionName = ctx.mongooseCollection?.name ?? ctx._model?.collection?.name ?? 'unknown_collection';
+                const operation = ctx.op || 'aggregate';
+                logger.warn(`[SLOW_DB_QUERY] ${collectionName}.${operation} took ${duration}ms`, {
+                    collection: collectionName,
+                    operation,
+                    duration,
+                    query: typeof ctx.pipeline === 'function' ? ctx.pipeline() : ctx._conditions || 'unknown_conditions'
+                });
+            }
+        }
+        if (typeof next === 'function') next();
+    };
 
     mongoose.plugin((schema) => {
-        // Track find operations
-        schema.pre(/^(find|findOne|findOneAndUpdate|aggregate)$/, function (this: any, next: any) {
-            this._startTime = Date.now();
-            next();
+        const monitoringSchema = schema as MonitoringSchema;
+
+        (['find', 'findOne', 'findOneAndUpdate'] as const).forEach((operation) => {
+            monitoringSchema.pre(operation, markStartTime);
+            monitoringSchema.post(operation, logSlowOperation);
         });
 
-        schema.post(/^(find|findOne|findOneAndUpdate|aggregate)$/, function (this: any, docs: any, next: any) {
-            if (this._startTime) {
-                const duration = Date.now() - this._startTime;
-                if (duration > slowQueryThresholdMs) {
-                    const collectionName = this.mongooseCollection ? this.mongooseCollection.name : 'unknown_collection';
-                    const operation = this.op || 'query';
-                    logger.warn(`[SLOW_DB_QUERY] ${collectionName}.${operation} took ${duration}ms`, {
-                        collection: collectionName,
-                        operation,
-                        duration,
-                        query: this._conditions || 'unknown_conditions'
-                    });
-                }
-            }
-            if (typeof next === 'function') next();
-        });
+        monitoringSchema.pre('aggregate', markStartTime);
+        monitoringSchema.post('aggregate', logSlowOperation);
     });
 };

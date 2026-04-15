@@ -7,9 +7,12 @@
  * already swallows errors when socket is unavailable (e.g. tests).
  */
 
-import { Server, Socket } from 'socket.io';
+import { Server, Socket as BaseSocket } from 'socket.io';
+
+type Socket = BaseSocket & { userId?: string };
 import { Server as HttpServer } from 'http';
 import { createAdapter } from '@socket.io/redis-adapter';
+import Redis from 'ioredis';
 import logger from '../utils/logger';
 import { verifyToken } from '../utils/auth';
 import redisClient from '../utils/redisCache';
@@ -49,12 +52,11 @@ export function initIO(httpServer: HttpServer): Server {
     try {
         // socket.io redis adapter needs a *second* dedicated client for subscribe.
         const pubClient = redisClient;
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const Redis = require('ioredis');
+         
         const subClient = new Redis(env.REDIS_URL ?? `redis://localhost:${env.REDIS_PORT}`, {
             tls: undefined, // 🔒 FORCE DISABLE TLS
         }) as typeof redisClient;
-        io.adapter(createAdapter(pubClient as any, subClient as any));
+        io.adapter(createAdapter(pubClient, subClient));
         logger.info('[Socket] Redis adapter attached');
     } catch (err) {
         logger.warn('[Socket] Redis adapter unavailable — falling back to in-memory', {
@@ -74,7 +76,7 @@ export function initIO(httpServer: HttpServer): Server {
             // 1. Try Authorization header (Bearer token)
             const authHeader = socket.handshake.headers.authorization;
             if (authHeader?.startsWith('Bearer ')) {
-                (socket as any).userId = extractUserId(authHeader.slice(7));
+                socket.userId = extractUserId(authHeader.slice(7));
                 return next();
             }
 
@@ -82,14 +84,14 @@ export function initIO(httpServer: HttpServer): Server {
             const rawCookie: string = (socket.handshake.headers.cookie as string) ?? '';
             const match = rawCookie.match(/esparex_auth=([^;]+)/);
             if (match?.[1]) {
-                (socket as any).userId = extractUserId(decodeURIComponent(match[1]));
+                socket.userId = extractUserId(decodeURIComponent(match[1]));
                 return next();
             }
 
             // 3. Try auth.token
             const queryToken = socket.handshake.auth?.token as string | undefined;
             if (queryToken) {
-                (socket as any).userId = extractUserId(queryToken);
+                socket.userId = extractUserId(queryToken);
                 return next();
             }
 
@@ -104,7 +106,7 @@ export function initIO(httpServer: HttpServer): Server {
 
     // ── Connection handler ───────────────────────────────────────────────────
     io.on('connection', (socket: Socket) => {
-        const userId: string | undefined = (socket as any).userId;
+        const userId: string | undefined = socket.userId;
         
         if (userId) {
             // Join a private room named after the user's ID

@@ -72,8 +72,8 @@ export class NotificationDispatcher {
 
             try {
                 await dbRecord.save();
-            } catch (err: any) {
-                if (err.code === 11000) {
+            } catch (err: unknown) {
+                if ((err as { code?: number }).code === 11000) {
                     // E11000 duplicate key error, means idempotency protected the user
                     logger.debug(`[Dispatcher] Ignored duplicate NotificationIntent`, { dedupKey: intent.dedupKey, userId: intent.userId });
                     return { success: true, skipped: true };
@@ -92,17 +92,17 @@ export class NotificationDispatcher {
 
                 // Direct or proxied websocket emit (frontend cache invalidation)
                 try {
-                    const { getIO } = require('../../config/socket'); // Typical socket abstraction
+                    const { getIO } = await import('../../config/socket');
                     getIO().to(intent.userId).emit('inbox_updated', {
                         userId: intent.userId,
                         version: newVersion,
                         delta: +1
                     });
-                } catch (e) {
+                } catch {
                     // Ignore missing socket route during standalone worker execution decoupling
                 }
-            } catch (syncError: any) {
-                logger.error('[Dispatcher] Non-fatal realtime sync error', { error: syncError.message });
+            } catch (syncError: unknown) {
+                logger.error('[Dispatcher] Non-fatal realtime sync error', { error: (syncError as Error).message });
             }
 
             // 3. Shadow Mode Guard
@@ -122,20 +122,20 @@ export class NotificationDispatcher {
                     dbRecord.deliveryStatus = dbRecord.deliveryStatus || { fcm: 'pending', email: 'skipped', sms: 'skipped' };
                     dbRecord.deliveryStatus.fcm = 'sent';
                     await dbRecord.save();
-                } catch (pushError: any) {
+                } catch (pushError: unknown) {
                     dbRecord.retryCount = (dbRecord.retryCount || 0) + 1;
                     dbRecord.deliveryStatus = dbRecord.deliveryStatus || { fcm: 'pending', email: 'skipped', sms: 'skipped' };
                     dbRecord.deliveryStatus.fcm = 'failed';
                     await dbRecord.save();
-                    
-                    logger.error(`[Dispatcher] FCM push failed`, { error: pushError.message, recordId: dbRecord._id });
+
+                    logger.error(`[Dispatcher] FCM push failed`, { error: (pushError as Error).message, recordId: dbRecord._id });
                     // Throw to BullMQ for exponential backoff if running in a worker context
                     throw pushError;
                 }
             }
             return { success: true };
-        } catch (error: any) {
-            logger.error(`[Dispatcher] Critical failure processing intent`, { error: error.message, intent });
+        } catch (error: unknown) {
+            logger.error(`[Dispatcher] Critical failure processing intent`, { error: (error as Error).message, intent });
             throw error;
         }
     }
@@ -162,9 +162,9 @@ export class NotificationDispatcher {
                     return;
                 }
                 successCount += 1;
-            } catch (err: any) {
+            } catch (err: unknown) {
                 failureCount += 1;
-                logger.warn(`[Dispatcher:Bulk] Single intent failed inside batch`, { dedupKey: intent.dedupKey, error: err.message });
+                logger.warn(`[Dispatcher:Bulk] Single intent failed inside batch`, { dedupKey: intent.dedupKey, error: (err as Error).message });
             }
         });
 

@@ -1,5 +1,6 @@
 import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
+import type { AdStatusChangedEvent } from '../LifecycleEventDispatcher';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
 import axios from 'axios';
 import { getFrontendInternalUrl } from '../../utils/appUrl';
@@ -17,7 +18,7 @@ const triggerNextJsRevalidation = async () => {
 export const registerCacheInvalidationListener = () => {
     
     // 1. Single Ad Lifecycle Mutations
-    lifecycleEvents.on('ad.lifecycle.changed', async (payload: any) => {
+    lifecycleEvents.on('ad.lifecycle.changed', async (payload: AdStatusChangedEvent) => {
         logger.info(`[CacheInvalidationListener] Processing ad.lifecycle.changed for ad ${payload.adId}`);
         try {
             // Bust the global homepage/feed caching aggregations

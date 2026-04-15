@@ -1,22 +1,16 @@
 import mongoose from 'mongoose';
 import { env } from '../../../config/env';
-import https from 'https';
 import Location from '../../../models/Location';
-import AdminBoundary from '../../../models/AdminBoundary';
-import LocationAnalytics from '../../../models/LocationAnalytics';
-import logger from '../../../utils/logger';
-import { escapeRegExp, toTitleCase } from '../../../utils/stringUtils';
-import { formatLocationResponse } from '../../../lib/location/formatLocation';
+import { toTitleCase } from '../../../utils/stringUtils';
 import { toGeoPoint } from '../../../../../shared/utils/geoUtils';
 export { toGeoPoint };
-import { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../../utils/redisCache';
+import { CACHE_KEYS } from '../../../utils/redisCache';
 import { AppError } from '../../../utils/AppError';
 import { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../../../utils/locationHierarchy';
 import {
     asString,
     buildDisplay,
     coerceLocationInput,
-    equalsIgnoreCase,
     extractObjectIdString,
     normalizeCoordinates,
     type LocationInputObject
@@ -24,8 +18,6 @@ import {
 export { normalizeCoordinates } from '../../location/LocationService.helpers';
 import {
     type LocationLevel,
-    normalizeLocationInput,
-    normalizeLocationLevel,
     normalizeLocationNameForSearch
 } from '../../../utils/locationInputNormalizer';
 import { mapToLocationResponse } from '../LocationNormalizer';
@@ -128,8 +120,6 @@ export const SEARCH_RESULT_LEVEL_PRIORITY: Record<string, number> = {
     state: 5,
     country: 6
 };
-let hasWarnedAtlasSearchFallback = false;
-
 export const withPublicCanonicalLocationFilter = <T extends Record<string, unknown>>(query: T) => ({
     ...PUBLIC_CANONICAL_LOCATION_FILTER,
     ...query,
@@ -141,7 +131,6 @@ export const buildNormalizedFromLocationDoc = (loc: LocationInputObject): Normal
 
     // city/state flat fields removed from schema (Sprint 3). Derive from name + level.
     const city = toTitleCase(asString(loc?.name) || '');
-    const district = toTitleCase(asString((loc as { district?: unknown })?.district) || '');
     const state = toTitleCase(asString((loc as { state?: unknown })?.state) || asString(loc?.country) || '');
     const country = toTitleCase(asString(loc?.country) || '');
     const fallbackDisplay = asString(loc?.name) || asString(loc?.display);
@@ -258,16 +247,10 @@ export const resolveLocationFromDb = async (input: unknown): Promise<NormalizedL
         asString(normalized.name) ||
         asString(normalized.display) ||
         asString(normalized.formattedAddress);
-    const stateCandidate = asString(normalized.state);
-
     if (!cityCandidate) return null;
 
     const normalizedCityCandidate = normalizeLocationNameForSearch(cityCandidate);
     const cityRegex = new RegExp(`^${cityCandidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
-    const stateRegex = stateCandidate
-        ? new RegExp(`^${stateCandidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
-        : undefined;
-
     // city/state flat fields removed in Sprint 3 — query by name + level
     const loc = await Location.findOne({
         isActive: true,
@@ -318,4 +301,3 @@ export const getPublicCanonicalLocationById = async (locationId: unknown) => {
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .lean();
 };
-

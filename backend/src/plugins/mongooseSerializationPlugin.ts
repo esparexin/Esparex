@@ -12,7 +12,13 @@ import { Schema } from 'mongoose';
  * drops vital `id` fields breaking UI components.
  */
 export function mongooseSerializationPlugin(schema: Schema) {
-    const transform = (_doc: unknown, ret: any) => {
+    type SerializationTransform = (
+        doc: unknown,
+        ret: Record<string, unknown>,
+        options?: unknown
+    ) => Record<string, unknown> | void;
+
+    const transform = (_doc: unknown, ret: Record<string, unknown>) => {
         if (ret._id) {
             ret.id = typeof ret._id.toString === 'function' ? ret._id.toString() : String(ret._id);
             delete ret._id;
@@ -26,18 +32,23 @@ export function mongooseSerializationPlugin(schema: Schema) {
     // We will merge with existing if present.
 
     const setupOptions = (method: 'toJSON' | 'toObject') => {
-        const existingOpts = schema.get(method) || {};
+        const existingOpts = (schema.get(method) || {}) as Record<string, unknown> & {
+            transform?: SerializationTransform;
+        };
         const existingTransform = existingOpts.transform;
 
         schema.set(method, {
             virtuals: true,
             versionKey: false,
             ...existingOpts,
-            transform: (doc: any, ret: any, options: any) => {
+            transform: (doc: unknown, ret: Record<string, unknown>, options?: unknown) => {
                 // Run schema-specific transform first
                 let processedRet = ret;
                 if (typeof existingTransform === 'function') {
-                    processedRet = existingTransform(doc, ret, options) || ret;
+                    const existingResult = existingTransform(doc, ret, options);
+                    if (existingResult && typeof existingResult === 'object') {
+                        processedRet = existingResult;
+                    }
                 }
                 // Apply global transform second to fill gaps and clean _id / __v
                 return transform(doc, processedRet);

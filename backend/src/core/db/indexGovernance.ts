@@ -15,8 +15,8 @@ interface IndexDefinition {
   scope: string;
   collection: string;
   name: string;
-  keys: any;
-  options?: any;
+  keys: Record<string, unknown>;
+  options?: Record<string, unknown>;
 }
 
 const registeredIndexes: IndexDefinition[] = [];
@@ -66,12 +66,10 @@ export function governSchema(
     collectionName: string;
   }
 ) {
-  // @ts-ignore — schema.indexes() is a valid Mongoose Schema method but is not
-  // declared in the @types/mongoose public interface. Safe to call here.
   const indexes = schema.indexes();
   
   for (const [keys, options] of indexes) {
-    const name = (options as any).name;
+    const name = (options as Record<string, unknown>)?.name as string | undefined;
     if (!name) {
       logger.error(`[Index Governance] Unnamed Index Error: Collection "${collectionName}" has an index without an explicit name. This is forbidden.`);
       continue;

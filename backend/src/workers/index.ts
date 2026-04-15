@@ -3,6 +3,9 @@ import { adWorker, notificationDeliveryWorker } from './adWorker';
 import { notificationMatchWorker } from './notificationMatchWorker';
 import { paymentWorker } from './paymentWorker';
 import { imageOptimizationWorker } from './imageWorker';
+import mongoose from 'mongoose';
+import redisClient from '../utils/redisCache';
+import { gracefulShutdown } from '../utils/shutdownHandler';
 
 export const startWorkers = () => {
     logger.info('Starting background workers...');
@@ -26,13 +29,9 @@ export const startWorkers = () => {
         logger.info("ImageOptimizationWorker is fully running and listening to 'image-optimization-events'.");
     });
 
-    const { gracefulShutdown } = require('../utils/shutdownHandler');
-    const mongoose = require('mongoose');
-    const redisClient = require('../utils/redisCache').default;
-
     const handleShutdown = async () => {
         await gracefulShutdown({
-            workers: [adWorker, notificationDeliveryWorker, notificationMatchWorker, paymentWorker, imageOptimizationWorker],
+            workers: [adWorker, notificationDeliveryWorker, notificationMatchWorker, paymentWorker, imageOptimizationWorker] as import('bullmq').Worker[],
             redisClient,
             mongooseConnection: mongoose.connection
         });
