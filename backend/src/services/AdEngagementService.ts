@@ -20,6 +20,7 @@ export const incrementAdView = async (
     adId: string | mongoose.Types.ObjectId,
     viewerIp?: string
 ): Promise<number | null> => {
+    void viewerIp;
     if (!mongoose.Types.ObjectId.isValid(String(adId))) {
         return null;
     }

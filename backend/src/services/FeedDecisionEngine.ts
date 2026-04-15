@@ -73,19 +73,19 @@ export class FeedDecisionEngine {
         excludeIds: string[],
         limitNeeded: number,
         categoryId?: string
-    ): Promise<{ ads: any[], meta: FeedDecisionMetadata }> {
+    ): Promise<{ ads: Record<string, unknown>[], meta: FeedDecisionMetadata }> {
         let currentStage: FallbackStage = 'RADIUS';
         let appliedRadiusKm = 10;
-        const mergedAds: any[] = [];
+        const mergedAds: Record<string, unknown>[] = [];
         const seenIds = new Set(excludeIds);
 
-        const fetchBatch = async (matchStage: any, stageName: FallbackStage, radius: number = 0) => {
+        const fetchBatch = async (matchStage: Record<string, unknown>, stageName: FallbackStage, radius: number = 0) => {
             if (mergedAds.length >= limitNeeded) return;
 
             const visibilityFilter = buildPublicAdFilter();
             const pipeline: mongoose.PipelineStage[] = [
                 { $match: { ...matchStage, ...visibilityFilter, _id: { $nin: Array.from(seenIds).map(id => new mongoose.Types.ObjectId(id)) } } },
-                { $sort: { createdAt: -1 } as any },
+                { $sort: { createdAt: -1 } },
                 { $limit: limitNeeded - mergedAds.length },
             ];
 
@@ -104,7 +104,7 @@ export class FeedDecisionEngine {
             }
         };
 
-        const baseMatch: any = {};
+        const baseMatch: Record<string, unknown> = {};
         if (categoryId) {
             baseMatch.categoryId = mongoose.Types.ObjectId.isValid(categoryId) ? new mongoose.Types.ObjectId(categoryId) : categoryId;
         }

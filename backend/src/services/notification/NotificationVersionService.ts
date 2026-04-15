@@ -17,8 +17,8 @@ export class NotificationVersionService {
             // await redisConnection.expire(cacheKey, 60 * 60 * 24 * 30); // 30 days
             
             return newVersion;
-        } catch (error: any) {
-            logger.error(`[NotificationVersionService] Failed to increment inbox_version for user ${userId}`, { error: error.message });
+        } catch (error: unknown) {
+            logger.error(`[NotificationVersionService] Failed to increment inbox_version for user ${userId}`, { error: (error as Error).message });
             // Fallback: If Redis fails, frontend gracefully falls back to polling or assumes version +1
             return Date.now();
         }
@@ -31,7 +31,7 @@ export class NotificationVersionService {
         try {
             const val = await redisConnection.get(`inbox_version:${userId}`);
             return val ? parseInt(val, 10) : 0;
-        } catch (error) {
+        } catch {
             return 0;
         }
     }

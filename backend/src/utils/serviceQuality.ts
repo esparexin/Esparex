@@ -3,7 +3,7 @@
  * Computes a quality score (0-100) based on listing completeness and business status.
  * SSOT for service ranking.
  */
-export const calculateServiceQuality = (service: any, business?: any): number => {
+export const calculateServiceQuality = (service: Record<string, unknown>, business?: Record<string, unknown>): number => {
     let score = 0;
 
     // 1. Images (+30)
@@ -13,7 +13,7 @@ export const calculateServiceQuality = (service: any, business?: any): number =>
 
     // 2. Pricing (+20)
     // If priceMin is set and > 0, it's considered high quality (not just "Get Quote")
-    if (service.priceMin && service.priceMin > 0) {
+    if (service.priceMin && Number(service.priceMin) > 0) {
         score += 20;
     }
 

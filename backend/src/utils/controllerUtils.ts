@@ -27,7 +27,7 @@ export const getAndVerifyOwnedListing = async (
         return null;
     }
 
-    const query: any = {
+    const query: Record<string, unknown> = {
         _id: id,
         sellerId: user._id,
         isDeleted: false,

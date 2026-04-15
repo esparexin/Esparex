@@ -71,7 +71,7 @@ export const sendAdminError = (req: Request, res: Response, error: unknown, stat
         });
     }
 
-    const errorPayload: Record<string, any> = { code };
+    const errorPayload: Record<string, unknown> = { code };
     if (details !== undefined) errorPayload.details = details;
 
     return sendErrorResponse(req, res, statusCode, message, errorPayload);

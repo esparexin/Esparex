@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import type { IAuthUser } from '../types/auth';
 import Business from '../models/Business';
 import { isBusinessPublishedStatus } from '../utils/businessStatus';
 import { sendErrorResponse } from '../utils/errorResponse';
@@ -14,14 +15,15 @@ import { LISTING_TYPE } from '../../../shared/enums/listingType';
  * JWT-decoded req.user has no businessStatus field.
  */
 async function resolveBusinessStatus(req: Request): Promise<string | undefined> {
-    const fromSession: string | undefined = (req.user as any).businessStatus;
+    const userWithStatus = req.user as IAuthUser & { businessStatus?: string };
+    const fromSession: string | undefined = userWithStatus.businessStatus;
     if (fromSession) return fromSession;
 
-    const userId = (req.user as any)._id || (req.user as any).id;
+    const userId = (req.user as IAuthUser)?._id || (req.user as IAuthUser)?.id;
     if (!userId) return undefined;
 
     const biz = await Business.findOne({ userId }).select('status').lean();
-    return (biz as any)?.status as string | undefined;
+    return (biz as { status?: string } | null)?.status;
 }
 
 /**
@@ -47,7 +49,7 @@ export const requireVerifiedBusiness = async (
 
         const businessStatus = await resolveBusinessStatus(req);
 
-        if (!businessStatus || !isBusinessPublishedStatus(businessStatus as any)) {
+        if (!businessStatus || !isBusinessPublishedStatus(businessStatus as string)) {
             sendErrorResponse(req, res, 403, 'BUSINESS_NOT_VERIFIED', {
                 details: {
                     message:

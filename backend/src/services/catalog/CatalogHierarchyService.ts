@@ -126,7 +126,7 @@ export async function scanHierarchyIntegrity(): Promise<HierarchyReport> {
     let staleCategoryParts = 0;
 
     for (const part of allParts) {
-        const cats: string[] = ((part as any).categoryIds ?? []).map(String);
+        const cats: string[] = ((part as { categoryIds?: unknown[] }).categoryIds ?? []).map(String);
         if (cats.length === 0) {
             orphanedParts++;
             issues.push({ collection: 'spareparts', docId: String(part._id), issue: 'categoryIds array is empty' });
@@ -372,7 +372,7 @@ export async function repairHierarchy(): Promise<RepairSummary> {
 
     const pruneOps: AnyBulkWriteOperation<ISparePart>[] = [];
     for (const part of allActiveParts) {
-        const cats = ((part as any).categoryIds ?? []).map(String);
+        const cats = ((part as { categoryIds?: unknown[] }).categoryIds ?? []).map(String);
         const validCats = cats.filter((id: string) => validCatIds.has(id));
         if (validCats.length === cats.length) continue;
         if (validCats.length === 0) {
@@ -454,7 +454,7 @@ export async function activateValidRecords(): Promise<{
 
     const activateBrandOps = buildActivateOps(
         inactiveBrands,
-        (b) => ((b as any).categoryIds ?? []).some((id: any) => validCatIds.has(String(id)))
+        (b) => ((b as { categoryIds?: unknown[] }).categoryIds ?? []).some((id: unknown) => validCatIds.has(String(id)))
     );
 
     if (activateBrandOps.length) await Brand.bulkWrite(activateBrandOps, { ordered: false });
@@ -468,7 +468,7 @@ export async function activateValidRecords(): Promise<{
 
     const activatePartOps = buildActivateOps(
         inactiveParts,
-        (p) => ((p as any).categoryIds ?? []).some((id: any) => validCatIds.has(String(id)))
+        (p) => ((p as { categoryIds?: unknown[] }).categoryIds ?? []).some((id: unknown) => validCatIds.has(String(id)))
     );
 
     if (activatePartOps.length) await SparePartModel.bulkWrite(activatePartOps, { ordered: false });

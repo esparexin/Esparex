@@ -8,7 +8,6 @@ import { escapeRegExp } from '../../utils/stringUtils';
 import {
     CHAT_CLOSED_STATUSES,
 } from '../chatAvailabilityService';
-import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import {
     PopulatedConv,
     AdminConvSummary,

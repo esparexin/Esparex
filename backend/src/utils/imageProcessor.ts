@@ -110,11 +110,8 @@ export const processSingleImage = async (
 
         let buffer: Buffer;
         let mimeType = inputMimeType;
-        let extension = 'jpg';
-
         if (Buffer.isBuffer(image)) {
             buffer = image;
-            extension = extensionFromMime(mimeType);
         } else if (image.startsWith('http')) {
             return { url: image, thumbnailUrl: image, hash: "existing-url" };
         } else {
@@ -122,7 +119,6 @@ export const processSingleImage = async (
             if (match && match.length === 3) {
                 mimeType = match[1] ?? 'image/jpeg';
                 buffer = Buffer.from(match[2] ?? '', 'base64');
-                extension = mimeType.split('/')[1] || 'jpg';
             } else {
                 try {
                     buffer = Buffer.from(image.replace(/^data:image\/\w+;base64,/, ""), 'base64');

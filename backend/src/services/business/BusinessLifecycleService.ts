@@ -68,7 +68,7 @@ export const withdrawBusiness = async (userId: string) => {
     const business = await Business.findOne({ userId, status: BUSINESS_STATUS.PENDING });
     if (!business) return null;
 
-    await (business as any).softDelete();
+    await (business as unknown as { softDelete(): Promise<void> }).softDelete();
 
     await User.findByIdAndUpdate(userId, {
         $unset: { businessId: 1 }
@@ -81,7 +81,7 @@ export const softDeleteBusiness = async (id: string) => {
     const business = await Business.findById(id);
     if (!business) return null;
 
-    await (business as any).softDelete();
+    await (business as unknown as { softDelete(): Promise<void> }).softDelete();
 
     await User.findByIdAndUpdate(business.userId, {
         $unset: { businessId: 1 },

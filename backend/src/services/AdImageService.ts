@@ -103,7 +103,7 @@ export const uploadSingleImage = async (
             [{
                 adId: id,
                 imageUrl: result.url,
-                thumbnailUrl: (result as any).thumbnailUrl,
+                thumbnailUrl: result.thumbnailUrl,
                 imageHash: imageHash,
                 createdAt: new Date()
             }],
@@ -114,7 +114,7 @@ export const uploadSingleImage = async (
 
         return {
             url: result.url,
-            thumbnailUrl: (result as any).thumbnailUrl,
+            thumbnailUrl: result.thumbnailUrl,
             hash: imageHash,
             size: buffer.length
         };

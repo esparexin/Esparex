@@ -108,7 +108,7 @@ const AdSchema: Schema = new Schema({
     sparePartIds: {
         type: [{ type: Schema.Types.ObjectId, ref: 'SparePart' }],
         validate: [
-            (val: any[]) => val.length <= 100,
+            (val: unknown[]) => val.length <= 100,
             '{PATH} exceeds the limit of 100 items'
         ]
     },

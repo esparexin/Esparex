@@ -16,10 +16,10 @@ type AuthenticatedRequest = Request & { user?: { _id?: string } };
 /**
  * Mask sensitive fields in the configuration object
  */
-const maskSecrets = (obj: any): any => {
+const maskSecrets = (obj: unknown): unknown => {
     if (!obj || typeof obj !== 'object') return obj;
 
-    const masked = JSON.parse(JSON.stringify(obj)); // Deep clone
+    const masked = JSON.parse(JSON.stringify(obj)) as Record<string, unknown>; // Deep clone
 
     const sensitiveKeys = [
         'openaiApiKey',
@@ -32,17 +32,17 @@ const maskSecrets = (obj: any): any => {
         'bypassToken'
     ];
 
-    const recurse = (current: any) => {
+    const recurse = (current: Record<string, unknown>) => {
         for (const key in current) {
-            if (sensitiveKeys.includes(key) && typeof current[key] === 'string' && current[key].length > 0) {
-                const val = current[key];
+            if (sensitiveKeys.includes(key) && typeof current[key] === 'string' && (current[key] as string).length > 0) {
+                const val = current[key] as string;
                 if (val.length > 8) {
                     current[key] = `${val.substring(0, 4)}****${val.substring(val.length - 4)}`;
                 } else {
                     current[key] = '****';
                 }
             } else if (typeof current[key] === 'object' && current[key] !== null) {
-                recurse(current[key]);
+                recurse(current[key] as Record<string, unknown>);
             }
         }
     };

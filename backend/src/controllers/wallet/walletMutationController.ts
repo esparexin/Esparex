@@ -20,7 +20,7 @@ export const adjustWallet = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 400, 'No adjustments provided');
         }
 
-        const adminId = (req as any).user?._id || 'system';
+        const adminId = req.user?._id || 'system';
 
         const wallet = await credit({
             userId,

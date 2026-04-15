@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import type { IAuthUser } from '../types/auth';
 import redis from '../config/redis';
 import logger from '../utils/logger';
 import { type ListingTypeValue, LISTING_TYPE } from '../../../shared/enums/listingType';
@@ -6,7 +7,7 @@ import { type ListingTypeValue, LISTING_TYPE } from '../../../shared/enums/listi
 export const duplicateCooldownMiddleware = (listingType: ListingTypeValue = LISTING_TYPE.AD) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const sellerId = (req as any).user?.id || (req as any).user?._id;
+            const sellerId = (req.user as IAuthUser)?.id || (req.user as IAuthUser)?._id?.toString();
             
             // If no auth, skip the check (auth middleware will catch it later if required)
             if (!sellerId) {
@@ -35,7 +36,7 @@ export const duplicateCooldownMiddleware = (listingType: ListingTypeValue = LIST
                 // but if the status code indicates a 5xx server error, we should probably delete the key
                 // so the user can retry immediately.
                 if (res.statusCode >= 500) {
-                    redis.del(key).catch((err: any) => logger.error('Failed to cleanup cooldown key on 5xx', { error: err.message, key }));
+                    redis.del(key).catch((err: unknown) => logger.error('Failed to cleanup cooldown key on 5xx', { error: (err as Error).message, key }));
                 }
             });
 

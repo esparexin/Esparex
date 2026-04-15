@@ -17,7 +17,7 @@ import { clearCachePattern } from '../../utils/redisCache';
 export function installCatalogPromotionListener() {
     lifecycleEvents.on('listing.approved', async (payload) => {
         try {
-            const { listingId, actorId } = payload;
+            const { listingId } = payload;
             
             // 1. Fetch the listing with populated catalog fields
             const ad = await Ad.findById(listingId)

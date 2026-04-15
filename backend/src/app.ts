@@ -92,7 +92,6 @@ import { swaggerSpec } from './config/swagger';
 /* -------------------------------------------------------------------------- */
 const app = express();
 app.disable("x-powered-by");
-const BODY_LIMIT = '1mb';
 const ADMIN_API_V1_PREFIX = '/api/v1/admin';
 const ADMIN_API_LEGACY_PREFIX = '/api/admin';
 const CONTACT_API_V1_PREFIX = '/api/v1/contacts';

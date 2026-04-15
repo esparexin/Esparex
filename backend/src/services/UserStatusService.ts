@@ -29,8 +29,8 @@ export const updateUserStatus = async (
     newStatus: UserStatusValue,
     context: StatusUpdateContext
 ) => {
-    const isRestrictive = [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.DELETED]
-        .includes(newStatus as any);
+    const isRestrictive = ([USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.DELETED] as UserStatusValue[])
+        .includes(newStatus);
 
     const updateData: Record<string, unknown> = {
         status: newStatus,
@@ -111,7 +111,7 @@ export const updateUserStatus = async (
             }
         }
 
-        if ([USER_STATUS.BANNED, USER_STATUS.DELETED].includes(newStatus as any)) {
+        if (([USER_STATUS.BANNED, USER_STATUS.DELETED] as UserStatusValue[]).includes(newStatus)) {
             await SmartAlert.updateMany({ userId }, { isActive: false });
         }
 

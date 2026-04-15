@@ -126,22 +126,6 @@ const parseCursor = (cursor: HomeFeedRequest['cursor']): ParsedHomeFeedCursor | 
     };
 };
 
-const toLocationKey = (input: HomeFeedRequest): string => {
-    const raw = (
-        input.locationId ||
-        input.location ||
-        (Number.isFinite(input.lat) && Number.isFinite(input.lng)
-            ? `${Number(input.lat).toFixed(3)},${Number(input.lng).toFixed(3)}`
-            : 'global')
-    );
-    return String(raw).trim().toLowerCase().replace(/[^a-z0-9,._-]+/g, '-');
-};
-
-const toCategoryKey = (input: HomeFeedRequest): string => {
-    const raw = input.categoryId || input.category || 'all';
-    return String(raw).trim().toLowerCase().replace(/[^a-z0-9,._-]+/g, '-');
-};
-
 const toCursorKey = (cursor: ParsedHomeFeedCursor | null): string => {
     if (!cursor) return 'start';
     const createdAtKey = cursor.createdAt.toISOString().replace(/[^a-z0-9]/gi, '_');
@@ -169,23 +153,6 @@ const extractAdId = (ad: FeedAdRecord): string => {
     return String(candidate).trim();
 };
 
-const extractSellerId = (ad: FeedAdRecord): string | null => {
-    const raw = ad.sellerId;
-    if (raw instanceof mongoose.Types.ObjectId) {
-        return raw.toHexString();
-    }
-    if (typeof raw === 'string' && mongoose.Types.ObjectId.isValid(raw)) {
-        return new mongoose.Types.ObjectId(raw).toHexString();
-    }
-    if (raw && typeof raw === 'object' && typeof (raw as { toString?: () => string }).toString === 'function') {
-        const candidate = (raw as { toString: () => string }).toString();
-        if (mongoose.Types.ObjectId.isValid(candidate)) {
-            return new mongoose.Types.ObjectId(candidate).toHexString();
-        }
-    }
-    return null;
-};
-
 const toCreatedAtMs = (ad: FeedAdRecord): number => {
     const parsed = new Date(String(ad.createdAt ?? 0)).getTime();
     return Number.isFinite(parsed) ? parsed : 0;
@@ -193,9 +160,6 @@ const toCreatedAtMs = (ad: FeedAdRecord): number => {
 
 const sortByCreatedAtDesc = (ads: FeedAdRecord[]): FeedAdRecord[] =>
     [...ads].sort((left, right) => toCreatedAtMs(right) - toCreatedAtMs(left));
-
-const normalizeAds = (ads: FeedAdRecord[]): FeedAdRecord[] =>
-    ads.map((ad) => normalizeAdImagesForResponse(ad as Record<string, unknown>) as FeedAdRecord);
 
 const compareObjectIdHex = (left: string, right: string): number => {
     if (left === right) return 0;
@@ -419,7 +383,7 @@ const buildHomeFeed = async (
     const [facetResults] = await Ad.aggregate(pipeline);
 
     const spotlightAds = filterBeforeCursor(
-        (facetResults?.spotlight || []).map((ad: any) => ({
+        (facetResults?.spotlight || []).map((ad: Record<string, unknown>) => ({
             ...ad,
             isSpotlight: true,
             isBoosted: false
@@ -427,7 +391,7 @@ const buildHomeFeed = async (
         cursor
     );
     const boostedAds = filterBeforeCursor(
-        (facetResults?.boosted || []).map((ad: any) => ({
+        (facetResults?.boosted || []).map((ad: Record<string, unknown>) => ({
             ...ad,
             isSpotlight: false,
             isBoosted: true
@@ -435,7 +399,7 @@ const buildHomeFeed = async (
         cursor
     );
     const organicAds = filterBeforeCursor(
-        (facetResults?.organic || []).map((ad: any) => ({
+        (facetResults?.organic || []).map((ad: Record<string, unknown>) => ({
             ...ad,
             isSpotlight: false,
             isBoosted: false
@@ -495,7 +459,7 @@ const buildHomeFeed = async (
     });
 
     return {
-        ads: merged.ads.map(ad => normalizeAdImagesForResponse(ad as any)) as HomeFeedResponse['ads'],
+        ads: merged.ads.map(ad => normalizeAdImagesForResponse(ad as Record<string, unknown>)) as HomeFeedResponse['ads'],
         nextCursor: merged.hasRemaining ? lastAdCursor : null,
         hasMore: merged.hasRemaining && merged.ads.length > 0,
         isFallback: isFallbackResult

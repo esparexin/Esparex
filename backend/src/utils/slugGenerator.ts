@@ -39,13 +39,13 @@ export async function generateUniqueSlug(
 
         if (oldSlug && oldSlug === candidate) return oldSlug;
 
-        const query: any = { [fieldName]: candidate };
+        const query: Record<string, unknown> = { [fieldName]: candidate };
         if (excludeId) query._id = { $ne: excludeId };
 
         try {
             const exists = await model.exists(query);
             if (!exists) return candidate;
-        } catch (err) {
+        } catch {
             // If the DB check fails for any reason, fall back to generating
             // a more unique slug and return it. Avoid throwing here to keep
             // slug generation resilient during transient DB issues.

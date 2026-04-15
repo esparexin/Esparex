@@ -6,37 +6,12 @@
  */
 
 import mongoose, { PipelineStage } from 'mongoose';
-import Ad from '../../../models/Ad';
-import Category from '../../../models/Category';
-import Brand from '../../../models/Brand';
-import ProductModel from '../../../models/Model';
-import Business from '../../../models/Business';
-import Report from '../../../models/Report';
 import BlockedUser from '../../../models/BlockedUser';
-import SparePart from '../../../models/SparePart';
-import { serializeDoc } from '../../../utils/serialize';
-import { normalizeLocationResponse } from '../../location/LocationNormalizer';
-import { touchLocationSearchAnalytics } from '../../location/LocationAnalyticsService';
-import { buildGeoNearStage, normalizeGeoInput } from '../../../utils/GeoUtils';
-import { normalizeAdStatus } from '../../adStatusService';
-import { buildAdFilterFromCriteria, AdFilterCriteria } from '../../../utils/adFilterHelper';
-import { getCache, setCache } from '../../../utils/redisCache';
-import { buildPublicAdFilter } from '../../../utils/FeedVisibilityGuard';
 import { type ListingTypeValue } from '../../../../../shared/enums/listingType';
 import logger from '../../../utils/logger';
-import RankingTelemetry from '../../../models/RankingTelemetry';
-import { v4 as uuidv4 } from 'uuid';
-import { escapeRegExp } from '../../../utils/stringUtils';
-import {
-    buildAdSortStage as buildAdSortStageFromHelper,
-    extractLocationIdFromAd,
-    normalizeAdImagesForResponse,
-    type SortStage
-} from '../../adQuery/AdQueryHelpers';
-import { AD_STATUS } from '../../../../../shared/enums/adStatus';
-import { FeatureFlag, isEnabled } from '../../../config/featureFlags';
+
+
 import AdminMetrics from '../../../models/AdminMetrics';
-import { isBusinessPublishedStatus } from '../../../utils/businessStatus';
 
 // ─────────────────────────────────────────────────
 // TYPES & CONSTANTS

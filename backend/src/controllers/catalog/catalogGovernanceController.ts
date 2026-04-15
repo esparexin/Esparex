@@ -46,7 +46,7 @@ export const getHierarchyTree = async (req: Request, res: Response) => {
         }
 
         // Try the cache first
-        const cached = await getCache<any>(HIERARCHY_TREE_CACHE_KEY);
+        const cached = await getCache<unknown>(HIERARCHY_TREE_CACHE_KEY);
         if (cached) {
             return sendSuccessResponse(res, cached);
         }

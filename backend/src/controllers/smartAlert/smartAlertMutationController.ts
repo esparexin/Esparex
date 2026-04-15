@@ -194,12 +194,6 @@ export const deleteSmartAlert = async (req: Request, res: Response) => {
         const auth = await requireOwnedAlert(req, res, { allowAdmin: true });
         if (!auth) return;
         const { alert, id, ownerId } = auth;
-        const activeAlertCount = await SmartAlertModel.countDocuments({
-            userId: ownerId,
-            isActive: true
-        });
-        const planLimit = await resolvePlanLimit(ownerId);
-
         if (alert.isActive) {
             await creditWallet({
                 userId: ownerId,

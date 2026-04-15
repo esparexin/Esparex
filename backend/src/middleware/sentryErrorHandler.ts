@@ -218,7 +218,7 @@ export function customErrorHandler(
     ) {
         const message = err.name === 'MulterError' ? `Upload failed: ${err.message}` : err.message;
         const code = err.name === 'MulterError'
-            ? `UPLOAD_${(err as any).code || 'ERROR'}`
+            ? `UPLOAD_${(err as { code?: string }).code || 'ERROR'}`
             : ((err.code as string | undefined) || 'INVALID_FILE_TYPE');
         
         return sendErrorResponse(req, res, 400, message, {

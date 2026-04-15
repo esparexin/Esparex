@@ -120,9 +120,9 @@ const normalizeUserLocation = (value: unknown): unknown => {
         location.coordinates = nextGeo;
       }
     }
-  } catch (err) {
+  } catch {
     // Never crash normalization
-    delete (location as any).coordinates;
+    delete location.coordinates;
   }
 
   return location;

@@ -230,7 +230,7 @@ export const createInvoice = async (req: Request, res: Response) => {
 export const updateInvoiceStatus = async (req: Request, res: Response) => {
     try {
         const { status, notes } = req.body;
-        const validStatuses = ['PENDING', 'SUCCESS' as any, 'FAILED' as any, 'CANCELLED' as any];
+        const validStatuses = ['PENDING', 'SUCCESS', 'FAILED', 'CANCELLED'];
 
         if (!status || !validStatuses.includes(status)) {
             return sendAdminError(req, res, 'Invalid status provided.', 400);

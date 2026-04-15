@@ -28,7 +28,7 @@ const categoryFields = {
     categoryId: optionalObjectIdSchema
 };
 
-const categoryRefine = (data: any) => data.categoryIds || data.categoryId;
+const categoryRefine = (data: Record<string, unknown>) => data.categoryIds || data.categoryId;
 const categoryRefineMsg = {
     message: "At least one category is required",
     path: ["categoryIds"]

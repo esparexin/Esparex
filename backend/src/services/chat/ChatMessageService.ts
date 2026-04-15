@@ -118,7 +118,7 @@ export async function sendMessage(
         });
     }
 
-    return msg as any; // Cast to ensure InstanceType match if needed
+    return msg;
 }
 
 export async function markRead(conversationId: string, userId: string) {

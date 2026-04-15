@@ -55,7 +55,7 @@ export class CategoryQueryBuilder {
      * Get the query operand ($in or literal ID).
      * Useful for constructing composite queries with other operators.
      */
-    getFilterValue(): any {
+    getFilterValue(): mongoose.Types.ObjectId | { $in: mongoose.Types.ObjectId[] } | undefined {
         const ids = this.getRawIds();
         if (ids.length === 0) return undefined;
         if (ids.length === 1) return new mongoose.Types.ObjectId(ids[0]);

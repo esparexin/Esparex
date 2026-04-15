@@ -131,7 +131,7 @@ export const createReport = async (req: Request, res: Response) => {
 
             report = await createReportRecord(payload);
         } catch (err: unknown) {
-            if (err instanceof Error && 'code' in err && (err as any).code === 11000) {
+            if (err instanceof Error && 'code' in err && (err as Error & { code?: number }).code === 11000) {
                 return sendErrorResponse(req, res, 409, 'You have already reported this target');
             }
             throw err;

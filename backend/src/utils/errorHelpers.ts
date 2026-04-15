@@ -21,9 +21,9 @@ export function isError(error: unknown): error is Error {
  */
 export function isMongoError(error: unknown): error is Error & { code?: string | number } {
     if (!error || typeof error !== 'object') return false;
-    const candidate = error as any;
+    const candidate = error as { name?: unknown; code?: unknown; message?: unknown };
     return (
-        candidate instanceof Error ||
+        error instanceof Error ||
         candidate.name === 'MongoError' ||
         candidate.name === 'MongoServerError' ||
         candidate.code === 11000 ||
@@ -36,7 +36,7 @@ export function isMongoError(error: unknown): error is Error & { code?: string |
  */
 export function isZodError(error: unknown): error is { issues: Array<{ path: string[] }> } {
     if (!error || typeof error !== 'object') return false;
-    return 'issues' in error && Array.isArray((error as any).issues);
+    return 'issues' in error && Array.isArray((error as Record<string, unknown>).issues);
 }
 
 /**
@@ -44,10 +44,10 @@ export function isZodError(error: unknown): error is { issues: Array<{ path: str
  */
 export function isValidationError(error: unknown): boolean {
     if (!error || typeof error !== 'object') return false;
-    const candidate = error as any;
+    const candidate = error as { issues?: unknown; validationErrors?: unknown };
     return (
-        candidate instanceof Error && candidate.name === 'ValidationError' ||
-        candidate instanceof Error && candidate.name === 'ZodError' ||
+        (error instanceof Error && error.name === 'ValidationError') ||
+        (error instanceof Error && error.name === 'ZodError') ||
         Boolean(candidate.issues) ||
         Boolean(candidate.validationErrors)
     );
@@ -64,11 +64,12 @@ export function extractErrorDetails(error: unknown): {
     details?: unknown;
 } {
     if (isError(error)) {
+        const err = error as Error & { code?: string | number; details?: unknown };
         return {
-            message: error.message,
-            stack: error.stack,
-            code: (error as any).code,
-            details: (error as any).details
+            message: err.message,
+            stack: err.stack,
+            code: err.code,
+            details: err.details
         };
     }
 
@@ -77,9 +78,10 @@ export function extractErrorDetails(error: unknown): {
     }
 
     if (typeof error === 'object' && error !== null) {
+        const candidate = error as { message?: unknown; code?: string | number };
         return {
-            message: (error as any).message || JSON.stringify(error),
-            code: (error as any).code,
+            message: typeof candidate.message === 'string' ? candidate.message : JSON.stringify(error),
+            code: candidate.code,
             details: error
         };
     }
@@ -114,7 +116,8 @@ export function getNormalizedErrorMessage(
     }
 
     if (typeof error === 'object' && error !== null) {
-        return (error as any).message || fallback;
+        const candidate = error as { message?: unknown };
+        return typeof candidate.message === 'string' ? candidate.message : fallback;
     }
 
     return fallback;
@@ -125,7 +128,7 @@ export function getNormalizedErrorMessage(
  */
 export function isDuplicateKeyError(error: unknown): boolean {
     if (!error || typeof error !== 'object') return false;
-    const candidate = error as any;
+    const candidate = error as { code?: unknown; message?: unknown };
     return (
         candidate.code === 11000 ||
         (typeof candidate.message === 'string' && candidate.message.includes('E11000'))
@@ -137,10 +140,10 @@ export function isDuplicateKeyError(error: unknown): boolean {
  */
 export function isTimeoutError(error: unknown): boolean {
     if (!error || typeof error !== 'object') return false;
-    const candidate = error as any;
+    const candidate = error as { message?: string; code?: string };
     return (
-        candidate.message?.includes('timeout') ||
-        candidate.message?.includes('TIMEOUT') ||
+        candidate.message?.includes('timeout') === true ||
+        candidate.message?.includes('TIMEOUT') === true ||
         candidate.code === 'ETIMEDOUT' ||
         candidate.code === 'EHOSTUNREACH'
     );
@@ -151,13 +154,13 @@ export function isTimeoutError(error: unknown): boolean {
  */
 export function isNetworkError(error: unknown): boolean {
     if (!error || typeof error !== 'object') return false;
-    const candidate = error as any;
+    const candidate = error as { code?: string; message?: string };
     return (
-        candidate.code?.includes('ECONNREFUSED') ||
-        candidate.code?.includes('ENOTFOUND') ||
-        candidate.code?.includes('EHOSTUNREACH') ||
-        candidate.message?.includes('ECONNREFUSED') ||
-        candidate.message?.includes('network')
+        candidate.code?.includes('ECONNREFUSED') === true ||
+        candidate.code?.includes('ENOTFOUND') === true ||
+        candidate.code?.includes('EHOSTUNREACH') === true ||
+        candidate.message?.includes('ECONNREFUSED') === true ||
+        candidate.message?.includes('network') === true
     );
 }
 
@@ -166,7 +169,7 @@ export function isNetworkError(error: unknown): boolean {
  */
 export function getErrorStatusCode(error: unknown): number {
     if (!error || typeof error !== 'object') return 500;
-    const candidate = error as any;
+    const candidate = error as { statusCode?: unknown; status?: unknown };
 
     // Check for explicit statusCode
     if (typeof candidate.statusCode === 'number') {

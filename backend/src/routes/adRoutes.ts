@@ -6,7 +6,7 @@ import { validateSearchParams } from "../validators/securityValidators";
 import { mutationLimiter, searchLimiter, adPostLimiter } from "../middleware/rateLimiter";
 import { validateObjectId } from "../middleware/validateObjectId";
 import { validateRequest } from "../middleware/validateRequest";
-import { enforceCreateAdIdempotency, idempotencyMiddleware } from "../middleware/idempotency";
+import { enforceCreateAdIdempotency } from "../middleware/idempotency";
 import { fraudMiddleware } from "../middleware/fraudMiddleware";
 import { createAdSchema, updateAdSchema } from "../validators/ad.validator";
 import type { ZodTypeAny } from "zod";

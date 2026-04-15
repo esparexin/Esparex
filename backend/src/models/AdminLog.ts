@@ -44,7 +44,7 @@ AdminLogSchema.pre('save', async function () {
 });
 
 // Prevent query-level modifications and deletions
-AdminLogSchema.pre(['updateOne', 'updateMany', 'findOneAndUpdate', 'replaceOne', 'deleteOne', 'deleteMany', 'findOneAndDelete', 'findOneAndRemove'] as any, async function () {
+AdminLogSchema.pre(['updateOne', 'updateMany', 'findOneAndUpdate', 'replaceOne', 'deleteOne', 'deleteMany', 'findOneAndDelete', 'findOneAndRemove'] as unknown as RegExp, async function () {
     throw new Error('AdminLog entries are strictly append-only. Updates and deletions are blocked by middleware.');
 });
 

@@ -16,9 +16,9 @@ const LISTING_TYPE_LABEL: Record<string, string> = {
 
 async function getSellerEmail(listingId: string): Promise<{ email: string; name: string; title: string; listingType: string } | null> {
     try {
-        const listing = await Ad.findById(listingId).select('sellerId title listingType').lean() as any;
+        const listing = await Ad.findById(listingId).select('sellerId title listingType').lean() as { sellerId?: unknown; title?: string; listingType?: string } | null;
         if (!listing) return null;
-        const user = await User.findById(listing.sellerId).select('email name').lean() as any;
+        const user = await User.findById(listing.sellerId).select('email name').lean() as { email?: string; name?: string } | null;
         if (!user?.email) return null;
         return { email: user.email, name: user.name || 'Seller', title: listing.title || 'Your listing', listingType: listing.listingType || 'ad' };
     } catch (e) {

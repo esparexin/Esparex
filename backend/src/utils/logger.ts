@@ -22,7 +22,7 @@ const maskPII = winston.format((info) => {
 
     const piiFields = ['email', 'phone', 'phonenumber', 'mobile', 'password', 'token'];
 
-    const mask = (obj: any, seen = new WeakSet()): void => {
+    const mask = (obj: Record<string, unknown>, seen = new WeakSet<Record<string, unknown>>()): void => {
         if (!obj || typeof obj !== 'object' || seen.has(obj)) return;
         seen.add(obj);
 
@@ -30,7 +30,7 @@ const maskPII = winston.format((info) => {
             if (typeof obj[key] === 'string' && piiFields.includes(key.toLowerCase())) {
                 obj[key] = '[REDACTED PII]';
             } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-                mask(obj[key], seen);
+                mask(obj[key] as Record<string, unknown>, seen);
             }
         });
     };
@@ -153,34 +153,34 @@ const winstonLogger = winston.createLogger({
  * Wrapper to satisfy @shared/observability.Logger interface
  */
 class WinstonLoggerAdapter implements BaseLogger {
-    get level(): any { return winstonLogger.level; }
-    log(level: LogLevel, message: any, ...meta: any[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
-        winstonLogger.log(level, message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    get level(): string { return winstonLogger.level; }
+    log(level: LogLevel, message: unknown, ...meta: unknown[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
+        winstonLogger.log(level, message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
     }
-    debug(message: any, ...meta: any[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
-        winstonLogger.debug(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    debug(message: unknown, ...meta: unknown[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
+        winstonLogger.debug(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
     }
-    info(message: any, ...meta: any[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
-        winstonLogger.info(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    info(message: unknown, ...meta: unknown[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
+        winstonLogger.info(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
     }
-    warn(message: any, ...meta: any[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
-        winstonLogger.warn(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    warn(message: unknown, ...meta: unknown[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
+        winstonLogger.warn(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
     }
-    warning(message: any, ...meta: any[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
-        winstonLogger.warn(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    warning(message: unknown, ...meta: unknown[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
+        winstonLogger.warn(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
     }
-    error(message: any, ...meta: any[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
-        winstonLogger.error(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    error(message: unknown, ...meta: unknown[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
+        winstonLogger.error(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
     }
-    http(message: any, ...meta: any[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] : { meta };
-        winstonLogger.http(message, { ...details, correlationId: TraceContext.getCorrelationId() });
+    http(message: unknown, ...meta: unknown[]): void {
+        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
+        winstonLogger.http(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
     }
     child(defaultMeta: LogDetails): BaseLogger {
         return new WinstonLoggerAdapterChild(winstonLogger.child(defaultMeta));
@@ -189,27 +189,27 @@ class WinstonLoggerAdapter implements BaseLogger {
 
 class WinstonLoggerAdapterChild implements BaseLogger {
     constructor(private wLogger: winston.Logger) {}
-    get level(): any { return this.wLogger.level; }
-    log(level: LogLevel, message: any, ...meta: any[]): void {
-        this.wLogger.log(level, message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    get level(): string { return this.wLogger.level; }
+    log(level: LogLevel, message: unknown, ...meta: unknown[]): void {
+        this.wLogger.log(level, message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
     }
-    debug(message: any, ...meta: any[]): void {
-        this.wLogger.debug(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    debug(message: unknown, ...meta: unknown[]): void {
+        this.wLogger.debug(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
     }
-    info(message: any, ...meta: any[]): void {
-        this.wLogger.info(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    info(message: unknown, ...meta: unknown[]): void {
+        this.wLogger.info(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
     }
-    warn(message: any, ...meta: any[]): void {
-        this.wLogger.warn(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    warn(message: unknown, ...meta: unknown[]): void {
+        this.wLogger.warn(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
     }
-    warning(message: any, ...meta: any[]): void {
-        this.wLogger.warn(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    warning(message: unknown, ...meta: unknown[]): void {
+        this.wLogger.warn(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
     }
-    error(message: any, ...meta: any[]): void {
-        this.wLogger.error(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    error(message: unknown, ...meta: unknown[]): void {
+        this.wLogger.error(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
     }
-    http(message: any, ...meta: any[]): void {
-        this.wLogger.http(message, ...meta, { correlationId: TraceContext.getCorrelationId() });
+    http(message: unknown, ...meta: unknown[]): void {
+        this.wLogger.http(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
     }
     child(defaultMeta: LogDetails): BaseLogger {
         return new WinstonLoggerAdapterChild(this.wLogger.child(defaultMeta));

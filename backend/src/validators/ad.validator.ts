@@ -12,12 +12,6 @@ import {
     AdPayloadSchema as SharedAdPayloadSchema,
     PartialAdPayloadSchema as SharedPartialAdPayloadSchema
 } from '../../../shared/schemas/adPayload.schema';
-import { AD_STATUS_VALUES } from '../../../shared/enums/adStatus';
-
-/**
- * Ad status enum
- */
-const adStatusEnum = z.enum(AD_STATUS_VALUES);
 
 /**
  * Seller type enum

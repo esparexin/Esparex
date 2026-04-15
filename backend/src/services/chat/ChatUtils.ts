@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import type { IConversationDTO } from '@shared/contracts/chat.contracts';
 import { isListingChatClosed } from '../chatAvailabilityService';
 import type { IChatAttachment } from '../../models/ChatMessage';

@@ -66,7 +66,7 @@ const softDeletePlugin = (schema: Schema) => {
             geoNearStage.query = geoNearStage.query
                 ? { $and: [geoNearStage.query, softDeleteFilter] }
                 : softDeleteFilter;
-        } else if (firstStage?.$search || firstStage?.$vectorSearch || (firstStage?.$match as any)?.$text) {
+        } else if (firstStage?.$search || firstStage?.$vectorSearch || (firstStage?.$match as Record<string, unknown>)?.$text) {
             // Atlas search/vector search or native text search must be first stage.
             pipeline.splice(1, 0, { $match: softDeleteFilter });
         } else {

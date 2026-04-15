@@ -6,7 +6,7 @@ import * as sparePartListingController from '../controllers/sparePartListing/spa
 import * as listingController from '../controllers/listing/listingController';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
 import { createListingValidator } from '../validators/listing.validator';
-import { phoneRevealLimiter, mutationLimiter } from '../middleware/rateLimiter';
+import { phoneRevealLimiter } from '../middleware/rateLimiter';
 
 import { validateRequest } from '../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';

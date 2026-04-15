@@ -98,11 +98,6 @@ type RawAggregationRow = {
     count: number;
 };
 
-type LiveAggregationRow = {
-    _id: ModerationListingType;
-    count: number;
-};
-
 const createEmptyStatusMap = () => ({
     pending: 0,
     live: 0,

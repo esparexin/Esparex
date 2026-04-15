@@ -22,7 +22,7 @@ export function installSafeSoftDeleteQuery(schema: Schema) {
      * .active() - Returns only active, non-deleted documents
      * Apply this to all public queries for safety
      */
-    (schema.query as any).active = function (this: Query<any, any>) {
+    (schema.query as Record<string, unknown>).active = function (this: Query<unknown, unknown>) {
         return this.where({
             isDeleted: { $ne: true }
         }).where({
@@ -33,10 +33,10 @@ export function installSafeSoftDeleteQuery(schema: Schema) {
     /**
      * .includeDeleted() - Returns all documents including deleted
      * Use ONLY in admin contexts after auth check
-     * 
+     *
      * Logs a warning for audit purposes
      */
-    (schema.query as any).includeDeleted = function (this: Query<any, any>) {
+    (schema.query as Record<string, unknown>).includeDeleted = function (this: Query<unknown, unknown>) {
         // No filter applied - returns everything
         // Could add logging here for audit trail
         console.warn(
@@ -49,14 +49,14 @@ export function installSafeSoftDeleteQuery(schema: Schema) {
     /**
      * Helper method on documents
      */
-    schema.methods.isDeletedByUser = function (this: any): boolean {
+    schema.methods.isDeletedByUser = function (this: { isDeleted?: unknown; isActive?: unknown }): boolean {
         return Boolean(this.isDeleted && !this.isActive);
     };
 
     /**
      * Helper method to get both active and deleted counts
      */
-    schema.static('countActive', async function (this: any) {
+    schema.static('countActive', async function (this: { countDocuments: (q: Record<string, unknown>) => Promise<number> }) {
         return Promise.all([
             this.countDocuments({ isDeleted: { $ne: true }, isActive: true }),
             this.countDocuments({ isDeleted: true })

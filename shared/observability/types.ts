@@ -1,19 +1,16 @@
 export type LogLevel = 'debug' | 'info' | 'warn' | 'warning' | 'error' | 'http';
 
-export type LogDetails = any;
-// export interface LogDetails {
-//     [key: string]: unknown;
-// }
+export type LogDetails = Record<string, unknown>;
 
 export interface Logger {
-    level: LogLevel;
-    log(level: LogLevel, message: any, ...meta: any[]): void;
-    debug(message: any, ...meta: any[]): void;
-    info(message: any, ...meta: any[]): void;
-    warn(message: any, ...meta: any[]): void;
-    warning(message: any, ...meta: any[]): void;
-    error(message: any, ...meta: any[]): void;
-    http(message: any, ...meta: any[]): void;
+    level: string;
+    log(level: LogLevel, message: unknown, ...meta: unknown[]): void;
+    debug(message: unknown, ...meta: unknown[]): void;
+    info(message: unknown, ...meta: unknown[]): void;
+    warn(message: unknown, ...meta: unknown[]): void;
+    warning(message: unknown, ...meta: unknown[]): void;
+    error(message: unknown, ...meta: unknown[]): void;
+    http(message: unknown, ...meta: unknown[]): void;
     child(defaultMeta: LogDetails): Logger;
 }
 

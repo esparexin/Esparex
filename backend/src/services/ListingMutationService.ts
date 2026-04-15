@@ -1,4 +1,5 @@
 import { getUserConnection } from '../config/db';
+import type { ListingTypeValue } from '../../../shared/enums/listingType';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { processImages } from '../utils/imageProcessor';
 import { sanitizeStoredImageUrls, deleteFromS3Url } from '../utils/s3';
@@ -60,7 +61,7 @@ export class ListingMutationService {
             await dbSession.withTransaction(async () => {
                 await ListingSubmissionPolicy.reserveSlot({
                     userId: context.userId,
-                    listingType: context.listingType as any,
+                    listingType: context.listingType as ListingTypeValue,
                     listingId: context.listingId,
                     session: dbSession,
                     actor: 'user',

@@ -90,7 +90,7 @@ CategorySchema.plugin(installSafeSoftDeleteQuery);
 // Ensures legacy uppercase types and 'post' prefixes are mapped to the new standard at runtime.
 CategorySchema.post('init', function(doc) {
     if (doc.type && ['AD', 'SERVICE', 'SPARE_PART'].includes(doc.type)) {
-        doc.type = doc.type.toLowerCase() as any;
+        doc.type = doc.type.toLowerCase() as typeof doc.type;
     }
     if (doc.listingType && doc.listingType.length > 0) {
         doc.listingType = doc.listingType.map((lt: string) => {
@@ -98,7 +98,7 @@ CategorySchema.post('init', function(doc) {
             if (lt === 'postservice') return 'service';
             if (lt === 'postsparepart') return 'spare_part';
             return lt;
-        }) as any;
+        }) as typeof doc.listingType;
     }
 });
 

@@ -12,6 +12,7 @@ import { env } from '../config/env';
 export interface FraudRequest extends Request {
     fraudRisk?: RiskLevel;
     fraudScore?: number;
+    riskState?: string;
 }
 
 const FRAUD_DECISION_TIMEOUT_MS = env.FRAUD_DECISION_TIMEOUT_MS;
@@ -152,7 +153,7 @@ export const fraudMiddleware = async (req: Request, res: Response, next: NextFun
             // FAIL-SAFE: If fraud service is down, we don't skip check.
             // We force the request into a "Restricted" state (Moderation Queue).
             fraudReq.fraudRisk = 'moderation';
-            (fraudReq as any).riskState = 'UNKNOWN';
+            fraudReq.riskState = 'UNKNOWN';
             fraudReq.fraudScore = 0;
             return next();
         }

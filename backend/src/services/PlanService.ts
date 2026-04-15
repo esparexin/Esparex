@@ -1,5 +1,6 @@
 import UserPlan from '../models/UserPlan';
 import Plan, { type IPlan } from '../models/Plan';
+import { type AdPostingSlotSource } from './AdSlotService';
 import { SERVICE_STATUS } from '../../../shared/enums/serviceStatus';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { INVENTORY_STATUS } from '../../../shared/enums/inventoryStatus';
@@ -57,7 +58,7 @@ export const consumeAdPostingSlot = async (
     userId: string,
     session?: ClientSession,
     adId?: string
-): Promise<{ source: any | 'idempotency_hit' }> => {
+): Promise<{ source: AdPostingSlotSource }> => {
     return AdSlotService.consumeSlot(userId, session, adId);
 };
 

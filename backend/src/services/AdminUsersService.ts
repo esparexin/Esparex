@@ -31,7 +31,7 @@ const buildUserStatusFilter = (status?: string) => {
     return normalizedStatus ?? status;
 };
 
-export const normalizeAdminManagedUser = <T extends Record<string, any>>(input: T): T => {
+export const normalizeAdminManagedUser = <T extends Record<string, unknown>>(input: T): T => {
     const plain = typeof input.toObject === 'function' ? input.toObject() : { ...input };
     const normalizedStatus = normalizeUserStatus(plain.status);
     if (normalizedStatus) {
@@ -47,7 +47,7 @@ export const getUsers = async (filters: UserFilters = {}, pagination: { skip: nu
     const { search, status, role, isVerified } = filters;
     const { skip, limit } = pagination;
 
-    const query: Record<string, any> = { status: { $ne: USER_STATUS.DELETED } };
+    const query: Record<string, unknown> = { status: { $ne: USER_STATUS.DELETED } };
     
     if (search) {
         query.$or = [
@@ -102,7 +102,7 @@ export const getUsers = async (filters: UserFilters = {}, pagination: { skip: nu
     );
 
     const usersWithStats = users.map((user) => {
-        const plain = normalizeAdminManagedUser(user) as any;
+        const plain = normalizeAdminManagedUser(user.toObject ? user.toObject() as unknown as Record<string, unknown> : { ...(user as unknown as Record<string, unknown>) });
         plain.totalAdsPosted = adsByUserId.get(String(user._id)) || 0;
         return plain;
     });
@@ -182,15 +182,19 @@ export const getUserManagementOverview = async () => {
     };
 };
 
-export const createAdminUser = async (data: any, actorId: string) => {
-    const { name, email, mobile, password, isVerified } = data;
+export const createAdminUser = async (data: Record<string, unknown>, actorId: string) => {
+    const name = data.name as string | undefined;
+    const email = data.email as string | undefined;
+    const mobile = data.mobile as string | undefined;
+    const password = data.password as string | undefined;
+    const isVerified = data.isVerified;
 
     const exists = await User.findOne({ $or: [{ mobile }, ...(email ? [{ email }] : [])] });
     if (exists) {
         throw new AppError('User with this mobile or email already exists', 409, 'USER_ALREADY_EXISTS');
     }
 
-    const userData: Record<string, any> = {
+    const userData: Record<string, unknown> = {
         name,
         mobile,
         role: Role.USER,
@@ -207,7 +211,7 @@ export const createAdminUser = async (data: any, actorId: string) => {
     }
 
     const newUser = await User.create(userData);
-    const userObj = normalizeAdminManagedUser(newUser) as any;
+    const userObj = normalizeAdminManagedUser(newUser.toObject ? newUser.toObject() as unknown as Record<string, unknown> : { ...(newUser as unknown as Record<string, unknown>) });
     delete userObj.password;
     return userObj;
 };
@@ -239,8 +243,9 @@ export const isLastActiveSuperAdmin = async (adminId: string): Promise<boolean> 
     ]);
 
     if (!targetAdmin) return false;
-    if ((targetAdmin as any).role !== Role.SUPER_ADMIN) return false;
-    if ((targetAdmin as any).status !== USER_STATUS.ACTIVE) return false;
+    const adminDoc = targetAdmin as { role?: string; status?: string };
+    if (adminDoc.role !== Role.SUPER_ADMIN) return false;
+    if (adminDoc.status !== USER_STATUS.ACTIVE) return false;
     return superAdminCount <= 1;
 };
 
@@ -271,7 +276,7 @@ export const findAdminForUpdate = async (id: string) => {
 export const softDeleteAdminById = async (id: string) => {
     const admin = await Admin.findById(id);
     if (!admin) return null;
-    await (admin as any).softDelete();
+    await (admin as unknown as { softDelete(): Promise<void> }).softDelete();
     return admin;
 };
 
@@ -284,23 +289,23 @@ export const saveAdminDocument = async (admin: { save: () => Promise<unknown> })
     return admin.save();
 };
 
-export const updateAdminUser = async (userId: string, data: any, actorId: string) => {
-    const { name, email, mobile } = data;
+export const updateAdminUser = async (userId: string, data: Record<string, unknown>, actorId: string) => {
+    const { name, email, mobile } = data as { name?: string; email?: string; mobile?: string };
 
     if (email || mobile) {
-        const query: any = { _id: { $ne: userId }, $or: [] };
-        if (email) query.$or.push({ email });
-        if (mobile) query.$or.push({ mobile });
+        const orClauses: Record<string, unknown>[] = [];
+        if (email) orClauses.push({ email });
+        if (mobile) orClauses.push({ mobile });
 
-        if (query.$or.length > 0) {
-            const exists = await User.findOne(query);
+        if (orClauses.length > 0) {
+            const exists = await User.findOne({ _id: { $ne: userId }, $or: orClauses });
             if (exists) {
                 throw new AppError('Email or Mobile already in use by another user', 409, 'USER_ALREADY_EXISTS');
             }
         }
     }
 
-    const updateData: Record<string, any> = {
+    const updateData: Record<string, unknown> = {
         updatedBy: actorId
     };
 
@@ -318,5 +323,5 @@ export const updateAdminUser = async (userId: string, data: any, actorId: string
         throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    return normalizeAdminManagedUser(user);
+    return normalizeAdminManagedUser(user as unknown as Record<string, unknown>);
 };

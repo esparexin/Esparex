@@ -47,7 +47,6 @@ const LOCK_DURATION_MS =
     env.NODE_ENV === 'production'
         ? 30 * 60 * 1000
         : 2 * 60 * 1000;
-const INDIA_COUNTRY_PREFIX = '+91';
 const isLocalOtpLockBypass =
     env.NODE_ENV === 'development' &&
     !env.CI &&
@@ -133,7 +132,7 @@ const getUserAuthFailure = (
 
 const handleOtpAttemptFailure = async (
     mobileDigits: string,
-    user: any,
+    user: Awaited<ReturnType<typeof findUserByMobile>>,
     now: Date
 ): Promise<AuthFailure> => {
     const mobileVariants = getMobileVariants(mobileDigits);
@@ -233,7 +232,7 @@ export class AuthService {
         const mobileVariants = getMobileVariants(mobileDigits);
         const now = new Date();
 
-        const [user, latestOtp] = await Promise.all([
+        const [user] = await Promise.all([
             findUserByMobile(mobileDigits),
             Otp.findOne({ mobile: { $in: mobileVariants } }).sort({ createdAt: -1 })
         ]);

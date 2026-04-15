@@ -11,7 +11,7 @@ export type SearchableStatus = string | string[];
  * Returns a MongoDB query object or literal for a requested status.
  * e.g. mapping 'live' to { $in: ['live', 'approved', 'active'] }
  */
-export function getStatusMatchCriteria(requestedStatus: string | string[]): any {
+export function getStatusMatchCriteria(requestedStatus: string | string[]): string | { $in: string[] } {
     const statuses = Array.isArray(requestedStatus) ? requestedStatus : [requestedStatus];
     const expanded: string[] = [];
 
@@ -27,12 +27,12 @@ export function getStatusMatchCriteria(requestedStatus: string | string[]): any 
     });
 
     const unique = Array.from(new Set(expanded));
-    return unique.length === 1 ? unique[0] : { $in: unique };
+    return unique.length === 1 ? unique[0] as string : { $in: unique };
 }
 
 /**
  * Convenience helper for building the 'live' only public visibility filter.
  */
-export function getLiveStatusCriteria(): any {
+export function getLiveStatusCriteria(): string | { $in: string[] } {
     return getStatusMatchCriteria('live');
 }

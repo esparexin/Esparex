@@ -6,7 +6,7 @@ import type { Model as MongooseModel } from 'mongoose';
 
 const STARTUP_COUNT_MAX_TIME_MS = 1200;
 
-const getFastCollectionCount = async (model: MongooseModel<any>): Promise<number> => {
+const getFastCollectionCount = async (model: MongooseModel<unknown>): Promise<number> => {
     try {
         return await model.collection.estimatedDocumentCount({
             maxTimeMS: STARTUP_COUNT_MAX_TIME_MS

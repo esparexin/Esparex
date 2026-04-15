@@ -432,12 +432,12 @@ export const getMyListings = async (req: Request, res: Response) => {
         const { type, status, page = 1, limit = 20 } = req.query;
         const { getStatusMatchCriteria } = await import('../../utils/statusQueryMapper');
 
-        const query: Record<string, any> = {
+        const query: Record<string, unknown> = {
             sellerId: userId,
             isDeleted: { $ne: true },
         };
 
-        if (type && Object.values(LISTING_TYPE).includes(type as any)) {
+        if (type && Object.values(LISTING_TYPE as Record<string, string>).includes(type as string)) {
             if (type === LISTING_TYPE.AD || type === 'ad') {
                 query.$or = [
                     { listingType: LISTING_TYPE.AD },

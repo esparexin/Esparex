@@ -32,7 +32,7 @@ export const getServices = async (req: Request, res: Response) => {
                 categoryId: categoryId as string,
                 brandId: brandId as string,
                 locationId: locationId as string,
-                level: level as any,
+                level: level as 'country' | 'state' | 'district' | 'city' | 'area' | 'village' | undefined,
                 location: location as string,
                 search: search as string,
                 lat: Number.isFinite(parsedLat) ? parsedLat : undefined,
