@@ -43,7 +43,7 @@ export default tseslint.config(
             "@typescript-eslint/no-unnecessary-type-assertion": "error",
             "@typescript-eslint/require-await": "error",
             "@typescript-eslint/restrict-template-expressions": "error",
-            "@typescript-eslint/no-floating-promises": "warn",
+            "@typescript-eslint/no-floating-promises": "error",
             "@typescript-eslint/no-misused-promises": "warn",
             "@typescript-eslint/no-unsafe-enum-comparison": "warn",
             "@typescript-eslint/unbound-method": "warn",

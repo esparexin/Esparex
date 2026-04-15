@@ -444,7 +444,7 @@ export async function processSuccessfulPayment(
         });
         throw error;
     } finally {
-        session.endSession();
+        void session.endSession();
     }
 }
 

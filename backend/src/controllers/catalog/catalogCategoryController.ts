@@ -226,12 +226,12 @@ export const updateCategory = async (req: Request, res: Response) => {
             ? { ...payload, status: payload.isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE }
             : payload;
 
-        const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId as string, payloadWithStatus as Partial<import('../../models/Category').ICategory>);
+        const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId, payloadWithStatus as Partial<import('../../models/Category').ICategory>);
         if (!updatedCategory) return sendCatalogError(req, res, 'Category not found', 404);
 
         clearCategoryCanonicalCache();
 
-        logAdminAction(req, 'CATEGORY_RENAME', 'Category', updatedCategory._id, {
+        void logAdminAction(req, 'CATEGORY_RENAME', 'Category', updatedCategory._id, {
             before: { name: oldCategory.name, slug: oldCategory.slug },
             after: { name: updatedCategory.name, slug: updatedCategory.slug }
         });

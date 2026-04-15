@@ -247,6 +247,6 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
         });
         throw error;
     } finally {
-        session.endSession();
+        void session.endSession();
     }
 };

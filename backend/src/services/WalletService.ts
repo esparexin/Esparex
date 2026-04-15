@@ -50,7 +50,7 @@ async function withTransaction<T>(
         await session.abortTransaction();
         throw error;
     } finally {
-        session.endSession();
+        void session.endSession();
     }
 }
 

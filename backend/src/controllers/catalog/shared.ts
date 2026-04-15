@@ -155,7 +155,7 @@ export async function handleCatalogCreate<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { data });
+            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { data });
         }
 
         return sendSuccessResponse(res, item, `${model.modelName} created successfully`);
@@ -213,7 +213,7 @@ export async function handleCatalogUpdate<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item!._id, { updates: data });
+            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item!._id, { updates: data });
         }
 
         return sendSuccessResponse(res, item, `${model.modelName} updated successfully`);
@@ -258,7 +258,7 @@ export async function handleCatalogToggleStatus<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { isActive, status });
+            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { isActive, status });
         }
 
         return sendSuccessResponse(res, nextState, `${model.modelName} status updated to ${status}`);
@@ -306,7 +306,7 @@ export async function handleCatalogDelete<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id);
+            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id);
         }
 
         return sendSuccessResponse(res, null, `${model.modelName} deleted successfully`);
@@ -357,7 +357,7 @@ export async function handleCatalogReview<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { updates });
+            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { updates });
         }
 
         return sendSuccessResponse(res, item, `${model.modelName} ${action.toLowerCase()}d successfully`);

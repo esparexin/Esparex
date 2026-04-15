@@ -56,7 +56,7 @@ export const ingestLocation = async (payload: {
 
         if (existing) {
             await session.commitTransaction();
-            session.endSession();
+            void session.endSession();
             return mapToLocationResponse(buildNormalizedFromLocationDoc(existing as LocationInputObject));
         }
 
@@ -73,7 +73,7 @@ export const ingestLocation = async (payload: {
 
         if (existing) {
             await session.commitTransaction();
-            session.endSession();
+            void session.endSession();
             return mapToLocationResponse(buildNormalizedFromLocationDoc(existing as LocationInputObject));
         }
 
@@ -94,7 +94,7 @@ export const ingestLocation = async (payload: {
         }], { session });
 
         await session.commitTransaction();
-        session.endSession();
+        void session.endSession();
 
         if (Array.isArray(created) && created.length > 0) {
             const createdObject = created[0].toObject();
@@ -103,7 +103,7 @@ export const ingestLocation = async (payload: {
         throw new AppError('Failed to create location document', 500, 'LOCATION_CREATE_FAILED');
     } catch (error) {
         await session.abortTransaction();
-        session.endSession();
+        void session.endSession();
         throw error;
     }
 };

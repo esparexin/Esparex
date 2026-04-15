@@ -190,7 +190,7 @@ async function main() {
 
 // Run if executed directly
 if (require.main === module) {
-    main();
+    void main();
 }
 
 export { backupDatabase, cleanupOldBackups };

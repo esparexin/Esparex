@@ -445,7 +445,7 @@ export const updateLocation = async (req: Request, res: Response) => {
             if (location.parentId) {
                 parentLocation = await findLocationParent(location.parentId) as typeof parentLocation;
             }
-            location.path = buildHierarchyPath(location._id, parentLocation) as typeof location.path;
+            location.path = buildHierarchyPath(location._id, parentLocation);
             const parentSummary = parentLocation
                 ? await resolveLocationSummary(parentLocation as CanonicalLocationDoc)
                 : null;
@@ -637,7 +637,7 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
         // Notify User
         if (location.requestedBy) {
             const userId = location.requestedBy.toString();
-            import('../../services/NotificationService').then(({ createInAppNotification }) => {
+            void import('../../services/NotificationService').then(({ createInAppNotification }) => {
                 const title = status === LOCATION_STATUS.VERIFIED ? 'Location Request Approved' : 'Location Request Rejected';
                 const message = status === LOCATION_STATUS.VERIFIED
                     ? `Your location request for "${locationSummary?.name || location.name}" has been approved.`

@@ -16,7 +16,7 @@ if (role === 'worker') {
 } else {
     logger.info("Initializing API Server Process...");
     import("./server").then(({ startServer }) => {
-        startServer();
+        void startServer();
     }).catch(err => {
         logger.error("Failed to start server", { error: err instanceof Error ? err.message : String(err) });
         process.exit(1);
