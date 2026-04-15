@@ -3,7 +3,7 @@ import logger from '../utils/logger';
 import { env } from './env';
 
 const hasFirebaseServiceAccountJson = typeof env.FIREBASE_SERVICE_ACCOUNT_JSON === 'string'
-    && (env.FIREBASE_SERVICE_ACCOUNT_JSON as string).trim().length > 0;
+    && (env.FIREBASE_SERVICE_ACCOUNT_JSON).trim().length > 0;
 const disableForTest = env.NODE_ENV === 'test' && !env.ALLOW_FIREBASE_ADMIN;
 let shouldDisableFirebase = disableForTest || !hasFirebaseServiceAccountJson;
 
@@ -16,8 +16,8 @@ const mockAdmin = {
         cert: () => ({})
     },
     messaging: () => ({
-        send: async () => 'mock_message_id',
-        sendEachForMulticast: async () => ({ successCount: 0, failureCount: 0, responses: [] })
+        send: () => 'mock_message_id',
+        sendEachForMulticast: () => ({ successCount: 0, failureCount: 0, responses: [] })
     })
 };
 

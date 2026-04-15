@@ -38,6 +38,7 @@ export const maskPhone = (phone?: string): string | undefined => {
  * Log when a phone number is revealed to a buyer
  * This helps track suspicious activity and validate business metrics
  */
+/* eslint-disable @typescript-eslint/require-await */
 export const logPhoneReveal = async (
     entityId: string,
     entityType: string,
@@ -45,12 +46,12 @@ export const logPhoneReveal = async (
     buyerId: string,
     ipAddress?: string,
     device?: string
-): Promise<void> => {
+): Promise<void> => { /* eslint-enable @typescript-eslint/require-await */
     try {
         // 1. Persistent Audit Log (Non-blocking DB insertion)
         const logData = {
             entityId: new mongoose.Types.ObjectId(entityId),
-            entityType: entityType as string,
+            entityType: entityType,
             sellerId: new mongoose.Types.ObjectId(sellerId),
             buyerId: new mongoose.Types.ObjectId(buyerId),
             ipAddress,

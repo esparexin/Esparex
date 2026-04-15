@@ -105,12 +105,12 @@ export const getServiceTypeById = async (req: Request, res: Response) => {
 export const createServiceType = async (req: Request, res: Response) => {
     return handleCatalogCreate(req, res, ServiceTypeModel, serviceTypeCreateSchema, {
         auditAction: 'SERVICE_TYPE_CREATE',
-        preOp: async (payload) => {
+        preOp: (payload) => {
             // Backward compatibility mapping
             if (!payload.categoryIds && payload.categoryId) {
                 payload.categoryIds = [payload.categoryId];
             }
-            return payload;
+            return Promise.resolve(payload);
         },
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -122,13 +122,13 @@ export const createServiceType = async (req: Request, res: Response) => {
 export const updateServiceType = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, ServiceTypeModel, serviceTypeUpdateSchema, {
         auditAction: 'SERVICE_TYPE_UPDATE',
-        preUpdate: async (id, payload) => {
+        preUpdate: (id, payload) => {
             // Backward compatibility mapping
             if (!payload.categoryIds && payload.categoryId) {
                 payload.categoryIds = [payload.categoryId];
             }
             delete payload.categoryId;
-            return payload;
+            return Promise.resolve(payload);
         },
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -232,7 +232,7 @@ export const createScreenSize = async (req: Request, res: Response) => {
     return handleCatalogCreate(req, res, ScreenSizeModel, screenSizeCreateSchema, {
         auditAction: 'SCREEN_SIZE_CREATE',
         preOp: async (payload) => {
-            if (!payload.name && payload.size) payload.name = `${payload.size} Screen Size`;
+            if (!payload.name && payload.size) payload.name = `${String(payload.size)} Screen Size`;
             const categoryId = toOptionalString(payload.categoryId);
             const brandId = toOptionalString(payload.brandId);
             if (!categoryId) throw new Error('categoryId is required');
@@ -253,7 +253,7 @@ export const updateScreenSize = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, ScreenSizeModel, screenSizeUpdateSchema, {
         auditAction: 'SCREEN_SIZE_UPDATE',
         preUpdate: async (id, payload, existingSize) => {
-            if (!payload.name && payload.size) payload.name = `${payload.size} Screen Size`;
+            if (!payload.name && payload.size) payload.name = `${String(payload.size)} Screen Size`;
             const typedSize = existingSize as { categoryId?: unknown; brandId?: unknown };
             const nextCategoryId = toOptionalString(payload.categoryId) ?? toOptionalString(typedSize.categoryId);
             const nextBrandId = toOptionalString(payload.brandId) ?? toOptionalString(typedSize.brandId);

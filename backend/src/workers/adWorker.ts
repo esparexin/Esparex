@@ -7,6 +7,7 @@ import logger from "../utils/logger";
  * Ad Events Worker — ad-domain tasks only.
  * Smart Alert matching has been relocated to notificationMatchWorker.ts.
  */
+// eslint-disable-next-line @typescript-eslint/require-await
 export const adWorker = new Worker("ad-events", async job => {
     // [AdWorker] Matcher execution removed — handled by notificationMatchWorker
     logger.warn(`[AdWorker] Unhandled job on ad-events queue`, { jobName: job.name, jobId: job.id });
@@ -23,6 +24,7 @@ adWorker.on('failed', (job, err) => {
     }
 });
 
+// eslint-disable-next-line @typescript-eslint/require-await
 export const notificationDeliveryWorker = new Worker("notification.delivery.queue", async job => {
     // Legacy fallback handler removed: Notification Intents are now structurally instantiated upstream.
     // If you plan to use this queue for delayed routing, construct NotificationIntents

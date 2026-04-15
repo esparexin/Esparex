@@ -98,7 +98,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
-export const requireSuperAdmin = async (req: Request, res: Response, next: NextFunction) => {
+export const requireSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
     // req.user is already populated by requireAdmin
     const userRole = req.user?.role;
 

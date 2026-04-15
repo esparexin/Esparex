@@ -37,14 +37,14 @@ AdminLogSchema.index({ createdAt: 1 }, { name: 'idx_adminlog_createdAt_ttl_idx',
 
 // 🔒 IMMUTABILITY ENFORCEMENT
 // Prevent document-level modifications
-AdminLogSchema.pre('save', async function () {
+AdminLogSchema.pre('save', function () {
     if (!this.isNew) {
         throw new Error('AdminLog entries are strictly append-only and immutable.');
     }
 });
 
 // Prevent query-level modifications and deletions
-AdminLogSchema.pre(['updateOne', 'updateMany', 'findOneAndUpdate', 'replaceOne', 'deleteOne', 'deleteMany', 'findOneAndDelete', 'findOneAndRemove'] as unknown as RegExp, async function () {
+AdminLogSchema.pre(['updateOne', 'updateMany', 'findOneAndUpdate', 'replaceOne', 'deleteOne', 'deleteMany', 'findOneAndDelete', 'findOneAndRemove'] as unknown as RegExp, function () {
     throw new Error('AdminLog entries are strictly append-only. Updates and deletions are blocked by middleware.');
 });
 

@@ -8,8 +8,8 @@ const logDeprecatedSignal = (signal: string, userIdInput: string | mongoose.Type
     });
 };
 
-export const recordSellerAdPosted = async (
+export const recordSellerAdPosted = (
     userIdInput: string | mongoose.Types.ObjectId
-): Promise<void> => {
+): void => {
     logDeprecatedSignal('recordSellerAdPosted', userIdInput);
 };

@@ -64,7 +64,7 @@ export const moderateContent = async (text: string): Promise<ModerationResult> =
 };
 
 // Placeholder for Image Moderation (Future Integration)
-export const moderateImages = async (imageUrls: string[]): Promise<ModerationResult> => {
+export const moderateImages = (imageUrls: string[]): ModerationResult => {
     // For MVP, we pass. Real impl would call Vision API.
     if (!imageUrls || imageUrls.length === 0) {
         return { action: 'auto_approved', score: 0, isSuspicious: false };

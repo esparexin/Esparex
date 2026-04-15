@@ -46,7 +46,7 @@ function getBackupFilename(database: string, isEncrypted: boolean): string {
 /**
  * Backup a MongoDB database
  */
-async function backupDatabase(uri: string, label: string): Promise<string> {
+function backupDatabase(uri: string, label: string): string {
     const { host, port, database, username, password } = parseMongoUri(uri);
     const encryptionKey = process.env.BACKUP_ENCRYPTION_KEY;
     if (env.NODE_ENV === 'production' && !encryptionKey) {

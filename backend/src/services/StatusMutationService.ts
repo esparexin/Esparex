@@ -103,7 +103,7 @@ export const mutateStatus = async (request: MutationRequest) => {
             const doc = await (Model as mongoose.Model<mongoose.Document>).findById(entityId).setOptions({ withDeleted: true }).session(activeSession) as (mongoose.Document & IStatusable) | null;
             
             if (!doc) {
-                throw Object.assign(new Error(`Entity ${entityId} not found in domain ${domain}`), { statusCode: 404 });
+                throw Object.assign(new Error(`Entity ${String(entityId)} not found in domain ${domain}`), { statusCode: 404 });
             }
 
             fromStatus = doc.status;
@@ -209,7 +209,7 @@ export const mutateStatus = async (request: MutationRequest) => {
 
         if (isInternalSession && session) {
             await session.withTransaction(async () => {
-                result = await executeOperations(session!);
+                result = await executeOperations(session);
             });
         } else if (session) {
             result = await executeOperations(session);
@@ -224,7 +224,7 @@ export const mutateStatus = async (request: MutationRequest) => {
             });
         });
 
-        logger.info(`Status Mutation SUCCESS: ${domain} ${entityId} (${fromStatus} -> ${toStatus})`, { 
+        logger.info(`Status Mutation SUCCESS: ${domain} ${String(entityId)} (${fromStatus} -> ${toStatus})`, {
             durationMs: duration,
             actorType: actor.type,
             actorId: actor.id
@@ -249,8 +249,8 @@ export const mutateStatus = async (request: MutationRequest) => {
                 await lifecycleEvents.dispatch('listing.rejected', {
                     listingId: entityId.toString(),
                     listingType: resolvedListingType || 'ad',
-                    rejectionReason: typeof (patch as Record<string, unknown> | undefined)?.rejectionReason === 'string'
-                        ? String((patch as Record<string, unknown>).rejectionReason)
+                    rejectionReason: typeof (patch)?.rejectionReason === 'string'
+                        ? String((patch).rejectionReason)
                         : undefined,
                     actorType: actor.type,
                     actorId: actor.id,
@@ -265,16 +265,16 @@ export const mutateStatus = async (request: MutationRequest) => {
                     typeof metadata?.listingType === 'string'
                         ? String(metadata.listingType)
                         : (
-                            typeof (patch as Record<string, unknown> | undefined)?.listingType === 'string'
-                                ? String((patch as Record<string, unknown>).listingType)
+                            typeof (patch)?.listingType === 'string'
+                                ? String((patch).listingType)
                                 : undefined
                         );
                 await lifecycleEvents.dispatch('listing.approved', {
                     listingId: entityId.toString(),
                     listingType: listingType || 'ad',
                     approvedAt: (
-                        (patch as Record<string, unknown> | undefined)?.approvedAt instanceof Date
-                            ? ((patch as Record<string, unknown>).approvedAt as Date).toISOString()
+                        (patch)?.approvedAt instanceof Date
+                            ? ((patch).approvedAt).toISOString()
                             : new Date().toISOString()
                     ),
                     actorType: actor.type,
@@ -299,7 +299,7 @@ export const mutateStatus = async (request: MutationRequest) => {
             });
         });
         
-        logger.error(`Status Mutation FAILED: ${domain} ${entityId} -> ${toStatus}`, {
+        logger.error(`Status Mutation FAILED: ${domain} ${String(entityId)} -> ${toStatus}`, {
             error: err.message,
             code: err.code,
             durationMs: duration,
@@ -378,7 +378,7 @@ function getModelForDomain(domain: ValidDomain) {
         case 'service': return Ad;
         case 'spare_part_listing': return Ad;
         case 'catalog_part': throw new Error('Domain \'catalog_part\' uses CatalogStatus — route through admin catalog service, not statusMutationService');
-        default: throw new Error(`Unsupported domain: ${domain}`);
+        default: throw new Error(`Unsupported domain: ${domain as string}`);
     }
 }
 

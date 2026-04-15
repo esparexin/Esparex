@@ -300,10 +300,10 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
         const prompt = `
                 Generate a catchy Title and a profesional Description for a used smartphone ad.
                 Context:
-                - Brand: ${context.brand}
-                - Model: ${context.model}
-                - Condition: Power is ${power}
-                - Working Parts: ${parts}
+                - Brand: ${String(context.brand)}
+                - Model: ${String(context.model)}
+                - Condition: Power is ${String(power)}
+                - Working Parts: ${String(parts)}
                 
                 Output validation: Return strictly valid JSON with keys "title" and "description".
                 `;

@@ -81,16 +81,16 @@ export const recalculateTrustScore = async (userId: string | mongoose.Types.Obje
         if (user.trustScore !== finalScore) {
             user.trustScore = finalScore;
             await user.save();
-            logger.info(`Score Engine: User ${userId} trust score recalculated -> [${finalScore}]`);
+            logger.info(`Score Engine: User ${String(userId)} trust score recalculated -> [${finalScore}]`);
 
             // 8. 🚀 Synchronize Snapshot to Ad Collection for Pre-calculated Search Performance
             await Ad.updateMany(
                 { sellerId: user._id, status: AD_STATUS.LIVE },
                 { $set: { sellerTrustSnapshot: finalScore } }
             );
-            logger.info(`Score Engine: Synced trust snapshot [${finalScore}] to active ads for User ${userId}`);
+            logger.info(`Score Engine: Synced trust snapshot [${finalScore}] to active ads for User ${String(userId)}`);
         }
     } catch (error) {
-        logger.error(`Error calculating trust score for user ${userId}`, { error: error instanceof Error ? error.message : String(error) });
+        logger.error(`Error calculating trust score for user ${String(userId)}`, { error: error instanceof Error ? error.message : String(error) });
     }
 };

@@ -222,7 +222,7 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
         const ad = await Ad.findById(adId);
 
         if (!ad) {
-            logger.warn(`[AlertMatch] Could not process alerts: Ad ${adId} not found`);
+            logger.warn(`[AlertMatch] Could not process alerts: Ad ${String(adId)} not found`);
             return;
         }
 
@@ -253,7 +253,7 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
             minPrice: ad.price,
             maxPrice: ad.price,
             keywords: ad.title
-        }) as MatchableAlert[];
+        });
 
         if (matches.length > 0) {
             logger.info('[AlertMatch] Found matching smart alerts for new ad', { count: matches.length, adId: ad._id });

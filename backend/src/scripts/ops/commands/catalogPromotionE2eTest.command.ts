@@ -22,7 +22,7 @@
 
 import mongoose from 'mongoose';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../types';
-import { CATALOG_STATUS, CatalogStatusValue } from '@shared/enums/catalogStatus';
+import { CATALOG_STATUS } from '@shared/enums/catalogStatus';
 import { connectOpsDb } from './commandUtils';
 import { closeDB } from '../../../config/db';
 import { installCatalogPromotionListener } from '../../../events/listeners/CatalogPromotionListener';
@@ -122,7 +122,7 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
             }]);
             const testModel = testModelDoc[0];
             if (!testModel) throw new Error('Model.create returned empty array');
-            testModelId = testModel._id as mongoose.Types.ObjectId;
+            testModelId = testModel._id;
 
             context.emit('ops.command.catalog-promotion-e2e-test.step', {
                 step: 'pending_model_created',
@@ -152,7 +152,7 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
             }]);
             const testAd = testAdDoc[0];
             if (!testAd) throw new Error('Ad.create returned empty array');
-            testAdId = testAd._id as mongoose.Types.ObjectId;
+            testAdId = testAd._id;
 
             context.emit('ops.command.catalog-promotion-e2e-test.step', {
                 step: 'pending_ad_created',
@@ -178,7 +178,7 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
 
             // 6. Assert model is now ACTIVE
             const promotedModel = await Model.findById(testModelId).lean();
-            const promotedStatus = promotedModel?.status as CatalogStatusValue | undefined;
+            const promotedStatus = promotedModel?.status;
             const wasPromoted =
                 promotedStatus === CATALOG_STATUS.ACTIVE && promotedModel?.isActive === true;
 
@@ -191,7 +191,7 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
 
             if (!wasPromoted) {
                 warnings.push(
-                    `ASSERTION FAILED: Model ${testModelId} status = '${promotedStatus}', expected '${CATALOG_STATUS.ACTIVE}'. CatalogPromotionListener may not be firing.`
+                    `ASSERTION FAILED: Model ${String(testModelId)} status = '${promotedStatus}', expected '${CATALOG_STATUS.ACTIVE}'. CatalogPromotionListener may not be firing.`
                 );
             }
 

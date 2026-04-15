@@ -139,7 +139,7 @@ export const getRecentActivity = async (req: Request, res: Response) => {
             const admin = (log.adminId || {}) as { firstName?: string; lastName?: string };
             return {
                 title: log.action.replace(/_/g, ' '),
-                description: `${admin?.firstName || 'Admin'} ${admin?.lastName || ''} - ${log.targetType} ${log.targetId || ''}`,
+                description: `${admin?.firstName || 'Admin'} ${admin?.lastName || ''} - ${log.targetType} ${String(log.targetId || '')}`,
                 time: log.createdAt // Frontend will format relative time
             };
         });
@@ -337,7 +337,7 @@ export const getLocationAnalytics = async (req: Request, res: Response) => {
         );
         const hotZones = topHotZonesRaw.map((zone) => {
             const location = hotZoneLocationMap.get(String(zone.locationId));
-            const summary = location ? buildLocationSummary(location as CanonicalLocationDoc, hotZoneHierarchyMap as Map<string, CanonicalLocationDoc>) : undefined;
+            const summary = location ? buildLocationSummary(location as CanonicalLocationDoc, hotZoneHierarchyMap) : undefined;
             return {
                 _id: String(zone._id),
                 city: summary?.city ?? '',

@@ -24,12 +24,12 @@ export const catalogCategorizationAuditCommand: OpsCommand = {
 
         for (const model of allModels) {
             if (!model.categoryId) {
-                issues.missingCategory.push(`${model.name} (${model._id})`);
+                issues.missingCategory.push(`${model.name} (${String(model._id)})`);
                 continue;
             }
 
             if (!categoryIds.has(model.categoryId.toString())) {
-                issues.invalidCategory.push(`${model.name} (${model._id}) -> Cat: ${model.categoryId}`);
+                issues.invalidCategory.push(`${model.name} (${String(model._id)}) -> Cat: ${String(model.categoryId)}`);
             }
         }
 

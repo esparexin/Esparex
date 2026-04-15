@@ -58,7 +58,7 @@ const consoleFormat = winston.format.combine(
     winston.format.colorize(),
     winston.format.timestamp({ format: 'HH:mm:ss' }),
     winston.format.printf(({ timestamp, level, message, ...meta }) => {
-        let msg = `${timestamp} [${level}]: ${message}`;
+        let msg = `${String(timestamp)} [${level}]: ${String(message)}`;
 
         // Add metadata if present
         if (meta && Object.keys(meta).length > 0) {

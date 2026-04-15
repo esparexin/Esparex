@@ -116,7 +116,7 @@ const LocationSchema = new Schema<ILocation>(
 );
 
 // Pre-save hook for slugification
-LocationSchema.pre("save", async function () {
+LocationSchema.pre("save", function () {
     this.coordinates = sanitizeGeoPoint(this.coordinates) as ILocation['coordinates'];
 
     if (this.name) {

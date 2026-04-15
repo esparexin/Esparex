@@ -46,7 +46,7 @@ export class PromotionPolicyService {
             default:
                 return {
                     allowed: false,
-                    reason: `Unsupported listing type for promotion: ${type}`,
+                    reason: `Unsupported listing type for promotion: ${type as string}`,
                     code: 'PROMOTION_TYPE_UNKNOWN'
                 };
         }

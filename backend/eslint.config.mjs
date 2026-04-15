@@ -17,7 +17,7 @@ export default tseslint.config(
     // ── Main source files: type-aware linting enabled ─────────────────────
     {
         files: ["src/**/*.ts"],
-        ignores: ["src/**/*.spec.ts", "src/**/*.test.ts", "src/__tests__/**", "src/tests/**"],
+        ignores: ["src/**/*.spec.ts", "src/**/*.test.ts", "src/__tests__/**", "src/tests/**", "src/seeds/**"],
         languageOptions: {
             parserOptions: {
                 projectService: true,
@@ -40,9 +40,9 @@ export default tseslint.config(
             "@typescript-eslint/no-unsafe-argument": "warn",
 
             // ── Additional type-aware rules — warn while fixing ────────────
-            "@typescript-eslint/no-unnecessary-type-assertion": "warn",
-            "@typescript-eslint/require-await": "warn",
-            "@typescript-eslint/restrict-template-expressions": "warn",
+            "@typescript-eslint/no-unnecessary-type-assertion": "error",
+            "@typescript-eslint/require-await": "error",
+            "@typescript-eslint/restrict-template-expressions": "error",
             "@typescript-eslint/no-floating-promises": "warn",
             "@typescript-eslint/no-misused-promises": "warn",
             "@typescript-eslint/no-unsafe-enum-comparison": "warn",

@@ -120,6 +120,7 @@ class LifecycleEventDispatcher {
      * Dispatch a lifecycle event
      * Note: Does not await listeners. Execution is totally decoupled from mutations.
      */
+    // eslint-disable-next-line @typescript-eslint/require-await
     public async dispatch<K extends EventKey>(eventName: K, payload: LifecycleEventMap[K]): Promise<void> {
         const sourceViolation = validateEventSource(eventName);
         if (sourceViolation) {

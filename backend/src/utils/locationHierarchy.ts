@@ -287,7 +287,7 @@ export const resolveLocationPathIds = async (
         const key = String(currentParentId);
         if (visited.has(key)) {
             logger.error('Location hierarchy cycle detected', { locationId: currentParentId, visitedChain: Array.from(visited) });
-            throw new Error(`Location hierarchy cycle detected at locationId: ${currentParentId}`);
+            throw new Error(`Location hierarchy cycle detected at locationId: ${String(currentParentId)}`);
         }
         visited.add(key);
 

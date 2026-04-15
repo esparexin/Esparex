@@ -31,7 +31,7 @@ interface VerificationResult {
 /**
  * Verify a single backup file
  */
-async function verifyBackup(backupFile: string): Promise<VerificationResult> {
+function verifyBackup(backupFile: string): VerificationResult {
     const result: VerificationResult = {
         file: path.basename(backupFile),
         valid: false,

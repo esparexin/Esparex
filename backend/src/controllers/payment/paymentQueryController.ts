@@ -109,7 +109,7 @@ export const getInvoice = async (req: Request, res: Response) => {
         <html>
         <head>
             <meta charset="utf-8">
-            <title>Invoice #${transaction._id}</title>
+            <title>Invoice #${String(transaction._id)}</title>
             <style>
                 body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; color: #333; background: #fff; }
                 .header { display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
@@ -132,7 +132,7 @@ export const getInvoice = async (req: Request, res: Response) => {
                 <div class="logo">Esparex</div>
                 <div class="invoice-details">
                     <h1>INVOICE</h1>
-                    <p><strong>Invoice #:</strong> ${transaction._id}</p>
+                    <p><strong>Invoice #:</strong> ${String(transaction._id)}</p>
                     <p><strong>Date:</strong> ${date}</p>
                     <div class="status-badge">PAID</div>
                 </div>
