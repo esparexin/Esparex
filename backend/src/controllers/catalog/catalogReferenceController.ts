@@ -39,6 +39,18 @@ import {
     getActiveBrandsForScreenSizes,
 } from '../../services/catalog/CatalogReferenceService';
 
+const toOptionalString = (value: unknown): string | undefined => {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed || undefined;
+    }
+    if (value && typeof value === 'object' && typeof (value as { toString?: () => string }).toString === 'function') {
+        const stringValue = (value as { toString: () => string }).toString().trim();
+        return stringValue && stringValue !== '[object Object]' ? stringValue : undefined;
+    }
+    return undefined;
+};
+
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Reference data CRUD now delegated to shared.ts generic handlers.
 
@@ -67,7 +79,7 @@ export const getServiceTypes = async (req: Request, res: Response) => {
         ...CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build()
     };
 
-    return handlePaginatedContent(req, res, ServiceTypeModel as any, {
+    return handlePaginatedContent(req, res, ServiceTypeModel, {
         populate: isAdminView ? undefined : 'categoryIds',
         adminQuery,
         publicQuery
@@ -91,7 +103,7 @@ export const getServiceTypeById = async (req: Request, res: Response) => {
  * Create new service type
  */
 export const createServiceType = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, ServiceTypeModel as any, serviceTypeCreateSchema, {
+    return handleCatalogCreate(req, res, ServiceTypeModel, serviceTypeCreateSchema, {
         auditAction: 'SERVICE_TYPE_CREATE',
         preOp: async (payload) => {
             // Backward compatibility mapping
@@ -108,7 +120,7 @@ export const createServiceType = async (req: Request, res: Response) => {
  * Update existing service type
  */
 export const updateServiceType = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, ServiceTypeModel as any, serviceTypeUpdateSchema, {
+    return handleCatalogUpdate(req, res, ServiceTypeModel, serviceTypeUpdateSchema, {
         auditAction: 'SERVICE_TYPE_UPDATE',
         preUpdate: async (id, payload) => {
             // Backward compatibility mapping
@@ -126,7 +138,7 @@ export const updateServiceType = async (req: Request, res: Response) => {
  * Toggle service type active status
  */
 export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, ServiceTypeModel as any, {
+    return handleCatalogToggleStatus(req, res, ServiceTypeModel, {
         auditAction: 'TOGGLE_SERVICE_TYPE_STATUS',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -136,7 +148,7 @@ export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
  * Delete service type (soft delete with dependency check)
  */
 export const deleteServiceType = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, ServiceTypeModel as any, checkServiceTypeDependencies, {
+    return handleCatalogDelete(req, res, ServiceTypeModel, checkServiceTypeDependencies, {
         auditAction: 'SERVICE_TYPE_DELETE',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -217,11 +229,16 @@ export const getScreenSizeById = async (req: Request, res: Response) => {
  * Create new screen size
  */
 export const createScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, ScreenSizeModel as any, screenSizeCreateSchema, {
+    return handleCatalogCreate(req, res, ScreenSizeModel, screenSizeCreateSchema, {
         auditAction: 'SCREEN_SIZE_CREATE',
         preOp: async (payload) => {
             if (!payload.name && payload.size) payload.name = `${payload.size} Screen Size`;
-            const relation = await validateScreenSizeRelations({ categoryId: payload.categoryId, brandId: payload.brandId });
+            const categoryId = toOptionalString(payload.categoryId);
+            const brandId = toOptionalString(payload.brandId);
+            if (!categoryId) throw new Error('categoryId is required');
+            payload.categoryId = categoryId;
+            if (brandId) payload.brandId = brandId;
+            const relation = await validateScreenSizeRelations({ categoryId, brandId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;
         },
@@ -233,12 +250,16 @@ export const createScreenSize = async (req: Request, res: Response) => {
  * Update existing screen size
  */
 export const updateScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, ScreenSizeModel as any, screenSizeUpdateSchema, {
+    return handleCatalogUpdate(req, res, ScreenSizeModel, screenSizeUpdateSchema, {
         auditAction: 'SCREEN_SIZE_UPDATE',
         preUpdate: async (id, payload, existingSize) => {
             if (!payload.name && payload.size) payload.name = `${payload.size} Screen Size`;
-            const nextCategoryId = payload.categoryId || String((existingSize as any).categoryId);
-            const nextBrandId = payload.brandId ?? ((existingSize as any).brandId ? String((existingSize as any).brandId) : undefined);
+            const typedSize = existingSize as { categoryId?: unknown; brandId?: unknown };
+            const nextCategoryId = toOptionalString(payload.categoryId) ?? toOptionalString(typedSize.categoryId);
+            const nextBrandId = toOptionalString(payload.brandId) ?? toOptionalString(typedSize.brandId);
+            if (!nextCategoryId) throw new Error('categoryId is required');
+            if (payload.categoryId !== undefined) payload.categoryId = nextCategoryId;
+            if (payload.brandId !== undefined && nextBrandId) payload.brandId = nextBrandId;
             const relation = await validateScreenSizeRelations({ categoryId: nextCategoryId, brandId: nextBrandId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;
@@ -251,7 +272,7 @@ export const updateScreenSize = async (req: Request, res: Response) => {
  * Toggle screen size active status
  */
 export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, ScreenSizeModel as any, {
+    return handleCatalogToggleStatus(req, res, ScreenSizeModel, {
         auditAction: 'TOGGLE_SCREEN_SIZE_STATUS',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -261,7 +282,7 @@ export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
  * Delete screen size (soft delete)
  */
 export const deleteScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, ScreenSizeModel as any, undefined, {
+    return handleCatalogDelete(req, res, ScreenSizeModel, undefined, {
         auditAction: 'SCREEN_SIZE_DELETE',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });

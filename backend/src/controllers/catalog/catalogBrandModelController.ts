@@ -69,6 +69,26 @@ const catalogCacheKey = {
         : `catalog:models:${categoryId}`,
 };
 
+const toOptionalString = (value: unknown): string | undefined => {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed || undefined;
+    }
+    if (value && typeof value === 'object' && typeof (value as { toString?: () => string }).toString === 'function') {
+        const stringValue = (value as { toString: () => string }).toString().trim();
+        return stringValue && stringValue !== '[object Object]' ? stringValue : undefined;
+    }
+    return undefined;
+};
+
+const toStringArray = (value: unknown): string[] | undefined => {
+    if (!Array.isArray(value)) return undefined;
+    const normalized = value
+        .map((entry) => toOptionalString(entry))
+        .filter((entry): entry is string => Boolean(entry));
+    return normalized.length > 0 ? normalized : undefined;
+};
+
 /** Wraps res.json to write-through to Redis on success (public path only). */
 const applyCacheWriteThrough = (res: Response, cacheKey: string) => {
     const originalJson = res.json.bind(res);
@@ -212,7 +232,7 @@ export const getBrandBySlug = async (req: Request, res: Response) => {
  * Create new brand
  */
 export const createBrand = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, BrandModel as any, brandCreateSchema, {
+    return handleCatalogCreate(req, res, BrandModel, brandCreateSchema, {
         auditAction: 'BRAND_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
@@ -236,7 +256,7 @@ export const createBrand = async (req: Request, res: Response) => {
  * Update existing brand
  */
 export const updateBrand = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, BrandModel as any, brandUpdateSchema, {
+    return handleCatalogUpdate(req, res, BrandModel, brandUpdateSchema, {
         auditAction: 'BRAND_RENAME',
         preUpdate: async (_id, payload, oldBrand) => {
             // Backward compatibility mapping
@@ -245,7 +265,7 @@ export const updateBrand = async (req: Request, res: Response) => {
             }
             delete payload.categoryId;
 
-            const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : ((oldBrand as any).categoryIds || []).map(String);
+            const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : ((oldBrand as { categoryIds?: unknown[] }).categoryIds || []).map(String);
             const categoryValidation = await validateActiveCategories(nextCategoryIds);
             if (!categoryValidation.ok) {
                 throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
@@ -260,7 +280,7 @@ export const updateBrand = async (req: Request, res: Response) => {
  * Toggle brand active status
  */
 export const toggleBrandStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, BrandModel as any, {
+    return handleCatalogToggleStatus(req, res, BrandModel, {
         auditAction: 'TOGGLE_BRAND_STATUS',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -270,7 +290,7 @@ export const toggleBrandStatus = async (req: Request, res: Response) => {
  * Delete brand (soft delete with dependency check)
  */
 export const deleteBrand = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, BrandModel as any, checkBrandDependencies, {
+    return handleCatalogDelete(req, res, BrandModel, checkBrandDependencies, {
         auditAction: 'BRAND_DELETE',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -281,7 +301,7 @@ export const deleteBrand = async (req: Request, res: Response) => {
  */
 export const suggestBrand = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user?.id || (req as any).user?._id;
+        const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
         if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
 
         const { name, categoryIds } = req.body;
@@ -513,24 +533,34 @@ export const getModelBySlug = async (req: Request, res: Response) => {
  * Create new model
  */
 export const createModel = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, CatalogModel as any, modelCreateSchema, {
+    return handleCatalogCreate(req, res, CatalogModel, modelCreateSchema, {
         auditAction: 'MODEL_CREATE',
         preOp: async (payload) => {
+            const brandId = toOptionalString(payload.brandId);
+            const categoryId = toOptionalString(payload.categoryId);
+            const categoryIds = toStringArray(payload.categoryIds);
+
             // Auto-derive categoryId if missing
-            if (!payload.categoryId) {
-                const derivedId = await CatalogOrchestrator.resolveCategoryIdFromBrand(payload.brandId);
+            if (!categoryId) {
+                if (!brandId) throw new Error('brandId is required');
+                const derivedId = await CatalogOrchestrator.resolveCategoryIdFromBrand(brandId);
                 if (!derivedId) throw new Error('Invalid brandId: cannot resolve parent category');
                 payload.categoryId = derivedId.toString();
+            } else {
+                payload.categoryId = categoryId;
             }
 
             // Sync categoryId <-> categoryIds
-            if (payload.categoryId && (!payload.categoryIds || payload.categoryIds.length === 0)) {
-                payload.categoryIds = [payload.categoryId];
-            } else if (payload.categoryIds && payload.categoryIds.length > 0 && !payload.categoryId) {
-                payload.categoryId = payload.categoryIds[0];
+            if (payload.categoryId && (!categoryIds || categoryIds.length === 0)) {
+                payload.categoryIds = [String(payload.categoryId)];
+            } else if (categoryIds && categoryIds.length > 0 && !payload.categoryId) {
+                payload.categoryIds = categoryIds;
+                payload.categoryId = categoryIds[0];
             }
 
-            const { ok, reason } = await validateBrandIsActive(payload.brandId);
+            if (!brandId) throw new Error('brandId is required');
+            payload.brandId = brandId;
+            const { ok, reason } = await validateBrandIsActive(brandId);
             if (!ok) throw new Error(reason || 'brandId must reference an active, non-deleted brand');
             
             return payload;
@@ -543,18 +573,30 @@ export const createModel = async (req: Request, res: Response) => {
  * Update existing model
  */
 export const updateModel = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, CatalogModel as any, modelUpdateSchema, {
+    return handleCatalogUpdate(req, res, CatalogModel, modelUpdateSchema, {
         auditAction: 'MODEL_RENAME',
         preUpdate: async (_id, payload) => {
-            if (payload.brandId) {
-                const { ok, reason } = await validateBrandIsActive(payload.brandId);
+            const brandId = toOptionalString(payload.brandId);
+            const categoryId = toOptionalString(payload.categoryId);
+            const categoryIds = toStringArray(payload.categoryIds);
+
+            if (payload.brandId !== undefined && !brandId) {
+                throw new Error('brandId must be a valid string');
+            }
+            if (brandId) {
+                payload.brandId = brandId;
+                const { ok, reason } = await validateBrandIsActive(brandId);
                 if (!ok) throw new Error(reason || 'brandId must reference an active, non-deleted brand');
             }
             // Sync categoryId <-> categoryIds
-            if (payload.categoryId && (!payload.categoryIds || payload.categoryIds.length === 0)) {
-                payload.categoryIds = [payload.categoryId];
-            } else if (payload.categoryIds && payload.categoryIds.length > 0) {
-                payload.categoryId = payload.categoryIds[0];
+            if (categoryId) {
+                payload.categoryId = categoryId;
+            }
+            if (payload.categoryId && (!categoryIds || categoryIds.length === 0)) {
+                payload.categoryIds = [String(payload.categoryId)];
+            } else if (categoryIds && categoryIds.length > 0) {
+                payload.categoryIds = categoryIds;
+                payload.categoryId = categoryIds[0];
             }
             return payload;
         },
@@ -566,7 +608,7 @@ export const updateModel = async (req: Request, res: Response) => {
  * Toggle model active status
  */
 export const toggleModelStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, CatalogModel as any, {
+    return handleCatalogToggleStatus(req, res, CatalogModel, {
         auditAction: 'TOGGLE_MODEL_STATUS',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -576,7 +618,7 @@ export const toggleModelStatus = async (req: Request, res: Response) => {
  * Delete model (soft delete with dependency check)
  */
 export const deleteModel = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, CatalogModel as any, checkModelDependencies, {
+    return handleCatalogDelete(req, res, CatalogModel, checkModelDependencies, {
         auditAction: 'MODEL_DELETE',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -586,7 +628,7 @@ export const deleteModel = async (req: Request, res: Response) => {
  * Approve pending brand
  */
 export const approveBrand = (req: Request, res: Response) =>
-    handleCatalogReview(req, res, BrandModel as any, 'APPROVE', undefined, {
+    handleCatalogReview(req, res, BrandModel, 'APPROVE', undefined, {
         auditAction: 'APPROVE_BRAND',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -595,7 +637,7 @@ export const approveBrand = (req: Request, res: Response) =>
  * Reject pending brand
  */
 export const rejectBrand = (req: Request, res: Response) =>
-    handleCatalogReview(req, res, BrandModel as any, 'REJECT', rejectionSchema, {
+    handleCatalogReview(req, res, BrandModel, 'REJECT', rejectionSchema, {
         auditAction: 'REJECT_BRAND',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -604,7 +646,7 @@ export const rejectBrand = (req: Request, res: Response) =>
  * Approve pending model
  */
 export const approveModel = (req: Request, res: Response) =>
-    handleCatalogReview(req, res, CatalogModel as any, 'APPROVE', undefined, {
+    handleCatalogReview(req, res, CatalogModel, 'APPROVE', undefined, {
         auditAction: 'APPROVE_MODEL',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -613,7 +655,7 @@ export const approveModel = (req: Request, res: Response) =>
  * Reject pending model
  */
 export const rejectModel = (req: Request, res: Response) =>
-    handleCatalogReview(req, res, CatalogModel as any, 'REJECT', rejectionSchema, {
+    handleCatalogReview(req, res, CatalogModel, 'REJECT', rejectionSchema, {
         auditAction: 'REJECT_MODEL',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -623,7 +665,7 @@ export const rejectModel = (req: Request, res: Response) =>
  */
 export const suggestModel = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user?.id || (req as any).user?._id;
+        const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
         if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
 
         const { name, brandId } = req.body;
@@ -686,7 +728,7 @@ export const suggestModel = async (req: Request, res: Response) => {
 export const ensureModel = async (req: Request, res: Response) => {
     try {
         const { categoryId, brandName, modelName } = req.body;
-        const userId = (req as any).user?.id || (req as any).user?._id;
+        const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
 
         if (!categoryId || !brandName || !modelName) {
             return sendCatalogError(req, res, 'Missing fields', 400);
@@ -710,7 +752,7 @@ export const ensureModel = async (req: Request, res: Response) => {
                 isActive: false,
                 status: CATALOG_STATUS.PENDING,
                 suggestedBy: userId
-            }) as any;
+            });
         }
 
         const brandId = String(brand!._id);
@@ -725,7 +767,7 @@ export const ensureModel = async (req: Request, res: Response) => {
                 isActive: false,
                 status: CATALOG_STATUS.PENDING,
                 suggestedBy: userId
-            }) as any;
+            });
         }
 
         await CatalogOrchestrator.invalidateCatalogCache();

@@ -48,6 +48,26 @@ const CATALOG_CACHE_TTL = 300; // 5 minutes
 const sparePartsCacheKey = (categoryId: string, listingType?: string) =>
     `catalog:spare-parts:${categoryId}:${listingType ?? 'all'}`;
 
+const toOptionalString = (value: unknown): string | undefined => {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed || undefined;
+    }
+    if (value && typeof value === 'object' && typeof (value as { toString?: () => string }).toString === 'function') {
+        const stringValue = (value as { toString: () => string }).toString().trim();
+        return stringValue && stringValue !== '[object Object]' ? stringValue : undefined;
+    }
+    return undefined;
+};
+
+const toStringArray = (value: unknown): string[] | undefined => {
+    if (!Array.isArray(value)) return undefined;
+    const normalized = value
+        .map((entry) => toOptionalString(entry))
+        .filter((entry): entry is string => Boolean(entry));
+    return normalized.length > 0 ? normalized : undefined;
+};
+
 // ── Helper: Normalize listing type from query params ──────────────────────
 const normalizeListingTypeFromQuery = (listingTypeParam?: unknown, placementParam?: unknown): ListingTypeValue | undefined => {
     const value = (listingTypeParam ?? placementParam) as unknown;
@@ -230,22 +250,30 @@ export const getSpareParts = async (req: Request, res: Response) => {
  * Create new spare part (admin only)
  */
 export const createSparePart = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, SparePartModel as any, sparePartCreateSchema, {
+    return handleCatalogCreate(req, res, SparePartModel, sparePartCreateSchema, {
         auditAction: 'SPARE_PART_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
             // Backward compatibility mapping
-            if (!payload.categoryIds && payload.categoryId) {
-                payload.categoryIds = [payload.categoryId];
+            const categoryId = toOptionalString(payload.categoryId);
+            if (!payload.categoryIds && categoryId) {
+                payload.categoryIds = [categoryId];
             }
             delete payload.categoryId;
 
-            const validatedCategoryIds = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: payload.categoryIds }).getRawIds();
-            const relation = await validateSparePartRelations({ categoryIds: validatedCategoryIds, brandId: payload.brandId, modelId: payload.modelId });
+            const categoryIds = toStringArray(payload.categoryIds);
+            const validatedCategoryIds = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryIds ?? null }).getRawIds();
+            const brandId = toOptionalString(payload.brandId);
+            const modelId = toOptionalString(payload.modelId);
+            if (categoryIds) payload.categoryIds = categoryIds;
+            if (brandId) payload.brandId = brandId;
+            if (modelId) payload.modelId = modelId;
+            const relation = await validateSparePartRelations({ categoryIds: validatedCategoryIds, brandId, modelId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
 
             payload.createdBy = getAdminActorId(req);
-            payload.listingType = payload.listingType?.length ? payload.listingType : [LISTING_TYPE.SPARE_PART];
+            const listingType = toStringArray(payload.listingType);
+            payload.listingType = listingType?.length ? listingType : [LISTING_TYPE.SPARE_PART];
             payload.usageCount = 0;
             
             return payload;
@@ -258,20 +286,25 @@ export const createSparePart = async (req: Request, res: Response) => {
  * Update existing spare part
  */
 export const updateSparePart = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, SparePartModel as any, sparePartUpdateSchema, {
+    return handleCatalogUpdate(req, res, SparePartModel, sparePartUpdateSchema, {
         auditAction: 'SPARE_PART_UPDATE',
         preUpdate: async (id, payload, existingPart) => {
             // Backward compatibility mapping
-            if (!payload.categoryIds && payload.categoryId) {
-                payload.categoryIds = [payload.categoryId];
+            const categoryId = toOptionalString(payload.categoryId);
+            if (!payload.categoryIds && categoryId) {
+                payload.categoryIds = [categoryId];
             }
             delete payload.categoryId;
-            if (payload.name) payload.slug = slugify(payload.name, { lower: true, strict: true });
-            
+            if (payload.name) payload.slug = slugify(payload.name as string, { lower: true, strict: true });
+
             // Use renamed categoryIds from and to payload
-            const nextCategories = payload.categoryIds || (existingPart as any).categoryIds.map((id: any) => String(id));
-            const nextBrandId = payload.brandId ?? ((existingPart as any).brandId ? String((existingPart as any).brandId) : undefined);
-            const nextModelId = payload.modelId ?? ((existingPart as any).modelId ? String((existingPart as any).modelId) : undefined);
+            const typedPart = existingPart as { categoryIds?: unknown[]; brandId?: unknown; modelId?: unknown };
+            const nextCategories = toStringArray(payload.categoryIds) ?? toStringArray(typedPart.categoryIds) ?? [];
+            const nextBrandId = toOptionalString(payload.brandId) ?? toOptionalString(typedPart.brandId);
+            const nextModelId = toOptionalString(payload.modelId) ?? toOptionalString(typedPart.modelId);
+            if (payload.categoryIds !== undefined) payload.categoryIds = nextCategories;
+            if (payload.brandId !== undefined && nextBrandId) payload.brandId = nextBrandId;
+            if (payload.modelId !== undefined && nextModelId) payload.modelId = nextModelId;
             const relation = await validateSparePartRelations({
                 categoryIds: nextCategories,
                 brandId: nextBrandId,
@@ -289,7 +322,7 @@ export const updateSparePart = async (req: Request, res: Response) => {
  * Toggle spare part status
  */
 export const toggleSparePartStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, SparePartModel as any, {
+    return handleCatalogToggleStatus(req, res, SparePartModel, {
         auditAction: 'TOGGLE_SPARE_PART_STATUS',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
@@ -299,7 +332,7 @@ export const toggleSparePartStatus = async (req: Request, res: Response) => {
  * Delete spare part (soft delete with dependency check)
  */
 export const deleteSparePart = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, SparePartModel as any, checkSparePartDependencies, {
+    return handleCatalogDelete(req, res, SparePartModel, checkSparePartDependencies, {
         auditAction: 'SPARE_PART_DELETE',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });

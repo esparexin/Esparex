@@ -22,6 +22,7 @@ import {
     isValidListingType,
     listModerationListings,
     normalizeModerationStatusFilter,
+    type ListingModerationFilters,
 } from '../../services/ListingModerationQueryService';
 import {
     serializeLegacyCountsAdapter,
@@ -54,8 +55,8 @@ const asNumber = (value: unknown): number | undefined => {
 
 const toControllerError = (status: number, message: string, code?: string) => {
     const error = new Error(message);
-    (error as any).status = status;
-    (error as any).code = code;
+    (error as Error & { status?: number; code?: string }).status = status;
+    (error as Error & { status?: number; code?: string }).code = code;
     return error;
 };
 
@@ -137,7 +138,7 @@ export const adminListListings = async (req: Request, res: Response) => {
                 createdAfter: asString(req.query.createdAfter),
                 createdBefore: asString(req.query.createdBefore),
                 listingType,
-                sortBy: asString(req.query.sortBy) as any,
+                sortBy: asString(req.query.sortBy) as ListingModerationFilters['sortBy'],
             },
             { page, limit }
         );

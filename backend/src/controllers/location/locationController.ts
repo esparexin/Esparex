@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import type { IAuthUser } from '../../types/auth';
 import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "../../utils/redisCache";
 import logger from "../../utils/logger";
 import { sendErrorResponse } from '../../utils/errorResponse';
@@ -79,6 +80,15 @@ export const getLocationConfig = async (): Promise<LocationConfig> => {
 export const formatLocationResponse = (loc: LocationLike) =>
     formatCanonicalLocationResponse(loc);
 
+const toConfiguredCenter = (value: unknown): { lat?: number; lng?: number } | undefined => {
+    if (!value || typeof value !== 'object') return undefined;
+    const record = value as Record<string, unknown>;
+    return {
+        lat: typeof record.lat === 'number' ? record.lat : undefined,
+        lng: typeof record.lng === 'number' ? record.lng : undefined,
+    };
+};
+
 /* -------------------------------------------------------------------------- */
 /* CONTROLLER METHODS                                                         */
 /* -------------------------------------------------------------------------- */
@@ -102,8 +112,8 @@ export const searchLocations = async (req: Request, res: Response) => {
 
         const response = await searchLocationsService(q);
         const locationIds = response
-            .map((item: any) => item.id)
-            .filter((value: any): value is string => typeof value === 'string' && value.length > 0);
+            .map((item: { id?: string }) => item.id)
+            .filter((value): value is string => typeof value === 'string' && value.length > 0);
 
         void touchLocationSearchAnalytics(locationIds).catch((error: unknown) => {
             logger.warn('Failed to update location analytics', { error: error instanceof Error ? error.message : String(error) });
@@ -245,8 +255,8 @@ export const ipLocate = async (req: Request, res: Response) => {
 export const getDefaultCenter = async (req: Request, res: Response) => {
     try {
         const configDoc = await getSystemConfigDoc();
-        const rawCenter = (configDoc as any)?.location?.defaultCenter;
-        const center = await getDefaultCenterLocation(rawCenter);
+        const rawCenter = (configDoc as { location?: { defaultCenter?: unknown } })?.location?.defaultCenter;
+        const center = await getDefaultCenterLocation(toConfiguredCenter(rawCenter));
         return res.json(respond({ success: true, data: center }));
     } catch (error: unknown) {
         logger.error('getDefaultCenter error', { error: error instanceof Error ? error.message : String(error) });
@@ -258,7 +268,7 @@ export const logLocationEvent = async (req: Request, res: Response) => {
     try {
         const { source, city, state, lat, lng, reason, eventType, locationId } = req.body;
 
-        const userId = (req as any).user?._id ?? (req as any).user?.id ?? undefined;
+        const userId = (req.user as IAuthUser)?._id ?? (req.user as IAuthUser)?.id ?? undefined;
 
         if (typeof locationId === 'string' && locationId.length > 0 && typeof eventType === 'string' && eventType.length > 0) {
             try {

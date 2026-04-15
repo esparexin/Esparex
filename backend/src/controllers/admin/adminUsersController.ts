@@ -109,7 +109,7 @@ export const getUserById = async (req: Request, res: Response) => {
         if (!user) {
             return sendAdminError(req, res, 'User not found', 404);
         }
-        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user));
+        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user as unknown as Record<string, unknown>));
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -129,7 +129,7 @@ export const verifyUser = async (req: Request, res: Response) => {
         // 🏆 TRUST SCORE: Recalculate on verification change
         setImmediate(() => recalculateTrustScore(user._id).catch(() => { }));
 
-        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user), 'User verification updated');
+        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user as unknown as Record<string, unknown>), 'User verification updated');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -150,7 +150,7 @@ export const createUser = async (req: Request, res: Response) => {
             (req.user as IAuthUser)._id.toString()
         );
 
-        await logAdminAction(req, 'CREATE_USER', 'User', userObj._id.toString(), { name, mobile, role: Role.USER });
+        await logAdminAction(req, 'CREATE_USER', 'User', String(userObj._id), { name, mobile, role: Role.USER });
         sendSuccessResponse(res, userObj, 'User created successfully');
 
     } catch (error: unknown) {
@@ -183,7 +183,7 @@ export const updateUserStatus = async (req: Request, res: Response) => {
         const { status, reason } = req.body;
         const { id: userId } = req.params;
 
-        if (![USER_STATUS.ACTIVE, USER_STATUS.SUSPENDED, USER_STATUS.BANNED].includes(status as any)) {
+        if (![USER_STATUS.ACTIVE as string, USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string].includes(status)) {
             return sendAdminError(req, res, 'Invalid status', 400);
         }
 
@@ -197,7 +197,7 @@ export const updateUserStatus = async (req: Request, res: Response) => {
             reason
         });
 
-        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user), `User status updated to ${status}`);
+        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user as unknown as Record<string, unknown>), `User status updated to ${status}`);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -367,7 +367,7 @@ export const deleteAdmin = async (req: Request, res: Response) => {
 
         await revokeAdminSessionsForAdmin(targetId);
 
-        await logAdminAction(req, 'DELETE_ADMIN', 'Admin', targetId, { email: (admin as any).email });
+        await logAdminAction(req, 'DELETE_ADMIN', 'Admin', targetId, { email: (admin as { email?: string }).email });
         sendSuccessResponse(res, null, 'Admin deleted successfully');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
@@ -439,7 +439,7 @@ export const toggleAdminStatus = async (req: Request, res: Response) => {
         }
 
         const adminObj = admin.toObject();
-        delete (adminObj as any).password;
+        delete (adminObj as unknown as Record<string, unknown>).password;
 
         await logAdminAction(req, 'TOGGLE_ADMIN_STATUS', 'Admin', targetId, { status: nextStatus });
         sendSuccessResponse(res, adminObj, `Admin status updated to ${nextStatus}`);

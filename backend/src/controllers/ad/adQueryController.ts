@@ -18,8 +18,33 @@ import { sendErrorResponse } from '../../utils/errorResponse';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { warnIfLegacyAdUserIdAliasUsed } from '../../utils/legacyOwnerAliasTelemetry';
+import type { AdFilters } from '../../types/ad.types';
 
-const asControllerError = (error: unknown): any => error as any;
+type CachedSearchResult = {
+    data: unknown;
+    pagination?: {
+        page?: number;
+        limit?: number;
+    };
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+    Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+const asCachedSearchResult = (value: unknown): CachedSearchResult | null => {
+    if (!isRecord(value)) return null;
+    const pagination = isRecord(value.pagination) ? value.pagination : undefined;
+    return {
+        data: value.data,
+        pagination: pagination
+            ? {
+                page: typeof pagination.page === 'number' ? pagination.page : undefined,
+                limit: typeof pagination.limit === 'number' ? pagination.limit : undefined,
+            }
+            : undefined,
+    };
+};
+
 const LEGACY_AD_OWNER_ALIAS_CODE = 'LEGACY_AD_USER_ID_ALIAS_REMOVED';
 const hasLegacyAdUserIdAlias = (value: unknown): boolean =>
     Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'userId'));
@@ -73,18 +98,18 @@ export const getAds = async (req: Request, res: Response, next: NextFunction) =>
             buildDeterministicSearchCacheKey
         } = await import('../../utils/redisCache');
         let cacheKey: string | null = null;
-        let cachedResult: any = null;
+        let cachedResult: CachedSearchResult | null = null;
 
         // STEP 3: Cache Non-Geo Search Only
         if (shouldUseSearchCache) {
             cacheKey = buildDeterministicSearchCacheKey(query as Record<string, unknown>);
-            cachedResult = await getCache(cacheKey);
+            cachedResult = asCachedSearchResult(await getCache(cacheKey));
 
             if (cachedResult) {
                 const pagination = {
-                    ...cachedResult.pagination,
-                    page: cachedResult.pagination.page ?? query.page ?? 1,
-                    limit: cachedResult.pagination.limit ?? query.limit ?? 20
+                    ...(cachedResult.pagination ?? {}),
+                    page: cachedResult.pagination?.page ?? query.page ?? 1,
+                    limit: cachedResult.pagination?.limit ?? query.limit ?? 20
                 };
                 return res.json(respond<PaginatedResponse<Ad>>({
                     success: true,
@@ -113,7 +138,7 @@ export const getAds = async (req: Request, res: Response, next: NextFunction) =>
                 search: query.q || query.search,
                 minPrice: query.minPrice,
                 maxPrice: query.maxPrice,
-                sortBy: query.sortBy as any,
+                sortBy: query.sortBy as AdFilters['sortBy'],
                 radiusKm: query.radiusKm, // 📍 Geo Radius
                 lat: query.lat,
                 lng: query.lng

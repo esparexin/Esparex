@@ -190,10 +190,10 @@ export const updateMe = async (
     }
  
     const safeUpdated = sanitizeUser(updated);
-    const businessStatus = getBusinessStatus(business?.status) || 'none';
+    const businessStatus = getBusinessStatus(business?.status);
     const responseData = toSharedUser(
       safeUpdated,
-      businessStatus as any,
+      businessStatus,
       business?._id?.toString()
     );
 

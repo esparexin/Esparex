@@ -126,7 +126,7 @@ export async function handleCatalogCreate<T extends Document>(
     options: {
         auditAction?: string;
         slugifyName?: boolean;
-        preOp?: (payload: any) => Promise<any>;
+        preOp?: (payload: Record<string, unknown>) => Promise<Record<string, unknown>>;
         postOp?: () => void;
     } = {}
 ) {
@@ -155,7 +155,7 @@ export async function handleCatalogCreate<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any, { data });
+            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { data });
         }
 
         return sendSuccessResponse(res, item, `${model.modelName} created successfully`);
@@ -178,7 +178,7 @@ export async function handleCatalogUpdate<T extends Document>(
     options: {
         auditAction?: string;
         slugifyName?: boolean;
-        preUpdate?: (id: string, payload: any, existing: T) => Promise<any>;
+        preUpdate?: (id: string, payload: Record<string, unknown>, existing: T) => Promise<Record<string, unknown>>;
         postOp?: () => void;
     } = {}
 ) {
@@ -213,7 +213,7 @@ export async function handleCatalogUpdate<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction as any, model.modelName as any, item!._id as any, { updates: data });
+            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item!._id, { updates: data });
         }
 
         return sendSuccessResponse(res, item, `${model.modelName} updated successfully`);
@@ -247,7 +247,7 @@ export async function handleCatalogToggleStatus<T extends Document>(
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }
 
-        const isActive = !(item as any).isActive;
+        const isActive = !(item as T & { isActive?: boolean }).isActive;
         const status = isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE;
         const nextState = model.schema.path('status')
             ? { isActive, status }
@@ -258,7 +258,7 @@ export async function handleCatalogToggleStatus<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any, { isActive, status });
+            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { isActive, status });
         }
 
         return sendSuccessResponse(res, nextState, `${model.modelName} status updated to ${status}`);
@@ -274,7 +274,7 @@ export async function handleCatalogDelete<T extends Document>(
     req: Request,
     res: Response,
     model: MongooseModel<T>,
-    checkDependencies?: (id: string) => Promise<{ count: number; details: any }>,
+    checkDependencies?: (id: string) => Promise<{ count: number; details: unknown }>,
     options: { 
         auditAction?: string;
         postOp?: () => void;
@@ -306,7 +306,7 @@ export async function handleCatalogDelete<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any);
+            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id);
         }
 
         return sendSuccessResponse(res, null, `${model.modelName} deleted successfully`);
@@ -334,7 +334,7 @@ export async function handleCatalogReview<T extends Document>(
             return sendContractErrorResponse(req, res, 403, 'Admin access required');
         }
 
-        let updates: any = {};
+        let updates: Record<string, unknown> = {};
         if (action === 'APPROVE') {
             updates = { status: CATALOG_STATUS.ACTIVE, isActive: true };
         } else {
@@ -357,10 +357,10 @@ export async function handleCatalogReview<T extends Document>(
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            logAdminAction(req, options.auditAction as any, model.modelName as any, item._id as any, { updates });
+            logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { updates });
         }
 
-        return sendSuccessResponse(res, item as any, `${model.modelName} ${action.toLowerCase()}d successfully`);
+        return sendSuccessResponse(res, item, `${model.modelName} ${action.toLowerCase()}d successfully`);
     } catch (error) {
         return sendCatalogError(req, res, error);
     }

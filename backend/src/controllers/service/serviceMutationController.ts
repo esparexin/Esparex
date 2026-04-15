@@ -263,7 +263,7 @@ export const createService = async (req: Request, res: Response, next: NextFunct
         }
 
         // 🛡️ Fix 3: Compute Initial Quality Score
-        const listingQualityScore = calculateServiceQuality(safeBody, business);
+        const listingQualityScore = calculateServiceQuality(safeBody, business as unknown as Record<string, unknown>);
 
         // 🛡️ SEC-3: Atomic slot reservation + create executed via Unified Service
         const adDoc = {
@@ -385,7 +385,7 @@ export const updateService = async (req: Request, res: Response) => {
             // 🛡️ Selection Mode Validation
             const selectionModeForUpdate = await getCategorySelectionMode(categoryForServiceType);
 
-            if (selectionModeForUpdate === 'single' && Array.isArray(updates.serviceTypeIds) && (updates.serviceTypeIds as any[]).length > 1) {
+            if (selectionModeForUpdate === 'single' && Array.isArray(updates.serviceTypeIds) && (updates.serviceTypeIds as unknown[]).length > 1) {
                 sendErrorResponse(req, res, 400, 'This category only allows selecting a single service type');
                 return;
             }
@@ -431,7 +431,7 @@ export const updateService = async (req: Request, res: Response) => {
         // 🛡️ Fix 3: Recalculate Quality Score on Update
         // Note: Merge existing and updates to get the full picture
         const mergedForQuality = { ...existingService, ...updates };
-        updates.listingQualityScore = calculateServiceQuality(mergedForQuality, business);
+        updates.listingQualityScore = calculateServiceQuality(mergedForQuality, business as unknown as Record<string, unknown>);
 
         if (updates.priceMin !== undefined) {
             updates.price = updates.priceMin;

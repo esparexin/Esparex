@@ -179,7 +179,7 @@ export const createCategory = async (req: Request, res: Response) => {
         const category = await CatalogOrchestrator.createCategory({
             ...payload,
             status: payload.isActive === false ? CATALOG_STATUS.INACTIVE : CATALOG_STATUS.ACTIVE
-        } as any);
+        } as Partial<import('../../models/Category').ICategory>);
 
         clearCategoryCanonicalCache();
         sendSuccessResponse(res, category, 'Category created successfully');
@@ -226,7 +226,7 @@ export const updateCategory = async (req: Request, res: Response) => {
             ? { ...payload, status: payload.isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE }
             : payload;
 
-        const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId as string, payloadWithStatus as any);
+        const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId as string, payloadWithStatus as Partial<import('../../models/Category').ICategory>);
         if (!updatedCategory) return sendCatalogError(req, res, 'Category not found', 404);
 
         clearCategoryCanonicalCache();
@@ -246,7 +246,7 @@ export const updateCategory = async (req: Request, res: Response) => {
  * Toggle category active status
  */
 export const toggleCategoryStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, CategoryModel as any, {
+    return handleCatalogToggleStatus(req, res, CategoryModel, {
         auditAction: 'TOGGLE_CATEGORY_STATUS',
         postOp: () => {
             clearCategoryCanonicalCache();

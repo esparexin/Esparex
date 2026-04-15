@@ -27,7 +27,7 @@ import {
 import * as adStatusService from '../../services/adStatusService';
 import { validateTransition } from '../../services/LifecycleGuard';
 import { getSingleParam } from '../../utils/requestParams';
-import type { AdFilters } from '../../types/ad.types';
+import type { AdFilters } from '../../services/ad/_shared/adFilterHelpers';
 import {
     getPaginationParams,
     sendPaginatedResponse,
@@ -36,6 +36,7 @@ import {
 } from './adminBaseController';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
 import { AD_STATUS, AD_STATUS_VALUES } from '../../../../shared/enums/adStatus';
+import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from '../../../../shared/enums/listingType';
 import { mutateStatus } from '../../services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import { REPORT_STATUS } from '../../../../shared/enums/reportStatus';
@@ -86,6 +87,13 @@ const normalizeAdminAdStatusInput = (rawStatus: string): string => {
     return rawStatus.trim().toLowerCase();
 };
 
+const toListingTypeValue = (value: unknown): ListingTypeValue => {
+    if (typeof value === 'string' && LISTING_TYPE_VALUES.includes(value as ListingTypeValue)) {
+        return value as ListingTypeValue;
+    }
+    return LISTING_TYPE.AD;
+};
+
 /* ────────────────────────────────────────────── */
 /* ADMIN: LIST ADS                                */
 /* ────────────────────────────────────────────── */
@@ -133,7 +141,7 @@ export const adminGetAds = async (req: Request, res: Response) => {
                 flagged: flagged === 'true',
                 reportThreshold: reportThreshold ? Number(reportThreshold) : undefined,
                 riskThreshold: riskThreshold ? Number(riskThreshold) : undefined,
-                listingType: listingType ? (listingType as any) : undefined,
+                listingType: listingType ? (listingType as AdFilters['listingType']) : undefined,
                 sortBy: sortBy ? (String(sortBy) as AdFilters['sortBy']) : undefined
             },
             {
@@ -210,7 +218,7 @@ export const adminUpdateAd = async (req: Request, res: Response) => {
             if (!currentAd) {
                 return sendAdminError(req, res, 'Ad not found', 404);
             }
-            validateTransition('ad', currentAd.status as any, status as any);
+            validateTransition('ad', currentAd.status as string, status);
 
             optionalStatusTransition = {
                 toStatus: status,
@@ -291,7 +299,7 @@ export const adminChangeAdStatus = async (req: Request, res: Response) => {
         if (!currentAd) {
             return sendAdminError(req, res, 'Ad not found', 404);
         }
-        validateTransition('ad', currentAd.status as any, status as any);
+        validateTransition('ad', currentAd.status as string, status);
 
         const ad = await mutateStatus({
             domain: 'ad',
@@ -303,7 +311,7 @@ export const adminChangeAdStatus = async (req: Request, res: Response) => {
                 ? {
                     action: 'moderation_approve',
                     sourceRoute: '/api/v1/admin/ads/:id/status',
-                    listingType: (currentAd as any).listingType || 'ad'
+                    listingType: toListingTypeValue((currentAd as { listingType?: unknown }).listingType)
                 }
                 : {
                     action: 'moderation_status_change',
@@ -315,7 +323,7 @@ export const adminChangeAdStatus = async (req: Request, res: Response) => {
                 ...(status === AD_STATUS.LIVE ? {
                     approvedAt: new Date(),
                     approvedBy: req.user!._id.toString(),
-                    expiresAt: await computeActiveExpiry((currentAd as any).listingType || 'ad')
+                    expiresAt: await computeActiveExpiry(toListingTypeValue((currentAd as { listingType?: unknown }).listingType))
                 } : {})
             }
         });
@@ -520,7 +528,7 @@ export const updateReportStatus = async (req: Request, res: Response) => {
         const status = typeof req.body?.status === 'string' ? req.body.status.trim().toLowerCase() : '';
         const note = typeof req.body?.note === 'string' ? req.body.note.trim() : undefined;
 
-        if (![REPORT_STATUS.RESOLVED, REPORT_STATUS.DISMISSED].includes(status as any)) {
+        if (![REPORT_STATUS.RESOLVED as string, REPORT_STATUS.DISMISSED as string].includes(status)) {
             return sendAdminError(req, res, `Invalid report status. Allowed: ${REPORT_STATUS.RESOLVED}, ${REPORT_STATUS.DISMISSED}`, 400);
         }
 
@@ -694,13 +702,13 @@ export const approveAd = async (req: Request, res: Response) => {
             metadata: {
                 action: 'moderation_approve',
                 sourceRoute: '/api/v1/admin/ads/:id/approve',
-                listingType: (currentAd as any).listingType || 'ad',
+                listingType: toListingTypeValue((currentAd as { listingType?: unknown }).listingType),
             },
             patch: {
                 moderatorId: req.user!._id.toString(),
                 approvedAt,
                 approvedBy: req.user!._id.toString(),
-                expiresAt: await computeActiveExpiry((currentAd as any).listingType || 'ad')
+                expiresAt: await computeActiveExpiry(toListingTypeValue((currentAd as { listingType?: unknown }).listingType))
             }
         });
 

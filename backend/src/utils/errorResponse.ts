@@ -82,7 +82,7 @@ export function sendCatalogError(
     // Parse statusCodeOrOptions to support both old and new signatures
     let statusCode = 500;
     let fallbackMessage: string | undefined;
-    let isAdminView = (req as any).originalUrl?.includes('/admin') ?? false;
+    let isAdminView = req.originalUrl?.includes('/admin') ?? false;
 
     if (typeof statusCodeOrOptions === 'number') {
         // Legacy: statusCodeOrOptions is a status code
@@ -123,7 +123,7 @@ export function sendCatalogError(
             res,
             400,
             'Database operation failed',
-            { mongoError: (error as any).message }
+            { mongoError: (error as Error).message }
         );
     }
 
@@ -154,9 +154,21 @@ function isDuplicateKeyError(error: unknown): boolean {
     return candidate.code === 11000 || (typeof candidate.message === 'string' && candidate.message.includes('E11000'));
 }
 
-function isZodError(error: unknown): error is { issues: Array<{ path: string[] }> } {
+type ZodIssueLike = {
+    path: Array<string | number>;
+    message: string;
+};
+
+function isZodIssueLike(issue: unknown): issue is ZodIssueLike {
+    if (!issue || typeof issue !== 'object') return false;
+    const candidate = issue as { path?: unknown; message?: unknown };
+    return Array.isArray(candidate.path) && typeof candidate.message === 'string';
+}
+
+function isZodError(error: unknown): error is { issues: ZodIssueLike[] } {
     if (!error || typeof error !== 'object') return false;
-    return 'issues' in error && Array.isArray((error as any).issues);
+    const issues = (error as Record<string, unknown>).issues;
+    return Array.isArray(issues) && issues.every(isZodIssueLike);
 }
 
 function isMongoError(error: unknown): boolean {
@@ -165,8 +177,8 @@ function isMongoError(error: unknown): boolean {
     return candidate.name === 'MongoError' || candidate.name === 'MongoServerError';
 }
 
-function normalizeZodIssues(error: any) {
-    return error.issues.map((issue: any) => ({
+function normalizeZodIssues(error: { issues: ZodIssueLike[] }) {
+    return error.issues.map((issue) => ({
         field: issue.path.join('.'),
         message: issue.message
     }));

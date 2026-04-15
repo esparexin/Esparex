@@ -1,5 +1,6 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
+import { IAuthUser } from '../../types/auth';
 import { logAdminAction } from '../../utils/adminLogger';
 import { createInAppNotification } from '../../services/NotificationService';
 import { recalculateTrustScore } from '../../services/TrustService';
@@ -48,13 +49,13 @@ export const getBusinessAccountById = async (req: Request, res: Response) => {
 
 export const approveBusinessAccount = async (req: Request, res: Response) => {
     try {
-        const business = await businessService.approveBusiness(req.params.id as string, (req.user as any)?.id || (req.user as any)?._id);
+        const business = await businessService.approveBusiness(req.params.id as string, (req.user as IAuthUser)?._id?.toString() || (req.user as IAuthUser)?.id);
 
         if (!business) {
             return sendAdminError(req, res, 'Business not found', 404);
         }
 
-        const expiresAt = (business as any).expiresAt;
+        const expiresAt = (business as typeof business & { expiresAt?: Date }).expiresAt;
         await logAdminAction(req, 'APPROVE_BUSINESS', 'Business', req.params.id, { expiresAt });
 
         // Trigger Notification
@@ -82,9 +83,9 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Rejection reason is required', 400);
         }
         const business = await businessService.rejectBusiness(
-            req.params.id as string, 
-            reason, 
-            (req.user as any)?.id || (req.user as any)?._id
+            req.params.id as string,
+            reason,
+            (req.user as IAuthUser)?._id?.toString() || (req.user as IAuthUser)?.id
         );
 
         if (!business) {
@@ -102,7 +103,7 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
             { businessId: business._id.toString(), status: BUSINESS_STATUS.REJECTED, reason }
         );
 
-        const actor: any = { type: ACTOR_TYPE.ADMIN, id: (req.user as any)?.id || (req.user as any)?._id };
+        const actor: { type: string; id: string | undefined } = { type: ACTOR_TYPE.ADMIN, id: (req.user as IAuthUser)?._id?.toString() || (req.user as IAuthUser)?.id };
         const cascaded = await adminBusinessService.cascadeExpireBusinessListings(business._id, actor, `Cascaded from business rejection: ${reason}`);
         if (cascaded > 0) logger.info(`Business Cascade: Expired ${cascaded} listings for business ${business._id}`);
 
@@ -132,7 +133,7 @@ export const updateBusinessStatus = async (req: Request, res: Response) => {
                 domain: 'business',
                 entityId: req.params.id as string,
                 toStatus: BUSINESS_STATUS.SUSPENDED,
-                actor: { type: ACTOR_TYPE.ADMIN, id: (req.user as any)?.id || (req.user as any)?._id },
+                actor: { type: ACTOR_TYPE.ADMIN, id: (req.user as IAuthUser)?._id?.toString() || (req.user as IAuthUser)?.id },
                 reason: reason || 'Suspended by admin',
                 patch: {
                     rejectionReason: reason || 'Suspended by admin'
@@ -191,9 +192,10 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
 
         if (patch.location && typeof patch.location === 'object' && !Array.isArray(patch.location)) {
             const incomingLocation = patch.location as Record<string, unknown>;
-            const currentLocation = (existingBusiness as any).location;
+            const bizDoc = existingBusiness as typeof existingBusiness & { location?: Record<string, unknown>; locationId?: unknown };
+            const currentLocation = bizDoc.location;
             const normalizedLocation = await normalizeLocation({
-                locationId: incomingLocation.locationId || (existingBusiness as any).locationId,
+                locationId: incomingLocation.locationId || bizDoc.locationId,
                 city: incomingLocation.city || currentLocation?.city,
                 state: incomingLocation.state || currentLocation?.state,
                 country: incomingLocation.country || currentLocation?.country || 'India',
@@ -206,7 +208,7 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
                 currentLocation,
                 incomingLocation,
                 normalizedLocation,
-                fallbackLocationId: (existingBusiness as any).locationId,
+                fallbackLocationId: bizDoc.locationId,
             });
 
             patch.location = resolvedLocationPayload.location;
@@ -233,11 +235,12 @@ export const deleteBusinessAccount = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Business not found', 404);
         }
 
-        const businessName = (business as any).name;
-        const userId = (business as any).userId.toString();
+        const bizForDelete = business as typeof business & { name?: string; userId: { toString(): string } };
+        const businessName = bizForDelete.name;
+        const userId = bizForDelete.userId.toString();
 
         // Cascade: use shared helper
-        const actor: any = { type: ACTOR_TYPE.ADMIN, id: (req.user as any)?.id || (req.user as any)?._id };
+        const actor: { type: string; id: string | undefined } = { type: ACTOR_TYPE.ADMIN, id: (req.user as IAuthUser)?.id || (req.user as IAuthUser)?._id?.toString() };
         const cascadedCount = await adminBusinessService.cascadeExpireBusinessListings(business._id, actor, 'Cascaded from business deletion');
 
 

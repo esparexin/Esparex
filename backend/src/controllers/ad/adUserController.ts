@@ -93,7 +93,7 @@ export const markAsSold = async (req: Request, res: Response, next: NextFunction
         if (!id) return;
 
         const adToCheck = await adService.assertOwnership(id, (req.user as IAuthUser)._id.toString());
-        validateTransition('ad', adToCheck.status as any, 'sold');
+        validateTransition('ad', adToCheck.status as string, 'sold');
 
         const ad = await adService.updateAdStatus(id, 'sold', {
             soldReason: req.body.soldReason as 'sold_on_platform' | 'sold_outside' | 'no_longer_available' | undefined,
@@ -179,9 +179,8 @@ export const incrementAdView = async (req: Request, res: Response) => {
         const cookieName = `v_ad_${adId}`;
         const isUnique = !req.cookies[cookieName];
 
-        await (adService.incrementAdView as any)(adId, isUnique);
-
         if (isUnique) {
+            await adService.incrementAdView(adId);
             // Set cookie for 24 hours to track unique views per user session
             res.cookie(cookieName, '1', {
                 maxAge: 24 * 60 * 60 * 1000,

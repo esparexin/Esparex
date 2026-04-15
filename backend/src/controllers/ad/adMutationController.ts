@@ -84,9 +84,9 @@ export const createAd = async (req: Request, res: Response, next: NextFunction) 
             sellerId,
             idempotencyKey: req.idempotencyKey || req.header('Idempotency-Key') || req.header('x-idempotency-key') || undefined,
             requestId: req.requestId,
-            fraudRisk: (req as any).fraudRisk,
-            fraudScore: (req as any).fraudScore,
-            riskState: (req as any).riskState
+            fraudRisk: (req as Request & { fraudRisk?: string }).fraudRisk,
+            fraudScore: (req as Request & { fraudScore?: number }).fraudScore,
+            riskState: (req as Request & { riskState?: string }).riskState
         });
 
         const response = respond<ApiResponse<Ad>>({

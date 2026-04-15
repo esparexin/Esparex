@@ -360,7 +360,7 @@ export const createLocation = async (req: Request, res: Response) => {
             coordinates: coords,
             level: finalLevel,
             parentId: parentLocation?._id || null,
-            path: buildHierarchyPath(locationId, parentLocation as any),
+            path: buildHierarchyPath(locationId, parentLocation as { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null),
             slug,
             isActive: isActive !== undefined ? isActive : true,
             priority: 0
@@ -426,7 +426,7 @@ export const updateLocation = async (req: Request, res: Response) => {
                 if (!parentExists) {
                     return sendBaseAdminError(req, res, 'Parent location not found.', 404);
                 }
-                location.parentId = parentId as any;
+                location.parentId = new mongoose.Types.ObjectId(parentId);
             }
         }
 
@@ -441,11 +441,11 @@ export const updateLocation = async (req: Request, res: Response) => {
 
         // Regenerate slug if Name/City/State changes
         if (name || country || level || hasParentMutation) {
-            let parentLocation = null;
+            let parentLocation: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[]; country?: string; level?: string } | null = null;
             if (location.parentId) {
-                parentLocation = await findLocationParent(location.parentId);
+                parentLocation = await findLocationParent(location.parentId) as typeof parentLocation;
             }
-            location.path = buildHierarchyPath(location._id as any, parentLocation as any) as any;
+            location.path = buildHierarchyPath(location._id, parentLocation) as typeof location.path;
             const parentSummary = parentLocation
                 ? await resolveLocationSummary(parentLocation as CanonicalLocationDoc)
                 : null;
@@ -566,7 +566,7 @@ export const getGeofences = async (req: Request, res: Response) => {
 export const createGeofence = async (req: Request, res: Response) => {
     try {
         const geofence = await createGeofenceRecord(req.body);
-        await logAdminAction(req, 'CREATE_GEOFENCE', 'Geofence', (geofence as any)._id.toString(), { name: (geofence as any).name });
+        await logAdminAction(req, 'CREATE_GEOFENCE', 'Geofence', (geofence as { _id: { toString(): string } })._id.toString(), { name: (geofence as { name?: string }).name });
         return sendSuccessResponse(res, geofence);
     } catch (error) {
         return sendBaseAdminError(req, res, error);
@@ -578,7 +578,7 @@ export const updateGeofence = async (req: Request, res: Response) => {
         const id = req.params.id as string;
         const geofence = await updateGeofenceById(id, req.body);
         if (!geofence) return sendBaseAdminError(req, res, 'Geofence not found', 404);
-        await logAdminAction(req, 'UPDATE_GEOFENCE', 'Geofence', id, { name: (geofence as any).name });
+        await logAdminAction(req, 'UPDATE_GEOFENCE', 'Geofence', id, { name: (geofence as { name?: string }).name });
         return sendSuccessResponse(res, geofence);
     } catch (error) {
         return sendBaseAdminError(req, res, error);
@@ -590,7 +590,7 @@ export const deleteGeofence = async (req: Request, res: Response) => {
         const id = req.params.id as string;
         const geofence = await deleteGeofenceById(id);
         if (!geofence) return sendBaseAdminError(req, res, 'Geofence not found', 404);
-        await logAdminAction(req, 'DELETE_GEOFENCE', 'Geofence', id, { name: (geofence as any).name });
+        await logAdminAction(req, 'DELETE_GEOFENCE', 'Geofence', id, { name: (geofence as { name?: string }).name });
         return sendSuccessResponse(res, null, 'Geofence deleted');
     } catch (error) {
         return sendBaseAdminError(req, res, error);
