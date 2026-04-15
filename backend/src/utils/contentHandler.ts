@@ -20,6 +20,13 @@ interface ContentOptions {
     queryParams?: Record<string, any>;
 }
 
+type CachedPaginatedPayload = Record<string, unknown> & {
+    items?: unknown[];
+    total?: number;
+    page?: number;
+    limit?: number;
+};
+
 const parseSortQuery = (
     rawSort: unknown,
     defaultSort: Record<string, 1 | -1>
@@ -86,10 +93,15 @@ export async function handlePaginatedContent<T extends Document>(
             
             cacheKey = `catalog:list:${model.modelName.toLowerCase()}:${roleSuffix}:${req.path}?${sortedQuery}`;
             
-            const cachedPayload = await getCache<any>(cacheKey);
+            const cachedPayload = await getCache<CachedPaginatedPayload>(cacheKey);
             if (cachedPayload) {
                 if (isUrlAdmin) {
-                    if (cachedPayload.page !== undefined && cachedPayload.limit !== undefined) {
+                    if (
+                        Array.isArray(cachedPayload.items) &&
+                        typeof cachedPayload.total === 'number' &&
+                        typeof cachedPayload.page === 'number' &&
+                        typeof cachedPayload.limit === 'number'
+                    ) {
                         return sendPaginatedResponse(res, cachedPayload.items, cachedPayload.total, cachedPayload.page, cachedPayload.limit);
                     }
                     return sendSuccessResponse(res, cachedPayload);

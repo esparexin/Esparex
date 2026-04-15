@@ -7,6 +7,43 @@ import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 
+type BusinessCandidate = {
+    _id?: mongoose.Types.ObjectId | string;
+    location?: unknown;
+    distanceMeters?: number;
+    isVerified?: boolean;
+    trustScore?: number;
+    createdAt?: unknown;
+    [key: string]: unknown;
+};
+
+type EnrichedBusinessCandidate = Record<string, unknown> & {
+    activeServicesCount: number;
+    matchingServicesCount: number;
+    brandMatchedServicesCount: number;
+    distanceKm?: number;
+    isVerified?: boolean;
+    trustScore?: number;
+    createdAt?: unknown;
+};
+
+const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
+    if (value instanceof mongoose.Types.ObjectId) return value;
+    if (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value)) {
+        return new mongoose.Types.ObjectId(value);
+    }
+    return null;
+};
+
+const toSortableNumber = (value: unknown): number => {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string') {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+};
+
 export const getBusinesses = async (filters: Record<string, unknown>) => {
     const normalizedCity = typeof filters.city === 'string' ? filters.city.trim() : '';
     const normalizedCategory = typeof filters.category === 'string' ? filters.category.trim() : '';
@@ -61,10 +98,10 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
     const safeLimit = Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 50) : 20;
     const candidateLimit = Math.min(Math.max(safeLimit * 5, safeLimit), 60);
 
-    let candidates: Array<Record<string, any>> = [];
+    let candidates: BusinessCandidate[] = [];
 
     if (hasCoordinates) {
-        candidates = await Business.aggregate([
+        candidates = await Business.aggregate<BusinessCandidate>([
             {
                 $geoNear: {
                     near: {
@@ -89,14 +126,14 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
             finder = finder.collation({ locale: 'en', strength: 2 });
         }
 
-        candidates = await finder.lean();
+        candidates = await finder.lean<BusinessCandidate[]>();
     }
 
     if (candidates.length === 0) return [];
 
     const candidateIds = candidates
-        .map((business) => business._id)
-        .filter((value): value is mongoose.Types.ObjectId => value instanceof mongoose.Types.ObjectId);
+        .map((business) => toObjectId(business._id))
+        .filter((value): value is mongoose.Types.ObjectId => Boolean(value));
 
     const baseServiceMatch: Record<string, unknown> = {
         businessId: { $in: candidateIds },
@@ -153,7 +190,7 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
 
     const enriched = (filteredCandidates
         .map((biz) => {
-            const serialized = serializeDoc(biz) as Record<string, any>;
+            const serialized = serializeDoc(biz) as Record<string, unknown>;
             if (serialized.location) {
                 serialized.location = normalizeLocationResponse(serialized.location);
             }
@@ -173,16 +210,16 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
                 matchingServicesCount,
                 brandMatchedServicesCount,
                 ...(typeof distanceKm === 'number' ? { distanceKm } : {})
-            };
-        }) as Array<Record<string, any>>)
+            } as EnrichedBusinessCandidate;
+        }) as EnrichedBusinessCandidate[])
         .sort((left, right) => {
-            const brandMatchedDiff = (right.brandMatchedServicesCount || 0) - (left.brandMatchedServicesCount || 0);
+            const brandMatchedDiff = right.brandMatchedServicesCount - left.brandMatchedServicesCount;
             if (brandMatchedDiff !== 0) return brandMatchedDiff;
 
-            const matchingDiff = (right.matchingServicesCount || 0) - (left.matchingServicesCount || 0);
+            const matchingDiff = right.matchingServicesCount - left.matchingServicesCount;
             if (matchingDiff !== 0) return matchingDiff;
 
-            const activeDiff = (right.activeServicesCount || 0) - (left.activeServicesCount || 0);
+            const activeDiff = right.activeServicesCount - left.activeServicesCount;
             if (activeDiff !== 0) return activeDiff;
 
             const leftDistance = typeof left.distanceKm === 'number' ? left.distanceKm : Number.POSITIVE_INFINITY;
@@ -192,7 +229,7 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
             const verifiedDiff = Number(Boolean(right.isVerified)) - Number(Boolean(left.isVerified));
             if (verifiedDiff !== 0) return verifiedDiff;
 
-            const trustDiff = Number(right.trustScore || 0) - Number(left.trustScore || 0);
+            const trustDiff = toSortableNumber(right.trustScore) - toSortableNumber(left.trustScore);
             if (trustDiff !== 0) return trustDiff;
 
             return new Date(String(right.createdAt || 0)).getTime() - new Date(String(left.createdAt || 0)).getTime();

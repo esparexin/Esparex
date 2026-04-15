@@ -16,6 +16,7 @@ import { enqueueImageOptimization } from '../queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
+import type { AdContext } from '../types/ad.types';
 
 export interface AdOrchestrationContext {
     authUserId: string; // The authenticated subject (JWT)
@@ -27,6 +28,8 @@ export interface AdOrchestrationContext {
     fraudScore?: number;
     allowQuotaBypass?: boolean;
     riskState?: string;
+    ip?: string;
+    deviceFingerprint?: string;
 }
 
 /**
@@ -34,7 +37,7 @@ export interface AdOrchestrationContext {
  * The Single Source of Truth for Ad mutations.
  * Enforces transaction boundaries and domain coordination.
  */
-export const createAd = async (data: any, context: AdOrchestrationContext): Promise<IAd | null> => {
+export const createAd = async (data: Record<string, unknown>, context: AdOrchestrationContext): Promise<IAd | null> => {
     const start = Date.now();
     const isOrchestratorEnabled = await isEnabled(FeatureFlag.ENABLE_AD_ORCHESTRATOR);
     
@@ -44,7 +47,7 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
         return adService.createAd(data, {
             ...context,
             allowSuspendedUser: false,
-        } as any);
+        } as AdOrchestrationContext & { allowSuspendedUser: boolean });
     }
 
     const connection = getUserConnection();
@@ -71,9 +74,12 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
 
             // 1.5 Threshold Validation (Pro-Seller Policy)
             if (context.actor === 'USER' && !context.allowQuotaBypass) {
+                const listingType = data.listingType === LISTING_TYPE.SERVICE || data.listingType === LISTING_TYPE.SPARE_PART
+                    ? data.listingType
+                    : LISTING_TYPE.AD;
                 const thresholdResult = await validateSellerTypeThreshold(
                     context.sellerId,
-                    (data.listingType as any) || LISTING_TYPE.AD
+                    listingType
                 );
                 if (!thresholdResult.ok) {
                     throw new AppError(thresholdResult.reason || 'Threshold exceeded', 400, thresholdResult.code);
@@ -81,15 +87,27 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
             }
 
             // 2. Prepare Payload (Normalization & Snapshotting)
-            const payload = await AdCreationService.preparePayload(data, context as any, false, undefined, adId.toString());
-            (payload as any)._id = adId;
+            const adContext: AdContext = {
+                actor: context.actor,
+                authUserId: context.authUserId,
+                sellerId: context.sellerId,
+                idempotencyKey: context.idempotencyKey,
+                requestId: context.requestId,
+                allowQuotaBypass: context.allowQuotaBypass,
+                fraudRisk: context.fraudRisk === 'allow' || context.fraudRisk === 'flag' || context.fraudRisk === 'captcha' || context.fraudRisk === 'moderation' || context.fraudRisk === 'block'
+                    ? context.fraudRisk
+                    : undefined,
+                fraudScore: context.fraudScore,
+            };
+            const payload = await AdCreationService.preparePayload(data, adContext, false, undefined, adId.toString());
+            (payload as Record<string, unknown>)._id = adId;
 
             // 3. Duplicate Detection
             const duplicateCheck = await AdDuplicateService.checkDuplicate(
-                payload as any,
+                payload as unknown as Parameters<typeof AdDuplicateService.checkDuplicate>[0],
                 context.sellerId,
-                (payload as any).imageHashes,
-                session as any
+                payload.imageHashes,
+                session as unknown as Parameters<typeof AdDuplicateService.checkDuplicate>[3]
             );
 
             if (duplicateCheck.isDuplicate) {
@@ -98,9 +116,9 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
                     matchedAdId: duplicateCheck.matchedAdId,
                     action: 'blocked',
                     reason: duplicateCheck.reason,
-                    duplicateFingerprint: buildDuplicateFingerprint(payload as any, context.sellerId),
+                    duplicateFingerprint: buildDuplicateFingerprint(payload as unknown as Parameters<typeof buildDuplicateFingerprint>[0], context.sellerId),
                     details: { checkResult: duplicateCheck }
-                }, session as any);
+                }, session as unknown as Parameters<typeof logDuplicateEvent>[1]);
 
                 const { createDuplicateError } = await import('./AdValidationService');
                 throw createDuplicateError(duplicateCheck.reason);
@@ -110,8 +128,8 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
             // Map orchestration context to FraudContext
             const fraudContext: FraudContext = {
                 userId: new mongoose.Types.ObjectId(context.authUserId),
-                ip: (context as any).ip || '0.0.0.0', // Extract from context if injected by controller
-                deviceFingerprint: (context as any).deviceFingerprint,
+                ip: context.ip || '0.0.0.0',
+                deviceFingerprint: context.deviceFingerprint,
                 action: 'POST_AD',
                 price: payload.price,
                 description: payload.description,
@@ -159,7 +177,7 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
                 const approvedAt = new Date();
                 await mutateStatus({
                     domain: 'ad',
-                    entityId: (createdAd as any)._id.toString(),
+                    entityId: (createdAd as IAd & { _id: mongoose.Types.ObjectId })._id.toString(),
                     toStatus: AD_STATUS.LIVE,
                     actor: {
                         type: 'admin',
@@ -169,13 +187,13 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
                     metadata: {
                         action: 'moderation_approve',
                         sourceRoute: 'AdOrchestrator.createAd',
-                        listingType: (createdAd as any).listingType || 'ad',
+                        listingType: (createdAd as IAd & { listingType?: string }).listingType || 'ad',
                     },
                     patch: {
                         moderatorId: context.authUserId,
                         approvedAt,
                         approvedBy: context.authUserId,
-                        expiresAt: await computeActiveExpiry((createdAd as any).listingType || 'ad'),
+                        expiresAt: await computeActiveExpiry((createdAd as IAd & { listingType?: string }).listingType || 'ad'),
                         moderationStatus: 'manual_approved',
                         rejectionReason: undefined,
                         $push: {
@@ -189,14 +207,14 @@ export const createAd = async (data: any, context: AdOrchestrationContext): Prom
                     session,
                 });
 
-                createdAd = await Ad.findById((createdAd as any)._id).session(session) as IAd | null;
+                createdAd = await Ad.findById((createdAd as IAd & { _id: mongoose.Types.ObjectId })._id).session(session) as IAd | null;
             }
 
             // 9. Dispatch Image Optimization
             if (createdAd && Array.isArray(createdAd.images) && createdAd.images.length > 0) {
                 // Must not fail the transaction if queue push fails
                 enqueueImageOptimization(
-                    (createdAd as any)._id.toString(),
+                    (createdAd as IAd & { _id: mongoose.Types.ObjectId })._id.toString(),
                     'ad',
                     createdAd.images
                 ).catch(err => {

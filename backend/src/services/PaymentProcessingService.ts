@@ -47,6 +47,27 @@ type RecoveryOutcome =
 
 const PAYMENT_SAC_CODE = "998599";
 
+type PaymentUserLike = {
+    name?: string;
+    email?: string;
+    mobile?: string;
+    businessId?: mongoose.Types.ObjectId | string | null;
+    location?: {
+        city?: string;
+    };
+};
+
+type PaymentBusinessLike = {
+    name?: string;
+    email?: string;
+    mobile?: string;
+    gstNumber?: string;
+    location?: {
+        address?: string;
+        city?: string;
+    };
+};
+
 type RazorpayOrderLike = {
     amount?: number;
     currency?: string;
@@ -96,15 +117,15 @@ const normalizeGatewayCurrency = (currency?: string) => (currency || "INR").toUp
 const buildInvoicePayload = async (
     tx: ITransaction,
     session: ClientSession
-): Promise<{ invoiceData: Partial<IInvoice>; user: Awaited<ReturnType<typeof User.findById>> | null; business?: any }> => {
+) : Promise<{ invoiceData: Partial<IInvoice>; user: PaymentUserLike | null; business?: PaymentBusinessLike | null }> => {
     const user = await User.findById(tx.userId)
-        .select("name email mobile address businessId")
+        .select("name email mobile location businessId")
         .session(session)
-        .lean();
+        .lean<PaymentUserLike | null>();
 
-    let business: any = null;
+    let business: PaymentBusinessLike | null = null;
     if (user?.businessId) {
-        business = await Business.findById(user.businessId).session(session).lean();
+        business = await Business.findById(user.businessId).session(session).lean<PaymentBusinessLike | null>();
     }
 
     const subtotal = Number((tx.amount / 1.18).toFixed(2));
@@ -133,8 +154,12 @@ const buildInvoicePayload = async (
             sacCode: PAYMENT_SAC_CODE,
             billingAddress: {
                 line1: typeof business?.name === "string" ? business.name : (typeof user?.name === "string" ? user.name : undefined),
-                line2: business?.location?.address || undefined,
-                city: business?.location?.city || user?.location?.city,
+                line2: typeof business?.location?.address === "string" ? business.location.address : undefined,
+                city: typeof business?.location?.city === "string"
+                    ? business.location.city
+                    : typeof user?.location?.city === "string"
+                        ? user.location.city
+                        : undefined,
                 country: "India"
             },
             subtotal,
@@ -160,13 +185,27 @@ const ensureInvoicePdf = async (invoiceId?: string) => {
     const invoice = await Invoice.findById(invoiceId).lean();
     if (!invoice || invoice.pdfUrl) return;
 
-    const user = await User.findById(invoice.userId).select("name email mobile address businessId").lean();
-    let business: any = null;
+    const user = await User.findById(invoice.userId).select("name email mobile location businessId").lean<PaymentUserLike | null>();
+    let business: PaymentBusinessLike | null = null;
     if (user?.businessId) {
-        business = await Business.findById(user.businessId).lean();
+        business = await Business.findById(user.businessId).lean<PaymentBusinessLike | null>();
     }
 
     try {
+        const pdfUser = business
+            ? {
+                name: typeof business.name === "string" ? business.name : undefined,
+                email: typeof business.email === "string" ? business.email : undefined,
+                mobile: typeof business.mobile === "string" ? business.mobile : undefined,
+            }
+            : user
+                ? {
+                    name: typeof user.name === "string" ? user.name : undefined,
+                    email: typeof user.email === "string" ? user.email : undefined,
+                    mobile: typeof user.mobile === "string" ? user.mobile : undefined,
+                }
+                : null;
+
         const pdfUrl = await generateInvoicePdf({
             invoiceNumber: invoice.invoiceNumber,
             amount: invoice.amount,
@@ -179,11 +218,7 @@ const ensureInvoicePdf = async (invoiceId?: string) => {
             total: invoice.total,
             gstin: invoice.gstin,
             sacCode: invoice.sacCode,
-            user: (business ? { 
-                name: business.name, 
-                email: business.email, 
-                mobile: business.mobile 
-            } : user) || null
+            user: pdfUser
         });
 
         if (!pdfUrl) return;

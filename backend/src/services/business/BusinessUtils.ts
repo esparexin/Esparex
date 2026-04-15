@@ -172,11 +172,15 @@ export const buildBusinessLocationPayload = ({
 
 export const cleanupRemovedS3Objects = async (previous: unknown, next: unknown) => {
     const previousUrls = Array.isArray(previous)
-        ? previous.map(p => typeof p === 'string' ? p : (p as any).url).filter(Boolean)
+        ? previous
+            .map(p => typeof p === 'string' ? p : (p as { url?: string }).url)
+            .filter((url): url is string => typeof url === 'string' && url.length > 0)
         : [];
     const nextUrls = new Set(
         Array.isArray(next)
-            ? next.map(n => typeof n === 'string' ? n : (n as any).url).filter(Boolean)
+            ? next
+                .map(n => typeof n === 'string' ? n : (n as { url?: string }).url)
+                .filter((url): url is string => typeof url === 'string' && url.length > 0)
             : []
     );
     const removed = previousUrls.filter((url) => !nextUrls.has(url));

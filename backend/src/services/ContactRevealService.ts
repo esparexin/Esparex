@@ -6,6 +6,20 @@ import logger from '../utils/logger';
 import { MOBILE_VISIBILITY, normalizeMobileVisibility } from '../../../shared/constants/mobileVisibility';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 
+type SellerContact = {
+    _id?: mongoose.Types.ObjectId;
+    mobile?: string;
+    status?: string;
+    mobileVisibility?: string;
+};
+
+type ContactRevealEntity = {
+    sellerId?: SellerContact;
+    status?: string;
+    isDeleted?: boolean;
+    listingType?: string;
+} | null;
+
 /**
  * Mask phone number for display
  * e.g., "+1234567890" → "+1****7890"
@@ -36,7 +50,7 @@ export const logPhoneReveal = async (
         // 1. Persistent Audit Log (Non-blocking DB insertion)
         const logData = {
             entityId: new mongoose.Types.ObjectId(entityId),
-            entityType: entityType as any,
+            entityType: entityType as string,
             sellerId: new mongoose.Types.ObjectId(sellerId),
             buyerId: new mongoose.Types.ObjectId(buyerId),
             ipAddress,
@@ -90,15 +104,14 @@ export const getSellerPhone = async (
         const entity = await Ad.findById(id)
             .select('sellerId status isDeleted listingType')
             .populate('sellerId', 'mobile status mobileVisibility')
-            .lean() as any;
+            .lean() as ContactRevealEntity;
 
         if (!entity) return { error: 'Listing not found' };
 
         const seller = entity.sellerId;
         if (!seller) return { error: 'Seller not found' };
 
-        // Standardize generic payload mapping
-        seller.phone = seller.mobile;
+        const sellerPhone = seller.mobile;
         const entityActive = entity.status === AD_STATUS.LIVE && !entity.isDeleted;
         const resolvedEntityType = entity.listingType || (entityType === 'spare_part' ? 'spare_part' : 'ad');
 
@@ -139,7 +152,7 @@ export const getSellerPhone = async (
         // Phone numbers should only be revealed to logged-in buyers
         if (!buyerId) {
             // Return masked phone for unauthenticated users
-            const maskedPhone = maskPhone(seller.phone);
+            const maskedPhone = maskPhone(sellerPhone);
             return { masked: maskedPhone };
         }
 
@@ -158,8 +171,8 @@ export const getSellerPhone = async (
         }
 
         return {
-            phone: seller.phone,
-            mobile: seller.phone,
+            phone: sellerPhone,
+            mobile: sellerPhone,
         };
     } catch (error) {
         logger.error(`Failed to get listing phone`, {

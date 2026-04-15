@@ -294,7 +294,7 @@ export const mutateStatus = async (request: MutationRequest) => {
         const metricStatus = isValidationFailure ? 'rejection' : 'failure';
         
         setImmediate(() => {
-            recordMutationMetric(metricStatus as any, domain, fromStatus, toStatus).catch(err => {
+            recordMutationMetric(metricStatus as 'success' | 'rejection' | 'failure', domain, fromStatus, toStatus).catch(err => {
                 logger.error('Telemetry Error (Error Path):', err);
             });
         });
@@ -339,13 +339,14 @@ export const mutateStatusesBulk = async (
     if (!entityIds.length) return 0;
     
     const Model = getModelForDomain(domain);
+    type BulkMutationDoc = { _id: mongoose.Types.ObjectId; listingType?: string };
     const docs = await (Model as mongoose.Model<mongoose.Document>).find({ _id: { $in: entityIds } })
         .select('_id status listingType')
-        .lean();
+        .lean<BulkMutationDoc[]>();
     if (!docs.length) return 0;
 
     await mutateStatuses(
-        docs.map((doc: Record<string, any>) => ({
+        docs.map((doc) => ({
             domain,
             entityId: String(doc._id),
             toStatus,
@@ -395,7 +396,7 @@ async function recordMutationMetric(
         const date = new Date();
         date.setHours(0, 0, 0, 0);
 
-        const update: Record<string, any> = {
+        const update: Record<string, unknown> = {
             $inc: {
                 [`payload.total`]: 1,
                 [`payload.${status}`]: 1,

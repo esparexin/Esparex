@@ -31,18 +31,25 @@ export class AdDuplicateService {
         imageHashes: string[] = [],
         session?: ClientSession
     ): Promise<DuplicateCheckResult> {
+        const categoryId = payload.categoryId ? String(payload.categoryId) : undefined;
+        const locationId = (payload.location as Record<string, unknown>)?.locationId
+            ? String((payload.location as Record<string, unknown>).locationId)
+            : undefined;
+
         // 1. Precise Self-Duplicate Check (Idempotency Guard)
-        const selfDuplicate = await findExistingSelfDuplicate(
-            sellerId,
-            payload.categoryId ? String(payload.categoryId) : undefined as any,
-            (payload.location as any)?.locationId ? String((payload.location as any).locationId) : undefined,
-            payload.price as number,
-            payload.brandId ? String(payload.brandId) : undefined,
-            payload.modelId ? String(payload.modelId) : undefined,
-            undefined,
-            session,
-            payload.listingType
-        );
+        const selfDuplicate = categoryId
+            ? await findExistingSelfDuplicate(
+                sellerId,
+                categoryId,
+                locationId,
+                payload.price as number,
+                payload.brandId ? String(payload.brandId) : undefined,
+                payload.modelId ? String(payload.modelId) : undefined,
+                undefined,
+                session,
+                payload.listingType
+            )
+            : null;
 
         if (selfDuplicate) {
             return {
@@ -60,15 +67,15 @@ export class AdDuplicateService {
                 duplicateFingerprint: fingerprint,
                 status: { $in: [AD_STATUS.LIVE, AD_STATUS.PENDING] }
             })
-                .session(session as any)
+                .session(session as ClientSession)
                 .select('_id')
-                .lean();
+                .lean<{ _id: mongoose.Types.ObjectId } | null>();
             
             if (fingerprintMatch) {
                 return {
                     isDuplicate: true,
                     riskScore: 90,
-                    matchedAdId: (fingerprintMatch as any)._id,
+                    matchedAdId: fingerprintMatch._id,
                     reason: 'Duplicate fingerprint detected.'
                 };
             }

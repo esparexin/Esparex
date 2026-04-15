@@ -6,10 +6,12 @@ import { publishedBusinessStatusQuery } from '../utils/businessStatus';
 import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
+import { ACTOR_TYPE, type ActorMetadata } from '../../../shared/enums/actor';
 import { serializeBusinessForAdmin } from '../controllers/business/shared';
 import { handlePaginatedContent } from '../utils/contentHandler';
 import { mutateStatuses } from './StatusMutationService';
 import type { Request, Response } from 'express';
+import type { ValidDomain } from './StatusMutationService';
 
 /**
  * Service for advanced admin-only business management and metrics.
@@ -75,7 +77,7 @@ export const getBusinessOverview = async () => {
     };
 };
 
-export const transformBusinessDocs = (items: any[]): any[] =>
+export const transformBusinessDocs = (items: unknown[]): unknown[] =>
     items.map((doc) => {
         const serialized = serializeBusinessForAdmin(doc);
         return {
@@ -99,18 +101,41 @@ export const updateAdminBusiness = async (id: string, patch: Record<string, unkn
     return Business.findByIdAndUpdate(id, { $set: patch }, { new: true, runValidators: true }).populate('userId');
 };
 
-export const cascadeExpireBusinessListings = async (businessId: any, actor: any, reason: string) => {
-    const listings = await Ad.find({ businessId, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
+export const cascadeExpireBusinessListings = async (
+    businessId: unknown,
+    actor: ActorMetadata | { type: string; id?: string | undefined },
+    reason: string
+) => {
+    const normalizedBusinessId = typeof businessId === 'string' && businessId.trim()
+        ? businessId.trim()
+        : businessId && typeof businessId === 'object' && typeof (businessId as { toString?: () => string }).toString === 'function'
+            ? (businessId as { toString: () => string }).toString()
+            : undefined;
+
+    if (!normalizedBusinessId) {
+        return 0;
+    }
+
+    const normalizedActor: ActorMetadata = {
+        type: actor.type === ACTOR_TYPE.ADMIN
+            ? ACTOR_TYPE.ADMIN
+            : actor.type === ACTOR_TYPE.SYSTEM
+                ? ACTOR_TYPE.SYSTEM
+                : ACTOR_TYPE.USER,
+        id: actor.id,
+    };
+
+    const listings = await Ad.find({ businessId: normalizedBusinessId, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
     if (listings.length > 0) {
         await mutateStatuses(listings.map((l) => ({
             domain: (l.listingType === LISTING_TYPE.SERVICE
                 ? LISTING_TYPE.SERVICE
                 : l.listingType === LISTING_TYPE.SPARE_PART
                     ? 'spare_part_listing'
-                    : LISTING_TYPE.AD) as any,
+                    : LISTING_TYPE.AD) as ValidDomain,
             entityId: l._id,
             toStatus: AD_STATUS.EXPIRED,
-            actor,
+            actor: normalizedActor,
             reason,
         })));
     }
@@ -134,7 +159,7 @@ export const getAdminBusinessAccountsPaginated = (
 };
 
 export const getBusinessAccountsQuery = (status?: string) => {
-    const adminQuery: Record<string, any> = {};
+    const adminQuery: Record<string, unknown> = {};
     const normalizedStatus = status === 'approved' || status === 'active'
         ? BUSINESS_STATUS.LIVE
         : status;

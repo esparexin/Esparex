@@ -1,6 +1,6 @@
 import SavedAd from '../models/SavedAd';
 import Ad from '../models/Ad';
-import { hydrateAdMetadata } from './ad/AdAggregationService';
+import { hydrateAdMetadata, type HydratedAd } from './ad/AdAggregationService';
 import { sanitizePersistedImageUrls } from '../utils/s3';
 import { serializeDoc } from '../utils/serialize';
 import { recordAdAnalyticsEvent } from './TrendingService';
@@ -25,11 +25,18 @@ export const getSavedAds = async (userId: string, page: number, limit: number) =
     const adIds = saved.filter((s) => s.adId).map((s) => s.adId);
     const rawAds = await Ad.find({ _id: { $in: adIds } })
         .select('title images price location categoryId brandId modelId listingType seoSlug status createdAt')
-        .lean();
+        .lean<HydratedAd[]>();
 
     await hydrateAdMetadata(rawAds);
 
-    const adMap = new Map(rawAds.map((ad) => [ad._id.toString(), ad]));
+    const adMap = new Map(
+        rawAds
+            .map((ad) => {
+                const adKey = ad._id ? ad._id.toString() : ad.id;
+                return adKey ? [adKey, ad] as const : null;
+            })
+            .filter((entry): entry is readonly [string, HydratedAd] => Boolean(entry))
+    );
 
     const data = saved
         .map((s) => {
@@ -37,7 +44,7 @@ export const getSavedAds = async (userId: string, page: number, limit: number) =
             const ad = adIdStr ? adMap.get(adIdStr) : null;
             if (!ad) return null;
 
-            const serialized = serializeDoc(ad) as any;
+            const serialized = serializeDoc(ad) as Record<string, unknown>;
             const rawImages = Array.isArray(serialized.images) ? serialized.images : [];
 
             return {

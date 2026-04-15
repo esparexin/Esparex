@@ -281,21 +281,23 @@ export const logDuplicateEvent = async (
     session?: ClientSession
 ) => {
     try {
-        await DuplicateEvent.create(
-            [
-                {
-                    sellerId: event.sellerId ? new mongoose.Types.ObjectId(event.sellerId) : null,
-                    adId: event.adId ? new mongoose.Types.ObjectId(event.adId) : null,
-                    matchedAdId: event.matchedAdId,
-                    action: event.action,
-                    reason: event.reason,
-                    score: event.score,
-                    duplicateFingerprint: event.duplicateFingerprint,
-                    details: event.details,
-                },
-            ] as any,
-            session ? { session } : undefined
-        );
+        if (!event.sellerId || !mongoose.Types.ObjectId.isValid(event.sellerId)) {
+            logger.warn('Skipping duplicate event log due to missing sellerId', { event });
+            return;
+        }
+
+        const duplicateEvent = new DuplicateEvent({
+            sellerId: new mongoose.Types.ObjectId(event.sellerId),
+            adId: event.adId ? new mongoose.Types.ObjectId(String(event.adId)) : undefined,
+            matchedAdId: event.matchedAdId,
+            action: event.action,
+            reason: event.reason || 'Duplicate detected',
+            score: event.score,
+            duplicateFingerprint: event.duplicateFingerprint,
+            details: event.details,
+        });
+
+        await duplicateEvent.save(session ? { session } : undefined);
     } catch (err) {
         logger.error('Failed to log duplicate event', {
             error: err instanceof Error ? err.message : String(err),

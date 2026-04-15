@@ -5,7 +5,6 @@ import { normalizeLocation } from './location/LocationNormalizer';
 import { toGeoPoint } from '../../../shared/utils/geoUtils';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
 import { generateUniqueSlug } from '../utils/slugGenerator';
-import { GOVERNANCE, MS_IN_DAY } from '../config/constants';
 import { LIFECYCLE_STATUS } from '../../../shared/enums/lifecycle';
 import { resolveLocationPathIds } from '../utils/locationHierarchy';
 import { processImages } from '../utils/imageProcessor';
@@ -20,9 +19,6 @@ import {
     validateModelBelongsToBrand,
     validateAdCategoryCapability
 } from './catalog/CatalogValidationService';
-
-const AD_ACTIVE_WINDOW_DAYS = GOVERNANCE?.AD?.EXPIRY_DAYS || 30;
-const AD_ACTIVE_WINDOW_MS = AD_ACTIVE_WINDOW_DAYS * (MS_IN_DAY || 86400000);
 
 export interface PreparedPayload {
     categoryId?: string;
@@ -52,7 +48,7 @@ export interface PreparedPayload {
     expiresAt?: Date;
     fraudScore?: number;
     listingQualityScore?: number;
-    sparePartsSnapshot?: any[];
+    sparePartsSnapshot?: Record<string, unknown>[];
     duplicateFingerprint?: string;
     $push?: {
         timeline: {
@@ -97,7 +93,7 @@ export const validateSparePartsForCategory = async (
         throw new AppError('One or more selected spare parts are invalid for the selected category.', 400);
     }
 
-    return validParts as any[];
+    return validParts as Array<{ _id: unknown; name: string; brandId?: unknown }>;
 };
 
 /**
@@ -167,9 +163,9 @@ export class AdCreationService {
             
             if (await isEnabled(FeatureFlag.ENABLE_SPAREPARTS_SNAPSHOT)) {
                 const Brand = (await import('../models/Brand')).default;
-                const brands = await Brand.find({ _id: { $in: validParts.map((p: any) => p.brandId).filter(Boolean) } }).select('_id name').lean();
-                const brandMap = new Map(brands.map((b: any) => [String(b._id), b.name]));
-                payload.sparePartsSnapshot = validParts.map((part: any) => ({
+                const brands = await Brand.find({ _id: { $in: validParts.map((p) => p.brandId).filter(Boolean) } }).select('_id name').lean();
+                const brandMap = new Map(brands.map((b) => [String(b._id), b.name]));
+                payload.sparePartsSnapshot = validParts.map((part) => ({
                     _id: part._id,
                     name: part.name,
                     brand: part.brandId ? brandMap.get(String(part.brandId)) : undefined
@@ -190,7 +186,7 @@ export class AdCreationService {
                 const canonicalId = toObjectIdString(payload.locationId);
                 if (canonicalId) {
                     const path = await resolveLocationPathIds(canonicalId);
-                    if (path.length > 0) payload.locationPath = path as any;
+                    if (path.length > 0) payload.locationPath = path.map((entry) => entry.toString());
                 }
             } else {
                 throw new AppError('Valid location selection is required.', 400);
@@ -201,14 +197,15 @@ export class AdCreationService {
 
         if (Array.isArray(payload.images) && payload.images.length > 0) {
             const targetAdId = adId || new mongoose.Types.ObjectId().toString();
-            const processed = (await processImages(payload.images ?? [], `ads/${targetAdId}`)) as any[];
-            
-            payload.images = sanitizeStoredImageUrls(processed.map((img: any) => img.url));
-            payload.thumbnails = sanitizeStoredImageUrls(processed.map((img: any) => img.thumbnailUrl || img.url));
-            
+            type ProcessedImage = { url: string; thumbnailUrl?: string; hash?: string };
+            const processed = (await processImages(payload.images ?? [], `ads/${targetAdId}`)) as ProcessedImage[];
+
+            payload.images = sanitizeStoredImageUrls(processed.map((img) => img.url));
+            payload.thumbnails = sanitizeStoredImageUrls(processed.map((img) => img.thumbnailUrl || img.url));
+
             payload.imageHashes = processed
-                .filter((img: any) => payload.images?.includes(img.url))
-                .map((img: any) => img.hash);
+                .filter((img) => payload.images?.includes(img.url))
+                .map((img) => img.hash ?? '');
 
             if (processed.length > 0 && (!payload.images || payload.images.length === 0)) {
                 throw new AppError('Image upload failed. Please retry.', 502);

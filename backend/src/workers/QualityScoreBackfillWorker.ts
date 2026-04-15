@@ -1,6 +1,9 @@
-import Ad from '../models/Ad';
+import { type AnyBulkWriteOperation } from 'mongoose';
+import Ad, { type IAd } from '../models/Ad';
 import logger from '../utils/logger';
 import { computeListingQualityScore } from '../utils/adQualityScorer';
+
+type BackfillAd = Pick<IAd, '_id' | 'title' | 'description' | 'images' | 'brandId' | 'price' | 'location'>;
 
 /**
  * Lazy Quality Score Backfill Worker
@@ -25,7 +28,8 @@ export const runQualityScoreBackfill = async (): Promise<void> => {
         const adsToProcess = await Ad.find(query)
             .sort({ createdAt: -1 }) // Newest live listings first
             .limit(500)
-            .select('title description images brandId price location listingQualityScore status');
+            .select('title description images brandId price location listingQualityScore status')
+            .lean<BackfillAd[]>();
 
         if (!adsToProcess || adsToProcess.length === 0) {
             logger.info('QualityScoreBackfill Worker finished: No eligible ads found.');
@@ -34,7 +38,7 @@ export const runQualityScoreBackfill = async (): Promise<void> => {
 
         logger.info(`QualityScoreBackfill Worker found ${adsToProcess.length} ads to process.`);
 
-        const bulkOperations = adsToProcess.map((ad: any) => {
+        const bulkOperations: AnyBulkWriteOperation<IAd>[] = adsToProcess.map((ad) => {
             const score = computeListingQualityScore({
                 title: ad.title,
                 description: ad.description,
