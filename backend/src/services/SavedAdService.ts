@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import SavedAd from '../models/SavedAd';
 import Ad from '../models/Ad';
 import { hydrateAdMetadata, type HydratedAd } from './ad/AdAggregationService';
@@ -8,15 +9,28 @@ import { recordAdAnalyticsEvent } from './TrendingService';
 export const getSavedAds = async (userId: string, page: number, limit: number) => {
     const skip = (page - 1) * limit;
 
-    const [saved, total] = await Promise.all([
-        SavedAd.find({ userId })
-            .select('adId createdAt')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean(),
-        SavedAd.countDocuments({ userId }),
+    // Single $facet aggregation: replaces two separate queries (find + countDocuments)
+    // that previously ran in parallel, each costing 1500ms+ on cold start.
+    const [result] = await SavedAd.aggregate<{
+        data: { adId: mongoose.Types.ObjectId; createdAt: Date }[];
+        total: { count: number }[];
+    }>([
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+        {
+            $facet: {
+                data: [
+                    { $sort: { createdAt: -1 } },
+                    { $skip: skip },
+                    { $limit: limit },
+                    { $project: { adId: 1, createdAt: 1 } },
+                ],
+                total: [{ $count: 'count' }],
+            },
+        },
     ]);
+
+    const saved = result?.data ?? [];
+    const total = result?.total?.[0]?.count ?? 0;
 
     if (saved.length === 0) {
         return { data: [], total };

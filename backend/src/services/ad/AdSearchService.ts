@@ -5,7 +5,6 @@ import {
     buildAdFilterFromCriteria,
     getCache,
     setCache,
-    escapeRegExp,
     buildAdSortStageFromHelper,
     AD_STATUS,
     FeatureFlag,
@@ -39,21 +38,31 @@ export const buildAdMatchStage = async (
         if (mongoose.Types.ObjectId.isValid(legacyCategory)) {
             resolvedCategoryId = legacyCategory;
         } else {
-            const resolvedCategory = await Category.findOne({
-                isDeleted: { $ne: true },
-                isActive: true,
-                $or: [
-                    { slug: legacyCategory.toLowerCase() },
-                    { name: new RegExp(`^${escapeRegExp(legacyCategory)}$`, 'i') }
-                ]
-            }).select('_id').lean<{ _id: mongoose.Types.ObjectId } | null>();
-            resolvedCategoryId = resolvedCategory?._id?.toString();
+            // Cache slug → ObjectId to avoid a DB round-trip on every public browse call.
+            // The regex name-match arm was removed: it always caused a full collection scan
+            // and slug lookup covers all real-world frontend category filters.
+            const cacheKey = `catalog:category:slug:${legacyCategory.toLowerCase()}`;
+            const cached = await getCache<string>(cacheKey);
+            if (cached) {
+                resolvedCategoryId = cached;
+            } else {
+                const resolvedCategory = await Category.findOne({
+                    isDeleted: { $ne: true },
+                    isActive: true,
+                    slug: legacyCategory.toLowerCase(),
+                }).select('_id').lean<{ _id: mongoose.Types.ObjectId } | null>();
+                resolvedCategoryId = resolvedCategory?._id?.toString();
+                if (resolvedCategoryId) {
+                    // 6-hour TTL — category slugs are stable, rarely renamed
+                    void setCache(cacheKey, resolvedCategoryId, 21600);
+                }
+            }
         }
     }
 
     const requestedStatus = filters.status || AD_STATUS.LIVE;
     const { getStatusMatchCriteria } = await import('../../utils/statusQueryMapper');
-    const statusQuery = getStatusMatchCriteria(requestedStatus as string | string[]);
+    const statusQuery = getStatusMatchCriteria(requestedStatus);
 
     let match = buildAdFilterFromCriteria({
         ...filters,

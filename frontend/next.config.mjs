@@ -67,6 +67,15 @@ const dynamicApiRemotePattern = (() => {
     }
 })();
 
+// The real backend origin used for server-side proxy rewrites.
+// Must be the Render service URL (not the api.esparex.in custom domain) so that
+// Next.js server-to-server requests bypass Render's routing overhead.
+// Browser never calls this URL directly — it always calls esparex.in/api/v1.
+const BACKEND_INTERNAL_URL =
+    process.env.BACKEND_INTERNAL_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'https://esparex-backend.onrender.com';
+
 const dynamicApiConnectSources = (() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) return [];
@@ -284,7 +293,36 @@ const nextConfig = {
                 permanent: true,
             },
         ];
-    }
+    },
+
+    /**
+     * API Proxy Rewrites — fixes Safari/iOS cross-site cookie blocking
+     *
+     * Problem: Safari ITP blocks cookies when the browser calls a different
+     * origin (e.g. esparex-backend.onrender.com or api.esparex.in) from
+     * esparex.in. The CSRF token cookie is silently dropped, causing a 403
+     * which the client surfaces as "connecting to server".
+     *
+     * Solution: All /api/v1/* requests are proxied server-side by Next.js.
+     * The browser only ever talks to https://esparex.in — same origin.
+     * No cross-site request = no ITP restriction = cookies flow freely.
+     *
+     * To activate: set NEXT_PUBLIC_API_URL=https://esparex.in/api/v1
+     * in the frontend Render/Vercel environment variables.
+     */
+    async rewrites() {
+        // Strip trailing slash and /api/v1 suffix so we can forward cleanly.
+        const backendOrigin = BACKEND_INTERNAL_URL
+            .replace(/\/api\/v1\/?$/, '')
+            .replace(/\/$/, '');
+
+        return [
+            {
+                source: '/api/v1/:path*',
+                destination: `${backendOrigin}/api/v1/:path*`,
+            },
+        ];
+    },
 };
 
 export default nextConfig;

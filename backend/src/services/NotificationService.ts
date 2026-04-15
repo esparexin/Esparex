@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import User from '../models/User';
 import Notification from '../models/Notification';
 import admin from '../config/firebaseAdmin';
@@ -143,12 +144,35 @@ export const queryNotificationsForUser = async (
     skip: number,
     limit: number
 ) => {
-    const [notifications, total, unreadCount] = await Promise.all([
-        Notification.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
-        Notification.countDocuments(query),
-        Notification.countDocuments({ userId, isRead: false }),
+    // Single aggregation pass: replaces two separate countDocuments calls
+    // (one for total, one for unreadCount) that previously ran in parallel.
+    const [result] = await Notification.aggregate<{
+        notifications: InstanceType<typeof Notification>[];
+        total: { count: number }[];
+        unreadCount: { count: number }[];
+    }>([
+        { $match: query },
+        {
+            $facet: {
+                notifications: [
+                    { $sort: { createdAt: -1 } },
+                    { $skip: skip },
+                    { $limit: limit },
+                ],
+                total: [{ $count: 'count' }],
+                unreadCount: [
+                    { $match: { userId: new Types.ObjectId(userId), isRead: false } },
+                    { $count: 'count' },
+                ],
+            },
+        },
     ]);
-    return { notifications, total, unreadCount };
+
+    return {
+        notifications: result?.notifications ?? [],
+        total: result?.total?.[0]?.count ?? 0,
+        unreadCount: result?.unreadCount?.[0]?.count ?? 0,
+    };
 };
 
 /**

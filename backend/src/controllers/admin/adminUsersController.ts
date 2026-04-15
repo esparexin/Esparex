@@ -12,7 +12,7 @@ import {
 import { IAuthUser } from '../../types/auth';
 import { Role } from '../../../../shared/enums/roles';
 import { revokeAdminSessionsForAdmin } from '../../services/AdminSessionService';
-import { USER_STATUS } from '../../../../shared/enums/userStatus';
+import { USER_STATUS, UserStatusValue } from '../../../../shared/enums/userStatus';
 import * as adminUsersService from '../../services/AdminUsersService';
 
 // Local helper removed, using centralized sendAdminError.
@@ -117,7 +117,7 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const verifyUser = async (req: Request, res: Response) => {
     try {
-        const verified = req.body.isVerified;
+        const { isVerified: verified } = req.body as { isVerified: boolean };
         const user = await adminUsersService.verifyUserById(req.params.id as string, verified);
 
         if (!user) {
@@ -139,7 +139,7 @@ export const verifyUser = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
     try {
-        const { name, email, mobile, password, isVerified } = req.body;
+        const { name, email, mobile, password, isVerified } = req.body as { name?: string; email?: string; mobile?: string; password?: string; isVerified?: boolean };
 
         if (!mobile || !name) {
             return sendAdminError(req, res, 'Name and Mobile are required', 400);
@@ -165,13 +165,14 @@ export const updateUser = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Invalid user id', 400);
         }
 
+        const updateBody = req.body as Record<string, unknown>;
         const user = await adminUsersService.updateAdminUser(
             userId,
-            req.body,
+            updateBody,
             (req.user as IAuthUser)._id.toString()
         );
 
-        await logAdminAction(req, 'UPDATE_USER', 'User', userId, { changes: Object.keys(req.body) });
+        await logAdminAction(req, 'UPDATE_USER', 'User', userId, { changes: Object.keys(updateBody) });
         sendSuccessResponse(res, user, 'User updated successfully');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
@@ -180,7 +181,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const updateUserStatus = async (req: Request, res: Response) => {
     try {
-        const { status, reason } = req.body;
+        const { status, reason } = req.body as { status: string; reason?: string };
         const { id: userId } = req.params;
 
         if (![USER_STATUS.ACTIVE as string, USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string].includes(status)) {
@@ -191,7 +192,7 @@ export const updateUserStatus = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Invalid user id', 400);
         }
 
-        const user = await userStatusService.updateUserStatus(userId, status, {
+        const user = await userStatusService.updateUserStatus(userId, status as UserStatusValue, {
             actor: 'ADMIN',
             adminReq: req,
             reason
@@ -214,7 +215,7 @@ export const createAdmin = async (req: Request, res: Response) => {
             password,
             role,
             permissions
-        } = req.body || {};
+        } = (req.body as { firstName?: string; lastName?: string; name?: string; email?: string; mobile?: string; password?: string; role?: string; permissions?: string[] } | undefined) ?? {};
 
         const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
         const normalizedPassword = typeof password === 'string' ? password : '';
@@ -286,17 +287,20 @@ export const updateAdmin = async (req: Request, res: Response) => {
         if (!targetId) {
             return sendAdminError(req, res, 'Invalid admin id', 400);
         }
-        const { firstName, lastName, email, mobile, permissions, status, password, role } = req.body;
+        const { firstName, lastName, email, mobile, permissions, status, password, role } = req.body as {
+            firstName?: string; lastName?: string; email?: string; mobile?: string;
+            permissions?: string[]; status?: string; password?: string; role?: string;
+        };
         const currentId = (req.user as IAuthUser)._id.toString();
 
-        if (targetId === currentId && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(status)) {
+        if (targetId === currentId && status && [USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string, USER_STATUS.INACTIVE as string].includes(status)) {
             return sendAdminError(req, res, 'You cannot suspend/deactivate your own admin account', 400);
         }
         if (targetId === currentId && role) {
             return sendAdminError(req, res, 'You cannot change your own role', 400);
         }
 
-        if (await adminUsersService.isLastActiveSuperAdmin(targetId) && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(status)) {
+        if (status && await adminUsersService.isLastActiveSuperAdmin(targetId) && [USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string, USER_STATUS.INACTIVE as string].includes(status)) {
             return sendAdminError(req, res, 'Cannot suspend/deactivate the last active Super Admin', 400);
         }
 
@@ -322,7 +326,7 @@ export const updateAdmin = async (req: Request, res: Response) => {
             updateData.password = await hashPassword(password);
         }
 
-        if (await adminUsersService.isLastActiveSuperAdmin(targetId) && role && role !== Role.SUPER_ADMIN) {
+        if (await adminUsersService.isLastActiveSuperAdmin(targetId) && role && (role as Role) !== Role.SUPER_ADMIN) {
             return sendAdminError(req, res, 'Cannot downgrade the last active Super Admin', 400);
         }
 
@@ -332,7 +336,7 @@ export const updateAdmin = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Admin not found', 404);
         }
 
-        if (status && [USER_STATUS.INACTIVE, USER_STATUS.SUSPENDED, USER_STATUS.BANNED].includes(status)) {
+        if (status && [USER_STATUS.INACTIVE as string, USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string].includes(status)) {
             await revokeAdminSessionsForAdmin(targetId);
         }
 

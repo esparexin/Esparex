@@ -218,7 +218,7 @@ export const adminUpdateAd = async (req: Request, res: Response) => {
             if (!currentAd) {
                 return sendAdminError(req, res, 'Ad not found', 404);
             }
-            validateTransition('ad', currentAd.status as string, status);
+            validateTransition('ad', currentAd.status, status);
 
             optionalStatusTransition = {
                 toStatus: status,
@@ -288,8 +288,9 @@ export const adminChangeAdStatus = async (req: Request, res: Response) => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const requestedStatus = typeof req.body?.status === 'string' ? req.body.status : '';
-        const { rejectionReason } = req.body;
+        const changeBody = req.body as { status?: string; rejectionReason?: string };
+        const requestedStatus = typeof changeBody.status === 'string' ? changeBody.status : '';
+        const { rejectionReason } = changeBody;
         const status = normalizeAdminAdStatusInput(requestedStatus);
 
         if (!isValidAdStatus(status)) {
@@ -299,7 +300,7 @@ export const adminChangeAdStatus = async (req: Request, res: Response) => {
         if (!currentAd) {
             return sendAdminError(req, res, 'Ad not found', 404);
         }
-        validateTransition('ad', currentAd.status as string, status);
+        validateTransition('ad', currentAd.status, status);
 
         const ad = await mutateStatus({
             domain: 'ad',
@@ -351,7 +352,7 @@ export const adminDeleteAd = async (req: Request, res: Response) => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const hardDeleteRequested = req.body?.hardDelete === true;
+        const hardDeleteRequested = (req.body as { hardDelete?: boolean })?.hardDelete === true;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return sendAdminError(req, res, 'Invalid Ad ID', 400);
@@ -442,7 +443,7 @@ export const getReportedAds = async (req: Request, res: Response) => {
         const { status, reason, search } = req.query;
         const { page, limit, skip } = getPaginationParams(req);
 
-        const { data, total } = await getReportedAdsAggregation(
+        const reportedResult = await getReportedAdsAggregation(
             {
                 status: typeof status === 'string' ? status : undefined,
                 reason: typeof reason === 'string' ? reason : undefined,
@@ -450,6 +451,8 @@ export const getReportedAds = async (req: Request, res: Response) => {
             },
             { skip, limit }
         );
+        const data = reportedResult.data as unknown[];
+        const total = reportedResult.total as number;
 
         sendPaginatedResponse(res, data, total, page, limit);
     } catch (err) {
@@ -481,7 +484,7 @@ export const resolveReport = async (req: Request, res: Response) => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Report ID' });
         if (!id) return;
-        const { action, note } = req.body;
+        const { action, note } = req.body as { action?: string; note?: string };
 
         const report = await findReportForUpdate(id);
         if (!report) return sendAdminError(req, res, 'Report not found', 404);
@@ -525,8 +528,9 @@ export const updateReportStatus = async (req: Request, res: Response) => {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Report ID' });
         if (!id) return;
 
-        const status = typeof req.body?.status === 'string' ? req.body.status.trim().toLowerCase() : '';
-        const note = typeof req.body?.note === 'string' ? req.body.note.trim() : undefined;
+        const reportBody = req.body as { status?: unknown; note?: unknown };
+        const status = typeof reportBody.status === 'string' ? reportBody.status.trim().toLowerCase() : '';
+        const note = typeof reportBody.note === 'string' ? reportBody.note.trim() : undefined;
 
         if (![REPORT_STATUS.RESOLVED as string, REPORT_STATUS.DISMISSED as string].includes(status)) {
             return sendAdminError(req, res, `Invalid report status. Allowed: ${REPORT_STATUS.RESOLVED}, ${REPORT_STATUS.DISMISSED}`, 400);
@@ -554,7 +558,7 @@ export const extendAdExpiration = async (req: Request, res: Response) => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const { days = 30 } = req.body;
+        const { days = 30 } = req.body as { days?: number };
 
         const ad = await extendAdExpiry(id, Number(days), req.user!._id.toString(), 'admin');
         if (!ad) return sendAdminError(req, res, 'Ad not found', 404);
@@ -571,7 +575,7 @@ export const adminPromoteAd = async (req: Request, res: Response) => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const { days = 7, type = 'spotlight_hp' } = req.body;
+        const { days = 7, type = 'spotlight_hp' } = req.body as { days?: number; type?: 'spotlight_hp' | 'spotlight_cat' };
 
         const adminUser = req.user as { _id?: string | { toString: () => string } } | undefined;
         const adminId =
@@ -681,7 +685,7 @@ export const approveAd = async (req: Request, res: Response) => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const { reviewVersion } = req.body;
+        const { reviewVersion } = req.body as { reviewVersion?: number };
 
         const currentAd = await getAdForModerationById(id);
         if (!currentAd) return sendAdminError(req, res, 'Ad not found', 404);
@@ -725,7 +729,7 @@ export const rejectAd = async (req: Request, res: Response) => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const { rejectionReason } = req.body || {};
+        const { rejectionReason } = (req.body || {}) as { rejectionReason?: string };
         if (!rejectionReason || typeof rejectionReason !== 'string' || rejectionReason.trim().length === 0) {
             return sendAdminError(req, res, 'Rejection reason is required and cannot be empty', 400);
         }
