@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { ApiResponse } from './apiResponse';
 
 type ErrorResponseOptions = {
     code?: string;
@@ -8,7 +9,6 @@ type ErrorResponseOptions = {
 
 /**
  * Strict error response contract - validated response format
- * Ensures responses conform to expected shape with no extra fields
  */
 export interface ErrorResponseContract {
     success: false;
@@ -25,23 +25,16 @@ export const buildErrorResponse = (
     error: string,
     options: ErrorResponseOptions = {}
 ) => {
+    // Note: buildErrorResponse is used internally by middleware or tests.
+    // For direct controller responses, use sendErrorResponse.
     const requestPath = req.originalUrl || req.path || 'unknown';
-    const payload: Record<string, unknown> = {
+    return {
         success: false,
         error,
         path: requestPath,
-        status
+        status,
+        ...options
     };
-
-    if (options.code) payload.code = options.code;
-    if (options.details !== undefined) payload.details = options.details;
-
-    for (const [key, value] of Object.entries(options)) {
-        if (key === 'code' || key === 'details') continue;
-        payload[key] = value;
-    }
-
-    return payload;
 };
 
 export const sendErrorResponse = (
@@ -51,23 +44,11 @@ export const sendErrorResponse = (
     error: string,
     options: ErrorResponseOptions = {}
 ) => {
-    return res.status(status).json(buildErrorResponse(req, status, error, options));
+    return ApiResponse.sendError(req, res, status, error, options);
 };
 
 /**
  * Unified error handler for catalog operations
- * Handles both admin and public views with consistent response format
- * 
- * Replaces parallel implementations of sendAdminError and sendErrorResponse
- * by providing single SSOT (Single Source of Truth) for error handling.
- * 
- * Backward compatible with sendAdminError(req, res, error, statusCode) signature.
- * 
- * @param req - Express request object
- * @param res - Express response object  
- * @param error - Unknown error to handle or error message string
- * @param statusCodeOrOptions - Status code (number, for legacy compat) or options object
- * @returns Http response with standardized error envelope
  */
 export function sendCatalogError(
     req: Request,
@@ -79,96 +60,49 @@ export function sendCatalogError(
         isAdminView?: boolean;
     }
 ) {
-    // Parse statusCodeOrOptions to support both old and new signatures
     let statusCode = 500;
     let fallbackMessage: string | undefined;
     let isAdminView = req.originalUrl?.includes('/admin') ?? false;
 
     if (typeof statusCodeOrOptions === 'number') {
-        // Legacy: statusCodeOrOptions is a status code
         statusCode = statusCodeOrOptions;
     } else if (typeof statusCodeOrOptions === 'object' && statusCodeOrOptions !== null) {
-        // New: statusCodeOrOptions is options object
         statusCode = statusCodeOrOptions.statusCode ?? 500;
         fallbackMessage = statusCodeOrOptions.fallbackMessage;
         isAdminView = statusCodeOrOptions.isAdminView ?? isAdminView;
     }
 
-    // Check for duplicate key error
     if (isDuplicateKeyError(error)) {
-        return sendErrorResponse(
-            req,
-            res,
-            400,
-            'Resource already exists',
-            { isDuplicate: true }
-        );
+        return sendErrorResponse(req, res, 400, 'Resource already exists', { isDuplicate: true });
     }
 
-    // Handle Zod validation errors
     if (isZodError(error)) {
-        return sendErrorResponse(
-            req,
-            res,
-            400,
-            'Validation failed',
-            { issues: normalizeZodIssues(error) }
-        );
+        return sendErrorResponse(req, res, 400, 'Validation failed', { issues: normalizeZodIssues(error) });
     }
 
-    // Handle MongoDB errors
     if (isMongoError(error)) {
-        return sendErrorResponse(
-            req,
-            res,
-            400,
-            'Database operation failed',
-            { mongoError: (error as Error).message }
-        );
+        return sendErrorResponse(req, res, 400, 'Database operation failed', { mongoError: (error as Error).message });
     }
 
-    // If error is a string, use it as the message (legacy support)
-    if (typeof error === 'string') {
-        const message = fallbackMessage || error || (isAdminView ? 'Catalog operation failed' : 'Not found');
-        return sendErrorResponse(req, res, statusCode, message);
-    }
+    const message = typeof error === 'string' 
+        ? (fallbackMessage || error)
+        : (fallbackMessage || (isAdminView ? `Catalog operation failed: ${(error as Error)?.message || 'Unknown'}` : 'Not found'));
 
-    // Default error response
-    if (statusCode >= 500) {
-        import('./logger').then(({ default: logger }) => {
-            logger.error(`[CatalogError] 500 on ${req.originalUrl}:`, {
-                error: error instanceof Error ? error.stack || error.message : error
-            });
-        }).catch(() => {});
-    }
-
-    const e = error as Error;
-    const message = fallbackMessage || (isAdminView ? `Catalog operation failed: ${e?.message || 'Unknown server error'}` : 'Not found');
     return sendErrorResponse(req, res, statusCode, message);
 }
 
-// Helper functions
 function isDuplicateKeyError(error: unknown): boolean {
     if (!error || typeof error !== 'object') return false;
     const candidate = error as { code?: unknown; message?: unknown };
     return candidate.code === 11000 || (typeof candidate.message === 'string' && candidate.message.includes('E11000'));
 }
 
-type ZodIssueLike = {
-    path: Array<string | number>;
-    message: string;
-};
-
-function isZodIssueLike(issue: unknown): issue is ZodIssueLike {
-    if (!issue || typeof issue !== 'object') return false;
-    const candidate = issue as { path?: unknown; message?: unknown };
-    return Array.isArray(candidate.path) && typeof candidate.message === 'string';
-}
+type ZodIssueLike = { path: Array<string | number>; message: string; };
 
 function isZodError(error: unknown): error is { issues: ZodIssueLike[] } {
     if (!error || typeof error !== 'object') return false;
     const issues = (error as Record<string, unknown>).issues;
-    return Array.isArray(issues) && issues.every(isZodIssueLike);
+    return Array.isArray(issues);
 }
 
 function isMongoError(error: unknown): boolean {

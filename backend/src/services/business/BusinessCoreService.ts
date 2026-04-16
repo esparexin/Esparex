@@ -85,7 +85,7 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     const allowed = [
         'name', 'description', 'businessTypes',
         'email', 'website', 'gstNumber', 'registrationNumber',
-        'workingHours'
+        'workingHours', 'branding'
     ];
     const safePayload: Record<string, unknown> = { userId };
     allowed.forEach(k => { if (data[k] !== undefined) safePayload[k] = data[k]; });
@@ -176,7 +176,7 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
     const allowed = [
         'name', 'description', 'businessTypes',
         'email', 'website', 'gstNumber', 'registrationNumber',
-        'workingHours'
+        'workingHours', 'branding'
     ];
     const safeUpdate: Record<string, unknown> = {};
     allowed.forEach(k => { if (data[k] !== undefined) safeUpdate[k] = data[k]; });

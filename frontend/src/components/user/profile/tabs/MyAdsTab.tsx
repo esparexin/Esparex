@@ -263,16 +263,19 @@ export function MyAdsTab({
                                                 <div className="flex items-center gap-3 mt-1 text-2xs text-muted-foreground">
                                                     <span className="flex items-center gap-1">
                                                         <Eye className="h-3 w-3" />{" "}
-                                                        {typeof ad.views === "number"
-                                                            ? ad.views
-                                                            : (ad.views &&
-                                                                typeof ad.views === "object" &&
-                                                                "total" in ad.views &&
-                                                                typeof ad.views.total === "number"
-                                                                ? ad.views.total
-                                                                : 0)}{" "}
+                                                        {typeof ad.views === "object" ? (
+                                                            <>
+                                                                <span title="Total Views">{ad.views.total || 0}</span>
+                                                                {ad.views.unique && ad.views.unique > 0 && (
+                                                                    <span className="opacity-60 text-px" title="Unique Views"> ({ad.views.unique} unique)</span>
+                                                                )}
+                                                            </>
+                                                        ) : (
+                                                            ad.views || 0
+                                                        )}{" "}
                                                         views
                                                     </span>
+
                                                     <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {ad.likes || 0} likes</span>
                                                     {isLive && ad.expiresAt && (
                                                         <span className="flex items-center gap-1 text-amber-600 font-medium whitespace-nowrap">

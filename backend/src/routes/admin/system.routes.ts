@@ -136,11 +136,12 @@ router.get('/phone-reveals/requests', requirePermission('ads:read'), searchLimit
 router.get('/user-management/overview', requirePermission('users:read'), usersController.getUserManagementOverview);
 router.get('/users', requirePermission('users:read'), validateRequest({ query: getUsersQuerySchema }), usersController.getUsers);
 
+import { hmacSignatureMiddleware } from '../../middleware/HMACSignatureMiddleware';
 // ✅ ACTIONS
 router.post('/users', requirePermission('users:write'), adminMutationLimiter, usersController.createUser);
 router.patch('/users/:id/status', requirePermission('users:write'), adminMutationLimiter, validateObjectId, validateRequest(updateUserStatusSchema), usersController.updateUserStatus);
 router.patch('/users/:id/verify', requirePermission('users:write'), adminMutationLimiter, validateObjectId, validateRequest(updateUserVerificationSchema), usersController.verifyUser);
-router.patch('/users/:id/wallet', requirePermission('finance:manage'), adminMutationLimiter, validateObjectId, validateRequest(walletAdjustmentSchema as unknown as ZodTypeAny), walletController.adjustWallet);
+router.patch('/users/:id/wallet', requirePermission('finance:manage'), hmacSignatureMiddleware, adminMutationLimiter, validateObjectId, validateRequest(walletAdjustmentSchema as unknown as ZodTypeAny), walletController.adjustWallet);
 
 // ✅ PARAM LAST
 router.get('/users/:id', requirePermission('users:read'), validateObjectId, usersController.getUserById);
@@ -244,6 +245,13 @@ router.post('/system/scan', requirePermission('system:config'), adminMutationLim
 router.post('/system/fix', requirePermission('system:config'), adminMutationLimiter, systemController.applySystemFix);
 router.get('/cache/health', requirePermission('system:config'), adminMutationLimiter, systemController.getCacheHealth);
 
+
+// ============================================
+// SYSTEM CACHE (Monitoring & Control)
+// ============================================
+import * as adminCacheController from '../../controllers/admin/adminCacheController';
+router.get('/system/cache/stats', requirePermission('system:config'), searchLimiter, adminCacheController.getStats);
+router.post('/system/cache/invalidate', requirePermission('system:config'), adminMutationLimiter, adminCacheController.invalidate);
 
 // ============================================
 // SYSTEM CONFIG / SETTINGS

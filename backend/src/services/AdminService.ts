@@ -88,10 +88,23 @@ export const loginAdmin = async (email: string, password: string): Promise<Admin
 };
 
 export const getAuditLogs = async (
-    query: Record<string, unknown>,
+    filters: { 
+        action?: unknown; 
+        targetType?: unknown; 
+        adminId?: unknown; 
+        requestId?: unknown; 
+        correlationId?: unknown; 
+    },
     skip: number,
     limit: number
 ) => {
+    const query: Record<string, unknown> = {};
+    if (filters.action) query.action = filters.action;
+    if (filters.targetType) query.targetType = filters.targetType;
+    if (filters.adminId) query.adminId = filters.adminId;
+    if (filters.requestId) query.requestId = filters.requestId;
+    if (filters.correlationId) query.correlationId = filters.correlationId;
+
     const [logs, total] = await Promise.all([
         AdminLog.find(query)
             .skip(skip)
@@ -102,6 +115,7 @@ export const getAuditLogs = async (
     ]);
     return { logs, total };
 };
+
 
 export const getAdminWithTwoFactor = async (adminId: string) => {
     return Admin.findById(adminId).select('+twoFactorSecret +twoFactorEnabled');

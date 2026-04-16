@@ -1,6 +1,7 @@
 import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
 import logger from '../utils/logger';
 import { env } from '../config/env';
+import { registerWorkerWithTrace, type TraceableJobData } from '../utils/queueWrapper';
 
 export type SchedulerJobName =
     | 'expire_ads_job'
@@ -18,7 +19,8 @@ export type SchedulerJobName =
     | 'home_feed_warmup'
     | 'quality_score_backfill_job';
 
-type SchedulerProcessor = (job: Job) => Promise<unknown>;
+type SchedulerProcessor = (job: Job<TraceableJobData>) => Promise<unknown>;
+
 
 const shouldDisableSchedulerQueue =
     env.NODE_ENV === 'test' && !env.ALLOW_SCHEDULER_QUEUE;
@@ -92,16 +94,17 @@ export const registerSchedulerJobProcessors = async (
     processors: Record<SchedulerJobName, SchedulerProcessor>
 ) => {
     if (shouldDisableSchedulerQueue || processorsRegistered) return;
+    processorsRegistered = true;
 
-    const processor: Processor<unknown, unknown, string> = async (job) => {
+    const processor: Processor<TraceableJobData, unknown, string> = async (job) => {
         const handler = processors[job.name as SchedulerJobName];
         if (!handler) {
             throw new Error(`No scheduler processor registered for job ${job.name}`);
         }
-        return handler(job as Job);
+        return handler(job as Job<TraceableJobData>);
     };
 
-    schedulerWorker = new Worker<unknown, unknown, string>('scheduler-jobs', processor, {
+    schedulerWorker = registerWorkerWithTrace<TraceableJobData>('scheduler-jobs', processor, {
         connection: schedulerQueueConnection,
         concurrency: 1,
     });
@@ -114,24 +117,9 @@ export const registerSchedulerJobProcessors = async (
         logger.info('Scheduler queue job completed', { jobId });
     });
 
-    schedulerQueueEvents.on('failed', ({ jobId, failedReason }) => {
-        logger.error('Scheduler queue job failed', {
-            jobId,
-            error: failedReason,
-        });
-    });
-
-    schedulerWorker.on('failed', (job, error) => {
-        logger.error('Scheduler worker execution failed', {
-            jobName: job?.name,
-            jobId: job?.id,
-            error: error.message,
-        });
-    });
-
-    processorsRegistered = true;
     await Promise.all([schedulerWorker.waitUntilReady(), schedulerQueueEvents.waitUntilReady()]);
 };
+
 
 export const registerSchedulerRepeatableJobs = async () => {
     if (shouldDisableSchedulerQueue || !schedulerQueue) return;

@@ -36,6 +36,17 @@ export interface IBusiness extends Document {
     approvedAt?: Date;
     expiresAt?: Date;
     slug?: string;
+    branding?: {
+        logoUrl?: string;
+        bannerUrl?: string;
+        tagline?: string;
+        description?: string;
+        socialLinks?: {
+            facebook?: string;
+            instagram?: string;
+            whatsapp?: string;
+        };
+    };
     createdAt: Date;
     updatedAt: Date;
     isDeleted: boolean;
@@ -112,6 +123,17 @@ const BusinessSchema: Schema = new Schema({
     approvedAt: { type: Date },
     expiresAt: { type: Date },
     slug: { type: String },
+    branding: {
+        logoUrl: { type: String },
+        bannerUrl: { type: String },
+        tagline: { type: String },
+        description: { type: String },
+        socialLinks: {
+            facebook: { type: String },
+            instagram: { type: String },
+            whatsapp: { type: String }
+        }
+    },
 }, { timestamps: true });
 
 const sanitizeBusinessLocation = (value: unknown): unknown => {

@@ -57,6 +57,7 @@ export interface AdFilters {
     onsiteService?: boolean;
     /** Filter by Ad record listingType. Use the `categoryEnumToRecord` helper if mapping from Category capability enums. */
     listingType?: ListingTypeValue | ListingTypeValue[];
+    businessId?: string | mongoose.Types.ObjectId;
 }
 
 export interface PaginationOptions {

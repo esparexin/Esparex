@@ -13,26 +13,19 @@ import {
 export const getAuditLogs = async (req: Request, res: Response) => {
     try {
         const { page, limit, skip } = getPaginationParams(req);
-        const { action, targetType, adminId } = req.query;
+        const { action, targetType, adminId, requestId, correlationId } = req.query;
 
-        const query: Record<string, unknown> = {};
-
-        if (action) {
-            query.action = action;
-        }
-
-        if (targetType) {
-            query.targetType = targetType;
-        }
-
-        if (adminId) {
-            query.adminId = adminId;
-        }
-
-        const { logs, total } = await fetchAuditLogs(query, skip, limit);
+        const { logs, total } = await fetchAuditLogs({ 
+            action, 
+            targetType, 
+            adminId, 
+            requestId, 
+            correlationId 
+        }, skip, limit);
 
         sendPaginatedResponse(res, logs, total, page, limit);
     } catch (error: unknown) {
+
         sendAdminError(req, res, error);
     }
 };

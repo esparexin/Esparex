@@ -41,6 +41,7 @@ const envSchema = z.object({
     ADMIN_JWT_SECRET: z.string().optional(),
     REFRESH_TOKEN_SECRET: z.string().optional(),
     OTP_HASH_SECRET: z.string().optional(),
+    HMAC_SECRET: z.string().min(32, 'HMAC_SECRET must be at least 32 characters').default('super_secret_fallback_key_for_dev_32char'),
 
     // CORS
     CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:3001'),

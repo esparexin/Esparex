@@ -13,6 +13,8 @@ import { env } from '../config/env';
 import logger from '../utils/logger';
 import { sendErrorResponse } from '../utils/errorResponse';
 import { ZodError } from 'zod';
+import { AuditService } from '../services/AuditService';
+
 
 type RequestUser = {
     id?: string;
@@ -170,6 +172,7 @@ export function customErrorHandler(
     const authReq = req as RequestWithUser;
 
     // Log error
+
     logger.error('Request error', {
         error: err.message,
         stack: err.stack,
@@ -178,6 +181,27 @@ export function customErrorHandler(
         userId: getUserId(authReq),
         requestId: authReq.requestId,
     });
+
+    // 🛡️ AUDIT HOOK: Log critical 5xx errors to persistent audit trail
+    if (err.statusCode && err.statusCode >= 500) {
+        AuditService.logEvent(
+            {
+                action: 'SYSTEM_ERROR_CRITICAL',
+                targetType: 'System',
+                metadata: {
+                    message: err.message,
+                    path: authReq.url,
+                    method: authReq.method,
+                }
+            },
+            {
+                actorId: getUserId(authReq),
+                actorType: 'user', // Defaulting to user context if available
+                requestId: authReq.requestId
+            }
+        ).catch(auditErr => logger.error('Audit skip: failed to log system error', auditErr));
+    }
+
 
     // Global Zod Validation Middleware
     if (err instanceof ZodError) {

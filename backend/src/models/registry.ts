@@ -72,7 +72,7 @@ if (env.NODE_ENV !== 'test') {
 
     auditTargets.forEach(({ scope, connection }) => {
         Object.entries(connection.models).forEach(([name, model]) => {
-            governSchema(model.schema, { scope, collectionName: name });
+            governSchema(model.schema as Parameters<typeof governSchema>[0], { scope, collectionName: name });
         });
     });
 

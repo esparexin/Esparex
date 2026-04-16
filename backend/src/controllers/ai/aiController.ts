@@ -9,6 +9,36 @@ import {
     isAIRequestType
 } from '../../services/AiService';
 
+export const catalogSuggest = async (req: Request, res: Response) => {
+    try {
+        const { image, contextText } = getAiContext(req.body);
+        if (!image && !contextText) {
+            sendErrorResponse(req, res, 400, 'Image or context text is required for AI identification');
+            return;
+        }
+
+        const result = await executeAiRequest({
+            type: 'identify',
+            context: {},
+            image,
+            contextText
+        });
+
+        if (result.ok) {
+            res.json(respond({ success: true, data: result.data }));
+            return;
+        }
+
+        sendErrorResponse(req, res, result.status, result.error, {
+            ...(result.code ? { code: result.code } : {}),
+            ...(result.details ? { details: result.details } : {}),
+        });
+    } catch (error) {
+        logger.error('[AI Controller] catalogSuggest failed', { error: (error as Error).message });
+        sendErrorResponse(req, res, 500, 'Internal AI processing error');
+    }
+};
+
 export const generate = async (req: Request, res: Response) => {
     try {
         if (!req.user) {

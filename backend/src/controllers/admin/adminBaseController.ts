@@ -9,7 +9,9 @@ export { respond } from '../../utils/respond';
  */
 import { IAuthUser } from '../../types/auth';
 import { sendErrorResponse } from '../../utils/errorResponse';
+import { ApiResponse } from '../../utils/apiResponse';
 import logger from '../../utils/logger';
+
 
 /**
  * 🔐 ESPAREX PERMISSION CHECKER
@@ -74,5 +76,6 @@ export const sendAdminError = (req: Request, res: Response, error: unknown, stat
     const errorPayload: Record<string, unknown> = { code };
     if (details !== undefined) errorPayload.details = details;
 
-    return sendErrorResponse(req, res, statusCode, message, errorPayload);
+    return ApiResponse.sendError(req, res, statusCode, message, errorPayload);
 };
+

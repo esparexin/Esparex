@@ -108,6 +108,11 @@ export const buildAdMatchStage = async (
         }
     }
 
+    // Business Storefront Filter
+    if (filters.businessId && mongoose.Types.ObjectId.isValid(String(filters.businessId))) {
+        match.businessId = new mongoose.Types.ObjectId(String(filters.businessId));
+    }
+
     // Admin moderation flagged filter: include ads with elevated fraud/duplicate
     // signals and/or ads crossing a report-count threshold.
     // Cache key uses reportThreshold as part of key so different thresholds stay isolated.

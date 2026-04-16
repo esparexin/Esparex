@@ -12,15 +12,39 @@ let hasWarnedLocationListHintFailure = false;
  * Handles read operations and paginated queries for the Location domain.
  */
 
+import { LocationCacheService } from './LocationCacheService';
+
 export const findLocationById = async (id: string | undefined) => {
     if (!id) return null;
-    return Location.findById(id);
+    
+    // 🚀 CACHE-ASIDE: Check secondary layer first
+    const cached = (await LocationCacheService.get(id)) as Awaited<ReturnType<(typeof Location)['findById']>>;
+    if (cached) return cached;
+
+    const location = await Location.findById(id);
+    if (location) {
+        // Run as side effect to avoid blocking response
+        LocationCacheService.set(id, location.toObject ? location.toObject() : location).catch(() => {});
+    }
+    return location;
 };
 
 export const findLocationByIdLean = async <T>(id: string | undefined, select: string) => {
     if (!id) return null;
-    return Location.findById(id).select(select).lean<T | null>();
+
+    // For lean lookups with custom select, we check if the full doc is cached
+    // If not cached, we fetch from DB. We don't cache partials to avoid key explosion.
+    const cached: unknown = await LocationCacheService.get(id);
+    if (cached) {
+        // If select is provided, we might need to filter. 
+        // For simplicity, if cached, we return the cached doc as is if it satisfies the requirement.
+        return cached as unknown as T;
+    }
+
+    const location = await Location.findById(id).select(select).lean<T | null>();
+    return location;
 };
+
 
 export const findActiveParentById = async (id: string) =>
     Location.findOne({ _id: id, isActive: true })

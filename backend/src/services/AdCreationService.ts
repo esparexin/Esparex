@@ -213,7 +213,11 @@ export class AdCreationService {
             }
         }
 
-        if (payload.title && !partial) payload.seoSlug = await generateUniqueSlug(Ad, payload.title);
+        if (payload.title) {
+            // Proactive slug regeneration: Ensure title changes trigger a new unique slug
+            // even during partial updates. AdUpdateService.ts will handle collisions.
+            payload.seoSlug = await generateUniqueSlug(Ad, payload.title, undefined, adId);
+        }
 
         if (!partial) {
             payload.sellerId = context.sellerId;

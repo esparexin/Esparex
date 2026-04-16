@@ -13,10 +13,11 @@ import {
     ensureInvoicePdf 
 } from './InvoiceService';
 import { 
-    matchesGatewayAmount, 
+    matchesGatewayAmount,
     normalizeGatewayCurrency, 
-    fetchGatewayRecoveryOutcome 
+    GatewayService 
 } from './GatewayService';
+
 import { resolveCategoryName } from './TransactionService';
 import logger, { logBusiness, logSecurity } from '../utils/logger';
 
@@ -259,7 +260,7 @@ export async function processSuccessfulPayment(
  * Orchestrator for payment recovery.
  */
 export async function recoverPendingPayment(tx: ITransaction): Promise<ProcessPaymentResponse> {
-    const gatewayResult = await fetchGatewayRecoveryOutcome(tx);
+    const gatewayResult = await GatewayService.fetchRecoveryOutcome(tx);
 
     if (gatewayResult.status === 'success') {
         return processSuccessfulPayment({

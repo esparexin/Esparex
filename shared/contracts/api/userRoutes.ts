@@ -29,7 +29,7 @@ export const USER_ROUTES = {
   ADS_NEARBY: "ads/nearby",
   ADS_SUGGESTIONS: "ads/suggestions",
   AD_DETAIL: (id: string | number) => `ads/${encodeURIComponent(String(id))}`,
-  AD_REPOST: (id: string | number) => `ads/${encodeURIComponent(String(id))}/repost`,
+  AD_REPOST: (id: string | number) => `listings/${id}/repost`,
   ADS_UPLOAD_IMAGE: "ads/upload-image",
   ADS_UPLOAD_PRESIGN: "ads/upload-presign",
   ADS_TRENDING: "ads/trending",
@@ -87,15 +87,15 @@ export const USER_ROUTES = {
   SERVICES: "services",
   SERVICE_DETAIL: (id: string) => `services/${encodeURIComponent(id)}`,
   SERVICE_VIEW: (id: string) => `services/${encodeURIComponent(id)}/view`,
-  SERVICE_SOLD: (id: string) => `services/${id}/sold`,
-  SERVICE_DEACTIVATE: (id: string) => `services/${id}/deactivate`,
-  SERVICE_REPOST: (id: string) => `services/${id}/repost`,
+  SERVICE_SOLD: (id: string) => `listings/${id}/mark-sold`,
+  SERVICE_DEACTIVATE: (id: string) => `listings/${id}/deactivate`,
+  SERVICE_REPOST: (id: string) => `listings/${id}/repost`,
 
   // Spare Part Listings
   SPARE_PART_LISTINGS: "spare-part-listings",
   SPARE_PART_LISTING_DETAIL: (id: string) => `spare-part-listings/${encodeURIComponent(id)}`,
-  SPARE_PART_DEACTIVATE: (id: string) => `spare-part-listings/${id}/deactivate`,
-  SPARE_PART_REPOST: (id: string) => `spare-part-listings/${id}/repost`,
+  SPARE_PART_DEACTIVATE: (id: string) => `listings/${id}/deactivate`,
+  SPARE_PART_REPOST: (id: string) => `listings/${id}/repost`,
 
   // Users
   USERS: "users",

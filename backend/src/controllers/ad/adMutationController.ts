@@ -11,11 +11,10 @@ import * as AdOrchestrator from '../../services/AdOrchestrator';
 
 import { getBusinessByUserId } from '../../services/BusinessService';
 import { isBusinessPublishedStatus } from '../../utils/businessStatus';
-import { respond } from '../../utils/respond';
-import { getSingleParam } from '../../utils/requestParams';
-import { Ad } from '../../../../shared/schemas/ad.schema';
-import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
+import { sendSuccessResponse } from '../../utils/respond';
+import { getSingleParam } from '../../utils/requestParams';
+
 import { IAuthUser } from '../../types/auth';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { warnIfLegacyAdUserIdAliasUsed } from '../../utils/legacyOwnerAliasTelemetry';
@@ -90,13 +89,7 @@ export const createAd = async (req: Request, res: Response, next: NextFunction) 
             riskState: (req as Request & { riskState?: string }).riskState
         });
 
-        const response = respond<ApiResponse<Ad>>({
-            success: true,
-            data: ad as unknown as Ad,
-            message: 'Ad created successfully'
-        });
-
-        res.status(201).json(response);
+        return sendSuccessResponse(res, ad, 'Ad created successfully', 201);
     } catch (error: unknown) {
         next(error);
     }
@@ -146,13 +139,7 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
             sellerId
         });
 
-        const response = respond<ApiResponse<Ad>>({
-            success: true,
-            data: ad as unknown as Ad,
-            message: 'Ad updated successfully'
-        });
-
-        res.json(response);
+        return sendSuccessResponse(res, ad, 'Ad updated successfully');
     } catch (error: unknown) {
         next(error);
     }
@@ -195,13 +182,7 @@ export const restoreAd = async (req: Request, res: Response, next: NextFunction)
             return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
         }
 
-        const response = respond<ApiResponse<Ad>>({
-            success: true,
-            data: ad as unknown as Ad,
-            message: 'Ad restored successfully'
-        });
-
-        res.json(response);
+        return sendSuccessResponse(res, ad, 'Ad restored successfully');
     } catch (error: unknown) {
         next(error);
     }

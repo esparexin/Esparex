@@ -1,12 +1,14 @@
 import { Queue } from 'bullmq';
 import { redisConnection } from './redisConnection';
 import logger from '../utils/logger';
+import { addJobWithTrace, type TraceableJobData } from '../utils/queueWrapper';
 
-export interface ImageOptimizationJobPayload {
+export interface ImageOptimizationJobPayload extends TraceableJobData {
     entityId: string;
     entityType: 'ad' | 'business';
     imageUrls: string[];
 }
+
 
 export const imageOptimizationQueue = new Queue('image-optimization-events', {
     connection: redisConnection,
@@ -39,12 +41,14 @@ export const enqueueImageOptimization = async (
     if (eligibleUrls.length === 0) return;
 
     try {
-        await imageOptimizationQueue.add(
+        await addJobWithTrace(
+            imageOptimizationQueue,
             `optimize-images-${entityId}`,
             { entityId, entityType, imageUrls: eligibleUrls },
             { jobId: `img-opt-${entityId}-${Date.now()}` }
         );
         logger.info(`[ImageQueue] Enqueued image optimization for ${entityType} ${entityId}`, { count: eligibleUrls.length });
+
     } catch (error) {
         logger.error(`[ImageQueue] Failed to enqueue image optimization for ${entityType} ${entityId}`, error);
     }

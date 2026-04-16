@@ -28,7 +28,7 @@ export const catalogCategorizationAuditCommand: OpsCommand = {
                 continue;
             }
 
-            if (!categoryIds.has(model.categoryId.toString())) {
+            if (!categoryIds.has(String(model.categoryId))) {
                 issues.invalidCategory.push(`${model.name} (${String(model._id)}) -> Cat: ${String(model.categoryId)}`);
             }
         }

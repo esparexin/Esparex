@@ -34,12 +34,16 @@ export const enforceErrorResponseContract = (req: Request, res: Response, next: 
             ...body,
             success: false,
             error: resolveMessage(body),
-            path:
-                typeof body.path === 'string' && body.path.trim().length > 0
+            meta: {
+                requestId: (req as any).requestId || 'unknown',
+                timestamp: new Date().toISOString(),
+                path: typeof body.path === 'string' && body.path.trim().length > 0
                     ? body.path
-                    : (req.originalUrl || req.path || 'unknown'),
+                    : (req.originalUrl || req.path || 'unknown')
+            },
             status: typeof body.status === 'number' ? body.status : statusCode
         };
+
 
         return originalJson(normalized);
     }) as Response['json'];

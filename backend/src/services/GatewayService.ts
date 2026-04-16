@@ -20,14 +20,83 @@ export type RecoveryOutcome =
     | { status: 'failed'; reason: string }
     | { status: 'unresolved'; reason: string };
 
-export const toNumericAmount = (value: number | string | undefined) => {
-    if (typeof value === 'number' && Number.isFinite(value)) return value;
-    if (typeof value === 'string') {
-        const parsed = Number(value);
-        return Number.isFinite(parsed) ? parsed : undefined;
+/**
+ * 💳 PAYMENT GATEWAY SERVICE
+ * Handles interactions with Razorpay and mock gateways.
+ */
+export class GatewayService {
+    /**
+     * Finds a captured payment for a given order ID.
+     */
+    static async findCapturedPaymentForOrder(gatewayOrderId: string): Promise<RazorpayPaymentLike | undefined> {
+        const razorpay = await getRazorpayClient();
+        const ordersApi = razorpay.orders as any;
+
+        if (!ordersApi.fetchPayments) return undefined;
+        try {
+            const paymentList = await ordersApi.fetchPayments(gatewayOrderId);
+            const items = paymentList?.items || [];
+            return items.find((item: any) => item.status === 'captured') || items[0];
+        } catch (error) {
+            logger.warn('Failed to fetch payments for order', { gatewayOrderId, error });
+            return undefined;
+        }
     }
-    return undefined;
-};
+
+    /**
+     * Fetches the outcome of a transaction from the gateway to assist in recovery.
+     */
+    static async fetchRecoveryOutcome(tx: ITransaction): Promise<RecoveryOutcome> {
+        if (tx.paymentGateway === 'mock') {
+            return { status: 'failed', reason: 'mock_transaction_expired' };
+        }
+
+        if (!tx.gatewayOrderId) {
+            return { status: 'unresolved', reason: 'missing_gateway_order_id' };
+        }
+
+        try {
+            const razorpay = await getRazorpayClient();
+            const order = await razorpay.orders.fetch(tx.gatewayOrderId) as RazorpayOrderLike;
+
+            if (order.status === 'paid') {
+                const payment = tx.gatewayPaymentId
+                    ? await razorpay.payments.fetch(tx.gatewayPaymentId)
+                    : await this.findCapturedPaymentForOrder(tx.gatewayOrderId);
+
+                return {
+                    status: 'success',
+                    gatewayOrderId: tx.gatewayOrderId,
+                    gatewayPaymentId: payment?.id || tx.gatewayPaymentId,
+                    gatewayAmountPaise: this.toNumericAmount(payment?.amount) ?? (order.amount || 0),
+                    gatewayCurrency: (payment?.currency || order.currency || 'INR').toUpperCase()
+                };
+            }
+
+            if (['created', 'attempted'].includes(order.status || '')) {
+                return { status: 'failed', reason: `gateway_order_${order.status}` };
+            }
+
+            return { status: 'unresolved', reason: `gateway_order_${order.status}` };
+        } catch (error) {
+            logger.error('Failed to fetch gateway recovery outcome', {
+                transactionId: tx._id.toString(),
+                gatewayOrderId: tx.gatewayOrderId,
+                error: error instanceof Error ? error.message : String(error)
+            });
+            return { status: 'unresolved', reason: 'gateway_api_error' };
+        }
+    }
+
+    private static toNumericAmount(value: number | string | undefined): number | undefined {
+        if (typeof value === 'number' && Number.isFinite(value)) return value;
+        if (typeof value === 'string') {
+            const parsed = Number(value);
+            return Number.isFinite(parsed) ? parsed : undefined;
+        }
+        return undefined;
+    }
+}
 
 export const normalizeGatewayCurrency = (currency?: string) => (currency || 'INR').toUpperCase();
 
@@ -36,56 +105,5 @@ export const matchesGatewayAmount = (tx: ITransaction, gatewayAmountPaise?: numb
     return Math.round(tx.amount * 100) === gatewayAmountPaise;
 };
 
-export const findCapturedPaymentForOrder = async (gatewayOrderId: string): Promise<RazorpayPaymentLike | undefined> => {
-    const razorpay = await getRazorpayClient();
-    const ordersApi = razorpay.orders as typeof razorpay.orders & {
-        fetchPayments?: (orderId: string) => Promise<{ items?: RazorpayPaymentLike[] }>;
-    };
+// Legacy exports for backward compatibility if needed, though they should be migrated to static class methods.
 
-    if (!ordersApi.fetchPayments) return undefined;
-    const paymentList = await ordersApi.fetchPayments(gatewayOrderId);
-    const items = paymentList?.items || [];
-    return items.find((item) => item.status === 'captured') || items[0];
-};
-
-export const fetchGatewayRecoveryOutcome = async (tx: ITransaction): Promise<RecoveryOutcome> => {
-    if (tx.paymentGateway === 'mock') {
-        return { status: 'failed', reason: 'mock_transaction_expired' };
-    }
-
-    if (!tx.gatewayOrderId) {
-        return { status: 'unresolved', reason: 'missing_gateway_order_id' };
-    }
-
-    try {
-        const razorpay = await getRazorpayClient();
-        const order = await razorpay.orders.fetch(tx.gatewayOrderId) as RazorpayOrderLike;
-
-        if (order.status === 'paid') {
-            const payment = tx.gatewayPaymentId
-                ? await razorpay.payments.fetch(tx.gatewayPaymentId)
-                : await findCapturedPaymentForOrder(tx.gatewayOrderId);
-
-            return {
-                status: 'success',
-                gatewayOrderId: tx.gatewayOrderId,
-                gatewayPaymentId: payment?.id || tx.gatewayPaymentId,
-                gatewayAmountPaise: toNumericAmount(payment?.amount) ?? (order.amount || 0),
-                gatewayCurrency: payment?.currency || order.currency || 'INR'
-            };
-        }
-
-        if (order.status === 'created' || order.status === 'attempted') {
-            return { status: 'failed', reason: `gateway_order_${order.status}` };
-        }
-
-        return { status: 'unresolved', reason: `gateway_order_${order.status}` };
-    } catch (error) {
-        logger.error('Failed to fetch gateway recovery outcome', {
-            transactionId: tx._id.toString(),
-            gatewayOrderId: tx.gatewayOrderId,
-            error: error instanceof Error ? error.message : String(error)
-        });
-        return { status: 'unresolved', reason: 'gateway_api_error' };
-    }
-};

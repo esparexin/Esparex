@@ -345,6 +345,21 @@ export function createChildLogger(defaultMeta: LogDetails = {}) {
 }
 
 /**
+ * Creates a request-contextual logger that automatically includes 
+ * requestId and userId in all subsequent log entries.
+ */
+export function withContext(req: any) {
+    const context: LogDetails = {};
+    if (req.requestId) context.requestId = req.requestId;
+    if (req.user) {
+        context.userId = req.user.id || req.user._id?.toString();
+        context.role = req.user.role;
+    }
+    return logger.child(context);
+}
+
+
+/**
  * Stream for Morgan HTTP logger
  */
 export const morganStream = {

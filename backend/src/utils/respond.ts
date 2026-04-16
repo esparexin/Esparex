@@ -1,35 +1,27 @@
 import { Response } from 'express';
 import { serializeDoc } from './serialize';
+import { ApiResponse } from './apiResponse';
 
 /**
  * Enforces explicit type checking for API response payloads 
  * and automatically normalizes Mongo _id to id.
- * @param payload The data to be sent in the response
- * @returns The payload, verified to match type T and normalized
  */
 export function respond<T>(payload: T): T {
     return serializeDoc(payload);
 }
 
+/**
+ * Enhanced Success Response
+ * Delegates to unified ApiResponse for consistent meta/envelope.
+ */
 export const sendSuccessResponse = (res: Response, data: unknown, message?: string, statusCode = 200) => {
-    return res.status(statusCode).json(respond({
-        success: true,
-        data,
-        ...(message && { message })
-    }));
+    return ApiResponse.sendSuccess(res, data, message, statusCode);
 };
 
+/**
+ * Enhanced Paginated Response
+ * Delegates to unified ApiResponse for consistent meta/pagination.
+ */
 export const sendPaginatedResponse = (res: Response, data: unknown[], total: number, page: number, limit: number) => {
-    return res.status(200).json(respond({
-        success: true,
-        data: {
-            items: data,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit)
-            }
-        }
-    }));
+    return ApiResponse.sendPaginated(res, data, total, page, limit);
 };
