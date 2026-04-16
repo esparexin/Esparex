@@ -5,7 +5,10 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import * as adService from '../../services/AdService';
+import * as AdAggregationService from '../../services/ad/AdAggregationService';
+import * as AdMutationService from '../../services/AdMutationService';
+import * as adStatusService from '../../services/adStatusService';
+import * as AdEngagementService from '../../services/AdEngagementService';
 import * as adImageService from '../../services/AdImageService';
 
 import { respond } from '../../utils/respond';
@@ -57,7 +60,7 @@ export const getMyAds = async (req: Request, res: Response, next: NextFunction) 
             ? (req.query.listingType as ListingTypeValue)
             : undefined;
 
-        const result = await adService.getAds(
+        const result = await AdAggregationService.getAds(
             {
                 sellerId: (req.user as IAuthUser)._id.toString(),
                 status: req.query.status ? (req.query.status as string) : undefined,
@@ -92,11 +95,11 @@ export const markAsSold = async (req: Request, res: Response, next: NextFunction
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
 
-        const adToCheck = await adService.assertOwnership(id, (req.user as IAuthUser)._id.toString());
+        const adToCheck = await AdMutationService.assertOwnership(id, (req.user as IAuthUser)._id.toString());
         validateTransition('ad', adToCheck.status, 'sold');
 
-        const ad = await adService.updateAdStatus(id, 'sold', {
-            soldReason: req.body.soldReason as 'sold_on_platform' | 'sold_outside' | 'no_longer_available' | undefined,
+        const ad = await adStatusService.updateAdStatus(id, 'sold', {
+            soldReason: (req.body as { soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available' }).soldReason,
             reason: 'Marked as sold by seller',
             actorType: 'user',
             actorId: (req.user as IAuthUser)._id.toString()
@@ -143,7 +146,7 @@ export const repostAd = async (req: Request, res: Response, next: NextFunction) 
         if (!id) return;
 
         const userId = (req.user)._id.toString();
-        const reposted = await adService.repostAd(id, userId);
+        const reposted = await AdMutationService.repostAd(id, userId);
         if (!reposted) {
             return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
         }
@@ -180,7 +183,7 @@ export const incrementAdView = async (req: Request, res: Response) => {
         const isUnique = !req.cookies[cookieName];
 
         if (isUnique) {
-            await adService.incrementAdView(adId);
+            await AdEngagementService.incrementAdView(adId);
             // Set cookie for 24 hours to track unique views per user session
             res.cookie(cookieName, '1', {
                 maxAge: 24 * 60 * 60 * 1000,
@@ -211,13 +214,14 @@ export const promoteAd = async (req: Request, res: Response, next: NextFunction)
         const isAdmin = (req.user).isAdmin || (req.user).role === 'admin' || (req.user).role === 'super_admin';
         const userId = (req.user)._id.toString();
 
-        const { days, type } = req.body;
+        const { days, type } = req.body as { days?: number; type?: string };
 
         if (!days || typeof days !== 'number' || days <= 0) {
             return sendClientError(req, res, 400, 'Invalid promotion duration', 'INVALID_PROMOTION_DURATION');
         }
 
-        const ad = await adService.promoteAd(id, days, type, userId, isAdmin);
+        const ad = await AdMutationService.promoteAd(id, days, type as 'spotlight_hp' | 'spotlight_cat', userId, isAdmin);
+
         if (!ad) {
             return sendClientError(req, res, 404, 'Ad not found or could not be promoted', 'NOT_FOUND');
         }
@@ -241,7 +245,7 @@ export const promoteAd = async (req: Request, res: Response, next: NextFunction)
  */
 export const uploadImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { image, adId } = req.body;
+        const { image, adId } = req.body as { image?: string; adId?: string };
         if (!image) {
             return sendErrorResponse(req, res, 400, 'Image data (base64) is required');
         }
@@ -252,13 +256,13 @@ export const uploadImage = async (req: Request, res: Response, next: NextFunctio
         let mimeType = 'image/jpeg';
 
         if (match && match.length === 3) {
-            mimeType = match[1];
-            buffer = Buffer.from(match[2], 'base64');
+            mimeType = match[1] ?? mimeType;
+            buffer = Buffer.from(match[2] ?? '', 'base64');
         } else {
             buffer = Buffer.from(image.replace(/^data:image\/\w+;base64,/, ""), 'base64');
         }
 
-        const result = await adImageService.uploadSingleImage(adId, buffer, mimeType);
+        const result = await adImageService.uploadSingleImage(adId as string, buffer, mimeType);
 
         res.json(respond({
             success: true,

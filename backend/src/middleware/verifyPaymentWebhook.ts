@@ -78,7 +78,7 @@ export function verifyPaymentWebhook(secret: string) {
 
         // 🔑 IMPORTANT: Use rawBody if available (from app.ts), else check req.body
         const request = req as Request & { rawBody?: Buffer };
-        const body = request.rawBody || req.body;
+        const body: Buffer | unknown = request.rawBody || (req.body as Buffer | undefined);
 
         if (!Buffer.isBuffer(body)) {
             logger.error("[Webhook] Invalid body type. Raw body (Buffer) required.");

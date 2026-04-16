@@ -93,6 +93,6 @@ import { getUserConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
 applyToJSONTransform(ReportSchema);
-const Report: Model<IReport> = getUserConnection().models.Report || getUserConnection().model<IReport>('Report', ReportSchema);
+const Report: Model<IReport> = (getUserConnection().models.Report as Model<IReport> | undefined) || getUserConnection().model<IReport>('Report', ReportSchema);
 
 export default Report;

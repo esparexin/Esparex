@@ -1,11 +1,11 @@
-jest.mock("../../services/AdService", () => ({
+jest.mock("../../services/ad/AdAggregationService", () => ({
     __esModule: true,
     getAds: jest.fn(),
 }));
 
 import type { Request, Response } from "express";
 import { getSparePartListings } from "../../controllers/sparePartListing/sparePartListingController";
-import * as adService from "../../services/AdService";
+import * as AdAggregationService from "../../services/ad/AdAggregationService";
 
 describe("sparePartListingController pagination envelope", () => {
     beforeEach(() => {
@@ -13,7 +13,7 @@ describe("sparePartListingController pagination envelope", () => {
     });
 
     it("returns a standardized pagination envelope for public spare-part browse", async () => {
-        const mockedGetAds = adService.getAds as jest.Mock;
+        const mockedGetAds = AdAggregationService.getAds as jest.Mock;
         mockedGetAds.mockResolvedValueOnce({
             data: [{ id: "part-1", title: "iPhone screen" }],
             pagination: { page: 2, limit: 20, total: 45, hasMore: true, totalPages: 3 },

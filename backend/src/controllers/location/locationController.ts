@@ -266,7 +266,10 @@ export const getDefaultCenter = async (req: Request, res: Response) => {
 
 export const logLocationEvent = async (req: Request, res: Response) => {
     try {
-        const { source, city, state, lat, lng, reason, eventType, locationId } = req.body;
+        const { source, city, state, lat, lng, reason, eventType, locationId } = req.body as {
+            source?: string; city?: string; state?: string; lat?: number; lng?: number;
+            reason?: string; eventType?: string; locationId?: string;
+        };
 
         const userId = (req.user as IAuthUser)?._id ?? (req.user as IAuthUser)?.id ?? undefined;
 
@@ -326,7 +329,7 @@ export const geocode = async (req: Request, res: Response) => {
 
 export const ingestLocation = async (req: Request, res: Response) => {
     try {
-        const ingested = await ingestLocationService(req.body);
+        const ingested = await ingestLocationService(req.body as Parameters<typeof ingestLocationService>[0]);
         return res.json(respond({ success: true, data: ingested }));
     } catch (error: unknown) {
         logger.error('ingestLocation error', { error: error instanceof Error ? error.message : String(error) });

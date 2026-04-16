@@ -90,7 +90,7 @@ export async function adminListConversations(
         }
 
         query.$and = [
-            ...(Array.isArray(query.$and) ? query.$and : []),
+            ...(Array.isArray(query.$and) ? (query.$and as unknown[]) : []),
             searchConditions.length > 0
                 ? { $or: searchConditions }
                 : { _id: { $in: [] } },

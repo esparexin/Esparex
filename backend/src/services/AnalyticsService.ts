@@ -32,7 +32,7 @@ export const getTimeSeriesAnalytics = async (months: number = 6) => {
                 $lte: endDate.toISOString().split('T')[0]
             }
         }).lean(),
-        User.aggregate([
+        User.aggregate<AggregationBucket>([
             { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
             {
                 $group: {
@@ -42,7 +42,7 @@ export const getTimeSeriesAnalytics = async (months: number = 6) => {
             },
             { $sort: { "_id.year": 1, "_id.month": 1 } }
         ]),
-        Ad.aggregate([
+        Ad.aggregate<AggregationBucket>([
             { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
             {
                 $group: {

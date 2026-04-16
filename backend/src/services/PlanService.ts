@@ -10,7 +10,8 @@ import {
     getMonthlyCycleStart,
     getAdPostingBalance as adSlotGetBalance
 } from './AdSlotService';
-import type { ClientSession } from 'mongoose';
+import mongoose, { type ClientSession } from 'mongoose';
+
 import { AppError } from '../utils/AppError';
 import { calculateUserPlan } from './PlanEngine';
 import UserWallet from '../models/UserWallet';
@@ -29,8 +30,35 @@ export const adminUpdatePlan = (planId: string, payload: Record<string, unknown>
 export const adminGetPlans = (query: Record<string, unknown>): Promise<IPlan[]> =>
     Plan.find(query).sort({ createdAt: -1 });
 
-export const adminGetPlanById = (planId: string): Promise<IPlan | null> =>
+export const getPlanById = (planId: string): Promise<IPlan | null> =>
     Plan.findById(planId);
+
+export const adminGetPlanById = getPlanById;
+
+export const getActivePlans = async (query: Record<string, unknown>) => {
+    return Plan.find(query).sort({ price: 1 });
+};
+
+export const findPlanByIdOrCode = async (planId: string) => {
+    const plan = await Plan.findById(planId).catch(() => null);
+    if (plan) return plan;
+    return Plan.findOne({ code: planId });
+};
+
+export const upsertUserPlan = async (
+    userId: string | mongoose.Types.ObjectId,
+    planId: string | mongoose.Types.ObjectId | undefined,
+    startDate: Date,
+    endDate: Date
+) => {
+    return UserPlan.findOneAndUpdate(
+        { userId, planId },
+        { $set: { startDate, endDate, status: 'ACTIVE' } },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+};
+
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 

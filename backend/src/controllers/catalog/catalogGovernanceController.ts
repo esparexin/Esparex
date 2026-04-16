@@ -54,8 +54,8 @@ export const getHierarchyTree = async (req: Request, res: Response) => {
         const tree = await buildHierarchyTree();
         
         // Cache the result
-        await setCache(HIERARCHY_TREE_CACHE_KEY, tree, HIERARCHY_CACHE_TTL).catch(err => {
-            logger.error('Failed to cache hierarchy tree', { error: err.message });
+        await setCache(HIERARCHY_TREE_CACHE_KEY, tree, HIERARCHY_CACHE_TTL).catch((err: unknown) => {
+            logger.error('Failed to cache hierarchy tree', { error: err instanceof Error ? err.message : String(err) });
         });
 
         sendSuccessResponse(res, tree);
@@ -109,8 +109,9 @@ export const getCategoryHealth = async (req: Request, res: Response) => {
         // Metrics aggregation
         const { adStats, brandCount, modelCount } = await getCategoryHealthMetrics(id);
 
-        const stats = adStats[0] || { count: 0, avgQuality: 0, liveCount: 0 };
-        const totalModels = modelCount[0]?.total || 0;
+        interface AdStatsDoc { count: number; liveCount: number; avgQuality?: number }
+        const stats = (adStats[0] as AdStatsDoc | undefined) ?? { count: 0, avgQuality: 0, liveCount: 0 };
+        const totalModels = (modelCount[0] as { total?: number } | undefined)?.total ?? 0;
 
         const health = {
             categoryId: id,

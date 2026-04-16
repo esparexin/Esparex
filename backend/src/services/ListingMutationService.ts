@@ -88,8 +88,9 @@ export class ListingMutationService {
      */
     static async cleanupRemovedImages(existingImages: unknown, newImages: unknown, entityId: string): Promise<void> {
         if (Array.isArray(newImages) && Array.isArray(existingImages)) {
-            const nextImages = new Set(newImages.filter((img) => typeof img === 'string' && img.length > 0));
-            const removedImages = existingImages.filter((img) => typeof img === 'string' && img && !nextImages.has(img));
+            const nextImgs = (newImages as unknown[]).filter((img): img is string => typeof img === 'string' && img.length > 0);
+            const nextImages = new Set(nextImgs);
+            const removedImages = (existingImages as unknown[]).filter((img): img is string => typeof img === 'string' && Boolean(img) && !nextImages.has(img));
 
             if (removedImages.length > 0) {
                 await Promise.all(

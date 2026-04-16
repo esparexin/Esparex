@@ -7,7 +7,8 @@ import { sendSuccessResponse, sendAdminError } from './adminBaseController';
 import { getAdminWithTwoFactor, saveAdmin } from '../../services/AdminService';
 
 const resolveAdminId = (req: Request): string | null => {
-    const reqAdmin = req.admin?._id?.toString() as string | undefined;
+    const adminDoc = req.admin as unknown as { _id?: { toString(): string } | string } | undefined;
+    const reqAdmin = adminDoc?._id?.toString();
     if (reqAdmin) return reqAdmin;
 
     const reqUser = req.user?._id;

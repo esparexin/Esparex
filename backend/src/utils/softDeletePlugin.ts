@@ -79,18 +79,18 @@ const softDeletePlugin = (schema: Schema) => {
     // Soft Delete Instance Method
     // Also sets isActive=false if the field exists, preventing the
     // isActive=true + isDeleted=true data integrity corruption.
-    schema.methods.softDelete = function () {
+    schema.methods.softDelete = function (this: { isDeleted: boolean; deletedAt: Date | undefined; isActive?: boolean; save(): Promise<unknown> }) {
         this.isDeleted = true;
         this.deletedAt = new Date();
         if ('isActive' in this) this.isActive = false;
-        return this.save() as Promise<unknown>;
+        return this.save();
     };
 
     // Restore Instance Method
-    schema.methods.restore = function () {
+    schema.methods.restore = function (this: { isDeleted: boolean; deletedAt: Date | undefined; save(): Promise<unknown> }) {
         this.isDeleted = false;
         this.deletedAt = undefined;
-        return this.save() as Promise<unknown>;
+        return this.save();
     };
 };
 

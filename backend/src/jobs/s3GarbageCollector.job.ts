@@ -209,7 +209,7 @@ export const runS3GarbageCollectorJob = async () => {
                             Objects: batch.map(Key => ({ Key })),
                             Quiet: false,  // Return errors if any
                         },
-                    })).catch(err => {
+                    })).catch((err: unknown) => {
                         logger.error('S3 batch delete error', { batch: batch.slice(0, 3), err });
                         return null;
                     });

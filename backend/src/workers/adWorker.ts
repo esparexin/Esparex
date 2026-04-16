@@ -24,23 +24,5 @@ adWorker.on('failed', (job, err) => {
     }
 });
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export const notificationDeliveryWorker = new Worker("notification.delivery.queue", async job => {
-    // Legacy fallback handler removed: Notification Intents are now structurally instantiated upstream.
-    // If you plan to use this queue for delayed routing, construct NotificationIntents
-    // and explicitly pass them into the NotificationDispatcher inside this callback.
-    logger.warn(`[NotificationWorker] Deprecated generic job arrived on delivery queue`, { jobName: job.name });
-}, {
-    connection: redisConnection,
-    concurrency: 50 // High concurrency for network I/O bounds
-});
-
-notificationDeliveryWorker.on('failed', (job, err) => {
-    if (job) {
-        logger.error(`Push Job ${job.id} failed with error: ${err.message}`);
-    } else {
-        logger.error(`Push Worker error: ${err.message}`);
-    }
-});
-
 // notificationMatchWorker has been relocated to: workers/notificationMatchWorker.ts
+

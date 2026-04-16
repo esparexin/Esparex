@@ -304,8 +304,8 @@ export const suggestBrand = async (req: Request, res: Response) => {
         const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
         if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
 
-        const { name, categoryIds } = req.body;
-        const validation = validateBrandSuggestion(name || '');
+        const { name, categoryIds } = req.body as { name?: string; categoryIds?: string };
+        const validation = validateBrandSuggestion(name ?? '');
         if (!validation.isValid) return sendCatalogError(req, res, validation.error || 'Invalid name', 400);
 
         if (!categoryIds || !mongoose.Types.ObjectId.isValid(categoryIds)) {
@@ -365,7 +365,7 @@ export const suggestBrand = async (req: Request, res: Response) => {
         }));
     } catch (error) {
         if (isDuplicateKeyError(error)) {
-            return sendCatalogError(req, res, new Error(`"${req.body?.name || 'Brand'}" already exists. Select it from the dropdown.`), { statusCode: 409 });
+            return sendCatalogError(req, res, new Error(`"${(req.body as { name?: string })?.name ?? 'Brand'}" already exists. Select it from the dropdown.`), { statusCode: 409 });
         }
         return sendCatalogError(req, res, error);
     }
@@ -668,8 +668,8 @@ export const suggestModel = async (req: Request, res: Response) => {
         const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
         if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
 
-        const { name, brandId } = req.body;
-        const validation = validateModelSuggestion(name || '');
+        const { name, brandId } = req.body as { name?: string; brandId?: string };
+        const validation = validateModelSuggestion(name ?? '');
         if (!validation.isValid) return sendCatalogError(req, res, validation.error || 'Invalid name', 400);
 
         if (!brandId || !mongoose.Types.ObjectId.isValid(brandId)) {
@@ -716,7 +716,7 @@ export const suggestModel = async (req: Request, res: Response) => {
         }));
     } catch (error) {
         if (isDuplicateKeyError(error)) {
-            return sendCatalogError(req, res, `"${req.body?.name || 'Model'}" already exists. Select it from the dropdown.`, 409);
+            return sendCatalogError(req, res, `"${(req.body as { name?: string })?.name ?? 'Model'}" already exists. Select it from the dropdown.`, 409);
         }
         return sendCatalogError(req, res, error);
     }
@@ -727,7 +727,7 @@ export const suggestModel = async (req: Request, res: Response) => {
  */
 export const ensureModel = async (req: Request, res: Response) => {
     try {
-        const { categoryId, brandName, modelName } = req.body;
+        const { categoryId, brandName, modelName } = req.body as { categoryId?: string; brandName?: string; modelName?: string };
         const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
 
         if (!categoryId || !brandName || !modelName) {

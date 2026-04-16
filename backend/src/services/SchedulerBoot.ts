@@ -20,7 +20,7 @@ export const startScheduler = async () => {
         if (acquired !== 'OK') {
             logger.warn('Scheduler lock already exists in Redis. Another scheduler instance is already running.');
             logger.warn('Will retry acquiring the lock in the background...');
-            setTimeout(() => void startScheduler().catch(err => logger.error('Retry failed', { err })), 15000);
+            setTimeout(() => void startScheduler().catch((err: unknown) => logger.error('Retry failed', { error: err instanceof Error ? err.message : String(err) })), 15000);
             return;
         }
 
@@ -50,8 +50,8 @@ export const startScheduler = async () => {
                         process.exit(1);
                     }
                 })
-                .catch(err => {
-                    logger.error('Failed to renew scheduler lock timestamp', { error: err.message });
+                .catch((err: unknown) => {
+                    logger.error('Failed to renew scheduler lock timestamp', { error: err instanceof Error ? err.message : String(err) });
                 });
         }, SCHEDULER_LOCK_RENEW_INTERVAL_MS);
         schedulerLockInterval.unref();

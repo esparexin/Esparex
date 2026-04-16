@@ -2,7 +2,8 @@ import Business from '../models/Business';
 import { jobRunner } from '../utils/jobRunner';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
-import { createInAppNotification } from '../services/NotificationService';
+import { dispatchTemplatedNotification } from '../services/NotificationService';
+
 
 const MS_IN_DAY = 24 * 60 * 60 * 1000;
 const EXPIRY_WARNING_DAYS = 7;
@@ -38,13 +39,14 @@ export const runSuspendExpiredBusinessesJob = async () => {
 
                 for (const biz of expiringBusinesses) {
                     try {
-                        await createInAppNotification(
+                        await dispatchTemplatedNotification(
                             biz.userId.toString(),
                             'BUSINESS_STATUS',
-                            'Business Expiring Soon ⚠️',
-                            `Your business "${biz.name}" will expire on ${biz.expiresAt?.toLocaleDateString()}. Contact support to renew.`,
+                            'BUSINESS_EXPIRING_SOON',
+                            { name: biz.name, date: biz.expiresAt?.toLocaleDateString() },
                             { businessId: biz._id.toString(), status: 'expiring_soon' }
                         );
+
                     } catch (e) {
                         logger.warn('Failed to send expiration warning', { businessId: biz._id, error: e });
                     }
@@ -79,13 +81,14 @@ export const runSuspendExpiredBusinessesJob = async () => {
                     // Send suspension notifications
                     for (const biz of suspendedBusinesses) {
                         try {
-                            await createInAppNotification(
+                            await dispatchTemplatedNotification(
                                 biz.userId.toString(),
                                 'BUSINESS_STATUS',
-                                'Business Account Suspended',
-                                `Your business "${biz.name}" has expired and been suspended. Contact support to renew your listing.`,
+                                'BUSINESS_SUSPENDED',
+                                { name: biz.name },
                                 { businessId: biz._id.toString(), status: 'suspended' }
                             );
+
                         } catch (e) {
                             logger.warn('Failed to send suspension notification', { businessId: biz._id, error: e });
                         }

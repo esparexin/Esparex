@@ -133,7 +133,7 @@ export const runSystemScan = async (req: Request, res: Response) => {
  */
 export const applySystemFix = async (req: Request, res: Response) => {
     try {
-        const { action } = req.body;
+        const { action } = req.body as { action?: string };
         let message = `Action ${action} executed successfully`;
 
         switch (action) {

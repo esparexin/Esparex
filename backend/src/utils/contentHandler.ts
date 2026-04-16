@@ -79,7 +79,7 @@ export async function handlePaginatedContent<T extends Document>(
             queryParams
         } = options;
 
-        const effectiveQuery = queryParams || req.query;
+        const effectiveQuery = (queryParams || req.query) as Record<string, unknown>;
 
         const CATALOG_MODELS = ['Category', 'Brand', 'Model', 'ServiceType', 'ScreenSize', 'SparePart'];
         let cacheKey: string | null = null;

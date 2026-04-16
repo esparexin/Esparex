@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Ad from '../models/Ad';
-import { getAds, getAnyAdById } from './AdService';
+import { getAds } from './ad/AdAggregationService';
+import { getAnyAdById } from './ad/AdDetailService';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { LISTING_TYPE_VALUES, ListingTypeValue } from '../../../shared/enums/listingType';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';

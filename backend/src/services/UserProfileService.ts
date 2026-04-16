@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import User from '../models/User';
-import * as adService from './AdService';
+import * as AdAggregationService from './ad/AdAggregationService';
 
 export type SellerPublicUser = {
     id: string;
@@ -57,7 +57,7 @@ export const getUserProfileById = async (
         return null;
     }
 
-    const sellerAds = await adService.getAds(
+    const sellerAds = await AdAggregationService.getAds(
         {
             sellerId: userId,
             status: 'active',

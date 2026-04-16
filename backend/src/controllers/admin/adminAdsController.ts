@@ -4,20 +4,24 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
 import { logAdminAction } from '../../utils/adminLogger';
+import { getAds } from '../../services/ad/AdAggregationService';
 import {
-    isValidAdStatus,
     getAnyAdById,
-    createAd,
+    getReportedAdsAggregation,
+    getAdsByStatus,
+    getAdForModerationById,
+} from '../../services/ad/AdDetailService';
+import { computeModerationSummaryByType } from '../../services/ad/AdMetricsService';
+import {
     updateAdTransactional,
     promoteAd,
-    getAds,
-    computeModerationSummaryByType,
-    getReportedAdsAggregation,
+} from '../../services/AdMutationService';
+import {
+    isValidAdStatus,
     computeActiveExpiry,
-    getAdsByStatus,
     extendAdExpiry,
-    getAdForModerationById,
-} from '../../services/AdService';
+} from '../../services/adStatusService';
+import { createAd } from '../../services/AdOrchestrator';
 import {
     getAdminReportById,
     findReportForUpdate,

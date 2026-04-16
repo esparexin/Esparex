@@ -150,8 +150,8 @@ export const uploadMultipleImages = async (
 
     const uploadPromises = images.map(img =>
         uploadSingleImage(adId, img.buffer, img.mimeType, session)
-            .catch(err => {
-                logger.error('Failed to upload individual image', { error: err });
+            .catch((err: unknown) => {
+                logger.error('Failed to upload individual image', { error: err instanceof Error ? err.message : String(err) });
                 return null;
             })
     );

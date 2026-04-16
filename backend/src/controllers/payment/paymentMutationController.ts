@@ -23,7 +23,7 @@ import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
 export const createPaymentOrder = async (req: Request, res: Response) => {
     try {
         if (!req.user) return sendErrorResponse(req, res, 401, 'Unauthorized');
-        const { planId } = req.body;
+        const { planId } = req.body as { planId?: string };
 
         if (!planId) return sendErrorResponse(req, res, 400, 'Plan ID required');
 

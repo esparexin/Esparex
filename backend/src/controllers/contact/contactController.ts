@@ -13,7 +13,14 @@ import { respond } from '../../utils/respond';
 
 export const submitContactForm = async (req: Request, res: Response) => {
     try {
-        const { name, email, mobile, phone, subject, category, message } = req.body;
+        const { name, email, mobile, phone, subject, category, message } = req.body as {
+            name?: string; email?: string; mobile?: string; phone?: string;
+            subject?: string; category?: string; message?: string;
+        };
+
+        if (!name || !email || !message) {
+            return sendErrorResponse(req, res, 400, 'Name, email, and message are required.');
+        }
 
         // Create contact submission
         const submission = await createContactSubmission({
@@ -24,6 +31,7 @@ export const submitContactForm = async (req: Request, res: Response) => {
             category,
             message
         });
+
 
         res.status(201).json(respond({
             success: true,

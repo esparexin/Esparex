@@ -9,15 +9,16 @@ export const saveAd = async (req: Request, res: Response) => {
         const savedAdReq = req as SavedAdRequest;
         const userId = getUserId(savedAdReq);
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
-        const { adId } = req.body;
+        const { adId } = req.body as { adId?: string };
 
-        const finalAdId = adId || savedAdReq.params.adId;
+        const finalAdId = (adId || savedAdReq.params.adId) as string;
 
         if (!finalAdId) {
             return sendErrorResponse(req, res, 400, 'Ad ID is required');
         }
 
         const result = await saveAdService(userId, finalAdId);
+
         if (!result) {
             return sendErrorResponse(req, res, 404, 'Ad not found');
         }

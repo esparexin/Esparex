@@ -26,11 +26,12 @@ export const getApiKeys = async (req: Request, res: Response) => {
 
 export const createApiKey = async (req: Request, res: Response) => {
     try {
-        const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-        const scopes = Array.isArray(req.body?.scopes)
-            ? req.body.scopes.filter((scope: unknown) => typeof scope === 'string')
+        const keyBody = req.body as { name?: unknown; scopes?: unknown; expiresAt?: unknown };
+        const name = typeof keyBody.name === 'string' ? keyBody.name.trim() : '';
+        const scopes = Array.isArray(keyBody.scopes)
+            ? (keyBody.scopes as unknown[]).filter((scope) => typeof scope === 'string')
             : [];
-        const expiresAt = req.body?.expiresAt ? new Date(req.body.expiresAt) : undefined;
+        const expiresAt = keyBody.expiresAt ? new Date(keyBody.expiresAt as string | number) : undefined;
 
         if (!name) {
             return sendAdminError(req, res, 'API key name is required', 400);
@@ -46,7 +47,7 @@ export const createApiKey = async (req: Request, res: Response) => {
             scopes,
             expiresAt,
             createdBy: new mongoose.Types.ObjectId(String(createdBy)),
-        });
+        }) as { apiKey: { _id: { toString(): string }; toJSON(): Record<string, unknown> }; rawKey: string };
 
         await logAdminAction(req, 'CREATE_API_KEY', 'ApiKey', apiKey._id.toString(), {
             name,

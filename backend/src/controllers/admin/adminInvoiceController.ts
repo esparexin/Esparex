@@ -75,7 +75,14 @@ export const getInvoiceById = async (req: Request, res: Response) => {
  */
 export const createInvoice = async (req: Request, res: Response) => {
     try {
-        const { customerEmail, planId, amount, currency = 'INR', items, isGstInvoice } = req.body;
+        const { customerEmail, planId, amount, currency = 'INR', items, isGstInvoice } = req.body as {
+            customerEmail?: string;
+            planId?: string;
+            amount?: number | string;
+            currency?: string;
+            items?: Array<{ unitPrice: number; quantity: number; description: string }>;
+            isGstInvoice?: boolean;
+        };
 
         if (!customerEmail) {
             return sendAdminError(req, res, 'Customer Email is required.', 400);
@@ -101,7 +108,8 @@ export const createInvoice = async (req: Request, res: Response) => {
                 return sendAdminError(req, res, 'Plan not found.', 404);
             }
 
-            const snapshotPrice = parseFloat(amount) || plan.price;
+            const snapshotPrice = parseFloat(String(amount)) || plan.price;
+
             resolvedPlanId = plan._id.toString();
 
             planSnapshot = {
@@ -140,7 +148,7 @@ export const createInvoice = async (req: Request, res: Response) => {
         // 3. Create Transaction (Record the movement of money)
         // Admin can specify if this is a PENDING invoice (to be paid) or SUCCESS (already paid)
         // Default to PENDING for invoices that need payment, or SUCCESS for recording completed payments
-        const requestedStatus = req.body.status;
+        const requestedStatus = (req.body as { status?: unknown }).status;
         const validInvoiceStatuses = [PAYMENT_STATUS.PENDING, PAYMENT_STATUS.SUCCESS, PAYMENT_STATUS.FAILED, PAYMENT_STATUS.CANCELLED] as const;
         const invoiceStatus = (typeof requestedStatus === 'string' &&
             validInvoiceStatuses.includes(requestedStatus as (typeof validInvoiceStatuses)[number]))
@@ -229,7 +237,7 @@ export const createInvoice = async (req: Request, res: Response) => {
  */
 export const updateInvoiceStatus = async (req: Request, res: Response) => {
     try {
-        const { status, notes } = req.body;
+        const { status, notes } = req.body as { status?: string; notes?: string };
         const validStatuses = ['PENDING', 'SUCCESS', 'FAILED', 'CANCELLED'];
 
         if (!status || !validStatuses.includes(status)) {

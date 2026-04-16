@@ -5,7 +5,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import * as adService from '../../services/AdService';
+import * as AdMutationService from '../../services/AdMutationService';
 import * as adStatusService from '../../services/adStatusService';
 import * as AdOrchestrator from '../../services/AdOrchestrator';
 
@@ -61,11 +61,12 @@ export const createAd = async (req: Request, res: Response, next: NextFunction) 
             );
         }
         const authUserId = (req.user as IAuthUser)._id.toString();
-        const sellerId = req.body.sellerId || authUserId;
+        const createBody = req.body as Record<string, unknown>;
+        const sellerId = (typeof createBody.sellerId === 'string' ? createBody.sellerId : null) ?? authUserId;
 
         // 🛡️ Strict listingType guard — requireListingType middleware coerces to LISTING_TYPE.AD
         // but double-check here as defense-in-depth against direct controller calls.
-        const providedType = req.body.listingType;
+        const providedType = typeof createBody.listingType === 'string' ? createBody.listingType : undefined;
         if (providedType && providedType !== LISTING_TYPE.AD) {
             const routeMap: Record<string, string> = {
                 [LISTING_TYPE.SERVICE]:    '/api/v1/services',
@@ -78,7 +79,7 @@ export const createAd = async (req: Request, res: Response, next: NextFunction) 
             );
         }
 
-        const ad = await AdOrchestrator.createAd(req.body, {
+        const ad = await AdOrchestrator.createAd(createBody, {
             actor: 'USER',
             authUserId,
             sellerId,
@@ -120,16 +121,17 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
         const authUserId = (req.user as IAuthUser)._id.toString();
-        const sellerId = req.body.sellerId || authUserId;
+        const updateBody = req.body as Record<string, unknown>;
+        const sellerId = (typeof updateBody.sellerId === 'string' ? updateBody.sellerId : null) ?? authUserId;
 
         // Defense-in-depth: strip immutable identity fields — mirrors listingController.editListing
         const PROTECTED_FIELDS = ['categoryId', 'brandId', 'modelId', 'listingType', 'sellerId',
             'status', 'moderationStatus', 'approvedAt', 'approvedBy', 'isDeleted', 'deletedAt', 'expiresAt'];
         for (const field of PROTECTED_FIELDS) {
-            delete req.body[field];
+            delete updateBody[field];
         }
 
-        if (req.body.listingType === LISTING_TYPE.SERVICE) {
+        if (updateBody.listingType === LISTING_TYPE.SERVICE) {
             const business = await getBusinessByUserId(authUserId);
             if (!business || !isBusinessPublishedStatus(business.status)) {
                 return sendClientError(req, res, 403, 'Approved Business Account Required', 'BUSINESS_NOT_APPROVED', {
@@ -138,7 +140,7 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
             }
         }
 
-        const ad = await adService.updateAd(id, req.body, {
+        const ad = await AdMutationService.updateAd(id, updateBody, {
             actor: 'USER',
             authUserId,
             sellerId
@@ -166,7 +168,7 @@ export const deleteAd = async (req: Request, res: Response, next: NextFunction) 
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
 
-        await adService.assertOwnership(id, (req.user)._id.toString());
+        await AdMutationService.assertOwnership(id, (req.user)._id.toString());
 
         // Use canonical adStatusService (not deprecated adService.deleteAd)
         const ad = await adStatusService.deleteAd(id, (req.user)._id.toString(), 'user');

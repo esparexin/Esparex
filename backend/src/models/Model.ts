@@ -70,6 +70,6 @@ import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 ModelSchema.plugin(installSafeSoftDeleteQuery);
 
 import { getAdminConnection } from '../config/db';
-const ProductModel: Model<IModel> = getAdminConnection().models.Model || getAdminConnection().model<IModel>('Model', ModelSchema);
+const ProductModel: Model<IModel> = (getAdminConnection().models.Model as Model<IModel> | undefined) || getAdminConnection().model<IModel>('Model', ModelSchema);
 
 export default ProductModel;

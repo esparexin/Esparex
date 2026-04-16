@@ -40,6 +40,6 @@ import { getUserConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
 applyToJSONTransform(PhoneRequestSchema);
-const PhoneRequest: Model<IPhoneRequest> = getUserConnection().models.PhoneRequest || getUserConnection().model<IPhoneRequest>('PhoneRequest', PhoneRequestSchema);
+const PhoneRequest: Model<IPhoneRequest> = (getUserConnection().models.PhoneRequest as Model<IPhoneRequest> | undefined) || getUserConnection().model<IPhoneRequest>('PhoneRequest', PhoneRequestSchema);
 
 export default PhoneRequest;

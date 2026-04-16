@@ -49,7 +49,8 @@ const sendAuthError = (req: Request, res: Response, error: unknown) => {
  */
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
-        const rawEmail = req.body?.email;
+        const forgotBody = req.body as { email?: unknown };
+        const rawEmail = forgotBody.email;
         const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : '';
         if (!email) {
             return sendSuccessResponse(res, { message: 'If that email exists, a reset link has been sent.' });
@@ -114,9 +115,9 @@ export const resetPassword = async (req: Request, res: Response) => {
     try {
         const token = getSingleParam(req, res, 'token', { error: 'Invalid reset token' });
         if (!token) return;
-        const { password } = req.body;
+        const { password } = req.body as { password?: unknown };
 
-        if (!password) return sendAdminError(req, res, 'Password is required', 400);
+        if (!password || typeof password !== 'string') return sendAdminError(req, res, 'Password is required', 400);
 
         // 🛡️ SECURITY: Password strength check
         if (password.length < 8) {
@@ -161,9 +162,11 @@ export const resetPassword = async (req: Request, res: Response) => {
  */
 export const adminLogin = async (req: Request, res: Response) => {
     try {
-        const rawEmail = req.body?.email;
+        const loginBody = req.body as { email?: unknown; password?: unknown; twoFactorCode?: unknown };
+        const rawEmail = loginBody.email;
         const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : '';
-        const { password, twoFactorCode } = req.body;
+        const password = typeof loginBody.password === 'string' ? loginBody.password : '';
+        const twoFactorCode = typeof loginBody.twoFactorCode === 'string' ? loginBody.twoFactorCode : undefined;
         if (!email || !password) return sendAdminError(req, res, 'Email and password are required', 400);
 
         // 🛡️ SECURITY AUDIT: Load dynamic security settings
@@ -297,7 +300,7 @@ export const adminLogin = async (req: Request, res: Response) => {
  */
 export const adminLogout = async (req: Request, res: Response) => {
     try {
-        const token = req.cookies?.admin_token;
+        const token = req.cookies?.admin_token as string | undefined;
         if (typeof token === 'string' && token.length > 0) {
             await revokeAdminSession(token);
         }

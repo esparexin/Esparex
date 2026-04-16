@@ -103,39 +103,10 @@ Rules currently set to `warn` in `backend/eslint.config.mjs`:
 
 ### Track C — Circular dependency audit
 
-**Why:** The SSOT refactor created 13 new services and extended 8 others. Service-to-service imports
-can create cycles (`ServiceA → ServiceB → ServiceA`) that cause `undefined` at module init time —
-silent bugs that only appear under certain import orderings.
-
-**Tool:** `madge` — installed at workspace root.
-
-```bash
-node_modules/.bin/madge --circular --extensions ts backend/src
-```
-
-**Baseline: 7 cycles found (2026-04-15)**
-
-| # | Cycle | Type | Priority |
-|---|-------|------|----------|
-| 1 | `models/Location.ts → utils/locationInputNormalizer.ts` | Value | High |
-| 2 | `models/Location.ts → utils/locationInputNormalizer.ts → utils/locationHierarchy.ts` | Value | High |
-| 3 | `utils/locationInputNormalizer.ts → utils/locationHierarchy.ts` | Value | Medium |
-| 4 | `events/index.ts → events/listeners/CatalogPromotionListener.ts` | Value | Medium |
-| 5 | `services/location/LocationNormalizer.ts → _shared/locationServiceBase.ts → _shared/hierarchyLoader.ts` | Value | Medium |
-| 6 | `services/AdService.ts → services/AdOrchestrator.ts` | **Value — God service** | **Critical** |
-| 7 | `services/NotificationService.ts → services/notification/NotificationDispatcher.ts` | Value | Medium |
-
-**Fix strategy:**
-- **Cycle 6 (AdService ↔ AdOrchestrator):** `AdService.ts` imports `AdOrchestrator` to re-export
-  `createAd`. The fix: remove the re-export from `AdService.ts`; callers should import directly
-  from `AdOrchestrator.ts`.
-- **Location cycles (1, 2, 3, 5):** Model shouldn't import utils that import other utils in a
-  loop. Extract the shared primitive (e.g., `normalizeCoordinates`) to a leaf module with no
-  imports from the cycle.
-- **Events cycle (4):** `events/index.ts` barrel re-exporting the listener it also triggers.
-  Move the listener registration out of the barrel, or have the barrel only export types.
-- **Notification cycle (7):** `NotificationService` and `NotificationDispatcher` are in a loop.
-  Extract the shared interface/types to a third module both can import.
+- [x] **Track C:** Circular Dependency Audit (`madge`) - **Status: DONE**
+  - Found 7 structural loops in foundational domains (Location, Events, Orchestrator).
+  - Remediation: Extracted Location schemas to `utils/locationPrimitives.ts`. Extracted FCM logic to `PushGatewayService.ts`. Unlinked orphaned fallback `createAd` exports between Orchestrator and AdService.
+  - Final Check: `npx madge --circular --extensions ts backend/src` yields 0 warnings.
 
 ---
 

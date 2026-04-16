@@ -34,7 +34,7 @@ export const registerBusiness = async (req: Request, res: Response) => {
 
         // Spam prevention: Force phone to user's verified mobile (prevent tampering)
         const verifiedPayload = {
-            ...req.body,
+            ...(req.body as Record<string, unknown>),
             phone: user.mobile,
             mobile: user.mobile
         };
@@ -101,9 +101,10 @@ export const updateBusiness = async (req: Request, res: Response) => {
         ];
 
         const filteredUpdates: Record<string, unknown> = {};
+        const bodyRecord = req.body as Record<string, unknown>;
         allowedUpdates.forEach(key => {
-            if (Object.prototype.hasOwnProperty.call(req.body, key)) {
-                filteredUpdates[key] = req.body[key];
+            if (Object.prototype.hasOwnProperty.call(bodyRecord, key)) {
+                filteredUpdates[key] = bodyRecord[key];
             }
         });
 

@@ -10,7 +10,12 @@ import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { PromotionPolicyService } from '../../services/PromotionPolicyService';
 import { buildPublicAdFilter, isPublicAdVisible } from '../../utils/FeedVisibilityGuard';
-import * as adService from '../../services/AdService';
+import * as AdAggregationService from '../../services/ad/AdAggregationService';
+import * as AdDetailService from '../../services/ad/AdDetailService';
+import * as AdMutationService from '../../services/AdMutationService';
+import * as AdMetricsService from '../../services/ad/AdMetricsService';
+import * as AdEngagementService from '../../services/AdEngagementService';
+import * as adStatusService from '../../services/adStatusService';
 import { mutateStatus } from '../../services/StatusMutationService';
 import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
 import { getSellerPhone } from '../../services/ContactRevealService';
@@ -61,14 +66,14 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
 
         if (!adId) {
             const visibilityFilter = isAdmin ? { isDeleted: { $ne: true } } : buildPublicAdFilter();
-            adId = await adService.getAdIdBySlug(idOrSlug, visibilityFilter);
+            adId = await AdDetailService.getAdIdBySlug(idOrSlug, visibilityFilter);
         }
 
         if (!adId) {
             return sendErrorResponse(req, res, 404, 'Listing not found');
         }
 
-        const ad = await adService.getListingDetailById(adId);
+        const ad = await AdDetailService.getListingDetailById(adId);
 
         if (!ad || (ad as { isDeleted?: boolean }).isDeleted) {
             return sendErrorResponse(req, res, 404, 'Listing not found');
@@ -128,7 +133,7 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
             });
         }
 
-        const updatedListing = await adService.updateAd(id, body, {
+        const updatedListing = await AdMutationService.updateAd(id, body, {
             actor: 'USER',
             authUserId: user._id.toString(),
             sellerId: user._id.toString()
@@ -154,9 +159,7 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
             return sendErrorResponse(req, res, 400, 'Only live listings can be marked as sold');
         }
 
-        const soldReason = req.body?.soldReason as
-            | 'sold_on_platform' | 'sold_outside' | 'no_longer_available'
-            | undefined;
+        const soldReason = (req.body as { soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available' })?.soldReason;
 
         const updatedListing = await mutateStatus({
             domain: 'ad',
@@ -257,7 +260,7 @@ export const incrementListingView = async (req: Request, res: Response, next: Ne
             ? { _id: idOrSlug }
             : { seoSlug: idOrSlug };
 
-        await adService.incrementAdViewByFilter(filter);
+        await AdEngagementService.incrementAdViewByFilter(filter);
 
         return sendSuccessResponse(res, { success: true });
     } catch (error) {
@@ -347,7 +350,7 @@ export const repostListing = async (req: Request, res: Response, next: NextFunct
         if (!id) return;
         const userId = (req.user as IAuthUser)._id.toString();
 
-        const reposted = await adService.repostAd(id, userId);
+        const reposted = await AdMutationService.repostAd(id, userId);
         if (!reposted) {
             return sendErrorResponse(req, res, 404, 'Listing not found');
         }
@@ -413,7 +416,7 @@ export const getMyListingStats = async (req: Request, res: Response, next: NextF
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
 
-        const counts = await adService.getSellerListingStats(userId);
+        const counts = await AdMetricsService.getSellerListingStats(userId);
         return sendSuccessResponse(res, counts);
     } catch (error) {
         next(error);
@@ -453,7 +456,7 @@ export const getMyListings = async (req: Request, res: Response) => {
             query.status = getStatusMatchCriteria(status as string);
         }
 
-        const { items, total } = await adService.getOwnerListings(query, Number(page), Number(limit));
+        const { items, total } = await AdAggregationService.getOwnerListings(query, Number(page), Number(limit));
 
         return sendSuccessResponse(res, {
             items,

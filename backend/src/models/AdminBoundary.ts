@@ -57,7 +57,7 @@ AdminBoundarySchema.index({ locationId: 1, level: 1 }, { name: 'idx_adminboundar
 const connection = getUserConnection();
 
 const AdminBoundary: Model<IAdminBoundary> =
-    connection.models.AdminBoundary ||
+    (connection.models.AdminBoundary as Model<IAdminBoundary> | undefined) ||
     connection.model<IAdminBoundary>('AdminBoundary', AdminBoundarySchema);
 
 export default AdminBoundary;

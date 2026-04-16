@@ -89,7 +89,7 @@ export class FeedDecisionEngine {
                 { $limit: limitNeeded - mergedAds.length },
             ];
 
-            const results = await Ad.aggregate(pipeline);
+            const results = await Ad.aggregate<Record<string, unknown>>(pipeline);
             for (const ad of results) {
                 const idStr = String(ad._id);
                 if (!seenIds.has(idStr)) {

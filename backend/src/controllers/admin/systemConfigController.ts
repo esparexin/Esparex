@@ -108,7 +108,7 @@ export const getSystemConfig = async (req: Request, res: Response) => {
  */
 export const updateSystemConfig = async (req: Request, res: Response) => {
     try {
-        const updates = req.body ?? {};
+        const updates = (req.body ?? {}) as Record<string, unknown>;
         const adminIdRaw = (req as AuthenticatedRequest).user?._id;
         const adminId = adminIdRaw ? String(adminIdRaw) : undefined;
         const { config, updatedSections } = await updateSystemConfigSections(updates, adminId);

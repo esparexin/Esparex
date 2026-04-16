@@ -7,7 +7,9 @@ import { credit } from '../../services/WalletService';
 
 export const adjustWallet = async (req: Request, res: Response) => {
     try {
-        const { userId, adCredits, spotlightCredits, smartAlertSlots } = req.body;
+        const { userId, adCredits, spotlightCredits, smartAlertSlots } = req.body as {
+            userId?: string; adCredits?: number; spotlightCredits?: number; smartAlertSlots?: number;
+        };
 
         if (!userId) return sendErrorResponse(req, res, 400, 'User ID is required');
 

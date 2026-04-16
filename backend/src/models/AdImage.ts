@@ -28,6 +28,6 @@ AdImageSchema.index({ adId: 1 }, { name: 'idx_adimage_adId_idx' });
 AdImageSchema.index({ imageHash: 1 }, { name: 'idx_adimage_imageHash_idx' });
 AdImageSchema.index({ adId: 1, imageHash: 1 }, { name: 'idx_adimage_adId_hash_unique_idx', unique: true });
 
-const AdImage: Model<IAdImage> = getUserConnection().models.AdImage || getUserConnection().model<IAdImage>('AdImage', AdImageSchema);
+const AdImage: Model<IAdImage> = (getUserConnection().models.AdImage as Model<IAdImage> | undefined) || getUserConnection().model<IAdImage>('AdImage', AdImageSchema);
 
 export default AdImage;

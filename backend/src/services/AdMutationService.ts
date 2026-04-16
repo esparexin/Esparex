@@ -1,45 +1,3 @@
-import { createAd as orchestratorCreateAd } from './AdOrchestrator';
-// DTOs and validation schemas
-import { z } from "zod";
-
-export interface AdCreationDTO {
-    title: string;
-    description: string;
-    price: number;
-    categoryId: string;
-    brandId: string;
-    modelId: string;
-    location: { locationId: string; lat: number; lng: number };
-    images?: string[];
-    duplicateFingerprint?: string;
-}
-
-export const AdCreationSchema = z.object({
-    title: z.string(),
-    description: z.string(),
-    price: z.number(),
-    categoryId: z.string(),
-    brandId: z.string(),
-    modelId: z.string(),
-    location: z.object({
-        locationId: z.string(),
-        lat: z.number(),
-        lng: z.number(),
-    }),
-    images: z.array(z.string()).optional(),
-    duplicateFingerprint: z.string().optional(),
-});
-/**
- * Ad Service (REFACTORED - Phase 2.1)
- * Legacy fallback ad creation function removed after orchestrator stability confirmation.
- * 3. adStatusService - Status management & lifecycle
- * 4. adEngagementService - Views & engagement tracking
- * 5. adImageService - Image upload & processing
- * 
- * New code should import directly from the specialized services.
- * Existing code can continue using these re-exports for backward compatibility.
- */
-
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError';
 import logger from '../utils/logger';
@@ -47,42 +5,18 @@ import Ad, { type IAd } from '../models/Ad';
 import { getUserConnection } from '../config/db';
 import { normalizeAdStatus } from './adStatusService';
 import { LISTING_TYPE } from '../../../shared/enums/listingType';
-import {
-    consumeAdPostingSlot,
-} from './PlanService';
+import { consumeAdPostingSlot } from './PlanService';
 import { getAdPostingBalance } from './AdSlotService';
 import { consumeCredit } from './WalletService';
 import { AdContext } from '../types/ad.types';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '../../../shared/enums/lifecycle';
-import { AD_STATUS, AD_STATUS_VALUES } from '../../../shared/enums/adStatus';
+import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
 import { AdCreationService } from './AdCreationService';
 import { mutateStatus } from './StatusMutationService';
-import { hydrateAdMetadata, getAds } from './ad/AdAggregationService';
+import { computeActiveExpiry } from './adStatusService';
 import { enqueueImageOptimization } from '../queues/imageQueue';
-export {
-    getAds,
-    hydrateAdMetadata
-};
-export {
-    getListingDetailById,
-    getReportedAdsAggregation,
-    getAdSuggestions,
-    getAdsByStatus,
-    getAdIdBySlug
-} from './ad/AdDetailService';
-export {
-    getAdCounts,
-    getSellerListingStats,
-    computeModerationSummaryByType
-} from './ad/AdMetricsService';
-export { updateAdStatus, expireOutdatedAds, expireBoosts, computeActiveExpiry, extendAdExpiry, deleteAd, restoreAd } from './adStatusService';
-export { incrementAdView } from './AdEngagementService';
-
-// ─────────────────────────────────────────────────
-// CORE CRUD - GET WITH DUPLICATE DETECTION
-// ─────────────────────────────────────────────────
 
 export const assertOwnership = async (adId: string, userId: string): Promise<{ sellerId: mongoose.Types.ObjectId; status: string }> => {
     const ad = await Ad.findById(adId).select('sellerId status').lean();
@@ -94,50 +28,6 @@ export const assertOwnership = async (adId: string, userId: string): Promise<{ s
     }
     return ad as { sellerId: mongoose.Types.ObjectId; status: string };
 };
-
-export const getAnyAdById = async (
-    adId: string,
-    _requesterId?: string
-): Promise<Record<string, unknown> | null> => {
-    void _requesterId;
-    if (!mongoose.Types.ObjectId.isValid(adId)) return null;
-
-    const id = new mongoose.Types.ObjectId(adId);
-
-    try {
-        const ad = await Ad.findOne({ _id: id })
-            .setOptions({ withDeleted: true })
-            .populate('sellerId', 'name avatar isVerified role trustScore')
-            .lean();
-
-        if (!ad) return null;
-
-        // Perform Split-DB hydration for catalog references
-        await hydrateAdMetadata([ad]);
-
-        // Use DTO/interface for ad
-        const result = { ...ad } as Partial<IAd> & Record<string, unknown>;
-        delete result.password;
-        delete result.otp;
-        delete result.otpExpiry;
-        return result;
-    } catch (error) {
-        logger.error('Failed to get ad by ID', {
-            error: error instanceof Error ? error.message : String(error),
-            adId
-        });
-        throw error;
-    }
-};
-
-// ─────────────────────────────────────────────────
-// CORE CRUD - CREATE
-// ─────────────────────────────────────────────────
-
-
-// ─────────────────────────────────────────────────
-// CORE CRUD - UPDATE
-// ─────────────────────────────────────────────────
 
 export const updateAd = async (
     adId: string,
@@ -309,10 +199,6 @@ export const updateAdTransactional = async (options: {
     }
 };
 
-// ─────────────────────────────────────────────────
-// SPOTLIGHT PROMOTION
-// ─────────────────────────────────────────────────
-
 export const promoteAd = async (
     id: string,
     days: number = 7,
@@ -328,8 +214,6 @@ export const promoteAd = async (
     const ad = await Ad.findById(id);
     if (!ad) return null;
 
-    // 🛡️ Phase 2: listingType Guard for Spotlight
-    // Only 'ad' and 'service' types are eligible for spotlight.
     if (ad.listingType === LISTING_TYPE.SPARE_PART) {
         throw new AppError('Spare parts are not eligible for Spotlight promotion.', 403);
     }
@@ -546,27 +430,6 @@ export const repostAd = async (
     }
 };
 
-
-// ─────────────────────────────────────────────────
-// STATUS VALIDATION
-// ─────────────────────────────────────────────────
-
-export const isValidAdStatus = (status: string): boolean => {
-    if (!status || typeof status !== 'string') return false;
-    return (AD_STATUS_VALUES as readonly string[]).includes(status);
-};
-
-
-export const preparePayload = (...args: Parameters<typeof AdCreationService.preparePayload>) => AdCreationService.preparePayload(...args);
-export const createAd = orchestratorCreateAd;
-
-export const getAdForModerationById = async (id: string) => {
-    if (!mongoose.Types.ObjectId.isValid(id)) return null;
-    return Ad.findById(id)
-        .select('status reviewVersion listingType isDeleted')
-        .lean<{ status: string; reviewVersion?: number; listingType?: string; isDeleted?: boolean } | null>();
-};
-
 export const extendListingExpiry = async (
     id: string,
     expiresAt: Date,
@@ -587,15 +450,6 @@ export const extendListingExpiry = async (
         },
         { new: true }
     );
-};
-
-export const getServiceAnalyticsStats = async () => {
-    const [totalServices, pendingServices, activeServices] = await Promise.all([
-        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE }),
-        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: 'pending' }),
-        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE }),
-    ]);
-    return { totalServices, pendingServices, activeServices };
 };
 
 export const findOwnedService = async (
@@ -638,38 +492,3 @@ export const updateServiceByOwner = async (
         updates,
         { new: true }
     );
-
-export const incrementAdViewByFilter = async (filter: Record<string, unknown>) =>
-    Ad.findOneAndUpdate(filter, { $inc: { 'views.total': 1 } });
-
-export const getOwnerListings = async (
-    query: Record<string, unknown>,
-    page: number,
-    limit: number
-) => {
-    const { default: Brand } = await import('../models/Brand');
-    const { default: Category } = await import('../models/Category');
-    const { default: ProductModel } = await import('../models/Model');
-    const { default: SparePart } = await import('../models/SparePart');
-    const { default: ServiceType } = await import('../models/ServiceType');
-
-    const populateSpecs = [
-        { path: 'categoryId', model: Category, select: 'name slug icon' },
-        { path: 'brandId', model: Brand, select: 'name slug' },
-        { path: 'modelId', model: ProductModel, select: 'name slug' },
-        { path: 'sparePartId', model: SparePart, select: 'name slug' },
-        { path: 'serviceTypeIds', model: ServiceType, select: 'name slug' },
-    ] as const;
-
-    const itemsQuery = populateSpecs.reduce(
-        (builder, spec) => builder.populate(spec),
-        Ad.find(query)
-    );
-
-    const [items, total] = await Promise.all([
-        itemsQuery.sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
-        Ad.countDocuments(query),
-    ]);
-
-    return { items, total };
-};

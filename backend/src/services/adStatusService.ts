@@ -1,5 +1,6 @@
 import { LIFECYCLE_STATUS, type LifecycleStatus } from '../../../shared/enums/lifecycle';
 import { LISTING_TYPE, type ListingTypeValue } from '../../../shared/enums/listingType';
+import { AD_STATUS_VALUES } from '../../../shared/enums/adStatus';
 import { getSystemConfigForRead } from './SystemConfigService';
 
 export type AdStatus = LifecycleStatus;
@@ -22,6 +23,15 @@ export const normalizeAdStatus = (status: string): string => {
     if (s === 'active' || s === 'approved') return LIFECYCLE_STATUS.LIVE;
     return s;
 };
+
+/**
+ * Validates if a string is a recognized Ad status.
+ */
+export const isValidAdStatus = (status: string): boolean => {
+    if (!status || typeof status !== 'string') return false;
+    return (AD_STATUS_VALUES as readonly string[]).includes(status);
+};
+
 
 import Ad from '../models/Ad';
 import { mutateStatus } from './StatusMutationService';

@@ -1,8 +1,10 @@
 import { ClientSession } from 'mongoose';
 import UserWallet from '../models/UserWallet';
-import Transaction from '../models/Transaction';
+import Transaction, { type ITransaction } from '../models/Transaction';
 import { getUserConnection } from '../config/db';
 import { AppError } from '../utils/AppError';
+import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
+
 
 export interface WalletAmount {
     adCredits?: number;
@@ -11,6 +13,21 @@ export interface WalletAmount {
 }
 
 export type CreditType = keyof WalletAmount;
+
+export const buildWalletIncrement = (tx: ITransaction): WalletAmount => {
+    const kind = tx.planSnapshot?.type;
+    const credits = getPrimaryPlanCreditCount(tx.planSnapshot);
+    const amount: WalletAmount = {};
+
+    if (kind === 'AD_PACK') amount.adCredits = credits;
+    if (kind === 'SPOTLIGHT') amount.spotlightCredits = credits;
+    if (kind === 'SMART_ALERT') amount.smartAlertSlots = credits;
+
+    return amount;
+};
+
+export const hasWalletIncrement = (amount: WalletAmount) => Object.values(amount).some((value) => Number(value || 0) > 0);
+
 
 interface WalletOperationParams {
     userId: string;

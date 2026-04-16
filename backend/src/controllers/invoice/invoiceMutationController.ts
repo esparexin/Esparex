@@ -17,14 +17,21 @@ export const createInvoice = async (req: Request, res: Response) => {
             items,
             isGstInvoice,
             currency = 'INR'
-        } = req.body;
+        } = req.body as {
+            customerName?: string;
+            customerEmail?: string;
+            customerGst?: string;
+            items?: Array<{ description: string; quantity: number; unitPrice: number }>;
+            isGstInvoice?: boolean;
+            currency?: string;
+        };
 
         if (!customerName || !items || !items.length) {
             return sendErrorResponse(req, res, 400, 'Missing required fields');
         }
 
         let subTotal = 0;
-        const processedItems = items.map((item: { description: string, quantity: number, unitPrice: number }) => {
+        const processedItems = items.map((item) => {
             const quantity = Number(item.quantity) || 0;
             const unitPrice = Number(item.unitPrice) || 0;
             const total = quantity * unitPrice;
@@ -41,11 +48,16 @@ export const createInvoice = async (req: Request, res: Response) => {
         const taxAmount = subTotal * taxRate;
         const grandTotal = subTotal + taxAmount;
 
+        if (!customerEmail) {
+            return sendErrorResponse(req, res, 400, 'Customer email is required.');
+        }
+
         const user = await findUserByEmail(customerEmail);
 
         if (!user) {
             return sendErrorResponse(req, res, 400, 'Customer email not found. Please register the user first.');
         }
+
 
         const newInvoice = await createInvoiceRecord({
             invoiceNumber: await generateInvoiceNumber(),

@@ -379,11 +379,16 @@ const buildHomeFeed = async (
     }
 
     // 3. Unified Aggregation with shared pipeline utility
+    interface FeedFacetResult {
+        spotlight: Record<string, unknown>[];
+        boosted: Record<string, unknown>[];
+        organic: Record<string, unknown>[];
+    }
     const pipeline = buildHomeFeedPipeline(matchStage, boostedIds, limit, geoStage, cursor ?? undefined);
-    const [facetResults] = await Ad.aggregate(pipeline);
+    const [facetResults] = await Ad.aggregate<FeedFacetResult>(pipeline);
 
     const spotlightAds = filterBeforeCursor(
-        (facetResults?.spotlight || []).map((ad: Record<string, unknown>) => ({
+        (facetResults?.spotlight ?? []).map((ad) => ({
             ...ad,
             isSpotlight: true,
             isBoosted: false
@@ -391,7 +396,7 @@ const buildHomeFeed = async (
         cursor
     );
     const boostedAds = filterBeforeCursor(
-        (facetResults?.boosted || []).map((ad: Record<string, unknown>) => ({
+        (facetResults?.boosted ?? []).map((ad) => ({
             ...ad,
             isSpotlight: false,
             isBoosted: true
@@ -399,7 +404,7 @@ const buildHomeFeed = async (
         cursor
     );
     const organicAds = filterBeforeCursor(
-        (facetResults?.organic || []).map((ad: Record<string, unknown>) => ({
+        (facetResults?.organic ?? []).map((ad) => ({
             ...ad,
             isSpotlight: false,
             isBoosted: false

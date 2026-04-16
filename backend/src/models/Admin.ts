@@ -123,7 +123,7 @@ applyToJSONTransform(AdminSchema);
 
 // Prevent recompilation in dev
 const Admin: Model<IAdmin> =
-    getAdminConnection().models.Admin ||
+    (getAdminConnection().models.Admin as Model<IAdmin> | undefined) ||
     getAdminConnection().model<IAdmin>("Admin", AdminSchema);
 
 export default Admin;

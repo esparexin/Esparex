@@ -538,6 +538,6 @@ AdSchema.post('findOneAndUpdate', async function (doc: IAd | null) {
 
 // POST-SAVE ERROR HOOK implementation removed (duplicate mutation of seoSlug)
 
-const Ad: Model<IAd> = getUserConnection().models.Ad || getUserConnection().model<IAd>('Ad', AdSchema);
+const Ad: Model<IAd> = (getUserConnection().models.Ad as Model<IAd> | undefined) || getUserConnection().model<IAd>('Ad', AdSchema);
 
 export default Ad;

@@ -78,7 +78,7 @@ export const requireVerifiedBusinessForServiceParts = async (
     res: Response,
     next: NextFunction
 ): Promise<void> => {
-    const listingType: string | undefined = req.body?.listingType;
+    const listingType = (req.body as { listingType?: string })?.listingType;
 
     if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
         return requireVerifiedBusiness(req, res, next);

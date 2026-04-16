@@ -64,6 +64,8 @@ export {
     buildNormalizedFromLocationDoc,
     buildCanonicalDisplay,
     mapLocationDocsToResponses,
+    mapToLocationResponse,
+    normalizeLocationResponse,
     resolveLocationFromDb,
     toLocationObjectId,
     roundCacheCoord,

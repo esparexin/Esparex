@@ -103,7 +103,7 @@ export class EmailService {
                 to,
                 subject,
                 html,
-            });
+            }) as { messageId?: string };
             logger.info('Email sent successfully', { messageId: info.messageId, to });
             return true;
         } catch (error) {

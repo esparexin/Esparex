@@ -44,7 +44,7 @@ const inspectUserCoordinates = (value: unknown): { valid: true } | { valid: fals
         return { valid: false, reason: 'invalid_length' };
     }
 
-    const [lng, lat] = point.coordinates;
+    const [lng, lat] = point.coordinates as unknown[];
     if (!hasValidLngLat(lng, lat)) {
         return { valid: false, reason: 'invalid_range_or_type' };
     }

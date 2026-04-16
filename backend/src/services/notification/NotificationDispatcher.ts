@@ -1,7 +1,9 @@
-import Notification from '../../models/Notification';
 import { NotificationIntent } from '../../domain/NotificationIntent';
 import logger from '../../utils/logger';
 import { resolveNotificationDeliveryPlan } from './NotificationPreferenceService';
+import { notificationDeliveryQueue } from '../../queues/adQueue';
+
+
 
 interface DispatchOptions {
     shadowDispatch?: boolean;
@@ -17,12 +19,55 @@ export interface NotificationBulkDispatchResult {
     skippedCount: number;
     failureCount: number;
 }
-
 export class NotificationDispatcher {
     /**
-     * Centralized gateway for all notifications.
+     * Entry point for all notifications.
+     * Pushes the intent to a background queue for processing.
      */
-    static async dispatch(intent: NotificationIntent, options: DispatchOptions = {}): Promise<NotificationDispatchResult> {
+    static async dispatch(
+
+        intent: NotificationIntent,
+        options: DispatchOptions = {}
+    ): Promise<NotificationDispatchResult> {
+        try {
+            // Serialize complexity: Class instances lose methods in BullMQ. 
+            // We pass the raw object and reconstruct if needed, but here we just pass the properties.
+            const jobData = {
+                intent: { ...intent },
+                options
+            };
+
+            await notificationDeliveryQueue.add(
+                intent.type === 'SYSTEM' ? 'system_notification' : 'user_notification',
+                jobData,
+                {
+                    jobId: intent.dedupKey,
+                    priority: intent.priority === 'high' ? 1 : (intent.priority === 'medium' ? 2 : 3),
+                }
+            );
+
+            return { success: true };
+        } catch (error) {
+            logger.error('[Dispatcher] Failed to enqueue notification', {
+                userId: intent.userId,
+                type: intent.type,
+                error: error instanceof Error ? error.message : String(error)
+            });
+            
+            // Fallback to sync dispatch in case of queue failure for resiliency
+            return this.executeDispatch(intent, options);
+        }
+    }
+
+    /**
+     * Execution engine: Persists to DB, updates real-time version, and pushes to FCM.
+     * Called by the background worker.
+     */
+    static async executeDispatch(intent: NotificationIntent, options: DispatchOptions = {}): Promise<NotificationDispatchResult> {
+        // We need the Notification model here. 
+        // We'll import it dynamically to avoid potential circular dependencies if any.
+        const { default: Notification } = await import('../../models/Notification');
+
         try {
             const { shadowDispatch = false } = options;
             const { suppress, channels } = await resolveNotificationDeliveryPlan({
@@ -114,7 +159,7 @@ export class NotificationDispatcher {
             // 4. Channel Dispatch (FCM Push)
             if (intent.channels.includes('push')) {
                 try {
-                    const { sendNotification } = await import('../NotificationService');
+                    const { sendNotification } = await import('./PushGatewayService');
                     // FCM expects string values for all data keys
                     const fcmData = (intent.message.data as Record<string, string>) || {};
                     await sendNotification(intent.userId, intent.message.title, intent.message.body, fcmData);

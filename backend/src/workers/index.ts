@@ -1,6 +1,8 @@
 import logger from '../utils/logger';
-import { adWorker, notificationDeliveryWorker } from './adWorker';
+import { adWorker } from './adWorker';
+import { notificationDeliveryWorker } from './notificationDeliveryWorker';
 import { notificationMatchWorker } from './notificationMatchWorker';
+
 import { paymentWorker } from './paymentWorker';
 import { imageOptimizationWorker } from './imageWorker';
 import mongoose from 'mongoose';

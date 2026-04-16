@@ -4,13 +4,13 @@ import { sendErrorResponse } from '../utils/errorResponse';
 const toLower = (value: unknown) => (typeof value === 'string' ? value.trim().toLowerCase() : '');
 
 const isUnsafeLiveStatusMutation = (req: Request) => {
-    const requestedStatus = toLower(req.body?.status);
+    const requestedStatus = toLower((req.body as { status?: unknown })?.status);
     if (requestedStatus !== 'live') return false;
     return !req.path.endsWith('/approve');
 };
 
 export const lifecyclePolicyHttpGuard = (req: Request, res: Response, next: NextFunction) => {
-    if (req.body?.hardDelete === true) {
+    if ((req.body as { hardDelete?: boolean })?.hardDelete === true) {
         sendErrorResponse(req, res, 400, 'Hard delete is forbidden. Listings must be soft deleted.', {
             code: 'HARD_DELETE_FORBIDDEN',
         });

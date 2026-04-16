@@ -103,6 +103,6 @@ CategorySchema.post('init', function(doc) {
 });
 
 import { getAdminConnection } from '../config/db';
-const Category: Model<ICategory> = getAdminConnection().models.Category || getAdminConnection().model<ICategory>('Category', CategorySchema);
+const Category: Model<ICategory> = (getAdminConnection().models.Category as Model<ICategory> | undefined) || getAdminConnection().model<ICategory>('Category', CategorySchema);
 
 export default Category;

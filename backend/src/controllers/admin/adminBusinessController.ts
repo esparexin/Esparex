@@ -2,7 +2,8 @@ import logger from '../../utils/logger';
 import { Request, Response } from 'express';
 import { IAuthUser } from '../../types/auth';
 import { logAdminAction } from '../../utils/adminLogger';
-import { createInAppNotification } from '../../services/NotificationService';
+import { dispatchTemplatedNotification } from '../../services/NotificationService';
+
 import { recalculateTrustScore } from '../../services/TrustService';
 import {
     sendSuccessResponse,
@@ -60,13 +61,14 @@ export const approveBusinessAccount = async (req: Request, res: Response) => {
         await logAdminAction(req, 'APPROVE_BUSINESS', 'Business', req.params.id, { expiresAt });
 
         // Trigger Notification
-        await createInAppNotification(
+        await dispatchTemplatedNotification(
             business.userId.toString(),
             'BUSINESS_STATUS',
-            'Business Profile Approved! 🏢',
-            `Congratulations! Your business "${business.name}" has been approved. You can now post ads as a business.`,
+            'BUSINESS_APPROVED',
+            { name: business.name },
             { businessId: business._id.toString(), status: BUSINESS_STATUS.LIVE }
         );
+
 
         // 🏆 TRUST SCORE: Recalculate on business approval
         setImmediate(() => void recalculateTrustScore(business.userId).catch(() => { }));
@@ -79,7 +81,8 @@ export const approveBusinessAccount = async (req: Request, res: Response) => {
 
 export const rejectBusinessAccount = async (req: Request, res: Response) => {
     try {
-        const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : '';
+        const rejectBody = req.body as { reason?: unknown };
+        const reason = typeof rejectBody.reason === 'string' ? rejectBody.reason.trim() : '';
         if (!reason) {
             return sendAdminError(req, res, 'Rejection reason is required', 400);
         }
@@ -96,13 +99,14 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
         await logAdminAction(req, 'REJECT_BUSINESS', 'Business', req.params.id, { reason });
 
         // Trigger Notification
-        await createInAppNotification(
+        await dispatchTemplatedNotification(
             business.userId.toString(),
             'BUSINESS_STATUS',
-            'Business Profile Rejected ⚠️',
-            `Your business application for "${business.name}" was not approved. Reason: ${reason || 'Incomplete documentation'}.`,
-            { businessId: business._id.toString(), status: BUSINESS_STATUS.REJECTED, reason }
+            'BUSINESS_REJECTED',
+            { name: business.name, reason },
+            { businessId: business._id.toString(), status: BUSINESS_STATUS.REJECTED }
         );
+
 
         const actor: { type: string; id: string | undefined } = { type: ACTOR_TYPE.ADMIN, id: (req.user as IAuthUser)?._id?.toString() || (req.user as IAuthUser)?.id };
         const cascaded = await adminBusinessService.cascadeExpireBusinessListings(business._id, actor, `Cascaded from business rejection: ${reason}`);
@@ -116,16 +120,17 @@ export const rejectBusinessAccount = async (req: Request, res: Response) => {
 
 export const updateBusinessStatus = async (req: Request, res: Response) => {
     try {
-        const rawStatus = typeof req.body?.status === 'string' ? req.body.status.trim() : '';
+        const statusBody = req.body as { status?: unknown; reason?: unknown };
+        const rawStatus = typeof statusBody.status === 'string' ? statusBody.status.trim() : '';
         const status = normalizeBusinessStatus(rawStatus);
-        const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : '';
+        const reason = typeof statusBody.reason === 'string' ? statusBody.reason.trim() : '';
 
         if (status === BUSINESS_STATUS.LIVE) {
             return approveBusinessAccount(req, res);
         }
 
         if (status === BUSINESS_STATUS.REJECTED) {
-            if (!reason) req.body.reason = 'Rejected by admin';
+            if (!reason) (req.body as Record<string, unknown>).reason = 'Rejected by admin';
             return rejectBusinessAccount(req, res);
         }
 
@@ -175,7 +180,7 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
         const patch: Record<string, unknown> = {};
         for (const field of allowedFields) {
             if (Object.prototype.hasOwnProperty.call(req.body, field)) {
-                patch[field] = req.body[field];
+                patch[field] = (req.body as Record<string, unknown>)[field];
             }
         }
         if (typeof patch.phone === 'string' && typeof patch.mobile !== 'string') {
@@ -258,13 +263,14 @@ export const deleteBusinessAccount = async (req: Request, res: Response) => {
         });
 
         // Notify the user
-        await createInAppNotification(
+        await dispatchTemplatedNotification(
             userId,
             'BUSINESS_STATUS',
-            'Business Account Removed',
-            `Your business "${businessName}" has been removed by an administrator.`,
+            'BUSINESS_REMOVED',
+            { name: businessName },
             { businessId: req.params.id, status: BUSINESS_STATUS.DELETED }
         );
+
 
         sendSuccessResponse(res, { deleted: true }, 'Business deleted successfully');
     } catch (error: unknown) {

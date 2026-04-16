@@ -60,8 +60,8 @@ export const logPhoneReveal = async (
         };
 
         // Create log record asynchronously
-        PhoneRevealLog.create(logData).catch(err => {
-            logger.error('Failed to create PhoneRevealLog document', { error: err.message });
+        PhoneRevealLog.create(logData).catch((err: unknown) => {
+            logger.error('Failed to create PhoneRevealLog document', { error: err instanceof Error ? err.message : String(err) });
         });
 
         // 2. Technical Debug Log for Developer awareness
@@ -166,8 +166,8 @@ export const getSellerPhone = async (
                 buyerId,
                 metadata?.ip,
                 metadata?.device
-            ).catch(err => {
-                logger.error('Failed to log phone reveal', { error: err });
+            ).catch((err: unknown) => {
+                logger.error('Failed to log phone reveal', { error: err instanceof Error ? err.message : String(err) });
             });
         }
 

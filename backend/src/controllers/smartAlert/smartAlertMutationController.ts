@@ -21,7 +21,7 @@ import { PLAN_STATUS } from '../../../../shared/enums/planStatus';
 
 const requireOwnedAlert = async (req: Request, res: Response, options: { allowAdmin?: boolean } = {}) => {
     const user = req.user;
-    const admin = options.allowAdmin ? (req as Request & { admin?: { id?: string; _id?: string } }).admin : undefined;
+    const admin = options.allowAdmin ? (req.admin as unknown as { id?: string; _id?: string } | undefined) : undefined;
     
     if (!user && !admin) {
         sendErrorResponse(req, res, 401, 'Unauthorized');
@@ -101,8 +101,9 @@ export const createSmartAlert = async (req: Request, res: Response) => {
         const allowedFields = ['criteria', 'frequency', 'name', 'coordinates', 'radiusKm', 'notificationChannels'];
         const safeBody: SmartAlertPayload = {};
 
+        const bodyRecord = req.body as Record<string, unknown>;
         allowedFields.forEach(field => {
-            if (req.body[field] !== undefined) safeBody[field] = req.body[field];
+            if (bodyRecord[field] !== undefined) safeBody[field] = bodyRecord[field];
         });
 
         await normalizeSmartAlertLocationPayload(safeBody);
@@ -155,8 +156,9 @@ export const updateSmartAlert = async (req: Request, res: Response) => {
         const allowedFields = ['criteria', 'frequency', 'name', 'coordinates', 'radiusKm', 'notificationChannels'];
         const safeBody: SmartAlertPayload = {};
 
+        const updateBodyRecord = req.body as Record<string, unknown>;
         allowedFields.forEach(field => {
-            if (req.body[field] !== undefined) safeBody[field] = req.body[field];
+            if (updateBodyRecord[field] !== undefined) safeBody[field] = updateBodyRecord[field];
         });
 
         if (safeBody.criteria || safeBody.coordinates) {

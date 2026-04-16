@@ -64,7 +64,7 @@ export const AI_MAX_IMAGE_BYTES = env.AI_MAX_IMAGE_BYTES ?? (4 * 1024 * 1024);
 const parseJsonFromAi = (raw: string): Record<string, unknown> | null => {
     const cleaned = raw.replace(/```json|```/g, '').trim();
     try {
-        const parsed = JSON.parse(cleaned);
+        const parsed: unknown = JSON.parse(cleaned) as unknown;
         return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : null;
     } catch {
         return null;

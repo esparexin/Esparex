@@ -8,19 +8,24 @@ import {
     findLocationParent,
     findDuplicateLocation,
     getDistinctStateLocations,
-    generateLocationId,
-    createLocationRecord,
-    saveLocation,
-    softDeleteLocation,
     getLocationsPaginated,
     getModerationQueuePaginated,
     countAdsForLocation,
     countUsersForLocation,
+} from '../../services/location/LocationQueryService';
+import {
+    generateLocationId,
+    createLocationRecord,
+    saveLocation,
+    softDeleteLocation,
+} from '../../services/location/LocationMutationService';
+import {
     getAllGeofences,
     createGeofenceRecord,
     updateGeofenceById,
     deleteGeofenceById,
-} from '../../services/AdminLocationService';
+} from '../../services/location/GeofenceService';
+
 import { updateLocationStats as runStatsUpdate } from '../../workers/locationAnalyticsWorker';
 import { logAdminAction } from '../../utils/adminLogger';
 import slugify from 'slugify';
@@ -39,6 +44,8 @@ import {
     normalizeCoordinates
 } from '../../services/location/LocationNormalizer';
 import { reverseGeocode as getReverseGeocodeMatch } from '../../services/location/ReverseGeocodeService';
+import { dispatchTemplatedNotification } from '../../services/NotificationService';
+
 import {
     buildLocationSummary,
     buildHierarchyPath,
@@ -642,27 +649,25 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
         // Notify User
         if (location.requestedBy) {
             const userId = location.requestedBy.toString();
-            void import('../../services/NotificationService').then(({ createInAppNotification }) => {
-                const title = status === LOCATION_STATUS.VERIFIED ? 'Location Request Approved' : 'Location Request Rejected';
-                const message = status === LOCATION_STATUS.VERIFIED
-                    ? `Your location request for "${locationSummary?.name || location.name}" has been approved.`
-                    : `Your location request for "${locationSummary?.name || location.name}" has been rejected. Reason: ${reason}`;
+                const templateKey = status === LOCATION_STATUS.VERIFIED ? 'LOCATION_APPROVED' : 'LOCATION_REJECTED';
+                const params = { name: locationSummary?.name || location.name, reason };
 
-                createInAppNotification(
+                dispatchTemplatedNotification(
                     userId,
                     'SYSTEM',
-                    title,
-                    message,
+                    templateKey,
+                    params,
                     { locationId: location._id, status }
                 ).catch((notifyError: unknown) =>
+
                     logger.warn('Failed to notify user about location moderation', {
                         locationId: String(location._id),
                         status,
                         error: notifyError instanceof Error ? notifyError.message : String(notifyError)
                     })
                 );
-            });
         }
+
 
         return sendSuccessResponse(res, location);
     } catch {

@@ -2,7 +2,8 @@ import mongoose, { Types } from 'mongoose';
 import SavedSearch from '../models/SavedSearch';
 import Ad from '../models/Ad';
 import { notificationMatchQueue } from '../queues/adQueue';
-import { createInAppNotification } from './NotificationService';
+import { dispatchTemplatedNotification } from './NotificationService';
+
 import redisClient from '../config/redis';
 import logger from '../utils/logger';
 import { toObjectId } from '../utils/idUtils';
@@ -267,20 +268,22 @@ export const processSavedSearchAlertDispatch = async (adId: string): Promise<voi
             const reserved = await reserveAdNotificationForUser(userId, adIdText);
             if (!reserved) return;
 
-            await createInAppNotification(
+            await dispatchTemplatedNotification(
                 userId,
                 'SMART_ALERT',
-                'New listing matches your saved search.',
-                message,
+                'SMART_ALERT',
                 {
-                    adId: adIdText,
                     adTitle: ad.title,
                     price: String(ad.price),
-                    location: locationText,
+                    location: locationText
+                },
+                {
+                    adId: adIdText,
                     link,
                     matchedSavedSearches: String(matchCount)
                 }
             );
+
         }));
     }
 

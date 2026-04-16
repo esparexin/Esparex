@@ -1,264 +1,71 @@
-import mongoose, { type ClientSession } from "mongoose";
-import { getUserConnection } from "../config/db";
-import { Invoice, type IInvoice } from "../models/Invoice";
-import { Transaction, type ITransaction } from "../models/Transaction";
-import Plan from "../models/Plan";
-import User from "../models/User";
-import Business from "../models/Business";
-import { credit, type WalletAmount } from "./WalletService";
-import { recordRevenue } from "./RevenueAnalytics";
-import { generateInvoiceNumber } from "../utils/invoiceNumber";
-import { generateInvoicePdf } from "./InvoicePdfService";
-import { getRazorpayClient } from "../controllers/payment/shared";
-import logger, { logBusiness, logSecurity } from "../utils/logger";
-import { getPrimaryPlanCreditCount } from "@shared/utils/planEntitlements";
+import { type ClientSession } from 'mongoose';
+import { getUserConnection } from '../config/db';
+import { Invoice } from '../models/Invoice';
+import { Transaction, type ITransaction } from '../models/Transaction';
+import { 
+    credit, 
+    buildWalletIncrement, 
+    hasWalletIncrement 
+} from './WalletService';
+import { recordRevenue } from './RevenueAnalytics';
+import { 
+    buildInvoicePayload, 
+    ensureInvoicePdf 
+} from './InvoiceService';
+import { 
+    matchesGatewayAmount, 
+    normalizeGatewayCurrency, 
+    fetchGatewayRecoveryOutcome 
+} from './GatewayService';
+import { resolveCategoryName } from './TransactionService';
+import logger, { logBusiness, logSecurity } from '../utils/logger';
 
-export type PaymentProcessingSource = "webhook" | "recovery";
+export type PaymentProcessingSource = 'webhook' | 'recovery';
 
 export type PaymentProcessResult =
-    | "processed"
-    | "duplicate"
-    | "missing"
-    | "failed";
+    | 'processed'
+    | 'duplicate'
+    | 'missing'
+    | 'failed';
 
-type PaymentGatewayVerification = {
+export type ProcessPaymentParams = {
     gatewayPaymentId?: string;
     gatewayOrderId?: string;
     gatewayAmountPaise?: number;
     gatewayCurrency?: string;
-};
-
-type ProcessPaymentParams = PaymentGatewayVerification & {
     source: PaymentProcessingSource;
     event?: string;
 };
 
-type ProcessPaymentResponse = {
+export type ProcessPaymentResponse = {
     result: PaymentProcessResult;
     transactionId?: string;
     invoiceId?: string;
     reason?: string;
 };
 
-type RecoveryOutcome =
-    | ({ status: "success" } & Required<Pick<PaymentGatewayVerification, "gatewayOrderId">> & PaymentGatewayVerification)
-    | { status: "failed"; reason: string }
-    | { status: "unresolved"; reason: string };
-
-const PAYMENT_SAC_CODE = "998599";
-
-type PaymentUserLike = {
-    name?: string;
-    email?: string;
-    mobile?: string;
-    businessId?: mongoose.Types.ObjectId | string | null;
-    location?: {
-        city?: string;
-    };
-};
-
-type PaymentBusinessLike = {
-    name?: string;
-    email?: string;
-    mobile?: string;
-    gstNumber?: string;
-    location?: {
-        address?: string;
-        city?: string;
-    };
-};
-
-type RazorpayOrderLike = {
-    amount?: number;
-    currency?: string;
-    status?: string;
-};
-
-type RazorpayPaymentLike = {
-    id?: string;
-    amount?: number | string;
-    currency?: string;
-    status?: string;
-};
-
-const toNumericAmount = (value: number | string | undefined) => {
-    if (typeof value === "number" && Number.isFinite(value)) return value;
-    if (typeof value === "string") {
-        const parsed = Number(value);
-        return Number.isFinite(parsed) ? parsed : undefined;
-    }
-    return undefined;
-};
-
-const buildWalletIncrement = (tx: ITransaction): WalletAmount => {
-    const kind = tx.planSnapshot?.type;
-    const credits = getPrimaryPlanCreditCount(tx.planSnapshot);
-    const amount: WalletAmount = {};
-
-    if (kind === "AD_PACK") amount.adCredits = credits;
-    if (kind === "SPOTLIGHT") amount.spotlightCredits = credits;
-    if (kind === "SMART_ALERT") amount.smartAlertSlots = credits;
-
-    return amount;
-};
-
-const hasWalletIncrement = (amount: WalletAmount) => Object.values(amount).some((value) => Number(value || 0) > 0);
-
-const resolveCategoryName = (tx: ITransaction) =>
-    typeof tx.metadata?.categoryName === "string" ? tx.metadata.categoryName : undefined;
-
-const matchesGatewayAmount = (tx: ITransaction, gatewayAmountPaise?: number) => {
-    if (!Number.isFinite(gatewayAmountPaise)) return true;
-    return Math.round(tx.amount * 100) === gatewayAmountPaise;
-};
-
-const normalizeGatewayCurrency = (currency?: string) => (currency || "INR").toUpperCase();
-
-const buildInvoicePayload = async (
-    tx: ITransaction,
-    session: ClientSession
-) : Promise<{ invoiceData: Partial<IInvoice>; user: PaymentUserLike | null; business?: PaymentBusinessLike | null }> => {
-    const user = await User.findById(tx.userId)
-        .select("name email mobile location businessId")
-        .session(session)
-        .lean<PaymentUserLike | null>();
-
-    let business: PaymentBusinessLike | null = null;
-    if (user?.businessId) {
-        business = await Business.findById(user.businessId).session(session).lean<PaymentBusinessLike | null>();
-    }
-
-    const subtotal = Number((tx.amount / 1.18).toFixed(2));
-    const gstAmount = Number((tx.amount - subtotal).toFixed(2));
-    const halfTax = Number((gstAmount / 2).toFixed(2));
-    const issuedAt = new Date();
-
-    const gstin = typeof business?.gstNumber === "string" ? business.gstNumber : undefined;
-
-    return {
-        user,
-        business,
-        invoiceData: {
-            invoiceNumber: await generateInvoiceNumber(session),
-            userId: tx.userId,
-            transactionId: tx._id,
-            planSnapshot: tx.planSnapshot,
-            items: [{
-                description: tx.planSnapshot?.name || tx.description || "Esparex purchase",
-                quantity: 1,
-                unitPrice: subtotal,
-                total: subtotal
-            }],
-            isGstInvoice: true,
-            gstin,
-            sacCode: PAYMENT_SAC_CODE,
-            billingAddress: {
-                line1: typeof business?.name === "string" ? business.name : (typeof user?.name === "string" ? user.name : undefined),
-                line2: typeof business?.location?.address === "string" ? business.location.address : undefined,
-                city: typeof business?.location?.city === "string"
-                    ? business.location.city
-                    : typeof user?.location?.city === "string"
-                        ? user.location.city
-                        : undefined,
-                country: "India"
-            },
-            subtotal,
-            cgst: halfTax,
-            sgst: halfTax,
-            igst: 0,
-            total: tx.amount,
-            amount: tx.amount,
-            currency: tx.currency,
-            status: "SUCCESS",
-            tax: {
-                gst: gstAmount,
-                total: tx.amount
-            },
-            issuedAt
-        }
-    };
-};
-
-const ensureInvoicePdf = async (invoiceId?: string) => {
-    if (!invoiceId) return;
-
-    const invoice = await Invoice.findById(invoiceId).lean();
-    if (!invoice || invoice.pdfUrl) return;
-
-    const user = await User.findById(invoice.userId).select("name email mobile location businessId").lean<PaymentUserLike | null>();
-    let business: PaymentBusinessLike | null = null;
-    if (user?.businessId) {
-        business = await Business.findById(user.businessId).lean<PaymentBusinessLike | null>();
-    }
-
-    try {
-        const pdfUser = business
-            ? {
-                name: typeof business.name === "string" ? business.name : undefined,
-                email: typeof business.email === "string" ? business.email : undefined,
-                mobile: typeof business.mobile === "string" ? business.mobile : undefined,
-            }
-            : user
-                ? {
-                    name: typeof user.name === "string" ? user.name : undefined,
-                    email: typeof user.email === "string" ? user.email : undefined,
-                    mobile: typeof user.mobile === "string" ? user.mobile : undefined,
-                }
-                : null;
-
-        const pdfUrl = await generateInvoicePdf({
-            invoiceNumber: invoice.invoiceNumber,
-            amount: invoice.amount,
-            currency: invoice.currency,
-            issuedAt: invoice.issuedAt,
-            subtotal: invoice.subtotal,
-            cgst: invoice.cgst,
-            sgst: invoice.sgst,
-            igst: invoice.igst,
-            total: invoice.total,
-            gstin: invoice.gstin,
-            sacCode: invoice.sacCode,
-            user: pdfUser
-        });
-
-        if (!pdfUrl) return;
-
-        await Invoice.updateOne(
-            { _id: invoice._id, pdfUrl: { $exists: false } },
-            { $set: { pdfUrl } }
-        );
-
-        logBusiness("invoice_generated", {
-            invoiceId: invoice._id.toString(),
-            invoiceNumber: invoice.invoiceNumber,
-            pdfUrl
-        });
-    } catch (error) {
-        logger.error("Failed to generate invoice PDF after payment commit", {
-            invoiceId: invoice._id.toString(),
-            error: error instanceof Error ? error.message : String(error)
-        });
-    }
-};
-
+/**
+ * Orchestrator for successful payment flow.
+ * Coordinates between Transaction, Wallet, and Invoice services.
+ */
 export async function processSuccessfulPayment(
     params: ProcessPaymentParams
 ): Promise<ProcessPaymentResponse> {
     const { gatewayPaymentId, gatewayOrderId, gatewayAmountPaise, gatewayCurrency, source, event } = params;
     if (!gatewayPaymentId && !gatewayOrderId) {
-        logger.warn("Payment processing skipped because no gateway identifiers were provided", {
+        logger.warn('Payment processing skipped because no gateway identifiers were provided', {
             source,
             event
         });
-        return { result: "missing", reason: "missing_gateway_identifiers" };
+        return { result: 'missing', reason: 'missing_gateway_identifiers' };
     }
 
     const session = await getUserConnection().startSession();
     let committedInvoiceId: string | undefined;
     let committedTransactionId: string | undefined;
 
-    logBusiness("payment_verified", {
-        phase: "start",
+    logBusiness('payment_verified', {
+        phase: 'start',
         source,
         event,
         gatewayPaymentId,
@@ -278,7 +85,7 @@ export async function processSuccessfulPayment(
             },
             {
                 $set: {
-                    status: "SUCCESS",
+                    status: 'SUCCESS',
                     ...(gatewayPaymentId ? { gatewayPaymentId } : {}),
                     ...(gatewayOrderId ? { gatewayOrderId } : {}),
                     updatedAt: new Date()
@@ -297,35 +104,35 @@ export async function processSuccessfulPayment(
 
             await session.abortTransaction();
 
-            if (existing?.applied || (existing?.status === "SUCCESS" && existing?.applied !== false)) {
-                logBusiness("payment_verified", {
-                    phase: "duplicate",
+            if (existing?.applied || (existing?.status === 'SUCCESS' && existing?.applied !== false)) {
+                logBusiness('payment_verified', {
+                    phase: 'duplicate',
                     source,
                     event,
                     transactionId: existing._id.toString(),
                     gatewayPaymentId,
                     gatewayOrderId
                 });
-                return { result: "duplicate", transactionId: existing._id.toString() };
+                return { result: 'duplicate', transactionId: existing._id.toString() };
             }
 
-            logger.warn("Payment event referenced unknown order", {
+            logger.warn('Payment event referenced unknown order', {
                 source,
                 event,
                 gatewayPaymentId,
                 gatewayOrderId
             });
-            return { result: "missing", reason: "unknown_order" };
+            return { result: 'missing', reason: 'unknown_order' };
         }
 
         committedTransactionId = tx._id.toString();
 
         if (!matchesGatewayAmount(tx, gatewayAmountPaise)) {
-            tx.status = "FAILED";
+            tx.status = 'FAILED';
             tx.metadata = {
                 ...tx.metadata,
                 paymentFailure: {
-                    reason: "amount_mismatch",
+                    reason: 'amount_mismatch',
                     source,
                     gatewayAmountPaise,
                     expectedAmountPaise: Math.round(tx.amount * 100)
@@ -334,7 +141,7 @@ export async function processSuccessfulPayment(
             await tx.save({ session });
             await session.commitTransaction();
 
-            logSecurity("payment_amount_mismatch", "high", {
+            logSecurity('payment_amount_mismatch', 'high', {
                 transactionId: tx._id.toString(),
                 gatewayPaymentId,
                 gatewayOrderId,
@@ -342,34 +149,34 @@ export async function processSuccessfulPayment(
                 expectedAmountPaise: Math.round(tx.amount * 100)
             });
 
-            return { result: "failed", transactionId: tx._id.toString(), reason: "amount_mismatch" };
+            return { result: 'failed', transactionId: tx._id.toString(), reason: 'amount_mismatch' };
         }
 
-        const normalizedGatewayCurrency = normalizeGatewayCurrency(gatewayCurrency);
-        const normalizedTransactionCurrency = normalizeGatewayCurrency(tx.currency);
-        if (gatewayCurrency && normalizedGatewayCurrency !== normalizedTransactionCurrency) {
-            tx.status = "FAILED";
+        const normGatewayCurrency = normalizeGatewayCurrency(gatewayCurrency);
+        const normTransactionCurrency = normalizeGatewayCurrency(tx.currency);
+        if (gatewayCurrency && normGatewayCurrency !== normTransactionCurrency) {
+            tx.status = 'FAILED';
             tx.metadata = {
                 ...tx.metadata,
                 paymentFailure: {
-                    reason: "currency_mismatch",
+                    reason: 'currency_mismatch',
                     source,
-                    gatewayCurrency: normalizedGatewayCurrency,
-                    expectedCurrency: normalizedTransactionCurrency
+                    gatewayCurrency: normGatewayCurrency,
+                    expectedCurrency: normTransactionCurrency
                 }
             };
             await tx.save({ session });
             await session.commitTransaction();
 
-            logSecurity("payment_currency_mismatch", "high", {
+            logSecurity('payment_currency_mismatch', 'high', {
                 transactionId: tx._id.toString(),
                 gatewayPaymentId,
                 gatewayOrderId,
-                gatewayCurrency: normalizedGatewayCurrency,
-                expectedCurrency: normalizedTransactionCurrency
+                gatewayCurrency: normGatewayCurrency,
+                expectedCurrency: normTransactionCurrency
             });
 
-            return { result: "failed", transactionId: tx._id.toString(), reason: "currency_mismatch" };
+            return { result: 'failed', transactionId: tx._id.toString(), reason: 'currency_mismatch' };
         }
 
         const walletIncrement = buildWalletIncrement(tx);
@@ -386,41 +193,41 @@ export async function processSuccessfulPayment(
                 session
             });
 
-            logBusiness("wallet_updated", {
+            logBusiness('wallet_updated', {
                 transactionId: tx._id.toString(),
                 userId: tx.userId.toString(),
                 walletIncrement
             });
         }
 
-        let invoice: IInvoice | null = await Invoice.findOne({ transactionId: tx._id }).session(session);
-            if (!invoice) {
-                const { invoiceData } = await buildInvoicePayload(tx, session);
-                const invoices = await Invoice.create([invoiceData], { session });
-                invoice = invoices[0] || null;
-            }
+        let invoice = await Invoice.findOne({ transactionId: tx._id }).session(session);
+        if (!invoice) {
+            const { invoiceData } = await buildInvoicePayload(tx, session);
+            const invoices = await Invoice.create([invoiceData], { session });
+            invoice = invoices[0] || null;
+        }
 
         tx.applied = true;
-        tx.status = "SUCCESS";
+        tx.status = 'SUCCESS';
         await tx.save({ session });
 
         committedInvoiceId = invoice?._id?.toString();
 
         await session.commitTransaction();
 
-        logBusiness("payment_verified", {
-            phase: "committed",
+        logBusiness('payment_verified', {
+            phase: 'committed',
             source,
             event,
             transactionId: committedTransactionId,
             invoiceId: committedInvoiceId
         });
 
-        // Analytics and PDF generation run after commit so they cannot roll back the payment
+        // Background tasks post-commit
         try {
             await recordRevenue(tx, resolveCategoryName(tx));
         } catch (analyticsError) {
-            logger.error("Revenue analytics recording failed after payment commit", {
+            logger.error('Revenue analytics recording failed after payment commit', {
                 transactionId: committedTransactionId,
                 error: analyticsError instanceof Error ? analyticsError.message : String(analyticsError)
             });
@@ -429,13 +236,13 @@ export async function processSuccessfulPayment(
         await ensureInvoicePdf(committedInvoiceId);
 
         return {
-            result: "processed",
+            result: 'processed',
             transactionId: committedTransactionId,
             invoiceId: committedInvoiceId
         };
     } catch (error) {
         await session.abortTransaction();
-        logger.error("Payment processing failed", {
+        logger.error('Payment processing failed', {
             source,
             event,
             gatewayPaymentId,
@@ -448,57 +255,15 @@ export async function processSuccessfulPayment(
     }
 }
 
-const findCapturedPaymentForOrder = async (gatewayOrderId: string): Promise<RazorpayPaymentLike | undefined> => {
-    const razorpay = await getRazorpayClient();
-    const ordersApi = razorpay.orders as typeof razorpay.orders & {
-        fetchPayments?: (orderId: string) => Promise<{ items?: RazorpayPaymentLike[] }>;
-    };
-
-    if (!ordersApi.fetchPayments) return undefined;
-    const paymentList = await ordersApi.fetchPayments(gatewayOrderId);
-    const items = paymentList?.items || [];
-    return items.find((item) => item.status === "captured") || items[0];
-};
-
-const fetchGatewayRecoveryOutcome = async (tx: ITransaction): Promise<RecoveryOutcome> => {
-    if (tx.paymentGateway === "mock") {
-        return { status: "failed", reason: "mock_transaction_expired" };
-    }
-
-    if (!tx.gatewayOrderId) {
-        return { status: "unresolved", reason: "missing_gateway_order_id" };
-    }
-
-    const razorpay = await getRazorpayClient();
-    const order = await razorpay.orders.fetch(tx.gatewayOrderId) as RazorpayOrderLike;
-
-    if (order.status === "paid") {
-        const payment = tx.gatewayPaymentId
-            ? await razorpay.payments.fetch(tx.gatewayPaymentId)
-            : await findCapturedPaymentForOrder(tx.gatewayOrderId);
-
-        return {
-            status: "success",
-            gatewayOrderId: tx.gatewayOrderId,
-            gatewayPaymentId: payment?.id || tx.gatewayPaymentId,
-            gatewayAmountPaise: toNumericAmount(payment?.amount) ?? order.amount,
-            gatewayCurrency: payment?.currency || order.currency
-        };
-    }
-
-    if (order.status === "created" || order.status === "attempted") {
-        return { status: "failed", reason: `gateway_order_${order.status}` };
-    }
-
-    return { status: "unresolved", reason: `gateway_order_${order.status}` };
-};
-
+/**
+ * Orchestrator for payment recovery.
+ */
 export async function recoverPendingPayment(tx: ITransaction): Promise<ProcessPaymentResponse> {
     const gatewayResult = await fetchGatewayRecoveryOutcome(tx);
 
-    if (gatewayResult.status === "success") {
+    if (gatewayResult.status === 'success') {
         return processSuccessfulPayment({
-            source: "recovery",
+            source: 'recovery',
             gatewayOrderId: gatewayResult.gatewayOrderId,
             gatewayPaymentId: gatewayResult.gatewayPaymentId,
             gatewayAmountPaise: gatewayResult.gatewayAmountPaise,
@@ -506,132 +271,63 @@ export async function recoverPendingPayment(tx: ITransaction): Promise<ProcessPa
         });
     }
 
-    if (gatewayResult.status === "failed") {
+    if (gatewayResult.status === 'failed') {
         await Transaction.updateOne(
             { _id: tx._id, applied: false },
             {
                 $set: {
-                    status: "FAILED",
+                    status: 'FAILED',
                     updatedAt: new Date(),
                     metadata: {
                         ...tx.metadata,
                         paymentFailure: {
                             reason: gatewayResult.reason,
-                            source: "recovery"
+                            source: 'recovery'
                         }
                     }
                 }
             }
         );
 
-        logBusiness("payment_verified", {
-            phase: "recovery_failed",
+        logBusiness('payment_verified', {
+            phase: 'recovery_failed',
             transactionId: tx._id.toString(),
             gatewayOrderId: tx.gatewayOrderId,
             reason: gatewayResult.reason
         });
 
-        return { result: "failed", transactionId: tx._id.toString(), reason: gatewayResult.reason };
+        return { result: 'failed', transactionId: tx._id.toString(), reason: gatewayResult.reason };
     }
 
-    logger.warn("Pending payment recovery unresolved", {
+    logger.warn('Pending payment recovery unresolved', {
         transactionId: tx._id.toString(),
         gatewayOrderId: tx.gatewayOrderId,
         reason: gatewayResult.reason
     });
 
-    return { result: "missing", transactionId: tx._id.toString(), reason: gatewayResult.reason };
+    return { result: 'missing', transactionId: tx._id.toString(), reason: gatewayResult.reason };
 }
 
-// ─── Order-initiation helpers (used by paymentMutationController) ─────────────
-
-export async function checkTransactionVelocity(
-    userId: ITransaction['userId'],
-    windowMs: number
-): Promise<number> {
-    const since = new Date(Date.now() - windowMs);
-    const filter = {
-        userId,
-        createdAt: { $gte: since },
-    } as unknown as Parameters<typeof Transaction.countDocuments>[0];
-    return Transaction.countDocuments(filter);
-}
-
-export async function findPendingTransaction(
-    userId: ITransaction['userId'],
-    planId: NonNullable<ITransaction['planId']>,
-    windowMs: number
-): Promise<ITransaction | null> {
-    const since = new Date(Date.now() - windowMs);
-    const filter = {
-        userId,
-        planId,
-        status: 'INITIATED',
-        applied: false,
-        createdAt: { $gte: since },
-    } as unknown as Parameters<typeof Transaction.findOne>[0];
-    return Transaction.findOne(filter).sort({ createdAt: -1 });
-}
-
-export async function createPaymentTransaction(
-    payload: Record<string, unknown>
-): Promise<ITransaction> {
-    return Transaction.create(payload);
-}
-
-export async function getActivePlans(query: Record<string, unknown>) {
-    return Plan.find(query).sort({ price: 1 });
-}
-
-export async function getUserTransactions(userId: mongoose.Types.ObjectId | string) {
-    return Transaction.find({ userId }).sort({ createdAt: -1 }).lean();
-}
-
-export async function getInvoiceByIdOrTransaction(id: string): Promise<IInvoice | null> {
-    return Invoice.findOne({
-        $or: [{ _id: id }, { transactionId: id }]
-    }).lean() as Promise<IInvoice | null>;
-}
-
-export async function getTransactionWithUser(transactionId: string) {
-    return Transaction.findById(transactionId).populate('userId', 'name email mobile address');
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-export async function getPlanById(planId: string) {
-    return Plan.findById(planId);
-}
-
-export async function findPlanByIdOrCode(planId: string) {
-    const plan = await Plan.findById(planId).catch(() => null);
-    if (plan) return plan;
-    return Plan.findOne({ code: planId });
-}
-
-export async function findTransactionForUpdate(id: string) {
-    if (!mongoose.isValidObjectId(id)) return null;
-    return Transaction.findById(id);
-}
-
-export async function saveTransaction(transaction: { save: () => Promise<unknown> }) {
-    return transaction.save();
-}
-
-export async function upsertUserPlan(
-    userId: mongoose.Types.ObjectId | string,
-    planId: mongoose.Types.ObjectId | string | undefined,
-    startDate: Date,
-    endDate: Date
-) {
-    const UserPlan = (await import('../models/UserPlan')).default;
-    return UserPlan.findOneAndUpdate(
-        { userId, planId },
-        { $set: { startDate, endDate, status: 'ACTIVE' } },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
-}
-
-export async function getUserForPayment(userId: mongoose.Types.ObjectId | string) {
-    return User.findById(userId).lean();
-}
+// Re-exports for backward compatibility (Will be removed in final cleanup Phase 2)
+export { 
+    checkTransactionVelocity, 
+    findPendingTransaction, 
+    createPaymentTransaction, 
+    getUserTransactions, 
+    getTransactionWithUser, 
+    findTransactionForUpdate, 
+    saveTransaction,
+    resolveCategoryName
+} from './TransactionService';
+export { 
+    getActivePlans, 
+    getPlanById, 
+    findPlanByIdOrCode, 
+    upsertUserPlan 
+} from './PlanService';
+export { 
+    getInvoiceByIdOrTransaction 
+} from './InvoiceService';
+export {
+    getUserForPayment
+} from './TransactionService'; // Assuming we moved or will move it

@@ -12,7 +12,7 @@ import {
 export const getSmartAlerts = async (req: Request, res: Response) => {
     try {
         const user = req.user;
-        const admin = (req as Request & { admin?: unknown }).admin;
+        const admin = req.admin as unknown;
 
         if (admin) {
             const alerts = await SmartAlertModel.find({}).sort({ createdAt: -1 });

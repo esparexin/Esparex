@@ -27,9 +27,9 @@ export const registerToken = async (req: Request, res: Response) => {
     try {
         const userId = getUserId(req);
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
-        const { token, platform } = req.body;
+        const { token, platform } = req.body as { token?: string; platform?: string };
 
-        await notificationService.registerToken(userId, token, platform || 'web');
+        await notificationService.registerToken(userId, token ?? '', (platform || 'web') as 'web' | 'android' | 'ios');
         res.json(respond({ success: true, message: 'Token registered' }));
 
     } catch (error) {

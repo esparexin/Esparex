@@ -20,7 +20,7 @@ import {
     type LocationLevel,
     normalizeLocationNameForSearch
 } from '../../../utils/locationInputNormalizer';
-import { mapToLocationResponse } from '../LocationNormalizer';
+import { formatLocationResponse } from '../../../lib/location/formatLocation';
 
 export interface LatLng {
     lat: number;
@@ -125,6 +125,48 @@ export const withPublicCanonicalLocationFilter = <T extends Record<string, unkno
     ...query,
 });
 
+
+/**
+ * Maps a NormalizedLocation (internal) to a NormalizedLocationResponse (API).
+ * Ensures flat latitude/longitude are strictly derived from coordinates.
+ */
+export const mapToLocationResponse = (
+    normalized: NormalizedLocation
+): NormalizedLocationResponse => {
+    return formatLocationResponse({
+        id: normalized.id,
+        locationId: normalized.locationId?.toString() || normalized.id,
+        parentId: normalized.parentId,
+        path: normalized.path,
+        name: normalized.name,
+        displayName: normalized.name,
+        display: normalized.display,
+        formattedAddress: normalized.address || normalized.display,
+        address: normalized.address,
+        city: normalized.city,
+        state: normalized.state,
+        country: normalized.country,
+        level: normalized.level,
+        pincode: normalized.pincode,
+        coordinates: normalized.coordinates,
+        isActive: normalized.isActive,
+        verificationStatus: normalized.verificationStatus,
+    });
+};
+
+export const normalizeLocationResponse = (input: unknown): NormalizedLocationResponse | null => {
+    const normalizedInput = coerceLocationInput(input);
+    if (!normalizedInput || Object.keys(normalizedInput).length === 0) return null;
+
+    // Use buildNormalizedFromLocationDoc to get the internal shape (sync)
+    const internal = buildNormalizedFromLocationDoc(normalizedInput);
+
+    // Ensure we pick up any loose address/pincode from input that buildNormalized might skip
+    internal.address = asString(normalizedInput.address) || asString(normalizedInput.formattedAddress) || internal.address;
+    internal.pincode = asString(normalizedInput.pincode) || internal.pincode;
+
+    return mapToLocationResponse(internal);
+};
 
 export const buildNormalizedFromLocationDoc = (loc: LocationInputObject): NormalizedLocation => {
     const coords = normalizeCoordinates(loc?.coordinates);

@@ -57,7 +57,7 @@ GeofenceSchema.index({ "coordinates": "2dsphere" }, { name: 'idx_geofence_geo_2d
 
 const connection = getUserConnection();
 const Geofence: Model<IGeofence> =
-    connection.models.Geofence ||
+    (connection.models.Geofence as Model<IGeofence> | undefined) ||
     connection.model<IGeofence>("Geofence", GeofenceSchema);
 
 export default Geofence;

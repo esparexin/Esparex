@@ -9,6 +9,21 @@ import {
     buildListingTypeFilter
 } from './_shared/adServiceBase';
 import type { AdFilters } from './_shared/adServiceBase';
+import { LISTING_TYPE } from '../../../../shared/enums/listingType';
+
+interface ListingStatusGroup { _id: { listingType: string; status: string }; count: number }
+
+/**
+ * High-level counts for service-specific dashboard.
+ */
+export const getServiceAnalyticsStats = async () => {
+    const [totalServices, pendingServices, activeServices] = await Promise.all([
+        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE }),
+        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: 'pending' }),
+        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE }),
+    ]);
+    return { totalServices, pendingServices, activeServices };
+};
 
 export const getAdCounts = async (
     filters: AdFilters,
@@ -59,7 +74,7 @@ export const getAdCounts = async (
  * Aggregates in one pass for performance.
  */
 export const computeModerationSummaryByType = async () => {
-    const results = await Ad.aggregate([
+    const results = await Ad.aggregate<ListingStatusGroup>([
         { $match: { isDeleted: { $ne: true } } },
         {
             $group: {
@@ -82,8 +97,11 @@ export const computeModerationSummaryByType = async () => {
         const type = res._id.listingType;
         const status = res._id.status;
         if (!summary[type]) summary[type] = { total: 0 };
-        summary[type][status] = res.count;
-        summary[type].total += res.count;
+        const typeSummary = summary[type];
+        typeSummary[status] = res.count;
+        typeSummary.total = (typeSummary.total ?? 0) + res.count;
+
+
     });
 
     return summary;
@@ -97,12 +115,12 @@ export const getSellerListingStats = async (sellerId: string) => {
         throw new Error('Invalid Seller ID');
     }
 
-    const results = await Ad.aggregate([
-        { 
-            $match: { 
+    const results = await Ad.aggregate<ListingStatusGroup>([
+        {
+            $match: {
                 sellerId: new mongoose.Types.ObjectId(sellerId),
-                isDeleted: { $ne: true } 
-            } 
+                isDeleted: { $ne: true }
+            }
         },
         {
             $group: {
@@ -122,13 +140,15 @@ export const getSellerListingStats = async (sellerId: string) => {
     };
 
     results.forEach(res => {
-        const type = res._id.listingType as string;
+        const type = res._id.listingType;
         // Normalize status using the legacy-aware logic
         const status = normalizeAdStatus(res._id.status);
-        
+
         if (!stats[type]) stats[type] = { total: 0 };
-        stats[type][status] = (stats[type][status] || 0) + res.count;
-        stats[type].total += res.count;
+        const typeStats = stats[type];
+        typeStats[status] = (typeStats[status] ?? 0) + res.count;
+        typeStats.total = (typeStats.total ?? 0) + res.count;
+
     });
 
     return stats;

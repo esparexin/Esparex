@@ -1,6 +1,7 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
-import * as adService from '../../services/AdService';
+import * as AdAggregationService from '../../services/ad/AdAggregationService';
+import * as AdMetricsService from '../../services/ad/AdMetricsService';
 import { Service } from '../../../../shared/types/Service';
 import { ApiResponse, PaginatedResponse } from '../../../../shared/types/Api';
 import { respond } from '../../utils/respond';
@@ -26,7 +27,7 @@ export const getServices = async (req: Request, res: Response) => {
         const parsedRadiusKm = typeof radiusKm === 'string' ? Number(radiusKm) : undefined;
 
         // Redirect to unified AdQueryService
-        const result = await adService.getAds(
+        const result = await AdAggregationService.getAds(
             {
                 listingType: LISTING_TYPE.SERVICE,
                 categoryId: categoryId as string,
@@ -87,7 +88,7 @@ export const getServices = async (req: Request, res: Response) => {
 --------------------------------------------------- */
 export const getServiceAnalytics = async (req: Request, res: Response) => {
     try {
-        const { totalServices, pendingServices, activeServices } = await adService.getServiceAnalyticsStats();
+        const { totalServices, pendingServices, activeServices } = await AdMetricsService.getServiceAnalyticsStats();
 
         // Simple mock growth data for now (or aggregation if needed)
         const growth = 12; // Mock +12%

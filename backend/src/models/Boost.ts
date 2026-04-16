@@ -41,7 +41,7 @@ BoostSchema.index({ transactionId: 1 }, { name: 'idx_boost_transactionId_idx' })
 import { getUserConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
-const Boost: Model<IBoost> = getUserConnection().models.Boost || getUserConnection().model<IBoost>('Boost', BoostSchema);
+const Boost: Model<IBoost> = (getUserConnection().models.Boost as Model<IBoost> | undefined) || getUserConnection().model<IBoost>('Boost', BoostSchema);
 
 applyToJSONTransform(BoostSchema);
 

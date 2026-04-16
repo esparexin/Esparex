@@ -10,7 +10,7 @@ import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../../shared/schemas/sparePartPayload.schema';
-import * as adService from '../../services/AdService';
+import { getAds } from '../../services/ad/AdAggregationService';
 import { mutateStatus } from '../../services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import type { IAuthUser } from '../../types/auth';
@@ -170,7 +170,7 @@ export const getSparePartListings = async (req: Request, res: Response) => {
         const parsedLimit = Math.min(requestedLimit, 100);
 
         // Redirect to unified AdQueryService
-        const result = await adService.getAds(
+        const result = await getAds(
             {
                 listingType: LISTING_TYPE.SPARE_PART,
                 categoryId: categoryId as string,

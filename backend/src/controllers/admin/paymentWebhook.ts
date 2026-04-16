@@ -19,7 +19,22 @@ export async function paymentWebhook(req: Request, res: Response) {
         }))
     );
 
-    const { event, payload } = req.body;
+    interface RazorpayEntity {
+        id?: string;
+        order_id?: string;
+        amount?: number;
+        currency?: string;
+    }
+    const body = req.body as {
+        event?: string;
+        payload?: {
+            payment?: { entity?: RazorpayEntity };
+            order?: { entity?: RazorpayEntity };
+        };
+        payment_id?: string;
+        order_id?: string;
+    };
+    const { event, payload } = body;
 
     // Razorpay sends event name: 'payment.captured' or 'order.paid' etc.
     if (!event || !payload) {
@@ -32,9 +47,9 @@ export async function paymentWebhook(req: Request, res: Response) {
     }
 
     // Extract payment ID from payload
-    const payment = payload.payment?.entity || payload.order?.entity;
-    const payment_id = payment?.id || req.body.payment_id; // Fallback to root for legacy/test
-    const order_id = payload.order?.entity?.id || payment?.order_id || req.body.order_id;
+    const payment = payload.payment?.entity ?? payload.order?.entity;
+    const payment_id = payment?.id ?? body.payment_id; // Fallback to root for legacy/test
+    const order_id = payload.order?.entity?.id ?? payment?.order_id ?? body.order_id;
 
     // Only process successful capture events
     if (event !== "payment.captured" && event !== "order.paid") {
@@ -52,7 +67,7 @@ export async function paymentWebhook(req: Request, res: Response) {
             event,
             gatewayPaymentId: payment_id,
             gatewayOrderId: order_id,
-            gatewayAmountPaise: Number.isFinite(payment?.amount) ? payment.amount : undefined,
+            gatewayAmountPaise: Number.isFinite(payment?.amount) ? payment?.amount : undefined,
             gatewayCurrency: typeof payment?.currency === "string" ? payment.currency : undefined
         });
 

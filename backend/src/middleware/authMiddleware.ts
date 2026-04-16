@@ -25,7 +25,7 @@ const extractToken = (req: Request): { token: string } | null => {
 
   // 3️⃣ User Cookie Fallback
   if (req.cookies?.esparex_auth) {
-    return { token: req.cookies.esparex_auth };
+    return { token: req.cookies.esparex_auth as string };
   }
 
   return null;

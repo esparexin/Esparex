@@ -49,7 +49,7 @@ ServiceTypeSchema.plugin(installSafeSoftDeleteQuery);
 
 import { getAdminConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
-const ServiceType: Model<IServiceType> = getAdminConnection().models.ServiceType || getAdminConnection().model<IServiceType>('ServiceType', ServiceTypeSchema);
+const ServiceType: Model<IServiceType> = (getAdminConnection().models.ServiceType as Model<IServiceType> | undefined) || getAdminConnection().model<IServiceType>('ServiceType', ServiceTypeSchema);
 
 applyToJSONTransform(ServiceTypeSchema);
 

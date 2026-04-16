@@ -240,9 +240,9 @@ export const adminLimiter = createLimiter({
     // consume each other's quota. Falls back to IP if no admin identity yet
     // (e.g. during the very first /me or /csrf-token call).
     keyGenerator: (req: Request) => {
-        const r = req as Request & { admin?: { id?: string; _id?: unknown } };
-        const adminId = r.admin?.id ?? (r.admin?._id ? String(r.admin._id) : undefined);
-        return (adminId || req.ip || 'unknown') as string;
+        const admin = req.admin as unknown as { id?: string; _id?: { toString(): string } | string } | undefined;
+        const adminId = admin?.id ?? admin?._id?.toString();
+        return adminId || req.ip || 'unknown';
     }
 });
 
@@ -308,7 +308,7 @@ export const otpSendLimiter = createLimiter({
     keyPrefix: 'otp:send:',
     errorCode: 'OTP_SEND_MOBILE_RATE_LIMIT',
     keyGenerator: (req: Request) => {
-        const mobile = (req.body?.mobile as string | undefined)?.trim().replace(/\D/g, '').slice(-10);
+        const mobile = ((req.body as { mobile?: string })?.mobile)?.trim().replace(/\D/g, '').slice(-10);
         return mobile || req.ip || 'unknown';
     }
 });
@@ -320,7 +320,7 @@ export const otpVerifyLimiter = createLimiter({
     keyPrefix: 'otp:verify:',
     errorCode: 'OTP_VERIFY_RATE_LIMIT',
     keyGenerator: (req: Request) => {
-        const mobile = (req.body?.mobile as string | undefined)?.trim().replace(/\D/g, '').slice(-10);
+        const mobile = ((req.body as { mobile?: string })?.mobile)?.trim().replace(/\D/g, '').slice(-10);
         return mobile || req.ip || 'unknown';
     }
 });

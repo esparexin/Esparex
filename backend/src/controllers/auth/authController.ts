@@ -29,8 +29,8 @@ export class AuthController {
 
     static async login(req: Request, res: Response, next: NextFunction) {
         try {
-            const { mobile } = req.body;
-            const normalizedPhone = AuthController.parsePhone(req, res, mobile);
+            const { mobile } = req.body as { mobile?: string };
+            const normalizedPhone = AuthController.parsePhone(req, res, mobile as string);
             if (!normalizedPhone) return;
             const result = await AuthService.sendLoginOtp(normalizedPhone);
 
@@ -40,6 +40,7 @@ export class AuthController {
             }
 
             return sendSuccessResponse(res, result);
+
         } catch (error: unknown) {
             next(error);
         }
@@ -47,15 +48,18 @@ export class AuthController {
 
     static async verify(req: Request, res: Response, next: NextFunction) {
         try {
-            const { mobile, otp, name } = req.body;
-            const normalizedPhone = AuthController.parsePhone(req, res, mobile);
+            const { mobile, otp, name } = req.body as { mobile?: string; otp?: string; name?: string };
+            const normalizedPhone = AuthController.parsePhone(req, res, mobile as string);
             if (!normalizedPhone) return;
+            if (!otp) return sendErrorResponse(req, res, 400, 'OTP is required');
+            
             const result = await AuthService.verifyLoginOtp(normalizedPhone, otp, name);
 
             if (!result.success) {
                 AuthController.sendAuthFailure(req, res, result);
                 return;
             }
+
 
             // Match the 7 day JWT expiration
             const cookieMaxAgeMs = 7 * 24 * 60 * 60 * 1000;
@@ -74,11 +78,12 @@ export class AuthController {
 
     static async cancelOtp(req: Request, res: Response, next: NextFunction) {
         try {
-            const { mobile } = req.body;
-            const normalizedPhone = AuthController.parsePhone(req, res, mobile);
+            const { mobile } = req.body as { mobile?: string };
+            const normalizedPhone = AuthController.parsePhone(req, res, mobile as string);
             if (!normalizedPhone) return;
             const result = await AuthService.cancelOtpSession(normalizedPhone);
             return sendSuccessResponse(res, result);
+
         } catch (error: unknown) {
             next(error);
         }
@@ -86,7 +91,7 @@ export class AuthController {
 
     static async logout(req: Request, res: Response, next: NextFunction) {
         try {
-            let token = req.cookies?.esparex_auth;
+            let token = req.cookies?.esparex_auth as string | undefined;
             if (!token && req.headers.authorization?.startsWith('Bearer ')) {
                 token = req.headers.authorization.split(' ')[1];
             }

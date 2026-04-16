@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import Location from '../models/Location';
 import { escapeRegExp, toTitleCase } from './stringUtils';
-import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel } from './locationInputNormalizer';
+import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel } from './locationPrimitives';
 import { toObjectId } from './idUtils';
 import { buildHierarchyPath } from './locationHierarchyUtils';
 export { buildHierarchyPath };

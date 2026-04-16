@@ -61,6 +61,13 @@ export const incrementAdView = async (
     }
 };
 
+/**
+ * Higher-order increment by a generic filter (e.g. slug).
+ */
+export const incrementAdViewByFilter = async (filter: Record<string, unknown>) =>
+    Ad.findOneAndUpdate(filter, { $inc: { 'views.total': 1 } });
+
+
 // ─────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────

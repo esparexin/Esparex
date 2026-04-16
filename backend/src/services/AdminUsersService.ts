@@ -32,8 +32,9 @@ const buildUserStatusFilter = (status?: string) => {
 };
 
 export const normalizeAdminManagedUser = <T extends Record<string, unknown>>(input: T): T => {
-    const plain = typeof input.toObject === 'function' ? input.toObject() : { ...input };
-    const normalizedStatus = normalizeUserStatus(plain.status);
+    const inputWithToObject = input as T & { toObject?: () => Record<string, unknown> };
+    const plain: Record<string, unknown> = typeof inputWithToObject.toObject === 'function' ? inputWithToObject.toObject() : { ...input };
+    const normalizedStatus = normalizeUserStatus(plain.status as string | undefined);
     if (normalizedStatus) {
         plain.status = normalizedStatus;
     }
@@ -81,7 +82,7 @@ export const getUsers = async (filters: UserFilters = {}, pagination: { skip: nu
 
     const userIds = users.map((user) => user._id);
     const adCounts = userIds.length > 0
-        ? await Ad.aggregate([
+        ? await Ad.aggregate<{ _id: unknown; totalAdsPosted: number }>([
             {
                 $match: {
                     sellerId: { $in: userIds },

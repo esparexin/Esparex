@@ -11,7 +11,7 @@ import { USER_STATUS } from '@shared/enums/userStatus';
 import { normalizeAdminPermission, roleGrantsPermission } from '../constants/adminPermissions';
 
 const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
-    const cookieToken = req.cookies?.admin_token;
+    const cookieToken = req.cookies?.admin_token as string | undefined;
     if (typeof cookieToken === 'string' && cookieToken.trim().length > 0) {
         return { token: cookieToken, source: 'cookie' };
     }

@@ -74,7 +74,7 @@ export function verifyCsrfToken(req: Request, res: Response, next: NextFunction)
         return next();
     }
 
-    const cookieToken = req.cookies[CSRF_COOKIE_NAME];
+    const cookieToken = req.cookies[CSRF_COOKIE_NAME] as string | undefined;
     const headerToken = req.headers[CSRF_HEADER_NAME] as string;
 
     // Check if both tokens exist
@@ -136,7 +136,7 @@ export function getCsrfToken(req: Request, res: Response) {
     // Prefer token generated earlier in this request (setCsrfToken middleware),
     // then fall back to existing cookie, else create one.
     const localToken = typeof res.locals.csrfToken === 'string' ? res.locals.csrfToken : undefined;
-    const cookieToken = req.cookies[CSRF_COOKIE_NAME];
+    const cookieToken = req.cookies[CSRF_COOKIE_NAME] as string | undefined;
     const token = localToken || cookieToken || generateCsrfToken();
 
     // Only set cookie here if it wasn't already set by setCsrfToken middleware

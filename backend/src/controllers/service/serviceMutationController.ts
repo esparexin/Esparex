@@ -5,7 +5,7 @@ import {
     findOwnedService,
     findServiceForUpdate,
     updateServiceByOwner,
-} from '../../services/AdService';
+} from '../../services/AdMutationService';
 import { getCategorySelectionMode } from '../../services/catalog/CatalogValidationService';
 import { resolveMasterDataIds } from '../../utils/masterDataResolver';
 import { calculateServiceQuality } from '../../utils/serviceQuality';
@@ -518,8 +518,8 @@ export const markServiceAsSold = async (req: Request, res: Response) => {
             entityId: id,
             toStatus: 'sold',
             actor: { type: ACTOR_TYPE.USER, id: user._id.toString() },
-            reason: req.body.soldReason || 'Marked as sold by seller',
-            patch: { soldReason: req.body.soldReason, soldAt: new Date() },
+            reason: (req.body as { soldReason?: string }).soldReason || 'Marked as sold by seller',
+            patch: { soldReason: (req.body as { soldReason?: string }).soldReason, soldAt: new Date() },
         });
 
         res.json(respond<ApiResponse<Service>>({ success: true, data: updated as unknown as Service, message: 'Service marked as sold' }));

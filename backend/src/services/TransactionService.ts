@@ -1,6 +1,8 @@
-import Transaction from '../models/Transaction';
+import mongoose from 'mongoose';
+import Transaction, { type ITransaction } from '../models/Transaction';
 import User from '../models/User';
 import { escapeRegExp } from '../utils/stringUtils';
+
 
 export interface TransactionFilters {
     status?: string;
@@ -78,7 +80,7 @@ export const getTransactions = async (filters: TransactionFilters = {}, paginati
 
 export const getTransactionStats = async () => {
     // Total Revenue (Only SUCCESS)
-    const totalRevenueAgg = await Transaction.aggregate([
+    const totalRevenueAgg = await Transaction.aggregate<{ total: number }>([
         { $match: { status: 'SUCCESS' } },
         { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
@@ -88,7 +90,7 @@ export const getTransactionStats = async () => {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
-    const todayRevenueAgg = await Transaction.aggregate([
+    const todayRevenueAgg = await Transaction.aggregate<{ total: number }>([
         {
             $match: {
                 status: 'SUCCESS',
@@ -105,7 +107,7 @@ export const getTransactionStats = async () => {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const thisMonthRevenueAgg = await Transaction.aggregate([
+    const thisMonthRevenueAgg = await Transaction.aggregate<{ total: number }>([
         {
             $match: {
                 status: 'SUCCESS',
@@ -123,3 +125,64 @@ export const getTransactionStats = async () => {
         thisMonthRevenue
     };
 };
+
+export const resolveCategoryName = (tx: ITransaction) =>
+    typeof tx.metadata?.categoryName === 'string' ? tx.metadata.categoryName : undefined;
+
+export async function checkTransactionVelocity(
+
+    userId: string | mongoose.Types.ObjectId,
+    windowMs: number
+): Promise<number> {
+    const since = new Date(Date.now() - windowMs);
+    const filter = {
+        userId,
+        createdAt: { $gte: since },
+    };
+    return Transaction.countDocuments(filter);
+}
+
+export async function findPendingTransaction(
+    userId: string | mongoose.Types.ObjectId,
+    planId: string | mongoose.Types.ObjectId,
+    windowMs: number
+): Promise<ITransaction | null> {
+    const since = new Date(Date.now() - windowMs);
+    const filter = {
+        userId,
+        planId,
+        status: 'INITIATED',
+        applied: false,
+        createdAt: { $gte: since },
+    };
+    return Transaction.findOne(filter).sort({ createdAt: -1 });
+}
+
+export async function createPaymentTransaction(
+    payload: Record<string, unknown>
+): Promise<ITransaction> {
+    return Transaction.create(payload);
+}
+
+export async function getUserTransactions(userId: string | mongoose.Types.ObjectId) {
+    return Transaction.find({ userId }).sort({ createdAt: -1 }).lean();
+}
+
+export async function getTransactionWithUser(transactionId: string) {
+    return Transaction.findById(transactionId).populate('userId', 'name email mobile address');
+}
+
+export async function findTransactionForUpdate(id: string) {
+    if (!mongoose.isValidObjectId(id)) return null;
+    return Transaction.findById(id);
+}
+
+export async function saveTransaction(transaction: { save: () => Promise<unknown> }) {
+    return transaction.save();
+}
+
+export async function getUserForPayment(userId: string | mongoose.Types.ObjectId) {
+    return User.findById(userId).lean();
+}
+
+

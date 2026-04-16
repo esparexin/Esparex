@@ -1,9 +1,17 @@
-jest.mock("../../services/AdService", () => ({
-    __esModule: true,
+jest.mock("../../services/ad/AdAggregationService", () => ({
     getAds: jest.fn(),
-    updateAdStatus: jest.fn(),
-    computeActiveExpiry: jest.fn().mockReturnValue(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
 }));
+
+jest.mock("../../services/adStatusService", () => ({
+    computeActiveExpiry: jest.fn().mockReturnValue(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
+    isValidAdStatus: jest.fn().mockReturnValue(true),
+}));
+
+jest.mock("../../services/AdMutationService", () => ({
+    updateAdTransactional: jest.fn(),
+    promoteAd: jest.fn(),
+}));
+
 
 jest.mock("../../utils/adminLogger", () => ({
     __esModule: true,
@@ -54,14 +62,15 @@ jest.mock("../../utils/redisCache", () => ({
 
 import type { Request, Response } from "express";
 import { adminGetAds, approveAd } from "../../controllers/admin/adminAdsController";
-import * as adService from "../../services/AdService";
+import * as AdAggregationService from "../../services/ad/AdAggregationService";
+import * as adStatusService from "../../services/adStatusService";
 import { logAdminAction } from "../../utils/adminLogger";
 import { AD_STATUS_VALUES } from "../../../../shared/enums/adStatus";
 
 describe("adminAdsController status normalization", () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        (adService.getAds as jest.Mock).mockResolvedValue({
+        (AdAggregationService.getAds as jest.Mock).mockResolvedValue({
             data: [],
             pagination: { page: 1, limit: 20, total: 0, pages: 1 },
         });
@@ -78,8 +87,8 @@ describe("adminAdsController status normalization", () => {
 
         await adminGetAds(req, res);
 
-        expect(adService.getAds).toHaveBeenCalledTimes(1);
-        const [filters, pagination] = (adService.getAds as jest.Mock).mock.calls[0];
+        expect(AdAggregationService.getAds).toHaveBeenCalledTimes(1);
+        const [filters, pagination] = (AdAggregationService.getAds as jest.Mock).mock.calls[0];
         expect(filters.status).toEqual([...AD_STATUS_VALUES]);
         expect(pagination).toEqual({ page: 1, limit: 20 });
         expect(res.json).toHaveBeenCalled();
@@ -91,8 +100,8 @@ describe("adminAdsController status normalization", () => {
 
         await adminGetAds(req, res);
 
-        expect(adService.getAds).toHaveBeenCalledTimes(1);
-        const [filters] = (adService.getAds as jest.Mock).mock.calls[0];
+        expect(AdAggregationService.getAds).toHaveBeenCalledTimes(1);
+        const [filters] = (AdAggregationService.getAds as jest.Mock).mock.calls[0];
         expect(filters.status).toEqual([...AD_STATUS_VALUES]);
         expect(res.json).toHaveBeenCalled();
     });
@@ -103,8 +112,8 @@ describe("adminAdsController status normalization", () => {
 
         await adminGetAds(req, res);
 
-        expect(adService.getAds).toHaveBeenCalledTimes(1);
-        const [filters, pagination] = (adService.getAds as jest.Mock).mock.calls[0];
+        expect(AdAggregationService.getAds).toHaveBeenCalledTimes(1);
+        const [filters, pagination] = (AdAggregationService.getAds as jest.Mock).mock.calls[0];
         expect(filters.status).toBe("approved");
         expect(pagination).toEqual({ page: 2, limit: 50 });
         expect(res.json).toHaveBeenCalled();

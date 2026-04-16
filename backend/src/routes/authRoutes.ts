@@ -27,15 +27,16 @@ import { idempotencyMiddleware } from '../middleware/idempotency';
  * @access  Public
  */
 router.post('/verify-otp', otpConfigurationCheck, (req, res, next) => {
-    const mobile = typeof req.body?.mobile === 'string'
-        ? req.body.mobile.replace(/\D/g, '').slice(-4)
+    const otpBody = req.body as { mobile?: unknown; otp?: unknown; name?: unknown };
+    const mobile = typeof otpBody.mobile === 'string'
+        ? otpBody.mobile.replace(/\D/g, '').slice(-4)
         : undefined;
-    const otpLength = typeof req.body?.otp === 'string' ? req.body.otp.length : undefined;
+    const otpLength = typeof otpBody.otp === 'string' ? otpBody.otp.length : undefined;
 
     logger.info('[AUTH] VERIFY OTP REQUEST', {
         phone: mobile,
         otpLength,
-        hasName: typeof req.body?.name === 'string' && req.body.name.trim().length > 0
+        hasName: typeof otpBody.name === 'string' && otpBody.name.trim().length > 0
     });
     next();
 }, validateRequest(verifyOtpSchema), otpVerifyLimiter, fraudMiddleware, idempotencyMiddleware, (req, res, next) => AuthController.verify(req, res, next));

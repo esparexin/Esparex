@@ -38,7 +38,7 @@ const assignValidatedTarget = (
 
     // Express may expose read-only getters for query/params in some runtimes.
     // Prefer in-place mutation when both current and validated values are plain objects.
-    const current = mutableReq[target];
+    const current: unknown = mutableReq[target];
     if (isPlainRecord(current) && isPlainRecord(validated)) {
         Object.keys(current).forEach((key) => {
             delete current[key];
@@ -112,7 +112,7 @@ export function validateRequest(
         try {
             // Handle single schema (backward compatible)
             if ('parse' in schema) {
-                const validated = await schema.parseAsync(req[target]);
+                const validated: unknown = await schema.parseAsync(req[target] as unknown);
                 assignValidatedTarget(req, target, validated);
                 return next();
             }

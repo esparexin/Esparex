@@ -1,11 +1,11 @@
-jest.mock("../../services/AdService", () => ({
+jest.mock("../../services/ad/AdAggregationService", () => ({
     __esModule: true,
     getAds: jest.fn(),
 }));
 
 import type { Request, Response } from "express";
 import { getServices } from "../../controllers/service/serviceQueryController";
-import * as adService from "../../services/AdService";
+import * as AdAggregationService from "../../services/ad/AdAggregationService";
 
 describe("serviceQueryController location filters regression", () => {
     beforeEach(() => {
@@ -13,7 +13,7 @@ describe("serviceQueryController location filters regression", () => {
     });
 
     it("passes locationId + level + radiusKm from query to ad service layer", async () => {
-        const mockedGetAds = adService.getAds as jest.Mock;
+        const mockedGetAds = AdAggregationService.getAds as jest.Mock;
         mockedGetAds.mockResolvedValueOnce({
             data: [],
             pagination: { page: 1, limit: 20, total: 0, hasMore: false },

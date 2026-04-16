@@ -4,10 +4,8 @@ import {
     sendSuccessResponse,
     sendAdminError
 } from './adminBaseController';
-import {
-    getAdForModerationById,
-    extendListingExpiry,
-} from '../../services/AdService';
+import { getAdForModerationById } from '../../services/ad/AdDetailService';
+import { extendListingExpiry } from '../../services/AdMutationService';
 import { bulkResolveReports } from '../../services/ReportService';
 import { getSingleParam } from '../../utils/requestParams';
 import { logAdminAction } from '../../utils/adminLogger';
@@ -182,7 +180,7 @@ export const adminApproveListing = async (req: Request, res: Response) => {
         const listing = await getListingForMutation(req, res, id);
         if (!listing) return;
 
-        const requestedReviewVersion = req.body?.reviewVersion;
+        const requestedReviewVersion = (req.body as { reviewVersion?: number })?.reviewVersion;
         if (
             typeof requestedReviewVersion === 'number'
             && typeof listing.reviewVersion === 'number'
@@ -235,7 +233,7 @@ export const adminRejectListing = async (req: Request, res: Response) => {
         const id = resolveListingId(req, res);
         if (!id) return;
 
-        const rejectionReason = asString(req.body?.rejectionReason);
+        const rejectionReason = asString((req.body as { rejectionReason?: unknown })?.rejectionReason);
         if (!rejectionReason) {
             return sendAdminError(req, res, 'Rejection reason is required', 400);
         }
@@ -428,7 +426,7 @@ export const adminSoftDeleteListing = async (req: Request, res: Response) => {
         const id = resolveListingId(req, res);
         if (!id) return;
 
-        if (req.body?.hardDelete === true) {
+        if ((req.body as { hardDelete?: boolean })?.hardDelete === true) {
             return sendAdminError(req, res, 'Hard delete is forbidden. Listings must be soft deleted.', 400);
         }
 
@@ -493,8 +491,9 @@ export const adminResolveListingReport = async (req: Request, res: Response) => 
         const listing = await getListingForMutation(req, res, id);
         if (!listing) return;
 
-        const action = asString(req.body?.action) || 'dismiss';
-        const note = asString(req.body?.note);
+        const resolveBody = req.body as { action?: unknown; note?: unknown };
+        const action = asString(resolveBody.action) || 'dismiss';
+        const note = asString(resolveBody.note);
 
         if (!['dismiss', 'take_down', 'warn_user'].includes(action)) {
             return sendAdminError(req, res, 'Invalid action. Allowed: dismiss, take_down, warn_user', 400);

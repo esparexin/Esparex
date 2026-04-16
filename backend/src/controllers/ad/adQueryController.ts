@@ -5,7 +5,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import * as adService from '../../services/AdService';
+import * as AdAggregationService from '../../services/ad/AdAggregationService';
+import * as AdDetailService from '../../services/ad/AdDetailService';
 import * as feedService from '../../services/FeedService';
 import * as trendingService from '../../services/TrendingService';
 import { respond } from '../../utils/respond';
@@ -119,7 +120,7 @@ export const getAds = async (req: Request, res: Response, next: NextFunction) =>
         }
 
         // 🔒 CRITICAL FIX: Use getAds (Geospatial) instead of getSimpleAds (Text-only)
-        const result = await adService.getAds(
+        const result = await AdAggregationService.getAds(
             {
                 // 🔒 Scope: ad browse must only return ads, never services or spare_parts
                 listingType: LISTING_TYPE.AD,
@@ -194,7 +195,7 @@ export const getNearbyAds = async (req: Request, res: Response, next: NextFuncti
             return sendErrorResponse(req, res, 400, 'lat and lng are required for nearby search');
         }
 
-        const result = await adService.getAds(
+        const result = await AdAggregationService.getAds(
             {
                 // 🔒 Scope: nearby must only return ads, never services or spare_parts
                 listingType: LISTING_TYPE.AD,
@@ -331,14 +332,14 @@ export const getTrendingAds = async (req: Request, res: Response, next: NextFunc
 export const getAnyAdById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // Admin only access
-        const isAdmin = req.admin || (req.user && ['admin', 'super_admin'].includes((req.user).role));
+        const isAdmin = (req.admin as unknown) || (req.user && ['admin', 'super_admin'].includes((req.user).role));
         if (!isAdmin) {
             return sendErrorResponse(req, res, 403, 'Admin access required');
         }
 
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const ad = await adService.getAnyAdById(id);
+        const ad = await AdDetailService.getAnyAdById(id);
         if (!ad) {
             return sendErrorResponse(req, res, 404, 'Ad not found');
         }
@@ -362,7 +363,7 @@ export const getAnyAdById = async (req: Request, res: Response, next: NextFuncti
 export const getSuggestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const q = String(req.query.q ?? '').trim();
-        const suggestions = await adService.getAdSuggestions(q);
+        const suggestions = await AdDetailService.getAdSuggestions(q);
         return res.json({ success: true, data: { suggestions } });
     } catch (error: unknown) {
         return next(error);

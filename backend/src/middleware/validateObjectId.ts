@@ -128,14 +128,15 @@ export function validateObjectIds(...params: string[]) {
  */
 export function validateBodyObjectId(field: string) {
     return (req: Request, res: Response, next: NextFunction) => {
-        const id = req.body[field];
+        const bodyRecord = req.body as Record<string, unknown>;
+        const id = bodyRecord[field];
 
         // Allow undefined/null for optional fields
         if (!id) {
             return next();
         }
 
-        if (!Types.ObjectId.isValid(id)) {
+        if (!Types.ObjectId.isValid(id as string)) {
             return sendErrorResponse(req, res, 400, 'Invalid ID Format', {
                 details: {
                     message: `Field '${field}' must be a valid ObjectId`,

@@ -59,7 +59,7 @@ export const runAdminMetricsJob = async () => {
         });
 
         // Heavy Aggregation: Top Cities
-        const topCitiesAgg = await Business.aggregate([
+        const topCitiesAgg = await Business.aggregate<{ _id: string | null; count: number }>([
             { $match: { isDeleted: false, status: BUSINESS_STATUS.LIVE } },
             { $group: { _id: "$location.city", count: { $sum: 1 } } },
             { $sort: { count: -1 } },
@@ -67,7 +67,7 @@ export const runAdminMetricsJob = async () => {
         ]);
 
         const topCities = topCitiesAgg.reduce<Record<string, number>>((acc, curr) => {
-            if (curr._id) acc[curr._id as string] = curr.count as number;
+            if (curr._id) acc[curr._id] = curr.count;
             return acc;
         }, {});
 

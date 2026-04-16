@@ -16,7 +16,8 @@ import { sendErrorResponse } from '../utils/errorResponse';
  */
 export const requireListingType = (expected: ListingTypeValue) =>
     (req: Request, res: Response, next: NextFunction) => {
-        const provided = req.body?.listingType;
+        const body = req.body as { listingType?: unknown };
+        const provided = body?.listingType;
 
         if (provided && provided !== expected) {
             const routeMap: Partial<Record<ListingTypeValue, string>> = {
@@ -29,7 +30,7 @@ export const requireListingType = (expected: ListingTypeValue) =>
                 req,
                 res,
                 400,
-                `listingType '${provided}' is not valid for this route. Use ${correctRoute ?? 'the correct route'} instead.`,
+                `listingType '${String(provided)}' is not valid for this route. Use ${correctRoute ?? 'the correct route'} instead.`,
                 {
                     code: 'WRONG_LISTING_TYPE',
                     details: { expected, received: provided, correctRoute },
@@ -39,8 +40,9 @@ export const requireListingType = (expected: ListingTypeValue) =>
 
         // Coerce to expected type when not provided — avoids undefined discriminator downstream
         if (!provided) {
-            req.body = req.body ?? {};
-            req.body.listingType = expected;
+            const bodyRecord = (req.body ?? {}) as Record<string, unknown>;
+            req.body = bodyRecord;
+            bodyRecord.listingType = expected;
         }
 
         next();

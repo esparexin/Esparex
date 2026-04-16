@@ -49,15 +49,16 @@ export const fraudMiddleware = async (req: Request, res: Response, next: NextFun
         const deviceFingerprint = extractDeviceFingerprint(req);
 
         // Clone body to remove huge base64 images before text spam scanning
-        const bodyClone = { ...req.body };
+        const bodyRaw = req.body as Record<string, unknown>;
+        const bodyClone: Record<string, unknown> = { ...bodyRaw };
         if (Array.isArray(bodyClone.images)) bodyClone.images = '[REDACTED_IMAGES]';
         if (typeof bodyClone.image === 'string') bodyClone.image = '[REDACTED_IMAGE]';
-        
+
         // Ensure string extracts regardless of payload structure
         const bodyStr = JSON.stringify(bodyClone);
-        const descriptionObj = req.body?.description || req.body?.text || '';
+        const descriptionObj = bodyRaw.description ?? bodyRaw.text ?? '';
         const description = typeof descriptionObj === 'string' ? descriptionObj : '';
-        const priceObj = req.body?.price;
+        const priceObj = bodyRaw.price;
         const price = typeof priceObj === 'number' ? priceObj : undefined;
 
         // Perform parallel text validations

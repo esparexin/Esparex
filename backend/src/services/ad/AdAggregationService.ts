@@ -21,7 +21,8 @@ import {
     normalizeAdImagesForResponse,
     FeatureFlag,
     isEnabled,
-    getBlockedSellerIds
+    getBlockedSellerIds,
+    ServiceType
 } from './_shared/adServiceBase';
 import type {
     AdsListResult,
@@ -103,35 +104,58 @@ async function fetchMetadataWithCache<T>(
         }
     });
 
-
     if (missingIds.length > 0) {
-        try {
-            const fetched = await query(missingIds);
-            results.push(...fetched);
+        const fresh = await query(missingIds);
+        results.push(...fresh);
 
-            // Cache misses
-            const entries = fetched.flatMap(item => {
-                const itemRecord = item as Record<string, unknown>;
-                const itemId = itemRecord[idField];
-                if (typeof itemId !== 'string' && !(itemId instanceof mongoose.Types.ObjectId)) {
-                    return [];
-                }
-                return [{
-                    key: CACHE_KEYS.metadata(type, itemId.toString()),
-                    value: item
-                }];
-            });
-            if (entries.length > 0) {
-                // Background cache update - 6 Hours TTL for catalog metadata (rarely changes)
-                setMultiCache(entries, 21600).catch(err => logger.warn(`Metadata cache update failed for ${type}`, err));
-            }
-        } catch (error) {
-            logger.error(`Database fetch failed for metadata ${type}`, error);
+        // Update cache
+        const cacheEntries: { key: string; value: T }[] = fresh.map(item => {
+            const id = String((item as MetadataEntity)[idField]);
+            return {
+                key: CACHE_KEYS.metadata(type, id),
+                value: item
+            };
+        });
+
+        if (cacheEntries.length > 0) {
+            await setMultiCache(cacheEntries);
         }
     }
 
     return results;
 }
+
+/**
+ * Returns paginated listings owned by a specific seller, with metadata populated.
+ * Used for "My Listings" views.
+ */
+export const getOwnerListings = async (
+    query: Record<string, unknown>,
+    page: number,
+    limit: number
+) => {
+    const populateSpecs = [
+        { path: 'categoryId', model: Category, select: 'name slug icon' },
+        { path: 'brandId', model: Brand, select: 'name slug' },
+        { path: 'modelId', model: ProductModel, select: 'name slug' },
+        { path: 'sparePartId', model: SparePart, select: 'name slug' },
+        { path: 'serviceTypeIds', model: ServiceType, select: 'name slug' },
+    ] as const;
+
+    const itemsQuery = populateSpecs.reduce(
+        (builder, spec) => builder.populate(spec),
+        Ad.find(query)
+    );
+
+    const [items, total] = await Promise.all([
+        itemsQuery.sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+        Ad.countDocuments(query),
+    ]);
+
+    return { items, total };
+};
+
+
 
 export async function hydrateAdMetadata(ads: HydratedAd[]) {
     if (!ads || ads.length === 0) return ads;
@@ -613,10 +637,10 @@ export const getAds = async (
     });
 
     const [rawResults, countResult] = await Promise.all([
-        Ad.aggregate(pipeline),
+        Ad.aggregate<HydratedAd>(pipeline),
         isCursorMode || shouldSkipExactCount
             ? Promise.resolve([] as Array<{ total: number }>)
-            : Ad.aggregate(countPipeline),
+            : Ad.aggregate<{ total: number }>(countPipeline),
     ]);
 
     const useCursorStyleMeta = isCursorMode || shouldSkipExactCount;
@@ -636,7 +660,7 @@ export const getAds = async (
     const total = useCursorStyleMeta ? results.length : countResult[0]?.total || 0;
 
     const data = results.map(ad => {
-        const serializedAd = serializeDoc(ad) as HydratedAd;
+        const serializedAd = serializeDoc(ad);
         if (serializedAd.location) {
             serializedAd.location = normalizeLocationResponse(serializedAd.location as Record<string, unknown>);
         }

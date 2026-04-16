@@ -198,8 +198,9 @@ export const updateCategory = async (req: Request, res: Response) => {
         
         // Strip immutable/internal fields that admin frontends might send
         const PROTECTED_FIELDS = ['id', '_id', '__v', 'isDeleted', 'deletedAt', 'updatedAt', 'createdAt'];
+        const mutableBody = req.body as Record<string, unknown>;
         for (const field of PROTECTED_FIELDS) {
-            delete req.body[field];
+            delete mutableBody[field];
         }
 
         const oldCategory = await findCategoryById(categoryId);

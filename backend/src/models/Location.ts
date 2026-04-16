@@ -2,7 +2,7 @@ import { Schema, Model, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
 import softDeletePlugin, { ISoftDeleteDocument } from "../utils/softDeletePlugin";
 import { hasValidCoordinateArray, sanitizeGeoPoint } from "../../../shared/utils/geoUtils";
-import { LOCATION_LEVELS, buildLocationSlug, normalizeLocationNameForSearch } from "../utils/locationInputNormalizer";
+import { LOCATION_LEVELS, buildLocationSlug, normalizeLocationNameForSearch } from "../utils/locationPrimitives";
 
 /* -------------------------------------------------------------------------- */
 /* TYPES                                                                      */
@@ -227,7 +227,7 @@ LocationSchema.index(
 const connection = getUserConnection();
 
 const Location: Model<ILocation> =
-    connection.models.Location ||
+    (connection.models.Location as Model<ILocation> | undefined) ||
     connection.model<ILocation>("Location", LocationSchema);
 
 export default Location;

@@ -278,6 +278,6 @@ BusinessSchema.set('toObject', {
 });
 
 import { getUserConnection } from '../config/db';
-const Business: Model<IBusiness> = getUserConnection().models.Business || getUserConnection().model<IBusiness>('Business', BusinessSchema);
+const Business: Model<IBusiness> = (getUserConnection().models.Business as Model<IBusiness> | undefined) || getUserConnection().model<IBusiness>('Business', BusinessSchema);
 
 export default Business;

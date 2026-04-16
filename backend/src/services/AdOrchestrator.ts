@@ -39,17 +39,6 @@ export interface AdOrchestrationContext {
  */
 export const createAd = async (data: Record<string, unknown>, context: AdOrchestrationContext): Promise<IAd | null> => {
     const start = Date.now();
-    const isOrchestratorEnabled = await isEnabled(FeatureFlag.ENABLE_AD_ORCHESTRATOR);
-    
-    if (!isOrchestratorEnabled) {
-        // Fallback to legacy path during gradual rollout (if adService still exists)
-        const adService = await import('./AdService');
-        return adService.createAd(data, {
-            ...context,
-            allowSuspendedUser: false,
-        } as AdOrchestrationContext & { allowSuspendedUser: boolean });
-    }
-
     const connection = getUserConnection();
     const session = await connection.startSession();
     

@@ -100,7 +100,7 @@ import { applyToJSONTransform } from '../utils/schemaOptions';
 
 applyToJSONTransform(SparePartSchema);
 export const SparePartModel: Model<ISparePart> =
-    getAdminConnection().models.SparePart ||
+    (getAdminConnection().models.SparePart as Model<ISparePart> | undefined) ||
     getAdminConnection().model<ISparePart>('SparePart', SparePartSchema);
 
 export default SparePartModel;

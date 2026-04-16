@@ -9,6 +9,58 @@ import {
 import type { PaginationOptions } from './_shared/adServiceBase';
 
 import { hydrateAdMetadata } from './AdAggregationService';
+import type { IAd } from '../../models/Ad';
+import logger from '../../utils/logger';
+
+/**
+ * Returns a specific ad by its ID with full seller details and flattened DTO shape.
+ * Used for admin lookups and specialized public detail views.
+ */
+export const getAnyAdById = async (
+    adId: string,
+    _requesterId?: string
+): Promise<Record<string, unknown> | null> => {
+    void _requesterId;
+    if (!mongoose.Types.ObjectId.isValid(adId)) return null;
+
+    const id = new mongoose.Types.ObjectId(adId);
+
+    try {
+        const ad = await Ad.findOne({ _id: id })
+            .setOptions({ withDeleted: true })
+            .populate('sellerId', 'name avatar isVerified role trustScore')
+            .lean();
+
+        if (!ad) return null;
+
+        // Perform Split-DB hydration for catalog references
+        await hydrateAdMetadata([ad]);
+
+        // Use DTO/interface for ad
+        const result = { ...ad } as Partial<IAd> & Record<string, unknown>;
+        delete result.password;
+        delete result.otp;
+        delete result.otpExpiry;
+        return result;
+    } catch (error) {
+        logger.error('Failed to get ad by ID', {
+            error: error instanceof Error ? error.message : String(error),
+            adId
+        });
+        throw error;
+    }
+};
+
+/**
+ * Lightweight lookup for moderation checks.
+ */
+export const getAdForModerationById = async (id: string) => {
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return Ad.findById(id)
+        .select('status reviewVersion listingType isDeleted')
+        .lean<{ status: string; reviewVersion?: number; listingType?: string; isDeleted?: boolean } | null>();
+};
+
 export const getListingDetailById = async (adId: string) => {
     if (!mongoose.Types.ObjectId.isValid(adId)) {
         return null;

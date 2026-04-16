@@ -191,12 +191,13 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
             }
         );
 
-        if (response.data?.type === 'success') {
+        const responseData = response.data as { type?: string } | undefined;
+        if (responseData?.type === 'success') {
             logger.info('OTP SMS dispatched successfully', { phone: mobile.slice(-4) });
         } else {
             logger.warn('OTP SMS dispatch returned non-success', {
                 phone: mobile.slice(-4),
-                type: response.data?.type
+                type: responseData?.type
             });
         }
     } catch (err) {

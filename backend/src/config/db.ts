@@ -245,7 +245,7 @@ function attachUserDBLogs(conn: Connection) {
         logger.info('User DB connected', { database: 'esparex_user' });
     });
 
-    conn.on('error', (err) => {
+    conn.on('error', (err: Error) => {
         userCache.isReady = false;
         if (isUnified) adminCache.isReady = false;
         logger.error('User DB error', { error: err.message });
@@ -265,7 +265,7 @@ function attachAdminDBLogs(conn: Connection) {
         logger.info('Admin DB connected', { database: 'esparex_admin' });
     });
 
-    conn.on('error', (err) => {
+    conn.on('error', (err: Error) => {
         adminCache.isReady = false;
         if (isUnified) userCache.isReady = false;
         logger.error('Admin DB error', { error: err.message });

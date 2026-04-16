@@ -24,6 +24,6 @@ SavedAdSchema.index({ userId: 1, createdAt: -1 }, { name: 'idx_savedad_userId_cr
 applyToJSONTransform(SavedAdSchema);
 
 import { getUserConnection } from '../config/db';
-const SavedAd: Model<ISavedAd> = getUserConnection().models.SavedAd || getUserConnection().model<ISavedAd>('SavedAd', SavedAdSchema);
+const SavedAd: Model<ISavedAd> = (getUserConnection().models.SavedAd as Model<ISavedAd> | undefined) || getUserConnection().model<ISavedAd>('SavedAd', SavedAdSchema);
 
 export default SavedAd;
