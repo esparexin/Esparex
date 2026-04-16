@@ -89,7 +89,9 @@ export function BrowseServices({
       getEmptyDescription={(searchQuery) =>
         searchQuery ? `No services matching "${searchQuery}".` : "No services available in this area yet."
       }
-      renderCard={(service, view) => <BrowseServicesCard service={service} view={view} />}
+      renderCard={(service, view, index) => (
+        <BrowseServicesCard service={service} view={view} priority={index < 4} />
+      )}
       getItemKey={(service) => service.id}
       VirtualizedListComponent={BrowseServicesVirtualizedList}
       virtualizationThreshold={24}

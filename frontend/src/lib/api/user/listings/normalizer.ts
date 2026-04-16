@@ -250,12 +250,7 @@ export function normalizeListing(data: unknown): Listing {
     
     const location = normalizeLocation(validated.location);
     
-    let normalizedViews = 0;
-    if (typeof validated.views === 'number') {
-        normalizedViews = validated.views;
-    } else if (validated.views && typeof validated.views === 'object') {
-        normalizedViews = (validated.views as { total: number }).total || 0;
-    }
+    const views = validated.views;
 
     const explicitSellerName =
         typeof validated.sellerName === 'string' && validated.sellerName.trim().length > 0
@@ -294,12 +289,21 @@ export function normalizeListing(data: unknown): Listing {
         id: String(validatedWithoutLegacyUserId.id || ''),
         images: toSafeImageArray(Array.isArray(validatedWithoutLegacyUserId.images) ? validatedWithoutLegacyUserId.images.map((image) => normalizeImageUrl(String(image))) : validatedWithoutLegacyUserId.images),
         image: toSafeImageSrc(Array.isArray(validatedWithoutLegacyUserId.images) && validatedWithoutLegacyUserId.images.length > 0 ? normalizeImageUrl(String(validatedWithoutLegacyUserId.images[0])) : (typeof validatedWithoutLegacyUserId.image === 'string' ? normalizeImageUrl(validatedWithoutLegacyUserId.image) : validatedWithoutLegacyUserId.image)),
-        time: typeof validatedWithoutLegacyUserId.createdAt === 'string' ? new Date(validatedWithoutLegacyUserId.createdAt).toLocaleDateString() : '',
+        time: typeof validatedWithoutLegacyUserId.createdAt === 'string' 
+            ? new Date(validatedWithoutLegacyUserId.createdAt).toLocaleDateString() 
+            : validatedWithoutLegacyUserId.createdAt instanceof Date 
+                ? validatedWithoutLegacyUserId.createdAt.toLocaleDateString()
+                : '',
+        createdAt: typeof validatedWithoutLegacyUserId.createdAt === 'string' 
+            ? validatedWithoutLegacyUserId.createdAt 
+            : validatedWithoutLegacyUserId.createdAt instanceof Date 
+                ? validatedWithoutLegacyUserId.createdAt.toISOString() 
+                : new Date(0).toISOString(),
         isBusiness,
         verified,
         sellerName,
         sellerId: extractId(validatedWithoutLegacyUserId.sellerId) || '',
-        views: normalizedViews,
+        views,
         location: (location || { city: "" }) as Listing['location'],
     } as Listing;
 }

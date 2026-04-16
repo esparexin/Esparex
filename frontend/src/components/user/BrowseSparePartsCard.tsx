@@ -12,9 +12,11 @@ import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({
   listing,
   view = "grid",
+  priority = false,
 }: {
   listing: SparePartListing;
   view?: "grid" | "list";
+  priority?: boolean;
 }) {
   const imageUrl = toSafeImageSrc(listing.images?.[0], "");
   const location =
@@ -40,6 +42,7 @@ export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({
       location={location}
       createdAt={listing.createdAt}
       fallbackIcon={CircuitBoard}
+      priority={priority}
     />
   );
 });

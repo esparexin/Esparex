@@ -12,9 +12,11 @@ import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 export const BrowseServicesCard = memo(function BrowseServicesCard({
   service,
   view = "grid",
+  priority = false,
 }: {
   service: Service;
   view?: "grid" | "list";
+  priority?: boolean;
 }) {
   const imageUrl = toSafeImageSrc(service.images?.[0], "");
   const location =
@@ -47,6 +49,7 @@ export const BrowseServicesCard = memo(function BrowseServicesCard({
       location={location}
       createdAt={service.createdAt}
       fallbackIcon={Wrench}
+      priority={priority}
     />
   );
 });

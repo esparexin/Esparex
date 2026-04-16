@@ -84,7 +84,9 @@ export function BrowseSpareParts({
       getEmptyDescription={(searchQuery) =>
         searchQuery ? `No spare parts matching "${searchQuery}".` : "No spare parts available in this area yet."
       }
-      renderCard={(listing, view) => <BrowseSparePartsCard listing={listing} view={view} />}
+      renderCard={(listing, view, index) => (
+        <BrowseSparePartsCard listing={listing} view={view} priority={index < 4} />
+      )}
       getItemKey={(listing) => listing.id}
     />
   );

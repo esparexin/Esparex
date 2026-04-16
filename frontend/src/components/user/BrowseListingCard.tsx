@@ -21,6 +21,7 @@ interface BrowseListingCardProps {
   createdAt?: string;
   fallbackIcon: LucideIcon;
   view?: "grid" | "list";
+  priority?: boolean;
 }
 
 export const BrowseListingCard = memo(function BrowseListingCard({
@@ -35,13 +36,15 @@ export const BrowseListingCard = memo(function BrowseListingCard({
   createdAt,
   fallbackIcon: FallbackIcon,
   view = "grid",
+  priority = false,
 }: BrowseListingCardProps) {
   const media = imageUrl ? (
     <Image
       src={imageUrl}
       alt={title}
       fill
-      unoptimized
+      unoptimized={!imageUrl.startsWith('/')}
+      priority={priority}
       className="object-cover group-hover:scale-105 transition-transform duration-500"
       sizes={view === "list" ? "(max-width: 768px) 35vw, 180px" : "(max-width: 768px) 50vw, 33vw"}
     />

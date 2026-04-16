@@ -35,6 +35,14 @@ const TEMPLATES: Record<string, (params: TemplateParams) => NotificationTemplate
         title: 'New listing matches your saved search.',
         body: `${p.adTitle} • \u20B9${p.price} • ${p.location}`
     }),
+    PRICE_DROP: (p) => ({
+        title: 'Price Drop! 💸',
+        body: `An item you followed "${p.adTitle}" is now \u20B9${p.price}. Catch it before someone else does!`
+    }),
+    NEW_CHAT_MESSAGE: (p) => ({
+        title: `New Message from ${p.senderName || 'User'}`,
+        body: String(p.text || 'Sent an attachment')
+    }),
     LOCATION_APPROVED: (p) => ({
         title: 'Location Request Approved',
         body: `Your location request for "${p.name}" has been approved.`

@@ -107,6 +107,28 @@ export async function sendMessage(
         }
     );
 
+    // 📣 NOTIFY RECEIVER (Push + In-App)
+    (async () => {
+        try {
+            const { dispatchTemplatedNotification } = await import('../NotificationService');
+            const UserModel = (await import('../../models/User')).default;
+            const senderSnippet = await UserModel.findById(senderId).select('name').lean();
+            
+            await dispatchTemplatedNotification(
+                receiverId,
+                'CHAT' as any,
+                'NEW_CHAT_MESSAGE',
+                { 
+                    senderName: (senderSnippet as { name?: string })?.name || 'User',
+                    text: storedText.length > 50 ? `${storedText.substring(0, 47)}...` : storedText
+                },
+                { conversationId, type: 'chat_message' }
+            );
+        } catch (err) {
+            logger.error('Failed to dispatch chat notification', { error: err });
+        }
+    })();
+
     if (riskScore >= 0.8) {
         await ChatMessage.create({
             conversationId: new Types.ObjectId(conversationId),

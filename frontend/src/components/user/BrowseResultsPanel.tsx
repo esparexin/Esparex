@@ -17,7 +17,7 @@ export type BrowseVirtualizedListProps<TItem> = {
 export interface BrowseResultsContentProps<TItem> {
   emptyTitle: string;
   getEmptyDescription: (query: string) => string;
-  renderCard: (item: TItem, view: "grid" | "list") => ReactNode;
+  renderCard: (item: TItem, view: "grid" | "list", index: number) => ReactNode;
   getItemKey: (item: TItem) => string | number;
   VirtualizedListComponent?: ComponentType<BrowseVirtualizedListProps<TItem>>;
   virtualizationThreshold?: number;
@@ -150,8 +150,8 @@ export function BrowseResultsPanel<TItem>({
                   : "grid grid-cols-2 gap-3 pb-8 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
               }
             >
-              {items.map((item) => (
-                <Fragment key={getItemKey(item)}>{renderCard(item, view)}</Fragment>
+              {items.map((item, index) => (
+                <Fragment key={getItemKey(item)}>{renderCard(item, view, index)}</Fragment>
               ))}
             </div>
           )
