@@ -9,6 +9,11 @@ export interface ISavedSearch extends Document {
     locationId?: Types.ObjectId;
     priceMin?: number;
     priceMax?: number;
+    coordinates?: {
+        type: 'Point';
+        coordinates: [number, number]; // [lng, lat]
+    };
+    radiusKm?: number;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -21,6 +26,11 @@ const SavedSearchSchema = new Schema<ISavedSearch>(
         locationId: { type: Schema.Types.ObjectId, ref: 'Location' },
         priceMin: { type: Number, min: 0 },
         priceMax: { type: Number, min: 0 },
+        coordinates: {
+            type: { type: String, enum: ['Point'], default: 'Point' },
+            coordinates: { type: [Number], index: '2dsphere' }
+        },
+        radiusKm: { type: Number, min: 0, max: 500 },
     },
     { timestamps: true }
 );

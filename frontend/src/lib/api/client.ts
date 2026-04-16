@@ -206,6 +206,34 @@ class APIClient {
             headers.set('x-correlation-id', TraceContext.getCorrelationId());
             config.headers = headers;
 
+            // 🔐 HMAC SIGNATURE FOR FINANCIAL SAFETY
+            const SENSITIVE_ENDPOINTS = [
+                '/users/:id/wallet',
+                '/wallet/adjust',
+                '/payments/create'
+            ];
+
+            const normalizedPath = normalizeRequestPath(config.url);
+            const isSensitive = SENSITIVE_ENDPOINTS.some(pattern => {
+                const regex = new RegExp('^' + pattern.replace(':id', '[^/]+').replace(/^\/+/, '') + '$', 'i');
+                return regex.test(normalizedPath);
+            });
+
+            if (isSensitive && config.data && this.isStateChangingMethod(config.method)) {
+                try {
+                    const CryptoJS = (await import('crypto-js')).default;
+                    const secret = process.env.NEXT_PUBLIC_HMAC_SECRET || 'super_secret_fallback_key_for_dev_32char';
+                    const bodyStr = JSON.stringify(config.data);
+                    const signature = CryptoJS.HmacSHA256(bodyStr, secret).toString(CryptoJS.enc.Hex);
+                    
+                    const headers = new AxiosHeaders(config.headers);
+                    headers.set('x-signature', signature);
+                    config.headers = headers;
+                } catch (cryptoError) {
+                    logger.error('[API Client] Failed to generate HMAC signature:', cryptoError);
+                }
+            }
+
             const isCsrfBootstrapRequest = config.url?.endsWith(API_ROUTES.USER.CSRF_TOKEN);
             if (!isCsrfBootstrapRequest && this.isStateChangingMethod(method)) {
                 const csrfToken = await this.getCsrfToken();

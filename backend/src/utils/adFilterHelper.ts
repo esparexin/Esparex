@@ -129,7 +129,16 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
     // Keywords (Text Search)
     // Note: For aggregation pipelines ($geoNear), $text must be in the 'query' field.
     if (criteria.keywords?.trim()) {
-        match.$text = { $search: criteria.keywords.trim() };
+        const query = criteria.keywords.trim();
+        
+        // Strategy: Use $text search as primary (fast, indexed)
+        // If we want "fuzzy" support, we can also generate a regex fallback 
+        // that handles common 1-character typos.
+        match.$text = { $search: query };
+        
+        // 🧪 OPTIONAL: Fuzzy Regex Fallback
+        // This is useful if $text search returns 0 results. 
+        // For a single-stage buildFilter, we stick to $text but ensure it's normalized.
     }
 
     // Plan & Spotlight
