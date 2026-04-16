@@ -296,7 +296,7 @@ export function AuthProvider({
 
   useEffect(() => {
     let mounted = true;
-    const RETRY_DELAY_MS = 10_000;
+    const RETRY_DELAY_MS = 2_000;
 
     if (
       process.env.NEXT_PUBLIC_LOCAL_DEV_AUTH ===

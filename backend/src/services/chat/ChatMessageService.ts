@@ -3,6 +3,7 @@ import { Conversation } from '../../models/Conversation';
 import { ChatMessage } from '../../models/ChatMessage';
 import Ad from '../../models/Ad';
 import { isListingChatClosed } from '../chatAvailabilityService';
+import logger from '../../utils/logger';
 import type { IChatAttachment } from '../../models/ChatMessage';
 import {
     PAGE_SIZE_MESSAGES,

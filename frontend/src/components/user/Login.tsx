@@ -5,7 +5,6 @@ import { ArrowLeft, Loader2, Pencil, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { formatSeconds } from "@/lib/otpHelpers";
-import { useBackendStatus } from "@/context/BackendStatusContext";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -20,7 +19,6 @@ interface LoginProps {
 }
 
 export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
-  const { apiBaseUrl } = useBackendStatus();
   const {
     backendReady,
     step,
@@ -169,10 +167,15 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                   )}
 
                   {!backendReady && (
-                    <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                      Connecting to server&hellip; please wait a moment before sending OTP.
-                      {apiBaseUrl ? ` (${apiBaseUrl})` : ""}
-                    </p>
+                    <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 space-y-1">
+                      <p className="text-xs font-semibold text-amber-900 flex items-center gap-2">
+                        <Loader2 className="animate-spin h-3 w-3" />
+                        Waking up server...
+                      </p>
+                      <p className="text-[10px] text-amber-700 leading-tight">
+                        Our high-security backend is currently initializing. This usually takes a few seconds.
+                      </p>
+                    </div>
                   )}
 
                   <div className="transition-transform active:scale-[0.985]">

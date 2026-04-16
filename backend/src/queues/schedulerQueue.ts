@@ -81,13 +81,13 @@ const schedulerDefaultJobOptions = {
 
 const schedulerQueue = shouldDisableSchedulerQueue
     ? null
-    : new Queue<unknown, unknown, string>('scheduler-jobs', {
+    : new Queue<TraceableJobData, unknown, string>('scheduler-jobs', {
         connection: schedulerQueueConnection,
         defaultJobOptions: schedulerDefaultJobOptions,
     });
 
 let processorsRegistered = false;
-let schedulerWorker: Worker<unknown, unknown, string> | null = null;
+let schedulerWorker: Worker<TraceableJobData, any, string> | null = null;
 let schedulerQueueEvents: QueueEvents | null = null;
 
 export const registerSchedulerJobProcessors = async (
@@ -117,7 +117,10 @@ export const registerSchedulerJobProcessors = async (
         logger.info('Scheduler queue job completed', { jobId });
     });
 
-    await Promise.all([schedulerWorker.waitUntilReady(), schedulerQueueEvents.waitUntilReady()]);
+    await Promise.all([
+        schedulerWorker?.waitUntilReady(), 
+        schedulerQueueEvents?.waitUntilReady()
+    ].filter(Boolean));
 };
 
 

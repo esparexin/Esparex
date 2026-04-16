@@ -14,7 +14,7 @@ let hasWarnedLocationListHintFailure = false;
 
 import { LocationCacheService } from './LocationCacheService';
 
-export const findLocationById = async (id: string | undefined) => {
+export const findLocationById = async (id: string | undefined): Promise<any> => {
     if (!id) return null;
     
     // 🚀 CACHE-ASIDE: Check secondary layer first

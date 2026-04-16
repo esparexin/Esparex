@@ -31,7 +31,7 @@ export async function addJobWithTrace<T extends TraceableJobData>(
         }
     };
 
-    return queue.add(name, enrichedData, opts);
+    return queue.add(name as any, enrichedData as any, opts);
 }
 
 /**
@@ -72,7 +72,7 @@ export function registerWorkerWithTrace<T extends TraceableJobData>(
         if (job.attemptsMade >= (job.opts.attempts || 1)) {
             const requestId = job.data._trace?.requestId;
             
-            void AuditService.logAction({
+            void AuditService.logEvent({
                 action: 'JOB_FAILURE_FINAL',
                 targetType: 'system_queue',
                 targetId: job.id || 'unknown',
@@ -83,7 +83,7 @@ export function registerWorkerWithTrace<T extends TraceableJobData>(
                     requestId,
                     attempts: job.attemptsMade
                 }
-            });
+            }, { actorType: 'system', requestId });
 
             logger.error(`[JobFatal] ${queueName}:${job.name} exhausted all retries.`, {
                 jobId: job.id,

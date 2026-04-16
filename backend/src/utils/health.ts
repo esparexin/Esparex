@@ -26,8 +26,12 @@ export const getHealthCheckData = async () => {
     };
 };
 
-export const healthCheckHandler = async (_req: Request, res: Response) => {
+export const healthCheckHandler = async (req: Request, res: Response) => {
     try {
+        // Log health checks in dev for visibility
+        if (process.env.NODE_ENV === 'development') {
+            console.log(`[Health] Ping from ${req.ip}`);
+        }
         const healthData = await getHealthCheckData();
         res.status(200).json(healthData);
     } catch (error) {
