@@ -68,6 +68,7 @@ const envSchema = z.object({
     AUTH_BYPASS_OTP_LOCK: z.string().optional(),
     USE_DEFAULT_OTP: z.string().transform(val => val === 'true').default('false'),
     DEV_STATIC_OTP: z.string().default('123456'),
+    PROD_RISK_OVERRIDE: z.string().transform(val => val === 'true').default('false'),
 
     GEMINI_API_KEY: z.string().optional(),
 

@@ -142,20 +142,30 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
         }
     }
 
+    const isRiskOverrideActive = (sourceEnv.PROD_RISK_OVERRIDE || '').trim().toLowerCase() === 'true';
+
     if ((sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase() === 'true') {
-        throw new Error(
-            '🚨 SECURITY BLOCK: USE_DEFAULT_OTP=true is not allowed in production. ' +
-            'This flag enables authentication bypass with a static OTP for every user. ' +
-            'Remove it from your production environment before deploying.'
-        );
+        if (isRiskOverrideActive) {
+            bootstrapLogger.warn('⚠️  SECURITY WARNING: USE_DEFAULT_OTP is enabled in production via PROD_RISK_OVERRIDE. Static OTPs are active!');
+        } else {
+            throw new Error(
+                '🚨 SECURITY BLOCK: USE_DEFAULT_OTP=true is not allowed in production. ' +
+                'This flag enables authentication bypass with a static OTP for every user. ' +
+                'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
+            );
+        }
     }
 
     if ((sourceEnv.AUTH_BYPASS_OTP_LOCK || '').trim().toLowerCase() === 'true') {
-        throw new Error(
-            '🚨 SECURITY BLOCK: AUTH_BYPASS_OTP_LOCK=true is not allowed in production. ' +
-            'This flag disables OTP attempt-count locking, enabling brute-force attacks. ' +
-            'Remove it from your production environment before deploying.'
-        );
+        if (isRiskOverrideActive) {
+            bootstrapLogger.warn('⚠️  SECURITY WARNING: AUTH_BYPASS_OTP_LOCK is enabled in production via PROD_RISK_OVERRIDE. Brute-force protection is disabled!');
+        } else {
+            throw new Error(
+                '🚨 SECURITY BLOCK: AUTH_BYPASS_OTP_LOCK=true is not allowed in production. ' +
+                'This flag disables OTP attempt-count locking, enabling brute-force attacks. ' +
+                'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
+            );
+        }
     }
 
     bootstrapLogger.info('✅ Production environment secrets and origin constraints validated');
