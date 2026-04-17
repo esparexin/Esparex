@@ -17,10 +17,11 @@ import {
 } from "lucide-react";
 
 import { unsaveAd } from "@/lib/api/user/users";
+import type { SavedAd } from "@/lib/api/user/users";
+import type { UserPage } from "@/lib/routeUtils";
 import { useAuth } from "@/context/AuthContext";
 import { notify } from "@/lib/notify";
 import type { Ad } from "@/schemas/ad.schema";
-import type { UserPage } from "@/lib/routeUtils";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { formatPrice, formatStableDate } from "@/lib/formatters";
@@ -204,7 +205,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const [sortBy, setSortBy] = useState<SortOption>("newest");
 
   const {
-    data: savedAds = [],
+    data: savedAds = [] as SavedAd[],
     isLoading,
     isError,
     refetch,
@@ -215,7 +216,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const unsaveMutation = useMutation({
     mutationFn: (adId: string | number) => unsaveAd(adId),
     onSuccess: (_result, adId) => {
-      queryClient.setQueryData<Ad[]>(queryKeys.ads.saved(), (current = []) =>
+      queryClient.setQueryData<SavedAd[]>(queryKeys.ads.saved(), (current = []) =>
         current.filter((ad) => String(ad.id) !== String(adId))
       );
       notify.success("Ad removed from saved");
@@ -272,7 +273,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
 
   // ── Ad card renderers ────────────────────────────────────────────────────────
 
-  const renderGridCard = (ad: Ad, unavailable = false) => (
+  const renderGridCard = (ad: SavedAd, unavailable = false) => (
     <Card
       key={ad.id}
       className={`overflow-hidden rounded-xl border border-black transition-all duration-300 ${
@@ -310,14 +311,16 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
           <SavedAdTypeBadge label={getCategoryLabel(ad)} unavailable={unavailable} />
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {formatStableDate(ad.createdAt)}
+            {ad._savedAt
+              ? `Saved ${formatStableDate(ad._savedAt)}`
+              : formatStableDate(ad.createdAt)}
           </div>
         </div>
       </CardContent>
     </Card>
   );
 
-  const renderListCard = (ad: Ad, unavailable = false) => (
+  const renderListCard = (ad: SavedAd, unavailable = false) => (
     <Card
       key={ad.id}
       className={`overflow-hidden rounded-xl border border-black transition-all ${
@@ -357,7 +360,11 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-                <span className="truncate">{formatStableDate(ad.createdAt)}</span>
+                <span className="truncate">
+                  {ad._savedAt
+                    ? `Saved ${formatStableDate(ad._savedAt)}`
+                    : formatStableDate(ad.createdAt)}
+                </span>
               </div>
             </div>
           </div>

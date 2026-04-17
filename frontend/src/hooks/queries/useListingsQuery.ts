@@ -12,6 +12,7 @@ import {
     type HomeAdsRequestParams
 } from "@/lib/api/user/listings";
 import { getSavedAds } from "@/lib/api/user/users";
+import type { SavedAd } from "@/lib/api/user/users";
 
 /**
  * Enterprise Unified Listing Detail Query
@@ -91,7 +92,7 @@ export const useHomeAdsQuery = (
  * Hook to fetch listings saved (bookmarked) by current user
  */
 export const useSavedAdsQuery = (options?: { enabled?: boolean }) => {
-    return useQuery({
+    return useQuery<SavedAd[]>({
         queryKey: queryKeys.ads.saved(),
         queryFn: () => getSavedAds(),
         staleTime: 5 * 60 * 1000,

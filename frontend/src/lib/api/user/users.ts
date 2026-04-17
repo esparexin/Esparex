@@ -1,10 +1,9 @@
 import { apiClient, EsparexRequestConfig } from '@/lib/api/client';
 import { toApiResult } from '@/lib/api/result';
 import { API_ROUTES } from '../routes';
-import { type Listing as Ad } from './listings';
+import { type Listing as Ad, normalizeListing as normalizeAd } from './listings';
 import { User } from "@/types/User";
 import { toSafeImageSrc } from '@/lib/image/imageUrl';
-import { normalizeListing as normalizeAd } from './listings';
 import { fetchUserApiJson, type ServerFetchOptions } from './server';
 
 // --- Types ---
@@ -25,12 +24,24 @@ export const getMe = async (options?: EsparexRequestConfig): Promise<User | null
 
 
 
+// An Ad enriched with the timestamp it was saved by the user
+export type SavedAd = Ad & { _savedAt?: string };
+
 /**
- * Get saved ads for the current user
+ * Get saved ads for the current user.
+ * Preserves `_savedAt` from the raw API payload before the listing normalizer
+ * discards it (normalizeAd maps to the Zod Ad schema which does not include it).
  */
-export const getSavedAds = async (): Promise<Ad[]> => {
-    const { data: result } = await toApiResult<Ad[]>(apiClient.get(API_ROUTES.USER.USERS_SAVED_ADS));
-    return Array.isArray(result) ? result : [];
+export const getSavedAds = async (): Promise<SavedAd[]> => {
+    const { data: result } = await toApiResult<unknown[]>(apiClient.get(API_ROUTES.USER.USERS_SAVED_ADS));
+    if (!Array.isArray(result)) return [];
+    return result.map((raw) => {
+        const rawRecord = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+        const savedAt = typeof rawRecord._savedAt === 'string' ? rawRecord._savedAt : undefined;
+        const normalized: SavedAd = normalizeAd(raw);
+        if (savedAt) normalized._savedAt = savedAt;
+        return normalized;
+    });
 };
 
 export type WalletSummary = {
