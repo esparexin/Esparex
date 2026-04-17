@@ -51,7 +51,7 @@ interface SearchFiltersPanelProps extends SearchFiltersPanelSharedProps {}
 
 function FilterCheckboxList({
   options,
-  className = "space-y-2 max-h-56 overflow-y-auto pr-2 scrollbar-hide",
+  className = "space-y-2",
 }: {
   options: FilterCheckboxOption[];
   className?: string;
@@ -110,7 +110,7 @@ export function SearchFiltersPanel({
 
               {filter.type === "checkbox" && filter.options && (
                 <FilterCheckboxList
-                  className="space-y-2 max-h-40 overflow-y-auto pr-2 scrollbar-hide"
+                  className="space-y-2"
                   options={filter.options.map((option) => ({
                     id: `${filter.name}-${option.value}`,
                     label: option.label,
@@ -230,7 +230,7 @@ export function SearchFiltersPanel({
 
         <Button
           variant="ghost"
-          className="w-full h-11 text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors"
+          className="w-full h-11 text-muted-foreground hover:text-red-600 hover:bg-red-50 active:bg-red-50 active:text-red-600 active:scale-[0.98] transition-all"
           onClick={onReset}
         >
           Reset Filters

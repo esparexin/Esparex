@@ -56,7 +56,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                         md:grid md:grid-cols-6 lg:grid-cols-8
                         overflow-x-auto snap-x snap-mandatory
                         pb-3 md:pb-2 scrollbar-hide
-                        -mx-4 px-4 md:mx-0 md:px-0
+                        w-full scroll-px-4
                     "
                 >
                     {displayCategories.map((cat) => {

@@ -6,7 +6,7 @@ import { useIsMobile } from "@/components/ui/useMobile";
 import type { Category } from "@/lib/api/user/categories";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
-import { MobileStickyCTA } from "@/components/ui/MobileStickyCta";
+
 import { haptics } from "@/lib/haptics";
 import {
     SearchFiltersPanel,
@@ -14,7 +14,7 @@ import {
 } from "@/components/search/SearchFiltersPanel";
 
 const searchFiltersDesktopShellClassName =
-    "w-72 shrink-0 border border-slate-100 rounded-2xl bg-white p-5 h-fit sticky top-[6.25rem] shadow-sm";
+    "w-72 shrink-0 border border-slate-100 rounded-2xl bg-white p-5 h-fit sticky top-24 z-10 shadow-sm";
 
 export type SearchFiltersShellProps = SearchFiltersPanelSharedProps & {
     setSelectedCategory: (val: string | null) => void;
@@ -92,9 +92,7 @@ export function SearchFiltersShell({
             {!isHydrated ? (
                 <SearchFiltersDesktopShell className={`hidden lg:block ${desktopShellClassName ?? searchFiltersDesktopShellClassName}`}>
                     <div className="space-y-3">
-                        <div className="h-40 rounded-xl bg-slate-50" />
-                        <div className="h-32 rounded-xl bg-slate-50" />
-                        <div className="h-32 rounded-xl bg-slate-50" />
+                        <div className="h-10 rounded-xl bg-slate-50/50 animate-pulse" />
                     </div>
                 </SearchFiltersDesktopShell>
             ) : isMobile ? (
@@ -127,15 +125,6 @@ export function SearchFiltersShell({
                                 />
                             )}
                         </div>
-                        {onApply && (
-                            <MobileStickyCTA
-                                label="Apply Filters"
-                                onClick={() => {
-                                    haptics.tap();
-                                    onApply();
-                                }}
-                            />
-                        )}
                     </Drawer>
                 </div>
             ) : (

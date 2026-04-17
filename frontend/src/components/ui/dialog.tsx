@@ -93,7 +93,7 @@ const DialogContent = React.forwardRef<
             ],
         // Appearance — matches the previous custom dialog exactly
         mobileSafe
-          ? "flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-lg sm:max-h-[90vh]"
+          ? "flex h-full max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-lg sm:max-h-[90vh]"
           : "bg-white rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto",
         // Entry / exit animations via tailwindcss-animate
         "duration-200",

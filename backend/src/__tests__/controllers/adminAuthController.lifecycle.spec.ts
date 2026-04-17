@@ -71,13 +71,14 @@ import Admin from "../../models/Admin";
 import { createAdminSession, revokeAdminSessionsForAdmin } from "../../services/AdminSessionService";
 import { adminLogin, resetPassword } from "../../controllers/admin/system/adminAuthController";
 
-const createMockRes = () => {
+const createMockRes = (req?: Partial<Request>) => {
     const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
         cookie: jest.fn(),
         clearCookie: jest.fn(),
     } as unknown as Response;
+    if (req) res.req = req as Request;
     return res;
 };
 
@@ -125,7 +126,7 @@ describe("admin auth lifecycle regressions", () => {
             socket: { remoteAddress: "127.0.0.1" },
             originalUrl: "/api/v1/admin/login",
         } as unknown as Request;
-        const res = createMockRes();
+        const res = createMockRes(req);
 
         await adminLogin(req, res);
 
@@ -177,7 +178,7 @@ describe("admin auth lifecycle regressions", () => {
             body: { password: "NewPass123" },
             originalUrl: "/api/v1/admin/reset-password/reset_token_123",
         } as unknown as Request;
-        const res = createMockRes();
+        const res = createMockRes(req);
 
         await resetPassword(req, res);
 

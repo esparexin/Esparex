@@ -37,7 +37,7 @@ export function BusinessQuickActions() {
     if (businessData?.status !== "live") return null;
 
     return (
-        <div className="bg-white border-b border-slate-100 px-4 py-3 md:hidden">
+        <div className="bg-slate-50/50 border-y border-slate-100 mt-1 px-4 py-3 md:hidden">
             <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-widest mb-2">
                 Quick Actions
             </p>

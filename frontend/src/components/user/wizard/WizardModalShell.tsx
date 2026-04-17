@@ -48,7 +48,7 @@ export function WizardModalShell({
           style={{ zIndex: Z_INDEX.wizardModal }}
           className={cn(
             "fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full flex flex-col overflow-hidden bg-background shadow-2xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200",
-            "h-[100dvh] sm:h-[92vh] sm:rounded-t-2xl md:h-auto md:max-h-[88vh] md:max-w-2xl md:rounded-2xl",
+            "h-full max-h-[100dvh] sm:h-[92vh] sm:rounded-t-2xl md:h-auto md:max-h-[88vh] md:max-w-2xl md:rounded-2xl",
             className
           )}
         >

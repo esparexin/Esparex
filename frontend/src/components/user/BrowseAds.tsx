@@ -221,7 +221,7 @@ export function BrowseAds({
 
   // ── Skeleton ─────────────────────────────────────────────────────────────────
   const GridSkeleton = () => (
-    <div className="grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="space-y-3">
           <Skeleton className="aspect-square w-full rounded-xl" />
@@ -300,8 +300,8 @@ export function BrowseAds({
 
             {/* ── Empty state ──────────────────────────────────────────── */}
             {isEmptyState && (
-              <div className="flex min-h-[340px] flex-col items-center justify-center rounded-[28px] border border-slate-200 bg-white px-6 py-12 text-center shadow-sm sm:min-h-[400px] sm:px-10 sm:py-14">
-                <div className="mb-4 rounded-full bg-slate-100 p-6">
+              <div className="flex min-h-[300px] flex-col items-center justify-center px-6 py-12 text-center">
+                <div className="mb-4">
                   <PackageOpen className="h-10 w-10 text-foreground-subtle" />
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-foreground">
@@ -333,9 +333,11 @@ export function BrowseAds({
                       : "Live ads will appear here as soon as sellers publish them."}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button variant="outline" onClick={handleReset}>
-                    Clear All Filters
-                  </Button>
+                  {activeFilterCount > 0 ? (
+                    <Button variant="outline" onClick={handleReset}>
+                      Clear All Filters
+                    </Button>
+                  ) : null}
                   {query && (
                     <Button
                       asChild
@@ -362,7 +364,7 @@ export function BrowseAds({
                 className={
                   view === "list"
                     ? "flex flex-col gap-3"
-                    : "grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
+                    : "grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
                 }
               >
                 {displayAds.map((ad: Listing, index: number) =>

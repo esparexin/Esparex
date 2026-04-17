@@ -218,7 +218,7 @@ const checkMemoryHealth = async () => {
 };
 
 // Check memory every 5 minutes
-setInterval(() => void checkMemoryHealth(), 300000);
+setInterval(() => void checkMemoryHealth(), 300000).unref();
 
 /* ============================================================================
  * 🛡️ TOKEN REPLAY BLACKLIST
@@ -616,6 +616,6 @@ setInterval(() => {
             logger.info(`[REDIS_METRICS] Hit Rate: ${rate}% | Hits: ${cacheMetrics.hits} | Misses: ${cacheMetrics.misses}`);
         }
     }
-}, 60000);
+}, 60000).unref();
 
 export default client;

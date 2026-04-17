@@ -26,11 +26,12 @@ import type { Request, Response } from "express";
 import Admin from "../../models/Admin";
 import { logAdminAction } from "../../utils/adminLogger";
 
-const createMockRes = () => {
+const createMockRes = (req?: Partial<Request>) => {
     const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
     } as unknown as Response;
+    if (req) res.req = req as Request;
     return res;
 };
 
@@ -68,7 +69,7 @@ describe("adminUsersController.createAdmin", () => {
             user: { _id: "super_1", role: "super_admin" },
             originalUrl: "/api/v1/admin/admins",
         } as unknown as Request;
-        const res = createMockRes();
+        const res = createMockRes(req);
 
         await adminUsersController.createAdmin(req, res);
 
@@ -123,7 +124,7 @@ describe("adminUsersController.createAdmin", () => {
             user: { _id: "super_1", role: "super_admin" },
             originalUrl: "/api/v1/admin/admin-users",
         } as unknown as Request;
-        const res = createMockRes();
+        const res = createMockRes(req);
 
         await adminUsersController.createAdmin(req, res);
 

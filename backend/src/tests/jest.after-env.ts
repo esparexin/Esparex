@@ -15,4 +15,13 @@ afterAll(async () => {
             }
         })
     );
+
+    try {
+        const redisModule = await import('../config/redis');
+        if (redisModule && redisModule.default && redisModule.default.quit) {
+            await redisModule.default.quit();
+        }
+    } catch {
+        // Safe fail
+    }
 });

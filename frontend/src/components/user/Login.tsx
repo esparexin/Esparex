@@ -44,7 +44,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
     <div
       className={cn(
         "bg-white flex flex-col transition-all duration-200 ease-out",
-        isModal ? "min-h-0" : "min-h-[100dvh]",
+        isModal ? "min-h-0" : "h-full min-h-[100dvh]",
         !isModal && "sm:bg-gradient-to-br sm:from-emerald-50 sm:via-white sm:to-green-50"
       )}
     >

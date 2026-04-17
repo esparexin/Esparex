@@ -45,7 +45,7 @@ export interface BrowseResultsPanelProps<TItem>
 
 function GridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 8 }).map((_, index) => (
         <div key={index} className="space-y-3">
           <Skeleton className="aspect-square w-full rounded-xl" />
@@ -108,8 +108,8 @@ export function BrowseResultsPanel<TItem>({
       {loading && items.length === 0 && !error ? <GridSkeleton /> : null}
 
       {!loading && !error && items.length === 0 ? (
-        <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[28px] border border-slate-200 bg-white px-6 py-12 text-center shadow-sm sm:min-h-[380px] sm:px-10 sm:py-14">
-          <div className="rounded-full bg-slate-100 p-6 mb-4">
+        <div className="flex min-h-[300px] flex-col items-center justify-center px-6 py-12 text-center">
+          <div className="mb-4">
             <PackageOpen className="h-10 w-10 text-foreground-subtle" />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -133,9 +133,11 @@ export function BrowseResultsPanel<TItem>({
           <p className="mb-6 text-xs font-medium uppercase tracking-widest text-foreground-subtle">
             Sorted by {PUBLIC_BROWSE_SORT_LABELS[sort]}
           </p>
-          <Button variant="outline" onClick={onReset}>
-            Clear Filters
-          </Button>
+          {activeFilterCount > 0 ? (
+            <Button variant="outline" onClick={onReset}>
+              Clear Filters
+            </Button>
+          ) : null}
         </div>
       ) : null}
 
@@ -147,7 +149,7 @@ export function BrowseResultsPanel<TItem>({
               className={
                 view === "list"
                   ? "flex flex-col gap-3 pb-8"
-                  : "grid grid-cols-2 gap-3 pb-8 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
+                  : "grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 pb-8 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
               }
             >
               {items.map((item, index) => (
