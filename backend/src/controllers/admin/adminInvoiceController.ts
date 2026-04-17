@@ -7,13 +7,12 @@ import { generateInvoiceNumber } from '../../utils/invoiceNumber';
 import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
 import * as invoiceService from '../../services/InvoiceService';
 import {
-    findPlanByIdOrCode,
     createPaymentTransaction,
     findTransactionForUpdate,
     saveTransaction,
-    upsertUserPlan,
     getUserForPayment,
-} from '../../services/PaymentProcessingService';
+} from '../../services/TransactionService';
+import { findPlanByIdOrCode, upsertUserPlan } from '../../services/PlanService';
 import { findUserByEmail } from '../../services/UserService';
 import { 
     sendSuccessResponse, 

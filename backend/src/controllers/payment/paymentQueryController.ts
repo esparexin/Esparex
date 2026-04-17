@@ -4,12 +4,9 @@ import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { InvoiceUser } from './shared';
-import {
-    getActivePlans,
-    getUserTransactions,
-    getInvoiceByIdOrTransaction,
-    getTransactionWithUser,
-} from '../../services/PaymentProcessingService';
+import { getUserTransactions, getTransactionWithUser } from '../../services/TransactionService';
+import { getActivePlans } from '../../services/PlanService';
+import { getInvoiceByIdOrTransaction } from '../../services/InvoiceService';
 
 /**
  * 3. GET PLANS

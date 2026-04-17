@@ -6,9 +6,9 @@ import {
     checkTransactionVelocity,
     findPendingTransaction,
     createPaymentTransaction,
-    getPlanById,
     getUserForPayment,
-} from '../../services/PaymentProcessingService';
+} from '../../services/TransactionService';
+import { getPlanById } from '../../services/PlanService';
 import { respond } from '../../utils/respond';
 import { ApiResponse } from '../../../../shared/types/Api';
 import { sendErrorResponse } from '../../utils/errorResponse';

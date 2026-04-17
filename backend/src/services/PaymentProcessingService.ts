@@ -309,26 +309,4 @@ export async function recoverPendingPayment(tx: ITransaction): Promise<ProcessPa
     return { result: 'missing', transactionId: tx._id.toString(), reason: gatewayResult.reason };
 }
 
-// Re-exports for backward compatibility (Will be removed in final cleanup Phase 2)
-export { 
-    checkTransactionVelocity, 
-    findPendingTransaction, 
-    createPaymentTransaction, 
-    getUserTransactions, 
-    getTransactionWithUser, 
-    findTransactionForUpdate, 
-    saveTransaction,
-    resolveCategoryName
-} from './TransactionService';
-export { 
-    getActivePlans, 
-    getPlanById, 
-    findPlanByIdOrCode, 
-    upsertUserPlan 
-} from './PlanService';
-export { 
-    getInvoiceByIdOrTransaction 
-} from './InvoiceService';
-export {
-    getUserForPayment
-} from './TransactionService'; // Assuming we moved or will move it
+
