@@ -283,22 +283,20 @@ export function normalizeListing(data: unknown): Listing {
     const verified = (typeof seller === 'object' && seller !== null && (seller as Record<string, unknown>).isVerified === true) 
         || validated.verified === true;
 
+    // Pre-coerce createdAt to string — AdSchema types it as string, so this
+    // is always the first branch. The fallback guards against pre-schema raw data.
+    const rawCreatedAt = validatedWithoutLegacyUserId.createdAt;
+    const createdAtStr: string =
+        typeof rawCreatedAt === 'string' ? rawCreatedAt : new Date(0).toISOString();
+
     return {
         ...validatedWithoutLegacyUserId,
         status: normalizeAdStatus(validatedWithoutLegacyUserId.status),
         id: String(validatedWithoutLegacyUserId.id || ''),
         images: toSafeImageArray(Array.isArray(validatedWithoutLegacyUserId.images) ? validatedWithoutLegacyUserId.images.map((image) => normalizeImageUrl(String(image))) : validatedWithoutLegacyUserId.images),
         image: toSafeImageSrc(Array.isArray(validatedWithoutLegacyUserId.images) && validatedWithoutLegacyUserId.images.length > 0 ? normalizeImageUrl(String(validatedWithoutLegacyUserId.images[0])) : (typeof validatedWithoutLegacyUserId.image === 'string' ? normalizeImageUrl(validatedWithoutLegacyUserId.image) : validatedWithoutLegacyUserId.image)),
-        time: typeof validatedWithoutLegacyUserId.createdAt === 'string' 
-            ? new Date(validatedWithoutLegacyUserId.createdAt).toLocaleDateString() 
-            : validatedWithoutLegacyUserId.createdAt instanceof Date 
-                ? validatedWithoutLegacyUserId.createdAt.toLocaleDateString()
-                : '',
-        createdAt: typeof validatedWithoutLegacyUserId.createdAt === 'string' 
-            ? validatedWithoutLegacyUserId.createdAt 
-            : validatedWithoutLegacyUserId.createdAt instanceof Date 
-                ? validatedWithoutLegacyUserId.createdAt.toISOString() 
-                : new Date(0).toISOString(),
+        time: new Date(createdAtStr).toLocaleDateString(),
+        createdAt: createdAtStr,
         isBusiness,
         verified,
         sellerName,
