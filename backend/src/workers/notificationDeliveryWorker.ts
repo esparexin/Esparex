@@ -1,6 +1,6 @@
 import { Worker } from 'bullmq';
 import { redisConnection } from '../queues/redisConnection';
-import { NotificationDispatcher, type NotificationDispatchResult } from '../services/notification/NotificationDispatcher';
+import { NotificationDispatcher } from '../services/notification/NotificationDispatcher';
 import { NotificationIntent } from '../domain/NotificationIntent';
 import logger from '../utils/logger';
 

@@ -1,7 +1,5 @@
-import { randomUUID } from 'crypto';
 import redisClient from '../../config/redis';
-import { getCache, setCache, CACHE_TTLS } from '../../utils/redisCache';
-import logger from '../../utils/logger';
+import { getCache, setCache } from '../../utils/redisCache';
 import { HomeFeedRequest, ParsedHomeFeedCursor, toCursorKey } from './FeedCursorService';
 import { HomeFeedResponse } from '../../../../shared/types/Api';
 

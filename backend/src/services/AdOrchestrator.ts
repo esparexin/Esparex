@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import Ad, { IAd } from '../models/Ad';
 import { getUserConnection } from '../config/db';
-import { FeatureFlag, isEnabled } from '../config/featureFlags';
 import logger from '../utils/logger';
 import { AppError } from '../utils/AppError';
 

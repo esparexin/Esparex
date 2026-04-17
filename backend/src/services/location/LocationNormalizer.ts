@@ -1,7 +1,6 @@
 import {
     logger,
     toTitleCase,
-    formatLocationResponse,
     AppError,
     asString,
     buildDisplay,
@@ -11,12 +10,10 @@ import {
     normalizeCoordinates,
     normalizeLocationLevel,
     VERIFIED_LOCATION_STATUS,
-    buildNormalizedFromLocationDoc,
     resolveLocationFromDb
 } from './_shared/locationServiceBase';
 import type {
     NormalizedLocation,
-    NormalizedLocationResponse,
     NormalizeLocationOptions
 } from './_shared/locationServiceBase';
 export { toGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';

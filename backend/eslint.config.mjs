@@ -53,20 +53,20 @@ export default tseslint.config(
             "@typescript-eslint/no-redundant-type-constituents": "off",
             "@typescript-eslint/no-base-to-string": "off",
 
-            // ── Governance phase — warn until violations are fixed ─────────
+            // ── Governance phase — graduated to error (0 violations as of Track B) ─
             "@typescript-eslint/no-unused-vars": "off",
-            "@typescript-eslint/no-empty-object-type": "warn",
-            "@typescript-eslint/no-require-imports": "warn",
-            "@typescript-eslint/no-unused-expressions": "warn",
-            "@typescript-eslint/no-namespace": "warn",
-            "@typescript-eslint/ban-ts-comment": "warn",
+            "@typescript-eslint/no-empty-object-type": "error",
+            "@typescript-eslint/no-require-imports": "error",
+            "@typescript-eslint/no-unused-expressions": "error",
+            "@typescript-eslint/no-namespace": "error",
+            "@typescript-eslint/ban-ts-comment": "error",
 
             // Legacy unused vars/imports
-            "unused-imports/no-unused-imports": "warn",
-            "unused-imports/no-unused-vars": "warn",
+            "unused-imports/no-unused-imports": "error",
+            "unused-imports/no-unused-vars": "error",
             "esparex/no-status-mutation-outside-status-mutation-service": "error",
 
-            "no-console": ["warn", { "allow": ["warn", "error", "info"] }]
+            "no-console": ["error", { "allow": ["warn", "error", "info"] }]
         }
     },
     // ── Test / spec files: no type-aware rules ────────────────────────────

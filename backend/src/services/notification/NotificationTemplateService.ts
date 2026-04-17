@@ -1,4 +1,3 @@
-import { NotificationTypeValue } from '@shared/enums/notificationType';
 
 export interface NotificationTemplate {
     title: string;

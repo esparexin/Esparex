@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { isDbReady } from '../config/db';
 import { getRedisHealthProbe, isConnected as redisConnected } from '../utils/redisCache';
+import logger from '../utils/logger';
 
 /**
  * Shared Health Check Logic
@@ -30,7 +31,7 @@ export const healthCheckHandler = async (req: Request, res: Response) => {
     try {
         // Log health checks in dev for visibility
         if (process.env.NODE_ENV === 'development') {
-            console.log(`[Health] Ping from ${req.ip}`);
+            logger.info(`[Health] Ping from ${req.ip}`);
         }
         const healthData = await getHealthCheckData();
         res.status(200).json(healthData);

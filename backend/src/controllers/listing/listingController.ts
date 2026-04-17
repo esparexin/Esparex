@@ -15,7 +15,6 @@ import * as AdDetailService from '../../services/ad/AdDetailService';
 import * as AdMutationService from '../../services/AdMutationService';
 import * as AdMetricsService from '../../services/ad/AdMetricsService';
 import * as AdEngagementService from '../../services/AdEngagementService';
-import * as adStatusService from '../../services/adStatusService';
 import { mutateStatus } from '../../services/StatusMutationService';
 import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
 import { getSellerPhone } from '../../services/ContactRevealService';

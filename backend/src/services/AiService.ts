@@ -85,19 +85,7 @@ const buildUserMessage = (prompt: string, imageDataUrl?: string): OpenAIMessage 
     };
 };
 
-const estimateBase64DataUrlBytes = (value: string): number | null => {
-    const separatorIndex = value.indexOf(',');
-    if (separatorIndex <= 0) return null;
 
-    const meta = value.slice(0, separatorIndex);
-    if (!/;base64$/i.test(meta)) return null;
-
-    const base64 = value.slice(separatorIndex + 1).replace(/\s/g, '');
-    if (base64.length === 0) return 0;
-
-    const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
-    return Math.floor((base64.length * 3) / 4) - padding;
-};
 
 const mapProviderError = (error: OpenAICallFailure): AIServiceFailure => {
     if (error.code === 'TIMEOUT') {

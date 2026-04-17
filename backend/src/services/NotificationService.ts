@@ -1,12 +1,9 @@
 import { Types } from 'mongoose';
-import User from '../models/User';
 import Notification from '../models/Notification';
-import admin from '../config/firebaseAdmin';
 import logger from '../utils/logger';
 import { NotificationTypeValue } from '@shared/enums/notificationType';
 import { NotificationDispatcher } from './notification/NotificationDispatcher';
 import { NotificationIntent } from '../domain/NotificationIntent';
-import { getSystemConfigDoc } from '../utils/systemConfigHelper';
 import { getNotificationTemplate, type TemplateParams } from './notification/NotificationTemplateService';
 
 export { registerToken, sendNotification } from './notification/PushGatewayService';

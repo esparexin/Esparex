@@ -8,7 +8,6 @@ export { respond } from '../../utils/respond';
  * Supports wildcard (*) for full access.
  */
 import { IAuthUser } from '../../types/auth';
-import { sendErrorResponse } from '../../utils/errorResponse';
 import { ApiResponse } from '../../utils/apiResponse';
 import logger from '../../utils/logger';
 

@@ -1,4 +1,3 @@
-import { type ClientSession } from 'mongoose';
 import { getUserConnection } from '../config/db';
 import { Invoice } from '../models/Invoice';
 import { Transaction, type ITransaction } from '../models/Transaction';

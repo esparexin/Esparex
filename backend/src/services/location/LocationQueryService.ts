@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import Location from '../../models/Location';
 import Ad from '../../models/Ad';
 import User from '../../models/User';

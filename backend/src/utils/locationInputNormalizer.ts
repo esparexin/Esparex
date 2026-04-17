@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import slugify from 'slugify';
 import { hasValidCoordinateArray } from '@shared/utils/geoUtils';
 import { asString } from '../services/location/LocationService.helpers';
 import { toTitleCase } from './stringUtils';
