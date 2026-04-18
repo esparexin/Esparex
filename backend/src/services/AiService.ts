@@ -224,6 +224,20 @@ export const getAiContext = (body: AIRequestBody): {
     return { context, image, contextText };
 };
 
+type GeminiContentPart =
+    | { text: string }
+    | { inline_data: { mime_type: string; data: string } };
+
+type GeminiContent = { parts: GeminiContentPart[] };
+
+type GeminiApiResponse = {
+    candidates?: Array<{
+        content?: {
+            parts?: Array<{ text?: string }>;
+        };
+    }>;
+};
+
 const callGemini = async (
     apiKey: string,
     prompt: string,
@@ -234,7 +248,7 @@ const callGemini = async (
     try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         
-        const contents: any[] = [{
+        const contents: GeminiContent[] = [{
             parts: [{ text: prompt }]
         }];
 
@@ -242,7 +256,8 @@ const callGemini = async (
             const separatorIndex = image.indexOf(',');
             const mimeType = image.slice(image.indexOf(':') + 1, image.indexOf(';'));
             const base64Data = image.slice(separatorIndex + 1);
-            contents[0].parts.push({
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- array initialised with one element above
+            contents[0]!.parts.push({
                 inline_data: {
                     mime_type: mimeType || 'image/jpeg',
                     data: base64Data
@@ -268,7 +283,7 @@ const callGemini = async (
             return { ok: false, status: response.status, error: err || 'Gemini API request failed' };
         }
 
-        const data = await response.json() as any;
+        const data = await response.json() as GeminiApiResponse;
         const content = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
         
         if (!content) {

@@ -30,7 +30,10 @@ export class GatewayService {
      */
     static async findCapturedPaymentForOrder(gatewayOrderId: string): Promise<RazorpayPaymentLike | undefined> {
         const razorpay = await getRazorpayClient();
-        const ordersApi = razorpay.orders as any;
+        // Razorpay SDK typings don't include fetchPayments; cast to an extended interface
+        const ordersApi = razorpay.orders as typeof razorpay.orders & {
+            fetchPayments?: (orderId: string) => Promise<{ items?: RazorpayPaymentLike[] }>;
+        };
 
         if (!ordersApi.fetchPayments) return undefined;
         try {

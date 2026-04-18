@@ -1,4 +1,6 @@
+import { type HydratedDocument } from 'mongoose';
 import Location from '../../models/Location';
+import type { ILocation } from '../../models/Location';
 import Ad from '../../models/Ad';
 import User from '../../models/User';
 import { LOCATION_STATUS } from '@shared/enums/locationStatus';
@@ -13,11 +15,11 @@ let hasWarnedLocationListHintFailure = false;
 
 import { LocationCacheService } from './LocationCacheService';
 
-export const findLocationById = async (id: string | undefined): Promise<any> => {
+export const findLocationById = async (id: string | undefined): Promise<HydratedDocument<ILocation> | null> => {
     if (!id) return null;
     
     // 🚀 CACHE-ASIDE: Check secondary layer first
-    const cached = (await LocationCacheService.get(id)) as Awaited<ReturnType<(typeof Location)['findById']>>;
+    const cached = (await LocationCacheService.get(id)) as HydratedDocument<ILocation> | null;
     if (cached) return cached;
 
     const location = await Location.findById(id);
