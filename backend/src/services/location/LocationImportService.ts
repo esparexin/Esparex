@@ -83,6 +83,7 @@ export class LocationImportService {
 
         if (ops.length > 0) {
             try {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 const bulkRes = await Location.bulkWrite(ops);
                 result.success = (bulkRes.upsertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.matchedCount || 0);
             } catch (error) {

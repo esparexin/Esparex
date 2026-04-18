@@ -25,7 +25,7 @@ export const getStats = async (req: Request, res: Response) => {
  */
 export const invalidate = async (req: Request, res: Response) => {
     try {
-        const { pattern } = req.body;
+        const { pattern } = req.body as { pattern: string };
         const result = await AdminCacheService.invalidatePattern(pattern);
         
         res.json(respond({

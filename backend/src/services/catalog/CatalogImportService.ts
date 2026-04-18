@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { AnyBulkWriteOperation } from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import Category, { ICategory } from '../../models/Category';
@@ -110,6 +110,7 @@ export class CatalogImportService {
             }
 
             if (ops.length > 0) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 const bulkRes = await Brand.bulkWrite(ops);
                 result.success = (bulkRes.insertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.upsertedCount || 0);
             }
@@ -169,6 +170,7 @@ export class CatalogImportService {
             }
 
             if (ops.length > 0) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 const bulkRes = await ProductModel.bulkWrite(ops);
                 result.success = (bulkRes.upsertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.matchedCount || 0);
             }

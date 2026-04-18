@@ -11,7 +11,7 @@ import {
 
 export const catalogSuggest = async (req: Request, res: Response) => {
     try {
-        const { image, contextText } = getAiContext(req.body);
+        const { image, contextText } = getAiContext(req.body as AIRequestBody);
         if (!image && !contextText) {
             sendErrorResponse(req, res, 400, 'Image or context text is required for AI identification');
             return;

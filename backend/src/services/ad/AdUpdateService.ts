@@ -5,6 +5,7 @@ import Ad, { type IAd } from '../../models/Ad';
 import { getUserConnection } from '../../config/db';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LIFECYCLE_STATUS } from '../../../../shared/enums/lifecycle';
+import { NOTIFICATION_TYPE } from '../../../../shared/enums/notificationType';
 import { AdContext } from '../../types/ad.types';
 import { generateUniqueSlug } from '../../utils/slugGenerator';
 import { AdCreationService } from '../AdCreationService';
@@ -142,7 +143,7 @@ export const updateAdLogic = async (
                         for (const keeper of keepers) {
                             await dispatchTemplatedNotification(
                                 String(keeper.userId),
-                                'MARKETING' as any,
+                                NOTIFICATION_TYPE.PRICE_DROP,
                                 'PRICE_DROP',
                                 { 
                                     adTitle: updatedAdTyped.title, 

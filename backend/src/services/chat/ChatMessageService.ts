@@ -4,6 +4,7 @@ import { ChatMessage } from '../../models/ChatMessage';
 import Ad from '../../models/Ad';
 import { isListingChatClosed } from '../chatAvailabilityService';
 import logger from '../../utils/logger';
+import { NOTIFICATION_TYPE } from '../../../../shared/enums/notificationType';
 import type { IChatAttachment } from '../../models/ChatMessage';
 import {
     PAGE_SIZE_MESSAGES,
@@ -117,7 +118,7 @@ export async function sendMessage(
             
             await dispatchTemplatedNotification(
                 receiverId,
-                'CHAT' as any,
+                NOTIFICATION_TYPE.CHAT,
                 'NEW_CHAT_MESSAGE',
                 { 
                     senderName: (senderSnippet as { name?: string })?.name || 'User',

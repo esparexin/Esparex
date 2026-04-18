@@ -31,7 +31,7 @@ export async function addJobWithTrace<T extends TraceableJobData>(
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- BullMQ Queue.add uses ExtractNameType/ExtractDataType conditionals that don't infer from plain string/T
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- BullMQ Queue.add uses ExtractNameType/ExtractDataType conditionals that don't infer from plain string/T
     return queue.add(name as any, enrichedData as any, opts);
 }
 
