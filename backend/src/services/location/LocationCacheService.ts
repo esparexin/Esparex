@@ -7,14 +7,14 @@ export class LocationCacheService {
     /**
      * Get a location document from Redis
      */
-    static async get(id: string): Promise<any | null> {
+    static async get(id: string): Promise<Record<string, unknown> | null> {
         return getCache(`${LOCATION_DOC_PREFIX}:${id}`);
     }
 
     /**
      * Set a location document in Redis
      */
-    static async set(id: string, data: any): Promise<void> {
+    static async set(id: string, data: Record<string, unknown>): Promise<void> {
         try {
             await setCache(`${LOCATION_DOC_PREFIX}:${id}`, data, CACHE_TTLS.CITY_SEARCH * 24); // 24 Hours
         } catch (err) {
@@ -36,7 +36,7 @@ export class LocationCacheService {
     /**
      * Batch set location documents (e.g. during imports)
      */
-    static async batchSet(entries: { id: string, data: any }[]): Promise<void> {
+    static async batchSet(entries: { id: string, data: Record<string, unknown> }[]): Promise<void> {
         try {
             const promises = entries.map(e => this.set(e.id, e.data));
             await Promise.all(promises);

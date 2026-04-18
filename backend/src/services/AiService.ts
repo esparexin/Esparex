@@ -256,8 +256,7 @@ const callGemini = async (
             const separatorIndex = image.indexOf(',');
             const mimeType = image.slice(image.indexOf(':') + 1, image.indexOf(';'));
             const base64Data = image.slice(separatorIndex + 1);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- array initialised with one element above
-            contents[0]!.parts.push({
+            contents[0].parts.push({
                 inline_data: {
                     mime_type: mimeType || 'image/jpeg',
                     data: base64Data
@@ -331,7 +330,7 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     }
 
     if (type === 'generate') {
-        const prompt = `Generate a Title and Description for a used ad. Brand: ${context.brand}, Model: ${context.model}. Return JSON: {"title":"...","description":"..."}`;
+        const prompt = `Generate a Title and Description for a used ad. Brand: ${String(context.brand)}, Model: ${String(context.model)}. Return JSON: {"title":"...","description":"..."}`;
         const result = geminiKey
             ? await callGemini(geminiKey, prompt, undefined, maxTokens, temperature)
             : await callOpenAI(openAiKey, model, prompt, maxTokens, temperature);

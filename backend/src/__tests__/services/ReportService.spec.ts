@@ -58,12 +58,14 @@ const mockAd = Ad as unknown as {
     findByIdAndUpdate: jest.Mock;
 };
 
+import mockReportRaw from "../../models/Report";
+
 describe("ReportService", () => {
     beforeEach(() => jest.clearAllMocks());
 
     describe("findReportForUpdate", () => {
         it("returns null when report not found", async () => {
-            const mockReport = require("../../models/Report").default as {
+            const mockReport = mockReportRaw as unknown as {
                 findById: jest.Mock;
             };
             mockReport.findById.mockResolvedValue(null);
@@ -72,7 +74,7 @@ describe("ReportService", () => {
         });
 
         it("returns the report document when found", async () => {
-            const mockReport = require("../../models/Report").default as {
+            const mockReport = mockReportRaw as unknown as {
                 findById: jest.Mock;
             };
             const fakeReport = { _id: "r1", status: "open" };
@@ -112,7 +114,7 @@ describe("ReportService", () => {
 
     describe("countActiveReports", () => {
         it("delegates to Report.countDocuments with the correct active statuses", async () => {
-            const mockReport = require("../../models/Report").default as {
+            const mockReport = mockReportRaw as unknown as {
                 countDocuments: jest.Mock;
             };
             mockReport.countDocuments.mockResolvedValue(3);

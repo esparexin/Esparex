@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { serializeDoc } from './serialize';
 import { TraceContext } from '@shared/observability/trace';
 
-export interface ApiResponseEnvelope<T = any> {
+export interface ApiResponseEnvelope<T = unknown> {
     success: boolean;
     data: T | null;
     error: string | null;

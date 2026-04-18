@@ -25,7 +25,7 @@ export const findLocationById = async (id: string | undefined): Promise<Hydrated
     const location = await Location.findById(id);
     if (location) {
         // Run as side effect to avoid blocking response
-        LocationCacheService.set(id, location.toObject ? location.toObject() : location).catch(() => {});
+        LocationCacheService.set(id, (location.toObject ? location.toObject() : location) as unknown as Record<string, unknown>).catch(() => {});
     }
     return location;
 };

@@ -110,7 +110,7 @@ export async function sendMessage(
     );
 
     // 📣 NOTIFY RECEIVER (Push + In-App)
-    (async () => {
+    void (async () => {
         try {
             const { dispatchTemplatedNotification } = await import('../NotificationService');
             const UserModel = (await import('../../models/User')).default;

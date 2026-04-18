@@ -22,6 +22,7 @@ export class LocationImportService {
     static async importLocations(data: LocationImportInput[]): Promise<ImportResult> {
         const result: ImportResult = { success: 0, failed: 0, errors: [] };
         const Location = (await import('../../models/Location')).default;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const ops: any[] = [];
 
         for (const item of data) {

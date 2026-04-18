@@ -1,4 +1,4 @@
-import mongoose, { AnyBulkWriteOperation } from 'mongoose';
+import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import Category, { ICategory } from '../../models/Category';
@@ -65,6 +65,7 @@ export class CatalogImportService {
             const allBrands = await Brand.find({}).setOptions({ withDeleted: true }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[] }[]>();
             const brandMap = new Map(allBrands.map(b => [b.name.toLowerCase(), b]));
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const ops: any[] = [];
 
             for (const item of data) {
@@ -130,6 +131,7 @@ export class CatalogImportService {
             const allBrands = await Brand.find({}, { _id: 1, name: 1, categoryIds: 1 }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[] }[]>();
             const brandMap = new Map(allBrands.map(b => [b.name.toLowerCase(), b]));
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const ops: any[] = [];
 
             for (const item of data) {

@@ -134,7 +134,7 @@ export const updateAdLogic = async (
 
         // 💰 PRICE DROP ENGINE
         if (oldPriceValue && updatedAdTyped.price < oldPriceValue) {
-            (async () => {
+            void (async () => {
                 try {
                     const SavedAd = (await import('../../models/SavedAd')).default;
                     const keepers = await SavedAd.find({ adId: id }).select('userId').lean();

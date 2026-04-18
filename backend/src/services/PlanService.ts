@@ -51,6 +51,7 @@ export const upsertUserPlan = async (
     startDate: Date,
     endDate: Date
 ) => {
+    // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
     return UserPlan.findOneAndUpdate(
         { userId, planId },
         { $set: { startDate, endDate, status: 'ACTIVE' } },

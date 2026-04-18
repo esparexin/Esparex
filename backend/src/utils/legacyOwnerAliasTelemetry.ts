@@ -18,7 +18,7 @@ export const warnIfLegacyAdUserIdAliasUsed = (
     if (!hasOwn(container, 'userId')) return;
 
     const hasSellerId = hasOwn(container, 'sellerId');
-    const rawAliasValue = (container as Record<string, unknown>).userId;
+    const rawAliasValue = container.userId;
 
     logger.warn('Deprecated ad ownership alias detected', {
         alias: 'userId',

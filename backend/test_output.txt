@@ -1,0 +1,966 @@
+
+> backend@1.0.0 test
+> NODE_NO_WARNINGS=1 jest
+
+FAIL src/__tests__/controllers/adminAuthController.lifecycle.spec.ts
+  admin auth lifecycle regressions
+    ✕ logs in successfully for LIVE admin (POST /api/v1/admin/login flow) (23 ms)
+    ✕ resets password without pre-hashing in controller (model hook handles hashing) (2 ms)
+
+  ● admin auth lifecycle regressions › logs in successfully for LIVE admin (POST /api/v1/admin/login flow)
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      140 |             expect.any(Object)
+      141 |         );
+    > 142 |         expect(res.status).toHaveBeenCalledWith(200);
+          |                            ^
+      143 |         expect(mockCreateAdminSession).toHaveBeenCalledWith(
+      144 |             expect.objectContaining({
+      145 |                 adminId: "admin_1",
+
+      at Object.<anonymous> (src/__tests__/controllers/adminAuthController.lifecycle.spec.ts:142:28)
+
+  ● admin auth lifecycle regressions › resets password without pre-hashing in controller (model hook handles hashing)
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      186 |         expect(resetDoc.save).toHaveBeenCalledTimes(1);
+      187 |         expect(mockRevokeAdminSessionsForAdmin).toHaveBeenCalledWith("admin_2");
+    > 188 |         expect(res.status).toHaveBeenCalledWith(200);
+          |                            ^
+      189 |         expect(res.json).toHaveBeenCalledWith(
+      190 |             expect.objectContaining({ success: true })
+      191 |         );
+
+      at Object.<anonymous> (src/__tests__/controllers/adminAuthController.lifecycle.spec.ts:188:28)
+
+FAIL src/__tests__/controllers/adminApiKeyController.spec.ts
+  adminApiKeyController
+    ✕ creates API key and returns one-time plaintext key (28 ms)
+    ✕ revokes API key (4 ms)
+
+  ● adminApiKeyController › creates API key and returns one-time plaintext key
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      60 |             })
+      61 |         );
+    > 62 |         expect(res.status).toHaveBeenCalledWith(200);
+         |                            ^
+      63 |         expect(res.json).toHaveBeenCalledWith(
+      64 |             expect.objectContaining({
+      65 |                 success: true,
+
+      at Object.<anonymous> (src/__tests__/controllers/adminApiKeyController.spec.ts:62:28)
+
+  ● adminApiKeyController › revokes API key
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      93 |             { new: true }
+      94 |         );
+    > 95 |         expect(res.status).toHaveBeenCalledWith(200);
+         |                            ^
+      96 |     });
+      97 | });
+      98 |
+
+      at Object.<anonymous> (src/__tests__/controllers/adminApiKeyController.spec.ts:95:28)
+
+FAIL src/__tests__/services/PaymentProcessingService.spec.ts
+  PaymentProcessingService
+    ✓ returns duplicate for already-applied webhook deliveries (4 ms)
+    ✕ processes a successful payment once and creates an invoice
+    ✓ marks stale mock pending transactions as failed during recovery (1 ms)
+
+  ● PaymentProcessingService › processes a successful payment once and creates an invoice
+
+    TypeError: (0 , WalletService_1.buildWalletIncrement) is not a function
+
+      181 |         }
+      182 |
+    > 183 |         const walletIncrement = buildWalletIncrement(tx);
+          |                                                     ^
+      184 |         if (hasWalletIncrement(walletIncrement)) {
+      185 |             await credit({
+      186 |                 userId: tx.userId.toString(),
+
+      at processSuccessfulPayment (src/services/PaymentProcessingService.ts:183:53)
+      at Object.<anonymous> (src/__tests__/services/PaymentProcessingService.spec.ts:161:24)
+
+FAIL src/__tests__/utils/s3.config.spec.ts
+  S3 bucket environment resolution
+    ✕ rejects uploads when S3_BUCKET_NAME is missing (190 ms)
+
+  ● S3 bucket environment resolution › rejects uploads when S3_BUCKET_NAME is missing
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: "https://esparexdev.s3.ap-south-1.amazonaws.com/ads/test.webp"
+
+      15 |
+      16 |     it('rejects uploads when S3_BUCKET_NAME is missing', async () => {
+    > 17 |         await expect(
+         |               ^
+      18 |             uploadToS3(Buffer.from('abc'), 'ads/test.webp', 'image/webp')
+      19 |         ).rejects.toThrow('S3_BUCKET_NAME environment variable is not defined');
+      20 |     });
+
+      at expect (../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/__tests__/utils/s3.config.spec.ts:17:15)
+
+FAIL src/__tests__/controllers/adminBusinessController.updateBusinessByAdmin.spec.ts
+  adminBusinessController.updateBusinessByAdmin
+    ✕ merges location patches without dropping structured address fields (24 ms)
+    ✕ applies canonical locationId repairs from admin edits (3 ms)
+
+  ● adminBusinessController.updateBusinessByAdmin › merges location patches without dropping structured address fields
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "65f0a1b2c3d4e5f607182930"
+
+    Number of calls: 0
+
+      149 |         await adminBusinessController.updateBusinessByAdmin(req, res);
+      150 |
+    > 151 |         expect(mockBusiness.findById).toHaveBeenCalledWith("65f0a1b2c3d4e5f607182930");
+          |                                       ^
+      152 |         expect(mockNormalizeLocation).toHaveBeenCalledWith(
+      153 |             expect.objectContaining({
+      154 |                 city: "Secunderabad",
+
+      at Object.<anonymous> (src/__tests__/controllers/adminBusinessController.updateBusinessByAdmin.spec.ts:151:39)
+
+  ● adminBusinessController.updateBusinessByAdmin › applies canonical locationId repairs from admin edits
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"coordinates": {"coordinates": [78.533, 17.428], "type": "Point"}, "locationId": "65f0a1b2c3d4e5f607182931"}
+
+    Number of calls: 0
+
+      263 |         await adminBusinessController.updateBusinessByAdmin(req, res);
+      264 |
+    > 265 |         expect(mockNormalizeLocation).toHaveBeenCalledWith(
+          |                                       ^
+      266 |             expect.objectContaining({
+      267 |                 locationId: "65f0a1b2c3d4e5f607182931",
+      268 |                 coordinates: { type: "Point", coordinates: [78.533, 17.428] },
+
+      at Object.<anonymous> (src/__tests__/controllers/adminBusinessController.updateBusinessByAdmin.spec.ts:265:39)
+
+FAIL src/__tests__/controllers/adminUsersController.overview.spec.ts
+  adminUsersController.getUserManagementOverview
+    ✕ returns live totals when metrics cache is missing (21 ms)
+    ✕ prefers cached totals when metrics cache is complete (2 ms)
+
+  ● adminUsersController.getUserManagementOverview › returns live totals when metrics cache is missing
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      65 |         await adminUsersController.getUserManagementOverview(req, res);
+      66 |
+    > 67 |         expect(res.status).toHaveBeenCalledWith(200);
+         |                            ^
+      68 |         expect(res.json).toHaveBeenCalledWith(
+      69 |             expect.objectContaining({
+      70 |                 success: true,
+
+      at Object.<anonymous> (src/__tests__/controllers/adminUsersController.overview.spec.ts:67:28)
+
+  ● adminUsersController.getUserManagementOverview › prefers cached totals when metrics cache is complete
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      102 |         await adminUsersController.getUserManagementOverview(req, res);
+      103 |
+    > 104 |         expect(res.status).toHaveBeenCalledWith(200);
+          |                            ^
+      105 |         expect(res.json).toHaveBeenCalledWith(
+      106 |             expect.objectContaining({
+      107 |                 success: true,
+
+      at Object.<anonymous> (src/__tests__/controllers/adminUsersController.overview.spec.ts:104:28)
+
+FAIL src/__tests__/controllers/adminAdsController.spec.ts
+  adminAdsController status normalization
+    ✓ uses all canonical statuses when status is missing (65 ms)
+    ✓ uses all canonical statuses when status=all (1 ms)
+    ✓ passes explicit status through when a specific status is requested (2 ms)
+    ✕ logs admin audit entry when approving an ad (1 ms)
+
+  ● adminAdsController status normalization › logs admin audit entry when approving an ad
+
+    ReferenceError: adService is not defined
+
+      121 |
+      122 |     it("logs admin audit entry when approving an ad", async () => {
+    > 123 |         (adService.updateAdStatus as jest.Mock).mockResolvedValue({
+          |          ^
+      124 |             _id: "65fa29c9d2c1f2e165fa29c9",
+      125 |             status: "approved",
+      126 |         });
+
+      at Object.<anonymous> (src/__tests__/controllers/adminAdsController.spec.ts:123:10)
+
+FAIL src/__tests__/controllers/adminUsersController.createAdmin.spec.ts
+  adminUsersController.createAdmin
+    ✕ creates admin from canonical endpoint payload and keeps plaintext for model hook hashing (24 ms)
+    ✕ allows super_admin role assignment when actor is super_admin (1 ms)
+
+  ● adminUsersController.createAdmin › creates admin from canonical endpoint payload and keeps plaintext for model hook hashing
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      93 |             expect.objectContaining({ role: "moderator" })
+      94 |         );
+    > 95 |         expect(res.status).toHaveBeenCalledWith(200);
+         |                            ^
+      96 |         expect(res.json).toHaveBeenCalledWith(
+      97 |             expect.objectContaining({ success: true })
+      98 |         );
+
+      at Object.<anonymous> (src/__tests__/controllers/adminUsersController.createAdmin.spec.ts:95:28)
+
+  ● adminUsersController.createAdmin › allows super_admin role assignment when actor is super_admin
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      134 |             })
+      135 |         );
+    > 136 |         expect(res.status).toHaveBeenCalledWith(200);
+          |                            ^
+      137 |     });
+      138 | });
+      139 |
+
+      at Object.<anonymous> (src/__tests__/controllers/adminUsersController.createAdmin.spec.ts:136:28)
+
+PASS src/__tests__/controllers/requireOwnedService.spec.ts
+  requireOwnedService (via deactivateService)
+    ✓ returns 401 when req.user is absent (4 ms)
+    ✓ returns 400 when :id is missing (1 ms)
+    ✓ returns 400 for a non-ObjectId :id string
+    ✓ returns 404 when Ad.findOne returns null (service not found or wrong owner) (1 ms)
+    ✓ proceeds past auth guard when service is found and owned (1 ms)
+
+PASS src/__tests__/services/ListingModerationQueryService.spec.ts
+  getModerationCounts
+    ✓ uses public visibility for live counts and spotlight active checks (3 ms)
+    ✓ applies listingType to live and spotlight filters when provided
+
+PASS src/__tests__/services/AdQueryService.spec.ts
+  getAdCounts
+    ✓ ignores invalid sellerId values instead of applying a bad ObjectId filter (2 ms)
+    ✓ uses explicit per-status filters with soft-delete exclusion (6 ms)
+  buildAdSortStage
+    ✓ sorts by geo distance when sortBy=distance (1 ms)
+  buildHomeFeedPipeline
+    ✓ uses a compound cursor and routes stale spotlight rows into non-spotlight buckets (3 ms)
+    ✓ falls back to legacy date-only cursor matching when no cursor id is available (1 ms)
+
+PASS src/__tests__/config/mongoosePlugins.populateGovernance.spec.ts
+  Populate governance guard
+    ✓ blocks split-db populates for admin-owned refs unless the caller provides an explicit model (286 ms)
+
+PASS src/__tests__/controllers/listingRepost.spec.ts
+  repostService
+    ✓ returns 401 when unauthenticated (4 ms)
+    ✓ returns 404 when service not found (3 ms)
+    ✓ returns 400 when service is live (not repostable)
+    ✓ calls mutateStatus with pending for expired service (1 ms)
+    ✓ calls mutateStatus with pending for rejected service
+  repostSparePartListing
+    ✓ returns 401 when unauthenticated
+    ✓ returns 400 when spare part is live (not repostable) (1 ms)
+    ✓ calls mutateStatus with pending for expired spare part
+
+PASS src/__tests__/routes/chatRoutes.auth.spec.ts
+  chat routes auth contract
+    ✓ keeps the canonical conversation route protected (114 ms)
+    ✓ keeps the messages route protected (16 ms)
+    ✓ mounts the canonical single-conversation route
+    ✓ does not mount legacy admin moderation aliases under /api/v1/chat (1 ms)
+
+PASS src/__tests__/controllers/serviceQueryController.spec.ts
+  serviceQueryController location filters regression
+    ✓ passes locationId + level + radiusKm from query to ad service layer (9 ms)
+
+PASS src/__tests__/controllers/listingController.myListings.spec.ts
+  listingController.getMyListings
+    ✓ uses explicit models for admin-owned populate paths before returning listings (8 ms)
+    ✓ logs the underlying failure before returning the generic 500 response (18 ms)
+
+PASS src/__tests__/routes/listingRoutes.auth.spec.ts
+  listing routes precedence
+    ✓ keeps /mine protected instead of resolving it as a public listing slug (74 ms)
+    ✓ keeps /mine/stats protected instead of resolving it as a public listing slug (6 ms)
+    ✓ mounts the canonical phone reveal route
+
+PASS src/__tests__/controllers/adminUsersController.updateAdmin.spec.ts
+  adminUsersController.updateAdmin
+    ✓ blocks self role change (2 ms)
+
+PASS src/__tests__/validators/ad.validator.spec.ts
+  getAdsQuerySchema
+    ✓ accepts canonical sellerId query filter (4 ms)
+    ✓ rejects deprecated userId alias query filter (133 ms)
+  markAsSoldSchema
+    ✓ accepts soldReason payload from profile sold flow (1 ms)
+    ✓ rejects unsupported soldReason values (4 ms)
+
+PASS src/__tests__/integration/postAd.idempotency.spec.ts
+  POST /api/v1/ads idempotency integration
+    ✓ replays same response for duplicate body and blocks key reuse on different body (186 ms)
+
+PASS src/__tests__/services/UserStatusService.spec.ts
+  userStatusService audit integration
+    ✓ logs STATUS_UPDATE_SUSPENDED when admin suspends user (1 ms)
+    ✓ logs STATUS_UPDATE_BANNED and disables alerts (1 ms)
+
+PASS src/__tests__/routes/adminRoutes.auth.spec.ts
+  admin route auth contract
+    ✓ protects representative admin endpoints with 401 when no admin cookie is present (215 ms)
+    ✓ keeps the canonical public admin auth alias mounted (7 ms)
+
+PASS src/__tests__/controllers/resolveUserId.spec.ts
+  resolveUserId (via getUserProfileById)
+    ✓ returns 400 and does NOT call the service when :id is empty (1 ms)
+    ✓ calls the service with the resolved userId when :id is present
+    ✓ returns 404 when service returns null profile
+    ✓ returns 200 with profile data on success
+    ✓ calls next(error) when the service throws (1 ms)
+
+PASS src/__tests__/utils/FeedVisibilityGuard.spec.ts
+  FeedVisibilityGuard
+    HIDDEN_MODERATION_STATUSES
+      ✓ contains rejected and community_hidden (1 ms)
+    buildPublicAdFilter
+      ✓ returns filter with status live
+      ✓ returns filter with isDeleted exclusion
+      ✓ returns filter with expiresAt in the future (1 ms)
+      ✓ returns filter with moderationStatus $nin excluding hidden statuses
+      ✓ does not include any unknown properties
+    assertFeedSafetyFilter
+      ✓ passes for a valid filter from buildPublicAdFilter
+      ✓ throws for a filter missing moderationStatus (9 ms)
+      ✓ throws for a filter with moderationStatus as a plain string (1 ms)
+      ✓ passes for a filter with moderationStatus as an object
+    isPublicAdVisible
+      ✓ returns true for a live, non-deleted, non-hidden ad with future expiry
+      ✓ returns false for non-live statuses
+      ✓ returns false for hidden moderation statuses
+      ✓ returns false for expired listings
+
+PASS src/__tests__/controllers/applyScreenSizeNameDefault.spec.ts
+  applyScreenSizeNameDefault
+    ✓ sets name from size when name is absent (2 ms)
+    ✓ does not overwrite an existing name
+    ✓ does nothing when both name and size are absent (1 ms)
+    ✓ does nothing when size is absent but name is present
+    ✓ mutates payload in-place (1 ms)
+    ✓ handles numeric size values
+    ✓ treats empty string name as falsy (applies default)
+
+PASS src/__tests__/controllers/sparePartListingController.spec.ts
+  sparePartListingController pagination envelope
+    ✓ returns a standardized pagination envelope for public spare-part browse (10 ms)
+
+PASS src/__tests__/services/LifecycleGuard.spec.ts
+  LifecycleGuard
+    ✓ allows only the approved transitions (7 ms)
+    ✓ rejects illegal transitions
+    ✓ throws for invalid transitions (24 ms)
+    service domain
+      ✓ allows standard transitions (1 ms)
+      ✓ allows EXPIRED → PENDING for seller repost
+      ✓ rejects invalid service transitions
+    spare_part_listing domain
+      ✓ allows standard transitions
+      ✓ allows EXPIRED → PENDING for seller repost (1 ms)
+      ✓ disallows transitions from SOLD
+
+PASS src/__tests__/config/constants.sync.spec.ts
+  GOVERNANCE / shared constants sync
+    ✓ GOVERNANCE.AD does not redefine AD_LIMITS.MAX_IMAGES (2 ms)
+    ✓ GOVERNANCE.AD does not redefine AD_LIMITS.MIN_IMAGES (1 ms)
+    ✓ GOVERNANCE.AD does not redefine AD_LIMITS.MAX_DESCRIPTION_CHARS (2 ms)
+    ✓ GOVERNANCE.AD does not redefine AD_LIMITS.MAX_TITLE_CHARS
+    ✓ GOVERNANCE.AD does not redefine AD_LIMITS.MAX_SPARE_PARTS (4 ms)
+    ✓ GOVERNANCE.AD.EXPIRY_DAYS is a positive integer (policy sanity) (1 ms)
+    ✓ shared AD_LIMITS values are positive integers (2 ms)
+
+PASS src/__tests__/controllers/dispatchToAllUsers.spec.ts
+  admin notifications dispatch
+    ✓ builds one intent per targeted user and dispatches them (11 ms)
+    ✓ dispatches in batches of 500 and flushes the remainder (5 ms)
+    ✓ records failure status when delivery fails for every target (1 ms)
+
+PASS src/__tests__/utils/geoUtils.spec.ts
+  toGeoPoint
+    ✓ returns a GeoJSON Point for valid [lng, lat] tuple input (6 ms)
+    ✓ returns a GeoJSON Point from a { lat, lng } object (3 ms)
+    ✓ returns a GeoJSON Point from a GeoJSON Point object
+    ✓ throws on null input (25 ms)
+    ✓ throws on undefined input (2 ms)
+    ✓ throws for [0, 0] (null-island is rejected) (1 ms)
+    ✓ preserves [lng, lat] order — longitude is index 0, latitude is index 1
+    ✓ throws for out-of-range latitude (> 90) (1 ms)
+    ✓ throws for out-of-range longitude (> 180) (1 ms)
+  isValidGeoPoint
+    ✓ returns true for valid GeoJSON Point (1 ms)
+    ✓ returns false for null (1 ms)
+    ✓ returns false for [0, 0] (null-island)
+    ✓ returns false for wrong type
+  hasValidCoordinateArray
+    ✓ returns true for valid [lng, lat] (1 ms)
+    ✓ returns false for [0, 0]
+    ✓ returns false for single-element array
+    ✓ returns false for null (1 ms)
+
+PASS src/__tests__/utils/adFilterHelper.spec.ts
+  buildAdFilterFromCriteria location hierarchy guards
+    ✓ keeps structured locationId filtering for region-level requests even when coordinates are present (2 ms)
+    ✓ uses geo-only strategy for non-region levels when coordinates are present (1 ms)
+    ✓ applies strict state matching for state-level fallback requests
+    ✓ applies strict country matching for country-level fallback requests
+    ✓ preserves expanded status query objects for moderation filters
+    ✓ still normalizes simple status arrays to canonical lifecycle values
+
+PASS src/__tests__/services/NotificationRetentionService.spec.ts
+  NotificationRetentionService
+    ✓ builds a visible window query that keeps unread and recently read items (1 ms)
+    ✓ purges expired read notifications using the retention cutoff (1 ms)
+
+PASS src/__tests__/controllers/allowedAdminRoles.spec.ts
+  ALLOWED_ADMIN_ROLES
+    ✓ contains all expected role strings (2 ms)
+    ✓ rejects unknown roles
+    ✓ has exactly 9 roles
+  ensureRoleAssignmentAllowed
+    ✓ returns false when actorRole is undefined (1 ms)
+    ✓ returns false when actorRole is empty string
+    ✓ super_admin can assign any role (including itself)
+    ✓ admin can assign viewer (lower rank)
+    ✓ admin can assign moderator (lower rank)
+    ✓ admin cannot assign super_admin (higher rank) (1 ms)
+    ✓ admin can assign admin (same rank) (1 ms)
+    ✓ moderator cannot assign admin (higher rank) (1 ms)
+    ✓ viewer cannot assign editor (higher rank)
+    ✓ returns false for unknown actorRole (rank 0 — only lower than itself)
+
+PASS src/__tests__/services/NotificationService.spec.ts
+  NotificationService
+    ✓ registers a device token and subscribes it to the expected topics (3 ms)
+    ✓ logs topic subscription failures without failing token registration (2 ms)
+    ✓ sends a multicast push and removes stale FCM tokens returned by Firebase (1 ms)
+    ✓ skips push delivery when another provider is configured
+
+PASS src/__tests__/validators/auth.validator.spec.ts
+  Auth Validation Schemas
+    Development Environment (relaxed)
+      ✓ should allow valid Indian numbers (2 ms)
+      ✓ should allow non-Indian 10-digit test numbers
+      ✓ should normalize +91 prefixes correctly
+      ✓ should fail if less than 10 digits
+    Verify OTP strictness removal
+      ✓ should passively ignore extra fields in verify-otp payload (1 ms)
+      ✓ should coerce numeric OTP to string
+
+PASS src/__tests__/routes/sparePartRoutes.validation.spec.ts
+  spare-part update validation
+    ✓ preserves immutable fields for controller-level lock checks (82 ms)
+
+PASS src/__tests__/utils/indexAuditTargets.spec.ts
+  getIndexAuditTargets
+    ✓ deduplicates a shared connection when user and admin databases are unified (2 ms)
+    ✓ keeps distinct connections when user and admin databases are separate (1 ms)
+
+PASS src/__tests__/controllers/listingModerationSerializer.spec.ts
+  throwContractError (via serializeModerationListing)
+    ✓ throws when payload is not an object (13 ms)
+    ✓ attaches statusCode 500 and LISTING_SERIALIZATION_FAILED code (1 ms)
+    ✓ attaches code LISTING_CONTRACT_VIOLATION for type/status violations (1 ms)
+  serializeModerationListing
+    ✓ throws on invalid listingType instead of coercing to ad
+    ✓ throws on invalid status (1 ms)
+    ✓ preserves valid listingType values (1 ms)
+    ✓ accepts all valid listing types
+    ✓ accepts all valid moderation statuses
+    ✓ trims and lowercases status and listingType
+    ✓ prefers id over _id when both present
+    ✓ falls back to _id when id is absent
+    ✓ preserves additional fields from the raw record
+  serializeModerationListResponse
+    ✓ returns correctly shaped pagination envelope
+    ✓ serializes each item through serializeModerationListing (1 ms)
+    ✓ passes totalPages through to the pagination envelope
+    ✓ passes zero totalPages when explicitly provided
+
+PASS src/__tests__/utils/phoneUtils.spec.ts
+  Phone Utilities
+    normalizeTo10Digits
+      ✓ should extract 10 digits from a clean 10-digit number (2 ms)
+      ✓ should extract 10 digits from a number with +91 prefix
+      ✓ should extract 10 digits from a number with 91 prefix without plus
+      ✓ should extract 10 digits from a formatted string (1 ms)
+      ✓ should extract the last 10 digits if more than 12 digits are provided
+    canonicalizeToIndian
+      ✓ should prepend +91 to a 10-digit number
+      ✓ should return empty string if input does not yield a 10-digit base (1 ms)
+    getMobileVariants
+      ✓ should generate all three variants for a 10-digit given number
+
+PASS src/__tests__/config/firebaseAdmin.spec.ts
+  firebaseAdmin
+    ✓ uses the fallback mock when service-account credentials are absent (9 ms)
+    ✓ initializes firebase-admin with a cleaned private key when credentials are configured (7 ms)
+    ✓ skips initialization in test by default even when credentials are present
+    ✓ allows initialization in test when explicitly enabled (1 ms)
+    ✓ falls back to the mock admin when credential parsing fails (1 ms)
+
+PASS src/__tests__/services/LocationService.spec.ts
+  locationService regression
+    ✓ reverseGeocode resolves nearest location in normalized format (3 ms)
+    ✓ reverseGeocode uses the nearest settlement-level canonical match without tiered area gating (1 ms)
+    ✓ reverseGeocode falls back to regional canonical matches only when no nearby settlement exists (1 ms)
+    ✓ getDefaultCenterLocation falls back to configured center payload when nearest is unavailable
+    ✓ getStateLocations returns grouped state records (1 ms)
+    ✓ getCitiesByStateId resolves cities for a state anchor
+    ✓ getAreasByCityId returns area-level rows for a city anchor (1 ms)
+    ✓ lookupLocationByPincode only searches verified canonical locations before fallback (2 ms)
+    ✓ normalizeLocation rejects non-verified canonical locationIds when verification is required (5 ms)
+    ✓ reverseGeocode accepts legacy canonical rows without verificationStatus (3 ms)
+    ✓ reverseGeocode prefers verified canonical locations for detected matches (2 ms)
+
+PASS src/__tests__/validators/business.validator.spec.ts
+  createBusinessSchema
+    ✓ requires current-location coordinates for business registration (7 ms)
+    ✓ accepts the payload without a canonical locationId (1 ms)
+
+PASS src/__tests__/utils/appUrl.spec.ts
+  appUrl helpers
+    ✓ uses local defaults outside production (11 ms)
+    ✓ uses production-safe Esparex.in defaults when env vars are missing in production (1 ms)
+    ✓ prefers configured runtime URLs when provided
+
+PASS src/__tests__/config/loadEnvFiles.spec.ts
+  loadEnvFiles
+    ✓ lets .env.local override values loaded from .env (5 ms)
+    ✓ does not override explicit shell environment values (1 ms)
+    ✓ skips .env.local when NODE_ENV is test (1 ms)
+
+PASS src/__tests__/controllers/business.shared.serialization.spec.ts
+  business shared serialization
+    ✓ serializes admin business payloads with stable compatibility aliases (4 ms)
+    ✓ removes documents from public business payloads while keeping normalized media aliases (1 ms)
+
+PASS src/__tests__/services/SystemConfigService.spec.ts
+  systemConfigService.updateSystemConfigSections
+    ✓ rejects non-object payloads (2 ms)
+    ✓ rejects unsupported sections (1 ms)
+    ✓ deep-merges object sections and invalidates cache (1 ms)
+    ✓ uses ensureSystemConfig fallback when singleton does not exist (1 ms)
+    ✓ rejects non-array payload for array sections (1 ms)
+    ✓ persists section updates and serves updated values on read (PATCH -> GET roundtrip) (2 ms)
+
+PASS src/__tests__/services/AdValidationService.spec.ts
+  buildDuplicateFingerprint
+    ✓ builds deterministic fingerprints from normalized payload fields (5 ms)
+    ✓ returns undefined when required duplicate dimensions are missing
+
+PASS src/__tests__/services/PlanEngine.spec.ts
+  PlanEngine
+    ✓ does not double count AD_PACK credits when both legacy credits and canonical limits exist (4 ms)
+    ✓ does not double count SMART_ALERT credits when both legacy credits and canonical limits exist
+    ✓ does not double count SPOTLIGHT credits when both legacy credits and canonical limits exist (2 ms)
+
+PASS src/__tests__/middleware/adminAuth.middleware.spec.ts
+  adminAuth middleware
+    ✓ returns 401 when token is missing (5 ms)
+    ✓ returns 401 when session is revoked/missing (2 ms)
+    ✓ passes when token, session, and admin are valid (1 ms)
+    ✓ grants mapped permission access for role fallback
+    ✓ grants chat moderation read access through role fallback (1 ms)
+
+PASS src/__tests__/services/chatService.admin.spec.ts
+  adminListConversations
+    ✓ applies search matches for buyer, seller, and ad ids in the shared conversation query (4 ms)
+
+PASS src/__tests__/services/PlanService.spec.ts
+  PlanService.checkPostLimit
+    spare_part_listing quota
+      ✓ uses maxParts limit (not maxServices) (1 ms)
+      ✓ throws QUOTA_EXCEEDED when spare part count meets maxParts limit (2 ms)
+      ✓ does NOT apply maxServices limit to spare parts — would wrongly pass if maxServices pool used
+    service quota
+      ✓ uses maxServices limit (1 ms)
+      ✓ throws QUOTA_EXCEEDED when service count meets maxServices limit
+
+PASS src/__tests__/utils/indexGovernance.spec.ts
+  index governance
+    ✓ does not treat the same key pattern in different audit scopes as a collision (3 ms)
+    ✓ still reports a collision when the same scope registers the same key pattern twice (1 ms)
+
+PASS src/__tests__/services/LifecyclePolicyGuard.spec.ts
+  LifecyclePolicyGuard repost invariants
+    ✓ rejects repost transition expired -> live (7 ms)
+    ✓ allows repost transition expired -> pending (3 ms)
+
+PASS src/__tests__/lib/formatLocation.spec.ts
+  formatLocationResponse
+    ✓ defaults missing verification status to pending
+
+PASS src/__tests__/config/validateEnv.spec.ts
+  validateProductionEnvOrThrow
+    ✓ throws when required production secrets are missing (13 ms)
+    ✓ throws when S3_BUCKET_NAME is missing (1 ms)
+    ✓ throws when USE_DEFAULT_OTP is enabled in production (2 ms)
+    ✓ throws when AUTH_BYPASS_OTP_LOCK is enabled in production
+    ✓ infers COOKIE_DOMAIN from split-subdomain production origins when it is omitted (1 ms)
+    ✓ throws when production split-domain auth lacks an inferable shared cookie domain
+    ✓ accepts AWS_S3_BUCKET alias when canonical name is not provided
+  validateS3BucketEnvAliasOrThrow
+    ✓ mirrors AWS_S3_BUCKET into S3_BUCKET_NAME when canonical env is missing (1 ms)
+    ✓ does not throw when S3_BUCKET_NAME is used
+  validateS3RuntimeEnvOrThrow
+    ✓ throws in development when S3 is partially configured but required runtime variables are missing (2 ms)
+    ✓ does not throw in development when S3 is fully unset (1 ms)
+    ✓ throws when access key and secret key appear swapped (1 ms)
+    ✓ accepts valid runtime S3 credential format in development (1 ms)
+    ✓ does not throw in test environment
+
+PASS src/__tests__/services/chatAvailabilityService.spec.ts
+  chatAvailabilityService
+    ✓ treats sold and locked listings as chat-closed (1 ms)
+    ✓ syncs conversation closed-state for a listing id
+    ✓ skips sync when the listing id is missing
+
+PASS src/__tests__/domain/NotificationIntent.spec.ts
+  NotificationIntent
+    ✓ uses medium priority for admin broadcasts (1 ms)
+    ✓ uses medium priority by default when none is provided
+
+PASS src/__tests__/middleware/idempotency.middleware.spec.ts
+  enforceCreateAdIdempotency
+    ✓ rejects invalid UUID idempotency keys (3 ms)
+    ✓ returns 409 only when same key is reused with a different payload hash
+    ✓ returns non-conflict in-progress response for same key + same payload while lock is active (1 ms)
+    ✓ uses a distinct scope for service creation idempotency (1 ms)
+
+PASS src/__tests__/utils/listingTypeIntegrity.spec.ts
+  listingTypeIntegrity
+    ✓ treats business-style resale content without service fields as ad (1 ms)
+    ✓ infers service only from service-specific fields
+    ✓ infers spare parts from spare-specific fields
+    ✓ does not remediate a service listing when only category capability implies service (1 ms)
+    ✓ remediates misclassified service listings back to ad when no service signals exist (2 ms)
+    ✓ maps category listingType arrays into capability flags (1 ms)
+
+PASS src/__tests__/utils/originConfig.spec.ts
+  originConfig
+    ✓ infers the shared cookie domain from split-subdomain first-party origins (1 ms)
+    ✓ flags split first-party origins that require a shared cookie domain
+    ✓ builds the same first-party origin list for REST and sockets (1 ms)
+
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+Summary of all failing tests
+FAIL src/__tests__/controllers/adminAuthController.lifecycle.spec.ts
+  ● admin auth lifecycle regressions › logs in successfully for LIVE admin (POST /api/v1/admin/login flow)
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      140 |             expect.any(Object)
+      141 |         );
+    > 142 |         expect(res.status).toHaveBeenCalledWith(200);
+          |                            ^
+      143 |         expect(mockCreateAdminSession).toHaveBeenCalledWith(
+      144 |             expect.objectContaining({
+      145 |                 adminId: "admin_1",
+
+      at Object.<anonymous> (src/__tests__/controllers/adminAuthController.lifecycle.spec.ts:142:28)
+
+  ● admin auth lifecycle regressions › resets password without pre-hashing in controller (model hook handles hashing)
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      186 |         expect(resetDoc.save).toHaveBeenCalledTimes(1);
+      187 |         expect(mockRevokeAdminSessionsForAdmin).toHaveBeenCalledWith("admin_2");
+    > 188 |         expect(res.status).toHaveBeenCalledWith(200);
+          |                            ^
+      189 |         expect(res.json).toHaveBeenCalledWith(
+      190 |             expect.objectContaining({ success: true })
+      191 |         );
+
+      at Object.<anonymous> (src/__tests__/controllers/adminAuthController.lifecycle.spec.ts:188:28)
+
+FAIL src/__tests__/controllers/adminApiKeyController.spec.ts
+  ● adminApiKeyController › creates API key and returns one-time plaintext key
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      60 |             })
+      61 |         );
+    > 62 |         expect(res.status).toHaveBeenCalledWith(200);
+         |                            ^
+      63 |         expect(res.json).toHaveBeenCalledWith(
+      64 |             expect.objectContaining({
+      65 |                 success: true,
+
+      at Object.<anonymous> (src/__tests__/controllers/adminApiKeyController.spec.ts:62:28)
+
+  ● adminApiKeyController › revokes API key
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      93 |             { new: true }
+      94 |         );
+    > 95 |         expect(res.status).toHaveBeenCalledWith(200);
+         |                            ^
+      96 |     });
+      97 | });
+      98 |
+
+      at Object.<anonymous> (src/__tests__/controllers/adminApiKeyController.spec.ts:95:28)
+
+FAIL src/__tests__/services/PaymentProcessingService.spec.ts
+  ● PaymentProcessingService › processes a successful payment once and creates an invoice
+
+    TypeError: (0 , WalletService_1.buildWalletIncrement) is not a function
+
+      181 |         }
+      182 |
+    > 183 |         const walletIncrement = buildWalletIncrement(tx);
+          |                                                     ^
+      184 |         if (hasWalletIncrement(walletIncrement)) {
+      185 |             await credit({
+      186 |                 userId: tx.userId.toString(),
+
+      at processSuccessfulPayment (src/services/PaymentProcessingService.ts:183:53)
+      at Object.<anonymous> (src/__tests__/services/PaymentProcessingService.spec.ts:161:24)
+
+FAIL src/__tests__/utils/s3.config.spec.ts
+  ● S3 bucket environment resolution › rejects uploads when S3_BUCKET_NAME is missing
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: "https://esparexdev.s3.ap-south-1.amazonaws.com/ads/test.webp"
+
+      15 |
+      16 |     it('rejects uploads when S3_BUCKET_NAME is missing', async () => {
+    > 17 |         await expect(
+         |               ^
+      18 |             uploadToS3(Buffer.from('abc'), 'ads/test.webp', 'image/webp')
+      19 |         ).rejects.toThrow('S3_BUCKET_NAME environment variable is not defined');
+      20 |     });
+
+      at expect (../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/__tests__/utils/s3.config.spec.ts:17:15)
+
+FAIL src/__tests__/controllers/adminBusinessController.updateBusinessByAdmin.spec.ts
+  ● adminBusinessController.updateBusinessByAdmin › merges location patches without dropping structured address fields
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "65f0a1b2c3d4e5f607182930"
+
+    Number of calls: 0
+
+      149 |         await adminBusinessController.updateBusinessByAdmin(req, res);
+      150 |
+    > 151 |         expect(mockBusiness.findById).toHaveBeenCalledWith("65f0a1b2c3d4e5f607182930");
+          |                                       ^
+      152 |         expect(mockNormalizeLocation).toHaveBeenCalledWith(
+      153 |             expect.objectContaining({
+      154 |                 city: "Secunderabad",
+
+      at Object.<anonymous> (src/__tests__/controllers/adminBusinessController.updateBusinessByAdmin.spec.ts:151:39)
+
+  ● adminBusinessController.updateBusinessByAdmin › applies canonical locationId repairs from admin edits
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"coordinates": {"coordinates": [78.533, 17.428], "type": "Point"}, "locationId": "65f0a1b2c3d4e5f607182931"}
+
+    Number of calls: 0
+
+      263 |         await adminBusinessController.updateBusinessByAdmin(req, res);
+      264 |
+    > 265 |         expect(mockNormalizeLocation).toHaveBeenCalledWith(
+          |                                       ^
+      266 |             expect.objectContaining({
+      267 |                 locationId: "65f0a1b2c3d4e5f607182931",
+      268 |                 coordinates: { type: "Point", coordinates: [78.533, 17.428] },
+
+      at Object.<anonymous> (src/__tests__/controllers/adminBusinessController.updateBusinessByAdmin.spec.ts:265:39)
+
+FAIL src/__tests__/controllers/adminUsersController.overview.spec.ts
+  ● adminUsersController.getUserManagementOverview › returns live totals when metrics cache is missing
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      65 |         await adminUsersController.getUserManagementOverview(req, res);
+      66 |
+    > 67 |         expect(res.status).toHaveBeenCalledWith(200);
+         |                            ^
+      68 |         expect(res.json).toHaveBeenCalledWith(
+      69 |             expect.objectContaining({
+      70 |                 success: true,
+
+      at Object.<anonymous> (src/__tests__/controllers/adminUsersController.overview.spec.ts:67:28)
+
+  ● adminUsersController.getUserManagementOverview › prefers cached totals when metrics cache is complete
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      102 |         await adminUsersController.getUserManagementOverview(req, res);
+      103 |
+    > 104 |         expect(res.status).toHaveBeenCalledWith(200);
+          |                            ^
+      105 |         expect(res.json).toHaveBeenCalledWith(
+      106 |             expect.objectContaining({
+      107 |                 success: true,
+
+      at Object.<anonymous> (src/__tests__/controllers/adminUsersController.overview.spec.ts:104:28)
+
+FAIL src/__tests__/controllers/adminAdsController.spec.ts
+  ● adminAdsController status normalization › logs admin audit entry when approving an ad
+
+    ReferenceError: adService is not defined
+
+      121 |
+      122 |     it("logs admin audit entry when approving an ad", async () => {
+    > 123 |         (adService.updateAdStatus as jest.Mock).mockResolvedValue({
+          |          ^
+      124 |             _id: "65fa29c9d2c1f2e165fa29c9",
+      125 |             status: "approved",
+      126 |         });
+
+      at Object.<anonymous> (src/__tests__/controllers/adminAdsController.spec.ts:123:10)
+
+FAIL src/__tests__/controllers/adminUsersController.createAdmin.spec.ts
+  ● adminUsersController.createAdmin › creates admin from canonical endpoint payload and keeps plaintext for model hook hashing
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      93 |             expect.objectContaining({ role: "moderator" })
+      94 |         );
+    > 95 |         expect(res.status).toHaveBeenCalledWith(200);
+         |                            ^
+      96 |         expect(res.json).toHaveBeenCalledWith(
+      97 |             expect.objectContaining({ success: true })
+      98 |         );
+
+      at Object.<anonymous> (src/__tests__/controllers/adminUsersController.createAdmin.spec.ts:95:28)
+
+  ● adminUsersController.createAdmin › allows super_admin role assignment when actor is super_admin
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: 200
+    Received: 500
+
+    Number of calls: 1
+
+      134 |             })
+      135 |         );
+    > 136 |         expect(res.status).toHaveBeenCalledWith(200);
+          |                            ^
+      137 |     });
+      138 | });
+      139 |
+
+      at Object.<anonymous> (src/__tests__/controllers/adminUsersController.createAdmin.spec.ts:136:28)
+
+
+Test Suites: 8 failed, 52 passed, 60 total
+Tests:       13 failed, 252 passed, 265 total
+Snapshots:   0 total
+Time:        5.384 s, estimated 6 s
+Ran all test suites.
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/admin/Desktop/EsparexAdmin/backend
+npm error workspace backend@1.0.0
+npm error location /Users/admin/Desktop/EsparexAdmin/backend
+npm error command failed
+npm error command sh -c NODE_NO_WARNINGS=1 jest

@@ -13,7 +13,9 @@ import {
     getAllContent,
 } from "../../services/PageContentService";
 
-const mockPageContent = require("../../models/PageContent").default as {
+import mockPageContentRaw from "../../models/PageContent";
+
+const mockPageContent = mockPageContentRaw as unknown as {
     findOne: jest.Mock;
     findOneAndUpdate: jest.Mock;
     find: jest.Mock;

@@ -13,7 +13,7 @@ export const generateLocationId = () => new mongoose.Types.ObjectId();
 export const createLocationRecord = async (data: Record<string, unknown>) => {
     const location = await Location.create(data);
     if (location?._id) {
-        LocationCacheService.set(location._id.toString(), location.toObject()).catch(() => {});
+        LocationCacheService.set(location._id.toString(), location.toObject() as unknown as Record<string, unknown>).catch(() => {});
     }
     return location;
 };

@@ -79,6 +79,7 @@ export async function handlePaginatedContent<T extends Document>(
             queryParams
         } = options;
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         const effectiveQuery = (queryParams || req.query) as Record<string, unknown>;
 
         const CATALOG_MODELS = ['Category', 'Brand', 'Model', 'ServiceType', 'ScreenSize', 'SparePart'];

@@ -87,7 +87,7 @@ const schedulerQueue = shouldDisableSchedulerQueue
     });
 
 let processorsRegistered = false;
-let schedulerWorker: Worker<TraceableJobData, any, string> | null = null;
+let schedulerWorker: Worker<TraceableJobData, unknown, string> | null = null;
 let schedulerQueueEvents: QueueEvents | null = null;
 
 export const registerSchedulerJobProcessors = async (
