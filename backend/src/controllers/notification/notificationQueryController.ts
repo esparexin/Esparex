@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { Types } from "mongoose";
 import logger from "../../utils/logger";
 import { respond } from "../../utils/respond";
 import { sendErrorResponse } from "../../utils/errorResponse";
@@ -19,17 +20,20 @@ export const getNotifications = async (req: Request, res: Response) => {
             filter = "all",
             type = "all",
             q,
-        } = req.query as {
-            page?: number;
-            limit?: number;
-            filter?: "all" | "unread";
-            type?: string;
+        } = req.query as unknown as {
+            page: number;
+            limit: number;
+            filter: "all" | "unread";
+            type: string;
             q?: string;
         };
 
-        const skip = (page - 1) * limit;
+        const skip = (Number(page) - 1) * Number(limit);
         const now = new Date();
-        const queryClauses: Record<string, unknown>[] = [{ userId }];
+        // Must cast to ObjectId — MongoDB aggregation $match does NOT auto-coerce
+        // strings to ObjectId the way Mongoose find/update helpers do.
+        const userObjectId = new Types.ObjectId(userId);
+        const queryClauses: Record<string, unknown>[] = [{ userId: userObjectId }];
 
         if (filter === "unread") {
             queryClauses.push({ isRead: false });
