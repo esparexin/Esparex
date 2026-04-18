@@ -265,7 +265,7 @@ export class AdDuplicateService {
             ? await findExistingSelfDuplicate(
                 sellerId,
                 String(payload.categoryId),
-                (payload.location as any)?.locationId ? String((payload.location as any).locationId) : undefined,
+                payload.location?.locationId ? String(payload.location.locationId) : undefined,
                 payload.price as number,
                 payload.brandId ? String(payload.brandId) : undefined,
                 payload.modelId ? String(payload.modelId) : undefined,
