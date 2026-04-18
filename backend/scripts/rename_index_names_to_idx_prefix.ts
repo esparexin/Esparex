@@ -105,7 +105,9 @@ const main = async () => {
     const adminConn = getAdminConnection();
 
     const [userPlans, adminPlans] = await Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         collectPlansFromConnection('user', userConn.models as any),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         collectPlansFromConnection('admin', adminConn.models as any),
     ]);
 

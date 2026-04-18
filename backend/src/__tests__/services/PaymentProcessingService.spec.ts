@@ -44,6 +44,8 @@ jest.mock("../../models/User", () => ({
 
 jest.mock("../../services/WalletService", () => ({
     credit: jest.fn(),
+    buildWalletIncrement: jest.fn().mockReturnValue({ amounts: {} }),
+    hasWalletIncrement: jest.fn().mockReturnValue(true),
 }));
 
 jest.mock("../../services/RevenueAnalytics", () => ({
@@ -56,6 +58,11 @@ jest.mock("../../utils/invoiceNumber", () => ({
 
 jest.mock("../../services/InvoicePdfService", () => ({
     generateInvoicePdf: jest.fn().mockResolvedValue("https://example.com/invoice.pdf"),
+}));
+
+jest.mock("../../services/InvoiceService", () => ({
+    buildInvoicePayload: jest.fn().mockReturnValue({ invoiceNumber: "ESP-2026-000001" }),
+    ensureInvoicePdf: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock("../../controllers/payment/shared", () => ({

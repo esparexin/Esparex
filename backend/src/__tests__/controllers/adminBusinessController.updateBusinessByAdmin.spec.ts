@@ -18,6 +18,18 @@ jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock("../../utils/logger", () => ({
+    __esModule: true,
+    default: {
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        debug: jest.fn(),
+    },
+    logBusiness: jest.fn(),
+    logSecurity: jest.fn(),
+}));
+
 jest.mock("../../services/NotificationService", () => ({
     __esModule: true,
     createInAppNotification: jest.fn().mockResolvedValue(undefined),
@@ -41,6 +53,9 @@ jest.mock("../../services/AdminBusinessService", () => ({
     getBusinessOverview: jest.fn(),
     getBusinessAccountsQuery: jest.fn(),
     transformBusinessDocs: jest.fn(),
+    findBusinessForAdmin: jest.fn(),
+    updateAdminBusiness: jest.fn(),
+    serializeBusinessForAdmin: jest.fn().mockImplementation((b) => b),
 }));
 
 jest.mock("../../services/StatusMutationService", () => ({
@@ -58,21 +73,41 @@ jest.mock("../../services/location/LocationNormalizer", () => ({
     normalizeLocation: jest.fn()
 }));
 
+jest.mock("../../controllers/business/shared", () => ({
+    __esModule: true,
+    serializeBusinessForAdmin: jest.fn().mockImplementation((b) => b),
+    serializeBusinessForOwner: jest.fn().mockImplementation((b) => b),
+    serializeBusiness: jest.fn().mockImplementation((b) => b),
+    findBusinessByIdentifier: jest.fn(),
+    resolveDuplicateBusinessMessage: jest.fn().mockReturnValue(null),
+}));
+
+jest.mock("../../utils/s3", () => ({
+    __esModule: true,
+    sanitizePersistedImageUrls: jest.fn().mockReturnValue([]),
+    uploadToS3: jest.fn(),
+    deleteFromS3: jest.fn(),
+}));
+
 import type { Request, Response } from "express";
 import * as adminBusinessController from "../../controllers/admin/adminBusinessController";
-import Business from "../../models/Business";
+import * as adminBusinessService from "../../services/AdminBusinessService";
 import { buildBusinessLocationPayload } from "../../services/BusinessService";
 import { normalizeLocation } from "../../services/location/LocationNormalizer";
 
-const createMockRes = () => ({
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn().mockReturnThis(),
-});
+const createMockRes = (req?: Record<string, unknown>) => {
+    const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+        req,
+    };
+    return res;
+};
 
 describe("adminBusinessController.updateBusinessByAdmin", () => {
-    const mockBusiness = Business as unknown as {
-        findById: jest.Mock;
-        findByIdAndUpdate: jest.Mock;
+    const mockAdminBusinessService = adminBusinessService as unknown as {
+        findBusinessForAdmin: jest.Mock;
+        updateAdminBusiness: jest.Mock;
     };
     const mockBuildBusinessLocationPayload = buildBusinessLocationPayload as unknown as jest.Mock;
     const mockNormalizeLocation = normalizeLocation as unknown as jest.Mock;
@@ -113,7 +148,7 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
             },
         };
 
-        mockBusiness.findById.mockResolvedValue(existingBusiness);
+        mockAdminBusinessService.findBusinessForAdmin.mockResolvedValue(existingBusiness);
         mockNormalizeLocation.mockResolvedValue({
             locationId: "65f0a1b2c3d4e5f607182930",
             city: "Secunderabad",
@@ -127,9 +162,7 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
             locationId: "65f0a1b2c3d4e5f607182930",
             location: updatedBusiness.location,
         });
-        mockBusiness.findByIdAndUpdate.mockReturnValue({
-            populate: jest.fn().mockResolvedValue(updatedBusiness),
-        });
+        mockAdminBusinessService.updateAdminBusiness.mockResolvedValue(updatedBusiness);
 
         const req = {
             params: { id: "65f0a1b2c3d4e5f607182930" },
@@ -144,11 +177,11 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
             user: { id: "admin_1" },
             originalUrl: "/api/v1/admin/businesses/65f0a1b2c3d4e5f607182930",
         } as unknown as Request;
-        const res = createMockRes() as unknown as Response;
+        const res = createMockRes(req as unknown as Record<string, unknown>) as unknown as Response;
 
         await adminBusinessController.updateBusinessByAdmin(req, res);
 
-        expect(mockBusiness.findById).toHaveBeenCalledWith("65f0a1b2c3d4e5f607182930");
+        expect(mockAdminBusinessService.findBusinessForAdmin).toHaveBeenCalledWith("65f0a1b2c3d4e5f607182930");
         expect(mockNormalizeLocation).toHaveBeenCalledWith(
             expect.objectContaining({
                 city: "Secunderabad",
@@ -165,25 +198,23 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
                 }),
             })
         );
-        expect(mockBusiness.findByIdAndUpdate).toHaveBeenCalledWith(
+        expect(mockAdminBusinessService.updateAdminBusiness).toHaveBeenCalledWith(
             "65f0a1b2c3d4e5f607182930",
             {
-                $set: expect.objectContaining({
-                    mobile: "9876543210",
-                    location: expect.objectContaining({
-                        address: "Shop 4, MG Road, Near Metro, Secunderabad, Telangana, 500003",
-                        display: "Secunderabad, Telangana",
-                        shopNo: "Shop 4",
-                        street: "MG Road",
-                        landmark: "Near Metro",
-                        city: "Secunderabad",
-                        state: "Telangana",
-                        pincode: "500003",
-                        coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
-                    }),
+                mobile: "9876543210",
+                locationId: "65f0a1b2c3d4e5f607182930",
+                location: expect.objectContaining({
+                    address: "Shop 4, MG Road, Near Metro, Secunderabad, Telangana, 500003",
+                    display: "Secunderabad, Telangana",
+                    shopNo: "Shop 4",
+                    street: "MG Road",
+                    landmark: "Near Metro",
+                    city: "Secunderabad",
+                    state: "Telangana",
+                    pincode: "500003",
+                    coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
                 }),
-            },
-            { new: true, runValidators: true }
+            }
         );
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith(
@@ -237,15 +268,13 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
             },
         };
 
-        mockBusiness.findById.mockResolvedValue(existingBusiness);
+        mockAdminBusinessService.findBusinessForAdmin.mockResolvedValue(existingBusiness);
         mockNormalizeLocation.mockResolvedValue(canonicalLocation);
         mockBuildBusinessLocationPayload.mockReturnValue({
             locationId: "65f0a1b2c3d4e5f607182931",
             location: updatedBusiness.location,
         });
-        mockBusiness.findByIdAndUpdate.mockReturnValue({
-            populate: jest.fn().mockResolvedValue(updatedBusiness),
-        });
+        mockAdminBusinessService.updateAdminBusiness.mockResolvedValue(updatedBusiness);
 
         const req = {
             params: { id: "65f0a1b2c3d4e5f607182930" },
@@ -258,7 +287,7 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
             user: { id: "admin_1" },
             originalUrl: "/api/v1/admin/businesses/65f0a1b2c3d4e5f607182930",
         } as unknown as Request;
-        const res = createMockRes() as unknown as Response;
+        const res = createMockRes(req as unknown as Record<string, unknown>) as unknown as Response;
 
         await adminBusinessController.updateBusinessByAdmin(req, res);
 
@@ -268,19 +297,16 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
                 coordinates: { type: "Point", coordinates: [78.533, 17.428] },
             })
         );
-        expect(mockBusiness.findByIdAndUpdate).toHaveBeenCalledWith(
+        expect(mockAdminBusinessService.updateAdminBusiness).toHaveBeenCalledWith(
             "65f0a1b2c3d4e5f607182930",
             {
-                $set: expect.objectContaining({
-                    locationId: "65f0a1b2c3d4e5f607182931",
-                    location: expect.objectContaining({
-                        display: "Tarnaka, Secunderabad",
-                        city: "Secunderabad",
-                        coordinates: { type: "Point", coordinates: [78.533, 17.428] },
-                    }),
+                locationId: "65f0a1b2c3d4e5f607182931",
+                location: expect.objectContaining({
+                    display: "Tarnaka, Secunderabad",
+                    city: "Secunderabad",
+                    coordinates: { type: "Point", coordinates: [78.533, 17.428] },
                 }),
-            },
-            { new: true, runValidators: true }
+            }
         );
         expect(res.status).toHaveBeenCalledWith(200);
     });
