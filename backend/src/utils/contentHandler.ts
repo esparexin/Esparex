@@ -113,7 +113,7 @@ export async function handlePaginatedContent<T extends Document>(
 
         if (isAdmin && isUrlAdmin) {
             const { page, limit, skip } = getPaginationParams(req);
-            const rawSearch = Array.isArray(effectiveQuery.search) ? effectiveQuery.search[0] : effectiveQuery.search;
+            const rawSearch = Array.isArray(effectiveQuery.search) ? (effectiveQuery.search as unknown[])[0] : effectiveQuery.search;
             const search = typeof rawSearch === 'string' ? rawSearch.trim() : '';
             const includeDeleted = effectiveQuery.includeDeleted === 'true';
 
@@ -163,7 +163,7 @@ export async function handlePaginatedContent<T extends Document>(
 
             // Honour the ?sort= param as a sort directive (not a Mongo field filter).
             const rawAdminSort = Array.isArray(effectiveQuery.sort)
-                ? effectiveQuery.sort[0]
+                ? (effectiveQuery.sort as unknown[])[0]
                 : effectiveQuery.sort;
             const adminSort = parseSortQuery(rawAdminSort, { createdAt: -1 });
 
@@ -206,8 +206,8 @@ export async function handlePaginatedContent<T extends Document>(
         // Public View
         const rawPage = effectiveQuery.page;
         const rawLimit = effectiveQuery.limit;
-        const rawSearch = Array.isArray(effectiveQuery.search) ? effectiveQuery.search[0] : effectiveQuery.search;
-        const rawSort = Array.isArray(effectiveQuery.sort) ? effectiveQuery.sort[0] : effectiveQuery.sort;
+        const rawSearch = Array.isArray(effectiveQuery.search) ? (effectiveQuery.search as unknown[])[0] : effectiveQuery.search;
+        const rawSort = Array.isArray(effectiveQuery.sort) ? (effectiveQuery.sort as unknown[])[0] : effectiveQuery.sort;
         const page = parseInt(String(rawPage || '1'));
         const limit = parseInt(String(rawLimit || '100'));
         const search = typeof rawSearch === 'string' ? rawSearch.trim() : '';

@@ -35,7 +35,7 @@ export const enforceErrorResponseContract = (req: Request, res: Response, next: 
             success: false,
             error: resolveMessage(body),
             meta: {
-                requestId: (req as any).requestId || 'unknown',
+                requestId: (req as Request & { requestId?: string }).requestId || 'unknown',
                 timestamp: new Date().toISOString(),
                 path: typeof body.path === 'string' && body.path.trim().length > 0
                     ? body.path

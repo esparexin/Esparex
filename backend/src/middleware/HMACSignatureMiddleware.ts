@@ -41,7 +41,7 @@ export const hmacSignatureMiddleware = (req: Request, res: Response, next: NextF
         logger.error(`[Security] Invalid HMAC signature for ${req.method} ${req.originalUrl}`, {
             received: signature,
             expected: expectedSignature,
-            requestId: (req as any).requestId
+            requestId: (req as Request & { requestId?: string }).requestId
         });
         return res.status(403).json({
             success: false,

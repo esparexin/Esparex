@@ -46,7 +46,7 @@ export class ApiResponse {
     /**
      * Standard error response
      */
-    static sendError(req: Request, res: Response, status: number, error: string, options: any = {}) {
+    static sendError(req: Request, res: Response, status: number, error: string, options: Record<string, unknown> = {}) {
         const payload: ApiResponseEnvelope<null> = {
             success: false,
             data: null,
