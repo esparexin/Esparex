@@ -1,4 +1,4 @@
-import { Queue, Job, type WorkerOptions, Worker, type Processor } from 'bullmq';
+import { Queue, Job, type WorkerOptions, Worker, type Processor, type JobsOptions } from 'bullmq';
 import { TraceContext } from '@shared/observability/trace';
 import logger from './logger';
 import { AuditService } from '../services/AuditService';
@@ -18,7 +18,7 @@ export async function addJobWithTrace<T extends TraceableJobData>(
     queue: Queue<T>,
     name: string,
     data: T,
-    opts: any = {},
+    opts: JobsOptions = {},
     userId?: string
 ) {
     const requestId = TraceContext.getCorrelationId();
@@ -31,6 +31,7 @@ export async function addJobWithTrace<T extends TraceableJobData>(
         }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- BullMQ Queue.add uses ExtractNameType/ExtractDataType conditionals that don't infer from plain string/T
     return queue.add(name as any, enrichedData as any, opts);
 }
 
@@ -42,7 +43,7 @@ export function registerWorkerWithTrace<T extends TraceableJobData>(
     processor: Processor<T>,
     workerOptions: WorkerOptions
 ) {
-    const tracedProcessor: Processor<T> = async (job: Job<T>) => {
+    const tracedProcessor: Processor<T> = async (job: Job<T>): Promise<unknown> => {
         const requestId = job.data._trace?.requestId || `job-${job.id}`;
         
         // Restore context for all logs and nested service calls within this job

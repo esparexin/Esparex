@@ -35,8 +35,8 @@ export class GatewayService {
         if (!ordersApi.fetchPayments) return undefined;
         try {
             const paymentList = await ordersApi.fetchPayments(gatewayOrderId);
-            const items = paymentList?.items || [];
-            return items.find((item: any) => item.status === 'captured') || items[0];
+            const items = (paymentList?.items || []) as RazorpayPaymentLike[];
+            return items.find((item: RazorpayPaymentLike) => item.status === 'captured') || items[0];
         } catch (error) {
             logger.warn('Failed to fetch payments for order', { gatewayOrderId, error });
             return undefined;

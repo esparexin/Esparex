@@ -1,5 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose, { type HydratedDocument } from 'mongoose';
 import Location from '../../models/Location';
+import type { ILocation } from '../../models/Location';
 import { LocationCacheService } from './LocationCacheService';
 
 
@@ -17,7 +18,7 @@ export const createLocationRecord = async (data: Record<string, unknown>) => {
     return location;
 };
 
-export const saveLocation = async (location: any) => {
+export const saveLocation = async (location: HydratedDocument<ILocation>): Promise<HydratedDocument<ILocation>> => {
     const saved = await location.save();
     if (saved?._id) {
         LocationCacheService.invalidate(saved._id.toString()).catch(() => {});
@@ -25,11 +26,12 @@ export const saveLocation = async (location: any) => {
     return saved;
 };
 
-export const softDeleteLocation = async (location: any) => {
-    const res = await (location as any).softDelete();
+export const softDeleteLocation = async (location: HydratedDocument<ILocation>): Promise<void> => {
+    await (location as HydratedDocument<ILocation> & { softDelete: () => Promise<unknown> }).softDelete();
     if (location?._id) {
         LocationCacheService.invalidate(location._id.toString()).catch(() => {});
     }
-    return res;
 };
+
+
 
