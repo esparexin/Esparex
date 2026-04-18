@@ -88,8 +88,10 @@ export async function uploadToS3(
         Key: fileName,
         Body: fileBuffer,
         ContentType: normalizedContentType,
-        ACL: 'public-read', // Ensure public visibility for direct S3 URLs
-        CacheControl: 'max-age=31536000, public', // CloudFront long-cache for immutable uploads
+        // No ACL header — public read is granted via bucket policy, not per-object ACL.
+        // Using ACL: 'public-read' conflicts with AWS Block Public Access defaults on
+        // buckets created after April 2023 and causes silent 403s.
+        CacheControl: 'max-age=31536000, public', // Long cache for immutable uploads
     });
 
     try {
@@ -144,7 +146,7 @@ export async function generatePresignedUploadUrl(
         Bucket: bucket,
         Key: key,
         ContentType: normalizedContentType,
-        ACL: 'public-read',
+        // No ACL header — public read granted via bucket policy (see AWS Console).
         CacheControl: 'max-age=31536000, public',
     });
 
