@@ -418,17 +418,29 @@ export function PostAdProvider({
         // (for partial saves / edit mode), so we gate them manually here before
         // running the schema-level trigger.
         if (currentStep === 1) {
-            const { categoryId: catId, deviceCondition: dc } = form.getValues();
+            const { categoryId: catId, brand: brandName, deviceCondition: dc } = form.getValues();
             let hasErrors = false;
             if (!catId) {
                 form.setError("categoryId" as Path<PostAdFormData>, { type: "manual", message: "Please select a category" });
+                hasErrors = true;
+            }
+            if (!brandName) {
+                form.setError("brand" as Path<PostAdFormData>, { type: "manual", message: "Please select a brand" });
                 hasErrors = true;
             }
             if (!dc) {
                 form.setError("deviceCondition" as Path<PostAdFormData>, { type: "manual", message: "Please select device condition" });
                 hasErrors = true;
             }
-            if (hasErrors) return;
+            if (hasErrors) {
+                requestAnimationFrame(() => {
+                    const firstError = document.querySelector(".text-destructive");
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                });
+                return;
+            }
         }
 
         let fieldsToValidate: Path<PostAdFormData>[] = [];
