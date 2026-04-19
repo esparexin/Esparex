@@ -184,3 +184,53 @@ export async function getSpareParts(
         throw (error instanceof Error ? error : new Error("Failed to load spare parts"));
     }
 }
+
+/** Shape returned by POST /catalog/models/ensure */
+export interface EnsuredModel {
+    id: string;
+    _id?: string;
+    name: string;
+    /** ID of the brand (may be newly created pending brand) */
+    brandId: string;
+    categoryId?: string;
+    status?: string;
+}
+
+/**
+ * Atomically find-or-create a brand + model.
+ * Calls POST /catalog/models/ensure.
+ * Safe to call with existing brand/model names — backend deduplicates.
+ * Requires the user to be authenticated (JWT cookie).
+ */
+export async function ensureModel(
+    categoryId: string,
+    brandName: string,
+    modelName: string
+): Promise<EnsuredModel> {
+    try {
+        const response = await apiClient.post(API_ROUTES.USER.MODELS_ENSURE, {
+            categoryId,
+            brandName: brandName.trim(),
+            modelName: modelName.trim(),
+        });
+        const payload = unwrapApiPayload<unknown>(response);
+        const data = (
+            payload && typeof payload === "object" && "data" in (payload as Record<string, unknown>)
+                ? (payload as Record<string, unknown>).data
+                : payload
+        ) as Record<string, unknown>;
+        const id = (data?.id ?? data?._id ?? "") as string;
+        const brandId = (data?.brandId ?? "") as string;
+        return {
+            id,
+            _id: id,
+            name: String(data?.name ?? modelName),
+            brandId,
+            categoryId: data?.categoryId as string | undefined,
+            status: data?.status as string | undefined,
+        };
+    } catch (error) {
+        logger.error("[MasterData] ensureModel failed:", error);
+        throw error instanceof Error ? error : new Error("Failed to submit brand/model suggestion");
+    }
+}

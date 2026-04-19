@@ -141,8 +141,24 @@ export function BrandSearchSelect({
                         className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-y-auto"
                     >
                         {filtered.length === 0 ? (
-                            <div className="py-4 px-4 text-center text-sm text-foreground-subtle">
-                                No brands found for &ldquo;{search}&rdquo;
+                            <div className="py-3 px-4 space-y-1">
+                                <p className="text-center text-sm text-foreground-subtle">
+                                    No brands found for &ldquo;{search}&rdquo;
+                                </p>
+                                {search.trim().length >= 2 && (
+                                    <button
+                                        type="button"
+                                        onPointerDown={(e) => {
+                                            e.preventDefault();
+                                            onChange("", search.trim());
+                                            setSearch("");
+                                        }}
+                                        className="w-full flex items-center justify-center gap-2 mt-1 py-2.5 rounded-lg bg-primary/10 text-primary text-sm font-semibold hover:bg-primary/20 transition-colors active:scale-[0.98]"
+                                    >
+                                        <span className="text-base font-bold leading-none">+</span>
+                                        Use &ldquo;{search.trim()}&rdquo; as brand
+                                    </button>
+                                )}
                             </div>
                         ) : (
                             filtered.slice(0, 10).map((b) => (
