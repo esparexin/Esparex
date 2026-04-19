@@ -5,6 +5,7 @@ import {
   normalizeMobileVisibility,
 } from '../../../shared/constants/mobileVisibility';
 import { getUserConnection } from '../config/db';
+import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '@shared/enums/userStatus';
 
 export interface GeoJSONPoint {
   type: 'Point';
@@ -23,7 +24,7 @@ export interface IUser extends Document {
   isVerified: boolean;
 
   role: 'user' | 'business' | 'admin' | 'superadmin' | 'super_admin';
-  status: 'active' | 'suspended' | 'banned' | 'deleted' | 'live';
+  status: UserStatusValue;
   statusChangedAt?: Date;
   statusReason?: string;
 
@@ -150,8 +151,8 @@ const UserSchema: Schema = new Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'suspended', 'banned', 'deleted', 'live'],
-    default: 'active',
+    enum: USER_STATUS_VALUES,
+    default: USER_STATUS.ACTIVE,
   },
   statusChangedAt: { type: Date },
   statusReason: { type: String },

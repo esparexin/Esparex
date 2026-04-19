@@ -1,8 +1,9 @@
 import { Schema, Model, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
 import softDeletePlugin, { ISoftDeleteDocument } from "../utils/softDeletePlugin";
-import { hasValidCoordinateArray, sanitizeGeoPoint } from "../../../shared/utils/geoUtils";
+import { hasValidCoordinateArray, sanitizeGeoPoint } from "@shared/utils/geoUtils";
 import { LOCATION_LEVELS, buildLocationSlug, normalizeLocationNameForSearch } from "../utils/locationPrimitives";
+import { LOCATION_STATUS, LOCATION_STATUS_VALUES, type LocationStatusValue } from "@shared/enums/locationStatus";
 
 /* -------------------------------------------------------------------------- */
 /* TYPES                                                                      */
@@ -29,7 +30,7 @@ export interface ILocation extends ISoftDeleteDocument {
 
     isActive: boolean;
     isPopular: boolean;
-    verificationStatus: "pending" | "verified" | "rejected";
+    verificationStatus: LocationStatusValue;
     requestedBy?: Types.ObjectId;
 
     priority: number;
@@ -88,8 +89,8 @@ const LocationSchema = new Schema<ILocation>(
         isPopular: { type: Boolean, default: false },
         verificationStatus: {
             type: String,
-            enum: ["pending", "verified", "rejected"],
-            default: "pending"
+            enum: LOCATION_STATUS_VALUES,
+            default: LOCATION_STATUS.PENDING
         },
         requestedBy: { type: Schema.Types.ObjectId, ref: "User" },
 
