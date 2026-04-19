@@ -1,9 +1,8 @@
 import { NotificationIntent } from '../../domain/NotificationIntent';
 import logger from '../../utils/logger';
 import { resolveNotificationDeliveryPlan } from './NotificationPreferenceService';
-import { notificationDeliveryQueue } from '../../queues/adQueue';
-
-
+// notificationDeliveryQueue is imported lazily inside dispatch() to prevent
+// a Redis cold-start crash from cascading through the module tree at import time.
 
 interface DispatchOptions {
     shadowDispatch?: boolean;
@@ -30,8 +29,11 @@ export class NotificationDispatcher {
         options: DispatchOptions = {}
     ): Promise<NotificationDispatchResult> {
         try {
-            // Serialize complexity: Class instances lose methods in BullMQ. 
-            // We pass the raw object and reconstruct if needed, but here we just pass the properties.
+            // Lazy import guards against Redis cold-start killing the module tree.
+            // Node.js caches the module after the first successful load, so
+            // subsequent calls incur no overhead.
+            const { notificationDeliveryQueue } = await import('../../queues/adQueue');
+
             const jobData = {
                 intent: { ...intent },
                 options

@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import Notification from '../models/Notification';
 import logger from '../utils/logger';
 import { NotificationTypeValue } from '@shared/enums/notificationType';
@@ -32,7 +31,10 @@ export const queryNotificationsForUser = async (
                 ],
                 total: [{ $count: 'count' }],
                 unreadCount: [
-                    { $match: { userId: new Types.ObjectId(userId), isRead: false } },
+                    // userId is already scoped by the outer $match — re-casting
+                    // Types.ObjectId(userId) here causes a MongoServerError when the
+                    // serialized ObjectId in the facet cursor has a type mismatch.
+                    { $match: { isRead: false } },
                     { $count: 'count' },
                 ],
             },
