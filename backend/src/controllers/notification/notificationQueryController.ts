@@ -57,7 +57,9 @@ export const getNotifications = async (req: Request, res: Response) => {
         const query: Record<string, unknown> =
             queryClauses.length === 1 ? (queryClauses[0] ?? {}) : { $and: queryClauses };
 
-        const { notifications, total, unreadCount } = await queryNotificationsForUser(query, userId, skip, limit);
+        const safeLimit = Number(limit);
+        const safePage = Number(page);
+        const { notifications, total, unreadCount } = await queryNotificationsForUser(query, userId, skip, safeLimit);
 
         return res.json(
             respond({
@@ -65,10 +67,10 @@ export const getNotifications = async (req: Request, res: Response) => {
                 data: {
                     notifications,
                     pagination: {
-                        page,
-                        limit,
+                        page: safePage,
+                        limit: safeLimit,
                         total,
-                        pages: Math.ceil(total / limit),
+                        pages: Math.ceil(total / safeLimit),
                     },
                     unreadCount,
                 },
