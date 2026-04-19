@@ -32,13 +32,10 @@ export function BrandSearchSelect({
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
-    // Resolve selected brand name from value (brandId)
-    const selectedName = useMemo(() => {
-        return brands.find((b) => {
-            const id = brandMap[b]?.id ?? b;
-            return id === value;
-        }) ?? "";
-    }, [brands, brandMap, value]);
+    // value is always the brand *display name* (same as ModelSearchSelect pattern).
+    // For brands in the catalog, brandMap[name].id gives the ObjectId.
+    // For custom brands typed by the user, value is the name and brandId will be empty.
+    const selectedName = value ?? "";
 
     // Fixed-position dropdown using useLayoutEffect to avoid layout-push flash
     useLayoutEffect(() => {
@@ -152,6 +149,7 @@ export function BrandSearchSelect({
                                             e.preventDefault();
                                             onChange("", search.trim());
                                             setSearch("");
+                                            setIsEditing(false);
                                         }}
                                         className="w-full flex items-center justify-center gap-2 mt-1 py-2.5 rounded-lg bg-primary/10 text-primary text-sm font-semibold hover:bg-primary/20 transition-colors active:scale-[0.98]"
                                     >
