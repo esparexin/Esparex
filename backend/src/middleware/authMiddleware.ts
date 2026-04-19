@@ -148,7 +148,10 @@ export const protect = async (
       );
     }
 
-    const isActive = userStatus === 'active' || userStatus === 'live';
+    // Cast to string for legacy DB compat: old records may store 'active' (pre-enum-migration).
+    // UserStatusValue no longer includes 'active' (it maps to 'live'), but the DB may still
+    // have legacy documents. Remove the 'active' check once the DB migration is confirmed.
+    const isActive = (userStatus as string) === 'active' || userStatus === 'live';
     if (!isActive) {
       sendErrorResponse(req, res, 403, "Account restricted", {
         message: `Your account is currently ${userStatus}. Please contact support.`,
