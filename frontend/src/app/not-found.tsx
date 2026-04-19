@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, Search, ArrowLeft, Compass, MapPinOff } from 'lucide-react';
+import { Home, Search, Compass, MapPinOff } from 'lucide-react';
 import { CommonLayout } from '@/components/layout/CommonLayout';
 
 export const metadata = {
