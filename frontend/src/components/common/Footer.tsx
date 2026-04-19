@@ -61,12 +61,6 @@ const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
     },
 ];
 
-const FOOTER_BRAND_ACTIONS = [
-    { label: "Contact", href: "/contact", icon: MapPin },
-    { label: "Help", href: "/faq", icon: Phone },
-    { label: "Email", href: "mailto:support@esparex.com", icon: MailOpen },
-] as const;
-
 export function Footer({ theme = "light", onNavigate, className }: FooterProps) {
     const pathname = usePathname();
     const currentYear = new Date().getFullYear();
@@ -107,46 +101,10 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
     };
 
     const renderBrandBlock = (compact = false) => (
-        <div className="space-y-3 text-left">
-            <div className="flex items-center gap-3 justify-start">
-                <Link href="/" className="flex items-center gap-2">
-                    <Image src="/icons/logo.png" alt="Esparex" width={512} height={206} style={{ height: '32px', width: 'auto' }} />
-                </Link>
-            </div>
-            <p className={cn("text-sm leading-relaxed", isDark ? "text-muted-foreground" : "text-muted-foreground")}>
-                India's premium privacy-first marketplace for device spare parts and services.
-            </p>
-            <div className="flex flex-row items-center gap-2 justify-start">
-                {FOOTER_BRAND_ACTIONS.map(({ label, href, icon: Icon }) => {
-                    const classes = cn(
-                        "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
-                        isDark
-                            ? "border-slate-800 bg-slate-900/70 text-foreground-subtle hover:border-primary/30 hover:text-white"
-                            : "border-slate-200 bg-white text-foreground-tertiary hover:border-green-200 hover:text-green-700"
-                    );
-
-                    if (href.startsWith("mailto:")) {
-                        return (
-                            <a key={label} href={href} className={classes}>
-                                <Icon className="h-4 w-4 shrink-0" />
-                                <span>{label}</span>
-                            </a>
-                        );
-                    }
-
-                    return (
-                        <Link key={label} href={href} className={classes} prefetch={false}>
-                            <Icon className="h-4 w-4 shrink-0" />
-                            <span>{label}</span>
-                        </Link>
-                    );
-                })}
-            </div>
-            {!compact && (
-                <p className={cn("text-xs uppercase tracking-[0.2em] font-bold", isDark ? "text-foreground-tertiary" : "text-foreground-subtle")}>
-                    India's Leading Spare Parts Exchange
-                </p>
-            )}
+        <div className="text-left">
+            <Link href="/" className="inline-block">
+                <Image src="/icons/logo.png" alt="Esparex" width={512} height={206} style={{ height: '32px', width: 'auto' }} />
+            </Link>
         </div>
     );
 
