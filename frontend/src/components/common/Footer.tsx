@@ -61,12 +61,6 @@ const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
     },
 ];
 
-const FOOTER_CONTACT_ITEMS: FooterContactItem[] = [
-    { title: "Email Support", value: "support@esparex.com", icon: MailOpen },
-    { title: "Headquarters", value: "Hyderabad, Telangana", icon: MapPin },
-    { title: "Support Hours", value: "Mon–Sat, 9 AM – 7 PM", icon: Phone },
-];
-
 const FOOTER_BRAND_ACTIONS = [
     { label: "Contact", href: "/contact", icon: MapPin },
     { label: "Help", href: "/faq", icon: Phone },
@@ -122,7 +116,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
             <p className={cn("text-sm leading-relaxed", isDark ? "text-muted-foreground" : "text-muted-foreground")}>
                 India's premium privacy-first marketplace for device spare parts and services.
             </p>
-            <div className="flex flex-wrap items-center gap-2 justify-start">
+            <div className="flex flex-row items-center gap-2 justify-start">
                 {FOOTER_BRAND_ACTIONS.map(({ label, href, icon: Icon }) => {
                     const classes = cn(
                         "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
@@ -134,7 +128,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                     if (href.startsWith("mailto:")) {
                         return (
                             <a key={label} href={href} className={classes}>
-                                <Icon className="h-4 w-4" />
+                                <Icon className="h-4 w-4 shrink-0" />
                                 <span>{label}</span>
                             </a>
                         );
@@ -142,7 +136,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
 
                     return (
                         <Link key={label} href={href} className={classes} prefetch={false}>
-                            <Icon className="h-4 w-4" />
+                            <Icon className="h-4 w-4 shrink-0" />
                             <span>{label}</span>
                         </Link>
                     );
@@ -216,35 +210,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                     ))}
                 </div>
 
-                <Separator className={cn("mb-6 md:mb-8", isDark ? "bg-slate-900" : "bg-slate-200")} />
 
-                {/* Contact Info Bar — hidden on mobile to reduce scroll */}
-                <div className="hidden md:grid md:grid-cols-3 gap-6 mb-8">
-                    {FOOTER_CONTACT_ITEMS.map(({ title, value, icon: Icon }) => (
-                        <div
-                            key={title}
-                            className={cn(
-                                "flex items-center gap-4 p-4 rounded-2xl border transition-all group",
-                                isDark ? "bg-slate-900/50 border-slate-800/50 hover:border-primary/20" : "bg-white border-slate-100 hover:border-green-200"
-                            )}
-                        >
-                            <div
-                                className={cn(
-                                    "h-10 w-10 rounded-xl flex items-center justify-center transition-all",
-                                    isDark ? "bg-slate-800 text-primary group-hover:bg-primary group-hover:text-white" : "bg-green-50 text-green-600 group-hover:bg-green-600 group-hover:text-white"
-                                )}
-                            >
-                                <Icon className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <div className={cn("text-xs font-bold uppercase tracking-wider mb-0.5", isDark ? "text-white" : "text-foreground")}>
-                                    {title}
-                                </div>
-                                <div className="text-sm">{value}</div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
 
                 {/* Bottom Bar */}
                 <div className={cn("flex flex-col items-start justify-between gap-4 pt-6 md:flex-row md:items-center md:gap-6 md:pt-8 border-t", isDark ? "border-slate-900" : "border-slate-200")}>

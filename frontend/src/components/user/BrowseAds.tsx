@@ -197,7 +197,7 @@ export function BrowseAds({
   // ── Trigger fetch when filters change (reset to page 1) ─────────────────────
   useEffect(() => {
     setPage(1);
-  }, [query, selectedCategory, selectedBrands, priceRange, sort, radiusKm]);
+  }, [query, selectedCategory, selectedBrands, priceRange, sort, radiusKm, setPage]);
 
   // ── Sync URL params → state ─────────────────────────────────────────────────
   useUrlSync(
