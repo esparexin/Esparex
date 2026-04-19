@@ -2,7 +2,18 @@
 
 import { useState, useCallback, useEffect, useMemo } from "react";
 import type { ListingCategory } from "@/types/listing";
-import type { Brand, SparePart, ScreenSize, DeviceModel, ServiceType } from "@/lib/api/user/masterData";
+import { 
+    getBrands, 
+    getModels, 
+    getSpareParts, 
+    getScreenSizes, 
+    getServiceTypes,
+    type Brand, 
+    type SparePart, 
+    type ScreenSize, 
+    type DeviceModel, 
+    type ServiceType 
+} from "@/lib/api/user/masterData";
 import { getCategorySchema } from "@/lib/api/user/categories";
 import type { CategoryFilter } from "@shared/schemas/catalog.schema";
 import { LISTING_TYPE, type ListingTypeValue, type FormPlacement } from "@shared/enums/listingType";
@@ -117,7 +128,6 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         }
         setActiveCategoryId(normalizedCategoryId);
         try {
-            const { getBrands, getScreenSizes } = await import("@/lib/api/user/masterData");
             const brandsData = await getBrands(normalizedCategoryId);
 
             const map: Record<string, Brand> = {};
@@ -155,7 +165,6 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
             return;
         }
         try {
-            const { getModels } = await import("@/lib/api/user/masterData");
             const models = await getModels(brandId, categoryId, search);
             setAvailableModels(models);
         } catch (err) {
@@ -172,7 +181,6 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         }
         setIsLoadingServiceTypes(true);
         try {
-            const { getServiceTypes } = await import("@/lib/api/user/masterData");
             const serviceTypes = await getServiceTypes(categoryId);
             const seen = new Set<string>();
             const normalized = serviceTypes
@@ -211,7 +219,6 @@ export function useListingCatalog({ listingType, onError }: UseListingCatalogPro
         setIsLoadingSpareParts(true);
         setSparePartsError(null);
         try {
-            const { getSpareParts } = await import("@/lib/api/user/masterData");
             const resolvedListingType: ListingTypeValue =
                 listingType === "postservice" ? LISTING_TYPE.AD : categoryEnumToRecord(listingType);
             const parts = await getSpareParts(normalizedCategoryId, resolvedListingType);

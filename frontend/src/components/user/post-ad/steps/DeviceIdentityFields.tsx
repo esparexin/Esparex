@@ -138,18 +138,22 @@ export default function DeviceIdentityFields() {
             <section className="space-y-4">
                 <div className="flex flex-col gap-4">
                     <Field label="Brand" error={brandError}>
-                        <BrandSearchSelect
-                            brands={availableBrands}
-                            brandMap={brandMapForSelect}
-                            value={brandNameValue}
-                            onChange={(_id, name) => handleBrandChange(name)}
-                            disabled={brandIsPending}
-                            placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
-                        />
-                        {brandIsPending && (
+                        {brandIsPending && availableBrands.length === 0 ? (
+                            <div className="h-12 w-full rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
+                        ) : (
+                            <BrandSearchSelect
+                                brands={availableBrands}
+                                brandMap={brandMapForSelect}
+                                value={brandNameValue}
+                                onChange={(_id, name) => handleBrandChange(name)}
+                                disabled={brandIsPending}
+                                placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
+                            />
+                        )}
+                        {brandIsPending && availableBrands.length > 0 && (
                             <p className="text-xs text-muted-foreground mt-1 px-1 flex items-center gap-1.5">
                                 <span className="inline-block h-2.5 w-2.5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                                Fetching brands for this category…
+                                Updating brands…
                             </p>
                         )}
                     </Field>
@@ -172,8 +176,17 @@ export default function DeviceIdentityFields() {
                     )}
 
                     {/* Model — server-side search enabled */}
-                    {brandNameValue && (
-                        <Field label="Model" error={modelError} required>
+                    <Field 
+                        label="Model" 
+                        error={modelError} 
+                        required
+                        className={cn(!brandNameValue && "opacity-60 grayscale-[0.5] pointer-events-none")}
+                    >
+                        {!brandNameValue ? (
+                            <div className="h-12 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">
+                                Select brand first...
+                            </div>
+                        ) : (
                             <ModelSearchSelect
                                 brandId={brandIdValue}
                                 categoryId={categoryId}
@@ -183,8 +196,8 @@ export default function DeviceIdentityFields() {
                                     setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                 }}
                             />
-                        </Field>
-                    )}
+                        )}
+                    </Field>
 
                     {/* Screen Size — only for LED-TV / monitor categories */}
                     {requiresScreenSize && (

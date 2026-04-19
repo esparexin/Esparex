@@ -129,6 +129,16 @@ export const getBrands = async (req: Request, res: Response) => {
         logger.debug('[Catalog] getBrands missing categoryId (public)', { providedId: categoryId });
         return sendCatalogError(req, res, 'categoryId is required', 400);
     }
+    if (!isAdminView) {
+        // ── Redis cache (public path only) ────────────────────────────────────
+        const cacheKey = catalogCacheKey.brands(categoryObjectId ?? 'all');
+        const cached = await getCache<unknown>(cacheKey);
+        if (cached) {
+            return res.json(cached);
+        }
+        applyCacheWriteThrough(res, cacheKey);
+    }
+
     if (!isAdminView && categoryObjectId) {
         const activeCategoryValidation = await validateActiveCategories([categoryObjectId]);
         if (!activeCategoryValidation.ok) {
@@ -141,21 +151,8 @@ export const getBrands = async (req: Request, res: Response) => {
     delete queryParams.categoryId;
     delete queryParams.categoryIds;
 
-    // Updated: filter brands by categoryIds (array)
     const categoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
     const adminCategoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
-
-    if (!isAdminView) {
-        logger.debug('[Catalog] getBrands query', { categoryId: categoryObjectId });
-
-        // ── Redis cache (public path only) ────────────────────────────────────
-        const cacheKey = catalogCacheKey.brands(categoryObjectId ?? 'all');
-        const cached = await getCache<unknown>(cacheKey);
-        if (cached) {
-            return res.json(cached);
-        }
-        applyCacheWriteThrough(res, cacheKey);
-    }
 
     return handlePaginatedContent(req, res, BrandModel, {
         publicQuery: {
@@ -391,6 +388,16 @@ export const getModels = async (req: Request, res: Response) => {
             if (cat) categoryObjectId = cat._id.toString();
         }
     }
+    // ── Redis cache (public path only) ─────────────────────────────────────
+    if (!isAdminView) {
+        const cacheKey = catalogCacheKey.models(categoryObjectId ?? 'all', brandObjectId);
+        const cached = await getCache<unknown>(cacheKey);
+        if (cached) {
+            return res.json(cached);
+        }
+        applyCacheWriteThrough(res, cacheKey);
+    }
+
     if (!isAdminView && categoryObjectId) {
         const activeCategoryValidation = await validateActiveCategories([categoryObjectId]);
         if (!activeCategoryValidation.ok) {
@@ -413,7 +420,7 @@ export const getModels = async (req: Request, res: Response) => {
     }
 
     const adminQuery: QueryRecord = {};
-    if (brandId) adminQuery.brandId = brandId;
+    if (brandId) adminQuery.brandId = brandObjectId;
     if (categoryId) {
         Object.assign(adminQuery, CategoryQueryBuilder.forSingular().withFilters({ categoryId }).build());
     }
@@ -439,16 +446,6 @@ export const getModels = async (req: Request, res: Response) => {
         if (!brandExists) {
             return sendEmptyPublicList(res);
         }
-    }
-
-    // ── Redis cache (public path only) ─────────────────────────────────────
-    if (!isAdminView) {
-        const cacheKey = catalogCacheKey.models(categoryObjectId ?? 'all', brandObjectId);
-        const cached = await getCache<unknown>(cacheKey);
-        if (cached) {
-            return res.json(cached);
-        }
-        applyCacheWriteThrough(res, cacheKey);
     }
 
     return handlePaginatedContent(req, res, CatalogModel, {

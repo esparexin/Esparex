@@ -43,9 +43,11 @@ export function useCategoryDependents(
         form.setValue("spareParts", [] as any, { shouldValidate: true, shouldDirty: true });
         setBrandIsPending(false);
         
-        await loadBrandsForCategory(id);
-        await loadSparePartsForCategory(id);
-        await loadCategorySchema(id);
+        await Promise.all([
+            loadBrandsForCategory(id),
+            loadSparePartsForCategory(id),
+            loadCategorySchema(id)
+        ]);
     }, [form, setFormError, setSpareParts, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
 
     const handleBrandChange = useCallback(async (name: string) => {
