@@ -1,8 +1,7 @@
 "use client";
 import * as React from "react";
-import * as Sheet from "@radix-ui/react-dialog";
+import { Drawer as VaulDrawer } from "vaul";
 import { X } from "lucide-react";
-
 
 export function Drawer({
   title,
@@ -18,40 +17,39 @@ export function Drawer({
   onOpenChange?: (open: boolean) => void;
 }) {
   return (
-    <Sheet.Root open={open} onOpenChange={onOpenChange}>
-      {trigger && <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>}
+    <VaulDrawer.Root open={open} onOpenChange={onOpenChange}>
+      {trigger && <VaulDrawer.Trigger asChild>{trigger}</VaulDrawer.Trigger>}
 
-      <Sheet.Portal>
-        <Sheet.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Sheet.Content
-          className="
-            fixed right-0 top-0 z-50 h-full
-            w-[90vw] max-w-sm
-            bg-background p-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right
-            flex flex-col
-          "
+      <VaulDrawer.Portal>
+        <VaulDrawer.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
+        <VaulDrawer.Content
+          className="bg-background flex flex-col rounded-t-[20px] shadow-2xl fixed bottom-0 left-0 right-0 z-50 max-h-[96vh] focus:outline-none"
         >
-          <div className="flex items-center justify-between mb-4">
-            <Sheet.Title className="text-lg font-semibold text-foreground">
+          {/* Drag Handle */}
+          <div className="mx-auto mt-4 h-1.5 w-12 shrink-0 rounded-full bg-slate-200" />
+          
+          {/* Header */}
+          <div className="flex shrink-0 items-center justify-between p-4 pb-2">
+            <VaulDrawer.Title className="text-lg font-semibold text-foreground">
               {title}
-            </Sheet.Title>
-            <Sheet.Description className="sr-only">
+            </VaulDrawer.Title>
+            <VaulDrawer.Description className="sr-only">
               {title} panel
-            </Sheet.Description>
-
-            <Sheet.Close asChild>
-              <button className="flex size-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground">
+            </VaulDrawer.Description>
+            <VaulDrawer.Close asChild>
+              <button className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-slate-100 hover:text-foreground">
                 <X className="size-5" />
                 <span className="sr-only">Close</span>
               </button>
-            </Sheet.Close>
+            </VaulDrawer.Close>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto pb-[max(2rem,env(safe-area-inset-bottom))]">
+          {/* Scrollable Body */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
             {children}
           </div>
-        </Sheet.Content>
-      </Sheet.Portal>
-    </Sheet.Root>
+        </VaulDrawer.Content>
+      </VaulDrawer.Portal>
+    </VaulDrawer.Root>
   );
 }
