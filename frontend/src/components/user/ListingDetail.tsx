@@ -100,12 +100,12 @@ export function ListingDetail({
   const showBoostDialog = uiState.showBoostDialog;
   const showSoldDialog = uiState.showSoldDialog;
 
-  const setShowReportDialog = (value: boolean) =>
-    dispatchUi({ type: "setShowReportDialog", payload: value });
-  const setShowBoostDialog = (value: boolean) =>
-    dispatchUi({ type: "setShowBoostDialog", payload: value });
-  const setShowSoldDialog = (value: boolean) =>
-    dispatchUi({ type: "setShowSoldDialog", payload: value });
+  const setShowReportDialog = useCallback((value: boolean) =>
+    dispatchUi({ type: "setShowReportDialog", payload: value }), []);
+  const setShowBoostDialog = useCallback((value: boolean) =>
+    dispatchUi({ type: "setShowBoostDialog", payload: value }), []);
+  const setShowSoldDialog = useCallback((value: boolean) =>
+    dispatchUi({ type: "setShowSoldDialog", payload: value }), []);
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -396,7 +396,7 @@ export function ListingDetail({
     }
 
     setShowReportDialog(true);
-  }, [isAuthResolved, router, user]);
+  }, [isAuthResolved, router, user, setShowReportDialog]);
 
   return (
     <ListingDetailShell

@@ -132,7 +132,7 @@ export function ModelSearchSelect({
                         onClick={() => setIsEditing(true)}
                         className="ml-2 shrink-0 text-xs font-bold text-primary hover:opacity-80 active:scale-95 transition-all"
                     >
-                        Change
+                        Edit
                     </button>
                 )}
             </div>
@@ -158,10 +158,20 @@ export function ModelSearchSelect({
                     placeholder={placeholder}
                     disabled={disabled}
                     className={cn(
-                        "pl-10 pr-4 h-12 text-sm font-medium border-slate-200/80 rounded-xl transition-all",
+                        "pl-10 pr-12 h-12 text-sm font-medium border-slate-200/80 rounded-xl transition-all",
                         "focus:ring-2 focus:ring-primary/10 focus:border-primary shadow-sm"
                     )}
                 />
+                {search.length >= 2 && !isLoading && (
+                    <button
+                        type="button"
+                        onClick={handleAddNew}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95"
+                        title={`Add "${search}" as a new suggestion`}
+                    >
+                        <Plus className="w-5 h-5" />
+                    </button>
+                )}
             </div>
 
             {(isEditing || search) && dropdownStyle && (
@@ -201,25 +211,7 @@ export function ModelSearchSelect({
                                 </button>
                             ))}
 
-                            {search.length >= 2 && !isLoading && (
-                                <div className="p-1 border-t border-slate-50 mt-1">
-                                    <button
-                                        type="button"
-                                        onClick={handleAddNew}
-                                        className="w-full flex items-center gap-3 px-4 py-4 text-left group hover:bg-slate-50 transition-colors rounded-lg"
-                                    >
-                                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-all">
-                                            <Plus className="w-4 h-4 text-primary group-hover:text-white" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-900 leading-tight">Can't find it?</p>
-                                            <p className="text-[11px] font-medium text-slate-500">
-                                                Add <span className="text-primary font-bold">"{search}"</span> as a new suggestion
-                                            </p>
-                                        </div>
-                                    </button>
-                                </div>
-                            )}
+
                         </div>
                     </div>
                 </>

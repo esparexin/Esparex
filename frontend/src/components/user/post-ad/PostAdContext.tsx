@@ -454,6 +454,13 @@ export function PostAdProvider({
                 setCurrentStep(prev => prev + 1);
                 document.querySelector("[data-post-ad-scroll]")?.scrollTo({ top: 0, behavior: "smooth" });
             }
+        } else {
+            requestAnimationFrame(() => {
+                const firstError = document.querySelector(".text-destructive");
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            });
         }
     }, [currentStep, form, requiresScreenSize, trigger]);
 

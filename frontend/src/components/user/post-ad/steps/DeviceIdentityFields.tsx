@@ -137,7 +137,7 @@ export default function DeviceIdentityFields() {
             {/* Brand & Screen Size */}
             <section className="space-y-4">
                 <div className="flex flex-col gap-4">
-                    <Field label="Brand" error={brandError}>
+                    <Field label="Brand" error={brandError} required>
                         {brandIsPending && availableBrands.length === 0 ? (
                             <div className="h-12 w-full rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
                         ) : (
