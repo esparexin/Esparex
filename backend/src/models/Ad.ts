@@ -3,6 +3,7 @@ import { ISoftDeleteDocument } from '../utils/softDeletePlugin';
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared/utils/geoUtils';
 import { AD_STATUS, AD_STATUS_VALUES, AdStatusValue } from '@shared/enums/adStatus';
 import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@shared/enums/listingType';
+import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@shared/enums/moderationStatus';
 
 export interface IAd extends Document, ISoftDeleteDocument {
     title: string;
@@ -36,7 +37,7 @@ export interface IAd extends Document, ISoftDeleteDocument {
     soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available';
     fraudScore: number;
     fraudFlags: string[];
-    moderationStatus: 'auto_approved' | 'held_for_review' | 'manual_approved' | 'rejected' | 'community_hidden';
+    moderationStatus: ModerationStatusValue;
     moderationReason?: string;
     seoSlug: string;
     location: {
@@ -144,8 +145,8 @@ const AdSchema: Schema = new Schema({
     fraudFlags: [{ type: String }],
     moderationStatus: {
         type: String,
-        enum: ['auto_approved', 'held_for_review', 'manual_approved', 'rejected', 'community_hidden'],
-        default: 'held_for_review'
+        enum: MODERATION_STATUS_VALUES,
+        default: MODERATION_STATUS.HELD_FOR_REVIEW
     },
     moderationReason: { type: String },
     seoSlug: { type: String }, // AI Optimized
@@ -343,7 +344,7 @@ AdSchema.index(
     { 'location.state': 1, status: 1, createdAt: -1 },
     {
         name: 'ad_state_status_freshness_idx',
-        partialFilterExpression: { status: 'live', isDeleted: false }
+        partialFilterExpression: { status: AD_STATUS.LIVE, isDeleted: false }
     }
 );
 
@@ -352,7 +353,7 @@ AdSchema.index(
     { 'location.city': 1, status: 1, createdAt: -1 },
     {
         name: 'ad_city_status_freshness_idx',
-        partialFilterExpression: { status: 'live', isDeleted: false }
+        partialFilterExpression: { status: AD_STATUS.LIVE, isDeleted: false }
     }
 );
 
