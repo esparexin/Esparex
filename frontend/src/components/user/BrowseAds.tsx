@@ -24,7 +24,7 @@ import {
 } from "@/lib/location/queryMode";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
-import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
+
 import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
 import { appendUniqueBrowseItems } from "@/lib/browse/appendUniqueBrowseItems";
 
@@ -171,7 +171,7 @@ export function BrowseAds({
       ? data.pagination.hasMore
       : total > page * PAGE_SIZE;
   const {
-    activeFilterCount, activeFilterBadges, isEmptyState,
+    activeFilterCount, isEmptyState,
     emptyStateTitle, emptyStateDescription, desktopShellClassName
   } = useBrowseEmptyState(
     selectedCategory, categories, urlLocationLabel, location,
@@ -310,32 +310,21 @@ export function BrowseAds({
                 <p className="mb-6 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
                   {emptyStateDescription}
                 </p>
-                {activeFilterBadges.length > 0 && (
-                  <div className="mb-6 flex max-w-2xl flex-wrap justify-center gap-2">
-                    {activeFilterBadges.map((badge) => (
-                      <span
-                        key={badge}
-                        className="max-w-full rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-foreground-tertiary"
-                      >
-                        {badge}
-                      </span>
-                    ))}
-                  </div>
+                {activeFilterCount > 0 && !query && (
+                  <p className="mb-6 max-w-sm text-sm text-muted-foreground">
+                    Try adjusting your criteria or clear your filters to see more results.
+                  </p>
                 )}
-                <p className="mb-6 max-w-sm text-xs font-medium uppercase tracking-widest text-foreground-subtle">
-                  Sorted by {PUBLIC_BROWSE_SORT_LABELS[sort]}
-                </p>
-                <p className="text-muted-foreground max-w-xs mb-6">
-                  {query
-                    ? `No results for "${query}". Try different keywords or remove filters.`
-                    : activeFilterCount > 0
-                      ? "Remove one or two filters to broaden the results."
-                      : "Live ads will appear here as soon as sellers publish them."}
-                </p>
+                {query && (
+                  <p className="mb-6 max-w-sm text-sm text-muted-foreground">
+                    No results for "{query}". Try different keywords or clear your filters.
+                  </p>
+                )}
+                
                 <div className="flex flex-col sm:flex-row gap-3">
                   {activeFilterCount > 0 ? (
                     <Button variant="outline" onClick={handleReset}>
-                      Clear All Filters
+                      Clear Filters
                     </Button>
                   ) : null}
                   {query && (
