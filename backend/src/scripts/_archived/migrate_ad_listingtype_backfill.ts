@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import mongoose, { type Types } from 'mongoose';
-import Ad from '../models/Ad';
-import AdminMetrics from '../models/AdminMetrics';
-import { connectDB, getUserConnection } from '../config/db';
-import logger from '../utils/logger';
-import { inferListingType, type ListingTypeIntegrityInput } from '../utils/listingTypeIntegrity';
+import Ad from '../../models/Ad';
+import AdminMetrics from '../../models/AdminMetrics';
+import { connectDB, getUserConnection } from '../../config/db';
+import logger from '../../utils/logger';
+import { inferListingType, type ListingTypeIntegrityInput } from '../../utils/listingTypeIntegrity';
 
 type ListingTypeValue = 'ad' | 'service' | 'spare_part';
 type ScriptMode = 'dry-run' | 'apply';

@@ -54,6 +54,6 @@
     "**/*.spec.ts",
     "**/*.test.ts",
     "src/seeds",
-    "src/scripts/_archive"
+    "src/scripts/_archived"
   ]
 }
