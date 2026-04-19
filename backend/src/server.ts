@@ -1,3 +1,9 @@
+import { initializeDatabaseMonitoring } from './middleware/metricsMiddleware';
+import { startSystemMonitor } from './utils/systemMonitor';
+import { startTaxonomyHealthCron } from './cron/taxonomyHealth';
+import { startGeoAuditCron } from './cron/geoAudit';
+import { startFraudEscalationCron } from './cron/fraudEscalation';
+import { initIO } from './config/socket';
 import app from './app';
 import { connectDB } from './config/db';
 import mongoose from 'mongoose';
@@ -64,7 +70,6 @@ export async function startServer() {
         // Initialize Core Subsystems
         initializeEventDispatcher();
         
-        const { initializeDatabaseMonitoring } = await import('./middleware/metricsMiddleware');
         initializeDatabaseMonitoring();
         logger.info('Boot safety mode active: skipping all index sync/create/drop operations on API startup');
         await assertDuplicateRolloutReadiness();
@@ -82,20 +87,16 @@ export async function startServer() {
         }
 
         // Start system heartbeat monitor
-        const { startSystemMonitor } = await import('./utils/systemMonitor');
         startSystemMonitor();
 
         if (shouldRunSchedulers) {
             // Start taxonomy health cron (lightweight; runs on scheduler-enabled process)
-            const { startTaxonomyHealthCron } = await import('./cron/taxonomyHealth');
             startTaxonomyHealthCron();
 
             // Start user geo audit cron (lightweight; runs with distributed lock)
-            const { startGeoAuditCron } = await import('./cron/geoAudit');
             startGeoAuditCron();
 
             // Start fraud auto-escalation cron (distributed lock; auto-suspends high-risk users)
-            const { startFraudEscalationCron } = await import('./cron/fraudEscalation');
             startFraudEscalationCron();
         } else {
             logger.info('Background cron execution disabled (RUN_SCHEDULERS=false)');
@@ -105,7 +106,6 @@ export async function startServer() {
         const server = createServer(app);
 
         // 4️⃣ ATTACH SOCKET.IO (must happen before listen so the upgrade is available)
-        const { initIO } = await import('./config/socket');
         initIO(server);
 
         // 5️⃣ START LISTENER WITH DETERMINISTIC BIND ERROR HANDLING

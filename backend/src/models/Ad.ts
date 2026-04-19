@@ -5,8 +5,10 @@ import { AD_STATUS, AD_STATUS_VALUES, AdStatusValue } from '@shared/enums/adStat
 import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@shared/enums/listingType';
 import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@shared/enums/moderationStatus';
 import { getUserConnection } from '../config/db';
-import { generateUniqueSlug } from '../utils/slugGenerator';
+import Location from './Location';
+import logger from '../utils/logger';
 import { syncConversationAvailabilityForListing } from '../services/chatAvailabilityService';
+import { generateUniqueSlug } from '../utils/slugGenerator';
 
 export interface IAd extends Document, ISoftDeleteDocument {
     title: string;
@@ -446,7 +448,6 @@ AdSchema.pre('save', async function (this: IAd) {
     // cannot be found so the issue surfaces without blocking the write.
     if (this.location?.locationId && (!this.location.city || !this.location.state)) {
         try {
-            const Location = (await import('./Location')).default;
             const loc = await Location.findById(this.location.locationId)
                 .select('+city +state +country')
                 .lean() as { city?: string; state?: string; country?: string; name?: string } | null;
@@ -455,14 +456,12 @@ AdSchema.pre('save', async function (this: IAd) {
                 if (!this.location.state && loc.state) this.location.state = loc.state;
                 if (!this.location.country && loc.country) this.location.country = loc.country;
             } else {
-                const logger = (await import('../utils/logger')).default;
                 logger.warn('Ad.pre(save): locationId present but Location doc not found — dual-write cannot be repaired', {
                     adId: this._id?.toString(),
                     locationId: this.location.locationId?.toString(),
                 });
             }
         } catch (err) {
-            const logger = (await import('../utils/logger')).default;
             logger.warn('Ad.pre(save): failed to auto-populate city/state from locationId', {
                 adId: this._id?.toString(),
                 locationId: this.location.locationId?.toString(),

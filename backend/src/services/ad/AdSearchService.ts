@@ -1,3 +1,4 @@
+import { getStatusMatchCriteria } from '../../utils/statusQueryMapper';
 import {
     mongoose,
     Category,
@@ -61,7 +62,6 @@ export const buildAdMatchStage = async (
     }
 
     const requestedStatus = filters.status || AD_STATUS.LIVE;
-    const { getStatusMatchCriteria } = await import('../../utils/statusQueryMapper');
     const statusQuery = getStatusMatchCriteria(requestedStatus);
 
     let match = buildAdFilterFromCriteria({

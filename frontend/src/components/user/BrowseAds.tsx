@@ -35,20 +35,8 @@ import { useBrowseEmptyState } from "./hooks/useBrowseEmptyState";
 
 const PAGE_SIZE = 20;
 
-const SearchFilters = dynamic(
-  () => import("@/components/search/SearchFilters").then((mod) => mod.SearchFilters),
-  {
-    ssr: true,
-    loading: () => <div className="hidden w-72 shrink-0 rounded-2xl border border-slate-200 bg-white p-4 lg:block" />,
-  }
-);
-const SearchResultsHeader = dynamic(
-  () => import("@/components/search/SearchResultsHeader").then((mod) => mod.SearchResultsHeader),
-  {
-    ssr: true,
-    loading: () => <div className="sticky top-0 z-20 h-[70px] rounded-xl border border-slate-100 bg-white/80" />,
-  }
-);
+import { SearchFilters } from "@/components/search/SearchFilters";
+import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
 
 let categoriesRequest: Promise<Category[]> | null = null;
 

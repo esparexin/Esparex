@@ -1,8 +1,11 @@
+import { notificationDeliveryQueue } from '../../queues/adQueue';
+import Notification from '../../models/Notification';
+import { NotificationVersionService } from './NotificationVersionService';
+import { getIO } from '../../config/socket';
+import { sendNotification } from './PushGatewayService';
 import { NotificationIntent } from '../../domain/NotificationIntent';
 import logger from '../../utils/logger';
 import { resolveNotificationDeliveryPlan } from './NotificationPreferenceService';
-// notificationDeliveryQueue is imported lazily inside dispatch() to prevent
-// a Redis cold-start crash from cascading through the module tree at import time.
 
 interface DispatchOptions {
     shadowDispatch?: boolean;
@@ -29,11 +32,6 @@ export class NotificationDispatcher {
         options: DispatchOptions = {}
     ): Promise<NotificationDispatchResult> {
         try {
-            // Lazy import guards against Redis cold-start killing the module tree.
-            // Node.js caches the module after the first successful load, so
-            // subsequent calls incur no overhead.
-            const { notificationDeliveryQueue } = await import('../../queues/adQueue');
-
             const jobData = {
                 intent: { ...intent },
                 options
@@ -66,10 +64,6 @@ export class NotificationDispatcher {
      * Called by the background worker.
      */
     static async executeDispatch(intent: NotificationIntent, options: DispatchOptions = {}): Promise<NotificationDispatchResult> {
-        // We need the Notification model here. 
-        // We'll import it dynamically to avoid potential circular dependencies if any.
-        const { default: Notification } = await import('../../models/Notification');
-
         try {
             const { shadowDispatch = false } = options;
             const { suppress, channels } = await resolveNotificationDeliveryPlan({
@@ -108,10 +102,10 @@ export class NotificationDispatcher {
                 },
                 actionUrl:
                     typeof intent.message.data?.link === 'string'
-                        ? intent.message.data.link
-                        : typeof intent.message.data?.actionUrl === 'string'
-                            ? intent.message.data.actionUrl
-                            : undefined,
+                         ? intent.message.data.link
+                         : typeof intent.message.data?.actionUrl === 'string'
+                             ? intent.message.data.actionUrl
+                             : undefined,
                 entityRef: intent.entityRef,
                 version: 1,
                 retryCount: 0
@@ -130,7 +124,6 @@ export class NotificationDispatcher {
 
             // 2. Realtime Emit (Websocket push using inbox_version strategy)
             try {
-                const { NotificationVersionService } = await import('./NotificationVersionService');
                 const newVersion = await NotificationVersionService.incrementVersion(intent.userId);
                 
                 // Keep the DB record version in sync
@@ -139,7 +132,6 @@ export class NotificationDispatcher {
 
                 // Direct or proxied websocket emit (frontend cache invalidation)
                 try {
-                    const { getIO } = await import('../../config/socket');
                     getIO().to(intent.userId).emit('inbox_updated', {
                         userId: intent.userId,
                         version: newVersion,
@@ -161,7 +153,6 @@ export class NotificationDispatcher {
             // 4. Channel Dispatch (FCM Push)
             if (intent.channels.includes('push')) {
                 try {
-                    const { sendNotification } = await import('./PushGatewayService');
                     // FCM expects string values for all data keys
                     const fcmData = (intent.message.data as Record<string, string>) || {};
                     await sendNotification(intent.userId, intent.message.title, intent.message.body, fcmData);

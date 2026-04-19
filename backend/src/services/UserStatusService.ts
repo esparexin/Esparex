@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import redis from '../config/redis';
 import User from '../models/User';
 import Ad from '../models/Ad';
 import Business from '../models/Business';
@@ -62,8 +63,7 @@ export const updateUserStatus = async (
         // Without this, authMiddleware would serve the stale 'active' status
         // from cache for up to 300 seconds.
         try {
-            const redisClient = (await import('../config/redis')).default;
-            await redisClient.del(`user:status:${userId}`);
+            await redis.del(`user:status:${userId}`);
         } catch (e) {
             logger.warn(`Failed to clear Redis status cache for user ${userId}`, e);
         }

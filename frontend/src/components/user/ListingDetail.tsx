@@ -10,20 +10,11 @@ import { ListingDetailShell } from "./listing-detail/AdDetailShell";
 import { formatPrice } from "@/lib/formatters";
 import dynamic from "next/dynamic";
 
-const ListingBottomActions = dynamic(
-  () => import("./listing-detail/ListingBottomActions").then((mod) => mod.ListingBottomActions),
-  { ssr: false, loading: () => null }
-);
+import { ListingBottomActions } from "./listing-detail/ListingBottomActions";
+import { ListingDetailSidebar } from "./listing-detail/ListingDetailSidebar";
 const ListingDetailDialogs = dynamic(
   () => import("./listing-detail/ListingDetailDialogs").then((mod) => mod.ListingDetailDialogs),
   { ssr: false }
-);
-const ListingDetailSidebar = dynamic(
-  () => import("./listing-detail/ListingDetailSidebar").then((mod) => mod.ListingDetailSidebar),
-  {
-    ssr: false,
-    loading: () => <div className="space-y-3 md:space-y-4 p-4 md:p-0 lg:min-h-[480px]" />,
-  }
 );
 const ListingRelatedBusinessesSection = dynamic(
   () => import("./listing-detail/ListingRelatedBusinessesSection").then((mod) => mod.ListingRelatedBusinessesSection),

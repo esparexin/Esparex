@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import User from '../models/User';
 import Ad from '../models/Ad';
+import Business from '../models/Business';
 import logger from '../utils/logger';
 import { AD_STATUS } from '../../../shared/enums/adStatus';
 import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
@@ -14,7 +15,7 @@ export const recalculateTrustScore = async (userId: string | mongoose.Types.Obje
     try {
         const [user, business] = await Promise.all([
             User.findById(userId).select('createdAt isVerified strikeCount trustScore'),
-            import('../models/Business').then(m => m.default.findOne({ userId }).select('status'))
+            Business.findOne({ userId }).select('status')
         ]);
         
         if (!user) return;

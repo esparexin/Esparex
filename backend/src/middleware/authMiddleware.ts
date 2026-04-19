@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { verifyToken, JwtPayload } from "../utils/auth";
+import redis from "../config/redis";
 import User from "../models/User";
 import { isTokenBlacklisted } from "../utils/redisCache";
 import { sendErrorResponse } from "../utils/errorResponse";
@@ -111,9 +112,8 @@ export const protect = async (
     };
 
     // User Hydration (with Redis Caching)
-    const redisClient = (await import('../config/redis')).default;
     const cacheKey = `user:status:${req.user.id}`;
-    const cachedUserStatus = parseCachedUserStatus(await redisClient.get(cacheKey));
+    const cachedUserStatus = parseCachedUserStatus(await redis.get(cacheKey));
 
     // Always validate tokenVersion using authoritative DB record.
     // Cached user data must never be trusted for tokenVersion checks.
@@ -128,7 +128,7 @@ export const protect = async (
     const decodedVersion = decoded.tokenVersion ?? 0;
     if (storedTokenVersion !== decodedVersion) {
       // Invalidate cached status when tokenVersion changes to prevent stale auth cache reads.
-      await redisClient.del(cacheKey);
+      await redis.del(cacheKey);
       clearAuthCookie(res);
       sendErrorResponse(req, res, 401, "Session expired. Please log in again.");
       return;
@@ -140,7 +140,7 @@ export const protect = async (
       cachedUserStatus.status !== userStatus ||
       (cachedUserStatus.tokenVersion ?? -1) !== storedTokenVersion
     ) {
-      await redisClient.set(
+      await redis.set(
         cacheKey,
         JSON.stringify({ status: userStatus, tokenVersion: storedTokenVersion }),
         'EX',

@@ -5,6 +5,8 @@ import { toTitleCase } from './stringUtils';
 import { toObjectId } from './idUtils';
 import { buildHierarchyPath } from './locationHierarchyUtils';
 
+import Location from '../models/Location';
+import { resolveParentLocation } from './locationHierarchy';
 import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel, normalizeLocationNameForSearch, buildLocationSlug } from './locationPrimitives';
 
 export { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel, normalizeLocationNameForSearch, buildLocationSlug };
@@ -53,8 +55,6 @@ export type NormalizedLocationPersistenceInput = {
 
 
 
-const loadLocationModel = async () => (await import('../models/Location')).default;
-const loadHierarchyUtils = async () => import('./locationHierarchy');
 
 
 
@@ -121,7 +121,6 @@ export const normalizeLocationInput = async (
     let parentLocation: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null = null;
 
     if (parentId) {
-        const Location = await loadLocationModel();
         parentLocation = await Location.findOne({ _id: parentId, isActive: true })
             .select('_id path')
             .lean<{ _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null>();
@@ -129,7 +128,6 @@ export const normalizeLocationInput = async (
             throw new Error('Invalid parent location');
         }
     } else if (options.resolveHierarchy) {
-        const { resolveParentLocation } = await loadHierarchyUtils();
         parentLocation = await resolveParentLocation({
             level,
             country,
@@ -145,7 +143,6 @@ export const normalizeLocationInput = async (
     path = buildHierarchyPath(documentId, parentLocation);
 
     if (options.ensureUnique) {
-        const Location = await loadLocationModel();
         const duplicate = await Location.findOne({
             isActive: true,
             normalizedName,

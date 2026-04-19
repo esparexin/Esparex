@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError';
 import Ad from '../models/Ad';
+import SparePart from '../models/SparePart';
+import Brand from '../models/Brand';
 import { normalizeLocation } from './location/LocationNormalizer';
 import { toGeoPoint } from '../../../shared/utils/geoUtils';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
@@ -79,7 +81,6 @@ export const validateSparePartsForCategory = async (
     const uniqueSparePartIds = Array.from(new Set(sparePartIds));
     if (uniqueSparePartIds.length === 0) return [];
 
-    const SparePart = (await import('../models/SparePart')).default;
     const equivalentCategoryIds = await resolveEquivalentActiveCategoryIds(categoryId);
     const categoryScope = equivalentCategoryIds.length > 0 ? equivalentCategoryIds : [categoryId];
 
@@ -162,7 +163,6 @@ export class AdCreationService {
             const validParts = await validateSparePartsForCategory(payload.sparePartIds, cat);
             
             if (await isEnabled(FeatureFlag.ENABLE_SPAREPARTS_SNAPSHOT)) {
-                const Brand = (await import('../models/Brand')).default;
                 const brandIds = validParts.map((p) => p.brandId).filter(Boolean) as import('mongoose').Types.ObjectId[];
                 const brands = await Brand.find({ _id: { $in: brandIds } }).select('_id name').lean();
                 const brandMap = new Map(brands.map((b) => [String(b._id), b.name]));

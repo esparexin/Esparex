@@ -1,3 +1,6 @@
+import axios from 'axios';
+import Plan from '../models/Plan';
+import UserPlan from '../models/UserPlan';
 import Otp from '../models/Otp';
 import User from '../models/User';
 import Business from '../models/Business';
@@ -176,7 +179,6 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
     }
 
     try {
-        const { default: axios } = await import('axios');
         const response = await axios.post(
             'https://api.msg91.com/api/v5/otp',
             {
@@ -391,11 +393,6 @@ export class AuthService {
 
             // Assign Default Plan
             try {
-                const [{ default: Plan }, { default: UserPlan }] = await Promise.all([
-                    import('../models/Plan'),
-                    import('../models/UserPlan')
-                ]);
-
                 const freePlan = await Plan.findOne({ isDefault: true });
 
                 if (freePlan) {

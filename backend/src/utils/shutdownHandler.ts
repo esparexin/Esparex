@@ -1,4 +1,5 @@
 import logger from './logger';
+import { closeIO } from '../config/socket';
 
 interface ShutdownDependencies {
     server?: import('http').Server;
@@ -20,7 +21,6 @@ export const gracefulShutdown = async ({ server, worker, workers, redisClient, m
     try {
         // Close socket.io before the HTTP server so in-flight WS frames are drained
         try {
-            const { closeIO } = await import('../config/socket');
             await closeIO();
         } catch {
             // Socket may not have been initialised (e.g. test environment)

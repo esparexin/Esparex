@@ -38,6 +38,7 @@ import { mutateStatus } from './StatusMutationService';
 import { MS_IN_DAY, GOVERNANCE } from '../config/constants';
 import logger from '../utils/logger';
 import { lifecycleEvents } from '../events';
+import { ListingExpiryService } from './ListingExpiryService';
 
 // E1: mutateStatus returns doc.toObject() — typed as Record<string, unknown> | null
 export const updateAdStatus = async (
@@ -148,7 +149,6 @@ export const extendAdExpiry = async (id: string, daysToAdd: number, actorId?: st
 
 
 export const expireOutdatedAds = async (): Promise<number> => {
-    const { ListingExpiryService } = await import('./ListingExpiryService');
     const result = await ListingExpiryService.runSweep(new Date());
     return result.expiredCount;
 };
