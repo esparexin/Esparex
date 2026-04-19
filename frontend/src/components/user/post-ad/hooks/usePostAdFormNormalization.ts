@@ -45,6 +45,12 @@ export function usePostAdFormNormalization(
             form.setValue("brandId", normalizedBrandId as any, { shouldValidate: false, shouldDirty: false });
         }
 
+        const rawModelId = form.getValues("modelId");
+        const normalizedModelId = sanitizeMongoObjectId(rawModelId) || "";
+        if (String(rawModelId || "") !== normalizedModelId) {
+            form.setValue("modelId", normalizedModelId as any, { shouldValidate: false, shouldDirty: false });
+        }
+
         const rawSpareParts = form.getValues("spareParts");
         if (Array.isArray(rawSpareParts)) {
             const normalizedSpareParts = rawSpareParts
