@@ -1,23 +1,24 @@
 import Business from '../models/Business';
+import Ad from '../models/Ad';
 import { jobRunner } from '../utils/jobRunner';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
 import { dispatchTemplatedNotification } from '../services/NotificationService';
+import { AD_STATUS } from '../../../shared/enums/adStatus';
+import { MODERATION_STATUS } from '../../../shared/enums/moderationStatus';
 
 
 const MS_IN_DAY = 24 * 60 * 60 * 1000;
 const EXPIRY_WARNING_DAYS = 7;
 
 /**
- * Marks naturally-expired businesses as `expired` (expiresAt has passed).
+ * Marks naturally-expired businesses as `suspended` (expiresAt has passed).
  * Also sends warning notifications 7 days before expiration.
  *
- * Semantics after Option A operationalization:
- *   expired   = natural expiry (expiresAt <= now, no manual action)
- *   suspended = reserved for future manual admin suspension action
- *
- * The `suspended` status is deliberately NOT written here so the two concepts
- * remain distinguishable for analytics and future self-renew flows.
+ * Deactivation Logic (Governance Audit Correction):
+ *   When a business is suspended, its ads are automatically moved to
+ *   status: 'pending' and moderationStatus: 'held_for_review'.
+ *   This ensures expired business listings don't clutter the marketplace.
  */
 export const runSuspendExpiredBusinessesJob = async () => {
     await runWithDistributedJobLock(
@@ -71,12 +72,35 @@ export const runSuspendExpiredBusinessesJob = async () => {
                 if (result.matchedCount > 0) {
                     logger.info('Suspended business accounts (natural expiry)', { count: result.modifiedCount });
 
-                    // Fetch the newly-suspended businesses to send notifications
+                    // Fetch the newly-suspended businesses to handle secondary effects and notifications
                     const suspendedBusinesses = await Business.find({
-                        status: 'suspended',
+                        status: 'suspended', 
                         expiresAt: { $lte: new Date() },
                         isDeleted: { $ne: true }
                     }).select('userId name');
+
+                    const suspendedUserIds = suspendedBusinesses.map(b => b.userId);
+
+                    // 3. Deactivate ads of suspended businesses (New Governance Policy)
+                    if (suspendedUserIds.length > 0) {
+                        const adResult = await Ad.updateMany(
+                            { 
+                                sellerId: { $in: suspendedUserIds }, 
+                                status: AD_STATUS.LIVE,
+                                isDeleted: { $ne: true }
+                            },
+                            {
+                                $set: { 
+                                    status: AD_STATUS.PENDING,
+                                    moderationStatus: MODERATION_STATUS.HELD_FOR_REVIEW,
+                                    statusReason: 'Automatic deactivation: Business subscription expired'
+                                }
+                            }
+                        );
+                        if (adResult.modifiedCount > 0) {
+                            logger.info('Deactivated ads for suspended businesses', { count: adResult.modifiedCount });
+                        }
+                    }
 
                     // Send suspension notifications
                     for (const biz of suspendedBusinesses) {

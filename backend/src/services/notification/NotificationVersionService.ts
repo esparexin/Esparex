@@ -12,9 +12,8 @@ export class NotificationVersionService {
             // Atomic increment
             const newVersion = await redisConnection.incr(cacheKey);
             
-            // Optional: Maintain TTL if users are highly inactive to save memory, 
-            // but usually notification versions are considered persistent.
-            // await redisConnection.expire(cacheKey, 60 * 60 * 24 * 30); // 30 days
+            // Maintain TTL (30 days) to prevent memory leaks from stale/deleted user IDs.
+            await redisConnection.expire(cacheKey, 60 * 60 * 24 * 30);
             
             return newVersion;
         } catch (error: unknown) {
