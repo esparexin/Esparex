@@ -434,9 +434,11 @@ export function PostAdProvider({
             }
             if (hasErrors) {
                 requestAnimationFrame(() => {
+                    // Scroll to the first field section with an error, not just the error text
                     const firstError = document.querySelector(".text-destructive");
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+                    const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
+                    if (scrollTarget) {
+                        scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
                     }
                 });
                 return;
@@ -469,8 +471,9 @@ export function PostAdProvider({
         } else {
             requestAnimationFrame(() => {
                 const firstError = document.querySelector(".text-destructive");
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+                const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
+                if (scrollTarget) {
+                    scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
             });
         }

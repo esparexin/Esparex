@@ -229,72 +229,58 @@ export default function DeviceIdentityFields() {
                 </div>
             </section>
 
-            {/* Spare Parts — only show once a category is selected */}
+            {/* Spare Parts — compact pill row, only when category selected */}
             {categoryId && (
-                <section className="space-y-4">
-                    <label className="text-sm font-bold text-foreground text-center block w-full">
+                <section className="space-y-2">
+                    <label className="text-xs font-semibold text-foreground-subtle uppercase tracking-wide block">
                         Working Spare Parts
                     </label>
                     {isLoadingSpareParts ? (
-                        <div className="space-y-2">
-                            <p className="text-xs text-foreground-subtle text-center">
-                                Loading spare parts...
-                            </p>
-                            <div className="grid grid-cols-3 gap-2">
-                                {Array.from({ length: 6 }).map((_, i) => (
-                                    <div key={i} className="h-10 rounded-xl bg-slate-100 animate-pulse" />
-                                ))}
-                            </div>
+                        <div className="grid grid-cols-4 gap-1.5">
+                            {Array.from({ length: 8 }).map((_, i) => (
+                                <div key={i} className="h-7 rounded-lg bg-slate-100 animate-pulse" />
+                            ))}
                         </div>
                     ) : sparePartsError ? (
-                        <div className="space-y-3">
-                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                                <p className="text-xs text-red-700 text-center mb-2">
-                                    {sparePartsError}
-                                </p>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => loadSparePartsForCategory(categoryId)}
-                                    className="w-full text-xs font-semibold text-red-600 border-red-200 hover:bg-red-50"
-                                >
-                                    Try Again
-                                </Button>
-                            </div>
+                        <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                            <p className="text-xs text-red-700 text-center mb-2">{sparePartsError}</p>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => loadSparePartsForCategory(categoryId)}
+                                className="w-full text-xs font-semibold text-red-600 border-red-200 hover:bg-red-50"
+                            >
+                                Try Again
+                            </Button>
                         </div>
                     ) : availableSpareParts.length > 0 ? (
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="flex flex-wrap gap-1.5">
                             {availableSpareParts.map((part) => {
                                 const isSelected = spareParts.includes(part.id as string);
                                 return (
-                                    <Button
+                                    <button
                                         key={part.id as string}
                                         type="button"
-                                        variant={isSelected ? "default" : "outline"}
                                         onClick={() => toggleSparePart(part.id as string)}
                                         className={cn(
-                                            "h-auto rounded-xl border px-2 py-2.5 text-sm font-semibold transition-all",
+                                            "h-7 px-3 rounded-full border text-xs font-semibold transition-all",
                                             isSelected
-                                                ? "bg-primary border-primary text-primary-foreground shadow-sm scale-[1.02]"
-                                                : "bg-white border-slate-100 text-foreground-tertiary hover:border-slate-200"
+                                                ? "bg-primary border-primary text-primary-foreground shadow-sm"
+                                                : "bg-white border-slate-200 text-foreground-tertiary hover:border-slate-300"
                                         )}
                                     >
-                                        <span className="truncate">{part.name}</span>
-                                    </Button>
+                                        {part.name}
+                                    </button>
                                 );
                             })}
                         </div>
-                    ) : (
-                        <p className="text-xs text-foreground-tertiary text-center py-3">
-                            No spare parts available for this category.
-                        </p>
-                    )}
+                    ) : null}
                 </section>
             )}
 
             {/* Device Condition — compact inline toggles */}
-            <section className="space-y-3">
+            <section className="space-y-3" data-field="deviceCondition">
                 <Field label="Device Condition" error={deviceConditionError}>
                     <div className="flex gap-2 flex-wrap">
                         {[

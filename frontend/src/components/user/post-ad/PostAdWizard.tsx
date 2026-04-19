@@ -63,45 +63,26 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
             </div>
           ) : null}
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {isEditMode ? (
-              <>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-link uppercase tracking-widest">
-                    Editing Listing
-                  </span>
-                  <span className="text-xs text-foreground-subtle">
-                    Catalog fields locked
-                  </span>
-                </div>
-                <div className="h-1 rounded-full bg-blue-400 w-full" />
-              </>
+              <div className="h-1 rounded-full bg-blue-400 w-full" />
             ) : (
-              <>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-widest">
-                    Step {currentStep} of 2
-                  </span>
-                  <span className="text-xs font-semibold text-link uppercase tracking-widest">
-                    {STEP_LABELS[currentStep - 1]}
-                  </span>
-                </div>
-                <div className="flex gap-1">
-                  {STEP_LABELS.map((_, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        "h-1 flex-1 rounded-full transition-all duration-500",
-                        currentStep > i + 1
-                          ? "bg-blue-600"
-                          : currentStep === i + 1
-                          ? "bg-blue-400"
-                          : "bg-slate-100"
-                      )}
-                    />
-                  ))}
-                </div>
-              </>
+              <div className="flex gap-1">
+                {STEP_LABELS.map((label, i) => (
+                  <div
+                    key={i}
+                    title={label}
+                    className={cn(
+                      "h-1 flex-1 rounded-full transition-all duration-500",
+                      currentStep > i + 1
+                        ? "bg-blue-600"
+                        : currentStep === i + 1
+                        ? "bg-blue-400"
+                        : "bg-slate-100"
+                    )}
+                  />
+                ))}
+              </div>
             )}
           </div>
 
