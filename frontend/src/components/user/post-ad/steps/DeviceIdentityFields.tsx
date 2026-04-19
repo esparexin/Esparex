@@ -189,11 +189,18 @@ export default function DeviceIdentityFields() {
                         ) : (
                             <ModelSearchSelect
                                 brandId={brandIdValue}
+                                brandName={brandNameValue}
                                 categoryId={categoryId}
                                 value={modelId || modelNameValue}
                                 onChange={(mId, mName) => {
                                     setValue("modelId", mId as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                     setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                }}
+                                onBrandResolved={(resolvedBrandId, resolvedBrandName) => {
+                                    // A new pending brand was created — sync its ID back into the form
+                                    // so the ad payload carries the correct brandId ObjectId.
+                                    setValue("brandId", resolvedBrandId as any, { shouldDirty: true });
+                                    setValue("brand", resolvedBrandName, { shouldDirty: true });
                                 }}
                             />
                         )}

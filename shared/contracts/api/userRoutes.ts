@@ -18,6 +18,7 @@ export const USER_ROUTES = {
   BRANDS_BASE: "catalog/brands",
   BRAND_BY_SLUG: (slug: string) => `catalog/brands/slug/${encodeURIComponent(String(slug))}`,
   MODELS_BASE: "catalog/models",
+  MODELS_ENSURE: "catalog/models/ensure",
   MODEL_BY_SLUG: (slug: string) => `catalog/models/slug/${encodeURIComponent(String(slug))}`,
   SPARE_PARTS_BASE: "catalog/spare-parts",
   SPARE_PARTS: (categoryId: string) => `catalog/spare-parts?categoryId=${categoryId}`,
