@@ -16,6 +16,8 @@ interface ModelSearchSelectProps {
     categoryId: string;
     /** Currently selected modelId or modelName */
     value: string;
+    /** Human-readable display name for the current value — used when value is an ObjectId not in availableModels */
+    modelDisplayName?: string;
     /** Called with (modelId, modelName) on selection */
     onChange: (modelId: string, modelName: string) => void;
     /**
@@ -33,6 +35,7 @@ export function ModelSearchSelect({
     brandName = "",
     categoryId,
     value,
+    modelDisplayName = "",
     onChange,
     onBrandResolved,
     disabled = false,
@@ -44,15 +47,17 @@ export function ModelSearchSelect({
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [ensureError, setEnsureError] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
-    // Resolve selected model name
+    // Resolve selected model name.
+    // Priority: matched model in list > explicit displayName > raw value (ObjectId fallback)
     const selectedModel = useMemo(() => {
         return availableModels.find(m => m.id === value || m._id === value);
     }, [availableModels, value]);
 
-    const selectedName = selectedModel?.name || value || "";
+    const selectedName = selectedModel?.name || modelDisplayName || value || "";
 
     // Debounced search logic
     useEffect(() => {
@@ -116,12 +121,12 @@ export function ModelSearchSelect({
         const trimmed = search.trim();
         if (!trimmed || !categoryId) return;
 
-        // Resolve brand identifier: prefer the DB id, fall back to the display name
-        // (custom brand typed by user that isn't in the DB yet).
+        // Resolve brand identifier: prefer the display name, fall back to the DB id.
         const effectiveBrandName = brandName || brandId;
         if (!effectiveBrandName) return;
 
         setIsEnsuring(true);
+        setEnsureError(null);
         try {
             const result = await ensureModel(categoryId, effectiveBrandName, trimmed);
             // If a new pending brand was created, propagate its ID to the parent form.
@@ -129,12 +134,16 @@ export function ModelSearchSelect({
                 onBrandResolved?.(result.brandId, brandName || effectiveBrandName);
             }
             onChange(result.id, result.name);
-        } catch {
-            // Silent fail — user stays on the field and can retry.
-        } finally {
-            setIsEnsuring(false);
+            // Success — close search mode
             setSearch("");
             setIsEditing(false);
+        } catch (err) {
+            // Surface the error so the user knows what happened and can retry.
+            const msg = err instanceof Error ? err.message : "Failed to add model — please try again.";
+            setEnsureError(msg);
+            // Keep isEditing=true so the user's search text stays and they can retry.
+        } finally {
+            setIsEnsuring(false);
         }
     };
 
@@ -207,6 +216,12 @@ export function ModelSearchSelect({
                     </button>
                 )}
             </div>
+
+            {ensureError && (
+                <p className="mt-1 px-1 text-xs text-red-600 font-medium flex items-center gap-1">
+                    <span>⚠</span> {ensureError}
+                </p>
+            )}
 
             {(isEditing || search) && dropdownStyle && (
                 <>

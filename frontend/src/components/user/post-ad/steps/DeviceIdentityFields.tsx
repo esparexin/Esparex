@@ -192,6 +192,7 @@ export default function DeviceIdentityFields() {
                                 brandName={brandNameValue}
                                 categoryId={categoryId}
                                 value={modelId || modelNameValue}
+                                modelDisplayName={modelNameValue}
                                 onChange={(mId, mName) => {
                                     setValue("modelId", mId as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                     setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
