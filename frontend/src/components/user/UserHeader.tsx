@@ -205,7 +205,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
 
           {/* Actions */}
           <div className="flex items-center gap-3 ml-auto">
-            {isLoggedIn && (
+            {isLoggedIn ? (
               <Button
                 variant="ghost"
                 size="sm"
@@ -246,7 +246,9 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
                   </>
                 )}
               </Button>
-            )}
+            ) : isAuthLoading ? (
+              <div className="hidden lg:flex h-8 w-32 rounded-xl bg-slate-100 animate-pulse border border-slate-200" aria-hidden="true" />
+            ) : null}
 
 
             {isLoggedIn && (
@@ -318,7 +320,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
             ) : !isAuthLoading ? (
               <Button variant="ghost" size="sm" onClick={() => onShowLogin ? onShowLogin() : navigateTo("login")}>Login</Button>
             ) : (
-              <div className="h-9 w-16" aria-hidden="true" />
+              <div className="h-8 w-8 rounded-full bg-slate-100 animate-pulse border border-slate-200" aria-hidden="true" title="Loading Profile..." />
             )}
 
             <Button
