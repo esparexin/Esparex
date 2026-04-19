@@ -3,13 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ComponentType } from "react";
-import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
 import {
-    MailOpen,
-    MapPin,
-    Phone,
     CheckCircle,
 } from "@/icons/IconRegistry";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
@@ -28,12 +23,6 @@ type FooterLinkSection = {
         href: string;
         pageKey: string;
     }>;
-};
-
-type FooterContactItem = {
-    title: string;
-    value: string;
-    icon: ComponentType<{ className?: string }>;
 };
 
 const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
@@ -100,7 +89,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
         );
     };
 
-    const renderBrandBlock = (compact = false) => (
+    const renderBrandBlock = () => (
         <div className="text-left">
             <Link href="/" className="inline-block">
                 <Image src="/icons/logo.png" alt="Esparex" width={512} height={206} style={{ height: '32px', width: 'auto' }} />
@@ -113,15 +102,15 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
             className={cn(
                 "mt-auto w-full border-t",
                 hasMobileBottomNav
-                    ? "pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:py-12"
-                    : "py-6 md:py-12",
+                    ? "pt-4 pb-[calc(4rem+env(safe-area-inset-bottom))] md:py-6"
+                    : "py-4 md:py-6",
                 isDark ? "bg-slate-950 border-slate-900 text-foreground-subtle" : "bg-slate-50 border-slate-200 text-foreground-tertiary",
                 className
             )}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="md:hidden mb-6 space-y-5">
-                    {renderBrandBlock(true)}
+                    {renderBrandBlock()}
 
                     <div className="grid grid-cols-2 gap-4 min-[460px]:grid-cols-3">
                         {FOOTER_LINK_SECTIONS.map((section) => (
@@ -148,7 +137,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                 </div>
 
                 {/* Main Footer Content */}
-                <div className="hidden md:grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-4 md:gap-10 mb-6 md:mb-10">
+                <div className="hidden md:grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6 mb-4 md:mb-6">
                     {/* Brand & Social */}
                     <div className="col-span-1 space-y-4 text-left sm:col-span-2 md:col-span-1 md:order-first">
                         {renderBrandBlock()}
@@ -171,7 +160,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
 
 
                 {/* Bottom Bar */}
-                <div className={cn("flex flex-col items-start justify-between gap-4 pt-6 md:flex-row md:items-center md:gap-6 md:pt-8 border-t", isDark ? "border-slate-900" : "border-slate-200")}>
+                <div className={cn("flex flex-col items-start justify-between gap-3 pt-4 md:flex-row md:items-center md:gap-4 md:pt-4 border-t", isDark ? "border-slate-900" : "border-slate-200")}>
                     <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:gap-4">
                         <Badge className={cn(
                             "border px-3 py-1",
@@ -184,9 +173,7 @@ export function Footer({ theme = "light", onNavigate, className }: FooterProps) 
                             © {currentYear} Esparex Platform. Built for the future of tech repair.
                         </span>
                     </div>
-                    <p className={cn("text-left text-2xs uppercase tracking-[0.2em] font-bold", isDark ? "text-foreground-tertiary" : "text-foreground-subtle")}>
-                        India's Leading Spare Parts Exchange
-                    </p>
+
                 </div>
             </div>
         </footer>
