@@ -210,10 +210,19 @@ export const getBlockedSellerIds = async (viewerId?: string): Promise<mongoose.T
     return blockedIds;
 };
 
-// ─────────────────────────────────────────────────
-// FILTER & SORT BUILDERS (Helper Functions)
-// ─────────────────────────────────────────────────
 
 /**
- * CONSOLIDATION PLAN: buildAdMatchStage and buildAdFilterFromCriteria overlap. Align them into a single AdCriteriaTransformer utility to reduce logic drift.
+ * @architecture-note Two-Stage Filter Pipeline
+ *
+ * `buildAdFilterFromCriteria` (utils/adFilterHelper.ts) — Stage 1 (Base Filter)
+ *   Builds a flat MongoDB $match object from structured criteria (brandId, categoryId,
+ *   price range, location, keywords, status). Used when only a basic match is needed.
+ *
+ * `buildAdMatchStage` (ad/AdSearchService.ts) — Stage 2 (Enriched Pipeline Stage)
+ *   Wraps Stage 1, then adds: geo-enrichment, legacy category slug resolution,
+ *   listingType null-compat filters, and seller blocking. Used in $geoNear aggregation
+ *   pipelines (AdAggregationService, FeedQueryService) where stage ordering matters.
+ *
+ * These two functions are intentionally separate — they serve different pipeline depths.
+ * Do not collapse them into a single utility without verifying all aggregation stage orders.
  */

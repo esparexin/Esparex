@@ -138,14 +138,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 payload.status = 'pending'; 
             }
 
-            // 6. Media Processing (Already done in preparePayload, but if needed specifically)
-            // Note: AdCreationService.preparePayload already calls internal processImages.
-            // If we want to use AdMediaService explicitly:
-            // if (data.files) {
-            //    const imageMeta = await AdMediaService.processImages(adId.toString(), data.files, session);
-            //    payload.images = imageMeta.map(m => m.url);
-            //    payload.imageHashes = imageMeta.map(m => m.hash);
-            // }
+            // Image optimization is dispatched below after the Ad document is created.
 
             // 7. Persistence
             const shouldAutoApprove = context.actor === 'ADMIN' && payload.moderationStatus !== 'held_for_review';

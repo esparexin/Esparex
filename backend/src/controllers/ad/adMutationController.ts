@@ -17,18 +17,6 @@ import { getSingleParam } from '../../utils/requestParams';
 
 import { IAuthUser } from '../../types/auth';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
-import { warnIfLegacyAdUserIdAliasUsed } from '../../utils/legacyOwnerAliasTelemetry';
-
-const LEGACY_AD_OWNER_ALIAS_CODE = 'LEGACY_AD_USER_ID_ALIAS_REMOVED';
-const hasLegacyAdUserIdAlias = (value: unknown): boolean =>
-    Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'userId'));
-
-const buildLegacyAliasDetails = (source: 'body') => ({
-    alias: 'userId',
-    canonical: 'sellerId',
-    source,
-    rolloutPhase: 'PR-D',
-});
 
 const sendClientError = (
     req: Request,
@@ -48,17 +36,6 @@ const sendClientError = (
  */
 export const createAd = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        warnIfLegacyAdUserIdAliasUsed(req, 'body');
-        if (hasLegacyAdUserIdAlias(req.body)) {
-            return sendClientError(
-                req,
-                res,
-                400,
-                '`userId` alias is no longer accepted in ad write payloads. Use `sellerId` or authenticated owner context.',
-                LEGACY_AD_OWNER_ALIAS_CODE,
-                buildLegacyAliasDetails('body')
-            );
-        }
         const authUserId = (req.user as IAuthUser)._id.toString();
         const createBody = req.body as Record<string, unknown>;
         const sellerId = (typeof createBody.sellerId === 'string' ? createBody.sellerId : null) ?? authUserId;
@@ -100,17 +77,6 @@ export const createAd = async (req: Request, res: Response, next: NextFunction) 
  */
 export const updateAd = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        warnIfLegacyAdUserIdAliasUsed(req, 'body');
-        if (hasLegacyAdUserIdAlias(req.body)) {
-            return sendClientError(
-                req,
-                res,
-                400,
-                '`userId` alias is no longer accepted in ad write payloads. Use `sellerId` or authenticated owner context.',
-                LEGACY_AD_OWNER_ALIAS_CODE,
-                buildLegacyAliasDetails('body')
-            );
-        }
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
         const authUserId = (req.user as IAuthUser)._id.toString();

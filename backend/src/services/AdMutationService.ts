@@ -101,7 +101,7 @@ export const findOwnedService = async (
     listingType: string,
     fetchFull: boolean
 ) => {
-    const objectId = new (await import('mongoose')).default.Types.ObjectId(id);
+    const objectId = new mongoose.Types.ObjectId(id);
     if (fetchFull) {
         return Ad.findOne({ _id: objectId, listingType, sellerId: userId });
     }

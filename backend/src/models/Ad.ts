@@ -1,9 +1,12 @@
 import { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
-import { ISoftDeleteDocument } from '../utils/softDeletePlugin';
+import softDeletePlugin, { ISoftDeleteDocument } from '../utils/softDeletePlugin';
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared/utils/geoUtils';
 import { AD_STATUS, AD_STATUS_VALUES, AdStatusValue } from '@shared/enums/adStatus';
 import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@shared/enums/listingType';
 import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@shared/enums/moderationStatus';
+import { getUserConnection } from '../config/db';
+import { generateUniqueSlug } from '../utils/slugGenerator';
+import { syncConversationAvailabilityForListing } from '../services/chatAvailabilityService';
 
 export interface IAd extends Document, ISoftDeleteDocument {
     title: string;
@@ -390,12 +393,6 @@ AdSchema.index(
         }
     }
 );
-// Performance indexes
-import { getUserConnection } from '../config/db';
-import softDeletePlugin from '../utils/softDeletePlugin';
-import { generateUniqueSlug } from '../utils/slugGenerator';
-import { syncConversationAvailabilityForListing } from '../services/chatAvailabilityService';
-
 AdSchema.plugin(softDeletePlugin);
 
 const sanitizeAdLocation = (value: unknown): unknown => {

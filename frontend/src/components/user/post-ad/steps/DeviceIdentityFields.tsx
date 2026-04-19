@@ -45,6 +45,7 @@ export default function DeviceIdentityFields() {
         loadBrandsForCategory,
         brandsError,
         sparePartsError,
+        brandIsPending,
     } = usePostAd();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
@@ -142,7 +143,15 @@ export default function DeviceIdentityFields() {
                             brandMap={brandMapForSelect}
                             value={brandNameValue}
                             onChange={(_id, name) => handleBrandChange(name)}
+                            disabled={brandIsPending}
+                            placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
                         />
+                        {brandIsPending && (
+                            <p className="text-xs text-muted-foreground mt-1 px-1 flex items-center gap-1.5">
+                                <span className="inline-block h-2.5 w-2.5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                                Fetching brands for this category…
+                            </p>
+                        )}
                     </Field>
                     
                     {brandsError && (
