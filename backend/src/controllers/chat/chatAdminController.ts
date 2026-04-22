@@ -38,8 +38,8 @@ export const adminListChats = async (req: Request, res: Response): Promise<void>
       sendErrorResponse(req, res, 400, parsed.error.errors[0]?.message ?? 'Invalid query');
       return;
     }
-    const { filter, riskMin, page, limit, search } = parsed.data;
-    const { convs, total } = await adminListConversations(filter, riskMin, page, limit, search);
+    const { filter, riskMin, page, limit, q } = parsed.data;
+    const { convs, total } = await adminListConversations(filter, riskMin, page, limit, q);
     res.json(respond({ success: true, data: convs, total, page, limit }));
   } catch (err: unknown) {
     const e = err as { message?: string; status?: number };

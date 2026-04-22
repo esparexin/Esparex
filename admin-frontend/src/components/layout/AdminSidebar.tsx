@@ -3,14 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
+import { useAdminSidebarCounts } from "@/hooks/useAdminSidebarCounts";
 import { SidebarNavigation } from "./SidebarNavigation";
 import { ADMIN_NAV_MODULES } from "./adminNavigation";
-import { fetchAdminModerationSummary } from "@/lib/api/moderation";
-import { adminFetch } from "@/lib/api/adminClient";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-
-type SidebarCounters = Partial<Record<"ads" | "reports" | "businesses" | "services", string | number>>;
 
 type AdminSidebarProps = {
     isMobileOpen: boolean;
@@ -32,7 +27,7 @@ function SidebarFooterMeta({ role }: { role?: string }) {
 
 export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsMinified }: AdminSidebarProps) {
     const { admin } = useAdminAuth();
-    const [counts, setCounts] = useState<SidebarCounters>({});
+    const counts = useAdminSidebarCounts();
 
     const hasAccess = (roles: string[]) => {
         if (!admin) return false;
@@ -51,45 +46,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
         };
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    useEffect(() => {
-        let cancelled = false;
-
-        const run = async () => {
-            try {
-                const [moderationSummary, reportPayload, businessOverviewPayload] = await Promise.all([
-                    fetchAdminModerationSummary().catch(() => null),
-                    adminFetch<any>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`).catch(() => null),
-                    adminFetch<any>(ADMIN_ROUTES.BUSINESS_OVERVIEW).catch(() => null),
-                ]);
-
-                if (cancelled) return;
-
-                const reportPagination = reportPayload ? parseAdminResponse<Record<string, unknown>>(reportPayload).pagination : undefined;
-                const businessOverview = businessOverviewPayload
-                    ? parseAdminResponse<never, Record<string, unknown>>(businessOverviewPayload).data ?? {}
-                    : {};
-
-                setCounts({
-                    ads: moderationSummary
-                        ? `${moderationSummary.total} (P:${moderationSummary.pending}/L:${moderationSummary.live})`
-                        : 0,
-                    reports: reportPagination?.total ?? 0,
-                    businesses: Number(businessOverview.pending || 0),
-                });
-            } catch {
-                if (!cancelled) {
-                    setCounts({});
-                }
-            }
-        };
-
-        void run();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
+    }, [setIsMobileOpen]);
 
     const visibleModules = useMemo(
         () => ADMIN_NAV_MODULES.filter((item) => hasAccess(item.roles)),

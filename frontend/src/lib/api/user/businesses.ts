@@ -31,7 +31,7 @@ export interface CreateBusinessDTO {
         pincode?: string;
         coordinates?: GeoJSONPoint;
     };
-    phone: string;
+    mobile: string;
     email?: string;
     images: string[];
     documents: {
@@ -69,6 +69,7 @@ export function normalizeBusiness(
     apiBusiness: ApiBusiness | null | undefined
 ): Business | null {
     if (!apiBusiness) return null;
+    const rawBusiness = apiBusiness as unknown as Record<string, unknown>;
 
     // Use shared normalization (handles coordinates & display logic)
     // We pass apiBusiness.location which has the raw structure
@@ -111,9 +112,10 @@ export function normalizeBusiness(
 
     return {
         ...apiBusiness,
-        sellerId: apiBusiness.sellerId || apiBusiness.userId || apiBusiness.ownerId || "",
-        mobile: apiBusiness.mobile || apiBusiness.phone || "",
-        isVerified: !!apiBusiness.isVerified || !!apiBusiness.verified,
+        sellerId:
+            apiBusiness.sellerId || "",
+        mobile: apiBusiness.mobile || "",
+        isVerified: !!apiBusiness.isVerified || rawBusiness.verified === true,
         status: normalizedStatus as ApiBusiness['status'],
         logo: apiBusiness.logo,
         coverImage: apiBusiness.coverImage,
@@ -165,8 +167,6 @@ function shouldLogBusinessApiError(
 
 export const getBusinesses = async (
     filters: {
-        city?: string;
-        category?: string;
         limit?: number;
         latitude?: number;
         longitude?: number;
@@ -180,8 +180,6 @@ export const getBusinesses = async (
 ): Promise<Business[]> => {
     try {
         const queryParams = new URLSearchParams();
-        if (filters.city) queryParams.append('city', filters.city);
-        if (filters.category) queryParams.append('category', filters.category);
         if (filters.limit) queryParams.append('limit', String(filters.limit));
         if (typeof filters.latitude === 'number') queryParams.append('latitude', String(filters.latitude));
         if (typeof filters.longitude === 'number') queryParams.append('longitude', String(filters.longitude));

@@ -134,7 +134,7 @@ export async function validateModelBelongsToBrand(
 // ─── Ad validation ───────────────────────────────────────────────────────────
 
 /**
- * Validate that a category supports Ads (listingType: 'postad')
+ * Validate that a category supports ad listings (listingType: 'ad')
  */
 export async function validateAdCategoryCapability(categoryId: string): Promise<ValidationResult> {
     validateObjectIdOrThrow('categoryId', categoryId);
@@ -153,7 +153,7 @@ export async function validateAdCategoryCapability(categoryId: string): Promise<
 // ─── Service validation ──────────────────────────────────────────────────────
 
 /**
- * Validate that a category supports Services (listingType: 'postservice')
+ * Validate that a category supports service listings (listingType: 'service')
  */
 export async function validateServiceCategoryCapability(categoryId: string): Promise<ValidationResult> {
     validateObjectIdOrThrow('categoryId', categoryId);

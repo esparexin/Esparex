@@ -48,7 +48,7 @@ export interface AdData {
     views?: number;
     seller?: string;
     sellerId?: string;
-    phone?: string;
+    mobile?: string;
     condition?: string;
     distance?: number; // Distance from search location (km)
 }

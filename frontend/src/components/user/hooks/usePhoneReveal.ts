@@ -36,9 +36,9 @@ export function usePhoneReveal(ad: Ad | undefined | null, user: User | undefined
 
     try {
       const result = await getListingPhone(ad.id);
-      if (result?.mobile || result?.phone) {
-        const phone = result.mobile || result.phone || null;
-        setRevealedPhone(phone);
+      if (result?.mobile) {
+        const resolvedContactNumber = result.mobile;
+        setRevealedPhone(resolvedContactNumber);
         setIsPhoneMasked(false);
         setPhoneMessage(null);
         return;
@@ -52,9 +52,9 @@ export function usePhoneReveal(ad: Ad | undefined | null, user: User | undefined
       }
 
       setPhoneMessage("Phone number is unavailable for this listing.");
-    } catch (phoneError) {
+    } catch (revealError) {
       const backendCode = String(
-        (phoneError as { context?: { backendErrorCode?: unknown } })?.context?.backendErrorCode || ""
+        (revealError as { context?: { backendErrorCode?: unknown } })?.context?.backendErrorCode || ""
       );
       if (backendCode === "PHONE_REQUEST_REQUIRED") {
         const message = "Seller shares phone numbers on request only. Use chat first.";
@@ -65,7 +65,7 @@ export function usePhoneReveal(ad: Ad | undefined | null, user: User | undefined
         setPhoneMessage(message);
         notify.info(message);
       } else {
-        notify.error(phoneError instanceof Error ? phoneError.message : "Failed to reveal phone number");
+        notify.error(revealError instanceof Error ? revealError.message : "Failed to reveal phone number");
       }
     } finally {
       setIsPhoneLoading(false);

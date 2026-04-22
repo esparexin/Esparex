@@ -40,10 +40,10 @@ const normalizeSeller = (value: unknown): { sellerId?: string; sellerName?: stri
 
     return {
         sellerId: asString(record.id) || asString(record._id),
-        sellerName: asString(record.name) || fullName || asString(record.phone) || "Unknown",
+        sellerName: asString(record.name) || fullName || asString(record.mobile) || asString(record.phone) || "Unknown",
         sellerPhone:
-            asString(record.phone) ||
             asString(record.mobile) ||
+            asString(record.phone) ||
             asString(record.phoneNumber) ||
             asString(record.contactNumber)
     };

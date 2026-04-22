@@ -6,18 +6,9 @@ import { useChatList } from '@/hooks/useChatList';
 import { buildChatConversationRoute } from '@/lib/chatUiRoutes';
 import { chatApi, type ConversationListView } from '@/lib/api/chatApi';
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
+import { RelativeTimeText } from '@/components/common/RelativeTimeText';
 import { EmptyChat } from './EmptyChat';
 import type { IConversationDTO } from '@shared/contracts/chat.contracts';
-
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
 
 function buildConversationState(conv: IConversationDTO): { label: string; tone: 'warn' | 'muted' } | null {
   if (conv.isBlocked) return { label: 'Blocked conversation', tone: 'warn' };
@@ -63,7 +54,9 @@ function ConversationCard({
           <div className="conv-card__top">
             <span className="conv-card__name">{other.name}</span>
             {conv.lastMessageAt && (
-              <span className="conv-card__time">{timeAgo(conv.lastMessageAt)}</span>
+              <span className="conv-card__time">
+                <RelativeTimeText value={conv.lastMessageAt} variant="short" />
+              </span>
             )}
           </div>
 

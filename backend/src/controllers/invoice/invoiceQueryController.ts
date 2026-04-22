@@ -8,11 +8,11 @@ import * as invoiceService from '../../services/InvoiceService';
 export const getInvoices = async (req: Request, res: Response) => {
     try {
         if (!req.user) return sendErrorResponse(req, res, 401, 'Unauthorized');
-        const { search, status } = req.query;
+        const { q, status } = req.query;
 
         const invoices = await invoiceService.getInvoices({
             userId: req.user._id.toString(),
-            search: typeof search === 'string' ? search : undefined,
+            search: typeof q === 'string' ? q : undefined,
             status: typeof status === 'string' ? status : undefined
         });
 

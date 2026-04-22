@@ -1,0 +1,120 @@
+import { Dispatch, SetStateAction, useCallback } from "react";
+import { Path, UseFormReturn } from "react-hook-form";
+import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
+
+interface UsePostAdStepNavigationProps {
+    form: UseFormReturn<PostAdFormData>;
+    currentStep: number;
+    setCurrentStep: Dispatch<SetStateAction<number>>;
+    setStepValidationAttempts: Dispatch<SetStateAction<Record<number, boolean>>>;
+    requiresScreenSize: boolean;
+    trigger: UseFormReturn<PostAdFormData>["trigger"];
+    maxStep?: number;
+}
+
+export function usePostAdStepNavigation({
+    form,
+    currentStep,
+    setCurrentStep,
+    setStepValidationAttempts,
+    requiresScreenSize,
+    trigger,
+    maxStep = 2,
+}: UsePostAdStepNavigationProps) {
+    const nextStep = useCallback(async () => {
+        setStepValidationAttempts((prev) =>
+            prev[currentStep] ? prev : { ...prev, [currentStep]: true }
+        );
+
+        if (currentStep === 1) {
+            const { categoryId: catId, brand: brandName, deviceCondition: dc } = form.getValues();
+            let hasErrors = false;
+
+            if (!catId) {
+                form.setError("categoryId" as Path<PostAdFormData>, {
+                    type: "manual",
+                    message: "Please select a category",
+                });
+                hasErrors = true;
+            }
+            if (!brandName) {
+                form.setError("brand" as Path<PostAdFormData>, {
+                    type: "manual",
+                    message: "Please select a brand",
+                });
+                hasErrors = true;
+            }
+            if (!dc) {
+                form.setError("deviceCondition" as Path<PostAdFormData>, {
+                    type: "manual",
+                    message: "Please select device condition",
+                });
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                requestAnimationFrame(() => {
+                    const firstError = document.querySelector(".text-destructive");
+                    const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
+                    if (scrollTarget) {
+                        scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                });
+                return;
+            }
+        }
+
+        let fieldsToValidate: Path<PostAdFormData>[] = [];
+
+        switch (currentStep) {
+            case 1:
+                fieldsToValidate = ["categoryId", "brand", "model", "deviceCondition"] as Path<PostAdFormData>[];
+                if (requiresScreenSize) {
+                    fieldsToValidate.push("screenSize" as Path<PostAdFormData>);
+                }
+                break;
+            case 2:
+                fieldsToValidate = ["title", "description", "price", "location"] as Path<PostAdFormData>[];
+                break;
+            default:
+                break;
+        }
+
+        const isValid = await trigger(fieldsToValidate);
+        if (isValid) {
+            if (currentStep < maxStep) {
+                setCurrentStep((prev) => prev + 1);
+                document.querySelector("[data-post-ad-scroll]")?.scrollTo({ top: 0, behavior: "smooth" });
+            }
+            return;
+        }
+
+        requestAnimationFrame(() => {
+            const firstError = document.querySelector(".text-destructive");
+            const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
+            if (scrollTarget) {
+                scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        });
+    }, [
+        currentStep,
+        form,
+        maxStep,
+        requiresScreenSize,
+        setCurrentStep,
+        setStepValidationAttempts,
+        trigger,
+    ]);
+
+    const prevStep = useCallback(() => {
+        if (currentStep > 1) {
+            setCurrentStep((prev) => prev - 1);
+            document.querySelector("[data-post-ad-scroll]")?.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    }, [currentStep, setCurrentStep]);
+
+    return {
+        nextStep,
+        prevStep,
+    };
+}

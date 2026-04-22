@@ -1,7 +1,11 @@
 import { useState, startTransition } from "react";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { useRouter } from "next/navigation";
-import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
+import {
+  buildPublicBrowseRoute,
+  resolvePublicBrowseBrands,
+  resolvePublicBrowseCategory,
+} from "@/lib/publicBrowseRoutes";
 
 export const DEFAULT_PRICE_RANGE: [number, number] = [0, 200000];
 
@@ -11,14 +15,14 @@ export function useFilterState(routeParams: any, initialSearchQuery: string, ini
     routeParams.q ?? initialSearchQuery
   );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    routeParams.categoryId ?? routeParams.category ?? initialCategory ?? null
+    resolvePublicBrowseCategory(routeParams, initialCategory) ?? null
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([
     routeParams.minPrice ?? DEFAULT_PRICE_RANGE[0],
     routeParams.maxPrice ?? DEFAULT_PRICE_RANGE[1],
   ]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>(
-    routeParams.brands ? routeParams.brands.split(",").map((brand: string) => brand.trim()).filter(Boolean) : []
+    resolvePublicBrowseBrands(routeParams)
   );
   const [radiusKm, setRadiusKm] = useState(routeParams.radiusKm ?? 50);
   const [categoryFilters, setCategoryFilters] = useState<Record<string, string[]>>({});

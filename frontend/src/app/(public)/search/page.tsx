@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { getAdsPage } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";
 import { getCategories } from "@/lib/api/user/categories";
+import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
 import { buildPublicBrowseRoute, normalizePublicBrowseType, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { PUBLIC_BROWSE_SORT_MAP, type SortOption } from "@/lib/publicBrowseSort";
 
@@ -48,31 +49,31 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
     };
     const endpoint = endpointMap[parsed.type];
     const Component = parsed.type === 'service' ? BrowseServices : parsed.type === 'spare_part' ? BrowseSpareParts : BrowseAds;
-
-    const [initialResults, initialCategories] = await Promise.all([
-        getAdsPage(
-            {
-                status: 'live',
-                page: parsed.page ?? 1,
-                limit: 20,
-                ...(parsed.q ? { search: parsed.q } : {}),
-                ...(parsed.categoryId ? { categoryId: parsed.categoryId } : parsed.category ? { category: parsed.category } : {}),
-                ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
-                ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
-                ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
-                ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
-                ...(parsed.location ? { location: parsed.location } : {}),
-                ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
-                ...(parsed.brands ? { brandId: parsed.brands } : {}),
-                ...(typeof parsed.radiusKm === "number" ? { radiusKm: parsed.radiusKm } : {}),
-            },
-            { 
-                endpoint,
-                fetchOptions: { next: { revalidate: 60 } } 
-            }
-        ),
-        getCategories({ fetchOptions: { next: { revalidate: 3600 } } }),
-    ]);
+    const initialCategories = await getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
+    const resolvedCategory = resolveBrowseCategorySelection(
+        parsed.categoryId ?? parsed.category,
+        initialCategories
+    );
+    const initialResults = await getAdsPage(
+        {
+            status: 'live',
+            page: parsed.page ?? 1,
+            limit: 20,
+            ...(parsed.q ? { search: parsed.q } : {}),
+            ...(resolvedCategory.categoryId ? { categoryId: resolvedCategory.categoryId } : {}),
+            ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
+            ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
+            ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
+            ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
+            ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
+            ...(parsed.brands ? { brandId: parsed.brands } : {}),
+            ...(typeof parsed.radiusKm === "number" && parsed.locationId ? { radiusKm: parsed.radiusKm } : {}),
+        },
+        {
+            endpoint,
+            fetchOptions: { next: { revalidate: 60 } }
+        }
+    );
 
     return (
         <Suspense fallback={null}>

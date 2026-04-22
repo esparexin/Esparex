@@ -6,7 +6,7 @@ describe("normalizeBusiness", () => {
     it("preserves structured location fields required by the business edit flow", () => {
         const business = normalizeBusiness({
             id: "507f1f77bcf86cd799439011",
-            userId: "507f1f77bcf86cd799439012",
+            sellerId: "507f1f77bcf86cd799439012",
             name: "Repair Hub",
             description: "Fast and reliable repairs",
             mobile: "9876543210",
@@ -46,5 +46,27 @@ describe("normalizeBusiness", () => {
         expect(business?.location.address).toContain("Shop 12");
         expect(business?.location.display).toBe("Macherla, Andhra Pradesh");
         expect(business?.location.coordinates).toEqual({ type: "Point", coordinates: [79.44, 16.48] });
+    });
+
+    it("does not hydrate legacy owner or phone aliases into canonical fields", () => {
+        const business = normalizeBusiness({
+            id: "507f1f77bcf86cd799439011",
+            userId: "507f1f77bcf86cd799439012",
+            ownerId: "507f1f77bcf86cd799439013",
+            phone: "9876543210",
+            location: {
+                address: "Shop 12, Main Road, Macherla, Andhra Pradesh, 522426",
+                coordinates: { type: "Point", coordinates: [79.44, 16.48] },
+            },
+            documents: [],
+            status: "pending",
+            trustScore: 50,
+            isVerified: false,
+            createdAt: new Date().toISOString(),
+        } as any);
+
+        expect(business).not.toBeNull();
+        expect(business?.sellerId).toBe("");
+        expect(business?.mobile).toBe("");
     });
 });

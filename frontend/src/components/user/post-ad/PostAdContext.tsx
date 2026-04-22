@@ -14,34 +14,33 @@ import { suppressGoogleMapsRetryErrors } from "@/lib/suppress-google-maps-errors
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 // FORM imports
 import { useNavigation } from "@/context/NavigationContext";
-import { UseFormReturn, Control, FieldErrors, UseFormRegister, UseFormWatch, UseFormSetValue, Path } from "react-hook-form";
+import { UseFormReturn, Control, FieldErrors, UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { CategoryFilter } from "@shared/schemas/catalog.schema";
 import { Listing } from "@/lib/api/user/listings/normalizer";
 import { GeoJSONPoint } from "@/types/location";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 // Custom hooks
-import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
+import { useBrandCatalog } from "@/hooks/listings/useBrandCatalog";
+import { useCategorySchemaCatalog } from "@/hooks/listings/useCategorySchemaCatalog";
+import { useListingCategories } from "@/hooks/listings/useListingCategories";
 import { useListingImages } from "@/hooks/listings/useListingImages";
 import { useListingLocation } from "@/hooks/listings/useListingLocation";
-import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
+import { useSparePartCatalog } from "@/hooks/listings/useSparePartCatalog";
 import { usePostAdPreload } from "@/hooks/usePostAdPreload";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { usePostAdValidation } from "@/hooks/usePostAdValidation";
-import { usePostAdFormNormalization } from "./hooks/usePostAdFormNormalization";
-import { useImageUploadWorkflow } from "./hooks/useImageUploadWorkflow";
 import { usePostAdAiGeneration } from "./hooks/usePostAdAiGeneration";
 import { useCategoryDependents } from "./hooks/useCategoryDependents";
+import { usePostAdStepNavigation } from "./hooks/usePostAdStepNavigation";
+import { usePostAdSparePartSelection } from "./hooks/usePostAdSparePartSelection";
+import { usePostAdSubmissionFlow } from "./hooks/usePostAdSubmissionFlow";
 import {
     ListingImage,
     ListingCategory,
     ListingLocation
 } from "@/types/listing";
-import {
-    AdPayloadSchema as postAdSchema,
-    PartialAdPayloadSchema as partialAdSchema
-} from "@/schemas/adPayload.schema";
-import { createListing, updateListing } from "@/lib/api/user/listings";
 
 /* ===================== CONTEXT TYPE ===================== */
 
@@ -69,7 +68,6 @@ export interface PostAdContextType {
     brandIsPending: boolean;
 
     // Spare Parts
-    spareParts: string[];
     toggleSparePart: (partId: string) => void;
     toggleAllSpareParts: (selectAll: boolean) => void;
 
@@ -107,6 +105,7 @@ export interface PostAdContextType {
     loadModelsForBrand: (brandId?: string, categoryId?: string, search?: string) => Promise<void>;
     loadSparePartsForCategory: (categoryId: string) => Promise<void>;
     loadCategorySchema: (categoryId: string) => Promise<void>;
+    setAvailableModels: (models: any[]) => void;
 
     sparePartsError: string | null;
     brandsError: string | null;
@@ -148,6 +147,7 @@ export type PostAdStateContextType = Omit<
     | "loadModelsForBrand"
     | "loadSparePartsForCategory"
     | "loadCategorySchema"
+    | "setAvailableModels"
     | "generateDescription"
     | "submitAd"
     | "setUserHasInteracted"
@@ -176,6 +176,7 @@ export type PostAdActionContextType = Pick<
     | "loadModelsForBrand"
     | "loadSparePartsForCategory"
     | "loadCategorySchema"
+    | "setAvailableModels"
     | "generateDescription"
     | "submitAd"
     | "setUserHasInteracted"
@@ -190,6 +191,58 @@ export type PostAdActionContextType = Pick<
 
 const PostAdStateContext = createContext<PostAdStateContextType | undefined>(undefined);
 const PostAdActionContext = createContext<PostAdActionContextType | undefined>(undefined);
+
+// ── Domain-split state contexts ───────────────────────────────────────────────
+// Each covers exactly one concern. Components subscribe only to the domain they
+// need — a change in catalog will not re-render location consumers, and vice versa.
+
+export type PostAdCatalogState = {
+    dynamicCategories: ListingCategory[];
+    categoryMap: Record<string, ListingCategory>;
+    availableBrands: string[];
+    availableModels: DeviceModel[];
+    availableSizes: string[];
+    availableSpareParts: SparePart[];
+    isLoadingSpareParts: boolean;
+    categorySchema: { categoryId: string; categoryName: string; filters: CategoryFilter[]; } | null;
+    requiresScreenSize: boolean;
+    sparePartsError: string | null;
+    brandsError: string | null;
+    brandIsPending: boolean;
+};
+
+export type PostAdLocationState = {
+    listingLocation: ListingLocation | null;
+    locationDisplay: string;
+    coordinates: GeoJSONPoint | null | undefined;
+    isLocationLocked: boolean;
+};
+
+export type PostAdImagesState = {
+    listingImages: ListingImage[];
+    isUploadingImages: boolean;
+    imageUploadError: string | null;
+};
+
+export type PostAdFlowState = {
+    currentStep: number;
+    stepValidationAttempts: Record<number, boolean>;
+    isLoading: boolean;
+    isSubmitting: boolean;
+    isEditMode: boolean;
+    userHasInteracted: boolean;
+    loadError: string | null;
+    formError: string | null;
+    submittedAd: Listing | null;
+    form: UseFormReturn<PostAdFormData>;
+    control: Control<PostAdFormData>;
+    errors: FieldErrors<PostAdFormData>;
+};
+
+const PostAdCatalogContext = createContext<PostAdCatalogState | undefined>(undefined);
+const PostAdLocationContext = createContext<PostAdLocationState | undefined>(undefined);
+const PostAdImagesContext = createContext<PostAdImagesState | undefined>(undefined);
+const PostAdFlowContext = createContext<PostAdFlowState | undefined>(undefined);
 
 export function PostAdProvider({
     children,
@@ -206,10 +259,44 @@ export function PostAdProvider({
     const [userHasInteracted, setUserHasInteracted] = useState(false);
     const [stepValidationAttempts, setStepValidationAttempts] = useState<Record<number, boolean>>({});
 
-    const catalogHook = useListingCatalog({ 
-        listingType: 'postad', 
-        onError: validationHook.setFormError 
+    const categoryCatalog = useListingCategories({
+        listingType: LISTING_TYPE.AD,
+        onError: validationHook.setFormError,
     });
+    const brandCatalog = useBrandCatalog({
+        categoryMap: categoryCatalog.categoryMap,
+        onError: validationHook.setFormError,
+    });
+    const sparePartCatalog = useSparePartCatalog({
+        listingType: LISTING_TYPE.AD,
+        onError: validationHook.setFormError,
+    });
+    const categorySchemaCatalog = useCategorySchemaCatalog();
+
+    const {
+        dynamicCategories,
+        categoryMap,
+    } = categoryCatalog;
+    const {
+        brandMap,
+        availableBrands,
+        availableModels,
+        availableSizes,
+        loadBrandsForCategory,
+        loadModelsForBrand,
+        setAvailableModels,
+        brandsError,
+    } = brandCatalog;
+    const {
+        availableSpareParts,
+        isLoadingSpareParts,
+        sparePartsError,
+        loadSparePartsForCategory,
+    } = sparePartCatalog;
+    const {
+        categorySchema,
+        loadCategorySchema,
+    } = categorySchemaCatalog;
 
     const handleImagesChange = useCallback((images: ListingImage[]) => {
         const nextImagePreviews = images.map((img) => img.preview);
@@ -236,14 +323,16 @@ export function PostAdProvider({
         onImagesChange: handleImagesChange
     });
 
-    const locationHook = useListingLocation({
-        onLocationChange: (location) => {
-            setValue("location", location as PostAdFormData["location"], { 
-                shouldValidate: true, 
-                shouldDirty: true 
-            });
-        }
-    });
+    // Stable callback — must not be inline or setLocation gets a new ref every render,
+    // which re-creates actionValue and re-renders all usePostAdAction consumers.
+    const handleLocationChange = useCallback((location: ListingLocation | null) => {
+        setValue("location", location as PostAdFormData["location"], {
+            shouldValidate: true,
+            shouldDirty: true,
+        });
+    }, [setValue]);
+
+    const locationHook = useListingLocation({ onLocationChange: handleLocationChange });
 
     // Navigation State for 9-Step Flow
     const isEditMode = !!editAdId;
@@ -255,8 +344,7 @@ export function PostAdProvider({
     // Location is locked once ad reaches pending or live — trust signal, cannot be silently changed
     const isLocationLocked = isEditMode && (originalAdStatus === 'live' || originalAdStatus === 'pending');
 
-    // State for spare parts and pending states
-    const [spareParts, setSpareParts] = useState<string[]>([]);
+    // State for pending states and submission outcomes
     const [isLoading, setIsLoading] = useState(false);
     const [brandIsPending, setBrandIsPending] = useState(false);
     const [submittedAd, setSubmittedAd] = useState<Listing | null>(null);
@@ -268,60 +356,18 @@ export function PostAdProvider({
     const { listingLocation, setLocation, coordinates, locationDisplay } = locationHook;
 
     // Destructure catalog hook
-    const { 
-        dynamicCategories, 
-        categoryMap, 
-        availableBrands, 
-        availableModels,
-        availableSizes, 
-        availableSpareParts, 
-        isLoadingSpareParts, 
-        categorySchema, 
-        loadBrandsForCategory, 
-        loadModelsForBrand,
-        loadSparePartsForCategory, 
-        loadCategorySchema,
-        sparePartsError,
-        brandsError
-    } = catalogHook;
-
     // Reactive category value — calling watch() inside useMemo is not reactive
     // (watch reference is stable). Subscribe at render scope instead.
     const { loadError, setLoadError, formError, setFormError } = validationHook;
 
     const { requiresScreenSize, handleCategoryChange, handleBrandChange } = useCategoryDependents(
-        form, categoryMap, catalogHook.brandMap,
-        setFormError, setBrandIsPending, setSpareParts,
+        form, categoryMap, brandMap,
+        setFormError, setBrandIsPending,
         loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema
     );
 
     // Submission logic in dedicated hook
     const { setIsDirty } = useNavigation();
-
-    const { buildEditAdPayload, normalizeIdentityFieldsBeforeSubmit } = usePostAdFormNormalization(
-        form,
-        isLocationLocked,
-        setSpareParts
-    );
-
-    const submitAdApiCall = useCallback((payload: PostAdFormData, options?: { idempotencyKey?: string }) => {
-        const listingData = payload as unknown as Partial<Listing>;
-        return (isEditMode && editAdId) 
-            ? updateListing(editAdId, buildEditAdPayload(payload))
-            : createListing(listingData, options);
-    }, [buildEditAdPayload, isEditMode, editAdId]);
-
-    const { onValidSubmit, isSubmitting } = useListingSubmission({
-        form,
-        listingImages,
-        isEditMode,
-        editId: editAdId,
-        schema: postAdSchema,
-        partialSchema: partialAdSchema,
-        submitFn: submitAdApiCall,
-        onSuccess: (ad) => setSubmittedAd(ad),
-        onError: setFormError
-    });
 
     /* ---------- INIT ---------- */
     useEffect(() => {
@@ -341,27 +387,27 @@ export function PostAdProvider({
         };
     }, [setIsDirty]);
 
-    // 1. Keep spare parts in sync with available parts (Pure filter)
+    // 1. Maintain form valid state for spare parts (Internal cleanup when catalog changes)
+    // Guard against the transient empty state during loading — setAvailableSpareParts([])
+    // fires before the fetch resolves, which would otherwise wipe all selections.
     useEffect(() => {
+        if (isLoadingSpareParts) return;
+        if (availableSpareParts.length === 0) return;
+
+        const currentParts = (form.getValues("spareParts") || []) as string[];
+        if (currentParts.length === 0) return;
+
         const validIds = new Set(
             availableSpareParts
                 .map((part) => normalizeOptionalObjectId(part.id))
                 .filter((partId): partId is string => Boolean(partId))
         );
-        setSpareParts((prev) => {
-            const next = prev.filter((partId) => validIds.has(partId));
-            return next.length !== prev.length ? next : prev;
-        });
-    }, [availableSpareParts]);
 
-    // 2. Synchronize the local spareParts state with the RHF form value
-    useEffect(() => {
-        const fieldValue = (availableSpareParts.length === 0 && !isLoadingSpareParts) ? undefined : spareParts;
-        setValue("spareParts", fieldValue as PostAdFormData["spareParts"], { 
-            shouldValidate: userHasInteracted, 
-            shouldDirty: true 
-        });
-    }, [spareParts, availableSpareParts.length, isLoadingSpareParts, setValue, userHasInteracted]);
+        const next = currentParts.filter((partId) => validIds.has(partId));
+        if (next.length !== currentParts.length) {
+            form.setValue("spareParts", next as any, { shouldDirty: true });
+        }
+    }, [availableSpareParts, isLoadingSpareParts, form]);
 
     /* ---------- EDIT MODE PRELOADING ---------- */
     usePostAdPreload({
@@ -371,7 +417,6 @@ export function PostAdProvider({
         setLoadError,
         setOriginalAdStatus,
         setValue,
-        setSpareParts,
         setAdImages: setListingImages,
         setLocation,
         loadBrandsForCategory,
@@ -387,184 +432,97 @@ export function PostAdProvider({
     const { generateDescription } = usePostAdAiGeneration(form, categoryMap, setIsLoading, setFormError);
 
 
-    const toggleAllSpareParts = useCallback((selectAll: boolean) => {
-        if (selectAll) {
-            const ids = availableSpareParts
-                .map((part) => normalizeOptionalObjectId(part.id))
-                .filter((partId): partId is string => Boolean(partId));
-            const distinct = Array.from(new Set(ids));
-            setSpareParts(distinct);
-        } else {
-            setSpareParts([]);
-        }
-    }, [availableSpareParts]);
-
-    const toggleSparePart = useCallback((partId: string) => {
-        const normalizedPartId = normalizeOptionalObjectId(partId);
-        if (!normalizedPartId) return;
-        setSpareParts((prev) => 
-            prev.includes(normalizedPartId)
-                ? prev.filter((id) => id !== normalizedPartId)
-                : [...prev, normalizedPartId]
-        );
-    }, []);
-
-    const nextStep = useCallback(async () => {
-        setStepValidationAttempts((prev) =>
-            prev[currentStep] ? prev : { ...prev, [currentStep]: true }
-        );
-
-        // Step 1: categoryId and deviceCondition are optional in the base schema
-        // (for partial saves / edit mode), so we gate them manually here before
-        // running the schema-level trigger.
-        if (currentStep === 1) {
-            const { categoryId: catId, brand: brandName, deviceCondition: dc } = form.getValues();
-            let hasErrors = false;
-            if (!catId) {
-                form.setError("categoryId" as Path<PostAdFormData>, { type: "manual", message: "Please select a category" });
-                hasErrors = true;
-            }
-            if (!brandName) {
-                form.setError("brand" as Path<PostAdFormData>, { type: "manual", message: "Please select a brand" });
-                hasErrors = true;
-            }
-            if (!dc) {
-                form.setError("deviceCondition" as Path<PostAdFormData>, { type: "manual", message: "Please select device condition" });
-                hasErrors = true;
-            }
-            if (hasErrors) {
-                requestAnimationFrame(() => {
-                    // Scroll to the first field section with an error, not just the error text
-                    const firstError = document.querySelector(".text-destructive");
-                    const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
-                    if (scrollTarget) {
-                        scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }
-                });
-                return;
-            }
-        }
-
-        let fieldsToValidate: Path<PostAdFormData>[] = [];
-
-        // Validate the fields the backend actually checks (IDs, not display strings).
-        switch (currentStep) {
-            // Step 1: Device identity — backend requires categoryId (ObjectId) and deviceCondition.
-            // 'brand' / 'brandId' are optional on the backend but we gate on brand display name
-            // so the user always selects one before proceeding.
-            case 1: 
-                fieldsToValidate = ["categoryId", "brand", "model", "deviceCondition"] as Path<PostAdFormData>[];
-                if (requiresScreenSize) fieldsToValidate.push("screenSize" as Path<PostAdFormData>);
-                break;
-            // Step 2: Listing details — backend requires title, description, price and a fully
-            // populated location object (locationId + city + state + coordinates).
-            case 2: fieldsToValidate = ["title", "description", "price", "location"] as Path<PostAdFormData>[]; break;
-            default: break;
-        }
-
-        const isValid = await trigger(fieldsToValidate);
-        if (isValid) {
-            if (currentStep < 2) {
-                setCurrentStep(prev => prev + 1);
-                document.querySelector("[data-post-ad-scroll]")?.scrollTo({ top: 0, behavior: "smooth" });
-            }
-        } else {
-            requestAnimationFrame(() => {
-                const firstError = document.querySelector(".text-destructive");
-                const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
-                if (scrollTarget) {
-                    scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
-                }
-            });
-        }
-    }, [currentStep, form, requiresScreenSize, trigger]);
-
-    const prevStep = useCallback(() => {
-        if (currentStep > 1) {
-            setCurrentStep(prev => prev - 1);
-            document.querySelector("[data-post-ad-scroll]")?.scrollTo({ top: 0, behavior: "smooth" });
-        }
-    }, [currentStep]);
-
-    // Stable reference: handleSubmit from RHF is stable; onValidSubmit is useCallback-wrapped.
-    // Without useCallback here, a new fn is created each render and ends up in the useMemo deps
-    const { submitAd, isInternalUploading } = useImageUploadWorkflow(
-        form, listingImages, setListingImages,
-        normalizeIdentityFieldsBeforeSubmit, onValidSubmit,
-        setFormError, setSubmittedAd
+    const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(
+        form,
+        availableSpareParts
     );
+
+    const { nextStep, prevStep } = usePostAdStepNavigation({
+        form,
+        currentStep,
+        setCurrentStep,
+        setStepValidationAttempts,
+        requiresScreenSize,
+        trigger,
+    });
+
+    const { submitAd, isSubmitting, isInternalUploading } = usePostAdSubmissionFlow({
+        form,
+        listingImages,
+        setListingImages,
+        isEditMode,
+        editAdId,
+        isLocationLocked,
+        setFormError,
+        setSubmittedAd,
+    });
 
     // Destructure stable function refs from images hook
     const { addImages, removeImage } = imagesHook;
 
-    const stateValue = useMemo<PostAdStateContextType>(() => ({
-        currentStep,
-        stepValidationAttempts,
-        form,
-        control,
-        errors,
+    // ── 4 isolated domain memos ───────────────────────────────────────────────
+    // Each re-evaluates only when its own deps change.
+    // Catalog loading never triggers a location re-render, and vice versa.
+
+    const catalogState = useMemo<PostAdCatalogState>(() => ({
+        dynamicCategories,
+        categoryMap,
+        availableBrands,
+        availableModels,
+        availableSizes,
+        availableSpareParts,
+        isLoadingSpareParts,
+        categorySchema,
+        requiresScreenSize,
+        sparePartsError,
+        brandsError,
         brandIsPending,
-        spareParts,
-        listingImages,
+    }), [
+        dynamicCategories, categoryMap, availableBrands, availableModels, availableSizes,
+        availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize,
+        sparePartsError, brandsError, brandIsPending,
+    ]);
+
+    const locationState = useMemo<PostAdLocationState>(() => ({
         listingLocation,
         locationDisplay: locationDisplay || "",
         coordinates,
-        dynamicCategories,
-        categoryMap,
-        availableBrands,
-        availableModels,
-        availableSizes,
-        availableSpareParts,
-        isLoadingSpareParts,
-        categorySchema,
-        isLoading,
+        isLocationLocked,
+    }), [listingLocation, locationDisplay, coordinates, isLocationLocked]);
+
+    const imagesState = useMemo<PostAdImagesState>(() => ({
+        listingImages,
         isUploadingImages: imagesHook.isUploadingImages,
+        imageUploadError: imagesHook.imageUploadError,
+    }), [listingImages, imagesHook.isUploadingImages, imagesHook.imageUploadError]);
+
+    const flowState = useMemo<PostAdFlowState>(() => ({
+        currentStep,
+        stepValidationAttempts,
+        isLoading,
         isSubmitting: isSubmitting || isInternalUploading,
         isEditMode,
-        isLocationLocked,
         userHasInteracted,
         loadError,
         formError,
-        imageUploadError: imagesHook.imageUploadError,
-        requiresScreenSize,
         submittedAd,
-        sparePartsError,
-        brandsError,
-    }), [
         form,
         control,
         errors,
-        currentStep,
-        stepValidationAttempts,
-        brandIsPending,
-        spareParts,
-        listingImages,
-        listingLocation,
-        locationDisplay,
-        coordinates,
-        dynamicCategories,
-        categoryMap,
-        availableBrands,
-        availableModels,
-        availableSizes,
-        availableSpareParts,
-        isLoadingSpareParts,
-        categorySchema,
-        isLoading,
-        imagesHook.isUploadingImages,
-        isSubmitting,
-        isInternalUploading, // Added to dependencies
-        isEditMode,
-        isLocationLocked,
-        userHasInteracted,
-        loadError,
-        formError,
-        imagesHook.imageUploadError,
-        requiresScreenSize,
-        submittedAd,
-        sparePartsError,
-        brandsError,
+    }), [
+        currentStep, stepValidationAttempts, isLoading, isSubmitting, isInternalUploading,
+        isEditMode, userHasInteracted, loadError, formError, submittedAd,
+        form, control, errors,
     ]);
+
+    // Backward-compat: components still on usePostAd() / usePostAdState() get a
+    // merged view. This memo only re-runs when one of the 4 domain memos changes.
+    const stateValue = useMemo<PostAdStateContextType>(() => ({
+        ...flowState,
+        ...catalogState,
+        ...locationState,
+        ...imagesState,
+    }), [flowState, catalogState, locationState, imagesState]);
 
     const actionValue = useMemo<PostAdActionContextType>(() => ({
         setCurrentStep,
@@ -581,6 +539,7 @@ export function PostAdProvider({
         loadModelsForBrand,
         loadSparePartsForCategory,
         loadCategorySchema,
+        setAvailableModels,
         generateDescription,
         submitAd,
         setUserHasInteracted,
@@ -606,6 +565,7 @@ export function PostAdProvider({
         loadModelsForBrand,
         loadSparePartsForCategory,
         loadCategorySchema,
+        setAvailableModels,
         generateDescription,
         submitAd,
         setUserHasInteracted,
@@ -619,11 +579,19 @@ export function PostAdProvider({
     ]);
 
     return (
-        <PostAdStateContext.Provider value={stateValue}>
-            <PostAdActionContext.Provider value={actionValue}>
-                {children}
-            </PostAdActionContext.Provider>
-        </PostAdStateContext.Provider>
+        <PostAdCatalogContext.Provider value={catalogState}>
+            <PostAdLocationContext.Provider value={locationState}>
+                <PostAdImagesContext.Provider value={imagesState}>
+                    <PostAdFlowContext.Provider value={flowState}>
+                        <PostAdStateContext.Provider value={stateValue}>
+                            <PostAdActionContext.Provider value={actionValue}>
+                                {children}
+                            </PostAdActionContext.Provider>
+                        </PostAdStateContext.Provider>
+                    </PostAdFlowContext.Provider>
+                </PostAdImagesContext.Provider>
+            </PostAdLocationContext.Provider>
+        </PostAdCatalogContext.Provider>
     );
 }
 
@@ -636,6 +604,34 @@ export const usePostAdState = () => {
 export const usePostAdAction = () => {
     const ctx = useContext(PostAdActionContext);
     if (!ctx) throw new Error("usePostAdAction must be used within PostAdProvider");
+    return ctx;
+};
+
+// ── Domain-focused hooks ──────────────────────────────────────────────────────
+// Use these instead of usePostAd() when a component only needs one domain.
+// The component will only re-render when that domain's state changes.
+
+export const usePostAdCatalog = () => {
+    const ctx = useContext(PostAdCatalogContext);
+    if (!ctx) throw new Error("usePostAdCatalog must be used within PostAdProvider");
+    return ctx;
+};
+
+export const usePostAdLocationState = () => {
+    const ctx = useContext(PostAdLocationContext);
+    if (!ctx) throw new Error("usePostAdLocationState must be used within PostAdProvider");
+    return ctx;
+};
+
+export const usePostAdImages = () => {
+    const ctx = useContext(PostAdImagesContext);
+    if (!ctx) throw new Error("usePostAdImages must be used within PostAdProvider");
+    return ctx;
+};
+
+export const usePostAdFlow = () => {
+    const ctx = useContext(PostAdFlowContext);
+    if (!ctx) throw new Error("usePostAdFlow must be used within PostAdProvider");
     return ctx;
 };
 

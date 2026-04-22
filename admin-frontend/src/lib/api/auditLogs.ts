@@ -14,14 +14,14 @@ export type PaginatedAuditLogs = {
 };
 
 type AuditLogQuery = {
-    search: string;
+    q: string;
     action: string;
     page?: number;
     limit?: number;
 };
 
 export async function fetchAuditLogs({
-    search,
+    q,
     action,
     page = 1,
     limit = 50,
@@ -31,8 +31,8 @@ export async function fetchAuditLogs({
         limit: String(limit),
     });
 
-    if (search.trim()) {
-        query.set("search", search.trim());
+    if (q.trim()) {
+        query.set("q", q.trim());
     }
     if (action !== "all") {
         query.set("action", action);

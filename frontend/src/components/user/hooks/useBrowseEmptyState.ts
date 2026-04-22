@@ -1,17 +1,21 @@
 import { useMemo } from "react";
 import type { Category } from "@/lib/api/user/categories";
+import type { BrowseBrandOption } from "@/lib/browse/browseFilterNormalization";
+import {
+  resolveBrowseBrandLabels,
+  resolveBrowseCategorySelection,
+} from "@/lib/browse/browseFilterNormalization";
 import { getDisplayLocationLabel } from "@/lib/location/locationLabels";
 import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
 import type { AppLocation } from "@/types/location";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import type { Listing } from "@/lib/api/user/listings";
+import { formatStableNumber } from "@/lib/formatters";
 import { DEFAULT_PRICE_RANGE } from "./useFilterState";
-
-const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 const EMPTY_FILTER_SHELL_CLASS_NAME =
   "w-64 shrink-0 h-fit sticky top-[6.25rem] rounded-3xl border border-slate-200/80 bg-white/85 p-4 shadow-none backdrop-blur-sm";
 
-const formatCurrency = (value: number) => `Rs ${value.toLocaleString()}`;
+const formatCurrency = (value: number) => `Rs ${formatStableNumber(value)}`;
 
 export const buildPriceSummary = (priceRange: [number, number]) => {
   const [minPrice, maxPrice] = priceRange;
@@ -30,6 +34,7 @@ export const buildPriceSummary = (priceRange: [number, number]) => {
 export function useBrowseEmptyState(
   selectedCategory: string | null,
   categories: Category[],
+  availableBrandOptions: BrowseBrandOption[],
   urlLocationLabel: string,
   location: AppLocation,
   query: string,
@@ -45,17 +50,13 @@ export function useBrowseEmptyState(
   displayAds: Listing[]
 ) {
   const resolvedCategoryLabel = useMemo(() => {
-    if (!selectedCategory) return null;
-
-    const normalizedCategory = selectedCategory.trim();
-    const matchedCategory = categories.find(
-      (category) => category.id === normalizedCategory || category.slug === normalizedCategory
-    );
-
-    if (matchedCategory?.name) return matchedCategory.name;
-    if (matchedCategory?.slug) return matchedCategory.slug;
-    return OBJECT_ID_PATTERN.test(normalizedCategory) ? null : normalizedCategory;
+    return resolveBrowseCategorySelection(selectedCategory, categories).label ?? null;
   }, [categories, selectedCategory]);
+
+  const resolvedBrandLabels = useMemo(
+    () => resolveBrowseBrandLabels(selectedBrands, availableBrandOptions),
+    [availableBrandOptions, selectedBrands]
+  );
 
   const activeLocationLabel = useMemo(() => {
     if (urlLocationLabel) return urlLocationLabel;
@@ -72,10 +73,10 @@ export function useBrowseEmptyState(
     if (trimmedQuery) badges.push(`Search: "${trimmedQuery}"`);
     if (resolvedCategoryLabel) badges.push(`Category: ${resolvedCategoryLabel}`);
 
-    if (selectedBrands.length === 1) {
-      badges.push(`Brand: ${selectedBrands[0]}`);
-    } else if (selectedBrands.length > 1) {
-      badges.push(`${selectedBrands.length} brands`);
+    if (resolvedBrandLabels.length === 1) {
+      badges.push(`Brand: ${resolvedBrandLabels[0]}`);
+    } else if (resolvedBrandLabels.length > 1) {
+      badges.push(`${resolvedBrandLabels.length} brands`);
     }
 
     if (priceSummary) badges.push(priceSummary);
@@ -84,7 +85,7 @@ export function useBrowseEmptyState(
     if (sort !== "newest") badges.push(`Sort: ${PUBLIC_BROWSE_SORT_LABELS[sort]}`);
 
     return badges;
-  }, [activeLocationLabel, globalLocationLabel, location.locationId, priceRange, query, radiusKm, resolvedCategoryLabel, selectedBrands, showRadiusFilter, sort, urlLocationId, urlLocationLabel]);
+  }, [activeLocationLabel, globalLocationLabel, location.locationId, priceRange, query, radiusKm, resolvedBrandLabels, resolvedCategoryLabel, showRadiusFilter, sort, urlLocationId, urlLocationLabel]);
 
   const activeFilterCount = activeFilterBadges.length;
   const isEmptyState = !isLoading && !error && displayAds.length === 0;

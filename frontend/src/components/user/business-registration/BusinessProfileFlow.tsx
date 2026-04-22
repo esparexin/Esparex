@@ -101,7 +101,7 @@ function buildBusinessPayloadBase(data: BusinessWizardFormShape): Omit<CreateBus
             ...(asOptionalString(data.currentLocationCountry) ? { country: data.currentLocationCountry?.trim() } : {}),
             coordinates: (data.coordinates as CreateBusinessDTO["location"]["coordinates"]) || undefined,
         },
-        phone: data.contactNumber.replace(/\D/g, "").slice(-10),
+        mobile: data.contactNumber.replace(/\D/g, "").slice(-10),
         email: data.email.trim(),
     };
 }

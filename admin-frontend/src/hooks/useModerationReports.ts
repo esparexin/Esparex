@@ -45,7 +45,7 @@ const normalizeReportItem = (raw: Record<string, unknown>): ReportQueueItem => (
 
 interface ReportFilters {
     status?: string;
-    search?: string;
+    q?: string;
     page: number;
     limit: number;
 }
@@ -74,8 +74,8 @@ export function useModerationReports() {
             if (filters.status && filters.status !== "all") {
                 query.set("status", filters.status);
             }
-            if (filters.search) {
-                query.set("search", filters.search);
+            if (filters.q) {
+                query.set("q", filters.q);
             }
 
             const response = await adminFetch<unknown>(`${ADMIN_ROUTES.REPORTS}?${query.toString()}`);

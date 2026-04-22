@@ -14,6 +14,7 @@ interface FooterProps {
     theme?: "light" | "dark";
     onNavigate?: (page: string) => void;
     className?: string;
+    currentYear: number;
 }
 
 type FooterLinkSection = {
@@ -50,9 +51,8 @@ const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
     },
 ];
 
-export function Footer({ theme = "light", onNavigate, className }: FooterProps) {
+export function Footer({ theme = "light", onNavigate, className, currentYear }: FooterProps) {
     const pathname = usePathname();
-    const currentYear = new Date().getFullYear();
     const hasMobileBottomNav = getMobileChromePolicy(pathname).showMobileBottomNav;
 
     // Hide footer on Post Ad wizard to prevent sticky CTA conflicts

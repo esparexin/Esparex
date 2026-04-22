@@ -95,8 +95,8 @@ export const adminListQuerySchema = z.object({
   riskMin: z.coerce.number().min(0).max(1).optional().default(0.8),
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().min(1).max(100).optional().default(20),
-  search: z.string().max(100).optional().default(''),
-});
+  q: z.string().max(100).optional().default(''),
+}).strict();
 
 export const adminDeleteMessageSchema = z.object({
   reason: z.string().max(300).optional(),

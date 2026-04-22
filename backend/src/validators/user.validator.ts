@@ -12,6 +12,48 @@ import { ROLE_VALUES } from '../../../shared/enums/roles';
 import { USER_STATUS } from '../../../shared/enums/userStatus';
 import { MOBILE_VISIBILITY_VALUES } from '../../../shared/constants/mobileVisibility';
 
+const LEGACY_ADMIN_USERS_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in admin user filters. Use `q` instead.';
+const LEGACY_PROFILE_PHONE_ALIAS_MESSAGE = '`phone` is no longer accepted in profile updates. Mobile number changes are not supported here.';
+const IMMUTABLE_PROFILE_MOBILE_MESSAGE = '`mobile` is read-only in profile updates and cannot be changed here.';
+
+const hasOwn = (value: unknown, key: string): boolean =>
+    Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, key));
+
+const rejectLegacyAdminUsersAliases = (raw: unknown) => {
+    if (!hasOwn(raw, 'search')) return;
+
+    throw new z.ZodError([
+        {
+            code: z.ZodIssueCode.custom,
+            path: ['search'],
+            message: LEGACY_ADMIN_USERS_SEARCH_ALIAS_MESSAGE,
+        },
+    ]);
+};
+
+const rejectProfileMutationAliases = (raw: unknown) => {
+    const issues = [];
+
+    if (hasOwn(raw, 'phone')) {
+        issues.push({
+            code: z.ZodIssueCode.custom,
+            path: ['phone'],
+            message: LEGACY_PROFILE_PHONE_ALIAS_MESSAGE,
+        });
+    }
+
+    if (hasOwn(raw, 'mobile')) {
+        issues.push({
+            code: z.ZodIssueCode.custom,
+            path: ['mobile'],
+            message: IMMUTABLE_PROFILE_MOBILE_MESSAGE,
+        });
+    }
+
+    if (issues.length === 0) return;
+    throw new z.ZodError(issues);
+};
+
 /**
  * User role enum
  */
@@ -70,15 +112,11 @@ export const registerUserSchema = z.object({
 /**
  * Update User Profile Schema
  */
-export const updateUserProfileSchema = z.object({
+const updateUserProfileSchemaBase = z.object({
     name: sanitizeString(2, 50).optional(),
     email: commonSchemas.email.optional(),
 
-    // Mobile (Frontend often sends phone/mobile)
-    phone: z.string().optional(),
-    mobile: z.string().optional(),
-
-    // Profile Photo (Controller expects profilePhoto, maps to avatar)
+    // Profile photo (controller maps profilePhoto to avatar)
     profilePhoto: z.string().url("Invalid profile photo URL").optional(),
     avatar: z.string().url().optional(), // Support both just in case
 
@@ -111,10 +149,15 @@ export const updateUserProfileSchema = z.object({
     id: z.string().optional()
 });
 
+export const updateUserProfileSchema = z.preprocess((raw) => {
+    rejectProfileMutationAliases(raw);
+    return raw;
+}, updateUserProfileSchemaBase);
+
 /**
  * Get Users Query Schema (Admin)
  */
-export const getUsersQuerySchema = commonSchemas.pagination.extend({
+const getUsersQuerySchemaBase = commonSchemas.pagination.extend({
     ...commonSchemas.sort.shape,
     ...commonSchemas.search.shape,
 
@@ -127,6 +170,11 @@ export const getUsersQuerySchema = commonSchemas.pagination.extend({
     minTrustScore: z.string().transform(Number).pipe(z.number().min(0).max(100)).optional(),
     maxTrustScore: z.string().transform(Number).pipe(z.number().min(0).max(100)).optional(),
 });
+
+export const getUsersQuerySchema = z.preprocess((raw) => {
+    rejectLegacyAdminUsersAliases(raw);
+    return raw;
+}, getUsersQuerySchemaBase);
 
 /**
  * User ID Param Schema

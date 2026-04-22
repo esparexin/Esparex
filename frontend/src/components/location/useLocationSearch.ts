@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { searchLocations, type Location } from "@/lib/api/user/locations";
 import { getCurrentLocationResult } from "@/lib/location/locationService";
 import { getSearchCacheKey, getCacheEntry, setCacheEntry, isCacheAvailable } from "@/lib/locationCache";
-import { useLocationState, useLocationDispatch } from "@/context/LocationContext";
+import { useLocationStatus, useLocationDispatch } from "@/context/LocationContext";
 import {
     type DetectedLocationShape,
     type ErrorType,
@@ -29,7 +29,7 @@ export function useLocationSearch({
     onApplySelection: (loc: Location) => void;
     onClose?: () => void;
 }) {
-    const { loading: globalDetecting } = useLocationState();
+    const { loading: globalDetecting } = useLocationStatus();
     const { detectLocation } = useLocationDispatch();
 
     const [locations, setLocations] = useState<Location[]>([]);
@@ -177,7 +177,12 @@ export function useLocationSearch({
         if (mode === "postAd") {
             setLocalDetecting(true);
             try {
-                const detectionResult = await getCurrentLocationResult({ mode: "precise" });
+                const detectionResult = await getCurrentLocationResult({
+                    mode: "precise",
+                    allowApproximateFallback: false,
+                    enableHighAccuracy: true,
+                    maximumAgeMs: 0,
+                });
                 const detected = toDetectedSelection(detectionResult.location as DetectedLocationShape);
                 if (!detected?.coordinates) {
                     setDetectFeedback("Could not detect current location. Please search manually.");

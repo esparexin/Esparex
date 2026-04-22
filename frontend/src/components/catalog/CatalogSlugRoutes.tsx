@@ -12,7 +12,7 @@ import { unwrapApiPayload } from "@/lib/api/result";
 import { API_ROUTES } from "@/lib/api/routes";
 import { fetchUserApiJson } from "@/lib/api/user/server";
 import { getAdsPage } from "@/lib/api/user/listings";
-import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
+import { buildCatalogLinkedBrowseRoute } from "@/lib/publicBrowseRoutes";
 import { generateAdSlug } from "@/lib/slug";
 
 type CatalogSlugRouteProps = {
@@ -196,11 +196,9 @@ function createCatalogSlugPage(entity: CatalogSlugEntity) {
       permanentRedirect(`/${entity === "brand" ? "brands" : "models"}/${canonicalParam}`);
     }
 
-    const browseHref = buildPublicBrowseRoute({
-      type: "ad",
-      ...(entity === "brand"
-        ? { brands: pageData.record.id }
-        : { modelId: pageData.record.id }),
+    const browseHref = buildCatalogLinkedBrowseRoute({
+      entity,
+      id: pageData.record.id,
     });
 
     return (

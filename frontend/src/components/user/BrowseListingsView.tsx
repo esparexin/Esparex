@@ -24,6 +24,7 @@ export interface BrowseBuildFiltersArgs {
   pageSize: number;
   query: string;
   selectedCategory: string;
+  categories: Category[];
   location: LocationData;
   sort: "relevance" | "newest" | "price_low_high" | "price_high_low";
   urlLocationId?: string;

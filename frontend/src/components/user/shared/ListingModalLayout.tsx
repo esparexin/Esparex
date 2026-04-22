@@ -5,11 +5,12 @@ import { Z_INDEX } from "@/lib/zIndexConfig";
 
 interface ListingModalLayoutProps {
     title: string;
+    subtitle?: string;
     onClose: () => void;
     children: React.ReactNode;
 }
 
-export function ListingModalLayout({ title, onClose, children }: ListingModalLayoutProps) {
+export function ListingModalLayout({ title, subtitle, onClose, children }: ListingModalLayoutProps) {
     return (
         <div
             onClick={onClose}
@@ -46,15 +47,16 @@ export function ListingModalLayout({ title, onClose, children }: ListingModalLay
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <h1
-                            className={cn(
-                                "font-bold text-foreground text-base leading-none",
-                                "flex-1 text-center",
-                                "sm:flex-none sm:text-left"
+                        <div className="flex-1 flex flex-col sm:flex-row sm:items-baseline sm:gap-2 text-center sm:text-left">
+                            <h1 className="font-bold text-foreground text-base leading-none">
+                                {title}
+                            </h1>
+                            {subtitle && (
+                                <span className="text-[10px] sm:text-xs font-bold text-primary bg-primary/5 px-1.5 py-0.5 rounded uppercase tracking-wider mt-1 sm:mt-0 inline-block w-fit mx-auto sm:mx-0">
+                                    {subtitle}
+                                </span>
                             )}
-                        >
-                            {title}
-                        </h1>
+                        </div>
                         <div className="w-10 sm:hidden" />
                     </div>
                 </header>

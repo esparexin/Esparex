@@ -6,7 +6,6 @@ export type MobileVisibility = MobileVisibilityValue;
 export type ProfileFormData = {
   name: string;
   email: string;
-  phone: string;
   businessName?: string;
   gstNumber?: string;
 };
@@ -39,7 +38,6 @@ export type ProfileUser = User & {
   notificationSettings?: UserNotificationSettings;
   mobileVisibility?: MobileVisibility;
   plan?: string;
-  phone?: string;
 };
 
 export type SmartAlertListItem = {

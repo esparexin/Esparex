@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useLocationState, useLocationDispatch } from "@/context/LocationContext";
+import { useLocationData, useLocationDispatch } from "@/context/LocationContext";
 import { toGeoPoint, type GeoJSONPoint } from "@shared/utils/geoUtils";
 import { useDismissableLayer } from "@/hooks/useDismissableLayer";
 
@@ -25,7 +25,7 @@ export interface UseLocationSelectorProps {
 }
 
 export function useLocationSelector({ mode = "local", onLocationSelect, initialDisplay }: UseLocationSelectorProps = {}) {
-    const { location: globalLocation } = useLocationState();
+    const { location: globalLocation } = useLocationData();
     const { setManualLocation } = useLocationDispatch();
 
     // UI state for dropdown (mostly for header mode but useful locally too)

@@ -39,7 +39,7 @@ export default function ReportsPage() {
     const [searchInput, setSearchInput] = useState("");
 
     const requestedStatus = searchParams.get("status");
-    const requestedSearch = readStringParam(searchParams.get("search"));
+    const requestedSearch = readStringParam(searchParams.get("q") ?? searchParams.get("search"));
     const requestedPage = readPositiveIntParam(searchParams.get("page"), 1);
 
     const status = REPORT_STATUS_OPTIONS.some((option) => option.value === requestedStatus)
@@ -56,7 +56,7 @@ export default function ReportsPage() {
         const timer = setTimeout(() => {
             void fetchReports({
                 status,
-                search,
+                q: search,
                 page,
                 limit: 20,
             });
@@ -67,7 +67,7 @@ export default function ReportsPage() {
     useEffect(() => {
         const nextUrl = ADMIN_UI_ROUTES.reports({
             status: status !== "open" ? status : "open",
-            search: search || undefined,
+            q: search || undefined,
             page: page > 1 ? page : undefined,
         });
         const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
@@ -82,7 +82,7 @@ export default function ReportsPage() {
             if (searchInput === (search || "")) return;
             const nextUrl = ADMIN_UI_ROUTES.reports({
                 status,
-                search: searchInput || undefined,
+                q: searchInput || undefined,
             });
             void router.replace(nextUrl, { scroll: false });
         }, 400);
@@ -137,7 +137,7 @@ export default function ReportsPage() {
                 cell: (item) => (
                     <div className="flex flex-wrap items-center gap-2">
                         <Link
-                            href={ADMIN_UI_ROUTES.ads({ status: "all", search: item.ad?.title || item.id })}
+                            href={ADMIN_UI_ROUTES.ads({ status: "all", q: item.ad?.title || item.id })}
                             className="inline-flex items-center gap-1 text-xs font-medium text-sky-600 hover:underline"
                         >
                             <Eye size={12} /> Inspect
@@ -204,7 +204,7 @@ export default function ReportsPage() {
                     searchPlaceholder="Search reports by listing title or report note..."
                     status={status}
                     onStatusChange={(val) => {
-                        const nextUrl = ADMIN_UI_ROUTES.reports({ status: val, search: searchInput || undefined });
+                        const nextUrl = ADMIN_UI_ROUTES.reports({ status: val, q: searchInput || undefined });
                         void router.replace(nextUrl, { scroll: false });
                     }}
                     statusOptions={REPORT_STATUS_OPTIONS}
@@ -223,7 +223,7 @@ export default function ReportsPage() {
                         totalItems: pagination.total,
                         pageSize: pagination.limit,
                         onPageChange: (newPage) => {
-                            const nextUrl = ADMIN_UI_ROUTES.reports({ status, search, page: newPage });
+                            const nextUrl = ADMIN_UI_ROUTES.reports({ status, q: search, page: newPage });
                             void router.replace(nextUrl, { scroll: false });
                         },
                     }}

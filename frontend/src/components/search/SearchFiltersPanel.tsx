@@ -1,5 +1,6 @@
 "use client";
 
+import type { BrowseBrandOption } from "@/lib/browse/browseFilterNormalization";
 import {
   Accordion,
   AccordionContent,
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { formatStableNumber } from "@/lib/formatters";
 import { MapPin, Tag, Smartphone, IndianRupee } from "lucide-react";
 
 type SpecificFilterOption = {
@@ -36,7 +38,7 @@ export interface SearchFiltersPanelSharedProps {
   setPriceRange: (val: [number, number]) => void;
   selectedBrands: string[];
   setSelectedBrands: (val: string[]) => void;
-  availableBrands: string[];
+  availableBrands: BrowseBrandOption[];
   categoryFilters: Record<string, string[]>;
   setCategoryFilters: (val: Record<string, string[]>) => void;
   radiusKm: number;
@@ -154,10 +156,10 @@ export function SearchFiltersPanel({
             />
             <div className="flex justify-between items-center text-xs">
               <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 font-medium">
-                ₹{priceRange[0].toLocaleString()}
+                ₹{formatStableNumber(priceRange[0])}
               </div>
               <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 font-medium">
-                ₹{priceRange[1].toLocaleString()}
+                ₹{formatStableNumber(priceRange[1])}
               </div>
             </div>
           </AccordionContent>
@@ -174,14 +176,14 @@ export function SearchFiltersPanel({
             <AccordionContent>
               <FilterCheckboxList
                 options={availableBrands.map((brand) => ({
-                  id: `brand-${brand}`,
-                  label: brand,
-                  checked: selectedBrands.includes(brand),
+                  id: `brand-${brand.value}`,
+                  label: brand.label,
+                  checked: selectedBrands.includes(brand.value) || selectedBrands.includes(brand.label),
                   onCheckedChange: (checked) => {
                     setSelectedBrands(
                       checked
-                        ? [...selectedBrands, brand]
-                        : selectedBrands.filter((selectedBrand) => selectedBrand !== brand)
+                        ? Array.from(new Set([...selectedBrands.filter((selectedBrand) => selectedBrand !== brand.label), brand.value]))
+                        : selectedBrands.filter((selectedBrand) => selectedBrand !== brand.value && selectedBrand !== brand.label)
                     );
                   },
                 }))}

@@ -43,7 +43,6 @@ export type BusinessLocationInput = {
 export type BusinessPayload = {
     [key: string]: unknown;
     mobile?: string;
-    phone?: string;
     email?: string;
     gstNumber?: string;
     registrationNumber?: string;
@@ -253,7 +252,7 @@ export const normalizeDocuments = async (
 
 export const getUniquenessConditions = (data: BusinessPayload) => {
     const conditions: Array<Record<string, string>> = [];
-    const normalizedMobile = String(data.mobile || data.phone || '').trim();
+    const normalizedMobile = String(data.mobile || '').trim();
     const normalizedEmail = String(data.email || '').trim().toLowerCase();
     const normalizedGst = String(data.gstNumber || '').trim().toUpperCase();
     const normalizedRegistration = String(data.registrationNumber || '').trim().toUpperCase();

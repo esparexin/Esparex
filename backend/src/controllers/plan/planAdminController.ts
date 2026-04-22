@@ -46,7 +46,7 @@ export const updatePlan = async (req: Request, res: Response) => {
 
 export const getPlans = async (req: Request, res: Response) => {
     try {
-        const rawSearch = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+        const rawSearch = typeof req.query.q === 'string' ? req.query.q.trim() : '';
         const rawType = typeof req.query.type === 'string' ? req.query.type.trim() : '';
         const query: Record<string, unknown> = {};
 

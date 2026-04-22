@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatPrice } from "@/lib/formatters";
-import { formatLocation } from "@/lib/location/locationService";
+import { formatPrice, formatStableNumber } from "@/lib/formatters";
+import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { type Ad } from "@/schemas/ad.schema";
 import { Shield, CheckCircle, MapPin, Clock, Eye } from "lucide-react";
 import { cn } from "@/components/ui/utils";
@@ -19,6 +19,8 @@ export function AdTitlePriceCard({
     viewCount,
     variant,
 }: AdTitlePriceCardProps) {
+    const locationLabel = resolveListingLocationLabel(ad.location, "full");
+
     if (variant === "mobile") {
         return (
             <Card className="md:hidden rounded-none bg-white border-x-0 border-t-0 border-b border-slate-100">
@@ -30,8 +32,8 @@ export function AdTitlePriceCard({
                             </Badge>
                             {ad.deviceCondition && (
                                 <Badge className={cn(
-                                    "flex-shrink-0 text-xs border-0 rounded-lg font-semibold",
-                                    ad.deviceCondition === 'power_on' ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+                                    "flex-shrink-0 text-[10px] h-5 px-2 border-0 rounded-full font-bold uppercase tracking-tight",
+                                    ad.deviceCondition === 'power_on' ? "bg-green-100/80 text-green-700" : "bg-red-100/80 text-red-700"
                                 )}>
                                     {ad.deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}
                                 </Badge>
@@ -77,7 +79,7 @@ export function AdTitlePriceCard({
                     <div className="grid grid-cols-2 gap-2 text-xs text-foreground-subtle border-t border-slate-100 pt-3">
                         <div className="flex items-center gap-1.5">
                             <MapPin className="h-3 w-3 flex-shrink-0 text-foreground-subtle" />
-                            <span className="truncate">{formatLocation(ad.location)}</span>
+                            <span className="truncate">{locationLabel}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                             <Clock className="h-3 w-3 flex-shrink-0 text-foreground-subtle" />
@@ -86,7 +88,7 @@ export function AdTitlePriceCard({
                         {viewCount !== undefined && viewCount > 0 && (
                             <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
                                 <Eye className="h-3 w-3 text-foreground-subtle" />
-                                <span>{viewCount.toLocaleString()} views</span>
+                                <span>{formatStableNumber(viewCount)} views</span>
                             </div>
                         )}
                         <div className="flex items-center gap-1.5">
@@ -109,8 +111,8 @@ export function AdTitlePriceCard({
                         </Badge>
                         {ad.deviceCondition && (
                             <Badge className={cn(
-                                "border-none font-bold px-2.5 py-0.5 text-2xs",
-                                ad.deviceCondition === 'power_on' ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                                "border-none font-bold px-2 h-5 text-[10px] rounded-full uppercase tracking-tight",
+                                ad.deviceCondition === 'power_on' ? "bg-green-100/80 text-green-700" : "bg-red-100/80 text-red-700"
                             )}>
                                 {ad.deviceCondition === 'power_on' ? 'POWER ON' : 'POWER OFF'}
                             </Badge>
@@ -162,7 +164,7 @@ export function AdTitlePriceCard({
                         <span className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Location</span>
                         <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
                             <MapPin className="h-3 w-3 text-foreground-subtle" />
-                            <span className="truncate">{formatLocation(ad.location)}</span>
+                            <span className="truncate">{locationLabel}</span>
                         </div>
                     </div>
                     <div className="flex flex-col gap-1">
@@ -177,7 +179,7 @@ export function AdTitlePriceCard({
                             <span className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Views</span>
                             <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
                                 <Eye className="h-3 w-3 text-foreground-subtle" />
-                                <span className="truncate">{viewCount.toLocaleString()} views</span>
+                                <span className="truncate">{formatStableNumber(viewCount)} views</span>
                             </div>
                         </div>
                     )}

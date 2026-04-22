@@ -5,7 +5,7 @@ import type { CategoryVisual } from "@/config/categoryVisuals";
 import Link from "next/link";
 import type { Category } from "@/schemas";
 import { motion } from "framer-motion";
-import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
+import { buildCategoryBrowseRoute } from "@/lib/publicBrowseRoutes";
 
 interface CategoryBrowserProps {
     categories: Category[];
@@ -69,7 +69,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                         return (
                             <motion.div key={cat.id || cat.id} variants={itemVariants}>
                                 <Link
-                                    href={buildPublicBrowseRoute({ type: "ad", category: cat.slug || cat.id })}
+                                    href={buildCategoryBrowseRoute(cat)}
                                     aria-label={`Browse ${cat.name}`}
                                     className="group flex snap-start flex-col items-center justify-center gap-2 min-w-[72px] md:min-w-0"
                                 >

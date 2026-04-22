@@ -72,13 +72,12 @@ export function useProfileSettings({
       setShowDeleteDialog(false);
       return;
     }
-    const profileUser = user as ProfileUser;
+    const profileUser = user;
     
     // Sync Identity
     setFormData({
       name: user.name || "",
       email: user.email || "",
-      phone: user.mobile || profileUser.phone || "",
       businessName: profileUser.businessName || "",
       gstNumber: profileUser.gstNumber || "",
     });

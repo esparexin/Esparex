@@ -37,10 +37,13 @@ interface AuthContextType {
   /** true once status has settled to either "authenticated" or "unauthenticated" */
   isAuthResolved: boolean;
   error: Error | null;
-  backendReady: boolean;
   refreshUser: () => Promise<void>;
   updateUser: (user: User) => void;
   logout: (options?: { skipServerLogout?: boolean }) => Promise<void>;
+}
+
+interface BackendReadyContextType {
+  backendReady: boolean;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -48,9 +51,13 @@ interface AuthContextType {
 /* -------------------------------------------------------------------------- */
 
 const AuthContext =
-  createContext<AuthContextType | undefined>(
-    undefined
-  );
+  createContext<AuthContextType | undefined>(undefined);
+
+// Separated from AuthContext so that the backend cold-start transition
+// (false → true) only re-renders the one component that needs it (useOtpFlow),
+// not every component that calls useAuth().
+const BackendReadyContext =
+  createContext<BackendReadyContextType | undefined>(undefined);
 
 /* -------------------------------------------------------------------------- */
 /* Utils                                                                      */
@@ -105,14 +112,10 @@ export function AuthProvider({
   const [backendReady, setBackendReady] =
     useState(false);
   const [hasAuthHint, setHasAuthHint] =
-    useState(() => {
-      if (initialHasAuthCookie) return true;
-      if (typeof window === "undefined") return false;
-      return localStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "1";
-    });
+    useState(initialHasAuthCookie);
 
   const [status, setStatus] =
-    useState<AuthStatus>(hasAuthHint ? "loading" : "unauthenticated");
+    useState<AuthStatus>(initialHasAuthCookie ? "loading" : "unauthenticated");
 
   const fetchingRef = useRef(false);
   const authBannerShownRef = useRef(false);
@@ -295,6 +298,15 @@ export function AuthProvider({
   /* ------------------------------------------------------------------------ */
 
   useEffect(() => {
+    if (initialHasAuthCookie || typeof window === "undefined") return;
+
+    if (localStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "1") {
+      setHasAuthHint(true);
+      setStatus((current) => (current === "unauthenticated" ? "loading" : current));
+    }
+  }, [initialHasAuthCookie]);
+
+  useEffect(() => {
     let mounted = true;
     const RETRY_DELAY_MS = 2_000;
 
@@ -447,20 +459,24 @@ export function AuthProvider({
       status,
       isAuthResolved: status !== "loading",
       error,
-      backendReady,
       refreshUser: fetchUser,
       updateUser,
       logout,
     }),
-    [backendReady, error, fetchUser, logout, status, updateUser, user]
+    [error, fetchUser, logout, status, updateUser, user]
+  );
+
+  const backendReadyValue = useMemo(
+    () => ({ backendReady }),
+    [backendReady]
   );
 
   return (
-    <AuthContext.Provider
-      value={value}
-    >
-      {children}
-    </AuthContext.Provider>
+    <BackendReadyContext.Provider value={backendReadyValue}>
+      <AuthContext.Provider value={value}>
+        {children}
+      </AuthContext.Provider>
+    </BackendReadyContext.Provider>
   );
 }
 
@@ -478,4 +494,15 @@ export function useAuth() {
   }
 
   return ctx;
+}
+
+/**
+ * useBackendReady — subscribe only to backendReady.
+ * Only this hook re-renders on the backend cold-start transition;
+ * all other useAuth() consumers are unaffected.
+ */
+export function useBackendReady(): boolean {
+  const ctx = useContext(BackendReadyContext);
+  if (!ctx) throw new Error("useBackendReady must be used within AuthProvider");
+  return ctx.backendReady;
 }

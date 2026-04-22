@@ -1,28 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { getListingById, type Listing as Ad } from "@/lib/api/user/listings";
+import { useEffect } from "react";
+import type { Listing as Ad } from "@/lib/api/user/listings";
 import { resolveCanonicalLocationId, sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { TOAST_MESSAGES } from "@/config/toastMessages";
 import logger from "@/lib/logger";
 import { ListingImage } from "@/types/listing";
-
-const resolveStrictObjectId = (...values: unknown[]): string => {
-    for (const value of values) {
-        const sanitized = sanitizeMongoObjectId(value);
-        if (sanitized) return sanitized;
-        if (value && typeof value === "object") {
-            const record = value as Record<string, unknown>;
-            const nestedSanitized =
-                sanitizeMongoObjectId(record.id) ||
-                sanitizeMongoObjectId(record._id) ||
-                sanitizeMongoObjectId(record.value);
-            if (nestedSanitized) return nestedSanitized;
-        }
-    }
-    return "";
-};
+import { useListingEditPreload } from "@/components/user/shared/useListingEditPreload";
+import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 
 interface UsePostAdPreloadProps {
     editAdId?: string;
@@ -30,7 +16,6 @@ interface UsePostAdPreloadProps {
     setIsLoading: (val: boolean) => void;
     setLoadError: (msg: string | null) => void;
     setValue: any;
-    setSpareParts: (parts: string[]) => void;
     setAdImages: (images: ListingImage[]) => void;
     setLocation: any;
     loadBrandsForCategory: (id: string) => Promise<void>;
@@ -44,114 +29,90 @@ export function usePostAdPreload({
     setIsLoading,
     setLoadError,
     setValue,
-    setSpareParts,
     setAdImages,
     setLocation,
     loadBrandsForCategory,
     loadSparePartsForCategory,
     setOriginalAdStatus,
 }: UsePostAdPreloadProps) {
-    const loadedAdIdRef = useRef<string | null>(null);
-
     useEffect(() => {
-        if (!editAdId || !isEditMode) {
-            loadedAdIdRef.current = null;
-            return;
-        }
+        if (editAdId && isEditMode) return;
+        setIsLoading(false);
+    }, [editAdId, isEditMode, setIsLoading]);
 
-        if (loadedAdIdRef.current === editAdId) {
-            return;
-        }
-        loadedAdIdRef.current = editAdId;
-
-        const loadAdData = async () => {
-            setIsLoading(true);
+    useListingEditPreload<Ad>({
+        editId: editAdId,
+        enabled: isEditMode,
+        onBeforeLoad: () => {
             setLoadError(null);
-            try {
-                const data = await getListingById(editAdId);
-                if (data) {
-                    const adData = data as Ad;
-
-                    // 0. Capture original status for location lock
-                    if (setOriginalAdStatus && adData.status) {
-                        setOriginalAdStatus(adData.status);
-                    }
-
-                    // 1. Resolve Category ID
-                    const catId = resolveStrictObjectId(
-                        adData.categoryId,
-                        adData.category
-                    );
-                    setValue("categoryId", catId);
-                    setValue("category", catId);
-
-                    // 2. Resolve Brand
-                    const brandName = typeof adData.brand === "string" ? adData.brand : (adData.brandId as any)?.name || "";
-                    setValue("brand", brandName);
-                    
-                    // 3. Set basic fields
-                    setValue("title", adData.title);
-                    setValue("description", adData.description);
-                    setValue("price", Number(adData.price) || 0);
-                    setValue("screenSize", adData.screenSize || "");
-
-                    // 4. Load Catalog Data
-                    if (catId) {
-                        await loadBrandsForCategory(catId);
-                        await loadSparePartsForCategory(catId);
-                    }
-
-                    // 5. Preload Location
-                    if (adData.location) {
-                        const canonicalGeoPoint = toCanonicalGeoPoint(adData.location.coordinates);
-                        const canonicalLocationId = resolveCanonicalLocationId(adData.location);
-
-                        setLocation(
-                            adData.location.display || adData.location.city || "",
-                            canonicalGeoPoint,
-                            {
-                                city: adData.location.city,
-                                state: adData.location.state,
-                                id: canonicalLocationId,
-                            }
-                        );
-                        setValue("location", {
-                            city: adData.location.city,
-                            state: adData.location.state,
-                            display: adData.location.display,
-                            coordinates: canonicalGeoPoint,
-                            locationId: canonicalLocationId,
-                        });
-                    }
-
-                    // 6. Preload Spare Parts
-                    if (Array.isArray(adData.spareParts)) {
-                        const normalizedIds = adData.spareParts
-                            .map((part: any) => sanitizeMongoObjectId(part))
-                            .filter((partId: any): partId is string => Boolean(partId));
-                        setSpareParts(normalizedIds);
-                        setValue("spareParts", normalizedIds);
-                    }
-
-                    // 7. Preload Images
-                    if (Array.isArray(adData.images)) {
-                        const mappedImgs: ListingImage[] = adData.images.map((url: string) => ({
-                            id: crypto.randomUUID(),
-                            preview: url,
-                            isRemote: true
-                        }));
-                        setAdImages(mappedImgs);
-                        setValue("images", mappedImgs.map(i => i.preview));
-                    }
-                }
-            } catch (err) {
-                logger.error("[Preload] Failed to load ad:", err);
-                loadedAdIdRef.current = null; // Allow retry after transient failures (e.g., 429).
-                setLoadError(TOAST_MESSAGES.LOAD_FAILED);
-            } finally {
-                setIsLoading(false);
+        },
+        onLoadingChange: setIsLoading,
+        onPayload: async (adData) => {
+            if (setOriginalAdStatus && adData.status) {
+                setOriginalAdStatus(adData.status);
             }
-        };
-        loadAdData();
-    }, [editAdId, isEditMode, loadBrandsForCategory, loadSparePartsForCategory, setValue, setLocation, setAdImages, setIsLoading, setLoadError, setSpareParts]);
+
+            const categoryId = resolveCatalogEntityId(adData.categoryId, adData.categoryName ?? adData.category);
+            setValue("categoryId", categoryId);
+            setValue("category", categoryId);
+
+            const brandName = typeof adData.brandName === "string" ? adData.brandName : "";
+            setValue("brand", brandName);
+
+            setValue("title", adData.title);
+            setValue("description", adData.description);
+            setValue("price", Number(adData.price) || 0);
+            setValue("screenSize", adData.screenSize || "");
+
+            if (categoryId) {
+                await Promise.all([
+                    loadBrandsForCategory(categoryId),
+                    loadSparePartsForCategory(categoryId),
+                ]);
+            }
+
+            if (adData.location) {
+                const canonicalGeoPoint = toCanonicalGeoPoint(adData.location.coordinates);
+                const canonicalLocationId = resolveCanonicalLocationId(adData.location);
+
+                setLocation(
+                    adData.location.display || adData.location.city || "",
+                    canonicalGeoPoint,
+                    {
+                        city: adData.location.city,
+                        state: adData.location.state,
+                        id: canonicalLocationId,
+                    }
+                );
+                setValue("location", {
+                    city: adData.location.city,
+                    state: adData.location.state,
+                    display: adData.location.display,
+                    coordinates: canonicalGeoPoint,
+                    locationId: canonicalLocationId,
+                });
+            }
+
+            if (Array.isArray(adData.spareParts)) {
+                const normalizedIds = adData.spareParts
+                    .map((part: any) => sanitizeMongoObjectId(part))
+                    .filter((partId: any): partId is string => Boolean(partId));
+                setValue("spareParts", normalizedIds);
+            }
+
+            if (Array.isArray(adData.images)) {
+                const mappedImages: ListingImage[] = adData.images.map((url: string) => ({
+                    id: crypto.randomUUID(),
+                    preview: url,
+                    isRemote: true,
+                }));
+                setAdImages(mappedImages);
+                setValue("images", mappedImages.map((image) => image.preview));
+            }
+        },
+        onError: (error) => {
+            logger.error("[Preload] Failed to load ad:", error);
+            setLoadError(TOAST_MESSAGES.LOAD_FAILED);
+        },
+    });
 }

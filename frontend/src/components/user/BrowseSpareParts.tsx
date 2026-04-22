@@ -29,6 +29,7 @@ const buildSparePartFilters = ({
   pageSize,
   query,
   selectedCategory,
+  categories,
   location,
   sort,
   urlLocationId,
@@ -40,6 +41,7 @@ const buildSparePartFilters = ({
     pageSize,
     query,
     selectedCategory,
+    categories,
   });
   filters.sortBy = PUBLIC_BROWSE_SORT_MAP[sort];
   if (

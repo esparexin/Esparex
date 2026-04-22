@@ -26,6 +26,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import FeatureCard from '@/components/user/FeatureCard';
+import { formatStableNumber } from "@/lib/formatters";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
 import { normalizeAdStatus } from "@/lib/status/statusNormalization";
 
@@ -251,7 +252,7 @@ export function MyAdsTab({
                                                     </Link>
                                                     {getStatusBadge(normalizedStatus, ad.id)}
                                                 </div>
-                                                <p className="text-xs font-semibold text-foreground mt-0.5">₹{ad.price.toLocaleString()}</p>
+                                                <p className="text-xs font-semibold text-foreground mt-0.5">₹{formatStableNumber(ad.price)}</p>
 
                                                 {/* Rejection reason */}
                                                 {isRejected && (ad as any).rejectionReason && (
@@ -279,11 +280,11 @@ export function MyAdsTab({
                                                     <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {ad.likes || 0} likes</span>
                                                     {isLive && ad.expiresAt && (
                                                         <span className="flex items-center gap-1 text-amber-600 font-medium whitespace-nowrap">
-                                                            <Clock className="h-3 w-3" /> Expires {formatDate(ad.expiresAt || new Date())}
+                                                            <Clock className="h-3 w-3" /> Expires {formatDate(ad.expiresAt)}
                                                         </span>
                                                     )}
-                                                    {!isLive && (
-                                                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {formatDate(ad.createdAt || new Date())}</span>
+                                                    {!isLive && ad.createdAt && (
+                                                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {formatDate(ad.createdAt)}</span>
                                                     )}
                                                 </div>
 

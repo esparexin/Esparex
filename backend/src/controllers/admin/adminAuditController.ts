@@ -13,9 +13,10 @@ import {
 export const getAuditLogs = async (req: Request, res: Response) => {
     try {
         const { page, limit, skip } = getPaginationParams(req);
-        const { action, targetType, adminId, requestId, correlationId } = req.query;
+        const { q, action, targetType, adminId, requestId, correlationId } = req.query;
 
         const { logs, total } = await fetchAuditLogs({ 
+            q,
             action, 
             targetType, 
             adminId, 

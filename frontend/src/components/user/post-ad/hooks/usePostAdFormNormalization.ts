@@ -1,71 +1,42 @@
 import { useCallback } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
+import {
+    buildPostAdEditPayload,
+    buildPostAdIdentityPatch,
+} from "@/lib/listings/postingFormNormalization";
 
 export function usePostAdFormNormalization(
     form: UseFormReturn<PostAdFormData>,
-    isLocationLocked: boolean,
-    setSpareParts: (parts: string[]) => void
+    isLocationLocked: boolean
 ) {
     const buildEditAdPayload = useCallback((payload: any) => {
-        const editPayload: Record<string, unknown> = {
-            title: payload.title,
-            description: payload.description,
-            price: payload.price,
-            images: payload.images,
-            isFree: payload.isFree,
-        };
-
-        if (!isLocationLocked && payload.location) {
-            editPayload.location = payload.location;
-        }
-
-        return editPayload;
+        return buildPostAdEditPayload(payload, isLocationLocked);
     }, [isLocationLocked]);
 
     const normalizeIdentityFieldsBeforeSubmit = useCallback(() => {
-        const rawCategoryId = form.getValues("categoryId");
-        const rawCategory = form.getValues("category");
-        const normalizedCategoryId =
-            sanitizeMongoObjectId(rawCategoryId) ||
-            sanitizeMongoObjectId(rawCategory) ||
-            "";
+        const nextValues = buildPostAdIdentityPatch({
+            categoryId: form.getValues("categoryId"),
+            category: form.getValues("category"),
+            brandId: form.getValues("brandId"),
+            modelId: form.getValues("modelId"),
+            spareParts: form.getValues("spareParts"),
+        });
 
-        if (String(rawCategoryId || "") !== normalizedCategoryId) {
-            form.setValue("categoryId", normalizedCategoryId as any, { shouldValidate: false, shouldDirty: false });
-        }
-        if (String(rawCategory || "") !== normalizedCategoryId) {
-            form.setValue("category", normalizedCategoryId as any, { shouldValidate: false, shouldDirty: false });
-        }
-
-        const rawBrandId = form.getValues("brandId");
-        const normalizedBrandId = sanitizeMongoObjectId(rawBrandId) || "";
-        if (String(rawBrandId || "") !== normalizedBrandId) {
-            form.setValue("brandId", normalizedBrandId as any, { shouldValidate: false, shouldDirty: false });
-        }
-
-        const rawModelId = form.getValues("modelId");
-        const normalizedModelId = sanitizeMongoObjectId(rawModelId) || "";
-        if (String(rawModelId || "") !== normalizedModelId) {
-            form.setValue("modelId", normalizedModelId as any, { shouldValidate: false, shouldDirty: false });
-        }
-
-        const rawSpareParts = form.getValues("spareParts");
-        if (Array.isArray(rawSpareParts)) {
-            const normalizedSpareParts = rawSpareParts
-                .map((partId) => sanitizeMongoObjectId(partId))
-                .filter((partId): partId is string => Boolean(partId));
-            const hasChanged =
-                normalizedSpareParts.length !== rawSpareParts.length ||
-                normalizedSpareParts.some((partId, index) => partId !== rawSpareParts[index]);
+        (Object.entries(nextValues) as Array<[keyof typeof nextValues, unknown]>).forEach(([field, value]) => {
+            const currentValue = form.getValues(field as keyof PostAdFormData);
+            const hasChanged = Array.isArray(value)
+                ? JSON.stringify(currentValue ?? []) !== JSON.stringify(value)
+                : String(currentValue ?? "") !== String(value ?? "");
 
             if (hasChanged) {
-                setSpareParts(normalizedSpareParts);
-                form.setValue("spareParts", normalizedSpareParts as any, { shouldValidate: false, shouldDirty: false });
+                form.setValue(field as keyof PostAdFormData, value as any, {
+                    shouldValidate: false,
+                    shouldDirty: false,
+                });
             }
-        }
-    }, [form, setSpareParts]);
+        });
+    }, [form]);
 
     return { buildEditAdPayload, normalizeIdentityFieldsBeforeSubmit };
 }

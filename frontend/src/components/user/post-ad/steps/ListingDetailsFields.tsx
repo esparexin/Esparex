@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { usePostAd } from "../PostAdContext";
+import { usePostAdImages, usePostAdLocationState, usePostAdFlow, usePostAdAction } from "../PostAdContext";
 import { useFormContext } from "react-hook-form";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { X, Upload, Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
 import { resolveCanonicalLocationId } from "@shared/listingUtils/locationUtils";
-import { useLocationState } from "@/context/LocationContext";
+import { useLocationData } from "@/context/LocationContext";
 
 import LocationSelector from "@/components/location/LocationSelector";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
@@ -37,22 +37,20 @@ export default function ListingDetailsFields() {
         formState: { errors, touchedFields, submitCount },
     } = useFormContext<PostAdFormData>();
 
+    const { listingImages, isUploadingImages } = usePostAdImages();
+    const { isLocationLocked } = usePostAdLocationState();
+    const { isLoading, stepValidationAttempts } = usePostAdFlow();
     const {
         generateDescription,
-        isLoading,
-        isUploadingImages,
+        setLocation: setContextLocation,
         addImages,
         removeImage,
-        listingImages,
-        setLocation: setContextLocation,
-        isLocationLocked,
-        stepValidationAttempts,
-    } = usePostAd();
+    } = usePostAdAction();
 
     // Watch values for UI logic
     const isFree = watch("isFree");
 
-    const { location: globalLocation } = useLocationState();
+    const { location: globalLocation } = useLocationData();
     const [userHasInteracted, setUserHasInteracted] = useState(false);
 
     // Extracted primitives — breaking the object-reference dependency that caused

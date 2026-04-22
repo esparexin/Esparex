@@ -381,7 +381,7 @@ function SparePartsCatalogPageContent({
 
 export default function SparePartsCatalogPage() {
     const searchParams = useSearchParams();
-    const initialSearch = normalizeSearchParamValue(searchParams.get("search"));
+    const initialSearch = normalizeSearchParamValue(searchParams.get("q") ?? searchParams.get("search"));
     const initialCategoryId = normalizeCategoryParam(searchParams.get("categoryId"));
     const initialIsActive = normalizeActiveParam(searchParams.get("isActive"));
     const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);

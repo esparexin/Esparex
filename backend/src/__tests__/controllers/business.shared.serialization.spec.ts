@@ -41,15 +41,13 @@ describe("business shared serialization", () => {
         },
     };
 
-    it("serializes admin business payloads with stable compatibility aliases", () => {
+    it("serializes admin business payloads with canonical seller and mobile fields", () => {
         const serialized = serializeBusinessForAdmin(sampleBusiness);
 
         expect(serialized).toMatchObject({
             businessName: "City Repair Hub",
-            phone: "9876543210",
             contactNumber: "9876543210",
             businessType: "Repair services",
-            ownerId: "65f0a1b2c3d4e5f607182932",
             ownerName: "Owner Name",
             sellerId: {
                 id: "65f0a1b2c3d4e5f607182932",
@@ -63,6 +61,9 @@ describe("business shared serialization", () => {
                 locationId: "65f0a1b2c3d4e5f607182931",
             },
         });
+        expect(serialized.userId).toBeUndefined();
+        expect(serialized.ownerId).toBeUndefined();
+        expect(serialized.phone).toBeUndefined();
         expect(serialized.documents).toMatchObject({
             idProof: [persistedIdProof],
             businessProof: [persistedBusinessProof],

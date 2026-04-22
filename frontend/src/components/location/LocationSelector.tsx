@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLocationState, useLocationDispatch } from "@/context/LocationContext";
+import { useLocationStatus, useLocationDispatch } from "@/context/LocationContext";
 import { Search, MapPin, Target, X, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
@@ -35,7 +35,7 @@ export default function LocationSelector({
     onClose,
 }: LocationSelectorProps) {
     const isPanel = variant === "panel";
-    const { detectError } = useLocationState();
+    const { detectError } = useLocationStatus();
     const { setManualLocation } = useLocationDispatch();
 
     const [query, setQuery] = useState("");
@@ -192,7 +192,7 @@ export default function LocationSelector({
         }
     }, [handleSelect, isOpen, searchApi.locations, selectedIndex]);
 
-    const handleClear = () => {
+    const handleClear = useCallback(() => {
         manuallyClearedRef.current = true;
         setSelectedLabel("");
         setHasSelection(false);
@@ -201,47 +201,56 @@ export default function LocationSelector({
         searchApi.clearSearchSession();
         onLocationSelect?.(null);
         setTimeout(() => inputRef.current?.focus(), 50);
-    };
+    }, [searchApi, onLocationSelect]);
 
-    const handleSelectedFieldActivate = () => {
+    const handleSelectedFieldActivate = useCallback(() => {
         if (!hasSelection || disabled) return;
         handleClear();
-    };
+    }, [hasSelection, disabled, handleClear]);
+
+    const handleClearQuery = useCallback(() => setQuery(""), []);
+
+    const handlePanelDetect = useCallback(() => { void searchApi.handleDetect(); }, [searchApi]);
+
+    const handleBackdropMouseDown = useCallback(() => {
+        setIsOpen(false);
+        if (!hasSelection && query.length < 2) setQuery("");
+    }, [hasSelection, query.length]);
 
     const renderResultsBody = () => (
-        <div className="py-1">
+        <div className="py-0.5">
             {query ? (
                 searchApi.showSkeleton ? (
-                    <LocationSkeleton count={5} />
+                    <LocationSkeleton count={4} />
                 ) : searchApi.searchError ? (
-                    <div className="p-6 text-center space-y-3">
+                    <div className="p-3 text-center space-y-2">
                         <div className="flex justify-center">
-                            <AlertCircle className="w-12 h-12 text-destructive/60" />
+                            <AlertCircle className="w-7 h-7 text-destructive/60" />
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-sm font-medium text-destructive">{searchApi.searchError.message}</p>
+                        <div className="space-y-0.5">
+                            <p className="text-xs font-medium text-destructive">{searchApi.searchError.message}</p>
                             {searchApi.searchError.retryable && (
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-[11px] text-muted-foreground">
                                     {searchApi.retryCount > 0 && `Attempt ${searchApi.retryCount} of 3`}
                                 </p>
                             )}
                         </div>
                         {searchApi.searchError.retryable && searchApi.retryCount < 3 && (
-                            <Button type="button" variant="outline" onClick={searchApi.handleRetry} className="gap-2 h-11">
-                                <RefreshCw className="w-4 h-4" /> Try Again
+                            <Button type="button" variant="outline" onClick={searchApi.handleRetry} className="gap-1.5 h-8 text-xs">
+                                <RefreshCw className="w-3.5 h-3.5" /> Try Again
                             </Button>
                         )}
                         {searchApi.locations.length > 0 && (
-                            <div className="pt-4 border-t">
-                                <p className="text-xs text-muted-foreground mb-2">Showing cached results:</p>
-                                <div className="space-y-1">
+                            <div className="pt-2 border-t">
+                                <p className="text-[11px] text-muted-foreground mb-1">Cached results:</p>
+                                <div className="space-y-0.5">
                                     {searchApi.locations.slice(0, 3).map((loc, index) => (
                                         <button
                                             key={`fallback-${loc.id || index}`}
                                             onMouseDown={(e) => { e.preventDefault(); void handleSelect(loc); }}
-                                            className="flex items-center gap-2 w-full px-3 py-3 rounded-xl hover:bg-accent text-left text-sm"
+                                            className="flex items-center gap-2 w-full px-3 py-2 rounded-xl hover:bg-accent text-left text-xs"
                                         >
-                                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                            <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
                                             <span>{normalizeLocationName(loc.display || loc.name || loc.city)}</span>
                                         </button>
                                     ))}
@@ -256,26 +265,26 @@ export default function LocationSelector({
                                 key={`loc-${loc.id || index}`}
                                 onMouseDown={(e) => { e.preventDefault(); void handleSelect(loc); }}
                                 className={cn(
-                                    "flex items-center gap-3 w-full px-4 py-3 text-left transition-colors rounded-xl",
+                                    "flex items-center gap-2 w-full px-3 py-2 text-left transition-colors rounded-xl",
                                     "hover:bg-accent cursor-pointer",
                                     selectedIndex === index && "bg-accent"
                                 )}
                             >
-                                <MapPin className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                                <span className="flex-1 text-sm font-medium truncate line-clamp-1">
+                                <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+                                <span className="flex-1 text-xs font-medium truncate line-clamp-1">
                                     {normalizeLocationName(loc.display || loc.name || loc.city)}
                                 </span>
                             </button>
                         );
                     })
                 ) : (
-                    <div className="p-8 text-center text-muted-foreground text-sm">
+                    <div className="p-4 text-center text-muted-foreground text-xs">
                         {searchApi.isSearching ? "Searching..." : "No locations found."}
                     </div>
                 )
             ) : (
-                <div className="p-8 text-center text-muted-foreground text-sm">
-                    Start typing to search for a country, state, district, city, area, or village.
+                <div className="p-4 text-center text-muted-foreground text-xs">
+                    Type to search city, area, district or state.
                 </div>
             )}
         </div>
@@ -284,26 +293,26 @@ export default function LocationSelector({
     if (isPanel) {
         return (
             <div className={cn("flex h-full min-h-0 flex-col bg-background", className)}>
-                <div className="flex min-h-0 flex-1 flex-col p-4" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
-                    <div className="shrink-0 space-y-4 pb-4">
-                        <Button variant="outline" className="w-full flex items-center justify-between gap-3 h-12 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 rounded-xl px-4" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect()}>
-                            <div className="flex items-center gap-3">
-                                <Target className={`h-5 w-5 ${searchApi.isDetecting ? "animate-spin" : ""}`} />
-                                <span className="font-medium text-base">{searchApi.isDetecting ? "Detecting location..." : "Use Current Location"}</span>
+                <div className="flex min-h-0 flex-1 flex-col p-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+                    <div className="shrink-0 space-y-2 pb-2">
+                        <Button variant="outline" className="w-full flex items-center justify-between gap-2 h-9 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 rounded-xl px-3" disabled={searchApi.isDetecting} onClick={handlePanelDetect}>
+                            <div className="flex items-center gap-2">
+                                <Target className={`h-4 w-4 ${searchApi.isDetecting ? "animate-spin" : ""}`} />
+                                <span className="font-medium text-sm">{searchApi.isDetecting ? "Detecting..." : "Use Current Location"}</span>
                             </div>
-                            <span className="text-xs opacity-70">Enable GPS</span>
+                            <span className="text-[11px] opacity-70">GPS</span>
                         </Button>
                         {searchApi.detectFeedback && (
-                            <div className="space-y-2 px-1">
+                            <div className="px-1">
                                 <p className="text-xs text-destructive">{searchApi.detectFeedback}</p>
                             </div>
                         )}
 
                         <div className="relative">
-                            <Search className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
-                            <Input placeholder="Search country, state, district, city, area or village..." className="pl-10 h-12 rounded-xl text-base" value={query} onChange={(e) => setQuery(e.target.value)} autoFocus disabled={disabled} />
-                            {searchApi.isSearching && <div className="absolute right-3 top-3.5 h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />}
-                            {query && !searchApi.isSearching && <button onClick={() => setQuery("")} className="absolute right-3 top-3.5" type="button"><X className="h-5 w-5" /></button>}
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Search city, area, district..." className="pl-9 h-9 rounded-xl text-sm" value={query} onChange={(e) => setQuery(e.target.value)} autoFocus disabled={disabled} />
+                            {searchApi.isSearching && <div className="absolute right-3 top-2.5 h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />}
+                            {query && !searchApi.isSearching && <button onClick={handleClearQuery} className="absolute right-3 top-2.5" type="button"><X className="h-4 w-4" /></button>}
                         </div>
                     </div>
 
@@ -339,14 +348,14 @@ export default function LocationSelector({
                         }
                         handleKeyDown(event);
                     }}
-                    placeholder="Search state, district, city, area or village..."
+                    placeholder="Search city, area or district..."
                     disabled={disabled}
                     aria-label={hasSelection
                         ? `Selected location ${selectedLabel}. Activate to change location.`
-                        : "Search state, district, city, area or village"}
+                        : "Search city, area or district"}
                     title={hasSelection ? "Tap to change location" : undefined}
                     className={cn(
-                        "pl-10 h-12 rounded-xl transition-all text-base",
+                        "pl-10 h-11 rounded-xl transition-all text-sm",
                         hasSelection ? "bg-primary/5 font-semibold text-primary border-primary/20 cursor-pointer" : "bg-background cursor-text",
                         error ? "border-destructive ring-destructive/50" : "",
                         className
@@ -354,9 +363,9 @@ export default function LocationSelector({
                     onClick={handleSelectedFieldActivate}
                 />
                 <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
-                    {(searchApi.isSearching || searchApi.isDetecting) && <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />}
+                    {(searchApi.isSearching || searchApi.isDetecting) && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
                     {hasSelection && !disabled && (
-                        <button type="button" onClick={handleClear} className="flex items-center justify-center h-11 px-3 rounded-lg bg-muted/60 hover:bg-muted text-xs font-medium text-muted-foreground hover:text-foreground transition-colors" title="Change location">
+                        <button type="button" onClick={handleClear} className="flex items-center justify-center h-8 px-2.5 rounded-lg bg-muted/60 hover:bg-muted text-xs font-medium text-muted-foreground hover:text-foreground transition-colors" title="Change location">
                             Change
                         </button>
                     )}
@@ -365,15 +374,15 @@ export default function LocationSelector({
 
             {isOpen && !hasSelection && !disabled && (
                 <>
-                    <div style={{ zIndex: Z_INDEX.locationSelectorBackdrop }} className="fixed inset-0 bg-transparent" onMouseDown={() => { setIsOpen(false); if (!hasSelection && query.length < 2) setQuery(""); }} />
+                    <div style={{ zIndex: Z_INDEX.locationSelectorBackdrop }} className="fixed inset-0 bg-transparent" onMouseDown={handleBackdropMouseDown} />
                     <div ref={dropdownRef} style={dropdownStyle} className="bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                    <div className="p-2 border-b">
-                        <Button variant="ghost" className="w-full justify-start text-muted-foreground h-11 px-3 font-normal" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>
-                            <Target className={`mr-2 h-4 w-4 ${searchApi.isDetecting ? "animate-spin text-primary" : ""}`} />
-                            {searchApi.isDetecting ? "Detecting location..." : "Use Current Location"}
+                    <div className="px-2 py-1 border-b">
+                        <Button variant="ghost" className="w-full justify-start text-muted-foreground h-9 px-2 text-xs font-normal" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>
+                            <Target className={`mr-2 h-3.5 w-3.5 ${searchApi.isDetecting ? "animate-spin text-primary" : ""}`} />
+                            {searchApi.isDetecting ? "Detecting..." : "Use Current Location"}
                         </Button>
                         {searchApi.detectFeedback && (
-                            <div className="mt-2 space-y-2 px-1">
+                            <div className="px-1 pb-1">
                                 <p className="text-xs text-destructive">{searchApi.detectFeedback}</p>
                             </div>
                         )}

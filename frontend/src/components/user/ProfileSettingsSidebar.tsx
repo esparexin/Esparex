@@ -248,6 +248,8 @@ export function ProfileSettingsSidebar({
       case "personal": return (
         <PersonalTab
           profilePhoto={profilePhoto}
+          mobile={user?.mobile || ""}
+          isMobileVerified={user?.isPhoneVerified}
           formData={formData}
           setFormData={(data) => {
             setFormData(data);

@@ -21,7 +21,7 @@ type ServiceAnalyticsPayload = {
 --------------------------------------------------- */
 export const getServices = async (req: Request, res: Response) => {
     try {
-        const { categoryId, brandId, locationId, level, location, search, page, limit, lat, lng, radiusKm, minPrice, maxPrice, cursor } = req.query;
+        const { categoryId, brandId, locationId, level, q, page, limit, lat, lng, radiusKm, minPrice, maxPrice, cursor } = req.query;
         const parsedLat = typeof lat === 'string' ? Number(lat) : undefined;
         const parsedLng = typeof lng === 'string' ? Number(lng) : undefined;
         const parsedRadiusKm = typeof radiusKm === 'string' ? Number(radiusKm) : undefined;
@@ -34,8 +34,7 @@ export const getServices = async (req: Request, res: Response) => {
                 brandId: brandId as string,
                 locationId: locationId as string,
                 level: level as 'country' | 'state' | 'district' | 'city' | 'area' | 'village' | undefined,
-                location: location as string,
-                search: search as string,
+                search: q as string,
                 lat: Number.isFinite(parsedLat) ? parsedLat : undefined,
                 lng: Number.isFinite(parsedLng) ? parsedLng : undefined,
                 radiusKm: Number.isFinite(parsedRadiusKm) ? parsedRadiusKm : undefined,

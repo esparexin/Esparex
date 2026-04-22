@@ -1,72 +1,53 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
 import {
-    Check,
-    ChevronRight,
     Megaphone,
     MessageCircleMore,
     ShoppingBag,
     Sparkles,
     Tag,
+    Check,
     type LucideIcon,
 } from "lucide-react";
 
 import type { NotificationTypeValue } from "@shared/enums/notificationType";
-
+import { RelativeTimeText } from "@/components/common/RelativeTimeText";
 import type { Notification } from "@/lib/api/user/notifications";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 
 type NotificationMeta = {
-    label: string;
     icon: LucideIcon;
     iconTone: string;
-    badgeTone: string;
 };
 
 export const NOTIFICATION_META: Record<NotificationTypeValue, NotificationMeta> = {
     SYSTEM: {
-        label: "System",
         icon: Megaphone,
-        iconTone: "text-foreground-secondary",
-        badgeTone: "border-slate-200 bg-slate-100 text-foreground-secondary",
+        iconTone: "text-slate-500",
     },
     CHAT: {
-        label: "Message",
         icon: MessageCircleMore,
-        iconTone: "text-sky-700",
-        badgeTone: "border-sky-200 bg-sky-100 text-sky-700",
+        iconTone: "text-sky-600",
     },
     SMART_ALERT: {
-        label: "Smart alert",
         icon: Sparkles,
-        iconTone: "text-amber-700",
-        badgeTone: "border-amber-200 bg-amber-100 text-amber-700",
+        iconTone: "text-amber-500",
     },
     AD_STATUS: {
-        label: "Listing",
         icon: Tag,
-        iconTone: "text-violet-700",
-        badgeTone: "border-violet-200 bg-violet-100 text-violet-700",
+        iconTone: "text-violet-600",
     },
     BUSINESS_STATUS: {
-        label: "Business",
         icon: Check,
-        iconTone: "text-emerald-700",
-        badgeTone: "border-emerald-200 bg-emerald-100 text-emerald-700",
+        iconTone: "text-emerald-600",
     },
     ORDER_UPDATE: {
-        label: "Order",
         icon: ShoppingBag,
-        iconTone: "text-link-dark",
-        badgeTone: "border-blue-200 bg-blue-100 text-link-dark",
+        iconTone: "text-blue-600",
     },
     PRICE_DROP: {
-        label: "Price drop",
         icon: Tag,
-        iconTone: "text-rose-700",
-        badgeTone: "border-rose-200 bg-rose-100 text-rose-700",
+        iconTone: "text-rose-600",
     },
 };
 
@@ -74,80 +55,61 @@ type NotificationItemCardProps = {
     notification: Notification;
     onSelect: (notification: Notification) => void;
     isProcessing: boolean;
-    density?: "default" | "compact";
-    actionHint?: "always" | "open-only";
 };
 
 export function NotificationItemCard({
     notification,
     onSelect,
     isProcessing,
-    density = "default",
-    actionHint = "always",
 }: NotificationItemCardProps) {
-    const meta = NOTIFICATION_META[notification.type];
+    const meta = NOTIFICATION_META[notification.type] || NOTIFICATION_META.SYSTEM;
     const Icon = meta.icon;
-    const isCompact = density === "compact";
-    const relativeTime = formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true });
-
-    const actionText = notification.actionUrl ? "Open" : notification.isRead ? "Read" : "Mark read";
-    const showActionHint = actionHint === "always" || (actionHint === "open-only" && Boolean(notification.actionUrl));
 
     return (
         <button
             type="button"
             className={cn(
-                "w-full rounded-2xl border text-left transition",
-                isCompact ? "px-3 py-3" : "px-4 py-4",
+                "w-full rounded-xl border text-left transition-all active:scale-[0.98]",
+                "px-2.5 py-2",
                 notification.isRead
-                    ? "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                    : "border-blue-100 bg-blue-50/70 hover:border-blue-200 hover:bg-blue-50"
+                    ? "border-slate-100 bg-white hover:bg-slate-50/50"
+                    : "border-blue-50 bg-blue-50/10 hover:bg-blue-50/40 shadow-sm"
             )}
             onClick={() => onSelect(notification)}
             disabled={isProcessing}
         >
-            <div className={cn("flex", isCompact ? "gap-3" : "gap-4")}>
+            <div className="flex gap-2">
                 <div
                     className={cn(
-                        "mt-0.5 flex shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white",
-                        isCompact ? "h-9 w-9" : "h-10 w-10"
+                        "flex shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-white shadow-sm",
+                        "h-7 w-7"
                     )}
                 >
-                    <Icon className={cn(meta.iconTone, isCompact ? "h-4 w-4" : "h-5 w-5")} />
+                    <Icon className={cn(meta.iconTone, "h-3 w-3")} />
                 </div>
 
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                        <Badge variant="outline" className={meta.badgeTone}>
-                            {meta.label}
-                        </Badge>
-                        {!notification.isRead ? (
-                            <Badge variant="outline" className="border-blue-200 bg-blue-50 text-link-dark">
-                                New
-                            </Badge>
-                        ) : null}
+                <div className="min-w-0 flex-1 flex flex-col justify-center">
+                    <div className="flex items-center justify-between gap-1.5">
+                        <p
+                            className={cn(
+                                "text-xs truncate",
+                                notification.isRead ? "font-medium text-slate-500" : "font-bold text-slate-900"
+                            )}
+                        >
+                            {notification.title}
+                        </p>
+                        <span className="shrink-0 text-[10px] font-medium text-slate-400">
+                            <RelativeTimeText value={notification.createdAt} />
+                        </span>
                     </div>
-
                     <p
                         className={cn(
-                            "mt-2 text-sm",
-                            isCompact ? "line-clamp-1" : "",
-                            notification.isRead ? "font-medium text-foreground-secondary" : "font-semibold text-foreground"
+                            "mt-0.5 line-clamp-1 text-[11px] leading-4",
+                            notification.isRead ? "text-slate-400" : "text-slate-600 font-medium"
                         )}
                     >
-                        {notification.title}
+                        {notification.message}
                     </p>
-                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-foreground-tertiary">{notification.message}</p>
-
-                    <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                        <span>{relativeTime}</span>
-                        {showActionHint ? (
-                            <span className="inline-flex items-center gap-1 font-medium text-foreground-secondary">
-                                {actionText}
-                                <ChevronRight className="h-3 w-3" />
-                            </span>
-                        ) : null}
-                    </div>
                 </div>
             </div>
         </button>

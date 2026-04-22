@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,12 +21,18 @@ export function PurchasesTab({
     formatCurrency,
     loading,
 }: PurchasesTabProps) {
+    const [nowMs, setNowMs] = useState<number | null>(null);
+
+    useEffect(() => {
+        setNowMs(Date.now());
+    }, []);
+
     if (loading) return <div className="p-12 text-center text-muted-foreground animate-pulse">Loading History...</div>;
     const successfulOrders = purchaseHistory.filter((purchase) => purchase.status === "SUCCESS").length;
     const pendingOrders = purchaseHistory.filter((purchase) => purchase.status === "INITIATED").length;
     const activeEntitlements = purchaseHistory.filter((purchase) => {
-        if (purchase.status !== "SUCCESS" || !purchase.validUntil) return false;
-        return new Date(purchase.validUntil).getTime() > Date.now();
+        if (nowMs === null || purchase.status !== "SUCCESS" || !purchase.validUntil) return false;
+        return new Date(purchase.validUntil).getTime() > nowMs;
     }).length;
 
     return (

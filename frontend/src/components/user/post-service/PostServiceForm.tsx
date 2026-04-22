@@ -12,72 +12,17 @@ import { cn } from "@/components/ui/utils";
 import { Check, Wrench } from "@/icons/IconRegistry";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
 import { ListingTitleField, ListingPriceField, ListingDescriptionField, CategorySelectorGrid, getFirstFormErrorMessage } from "../shared/ListingFormFields";
-import { extractEntityId } from "../shared/listingFormShared";
 import { ListingModalLoading } from "../shared/ListingModalLayout";
-import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
-import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
-import { createListing, updateListing } from "@/lib/api/user/listings";
-import { useGenericListingForm } from "../shared/useGenericListingForm";
+import { useBrandCatalog } from "@/hooks/listings/useBrandCatalog";
+import { useListingCategories } from "@/hooks/listings/useListingCategories";
+import { useServiceTypeCatalog } from "@/hooks/listings/useServiceTypeCatalog";
 import { GenericPostForm } from "../shared/GenericPostForm";
 import { useListingFormProps } from "../shared/useListingFormProps";
 import { ListingSubmissionSuccessModal } from "../shared/ListingSubmissionSuccessModal";
 import { useRouter } from "next/navigation";
 import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
-import { API_ROUTES } from "@/lib/api/routes";
-import type { ServiceType } from "@/lib/api/user/masterData";
-
-// A6: Partial edit schema — allows edits without re-validating immutable catalog fields
-const ServiceListingEditSchema = ServiceListingPayloadSchema.partial({
-    categoryId: true,
-    brandId: true,
-    modelId: true,
-    serviceTypeIds: true,
-});
-
-// A7: Typed payload builders extracted from inline callbacks
-type ServiceCreatePayload = ServiceListingFormData & { priceMin: number };
-type ServiceEditPayload = Pick<ServiceListingFormData, 'title' | 'description' | 'images' | 'serviceTypeIds'> & { priceMin: number };
-
-function buildServiceCreatePayload(payload: ServiceListingFormData): Omit<ServiceCreatePayload, 'price'> {
-    const { price, ...rest } = payload;
-    return { ...rest, priceMin: price };
-}
-
-function buildServiceEditPayload(payload: ServiceListingFormData): ServiceEditPayload {
-    return {
-        title: payload.title,
-        description: payload.description,
-        images: payload.images,
-        serviceTypeIds: payload.serviceTypeIds,
-        priceMin: payload.price,
-    };
-}
-
-// A2: Typed resolver helper — replaces any[] in resolveServiceTypeIds
-function resolveServiceTypeIds(tokens: string[], availableItems: ServiceType[]): string[] {
-    const validIds = new Set<string>();
-    const byName = new Map<string, string>();
-    availableItems.forEach((item) => {
-        const id = item.id?.trim();
-        const name = item.name?.trim().toLowerCase();
-        if (!id) return;
-        validIds.add(id);
-        if (name) byName.set(name, id);
-    });
-    return Array.from(new Set(tokens.map((token) => {
-        if (validIds.has(token)) return token;
-        return byName.get(token.toLowerCase()) || token;
-    })));
-}
-
-// A2: Typed token normalizer — replaces any
-function normalizeServiceTypeTokens(value: unknown): string[] {
-    if (!value) return [];
-    const tokens = Array.isArray(value) ? value : [String(value)];
-    return tokens
-        .map((t) => (typeof t === 'string' ? t : ((t as Record<string, unknown>)?.id ?? (t as Record<string, unknown>)?._id ?? '')))
-        .filter((t): t is string => typeof t === 'string' && t.length > 0);
-}
+import { usePostServiceFormOrchestration } from "./hooks/usePostServiceFormOrchestration";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
     const isEditMode = !!editServiceId;
@@ -108,55 +53,33 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
 
     const {
         dynamicCategories,
+        categoryMap,
+    } = useListingCategories({ listingType: LISTING_TYPE.SERVICE });
+    const {
         availableBrands,
         brandMap,
+        loadBrandsForCategory,
+    } = useBrandCatalog({
+        categoryMap,
+        includeScreenSizes: false,
+    });
+    const {
         availableServiceTypes,
         isLoadingServiceTypes,
-        loadBrandsForCategory,
         loadServiceTypes,
-    } = useListingCatalog({ listingType: "postservice" });
+    } = useServiceTypeCatalog();
 
     const selectedCategory = React.useMemo(
         () => dynamicCategories.find((category) => category.id === categoryId) || null,
         [dynamicCategories, categoryId]
     );
 
-    // A2: Use module-level typed resolveServiceTypeIds / normalizeServiceTypeTokens
-    const onDataLoaded = React.useCallback(async (payload: Partial<ServiceListingFormData> & Record<string, unknown>) => {
-        const catId = extractEntityId(payload.category ?? payload.categoryId);
-        const bId = extractEntityId(payload.brand ?? payload.brandId);
-        const rawServiceTypes = (payload.serviceTypeIds ?? (payload as Record<string, unknown>).serviceTypes);
-        const serviceTypeTokens = normalizeServiceTypeTokens(rawServiceTypes);
-        const priceMin = typeof payload.price === 'number' ? payload.price
-            : (typeof (payload as Record<string, unknown>).priceMin === 'number'
-                ? (payload as Record<string, unknown>).priceMin as number
-                : undefined);
-
-        form.reset({
-            title: payload.title ?? "",
-            categoryId: catId,
-            brandId: bId,
-            serviceTypeIds: serviceTypeTokens,
-            price: priceMin,
-            description: payload.description ?? "",
-        });
-
-        if (catId) {
-            const [, serviceTypes] = await Promise.all([
-                loadBrandsForCategory(catId),
-                loadServiceTypes(catId),
-            ]);
-            const resolvedIds = resolveServiceTypeIds(serviceTypeTokens, serviceTypes);
-            if (resolvedIds.length > 0) {
-                setValue("serviceTypeIds", resolvedIds, { shouldValidate: true });
-            }
-        }
-    }, [form, loadBrandsForCategory, loadServiceTypes, setValue]);
-
-    const { images, setImages, isFetchingData, businessData } = useGenericListingForm({
+    const { images, setImages, isFetchingData, businessData, onValidSubmit, isSubmitting } = usePostServiceFormOrchestration({
         form,
-        editId: editServiceId,
-        onDataLoaded
+        editServiceId,
+        loadBrandsForCategory,
+        loadServiceTypes,
+        onSubmitted: () => setSubmittedService(true),
     });
 
     React.useEffect(() => {
@@ -189,34 +112,10 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
 
     const toggleServiceType = (id: string) => {
         const next = selectedServiceTypes.includes(id)
-            ? selectedServiceTypes.filter(serviceTypeId => serviceTypeId !== id)
+            ? selectedServiceTypes.filter((serviceTypeId: string) => serviceTypeId !== id)
             : [...selectedServiceTypes, id];
         setValue("serviceTypeIds", next, { shouldValidate: true, shouldDirty: true });
     };
-
-    const { onValidSubmit, isSubmitting } = useListingSubmission({
-        form,
-        listingImages: images,
-        isEditMode,
-        editId: editServiceId,
-        schema: ServiceListingPayloadSchema,
-        partialSchema: ServiceListingEditSchema, // A6: partial schema for edit mode
-        submitFn: async (payload, options) => {
-            if (isEditMode && editServiceId) {
-                return updateListing(editServiceId, buildServiceEditPayload(payload), {
-                    endpoint: API_ROUTES.USER.SERVICE_DETAIL(editServiceId),
-                });
-            }
-            return createListing(buildServiceCreatePayload(payload), {
-                endpoint: API_ROUTES.USER.SERVICES,
-                idempotencyKey: options?.idempotencyKey,
-                errorMessage: "Failed to create service",
-            });
-        },
-        onSuccess: () => {
-            setSubmittedService(true);
-        },
-    });
 
     const formProps = useListingFormProps({
         form,

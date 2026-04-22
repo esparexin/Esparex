@@ -20,24 +20,24 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
             ? "md:hidden rounded-none border-x-0 border-t-0 border-b border-slate-100"
             : "rounded-none md:rounded-2xl hidden md:block border-slate-100"}
         >
-            <CardContent className={isMobile ? "p-4 space-y-4" : "p-4 md:p-6 space-y-4 md:space-y-6"}>
+            <CardContent className={isMobile ? "p-3.5 space-y-3.5" : "p-3.5 md:p-5 space-y-3.5 md:space-y-5"}>
                 {hasAttributes && (
-                    <div className="grid grid-cols-2 gap-3 pb-4 border-b border-slate-100">
+                    <div className="grid grid-cols-2 gap-2 pb-3.5 border-b border-slate-100/60">
                         {!!ad.warranty && (
-                            <div className="flex items-start gap-2.5 bg-slate-50 rounded-xl p-3">
-                                <Wrench className="h-4 w-4 text-foreground-subtle mt-0.5 flex-shrink-0" />
+                            <div className="flex items-start gap-2 bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
+                                <Wrench className="h-3.5 w-3.5 text-foreground-subtle mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Warranty</p>
-                                    <p className="text-sm font-semibold text-foreground-secondary mt-0.5">{String(ad.warranty)}</p>
+                                    <p className="text-[10px] uppercase font-black text-foreground-subtle tracking-tight leading-none">Warranty</p>
+                                    <p className="text-xs font-bold text-foreground-secondary mt-1">{String(ad.warranty)}</p>
                                 </div>
                             </div>
                         )}
                         {ad.listingType === 'service' && ad.onsiteService !== undefined && (
-                            <div className="flex items-start gap-2.5 bg-slate-50 rounded-xl p-3">
-                                <Wrench className="h-4 w-4 text-foreground-subtle mt-0.5 flex-shrink-0" />
+                            <div className="flex items-start gap-2 bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
+                                <Wrench className="h-3.5 w-3.5 text-foreground-subtle mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">On-site</p>
-                                    <p className="text-sm font-semibold text-foreground-secondary mt-0.5">{ad.onsiteService ? 'Yes' : 'No'}</p>
+                                    <p className="text-[10px] uppercase font-black text-foreground-subtle tracking-tight leading-none">On-site</p>
+                                    <p className="text-xs font-bold text-foreground-secondary mt-1">{ad.onsiteService ? 'Yes' : 'No'}</p>
                                 </div>
                             </div>
                         )}

@@ -35,7 +35,7 @@ export default function BusinessApplyPage() {
             return;
         }
 
-        // Check phone verification first for clear messaging
+        // Check mobile verification first for clear messaging
         if (user && !user.isPhoneVerified) {
             notify.warning("Please verify your mobile number before registering a business.");
             void router.replace("/account/profile");

@@ -16,6 +16,7 @@ interface CommonLayoutProps {
     children: ReactNode;
     initialHasAuthCookie?: boolean;
     suspenseHeader?: boolean;
+    currentYear: number;
 }
 
 /**
@@ -26,6 +27,7 @@ export function CommonLayout({
     children,
     initialHasAuthCookie = false,
     suspenseHeader = false,
+    currentYear,
 }: CommonLayoutProps) {
     const pathname = usePathname();
     const chatRoute = isChatRoute(pathname);
@@ -50,7 +52,7 @@ export function CommonLayout({
                         {children}
                     </main>
                     {!chatRoute && <BusinessPostFAB />}
-                    {!chatRoute && <Footer />}
+                    {!chatRoute && <Footer currentYear={currentYear} />}
                 </div>
             </BottomBarProvider>
         </UserAppProviders>

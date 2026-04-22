@@ -1,4 +1,4 @@
-import { FORM_PLACEMENT, LISTING_TYPE, type ListingTypeValue } from '../../../shared/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from '../../../shared/enums/listingType';
 
 type CategoryCapabilityInput = string[] | null | undefined;
 
@@ -55,9 +55,9 @@ export const getListingTypeCapability = (listingType: CategoryCapabilityInput): 
         : [];
 
     return {
-        supportsAd: values.includes(FORM_PLACEMENT.AD),
-        supportsService: values.includes(FORM_PLACEMENT.SERVICE),
-        supportsSparePart: values.includes(FORM_PLACEMENT.SPARE_PART),
+        supportsAd: values.includes(LISTING_TYPE.AD),
+        supportsService: values.includes(LISTING_TYPE.SERVICE),
+        supportsSparePart: values.includes(LISTING_TYPE.SPARE_PART),
     };
 };
 

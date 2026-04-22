@@ -1,10 +1,10 @@
-import { formatDistanceToNow } from "date-fns";
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { Eye, Heart, Clock, Edit2, Trash2, RefreshCw, CheckSquare, PowerOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/ui/utils";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
+import { RelativeTimeText } from "@/components/common/RelativeTimeText";
 
 export interface MetaBadge {
     label: string;
@@ -49,7 +49,6 @@ export function ListingItem({
     onDelete, onRenew, onDeactivate, onMarkSold,
     metaBadges = [], tags = [], priority = false, className
 }: ListingItemProps) {
-    const timeAgo = createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true }) : "";
     const isActive = status === "live";
     const canEdit = ["live", "pending", "rejected"].includes(status);
     const showRenew = status === "expired" || status === "rejected";
@@ -132,7 +131,7 @@ export function ListingItem({
                         )}
                         {isActive && expiresAt && (
                             <span className="flex items-center gap-1 text-amber-600 font-medium">
-                                <Clock className="h-3 w-3" /> Expires {formatDistanceToNow(new Date(expiresAt), { addSuffix: true })}
+                                <Clock className="h-3 w-3" /> Expires <RelativeTimeText value={expiresAt} />
                             </span>
                         )}
                         {metaBadges.map((badge, idx) => (
@@ -140,9 +139,9 @@ export function ListingItem({
                                 {badge.icon} {badge.label}
                             </span>
                         ))}
-                        {!isActive && timeAgo && (
+                        {!isActive && createdAt && (
                             <span className="flex items-center gap-1 text-foreground-subtle">
-                                <Clock className="h-3 w-3" /> {timeAgo}
+                                <Clock className="h-3 w-3" /> <RelativeTimeText value={createdAt} />
                             </span>
                         )}
                     </div>

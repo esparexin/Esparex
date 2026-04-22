@@ -3,30 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { adminFetch } from "@/lib/api/adminClient";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import { ADMIN_UI_ROUTES, adminListingModerationRoute } from "@/lib/adminUiRoutes";
+import {
+    EMPTY_ADMIN_SEARCH_STATE,
+    searchAdminRecords,
+    type AdminSearchBucket,
+    type AdminSearchItem,
+} from "@/lib/api/adminSearch";
 
-type SearchBucket = "users" | "ads" | "businesses" | "reports" | "transactions";
-type SearchItem = {
-    id: string;
-    label: string;
-    meta: string;
-    href: string;
-};
-
-type SearchState = Record<SearchBucket, SearchItem[]>;
-
-const EMPTY_STATE: SearchState = {
-    users: [],
-    ads: [],
-    businesses: [],
-    reports: [],
-    transactions: [],
-};
-
-const SECTION_LABELS: Record<SearchBucket, string> = {
+const SECTION_LABELS: Record<AdminSearchBucket, string> = {
     users: "Users",
     ads: "Listings",
     businesses: "Businesses",
@@ -36,7 +20,7 @@ const SECTION_LABELS: Record<SearchBucket, string> = {
 
 export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean; onClose?: () => void }) {
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<SearchState>(EMPTY_STATE);
+    const [results, setResults] = useState(EMPTY_ADMIN_SEARCH_STATE);
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -54,70 +38,21 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
     useEffect(() => {
         const trimmed = query.trim();
         if (trimmed.length < 2) {
-            setResults(EMPTY_STATE);
+            setResults(EMPTY_ADMIN_SEARCH_STATE);
             setLoading(false);
             return;
         }
 
         let cancelled = false;
         setLoading(true);
-                const timer = setTimeout(async () => {
+        const timer = setTimeout(async () => {
             try {
-                const limit = "3";
-                const [users, ads, businesses, reports, transactions] = await Promise.all([
-                    adminFetch<any>(`${ADMIN_ROUTES.USERS}?${new URLSearchParams({ search: trimmed, page: "1", limit }).toString()}`),
-                    adminFetch<any>(`${ADMIN_ROUTES.LISTINGS}?${new URLSearchParams({ search: trimmed, page: "1", limit }).toString()}`),
-                    adminFetch<any>(`${ADMIN_ROUTES.BUSINESS_ACCOUNTS}?${new URLSearchParams({ search: trimmed, page: "1", limit, status: "all" }).toString()}`),
-                    adminFetch<any>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ search: trimmed, page: "1", limit }).toString()}`),
-                    adminFetch<any>(`${ADMIN_ROUTES.FINANCE_TRANSACTIONS}?${new URLSearchParams({ search: trimmed, page: "1", limit }).toString()}`),
-                ]);
-
+                const nextState = await searchAdminRecords(trimmed);
                 if (cancelled) return;
-
-                const nextState: SearchState = {
-                    users: parseAdminResponse<Record<string, unknown>>(users).items.map((item) => ({
-                        id: String(item.id || item._id || item.mobile || ""),
-                        label: String(item.name || item.mobile || "Unknown user"),
-                        meta: String(item.mobile || item.email || "User"),
-                        href: ADMIN_UI_ROUTES.users({ search: trimmed }),
-                    })),
-                    ads: parseAdminResponse<Record<string, unknown>>(ads).items.map((item) => ({
-                        id: String(item.id || item._id || ""),
-                        label: String(item.title || item.id || "Untitled ad"),
-                        meta: String(item.status || item.sellerName || item.listingType || "Listing"),
-                        href: adminListingModerationRoute(
-                            item.listingType === "service"
-                                ? "service"
-                                : item.listingType === "spare_part"
-                                    ? "spare_part"
-                                    : "ad",
-                            { search: trimmed }
-                        ),
-                    })),
-                    businesses: parseAdminResponse<Record<string, unknown>>(businesses).items.map((item) => ({
-                        id: String(item.id || item._id || ""),
-                        label: String(item.name || item.email || "Business"),
-                        meta: String(item.status || item.email || "Business"),
-                        href: ADMIN_UI_ROUTES.businesses({ status: "all", search: trimmed }),
-                    })),
-                    reports: parseAdminResponse<Record<string, unknown>>(reports).items.map((item) => ({
-                        id: String(item.id || item._id || ""),
-                        label: String(item.reason || item.reportType || "Report"),
-                        meta: String(item.status || item.adId || "Report"),
-                        href: ADMIN_UI_ROUTES.reports({ search: trimmed }),
-                    })),
-                    transactions: parseAdminResponse<Record<string, unknown>>(transactions).items.map((item) => ({
-                        id: String(item.id || item._id || ""),
-                        label: String(item.reference || item.transactionId || "Transaction"),
-                        meta: String(item.status || item.amount || "Transaction"),
-                        href: ADMIN_UI_ROUTES.finance({ search: trimmed }),
-                    })),
-                };
-
                 setResults(nextState);
             } catch {
                 if (!cancelled) {
-                    setResults(EMPTY_STATE);
+                    setResults(EMPTY_ADMIN_SEARCH_STATE);
                 }
             } finally {
                 if (!cancelled) {
@@ -134,7 +69,7 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
 
     const sections = useMemo(
         () =>
-            (Object.entries(results) as Array<[SearchBucket, SearchItem[]]>).filter(([, items]) => items.length > 0),
+            (Object.entries(results) as Array<[AdminSearchBucket, AdminSearchItem[]]>).filter(([, items]) => items.length > 0),
         [results]
     );
 

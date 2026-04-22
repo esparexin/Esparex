@@ -33,8 +33,12 @@ export const getBusinessOverview = async (req: Request, res: Response) => {
 
 export const getBusinessAccounts = async (req: Request, res: Response) => {
     const { status } = req.query;
-    const city = typeof req.query.city === 'string' ? req.query.city.trim() : '';
-    return adminBusinessService.getAdminBusinessAccountsPaginated(req, res, status as string, city);
+    const locationId = typeof req.query.locationId === 'string' ? req.query.locationId.trim() : '';
+    const queryParams = {
+        ...req.query,
+        search: typeof req.query.q === 'string' ? req.query.q.trim() : undefined,
+    };
+    return adminBusinessService.getAdminBusinessAccountsPaginated(req, res, status as string, locationId, queryParams);
 };
 
 export const getBusinessAccountById = async (req: Request, res: Response) => {
@@ -174,7 +178,7 @@ export const updateBusinessStatus = async (req: Request, res: Response) => {
 export const updateBusinessByAdmin = async (req: Request, res: Response) => {
     try {
         const allowedFields = [
-            'name', 'description', 'mobile', 'phone', 'email', 'website',
+            'name', 'description', 'mobile', 'email', 'website',
             'gstNumber', 'registrationNumber', 'location', 'businessTypes',
         ];
         const patch: Record<string, unknown> = {};
@@ -183,10 +187,6 @@ export const updateBusinessByAdmin = async (req: Request, res: Response) => {
                 patch[field] = (req.body as Record<string, unknown>)[field];
             }
         }
-        if (typeof patch.phone === 'string' && typeof patch.mobile !== 'string') {
-            patch.mobile = patch.phone;
-        }
-        delete patch.phone;
         if (Object.keys(patch).length === 0) {
             return sendAdminError(req, res, 'No valid fields provided for update', 400);
         }

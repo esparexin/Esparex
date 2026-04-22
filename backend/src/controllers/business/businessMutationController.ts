@@ -17,14 +17,14 @@ export const registerBusiness = async (req: Request, res: Response) => {
             return;
         }
 
-        // Fetch user with phone verification status (not in JWT/middleware)
+        // Fetch user with mobile verification status (not in JWT/middleware)
         const user = await getUserPhoneVerification(authUser._id.toString());
         if (!user) {
             sendErrorResponse(req, res, 401, 'User not found');
             return;
         }
 
-        // Spam prevention: Require phone verification before business registration
+        // Spam prevention: Require mobile verification before business registration
         if (!user.isPhoneVerified) {
             sendErrorResponse(req, res, 403, 'Phone verification required before registering a business', {
                 code: 'PHONE_NOT_VERIFIED'
@@ -32,10 +32,9 @@ export const registerBusiness = async (req: Request, res: Response) => {
             return;
         }
 
-        // Spam prevention: Force phone to user's verified mobile (prevent tampering)
+        // Spam prevention: Force mobile to user's verified mobile (prevent tampering)
         const verifiedPayload = {
             ...(req.body as Record<string, unknown>),
-            phone: user.mobile,
             mobile: user.mobile
         };
 
@@ -96,7 +95,7 @@ export const updateBusiness = async (req: Request, res: Response) => {
         const allowedUpdates = [
             'name', 'description', 'businessTypes',
             'location',
-            'mobile', 'phone', 'email', 'website', 'gstNumber', 'registrationNumber', 'workingHours',
+            'mobile', 'email', 'website', 'gstNumber', 'registrationNumber', 'workingHours',
             'images', 'documents'
         ];
 
@@ -107,11 +106,6 @@ export const updateBusiness = async (req: Request, res: Response) => {
                 filteredUpdates[key] = bodyRecord[key];
             }
         });
-
-        if (filteredUpdates.phone && !filteredUpdates.mobile) {
-            filteredUpdates.mobile = filteredUpdates.phone;
-            delete filteredUpdates.phone;
-        }
 
         // Validate coordinates if provided
         if (filteredUpdates.location !== undefined) {

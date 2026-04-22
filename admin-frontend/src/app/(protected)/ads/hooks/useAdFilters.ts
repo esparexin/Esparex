@@ -67,8 +67,8 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
 
         const statusFromQuery = searchParams.get("status");
         const sellerIdFromQuery = searchParams.get("sellerId");
-        const searchFromQuery = searchParams.get("search");
-        const locationFromQuery = searchParams.get("location");
+        const searchFromQuery = searchParams.get("q") ?? searchParams.get("search");
+        const locationIdFromQuery = searchParams.get("locationId");
         const sortFromQuery = searchParams.get("sort");
         const dateFromQuery = searchParams.get("dateFrom");
         const dateToQuery = searchParams.get("dateTo");
@@ -80,7 +80,7 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
         
         const normalizedSellerId = readStringParam(sellerIdFromQuery);
         const normalizedSearch = readStringParam(searchFromQuery);
-        const normalizedLocation = readStringParam(locationFromQuery);
+        const normalizedLocationId = readStringParam(locationIdFromQuery);
         const normalizedSort =
             sortFromQuery && SORT_OPTIONS.some((option) => option.value === sortFromQuery)
                 ? (sortFromQuery as ModerationFilters["sort"])
@@ -97,7 +97,7 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
                 status: normalizedStatus,
                 sellerId: normalizedSellerId,
                 search: normalizedSearch,
-                location: normalizedLocation,
+                locationId: normalizedLocationId,
                 sort: normalizedSort,
                 dateFrom: normalizedDateFrom,
                 dateTo: normalizedDateTo,
@@ -107,9 +107,9 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
             pageSize: normalizedLimit,
             canonicalUrl: adminListingModerationRoute(listingType ?? "ad", {
                 status: normalizedStatus,
-                search: normalizedSearch || undefined,
+                q: normalizedSearch || undefined,
                 sellerId: normalizedSellerId || undefined,
-                location: normalizedLocation || undefined,
+                locationId: normalizedLocationId || undefined,
                 sort: normalizedSort !== DEFAULT_FILTERS.sort ? normalizedSort : undefined,
                 dateFrom: normalizedDateFrom || undefined,
                 dateTo: normalizedDateTo || undefined,
@@ -136,9 +136,9 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
 
         return adminListingModerationRoute(listingType ?? "ad", {
             status: nextFilters.status,
-            search: nextFilters.search || undefined,
+            q: nextFilters.search || undefined,
             sellerId: nextFilters.sellerId || undefined,
-            location: nextFilters.location || undefined,
+            locationId: nextFilters.locationId || undefined,
             sort: nextFilters.sort !== DEFAULT_FILTERS.sort ? nextFilters.sort : undefined,
             dateFrom: nextFilters.dateFrom || undefined,
             dateTo: nextFilters.dateTo || undefined,
@@ -166,7 +166,7 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
             status: "live",
             search: "",
             sellerId: "",
-            location: "",
+            locationId: "",
             sort: DEFAULT_FILTERS.sort,
             dateFrom: "",
             dateTo: "",

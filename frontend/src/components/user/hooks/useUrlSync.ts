@@ -1,6 +1,11 @@
 import { useEffect, useMemo } from "react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { buildPublicBrowseRoute, type ParsedPublicBrowseParams } from "@/lib/publicBrowseRoutes";
+import {
+  buildPublicBrowseRoute,
+  resolvePublicBrowseBrands,
+  resolvePublicBrowseCategory,
+  type ParsedPublicBrowseParams,
+} from "@/lib/publicBrowseRoutes";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { DEFAULT_PRICE_RANGE } from "./useFilterState";
 import { Dispatch, SetStateAction } from "react";
@@ -22,15 +27,13 @@ export function useUrlSync(
 ) {
   useEffect(() => {
     const nextQuery = routeParams.q ?? "";
-    const nextCategory = routeParams.categoryId ?? routeParams.category ?? null;
+    const nextCategory = resolvePublicBrowseCategory(routeParams) ?? null;
     const nextSort = (routeParams.sort as SortOption | undefined) ?? "newest";
     const nextPriceRange: [number, number] = [
       routeParams.minPrice ?? DEFAULT_PRICE_RANGE[0],
       routeParams.maxPrice ?? DEFAULT_PRICE_RANGE[1],
     ];
-    const nextBrands = routeParams.brands
-      ? routeParams.brands.split(",").map((brand: string) => brand.trim()).filter(Boolean)
-      : [];
+    const nextBrands = resolvePublicBrowseBrands(routeParams);
     const nextRadius = routeParams.radiusKm ?? 50;
     const nextPage = routeParams.page && routeParams.page > 0 ? routeParams.page : 1;
 
@@ -47,14 +50,14 @@ export function useUrlSync(
     setPage((current: number) => (current === nextPage ? current : nextPage));
   }, [
     routeParams.brands,
-    routeParams.category,
-    routeParams.categoryId,
     routeParams.maxPrice,
     routeParams.minPrice,
     routeParams.page,
     routeParams.q,
     routeParams.radiusKm,
     routeParams.sort,
+    routeParams.category,
+    routeParams.categoryId,
     setPage, setPriceRange, setQuery, setRadiusKm, setSelectedBrands, setSelectedCategory, setSort
   ]);
 
@@ -70,7 +73,7 @@ export function useUrlSync(
         brands: selectedBrands.length > 0 ? selectedBrands.join(",") : undefined,
         modelId: urlModelId || undefined,
         locationId: urlLocationId || undefined,
-        location: urlLocationId ? undefined : urlLocationLabel || undefined,
+        location: urlLocationId ? urlLocationLabel || undefined : undefined,
         radiusKm: showRadiusFilter ? radiusKm : undefined,
       }),
     [priceRange, query, radiusKm, selectedBrands, selectedCategory, showRadiusFilter, sort, urlLocationId, urlLocationLabel, urlModelId]
@@ -81,8 +84,7 @@ export function useUrlSync(
       buildPublicBrowseRoute({
         type: routeParams.type,
         q: routeParams.q,
-        category: routeParams.category,
-        categoryId: routeParams.categoryId,
+        category: resolvePublicBrowseCategory(routeParams),
         modelId: routeParams.modelId,
         sort: routeParams.sort,
         minPrice: routeParams.minPrice,

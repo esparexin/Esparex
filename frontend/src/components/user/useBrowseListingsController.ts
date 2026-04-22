@@ -6,7 +6,7 @@ import { startTransition, useCallback, useEffect, useMemo, useRef, useState } fr
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { getCategories, type Category } from "@/lib/api/user/categories";
-import { useLocationState, type LocationData } from "@/context/LocationContext";
+import { useLocationData, type LocationData } from "@/context/LocationContext";
 import {
   getDisplayLocationLabel,
   getSearchLocationLabel,
@@ -18,8 +18,10 @@ import type { SortOption } from "@/components/search/SearchResultsHeader";
 import {
   buildPublicBrowseRoute,
   parsePublicBrowseParams,
+  resolvePublicBrowseCategory,
   type PublicBrowseType,
 } from "@/lib/publicBrowseRoutes";
+import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
 import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
 import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
 import { appendUniqueBrowseItems } from "@/lib/browse/appendUniqueBrowseItems";
@@ -46,6 +48,7 @@ interface BrowseListingsControllerConfig<TItem, TFilters> {
     pageSize: number;
     query: string;
     selectedCategory: string;
+    categories: Category[];
     location: LocationData;
     sort: SortOption;
     urlLocationId?: string;
@@ -69,10 +72,14 @@ export function useBrowseListingsController<TItem, TFilters>({
 }: BrowseListingsControllerConfig<TItem, TFilters>) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { location, isLoaded } = useLocationState();
+  const { location, isLoaded } = useLocationData();
   const routeParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
+  const routeCategory = useMemo(
+    () => resolvePublicBrowseCategory(routeParams) ?? "",
+    [routeParams.category, routeParams.categoryId]
+  );
 
-  const initialSelectedCategory = routeParams.categoryId ?? routeParams.category ?? initialCategory ?? "";
+  const initialSelectedCategory = routeCategory || initialCategory || "";
   const initialSort = (routeParams.sort as SortOption | undefined) ?? "newest";
   const initialPage = routeParams.page && routeParams.page > 0 ? routeParams.page : 1;
 
@@ -147,7 +154,7 @@ export function useBrowseListingsController<TItem, TFilters>({
 
   useEffect(() => {
     const nextQuery = routeParams.q ?? "";
-    const nextCategory = routeParams.categoryId ?? routeParams.category ?? "";
+    const nextCategory = routeCategory;
     const nextSort = (routeParams.sort as SortOption | undefined) ?? "newest";
     const nextPage = routeParams.page && routeParams.page > 0 ? routeParams.page : 1;
 
@@ -157,19 +164,18 @@ export function useBrowseListingsController<TItem, TFilters>({
     setSort((current) => (current === nextSort ? current : nextSort));
     setPage((current) => (current === nextPage ? current : nextPage));
   }, [
-    routeParams.category,
-    routeParams.categoryId,
     routeParams.page,
     routeParams.q,
     routeParams.sort,
+    routeCategory,
   ]);
 
   const hasLocationFilter = useMemo(() => {
     return (
-      Boolean(urlLocationId || urlLocationLabel || stableLocation.locationId) ||
+      Boolean(urlLocationId || stableLocation.locationId) ||
       (locationLatitude != null && locationLongitude != null)
     );
-  }, [locationLatitude, locationLongitude, stableLocation.locationId, urlLocationId, urlLocationLabel]);
+  }, [locationLatitude, locationLongitude, stableLocation.locationId, urlLocationId]);
 
   const shouldUseInitialResults = useMemo(
     () =>
@@ -203,6 +209,7 @@ export function useBrowseListingsController<TItem, TFilters>({
             pageSize,
             query,
             selectedCategory,
+            categories,
             location: stableLocation,
             sort,
             urlLocationId: urlLocationId || undefined,
@@ -227,6 +234,7 @@ export function useBrowseListingsController<TItem, TFilters>({
       pageSize,
       query,
       selectedCategory,
+      categories,
       sort,
       stableLocation,
       loadErrorMessage,
@@ -249,23 +257,14 @@ export function useBrowseListingsController<TItem, TFilters>({
   }, [fetchItems, isLoaded, shouldUseInitialResults]);
 
   const resolvedCategoryLabel = useMemo(() => {
-    if (!selectedCategory) return null;
-
-    const normalizedCategory = selectedCategory.trim();
-    const matchedCategory = categories.find(
-      (category) => category.id === normalizedCategory || category.slug === normalizedCategory
-    );
-
-    if (matchedCategory?.name) return matchedCategory.name;
-    if (matchedCategory?.slug) return matchedCategory.slug;
-    return normalizedCategory || null;
+    return resolveBrowseCategorySelection(selectedCategory, categories).label ?? null;
   }, [categories, selectedCategory]);
 
   const activeLocationLabel = useMemo(() => {
-    if (urlLocationLabel) return urlLocationLabel;
+    if (urlLocationId && urlLocationLabel) return urlLocationLabel;
     if (stableLocation.source === "default") return null;
     return getDisplayLocationLabel(stableLocation) || null;
-  }, [stableLocation, urlLocationLabel]);
+  }, [stableLocation, urlLocationId, urlLocationLabel]);
 
   const activeFilterBadges = useMemo(() => {
     const badges: string[] = [];
@@ -301,7 +300,7 @@ export function useBrowseListingsController<TItem, TFilters>({
         category: hasOverride("category") ? overrides.category : selectedCategory,
         sort: hasOverride("sort") ? overrides.sort : sort,
         locationId: urlLocationId || undefined,
-        location: urlLocationId ? undefined : urlLocationLabel || undefined,
+        location: urlLocationId ? urlLocationLabel || undefined : undefined,
         radiusKm: urlRadiusKm,
       });
     },

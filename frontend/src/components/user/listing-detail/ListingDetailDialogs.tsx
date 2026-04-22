@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { formatAppDateTime } from "@/lib/formatters";
 
 const ReportAdDialog = dynamic(
   () => import("../ReportAdDialog").then((mod) => mod.ReportAdDialog),
@@ -135,7 +136,7 @@ export function ListingDetailDialogs({
               {isAnalyticsLoading
                 ? "Loading latest activity..."
                 : analyticsSummary?.lastViewedAt
-                  ? new Date(analyticsSummary.lastViewedAt).toLocaleString()
+                  ? formatAppDateTime(analyticsSummary.lastViewedAt)
                   : "No recent viewer activity yet."}
             </p>
           </div>

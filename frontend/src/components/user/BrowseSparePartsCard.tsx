@@ -7,6 +7,7 @@ import { BrowseListingCard } from "@/components/user/BrowseListingCard";
 import { type Listing as SparePartListing } from "@/lib/api/user/listings";
 import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
+import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({
@@ -19,10 +20,7 @@ export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({
   priority?: boolean;
 }) {
   const imageUrl = toSafeImageSrc(listing.images?.[0], "");
-  const location =
-    typeof listing.location === "object"
-      ? listing.location?.city ?? ""
-      : String(listing.location ?? "");
+  const location = resolveListingLocationLabel(listing.location, "brief");
 
   return (
     <BrowseListingCard

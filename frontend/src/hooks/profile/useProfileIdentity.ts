@@ -39,9 +39,8 @@ export function useProfileIdentity({
   const [formData, setFormData] = useState<ProfileFormData>(() => ({
     name: user?.name || "",
     email: user?.email || "",
-    phone: user?.mobile || (user as ProfileUser | null)?.phone || "",
-    businessName: (user as ProfileUser | null)?.businessName || "",
-    gstNumber: (user as ProfileUser | null)?.gstNumber || "",
+    businessName: user?.businessName || "",
+    gstNumber: user?.gstNumber || "",
   }));
   const [profilePhoto, setProfilePhoto] = useState<string | null>(() => user?.profilePhoto || null);
   const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);

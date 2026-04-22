@@ -50,7 +50,7 @@ export default function InvoicesPage() {
     limit: 20,
   });
 
-  const rawSearch = searchParams.get("search");
+  const rawSearch = searchParams.get("q") ?? searchParams.get("search");
   const rawStatus = searchParams.get("status");
   const rawPage = searchParams.get("page");
   const search = normalizeSearchParamValue(rawSearch);
@@ -58,7 +58,7 @@ export default function InvoicesPage() {
   const page = parsePositiveIntParam(rawPage, 1);
 
   const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
-    const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+    const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { search: null, ...updates }));
     const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
     if (nextUrl !== currentUrl) {
       router.replace(nextUrl, { scroll: false });
@@ -75,7 +75,7 @@ export default function InvoicesPage() {
             limit: "20",
           });
           if (search) {
-            query.set("search", search);
+            query.set("q", search);
           }
           if (status !== "all") {
             query.set("status", status);
@@ -104,8 +104,9 @@ export default function InvoicesPage() {
   useEffect(() => {
     const nextUrl = buildUrlWithSearchParams(
       pathname,
-      updateSearchParams(searchParams, {
-        search,
+        updateSearchParams(searchParams, {
+        search: null,
+        q: search,
         status: status === "all" ? null : status,
         page: page > 1 ? page : null,
       })
@@ -218,7 +219,7 @@ export default function InvoicesPage() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={search}
-              onChange={(e) => replaceQueryState({ search: e.target.value, page: null })}
+              onChange={(e) => replaceQueryState({ q: e.target.value, page: null })}
               placeholder="Search invoice number or customer..."
               className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm text-black outline-none"
             />

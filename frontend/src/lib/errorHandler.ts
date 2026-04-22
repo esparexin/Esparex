@@ -38,7 +38,7 @@ export enum ErrorCode {
   VALIDATION_MIN_LENGTH = 1002,
   VALIDATION_MAX_LENGTH = 1003,
   VALIDATION_INVALID_EMAIL = 1004,
-  VALIDATION_INVALID_PHONE = 1005,
+  VALIDATION_INVALID_MOBILE = 1005,
   VALIDATION_INVALID_URL = 1006,
   VALIDATION_INVALID_GST = 1007,
   VALIDATION_INVALID_PINCODE = 1008,
@@ -165,7 +165,7 @@ export const createValidationError = (
   const codeMap: Record<string, ErrorCode> = {
     required: ErrorCode.VALIDATION_REQUIRED_FIELD,
     email: ErrorCode.VALIDATION_INVALID_EMAIL,
-    phone: ErrorCode.VALIDATION_INVALID_PHONE,
+    mobile: ErrorCode.VALIDATION_INVALID_MOBILE,
     url: ErrorCode.VALIDATION_INVALID_URL,
     gst: ErrorCode.VALIDATION_INVALID_GST,
     pincode: ErrorCode.VALIDATION_INVALID_PINCODE,
@@ -637,4 +637,3 @@ export const requireOnline = (operation: string): void => {
     }
   }
 };
-

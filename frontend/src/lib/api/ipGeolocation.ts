@@ -39,6 +39,9 @@ export async function detectLocationByIP(): Promise<IPGeolocationResult | null> 
             apiClient.get(API_ROUTES.USER.LOCATIONS_IP_LOCATE, {
                 skipHealthCheck: true,
                 silent: true,
+                // IP can change between sessions (mobile networks, VPN, etc.)
+                // Prevent stale cached responses by bypassing the browser cache.
+                headers: { "Cache-Control": "no-store" },
             })
         );
 

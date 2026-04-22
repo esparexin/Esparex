@@ -20,6 +20,20 @@ export interface ValidationResult {
 // VALIDATION RULES
 // ============================================================================
 
+const mobileValidationRule = {
+  pattern: /^[+]?[0-9]{10,15}$/,
+  getMessage: (issue: string) => {
+    switch (issue) {
+      case "required":
+        return "Mobile number is required";
+      case "pattern":
+        return "Please enter a valid 10-15 digit mobile number";
+      default:
+        return "Invalid mobile number";
+    }
+  },
+};
+
 export const ValidationRules = {
   // Business Name
   businessName: {
@@ -60,20 +74,8 @@ export const ValidationRules = {
     },
   },
 
-  // Phone
-  phone: {
-    pattern: /^[+]?[0-9]{10,15}$/,
-    getMessage: (issue: string) => {
-      switch (issue) {
-        case "required":
-          return "Phone number is required";
-        case "pattern":
-          return "Please enter a valid 10-15 digit phone number";
-        default:
-          return "Invalid phone number";
-      }
-    },
-  },
+  // Mobile
+  mobile: mobileValidationRule,
 
   // GST Number
   gstNumber: {
@@ -157,9 +159,9 @@ export const ValidationRules = {
 /**
  * Formats a 10-digit mobile number for the API (Twilio compatible).
  * @param mobile - 10 digit mobile string.
- * @returns Formatted phone string with +91 prefix.
+ * @returns Formatted mobile string with +91 prefix.
  */
-export const formatPhoneForAPI = (mobile: string): string => {
+export const formatMobileForApi = (mobile: string): string => {
   const clean = mobile.replace(/\D/g, "");
   return `+91${clean.slice(-10)}`;
 };
@@ -240,21 +242,21 @@ export const validateEmail = (value: unknown): ValidationResult => {
   return { valid: true, sanitized };
 };
 
-export const validatePhone = (value: unknown): ValidationResult => {
+export const validateMobile = (value: unknown): ValidationResult => {
   const strValue = typeof value === 'string' ? value : String(value || "");
   const sanitized = strValue.replace(/[\s-()]/g, "");
 
   if (!sanitized) {
     return {
       valid: false,
-      error: createValidationError("Phone", "required"),
+      error: createValidationError("Mobile", "required"),
     };
   }
 
-  if (!ValidationRules.phone.pattern.test(sanitized)) {
+  if (!ValidationRules.mobile.pattern.test(sanitized)) {
     return {
       valid: false,
-      error: createValidationError("Phone", "phone", sanitized),
+      error: createValidationError("Mobile", "mobile", sanitized),
     };
   }
 
@@ -478,7 +480,7 @@ export const validateForm = (
 export const businessProfileValidationRules: FormValidationRules = {
   businessName: validateBusinessName,
   email: validateEmail,
-  phone: validatePhone,
+  mobile: validateMobile,
   description: validateDescription,
   pincode: validatePincode,
 };
@@ -489,9 +491,9 @@ export const businessProfileOptionalValidationRules: FormValidationRules = {
   website: (value: unknown) => validateURL(value, false),
   tagline: (value: unknown) => validateTagline(value, false),
   alternatePhone: (value: unknown) =>
-    value ? validatePhone(value) : { valid: true },
+    value ? validateMobile(value) : { valid: true },
   whatsappNumber: (value: unknown) =>
-    value ? validatePhone(value) : { valid: true },
+    value ? validateMobile(value) : { valid: true },
 };
 
 // ============================================================================

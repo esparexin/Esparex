@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { generateAIContent } from "@/lib/api/user/ai";
+import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 import { notify } from "@/lib/notify";
 import { ListingCategory } from "@/types/listing";
 
@@ -13,7 +14,7 @@ export function usePostAdAiGeneration(
 ) {
     const generateDescription = useCallback(async (targetField: 'title' | 'description') => {
         const { brand, screenSize, category, categoryId } = form.getValues();
-        const selectedCategoryId = String(categoryId || category || "");
+        const selectedCategoryId = resolveCatalogEntityId(categoryId, category);
         const categoryName = categoryMap[selectedCategoryId]?.name || "device";
         const resolvedBrand = String(brand || "").trim() || categoryName;
         const resolvedDescriptor = String(screenSize || "").trim() || categoryName;

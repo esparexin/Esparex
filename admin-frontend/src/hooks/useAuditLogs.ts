@@ -4,7 +4,7 @@ import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
 import type { AdminLog } from "@/types/audit";
 
 interface AuditLogFilters {
-    search?: string;
+    q?: string;
     action?: string;
     page: number;
     limit: number;
@@ -25,7 +25,7 @@ export function useAuditLogs() {
         setError("");
         try {
             const { items, pagination: nextPagination } = await fetchAuditLogs({
-                search: filters.search ?? "",
+                q: filters.q ?? "",
                 action: filters.action ?? "all",
                 page: filters.page,
                 limit: filters.limit,

@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { authApi } from "@/lib/api/auth";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, useBackendReady } from "@/context/AuthContext";
 import { useOtpInput } from "@/hooks/useOtpInput";
 import { haptics } from "@/lib/haptics";
-import { formatPhoneForAPI, validateIndianMobile } from "@/lib/validation";
+import { formatMobileForApi, validateIndianMobile } from "@/lib/validation";
 import { useStateMachine } from "@/state-machines/useStateMachine";
 import { otpAuthMachine } from "@/state-machines/otpAuthMachine";
 
@@ -82,7 +82,8 @@ export interface OtpFlowState {
 export function useOtpFlow(
     onLoginSuccess: (options?: { requiresProfileSetup?: boolean }) => void
 ): OtpFlowState {
-    const { backendReady, updateUser } = useAuth();
+    const { updateUser } = useAuth();
+    const backendReady = useBackendReady();
 
     const [step, setStep] = useState<AuthStep>("enterMobile");
     const [mobile, setMobile] = useState("");
@@ -183,7 +184,7 @@ export function useOtpFlow(
 
     const resetToMobileStep = useCallback(() => {
         if (isOtpStep && validateIndianMobile(mobile)) {
-             authApi.cancelOtp(formatPhoneForAPI(mobile)).catch(() => undefined);
+             authApi.cancelOtp(formatMobileForApi(mobile)).catch(() => undefined);
         }
         resetOtpSession();
         setStep("enterMobile");
@@ -238,7 +239,7 @@ export function useOtpFlow(
             setAuthError(null);
             let success = false;
             try {
-                const result = await authApi.login(formatPhoneForAPI(mobile));
+                const result = await authApi.login(formatMobileForApi(mobile));
                 if (!result.success) {
                     if (applyLockedState(result.lockUntil, options.lockReturnStep, result.error || "Too many failed attempts.")) return;
                     if (isRateLimitedError({ code: result.code, message: result.error })) {
@@ -308,7 +309,7 @@ export function useOtpFlow(
             let machineTransitioned = false;
             try {
                 const result = await authApi.verify(
-                    formatPhoneForAPI(mobile),
+                    formatMobileForApi(mobile),
                     otpValue,
                     authStepBeforeVerify === "enterNameAndOtp" ? newUserName.trim() : undefined
                 );

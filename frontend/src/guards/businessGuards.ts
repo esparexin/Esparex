@@ -14,7 +14,7 @@ export function canPublishBusiness(status: BusinessStatus | undefined) {
 }
 
 export function canRegisterBusiness(user: User) {
-    // Require OTP-verified phone to prevent spam registrations
+    // Require OTP-verified mobile to prevent spam registrations
     if (!user.isPhoneVerified) return false;
     return canEditBusiness(user.businessStatus);
 }

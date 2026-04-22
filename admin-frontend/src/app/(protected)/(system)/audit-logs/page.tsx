@@ -47,7 +47,7 @@ export default function AuditLogsPage() {
         getAuditLogs
     } = useAuditLogs();
 
-    const rawSearch = searchParams.get("search");
+    const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const rawAction = searchParams.get("action");
     const rawPage = searchParams.get("page");
 
@@ -77,7 +77,7 @@ export default function AuditLogsPage() {
     useEffect(() => {
         const timer = setTimeout(() => {
             void getAuditLogs({
-                search,
+                q: search,
                 action: actionFilter,
                 page,
                 limit: 50,
@@ -90,7 +90,8 @@ export default function AuditLogsPage() {
         const nextUrl = buildUrlWithSearchParams(
             pathname,
             updateSearchParams(searchParams, {
-                search,
+                q: search || null,
+                search: null,
                 action: actionFilter === "all" ? null : actionFilter,
                 page: page > 1 ? page : null,
             })
@@ -191,7 +192,7 @@ export default function AuditLogsPage() {
 
             <AdminFilterToolbar
                 search={search}
-                onSearchChange={(value) => replaceQueryState({ search: value, page: null })}
+                onSearchChange={(value) => replaceQueryState({ q: value, search: null, page: null })}
                 searchPlaceholder="Search by Action, Admin or ID..."
                 status={actionFilter}
                 onStatusChange={(value) => replaceQueryState({ action: value === "all" ? null : value, page: null })}

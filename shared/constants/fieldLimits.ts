@@ -105,8 +105,8 @@ export const CONTACT_LIMITS = {
         MIN_DIGITS: 10,
         MAX_LENGTH: 20,
         PATTERN: /^[6-9]\d{9}$/, // Indian mobile format
-        ERROR_MIN: 'Phone number must have at least 10 digits',
-        ERROR_FORMAT: 'Please enter a valid phone number',
+        ERROR_MIN: 'Mobile number must have at least 10 digits',
+        ERROR_FORMAT: 'Please enter a valid mobile number',
     },
 
     // Email

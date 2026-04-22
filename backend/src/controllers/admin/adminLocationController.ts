@@ -259,7 +259,7 @@ export const reverseGeocode = async (req: Request, res: Response) => {
 export const getAllLocations = async (req: Request, res: Response) => {
     try {
         const { page, limit, skip } = getPaginationParams(req);
-        const search = (req.query.search as string | undefined)?.trim();
+        const search = (req.query.q as string | undefined)?.trim();
         const status = req.query.status as string;
         const state = req.query.state as string;
         const level = req.query.level as string;

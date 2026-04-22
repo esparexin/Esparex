@@ -7,6 +7,7 @@ import { ROUTES } from "@/lib/logic/routes";
 import type { AdDetailNavigateFn } from "@/lib/routeUtils";
 import type { Ad } from "@/schemas/ad.schema";
 import { formatStableDate } from "@/lib/formatters";
+import { resolveBusinessLocationLabel } from "@/lib/listings/listingPresentation";
 
 interface AdBusinessCardProps {
     ad: Ad;
@@ -19,10 +20,8 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
     const businessName = ad.businessName || "Verified Business Seller";
     const businessType = ad.businessType || "Professional seller";
     const businessCategory = ad.businessCategory;
-    const businessCity = ad.businessCity || ad.location?.city;
-    const businessState = ad.businessState || ad.location?.state;
     const businessExpiresAt = ad.businessExpiresAt;
-    const locationLabel = [businessCity, businessState].filter(Boolean).join(", ");
+    const locationLabel = resolveBusinessLocationLabel(ad);
 
     return (
         <Card className="bg-white border-none shadow-none md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-none md:rounded-[2rem] overflow-hidden border-b md:border border-slate-100">

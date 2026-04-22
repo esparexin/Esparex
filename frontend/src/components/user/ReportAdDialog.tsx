@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { REPORT_REASON, type ReportReasonValue } from "@shared/enums/reportReason";
-import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from "@/lib/api/routes";
+import { submitAdReport } from "@/lib/api/user/reports";
 import { buildAdReportPayload } from "@/lib/listings/adReportPayload";
 import { Button } from "../ui/button";
 import {
@@ -116,9 +115,7 @@ export function ReportAdDialog({
     setIsSubmitting(true);
 
     try {
-      await apiClient.post(API_ROUTES.USER.REPORTS, reportPayload, {
-        silent: true
-      });
+      await submitAdReport(reportPayload);
 
       notify.success("Report submitted successfully. We'll review it shortly.");
       resetFormState();

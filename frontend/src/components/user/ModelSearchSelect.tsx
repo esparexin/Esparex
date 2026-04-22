@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useLayoutEffect, useMemo, useEffect, type CSSProperties } from "react";
-import { Check, Search, Plus, Clock, Loader2 } from "@/icons/IconRegistry";
+import { Check, Search, Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
@@ -42,7 +42,7 @@ export function ModelSearchSelect({
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
     className,
 }: ModelSearchSelectProps) {
-    const { availableModels, loadModelsForBrand } = usePostAd();
+    const { availableModels, loadModelsForBrand, setAvailableModels } = usePostAd();
     
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
@@ -51,13 +51,24 @@ export function ModelSearchSelect({
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
+    // Local selection state to bridge the gap during prop/context sync
+    const [localSelection, setLocalSelection] = useState<{ id: string; name: string } | null>(null);
+
     // Resolve selected model name.
-    // Priority: matched model in list > explicit displayName > raw value (ObjectId fallback)
+    // Priority: matched model in list > local tentative selection > explicit displayName > raw value (ObjectId fallback)
     const selectedModel = useMemo(() => {
         return availableModels.find(m => m.id === value || m._id === value);
     }, [availableModels, value]);
 
-    const selectedName = selectedModel?.name || modelDisplayName || value || "";
+    const selectedName = selectedModel?.name || localSelection?.name || modelDisplayName || value || "";
+
+    // Clear local selection once the catalog has actually picked up the new model
+    useEffect(() => {
+        if (localSelection && selectedModel) {
+            // Success: the model is now officially in the catalog list
+            setLocalSelection(null);
+        }
+    }, [selectedModel, localSelection]);
 
     // Debounced search logic
     useEffect(() => {
@@ -110,7 +121,10 @@ export function ModelSearchSelect({
     }, [isEditing, search]);
 
     const handleSelect = (model: DeviceModel) => {
-        onChange(String(model.id || model._id), model.name);
+        const id = String(model.id || model._id);
+        const name = model.name;
+        setLocalSelection({ id, name });
+        onChange(id, name);
         setSearch("");
         setIsEditing(false);
     };
@@ -129,11 +143,25 @@ export function ModelSearchSelect({
         setEnsureError(null);
         try {
             const result = await ensureModel(categoryId, effectiveBrandName, trimmed);
+            setLocalSelection({ id: result.id, name: result.name });
+            onChange(result.id, result.name);
+
             // If a new pending brand was created, propagate its ID to the parent form.
             if (result.brandId && (!brandId || brandId !== result.brandId)) {
                 onBrandResolved?.(result.brandId, brandName || effectiveBrandName);
             }
-            onChange(result.id, result.name);
+
+            // Push the new model into the catalog state immediately so the chip finds it.
+            const newModel: DeviceModel = {
+                id: result.id,
+                _id: result.id,
+                name: result.name,
+                brandId: result.brandId || brandId,
+                categoryId: categoryId,
+                status: 'pending'
+            };
+            setAvailableModels([...availableModels, newModel]);
+
             // Success — close search mode
             setSearch("");
             setIsEditing(false);
@@ -157,12 +185,6 @@ export function ModelSearchSelect({
                 <div className="flex items-center gap-2.5 min-w-0">
                     <Check className="w-4 h-4 text-green-600 shrink-0" />
                     <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
-                    {selectedModel?.status === 'pending' && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-200 shrink-0">
-                            <Clock className="w-2.5 h-2.5" />
-                            Pending
-                        </span>
-                    )}
                 </div>
                 {!disabled && (
                     <button
@@ -179,7 +201,11 @@ export function ModelSearchSelect({
 
     // ── Search State ────────────────────────────────────────────────────────
     return (
-        <div className={cn("relative", className)} ref={containerRef}>
+        <div 
+            className={cn("relative", className)} 
+            ref={containerRef}
+            style={{ zIndex: isEditing ? Z_INDEX.brandSearchBackdrop + 1 : undefined }}
+        >
             <div className="relative group">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
                     {isLoading ? (
@@ -192,6 +218,16 @@ export function ModelSearchSelect({
                     autoFocus={isEditing}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && search.length >= 2) {
+                            e.preventDefault();
+                            handleAddNew();
+                        }
+                        if (e.key === "Escape") {
+                            setIsEditing(false);
+                            setSearch("");
+                        }
+                    }}
                     onFocus={() => setIsEditing(true)}
                     placeholder={placeholder}
                     disabled={disabled || isEnsuring}
@@ -200,21 +236,6 @@ export function ModelSearchSelect({
                         "focus:ring-2 focus:ring-primary/10 focus:border-primary shadow-sm"
                     )}
                 />
-                {search.length >= 2 && !isLoading && (
-                    <button
-                        type="button"
-                        onClick={handleAddNew}
-                        disabled={isEnsuring}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95 disabled:opacity-60 disabled:cursor-wait"
-                        title={`Add "${search}" as a new suggestion`}
-                    >
-                        {isEnsuring ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <Plus className="w-5 h-5" />
-                        )}
-                    </button>
-                )}
             </div>
 
             {ensureError && (
@@ -237,30 +258,69 @@ export function ModelSearchSelect({
                         style={{ ...dropdownStyle, zIndex: Z_INDEX.selectContent }}
                         className="bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200"
                     >
-                        <div className="overflow-y-auto max-h-[240px] p-1">
-                            {availableModels.length === 0 && !isLoading && !search && (
+                        <div className="overflow-y-auto max-h-[280px] p-1.5 space-y-1">
+                            {availableModels.length === 0 && !isLoading && search.length >= 2 ? (
+                                <div className="py-8 px-5 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-300">
+                                    <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-sm">
+                                        <Search className="w-5 h-5 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-sm font-bold text-slate-700 mb-1">
+                                        Model Not Found
+                                    </h3>
+                                    <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6 max-w-[200px]">
+                                        We couldn&apos;t find &ldquo;{search}&rdquo; in our catalog.
+                                    </p>
+                                    
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleAddNew();
+                                        }}
+                                        disabled={isEnsuring}
+                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all active:scale-[0.97] shadow-md shadow-primary/20 disabled:opacity-70"
+                                    >
+                                        {isEnsuring ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <span className="text-lg leading-none">+</span>
+                                        )}
+                                        {isEnsuring ? "Adding..." : `Use "${search.trim()}"`}
+                                    </button>
+                                </div>
+                            ) : availableModels.length === 0 && !isLoading && !search ? (
                                 <div className="py-8 px-4 text-center text-sm text-slate-400 font-medium italic">
                                     Start typing to find your model...
                                 </div>
-                            )}
-
-                            {availableModels.map((m) => (
-                                <button
-                                    key={String(m.id || m._id)}
-                                    type="button"
-                                    onClick={() => handleSelect(m)}
-                                    className="w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-all hover:bg-primary/5 hover:text-primary active:bg-primary/10 flex items-center justify-between group rounded-lg"
-                                >
-                                    <span>{m.name}</span>
-                                    {m.status === 'pending' && (
-                                        <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                                            New
-                                        </span>
+                            ) : (
+                                <>
+                                    {availableModels.map((m) => (
+                                        <button
+                                            key={String(m.id || m._id)}
+                                            type="button"
+                                            onClick={() => handleSelect(m)}
+                                            className="w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-all hover:bg-primary/5 hover:text-primary active:bg-primary/10 flex items-center justify-between group rounded-lg"
+                                        >
+                                            <span>{m.name}</span>
+                                        </button>
+                                    ))}
+                                    
+                                    {search.length >= 2 && !isLoading && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handleAddNew();
+                                            }}
+                                            disabled={isEnsuring}
+                                            className="w-full mt-1 p-3 flex items-center justify-center gap-2 border-t border-slate-50 text-xs font-bold text-primary hover:bg-slate-50 transition-colors disabled:opacity-60"
+                                        >
+                                            {isEnsuring ? <Loader2 className="w-3 h-3 animate-spin" /> : <span>+</span>}
+                                            {isEnsuring ? "Adding..." : `Don't see it? Add "${search}"`}
+                                        </button>
                                     )}
-                                </button>
-                            ))}
-
-
+                                </>
+                            )}
                         </div>
                     </div>
                 </>

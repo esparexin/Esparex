@@ -12,12 +12,12 @@ export function useSubscriptionPlans() {
     const [error, setError] = useState<string | null>(null);
     const [isMutating, setIsMutating] = useState(false);
 
-    const fetchPlans = useCallback(async (filters: { search?: string; type?: string } = {}) => {
+    const fetchPlans = useCallback(async (filters: { q?: string; type?: string } = {}) => {
         setLoading(true);
         setError(null);
         try {
             const query = new URLSearchParams();
-            if (filters.search) query.set("search", filters.search);
+            if (filters.q) query.set("q", filters.q);
             if (filters.type && filters.type !== "all") query.set("type", filters.type);
 
             const response = await adminFetch<unknown>(`${ADMIN_ROUTES.PLANS}?${query.toString()}`);

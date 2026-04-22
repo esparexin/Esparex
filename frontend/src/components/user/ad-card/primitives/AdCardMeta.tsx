@@ -3,7 +3,10 @@
 import { memo } from "react";
 import { Eye, Clock, MapPin } from "lucide-react";
 import { formatPrice, formatStableDate } from "@/lib/formatters";
-import { formatLocation } from "@/lib/location/locationService";
+import {
+  resolveListingLocationLabel,
+  resolveListingTypeBadge,
+} from "@/lib/listings/listingPresentation";
 import { cn } from "@/components/ui/utils";
 import type { AdData } from "@/types/home";
 import type { UiAd } from "@/lib/mappers";
@@ -23,19 +26,9 @@ export const AdCardMeta = memo(function AdCardMeta({
   variant = "default",
 }: AdCardMetaProps) {
   const adRecord = ad as Record<string, unknown>;
-
-  // Listing type pill detection
-  const isSparesDetected = adRecord.listingType === 'spare_part' || 
-                           ad.category === 'spares' || 
-                           ('spareParts' in ad && Array.isArray(ad.spareParts) && ad.spareParts.length > 0);
-  
-  const listingType = isSparesDetected ? 'spare_part' : (adRecord.listingType as string | undefined);
-  
-  const listingTypeConfig = listingType === 'service'
-    ? { label: 'Service', className: 'bg-emerald-50 text-emerald-700 border-emerald-100' }
-    : listingType === 'spare_part'
-    ? { label: 'Spare Part', className: 'bg-violet-50 text-violet-700 border-violet-100' }
-    : { label: 'Device', className: 'bg-blue-50 text-link-dark border-blue-100' };
+  const listingTypeBadge = resolveListingTypeBadge({
+    listingType: adRecord.listingType,
+  });
 
   const rawViews = adRecord.views;
   const dashboardViews =
@@ -50,17 +43,18 @@ export const AdCardMeta = memo(function AdCardMeta({
 
   const isDashboard = variant === "dashboard";
   const isList = variant === "list";
+  const locationLabel = resolveListingLocationLabel(ad.location, "brief");
 
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
-      <div className="font-semibold line-clamp-2 text-sm leading-snug min-h-[2.4rem] text-foreground-secondary">
+    <div className={cn("flex flex-col gap-0.5", className)}>
+      <div className="font-bold line-clamp-2 text-[13px] leading-[1.3] min-h-[2.2rem] text-foreground-secondary tracking-tight">
         {ad.title.replace(/\*\*/g, '')}
       </div>
 
-      <div className="flex items-center justify-between gap-1.5">
-        <span className={cn("font-bold", isDashboard ? "text-primary text-lg" : "text-link text-sm md:text-base")}>
+      <div className="flex items-center justify-between gap-1.5 mt-0.5">
+        <span className={cn("font-extrabold tracking-tight", isDashboard ? "text-primary text-lg" : "text-link-dark text-sm md:text-[15px]")}>
           {(() => {
-            if (adRecord.listingType === 'service' && (adRecord.priceMin || adRecord.priceMax)) {
+            if (listingTypeBadge.type === "service" && (adRecord.priceMin || adRecord.priceMax)) {
               if (adRecord.priceMin && adRecord.priceMax) return `${formatPrice(adRecord.priceMin as number)} - ${formatPrice(adRecord.priceMax as number)}`;
               if (adRecord.priceMin) return `From ${formatPrice(adRecord.priceMin as number)}`;
               return formatPrice(adRecord.priceMax as number);
@@ -70,16 +64,16 @@ export const AdCardMeta = memo(function AdCardMeta({
         </span>
         {!isDashboard && (
           <span className={cn(
-            "shrink-0 text-2xs font-semibold px-1.5 py-0.5 rounded-md border leading-tight",
-            listingTypeConfig.className
+            "shrink-0 text-[10px] font-bold px-2 h-4 flex items-center rounded-full border leading-none tracking-wide uppercase",
+            listingTypeBadge.className
           )}>
-            {listingTypeConfig.label}
+            {listingTypeBadge.label}
           </span>
         )}
       </div>
 
       <div className={cn(
-        "flex items-center justify-between text-2xs text-foreground-subtle pt-1.5 border-t border-slate-100 mt-0.5",
+        "flex items-center justify-between text-[10px] text-foreground-subtle pt-1 mt-1 border-t border-slate-100/60",
         isDashboard && "grid grid-cols-2 gap-2 justify-start",
         isList && "border-none pt-0 mt-0"
       )}>
@@ -98,16 +92,16 @@ export const AdCardMeta = memo(function AdCardMeta({
         ) : (
           <>
             <div className="flex items-center gap-1 flex-1 min-w-0">
-              {formatLocation(ad.location) && (
+              {locationLabel && (
                 <>
-                  <MapPin className="h-2.5 w-2.5 flex-shrink-0 text-foreground-subtle" />
-                  <span className="truncate">{formatLocation(ad.location)}</span>
+                  <MapPin className="h-2.5 w-2.5 flex-shrink-0 text-foreground-subtle/80" />
+                  <span className="truncate font-medium">{locationLabel}</span>
                 </>
               )}
             </div>
             <div className="flex items-center gap-1 flex-shrink-0 ml-1">
-              {!isList && <Clock className="h-2.5 w-2.5 text-foreground-subtle" />}
-              <span className="whitespace-nowrap">{'time' in ad ? ad.time : 'Just now'}</span>
+              {!isList && <Clock className="h-2.5 w-2.5 text-foreground-subtle/80" />}
+              <span className="whitespace-nowrap font-medium">{'time' in ad ? ad.time : 'Just now'}</span>
             </div>
           </>
         )}

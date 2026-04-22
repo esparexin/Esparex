@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 
 import { getCanonicalCategorySlug } from '@/lib/seo/canonicalSlugs';
+import { resolveBrowseCategorySelection } from '@/lib/browse/browseFilterNormalization';
 import { getAdsPage } from "@/lib/api/user/listings";
 import { getCategories } from "@/lib/api/user/categories";
 import { ClientCategoryWrapper } from './ClientCategoryWrapper';
@@ -48,18 +49,17 @@ export default async function CategoryRoute({ params }: Props) {
         permanentRedirect(`/category/${canonical}`);
     }
 
-    const [initialResults, initialCategories] = await Promise.all([
-        getAdsPage(
-            {
-                status: 'live',
-                page: 1,
-                limit: 20,
-                category: canonical,
-            },
-            { fetchOptions: { next: { revalidate: 60 } } }
-        ),
-        getCategories({ fetchOptions: { next: { revalidate: 3600 } } }),
-    ]);
+    const initialCategories = await getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
+    const resolvedCategory = resolveBrowseCategorySelection(canonical, initialCategories);
+    const initialResults = await getAdsPage(
+        {
+            status: 'live',
+            page: 1,
+            limit: 20,
+            ...(resolvedCategory.categoryId ? { categoryId: resolvedCategory.categoryId } : {}),
+        },
+        { fetchOptions: { next: { revalidate: 60 } } }
+    );
 
     return (
         <ClientCategoryWrapper

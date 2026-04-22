@@ -7,6 +7,7 @@ export type Location = SharedLocation & {
 };
 
 export interface LocationFilters {
+    q?: string;
     search?: string;
     status?: 'active' | 'inactive' | 'all';
     state?: string;

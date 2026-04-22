@@ -166,6 +166,10 @@ export type CurrentLocationMode = "precise";
 
 type CurrentLocationOptions = {
     mode?: CurrentLocationMode;
+    allowApproximateFallback?: boolean;
+    timeoutMs?: number;
+    maximumAgeMs?: number;
+    enableHighAccuracy?: boolean;
 };
 
 export type LocationDetectFailureReason =
@@ -269,7 +273,14 @@ const detectApproximateLocationByIP = async (): Promise<LocationDetectResult | n
     };
 };
 
-const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
+const detectPreciseLocation = async (
+    options: CurrentLocationOptions = {}
+): Promise<LocationDetectResult> => {
+    const allowApproximateFallback = options.allowApproximateFallback === true;
+    const timeoutMs = options.timeoutMs ?? GEOLOCATION_TIMEOUT_MS;
+    const maximumAgeMs = options.maximumAgeMs ?? 0;
+    const enableHighAccuracy = options.enableHighAccuracy ?? true;
+
     if (typeof window === "undefined") {
         return buildFailureResult({
             reason: "unsupported",
@@ -278,7 +289,9 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
     }
 
     if (!isSecureLocationContext()) {
-        const approximate = await detectApproximateLocationByIP();
+        const approximate = allowApproximateFallback
+            ? await detectApproximateLocationByIP()
+            : null;
         if (approximate) {
             return approximate;
         }
@@ -291,7 +304,9 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
     }
 
     if (!navigator.geolocation) {
-        const approximate = await detectApproximateLocationByIP();
+        const approximate = allowApproximateFallback
+            ? await detectApproximateLocationByIP()
+            : null;
         if (approximate) {
             return approximate;
         }
@@ -327,9 +342,9 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
                     (position) => resolve(position.coords),
                     reject,
                     {
-                        enableHighAccuracy: false,
-                        timeout: GEOLOCATION_TIMEOUT_MS,
-                        maximumAge: 300000, // 5 min cache — avoids redundant GPS re-acquire
+                        enableHighAccuracy,
+                        timeout: timeoutMs,
+                        maximumAge: maximumAgeMs,
                     }
                 );
             }
@@ -360,7 +375,7 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
         };
     } catch (error) {
         const failure = mapGeolocationError(error);
-        if (failure.reason !== "permission_denied") {
+        if (allowApproximateFallback && failure.reason !== "permission_denied") {
             const approximate = await detectApproximateLocationByIP();
             if (approximate) {
                 return approximate;
@@ -372,9 +387,9 @@ const detectPreciseLocation = async (): Promise<LocationDetectResult> => {
 };
 
 async function getCurrentLocationWithOptions(
-    _options: CurrentLocationOptions = {}
+    options: CurrentLocationOptions = {}
 ): Promise<LocationDetectResult> {
-    return detectPreciseLocation();
+    return detectPreciseLocation(options);
 }
 
 export async function getCurrentLocationResult(

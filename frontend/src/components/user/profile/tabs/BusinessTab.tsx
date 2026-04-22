@@ -10,6 +10,7 @@ import {
     Wrench,
 } from "lucide-react";
 import { type Business } from "@/lib/api/user/businesses";
+import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { BusinessApplicationStatus } from "../BusinessApplicationStatus";
 
@@ -44,6 +45,7 @@ export function BusinessTab({
     const status = businessData
         ? normalizeBusinessStatus(businessData.status, "pending")
         : "pending";
+    const locationLabel = resolveListingLocationLabel(businessData?.location, "full");
 
     if (businessData && status === "live") {
         return (
@@ -72,7 +74,7 @@ export function BusinessTab({
                             <div className="flex items-start gap-3 rounded-2xl bg-white/10 px-4 py-3">
                                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-100" />
                                 <span className="text-sm leading-6 text-blue-50">
-                                    {businessData.location?.display || businessData.location?.address || "Location not available"}
+                                    {locationLabel || "Location not available"}
                                 </span>
                             </div>
                             <div className="flex items-start gap-3 rounded-2xl bg-white/10 px-4 py-3">

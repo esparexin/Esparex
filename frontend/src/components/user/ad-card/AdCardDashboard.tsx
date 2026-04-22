@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AdCardCover, AdCardMeta } from "./primitives";
 import { cn } from "@/components/ui/utils";
+import { resolveListingCategoryLabel } from "@/lib/listings/listingPresentation";
 import {
   AdCardLinkWrapper,
   type AdCardData,
@@ -38,6 +39,7 @@ export const AdCardDashboard = memo(function AdCardDashboard({
     onClick,
     disableDeclarativeLink: Boolean(actions),
   });
+  const categoryLabel = resolveListingCategoryLabel(ad, "General");
 
   return (
     <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
@@ -66,7 +68,7 @@ export const AdCardDashboard = memo(function AdCardDashboard({
 
         <CardContent className="p-2.5 md:p-4 space-y-1 md:space-y-2">
           <Badge variant="secondary" className="mb-1 text-xs font-normal">
-            {ad.category}
+            {categoryLabel}
           </Badge>
 
           <AdCardMeta ad={ad} variant="dashboard" />

@@ -52,32 +52,41 @@ const normalizeBusinessDocuments = (value: unknown) => {
     });
 };
 
-const deriveOwnerAliases = (business: Record<string, unknown>) => {
+const deriveSellerIdentity = (business: Record<string, unknown>) => {
+    const sellerSource = asRecord(business.sellerId);
     const ownerSource = asRecord(business.userId);
-    const ownerId =
+    const sellerId =
+        asOptionalString(sellerSource.id) ||
+        asOptionalString(sellerSource._id) ||
+        asOptionalString(business.sellerId) ||
         asOptionalString(ownerSource.id) ||
         asOptionalString(ownerSource._id) ||
         asOptionalString(business.ownerId) ||
         asOptionalString(business.userId);
     const ownerName =
+        asOptionalString(sellerSource.name) ||
         asOptionalString(ownerSource.name) ||
         [asOptionalString(ownerSource.firstName), asOptionalString(ownerSource.lastName)].filter(Boolean).join(' ').trim() ||
         asOptionalString(business.ownerName);
 
-    const ownerRef = ownerId
+    const sellerRef = sellerId
         ? {
-            id: ownerId,
-            _id: ownerId,
+            id: sellerId,
+            _id: sellerId,
             ...(ownerName ? { name: ownerName } : {}),
-            ...(asOptionalString(ownerSource.email) ? { email: asOptionalString(ownerSource.email) } : {}),
-            ...(asOptionalString(ownerSource.mobile) ? { mobile: asOptionalString(ownerSource.mobile) } : {}),
+            ...(asOptionalString(sellerSource.email) || asOptionalString(ownerSource.email)
+                ? { email: asOptionalString(sellerSource.email) || asOptionalString(ownerSource.email) }
+                : {}),
+            ...(asOptionalString(sellerSource.mobile) || asOptionalString(ownerSource.mobile)
+                ? { mobile: asOptionalString(sellerSource.mobile) || asOptionalString(ownerSource.mobile) }
+                : {}),
         }
         : undefined;
 
     return {
-        ownerId,
+        sellerId,
         ownerName: ownerName || undefined,
-        ownerRef,
+        sellerRef,
     };
 };
 
@@ -123,9 +132,9 @@ export const serializeBusiness = (
 
     if (mobile) {
         serialized.mobile = mobile;
-        serialized.phone = mobile;
         serialized.contactNumber = mobile;
     }
+    delete serialized.phone;
 
     serialized.businessName = asOptionalString(serialized.businessName) || asOptionalString(serialized.name);
     serialized.businessType =
@@ -137,19 +146,17 @@ export const serializeBusiness = (
     serialized.verified = Boolean(serialized.isVerified);
     serialized.location = normalizeBusinessLocation(serialized.location, serialized.locationId);
 
-    const { ownerId, ownerName, ownerRef } = deriveOwnerAliases(serialized);
-    if (ownerId) {
-        serialized.userId = ownerId;
-        serialized.ownerId = ownerId;
-    }
+    const { sellerId, ownerName, sellerRef } = deriveSellerIdentity(serialized);
     if (ownerName) {
         serialized.ownerName = ownerName;
     }
-    if (ownerRef) {
-        serialized.sellerId = ownerRef;
-    } else if (ownerId) {
-        serialized.sellerId = ownerId;
+    if (sellerRef) {
+        serialized.sellerId = sellerRef;
+    } else if (sellerId) {
+        serialized.sellerId = sellerId;
     }
+    delete serialized.userId;
+    delete serialized.ownerId;
 
     if (audience === 'public') {
         delete serialized.documents;

@@ -3,7 +3,7 @@ import { API_ROUTES } from '../../routes';
 import { toApiResult, unwrapApiPayload } from '@/lib/api/result';
 import logger from "@/lib/logger";
 import { fetchUserApiJson } from '../server';
-import { normalizeListingIdentifier, isValidListingIdentifier, normalizeListing, type Listing, type ListingAnalytics, type ListingPhoneResponse } from './normalizer';
+import { normalizeListingIdentifier, isValidListingIdentifier, normalizeListing, normalizeListingContactNumberResponse, type Listing, type ListingAnalytics, type ListingContactNumberResponse } from './normalizer';
 
 export interface GetListingByIdOptions {
     throwOnServerError?: boolean;
@@ -61,17 +61,17 @@ export const incrementListingView = async (id: string | number): Promise<void> =
     }
 };
 /**
- * Reveals the seller's phone number for a listing.
+ * Reveals the seller's contact number for a listing.
  */
-export const getListingPhone = async (id: string | number): Promise<ListingPhoneResponse | null> => {
+export const getListingPhone = async (id: string | number): Promise<ListingContactNumberResponse | null> => {
     try {
-        const { data, error } = await toApiResult<ListingPhoneResponse>(
+        const { data, error } = await toApiResult<unknown>(
             apiClient.get(API_ROUTES.USER.LISTING_PHONE(id), { silent: true })
         );
         if (error) throw error;
-        return data;
+        return normalizeListingContactNumberResponse(data);
     } catch (e) {
-        logger.error('Failed to get listing phone', e);
+        logger.error('Failed to get listing contact number', e);
         throw e;
     }
 };

@@ -328,6 +328,7 @@ export const getAlertDeliveryLogs = async (skip: number, limit: number) => {
 
 // ── Typed model wrapper for controller shared files ───────────────────────────
 export type SmartAlertDocument = {
+    _id?: unknown;
     userId: { toString: () => string } | string;
     isActive: boolean;
     save: () => Promise<unknown>;
@@ -340,4 +341,5 @@ export const SmartAlertModel = SmartAlert as unknown as {
         sort: (sortBy: Record<string, 1 | -1>) => Promise<SmartAlertDocument[]>;
     };
     findById: (id: string) => Promise<SmartAlertDocument | null>;
+    findByIdAndDelete: (id: string) => Promise<unknown>;
 };

@@ -4,8 +4,7 @@ import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, CreditCard, Zap, BellRing, Package } from "lucide-react";
-import { adminFetch } from "@/lib/api/adminClient";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
+import { createPlan, updatePlan } from "@/lib/api/plans";
 import type { Plan } from "@shared/types/Plan";
 import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
@@ -163,9 +162,9 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
     const onValidSubmit = async (data: PlanFormValues) => {
         const payload = formToPayload(data);
         if (isEdit && editPlan) {
-            await adminFetch(ADMIN_ROUTES.PLAN_BY_ID(editPlan.id), { method: "PUT", body: payload });
+            await updatePlan(editPlan.id, payload);
         } else {
-            await adminFetch(ADMIN_ROUTES.PLANS, { method: "POST", body: payload });
+            await createPlan(payload);
         }
         onSaved();
         onClose();

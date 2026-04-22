@@ -90,7 +90,7 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     const safePayload: Record<string, unknown> = { userId };
     allowed.forEach(k => { if (data[k] !== undefined) safePayload[k] = data[k]; });
 
-    safePayload.mobile = data.mobile || data.phone || businessView.mobile;
+    safePayload.mobile = data.mobile || businessView.mobile;
     if (normalizedEmail) safePayload.email = normalizedEmail;
     if (normalizedGst) safePayload.gstNumber = normalizedGst;
     if (normalizedRegistration) safePayload.registrationNumber = normalizedRegistration;
@@ -197,11 +197,11 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
         safeUpdate.documents = await normalizeDocuments(data.documents, id, businessView.documents);
     }
 
-    if (data.mobile || data.phone) {
-        safeUpdate.mobile = data.mobile || data.phone;
+    if (data.mobile) {
+        safeUpdate.mobile = data.mobile;
     }
 
-    const criticalFields = ['name', 'mobile', 'phone', 'location', 'gstNumber', 'registrationNumber', 'documents'];
+    const criticalFields = ['name', 'mobile', 'location', 'gstNumber', 'registrationNumber', 'documents'];
     const hasCriticalUpdates = criticalFields.some(f => data[f] !== undefined);
 
     if (hasCriticalUpdates) {

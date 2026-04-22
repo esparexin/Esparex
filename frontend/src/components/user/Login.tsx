@@ -218,7 +218,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         size="icon"
                         onClick={resetToMobileStep}
                         disabled={isSendingOTP}
-                        aria-label="Edit phone number"
+                        aria-label="Edit mobile number"
                         className="h-11 w-11 text-link-dark hover:text-blue-900"
                       >
                         <Pencil size={14} />

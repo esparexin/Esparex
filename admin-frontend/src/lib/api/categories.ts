@@ -4,6 +4,7 @@ import { buildQueryString } from "./queryParams";
 import type { ListingTypeValue } from "@shared/enums/listingType";
 
 export interface CategoryFilters {
+    q?: string;
     search?: string;
     status?: string;
     page?: number;
@@ -27,7 +28,16 @@ export interface CategoryData {
 }
 
 export async function getCategories(filters?: CategoryFilters) {
-    const query = buildQueryString(filters);
+    const { search, q, ...rest } = filters ?? {};
+    const normalizedQuery = typeof q === "string" && q.trim().length > 0
+        ? q.trim()
+        : typeof search === "string" && search.trim().length > 0
+            ? search.trim()
+            : undefined;
+    const query = buildQueryString({
+        ...rest,
+        ...(normalizedQuery ? { q: normalizedQuery } : {}),
+    });
     return adminFetch<CategoryData[]>(`${ADMIN_ROUTES.CATEGORIES}?${query}`);
 }
 

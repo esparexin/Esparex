@@ -17,9 +17,14 @@ import {
 import type { AppLocation, GeoJSONPoint } from "@/types/location";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { isGenericDetectedLocation } from "@/lib/location/locationService";
+import { shouldShowLocationFirstVisitPrompt } from "./locationPrompt";
 
 // Hooks
-import { useLocationStorage, GEO_DETECTED_STORAGE_KEY } from "./hooks/useLocationStorage";
+import {
+    useLocationStorage,
+    GEO_DETECTED_STORAGE_KEY,
+    LOCATION_PROMPT_DISMISSED_KEY,
+} from "./hooks/useLocationStorage";
 import { useLocationDetection } from "./hooks/useLocationDetection";
 import { useLocationActionHandlers } from "./hooks/useLocationActionHandlers";
 
@@ -31,17 +36,29 @@ export type LocationCoordinates = GeoJSONPoint;
 export type LocationStatus = "detecting" | "available" | "manual" | "unavailable";
 export type LocationData = AppLocation;
 
-export type LocationStateContextType = {
+// ── Domain-split state types ──────────────────────────────────────────────────
+// LocationDataContext  — stable location value; only changes when user sets a new location.
+// LocationStatusContext — volatile detection state; changes during GPS flow.
+// Most components only need location data; subscribing to the full state causes
+// unnecessary re-renders every time GPS status cycles.
+
+export type LocationDataContextType = {
     location: LocationData;
+    isLoaded: boolean;
+};
+
+export type LocationStatusContextType = {
     status: LocationStatus;
     detectError: string | null;
     loading: boolean;
-    isLoaded: boolean;
     shouldShowFirstVisitPrompt: boolean;
     isPermissionBlocked: boolean;
     showPermissionBlockedModal: boolean;
     locationExpired: boolean;
 };
+
+// Merged type kept for backward-compat (useLocationState still works)
+export type LocationStateContextType = LocationDataContextType & LocationStatusContextType;
 
 export type LocationDispatchContextType = {
     detectLocation: (persist?: boolean, force?: boolean) => Promise<boolean>;
@@ -67,6 +84,8 @@ export type LocationDispatchContextType = {
 
 export type LocationActionsContextType = LocationDispatchContextType;
 
+const LOCATION_PROMPT_DELAY_MS = 800;
+
 const getLocationStatus = (source: LocationData["source"]): LocationStatus =>
     source === "manual" ? "manual" : "available";
 
@@ -76,6 +95,10 @@ const getLocationStatus = (source: LocationData["source"]): LocationStatus =>
 
 const LocationStateContext = createContext<LocationStateContextType | undefined>(undefined);
 const LocationActionsContext = createContext<LocationActionsContextType | undefined>(undefined);
+
+// Focused domain contexts
+const LocationDataContext = createContext<LocationDataContextType | undefined>(undefined);
+const LocationStatusContext = createContext<LocationStatusContextType | undefined>(undefined);
 
 /* -------------------------------------------------------------------------- */
 /* PROVIDER */
@@ -95,7 +118,7 @@ export function LocationProvider({
     const [promptDismissed, setPromptDismissed] = useState(false);
     const [showPermissionBlockedModal, setShowPermissionBlockedModal] = useState(false);
     const [isPermissionBlocked, setIsPermissionBlocked] = useState(false);
-    const [shouldShowPromptAfterDelay] = useState(false);
+    const [shouldShowPromptAfterDelay, setShouldShowPromptAfterDelay] = useState(false);
     const [locationExpired, setLocationExpired] = useState(false);
 
     const initializedRef = useRef(false);
@@ -119,6 +142,7 @@ export function LocationProvider({
     }, [setPromptDismissedFlag]);
 
     const applyResolvedLocation = useCallback((nextLocation: LocationData, persist = false) => {
+        setShouldShowPromptAfterDelay(false);
         setLocation(nextLocation);
         setStatus(getLocationStatus(nextLocation.source));
         setDetectError(null);
@@ -217,6 +241,7 @@ export function LocationProvider({
 
         const initLocation = async () => {
             setPromptDismissed(readPromptDismissedFromStorage());
+            setShouldShowPromptAfterDelay(false);
             const permBlocked = readPermissionBlockedFlag();
             setIsPermissionBlocked(permBlocked);
 
@@ -242,6 +267,11 @@ export function LocationProvider({
             setStatus("available");
             setDetectError(null);
             autoDetectedRef.current = false;
+            promptDelayTimeoutRef.current = setTimeout(() => {
+                if (!cancelled) {
+                    setShouldShowPromptAfterDelay(true);
+                }
+            }, LOCATION_PROMPT_DELAY_MS);
         };
 
         void initLocation();
@@ -254,7 +284,7 @@ export function LocationProvider({
 
     const readPromptDismissedFromStorage = () => {
         if (typeof window === "undefined") return false;
-        return localStorage.getItem("esparex_location_prompt_dismissed") === "true";
+        return localStorage.getItem(LOCATION_PROMPT_DISMISSED_KEY) === "true";
     };
 
     const resetPermissionBlocked = useCallback(() => {
@@ -266,28 +296,41 @@ export function LocationProvider({
         setShowPermissionBlockedModal(false);
     }, []);
 
-    const shouldShowFirstVisitPrompt =
-        status !== "detecting" &&
-        location.source === "default" &&
-        !promptDismissed &&
-        !isPermissionBlocked &&
-        shouldShowPromptAfterDelay;
+    const shouldShowFirstVisitPrompt = shouldShowLocationFirstVisitPrompt({
+        status,
+        source: location.source,
+        promptDismissed,
+        isPermissionBlocked,
+        promptDelayElapsed: shouldShowPromptAfterDelay,
+    });
 
     // ── Context Values ────────────────────────────────────────────────────────
 
-    const stateValue = useMemo(
+    const dataValue = useMemo<LocationDataContextType>(
         () => ({
             location,
+            isLoaded: status !== "detecting",
+        }),
+        [location, status]
+    );
+
+    const statusValue = useMemo<LocationStatusContextType>(
+        () => ({
             status,
             detectError,
             loading: status === "detecting",
-            isLoaded: status !== "detecting",
             shouldShowFirstVisitPrompt,
             isPermissionBlocked,
             showPermissionBlockedModal,
             locationExpired,
         }),
-        [detectError, isPermissionBlocked, location, locationExpired, shouldShowFirstVisitPrompt, showPermissionBlockedModal, status]
+        [detectError, isPermissionBlocked, locationExpired, shouldShowFirstVisitPrompt, showPermissionBlockedModal, status]
+    );
+
+    // Backward-compat merged view — only re-evaluates when either domain changes
+    const stateValue = useMemo<LocationStateContextType>(
+        () => ({ ...dataValue, ...statusValue }),
+        [dataValue, statusValue]
     );
 
     const actionsValue = useMemo(
@@ -303,11 +346,15 @@ export function LocationProvider({
     );
 
     return (
-        <LocationStateContext.Provider value={stateValue}>
-            <LocationActionsContext.Provider value={actionsValue}>
-                {children}
-            </LocationActionsContext.Provider>
-        </LocationStateContext.Provider>
+        <LocationDataContext.Provider value={dataValue}>
+            <LocationStatusContext.Provider value={statusValue}>
+                <LocationStateContext.Provider value={stateValue}>
+                    <LocationActionsContext.Provider value={actionsValue}>
+                        {children}
+                    </LocationActionsContext.Provider>
+                </LocationStateContext.Provider>
+            </LocationStatusContext.Provider>
+        </LocationDataContext.Provider>
     );
 }
 
@@ -329,6 +376,29 @@ export function useLocationDispatch(): LocationDispatchContextType {
 export function useLocationActions(): LocationActionsContextType {
     const ctx = useContext(LocationActionsContext);
     if (!ctx) throw new Error("useLocationActions must be used within LocationProvider");
+    return ctx;
+}
+
+// ── Focused domain hooks ──────────────────────────────────────────────────────
+// Prefer these over useLocationState() when a component only needs one domain.
+
+/**
+ * useLocationData — subscribe only to location value + isLoaded.
+ * Components using this do NOT re-render when GPS detection cycles.
+ */
+export function useLocationData(): LocationDataContextType {
+    const ctx = useContext(LocationDataContext);
+    if (!ctx) throw new Error("useLocationData must be used within LocationProvider");
+    return ctx;
+}
+
+/**
+ * useLocationStatus — subscribe only to detection status, errors, and UI prompt state.
+ * Components using this do NOT re-render when the stored location changes.
+ */
+export function useLocationStatus(): LocationStatusContextType {
+    const ctx = useContext(LocationStatusContext);
+    if (!ctx) throw new Error("useLocationStatus must be used within LocationProvider");
     return ctx;
 }
 

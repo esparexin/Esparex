@@ -4,7 +4,7 @@ import { toApiResult, toPaginatedApiResult, unwrapApiPayload } from '@/lib/api/r
 import logger from "@/lib/logger";
 import { fetchUserApiJson, type ServerFetchOptions } from '../server';
 import { createEmptyPageResult } from '../listingsShared';
-import { normalizeListing, type ListingFilters, type ListingPageResult, type Listing, OBJECT_ID_PATTERN } from './normalizer';
+import { normalizeListing, type ListingFilters, type ListingPageResult, type Listing } from './normalizer';
 import type { LocationLevel } from '@/types/location';
 
 export const getNearbyAdsPage = async (filters: Pick<ListingFilters, "lat" | "lng" | "radiusKm" | "categoryId" | "page" | "limit">): Promise<ListingPageResult> => {
@@ -57,7 +57,6 @@ export interface HomeAdsPayload {
 
 export interface HomeAdsRequestParams {
     cursor?: string | { createdAt: string; id?: string };
-    location?: string;
     locationId?: string;
     level?: LocationLevel;
     lat?: number;
@@ -71,9 +70,7 @@ export interface TrendingAdsPayload {
 }
 
 export interface TrendingAdsRequestParams {
-    location?: string;
     locationId?: string;
-    category?: string;
     categoryId?: string;
     limit?: number;
 }
@@ -104,34 +101,19 @@ export const getAdsPage = async (
     try {
         const params = new URLSearchParams();
         const baseEndpoint = options?.endpoint || API_ROUTES.USER.ADS;
-        const normalizedCategoryId = typeof filters?.categoryId === 'string' ? filters.categoryId.trim() : '';
-        const normalizedCategory = typeof filters?.category === 'string' ? filters.category.trim() : '';
-        const resolvedCategoryId = normalizedCategoryId && OBJECT_ID_PATTERN.test(normalizedCategoryId)
-            ? normalizedCategoryId
-            : (normalizedCategory && OBJECT_ID_PATTERN.test(normalizedCategory) ? normalizedCategory : '');
 
         if (filters) {
             Object.entries(filters).forEach(([key, value]) => {
                 if (value !== undefined && value !== null) {
                     if (key === 'search') {
                         params.append('q', String(value));
-                    } else if (key === 'category') {
-                        if (!resolvedCategoryId && normalizedCategory) {
-                            params.append('category', normalizedCategory);
-                        }
-                    } else if (key === 'categoryId') {
-                        if (resolvedCategoryId) {
-                            params.append('categoryId', resolvedCategoryId);
-                        }
+                    } else if (key === 'category' || key === 'location') {
+                        return;
                     } else {
                         params.append(key, String(value));
                     }
                 }
             });
-        }
-
-        if (!params.has('categoryId') && resolvedCategoryId) {
-            params.append('categoryId', resolvedCategoryId);
         }
 
         if (!params.has('status')) {
@@ -215,7 +197,6 @@ export const getHomeAds = async (
                 params.append('cursorId', effectiveParams.cursor.id.trim());
             }
         }
-        if (effectiveParams.location) params.append('location', effectiveParams.location);
         if (effectiveParams.locationId) params.append('locationId', effectiveParams.locationId);
         if (effectiveParams.level) params.append('level', effectiveParams.level);
         if (typeof effectiveParams.lat === 'number' && Number.isFinite(effectiveParams.lat)) params.append('lat', String(effectiveParams.lat));
@@ -249,9 +230,7 @@ export const getTrendingAds = async (
         const effectiveParams = paramsInput ?? {};
         const params = new URLSearchParams();
 
-        if (effectiveParams.location) params.append('location', effectiveParams.location);
         if (effectiveParams.locationId) params.append('locationId', effectiveParams.locationId);
-        if (effectiveParams.category) params.append('category', effectiveParams.category);
         if (effectiveParams.categoryId) params.append('categoryId', effectiveParams.categoryId);
         if (effectiveParams.limit) params.append('limit', String(effectiveParams.limit));
         const url = withQueryParams(API_ROUTES.USER.ADS_TRENDING, params);

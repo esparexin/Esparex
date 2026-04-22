@@ -75,7 +75,7 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
 
         try {
             const queryParams = new URLSearchParams({
-                search,
+                q: search,
                 status: activeTab,
                 page: String(page),
                 limit: String(DEFAULT_PAGINATION.limit),

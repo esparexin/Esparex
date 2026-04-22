@@ -45,17 +45,11 @@ export interface Business {
         email?: string;
         mobile?: string;
     };
-    
-    /** @deprecated Use sellerId */
-    userId?: string;
-    /** @deprecated Use sellerId */
-    ownerId?: string;
 
     name: string;
     slug?: string;
     description?: string;
     mobile: string;
-    phone?: string; // Kept for legacy compatibility
     email: string;
     website?: string;
     gstNumber?: string;
@@ -88,8 +82,6 @@ export interface Business {
     trustScore: number;
     
     isVerified: boolean;
-    /** @deprecated Use isVerified */
-    verified: boolean;
 
     approvedAt?: string;
     expiresAt?: string;

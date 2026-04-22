@@ -162,7 +162,7 @@ export const createSparePartListing = async (req: Request, res: Response) => {
  */
 export const getSparePartListings = async (req: Request, res: Response) => {
     try {
-        const { categoryId, typeId, status, page, limit, cursor, search, locationId, lat, lng, radiusKm } = req.query;
+        const { categoryId, typeId, status, page, limit, cursor, q, locationId, lat, lng, radiusKm } = req.query;
 
         const requestedPage = Number(page) || 1;
         const requestedLimit = Number(limit) || 20;
@@ -176,7 +176,7 @@ export const getSparePartListings = async (req: Request, res: Response) => {
                 categoryId: categoryId as string,
                 sparePartId: typeId as string,
                 status: (status as string | undefined) || AD_STATUS.LIVE,
-                ...(search ? { search: search as string } : {}),
+                ...(q ? { search: q as string } : {}),
                 ...(locationId ? { locationId: locationId as string } : {}),
                 ...(lat ? { lat: lat as string } : {}),
                 ...(lng ? { lng: lng as string } : {}),

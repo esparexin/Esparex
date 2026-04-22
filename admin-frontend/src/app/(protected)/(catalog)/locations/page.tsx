@@ -525,7 +525,7 @@ function LocationsPageContent({
 export default function LocationsPage() {
     const searchParams = useSearchParams();
 
-    const initialSearch = normalizeSearchParamValue(searchParams.get("search"));
+    const initialSearch = normalizeSearchParamValue(searchParams.get("q") ?? searchParams.get("search"));
     const initialStatus = normalizeStatusParam(searchParams.get("status"));
     const initialState = normalizeSearchParamValue(searchParams.get("state"));
     const initialLevel = normalizeLevelParam(searchParams.get("level"));

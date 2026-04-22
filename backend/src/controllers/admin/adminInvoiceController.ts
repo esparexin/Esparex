@@ -29,11 +29,11 @@ export const getAllInvoices = async (req: Request, res: Response) => {
         const limit = parseInt(req.query.limit as string) || 10;
         const skip = (page - 1) * limit;
 
-        const { status, search } = req.query;
+        const { status, q } = req.query;
 
         const { items, total } = await invoiceService.getInvoices(
             {
-                search: typeof search === 'string' ? search : undefined,
+                search: typeof q === 'string' ? q : undefined,
                 status: typeof status === 'string' ? status : undefined,
             },
             { skip, limit }

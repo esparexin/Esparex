@@ -2,12 +2,12 @@
 
 
 import { MapPin } from "lucide-react";
-import { useLocationState } from "@/context/LocationContext";
+import { useLocationData } from "@/context/LocationContext";
 import { getHeaderLocationText } from "@/lib/location/locationService";
 import { useMounted } from "@/hooks/useMounted";
 
 export function HeaderLocation({ onClick }: { onClick?: () => void }) {
-    const { location } = useLocationState();
+    const { location } = useLocationData();
     const mounted = useMounted();
     const { headerText, tooltipText } = getHeaderLocationText(location);
     // Only use the real location text after mount — pre-mount renders the static

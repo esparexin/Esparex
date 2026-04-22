@@ -20,9 +20,10 @@ export const metadata: Metadata = {
 export default async function PrivateLayout({ children }: { children: ReactNode }) {
     const cookieStore = await cookies();
     const initialHasAuthCookie = Boolean(cookieStore.get('esparex_auth'));
+    const currentYear = new Date().getUTCFullYear();
 
     return (
-        <CommonLayout initialHasAuthCookie={initialHasAuthCookie} suspenseHeader>
+        <CommonLayout initialHasAuthCookie={initialHasAuthCookie} suspenseHeader currentYear={currentYear}>
             {children}
         </CommonLayout>
     );

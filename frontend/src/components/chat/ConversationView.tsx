@@ -12,6 +12,7 @@ import { QuickReplies } from './QuickReplies';
 import { ChatReadOnly } from './ChatReadOnly';
 import { ChatActionsMenu } from './ChatActionsMenu';
 import type { IConversationDTO } from '@shared/contracts/chat.contracts';
+import { formatAppDate, formatStableNumber } from '@/lib/formatters';
 
 interface ConversationViewProps {
   conversation: IConversationDTO;
@@ -33,8 +34,11 @@ function SafetyTips({ onDismiss }: { onDismiss: () => void }) {
 }
 
 function DateSeparator({ date }: { date: string }) {
-  const label = new Date(date).toLocaleDateString([], {
-    weekday: 'long', month: 'short', day: 'numeric'
+  const label = formatAppDate(date, {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: undefined,
   });
   return (
     <div className="date-separator" role="separator" aria-label={label}>
@@ -177,7 +181,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
                 <p className="conv-header__ad-title">{conversation.ad.title}</p>
               )}
               {conversation.ad.price && (
-                <p className="conv-header__ad-price">₹{conversation.ad.price.toLocaleString()}</p>
+                <p className="conv-header__ad-price">₹{formatStableNumber(conversation.ad.price)}</p>
               )}
             </div>
           </div>

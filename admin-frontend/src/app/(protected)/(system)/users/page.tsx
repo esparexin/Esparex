@@ -68,14 +68,14 @@ export default function UsersPage() {
         searchParams.get("isVerified") === "true" || searchParams.get("isVerified") === "false"
             ? (searchParams.get("isVerified") as "true" | "false")
             : "all";
-    const committedSearch = readStringParam(searchParams.get("search"));
+    const committedSearch = readStringParam(searchParams.get("q") ?? searchParams.get("search"));
     const page = readPositiveIntParam(searchParams.get("page"), 1);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             void fetchUsers({
                 page,
-                search: committedSearch,
+                q: committedSearch,
                 status: statusFilter,
                 isVerified: verifiedFilter
             });
@@ -91,7 +91,7 @@ export default function UsersPage() {
         const nextUrl = ADMIN_UI_ROUTES.users({
             status: statusFilter !== "all" ? statusFilter : undefined,
             isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
-            search: committedSearch || undefined,
+            q: committedSearch || undefined,
             page: page > 1 ? page : undefined,
         });
         const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
@@ -110,7 +110,7 @@ export default function UsersPage() {
             const nextUrl = ADMIN_UI_ROUTES.users({
                 status: statusFilter !== "all" ? statusFilter : undefined,
                 isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
-                search: normalizedSearchInput || undefined,
+                q: normalizedSearchInput || undefined,
             });
             const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
             if (nextUrl !== currentUrl) {
@@ -148,7 +148,7 @@ export default function UsersPage() {
         if (result.success) {
             closeActionModal();
             setSelectedUser(null);
-            void fetchUsers({ page, search: committedSearch, status: statusFilter, isVerified: verifiedFilter });
+            void fetchUsers({ page, q: committedSearch, status: statusFilter, isVerified: verifiedFilter });
         }
     };
 
@@ -286,7 +286,7 @@ export default function UsersPage() {
                                 ADMIN_UI_ROUTES.users({
                                     status: nextStatus !== "all" ? nextStatus : undefined,
                                     isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
-                                    search: committedSearch || undefined,
+                                    q: committedSearch || undefined,
                                 }),
                                 { scroll: false }
                             );
@@ -302,7 +302,7 @@ export default function UsersPage() {
                                         ADMIN_UI_ROUTES.users({
                                             status: statusFilter !== "all" ? statusFilter : undefined,
                                             isVerified: nextVerified !== "all" ? nextVerified : undefined,
-                                            search: committedSearch || undefined,
+                                            q: committedSearch || undefined,
                                         }),
                                         { scroll: false }
                                     );
@@ -333,7 +333,7 @@ export default function UsersPage() {
                                         ADMIN_UI_ROUTES.users({
                                             status: statusFilter !== "all" ? statusFilter : undefined,
                                             isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
-                                            search: committedSearch || undefined,
+                                            q: committedSearch || undefined,
                                             page: nextPage > 1 ? nextPage : undefined,
                                         }),
                                         { scroll: false }

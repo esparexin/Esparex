@@ -25,8 +25,8 @@ export type ListingModerationFilters = {
     brandId?: string;
     modelId?: string;
     isSpotlight?: boolean;
-    location?: string;
-    search?: string;
+    locationId?: string;
+    q?: string;
     minPrice?: number;
     maxPrice?: number;
     createdAfter?: string;
@@ -71,8 +71,8 @@ export const listModerationListings = async (
             brandId: filters.brandId,
             modelId: filters.modelId,
             isSpotlight: filters.isSpotlight,
-            location: filters.location,
-            search: filters.search,
+            locationId: filters.locationId,
+            search: filters.q,
             minPrice: filters.minPrice,
             maxPrice: filters.maxPrice,
             createdAfter: filters.createdAfter,

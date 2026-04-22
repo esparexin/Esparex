@@ -49,6 +49,7 @@ import {
     adminUpdateLocationSchema,
     adminVerifyLocationSchema,
 } from '../../validators/location.validator';
+import { adminAuditLogQuerySchema } from '../../validators/adminAudit.validator';
 import {
     adminNotificationHistoryQuerySchema,
     adminNotificationRecipientQuerySchema,
@@ -116,8 +117,8 @@ router.get('/rate-limits/metrics', searchLimiter, systemController.getRateLimitM
 // ============================================
 // AUDIT LOGS
 // ============================================
-router.get('/security/audit', requirePermission('system:logs'), searchLimiter, auditController.getAuditLogs);
-router.get('/audit-logs', requirePermission('system:logs'), searchLimiter, auditController.getAuditLogs);
+router.get('/security/audit', requirePermission('system:logs'), searchLimiter, validateRequest({ query: adminAuditLogQuerySchema }), auditController.getAuditLogs);
+router.get('/audit-logs', requirePermission('system:logs'), searchLimiter, validateRequest({ query: adminAuditLogQuerySchema }), auditController.getAuditLogs);
 
 
 router.get('/admin-sessions', requireSuperAdmin, requirePermission('system:logs'), searchLimiter, adminSessionController.getAdminSessions);

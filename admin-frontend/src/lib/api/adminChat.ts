@@ -32,14 +32,14 @@ export async function fetchAdminChats(params: {
   riskMin?: number;
   page?: number;
   limit?: number;
-  search?: string;
+  q?: string;
 }): Promise<AdminChatListResponse> {
   const qs = new URLSearchParams();
   if (params.filter) qs.set('filter', params.filter);
   if (params.riskMin !== undefined) qs.set('riskMin', String(params.riskMin));
   if (params.page !== undefined) qs.set('page', String(params.page));
   if (params.limit !== undefined) qs.set('limit', String(params.limit));
-  if (params.search) qs.set('search', params.search);
+  if (params.q) qs.set('q', params.q);
   const res = await adminFetch<AdminChatListResponse>(`/chat/list?${qs.toString()}`);
   return res as unknown as AdminChatListResponse;
 }

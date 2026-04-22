@@ -57,7 +57,10 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
     // This gives users "Hyderabad, Telangana" instead of just "Telangana".
     const nearestCity = await Location.findOne(withPublicCanonicalLocationFilter({
         level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
-        parentId: boundary.locationId,
+        $or: [
+            { parentId: boundary.locationId },
+            { path: boundary.locationId }
+        ],
         coordinates: {
             $near: {
                 $geometry: { type: 'Point', coordinates: [lng, lat] },

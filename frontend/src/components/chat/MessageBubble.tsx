@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { ChatAttachment, IMessageDTO } from '@shared/contracts/chat.contracts';
 import { ChatImageLightbox } from './ChatImageLightbox';
+import { formatAppTime } from '@/lib/formatters';
 
 interface MessageBubbleProps {
   message: IMessageDTO;
@@ -10,7 +11,7 @@ interface MessageBubbleProps {
 }
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return formatAppTime(iso);
 }
 
 function isImageAttachment(attachment: ChatAttachment): boolean {

@@ -19,7 +19,7 @@ export async function adminListConversations(
     riskMin: number,
     page: number,
     limit: number,
-    search: string
+    q: string
 ): Promise<{ convs: AdminConvSummary[]; total: number }> {
     const query: Record<string, unknown> = {};
 
@@ -45,7 +45,7 @@ export async function adminListConversations(
         query._id = { $in: reportedConvIds };
     }
 
-    const normalizedSearch = search.trim();
+    const normalizedSearch = q.trim();
     if (normalizedSearch) {
         const searchRegex = new RegExp(escapeRegExp(normalizedSearch), 'i');
         const [userMatches, adMatches] = await Promise.all([

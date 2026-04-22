@@ -8,6 +8,29 @@ import { BUSINESS_STATUS } from '../../../shared/enums/businessStatus';
 
 const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
 const FULL_ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;
+const LEGACY_BUSINESS_CITY_ALIAS_MESSAGE = '`city` is no longer accepted in business query filters. Use `locationId` or coordinates instead.';
+const LEGACY_BUSINESS_CATEGORY_ALIAS_MESSAGE = '`category` is no longer accepted in business query filters. Use `listingCategoryId` instead.';
+const LEGACY_BUSINESS_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in admin business filters. Use `q` instead.';
+const LEGACY_BUSINESS_CITY_ADMIN_ALIAS_MESSAGE = '`city` is no longer accepted in admin business filters. Use `locationId` instead.';
+
+const hasOwn = (value: unknown, key: string): boolean =>
+    Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, key));
+
+const rejectLegacyBusinessQueryAliases = (
+    raw: unknown,
+    aliases: Array<{ alias: string; message: string }>
+) => {
+    const issues = aliases
+        .filter(({ alias }) => hasOwn(raw, alias))
+        .map(({ alias, message }) => ({
+            code: z.ZodIssueCode.custom,
+            path: [alias],
+            message,
+        }));
+
+    if (issues.length === 0) return;
+    throw new z.ZodError(issues);
+};
 
 // VALIDATION SSOT NOTE:
 // This schema mirrors shared/schemas/coordinates.schema.ts.
@@ -16,14 +39,14 @@ const FULL_ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;
 // --- v3-native schemas (avoid cross-package Zod version mixing) ---
 
 /**
- * Phone number schema — normalizes any format (+91, 91, dashes) → 10-digit Indian mobile.
+ * Mobile number schema — normalizes any format (+91, 91, dashes) → 10-digit Indian mobile.
  * Aligns with auth.validator.ts SSOT (normalizeTo10Digits from phoneUtils).
  */
 const phoneSchema = z.string()
     .transform(normalizeTo10Digits)
     .refine(
         (val) => /^[6-9]\d{9}$/.test(val),
-        'Invalid phone number (must be a 10-digit Indian mobile starting with 6–9)'
+        'Invalid mobile number (must be a 10-digit Indian mobile starting with 6–9)'
     );
 
 /**
@@ -107,9 +130,8 @@ const businessBaseShape = {
     description: descriptionSchema.optional(),
     businessTypes: z.array(sanitizeString(2, 50)).min(1, 'Select at least one business type').optional(),
     location: locationSchema,
-    // Support phone OR mobile - uses shared phoneSchema
+    // Canonical contact field for business mutations
     mobile: phoneSchema.optional(),
-    phone: phoneSchema.optional(),
     email: commonSchemas.email,
     website: z.string().url().optional(),
     gstNumber: z.string().regex(BUSINESS_LIMITS.GST.PATTERN, BUSINESS_LIMITS.GST.ERROR_FORMAT).optional(),
@@ -124,16 +146,13 @@ const businessBaseShape = {
 
 export const createBusinessSchema = z.object(businessBaseShape).strict()
     .transform((data) => {
-        if (data.phone && !data.mobile) {
-            data.mobile = data.phone;
-        }
         if (!Array.isArray(data.businessTypes) || data.businessTypes.length === 0) {
             data.businessTypes = [...DEFAULT_BUSINESS_TYPES];
         }
         return data;
     })
     .refine((data) => !!data.mobile, {
-        message: "Phone number (mobile) is required",
+        message: "Mobile number is required",
         path: ["mobile"]
     });
 
@@ -143,6 +162,26 @@ export const updateBusinessSchema = z.object(businessBaseShape).partial().extend
     images: z.array(z.string()).max(BUSINESS_LIMITS.IMAGES.MAX, BUSINESS_LIMITS.IMAGES.ERROR_MAX).optional(),
     businessTypes: z.array(sanitizeString(2, 50)).min(1, 'Select at least one business type').optional(),
 }).strict();
+
+const publicBusinessQuerySchemaBase = z.object({
+    limit: z.coerce.number().int().min(1).max(50).optional(),
+    latitude: z.coerce.number().min(-90).max(90).optional(),
+    longitude: z.coerce.number().min(-180).max(180).optional(),
+    radiusKm: z.coerce.number().min(1).max(100).optional(),
+    locationId: commonSchemas.objectId.optional(),
+    listingCategoryId: commonSchemas.objectId.optional(),
+    brandId: commonSchemas.objectId.optional(),
+    excludeBusinessId: commonSchemas.objectId.optional(),
+    serviceOnly: z.union([z.boolean(), z.enum(['true', 'false'])]).optional(),
+}).strict();
+
+export const publicBusinessQuerySchema = z.preprocess((raw) => {
+    rejectLegacyBusinessQueryAliases(raw, [
+        { alias: 'city', message: LEGACY_BUSINESS_CITY_ALIAS_MESSAGE },
+        { alias: 'category', message: LEGACY_BUSINESS_CATEGORY_ALIAS_MESSAGE },
+    ]);
+    return raw;
+}, publicBusinessQuerySchemaBase);
 
 const adminBusinessStatusFilterSchema = z.enum([
     BUSINESS_STATUS.LIVE,
@@ -155,15 +194,23 @@ const adminBusinessStatusFilterSchema = z.enum([
     'active',
 ]);
 
-export const adminBusinessAccountsQuerySchema = z.object({
+const adminBusinessAccountsQuerySchemaBase = z.object({
     status: adminBusinessStatusFilterSchema.optional(),
-    search: z.string().trim().max(200).optional(),
-    city: z.string().trim().max(100).optional(),
+    q: z.string().trim().max(200).optional(),
+    locationId: commonSchemas.objectId.optional(),
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),
     includeDeleted: z.enum(['true', 'false']).optional(),
     sort: z.string().trim().max(100).optional(),
 }).strict();
+
+export const adminBusinessAccountsQuerySchema = z.preprocess((raw) => {
+    rejectLegacyBusinessQueryAliases(raw, [
+        { alias: 'search', message: LEGACY_BUSINESS_SEARCH_ALIAS_MESSAGE },
+        { alias: 'city', message: LEGACY_BUSINESS_CITY_ADMIN_ALIAS_MESSAGE },
+    ]);
+    return raw;
+}, adminBusinessAccountsQuerySchemaBase);
 
 export const adminBusinessRejectSchema = z.object({
     reason: z.string().trim().min(10, 'Rejection reason is required').max(500),
@@ -196,7 +243,6 @@ export const adminBusinessUpdateSchema = z.object({
     name: businessNameSchema.optional(),
     description: z.string().trim().max(2000).optional(),
     mobile: phoneSchema.optional(),
-    phone: phoneSchema.optional(),
     email: z.union([commonSchemas.email, z.literal('')]).optional(),
     website: z.union([z.string().url('Invalid URL format'), z.literal('')]).optional(),
     gstNumber: z.union([

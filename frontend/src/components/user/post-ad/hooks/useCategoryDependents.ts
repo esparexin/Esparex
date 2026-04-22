@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
+import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 import { ListingCategory } from "@/types/listing";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
@@ -10,12 +11,14 @@ export function useCategoryDependents(
     brandMap: Record<string, any>,
     setFormError: (error: string | null) => void,
     setBrandIsPending: (isPending: boolean) => void,
-    setSpareParts: (parts: string[]) => void,
     loadBrandsForCategory: (id: string) => Promise<void>,
     loadSparePartsForCategory: (id: string) => Promise<void>,
     loadCategorySchema: (id: string) => Promise<void>
 ) {
-    const selectedCategoryId = String(form.watch("categoryId") || form.watch("category") || "");
+    const selectedCategoryId = resolveCatalogEntityId(
+        form.watch("categoryId"),
+        form.watch("category")
+    );
     
     const requiresScreenSize = useMemo(() => {
         const category = categoryMap[selectedCategoryId];
@@ -39,7 +42,6 @@ export function useCategoryDependents(
         form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
-        setSpareParts([]);
         form.setValue("spareParts", [] as any, { shouldValidate: true, shouldDirty: true });
         setBrandIsPending(false);
         
@@ -48,9 +50,12 @@ export function useCategoryDependents(
             loadSparePartsForCategory(id),
             loadCategorySchema(id)
         ]);
-    }, [form, setFormError, setSpareParts, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
+    }, [form, setFormError, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
 
     const handleBrandChange = useCallback(async (name: string) => {
+        const currentBrand = form.getValues("brand");
+        const brandChanged = currentBrand !== name;
+
         setFormError(null);
         form.setValue("brand", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
@@ -58,12 +63,14 @@ export function useCategoryDependents(
         const brandId = normalizeOptionalObjectId(brandObj?.id);
         form.setValue("brandId", brandId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
-        setSpareParts([]);
-        form.setValue("spareParts", [] as any, { shouldValidate: true, shouldDirty: true });
-        form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
+        if (brandChanged) {
+            form.setValue("spareParts", [] as any, { shouldValidate: true, shouldDirty: true });
+            form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
+            form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
+        }
+        
         setBrandIsPending(false);
-    }, [form, brandMap, setFormError, setSpareParts, setBrandIsPending]);
+    }, [form, brandMap, setFormError, setBrandIsPending]);
 
     return { requiresScreenSize, handleCategoryChange, handleBrandChange };
 }

@@ -7,6 +7,7 @@ import { BrowseListingCard } from "@/components/user/BrowseListingCard";
 import { type Listing as Service } from "@/lib/api/user/listings";
 import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
+import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 export const BrowseServicesCard = memo(function BrowseServicesCard({
@@ -19,10 +20,7 @@ export const BrowseServicesCard = memo(function BrowseServicesCard({
   priority?: boolean;
 }) {
   const imageUrl = toSafeImageSrc(service.images?.[0], "");
-  const location =
-    typeof service.location === "object"
-      ? service.location?.city ?? ""
-      : String(service.location ?? "");
+  const location = resolveListingLocationLabel(service.location, "brief");
 
   const displayPrice =
     service.priceMin != null && service.priceMax != null

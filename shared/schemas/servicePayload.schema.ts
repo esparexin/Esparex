@@ -2,13 +2,7 @@ import { z } from 'zod';
 import { validatedTextSchema } from './text.schema';
 import { ObjectIdSchema } from './catalog.schema';
 
-const serviceTypeToken = z.string().min(1).max(120);
-
-const serviceTypeFields = {
-    serviceTypes: z.array(serviceTypeToken)
-        .min(1, 'At least one service type is required')
-        .max(20, 'Maximum 20 service types allowed')
-        .optional(),
+const serviceTypeField = {
     serviceTypeIds: z.array(ObjectIdSchema)
         .min(1, 'At least one service type is required')
         .max(20, 'Maximum 20 service types allowed')
@@ -64,26 +58,37 @@ const servicePayloadShape = {
         .min(1, 'At least one image is required')
         .max(10, 'Maximum 10 images allowed'),
 
-    ...serviceTypeFields
+    ...serviceTypeField
 };
+
+const rejectLegacyServiceTypesAlias = <T extends Record<string, unknown>>(data: T, ctx: z.RefinementCtx) => {
+    if (Object.prototype.hasOwnProperty.call(data, 'serviceTypes')) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['serviceTypes'],
+            message: 'serviceTypes is no longer supported; use serviceTypeIds instead',
+        });
+    }
+};
+
+const withLegacyServiceTypeAliasGuard = <T extends z.ZodTypeAny>(schema: T) =>
+    schema.superRefine(rejectLegacyServiceTypesAlias);
 
 /**
  * Base Service Schema (unrefined)
  * Exported for extension in frontend to avoid ZodEffects .extend() issues.
  */
-export const BaseServicePayloadSchema = z.object(servicePayloadShape).passthrough();
+export const BaseServicePayloadSchema = z.object(servicePayloadShape)
+    .passthrough();
 
 /**
  * Service Payload Schema — used for CREATE (POST) operations.
  * Includes cross-field refinements: price range consistency and
  * at-least-one serviceType enforcement.
  */
-export const ServicePayloadSchema = BaseServicePayloadSchema
+export const ServicePayloadSchema = withLegacyServiceTypeAliasGuard(BaseServicePayloadSchema)
     .refine((data) => {
-        return Boolean(
-            (Array.isArray(data.serviceTypes) && data.serviceTypes.length > 0)
-            || (Array.isArray(data.serviceTypeIds) && data.serviceTypeIds.length > 0)
-        );
+        return Boolean(Array.isArray(data.serviceTypeIds) && data.serviceTypeIds.length > 0);
     }, {
         message: 'At least one service type is required',
         path: ['serviceTypeIds']
@@ -99,9 +104,11 @@ export const ServicePayloadSchema = BaseServicePayloadSchema
  * Cross-field refinements (price range, serviceType required) are intentionally
  * omitted because a partial update may only send one of the two fields.
  */
-export const PartialServicePayloadSchema = z.object(servicePayloadShape)
-    .passthrough()
-    .partial();
+export const PartialServicePayloadSchema = withLegacyServiceTypeAliasGuard(
+    z.object(servicePayloadShape)
+        .passthrough()
+        .partial()
+);
 
 /**
  * Type exports

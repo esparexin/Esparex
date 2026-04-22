@@ -60,7 +60,7 @@ export type ModerationFilters = {
     status: "all" | ModerationStatus;
     sellerId: string;
     categoryId: string;
-    location: string;
+    locationId: string;
     dateFrom: string;
     dateTo: string;
     sort: "newest" | "oldest" | "price_high" | "price_low";
@@ -99,7 +99,7 @@ export const DEFAULT_FILTERS: ModerationFilters = {
     status: "all",
     sellerId: "",
     categoryId: "",
-    location: "",
+    locationId: "",
     dateFrom: "",
     dateTo: "",
     sort: "newest",

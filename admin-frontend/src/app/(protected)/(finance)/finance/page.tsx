@@ -42,7 +42,7 @@ export default function FinancePage() {
         limit: 20,
     });
 
-    const rawSearch = searchParams.get("search");
+    const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const rawStatus = searchParams.get("status");
     const rawPage = searchParams.get("page");
 
@@ -56,7 +56,7 @@ export default function FinancePage() {
     const page = parsePositiveIntParam(rawPage, 1);
 
     const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { search: null, ...updates }));
         const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
@@ -69,7 +69,7 @@ export default function FinancePage() {
         try {
             const [{ items, pagination: nextPagination }, statsData] = await Promise.all([
                 fetchFinanceTransactions({
-                    search,
+                    q: search,
                     status: statusFilter,
                     page,
                     limit: 20,
@@ -101,7 +101,8 @@ export default function FinancePage() {
         const nextUrl = buildUrlWithSearchParams(
             pathname,
             updateSearchParams(searchParams, {
-                search,
+                search: null,
+                q: search,
                 status: rawStatus === null ? null : statusFilter,
                 page: page > 1 ? page : null,
             })
@@ -250,7 +251,7 @@ export default function FinancePage() {
                             placeholder="Search by Payment ID, User or description..."
                             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
                             value={search}
-                            onChange={(e) => replaceQueryState({ search: e.target.value, page: null })}
+                            onChange={(e) => replaceQueryState({ q: e.target.value, page: null })}
                         />
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto text-black">

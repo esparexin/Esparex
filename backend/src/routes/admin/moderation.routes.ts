@@ -8,8 +8,13 @@ import { validateObjectId } from '../../middleware/validateObjectId';
 import { requirePermission } from '../../middleware/adminAuth';
 import { adminMutationLimiter } from '../../middleware/rateLimiter';
 import { lifecyclePolicyHttpGuard } from '../../middleware/lifecyclePolicyGuard';
+import { validateRequest } from '../../middleware/validateRequest';
 import * as listingsController from '../../controllers/admin/adminListingsController';
 import * as legacyReportsController from '../../controllers/admin/adminAdsController';
+import {
+    adminModerationListingsQuerySchema,
+    adminReportedAdsQuerySchema,
+} from '../../validators/adminModeration.validator';
 
 const router = express.Router();
 
@@ -17,7 +22,7 @@ const router = express.Router();
 // CANONICAL LISTINGS MODERATION API (SSOT)
 // ============================================
 router.get('/listings/counts', requirePermission('ads:read'), listingsController.adminGetListingCounts);
-router.get('/listings', requirePermission('ads:read'), listingsController.adminListListings);
+router.get('/listings', requirePermission('ads:read'), validateRequest({ query: adminModerationListingsQuerySchema }), listingsController.adminListListings);
 router.get('/listings/:id', requirePermission('ads:read'), validateObjectId, listingsController.adminGetListingById);
 
 router.post('/listings/:id/approve', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, lifecyclePolicyHttpGuard, listingsController.adminApproveListing);
@@ -31,7 +36,7 @@ router.delete('/listings/:id', requirePermission('ads:write'), adminMutationLimi
 // ============================================
 // REPORTS (kept for admin operations)
 // ============================================
-router.get('/reports', requirePermission('ads:read'), legacyReportsController.getReportedAds);
+router.get('/reports', requirePermission('ads:read'), validateRequest({ query: adminReportedAdsQuerySchema }), legacyReportsController.getReportedAds);
 router.get('/reports/:id', requirePermission('ads:read'), validateObjectId, legacyReportsController.getReportedAdById);
 router.post('/reports/:id/resolve', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, legacyReportsController.resolveReport);
 router.patch('/reports/:id/status', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, legacyReportsController.updateReportStatus);

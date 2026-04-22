@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Model, Document } from 'mongoose';
+import { LISTING_TYPE_VALUES, type ListingTypeValue } from '../../../shared/enums/listingType';
 import {
     getPaginationParams,
     sendPaginatedResponse,
@@ -114,7 +115,7 @@ export async function handlePaginatedContent<T extends Document>(
 
         if (isAdmin && isUrlAdmin) {
             const { page, limit, skip } = getPaginationParams(req);
-            const rawSearch = Array.isArray(effectiveQuery.search) ? (effectiveQuery.search as unknown[])[0] : effectiveQuery.search;
+            const rawSearch = Array.isArray(effectiveQuery.q) ? (effectiveQuery.q as unknown[])[0] : effectiveQuery.q;
             const search = typeof rawSearch === 'string' ? rawSearch.trim() : '';
             const includeDeleted = effectiveQuery.includeDeleted === 'true';
 
@@ -141,7 +142,7 @@ export async function handlePaginatedContent<T extends Document>(
             ]);
             // Params handled elsewhere or purely for presentation — never forward to Mongo.
             const IGNORED_PARAMS = new Set([
-                'page', 'limit', 'search', 'includeDeleted', 'sort', 'order', 'tab', 'view',
+                'page', 'limit', 'q', 'search', 'includeDeleted', 'sort', 'order', 'tab', 'view',
             ]);
 
             Object.entries(effectiveQuery).forEach(([key, value]) => {
@@ -207,7 +208,7 @@ export async function handlePaginatedContent<T extends Document>(
         // Public View
         const rawPage = effectiveQuery.page;
         const rawLimit = effectiveQuery.limit;
-        const rawSearch = Array.isArray(effectiveQuery.search) ? (effectiveQuery.search as unknown[])[0] : effectiveQuery.search;
+        const rawSearch = Array.isArray(effectiveQuery.q) ? (effectiveQuery.q as unknown[])[0] : effectiveQuery.q;
         const rawSort = Array.isArray(effectiveQuery.sort) ? (effectiveQuery.sort as unknown[])[0] : effectiveQuery.sort;
         const page = parseInt(String(rawPage || '1'));
         const limit = parseInt(String(rawLimit || '100'));
@@ -225,16 +226,11 @@ export async function handlePaginatedContent<T extends Document>(
         }
         
         // Allow explicit listingType filtering in public views (e.g. for Post Ad Step 1)
-        if (effectiveQuery.listingType) {
-            // Normalize legacy prefixes ('postad' -> 'ad') if present in query param
-            const rawListingType = String(effectiveQuery.listingType);
-            const normalizedListingType = {
-                'postad': 'ad',
-                'postservice': 'service',
-                'postsparepart': 'spare_part'
-            }[rawListingType] || rawListingType;
-            
-            query.listingType = normalizedListingType;
+        if (typeof effectiveQuery.listingType === 'string') {
+            const rawListingType = effectiveQuery.listingType.trim();
+            if (LISTING_TYPE_VALUES.includes(rawListingType as ListingTypeValue)) {
+                query.listingType = rawListingType;
+            }
         }
 
         const findQuery = model.find(query).skip((page - 1) * limit).limit(limit).sort(sort);

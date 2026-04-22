@@ -51,7 +51,7 @@ export default function AdminChatView() {
   const searchParams = useSearchParams();
 
   const filter = normalizeFilter(searchParams.get("filter"));
-  const search = readStringParam(searchParams.get("search"));
+  const search = readStringParam(searchParams.get("q") ?? searchParams.get("search"));
   const page = readPositiveIntParam(searchParams.get("page"), 1);
 
   const [searchInput, setSearchInput] = useState(search);
@@ -82,7 +82,7 @@ export default function AdminChatView() {
   useEffect(() => {
     const canonicalUrl = ADMIN_UI_ROUTES.chat({
       filter: filter !== "all" ? filter : undefined,
-      search: search || undefined,
+      q: search || undefined,
       page: page > 1 ? page : undefined,
     });
     const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
@@ -94,7 +94,7 @@ export default function AdminChatView() {
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       if (searchInput === search) return;
-      replaceQueryState({ search: searchInput || null, page: null });
+      replaceQueryState({ q: searchInput || null, search: null, page: null });
     }, 250);
 
     return () => window.clearTimeout(timeoutId);
@@ -104,7 +104,7 @@ export default function AdminChatView() {
     try {
       setIsLoading(true);
       setError("");
-      const res = await fetchAdminChats({ filter, search, page, limit: 20 });
+      const res = await fetchAdminChats({ filter, q: search, page, limit: 20 });
       setItems(res.data ?? []);
       setTotal(res.total ?? 0);
     } catch (e) {
@@ -190,7 +190,7 @@ export default function AdminChatView() {
               onChange={(event) => setSearchInput(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
-                  replaceQueryState({ search: searchInput || null, page: null });
+                  replaceQueryState({ q: searchInput || null, search: null, page: null });
                 }
               }}
               placeholder="Search buyer, seller, ad, or conversation ID"
@@ -260,7 +260,7 @@ export default function AdminChatView() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => void router.push(ADMIN_UI_ROUTES.chat({ search: conv.id }))}
+                          onClick={() => void router.push(ADMIN_UI_ROUTES.chat({ q: conv.id }))}
                           className="text-sky-600 hover:underline text-xs font-medium"
                         >
                           Locate

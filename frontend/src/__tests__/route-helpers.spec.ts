@@ -2,7 +2,15 @@ import { describe, expect, it } from "vitest";
 
 import { buildAuthCallbackUrl, buildLoginUrl, normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 import { buildChatConversationRoute, buildChatInboxRoute, resolveChatReturnTo } from "@/lib/chatUiRoutes";
-import { buildPublicBrowseRoute, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
+import {
+    buildCatalogLinkedBrowseRoute,
+    buildCategoryBrowseRoute,
+    buildPublicBrowseRoute,
+    parsePublicBrowseParams,
+    resolveBrowseCategoryParam,
+    resolvePublicBrowseBrands,
+    resolvePublicBrowseCategory,
+} from "@/lib/publicBrowseRoutes";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 describe("route helpers", () => {
@@ -32,6 +40,36 @@ describe("route helpers", () => {
         ).toBe("/search?type=service&q=screen+replacement&category=services&sort=price_low_high");
     });
 
+    it("builds category and catalog browse links through shared route helpers", () => {
+        expect(
+            resolveBrowseCategoryParam({
+                id: "507f1f77bcf86cd799439011",
+                slug: "phones",
+            })
+        ).toBe("507f1f77bcf86cd799439011");
+
+        expect(
+            buildCategoryBrowseRoute({
+                id: "507f1f77bcf86cd799439011",
+                slug: "phones",
+            })
+        ).toBe("/search?type=ad&categoryId=507f1f77bcf86cd799439011");
+
+        expect(
+            buildCatalogLinkedBrowseRoute({
+                entity: "brand",
+                id: "507f1f77bcf86cd799439012",
+            })
+        ).toBe("/search?type=ad&brands=507f1f77bcf86cd799439012");
+
+        expect(
+            buildCatalogLinkedBrowseRoute({
+                entity: "model",
+                id: "507f1f77bcf86cd799439013",
+            })
+        ).toBe("/search?type=ad&modelId=507f1f77bcf86cd799439013");
+    });
+
     it("parses browse params and preserves categoryId separately", () => {
         const parsed = parsePublicBrowseParams(
             new URLSearchParams("type=spare_part&categoryId=507f1f77bcf86cd799439011&q=iphone")
@@ -40,6 +78,37 @@ describe("route helpers", () => {
         expect(parsed.type).toBe("spare_part");
         expect(parsed.categoryId).toBe("507f1f77bcf86cd799439011");
         expect(parsed.q).toBe("iphone");
+    });
+
+    it("resolves browse category through one canonical helper", () => {
+        expect(
+            resolvePublicBrowseCategory({
+                categoryId: "507f1f77bcf86cd799439011",
+                category: "phones",
+            })
+        ).toBe("507f1f77bcf86cd799439011");
+
+        expect(
+            resolvePublicBrowseCategory({
+                category: "phones",
+            })
+        ).toBe("phones");
+
+        expect(
+            resolvePublicBrowseCategory({}, "fallback-category")
+        ).toBe("fallback-category");
+    });
+
+    it("normalizes browse brand tokens through shared helpers", () => {
+        const route = buildPublicBrowseRoute({
+            type: "ad",
+            brands: [" apple ", "apple", "507f1f77bcf86cd799439011"],
+        });
+
+        expect(route).toBe("/search?type=ad&brands=apple%2C507f1f77bcf86cd799439011");
+        expect(
+            resolvePublicBrowseBrands(parsePublicBrowseParams(new URLSearchParams(route.split("?")[1])))
+        ).toEqual(["apple", "507f1f77bcf86cd799439011"]);
     });
 
     it("drops generic detected location labels from canonical browse routes", () => {
@@ -57,6 +126,25 @@ describe("route helpers", () => {
 
         expect(parsed.location).toBeUndefined();
         expect(parsed.radiusKm).toBe(50);
+    });
+
+    it("drops label-only location aliases from canonical browse routes while preserving canonical locationId routes", () => {
+        expect(
+            buildPublicBrowseRoute({
+                type: "ad",
+                location: "Pune, Maharashtra",
+                radiusKm: 50,
+            })
+        ).toBe("/search?type=ad");
+
+        expect(
+            buildPublicBrowseRoute({
+                type: "ad",
+                locationId: "507f1f77bcf86cd799439011",
+                location: "Pune, Maharashtra",
+                radiusKm: 50,
+            })
+        ).toBe("/search?type=ad&locationId=507f1f77bcf86cd799439011&location=Pune%2C+Maharashtra&radiusKm=50");
     });
 
     it("builds canonical listing detail routes across listing types", () => {

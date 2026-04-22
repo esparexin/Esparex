@@ -41,19 +41,29 @@ const sendListingResponse = async (req: Request, res: Response, listingType: str
 
 export const getBusinesses = async (req: Request, res: Response) => {
     try {
-        const { city, category, limit, latitude, longitude, radiusKm, locationId, listingCategoryId, brandId, excludeBusinessId, serviceOnly } = req.query;
+        const {
+            limit,
+            latitude,
+            longitude,
+            radiusKm,
+            locationId,
+            listingCategoryId,
+            brandId,
+            excludeBusinessId,
+        } = req.query;
+        const rawServiceOnly = req.query.serviceOnly as unknown;
         const businesses = await businessService.getBusinesses({
-            city: city as string,
-            category: category as string,
-            limit: limit ? parseInt(limit as string) : 20,
-            latitude: latitude ? Number(latitude) : undefined,
-            longitude: longitude ? Number(longitude) : undefined,
-            radiusKm: radiusKm ? Number(radiusKm) : undefined,
+            limit: typeof limit === 'number' ? limit : limit ? parseInt(limit as string, 10) : 20,
+            latitude: typeof latitude === 'number' ? latitude : latitude ? Number(latitude) : undefined,
+            longitude: typeof longitude === 'number' ? longitude : longitude ? Number(longitude) : undefined,
+            radiusKm: typeof radiusKm === 'number' ? radiusKm : radiusKm ? Number(radiusKm) : undefined,
             locationId: locationId as string,
             listingCategoryId: listingCategoryId as string,
             brandId: brandId as string,
             excludeBusinessId: excludeBusinessId as string,
-            serviceOnly: serviceOnly as string,
+            serviceOnly:
+                rawServiceOnly === true
+                || rawServiceOnly === 'true',
         });
         const sanitizedBusinesses = businesses.map((business) => sanitizeBusinessForPublic(business));
 

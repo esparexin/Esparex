@@ -12,7 +12,10 @@ export interface Pagination {
 
 export const getLocations = async (filters: LocationFilters & { page?: number; limit?: number }) => {
     const query = new URLSearchParams();
-    if (filters.search) query.append("search", filters.search);
+    const normalizedQuery = typeof filters.q === "string" && filters.q.trim().length > 0
+        ? filters.q.trim()
+        : filters.search?.trim();
+    if (normalizedQuery) query.append("q", normalizedQuery);
     if (filters.status && filters.status !== "all") query.append("status", filters.status);
     if (filters.state && filters.state !== "all") query.append("state", filters.state);
     if (filters.level && filters.level !== "all") query.append("level", filters.level);

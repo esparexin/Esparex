@@ -55,7 +55,7 @@ export interface AdFilters {
     priceMin?: number;
     priceMax?: number;
     onsiteService?: boolean;
-    /** Filter by Ad record listingType. Use the `categoryEnumToRecord` helper if mapping from Category capability enums. */
+    /** Filter by canonical Ad record listingType values. */
     listingType?: ListingTypeValue | ListingTypeValue[];
     businessId?: string | mongoose.Types.ObjectId;
 }

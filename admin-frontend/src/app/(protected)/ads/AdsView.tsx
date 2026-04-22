@@ -199,10 +199,10 @@ export default function AdsView({ mode = "ads", listingType }: AdsViewProps) {
                                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-32"
                             />
                             <input
-                                value={filters.location}
-                                onChange={(e) => updateFilter("location", e.target.value)}
-                                placeholder="Location"
-                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-28"
+                                value={filters.locationId}
+                                onChange={(e) => updateFilter("locationId", e.target.value)}
+                                placeholder="Location ID"
+                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-44"
                             />
                             <select
                                 value={filters.sort}

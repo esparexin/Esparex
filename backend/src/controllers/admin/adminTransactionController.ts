@@ -15,12 +15,12 @@ export const getAllTransactions = async (req: Request, res: Response) => {
         const limit = parseInt(req.query.limit as string) || 10;
         const skip = (page - 1) * limit;
 
-        const { status, search, startDate, endDate } = req.query;
+        const { status, q, startDate, endDate } = req.query;
 
         const { data, total } = await transactionService.getTransactions(
             {
                 status: status as string,
-                search: search as string,
+                search: q as string,
                 startDate: startDate as string,
                 endDate: endDate as string
             },

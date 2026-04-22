@@ -92,14 +92,6 @@ CategorySchema.post('init', function(doc) {
     if (doc.type && ['AD', 'SERVICE', 'SPARE_PART'].includes(doc.type)) {
         doc.type = doc.type.toLowerCase() as typeof doc.type;
     }
-    if (doc.listingType && doc.listingType.length > 0) {
-        doc.listingType = doc.listingType.map((lt: string) => {
-            if (lt === 'postad') return 'ad';
-            if (lt === 'postservice') return 'service';
-            if (lt === 'postsparepart') return 'spare_part';
-            return lt;
-        });
-    }
 });
 
 import { getAdminConnection } from '../config/db';

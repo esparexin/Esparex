@@ -12,20 +12,18 @@ import {
   DEFAULT_IMAGE_PLACEHOLDER,
   toSafeImageSrc,
 } from "@/lib/image/imageUrl";
+import {
+  type RelatedBusinessesDiscoveryContext,
+  normalizeRelatedBusinessesDiscoveryContext,
+} from "@/lib/listings/listingDiscoveryContext";
+import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 
 interface RelatedBusinessesSectionProps {
-  city?: string;
-  locationId?: string;
-  listingCategoryId?: string;
-  brandId?: string;
-  excludeBusinessId?: string;
-  listingType?: string;
-  latitude?: number;
-  longitude?: number;
+  context: RelatedBusinessesDiscoveryContext;
   navigateTo: (
     page: UserPage,
     adId?: string | number,
@@ -72,36 +70,26 @@ const formatDistance = (distanceKm?: number) => {
 };
 
 export function RelatedBusinessesSection({
-  city,
-  locationId,
-  listingCategoryId,
-  brandId,
-  excludeBusinessId,
-  listingType,
-  latitude,
-  longitude,
+  context,
   navigateTo,
 }: RelatedBusinessesSectionProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
-  const hasGeoPoint = typeof latitude === "number" && typeof longitude === "number";
-  const canSearch = Boolean(city || locationId || hasGeoPoint);
-  const sectionCopy = getSectionCopy(listingType);
-
-  const queryParams = useMemo(
-    () => ({
-      city,
-      locationId,
-      listingCategoryId,
-      brandId,
-      excludeBusinessId,
-      latitude,
-      longitude,
-      radiusKm: hasGeoPoint ? 35 : undefined,
-      limit: 12,
-      serviceOnly: true,
-    }),
-    [brandId, city, excludeBusinessId, hasGeoPoint, latitude, listingCategoryId, locationId, longitude]
+  const normalizedContext = useMemo(
+    () => normalizeRelatedBusinessesDiscoveryContext(context),
+    [
+      context.brandId,
+      context.city,
+      context.excludeBusinessId,
+      context.latitude,
+      context.listingCategoryId,
+      context.listingType,
+      context.locationId,
+      context.longitude,
+    ]
   );
+  const sectionCopy = getSectionCopy(normalizedContext.listingType);
+
+  const queryParams = normalizedContext.queryParams;
 
   const {
     data: businesses = [],
@@ -111,7 +99,7 @@ export function RelatedBusinessesSection({
   } = useQuery({
     queryKey: queryKeys.businesses.nearby(queryParams),
     queryFn: () => getBusinesses(queryParams),
-    enabled: canSearch,
+    enabled: normalizedContext.canSearch,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -127,6 +115,7 @@ export function RelatedBusinessesSection({
     const distanceLabel = formatDistance(business.distanceKm);
     const matchingServicesCount = business.matchingServicesCount || 0;
     const activeServicesCount = business.activeServicesCount || 0;
+    const locationLabel = resolveListingLocationLabel(business.location, "full") || "Nearby";
 
     return (
       <Card
@@ -157,9 +146,7 @@ export function RelatedBusinessesSection({
             </h3>
             <div className="flex items-center gap-1 text-xs text-foreground-subtle">
               <MapPin className="h-3 w-3 flex-shrink-0 text-foreground-subtle" />
-              <span className="truncate">
-                {business.location?.city || business.location?.display || "Nearby"}
-              </span>
+              <span className="truncate">{locationLabel}</span>
               {distanceLabel ? <span className="flex-shrink-0">· {distanceLabel}</span> : null}
             </div>
           </div>
@@ -258,13 +245,13 @@ export function RelatedBusinessesSection({
         </div>
       ) : null}
 
-      {!isLoading && !isError && !canSearch ? (
+      {!isLoading && !isError && !normalizedContext.canSearch ? (
         <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-foreground-tertiary">
           Nearby service-center suggestions are unavailable because this listing is missing location details.
         </div>
       ) : null}
 
-      {!isLoading && !isError && canSearch && businesses.length === 0 ? (
+      {!isLoading && !isError && normalizedContext.canSearch && businesses.length === 0 ? (
         <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-foreground-tertiary">
           {sectionCopy.empty}
         </div>

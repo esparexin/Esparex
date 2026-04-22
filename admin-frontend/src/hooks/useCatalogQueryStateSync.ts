@@ -48,6 +48,20 @@ export function useCatalogQueryStateSync({
     }, [initialPage, loading, replaceQueryState, totalPages]);
 
     useEffect(() => {
+        const hasLegacySearch = searchParams.has("search");
+        const currentQ = normalizeSearchParamValue(searchParams.get("q"));
+        if (!hasLegacySearch && currentQ === initialSearch) {
+            return;
+        }
+
+        replaceQueryState({
+            q: initialSearch || null,
+            search: null,
+            page: initialPage > 1 ? initialPage : null,
+        });
+    }, [initialPage, initialSearch, replaceQueryState, searchParams]);
+
+    useEffect(() => {
         const normalizedSearch = normalizeSearchParamValue(searchInput);
         if (normalizedSearch === initialSearch) {
             return;
@@ -55,7 +69,8 @@ export function useCatalogQueryStateSync({
 
         const timer = window.setTimeout(() => {
             replaceQueryState({
-                search: normalizedSearch || null,
+                q: normalizedSearch || null,
+                search: null,
                 page: null,
             });
         }, debounceMs);

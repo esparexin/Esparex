@@ -34,7 +34,7 @@ router.post('/verify-otp', otpConfigurationCheck, (req, res, next) => {
     const otpLength = typeof otpBody.otp === 'string' ? otpBody.otp.length : undefined;
 
     logger.info('[AUTH] VERIFY OTP REQUEST', {
-        phone: mobile,
+        mobile,
         otpLength,
         hasName: typeof otpBody.name === 'string' && otpBody.name.trim().length > 0
     });

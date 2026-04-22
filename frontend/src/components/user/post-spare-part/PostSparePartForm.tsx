@@ -8,55 +8,26 @@ import { Check, CircuitBoard } from "@/icons/IconRegistry";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
 import { Field } from "@/components/ui/field";
 import { ListingTitleField, ListingPriceField, ListingDescriptionField, CategorySelectorGrid } from "@/components/user/shared/ListingFormFields";
-import { extractEntityId } from "@/components/user/shared/listingFormShared";
 import { ListingModalLoading } from "@/components/user/shared/ListingModalLayout";
-import { useListingCatalog } from "@/hooks/listings/useListingCatalog";
-import { createListing, updateListing } from "@/lib/api/user/listings";
-import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
+import { useBrandCatalog } from "@/hooks/listings/useBrandCatalog";
+import { useListingCategories } from "@/hooks/listings/useListingCategories";
+import { useSparePartCatalog } from "@/hooks/listings/useSparePartCatalog";
 import {
-    EditPostSparePartFormSchema,
     PostSparePartFormSchema,
     type PostSparePartFormValues,
 } from "@/schemas/postSparePartForm.schema";
-import { useGenericListingForm } from "@/components/user/shared/useGenericListingForm";
 import { GenericPostForm } from "@/components/user/shared/GenericPostForm";
 import { useListingFormProps } from "@/components/user/shared/useListingFormProps";
 import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingSubmissionSuccessModal";
 import { useRouter } from "next/navigation";
 import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
-import { API_ROUTES } from "@/lib/api/routes";
-
-type SparePartSubmitPayload = {
-    title: string;
-    categoryId: string;
-    brandId?: string;
-    sparePartTypeId: string;
-    price: number;
-    description: string;
-    images: string[];
-};
+import { usePostSparePartFormOrchestration } from "./hooks/usePostSparePartFormOrchestration";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 export default function PostSparePartForm({ editSparePartId }: { editSparePartId?: string }) {
     const isEditMode = !!editSparePartId;
     const router = useRouter();
     const [submittedSparePart, setSubmittedSparePart] = React.useState(false);
-
-    const buildSparePartCreatePayload = React.useCallback((payload: SparePartSubmitPayload) => ({
-        title: payload.title,
-        categoryId: payload.categoryId,
-        brandId: payload.brandId || undefined,
-        sparePartId: payload.sparePartTypeId,
-        price: payload.price,
-        description: payload.description,
-        images: payload.images,
-    }), []);
-
-    const buildSparePartEditPayload = React.useCallback((payload: SparePartSubmitPayload) => ({
-        title: payload.title,
-        description: payload.description,
-        price: payload.price,
-        images: payload.images,
-    }), []);
 
     const form = useForm<PostSparePartFormValues>({
         resolver: zodResolver(PostSparePartFormSchema),
@@ -78,36 +49,28 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
 
     const {
         dynamicCategories,
+        categoryMap,
+    } = useListingCategories({ listingType: LISTING_TYPE.SPARE_PART });
+    const {
         availableBrands,
         brandMap,
-        availableSpareParts,
         loadBrandsForCategory,
+    } = useBrandCatalog({
+        categoryMap,
+        includeScreenSizes: false,
+    });
+    const {
+        availableSpareParts,
         loadSparePartsForCategory,
         isLoadingSpareParts,
-    } = useListingCatalog({ listingType: "postsparepart" });
+    } = useSparePartCatalog({ listingType: LISTING_TYPE.SPARE_PART });
 
-    const onDataLoaded = React.useCallback(async (payload: any) => {
-        const resolvedCategoryId = extractEntityId(payload.categoryId || payload.category);
-        form.reset({
-            title: payload.title || "",
-            categoryId: resolvedCategoryId,
-            brandId: extractEntityId(payload.brandId || payload.brand),
-            sparePartTypeId: extractEntityId(payload.sparePartId || (payload as { sparePartTypeId?: unknown }).sparePartTypeId),
-            price: typeof payload.price === 'number' ? payload.price : 0,
-            description: payload.description || "",
-        });
-        if (resolvedCategoryId) {
-            await Promise.all([
-                loadBrandsForCategory(resolvedCategoryId),
-                loadSparePartsForCategory(resolvedCategoryId),
-            ]);
-        }
-    }, [form, loadBrandsForCategory, loadSparePartsForCategory]);
-
-    const { images, setImages, isFetchingData, businessData } = useGenericListingForm({
+    const { images, setImages, isFetchingData, businessData, onValidSubmit, isSubmitting } = usePostSparePartFormOrchestration({
         form,
-        editId: editSparePartId,
-        onDataLoaded
+        editSparePartId,
+        loadBrandsForCategory,
+        loadSparePartsForCategory,
+        onSubmitted: () => setSubmittedSparePart(true),
     });
 
     React.useEffect(() => {
@@ -137,28 +100,6 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         clearErrors("sparePartTypeId");
         await Promise.all([loadBrandsForCategory(id), loadSparePartsForCategory(id)]);
     };
-
-    const { onValidSubmit, isSubmitting } = useListingSubmission({
-        form,
-        listingImages: images,
-        isEditMode,
-        editId: editSparePartId,
-        schema: PostSparePartFormSchema,
-        partialSchema: EditPostSparePartFormSchema,
-        submitFn: async (payload) => {
-            if (isEditMode && editSparePartId) {
-                return updateListing(editSparePartId, buildSparePartEditPayload(payload), {
-                    endpoint: API_ROUTES.USER.SPARE_PART_LISTING_DETAIL(String(editSparePartId)),
-                });
-            }
-            return createListing(buildSparePartCreatePayload(payload), {
-                endpoint: API_ROUTES.USER.SPARE_PART_LISTINGS,
-            });
-        },
-        onSuccess: () => {
-            setSubmittedSparePart(true);
-        },
-    });
 
     const formProps = useListingFormProps({
         form,

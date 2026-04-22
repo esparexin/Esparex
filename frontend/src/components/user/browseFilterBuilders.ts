@@ -1,6 +1,7 @@
 import type { LocationData } from "@/context/LocationContext";
-import { getSearchLocationLabel, sanitizeLocationLabel } from "@/lib/location/locationLabels";
+import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
+import type { Category } from "@/lib/api/user/categories";
 
 interface BaseBrowseFilterShape {
   page?: number;
@@ -18,18 +19,16 @@ interface ProximityFilterShape {
 
 interface ServiceLocationFilterShape extends ProximityFilterShape {
   level?: string;
-  location?: string;
 }
 
-interface RequestedLocationFilterShape extends ProximityFilterShape {
-  location?: string;
-}
+type RequestedLocationFilterShape = ProximityFilterShape;
 
 interface BuildBaseBrowseFilterArgs {
   page: number;
   pageSize: number;
   query: string;
   selectedCategory: string;
+  categories?: Category[];
 }
 
 export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
@@ -37,6 +36,7 @@ export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
   pageSize,
   query,
   selectedCategory,
+  categories = [],
 }: BuildBaseBrowseFilterArgs): TFilter {
   const filters = {
     page,
@@ -48,7 +48,10 @@ export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
     filters.search = normalizedQuery;
   }
   if (selectedCategory) {
-    filters.categoryId = selectedCategory;
+    const { categoryId } = resolveBrowseCategorySelection(selectedCategory, categories);
+    if (categoryId) {
+      filters.categoryId = categoryId;
+    }
   }
 
   return filters;
@@ -57,7 +60,7 @@ export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
 export function applyRequestedLocationFilters<TFilter extends RequestedLocationFilterShape>({
   filters,
   urlLocationId,
-  urlLocationLabel,
+  urlLocationLabel: _urlLocationLabel,
   radiusKm,
 }: {
   filters: TFilter;
@@ -69,15 +72,6 @@ export function applyRequestedLocationFilters<TFilter extends RequestedLocationF
 
   if (urlLocationId) {
     filters.locationId = urlLocationId;
-    if (hasFiniteRadius) {
-      filters.radiusKm = radiusKm;
-    }
-    return true;
-  }
-
-  const sanitizedLocationLabel = sanitizeLocationLabel(urlLocationLabel);
-  if (sanitizedLocationLabel) {
-    filters.location = sanitizedLocationLabel;
     if (hasFiniteRadius) {
       filters.radiusKm = radiusKm;
     }
@@ -124,15 +118,11 @@ export function applyServiceLocationFilters<TFilter extends ServiceLocationFilte
   if (!location) return;
 
   const isRegionLevel = location.level === "state" || location.level === "country";
-  const regionLocationLabel = getSearchLocationLabel(location);
 
   if (location.locationId) {
     filters.locationId = location.locationId;
     if (location.level === "state" || location.level === "country" || location.level === "city") {
       filters.level = location.level;
-    }
-    if (regionLocationLabel) {
-      filters.location = regionLocationLabel;
     }
   }
 
@@ -142,7 +132,5 @@ export function applyServiceLocationFilters<TFilter extends ServiceLocationFilte
     filters.lat = latitude;
     filters.lng = longitude;
     filters.radiusKm = radiusKm;
-  } else if (regionLocationLabel) {
-    filters.location = regionLocationLabel;
   }
 }

@@ -15,6 +15,7 @@ import {
 import { getAdsPage, type Listing as Service, type ListingFilters as ServiceFilters, type ListingPageResult as ServicePageResult } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";
 import type { Category } from "@/lib/api/user/categories";
+import { resolveBrowseCategoryParam } from "@/lib/publicBrowseRoutes";
 import { PUBLIC_BROWSE_SORT_MAP } from "@/lib/publicBrowseSort";
 
 const BrowseServicesVirtualizedList = dynamic(() => import("./BrowseServicesVirtualizedList"));
@@ -33,6 +34,7 @@ const buildServiceFilters = ({
   pageSize,
   query,
   selectedCategory,
+  categories,
   location,
   sort,
   urlLocationId,
@@ -44,6 +46,7 @@ const buildServiceFilters = ({
     pageSize,
     query,
     selectedCategory,
+    categories,
   });
   filters.sortBy = PUBLIC_BROWSE_SORT_MAP[sort];
   if (
@@ -83,7 +86,7 @@ export function BrowseServices({
       inputId="browse-services-search"
       searchAriaLabel="Search services"
       searchPlaceholder="Search repair services..."
-      getCategoryValue={(category) => category.slug ?? category.id}
+      getCategoryValue={(category) => resolveBrowseCategoryParam(category) ?? category.id}
       respectMobileChromePolicy
       emptyTitle="No services found"
       getEmptyDescription={(searchQuery) =>

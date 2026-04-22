@@ -12,8 +12,8 @@ import { DANGEROUS_HTML_PATTERNS, SQL_INJECTION_PATTERNS } from '../../../shared
  * Prevents spam, injection attacks, and invalid data.
  */
 export const validateContactSubmission = (req: Request, res: Response, next: NextFunction) => {
-    const { name, email, phone, subject, category, message } = req.body as {
-        name?: string; email?: string; phone?: string;
+    const { name, email, mobile, phone, subject, category, message } = req.body as {
+        name?: string; email?: string; mobile?: string; phone?: string;
         subject?: string; category?: string; message?: string;
     };
 
@@ -57,22 +57,31 @@ export const validateContactSubmission = (req: Request, res: Response, next: Nex
         return;
     }
 
-    // Phone validation (optional, but must be valid if provided)
-    if (phone) {
-        if (typeof phone !== 'string') {
+    if (phone !== undefined) {
+        res.status(400).json({
+            success: false,
+            error: '`phone` is no longer accepted in contact submissions. Use `mobile` instead.',
+            status: 400
+        });
+        return;
+    }
+
+    // Mobile validation (optional, but must be valid if provided)
+    if (mobile) {
+        if (typeof mobile !== 'string') {
             res.status(400).json({
                 success: false,
-                error: 'Phone must be a string',
+                error: 'Mobile must be a string',
                 status: 400
             });
             return;
         }
 
-        const phoneDigits = phone.replace(/\D/g, '');
-        if (phoneDigits.length !== 10) {
+        const mobileDigits = mobile.replace(/\D/g, '');
+        if (mobileDigits.length !== 10) {
             res.status(400).json({
                 success: false,
-                error: 'Phone must be exactly 10 digits',
+                error: 'Mobile must be exactly 10 digits',
                 status: 400
             });
             return;
@@ -162,7 +171,8 @@ export const validateContactSubmission = (req: Request, res: Response, next: Nex
     const sanitized = req.body as Record<string, unknown>;
     sanitized.name = trimmedName;
     sanitized.email = email.trim().toLowerCase();
-    sanitized.phone = phone ? phone.replace(/\D/g, '') : undefined;
+    sanitized.mobile = mobile ? mobile.replace(/\D/g, '') : undefined;
+    delete sanitized.phone;
     sanitized.subject = subject ? subject.trim() : undefined;
     sanitized.category = category ? category.toLowerCase() : undefined;
     sanitized.message = trimmedMessage;
@@ -366,37 +376,55 @@ export const validateSmartAlert = (req: Request, res: Response, next: NextFuncti
  * Prevents invalid queries from reaching the database.
  */
 export const validateSearchParams = (req: Request, res: Response, next: NextFunction) => {
-    const { search, category, minPrice, maxPrice, sort, location, level } = req.query;
+    const { q, search, category, categoryId, minPrice, maxPrice, sort, location, locationId, level } = req.query;
     const reject = (message: string) => sendErrorResponse(req, res, 400, message);
 
+    if (search !== undefined) {
+        return reject('`search` is no longer accepted. Use `q` instead.');
+    }
+
+    if (category !== undefined) {
+        return reject('`category` is no longer accepted. Use `categoryId` instead.');
+    }
+
+    if (location !== undefined) {
+        return reject('`location` is no longer accepted. Use `locationId` or lat/lng/radiusKm instead.');
+    }
+
     // Search query validation
-    if (search) {
-        if (typeof search !== 'string') {
+    if (q) {
+        if (typeof q !== 'string') {
             return reject('Search query must be a string');
         }
 
-        if (search.length > 100) {
+        if (q.length > 100) {
             return reject('Search query must not exceed 100 characters');
         }
 
         // Sanitize search query
-        req.query.search = search.trim();
+        req.query.q = q.trim();
     }
 
-    // Category validation (legacy key support)
-    if (category !== undefined) {
-        if (typeof category !== 'string') {
-            return reject('Category must be a string');
+    if (categoryId !== undefined) {
+        if (typeof categoryId !== 'string') {
+            return reject('categoryId must be a string');
         }
-        const normalizedCategory = category.trim();
-        if (normalizedCategory.length > 100) {
-            return reject('Category must not exceed 100 characters');
+        const normalizedCategoryId = categoryId.trim();
+        if (!mongoose.Types.ObjectId.isValid(normalizedCategoryId)) {
+            return reject('categoryId must be a valid ObjectId');
         }
+        req.query.categoryId = normalizedCategoryId;
+    }
 
-        req.query.category = normalizedCategory;
-        if (mongoose.Types.ObjectId.isValid(normalizedCategory)) {
-            req.query.categoryId = normalizedCategory;
+    if (locationId !== undefined) {
+        if (typeof locationId !== 'string') {
+            return reject('locationId must be a string');
         }
+        const normalizedLocationId = locationId.trim();
+        if (!mongoose.Types.ObjectId.isValid(normalizedLocationId)) {
+            return reject('locationId must be a valid ObjectId');
+        }
+        req.query.locationId = normalizedLocationId;
     }
 
     // Price range validation
@@ -436,13 +464,6 @@ export const validateSearchParams = (req: Request, res: Response, next: NextFunc
             return reject(`Level must be one of: ${validLevels.join(', ')}`);
         }
         req.query.level = normalizedLevel;
-    }
-
-    // Location validation (Allow both ObjectId and String Names)
-    if (location) {
-        if (typeof location !== 'string') {
-            return reject('Location must be a string');
-        }
     }
 
     // Geo validation

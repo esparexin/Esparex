@@ -45,8 +45,6 @@ const toSortableNumber = (value: unknown): number => {
 };
 
 export const getBusinesses = async (filters: Record<string, unknown>) => {
-    const normalizedCity = typeof filters.city === 'string' ? filters.city.trim() : '';
-    const normalizedCategory = typeof filters.category === 'string' ? filters.category.trim() : '';
     const normalizedLocationId =
         typeof filters.locationId === 'string' && mongoose.Types.ObjectId.isValid(filters.locationId)
             ? new mongoose.Types.ObjectId(filters.locationId)
@@ -86,12 +84,6 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
 
     if (normalizedLocationId && !hasCoordinates) {
         query.locationId = normalizedLocationId;
-    } else if (normalizedCity && !hasCoordinates) {
-        query['location.city'] = normalizedCity;
-    }
-
-    if (normalizedCategory) {
-        query.businessTypes = normalizedCategory;
     }
 
     const parsedLimit = typeof filters.limit === 'number' ? filters.limit : Number(filters.limit || 20);
@@ -118,13 +110,9 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
             { $limit: candidateLimit }
         ]);
     } else {
-        let finder = Business.find(query)
+        const finder = Business.find(query)
             .limit(candidateLimit)
             .sort({ createdAt: -1 });
-
-        if (normalizedCity) {
-            finder = finder.collation({ locale: 'en', strength: 2 });
-        }
 
         candidates = await finder.lean<BusinessCandidate[]>();
     }

@@ -40,7 +40,6 @@ import {
 } from '../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 import { LISTING_TYPE, type ListingTypeValue } from '../../../../shared/enums/listingType';
-import { categoryEnumToRecord } from '../../../../shared/utils/listingTypeMap';
 import { getCache, setCache } from '../../utils/redisCache';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
@@ -69,14 +68,11 @@ const toStringArray = (value: unknown): string[] | undefined => {
 };
 
 // ── Helper: Normalize listing type from query params ──────────────────────
-const normalizeListingTypeFromQuery = (listingTypeParam?: unknown, placementParam?: unknown): ListingTypeValue | undefined => {
-    const value = (listingTypeParam ?? placementParam);
+const normalizeListingTypeFromQuery = (listingTypeParam?: unknown): ListingTypeValue | undefined => {
+    const value = listingTypeParam;
     if (typeof value !== 'string') return undefined;
     if (value === LISTING_TYPE.AD || value === LISTING_TYPE.SPARE_PART) {
         return value;
-    }
-    if (value === 'postad' || value === 'postsparepart') {
-        return categoryEnumToRecord(value);
     }
     return undefined;
 };
@@ -89,7 +85,7 @@ const normalizeListingTypeFromQuery = (listingTypeParam?: unknown, placementPara
  */
 const getSparePartsPublic = async (req: Request, res: Response) => {
     const categoryParam = (req.query.categoryId || req.query.category) as string | undefined;
-    const requestedListingType = normalizeListingTypeFromQuery(req.query.listingType, req.query.placement);
+    const requestedListingType = normalizeListingTypeFromQuery(req.query.listingType);
 
     let categoryObjectId: string | undefined = categoryParam;
     
@@ -182,7 +178,6 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
     delete cleanQuery.categoryId;
     delete cleanQuery.category;
     delete cleanQuery.listingType;
-    delete cleanQuery.placement;
 
     return handlePaginatedContent(req, res, SparePartModel, {
         publicQuery,
@@ -197,7 +192,7 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
 const getSparePartsAdmin = async (req: Request, res: Response) => {
     const { status } = req.query;
     const categoryParam = (req.query.categoryId || req.query.category) as string | undefined;
-    const requestedListingType = normalizeListingTypeFromQuery(req.query.listingType, req.query.placement);
+    const requestedListingType = normalizeListingTypeFromQuery(req.query.listingType);
 
     let categoryObjectId: string | undefined = categoryParam;
 

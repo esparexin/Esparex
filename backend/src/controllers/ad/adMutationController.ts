@@ -18,6 +18,9 @@ import { getSingleParam } from '../../utils/requestParams';
 import { IAuthUser } from '../../types/auth';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 
+const IMMUTABLE_SELLER_ID_MESSAGE =
+    '`sellerId` is not accepted on user listing mutations. The authenticated session determines ownership.';
+
 const sendClientError = (
     req: Request,
     res: Response,
@@ -31,6 +34,24 @@ const sendClientError = (
         details
     });
 };
+
+const rejectSellerOverride = (
+    req: Request,
+    res: Response,
+    body: Record<string, unknown>
+) => {
+    if (!Object.prototype.hasOwnProperty.call(body, 'sellerId')) return false;
+
+    sendClientError(
+        req,
+        res,
+        400,
+        IMMUTABLE_SELLER_ID_MESSAGE,
+        'IMMUTABLE_SELLER_ID',
+        [{ field: 'sellerId', message: IMMUTABLE_SELLER_ID_MESSAGE }]
+    );
+    return true;
+};
 /**
  * Create a new ad listing
  */
@@ -38,7 +59,8 @@ export const createAd = async (req: Request, res: Response, next: NextFunction) 
     try {
         const authUserId = (req.user as IAuthUser)._id.toString();
         const createBody = req.body as Record<string, unknown>;
-        const sellerId = (typeof createBody.sellerId === 'string' ? createBody.sellerId : null) ?? authUserId;
+        if (rejectSellerOverride(req, res, createBody)) return;
+        const sellerId = authUserId;
 
         // 🛡️ Strict listingType guard — requireListingType middleware coerces to LISTING_TYPE.AD
         // but double-check here as defense-in-depth against direct controller calls.
@@ -81,7 +103,8 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
         if (!id) return;
         const authUserId = (req.user as IAuthUser)._id.toString();
         const updateBody = req.body as Record<string, unknown>;
-        const sellerId = (typeof updateBody.sellerId === 'string' ? updateBody.sellerId : null) ?? authUserId;
+        if (rejectSellerOverride(req, res, updateBody)) return;
+        const sellerId = authUserId;
 
         // Defense-in-depth: strip immutable identity fields — mirrors listingController.editListing
         const PROTECTED_FIELDS = ['categoryId', 'brandId', 'modelId', 'listingType', 'sellerId',

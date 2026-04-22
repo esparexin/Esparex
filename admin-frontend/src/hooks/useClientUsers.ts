@@ -10,7 +10,7 @@ import {
 } from "@/components/system/users/userManagement";
 
 interface UserFilters {
-    search?: string;
+    q?: string;
     status?: string;
     isVerified?: string;
     page?: number;
@@ -44,7 +44,7 @@ export function useClientUsers() {
                 page: String(filters.page || 1),
                 limit: String(filters.limit || 20),
             });
-            if (filters.search) queryParams.set("search", filters.search);
+            if (filters.q) queryParams.set("q", filters.q);
             if (filters.status && filters.status !== "all") queryParams.set("status", filters.status);
             if (filters.isVerified && filters.isVerified !== "all") queryParams.set("isVerified", filters.isVerified);
 

@@ -14,8 +14,11 @@ export const AdSchema = z.object({
     category: z.string().optional(),
     seoSlug: z.string().optional(),
     categoryId: z.string().optional(),
+    categoryName: z.string().optional(),
     brandId: z.string().optional(),
+    brandName: z.string().optional(),
     modelId: z.string().optional(),
+    modelName: z.string().optional(),
     screenSize: z.string().optional(),
     location: z.object({
         city: z.string().optional(),
@@ -66,7 +69,6 @@ export const AdSchema = z.object({
     })).optional(),
     image: z.string().optional(), // Often derived from images[0]
     time: z.string().optional(), // Often derived
-    seller: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(), // Allow string or object (legacy), but prefer explicit fields below
     // Extended UI fields
     businessName: z.string().optional(),
     businessId: z.string().optional(),

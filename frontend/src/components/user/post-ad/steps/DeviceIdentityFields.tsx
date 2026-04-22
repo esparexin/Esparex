@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useLayoutEffect } from "react";
-import { usePostAd } from "../PostAdContext";
+import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../PostAdContext";
 import { CircuitBoard } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Button } from "@/components/ui/button";
@@ -28,25 +28,26 @@ export default function DeviceIdentityFields() {
         dynamicCategories,
         availableBrands,
         availableSizes,
-        register,
-        watch,
-        setValue,
-        errors,
-        handleCategoryChange,
-        handleBrandChange,
-        toggleSparePart,
         availableSpareParts,
         isLoadingSpareParts,
         requiresScreenSize,
-        stepValidationAttempts,
-        currentStep,
-        form,
-        loadSparePartsForCategory,
-        loadBrandsForCategory,
         brandsError,
         sparePartsError,
         brandIsPending,
-    } = usePostAd();
+    } = usePostAdCatalog();
+
+    const { stepValidationAttempts, currentStep, form, errors } = usePostAdFlow();
+
+    const {
+        register,
+        watch,
+        setValue,
+        handleCategoryChange,
+        handleBrandChange,
+        toggleSparePart,
+        loadSparePartsForCategory,
+        loadBrandsForCategory,
+    } = usePostAdAction();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     // Use brand name (not ID) as value for BrandSearchSelect since PostAd
@@ -101,10 +102,10 @@ export default function DeviceIdentityFields() {
     }, [register]);
 
     return (
-        <div className="space-y-6" data-testid="device-identity-fields">
+        <div className="space-y-4" data-testid="device-identity-fields">
 
             {/* Category */}
-            <section className="space-y-4">
+            <section className="space-y-3">
                 <Field error={categoryError} label="Select Category" required>
                     <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                         {dynamicCategories.map((cat) => {
@@ -117,7 +118,7 @@ export default function DeviceIdentityFields() {
                                     variant={selected ? "default" : "outline"}
                                     onClick={() => handleCategoryChange(cat.id)}
                                     className={cn(
-                                        "flex flex-col items-center gap-1 h-auto py-3 px-1 rounded-xl transition-all duration-200 border-2",
+                                        "flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-xl transition-all duration-200 border-2",
                                         selected
                                             ? "bg-primary text-primary-foreground border-primary"
                                             : "bg-white hover:bg-slate-50 border-slate-100"
@@ -135,11 +136,11 @@ export default function DeviceIdentityFields() {
             </section>
 
             {/* Brand & Screen Size */}
-            <section className="space-y-4">
-                <div className="flex flex-col gap-4">
+            <section className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Field label="Brand" error={brandError} required>
                         {brandIsPending && availableBrands.length === 0 ? (
-                            <div className="h-12 w-full rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
+                            <div className="h-11 w-full rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
                         ) : (
                             <BrandSearchSelect
                                 brands={availableBrands}
@@ -151,8 +152,8 @@ export default function DeviceIdentityFields() {
                             />
                         )}
                         {brandIsPending && availableBrands.length > 0 && (
-                            <p className="text-xs text-muted-foreground mt-1 px-1 flex items-center gap-1.5">
-                                <span className="inline-block h-2.5 w-2.5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                            <p className="text-[10px] text-muted-foreground mt-1 px-1 flex items-center gap-1.5">
+                                <span className="inline-block h-2 h-2 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                                 Updating brands…
                             </p>
                         )}
@@ -183,7 +184,7 @@ export default function DeviceIdentityFields() {
                         className={cn(!brandNameValue && "opacity-60 grayscale-[0.5] pointer-events-none")}
                     >
                         {!brandNameValue ? (
-                            <div className="h-12 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">
+                            <div className="h-11 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">
                                 Select brand first...
                             </div>
                         ) : (
@@ -232,14 +233,14 @@ export default function DeviceIdentityFields() {
 
             {/* Spare Parts — compact pill row, only when category selected */}
             {categoryId && (
-                <section className="space-y-2">
-                    <label className="text-xs font-semibold text-foreground-subtle uppercase tracking-wide block">
+                <section className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-foreground-tertiary uppercase tracking-wider block ml-1">
                         Working Spare Parts
                     </label>
                     {isLoadingSpareParts ? (
                         <div className="grid grid-cols-4 gap-1.5">
                             {Array.from({ length: 8 }).map((_, i) => (
-                                <div key={i} className="h-7 rounded-lg bg-slate-100 animate-pulse" />
+                                <div key={i} className="h-6 rounded-lg bg-slate-100 animate-pulse" />
                             ))}
                         </div>
                     ) : sparePartsError ? (
@@ -265,7 +266,7 @@ export default function DeviceIdentityFields() {
                                         type="button"
                                         onClick={() => toggleSparePart(part.id as string)}
                                         className={cn(
-                                            "h-7 px-3 rounded-full border text-xs font-semibold transition-all",
+                                            "h-6 px-2.5 rounded-full border text-[11px] font-bold transition-all",
                                             isSelected
                                                 ? "bg-primary border-primary text-primary-foreground shadow-sm"
                                                 : "bg-white border-slate-200 text-foreground-tertiary hover:border-slate-300"

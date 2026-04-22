@@ -5,9 +5,8 @@ import {
     PartialAdPayloadSchema as SharedPartialAdPayloadSchema,
 } from "@shared/schemas/adPayload.schema";
 
-// Re-export shared schemas directly as v4 standalone schemas.
-// DO NOT extend/intersect these with v3 z.object() — that mixes Zod v3 and v4
-// schema objects and causes runtime _parse/_run TypeError failures.
+// Re-export shared schemas directly so frontend form code consumes the same
+// contract objects without rebuilding them locally.
 export const BaseAdPayloadSchema = SharedBaseAdPayloadSchema;
 export const AdPayloadSchema = SharedAdPayloadSchema;
 export const PartialAdPayloadSchema = SharedPartialAdPayloadSchema;

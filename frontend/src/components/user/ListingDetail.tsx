@@ -1,7 +1,6 @@
 "use client";
-import { useState, useLayoutEffect, useMemo, useReducer, useCallback } from "react";
+import { useState, useLayoutEffect, useMemo, useReducer, useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { formatLocation } from "@/lib/location/locationService";
 import type { UserPage } from "@/lib/routeUtils";
 import type { User } from "@/types/User";
 import { notify } from "@/lib/notify";
@@ -55,6 +54,11 @@ import {
 } from "@/lib/listings/listingUnavailable";
 import { buildLoginUrl } from "@/lib/authHelpers";
 import { buildChatConversationRoute } from "@/lib/chatUiRoutes";
+import {
+  resolveListingCategoryBrowseValue,
+  resolveListingCategoryLabel,
+  resolveListingLocationLabel,
+} from "@/lib/listings/listingPresentation";
 
 interface ListingDetailProps {
   adId: string | number | null;
@@ -110,23 +114,16 @@ export function ListingDetail({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [listingUnavailableMessage, setListingUnavailableMessage] = useState<string | null>(null);
+  const [pendingChatIntent, setPendingChatIntent] = useState(false);
+  const [isStartingChat, setIsStartingChat] = useState(false);
   
   const { data: savedAds = [] } = useSavedAdsQuery({
     enabled: !!user,
   });
 
-  const OBJECTID_RE = /^[0-9a-f]{24}$/i;
-  const categoryLabel = ad
-    ? (typeof ad.category === "string" && !OBJECTID_RE.test(ad.category) ? ad.category : "Category")
-    : "Category";
-  const hasCanonicalCategoryId = typeof ad?.categoryId === "string" && ad.categoryId.trim().length > 0;
-  const hasFallbackCategoryLabel = typeof ad?.category === "string" && ad.category.trim().length > 0 && ad.category !== "Category";
-  const categoryFilter = hasCanonicalCategoryId
-    ? ad?.categoryId
-    : hasFallbackCategoryLabel
-      ? ad?.category
-      : undefined;
-  const categoryRoute = categoryFilter;
+  const categoryLabel = resolveListingCategoryLabel(ad, "Category");
+  const categoryRoute = resolveListingCategoryBrowseValue(ad);
+  const locationLabel = resolveListingLocationLabel(ad?.location, "full");
   
   let viewCount = 0;
   if (typeof ad?.views === "number") {
@@ -279,24 +276,13 @@ export function ListingDetail({
     }
   };
 
-
-
-
-
-  const handleChatWithSeller = async () => {
-    const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-
-    if (!user) {
-      if (!isAuthResolved) return;
-      void router.push(buildLoginUrl(returnTo));
-      return;
-    }
-
+  const startChatWithSeller = useCallback(async (returnTo: string) => {
     if (!ad?.id) {
       notify.error("Chat is unavailable for this listing right now");
       return;
     }
 
+    setIsStartingChat(true);
     try {
       const result = await chatApi.start(String(ad.id), { silent: true });
       const chatUrl = buildChatConversationRoute(String(result.conversationId), { returnTo });
@@ -307,7 +293,40 @@ export function ListingDetail({
         return;
       }
       notify.error(chatError instanceof Error ? chatError.message : "Failed to start chat");
+    } finally {
+      setIsStartingChat(false);
     }
+  }, [ad?.id, handleListingUnavailable, router]);
+
+  useEffect(() => {
+    if (!pendingChatIntent || !isAuthResolved) return;
+
+    const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    setPendingChatIntent(false);
+
+    if (!user) {
+      void router.push(buildLoginUrl(returnTo));
+      return;
+    }
+
+    void startChatWithSeller(returnTo);
+  }, [isAuthResolved, pendingChatIntent, router, startChatWithSeller, user]);
+
+  const handleChatWithSeller = () => {
+    if (isStartingChat) return;
+
+    const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+    if (!user) {
+      if (!isAuthResolved) {
+        setPendingChatIntent(true);
+        return;
+      }
+      void router.push(buildLoginUrl(returnTo));
+      return;
+    }
+
+    void startChatWithSeller(returnTo);
   };
 
   // Mock multiple images (in real app, this would come from ad data)
@@ -421,7 +440,7 @@ export function ListingDetail({
                   ? navigateTo(ROUTES.CATEGORY, undefined, categoryRoute)
                   : navigateTo(ROUTES.BROWSE)
               },
-              { label: formatLocation(ad.location) },
+              { label: locationLabel },
               { label: ad.title },
             ]}
           />

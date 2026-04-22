@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import mongoose from 'mongoose';
 import { PAYMENT_STATUS } from '../../../shared/enums/paymentStatus';
+import { commonSchemas } from '../middleware/validateRequest';
 
 const objectIdSchema = z.string().refine(v => mongoose.isValidObjectId(v), 'Invalid ObjectId format');
 const paymentStatusSchema = z.enum([
@@ -23,6 +24,22 @@ const adminTransactionStatusFilterSchema = z.enum([
     PAYMENT_STATUS.FAILED,
 ]);
 const adminPlanTypeFilterSchema = z.enum(['all', 'AD_PACK', 'SPOTLIGHT', 'SMART_ALERT']);
+const LEGACY_FINANCE_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in admin finance filters. Use `q` instead.';
+
+const hasOwn = (value: unknown, key: string): boolean =>
+    Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, key));
+
+const rejectLegacyFinanceSearchAlias = (raw: unknown) => {
+    if (!hasOwn(raw, 'search')) return;
+
+    throw new z.ZodError([
+        {
+            code: z.ZodIssueCode.custom,
+            path: ['search'],
+            message: LEGACY_FINANCE_SEARCH_ALIAS_MESSAGE,
+        },
+    ]);
+};
 
 const invoiceItemSchema = z.object({
     description: z.string().trim().min(1).max(500),
@@ -43,21 +60,31 @@ export const createPaymentOrderSchema = z.object({
     planId: objectIdSchema
 }).strict();
 
-export const adminTransactionQuerySchema = z.object({
+const adminTransactionQuerySchemaBase = z.object({
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),
-    search: z.string().trim().max(100).optional(),
+    ...commonSchemas.search.shape,
     status: adminTransactionStatusFilterSchema.optional(),
     startDate: z.string().trim().max(50).optional(),
     endDate: z.string().trim().max(50).optional(),
 }).strict();
 
-export const adminInvoiceQuerySchema = z.object({
+export const adminTransactionQuerySchema = z.preprocess((raw) => {
+    rejectLegacyFinanceSearchAlias(raw);
+    return raw;
+}, adminTransactionQuerySchemaBase);
+
+const adminInvoiceQuerySchemaBase = z.object({
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),
-    search: z.string().trim().max(100).optional(),
+    ...commonSchemas.search.shape,
     status: adminInvoiceStatusFilterSchema.optional(),
 }).strict();
+
+export const adminInvoiceQuerySchema = z.preprocess((raw) => {
+    rejectLegacyFinanceSearchAlias(raw);
+    return raw;
+}, adminInvoiceQuerySchemaBase);
 
 export const adminCreateInvoiceSchema = z.object({
     customerEmail: z.string().email(),
@@ -82,7 +109,12 @@ export const adminUpdateInvoiceStatusSchema = z.object({
     notes: z.string().trim().max(500).optional(),
 }).strict();
 
-export const adminPlanQuerySchema = z.object({
-    search: z.string().trim().max(100).optional(),
+const adminPlanQuerySchemaBase = z.object({
+    ...commonSchemas.search.shape,
     type: adminPlanTypeFilterSchema.optional(),
 }).strict();
+
+export const adminPlanQuerySchema = z.preprocess((raw) => {
+    rejectLegacyFinanceSearchAlias(raw);
+    return raw;
+}, adminPlanQuerySchemaBase);

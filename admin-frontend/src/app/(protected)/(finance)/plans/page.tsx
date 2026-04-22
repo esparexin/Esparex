@@ -47,13 +47,13 @@ export default function PlansPage() {
     const [editPlan, setEditPlan] = useState<Plan | null>(null);
     const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null);
 
-    const rawSearch = searchParams.get("search");
+    const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const rawType = searchParams.get("type");
     const search = normalizeSearchParamValue(rawSearch);
     const typeFilter = rawType && PLAN_TYPES.has(rawType) ? rawType : "all";
 
     const replaceQueryState = (updates: Record<string, string | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { search: null, ...updates }));
         const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
@@ -62,7 +62,7 @@ export default function PlansPage() {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            void fetchPlans({ search, type: typeFilter });
+            void fetchPlans({ q: search, type: typeFilter });
         }, 300);
         return () => clearTimeout(timer);
     }, [fetchPlans, search, typeFilter]);
@@ -71,7 +71,8 @@ export default function PlansPage() {
         const nextUrl = buildUrlWithSearchParams(
             pathname,
             updateSearchParams(searchParams, {
-                search,
+                search: null,
+                q: search,
                 type: typeFilter === "all" ? null : typeFilter,
             })
         );
@@ -224,7 +225,7 @@ export default function PlansPage() {
                                 placeholder="Search plans by name or code..."
                                 className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
                                 value={search}
-                                onChange={(e) => replaceQueryState({ search: e.target.value })}
+                                onChange={(e) => replaceQueryState({ q: e.target.value })}
                             />
                         </div>
                         <div className="flex items-center gap-2 w-full md:w-auto text-black">
@@ -246,7 +247,7 @@ export default function PlansPage() {
                 <PlanFormModal
                     open={showModal}
                     onClose={() => { setShowModal(false); setEditPlan(null); }}
-                    onSaved={() => { void fetchPlans({ search, type: typeFilter }); }}
+                    onSaved={() => { void fetchPlans({ q: search, type: typeFilter }); }}
                     editPlan={editPlan}
                 />
             </FinancePageTemplate>

@@ -48,8 +48,8 @@ const buildListingHref = (item: Ad | Service): string => {
   });
 };
 
-const buildWhatsappHref = (phone: string): string =>
-  `https://wa.me/${phone.replace(/\D/g, "")}`;
+const buildWhatsappHref = (mobile: string): string =>
+  `https://wa.me/${mobile.replace(/\D/g, "")}`;
 
 export function BusinessPublicProfile({
   business,
@@ -246,7 +246,7 @@ export function BusinessPublicProfile({
                   <Phone className="h-4 w-4 text-link" />
                 </div>
                 <div>
-                  <p className="text-2xs text-foreground-subtle font-bold uppercase tracking-wide">Phone</p>
+                  <p className="text-2xs text-foreground-subtle font-bold uppercase tracking-wide">Mobile</p>
                   <a href={`tel:${business.mobile}`} className="text-sm font-semibold text-foreground-secondary hover:text-link">
                     {business.mobile}
                   </a>

@@ -12,6 +12,57 @@ import { hydrateAdMetadata } from './AdAggregationService';
 import type { IAd } from '../../models/Ad';
 import logger from '../../utils/logger';
 
+const extractRefId = (value: unknown): string | undefined => {
+    if (typeof value === 'string' && value.trim().length > 0) {
+        return value.trim();
+    }
+
+    if (value && typeof value === 'object') {
+        const record = value as Record<string, unknown>;
+        const candidate = record._id ?? record.id;
+        if (typeof candidate === 'string' && candidate.trim().length > 0) {
+            return candidate.trim();
+        }
+        if (candidate instanceof mongoose.Types.ObjectId) {
+            return candidate.toString();
+        }
+    }
+
+    if (value instanceof mongoose.Types.ObjectId) {
+        return value.toString();
+    }
+
+    return undefined;
+};
+
+const canonicalizeListingContract = (detail: Record<string, unknown>) => {
+    const categoryId = extractRefId(detail.categoryId);
+    const brandId = extractRefId(detail.brandId);
+    const modelId = extractRefId(detail.modelId);
+    const businessId = extractRefId(detail.businessId);
+    const sellerRecord =
+        detail.sellerId && typeof detail.sellerId === 'object'
+            ? detail.sellerId as Record<string, unknown>
+            : null;
+    const sellerId = extractRefId(detail.sellerId);
+
+    if (categoryId) detail.categoryId = categoryId;
+    if (brandId) detail.brandId = brandId;
+    if (modelId) detail.modelId = modelId;
+    if (businessId) detail.businessId = businessId;
+    if (sellerId) detail.sellerId = sellerId;
+
+    if (sellerRecord && typeof sellerRecord.name === 'string' && sellerRecord.name.trim().length > 0) {
+        detail.sellerName = sellerRecord.name.trim();
+    }
+
+    if (sellerRecord && typeof sellerRecord.isVerified === 'boolean') {
+        detail.verified = sellerRecord.isVerified;
+    }
+
+    return detail;
+};
+
 /**
  * Returns a specific ad by its ID with full seller details and flattened DTO shape.
  * Used for admin lookups and specialized public detail views.
@@ -41,7 +92,7 @@ export const getAnyAdById = async (
         delete result.password;
         delete result.otp;
         delete result.otpExpiry;
-        return result;
+        return canonicalizeListingContract(result);
     } catch (error) {
         logger.error('Failed to get ad by ID', {
             error: error instanceof Error ? error.message : String(error),
@@ -86,21 +137,7 @@ export const getListingDetailById = async (adId: string) => {
         sellerType?: unknown;
     };
 
-    if (detail.categoryId) detail.categoryId = String(detail.categoryId);
-    if (detail.brandId) detail.brandId = String(detail.brandId);
-    if (detail.modelId) detail.modelId = String(detail.modelId);
-    if (detail.businessId) detail.businessId = String(detail.businessId);
-
-    const seller = detail.sellerId && typeof detail.sellerId === 'object'
-        ? detail.sellerId as Record<string, unknown>
-        : null;
-
-    if (seller?.name && typeof seller.name === 'string') {
-        detail.sellerName = seller.name;
-    }
-    if (typeof seller?.isVerified === 'boolean') {
-        detail.verified = seller.isVerified;
-    }
+    canonicalizeListingContract(detail);
     detail.isBusiness = detail.sellerType === 'business' || Boolean(detail.businessId);
 
     if (detail.businessId && mongoose.Types.ObjectId.isValid(String(detail.businessId))) {

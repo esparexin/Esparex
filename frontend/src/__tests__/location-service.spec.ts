@@ -80,7 +80,10 @@ describe("getCurrentLocationResult", () => {
             coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
         });
 
-        const result = await getCurrentLocationResult({ mode: "precise" });
+        const result = await getCurrentLocationResult({
+            mode: "precise",
+            allowApproximateFallback: true,
+        });
 
         expect(geolocation.getCurrentPosition).toHaveBeenCalled();
         expect(detectLocationByIP).toHaveBeenCalledTimes(1);
@@ -92,6 +95,67 @@ describe("getCurrentLocationResult", () => {
             source: "ip",
             coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
         });
+    });
+
+    it("does not fall back to IP detection when approximate fallback is disabled", async () => {
+        const geolocation = stubBrowser({
+            geolocation: {
+                getCurrentPosition: vi.fn((_: unknown, reject: (error: { code: number }) => void) => {
+                    reject({ code: 2 });
+                }),
+            },
+        });
+        const { detectLocationByIP } = await import("@/lib/api/ipGeolocation");
+
+        vi.mocked(detectLocationByIP).mockResolvedValue({
+            city: "Hyderabad",
+            state: "Telangana",
+            country: "India",
+            coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
+        });
+
+        const result = await getCurrentLocationResult({
+            mode: "precise",
+            allowApproximateFallback: false,
+        });
+
+        expect(geolocation.getCurrentPosition).toHaveBeenCalled();
+        expect(detectLocationByIP).not.toHaveBeenCalled();
+        expect(result.source).toBe("none");
+        expect(result.location).toBeNull();
+        expect(result.failure?.reason).toBe("position_unavailable");
+    });
+
+    it("requests a fresh high-accuracy position for precise detection", async () => {
+        const geolocation = stubBrowser({
+            geolocation: {
+                getCurrentPosition: vi.fn((resolve: (position: { coords: GeolocationCoordinates }) => void) => {
+                    resolve({
+                        coords: {
+                            latitude: 17.385,
+                            longitude: 78.4867,
+                        } as GeolocationCoordinates,
+                    });
+                }),
+            },
+        });
+        const { reverseGeocode } = await import("@/lib/api/user/locations");
+
+        vi.mocked(reverseGeocode).mockResolvedValue(null);
+
+        await getCurrentLocationResult({
+            mode: "precise",
+            allowApproximateFallback: false,
+        });
+
+        expect(geolocation.getCurrentPosition).toHaveBeenCalledWith(
+            expect.any(Function),
+            expect.any(Function),
+            expect.objectContaining({
+                enableHighAccuracy: true,
+                maximumAge: 0,
+            })
+        );
     });
 
     it("flags stale generic detected labels for self-healing", () => {

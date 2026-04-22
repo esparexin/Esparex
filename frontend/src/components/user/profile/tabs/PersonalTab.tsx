@@ -16,6 +16,8 @@ import { PROFILE_PHOTO_ALLOWED_LABEL } from "@/lib/uploads/profilePhotoUpload";
 
 interface PersonalTabProps {
     profilePhoto: string | null;
+    mobile: string;
+    isMobileVerified?: boolean;
     formData: ProfileFormData;
     setFormData: (data: ProfileFormData) => void;
     mobileVisibility: MobileVisibility;
@@ -37,6 +39,8 @@ interface PersonalTabProps {
 
 export function PersonalTab({
     profilePhoto,
+    mobile,
+    isMobileVerified,
     formData,
     setFormData,
     mobileVisibility,
@@ -171,17 +175,17 @@ export function PersonalTab({
                         </div>
 
                         <div className="space-y-1.5 md:col-span-2">
-                            <Label htmlFor="profile-phone">Phone Number</Label>
+                            <Label htmlFor="profile-mobile">Mobile Number</Label>
                             <PhoneInput
-                                id="profile-phone"
-                                name="phone"
-                                value={formData.phone}
+                                id="profile-mobile"
+                                name="mobile"
+                                value={mobile}
                                 disabled
-                                isVerified={true}
+                                isVerified={isMobileVerified}
                                 autoComplete="tel"
                             />
                             <p className="mt-1 text-xs text-muted-foreground">
-                                Need to change your number? <a href="mailto:support@esparex.com" className="text-link hover:underline">Contact Support</a>
+                                Your verified mobile number is managed separately. Need to change it? <a href="mailto:support@esparex.com" className="text-link hover:underline">Contact Support</a>
                             </p>
                         </div>
                     </div>

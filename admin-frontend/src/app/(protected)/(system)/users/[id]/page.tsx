@@ -133,7 +133,7 @@ export default function UserDetailsPage({ params }: Props) {
                                 <Link href={ADMIN_UI_ROUTES.reports({ status: "open" })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
                                     View Reports Queue
                                 </Link>
-                                <Link href={ADMIN_UI_ROUTES.finance({ search: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <Link href={ADMIN_UI_ROUTES.finance({ q: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
                                     View User Payments
                                 </Link>
                             </div>

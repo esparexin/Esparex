@@ -4,13 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     Bell,
-    ChevronRight,
     Inbox,
 } from "lucide-react";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-
-import { READ_NOTIFICATION_RETENTION_HOURS } from "@shared/constants/notificationRetention";
 
 import { queryKeys } from "@/hooks/queries";
 import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
@@ -18,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationItemCard } from "@/components/user/NotificationItemCard";
@@ -29,9 +24,6 @@ type NotificationBellDropdownProps = {
     onRefresh?: () => Promise<unknown>;
     variant?: "desktop" | "mobile";
 };
-
-const MAX_UNREAD_ITEMS = 6;
-const MAX_RECENT_READ_ITEMS = 3;
 
 const isExternalUrl = (href: string) => /^https?:\/\//i.test(href);
 
@@ -60,9 +52,7 @@ const resolveNotificationTarget = (href: string) => {
 
 const sortNotifications = (items: Notification[]) =>
     [...items].sort((a, b) => {
-        if (a.isRead !== b.isRead) {
-            return Number(a.isRead) - Number(b.isRead);
-        }
+        // Just sort by date, keeping the list simple
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
@@ -81,8 +71,6 @@ export function NotificationBellDropdown({
         () => sortNotifications(Array.isArray(notificationsData?.notifications) ? notificationsData.notifications : []),
         [notificationsData?.notifications]
     );
-    const unreadItems = notifications.filter((item) => !item.isRead).slice(0, MAX_UNREAD_ITEMS);
-    const recentReadItems = notifications.filter((item) => item.isRead).slice(0, MAX_RECENT_READ_ITEMS);
 
     useEffect(() => {
         setOpen(false);
@@ -196,23 +184,18 @@ export function NotificationBellDropdown({
 
             <DropdownMenuContent
                 align="end"
-                sideOffset={10}
-                className="w-[min(92vw,26rem)] rounded-3xl border border-slate-200 bg-white p-0 shadow-xl"
+                sideOffset={8}
+                className="w-[min(90vw,17rem)] rounded-2xl border border-slate-200 bg-white p-0 shadow-lg"
                 onCloseAutoFocus={(event) => event.preventDefault()}
             >
-                <div className="border-b border-slate-100 px-4 py-4">
-                    <div className="flex items-start justify-between gap-3">
-                        <div>
-                            <p className="text-sm font-semibold text-foreground">Notifications</p>
-                            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                                Read messages stay here briefly and disappear after about {READ_NOTIFICATION_RETENTION_HOURS} hours.
-                            </p>
-                        </div>
+                <div className="border-b border-slate-100 px-3 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-semibold text-foreground">Notifications</p>
                         {unreadCount > 0 ? (
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="shrink-0 h-11 rounded-full px-3 text-xs font-medium text-foreground-tertiary hover:bg-slate-100"
+                                className="h-7 rounded-full px-2.5 text-[11px] font-medium text-foreground-tertiary hover:bg-slate-100"
                                 onClick={() => markAllReadMutation.mutate()}
                                 disabled={markAllReadMutation.isPending}
                             >
@@ -222,81 +205,29 @@ export function NotificationBellDropdown({
                     </div>
                 </div>
 
-                <div className="max-h-[26rem] overflow-y-auto px-3 py-3">
+                <div className="max-h-[18rem] overflow-y-auto px-1.5 py-1.5">
                     {notifications.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-5 py-10 text-center">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
-                                <Inbox className="h-5 w-5 text-foreground-subtle" />
+                        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white shadow-sm">
+                                <Inbox className="h-4 w-4 text-foreground-subtle" />
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-sm font-semibold text-foreground">No new notifications</p>
-                                <p className="text-xs leading-5 text-muted-foreground">
-                                    Short updates will appear here and clear out automatically after you read them.
-                                </p>
+                            <div className="space-y-0.5">
+                                <p className="text-xs font-semibold text-foreground">No notifications</p>
+                                <p className="text-[11px] leading-4 text-muted-foreground">Updates will appear here.</p>
                             </div>
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            {unreadItems.length > 0 ? (
-                                <section className="space-y-2">
-                                    <div className="flex items-center justify-between px-1">
-                                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground-subtle">
-                                            Unread now
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">{unreadCount} unread</p>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {unreadItems.map((notification) => (
-                                            <NotificationItemCard
-                                                key={notification.id}
-                                                notification={notification}
-                                                onSelect={handleNotificationSelect}
-                                                isProcessing={markReadMutation.isPending}
-                                                density="compact"
-                                                actionHint="always"
-                                            />
-                                        ))}
-                                    </div>
-                                </section>
-                            ) : null}
-
-                            {recentReadItems.length > 0 ? (
-                                <>
-                                    {unreadItems.length > 0 ? <DropdownMenuSeparator className="mx-1" /> : null}
-                                    <section className="space-y-2">
-                                        <div className="px-1">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground-subtle">
-                                                Read recently
-                                            </p>
-                                        </div>
-                                        <div className="space-y-2">
-                                            {recentReadItems.map((notification) => (
-                                                <NotificationItemCard
-                                                    key={notification.id}
-                                                    notification={notification}
-                                                    onSelect={handleNotificationSelect}
-                                                    isProcessing={markReadMutation.isPending}
-                                                    density="compact"
-                                                    actionHint="always"
-                                                />
-                                            ))}
-                                        </div>
-                                    </section>
-                                </>
-                            ) : null}
+                        <div className="space-y-1">
+                            {notifications.map((notification) => (
+                                <NotificationItemCard
+                                    key={notification.id}
+                                    notification={notification}
+                                    onSelect={handleNotificationSelect}
+                                    isProcessing={markReadMutation.isPending}
+                                />
+                            ))}
                         </div>
                     )}
-                </div>
-
-                <div className="border-t border-slate-100 px-3 py-3">
-                    <Link
-                        href="/notifications"
-                        className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold text-foreground-tertiary transition hover:bg-slate-50 hover:text-foreground-secondary"
-                        onClick={() => setOpen(false)}
-                    >
-                        View all notifications
-                        <ChevronRight className="h-3.5 w-3.5" />
-                    </Link>
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>

@@ -3,17 +3,13 @@
 import { useCallback } from "react";
 import { API_ROUTES } from "@/lib/api/routes";
 import { apiClient } from "@/lib/api/client";
-import { appLocationSchema } from "@/schemas/location.schema";
-import { DEFAULT_APP_LOCATION, type AppLocation } from "@/types/location";
-import logger from "@/lib/logger";
+import { type AppLocation } from "@/types/location";
+import { parseStoredAppLocation } from "./locationStorage.helpers";
 
 export const SEARCH_LOCATION_STORAGE_KEY = "esparex_location";
 export const GEO_DETECTED_STORAGE_KEY = "esparex_geo_detected";
 export const LOCATION_PROMPT_DISMISSED_KEY = "esparex_location_prompt_dismissed";
 export const LOCATION_PERMISSION_BLOCKED_KEY = "esparex_location_permission_blocked";
-
-const TTL_MANUAL_MS = 30 * 24 * 60 * 60 * 1000;
-const TTL_AUTO_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function useLocationStorage() {
     const writeStoredLocation = useCallback((nextLocation: AppLocation) => {
@@ -33,30 +29,14 @@ export function useLocationStorage() {
     const readStoredLocation = useCallback((): AppLocation | null => {
         if (typeof window === "undefined") return null;
 
-        try {
-            const raw = localStorage.getItem(SEARCH_LOCATION_STORAGE_KEY);
-            if (!raw) return null;
+        const raw = localStorage.getItem(SEARCH_LOCATION_STORAGE_KEY);
+        const stored = parseStoredAppLocation(raw);
 
-            const parsed = appLocationSchema.safeParse(JSON.parse(raw));
-            if (!parsed.success) {
-                logger.warn("Stale location data cleared from storage", { error: parsed.error.flatten() });
-                clearStoredLocation();
-                return DEFAULT_APP_LOCATION;
-            }
-
-            const stored = JSON.parse(raw) as AppLocation & { detectedAt?: number };
-            const ttl = stored.source === "manual" ? TTL_MANUAL_MS : TTL_AUTO_MS;
-            const age = Date.now() - (stored.detectedAt ?? 0);
-
-            if (age > ttl) {
-                clearStoredLocation();
-                return null;
-            }
-
-            return stored;
-        } catch {
-            return null;
+        if (!stored && raw) {
+            clearStoredLocation();
         }
+
+        return stored;
     }, [clearStoredLocation]);
 
     const logAnalytics = useCallback(async (data: {

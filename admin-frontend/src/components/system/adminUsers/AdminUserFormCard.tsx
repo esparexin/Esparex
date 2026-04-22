@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { LucideIcon } from "lucide-react";
 import type {
@@ -48,6 +48,16 @@ type AdminUserFormCardProps =
 const ROLE_OPTIONS: AdminRole[] = ["moderator", "admin", "super_admin"];
 const STATUS_OPTIONS: AdminStatus[] = ["live", "inactive", "suspended", "banned"];
 
+type AdminUserFormValues = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: AdminRole;
+    permissionsText: string;
+    password?: string;
+    status?: AdminStatus;
+};
+
 function FieldError({ message }: { message?: string }) {
     if (!message) return null;
     return <p className="mt-1 text-xs text-red-500">{message}</p>;
@@ -71,7 +81,7 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
     const password = "password" in values ? values.password : undefined;
     const status = "status" in values ? values.status : undefined;
 
-    const normalizedValues = useMemo(() => {
+    const normalizedValues = useMemo<AdminUserFormValues>(() => {
         return mode === "create"
             ? {
                 firstName,
@@ -91,15 +101,16 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
             };
     }, [mode, firstName, lastName, email, password, role, status, permissionsText]);
 
+    const validationSchema =
+        props.mode === "create" ? adminCreateUserFormSchema : adminEditUserFormSchema;
+
     const {
         register,
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm<AdminCreateUserFormValues | AdminEditUserFormValues>({
-        resolver: zodResolver(
-            props.mode === "create" ? adminCreateUserFormSchema : adminEditUserFormSchema,
-        ),
+    } = useForm<AdminUserFormValues>({
+        resolver: zodResolver(validationSchema as never) as Resolver<AdminUserFormValues>,
         defaultValues: normalizedValues,
     });
 

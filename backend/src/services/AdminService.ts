@@ -1,10 +1,11 @@
 import Admin, { IAdmin } from '../models/Admin';
-import AdminLog from '../models/AdminLog';
+import AdminLog, { type IAdminLog } from '../models/AdminLog';
 import { comparePassword, generateAdminToken } from '../utils/auth';
 import { USER_STATUS } from '@shared/enums/userStatus';
 import logger from '../utils/logger';
 import { AppError } from '../utils/AppError';
 import { env } from '../config/env';
+import { escapeRegExp } from '../utils/stringUtils';
 
 interface AdminLoginResult {
     token: string;
@@ -89,6 +90,7 @@ export const loginAdmin = async (email: string, password: string): Promise<Admin
 
 export const getAuditLogs = async (
     filters: { 
+        q?: unknown;
         action?: unknown; 
         targetType?: unknown; 
         adminId?: unknown; 
@@ -98,20 +100,51 @@ export const getAuditLogs = async (
     skip: number,
     limit: number
 ) => {
-    const query: Record<string, unknown> = {};
+    const query: Record<string, unknown> & { $and?: unknown[] } = {};
     if (filters.action) query.action = filters.action;
     if (filters.targetType) query.targetType = filters.targetType;
     if (filters.adminId) query.adminId = filters.adminId;
-    if (filters.requestId) query.requestId = filters.requestId;
-    if (filters.correlationId) query.correlationId = filters.correlationId;
+    if (filters.requestId) query['metadata.requestId'] = filters.requestId;
+    if (filters.correlationId) query['metadata.correlationId'] = filters.correlationId;
+
+    const normalizedQuery = typeof filters.q === 'string' ? filters.q.trim() : '';
+    if (normalizedQuery) {
+        const safeSearch = escapeRegExp(normalizedQuery);
+        const adminMatches = await Admin.find({
+            $or: [
+                { firstName: { $regex: safeSearch, $options: 'i' } },
+                { lastName: { $regex: safeSearch, $options: 'i' } },
+                { email: { $regex: safeSearch, $options: 'i' } },
+            ],
+        }).select('_id').limit(50).lean();
+
+        const searchConditions: Record<string, unknown>[] = [
+            { action: { $regex: safeSearch, $options: 'i' } },
+            { targetType: { $regex: safeSearch, $options: 'i' } },
+            { targetId: { $regex: safeSearch, $options: 'i' } },
+            { ipAddress: { $regex: safeSearch, $options: 'i' } },
+            { userAgent: { $regex: safeSearch, $options: 'i' } },
+            { 'metadata.requestId': { $regex: safeSearch, $options: 'i' } },
+            { 'metadata.correlationId': { $regex: safeSearch, $options: 'i' } },
+        ];
+
+        if (adminMatches.length > 0) {
+            searchConditions.push({ adminId: { $in: adminMatches.map((admin) => admin._id) } });
+        }
+
+        query.$and = [
+            ...(Array.isArray(query.$and) ? query.$and : []),
+            { $or: searchConditions },
+        ];
+    }
 
     const [logs, total] = await Promise.all([
-        AdminLog.find(query)
+        AdminLog.find(query as Record<string, unknown>)
             .skip(skip)
             .limit(limit)
             .populate('adminId', 'firstName lastName email')
             .sort({ createdAt: -1 }),
-        AdminLog.countDocuments(query),
+        AdminLog.countDocuments(query as Record<string, unknown>),
     ]);
     return { logs, total };
 };

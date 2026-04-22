@@ -9,7 +9,7 @@ describe('listingTypeIntegrity', () => {
     it('treats business-style resale content without service fields as ad', () => {
         const inferred = inferListingType(
             {},
-            ['postad', 'postservice']
+            [LISTING_TYPE.AD, LISTING_TYPE.SERVICE]
         );
 
         expect(inferred.listingType).toBe(LISTING_TYPE.AD);
@@ -43,7 +43,7 @@ describe('listingTypeIntegrity', () => {
         const decision = getListingTypeRemediation(
             LISTING_TYPE.SERVICE,
             {},
-            ['postservice']
+            [LISTING_TYPE.SERVICE]
         );
 
         expect(decision).toBeNull();
@@ -53,7 +53,7 @@ describe('listingTypeIntegrity', () => {
         const decision = getListingTypeRemediation(
             LISTING_TYPE.SERVICE,
             {},
-            ['postad', 'postservice']
+            [LISTING_TYPE.AD, LISTING_TYPE.SERVICE]
         );
 
         expect(decision).toEqual({
@@ -65,7 +65,7 @@ describe('listingTypeIntegrity', () => {
     });
 
     it('maps category listingType arrays into capability flags', () => {
-        expect(getListingTypeCapability(['postad', 'postsparepart'])).toEqual({
+        expect(getListingTypeCapability([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART])).toEqual({
             supportsAd: true,
             supportsService: false,
             supportsSparePart: true,

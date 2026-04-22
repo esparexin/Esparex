@@ -4,7 +4,7 @@ import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, PackageOpen } from "lucide-react";
 
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
-import { useLocationState } from "@/context/LocationContext";
+import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
     const [nextCursor, setNextCursor] = useState<{ createdAt: string; id: string } | null>(initialData?.nextCursor ?? null);
     const [feedAds, setFeedAds] = useState<Ad[]>(initialData?.ads ?? []);
     const [hasMore, setHasMore] = useState<boolean>(initialData?.hasMore === true);
-    const { location, isLoaded } = useLocationState();
+    const { location, isLoaded } = useLocationData();
     const latitude = getLatitude(location);
     const longitude = getLongitude(location);
     const locationSearchLabel = useMemo(() => getSearchLocationLabel(location), [location]);
@@ -49,18 +49,15 @@ export function HomeFeed({ initialData }: HomeFeedProps) {
 
     const isDefaultLocation = location.source === "default";
     const shouldUseGeoSearch = !isDefaultLocation && shouldUseGeoRadiusLocation(location);
-    const locationLabel = isDefaultLocation ? undefined : locationSearchLabel;
-
     const requestParams = useMemo(() => ({
         cursor,
         limit: HOME_FEED_PAGE_SIZE,
-        location: locationLabel,
         locationId: isDefaultLocation ? undefined : location.locationId,
         level: isDefaultLocation ? undefined : location.level,
         lat: shouldUseGeoSearch && typeof latitude === "number" ? latitude : undefined,
         lng: shouldUseGeoSearch && typeof longitude === "number" ? longitude : undefined,
         radiusKm: shouldUseGeoSearch ? 50 : undefined,
-    }), [cursor, isDefaultLocation, latitude, location.level, location.locationId, locationLabel, longitude, shouldUseGeoSearch]);
+    }), [cursor, isDefaultLocation, latitude, location.level, location.locationId, longitude, shouldUseGeoSearch]);
 
     const shouldUseInitialData =
         !cursor &&

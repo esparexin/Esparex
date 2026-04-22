@@ -1,5 +1,6 @@
 import { InfoPage } from "@/components/common/InfoPage";
 import { Metadata } from 'next';
+import { LEGAL_LAST_UPDATED } from "@/lib/legal";
 
 export const metadata: Metadata = {
     title: 'Terms of Service | Esparex',
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
     return (
-        <InfoPage title="Terms of Service" lastUpdated={new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}>
+        <InfoPage title="Terms of Service" lastUpdated={LEGAL_LAST_UPDATED}>
             <div className="space-y-8 text-muted-foreground leading-relaxed">
                 <section>
                     <p>

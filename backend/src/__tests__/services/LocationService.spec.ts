@@ -103,7 +103,7 @@ describe("locationService regression", () => {
     });
 
     it("reverseGeocode resolves nearest location in normalized format", async () => {
-        // AdminBoundary returns no boundary match → falls through to Location.findOne
+        // AdminBoundary returns no boundary match → falls through to nearest settlement lookup
         mockAdminBoundary.find.mockReturnValueOnce({
             select: jest.fn().mockReturnValue({
                 lean: jest.fn().mockResolvedValue([]),
@@ -170,6 +170,33 @@ describe("locationService regression", () => {
         );
     });
 
+    it("reverseGeocode keeps the nearest settlement match instead of promoting a broader level", async () => {
+        mockAdminBoundary.find.mockReturnValueOnce({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue([]),
+            }),
+        });
+        mockLocationModel.findOne.mockReturnValueOnce(
+            mockFindOneResult({
+                _id: "65f0a1b2c3d4e5f607182932",
+                name: "Old Town",
+                city: "Macherla",
+                state: "Andhra Pradesh",
+                country: "India",
+                level: "area",
+                coordinates: { type: "Point", coordinates: [79.4402, 16.4801] },
+                isActive: true,
+                verificationStatus: "verified",
+            })
+        );
+
+        const result = await reverseGeocode(16.48, 79.44);
+
+        expect(result?.name).toBe("Old Town");
+        expect(result?.level).toBe("area");
+        expect(mockLocationModel.findOne).toHaveBeenCalledTimes(1);
+    });
+
     it("reverseGeocode falls back to regional canonical matches only when no nearby settlement exists", async () => {
         mockAdminBoundary.find.mockReturnValueOnce({
             select: jest.fn().mockReturnValue({
@@ -215,6 +242,66 @@ describe("locationService regression", () => {
                 coordinates: expect.objectContaining({
                     $near: expect.objectContaining({
                         $maxDistance: 250000,
+                    }),
+                }),
+            })
+        );
+    });
+
+    it("reverseGeocode includes hierarchy descendants when resolving a matched boundary", async () => {
+        const stateId = new mongoose.Types.ObjectId("65f0a1b2c3d4e5f607182940");
+
+        mockAdminBoundary.find.mockReturnValueOnce({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue([
+                    { locationId: stateId, level: "state" },
+                ]),
+            }),
+        });
+        mockLocationModel.findOne
+            .mockReturnValueOnce(
+                mockFindOneResult({
+                    _id: stateId,
+                    name: "Andhra Pradesh",
+                    country: "India",
+                    level: "state",
+                    coordinates: { type: "Point", coordinates: [79.44, 16.48] },
+                    isActive: true,
+                    verificationStatus: "verified",
+                })
+            )
+            .mockReturnValueOnce(
+                mockFindOneResult({
+                    _id: "65f0a1b2c3d4e5f607182941",
+                    name: "Old Town",
+                    city: "Macherla",
+                    state: "Andhra Pradesh",
+                    country: "India",
+                    level: "area",
+                    coordinates: { type: "Point", coordinates: [79.4402, 16.4801] },
+                    isActive: true,
+                    verificationStatus: "verified",
+                    parentId: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f607182942"),
+                    path: [stateId, new mongoose.Types.ObjectId("65f0a1b2c3d4e5f607182942")],
+                })
+            );
+
+        const result = await reverseGeocode(16.48, 79.44);
+
+        expect(result?.name).toBe("Old Town");
+        expect(mockLocationModel.findOne).toHaveBeenNthCalledWith(
+            2,
+            expect.objectContaining({
+                isActive: true,
+                verificationStatus: { $in: ["verified", null] },
+                level: { $in: ["area", "village", "city", "district"] },
+                $or: [
+                    { parentId: stateId },
+                    { path: stateId },
+                ],
+                coordinates: expect.objectContaining({
+                    $near: expect.objectContaining({
+                        $maxDistance: 50000,
                     }),
                 }),
             })

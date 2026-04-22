@@ -1,7 +1,7 @@
 "use client";
 
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PackageOpen, RefreshCw, BellPlus } from "lucide-react";
 
@@ -14,7 +14,12 @@ import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useLocationState } from "@/context/LocationContext";
+import {
+  buildBrowseBrandOptions,
+  resolveBrowseBrandSelection,
+  type BrowseBrandOption,
+} from "@/lib/browse/browseFilterNormalization";
+import { useLocationData } from "@/context/LocationContext";
 import {
   getSearchLocationLabel,
   sanitizeLocationLabel,
@@ -62,7 +67,7 @@ export function BrowseAds({
 }: BrowseAdsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { location, isLoaded } = useLocationState();
+  const { location, isLoaded } = useLocationData();
   const routeParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
 
   // ── Filter state ─────────────────────────────────────────────────────────────
@@ -83,7 +88,7 @@ export function BrowseAds({
   const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
 
   // Derived brand list from returned ads for filter sidebar
-  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [availableBrands, setAvailableBrands] = useState<BrowseBrandOption[]>([]);
 
   // ── Load categories once ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -108,22 +113,24 @@ export function BrowseAds({
   // ── Query Hook Integration ───────────────────────────────────────────────────
   const urlLocationId = routeParams.locationId ?? "";
   const urlLocationLabel = sanitizeLocationLabel(routeParams.location) ?? "";
+  const canonicalUrlLocationLabel = urlLocationId ? urlLocationLabel : "";
   const urlModelId = routeParams.modelId ?? "";
   const globalLocationLabel = useMemo(() => getSearchLocationLabel(location), [location]);
   const shouldUseContextGeoRadius = useMemo(
-    () => !urlLocationId && !urlLocationLabel && shouldUseGeoRadiusLocation(location),
-    [location, urlLocationId, urlLocationLabel]
+    () => !urlLocationId && shouldUseGeoRadiusLocation(location),
+    [location, urlLocationId]
   );
-  const showRadiusFilter = Boolean(urlLocationId || urlLocationLabel) ? false : shouldUseContextGeoRadius;
+  const showRadiusFilter = Boolean(urlLocationId) ? false : shouldUseContextGeoRadius;
 
   const filters: ListingFilters = useFilterToQuery(
     query, selectedCategory, categories, selectedBrands,
-    urlModelId, priceRange, urlLocationId, urlLocationLabel,
+    availableBrands,
+    urlModelId, priceRange, urlLocationId, canonicalUrlLocationLabel,
     location, shouldUseContextGeoRadius, radiusKm, sort, page
   );
 
   const hasLocationFilter =
-    Boolean(urlLocationId || urlLocationLabel || location.locationId || globalLocationLabel) ||
+    Boolean(urlLocationId || location.locationId || globalLocationLabel) ||
     (typeof filters.lat === "number" && Number.isFinite(filters.lat)) ||
     (typeof filters.lng === "number" && Number.isFinite(filters.lng));
 
@@ -162,7 +169,7 @@ export function BrowseAds({
     activeFilterCount, isEmptyState,
     emptyStateTitle, emptyStateDescription, desktopShellClassName
   } = useBrowseEmptyState(
-    selectedCategory, categories, urlLocationLabel, location,
+    selectedCategory, categories, availableBrands, canonicalUrlLocationLabel, location,
     query, priceRange, urlLocationId, globalLocationLabel,
     selectedBrands, showRadiusFilter, radiusKm, sort,
     isLoading, error, displayAds
@@ -170,17 +177,17 @@ export function BrowseAds({
 
   // Extract unique brands from results for filter sidebar (page 1)
   useEffect(() => {
-    if (page === 1 && pageAds.length > 0) {
-      const brands = Array.from(
-        new Set(
-          pageAds
-            .map((ad: Listing) => ad.brand as string | undefined)
-            .filter((b): b is string => typeof b === "string" && b.length > 0)
-        )
-      ) as string[];
-      setAvailableBrands(brands);
-    }
+    if (page !== 1) return;
+    setAvailableBrands(buildBrowseBrandOptions(pageAds));
   }, [page, pageAds]);
+
+  useEffect(() => {
+    if (availableBrands.length === 0 || selectedBrands.length === 0) return;
+    const normalizedBrandSelection = resolveBrowseBrandSelection(selectedBrands, availableBrands);
+    if (normalizedBrandSelection.join(",") !== selectedBrands.join(",")) {
+      setSelectedBrands(normalizedBrandSelection);
+    }
+  }, [availableBrands, selectedBrands, setSelectedBrands]);
 
   // ── Trigger fetch when filters change (reset to page 1) ─────────────────────
   useEffect(() => {
@@ -197,15 +204,15 @@ export function BrowseAds({
     radiusKm, setRadiusKm,
     sort, setSort,
     page, setPage,
-    showRadiusFilter, urlModelId, urlLocationId, urlLocationLabel
+    showRadiusFilter, urlModelId, urlLocationId, canonicalUrlLocationLabel
   );
 
   // ── Load More ────────────────────────────────────────────────────────────────
-  const handleLoadMore = () => {
+  const handleLoadMore = useCallback(() => {
     startTransition(() => {
       setPage((prev: number) => prev + 1);
     });
-  };
+  }, [setPage]);
 
   // ── Skeleton ─────────────────────────────────────────────────────────────────
   const GridSkeleton = () => (
@@ -220,11 +227,15 @@ export function BrowseAds({
     </div>
   );
 
+  const handleSetSelectedCategory = useCallback((val: string | null) => {
+    setSelectedCategory(val);
+  }, [setSelectedCategory]);
+
+  const handleRefetch = useCallback(() => { void refetch(); }, [refetch]);
+
   const filterProps = {
     selectedCategory,
-    setSelectedCategory: (val: string | null) => {
-      setSelectedCategory(val);
-    },
+    setSelectedCategory: handleSetSelectedCategory,
     priceRange,
     setPriceRange,
     selectedBrands,
@@ -274,7 +285,7 @@ export function BrowseAds({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => refetch()}
+                  onClick={handleRefetch}
                   className="gap-2"
                 >
                   <RefreshCw className="h-4 w-4" />

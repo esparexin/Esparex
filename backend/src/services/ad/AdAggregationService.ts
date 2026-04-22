@@ -240,30 +240,33 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
     ads.forEach(ad => {
         const catId = extractId(ad.categoryId || ad.category);
         if (catId) {
+            ad.categoryId = catId;
             const cat = categoryMap.get(catId);
             if (cat) {
-                ad.category = cat;
                 if (cat.name) ad.categoryName = cat.name;
             }
         }
+        delete ad.category;
 
         const bId = extractId(ad.brandId || ad.brand);
         if (bId) {
+            ad.brandId = bId;
             const brand = brandMap.get(bId);
             if (brand) {
-                ad.brand = brand;
                 if (brand.name) ad.brandName = brand.name;
             }
         }
+        delete ad.brand;
 
         const mId = extractId(ad.modelId || ad.model);
         if (mId) {
+            ad.modelId = mId;
             const model = modelMap.get(mId);
             if (model) {
-                ad.model = model;
                 if (model.name) ad.modelName = model.name;
             }
         }
+        delete ad.model;
 
         const spId = extractId(ad.sparePartId || ad.sparePart);
         if (spId) {

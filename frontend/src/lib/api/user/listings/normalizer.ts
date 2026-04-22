@@ -3,6 +3,7 @@ import { type PaginationEnvelope } from '@/lib/api/result';
 import { normalizeAdStatus } from '@/lib/status/statusNormalization';
 import { toSafeImageArray, toSafeImageSrc } from '@/lib/image/imageUrl';
 import { normalizeToAppLocation as normalizeLocation } from '@/lib/location/locationService';
+import { formatAppDate } from '@/lib/formatters';
 import type { LocationLevel } from '@/types/location';
 import { stripEmptyObjectIdFields as stripSharedObjectIdFields } from '../listingsShared';
 
@@ -25,11 +26,9 @@ export interface Listing extends Ad {
 }
 
 export interface ListingFilters {
-    category?: string;
     categoryId?: string;
     brandId?: string;
     modelId?: string;
-    location?: string;
     locationId?: string;
     level?: LocationLevel;
     minPrice?: number;
@@ -61,8 +60,13 @@ export interface ListingAnalytics {
     };
 }
 
-export interface ListingPhoneResponse {
+interface RawListingContactNumberResponse {
     phone?: string;
+    mobile?: string;
+    masked?: string;
+}
+
+export interface ListingContactNumberResponse {
     mobile?: string;
     masked?: string;
 }
@@ -77,6 +81,29 @@ export function normalizeListingIdentifier(value: string | number): string {
     } catch {
         return raw;
     }
+}
+
+export function normalizeListingContactNumberResponse(data: unknown): ListingContactNumberResponse | null {
+    if (!data || typeof data !== 'object') return null;
+
+    const record = data as RawListingContactNumberResponse;
+    const mobile =
+        typeof record.mobile === 'string' && record.mobile.trim().length > 0
+            ? record.mobile.trim()
+            : typeof record.phone === 'string' && record.phone.trim().length > 0
+                ? record.phone.trim()
+                : undefined;
+    const masked =
+        typeof record.masked === 'string' && record.masked.trim().length > 0
+            ? record.masked.trim()
+            : undefined;
+
+    if (!mobile && !masked) return null;
+
+    return {
+        ...(mobile ? { mobile } : {}),
+        ...(masked ? { masked } : {}),
+    };
 }
 
 export function isValidListingIdentifier(value: string | number): boolean {
@@ -126,27 +153,43 @@ function toListingSchemaCompatible(data: unknown): unknown {
     if (record.createdAt instanceof Date) record.createdAt = record.createdAt.toISOString();
     if (record.updatedAt instanceof Date) record.updatedAt = record.updatedAt.toISOString();
 
-    const toLegacyStringField = (value: unknown): string | undefined => {
-        if (typeof value === 'string' || typeof value === 'number') return String(value);
-        if (value && typeof value === 'object') {
-            const objectValue = value as Record<string, unknown>;
-            if (typeof objectValue.name === 'string' && objectValue.name.trim().length > 0) return objectValue.name.trim();
-            if (typeof objectValue.title === 'string' && objectValue.title.trim().length > 0) return objectValue.title.trim();
-            return extractId(objectValue);
+    const toDisplayLabel = (value: unknown): string | undefined => {
+        if (typeof value !== 'string' && typeof value !== 'number') return undefined;
+        const normalized = String(value).trim();
+        return normalized && !OBJECT_ID_PATTERN.test(normalized) ? normalized : undefined;
+    };
+
+    const normalizeReferenceIdField = (
+        idKey: "categoryId" | "brandId" | "modelId" | "businessId"
+    ) => {
+        const normalizedRefId = extractId(record[idKey]);
+        if (normalizedRefId) {
+            record[idKey] = normalizedRefId;
+            return;
         }
-        return undefined;
+        delete record[idKey];
+    };
+
+    const normalizeHydratedNameField = (
+        canonicalKey: "categoryName" | "brandName" | "modelName",
+        legacyKey: "category" | "brand" | "model"
+    ) => {
+        const canonicalValue = toDisplayLabel(record[canonicalKey]);
+
+        if (canonicalValue) {
+            record[canonicalKey] = canonicalValue;
+        } else {
+            delete record[canonicalKey];
+        }
+
+        delete record[legacyKey];
     };
 
     const rawSellerId = record.sellerId;
     const normalizedSellerId = extractId(rawSellerId);
     if (normalizedSellerId) record.sellerId = normalizedSellerId;
-    // Keep inbound legacy alias readable, but never synthesize/write it.
-    const normalizedUserId = extractId(record.userId);
-    if (normalizedUserId) {
-        record.userId = normalizedUserId;
-    } else {
-        delete record.userId;
-    }
+    else delete record.sellerId;
+    delete record.userId;
 
     if (record.verified === undefined && rawSellerId && typeof rawSellerId === 'object') {
         const sellerRecord = rawSellerId as Record<string, unknown>;
@@ -155,48 +198,14 @@ function toListingSchemaCompatible(data: unknown): unknown {
         }
     }
 
-    const normalizeReferenceField = (
-        idKey: "categoryId" | "brandId" | "modelId" | "businessId",
-        labelKey: "category" | "brand" | "model" | null
-    ) => {
-        const reference = record[idKey];
-        const normalizedId = extractId(reference);
-        if (normalizedId) {
-            record[idKey] = normalizedId;
-        } else if (reference !== undefined && typeof reference === "object") {
-            delete record[idKey];
-        }
+    normalizeReferenceIdField("categoryId");
+    normalizeReferenceIdField("brandId");
+    normalizeReferenceIdField("modelId");
+    normalizeReferenceIdField("businessId");
 
-        if (labelKey && record[labelKey] === undefined) {
-            const normalizedLabel = toLegacyStringField(reference);
-            // Never use a raw 24-char ObjectId hex as a human-readable label
-            if (normalizedLabel && !/^[0-9a-f]{24}$/i.test(normalizedLabel)) {
-                record[labelKey] = normalizedLabel;
-            }
-        }
-    };
-
-    normalizeReferenceField("categoryId", "category");
-    normalizeReferenceField("brandId", "brand");
-    normalizeReferenceField("modelId", "model");
-    normalizeReferenceField("businessId", null);
-
-    const OBJECTID_RE = /^[0-9a-f]{24}$/i;
-    // Prefer the flat categoryName field emitted by the backend hydration
-    if (typeof record.categoryName === 'string' && record.categoryName.trim()) {
-        record.category = record.categoryName.trim();
-    } else if (record.category !== undefined) {
-        const norm = toLegacyStringField(record.category);
-        (norm && !OBJECTID_RE.test(norm)) ? record.category = norm : delete record.category;
-    }
-    if (record.brand !== undefined) {
-        const norm = toLegacyStringField(record.brand);
-        (norm && !OBJECTID_RE.test(norm)) ? record.brand = norm : delete record.brand;
-    }
-    if (record.model !== undefined) {
-        const norm = toLegacyStringField(record.model);
-        (norm && !OBJECTID_RE.test(norm)) ? record.model = norm : delete record.model;
-    }
+    normalizeHydratedNameField("categoryName", "category");
+    normalizeHydratedNameField("brandName", "brand");
+    normalizeHydratedNameField("modelName", "model");
     return record;
 }
 
@@ -224,7 +233,7 @@ function coerceListingFallback(data: unknown): Listing {
         images: Array.isArray(record.images) ? record.images.filter((img): img is string => typeof img === 'string').map(normalizeImageUrl) : [],
         location: fallbackLocation,
         status: normalizeAdStatus(typeof record.status === 'string' ? record.status : 'pending'),
-        sellerId: extractId(record.sellerId) ?? extractId(record.userId) ?? '',
+        sellerId: extractId(record.sellerId) ?? '',
         createdAt,
         updatedAt: typeof record.updatedAt === 'string' ? record.updatedAt : (record.updatedAt instanceof Date ? record.updatedAt.toISOString() : undefined),
         views: typeof record.views === 'number' ? record.views : 0,
@@ -245,11 +254,7 @@ export function normalizeListing(data: unknown): Listing {
     const compatible = toListingSchemaCompatible(unwrapListingPayload(data));
     const parsed = AdSchema.safeParse(compatible);
     const validated = parsed.success ? parsed.data : coerceListingFallback(compatible);
-    const { userId: _legacyUserId, ...validatedWithoutLegacyUserId } =
-        validated as Listing & { userId?: string };
-    
     const location = normalizeLocation(validated.location);
-    
     const views = validated.views;
 
     const explicitSellerName =
@@ -260,47 +265,35 @@ export function normalizeListing(data: unknown): Listing {
         typeof validated.businessName === 'string' && validated.businessName.trim().length > 0
             ? validated.businessName.trim()
             : '';
-    
-    // Legacy seller name extraction
-    let legacySellerName = '';
-    const seller = validated.seller;
-    if (typeof seller === 'string') {
-        legacySellerName = seller.trim();
-    } else if (seller && typeof seller === 'object') {
-        const sr = seller as Record<string, unknown>;
-        legacySellerName = String(sr.name || sr.businessName || '').trim();
-    }
 
     const isBusiness =
         validated.sellerType === 'business'
-        || (typeof seller === 'object' && seller !== null && (seller as Record<string, unknown>).role === 'business')
         || !!validated.businessId;
 
     const sellerName = (isBusiness && businessName)
         ? businessName
-        : explicitSellerName || legacySellerName || businessName || 'Esparex Seller';
+        : explicitSellerName || 'Esparex Seller';
 
-    const verified = (typeof seller === 'object' && seller !== null && (seller as Record<string, unknown>).isVerified === true) 
-        || validated.verified === true;
+    const verified = validated.verified === true;
 
     // Pre-coerce createdAt to string — AdSchema types it as string, so this
     // is always the first branch. The fallback guards against pre-schema raw data.
-    const rawCreatedAt = validatedWithoutLegacyUserId.createdAt;
+    const rawCreatedAt = validated.createdAt;
     const createdAtStr: string =
         typeof rawCreatedAt === 'string' ? rawCreatedAt : new Date(0).toISOString();
 
     return {
-        ...validatedWithoutLegacyUserId,
-        status: normalizeAdStatus(validatedWithoutLegacyUserId.status),
-        id: String(validatedWithoutLegacyUserId.id || ''),
-        images: toSafeImageArray(Array.isArray(validatedWithoutLegacyUserId.images) ? validatedWithoutLegacyUserId.images.map((image) => normalizeImageUrl(String(image))) : validatedWithoutLegacyUserId.images),
-        image: toSafeImageSrc(Array.isArray(validatedWithoutLegacyUserId.images) && validatedWithoutLegacyUserId.images.length > 0 ? normalizeImageUrl(String(validatedWithoutLegacyUserId.images[0])) : (typeof validatedWithoutLegacyUserId.image === 'string' ? normalizeImageUrl(validatedWithoutLegacyUserId.image) : validatedWithoutLegacyUserId.image)),
-        time: new Date(createdAtStr).toLocaleDateString(),
+        ...validated,
+        status: normalizeAdStatus(validated.status),
+        id: String(validated.id || ''),
+        images: toSafeImageArray(Array.isArray(validated.images) ? validated.images.map((image) => normalizeImageUrl(String(image))) : validated.images),
+        image: toSafeImageSrc(Array.isArray(validated.images) && validated.images.length > 0 ? normalizeImageUrl(String(validated.images[0])) : (typeof validated.image === 'string' ? normalizeImageUrl(validated.image) : validated.image)),
+        time: formatAppDate(createdAtStr),
         createdAt: createdAtStr,
         isBusiness,
         verified,
         sellerName,
-        sellerId: extractId(validatedWithoutLegacyUserId.sellerId) || '',
+        sellerId: extractId(validated.sellerId) || '',
         views,
         location: (location || { city: "" }) as Listing['location'],
     } as Listing;

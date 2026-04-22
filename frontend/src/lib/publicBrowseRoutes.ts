@@ -1,4 +1,5 @@
 import { sanitizeLocationLabel } from "@/lib/location/locationLabels";
+import { parseBrowseTokenList, serializeBrowseTokenList } from "@/lib/browse/browseFilterNormalization";
 
 export type PublicBrowseType = "ad" | "service" | "spare_part";
 
@@ -33,6 +34,11 @@ export interface ParsedPublicBrowseParams {
     radiusKm?: number;
     page?: number;
 }
+
+type BrowseCategoryRecord = {
+    id?: unknown;
+    slug?: unknown;
+};
 
 type SearchParamsRecord = Record<string, string | string[] | undefined>;
 
@@ -82,6 +88,26 @@ const appendIfPresent = (params: URLSearchParams, key: string, value: unknown) =
     }
 };
 
+export const resolvePublicBrowseCategory = (
+    input: Pick<PublicBrowseRouteParams, "category" | "categoryId">,
+    fallback?: unknown
+): string | undefined => (
+    readString(input.categoryId) ||
+    readString(input.category) ||
+    readString(fallback)
+);
+
+export const resolvePublicBrowseBrands = (
+    input: Pick<PublicBrowseRouteParams, "brands">
+): string[] => parseBrowseTokenList(input.brands);
+
+export const resolveBrowseCategoryParam = (
+    input: BrowseCategoryRecord | null | undefined
+): string | undefined => (
+    readString(input?.id) ||
+    readString(input?.slug)
+);
+
 export const normalizePublicBrowseType = (value: unknown): PublicBrowseType => {
     const normalized = readString(value)?.toLowerCase();
     return normalized && PUBLIC_BROWSE_TYPES.has(normalized as PublicBrowseType)
@@ -124,7 +150,7 @@ export const parsePublicBrowseParams = (
         maxPrice: readNumber(read("maxPrice")),
         location: sanitizeLocationLabel(read("location")),
         locationId: read("locationId"),
-        brands: read("brands"),
+        brands: serializeBrowseTokenList(read("brands")),
         radiusKm: readNumber(read("radiusKm")),
         page: readNumber(read("page")),
     };
@@ -133,23 +159,20 @@ export const parsePublicBrowseParams = (
 export const buildPublicBrowseRoute = (input: PublicBrowseRouteParams = {}): string => {
     const params = new URLSearchParams();
     const type = normalizePublicBrowseType(input.type);
-    const normalizedCategoryId = readString(input.categoryId);
-    const normalizedCategory = readString(input.category);
+    const resolvedCategory = resolvePublicBrowseCategory(input);
     const normalizedLocation = sanitizeLocationLabel(readString(input.location));
     const normalizedLocationId = readString(input.locationId);
     const resolvedCategoryId =
-        normalizedCategoryId && OBJECT_ID_PATTERN.test(normalizedCategoryId)
-            ? normalizedCategoryId
-            : normalizedCategory && OBJECT_ID_PATTERN.test(normalizedCategory)
-              ? normalizedCategory
-              : undefined;
+        resolvedCategory && OBJECT_ID_PATTERN.test(resolvedCategory)
+            ? resolvedCategory
+            : undefined;
 
     params.set("type", type);
     appendIfPresent(params, "q", input.q);
     if (resolvedCategoryId) {
         params.set("categoryId", resolvedCategoryId);
     } else {
-        appendIfPresent(params, "category", normalizedCategory);
+        appendIfPresent(params, "category", resolvedCategory);
     }
     appendIfPresent(params, "modelId", input.modelId);
 
@@ -168,12 +191,14 @@ export const buildPublicBrowseRoute = (input: PublicBrowseRouteParams = {}): str
         params.set("maxPrice", String(maxPrice));
     }
 
-    appendIfPresent(params, "location", normalizedLocation);
     appendIfPresent(params, "locationId", normalizedLocationId);
-    appendIfPresent(params, "brands", Array.isArray(input.brands) ? input.brands.join(",") : input.brands);
+    if (normalizedLocationId) {
+        appendIfPresent(params, "location", normalizedLocation);
+    }
+    appendIfPresent(params, "brands", serializeBrowseTokenList(input.brands));
 
     const radiusKm = readNumber(input.radiusKm);
-    if (typeof radiusKm === "number" && radiusKm > 0 && (normalizedLocation || normalizedLocationId)) {
+    if (typeof radiusKm === "number" && radiusKm > 0 && normalizedLocationId) {
         params.set("radiusKm", String(radiusKm));
     }
 
@@ -183,6 +208,33 @@ export const buildPublicBrowseRoute = (input: PublicBrowseRouteParams = {}): str
     }
 
     return `${PUBLIC_BROWSE_PATH}?${params.toString()}`;
+};
+
+export const buildCategoryBrowseRoute = (
+    category: BrowseCategoryRecord | null | undefined,
+    input: Omit<PublicBrowseRouteParams, "type" | "category" | "categoryId"> = {}
+): string => buildPublicBrowseRoute({
+    type: "ad",
+    ...input,
+    category: resolveBrowseCategoryParam(category),
+});
+
+export const buildCatalogLinkedBrowseRoute = (
+    input: {
+        entity: "brand" | "model";
+        id?: unknown;
+    } & Omit<PublicBrowseRouteParams, "type" | "brands" | "modelId">
+): string => {
+    const { entity, id, ...rest } = input;
+    const resolvedId = readString(id);
+
+    return buildPublicBrowseRoute({
+        type: "ad",
+        ...rest,
+        ...(entity === "brand"
+            ? { brands: resolvedId }
+            : { modelId: resolvedId }),
+    });
 };
 
 export const buildPublicBrowseRouteFromPathname = (

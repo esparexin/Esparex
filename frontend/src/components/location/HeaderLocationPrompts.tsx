@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useLocationState, useLocationDispatch } from "@/context/LocationContext";
+import { useLocationStatus, useLocationDispatch } from "@/context/LocationContext";
 import LocationFirstVisitPrompt from "./LocationFirstVisitPrompt";
 import LocationPermissionBlockedModal from "./LocationPermissionBlockedModal";
 
@@ -24,7 +24,7 @@ export function HeaderLocationPrompts({
     firstVisitPromptClassName,
     style,
 }: HeaderLocationPromptsProps) {
-    const { shouldShowFirstVisitPrompt, showPermissionBlockedModal } = useLocationState();
+    const { shouldShowFirstVisitPrompt, showPermissionBlockedModal } = useLocationStatus();
     const { detectLocation, dismissFirstVisitPrompt, dismissPermissionBlockedModal } = useLocationDispatch();
 
     return (

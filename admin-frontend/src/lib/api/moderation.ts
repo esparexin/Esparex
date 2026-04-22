@@ -55,11 +55,11 @@ export async function fetchAdminModerationAds(input: {
         limit: String(limit)
     });
 
-    if (filters.search.trim()) params.set("search", filters.search.trim());
+    if (filters.search.trim()) params.set("q", filters.search.trim());
     if (filters.status !== "all") params.set("status", filters.status);
     if (filters.sellerId.trim()) params.set("sellerId", filters.sellerId.trim());
     if (filters.categoryId.trim()) params.set("categoryId", filters.categoryId.trim());
-    if (filters.location.trim()) params.set("location", filters.location.trim());
+    if (filters.locationId.trim()) params.set("locationId", filters.locationId.trim());
     if (filters.dateFrom) params.set("createdAfter", new Date(filters.dateFrom + "T00:00:00.000Z").toISOString());
     if (filters.dateTo) params.set("createdBefore", new Date(filters.dateTo + "T23:59:59.999Z").toISOString());
     if (filters.listingType) params.set("listingType", filters.listingType);

@@ -202,6 +202,9 @@ export function StepAddress({
         try {
             const detectionResult = await getCurrentLocationResult({
                 mode: "precise",
+                allowApproximateFallback: false,
+                enableHighAccuracy: true,
+                maximumAgeMs: 0,
             });
 
             if (!detectionResult.location) {

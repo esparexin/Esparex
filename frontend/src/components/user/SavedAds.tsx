@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -25,9 +25,12 @@ import type { Ad } from "@/schemas/ad.schema";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { formatPrice, formatStableDate } from "@/lib/formatters";
-import { formatLocation, normalizeToAppLocation as normalizeAppLocation } from "@/lib/location/locationService";
 import { toSafeImageSrc, DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
+import {
+  resolveListingCategoryLabel,
+  resolveListingLocationLabel,
+} from "@/lib/listings/listingPresentation";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -71,16 +74,14 @@ const getDetailUrl = (ad: Ad): string => {
 
 const getListingTypeLabel = (ad: Ad): string => {
   switch (ad.listingType) {
-    case "service":    return "SERVICE";
-    case "spare_part": return "SPARE PART";
+    case "service":    return "Service";
+    case "spare_part": return "Spare Part";
     default:           return getCategoryLabelRaw(ad);
   }
 };
 
 const getCategoryLabelRaw = (ad: Ad): string => {
-  if (typeof ad.category === "string" && ad.category.trim()) return ad.category;
-  if (typeof ad.categoryId === "string" && ad.categoryId.trim()) return ad.categoryId;
-  return "General";
+  return resolveListingCategoryLabel(ad, "General");
 };
 
 // Statuses where the ad is no longer publicly accessible
@@ -226,9 +227,9 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
     },
   });
 
-  const getCategoryLabel = (ad: Ad) => getListingTypeLabel(ad);
+  const getCategoryLabel = useCallback((ad: Ad) => getListingTypeLabel(ad), []);
 
-  const sortAds = (ads: Ad[]) =>
+  const sortAds = useCallback((ads: Ad[]) =>
     [...ads].sort((a, b) => {
       switch (sortBy) {
         case "newest":
@@ -240,28 +241,30 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
         case "price-high":
           return b.price - a.price;
         case "location":
-          return (
-            normalizeAppLocation(a.location)?.formattedAddress || formatLocation(a.location)
-          ).localeCompare(
-            normalizeAppLocation(b.location)?.formattedAddress || formatLocation(b.location)
+          return resolveListingLocationLabel(a.location, "full").localeCompare(
+            resolveListingLocationLabel(b.location, "full")
           );
         default:
           return 0;
       }
-    });
+    }), [sortBy]);
 
   // Split into available and unavailable, each sorted independently
   const { available, unavailable } = useMemo(() => {
     const avail = savedAds.filter((ad) => !isUnavailable(ad));
     const unavail = savedAds.filter((ad) => isUnavailable(ad));
     return { available: sortAds(avail), unavailable: sortAds(unavail) };
-  }, [savedAds, sortBy]);
+  }, [savedAds, sortBy, sortAds]);
 
-  const handleUnsave = (adId: string | number, e: React.MouseEvent) => {
+  const handleUnsave = useCallback((adId: string | number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (unsaveMutation.isPending) return;
     unsaveMutation.mutate(adId);
-  };
+  }, [unsaveMutation]);
+
+  const handleRefetch = useCallback(() => { void refetch(); }, [refetch]);
+  const handleSetViewGrid = useCallback(() => setViewMode("grid"), []);
+  const handleSetViewList = useCallback(() => setViewMode("list"), []);
 
   const pageState: PageState = isLoading
     ? "loading"
@@ -273,7 +276,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
 
   // ── Ad card renderers ────────────────────────────────────────────────────────
 
-  const renderGridCard = (ad: SavedAd, unavailable = false) => (
+  const renderGridCard = useCallback((ad: SavedAd, unavailable = false) => (
     <Card
       key={ad.id}
       className={`overflow-hidden rounded-xl border border-black transition-all duration-300 ${
@@ -305,7 +308,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <MapPin className="h-3 w-3 flex-shrink-0" />
-          <span className="truncate">{formatLocation(ad.location)}</span>
+          <span className="truncate">{resolveListingLocationLabel(ad.location, "brief")}</span>
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-1.5 border-t">
           <SavedAdTypeBadge label={getCategoryLabel(ad)} unavailable={unavailable} />
@@ -318,9 +321,9 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
         </div>
       </CardContent>
     </Card>
-  );
+  ), [router, handleUnsave, getCategoryLabel]);
 
-  const renderListCard = (ad: SavedAd, unavailable = false) => (
+  const renderListCard = useCallback((ad: SavedAd, unavailable = false) => (
     <Card
       key={ad.id}
       className={`overflow-hidden rounded-xl border border-black transition-all ${
@@ -356,7 +359,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
             <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-1 md:gap-4 text-2xs md:text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <MapPin className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-                <span className="truncate">{formatLocation(ad.location)}</span>
+                <span className="truncate">{resolveListingLocationLabel(ad.location, "brief")}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
@@ -371,9 +374,9 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
         </div>
       </CardContent>
     </Card>
-  );
+  ), [router, handleUnsave, getCategoryLabel]);
 
-  const renderListingCollection = (adsToRender: Ad[], unavailable: boolean) => {
+  const renderListingCollection = useCallback((adsToRender: Ad[], unavailable: boolean) => {
     if (viewMode === "grid") {
       return (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
@@ -387,7 +390,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
         {adsToRender.map((ad) => renderListCard(ad, unavailable))}
       </div>
     );
-  };
+  }, [viewMode, renderGridCard, renderListCard]);
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
@@ -434,7 +437,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
             error={
               <div className="text-center py-10">
                 <p className="text-sm text-red-600 mb-3">Failed to load saved ads</p>
-                <Button variant="outline" onClick={() => refetch()}>Retry</Button>
+                <Button variant="outline" onClick={handleRefetch}>Retry</Button>
               </div>
             }
           >
@@ -474,7 +477,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                       variant={viewMode === "grid" ? "default" : "ghost"}
                       size="sm"
                       className={`h-8 px-2 md:px-3 ${viewMode === "grid" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
-                      onClick={() => setViewMode("grid")}
+                      onClick={handleSetViewGrid}
                     >
                       <Grid3x3 className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     </Button>
@@ -482,7 +485,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                       variant={viewMode === "list" ? "default" : "ghost"}
                       size="sm"
                       className={`h-8 px-2 md:px-3 ${viewMode === "list" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
-                      onClick={() => setViewMode("list")}
+                      onClick={handleSetViewList}
                     >
                       <List className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     </Button>

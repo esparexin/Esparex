@@ -14,7 +14,7 @@ export type PaginatedFinanceTransactions = {
 };
 
 type FinanceTransactionQuery = {
-    search: string;
+    q: string;
     status: string;
     page?: number;
     limit?: number;
@@ -28,7 +28,7 @@ export type RevenueSummaryEntry = {
 };
 
 export async function fetchFinanceTransactions({
-    search,
+    q,
     status,
     page = 1,
     limit = 20,
@@ -38,8 +38,8 @@ export async function fetchFinanceTransactions({
         limit: String(limit),
     });
 
-    if (search.trim()) {
-        query.set("search", search.trim());
+    if (q.trim()) {
+        query.set("q", q.trim());
     }
     if (status !== "all") {
         query.set("status", status);

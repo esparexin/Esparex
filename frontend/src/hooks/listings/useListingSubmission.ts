@@ -123,6 +123,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
                 // Remove UI-only fields if they exist
                 category: undefined,
                 brand: undefined,
+                model: undefined,
             };
 
             // 3. Validation Check

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { CATALOG_STATUS } from '../../../shared/enums/catalogStatus';
 import { CATEGORY_TYPES } from '../../../shared/schemas/catalog.schema';
+import { LISTING_TYPE, LISTING_TYPE_VALUES } from '../../../shared/enums/listingType';
 import { normalizeObjectIdLike } from '../utils/idUtils';
 
 // Shared Helpers
@@ -47,14 +48,7 @@ const categoryBaseSchema = z.object({
     parentId: optionalObjectIdSchema,
     isActive: z.boolean().optional(),
     hasScreenSizes: z.boolean().optional(),
-    listingType: z.array(z.enum(['ad', 'service', 'spare_part', 'postad', 'postservice', 'postsparepart']))
-        .transform(arr => arr.map(v => {
-            if (v === 'postad') return 'ad';
-            if (v === 'postservice') return 'service';
-            if (v === 'postsparepart') return 'spare_part';
-            return v;
-        }))
-        .optional(),
+    listingType: z.array(z.enum(LISTING_TYPE_VALUES)).optional(),
     filters: z.array(z.unknown()).optional()
 });
 
@@ -131,7 +125,7 @@ const sparePartBaseSchema = z.object({
     name: z.string().trim().min(1).max(120),
     slug: z.string().trim().min(1).max(160).optional(),
     // type: z.enum(['PRIMARY', 'SECONDARY']).optional(),
-    listingType: z.array(z.enum(['ad', 'spare_part'])).optional(),
+    listingType: z.array(z.enum([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART])).optional(),
     ...categoryFields,
     sortOrder: z.number().int().min(0).optional(),
     filters: z.array(z.unknown()).optional(),

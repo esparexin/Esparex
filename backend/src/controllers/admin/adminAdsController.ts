@@ -444,14 +444,14 @@ export const adminRestoreAd = async (req: Request, res: Response) => {
 /* ────────────────────────────────────────────── */
 export const getReportedAds = async (req: Request, res: Response) => {
     try {
-        const { status, reason, search } = req.query;
+        const { status, reason, q } = req.query;
         const { page, limit, skip } = getPaginationParams(req);
 
         const reportedResult = await getReportedAdsAggregation(
             {
                 status: typeof status === 'string' ? status : undefined,
                 reason: typeof reason === 'string' ? reason : undefined,
-                search: typeof search === 'string' ? search : undefined
+                search: typeof q === 'string' ? q : undefined
             },
             { skip, limit }
         );

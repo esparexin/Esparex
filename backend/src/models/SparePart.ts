@@ -75,26 +75,6 @@ SparePartSchema.index({ sortOrder: 1 }, { name: 'idx_sparepart_sortOrder' });
 SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });
 SparePartSchema.index({ isDeleted: 1 }, { name: 'idx_sparepart_isDeleted' });
 
-SparePartSchema.pre('validate', function() {
-    if (Array.isArray(this.listingType) && this.listingType.length > 0) {
-        this.listingType = this.listingType.map((value: string) => {
-            if (value === 'postad') return LISTING_TYPE.AD;
-            if (value === 'postsparepart') return LISTING_TYPE.SPARE_PART;
-            return value;
-        }) as ListingTypeValue[];
-    }
-});
-
-SparePartSchema.post('init', function(doc: ISparePart) {
-    if (Array.isArray(doc.listingType) && doc.listingType.length > 0) {
-        doc.listingType = doc.listingType.map((value: string) => {
-            if (value === 'postad') return LISTING_TYPE.AD;
-            if (value === 'postsparepart') return LISTING_TYPE.SPARE_PART;
-            return value;
-        }) as ListingTypeValue[];
-    }
-});
-
 import { getAdminConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 

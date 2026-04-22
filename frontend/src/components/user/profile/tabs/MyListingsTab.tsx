@@ -16,11 +16,15 @@ import {
     type AccountListingSection,
 } from "@/lib/accountListingRoutes";
 import {
+    resolveListingLocationLabel,
+    resolveReadableListingReferenceLabel,
+} from "@/lib/listings/listingPresentation";
+import {
     AlertDialog, AlertDialogAction, AlertDialogCancel,
     AlertDialogContent, AlertDialogDescription,
     AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { formatPrice } from "@/lib/formatters";
+import { formatPrice, formatStableNumber } from "@/lib/formatters";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 // ── Types & Constants ────────────────────────────────────────────────────────
@@ -31,6 +35,17 @@ const SUB_TABS: { value: ListingSubTab; label: string; icon: React.ReactNode; co
     { value: "services", label: "Services", icon: <Wrench className="h-4 w-4" />, color: "violet" },
     { value: "spare-parts", label: "Spare Parts", icon: <CircuitBoard className="h-4 w-4" />, color: "teal" },
 ];
+
+const buildLocationMetaBadge = (location: unknown) => {
+    const locationLabel = resolveListingLocationLabel(location, "brief");
+    return locationLabel
+        ? { label: locationLabel, icon: <MapPin className="h-3 w-3" /> }
+        : null;
+};
+
+const buildTag = (label: string | null, className?: string) => (
+    label ? { label, className } : null
+);
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -235,7 +250,7 @@ export function MyListingsTab({
                     title={service.title}
                     status={service.status}
                     thumbnail={service.images?.[0]}
-                    priceLabel={service.priceMin ? `From ₹${service.priceMin.toLocaleString()}` : "Price on request"}
+                    priceLabel={service.priceMin ? `From ₹${formatStableNumber(service.priceMin)}` : "Price on request"}
                     badgeColor="violet"
                     createdAt={service.createdAt}
                     getStatusBadge={getStatusBadge}
@@ -249,7 +264,7 @@ export function MyListingsTab({
                     onDelete={() => handleDeleteService(service.id)}
                     onRenew={() => handleRepostService(service.id)}
                     metaBadges={([
-                        service.location?.city ? { label: service.location.city, icon: <MapPin className="h-3 w-3" /> } : null,
+                        buildLocationMetaBadge(service.location),
                         service.onsiteService !== undefined ? {
                             label: service.onsiteService ? "On-site" : "Remote",
                             icon: service.onsiteService ? <Home className="h-3 w-3" /> : <Wifi className="h-3 w-3" />,
@@ -258,17 +273,11 @@ export function MyListingsTab({
                         service.turnaroundTime ? { label: service.turnaroundTime, icon: <Timer className="h-3 w-3" /> } : null
                     ].filter((v): v is NonNullable<typeof v> => v !== null))}
                     tags={([
-                        (() => {
-                            const name = (service.category as { name?: string })?.name || (typeof service.category === 'string' ? service.category : '');
-                            return name ? { 
-                                label: name, 
-                                className: "bg-violet-50 text-violet-700 border-violet-100" 
-                            } : null;
-                        })(),
-                        (() => {
-                            const name = (service.brand as { name?: string })?.name || (typeof service.brand === 'string' ? service.brand : '');
-                            return name ? { label: name } : null;
-                        })()
+                        buildTag(
+                            resolveReadableListingReferenceLabel(service.category),
+                            "bg-violet-50 text-violet-700 border-violet-100"
+                        ),
+                        buildTag(resolveReadableListingReferenceLabel(service.brand))
                     ].filter((v): v is NonNullable<typeof v> => v !== null))}
                 />
             )
@@ -299,7 +308,7 @@ export function MyListingsTab({
                     title={listing.title}
                     status={listing.status}
                     thumbnail={listing.images?.[0]}
-                    priceLabel={`₹${listing.price.toLocaleString()}`}
+                    priceLabel={`₹${formatStableNumber(listing.price)}`}
                     badgeColor="teal"
                     createdAt={listing.createdAt}
                     getStatusBadge={getStatusBadge}
@@ -314,7 +323,7 @@ export function MyListingsTab({
                     onRenew={() => handleRepostSpare(listing.id)}
                     onMarkSold={listing.status === "live" ? () => { setSpareToSell(listing); setSparesSoldReason(null); setIsSparesSoldOpen(true); } : undefined}
                     metaBadges={([
-                        listing.location?.city ? { label: listing.location.city, icon: <MapPin className="h-3 w-3" /> } : null
+                        buildLocationMetaBadge(listing.location)
                     ].filter((v): v is NonNullable<typeof v> => v !== null))}
                 />
             )

@@ -19,8 +19,6 @@ export interface Service {
         avatar?: string;
         mobile?: string;
     };
-    /** @deprecated Use sellerId */
-    userId?: string;
     title: string;
     deviceType: string;
     categoryId: string | { id?: string; name?: string; icon?: string };
@@ -41,8 +39,6 @@ export interface Service {
         coordinates?: CanonicalGeoPoint;
     };
     serviceTypeIds?: string[];
-    /** @deprecated Prefer serviceTypeIds. */
-    serviceTypes?: string[];
     priceMin?: number;
     priceMax?: number;
     diagnosticFee?: number;

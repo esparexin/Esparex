@@ -1,22 +1,10 @@
 import { z } from 'zod';
+import { LogLocationEventSchema as SharedLogLocationEventSchema } from '@shared/schemas/location.schema';
 import { commonSchemas } from '../middleware/validateRequest';
-import {
-    LOCATION_EVENT_REASONS,
-    LOCATION_EVENT_SOURCES,
-} from '../constants/locationEvents';
 
-export const logLocationEventSchema = z.object({
-    source: z.enum(LOCATION_EVENT_SOURCES),
-    city: z.string().trim().min(1),
-    state: z.string().trim().min(1),
-    coordinates: z.object({
-        type: z.literal('Point'),
-        coordinates: z.tuple([z.number(), z.number()])
-    }).optional(),
-    reason: z.enum(LOCATION_EVENT_REASONS),
-    eventType: z.enum(['location_search', 'ad_view', 'ad_post']).optional(),
-    locationId: commonSchemas.objectId.optional()
-}).strict();
+export const logLocationEventSchema = SharedLogLocationEventSchema.extend({
+    locationId: commonSchemas.objectId.optional(),
+});
 
 export const ingestLocationSchema = z.object({
     name: z.string().trim().min(1),
@@ -52,7 +40,7 @@ const latitudeSchema = z.coerce.number().min(-90).max(90);
 const longitudeSchema = z.coerce.number().min(-180).max(180);
 
 export const adminLocationListQuerySchema = z.object({
-    search: z.string().trim().max(200).optional(),
+    q: z.string().trim().max(200).optional(),
     status: z.enum(['all', 'active', 'inactive']).optional(),
     state: z.string().trim().max(100).optional(),
     level: adminLocationLevelFilterSchema.optional(),

@@ -1,5 +1,6 @@
 import { InfoPage } from "@/components/common/InfoPage";
 import { Metadata } from 'next';
+import { LEGAL_LAST_UPDATED } from "@/lib/legal";
 
 export const metadata: Metadata = {
     title: 'Privacy Policy | Esparex',
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
     return (
-        <InfoPage title="Privacy Policy" lastUpdated={new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}>
+        <InfoPage title="Privacy Policy" lastUpdated={LEGAL_LAST_UPDATED}>
             <div className="space-y-8 text-muted-foreground leading-relaxed">
                 <section>
                     <p>
@@ -58,7 +59,7 @@ export default function PrivacyPage() {
                         Esparex does not sell your personal data to third-party advertisers. We strictly share data only when necessary:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
-                        <li><strong>With other users:</strong> Your public profile name and location are visible to facilitate trades. Your phone number is only visible if you explicitly agree to share it on a listing.</li>
+                        <li><strong>With other users:</strong> Your public profile name and location are visible to facilitate trades. Your mobile number is only visible if you explicitly agree to share it on a listing.</li>
                         <li><strong>With Service Providers:</strong> We use AWS for secure image hosting and automated SMS/OTP providers to facilitate logins.</li>
                         <li><strong>Legal Compliance:</strong> We will disclose information if required by Indian law, a court order, or to protect the safety of our users.</li>
                     </ul>

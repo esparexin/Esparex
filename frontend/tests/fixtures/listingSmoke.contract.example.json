@@ -1,0 +1,17 @@
+{
+  "chat": {
+    "ad": {
+      "path": "/ads/your-ad-slug-0123456789abcdef01234567"
+    },
+    "service": {
+      "path": "/services/your-service-slug-0123456789abcdef01234567"
+    },
+    "spare_part": {
+      "path": "/spare-part-listings/your-part-slug-0123456789abcdef01234567"
+    }
+  },
+  "reveal": {
+    "path": "/ads/your-ad-slug-0123456789abcdef01234567",
+    "expect": "mobile"
+  }
+}

@@ -13,7 +13,7 @@ import { respond } from '../../utils/respond';
 import { getSingleParam } from '../../utils/requestParams';
 import { Ad } from '../../../../shared/schemas/ad.schema';
 import { ApiResponse, PaginatedResponse, HomeFeedResponse } from '../../../../shared/types/Api';
-import { getAdsQuerySchema } from '../../validators/ad.validator';
+import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '../../validators/ad.validator';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
@@ -126,16 +126,14 @@ export const getAds = async (req: Request, res: Response, next: NextFunction) =>
                 listingType: LISTING_TYPE.AD,
                 // Public listing must never leak pending/rejected content.
                 status: query.status || AD_STATUS.LIVE,
-                category: query.category,
                 categoryId: query.categoryId,
                 brandId: query.brandId,
                 modelId: query.modelId,
                 locationId: query.locationId,
                 level: query.level,
-                location: query.location,
                 sellerId: query.sellerId,
                 isSpotlight: query.isSpotlight,
-                search: query.q || query.search,
+                search: query.q,
                 minPrice: query.minPrice,
                 maxPrice: query.maxPrice,
                 sortBy: query.sortBy as AdFilters['sortBy'],
@@ -200,16 +198,14 @@ export const getNearbyAds = async (req: Request, res: Response, next: NextFuncti
                 // 🔒 Scope: nearby must only return ads, never services or spare_parts
                 listingType: LISTING_TYPE.AD,
                 status: query.status || AD_STATUS.LIVE,
-                category: query.category,
                 categoryId: query.categoryId,
                 brandId: query.brandId,
                 modelId: query.modelId,
                 locationId: query.locationId,
                 level: query.level,
-                location: query.location,
                 sellerId: query.sellerId,
                 isSpotlight: query.isSpotlight,
-                search: query.q || query.search,
+                search: query.q,
                 minPrice: query.minPrice,
                 maxPrice: query.maxPrice,
                 sortBy: 'distance',
@@ -252,39 +248,25 @@ export const getNearbyAds = async (req: Request, res: Response, next: NextFuncti
  */
 export const getHomeFeedAds = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const limit = parseInt(String(req.query.limit ?? '20'), 10) || 20;
-        const cursorRaw = typeof req.query.cursor === 'string' ? req.query.cursor : undefined;
-        const cursorId = typeof req.query.cursorId === 'string' ? req.query.cursorId : undefined;
+        const query = homeFeedQuerySchema.parse(req.query);
+        const limit = query.limit ?? 20;
+        const cursorRaw = query.cursor;
+        const cursorId = query.cursorId;
         const cursor = cursorRaw
             ? (cursorId
                 ? { createdAt: cursorRaw, id: cursorId }
                 : cursorRaw)
             : undefined;
-        const location = typeof req.query.location === 'string' ? req.query.location : undefined;
-        const locationId = typeof req.query.locationId === 'string' ? req.query.locationId : undefined;
-        const category = typeof req.query.category === 'string' ? req.query.category : undefined;
-        const categoryId = typeof req.query.categoryId === 'string' ? req.query.categoryId : undefined;
-        const level = (
-            typeof req.query.level === 'string' &&
-            ['country', 'state', 'district', 'city', 'area', 'village'].includes(req.query.level)
-        )
-            ? (req.query.level as 'country' | 'state' | 'district' | 'city' | 'area' | 'village')
-            : undefined;
-        const lat = typeof req.query.lat === 'string' ? Number(req.query.lat) : undefined;
-        const lng = typeof req.query.lng === 'string' ? Number(req.query.lng) : undefined;
-        const radiusKm = typeof req.query.radiusKm === 'string' ? Number(req.query.radiusKm) : undefined;
 
         const data = await feedService.getHomeFeedAds({
             cursor,
             limit,
-            location,
-            locationId,
-            level,
-            lat,
-            lng,
-            radiusKm,
-            category,
-            categoryId
+            locationId: query.locationId,
+            level: query.level,
+            lat: query.lat,
+            lng: query.lng,
+            radiusKm: query.radiusKm,
+            categoryId: query.categoryId,
         });
 
         const response = respond<ApiResponse<HomeFeedResponse>>({
@@ -303,18 +285,12 @@ export const getHomeFeedAds = async (req: Request, res: Response, next: NextFunc
  */
 export const getTrendingAds = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const limit = parseInt(String(req.query.limit ?? '20'), 10) || 20;
-        const location = typeof req.query.location === 'string' ? req.query.location : undefined;
-        const locationId = typeof req.query.locationId === 'string' ? req.query.locationId : undefined;
-        const category = typeof req.query.category === 'string' ? req.query.category : undefined;
-        const categoryId = typeof req.query.categoryId === 'string' ? req.query.categoryId : undefined;
+        const query = trendingAdsQuerySchema.parse(req.query);
 
         const data = await trendingService.getTrendingAds({
-            limit,
-            location,
-            locationId,
-            category,
-            categoryId
+            limit: query.limit ?? 20,
+            locationId: query.locationId,
+            categoryId: query.categoryId,
         });
 
         return res.json(respond<ApiResponse<{ ads: Ad[] }>>({

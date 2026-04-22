@@ -167,7 +167,7 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
         const req = {
             params: { id: "65f0a1b2c3d4e5f607182930" },
             body: {
-                phone: "9876543210",
+                mobile: "9876543210",
                 location: {
                     city: "Secunderabad",
                     state: "Telangana",

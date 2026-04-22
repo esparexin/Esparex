@@ -355,7 +355,7 @@ function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: Ca
 
 export default function CategoriesPage() {
     const searchParams = useSearchParams();
-    const initialSearch = normalizeSearchParamValue(searchParams.get("search"));
+    const initialSearch = normalizeSearchParamValue(searchParams.get("q") ?? searchParams.get("search"));
     const initialStatus = normalizeCategoryStatusParam(searchParams.get("status"));
     const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
 

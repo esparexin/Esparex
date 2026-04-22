@@ -5,7 +5,11 @@ import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 import { validateRequest } from '../middleware/validateRequest';
-import { createBusinessSchema, updateBusinessSchema } from '../validators/business.validator';
+import {
+    createBusinessSchema,
+    publicBusinessQuerySchema,
+    updateBusinessSchema
+} from '../validators/business.validator';
 
 import { idempotencyMiddleware } from '../middleware/idempotency';
 import { createUploadMiddleware } from '../utils/uploadFactory';
@@ -35,7 +39,7 @@ const businessUpload = createUploadMiddleware({
 
 
 // GET /api/v1/businesses - List businesses (Public)
-router.get('/', businessController.getBusinesses);
+router.get('/', validateRequest({ query: publicBusinessQuerySchema }), businessController.getBusinesses);
 
 // POST /api/v1/businesses - Register a new business
 router.post('/', protect, mutationLimiter, validateRequest(createBusinessSchema), idempotencyMiddleware, businessController.registerBusiness);

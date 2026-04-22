@@ -1,6 +1,4 @@
 "use client";
-import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
-
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -12,9 +10,6 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ColumnDef } from "@/components/ui/DataTable";
-import { adminFetch } from "@/lib/api/adminClient";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { useToast } from "@/context/ToastContext";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { BusinessSuspendModal } from "@/components/business/BusinessSuspendModal";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
@@ -49,15 +44,14 @@ const mapOverview = (data: Record<string, unknown>) => ({
 });
 
 export default function BusinessesView() {
-    const { showToast } = useToast();
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
     const [suspendTarget, setSuspendTarget] = useState<Business | null>(null);
     const rawStatus = searchParams.get("status");
-    const rawSearch = searchParams.get("search");
-    const rawCity = searchParams.get("city");
+    const rawSearch = searchParams.get("q") ?? searchParams.get("search");
+    const rawLocationId = searchParams.get("locationId");
     const rawPage = searchParams.get("page");
 
     const activeTab =
@@ -67,7 +61,7 @@ export default function BusinessesView() {
                 ? rawStatus
                 : DEFAULT_STATUS;
     const search = normalizeSearchParamValue(rawSearch);
-    const cityFilter = normalizeSearchParamValue(rawCity);
+    const locationIdFilter = normalizeSearchParamValue(rawLocationId);
     const page = parsePositiveIntParam(rawPage, 1);
 
     const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
@@ -85,7 +79,7 @@ export default function BusinessesView() {
         initialOverview: { total: 0, pending: 0, live: 0, suspended: 0, deleted: 0 },
         mapOverview,
         extraQueryParams: {
-            city: cityFilter,
+            locationId: locationIdFilter,
             includeDeleted: activeTab === "deleted" || activeTab === "all" ? "true" : undefined,
         },
     });
@@ -96,8 +90,8 @@ export default function BusinessesView() {
             pathname,
             updateSearchParams(searchParams, {
                 status: activeTab,
-                search,
-                city: cityFilter,
+                q: search,
+                locationId: locationIdFilter,
                 page: page > 1 ? page : null,
             })
         );
@@ -106,7 +100,7 @@ export default function BusinessesView() {
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    }, [activeTab, cityFilter, page, pathname, rawStatus, router, search, searchParams]);
+    }, [activeTab, locationIdFilter, page, pathname, rawStatus, router, search, searchParams]);
 
     useEffect(() => {
         if (!loading && page > pagination.pages) {
@@ -290,7 +284,7 @@ export default function BusinessesView() {
 
                 <BusinessSearchToolbar
                     search={search}
-                    onSearchChange={(value) => replaceQueryState({ search: value, page: null })}
+                    onSearchChange={(value) => replaceQueryState({ q: value, page: null })}
                     placeholder="Search by name, mobile, email..."
                     summary={<>{pagination.total} results</>}
                     wrap
@@ -298,10 +292,10 @@ export default function BusinessesView() {
                     extraFilters={
                         <input
                             type="text"
-                            placeholder="Filter by city..."
-                            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-36"
-                            value={cityFilter}
-                            onChange={(event) => replaceQueryState({ city: event.target.value, page: null })}
+                            placeholder="Filter by location ID..."
+                            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-52"
+                            value={locationIdFilter}
+                            onChange={(event) => replaceQueryState({ locationId: event.target.value, page: null })}
                         />
                     }
                 />

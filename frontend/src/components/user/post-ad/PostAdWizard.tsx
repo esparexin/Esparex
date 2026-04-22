@@ -1,4 +1,5 @@
-import { PostAdProvider, usePostAd } from "./PostAdContext";
+import { useCallback } from "react";
+import { PostAdProvider, usePostAdFlow, usePostAdImages, usePostAdAction } from "./PostAdContext";
 import DeviceIdentityFields from "./steps/DeviceIdentityFields";
 import ListingDetailsFields from "./steps/ListingDetailsFields";
 import { PostAdShell } from "./PostAdShell";
@@ -14,24 +15,16 @@ import type { PostAdWizardProps } from "./types";
 const STEP_LABELS = ["Device Details", "Listing Details"];
 
 function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["navigateTo"] }) {
-  const { 
-    currentStep, 
-    isEditMode, 
-    prevStep, 
-    nextStep, 
-    submitAd, 
-    isSubmitting, 
-    isUploadingImages,
-    formError,
-    submittedAd
-  } = usePostAd();
+  const { currentStep, isEditMode, isSubmitting, formError, submittedAd } = usePostAdFlow();
+  const { isUploadingImages } = usePostAdImages();
+  const { prevStep, nextStep, submitAd } = usePostAdAction();
   const { confirmNavigation } = useNavigation();
 
-  const handleClose = () => {
-    confirmNavigation(() => {
-      navigateTo("home");
-    });
-  };
+  const handleGoHome = useCallback(() => navigateTo("home"), [navigateTo]);
+  const handleGoMyAds = useCallback(() => navigateTo("my-ads"), [navigateTo]);
+  const handleClose = useCallback(() => {
+    confirmNavigation(handleGoHome);
+  }, [confirmNavigation, handleGoHome]);
 
   const isButtonDisabled = isSubmitting || isUploadingImages;
 
@@ -42,16 +35,22 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
           entityLabel="Ad"
           isEditMode={isEditMode}
           pendingActionLabel="View Pending Ads"
-          onPrimaryAction={() => navigateTo("home")}
-          onSecondaryAction={() => navigateTo("my-ads")}
+          onPrimaryAction={handleGoHome}
+          onSecondaryAction={handleGoMyAds}
         />
       </PostAdShell>
     );
   }
 
+    const stepSubtitle = `Step ${currentStep} of 2: ${STEP_LABELS[currentStep - 1]}`;
+
   return (
     <PostAdShell>
-      <ListingModalLayout title={isEditMode ? "Edit Ad" : "Post Ad"} onClose={handleClose}>
+      <ListingModalLayout 
+        title={isEditMode ? "Edit Ad" : "Post Ad"} 
+        subtitle={isEditMode ? undefined : stepSubtitle}
+        onClose={handleClose}
+      >
         <ListingModalBody data-post-ad-scroll className="space-y-4">
           {formError ? (
             <div
@@ -62,29 +61,6 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
               <p className="mt-1">{formError || "Please complete required fields before posting."}</p>
             </div>
           ) : null}
-
-          <div className="space-y-1.5">
-            {isEditMode ? (
-              <div className="h-1 rounded-full bg-blue-400 w-full" />
-            ) : (
-              <div className="flex gap-1">
-                {STEP_LABELS.map((label, i) => (
-                  <div
-                    key={i}
-                    title={label}
-                    className={cn(
-                      "h-1 flex-1 rounded-full transition-all duration-500",
-                      currentStep > i + 1
-                        ? "bg-blue-600"
-                        : currentStep === i + 1
-                        ? "bg-blue-400"
-                        : "bg-slate-100"
-                    )}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
 
           <div className={cn(currentStep > 1 && "hidden")}>
             <DeviceIdentityFields />
@@ -98,7 +74,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => prevStep()}
+                onClick={prevStep}
                 className="text-sm font-semibold text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors h-11 px-2 -ml-2"
               >
                 ← Back to Step {currentStep - 1}

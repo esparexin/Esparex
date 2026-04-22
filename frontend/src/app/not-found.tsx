@@ -8,8 +8,10 @@ export const metadata = {
 };
 
 export default function NotFound() {
+    const currentYear = new Date().getUTCFullYear();
+
     return (
-        <CommonLayout>
+        <CommonLayout currentYear={currentYear}>
             <div className="flex-1 flex flex-col items-center justify-center px-4 relative z-10 w-full min-h-[calc(100vh-16rem)]">
                 {/* Mesh Gradient Background */}
                 <div className="absolute top-0 -left-4 w-72 h-72 bg-green-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
