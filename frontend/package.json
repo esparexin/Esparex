@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "NODE_OPTIONS='--disable-warning=DEP0169' next dev -p 3000",
-    "build": "next build",
+    "build": "next build --webpack",
     "build:webpack": "next build --webpack",
     "mobile:sync": "cap sync",
     "mobile:copy": "cap copy",

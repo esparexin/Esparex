@@ -5,7 +5,7 @@
 import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
 
 export const adaptListingPrice = (
-    data: any,
+    data: Record<string, unknown>,
     listingType: ListingTypeValue
 ) => {
     const payload = { ...data };
@@ -20,7 +20,7 @@ export const adaptListingPrice = (
 };
 
 export const normalizeListingPrice = (
-    data: any,
+    data: Record<string, unknown>,
     listingType: ListingTypeValue
 ) => {
     if (listingType === LISTING_TYPE.SERVICE) {

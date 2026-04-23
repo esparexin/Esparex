@@ -149,19 +149,21 @@ export function BrandSearchSelect({
                                     We couldn&apos;t find &ldquo;{search}&rdquo; in our catalog.
                                 </p>
                                 
-                                <button
-                                    type="button"
-                                    onPointerDown={(e) => {
-                                        e.preventDefault();
-                                        onChange("", search.trim());
-                                        setSearch("");
-                                        setIsEditing(false);
-                                    }}
-                                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all active:scale-[0.97] shadow-md shadow-primary/20"
-                                >
-                                    <span className="text-lg leading-none">+</span>
-                                    Use &ldquo;{search.trim()}&rdquo;
-                                </button>
+                                {search.trim().length >= 2 && (
+                                    <button
+                                        type="button"
+                                        onPointerDown={(e) => {
+                                            e.preventDefault();
+                                            onChange("", search.trim());
+                                            setSearch("");
+                                            setIsEditing(false);
+                                        }}
+                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all active:scale-[0.97] shadow-md shadow-primary/20"
+                                    >
+                                        <span className="text-lg leading-none">+</span>
+                                        Use &ldquo;{search.trim()}&rdquo;
+                                    </button>
+                                )}
                             </div>
                         ) : (
                             filtered.slice(0, 10).map((b) => (

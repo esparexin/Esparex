@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useLayoutEffect, useMemo, useEffect, type CSSProperties } from "react";
-import { Check, Search, Loader2 } from "@/icons/IconRegistry";
+import { Check, Search, Loader2, Plus } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
@@ -161,7 +161,6 @@ export function ModelSearchSelect({
                 status: 'pending'
             };
             setAvailableModels([...availableModels, newModel]);
-
             // Success — close search mode
             setSearch("");
             setIsEditing(false);
@@ -236,6 +235,21 @@ export function ModelSearchSelect({
                         "focus:ring-2 focus:ring-primary/10 focus:border-primary shadow-sm"
                     )}
                 />
+                {search.length >= 2 && !isLoading && (
+                    <button
+                        type="button"
+                        onClick={handleAddNew}
+                        disabled={isEnsuring}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95 disabled:opacity-60 disabled:cursor-wait"
+                        title={`Add "${search}" as a new suggestion`}
+                    >
+                        {isEnsuring ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                            <Plus className="w-5 h-5" />
+                        )}
+                    </button>
+                )}
             </div>
 
             {ensureError && (

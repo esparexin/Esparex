@@ -1,0 +1,242 @@
+{
+  "counts": [
+    {
+      "_id": {
+        "level": "state",
+        "status": "verified"
+      },
+      "count": 37
+    },
+    {
+      "_id": {
+        "level": "city",
+        "status": "verified"
+      },
+      "count": 38371
+    },
+    {
+      "_id": {
+        "level": "district",
+        "status": "verified"
+      },
+      "count": 1
+    },
+    {
+      "_id": {
+        "level": "area",
+        "status": "verified"
+      },
+      "count": 7396
+    },
+    {
+      "_id": {
+        "level": "country",
+        "status": "verified"
+      },
+      "count": 1
+    }
+  ],
+  "hyderabad": [
+    {
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          78.45636,
+          17.38405
+        ]
+      },
+      "_id": "69468463449bb94e9d99b3b9",
+      "name": "Hyderabad",
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "country": "India",
+      "level": "city",
+      "isActive": true,
+      "isPopular": true,
+      "createdAt": "2025-12-20T11:11:31.733Z",
+      "updatedAt": "2025-12-22T07:56:08.615Z",
+      "parentId": "69ac4b49434f2782980acccd",
+      "path": [
+        "694cb5bd579873b99d89f636",
+        "69ac4b49434f2782980acccd",
+        "69468463449bb94e9d99b3b9"
+      ],
+      "slug": "hyderabad-hyderabad-india",
+      "verificationStatus": "verified",
+      "normalizedName": "hyderabad"
+    },
+    {
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          78.45389,
+          17.34511
+        ]
+      },
+      "_id": "6948f9a114759c4fa9b9e35c",
+      "name": "Tadbund Hyderabad",
+      "level": "area",
+      "state": "Telangana",
+      "__v": 0,
+      "city": "Tadbund Hyderabad",
+      "country": "India",
+      "createdAt": "2025-12-22T07:56:16.283Z",
+      "isActive": true,
+      "isPopular": false,
+      "updatedAt": "2025-12-22T07:56:16.283Z",
+      "path": [
+        "6948f9a114759c4fa9b9e35c"
+      ],
+      "slug": "tadbund-hyderabad-tadbund-hyderabad-india",
+      "verificationStatus": "verified",
+      "normalizedName": "tadbundhyderabad"
+    }
+  ],
+  "others": [
+    {
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          74.09254,
+          33.77033
+        ]
+      },
+      "_id": "69464c1214759c4fa9b9440d",
+      "level": "city",
+      "state": "Gujarat",
+      "name": "Punch",
+      "__v": 0,
+      "city": "Punch",
+      "country": "India",
+      "createdAt": "2025-12-20T07:11:14.085Z",
+      "isActive": true,
+      "isPopular": false,
+      "updatedAt": "2025-12-22T07:44:53.607Z",
+      "parentId": "69ac4b49434f2782980accae",
+      "path": [
+        "694cb5bd579873b99d89f636",
+        "69ac4b49434f2782980accae",
+        "69464c1214759c4fa9b9440d"
+      ],
+      "slug": "punch-punch-india",
+      "verificationStatus": "verified",
+      "normalizedName": "punch"
+    },
+    {
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          78.78545,
+          9.23183
+        ]
+      },
+      "_id": "69464c1214759c4fa9b9440e",
+      "name": "Kilakarai",
+      "level": "city",
+      "state": "Nagaland",
+      "__v": 0,
+      "city": "Kilakarai",
+      "country": "India",
+      "createdAt": "2025-12-20T07:11:14.085Z",
+      "isActive": true,
+      "isPopular": false,
+      "updatedAt": "2025-12-20T07:11:14.085Z",
+      "parentId": "69ac4b49434f2782980accaf",
+      "path": [
+        "694cb5bd579873b99d89f636",
+        "69ac4b49434f2782980accaf",
+        "69464c1214759c4fa9b9440e"
+      ],
+      "slug": "kilakarai-kilakarai-india",
+      "verificationStatus": "verified",
+      "normalizedName": "kilakarai"
+    },
+    {
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          78.20927,
+          11.77599
+        ]
+      },
+      "_id": "69464c1214759c4fa9b9440f",
+      "level": "city",
+      "state": "Nagaland",
+      "name": "Yercaud",
+      "__v": 0,
+      "city": "Yercaud",
+      "country": "India",
+      "createdAt": "2025-12-20T07:11:14.085Z",
+      "isActive": true,
+      "isPopular": false,
+      "updatedAt": "2025-12-20T07:11:14.085Z",
+      "parentId": "69ac4b49434f2782980accaf",
+      "path": [
+        "694cb5bd579873b99d89f636",
+        "69ac4b49434f2782980accaf",
+        "69464c1214759c4fa9b9440f"
+      ],
+      "slug": "yercaud-yercaud-india",
+      "verificationStatus": "verified",
+      "normalizedName": "yercaud"
+    },
+    {
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          81.03437,
+          15.99937
+        ]
+      },
+      "_id": "69464c1214759c4fa9b94410",
+      "name": "Vetapalem",
+      "level": "city",
+      "state": "Andhra Pradesh",
+      "__v": 0,
+      "city": "Vetapalem",
+      "country": "India",
+      "createdAt": "2025-12-20T07:11:14.085Z",
+      "isActive": true,
+      "isPopular": false,
+      "updatedAt": "2025-12-22T07:56:36.829Z",
+      "parentId": "69ac4b49434f2782980accb0",
+      "path": [
+        "694cb5bd579873b99d89f636",
+        "69ac4b49434f2782980accb0",
+        "69464c1214759c4fa9b94410"
+      ],
+      "slug": "vetapalem-vetapalem-india",
+      "verificationStatus": "verified",
+      "normalizedName": "vetapalem"
+    },
+    {
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          73.92454,
+          15.35479
+        ]
+      },
+      "_id": "69464c1214759c4fa9b94412",
+      "level": "city",
+      "state": "Tripura",
+      "name": "Verna",
+      "__v": 0,
+      "city": "Verna",
+      "country": "India",
+      "createdAt": "2025-12-20T07:11:14.085Z",
+      "isActive": true,
+      "isPopular": false,
+      "updatedAt": "2025-12-20T07:11:14.085Z",
+      "parentId": "69ac4b49434f2782980accb2",
+      "path": [
+        "694cb5bd579873b99d89f636",
+        "69ac4b49434f2782980accb2",
+        "69464c1214759c4fa9b94412"
+      ],
+      "slug": "verna-verna-india",
+      "verificationStatus": "verified",
+      "normalizedName": "verna"
+    }
+  ]
+}

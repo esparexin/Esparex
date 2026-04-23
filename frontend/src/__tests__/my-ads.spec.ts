@@ -115,7 +115,7 @@ describe('MyAds API Regression Tests', () => {
             const result = await repostListing('part-123', LISTING_TYPE.SPARE_PART);
             expect(result).toBe(true);
             expect(apiClient.post).toHaveBeenCalledWith(
-                'spare-part-listings/part-123/repost',
+                'listings/part-123/repost',
                 undefined,
                 { silent: true }
             );

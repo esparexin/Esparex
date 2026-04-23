@@ -83,14 +83,14 @@ const withQueryParams = (url: string, params: URLSearchParams): string => {
     return url.includes('?') ? `${url}&${query}` : `${url}?${query}`;
 };
 
-const fetchListingPayload = async <TPayload = any>(
+const fetchListingPayload = async <TPayload = unknown>(
     url: string,
     fetchOptions?: ServerFetchOptions
 ): Promise<TPayload | null> => {
     const payload =
         typeof window === 'undefined'
             ? await fetchUserApiJson(url, fetchOptions).then(unwrapApiPayload)
-            : await apiClient.get(url).then((res: any) => unwrapApiPayload(res.data));
+            : await apiClient.get(url).then((res: { data: unknown }) => unwrapApiPayload(res.data));
     return (payload ?? null) as TPayload | null;
 };
 
@@ -203,7 +203,7 @@ export const getHomeAds = async (
         if (typeof effectiveParams.lng === 'number' && Number.isFinite(effectiveParams.lng)) params.append('lng', String(effectiveParams.lng));
         if (typeof effectiveParams.radiusKm === 'number' && Number.isFinite(effectiveParams.radiusKm)) params.append('radiusKm', String(effectiveParams.radiusKm));
         const url = withQueryParams(API_ROUTES.USER.HOME_FEED, params);
-        const result = await fetchListingPayload<any>(url, options?.fetchOptions);
+        const result = await fetchListingPayload<{ ads?: unknown[]; nextCursor?: unknown; hasMore?: boolean }>(url, options?.fetchOptions);
 
         if (!result) return { ads: [], nextCursor: fallbackCursor, hasMore: false };
 
@@ -234,7 +234,7 @@ export const getTrendingAds = async (
         if (effectiveParams.categoryId) params.append('categoryId', effectiveParams.categoryId);
         if (effectiveParams.limit) params.append('limit', String(effectiveParams.limit));
         const url = withQueryParams(API_ROUTES.USER.ADS_TRENDING, params);
-        const result = await fetchListingPayload<any>(url, options?.fetchOptions);
+        const result = await fetchListingPayload<{ ads?: unknown[] }>(url, options?.fetchOptions);
 
         if (!result) return { ads: [] };
 

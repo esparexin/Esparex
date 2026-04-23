@@ -31,8 +31,8 @@ const FIELDS: SettingsFieldSchema[] = [
     description: "One IP per line. Admin login is blocked outside this allowlist when populated.",
     path: "ipWhitelist",
     default: "",
-    transform: (value: any) => (value || []).join("\n"),
-    serialize: (value: any) => splitLines(value as string),
+    transform: (value: unknown) => ((value as string[]) || []).join("\n"),
+    serialize: (value: unknown) => splitLines(value as string),
   },
 ];
 

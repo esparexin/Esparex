@@ -92,7 +92,7 @@ export function useUnifiedLocationDetection({
                 setFeedback(result.failure.message);
             }
             return result;
-        } catch (_err) {
+        } catch {
             clearInterval(ticker);
             setPhase("error");
             const msg = "An unexpected error occurred during detection.";

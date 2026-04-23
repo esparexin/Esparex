@@ -41,8 +41,8 @@ const FIELDS: SettingsFieldSchema[] = [
     description: "One IP per line. These IPs bypass maintenance mode.",
     path: "maintenance.allowedIps",
     default: "",
-    transform: (value: any) => joinLines(value as string[]),
-    serialize: (value: any) => splitLines(value as string),
+    transform: (value: unknown) => joinLines(value as string[]),
+    serialize: (value: unknown) => splitLines(value as string),
   },
   {
     type: "datetime-local",
@@ -50,8 +50,8 @@ const FIELDS: SettingsFieldSchema[] = [
     description: "Optional estimated end time for maintenance mode.",
     path: "maintenance.scheduledEnd",
     default: "",
-    transform: (value: any) => toDateTimeLocal(value as string),
-    serialize: (value: any) => fromDateTimeLocal(value as string),
+    transform: (value: unknown) => toDateTimeLocal(value as string),
+    serialize: (value: unknown) => fromDateTimeLocal(value as string),
   },
   {
     type: "password",

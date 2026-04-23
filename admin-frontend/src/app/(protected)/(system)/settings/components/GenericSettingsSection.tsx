@@ -148,7 +148,7 @@ export function GenericSettingsSection({
               <Field label={field.label} hint={field.description}>
                 {field.type === "select" ? (
                   <select
-                    value={(formData[field.path] ?? "") as any}
+                    value={(formData[field.path] ?? "") as string | number | undefined}
                     onChange={(e) => updateField(field.path, e.target.value)}
                     className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
                   >
@@ -161,7 +161,7 @@ export function GenericSettingsSection({
                   </select>
                 ) : field.type === "textarea" ? (
                   <textarea
-                    value={(formData[field.path] ?? "") as any}
+                    value={(formData[field.path] ?? "") as string | number | undefined}
                     onChange={(e) => updateField(field.path, e.target.value)}
                     placeholder={field.placeholder}
                     className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
@@ -173,7 +173,7 @@ export function GenericSettingsSection({
                     min={field.min}
                     max={field.max}
                     step={field.step}
-                    value={(formData[field.path] ?? "") as any}
+                    value={(formData[field.path] ?? "") as string | number | undefined}
                     onChange={(e) =>
                       updateField(
                         field.path,
