@@ -96,7 +96,7 @@ const fetchListingPayload = async <TPayload = unknown>(
     const payload =
         typeof window === 'undefined'
             ? await fetchUserApiJson(url, fetchOptions).then(unwrapApiPayload)
-            : await apiClient.get(url).then((res: { data: any }) => unwrapApiPayload(res.data));
+            : await apiClient.get(url).then((res: any) => unwrapApiPayload(res.data));
     return (payload ?? null) as TPayload | null;
 };
 
