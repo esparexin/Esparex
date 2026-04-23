@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useToast } from "@/context/ToastContext";
-import { AdminApiError } from "@/lib/api/adminClient";
 import { 
     type ModerationItem,
 } from "@/components/moderation/moderationTypes";
@@ -29,15 +27,13 @@ interface UseAdActionsProps {
 }
 
 export function useAdActions({
-    items,
+    items: _items,
     entityLabel,
     entityLabelPlural,
     refresh,
     selectedIds,
     setSelectedIds
 }: UseAdActionsProps) {
-    const { showToast } = useToast();
-
     // Modal States
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [viewAd, setViewAd] = useState<ModerationItem | null>(null);
@@ -60,11 +56,10 @@ export function useAdActions({
 
     const lastRequestId = useMemo(() => ({ current: 0 }), []);
 
-    const resolveAdId = (item: ModerationItem) =>
-        item.adId ||
-        item.id ||
-        (item as any).ad?._id ||
-        (item as any).ad?.id;
+    const resolveAdId = (item: ModerationItem) => {
+        const nestedAd = (item as ModerationItem & { ad?: { _id?: string; id?: string } }).ad;
+        return item.adId || item.id || nestedAd?._id || nestedAd?.id;
+    };
 
     // Handlers
     const handleView = async (item: ModerationItem) => {
@@ -75,6 +70,12 @@ export function useAdActions({
         setViewAd(item);
         setViewLoading(true);
         setViewError("");
+
+        if (!targetId) {
+            setViewError(`Could not resolve ${entityLabel} ID`);
+            setViewLoading(false);
+            return;
+        }
 
         try {
             const detail = await fetchAdminAdDetail(targetId);

@@ -3,22 +3,30 @@
 import { useEffect, useState } from "react";
 import { Field, SaveButton, SettingsSection, Toggle } from "./shared";
 import type { SectionProps } from "./types";
+import type { SystemConfigPatch } from "@/types/systemConfig";
+
+type SettingsPrimitive = string | number | boolean | null | undefined;
+type SettingsValue =
+  | SettingsPrimitive
+  | SettingsPrimitive[]
+  | { [key: string]: SettingsValue };
+type SettingsObject = Record<string, SettingsValue>;
 
 export type SettingsFieldSchema = {
   type: "toggle" | "number" | "text" | "password" | "datetime-local" | "select" | "textarea";
   label: string;
   description?: string;
   path: string; // nested path within the section config
-  default?: any;
+  default?: SettingsValue;
   min?: number;
   max?: number;
   step?: number;
   options?: { value: string; label: string }[];
   placeholder?: string;
   /** Custom transform from config value to local state (e.g. join array) */
-  transform?: (val: any) => any;
+  transform?: (val: unknown) => SettingsValue;
   /** Custom serialize from local state to config value (e.g. split string) */
-  serialize?: (val: any) => any;
+  serialize?: (val: SettingsValue) => SettingsValue;
   /** Preserve existing secret when the UI only receives a masked placeholder from the API. */
   preserveMasked?: boolean;
 };
@@ -43,12 +51,13 @@ export function GenericSettingsSection({
   fields,
   columns = 2,
 }: GenericSettingsSectionProps) {
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, SettingsValue>>({});
 
   // Sync from config when it changes
   useEffect(() => {
-    const sectionConfig = ((config as any)?.[configPath] || {}) as Record<string, any>;
-    const initialData: Record<string, any> = {};
+    const rootConfig = config as Record<string, unknown> | null;
+    const sectionConfig = (rootConfig?.[configPath] ?? {}) as SettingsObject;
+    const initialData: Record<string, SettingsValue> = {};
 
     fields.forEach((field) => {
       // Handle nested paths if needed
@@ -66,14 +75,14 @@ export function GenericSettingsSection({
       if (field.preserveMasked && typeof val === "string" && val.includes("*")) {
         val = "";
       }
-      initialData[field.path] = val as any;
+      initialData[field.path] = val as SettingsValue;
     });
 
     setFormData(initialData);
   }, [config, configPath, fields]);
 
   const handleSave = () => {
-    const payload: Record<string, any> = {};
+    const payload: SettingsObject = {};
     fields.forEach((field) => {
       let val = formData[field.path];
       if (field.preserveMasked && (val === "" || val === undefined || val === null)) {
@@ -86,18 +95,21 @@ export function GenericSettingsSection({
       // Reconstruct nested object structure
       const parts = field.path.split(".");
       const last = parts.pop()!;
-      let current = payload;
+      let current: SettingsObject = payload;
       parts.forEach((part) => {
-        if (!current[part]) current[part] = {};
-        current = current[part];
+        const existing = current[part];
+        if (!existing || typeof existing !== "object" || Array.isArray(existing)) {
+          current[part] = {};
+        }
+        current = current[part] as SettingsObject;
       });
       current[last] = val;
     });
 
-    void onSave({ [configPath]: payload }, successMessage);
+    void onSave({ [configPath]: payload } as SystemConfigPatch, successMessage);
   };
 
-  const updateField = (path: string, value: any) => {
+  const updateField = (path: string, value: SettingsValue) => {
     setFormData((prev) => ({ ...prev, [path]: value }));
   };
 
@@ -136,7 +148,7 @@ export function GenericSettingsSection({
               <Field label={field.label} hint={field.description}>
                 {field.type === "select" ? (
                   <select
-                    value={formData[field.path] ?? ""}
+                    value={(formData[field.path] ?? "") as any}
                     onChange={(e) => updateField(field.path, e.target.value)}
                     className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
                   >
@@ -149,7 +161,7 @@ export function GenericSettingsSection({
                   </select>
                 ) : field.type === "textarea" ? (
                   <textarea
-                    value={formData[field.path] ?? ""}
+                    value={(formData[field.path] ?? "") as any}
                     onChange={(e) => updateField(field.path, e.target.value)}
                     placeholder={field.placeholder}
                     className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
@@ -161,7 +173,7 @@ export function GenericSettingsSection({
                     min={field.min}
                     max={field.max}
                     step={field.step}
-                    value={formData[field.path] ?? ""}
+                    value={(formData[field.path] ?? "") as any}
                     onChange={(e) =>
                       updateField(
                         field.path,

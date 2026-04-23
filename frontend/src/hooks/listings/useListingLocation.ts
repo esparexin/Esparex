@@ -18,7 +18,7 @@ export function useListingLocation({ onLocationChange }: UseListingLocationProps
  
     const setLocation = useCallback((
         display: string,
-        coordinates: GeoJSONPoint | null,
+        coordinates: GeoJSONPoint | null | undefined,
         meta?: { city?: string; state?: string; id?: string }
     ) => {
         const normalized = normalizeListingLocation({

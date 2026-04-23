@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { adminFetch } from "@/lib/api/adminClient";
+import { AdminApiError } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useToast } from "@/context/ToastContext";
@@ -16,6 +17,14 @@ interface UserFilters {
     page?: number;
     limit?: number;
 }
+
+type UsersOverview = {
+    totalUsers?: number;
+    activeUsers?: number;
+    suspendedUsers?: number;
+    bannedUsers?: number;
+    verifiedUsers?: number;
+};
 
 export function useClientUsers() {
     const { showToast } = useToast();
@@ -49,8 +58,8 @@ export function useClientUsers() {
             if (filters.isVerified && filters.isVerified !== "all") queryParams.set("isVerified", filters.isVerified);
 
             const [response, overviewResponse] = await Promise.all([
-                adminFetch<any>(`${ADMIN_ROUTES.USERS}?${queryParams.toString()}`),
-                adminFetch<any>(ADMIN_ROUTES.USER_OVERVIEW)
+                adminFetch<ManagedUser[] | { items?: ManagedUser[] }>(`${ADMIN_ROUTES.USERS}?${queryParams.toString()}`),
+                adminFetch<UsersOverview>(ADMIN_ROUTES.USER_OVERVIEW)
             ]);
 
             const parsed = parseAdminResponse<ManagedUser>(response);
@@ -64,7 +73,7 @@ export function useClientUsers() {
                 });
             }
 
-            const ov = parseAdminResponse<never, any>(overviewResponse).data || {};
+            const ov = parseAdminResponse<never, UsersOverview>(overviewResponse).data || {};
             setOverview({
                 totalUsers: Number(ov.totalUsers || 0),
                 activeUsers: Number(ov.activeUsers || 0),
@@ -74,8 +83,8 @@ export function useClientUsers() {
             });
 
             return { success: true };
-        } catch (err: any) {
-            const msg = err.message || "Failed to load users";
+        } catch (err) {
+            const msg = AdminApiError.resolveMessage(err, "Failed to load users");
             setError(msg);
             showToast(msg, "error");
             return { success: false, error: msg };
@@ -104,8 +113,8 @@ export function useClientUsers() {
 
             showToast(`User ${type} action completed`, "success");
             return { success: true };
-        } catch (err: any) {
-            const msg = err.message || `Failed to ${type} user`;
+        } catch (err) {
+            const msg = AdminApiError.resolveMessage(err, `Failed to ${type} user`);
             showToast(msg, "error");
             return { success: false, error: msg };
         } finally {

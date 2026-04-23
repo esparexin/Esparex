@@ -206,7 +206,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
                     }
                     
                     setDetecting(false);
-                } catch (err) {
+                } catch {
                     setError("Failed to resolve address from your position.");
                     setDetecting(false);
                 }

@@ -82,7 +82,7 @@ export interface PostAdContextType {
     coordinates: GeoJSONPoint | null | undefined;
     setLocation: (
         display: string,
-        coords?: GeoJSONPoint | undefined,
+        coords: GeoJSONPoint | null | undefined,
         meta?: { city?: string; state?: string; id?: string }
     ) => void;
 
@@ -105,7 +105,7 @@ export interface PostAdContextType {
     loadModelsForBrand: (brandId?: string, categoryId?: string, search?: string) => Promise<void>;
     loadSparePartsForCategory: (categoryId: string) => Promise<void>;
     loadCategorySchema: (categoryId: string) => Promise<void>;
-    setAvailableModels: (models: any[]) => void;
+    setAvailableModels: (models: DeviceModel[]) => void;
 
     sparePartsError: string | null;
     brandsError: string | null;
@@ -405,7 +405,7 @@ export function PostAdProvider({
 
         const next = currentParts.filter((partId) => validIds.has(partId));
         if (next.length !== currentParts.length) {
-            form.setValue("spareParts", next as any, { shouldDirty: true });
+            form.setValue("spareParts", next, { shouldDirty: true });
         }
     }, [availableSpareParts, isLoadingSpareParts, form]);
 
@@ -534,7 +534,7 @@ export function PostAdProvider({
         toggleAllSpareParts,
         addImages,
         removeImage,
-        setLocation: setLocation as (display: string, coords?: GeoJSONPoint | undefined, meta?: { city?: string; state?: string; id?: string }) => void,
+        setLocation,
         loadBrandsForCategory,
         loadModelsForBrand,
         loadSparePartsForCategory,

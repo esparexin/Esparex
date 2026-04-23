@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { adminFetch } from "@/lib/api/adminClient";
+import { AdminApiError, adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { useToast } from "@/context/ToastContext";
@@ -19,6 +19,14 @@ const normalizeApiKey = (raw: Record<string, unknown>): ApiKeyItem => ({
     createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date(0).toISOString(),
 });
 
+type ApiKeysPayload = {
+    items?: Array<Record<string, unknown>>;
+};
+
+type CreatedApiKeyPayload = {
+    key?: string;
+};
+
 export function useApiKeys(initialStatus: string = "all") {
     const { showToast } = useToast();
     const [items, setItems] = useState<ApiKeyItem[]>([]);
@@ -37,12 +45,16 @@ export function useApiKeys(initialStatus: string = "all") {
                 limit: "100",
             }).toString();
 
-            const response = await adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.API_KEYS}?${query}`);
-            const data = (response as any).data || response;
-            const rawItems = Array.isArray(data.items) ? data.items : Array.isArray(data) ? data : [];
+            const response = await adminFetch<ApiKeysPayload>(`${ADMIN_ROUTES.API_KEYS}?${query}`);
+            const parsed = parseAdminResponse<Record<string, unknown>, ApiKeysPayload>(response);
+            const rawItems = parsed.items.length > 0
+                ? parsed.items
+                : Array.isArray(parsed.data?.items)
+                    ? parsed.data.items
+                    : [];
             setItems(rawItems.map(normalizeApiKey));
-        } catch (err: any) {
-            const msg = err.message || "Failed to load API keys";
+        } catch (err) {
+            const msg = AdminApiError.resolveMessage(err, "Failed to load API keys");
             setError(msg);
             showToast(msg, "error");
         } finally {
@@ -57,13 +69,13 @@ export function useApiKeys(initialStatus: string = "all") {
                 method: "POST",
                 body: { name, scopes },
             });
-            const parsed = parseAdminResponse<never, Record<string, unknown>>(response);
+            const parsed = parseAdminResponse<never, CreatedApiKeyPayload>(response);
             const created = parsed.data || {};
             showToast("API key created successfully", "success");
             await fetchApiKeys();
             return { success: true, key: typeof created.key === "string" ? created.key : null };
-        } catch (err: any) {
-            const msg = err.message || "Failed to create API key";
+        } catch (err) {
+            const msg = AdminApiError.resolveMessage(err, "Failed to create API key");
             showToast(msg, "error");
             return { success: false, error: msg };
         } finally {
@@ -78,8 +90,8 @@ export function useApiKeys(initialStatus: string = "all") {
             showToast("API key revoked", "success");
             await fetchApiKeys();
             return { success: true };
-        } catch (err: any) {
-            const msg = err.message || "Failed to revoke API key";
+        } catch (err) {
+            const msg = AdminApiError.resolveMessage(err, "Failed to revoke API key");
             showToast(msg, "error");
             return { success: false, error: msg };
         } finally {

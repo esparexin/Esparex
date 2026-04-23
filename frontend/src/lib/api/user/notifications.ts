@@ -49,6 +49,12 @@ interface BackendNotificationEnvelope {
     };
 }
 
+type NotificationPayloadShape = {
+    notifications?: Array<Record<string, unknown>>;
+    pagination?: NotificationResponse["pagination"];
+    unreadCount?: number;
+};
+
 const normalizeNotification = (raw: Record<string, unknown>): Notification => ({
     id: String(raw.id || raw._id || ""),
     userId: String(raw.userId || ""),
@@ -102,16 +108,16 @@ export const notificationApi = {
         const limit = params.limit ?? 20;
         const query = buildNotificationListQuery(params);
         const raw = await apiClient.get<BackendNotificationEnvelope>(`${API_ROUTES.USER.NOTIFICATIONS}?${query}`);
-        const inner = raw?.data ?? (raw as unknown as NotificationResponse);
-        const notifications = Array.isArray((inner as any).notifications)
-            ? (inner as any).notifications.map(normalizeNotification)
+        const inner: NotificationPayloadShape = raw?.data ?? {};
+        const notifications = Array.isArray(inner.notifications)
+            ? inner.notifications.map(normalizeNotification)
             : [];
 
         return {
             success: Boolean(raw?.success ?? true),
             notifications,
-            pagination: (inner as any).pagination ?? { page, limit, total: 0, pages: 0 },
-            unreadCount: typeof (inner as any).unreadCount === "number" ? (inner as any).unreadCount : 0,
+            pagination: inner.pagination ?? { page, limit, total: 0, pages: 0 },
+            unreadCount: typeof inner.unreadCount === "number" ? inner.unreadCount : 0,
         };
     },
 

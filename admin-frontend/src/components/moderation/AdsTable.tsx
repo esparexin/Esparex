@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Image as ImageIcon, MapPin, ShieldAlert } from "lucide-react";
 import { AdminModerationActions } from "./AdminModerationActions";
 import { StatusChip } from "@/components/ui/StatusChip";
@@ -66,7 +66,7 @@ export function AdsTable({
     onToggleSelect,
     onToggleSelectAll,
     onPageChange,
-    onPageSizeChange,
+    onPageSizeChange: _onPageSizeChange,
     onView,
     onApprove,
     onReject,
@@ -84,7 +84,7 @@ export function AdsTable({
     const allSelected = data.length > 0 && data.every((item) => selectedSet.has(item.id));
     const presentation = getListingPresentation(listingType);
 
-    const renderAction = (item: ModerationItem) => (
+    const renderAction = useCallback((item: ModerationItem) => (
         <AdminModerationActions
             status={item.status}
             onView={() => onView(item)}
@@ -95,7 +95,7 @@ export function AdsTable({
             onDelete={() => onDelete(item)}
             onBlockSeller={item.sellerId ? () => onBanSeller(item) : undefined}
         />
-    );
+    ), [onActivate, onApprove, onBanSeller, onDeactivate, onDelete, onReject, onView]);
 
     const columns: ColumnDef<ModerationItem>[] = useMemo(() => {
         const cols: ColumnDef<ModerationItem>[] = [];
@@ -272,13 +272,7 @@ export function AdsTable({
         onToggleSelectAll,
         selectedSet,
         onToggleSelect,
-        onView,
-        onApprove,
-        onReject,
-        onDeactivate,
-        onActivate,
-        onDelete,
-        onBanSeller,
+        renderAction,
         presentation.tableDetailsHeader,
         presentation.attributeHeader,
         presentation.actionEntityLabel,

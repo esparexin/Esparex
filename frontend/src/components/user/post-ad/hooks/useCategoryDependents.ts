@@ -4,11 +4,12 @@ import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 import { ListingCategory } from "@/types/listing";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
+import type { Brand } from "@/lib/api/user/masterData";
 
 export function useCategoryDependents(
     form: UseFormReturn<PostAdFormData>,
     categoryMap: Record<string, ListingCategory>,
-    brandMap: Record<string, any>,
+    brandMap: Record<string, Brand>,
     setFormError: (error: string | null) => void,
     setBrandIsPending: (isPending: boolean) => void,
     loadBrandsForCategory: (id: string) => Promise<void>,
@@ -34,15 +35,15 @@ export function useCategoryDependents(
 
     const handleCategoryChange = useCallback(async (id: string) => {
         setFormError(null);
-        form.setValue("category", id as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-        form.setValue("categoryId", id as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("category", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("categoryId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         form.setValue("brand", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("spareParts", [] as any, { shouldValidate: true, shouldDirty: true });
+        form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
         setBrandIsPending(false);
         
         await Promise.all([
@@ -64,7 +65,7 @@ export function useCategoryDependents(
         form.setValue("brandId", brandId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         if (brandChanged) {
-            form.setValue("spareParts", [] as any, { shouldValidate: true, shouldDirty: true });
+            form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
             form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
             form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
         }

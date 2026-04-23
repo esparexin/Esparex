@@ -7,21 +7,30 @@ import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { TOAST_MESSAGES } from "@/config/toastMessages";
 import logger from "@/lib/logger";
 import { ListingImage } from "@/types/listing";
+import type { GeoJSONPoint } from "@/types/location";
 import { useListingEditPreload } from "@/components/user/shared/useListingEditPreload";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
+import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
+import type { UseFormSetValue } from "react-hook-form";
 
 interface UsePostAdPreloadProps {
     editAdId?: string;
     isEditMode: boolean;
     setIsLoading: (val: boolean) => void;
     setLoadError: (msg: string | null) => void;
-    setValue: any;
+    setValue: UseFormSetValue<PostAdFormData>;
     setAdImages: (images: ListingImage[]) => void;
-    setLocation: any;
+    setLocation: (
+        display: string,
+        coords: GeoJSONPoint | null | undefined,
+        meta?: { city?: string; state?: string; id?: string }
+    ) => void;
     loadBrandsForCategory: (id: string) => Promise<void>;
     loadSparePartsForCategory: (id: string) => Promise<void>;
     setOriginalAdStatus?: (status: string) => void;
 }
+
+type SparePartReference = string | { id?: string; _id?: string };
 
 export function usePostAdPreload({
     editAdId,
@@ -95,8 +104,8 @@ export function usePostAdPreload({
 
             if (Array.isArray(adData.spareParts)) {
                 const normalizedIds = adData.spareParts
-                    .map((part: any) => sanitizeMongoObjectId(part))
-                    .filter((partId: any): partId is string => Boolean(partId));
+                    .map((part: SparePartReference) => sanitizeMongoObjectId(part))
+                    .filter((partId): partId is string => Boolean(partId));
                 setValue("spareParts", normalizedIds);
             }
 

@@ -87,7 +87,7 @@ export function usePostSparePartFormOrchestration({
         editId: editSparePartId,
         schema: PostSparePartFormSchema,
         partialSchema: EditPostSparePartFormSchema,
-        submitFn: async (payload) => {
+        submitFn: async (payload: any) => {
             if (isEditMode && editSparePartId) {
                 return updateSparePartListing(editSparePartId, buildSparePartEditPayload(payload));
             }

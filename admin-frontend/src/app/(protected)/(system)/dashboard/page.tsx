@@ -6,7 +6,7 @@ import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { adminFetch } from "@/lib/api/adminClient";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
-import { TrendsChart } from "@/components/dashboard/TrendsChart";
+import { TrendsChart, type TrendPoint } from "@/components/dashboard/TrendsChart";
 import { Users, CheckCircle, Clock, TrendingUp, AlertCircle, Building2, DollarSign, Wrench, Package } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
@@ -22,11 +22,19 @@ type DashboardStats = {
   verifiedUsers: number;
 };
 
+type DashboardOverview = DashboardStats & {
+  bannedUsers?: number;
+};
+
+type BusinessOverview = {
+  pending?: number;
+};
+
 export default function DashboardPage() {
   const { admin } = useAdminAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [financeStats, setFinanceStats] = useState<FinanceStats | null>(null);
-  const [trends, setTrends] = useState<any[]>([]);
+  const [trends, setTrends] = useState<TrendPoint[]>([]);
   const [moderationCounts, setModerationCounts] = useState({
     total: 0,
     pending: 0,
@@ -47,16 +55,22 @@ export default function DashboardPage() {
           fetchAdminAdSummary(),
           fetchAdminServiceSummary(),
           fetchAdminSparePartSummary(),
-          adminFetch<any>(ADMIN_ROUTES.ANALYTICS),
-          adminFetch<any>(ADMIN_ROUTES.USER_OVERVIEW),
-          adminFetch<any>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`),
-          adminFetch<any>(ADMIN_ROUTES.BUSINESS_OVERVIEW),
-          adminFetch<any>(ADMIN_ROUTES.FINANCE_STATS),
+          adminFetch<TrendPoint[] | { items?: TrendPoint[] }>(ADMIN_ROUTES.ANALYTICS),
+          adminFetch<DashboardOverview>(ADMIN_ROUTES.USER_OVERVIEW),
+          adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`),
+          adminFetch<BusinessOverview>(ADMIN_ROUTES.BUSINESS_OVERVIEW),
+          adminFetch<FinanceStats>(ADMIN_ROUTES.FINANCE_STATS),
         ]);
 
-        const overviewData = parseAdminResponse<never, any>(userOverview).data || {};
+        const overviewData = parseAdminResponse<never, DashboardOverview>(userOverview).data || {} as DashboardOverview;
         const reportPagination = parseAdminResponse<Record<string, unknown>>(reportPayload).pagination;
-        const businessOverview = parseAdminResponse<never, Record<string, unknown>>(businessOverviewPayload).data || {};
+        const businessOverview = parseAdminResponse<never, BusinessOverview>(businessOverviewPayload).data || {};
+        const parsedTrends = parseAdminResponse<TrendPoint, TrendPoint[]>(trendsResult);
+        const trendItems = parsedTrends.items.length > 0
+          ? parsedTrends.items
+          : Array.isArray(parsedTrends.data)
+            ? parsedTrends.data
+            : [];
 
         setStats({
           totalUsers: Number(overviewData.totalUsers || 0),
@@ -64,8 +78,8 @@ export default function DashboardPage() {
           suspendedUsers: Number(overviewData.suspendedUsers || 0),
           verifiedUsers: Number(overviewData.verifiedUsers || 0),
         });
-        setFinanceStats((parseAdminResponse<never, FinanceStats>(financePayload).data || null) as FinanceStats | null);
-        setTrends(parseAdminResponse<any>(trendsResult).items || parseAdminResponse<any, any>(trendsResult).data || []);
+        setFinanceStats(parseAdminResponse<never, FinanceStats>(financePayload).data || null);
+        setTrends(Array.isArray(trendItems) ? trendItems : []);
         setModerationCounts(moderationSummary);
         setPendingServices(serviceSummary.pending);
         setPendingSpareParts(sparePartSummary.pending);

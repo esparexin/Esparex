@@ -10,8 +10,15 @@ import {
     ResponsiveContainer
 } from "recharts";
 
+export interface TrendPoint {
+    name: string;
+    ads: number;
+    users: number;
+    amt?: number;
+}
+
 interface TrendsChartProps {
-    data: any[];
+    data: TrendPoint[];
     title: string;
 }
 

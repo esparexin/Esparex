@@ -6,6 +6,7 @@ import { useNavigation } from "@/context/NavigationContext";
 import logger from "@/lib/logger";
 import { notify } from "@/lib/notify";
 import type { ListingImage } from "@/types/listing";
+import type { ListingLocation } from "@/types/listing";
 import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import { fileToBase64 } from "@/components/user/business-registration/utils";
@@ -43,16 +44,24 @@ interface UseListingSubmissionProps<TFieldValues extends FieldValues, TResult = 
     editId?: string;
     schema: z.ZodTypeAny;
     partialSchema?: z.ZodTypeAny;
-    submitFn: (payload: any, options?: { idempotencyKey?: string }) => Promise<TResult>;
+    submitFn: (payload: TFieldValues, options?: { idempotencyKey?: string }) => Promise<TResult>;
     onSuccess?: (result: TResult) => void;
     onError?: (error: string) => void;
 }
+
+type ListingSubmissionValues = FieldValues & {
+    location?: Partial<ListingLocation>;
+    images?: string[];
+    category?: string;
+    brand?: string;
+    model?: string;
+};
 
 /**
  * 🚀 Unified Submission Hook for Listings
  * Handles validation, image uploads, and API calls.
  */
-export function useListingSubmission<T extends FieldValues, R = unknown>({
+export function useListingSubmission<T extends ListingSubmissionValues, R = unknown>({
     form,
     listingImages,
     isEditMode,
@@ -108,7 +117,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
             }
 
             // 2. Payload Construction
-            const location = (data as Record<string, any>).location;
+            const location = data.location;
             const canonicalLocation = location ? {
                 city: location.city || "",
                 state: location.state || "",

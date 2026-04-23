@@ -40,7 +40,7 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
 
     return (
         <div className={cn("flex flex-wrap items-center", variant === "pills" ? "gap-2" : "gap-6 border-b border-slate-200 w-full", className)}>
-            {parsedTabs.map(({ tab, url, tabParams, pathMatches, paramsMatch }) => {
+            {parsedTabs.map(({ tab, url: _url, tabParams, pathMatches, paramsMatch }) => {
                 const hasMoreSpecificMatch =
                     tabParams.length === 0 &&
                     parsedTabs.some(

@@ -20,12 +20,28 @@ import LocationSelector from "@/components/location/LocationSelector";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
 import { MAX_AD_IMAGES, MAX_AD_DESCRIPTION_CHARS, MAX_AD_TITLE_CHARS } from "@shared/constants/adLimits";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
+import type { ListingLocation } from "@/types/listing";
+import type { GeoJSONPoint } from "@/types/location";
 
 const getNestedFieldMeta = (source: unknown, path: string): unknown =>
     path.split(".").reduce<unknown>((current, segment) => {
         if (!current || typeof current !== "object") return undefined;
         return (current as Record<string, unknown>)[segment];
     }, source);
+
+const buildLocationValue = (
+    display: string,
+    city: string,
+    state: string | undefined,
+    coordinates?: GeoJSONPoint,
+    locationId?: string
+): NonNullable<PostAdFormData["location"]> => ({
+    city,
+    state,
+    display,
+    locationId,
+    coordinates,
+});
 
 export default function ListingDetailsFields() {
     const {
@@ -73,7 +89,7 @@ export default function ListingDetailsFields() {
         // Clear path — called when user clicks "Change" in LocationSelector
         if (!loc) {
             setValue("location", undefined as any, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
-            setContextLocation("", undefined as any, {});
+            setContextLocation("", null, {});
             setUserHasInteracted(false);
             return;
         }
@@ -82,7 +98,7 @@ export default function ListingDetailsFields() {
         // Guard: locations without state data cannot pass schema superRefine.
         // Surface an inline error immediately rather than failing silently at submit.
         if (!loc.state?.trim()) {
-            setError("location.display" as any, {
+            setError("location.display", {
                 type: "manual",
                 message: "This area is missing region/state data. Please search for a nearby city or area."
             });
@@ -92,20 +108,20 @@ export default function ListingDetailsFields() {
         setUserHasInteracted(true);
         const geo = loc.coordinates;
         const canonicalLocationId = resolveCanonicalLocationId(loc);
-        
-        setContextLocation(loc.display || loc.name || loc.city || "", geo as any, { 
-            city: loc.city || loc.name, 
+        const display = loc.display || loc.name || loc.city || "";
+        const city = loc.city || loc.name || "";
+
+        setContextLocation(display, geo, {
+            city,
             state: loc.state, 
             id: canonicalLocationId 
         });
-        
-        setValue("location", { 
-            city: loc.city || loc.name || "", 
-            state: loc.state,
-            display: loc.display || loc.name || "", 
-            locationId: canonicalLocationId as any, 
-            coordinates: geo as any 
-        }, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+
+        setValue("location", buildLocationValue(display, city, loc.state, geo, canonicalLocationId), {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+        });
     }, [setContextLocation, setValue, setError]);
 
     useEffect(() => {
@@ -122,13 +138,14 @@ export default function ListingDetailsFields() {
             locFormattedAddress ||
             (locState ? `${locName || locCity}, ${locState}` : locName || locCity) ||
             "";
-        const canonicalLocationId = resolveCanonicalLocationId({
+        const locationSeed: Partial<ListingLocation> = {
             city: locCity,
             state: locState,
             locationId: locLocationId,
-        } as any);
+        };
+        const canonicalLocationId = resolveCanonicalLocationId(locationSeed);
 
-        setContextLocation(display, locCoordinates as any, {
+        setContextLocation(display, locCoordinates, {
             city: locCity || "",
             state: locState,
             id: canonicalLocationId,
@@ -136,13 +153,7 @@ export default function ListingDetailsFields() {
 
         setValue(
             "location",
-            {
-                city: locCity || "",
-                state: locState,
-                display,
-                locationId: canonicalLocationId as any,
-                coordinates: locCoordinates as any,
-            },
+            buildLocationValue(display, locCity || "", locState, locCoordinates, canonicalLocationId),
             { shouldValidate: true, shouldDirty: false }
         );
     }, [
