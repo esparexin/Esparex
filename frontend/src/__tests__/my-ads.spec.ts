@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getAdsPage, getMyAds, getMyListings, getMyListingsStats, deleteListing as deleteAd, repostListing } from "@/lib/api/user/listings";
+import { getAdsPage, getMyListings, getMyListingsStats, deleteListing as deleteAd, repostListing } from "@/lib/api/user/listings";
 import { apiClient } from '@/lib/api/client';
 import { fetchUserApiJson } from '@/lib/api/user/server';
 import { EsparexError, ErrorCategory, ErrorSeverity } from "@/lib/errorHandler";
@@ -28,8 +28,8 @@ describe('MyAds API Regression Tests', () => {
         vi.mocked(fetchUserApiJson).mockReset();
     });
 
-    describe('Test 1 — MyAds Unauthorized', () => {
-        it('should surface correctly structured error instead of hiding behind generic MyAds response', async () => {
+    describe('Test 1 — Unauthorized error propagates from getMyListings', () => {
+        it('should reject with the structured API error, not a generic wrapper', async () => {
             const networkError = new EsparexError({
                 code: 5001,
                 category: ErrorCategory.NETWORK,
@@ -41,7 +41,7 @@ describe('MyAds API Regression Tests', () => {
 
             vi.mocked(apiClient.get).mockRejectedValueOnce(networkError);
 
-            await expect(getMyAds()).rejects.toThrow('MyAds API error: 401');
+            await expect(getMyListings('ad')).rejects.toThrow('Unauthorized');
         });
     });
 
@@ -69,7 +69,7 @@ describe('MyAds API Regression Tests', () => {
         });
     });
 
-    describe('Test 3 — MyAds Payload', () => {
+    describe('Test 3 — getMyListings Payload', () => {
         it('should extract ads successfully from wrapped shape payload', async () => {
             const fakeDate = new Date().toISOString();
             vi.mocked(apiClient.get).mockResolvedValueOnce({
@@ -80,10 +80,10 @@ describe('MyAds API Regression Tests', () => {
                 pagination: { page: 1, limit: 10 }
             });
 
-            const ads = await getMyAds();
-            expect(ads).toHaveLength(1);
-            expect(ads[0]?.id).toBe('ad-xyz');
-            expect(ads[0]?.title).toBe('Macbook');
+            const result = await getMyListings('ad');
+            expect(result.data).toHaveLength(1);
+            expect(result.data[0]?.id).toBe('ad-xyz');
+            expect(result.data[0]?.title).toBe('Macbook');
         });
     });
 

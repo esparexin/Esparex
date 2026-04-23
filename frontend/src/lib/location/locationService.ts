@@ -162,10 +162,7 @@ export async function reverseGeocode(
     return normalizeToAppLocation(location, "auto");
 }
 
-export type CurrentLocationMode = "precise";
-
 type CurrentLocationOptions = {
-    mode?: CurrentLocationMode;
     allowApproximateFallback?: boolean;
     timeoutMs?: number;
     maximumAgeMs?: number;
@@ -449,16 +446,10 @@ const detectPreciseLocation = async (
     return buildFailureResult(failure);
 };
 
-async function getCurrentLocationWithOptions(
-    options: CurrentLocationOptions = {}
-): Promise<LocationDetectResult> {
-    return detectPreciseLocation(options);
-}
-
 export async function getCurrentLocationResult(
     options: CurrentLocationOptions = {}
 ): Promise<LocationDetectResult> {
-    return getCurrentLocationWithOptions(options);
+    return detectPreciseLocation(options);
 }
 
 export function normalizeLocationName(name: string | undefined | null): string {

@@ -57,9 +57,6 @@ export type LocationStatusContextType = {
     locationExpired: boolean;
 };
 
-// Merged type kept for backward-compat (useLocationState still works)
-export type LocationStateContextType = LocationDataContextType & LocationStatusContextType;
-
 export type LocationDispatchContextType = {
     detectLocation: (persist?: boolean, force?: boolean) => Promise<LocationData | null>;
     setManualLocation: (
@@ -93,7 +90,6 @@ const getLocationStatus = (source: LocationData["source"]): LocationStatus =>
 /* CONTEXT */
 /* -------------------------------------------------------------------------- */
 
-const LocationStateContext = createContext<LocationStateContextType | undefined>(undefined);
 const LocationActionsContext = createContext<LocationActionsContextType | undefined>(undefined);
 
 // Focused domain contexts
@@ -313,7 +309,7 @@ export function LocationProvider({
             cancelled = true;
             if (promptDelayTimeoutRef.current) clearTimeout(promptDelayTimeoutRef.current);
         };
-    }, [applyResolvedLocation, hydrateProfileLocation, readStoredLocation, readPermissionBlockedFlag, autoDetectedRef]);
+    }, [applyResolvedLocation, hydrateProfileLocation, readStoredLocation, readPermissionBlockedFlag]);
 
     const readPromptDismissedFromStorage = () => {
         if (typeof window === "undefined") return false;
@@ -360,11 +356,6 @@ export function LocationProvider({
         [detectError, isPermissionBlocked, locationExpired, shouldShowFirstVisitPrompt, showPermissionBlockedModal, status]
     );
 
-    // Backward-compat merged view — only re-evaluates when either domain changes
-    const stateValue = useMemo<LocationStateContextType>(
-        () => ({ ...dataValue, ...statusValue }),
-        [dataValue, statusValue]
-    );
 
     const actionsValue = useMemo(
         () => ({
@@ -381,11 +372,9 @@ export function LocationProvider({
     return (
         <LocationDataContext.Provider value={dataValue}>
             <LocationStatusContext.Provider value={statusValue}>
-                <LocationStateContext.Provider value={stateValue}>
-                    <LocationActionsContext.Provider value={actionsValue}>
-                        {children}
-                    </LocationActionsContext.Provider>
-                </LocationStateContext.Provider>
+                <LocationActionsContext.Provider value={actionsValue}>
+                    {children}
+                </LocationActionsContext.Provider>
             </LocationStatusContext.Provider>
         </LocationDataContext.Provider>
     );
@@ -393,12 +382,6 @@ export function LocationProvider({
 
 /* -------------------------------------------------------------------------- */
 /* HOOKS ──────────────────────────────────────────────────────────────────── */
-
-export function useLocationState(): LocationStateContextType {
-    const ctx = useContext(LocationStateContext);
-    if (!ctx) throw new Error("useLocationState must be used within LocationProvider");
-    return ctx;
-}
 
 export function useLocationDispatch(): LocationDispatchContextType {
     const ctx = useContext(LocationActionsContext);
@@ -435,25 +418,3 @@ export function useLocationStatus(): LocationStatusContextType {
     return ctx;
 }
 
-/**
- * useLocationPrimitives — stable selector hook to prevent infinite loops in effects.
- */
-export function useLocationPrimitives() {
-    const { location } = useLocationState();
-
-    return useMemo(
-        () => ({
-            city: location.city,
-            state: location.state,
-            locationId: location.locationId,
-            coordinates: location.coordinates,
-            formattedAddress: location.formattedAddress,
-            name: location.name,
-            display: location.display,
-            source: location.source,
-            level: location.level,
-            country: location.country,
-        }),
-        [location.city, location.state, location.locationId, location.coordinates, location.formattedAddress, location.name, location.display, location.source, location.level, location.country]
-    );
-}

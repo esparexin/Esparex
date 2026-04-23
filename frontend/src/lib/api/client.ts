@@ -207,6 +207,8 @@ class APIClient {
             config.headers = headers;
 
             // 🔐 HMAC SIGNATURE FOR FINANCIAL SAFETY
+            // NOTE: Browser-side HMAC is not a true security boundary — NEXT_PUBLIC_* vars are
+            // visible in the compiled client JS bundle. Signing is skipped if no secret is set.
             const SENSITIVE_ENDPOINTS = [
                 '/users/:id/wallet',
                 '/wallet/adjust',
@@ -220,17 +222,19 @@ class APIClient {
             });
 
             if (isSensitive && config.data && this.isStateChangingMethod(config.method)) {
-                try {
-                    const CryptoJS = (await import('crypto-js')).default;
-                    const secret = process.env.NEXT_PUBLIC_HMAC_SECRET || 'super_secret_fallback_key_for_dev_32char';
-                    const bodyStr = JSON.stringify(config.data);
-                    const signature = CryptoJS.HmacSHA256(bodyStr, secret).toString(CryptoJS.enc.Hex);
-                    
-                    const headers = new AxiosHeaders(config.headers);
-                    headers.set('x-signature', signature);
-                    config.headers = headers;
-                } catch (cryptoError) {
-                    logger.error('[API Client] Failed to generate HMAC signature:', cryptoError);
+                const secret = process.env.NEXT_PUBLIC_HMAC_SECRET;
+                if (secret) {
+                    try {
+                        const CryptoJS = (await import('crypto-js')).default;
+                        const bodyStr = JSON.stringify(config.data);
+                        const signature = CryptoJS.HmacSHA256(bodyStr, secret).toString(CryptoJS.enc.Hex);
+                        
+                        const headers = new AxiosHeaders(config.headers);
+                        headers.set('x-signature', signature);
+                        config.headers = headers;
+                    } catch (cryptoError) {
+                        logger.error('[API Client] Failed to generate HMAC signature:', cryptoError);
+                    }
                 }
             }
 

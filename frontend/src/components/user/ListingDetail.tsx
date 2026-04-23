@@ -329,7 +329,6 @@ export function ListingDetail({
     void startChatWithSeller(returnTo);
   };
 
-  // Mock multiple images (in real app, this would come from ad data)
   const images = ad?.images || [];
 
   const handleFavorite = async () => {

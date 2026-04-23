@@ -8,12 +8,19 @@ import { normalizeToAppLocation as normalizeLocation } from "@/lib/location/loca
 
 interface UseLocationActionHandlersProps {
     setLocation: (loc: AppLocation) => void;
-    setStatus: (status: any) => void;
+    setStatus: (status: "detecting" | "available" | "manual" | "unavailable") => void;
     setDetectError: (err: string | null) => void;
     persistPromptDismissed: (dismissed: boolean) => void;
     writeStoredLocation: (loc: AppLocation) => void;
     clearStoredLocation: () => void;
-    logAnalytics: (data: any) => void;
+    logAnalytics: (data: {
+        source: "auto" | "ip" | "manual" | "default";
+        city: string;
+        state: string;
+        reason: string;
+        eventType?: "location_search" | "ad_view" | "ad_post";
+        locationId?: string;
+    }) => void;
     autoDetectedRef: { current: boolean };
 }
 

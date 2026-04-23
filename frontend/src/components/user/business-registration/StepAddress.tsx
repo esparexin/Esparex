@@ -12,7 +12,7 @@ import {
     normalizeLocationName,
     reverseGeocode,
 } from "@/lib/location/locationService";
-import { normalizeCoordinates } from "@/lib/location/utils";
+import { normalizeCoordinates } from "@/lib/location/coordinates";
 import type { AppLocation } from "@/types/location";
 
 import type { StepBaseProps } from "./types";
@@ -201,7 +201,6 @@ export function StepAddress({
 
         try {
             const detectionResult = await getCurrentLocationResult({
-                mode: "precise",
                 allowApproximateFallback: false,
                 enableHighAccuracy: true,
                 maximumAgeMs: 0,

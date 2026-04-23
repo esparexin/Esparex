@@ -37,18 +37,7 @@ export const getMyListings = async (type?: string, status?: string, page = 1, li
     }
 };
 
-/**
- * @deprecated Use getMyListings('ad', status).then(res => res.data)
- */
-export const getMyAds = async (status?: string): Promise<Listing[]> => {
-    try {
-        const result = await getMyListings('ad', status);
-        return result.data;
-    } catch (e) {
-        const statusCode = (e as any)?.context?.statusCode || (e as any)?.statusCode || 500;
-        throw new Error(`MyAds API error: ${statusCode}`);
-    }
-};
+
 export type ListingStatsResponse = Record<string, Record<string, number>>;
 /**
  * Fetch aggregated listing status counts for all types in one pass.
