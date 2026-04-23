@@ -205,6 +205,14 @@ export const ipLocate = async (req: Request, res: Response) => {
     try {
         const apiKey = env.IPAPI_KEY;
         const ip = (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
+        const isLocalhost = ip === '::1' || ip === '127.0.0.1' || ip === 'localhost';
+
+        // Localhost: IP geolocation is not possible — return null so the
+        // frontend falls through to GPS or the manual selection prompt.
+        if (isLocalhost) {
+            return res.json(respond({ success: true, data: null }));
+        }
+
         const url = apiKey ? `https://ipapi.co/${ip}/json/?key=${apiKey}` : `https://ipapi.co/${ip}/json/`;
 
         const controller = new AbortController();
@@ -217,10 +225,19 @@ export const ipLocate = async (req: Request, res: Response) => {
                 signal: controller.signal,
             });
             clearTimeout(timeout);
-            if (!response.ok) return res.json(respond({ success: false, data: null }));
+            if (!response.ok) {
+                 logger.warn('ipapi.co request failed', { status: response.status });
+                 return res.json(respond({ success: false, data: null }));
+            }
             data = await response.json() as Record<string, unknown>;
-        } catch {
+            
+            if (data?.error) {
+                logger.warn('ipapi.co returned error', { reason: data.reason, message: data.message });
+                return res.json(respond({ success: false, data: null }));
+            }
+        } catch (error: unknown) {
             clearTimeout(timeout);
+            logger.error('ipLocate fetch error', { error: error instanceof Error ? error.message : String(error) });
             return res.json(respond({ success: false, data: null }));
         }
 
@@ -234,7 +251,11 @@ export const ipLocate = async (req: Request, res: Response) => {
 
         const lat = Number(data.latitude);
         const lng = Number(data.longitude);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
+            return res.json(respond({ success: false, data: null }));
+        }
+
+        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
             return res.json(respond({ success: false, data: null }));
         }
 

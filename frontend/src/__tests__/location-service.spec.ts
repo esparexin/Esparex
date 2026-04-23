@@ -201,4 +201,27 @@ describe("getCurrentLocationResult", () => {
             }).headerText
         ).toBe("Nearby you");
     });
+
+    it("formats header labels as city and state without country noise", () => {
+        expect(
+            getHeaderLocationText({
+                source: "auto",
+                city: "Hyderabad",
+                state: "Telangana",
+                country: "India",
+                display: "Hyderabad, Telangana, India",
+            }).headerText
+        ).toBe("Hyderabad, Telangana");
+    });
+
+    it("uses state for manual selections even when display only contains the city", () => {
+        expect(
+            getHeaderLocationText({
+                source: "manual",
+                city: "Macherla",
+                state: "Andhra Pradesh",
+                display: "Macherla",
+            }).headerText
+        ).toBe("Macherla, Andhra Pradesh");
+    });
 });

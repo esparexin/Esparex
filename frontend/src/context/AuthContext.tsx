@@ -90,6 +90,15 @@ function isBenignLogoutError(error: unknown): boolean {
   return backendMessage.includes("no token") || error.message.toLowerCase().includes("no token");
 }
 
+function replaceToHomeSafely(router: ReturnType<typeof useRouter>) {
+  if (typeof window !== "undefined") {
+    window.location.replace("/");
+    return;
+  }
+
+  void router.replace("/");
+}
+
 /* -------------------------------------------------------------------------- */
 /* Provider                                                                   */
 /* -------------------------------------------------------------------------- */
@@ -225,7 +234,7 @@ export function AuthProvider({
         wasAuthenticatedRef.current = false;
         if (hadActiveSession && !authBannerShownRef.current) {
           authBannerShownRef.current = true;
-          router.replace("/");
+          replaceToHomeSafely(router);
         }
 
         return;

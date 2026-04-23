@@ -96,7 +96,8 @@ export const PUBLIC_CANONICAL_LOCATION_FILTER = {
     isActive: true,
     // Legacy canonical master-data rows were imported before verificationStatus
     // existed. Treat missing status as public/verified until data is backfilled.
-    verificationStatus: { $in: [VERIFIED_LOCATION_STATUS, null] },
+    // Also include 'pending' status so auto-detection works for newly added cities.
+    verificationStatus: { $in: [VERIFIED_LOCATION_STATUS, 'pending', null] },
 } as const;
 export const REVERSE_GEOCODE_LEVEL_PRIORITY: Record<HierarchyLevel, number> = {
     country: 1,

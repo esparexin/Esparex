@@ -1,28 +1,24 @@
-const LOCATION_SEARCH_DEBOUNCE_MS = 300;
+const LOCATION_SEARCH_DEBOUNCE_MS = 150;
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { searchLocations, type Location } from "@/lib/api/user/locations";
-import { getCurrentLocationResult } from "@/lib/location/locationService";
 import { getSearchCacheKey, getCacheEntry, setCacheEntry, isCacheAvailable } from "@/lib/locationCache";
 import { useLocationStatus, useLocationDispatch } from "@/context/LocationContext";
+
 import {
-    type DetectedLocationShape,
     type ErrorType,
     type LocationError,
     ERROR_MESSAGES,
     SEARCH_DEBOUNCE_MS,
-    toDetectedSelection
 } from "./locationSelectorCore.helpers";
 
 export function useLocationSearch({
-    mode,
     isOpen,
     isPanel = false,
     query,
     onApplySelection,
     onClose,
 }: {
-    mode: "search" | "profile" | "postAd";
     isOpen: boolean;
     isPanel?: boolean;
     query: string;
@@ -37,7 +33,6 @@ export function useLocationSearch({
     const [searchError, setSearchError] = useState<LocationError | null>(null);
     const [showSkeleton, setShowSkeleton] = useState(false);
 
-    const [localDetecting, setLocalDetecting] = useState(false);
     const [detectFeedback, setDetectFeedback] = useState<string | null>(null);
 
     const [retryCount, setRetryCount] = useState(0);
@@ -45,7 +40,7 @@ export function useLocationSearch({
 
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    const isDetecting = mode === "postAd" ? localDetecting : globalDetecting;
+    const isDetecting = globalDetecting;
 
     // Search effect
     useEffect(() => {
@@ -70,6 +65,16 @@ export function useLocationSearch({
 
         setSearchError(null);
 
+        if (isCacheAvailable()) {
+            const cached = getCacheEntry<Location[]>(getSearchCacheKey(query));
+            if (cached && !signal.aborted) {
+                setLocations(cached);
+                setIsSearching(false);
+                setShowSkeleton(false);
+                return;
+            }
+        }
+
         const skeletonTimer = setTimeout(() => {
             if (!signal.aborted) {
                 setShowSkeleton(true);
@@ -80,18 +85,6 @@ export function useLocationSearch({
         const debounce = setTimeout(async () => {
             let requestTimeoutId: ReturnType<typeof setTimeout> | null = null;
             try {
-                if (isCacheAvailable()) {
-                    const cacheKey = getSearchCacheKey(query);
-                    const cached = getCacheEntry<Location[]>(cacheKey);
-                    if (cached && !signal.aborted) {
-                        setLocations(cached);
-                        setIsSearching(false);
-                        setShowSkeleton(false);
-                        clearTimeout(skeletonTimer);
-                        return;
-                    }
-                }
-
                 const timeoutPromise = new Promise<never>((_, reject) => {
                     requestTimeoutId = setTimeout(() => reject(new Error("timeout")), 10000);
                 });
@@ -174,35 +167,18 @@ export function useLocationSearch({
 
     const handleDetect = async (onDone?: () => void) => {
         setDetectFeedback(null);
-        if (mode === "postAd") {
-            setLocalDetecting(true);
-            try {
-                const detectionResult = await getCurrentLocationResult({
-                    mode: "precise",
-                    allowApproximateFallback: false,
-                    enableHighAccuracy: true,
-                    maximumAgeMs: 0,
-                });
-                const detected = toDetectedSelection(detectionResult.location as DetectedLocationShape);
-                if (!detected?.coordinates) {
-                    setDetectFeedback("Could not detect current location. Please search manually.");
-                    return;
-                }
-                onApplySelection(detected);
-                setDetectFeedback(null);
-                if (isPanel) onClose?.();
-                else onDone?.();
-                return;
-            } finally {
-                setLocalDetecting(false);
-            }
-        }
-        const detected = await detectLocation(true, true);
-        if (!detected) {
+        
+        const detectedLocation = await detectLocation(true, true);
+        if (!detectedLocation) {
             setDetectFeedback("Could not detect current location. Please search manually.");
             return;
         }
+        
         setDetectFeedback(null);
+        
+        // Pass it up to the caller to handle local state (e.g. Post-Ad forms)
+        onApplySelection(detectedLocation as unknown as Location);
+        
         if (isPanel) onClose?.();
         else onDone?.();
     };
@@ -216,7 +192,6 @@ export function useLocationSearch({
         setShowSkeleton(false);
         setSearchError(null);
         setRetryCount(0);
-        setLocalDetecting(false);
     }, [setOptions]);
 
     return {

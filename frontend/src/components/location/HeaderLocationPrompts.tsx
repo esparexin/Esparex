@@ -10,6 +10,7 @@ interface HeaderLocationPromptsProps {
     setShowLocationSelector: (show: boolean) => void;
     setShowSearchDropdown?: (show: boolean) => void;
     isMounted?: boolean;
+    firstVisitBackdropClassName?: string;
     firstVisitWrapperClassName?: string;
     firstVisitPromptClassName?: string;
     style?: React.CSSProperties;
@@ -20,6 +21,7 @@ export function HeaderLocationPrompts({
     setShowLocationSelector,
     setShowSearchDropdown,
     isMounted = true,
+    firstVisitBackdropClassName,
     firstVisitWrapperClassName,
     firstVisitPromptClassName,
     style,
@@ -30,24 +32,29 @@ export function HeaderLocationPrompts({
     return (
         <>
             {isMounted && shouldShowFirstVisitPrompt && !showLocationSelector && (
-                <div className={firstVisitWrapperClassName} style={style}>
-                    <LocationFirstVisitPrompt
-                        className={firstVisitPromptClassName}
-                        onUseCurrentLocation={() => {
-                            void detectLocation(true, true).then((detected) => {
-                                if (!detected) {
-                                    setShowLocationSelector(true);
-                                }
-                            });
-                        }}
-                        onChooseManually={() => {
-                            dismissFirstVisitPrompt();
-                            setShowLocationSelector(true);
-                            setShowSearchDropdown?.(false);
-                        }}
-                        onDismiss={dismissFirstVisitPrompt}
-                    />
-                </div>
+                <>
+                    {firstVisitBackdropClassName ? (
+                        <div className={firstVisitBackdropClassName} style={style} onClick={dismissFirstVisitPrompt} />
+                    ) : null}
+                    <div className={firstVisitWrapperClassName} style={style}>
+                        <LocationFirstVisitPrompt
+                            className={firstVisitPromptClassName}
+                            onUseCurrentLocation={() => {
+                                void detectLocation(true, true).then((detected) => {
+                                    if (!detected) {
+                                        setShowLocationSelector(true);
+                                    }
+                                });
+                            }}
+                            onChooseManually={() => {
+                                dismissFirstVisitPrompt();
+                                setShowLocationSelector(true);
+                                setShowSearchDropdown?.(false);
+                            }}
+                            onDismiss={dismissFirstVisitPrompt}
+                        />
+                    </div>
+                </>
             )}
 
             <LocationPermissionBlockedModal

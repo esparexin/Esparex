@@ -41,14 +41,21 @@ export function useLocationActionHandlers({
             logSelectionAnalytics?: boolean;
         }
     ) => {
+        const resolvedName = name || city;
+        const resolvedState = state || city;
+        const resolvedDisplay =
+            resolvedState && resolvedState.trim().length > 0 && resolvedState !== resolvedName
+                ? `${resolvedName}, ${resolvedState}`
+                : resolvedName;
+
         const normalized = normalizeLocation(
             {
                 city,
-                state: state || city,
+                state: resolvedState,
                 country: options?.country,
                 level: options?.level,
-                name: name || city,
-                display: name || city,
+                name: resolvedName,
+                display: resolvedDisplay,
                 locationId: id,
                 coordinates,
                 source: "manual",

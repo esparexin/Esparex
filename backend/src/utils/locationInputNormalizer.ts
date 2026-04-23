@@ -3,7 +3,7 @@ import { hasValidCoordinateArray } from '@shared/utils/geoUtils';
 import { asString } from '../services/location/LocationService.helpers';
 import { toTitleCase } from './stringUtils';
 import { toObjectId } from './idUtils';
-import { buildHierarchyPath } from './locationHierarchyUtils';
+import { buildHierarchyPath } from './locationHierarchy';
 
 import Location from '../models/Location';
 import { resolveParentLocation } from './locationHierarchy';

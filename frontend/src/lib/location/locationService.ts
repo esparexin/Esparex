@@ -19,7 +19,7 @@ import {
     LABEL_CURRENT_LOCATION_CAPTURED,
 } from "@/lib/location/locationLabels";
 
-const GEOLOCATION_TIMEOUT_MS = 12000;
+const GEOLOCATION_TIMEOUT_MS = 20000;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
@@ -335,55 +335,118 @@ const detectPreciseLocation = async (
         });
     }
 
-    try {
-        const coords = await new Promise<GeolocationCoordinates>(
-            (resolve, reject) => {
+    // PR-3 Hardening: 3 attempts with exponential backoff for transient "Unknown" errors
+    const MAX_ATTEMPTS = 3;
+    let lastError: unknown = null;
+    let lastFailureReason: LocationDetectFailureReason = "unknown";
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        try {
+            const coords = await new Promise<GeolocationCoordinates>(
+                (resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => resolve(position.coords),
+                        reject,
+                        {
+                            enableHighAccuracy,
+                            timeout: timeoutMs,
+                            maximumAge: attempt === 1 ? maximumAgeMs : 0, // Force fresh on retry
+                        }
+                    );
+                }
+            );
+
+            const resolved = await autoDetectLocation(
+                coords.latitude,
+                coords.longitude
+            );
+            if (resolved) {
+                return {
+                    location: resolved,
+                    source: "auto",
+                };
+            }
+
+            return {
+                location: buildAppLocation({
+                    formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED,
+                    city: LABEL_CURRENT_LOCATION,
+                    state: "",
+                    country: "Unknown",
+                    coordinates: createPoint(coords.longitude, coords.latitude),
+                    source: "auto",
+                    name: LABEL_CURRENT_LOCATION,
+                }),
+                source: "auto",
+            };
+        } catch (error) {
+            lastError = error;
+            const failure = mapGeolocationError(error);
+            lastFailureReason = failure.reason;
+
+            // Only retry on transient hardware/soft errors (code 2 = Unavailable, code 3 = Timeout)
+            // Permission Denied (code 1) should fail immediately.
+            const isTransient = failure.reason === "position_unavailable" || failure.reason === "timeout";
+            
+            if (!isTransient || attempt === MAX_ATTEMPTS) {
+                break;
+            }
+
+            // Exponential backoff: 800ms, 1600ms
+            const delay = 400 * Math.pow(2, attempt);
+            await new Promise(r => setTimeout(r, delay));
+        }
+    }
+
+    // High-accuracy (GPS) failed with position_unavailable (kCLErrorLocationUnknown on macOS).
+    // This is common on desktops/laptops that cannot get a satellite fix indoors.
+    // Try low-accuracy mode which uses WiFi/network triangulation via the browser API —
+    // this succeeds in most indoor environments where GPS does not.
+    if (lastFailureReason === "position_unavailable" && enableHighAccuracy) {
+        try {
+            const coords = await new Promise<GeolocationCoordinates>((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(
                     (position) => resolve(position.coords),
                     reject,
                     {
-                        enableHighAccuracy,
-                        timeout: timeoutMs,
-                        maximumAge: maximumAgeMs,
+                        enableHighAccuracy: false, // Use WiFi/network triangulation
+                        timeout: 10000,
+                        maximumAge: 60000,
                     }
                 );
-            }
-        );
+            });
 
-        const resolved = await autoDetectLocation(
-            coords.latitude,
-            coords.longitude
-        );
-        if (resolved) {
+            const resolved = await autoDetectLocation(coords.latitude, coords.longitude);
+            if (resolved) {
+                return { location: resolved, source: "auto" };
+            }
+
             return {
-                location: resolved,
+                location: buildAppLocation({
+                    formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED,
+                    city: LABEL_CURRENT_LOCATION,
+                    state: "",
+                    country: "Unknown",
+                    coordinates: createPoint(coords.longitude, coords.latitude),
+                    source: "auto",
+                    name: LABEL_CURRENT_LOCATION,
+                }),
                 source: "auto",
             };
+        } catch {
+            // Low-accuracy also failed — fall through to IP detection
         }
-
-        return {
-            location: buildAppLocation({
-                formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED,
-                city: LABEL_CURRENT_LOCATION,
-                state: "",
-                country: "Unknown",
-                coordinates: createPoint(coords.longitude, coords.latitude),
-                source: "auto",
-                name: LABEL_CURRENT_LOCATION,
-            }),
-            source: "auto",
-        };
-    } catch (error) {
-        const failure = mapGeolocationError(error);
-        if (allowApproximateFallback && failure.reason !== "permission_denied") {
-            const approximate = await detectApproximateLocationByIP();
-            if (approximate) {
-                return approximate;
-            }
-        }
-
-        return buildFailureResult(failure);
     }
+
+    const failure = mapGeolocationError(lastError);
+    if (allowApproximateFallback && failure.reason !== "permission_denied") {
+        const approximate = await detectApproximateLocationByIP();
+        if (approximate) {
+            return approximate;
+        }
+    }
+
+    return buildFailureResult(failure);
 };
 
 async function getCurrentLocationWithOptions(

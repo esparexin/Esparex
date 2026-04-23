@@ -53,18 +53,15 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
         return null;
     }
 
-    // After identifying the state, find the nearest city/district within it.
-    // This gives users "Hyderabad, Telangana" instead of just "Telangana".
+    // After identifying the state, find the nearest settlement within it.
+    // Increased distance to 100km and removed strict boundary path requirement 
+    // if a point match is found nearby, as some settlements might have inconsistent parent paths.
     const nearestCity = await Location.findOne(withPublicCanonicalLocationFilter({
         level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
-        $or: [
-            { parentId: boundary.locationId },
-            { path: boundary.locationId }
-        ],
         coordinates: {
             $near: {
                 $geometry: { type: 'Point', coordinates: [lng, lat] },
-                $maxDistance: REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,
+                $maxDistance: REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS * 2, // 100km
             }
         }
     }))

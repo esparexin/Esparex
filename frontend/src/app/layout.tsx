@@ -22,7 +22,21 @@ const interItalic = localFont({
     style: 'italic',
 });
 
+const metadataBase = (() => {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+    if (appUrl) {
+        try {
+            return new URL(appUrl);
+        } catch {
+            // Fall through to local default.
+        }
+    }
+
+    return new URL('http://localhost:3000');
+})();
+
 export const metadata: Metadata = {
+    metadataBase,
     manifest: '/manifest.json',
     icons: {
         icon: [

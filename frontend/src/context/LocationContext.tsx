@@ -25,7 +25,7 @@ import {
     GEO_DETECTED_STORAGE_KEY,
     LOCATION_PROMPT_DISMISSED_KEY,
 } from "./hooks/useLocationStorage";
-import { useLocationDetection } from "./hooks/useLocationDetection";
+import { useUnifiedLocationDetection } from "@/hooks/useUnifiedLocationDetection";
 import { useLocationActionHandlers } from "./hooks/useLocationActionHandlers";
 
 /* -------------------------------------------------------------------------- */
@@ -61,7 +61,7 @@ export type LocationStatusContextType = {
 export type LocationStateContextType = LocationDataContextType & LocationStatusContextType;
 
 export type LocationDispatchContextType = {
-    detectLocation: (persist?: boolean, force?: boolean) => Promise<boolean>;
+    detectLocation: (persist?: boolean, force?: boolean) => Promise<LocationData | null>;
     setManualLocation: (
         city: string,
         state?: string,
@@ -124,6 +124,7 @@ export function LocationProvider({
     const initializedRef = useRef(false);
     const promptDelayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const genericLocationRefreshKeyRef = useRef<string | null>(null);
+    const autoDetectedRef = useRef(false);
 
     // ── Logic Hooks ───────────────────────────────────────────────────────────
     const {
@@ -157,19 +158,51 @@ export function LocationProvider({
         }
     }, [persistPromptDismissed, writeStoredLocation]);
 
-    const {
-        detectLocation,
-        performReverseGeocode,
-        autoDetectedRef
-    } = useLocationDetection({
-        applyResolvedLocation,
-        currentSource: location.source,
-        setStatus,
-        setDetectError,
-        setPermissionBlockedFlag,
-        setShowPermissionBlockedModal,
+    const handleSuccess = useCallback((loc: LocationData, persist?: boolean) => {
+        autoDetectedRef.current = true;
+        setPermissionBlockedFlag(false);
+        setIsPermissionBlocked(false);
+        setShowPermissionBlockedModal(false);
+        applyResolvedLocation(loc, persist);
+    }, [applyResolvedLocation, setPermissionBlockedFlag]);
+
+    const handleError = useCallback((msg: string) => {
+        setStatus(location.source === "manual" ? "manual" : "unavailable");
+        setDetectError(msg);
+    }, [location.source]);
+
+    const handlePermissionBlocked = useCallback(() => {
+        setStatus(location.source === "manual" ? "manual" : "unavailable");
+        setDetectError("Location permission denied. Allow location access in your browser settings and try again.");
+        setPermissionBlockedFlag(true);
+        setIsPermissionBlocked(true);
+        setShowPermissionBlockedModal(true);
+    }, [location.source, setPermissionBlockedFlag]);
+
+    const { detect: unifiedDetect, isDetecting } = useUnifiedLocationDetection({
+        onSuccess: handleSuccess,
+        onError: handleError,
+        onPermissionBlocked: handlePermissionBlocked,
         logAnalytics
     });
+
+    const detectLocation = useCallback(async (persist = false, force = false): Promise<LocationData | null> => {
+        if (isDetecting && !force) return null;
+        setStatus("detecting");
+        const result = await unifiedDetect({ persist, force });
+        return result?.location || null;
+    }, [isDetecting, unifiedDetect]);
+
+    const performReverseGeocode = useCallback(async (lat: number, lng: number) => {
+        try {
+            const { reverseGeocode: reverseGeocodeLocation } = await import("@/lib/location/locationService");
+            const refreshedLocation = await reverseGeocodeLocation(lat, lng);
+            if (!refreshedLocation || isGenericDetectedLocation(refreshedLocation)) return;
+            applyResolvedLocation({ ...refreshedLocation, source: "auto" }, true);
+        } catch {
+            /* silent self-heal */
+        }
+    }, [applyResolvedLocation]);
 
     const {
         setManualLocation,

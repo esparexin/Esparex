@@ -6,7 +6,7 @@ import { buildAdMatchStage } from '../ad/AdSearchService';
 import { buildHomeFeedPipeline } from '../ad/AdFeedService';
 import type { AdFilters } from '../ad/_shared/adFilterHelpers';
 import { normalizeAdImagesForResponse } from '../adQuery/AdQueryHelpers';
-import { buildGeoNearStage, normalizeGeoInput } from '../../utils/GeoUtils';
+import { buildGeoNearStage, normalizeGeoInput } from '../../utils/mongoGeoUtils';
 import type { HomeFeedResponse } from '../../../../shared/types/Api';
 import logger from '../../utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';

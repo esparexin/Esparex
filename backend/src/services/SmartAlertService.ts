@@ -2,7 +2,7 @@ import SmartAlert from '../models/SmartAlert';
 import AlertDeliveryLog from '../models/AlertDeliveryLog';
 import { Types } from 'mongoose';
 import logger from '../utils/logger';
-import { buildGeoNearStage } from '../utils/GeoUtils';
+import { buildGeoNearStage } from '../utils/mongoGeoUtils';
 
 import { getCache, setCache } from '../utils/redisCache';
 import crypto from 'crypto';

@@ -2,9 +2,6 @@ import express from "express";
 import * as locationController from "../controllers/location/locationController";
 import { requireAdmin } from "../middleware/adminAuth";
 import { searchLimiter } from '../middleware/rateLimiter';
-import {
-    validateLocationEventRequest
-} from '../middleware/locationValidation';
 import { validateRequest } from '../middleware/validateRequest';
 import * as Validators from '../validators/location.validator';
 
@@ -37,7 +34,7 @@ router.get("/ip-locate", searchLimiter, locationController.ipLocate);
 router.get("/geocode", searchLimiter, locationController.geocode);
 
 // Analytics
-router.post("/log-event", searchLimiter, validateLocationEventRequest, validateRequest(Validators.logLocationEventSchema), locationController.logLocationEvent);
+router.post("/log-event", searchLimiter, validateRequest(Validators.logLocationEventSchema), locationController.logLocationEvent);
 
 // Auto-detect & Ingest — create new location if not found in 2km radius
 // Used by auto-detect feature to create locations when coordinates don't match existing ones

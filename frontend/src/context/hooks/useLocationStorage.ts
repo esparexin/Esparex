@@ -40,15 +40,20 @@ export function useLocationStorage() {
     }, [clearStoredLocation]);
 
     const logAnalytics = useCallback(async (data: {
-        source: "manual" | "default";
+        source: "auto" | "ip" | "manual" | "default";
         city: string;
         state: string;
-        reason: "manual_override" | "gps_denied";
-        eventType?: "location_search";
+        reason: string;
+        eventType?: "location_search" | "ad_view" | "ad_post";
         locationId?: string;
     }) => {
         try {
-            await apiClient.post(API_ROUTES.USER.LOG_LOCATION_EVENT, data);
+            // Remove empty locationId to prevent Zod ObjectId validation errors
+            const payload = { ...data };
+            if (!payload.locationId) {
+                delete payload.locationId;
+            }
+            await apiClient.post(API_ROUTES.USER.LOG_LOCATION_EVENT, payload, { silent: true });
         } catch {
             /* silent */
         }

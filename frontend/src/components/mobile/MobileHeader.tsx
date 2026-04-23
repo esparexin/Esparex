@@ -111,8 +111,9 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                     isMounted={isMounted}
                     showLocationSelector={showLocationSelector}
                     setShowLocationSelector={setShowLocationSelector}
-                    firstVisitWrapperClassName={`pointer-events-none absolute inset-x-0 top-full px-3 pt-3`}
-                    firstVisitPromptClassName="pointer-events-auto border-slate-200 bg-white/98 shadow-[0_18px_45px_rgba(15,23,42,0.16)]"
+                    firstVisitBackdropClassName="fixed inset-0 bg-slate-950/20 backdrop-blur-[1px]"
+                    firstVisitWrapperClassName="fixed inset-x-0 bottom-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+                    firstVisitPromptClassName="pointer-events-auto border-slate-200 bg-white/98 shadow-[0_-18px_45px_rgba(15,23,42,0.18)]"
                     style={{ zIndex: Z_INDEX.mobileHeaderTooltip }}
                 />
 

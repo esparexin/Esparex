@@ -124,9 +124,36 @@ export function getDisplayLocationLabel(location: LocationLabelInput): string | 
     );
 }
 
+function getHeaderLocationLabel(location: LocationLabelInput): string | undefined {
+    if (!location) return undefined;
+
+    if (location.level === "state") {
+        return pickLocationLabel(location.state, location.country);
+    }
+
+    if (location.level === "country") {
+        return pickLocationLabel(location.country);
+    }
+
+    const city = sanitizeLocationLabel(location.city);
+    const state = sanitizeLocationLabel(location.state);
+    if (city && state && city.toLowerCase() !== state.toLowerCase()) {
+        return `${city}, ${state}`;
+    }
+
+    return pickLocationLabel(
+        city,
+        state,
+        location.name,
+        location.display,
+        location.formattedAddress,
+        location.country
+    );
+}
+
 export function getHeaderLocationText(location: LocationLabelInput) {
     const headerText =
-        getDisplayLocationLabel(location) ||
+        getHeaderLocationLabel(location) ||
         ((location?.source === "auto" || location?.source === "ip") ? "Nearby you" : undefined);
 
     return {
