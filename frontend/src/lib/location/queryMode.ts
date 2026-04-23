@@ -1,5 +1,5 @@
 import type { AppLocation, LocationLevel } from "@/types/location";
-import { getLatitude, getLongitude } from "@/lib/location/utils";
+import { getLatitude, getLongitude } from "@/lib/location/coordinates";
 
 type QueryLocation = Partial<Pick<AppLocation, "source" | "locationId" | "level" | "coordinates">> | null | undefined;
 

@@ -6,7 +6,14 @@ interface UnifiedLocationDetectionProps {
     onSuccess?: (location: AppLocation, persist?: boolean) => void;
     onError?: (message: string) => void;
     onPermissionBlocked?: () => void;
-    logAnalytics?: (event: any) => void;
+    logAnalytics?: (data: {
+        source: "auto" | "ip" | "manual" | "default";
+        city: string;
+        state: string;
+        reason: string;
+        eventType?: "location_search" | "ad_view" | "ad_post";
+        locationId?: string;
+    }) => void;
 }
 
 export type DetectionPhase = "idle" | "requesting" | "precise_search" | "retrying" | "approximate_fallback" | "done" | "error";
@@ -85,7 +92,7 @@ export function useUnifiedLocationDetection({
                 setFeedback(result.failure.message);
             }
             return result;
-        } catch (err) {
+        } catch (_err) {
             clearInterval(ticker);
             setPhase("error");
             const msg = "An unexpected error occurred during detection.";

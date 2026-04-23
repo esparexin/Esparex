@@ -5,7 +5,7 @@ import {
   resolveBrowseBrandSelection,
   resolveBrowseCategorySelection,
 } from "@/lib/browse/browseFilterNormalization";
-import { getLatitude, getLongitude } from "@/lib/location/utils";
+import { getLatitude, getLongitude } from "@/lib/location/coordinates";
 import { PUBLIC_BROWSE_SORT_MAP } from "@/lib/publicBrowseSort";
 import type { Category } from "@/lib/api/user/categories";
 import type { AppLocation } from "@/types/location";

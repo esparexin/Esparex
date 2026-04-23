@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { getListingHref } from "@/lib/listingUtils";
 import { getSearchLocationLabel } from "@/lib/location/locationLabels";
 import { shouldUseGeoRadiusLocation } from "@/lib/location/queryMode";
-import { getLatitude, getLongitude } from "@/lib/location/utils";
+import { getLatitude, getLongitude } from "@/lib/location/coordinates";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 
 const HOME_FEED_PAGE_SIZE = 12;

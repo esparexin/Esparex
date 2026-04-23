@@ -15,7 +15,7 @@ import type {
  * normalizeToAppLocation() in locationService.ts before being stored here.
  *
  * Consumers must use getLatitude() / getLongitude() from:
- *   @/lib/location/utils
+ *   @/lib/location/coordinates
  *
  * and must NOT perform shape detection on coordinates directly.
  */
@@ -40,7 +40,7 @@ export interface AppLocation extends Partial<Pick<SharedLocation, "locationId" |
     id?: string;
     name?: string;
     display?: string;
-    /** Always a GeoJSON Point. Use getLatitude()/getLongitude() from @/lib/location/utils. */
+    /** Always a GeoJSON Point. Use getLatitude()/getLongitude() from @/lib/location/coordinates. */
     coordinates?: GeoJSONPoint;
     detectedAt?: number;
     isAuto?: boolean;

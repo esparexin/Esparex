@@ -1,6 +1,6 @@
 import type { LocationData } from "@/context/LocationContext";
 import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
-import { getLatitude, getLongitude } from "@/lib/location/utils";
+import { getLatitude, getLongitude } from "@/lib/location/coordinates";
 import type { Category } from "@/lib/api/user/categories";
 
 interface BaseBrowseFilterShape {
