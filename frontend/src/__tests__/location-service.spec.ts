@@ -56,7 +56,7 @@ describe("getCurrentLocationResult", () => {
     it("returns a failure when GPS permission is denied", async () => {
         stubBrowser({ permissionState: "denied" });
 
-        const result = await getCurrentLocationResult({ mode: "precise" });
+        const result = await getCurrentLocationResult({});
 
         expect(result.location).toBeNull();
         expect(result.source).toBe("none");
@@ -81,7 +81,6 @@ describe("getCurrentLocationResult", () => {
         });
 
         const result = await getCurrentLocationResult({
-            mode: "precise",
             allowApproximateFallback: true,
         });
 
@@ -115,7 +114,6 @@ describe("getCurrentLocationResult", () => {
         });
 
         const result = await getCurrentLocationResult({
-            mode: "precise",
             allowApproximateFallback: false,
         });
 
@@ -144,7 +142,6 @@ describe("getCurrentLocationResult", () => {
         vi.mocked(reverseGeocode).mockResolvedValue(null);
 
         await getCurrentLocationResult({
-            mode: "precise",
             allowApproximateFallback: false,
         });
 
