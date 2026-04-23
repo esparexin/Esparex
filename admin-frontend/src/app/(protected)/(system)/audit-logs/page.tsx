@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { AlertCircle } from "lucide-react";
+import { useCallback, useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { AdminLog } from "@/types/audit";
@@ -16,7 +17,6 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
 import {
     buildUrlWithSearchParams,
     normalizeSearchParamValue,
@@ -55,13 +55,13 @@ export default function AuditLogsPage() {
     const actionFilter = normalizeSearchParamValue(rawAction) || "all";
     const page = parsePositiveIntParam(rawPage, 1);
 
-    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
         const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
         const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    };
+    }, [pathname, router, searchParams]);
 
     const statusOptions = useMemo(() => {
         if (actionFilter === "all" || ACTION_OPTIONS.some((option) => option.value === actionFilter)) {
@@ -107,7 +107,7 @@ export default function AuditLogsPage() {
         if (!loading && page > pagination.pages) {
             replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
         }
-    }, [loading, page, pagination.pages]);
+    }, [loading, page, pagination.pages, replaceQueryState]);
 
     const columns: ColumnDef<AdminLog>[] = [
         {
@@ -199,7 +199,12 @@ export default function AuditLogsPage() {
                 statusOptions={statusOptions}
             />
 
-            <AdminInlineAlert message={error} />
+            {error ? (
+                <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+                    <AlertCircle size={16} />
+                    <span>{error}</span>
+                </div>
+            ) : null}
 
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2 text-black">

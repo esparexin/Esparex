@@ -9,7 +9,6 @@ import { getCategories, type Category } from "@/lib/api/user/categories";
 import { useLocationData, type LocationData } from "@/context/LocationContext";
 import {
   getDisplayLocationLabel,
-  getSearchLocationLabel,
   sanitizeLocationLabel,
 } from "@/lib/location/locationLabels";
 import { getLatitude, getLongitude } from "@/lib/location/utils";
@@ -73,11 +72,8 @@ export function useBrowseListingsController<TItem, TFilters>({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { location, isLoaded } = useLocationData();
-  const routeParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
-  const routeCategory = useMemo(
-    () => resolvePublicBrowseCategory(routeParams) ?? "",
-    [routeParams.category, routeParams.categoryId]
-  );
+  const routeParams = parsePublicBrowseParams(searchParams);
+  const routeCategory = resolvePublicBrowseCategory(routeParams) ?? "";
 
   const initialSelectedCategory = routeCategory || initialCategory || "";
   const initialSort = (routeParams.sort as SortOption | undefined) ?? "newest";
@@ -104,33 +100,7 @@ export function useBrowseListingsController<TItem, TFilters>({
   const urlRadiusKm = routeParams.radiusKm;
   const locationLatitude = getLatitude(location);
   const locationLongitude = getLongitude(location);
-  const locationSearchLabel = useMemo(
-    () => getSearchLocationLabel(location),
-    [
-      location.city,
-      location.country,
-      location.display,
-      location.level,
-      location.name,
-      location.source,
-      location.state,
-    ]
-  );
-  const stableLocation = useMemo(
-    () => location,
-    [
-      locationSearchLabel,
-      location.country,
-      location.display,
-      location.level,
-      location.locationId,
-      location.name,
-      location.source,
-      location.state,
-      locationLatitude,
-      locationLongitude,
-    ]
-  );
+  const stableLocation = location;
 
   useEffect(() => {
     if (initialCategories && initialCategories.length > 0) {

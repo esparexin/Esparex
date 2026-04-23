@@ -7,7 +7,6 @@ import { AlertCircle, CheckCircle2, Eye, ShieldAlert, XCircle, Loader2 } from "l
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useModerationReports, type ReportQueueItem } from "@/hooks/useModerationReports";
@@ -210,7 +209,12 @@ export default function ReportsPage() {
                     statusOptions={REPORT_STATUS_OPTIONS}
                 />
 
-                <AdminInlineAlert message={error} />
+                {error ? (
+                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+                        <AlertCircle size={16} />
+                        <span>{error}</span>
+                    </div>
+                ) : null}
 
                 <DataTable
                     data={items}

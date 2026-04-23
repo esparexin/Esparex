@@ -76,16 +76,7 @@ export function RelatedBusinessesSection({
   const carouselRef = useRef<HTMLDivElement>(null);
   const normalizedContext = useMemo(
     () => normalizeRelatedBusinessesDiscoveryContext(context),
-    [
-      context.brandId,
-      context.city,
-      context.excludeBusinessId,
-      context.latitude,
-      context.listingCategoryId,
-      context.listingType,
-      context.locationId,
-      context.longitude,
-    ]
+    [context]
   );
   const sectionCopy = getSectionCopy(normalizedContext.listingType);
 

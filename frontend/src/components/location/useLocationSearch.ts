@@ -207,6 +207,8 @@ export function useLocationSearch({
         else onDone?.();
     };
 
+    const setOptions = setLocations;
+
     const clearSearchSession = useCallback(() => {
         abortControllerRef.current?.abort();
         setOptions([]);
@@ -215,9 +217,7 @@ export function useLocationSearch({
         setSearchError(null);
         setRetryCount(0);
         setLocalDetecting(false);
-    }, []);
-
-    const setOptions = setLocations;
+    }, [setOptions]);
 
     return {
         locations, setLocations: setOptions,

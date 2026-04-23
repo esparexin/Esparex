@@ -49,15 +49,7 @@ export function useUrlSync(
     setSort((current: SortOption) => (current === nextSort ? current : nextSort));
     setPage((current: number) => (current === nextPage ? current : nextPage));
   }, [
-    routeParams.brands,
-    routeParams.maxPrice,
-    routeParams.minPrice,
-    routeParams.page,
-    routeParams.q,
-    routeParams.radiusKm,
-    routeParams.sort,
-    routeParams.category,
-    routeParams.categoryId,
+    routeParams,
     setPage, setPriceRange, setQuery, setRadiusKm, setSelectedBrands, setSelectedCategory, setSort
   ]);
 

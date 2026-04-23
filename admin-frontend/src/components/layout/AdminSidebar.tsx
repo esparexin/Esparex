@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useAdminSidebarCounts } from "@/hooks/useAdminSidebarCounts";
@@ -29,14 +29,14 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
     const { admin } = useAdminAuth();
     const counts = useAdminSidebarCounts();
 
-    const hasAccess = (roles: string[]) => {
+    const hasAccess = useCallback((roles: string[]) => {
         if (!admin) return false;
         if (roles.includes("all")) return true;
         if (admin.role === "super_admin") return true;
         if (admin.role === "admin" && roles.includes("admin")) return true;
         if (admin.role === "moderator" && roles.includes("moderator")) return true;
         return false;
-    };
+    }, [admin]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -50,7 +50,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
 
     const visibleModules = useMemo(
         () => ADMIN_NAV_MODULES.filter((item) => hasAccess(item.roles)),
-        [admin]
+        [hasAccess]
     );
 
     return (

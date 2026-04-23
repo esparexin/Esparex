@@ -5,13 +5,13 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import {
+    AlertCircle,
     User as UserIcon,
     Mail,
 } from "lucide-react";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { UserActionDialog } from "@/components/system/users/UserActionDialog";
 import { UserActionMenu } from "@/components/system/users/UserActionMenu";
@@ -315,7 +315,12 @@ export default function UsersPage() {
                         }
                     />
 
-                    <AdminInlineAlert message={error ?? ""} />
+                    {error ? (
+                        <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+                            <AlertCircle size={16} />
+                            <span>{error}</span>
+                        </div>
+                    ) : null}
 
                     <div className="min-h-0 flex-1">
                         <DataTable

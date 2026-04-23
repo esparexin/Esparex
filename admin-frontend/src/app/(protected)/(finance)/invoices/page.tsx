@@ -1,7 +1,7 @@
 "use client";
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, Download, FileText } from "lucide-react";
 import { type ColumnDef } from "@/components/ui/DataTable";
@@ -57,13 +57,13 @@ export default function InvoicesPage() {
   const status = rawStatus && INVOICE_STATUSES.has(rawStatus) ? rawStatus : "all";
   const page = parsePositiveIntParam(rawPage, 1);
 
-  const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+  const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
     const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { search: null, ...updates }));
     const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
     if (nextUrl !== currentUrl) {
       router.replace(nextUrl, { scroll: false });
     }
-  };
+  }, [pathname, router, searchParams]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -121,7 +121,7 @@ export default function InvoicesPage() {
     if (!loading && page > pagination.pages) {
       replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
     }
-  }, [loading, page, pagination.pages]);
+  }, [loading, page, pagination.pages, replaceQueryState]);
 
   const columns: ColumnDef<AdminInvoice>[] = [
     {

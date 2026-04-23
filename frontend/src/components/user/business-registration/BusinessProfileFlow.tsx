@@ -482,7 +482,7 @@ function BusinessEditProfileFlow({
         }
 
         void loadBusiness();
-    }, [businessId, form, initialBusiness, router, setFormError]);
+    }, [businessId, form, initialBusiness, loadedBusiness, router, setFormError]);
 
     const onValidSubmit = async (data: BusinessEditFormData) => {
         if (!businessId) return;

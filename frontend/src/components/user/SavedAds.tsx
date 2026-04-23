@@ -254,7 +254,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
     const avail = savedAds.filter((ad) => !isUnavailable(ad));
     const unavail = savedAds.filter((ad) => isUnavailable(ad));
     return { available: sortAds(avail), unavailable: sortAds(unavail) };
-  }, [savedAds, sortBy, sortAds]);
+  }, [savedAds, sortAds]);
 
   const handleUnsave = useCallback((adId: string | number, e: React.MouseEvent) => {
     e.stopPropagation();

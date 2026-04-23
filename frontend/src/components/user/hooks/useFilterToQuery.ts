@@ -68,5 +68,5 @@ export function useFilterToQuery(
     }
 
     return nextFilters;
-  }, [availableBrandOptions, categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, shouldUseContextGeoRadius, sort, urlLocationId, urlLocationLabel, urlModelId]);
+  }, [availableBrandOptions, categories, location, page, priceRange, query, radiusKm, selectedBrands, selectedCategory, shouldUseContextGeoRadius, sort, urlLocationId, urlModelId]);
 }

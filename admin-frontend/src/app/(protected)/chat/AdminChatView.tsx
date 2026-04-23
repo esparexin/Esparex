@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
@@ -100,23 +100,21 @@ export default function AdminChatView() {
     return () => window.clearTimeout(timeoutId);
   }, [replaceQueryState, search, searchInput]);
 
-  const load = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError("");
-      const res = await fetchAdminChats({ filter, q: search, page, limit: 20 });
-      setItems(res.data ?? []);
-      setTotal(res.total ?? 0);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load chats");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filter, search, page, refreshKey]);
-
   useEffect(() => {
-    void load();
-  }, [load]);
+    void (async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const res = await fetchAdminChats({ filter, q: search, page, limit: 20 });
+        setItems(res.data ?? []);
+        setTotal(res.total ?? 0);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to load chats");
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [filter, page, refreshKey, search]);
 
   const refresh = () => setRefreshKey((k) => k + 1);
 

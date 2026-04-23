@@ -308,7 +308,7 @@ async function ensureSparePartFixture(categoryId: Types.ObjectId, sellerId: Type
   );
 }
 
-async function verifyOwnershipSeparation(buyerMobile: string, sellerMobile: string) {
+function verifyOwnershipSeparation(buyerMobile: string, sellerMobile: string) {
   if (buyerMobile === sellerMobile) {
     throw new Error(
       `SMOKE_AUTH_MOBILE (${buyerMobile}) and SMOKE_FIXTURE_SELLER_MOBILE (${sellerMobile}) must be different.`
@@ -325,7 +325,7 @@ async function run() {
       );
     }
 
-    await verifyOwnershipSeparation(BUYER_MOBILE, SELLER_MOBILE);
+    verifyOwnershipSeparation(BUYER_MOBILE, SELLER_MOBILE);
     await connectDB();
 
     const buyer = await ensureUser({

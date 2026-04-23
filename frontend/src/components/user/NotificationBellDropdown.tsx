@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     Bell,
@@ -67,9 +67,8 @@ export function NotificationBellDropdown({
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
 
-    const notifications = useMemo(
-        () => sortNotifications(Array.isArray(notificationsData?.notifications) ? notificationsData.notifications : []),
-        [notificationsData?.notifications]
+    const notifications = sortNotifications(
+        Array.isArray(notificationsData?.notifications) ? notificationsData.notifications : []
     );
 
     useEffect(() => {

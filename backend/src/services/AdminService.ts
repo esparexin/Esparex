@@ -1,5 +1,5 @@
 import Admin, { IAdmin } from '../models/Admin';
-import AdminLog, { type IAdminLog } from '../models/AdminLog';
+import AdminLog from '../models/AdminLog';
 import { comparePassword, generateAdminToken } from '../utils/auth';
 import { USER_STATUS } from '@shared/enums/userStatus';
 import logger from '../utils/logger';

@@ -56,7 +56,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
     form,
     listingImages,
     isEditMode,
-    editId,
+    editId: _editId,
     schema,
     partialSchema,
     submitFn,
@@ -67,7 +67,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
     const [idempotencyKey, setIdempotencyKey] = useState(generateIdempotencyKey);
     const { setIsDirty } = useNavigation();
 
-    const resetIdempotency = () => setIdempotencyKey(generateIdempotencyKey());
+    const resetIdempotency = useCallback(() => setIdempotencyKey(generateIdempotencyKey()), []);
 
     const onValidSubmit = useCallback(async (data: T) => {
         setIsSubmitting(true);
@@ -200,8 +200,8 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
         }
         return null;
     }, [
-        listingImages, isEditMode, editId, schema, partialSchema, 
-        submitFn, onSuccess, onError, idempotencyKey, setIsDirty
+        form, listingImages, isEditMode, schema, partialSchema,
+        submitFn, onSuccess, onError, idempotencyKey, resetIdempotency, setIsDirty
     ]);
 
     return {

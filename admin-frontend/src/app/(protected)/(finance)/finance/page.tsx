@@ -1,7 +1,7 @@
 "use client";
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ColumnDef } from "@/components/ui/DataTable";
 import { Transaction, FinanceStats } from "@/types/transaction";
@@ -55,15 +55,15 @@ export default function FinancePage() {
                 : DEFAULT_STATUS;
     const page = parsePositiveIntParam(rawPage, 1);
 
-    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
         const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { search: null, ...updates }));
         const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    };
+    }, [pathname, router, searchParams]);
 
-    const fetchFinanceData = async () => {
+    const fetchFinanceData = useCallback(async () => {
         setLoading(true);
         setError("");
         try {
@@ -88,14 +88,14 @@ export default function FinancePage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, search, statusFilter]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             void fetchFinanceData();
         }, 300);
         return () => clearTimeout(timer);
-    }, [page, search, statusFilter]);
+    }, [fetchFinanceData]);
 
     useEffect(() => {
         const nextUrl = buildUrlWithSearchParams(
@@ -118,7 +118,7 @@ export default function FinancePage() {
         if (!loading && page > pagination.pages) {
             replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
         }
-    }, [loading, page, pagination.pages]);
+    }, [loading, page, pagination.pages, replaceQueryState]);
 
     const columns: ColumnDef<Transaction>[] = [
         {
