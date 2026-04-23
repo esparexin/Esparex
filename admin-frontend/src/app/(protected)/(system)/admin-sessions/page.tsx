@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import type { AdminSessionItem } from "@/types/adminSession";
-import { Power, AlertTriangle, Loader2 } from "lucide-react";
+import { Power, AlertTriangle, Loader2, AlertCircle } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { useAdminSessions } from "@/hooks/useAdminSessions";
 
@@ -125,7 +124,11 @@ export default function AdminSessionsPage() {
                     ]}
                 />
 
-                <AdminInlineAlert message={error || ""} />
+                {error && (
+                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">
+                        <AlertCircle size={16} /> {error}
+                    </div>
+                )}
 
                 <DataTable
                     data={sessions}

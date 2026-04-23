@@ -24,8 +24,8 @@ export function useSubscriptionPlans() {
             const parsed = parseAdminResponse<Plan>(response);
             setPlans(parsed.items);
             return { success: true, data: parsed.items };
-        } catch (err: any) {
-            const msg = err.message || "Failed to load plans";
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : "Failed to load plans";
             setError(msg);
             showToast(msg, "error");
             return { success: false, error: msg };
@@ -45,8 +45,8 @@ export function useSubscriptionPlans() {
             // so we refresh. More robust for finance.
             await fetchPlans();
             return { success: true };
-        } catch (err: any) {
-            const msg = err.message || "Failed to toggle plan status";
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : "Failed to toggle plan status";
             showToast(msg, "error");
             return { success: false, error: msg };
         } finally {

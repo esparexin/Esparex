@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { 
     ADMIN_NOTIFICATION_TARGET_TYPE, 
@@ -96,13 +96,13 @@ export function useNotifications() {
         ? (searchParams.get("targetType") as "all" | "topic" | "users")
         : "any";
 
-    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
         const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
         const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    };
+    }, [pathname, router, searchParams]);
 
     const historyRoute = useMemo(() => {
         const params = new URLSearchParams();
@@ -115,7 +115,7 @@ export function useNotifications() {
         return `${ADMIN_ROUTES.NOTIFICATIONS_HISTORY}${queryStr ? `?${queryStr}` : ""}`;
     }, [historyTargetType, page, q, status]);
 
-    const fetchHistory = async () => {
+    const fetchHistory = useCallback(async () => {
         setLoading(true);
         try {
             const response = await adminFetch<any>(historyRoute);
@@ -131,7 +131,7 @@ export function useNotifications() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [historyRoute]);
 
     // ── Effects ────────────────────────────────────────────────────────────────
 
@@ -148,19 +148,19 @@ export function useNotifications() {
             }
         }, 300);
         return () => window.clearTimeout(timer);
-    }, [q, searchInput]);
+    }, [q, searchInput, replaceQueryState]);
 
     // Fetch history on route change
     useEffect(() => {
         void fetchHistory();
-    }, [historyRoute]);
+    }, [historyRoute, fetchHistory]);
 
     // Page existence validation
     useEffect(() => {
         if (!loading && page > pagination.totalPages && pagination.totalPages > 0) {
             replaceQueryState({ page: pagination.totalPages > 1 ? pagination.totalPages : null });
         }
-    }, [loading, page, pagination.totalPages]);
+    }, [loading, page, pagination.totalPages, replaceQueryState]);
 
     // Recipient Search (Debounced)
     useEffect(() => {

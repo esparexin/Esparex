@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
@@ -39,12 +39,12 @@ function LocationAnalyticsPageContent({
     const [cityInput, setCityInput] = useState(initialCity);
     const [districtInput, setDistrictInput] = useState(initialDistrict);
 
-    const filters: LocationAnalyticsFilters = {
+    const filters: LocationAnalyticsFilters = useMemo(() => ({
         city: initialCity || undefined,
         district: initialDistrict || undefined,
         state: initialState || undefined,
         country: initialCountry || undefined,
-    };
+    }), [initialCity, initialDistrict, initialState, initialCountry]);
 
     useEffect(() => {
         setCityInput(initialCity);
@@ -54,13 +54,13 @@ function LocationAnalyticsPageContent({
         setDistrictInput(initialDistrict);
     }, [initialDistrict]);
 
-    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
         const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
         const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    };
+    }, [pathname, router, searchParams]);
 
     useEffect(() => {
         getDistinctStates()
@@ -81,7 +81,7 @@ function LocationAnalyticsPageContent({
         }, 300);
 
         return () => window.clearTimeout(timer);
-    }, [cityInput, initialCity]);
+    }, [cityInput, initialCity, replaceQueryState]);
 
     useEffect(() => {
         const timer = window.setTimeout(() => {
@@ -94,7 +94,7 @@ function LocationAnalyticsPageContent({
         }, 300);
 
         return () => window.clearTimeout(timer);
-    }, [districtInput, initialDistrict]);
+    }, [districtInput, initialDistrict, replaceQueryState]);
 
     useEffect(() => {
         setLoading(true);
@@ -103,7 +103,7 @@ function LocationAnalyticsPageContent({
             .then(setData)
             .catch((e: Error) => setError(e.message || "Failed to load analytics"))
             .finally(() => setLoading(false));
-    }, [initialCity, initialDistrict, initialState, initialCountry]);
+    }, [filters]);
 
     const adsByStateRows = (() => {
         const merged = new Map<string, { key: string; label: string; count: number }>();

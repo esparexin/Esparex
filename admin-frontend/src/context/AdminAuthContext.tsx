@@ -24,16 +24,16 @@ const AdminAuthContext = createContext<AdminAuthState | undefined>(undefined);
 
 function normalizeAdmin(payload: unknown): AdminUser | null {
   if (!payload || typeof payload !== "object") return null;
-  const item = payload as any;
+  const item = payload as Record<string, unknown>;
   const id = item.id || item._id;
-  if (!id || !item.email || !item.role) return null;
+  if (!id || typeof item.email !== "string" || typeof item.role !== "string") return null;
   return {
     id: String(id),
     email: item.email,
     role: item.role,
-    firstName: item.firstName,
-    lastName: item.lastName,
-    permissions: Array.isArray(item.permissions) ? item.permissions : []
+    firstName: typeof item.firstName === "string" ? item.firstName : undefined,
+    lastName: typeof item.lastName === "string" ? item.lastName : undefined,
+    permissions: Array.isArray(item.permissions) ? item.permissions.filter((p): p is string => typeof p === "string") : []
   };
 }
 

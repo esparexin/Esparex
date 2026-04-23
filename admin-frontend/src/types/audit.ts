@@ -4,7 +4,7 @@ export interface AdminLog {
     action: string;
     targetType: string;
     targetId?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     ipAddress?: string;
     userAgent?: string;
     createdAt: string;

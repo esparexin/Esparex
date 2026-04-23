@@ -152,13 +152,18 @@ function getHeaderLocationLabel(location: LocationLabelInput): string | undefine
 }
 
 export function getHeaderLocationText(location: LocationLabelInput) {
-    const headerText =
-        getHeaderLocationLabel(location) ||
+    const label = getHeaderLocationLabel(location);
+    const baseText =
+        label ||
         ((location?.source === "auto" || location?.source === "ip") ? "Nearby you" : undefined);
+
+    // UX Refinement: If IP-based, prefix with tilde to indicate approximation
+    const isApproximate = location?.source === "ip";
+    const headerText = isApproximate && label ? `~ ${label}` : baseText;
 
     return {
         headerText,
-        tooltipText: headerText,
+        tooltipText: baseText,
         meta:
             location?.source === "auto"
                 ? "Auto-detected"
