@@ -83,6 +83,12 @@ const withQueryParams = (url: string, params: URLSearchParams): string => {
     return url.includes('?') ? `${url}&${query}` : `${url}?${query}`;
 };
 
+interface RawListingPayload {
+    ads?: any[];
+    nextCursor?: string | { createdAt: string; id?: string };
+    hasMore?: boolean;
+}
+
 const fetchListingPayload = async <TPayload = unknown>(
     url: string,
     fetchOptions?: ServerFetchOptions
@@ -90,7 +96,7 @@ const fetchListingPayload = async <TPayload = unknown>(
     const payload =
         typeof window === 'undefined'
             ? await fetchUserApiJson(url, fetchOptions).then(unwrapApiPayload)
-            : await apiClient.get(url).then((res: { data: unknown }) => unwrapApiPayload(res.data));
+            : await apiClient.get(url).then((res: { data: any }) => unwrapApiPayload(res.data));
     return (payload ?? null) as TPayload | null;
 };
 
@@ -203,14 +209,14 @@ export const getHomeAds = async (
         if (typeof effectiveParams.lng === 'number' && Number.isFinite(effectiveParams.lng)) params.append('lng', String(effectiveParams.lng));
         if (typeof effectiveParams.radiusKm === 'number' && Number.isFinite(effectiveParams.radiusKm)) params.append('radiusKm', String(effectiveParams.radiusKm));
         const url = withQueryParams(API_ROUTES.USER.HOME_FEED, params);
-        const result = await fetchListingPayload<{ ads?: unknown[]; nextCursor?: unknown; hasMore?: boolean }>(url, options?.fetchOptions);
+        const result = await fetchListingPayload<RawListingPayload>(url, options?.fetchOptions);
 
         if (!result) return { ads: [], nextCursor: fallbackCursor, hasMore: false };
 
         return {
             ads: (result.ads || []).map(normalizeListing),
-            nextCursor: (result.nextCursor && typeof result.nextCursor === 'object' && typeof result.nextCursor.createdAt === 'string')
-                ? { createdAt: result.nextCursor.createdAt, id: typeof result.nextCursor.id === 'string' ? result.nextCursor.id : '' }
+            nextCursor: (result.nextCursor && typeof result.nextCursor === 'object' && typeof (result.nextCursor as any).createdAt === 'string')
+                ? { createdAt: (result.nextCursor as any).createdAt, id: typeof (result.nextCursor as any).id === 'string' ? (result.nextCursor as any).id : '' }
                 : (typeof result.nextCursor === 'string' ? { createdAt: result.nextCursor, id: '' } : fallbackCursor),
             hasMore: result.hasMore === true
         };
@@ -234,7 +240,7 @@ export const getTrendingAds = async (
         if (effectiveParams.categoryId) params.append('categoryId', effectiveParams.categoryId);
         if (effectiveParams.limit) params.append('limit', String(effectiveParams.limit));
         const url = withQueryParams(API_ROUTES.USER.ADS_TRENDING, params);
-        const result = await fetchListingPayload<{ ads?: unknown[] }>(url, options?.fetchOptions);
+        const result = await fetchListingPayload<RawListingPayload>(url, options?.fetchOptions);
 
         if (!result) return { ads: [] };
 
