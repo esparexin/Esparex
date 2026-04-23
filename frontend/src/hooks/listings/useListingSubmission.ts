@@ -67,7 +67,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
     const [idempotencyKey, setIdempotencyKey] = useState(generateIdempotencyKey);
     const { setIsDirty } = useNavigation();
 
-    const resetIdempotency = () => setIdempotencyKey(generateIdempotencyKey());
+    const resetIdempotency = useCallback(() => setIdempotencyKey(generateIdempotencyKey()), []);
 
     const onValidSubmit = useCallback(async (data: T) => {
         setIsSubmitting(true);
@@ -135,7 +135,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
 
                 issues.forEach((issue: z.ZodIssue) => {
                     const fieldPath = issue.path
-                        .filter((segment: string | number): segment is string | number => typeof segment === "string" || typeof segment === "number")
+                        .filter((segment): segment is string | number => typeof segment === "string" || typeof segment === "number")
                         .join(".");
 
                     if (fieldPath) {
@@ -147,7 +147,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
                 });
 
                 const firstPath = firstIssue?.path
-                    .filter((segment: string | number): segment is string | number => typeof segment === "string" || typeof segment === "number")
+                    .filter((segment): segment is string | number => typeof segment === "string" || typeof segment === "number")
                     .join(".");
 
                 if (typeof document !== "undefined") {
@@ -199,8 +199,8 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
         }
         return null;
     }, [
-        listingImages, isEditMode, editId, schema, partialSchema, 
-        submitFn, onSuccess, onError, idempotencyKey, setIsDirty
+        form, listingImages, isEditMode, schema, partialSchema,
+        submitFn, onSuccess, onError, idempotencyKey, resetIdempotency, setIsDirty
     ]);
 
     return {

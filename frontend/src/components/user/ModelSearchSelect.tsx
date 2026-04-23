@@ -7,14 +7,24 @@ import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
 import { usePostAd } from "@/components/user/post-ad/PostAdContext";
 import type { DeviceModel } from "@/lib/api/user/masterData";
+import { ensureModel } from "@/lib/api/user/masterData";
 
 interface ModelSearchSelectProps {
     brandId: string;
+    /** Display name of the selected brand — used for ensureModel when brandId is empty (custom brand). */
+    brandName?: string;
     categoryId: string;
     /** Currently selected modelId or modelName */
     value: string;
+    /** Human-readable display name for the current value — used when value is an ObjectId not in availableModels */
+    modelDisplayName?: string;
     /** Called with (modelId, modelName) on selection */
     onChange: (modelId: string, modelName: string) => void;
+    /**
+     * Called after ensureModel creates a new brand record so the parent can
+     * sync the pending brandId back into the form.
+     */
+    onBrandResolved?: (brandId: string, brandName: string) => void;
     disabled?: boolean;
     placeholder?: string;
     className?: string;
@@ -22,9 +32,12 @@ interface ModelSearchSelectProps {
 
 export function ModelSearchSelect({
     brandId,
+    brandName = "",
     categoryId,
     value,
+    modelDisplayName = "",
     onChange,
+    onBrandResolved,
     disabled = false,
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
     className,
@@ -34,15 +47,17 @@ export function ModelSearchSelect({
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [ensureError, setEnsureError] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
-    // Resolve selected model name
+    // Resolve selected model name.
+    // Priority: matched model in list > explicit displayName > raw value (ObjectId fallback)
     const selectedModel = useMemo(() => {
         return availableModels.find(m => m.id === value || m._id === value);
     }, [availableModels, value]);
 
-    const selectedName = selectedModel?.name || value || "";
+    const selectedName = selectedModel?.name || modelDisplayName || value || "";
 
     // Debounced search logic
     useEffect(() => {
@@ -100,13 +115,36 @@ export function ModelSearchSelect({
         setIsEditing(false);
     };
 
-    const handleAddNew = () => {
-        if (!search.trim()) return;
-        // Logic for "Add as New" suggestion
-        // We pass the name as both bits, the submission logic will handle creating the pending record
-        onChange("", search.trim());
-        setSearch("");
-        setIsEditing(false);
+    const [isEnsuring, setIsEnsuring] = useState(false);
+
+    const handleAddNew = async () => {
+        const trimmed = search.trim();
+        if (!trimmed || !categoryId) return;
+
+        // Resolve brand identifier: prefer the display name, fall back to the DB id.
+        const effectiveBrandName = brandName || brandId;
+        if (!effectiveBrandName) return;
+
+        setIsEnsuring(true);
+        setEnsureError(null);
+        try {
+            const result = await ensureModel(categoryId, effectiveBrandName, trimmed);
+            // If a new pending brand was created, propagate its ID to the parent form.
+            if (result.brandId && (!brandId || brandId !== result.brandId)) {
+                onBrandResolved?.(result.brandId, brandName || effectiveBrandName);
+            }
+            onChange(result.id, result.name);
+            // Success — close search mode
+            setSearch("");
+            setIsEditing(false);
+        } catch (err) {
+            // Surface the error so the user knows what happened and can retry.
+            const msg = err instanceof Error ? err.message : "Failed to add model — please try again.";
+            setEnsureError(msg);
+            // Keep isEditing=true so the user's search text stays and they can retry.
+        } finally {
+            setIsEnsuring(false);
+        }
     };
 
     // ── Selected State ──────────────────────────────────────────────────────
@@ -156,7 +194,7 @@ export function ModelSearchSelect({
                     onChange={(e) => setSearch(e.target.value)}
                     onFocus={() => setIsEditing(true)}
                     placeholder={placeholder}
-                    disabled={disabled}
+                    disabled={disabled || isEnsuring}
                     className={cn(
                         "pl-10 pr-12 h-12 text-sm font-medium border-slate-200/80 rounded-xl transition-all",
                         "focus:ring-2 focus:ring-primary/10 focus:border-primary shadow-sm"
@@ -166,13 +204,24 @@ export function ModelSearchSelect({
                     <button
                         type="button"
                         onClick={handleAddNew}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95"
+                        disabled={isEnsuring}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95 disabled:opacity-60 disabled:cursor-wait"
                         title={`Add "${search}" as a new suggestion`}
                     >
-                        <Plus className="w-5 h-5" />
+                        {isEnsuring ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                            <Plus className="w-5 h-5" />
+                        )}
                     </button>
                 )}
             </div>
+
+            {ensureError && (
+                <p className="mt-1 px-1 text-xs text-red-600 font-medium flex items-center gap-1">
+                    <span>⚠</span> {ensureError}
+                </p>
+            )}
 
             {(isEditing || search) && dropdownStyle && (
                 <>
