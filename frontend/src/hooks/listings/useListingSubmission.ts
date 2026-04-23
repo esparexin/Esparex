@@ -56,7 +56,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
     form,
     listingImages,
     isEditMode,
-    editId,
+    editId: _editId,
     schema,
     partialSchema,
     submitFn,
