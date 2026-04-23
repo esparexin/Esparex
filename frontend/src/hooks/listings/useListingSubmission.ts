@@ -135,7 +135,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
 
                 issues.forEach((issue: z.ZodIssue) => {
                     const fieldPath = issue.path
-                        .filter((segment: string | number): segment is string | number => typeof segment === "string" || typeof segment === "number")
+                        .filter((segment): segment is string | number => typeof segment === "string" || typeof segment === "number")
                         .join(".");
 
                     if (fieldPath) {
@@ -147,7 +147,7 @@ export function useListingSubmission<T extends FieldValues, R = unknown>({
                 });
 
                 const firstPath = firstIssue?.path
-                    .filter((segment: string | number): segment is string | number => typeof segment === "string" || typeof segment === "number")
+                    .filter((segment): segment is string | number => typeof segment === "string" || typeof segment === "number")
                     .join(".");
 
                 if (typeof document !== "undefined") {
