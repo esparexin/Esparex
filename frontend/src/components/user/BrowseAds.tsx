@@ -125,7 +125,7 @@ export function BrowseAds({
   const filters: ListingFilters = useFilterToQuery(
     query, selectedCategory, categories, selectedBrands,
     availableBrands,
-    urlModelId, priceRange, urlLocationId, canonicalUrlLocationLabel,
+    urlModelId, priceRange, urlLocationId,
     location, shouldUseContextGeoRadius, radiusKm, sort, page
   );
 

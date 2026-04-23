@@ -16,7 +16,7 @@ For every AI-generated change, follow this order:
 
 1. Read the task and classify the affected layer: docs, shared, backend, frontend, admin, infrastructure, or runtime AI.
 2. Read `ai-governance/SSOT.md`.
-3. Identify the canonical owner module and the relevant governing document in `docs/` or `SYSTEM_CONSTITUTION.md`.
+3. Identify the canonical owner module in the active workspace code or guard scripts.
 4. Search for an existing implementation before creating a new file, folder, hook, service, schema, component, or prompt.
 5. Prefer extending the canonical owner over creating a parallel module.
 6. If behavior, contracts, lifecycle, naming, or architecture changes, update the governing documentation in the same change when safe.
@@ -157,4 +157,3 @@ Stop and request a human decision when:
 - the change requires a new competing architecture pattern
 - two canonical documents conflict in a way that changes behavior
 - the change would delete local ignored tool files without a safe migration path
-

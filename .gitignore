@@ -20,6 +20,7 @@ dist
 
 # Misc
 .DS_Store
+**/.DS_Store
 *.pem
 tmp/
 
@@ -97,6 +98,8 @@ data/
 *.log
 logs/
 backend/logs/
+backend_stdout.log
+backend_stderr.log
 
 # Backups
 backups/
@@ -131,6 +134,7 @@ tail*.json
 last*.json
 .claude/
 .jscpd-report/
+frontend/test-results/
 
 # Keep only example/template env files — never real values
 # *.env.example and *.env.*.example are intentionally tracked

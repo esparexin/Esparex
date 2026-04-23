@@ -74,7 +74,7 @@ if (violations.length > 0) {
   console.error("\n💡 HINT:");
   console.error("   1) Keep authoritative AI governance only in ai-governance/.");
   console.error("   2) Keep local IDE/tool files ignored and non-authoritative.");
-  console.error("   3) Use ai-governance/AGENTS/ wrappers if a tool needs a compatibility layer.");
+  console.error("   3) Keep tool-specific compatibility files thin and derived from ai-governance/ core docs.");
   process.exit(1);
 }
 

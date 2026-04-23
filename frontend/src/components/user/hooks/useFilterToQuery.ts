@@ -23,7 +23,6 @@ export function useFilterToQuery(
   urlModelId: string,
   priceRange: [number, number],
   urlLocationId: string,
-  urlLocationLabel: string,
   location: AppLocation,
   shouldUseContextGeoRadius: boolean,
   radiusKm: number,

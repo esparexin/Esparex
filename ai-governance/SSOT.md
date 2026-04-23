@@ -22,7 +22,7 @@ The authoritative order for AI governance is:
 1. `ai-governance/SSOT.md`
 2. `ai-governance/SOP.md`
 3. `ai-governance/AI_CONTEXT.json`
-4. Relevant canonical platform documents already defined in `docs/` and `SYSTEM_CONSTITUTION.md`
+4. Relevant canonical platform code and root workspace metadata
 5. Runtime AI code ownership in the application codebase
 
 Anything outside `ai-governance/` that contains AI instructions is non-authoritative unless this file explicitly designates it as canonical.
@@ -31,17 +31,15 @@ Anything outside `ai-governance/` that contains AI instructions is non-authorita
 
 AI governance does not replace platform architecture governance. For platform behavior, AI agents must follow:
 
-1. `docs/00_README_ARCHITECTURE.md`
-2. `SYSTEM_CONSTITUTION.md`
-3. The relevant domain document in `docs/01` through `docs/07`
-4. `docs/CONVENTIONS_*.md`
-5. Package-level READMEs
-6. Active migration plans such as `SSOT_REFACTOR.md`
+1. `README.md`
+2. `package.json`
+3. The canonical implementation under `backend/src`, `frontend/src`, `admin-frontend/src`, and `shared/`
+4. Enforcement scripts under `scripts/`
 
 This means:
 
 - `ai-governance/` owns AI behavior
-- `docs/` and `SYSTEM_CONSTITUTION.md` own platform behavior
+- the workspace code and guard scripts own platform behavior
 
 ## 3. One-Brain Rule
 
@@ -153,4 +151,3 @@ Every AI-assisted change summary must state:
 - files changed
 - checks run or not run
 - unresolved blockers or conflicts
-

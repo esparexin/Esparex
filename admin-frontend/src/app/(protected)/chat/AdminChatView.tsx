@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
