@@ -10,11 +10,11 @@
   "scripts": {
     "clean": "lsof -ti:5001 | xargs kill -9 || true",
     "predev": "npm run clean",
-    "start": "NODE_ENV=production node -r ts-node/register/transpile-only -r tsconfig-paths/register dist/backend/src/index.js",
+    "start": "NODE_ENV=production node dist/backend/src/index.js",
     "start:dev": "node dist/backend/src/index.js",
     "start:ts": "ts-node --files -r tsconfig-paths/register src/index.ts",
     "dev": "nodemon",
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsc && npx tsc-alias",
     "typecheck": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
