@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import Razorpay from 'razorpay';
-import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
-import { env } from '../../config/env';
+import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
+import { env } from '@core/config/env';
 
 export type InvoiceUser = {
     _id: { toString: () => string };

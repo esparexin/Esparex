@@ -1,4 +1,4 @@
-import { adminAuditLogQuerySchema } from "../../validators/adminAudit.validator";
+import { adminAuditLogQuerySchema } from "@core/validators/adminAudit.validator";
 
 describe("adminAuditLogQuerySchema", () => {
     it("accepts canonical audit log filters", () => {

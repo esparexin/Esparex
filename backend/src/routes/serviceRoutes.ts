@@ -8,7 +8,7 @@ import { mutationLimiter, searchLimiter, phoneRevealLimiter } from '../middlewar
 
 import { ServicePayloadSchema, PartialServicePayloadSchema } from '../../../shared/schemas/servicePayload.schema';
 import type { ZodTypeAny } from 'zod';
-import { createListingValidator } from '../validators/listing.validator';
+import { createListingValidator } from '../middleware/listing.validator';
 import { enforceCreateServiceIdempotency } from '../middleware/idempotency';
 
 import { requireBusinessApproved } from '../middleware/businessMiddleware';

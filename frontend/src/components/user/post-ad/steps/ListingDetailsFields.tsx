@@ -34,13 +34,15 @@ const buildLocationValue = (
     city: string,
     state: string | undefined,
     coordinates?: GeoJSONPoint,
-    locationId?: string
+    locationId?: string,
+    isSnapped?: boolean
 ): NonNullable<PostAdFormData["location"]> => ({
     city,
     state,
     display,
     locationId,
     coordinates,
+    isSnapped,
 });
 
 export default function ListingDetailsFields() {
@@ -117,7 +119,9 @@ export default function ListingDetailsFields() {
             id: canonicalLocationId 
         });
 
-        setValue("location", buildLocationValue(display, city, loc.state, geo, canonicalLocationId), {
+        const isSnapped = (loc as any).isSnapped;
+
+        setValue("location", buildLocationValue(display, city, loc.state, geo, canonicalLocationId, isSnapped), {
             shouldValidate: true,
             shouldDirty: true,
             shouldTouch: true,
@@ -151,9 +155,11 @@ export default function ListingDetailsFields() {
             id: canonicalLocationId,
         });
 
+        const isSnapped = (globalLocation as any)?.isSnapped;
+
         setValue(
             "location",
-            buildLocationValue(display, locCity || "", locState, locCoordinates, canonicalLocationId),
+            buildLocationValue(display, locCity || "", locState, locCoordinates, canonicalLocationId, isSnapped),
             { shouldValidate: true, shouldDirty: false }
         );
     }, [

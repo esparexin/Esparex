@@ -56,7 +56,7 @@ jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: mockSendErrorResponse,
 }));
 
-jest.mock('../../utils/logger', () => ({
+jest.mock('@core/utils/logger', () => ({
     __esModule: true,
     default: mockLogger,
 }));

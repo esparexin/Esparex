@@ -29,7 +29,7 @@ jest.mock("../../services/AdminSessionService", () => ({
 
 import type { Request, Response } from "express";
 import * as adminUsersController from "../../controllers/admin/adminUsersController";
-import Admin from "../../models/Admin";
+import Admin from "@core/models/Admin";
 
 const createMockRes = () => {
     const res = {

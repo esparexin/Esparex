@@ -1,11 +1,11 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import type { ReportTargetTypeValue } from '../../models/Report';
-import { respond } from '../../utils/respond';
+import type { ReportTargetTypeValue } from '@core/models/Report';
+import { respond } from "../../utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
 import {
     checkAdExists,
     checkUserExists,
@@ -13,7 +13,7 @@ import {
     createReport as createReportRecord,
     countActiveReports,
     autoHideAdIfOverThreshold,
-} from '../../services/ReportService';
+} from '@core/services/ReportService';
 
 type ReportRequest = Request & {
     user?: {

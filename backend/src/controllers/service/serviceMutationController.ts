@@ -1,21 +1,21 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { findOwnedService } from '../../services/AdMutationService';
+import { findOwnedService } from '@core/services/AdMutationService';
 import { Service } from '../../../../shared/types/Service';
 import { ApiResponse } from '../../../../shared/types/Api';
-import { respond } from '../../utils/respond';
-import { getSingleParam } from '../../utils/requestParams';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { respond } from "../../utils/respond";
+import { getSingleParam } from "../../utils/requestParams";
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
-import { mutateStatus } from '../../services/StatusMutationService';
+import { mutateStatus } from '@core/services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import {
     createServiceMutation,
     type ServiceBusinessContext,
     updateServiceMutation,
-} from '../../services/service/ServiceMutationService';
+} from '@core/services/service/ServiceMutationService';
 
 const requireOwnedService = async (req: Request, res: Response, fetchFull = false) => {
     const user = req.user;

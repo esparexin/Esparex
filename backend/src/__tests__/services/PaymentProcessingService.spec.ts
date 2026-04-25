@@ -77,12 +77,12 @@ jest.mock("../../controllers/payment/shared", () => ({
     },
 }));
 
-import User from "../../models/User";
-import { Invoice } from "../../models/Invoice";
-import { Transaction } from "../../models/Transaction";
-import { credit } from "../../services/WalletService";
-import { recordRevenue } from "../../services/RevenueAnalytics";
-import { processSuccessfulPayment, recoverPendingPayment } from "../../services/PaymentProcessingService";
+import User from "@core/models/User";
+import { Invoice } from "@core/models/Invoice";
+import { Transaction } from "@core/models/Transaction";
+import { credit } from "@core/services/WalletService";
+import { recordRevenue } from "@core/services/RevenueAnalytics";
+import { processSuccessfulPayment, recoverPendingPayment } from "@core/services/PaymentProcessingService";
 
 describe("PaymentProcessingService", () => {
     beforeEach(() => {

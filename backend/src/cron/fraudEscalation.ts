@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import Admin from '../models/Admin';
-import { env } from '../config/env';
-import AdminLog from '../models/AdminLog';
-import FraudScore from '../models/FraudScore';
-import User from '../models/User';
-import logger from '../utils/logger';
-import { runWithDistributedJobLock } from '../utils/distributedJobLock';
-import { USER_STATUS } from '@shared/enums/userStatus';
+import Admin from '@core/models/Admin';
+import { env } from '@core/config/env';
+import AdminLog from '@core/models/AdminLog';
+import FraudScore from '@core/models/FraudScore';
+import User from '@core/models/User';
+import logger from '@core/utils/logger';
+import { runWithDistributedJobLock } from '@core/utils/distributedJobLock';
+import { USER_STATUS } from '@core/constants/enums/userStatus';
 
 const FRAUD_ESCALATION_INTERVAL_MS = 60 * 60 * 1000; // 1h
 const FRAUD_ESCALATION_STARTUP_DELAY_MS = 20_000;

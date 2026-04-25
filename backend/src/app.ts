@@ -9,16 +9,16 @@
  *
  * Any architectural changes must pass SSOT audit.
  */
-import './config/loadEnv'; // MUST BE FIRST
-import { initSentry } from './config/sentry'; // Initialize Sentry early
+import '@core/config/loadEnv'; // MUST BE FIRST
+import { initSentry } from '@core/config/sentry'; // Initialize Sentry early
 import express, { type RequestHandler } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import './models/registry';
-import { env } from './config/env';
+import '@core/models/registry';
+import { env } from '@core/config/env';
 import { validateOtpConfiguration } from './middleware/otpGuard';
 
 // Initialize Sentry for error tracking
@@ -39,7 +39,6 @@ validateOtpConfiguration({
 /* ROUTES                                                                      */
 /* -------------------------------------------------------------------------- */
 import catalogRoutes from './routes/catalogRoutes';
-import adminRoutes, { publicRouter as adminPublicRoutes } from './routes/adminRoutes';
 import userRoutes from './routes/userRoutes';
 import authRoutes from './routes/authRoutes';
 
@@ -77,9 +76,9 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 /* -------------------------------------------------------------------------- */
 /* DB / HEALTH                                                                 */
 /* -------------------------------------------------------------------------- */
-import { isDbReady } from './config/db';
-import logger from './utils/logger';
-import { getAllowedOriginList, normalizeOrigin } from './utils/originConfig';
+import { isDbReady } from '@core/config/db';
+import logger from '@core/utils/logger';
+import { getAllowedOriginList, normalizeOrigin } from '@core/utils/originConfig';
 
 /* -------------------------------------------------------------------------- */
 /* SWAGGER                                                                     */
@@ -325,11 +324,6 @@ app.use('/api/v1', rootRoutes);
 app.use('/api/v1/catalog', catalogRoutes);
 app.use('/api/v1/locations', locationRoutes);
 app.use('/api/v1/editorial', editorialRoutes);
-
-// Admin
-app.use('/api/v1/admin', adminPublicRoutes);
-app.use('/api/v1/admin', adminRoutes);
-
 
 // User
 app.use('/api/v1/users', userRoutes);

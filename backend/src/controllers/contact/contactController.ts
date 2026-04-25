@@ -1,8 +1,8 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
-import { createContactSubmission } from '../../services/ContactService';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { respond } from '../../utils/respond';
+import { createContactSubmission } from '@core/services/ContactService';
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { respond } from "../../utils/respond";
 
 /**
  * CONTACT US CONTROLLER

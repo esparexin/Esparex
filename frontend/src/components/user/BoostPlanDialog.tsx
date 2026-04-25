@@ -130,8 +130,8 @@ export function BoostPlanDialog({
           onOpenChange(false);
           setSelectedPlan(null);
         },
-        onPaymentFailed: () => {
-          notify.error("Payment failed. Please try again.");
+        onPaymentFailed: (reason: string) => {
+          notify.error(`Payment failed: ${reason}`);
         },
       });
     } catch (error) {

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "paths": {
+      "@shared/*": ["../shared/*"],
+      "@shared": ["../shared/index.ts"],
+      "@core/*": ["./src/*"],
+      "@core/types": ["./src/types/index.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}

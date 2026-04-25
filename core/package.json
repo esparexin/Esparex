@@ -1,0 +1,44 @@
+{
+  "name": "@esparex/core",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@esparex/shared": "*",
+    "mongoose": "^9.0.2",
+    "zod": "^3.25.76",
+    "slugify": "^1.6.6",
+    "nanoid": "^3.3.11",
+    "dotenv": "^17.2.3",
+    "winston": "^3.19.0",
+    "bullmq": "^5.70.1",
+    "@aws-sdk/client-s3": "^3.954.0",
+    "@aws-sdk/s3-request-presigner": "^3.975.0",
+    "sharp": "^0.34.5",
+    "jimp": "^1.6.0",
+    "@turf/helpers": "^7.3.1",
+    "@turf/boolean-point-in-polygon": "^7.3.1",
+    "axios": "^1.15.0",
+    "firebase-admin": "^13.8.0",
+    "ioredis": "^5.9.3",
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^8.0.5",
+    "razorpay": "^2.9.6",
+    "sanitize-html": "^2.17.1",
+    "speakeasy": "^2.0.0",
+    "uuid": "^13.0.0",
+    "socket.io": "^4.8.3",
+    "@socket.io/redis-adapter": "^8.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "@types/express": "^5.0.6",
+    "typescript": "^5.9.3"
+  }
+}

@@ -32,7 +32,7 @@ jest.mock("../../config/firebaseAdmin", () => ({
     },
 }));
 
-jest.mock("../../utils/logger", () => ({
+jest.mock("@core/utils/logger", () => ({
     __esModule: true,
     default: mockLogger,
 }));
@@ -52,9 +52,9 @@ jest.mock("../../domain/NotificationIntent", () => ({
     NotificationIntent: jest.fn().mockImplementation((payload) => payload),
 }));
 
-import User from "../../models/User";
-import { getSystemConfigDoc } from "../../utils/systemConfigHelper";
-import { registerToken, sendNotification } from "../../services/NotificationService";
+import User from "@core/models/User";
+import { getSystemConfigDoc } from "@core/utils/systemConfigHelper";
+import { registerToken, sendNotification } from "@core/services/NotificationService";
 
 const mockedUser = User as unknown as {
     bulkWrite: jest.Mock;

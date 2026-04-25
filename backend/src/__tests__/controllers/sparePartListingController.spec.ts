@@ -5,7 +5,7 @@ jest.mock("../../services/ad/AdAggregationService", () => ({
 
 import type { Request, Response } from "express";
 import { getSparePartListings } from "../../controllers/sparePartListing/sparePartListingController";
-import * as AdAggregationService from "../../services/ad/AdAggregationService";
+import * as AdAggregationService from "@core/services/ad/AdAggregationService";
 
 describe("sparePartListingController pagination envelope", () => {
     beforeEach(() => {

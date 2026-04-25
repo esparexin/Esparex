@@ -53,7 +53,9 @@ export default function LocationSelector({
     const applySelection = useCallback((loc: Location) => {
         manuallyClearedRef.current = false;
         if (!isPanel) {
-            setSelectedLabel(normalizeLocationName(loc.display || loc.name || loc.city));
+            const rawLabel = normalizeLocationName(loc.display || loc.name || loc.city);
+            const prefix = (loc as any).isSnapped ? "~ " : "";
+            setSelectedLabel(`${prefix}${rawLabel}`);
             setHasSelection(true);
             setIsOpen(false);
         }

@@ -5,12 +5,12 @@ jest.mock("../../models/Notification", () => ({
     },
 }));
 
-import Notification from "../../models/Notification";
+import Notification from "@core/models/Notification";
 import {
     getNotificationReadRetentionCutoff,
     getVisibleNotificationWindowQuery,
     purgeExpiredReadNotifications,
-} from "../../services/notification/NotificationRetentionService";
+} from "@core/services/notification/NotificationRetentionService";
 
 const mockedNotification = Notification as unknown as { deleteMany: jest.Mock };
 

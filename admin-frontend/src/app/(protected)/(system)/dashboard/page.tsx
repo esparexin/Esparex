@@ -13,7 +13,9 @@ import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { fetchAdminAdSummary, fetchAdminServiceSummary, fetchAdminSparePartSummary } from "@/lib/api/moderation";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
+import { fetchAuditLogs } from "@/lib/api/auditLogs";
 import type { FinanceStats } from "@/types/transaction";
+import type { AdminLog } from "@/types/audit";
 
 type DashboardStats = {
   totalUsers: number;
@@ -46,12 +48,13 @@ export default function DashboardPage() {
   const [pendingSpareParts, setPendingSpareParts] = useState(0);
   const [reportCount, setReportCount] = useState(0);
   const [pendingBusinessCount, setPendingBusinessCount] = useState(0);
+  const [liveLogs, setLiveLogs] = useState<AdminLog[]>([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [moderationSummary, serviceSummary, sparePartSummary, trendsResult, userOverview, reportPayload, businessOverviewPayload, financePayload] = await Promise.all([
+        const [moderationSummary, serviceSummary, sparePartSummary, trendsResult, userOverview, reportPayload, businessOverviewPayload, financePayload, auditPayload] = await Promise.all([
           fetchAdminAdSummary(),
           fetchAdminServiceSummary(),
           fetchAdminSparePartSummary(),
@@ -60,6 +63,7 @@ export default function DashboardPage() {
           adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`),
           adminFetch<BusinessOverview>(ADMIN_ROUTES.BUSINESS_OVERVIEW),
           adminFetch<FinanceStats>(ADMIN_ROUTES.FINANCE_STATS),
+          fetchAuditLogs({ q: "", action: "all", page: 1, limit: 5 }),
         ]);
 
         const overviewData = parseAdminResponse<never, DashboardOverview>(userOverview).data || {} as DashboardOverview;
@@ -85,6 +89,7 @@ export default function DashboardPage() {
         setPendingSpareParts(sparePartSummary.pending);
         setReportCount(Number(reportPagination?.total || 0));
         setPendingBusinessCount(Number(businessOverview.pending || 0));
+        setLiveLogs(auditPayload.items);
       } catch (err) {
         const message = mapErrorToMessage(err, "Failed to load dashboard data");
         setError(message);
@@ -202,18 +207,26 @@ export default function DashboardPage() {
             <p className="text-red-500 text-sm italic">{error}</p>
           ) : (
             <div className="space-y-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex items-center gap-3 pb-4 border-b border-slate-50 last:border-0 last:pb-0">
+              {liveLogs.length > 0 ? liveLogs.map((log) => (
+                <div key={log.id} className="flex items-center gap-3 pb-4 border-b border-slate-50 last:border-0 last:pb-0">
                   <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-400">
                     <Users size={16} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-slate-900 truncate">New User Signup</p>
-                    <p className="text-[10px] text-slate-400 font-medium">john_doe_{i}@example.com</p>
+                    <p className="text-sm font-bold text-slate-900 truncate">{log.action.replace(/_/g, ' ')}</p>
+                    <p className="text-[10px] text-slate-400 font-medium">
+                      {log.adminId && typeof log.adminId === 'object' 
+                        ? `${log.adminId.firstName} ${log.adminId.lastName || ''}` 
+                        : 'System'} • {log.targetType}
+                    </p>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">5m ago</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                    {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
-              ))}
+              )) : (
+                <p className="text-xs text-slate-400 italic">No recent activity detected.</p>
+              )}
             </div>
           )}
         </div>

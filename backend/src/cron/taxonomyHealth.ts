@@ -9,10 +9,10 @@
  * Patch 6: Redis NX mutex prevents duplicate execution across multi-node deployments.
  * Only the first replica to acquire the lock will run the job each cycle.
  */
-import Brand from '../models/Brand';
-import Model from '../models/Model';
-import logger from '../utils/logger';
-import redisClient from '../utils/redisCache';
+import Brand from '@core/models/Brand';
+import Model from '@core/models/Model';
+import logger from '@core/utils/logger';
+import redisClient from '@core/utils/redisCache';
 
 const INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const MUTEX_KEY = 'taxonomy_health_lock';

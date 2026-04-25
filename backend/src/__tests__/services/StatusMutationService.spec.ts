@@ -51,7 +51,7 @@ jest.mock("../../models/AdminMetrics", () => ({
     default: { findOneAndUpdate: jest.fn().mockResolvedValue({}) },
 }));
 
-jest.mock("../../services/LifecycleGuard", () => ({
+jest.mock("@core/services/LifecycleGuard", () => ({
     validateTransition: jest.fn(),
     resolveLifecycleDomain: jest.fn().mockReturnValue("ad"),
 }));
@@ -66,14 +66,14 @@ jest.mock("../../events", () => ({
     },
 }));
 
-jest.mock("../../utils/logger", () => ({
+jest.mock("@core/utils/logger", () => ({
     __esModule: true,
     default: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
 
-import Ad from "../../models/Ad";
-import { mutateStatusesBulk } from "../../services/StatusMutationService";
-import { validateTransition } from "../../services/LifecycleGuard";
+import Ad from "@core/models/Ad";
+import { mutateStatusesBulk } from "@core/services/StatusMutationService";
+import { validateTransition } from "@core/services/LifecycleGuard";
 
 const mockAd = Ad as unknown as { findById: jest.Mock; find: jest.Mock };
 const mockValidate = validateTransition as jest.Mock;
@@ -138,7 +138,7 @@ describe("StatusMutationService", () => {
                 session: jest.fn().mockResolvedValue(buildMockDoc()),
             });
 
-            const { mutateStatus } = await import("../../services/StatusMutationService");
+            const { mutateStatus } = await import("@core/services/StatusMutationService");
 
             await expect(
                 mutateStatus({

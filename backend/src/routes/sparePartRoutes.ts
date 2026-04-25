@@ -5,7 +5,7 @@ import { validateObjectId } from '../middleware/validateObjectId';
 import * as sparePartListingController from '../controllers/sparePartListing/sparePartListingController';
 import * as listingController from '../controllers/listing/listingController';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
-import { createListingValidator } from '../validators/listing.validator';
+import { createListingValidator } from '../middleware/listing.validator';
 import { phoneRevealLimiter } from '../middleware/rateLimiter';
 
 import { validateRequest } from '../middleware/validateRequest';

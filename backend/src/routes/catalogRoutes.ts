@@ -4,7 +4,7 @@ import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
-import * as Validators from '../validators/catalog.validator';
+import * as Validators from '@core/validators/catalog.validator';
 
 const router = express.Router();
 

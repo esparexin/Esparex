@@ -146,7 +146,7 @@ const nextConfig = {
     async headers() {
         return [
             {
-                source: '/:path*',
+                source: '/((?!sitemap\\.xml|robots\\.txt|.*\\.png|.*\\.jpg|.*\\.ico).*)',
                 headers: [
                     { key: 'X-DNS-Prefetch-Control', value: 'on' },
                     { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
@@ -171,6 +171,21 @@ const nextConfig = {
                             "form-action 'self'"
                         ].join('; ')
                     }
+                ]
+            },
+            {
+                source: '/sitemap.xml',
+                headers: [
+                    { key: 'Content-Type', value: 'application/xml' },
+                    { key: 'X-Content-Type-Options', value: 'nosniff' },
+                    { key: 'Cache-Control', value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400' }
+                ]
+            },
+            {
+                source: '/robots.txt',
+                headers: [
+                    { key: 'Content-Type', value: 'text/plain' },
+                    { key: 'Cache-Control', value: 'public, max-age=86400, s-maxage=86400' }
                 ]
             }
         ];

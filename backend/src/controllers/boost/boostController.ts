@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { getActiveBoostsForUser } from '../../services/BoostService';
-import { respond } from '../../utils/respond';
+import { getActiveBoostsForUser } from '@core/services/BoostService';
+import { respond } from "../../utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { sendErrorResponse } from "../../utils/errorResponse";
 
 /**
  * Get user's active boosts (Spotlights, etc.)

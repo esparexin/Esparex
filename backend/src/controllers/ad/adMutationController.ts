@@ -5,17 +5,17 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import * as AdMutationService from '../../services/AdMutationService';
-import * as adStatusService from '../../services/adStatusService';
-import * as AdOrchestrator from '../../services/AdOrchestrator';
+import * as AdMutationService from '@core/services/AdMutationService';
+import * as adStatusService from '@core/services/adStatusService';
+import * as AdOrchestrator from '@core/services/AdOrchestrator';
 
-import { getBusinessByUserId } from '../../services/BusinessService';
-import { isBusinessPublishedStatus } from '../../utils/businessStatus';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { sendSuccessResponse } from '../../utils/respond';
-import { getSingleParam } from '../../utils/requestParams';
+import { getBusinessByUserId } from '@core/services/BusinessService';
+import { isBusinessPublishedStatus } from '@core/utils/businessStatus';
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendSuccessResponse } from "../../utils/respond";
+import { getSingleParam } from "../../utils/requestParams";
 
-import { IAuthUser } from '../../types/auth';
+import { IAuthUser } from '@core/types/auth';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 
 const IMMUTABLE_SELLER_ID_MESSAGE =

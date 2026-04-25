@@ -23,8 +23,8 @@ jest.mock("../../utils/adminLogger", () => ({
 
 import * as adminUsersController from "../../controllers/admin/adminUsersController";
 import type { Request, Response } from "express";
-import Admin from "../../models/Admin";
-import { logAdminAction } from "../../utils/adminLogger";
+import Admin from "@core/models/Admin";
+import { logAdminAction } from "@core/utils/adminLogger";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {

@@ -74,8 +74,8 @@ export function PlanPurchaseDialog({
                     onConfirm?.();
                     onOpenChange(false);
                 },
-                onPaymentFailed: () => {
-                    notify.error("Payment failed. Please try again.");
+                onPaymentFailed: (reason: string) => {
+                    notify.error(`Payment failed: ${reason}`);
                 },
             });
         } catch (error) {

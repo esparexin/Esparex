@@ -18,7 +18,7 @@ jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("../../utils/logger", () => ({
+jest.mock("@core/utils/logger", () => ({
     __esModule: true,
     default: {
         info: jest.fn(),
@@ -55,10 +55,11 @@ jest.mock("../../services/AdminBusinessService", () => ({
     transformBusinessDocs: jest.fn(),
     findBusinessForAdmin: jest.fn(),
     updateAdminBusiness: jest.fn(),
+    updateAdminBusinessFields: jest.fn(),
     serializeBusinessForAdmin: jest.fn().mockImplementation((b) => b),
 }));
 
-jest.mock("../../services/StatusMutationService", () => ({
+jest.mock("@core/services/StatusMutationService", () => ({
     __esModule: true,
     mutateStatus: jest.fn(),
     mutateStatuses: jest.fn(),
@@ -91,9 +92,9 @@ jest.mock("../../utils/s3", () => ({
 
 import type { Request, Response } from "express";
 import * as adminBusinessController from "../../controllers/admin/adminBusinessController";
-import * as adminBusinessService from "../../services/AdminBusinessService";
-import { buildBusinessLocationPayload } from "../../services/BusinessService";
-import { normalizeLocation } from "../../services/location/LocationNormalizer";
+import * as adminBusinessService from "@core/services/AdminBusinessService";
+import { buildBusinessLocationPayload } from "@core/services/BusinessService";
+import { normalizeLocation } from "@core/services/location/LocationNormalizer";
 
 const createMockRes = (req?: Record<string, unknown>) => {
     const res = {
@@ -108,6 +109,7 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
     const mockAdminBusinessService = adminBusinessService as unknown as {
         findBusinessForAdmin: jest.Mock;
         updateAdminBusiness: jest.Mock;
+        updateAdminBusinessFields: jest.Mock;
     };
     const mockBuildBusinessLocationPayload = buildBusinessLocationPayload as unknown as jest.Mock;
     const mockNormalizeLocation = normalizeLocation as unknown as jest.Mock;
@@ -116,53 +118,14 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
         jest.clearAllMocks();
     });
 
-    it("merges location patches without dropping structured address fields", async () => {
-        const existingBusiness = {
-            _id: "65f0a1b2c3d4e5f607182930",
-            location: {
-                address: "Shop 4, MG Road, Near Metro, Hyderabad, Telangana, 500001",
-                display: "Hyderabad, Telangana",
-                shopNo: "Shop 4",
-                street: "MG Road",
-                landmark: "Near Metro",
-                city: "Hyderabad",
-                state: "Telangana",
-                pincode: "500001",
-                coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
-            },
-        };
+    it("passes updates to AdminBusinessService.updateAdminBusinessFields", async () => {
         const updatedBusiness = {
             _id: "65f0a1b2c3d4e5f607182930",
             name: "Updated Business",
             mobile: "9876543210",
-            location: {
-                address: "Shop 4, MG Road, Near Metro, Secunderabad, Telangana, 500003",
-                display: "Secunderabad, Telangana",
-                shopNo: "Shop 4",
-                street: "MG Road",
-                landmark: "Near Metro",
-                city: "Secunderabad",
-                state: "Telangana",
-                pincode: "500003",
-                coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
-            },
         };
 
-        mockAdminBusinessService.findBusinessForAdmin.mockResolvedValue(existingBusiness);
-        mockNormalizeLocation.mockResolvedValue({
-            locationId: "65f0a1b2c3d4e5f607182930",
-            city: "Secunderabad",
-            state: "Telangana",
-            country: "India",
-            display: "Secunderabad, Telangana",
-            pincode: "500003",
-            coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
-        });
-        mockBuildBusinessLocationPayload.mockReturnValue({
-            locationId: "65f0a1b2c3d4e5f607182930",
-            location: updatedBusiness.location,
-        });
-        mockAdminBusinessService.updateAdminBusiness.mockResolvedValue(updatedBusiness);
+        mockAdminBusinessService.updateAdminBusinessFields.mockResolvedValue(updatedBusiness);
 
         const req = {
             params: { id: "65f0a1b2c3d4e5f607182930" },
@@ -181,40 +144,11 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
 
         await adminBusinessController.updateBusinessByAdmin(req, res);
 
-        expect(mockAdminBusinessService.findBusinessForAdmin).toHaveBeenCalledWith("65f0a1b2c3d4e5f607182930");
-        expect(mockNormalizeLocation).toHaveBeenCalledWith(
-            expect.objectContaining({
-                city: "Secunderabad",
-                state: "Telangana",
-                pincode: "500003",
-            })
-        );
-        expect(mockBuildBusinessLocationPayload).toHaveBeenCalledWith(
-            expect.objectContaining({
-                incomingLocation: expect.objectContaining({
-                    city: "Secunderabad",
-                    state: "Telangana",
-                    pincode: "500003",
-                }),
-            })
-        );
-        expect(mockAdminBusinessService.updateAdminBusiness).toHaveBeenCalledWith(
+        expect(mockAdminBusinessService.updateAdminBusinessFields).toHaveBeenCalledWith(
             "65f0a1b2c3d4e5f607182930",
-            {
-                mobile: "9876543210",
-                locationId: "65f0a1b2c3d4e5f607182930",
-                location: expect.objectContaining({
-                    address: "Shop 4, MG Road, Near Metro, Secunderabad, Telangana, 500003",
-                    display: "Secunderabad, Telangana",
-                    shopNo: "Shop 4",
-                    street: "MG Road",
-                    landmark: "Near Metro",
-                    city: "Secunderabad",
-                    state: "Telangana",
-                    pincode: "500003",
-                    coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
-                }),
-            }
+            req.body,
+            "admin_1",
+            expect.any(Function) // buildLogFn
         );
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith(
@@ -222,92 +156,9 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
                 success: true,
                 message: "Business updated successfully",
                 data: expect.objectContaining({
-                    name: "Updated Business",
+                    id: "65f0a1b2c3d4e5f607182930",
                 }),
             })
         );
-    });
-
-    it("applies canonical locationId repairs from admin edits", async () => {
-        const existingBusiness = {
-            _id: "65f0a1b2c3d4e5f607182930",
-            locationId: "65f0a1b2c3d4e5f607182930",
-            location: {
-                address: "Shop 4, MG Road, Near Metro, Hyderabad, Telangana, 500001",
-                display: "Hyderabad, Telangana",
-                shopNo: "Shop 4",
-                street: "MG Road",
-                landmark: "Near Metro",
-                city: "Hyderabad",
-                state: "Telangana",
-                pincode: "500001",
-                coordinates: { type: "Point", coordinates: [78.4867, 17.385] },
-            },
-        };
-        const canonicalLocation = {
-            locationId: "65f0a1b2c3d4e5f607182931",
-            city: "Secunderabad",
-            state: "Telangana",
-            country: "India",
-            display: "Tarnaka, Secunderabad",
-            coordinates: { type: "Point", coordinates: [78.533, 17.428] },
-        };
-        const updatedBusiness = {
-            _id: "65f0a1b2c3d4e5f607182930",
-            locationId: "65f0a1b2c3d4e5f607182931",
-            location: {
-                address: "Shop 4, MG Road, Near Metro, Secunderabad, Telangana, 500001",
-                display: "Tarnaka, Secunderabad",
-                shopNo: "Shop 4",
-                street: "MG Road",
-                landmark: "Near Metro",
-                city: "Secunderabad",
-                state: "Telangana",
-                pincode: "500001",
-                coordinates: { type: "Point", coordinates: [78.533, 17.428] },
-            },
-        };
-
-        mockAdminBusinessService.findBusinessForAdmin.mockResolvedValue(existingBusiness);
-        mockNormalizeLocation.mockResolvedValue(canonicalLocation);
-        mockBuildBusinessLocationPayload.mockReturnValue({
-            locationId: "65f0a1b2c3d4e5f607182931",
-            location: updatedBusiness.location,
-        });
-        mockAdminBusinessService.updateAdminBusiness.mockResolvedValue(updatedBusiness);
-
-        const req = {
-            params: { id: "65f0a1b2c3d4e5f607182930" },
-            body: {
-                location: {
-                    locationId: "65f0a1b2c3d4e5f607182931",
-                    coordinates: { type: "Point", coordinates: [78.533, 17.428] },
-                },
-            },
-            user: { id: "admin_1" },
-            originalUrl: "/api/v1/admin/businesses/65f0a1b2c3d4e5f607182930",
-        } as unknown as Request;
-        const res = createMockRes(req as unknown as Record<string, unknown>) as unknown as Response;
-
-        await adminBusinessController.updateBusinessByAdmin(req, res);
-
-        expect(mockNormalizeLocation).toHaveBeenCalledWith(
-            expect.objectContaining({
-                locationId: "65f0a1b2c3d4e5f607182931",
-                coordinates: { type: "Point", coordinates: [78.533, 17.428] },
-            })
-        );
-        expect(mockAdminBusinessService.updateAdminBusiness).toHaveBeenCalledWith(
-            "65f0a1b2c3d4e5f607182930",
-            {
-                locationId: "65f0a1b2c3d4e5f607182931",
-                location: expect.objectContaining({
-                    display: "Tarnaka, Secunderabad",
-                    city: "Secunderabad",
-                    coordinates: { type: "Point", coordinates: [78.533, 17.428] },
-                }),
-            }
-        );
-        expect(res.status).toHaveBeenCalledWith(200);
     });
 });

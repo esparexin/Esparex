@@ -14,7 +14,7 @@ describe('appUrl helpers', () => {
             error: jest.fn(),
         };
 
-        jest.doMock('../../utils/logger', () => ({
+        jest.doMock('@core/utils/logger', () => ({
             __esModule: true,
             default: mockLogger,
         }));

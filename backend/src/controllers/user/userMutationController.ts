@@ -1,32 +1,32 @@
-import logger from '../../utils/logger';
-import { env } from '../../config/env';
+import logger from '@core/utils/logger';
+import { env } from '@core/config/env';
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import type { IUser } from '../../models/User';
-import * as userService from '../../services/UserService';
+import type { IUser } from '@core/models/User';
+import * as userService from '@core/services/UserService';
 import {
   getUserAvatarById,
   checkUserExistsById,
   blockUserById,
   unblockUserById,
-} from '../../services/UserService';
+} from '@core/services/UserService';
 import {
   getBusinessByUserIdLean,
   softDeleteBusinessesByUserId,
-} from '../../services/business/BusinessCoreService';
+} from '@core/services/business/BusinessCoreService';
 import {
   deleteFromS3Url,
   getMissingS3UploadConfigKeys,
   isPlaceholderImageUrl,
   isS3UploadConfigured
-} from '../../utils/s3';
-import { processSingleImage } from '../../utils/imageProcessor';
-import { sendSuccessResponse } from '../../utils/respond';
-import { normalizeLocation } from '../../services/location/LocationNormalizer';
-import { updateUserStatus } from '../../services/UserStatusService';
-import { sendErrorResponse } from '../../utils/errorResponse';
+} from '@core/utils/s3';
+import { processSingleImage } from '@core/utils/imageProcessor';
+import { sendSuccessResponse } from "../../utils/respond";
+import { normalizeLocation } from '@core/services/location/LocationNormalizer';
+import { updateUserStatus } from '@core/services/UserStatusService';
+import { sendErrorResponse } from "../../utils/errorResponse";
 import fs from 'fs/promises';
-import { AuthService } from '../../services/AuthService';
+import { AuthService } from '@core/services/AuthService';
 import {
   getBusinessStatus,
   getStorageSafeId,

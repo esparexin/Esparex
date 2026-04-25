@@ -37,7 +37,7 @@ jest.mock("../../utils/redisCache", () => ({
     invalidatePublicAdCache: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("../../utils/logger", () => ({
+jest.mock("@core/utils/logger", () => ({
     __esModule: true,
     default: {
         warn: jest.fn(),
@@ -47,18 +47,18 @@ jest.mock("../../utils/logger", () => ({
 }));
 
 import mongoose from "mongoose";
-import Ad from "../../models/Ad";
+import Ad from "@core/models/Ad";
 import {
     findReportForUpdate,
     autoHideAdIfOverThreshold,
     countActiveReports,
-} from "../../services/ReportService";
+} from "@core/services/ReportService";
 
 const mockAd = Ad as unknown as {
     findByIdAndUpdate: jest.Mock;
 };
 
-import mockReportRaw from "../../models/Report";
+import mockReportRaw from "@core/models/Report";
 
 describe("ReportService", () => {
     beforeEach(() => jest.clearAllMocks());

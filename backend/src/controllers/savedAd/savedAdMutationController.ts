@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { respond } from '../../utils/respond';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { respond } from "../../utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { SavedAdRequest, getUserId } from './shared';
-import { saveAd as saveAdService, unsaveAd as unsaveAdService } from '../../services/SavedAdService';
+import { saveAd as saveAdService, unsaveAd as unsaveAdService } from '@core/services/SavedAdService';
 
 export const saveAd = async (req: Request, res: Response) => {
     try {

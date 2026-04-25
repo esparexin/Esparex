@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import logger from '../../utils/logger';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { respond } from '../../utils/respond';
+import logger from '@core/utils/logger';
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { respond } from "../../utils/respond";
 import {
   startConversation,
   listConversations,
@@ -13,7 +13,7 @@ import {
   hideConversation,
   restoreConversation,
   reportConversation,
-} from '../../services/chatService';
+} from '@core/services/chatService';
 import {
   startChatSchema,
   sendMessageSchema,
@@ -23,8 +23,8 @@ import {
   conversationListQuerySchema,
   messagesQuerySchema,
   chatUploadUrlSchema,
-} from '../../validators/chat.validator';
-import { generatePresignedUploadUrl } from '../../utils/s3';
+} from '@core/validators/chat.validator';
+import { generatePresignedUploadUrl } from '@core/utils/s3';
 
 const MIME_TO_EXT: Record<string, string> = {
   'image/jpeg': 'jpg',

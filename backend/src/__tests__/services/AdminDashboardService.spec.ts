@@ -54,12 +54,12 @@ jest.mock("../../models/LocationAnalytics", () => ({
     default: { find: jest.fn() },
 }));
 
-import Ad from "../../models/Ad";
-import User from "../../models/User";
-import Report from "../../models/Report";
-import Business from "../../models/Business";
-import RevenueAnalytics from "../../models/RevenueAnalytics";
-import { getDashboardCardStats } from "../../services/AdminDashboardService";
+import Ad from "@core/models/Ad";
+import User from "@core/models/User";
+import Report from "@core/models/Report";
+import Business from "@core/models/Business";
+import RevenueAnalytics from "@core/models/RevenueAnalytics";
+import { getDashboardCardStats } from "@core/services/AdminDashboardService";
 
 const mockAd = Ad as unknown as { aggregate: jest.Mock };
 const mockUser = User as unknown as { countDocuments: jest.Mock };

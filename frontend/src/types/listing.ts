@@ -27,4 +27,5 @@ export interface ListingLocation {
     country?: string;
     locationId?: string;
     coordinates?: GeoJSONPoint;
+    isSnapped?: boolean;
 }

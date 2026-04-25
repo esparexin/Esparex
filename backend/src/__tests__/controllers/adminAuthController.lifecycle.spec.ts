@@ -54,7 +54,7 @@ jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@shared/enums/userStatus", () => ({
+jest.mock("@core/constants/enums/userStatus", () => ({
     __esModule: true,
     USER_STATUS: {
         LIVE: "live",
@@ -67,8 +67,8 @@ jest.mock("@shared/enums/userStatus", () => ({
     USER_STATUS_VALUES: ["live", "active", "suspended", "banned", "deleted", "inactive"]
 }), { virtual: true });
 
-import Admin from "../../models/Admin";
-import { createAdminSession, revokeAdminSessionsForAdmin } from "../../services/AdminSessionService";
+import Admin from "@core/models/Admin";
+import { createAdminSession, revokeAdminSessionsForAdmin } from "@core/services/AdminSessionService";
 import { adminLogin, resetPassword } from "../../controllers/admin/system/adminAuthController";
 
 const createMockRes = (req?: Partial<Request>) => {

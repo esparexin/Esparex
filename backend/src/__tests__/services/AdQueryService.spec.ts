@@ -34,11 +34,11 @@ jest.mock('../../utils/s3', () => ({
     sanitizePersistedImageUrls: (urls: string[]) => urls,
 }));
 
-import Ad from '../../models/Ad';
-import { buildAdSortStage } from '../../services/ad/AdSearchService';
-import { buildHomeFeedPipeline } from '../../services/ad/AdFeedService';
-import { getAdCounts } from '../../services/ad/AdMetricsService';
-import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
+import Ad from '@core/models/Ad';
+import { buildAdSortStage } from '@core/services/ad/AdSearchService';
+import { buildHomeFeedPipeline } from '@core/services/ad/AdFeedService';
+import { getAdCounts } from '@core/services/ad/AdMetricsService';
+import { buildPublicAdFilter } from '@core/utils/FeedVisibilityGuard';
 
 const mockedAdModel = Ad as unknown as {
     countDocuments: jest.Mock;

@@ -1,6 +1,6 @@
 import express from 'express';
 import * as contactController from '../controllers/contact';
-import { validateContactSubmission } from '../validators/securityValidators';
+import { validateContactSubmission } from '../middleware/securityValidators';
 import { mutationLimiter } from '../middleware/rateLimiter';
 
 const router = express.Router();

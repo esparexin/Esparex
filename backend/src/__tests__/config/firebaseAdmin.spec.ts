@@ -24,7 +24,7 @@ describe("firebaseAdmin", () => {
             __esModule: true,
             default: mockAdmin,
         }));
-        jest.doMock("../../utils/logger", () => ({
+        jest.doMock("@core/utils/logger", () => ({
             __esModule: true,
             default: mockLogger,
         }));

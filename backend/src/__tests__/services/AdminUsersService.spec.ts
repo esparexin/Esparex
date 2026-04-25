@@ -40,11 +40,11 @@ jest.mock("../../utils/auth", () => ({
     hashPassword: jest.fn().mockResolvedValue("hashed-pw"),
 }));
 
-import Admin from "../../models/Admin";
+import Admin from "@core/models/Admin";
 import {
     normalizeAdminManagedUser,
     isLastActiveSuperAdmin,
-} from "../../services/AdminUsersService";
+} from "@core/services/AdminUsersService";
 
 const mockAdmin = Admin as unknown as {
     findById: jest.Mock;

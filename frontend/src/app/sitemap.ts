@@ -7,10 +7,11 @@ import {
 } from "@/lib/api/routes";
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 3600; // Cache for 1 hour to reduce latency
 
 const BASE_url = process.env.NEXT_PUBLIC_APP_URL || 'https://esparex.in';
-const API_URL = process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
+// Use internal backend URL for faster server-side fetches if available
+const API_URL = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`;
 
 type SitemapItem = {
     id: string | number;
@@ -21,19 +22,39 @@ type SitemapItem = {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === 'object' && value !== null;
 
+/**
+ * Formats date to W3C format without milliseconds for strict XML parsers (Google standard)
+ */
+const formatSitemapDate = (date: string | Date | undefined): string => {
+    const d = date ? new Date(date) : new Date();
+    // Return ISO string without milliseconds: YYYY-MM-DDThh:mm:ssZ
+    return d.toISOString().replace(/\.\d{3}Z$/, 'Z');
+};
+
 async function fetchDynamicIds(endpoint: string, key = 'id', slugKey?: string): Promise<SitemapItem[]> {
     try {
-        // Fetch up to 1000 items for sitemap
-        const res = await fetch(`${API_URL}/${endpoint}?limit=1000&page=1`, { cache: 'no-store' });
-        if (!res.ok) return [];
+        const url = `${API_URL}/${endpoint}`.replace(/([^:]\/)\/+/g, "$1");
+        // Fetch up to 1000 items for sitemap with 10s timeout
+        const res = await fetch(`${url}?limit=1000&page=1`, { 
+            next: { revalidate: 3600 },
+            headers: {
+                'Accept': 'application/json',
+                'X-App-Source': 'sitemap-generator'
+            }
+        });
+        
+        if (!res.ok) {
+            logger.warn(`Sitemap fetch failed for ${endpoint}: ${res.status}`);
+            return [];
+        }
+        
         const data = await res.json();
         // Handle various response formats:
         // 1. { data: [...] } (Standard Paginated)
-        // 2. { output: { items: [...] } } (Legacy)
-        // 3. [...] (Direct Array)
-        const items = data.data || data.output?.items || data.output || [];
+        // 2. { data: { items: [...] } } (Standard Paginated V2)
+        // 3. { output: { items: [...] } } (Legacy)
+        const items = data.data?.items || data.data || data.output?.items || data.output || [];
 
-        // Ensure items is an array
         if (!Array.isArray(items)) return [];
 
         return items.map((item: unknown) => {
@@ -56,8 +77,16 @@ async function fetchDynamicIds(endpoint: string, key = 'id', slugKey?: string): 
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    // 1. Static Routes
-    const staticRoutes = [
+    // 1. Parallel Fetch all dynamic data
+    const [ads, businesses, services, spareParts] = await Promise.all([
+        fetchDynamicIds(API_ROUTES.USER.ADS, 'id', 'seoSlug'),
+        fetchDynamicIds(API_ROUTES.USER.BUSINESSES_PUBLIC, 'id', 'slug'),
+        fetchDynamicIds(API_ROUTES.USER.SERVICES, 'id', 'slug'),
+        fetchDynamicIds('catalog/spare-parts', 'id', 'slug')
+    ]);
+
+    // 2. Static Routes
+    const staticRoutes: MetadataRoute.Sitemap = [
         '',
         '/about',
         '/search',
@@ -77,50 +106,54 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: route === '' ? 1.0 : 0.8,
     }));
 
-    // 2. Dynamic Ads
-    const ads = await fetchDynamicIds(API_ROUTES.USER.ADS, 'id', 'seoSlug');
-    const adRoutes = ads.map((ad) => ({
+    // 3. Dynamic Ads
+    const adRoutes: MetadataRoute.Sitemap = ads.map((ad) => ({
         url: `${BASE_url}/ads/${ad.slug || ad.id}-${ad.id}`,
-        lastModified: new Date(ad.updatedAt ?? new Date().toISOString()),
+        lastModified: formatSitemapDate(ad.updatedAt),
         changeFrequency: 'daily' as const,
         priority: 0.9,
     }));
 
-    // 3. Dynamic Businesses
-    const businesses = await fetchDynamicIds(API_ROUTES.USER.BUSINESSES_PUBLIC, 'id', 'slug');
-    const businessRoutes = businesses.map((business) => ({
+    // 4. Dynamic Businesses
+    const businessRoutes: MetadataRoute.Sitemap = businesses.map((business) => ({
         url: `${BASE_url}/business/${business.slug || business.id}-${business.id}`,
-        lastModified: new Date(business.updatedAt ?? new Date().toISOString()),
+        lastModified: formatSitemapDate(business.updatedAt),
         changeFrequency: 'weekly' as const,
         priority: 0.9,
     }));
 
-    // 4. Dynamic Services
-    const services = await fetchDynamicIds(API_ROUTES.USER.SERVICES, 'id', 'slug');
-    const serviceRoutes = services.map((service) => ({
+    // 5. Dynamic Services
+    const serviceRoutes: MetadataRoute.Sitemap = services.map((service) => ({
         url: `${BASE_url}/services/${service.slug || service.id}-${service.id}`,
-        lastModified: new Date(service.updatedAt ?? new Date().toISOString()),
+        lastModified: formatSitemapDate(service.updatedAt),
         changeFrequency: 'daily' as const,
         priority: 0.9,
     }));
 
-    // 5. Categories
+    // 6. Categories (Semi-static)
     const categories = ['Mobile Phones', 'Tablets', 'Laptops', 'Spare Parts', 'Accessories', 'Wearables'];
-    const categoryRoutes = categories.map((cat) => ({
+    const categoryRoutes: MetadataRoute.Sitemap = categories.map((cat) => ({
         url: `${BASE_url}/category/${cat.toLowerCase().replace(/ /g, '-')}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }));
  
-    // 6. Spare Parts (Catalog Aggregator Pages)
-    const spareParts = await fetchDynamicIds('catalog/spare-parts', 'id', 'slug');
-    const sparePartRoutes = spareParts.map((part) => ({
+    // 7. Spare Parts (Catalog Aggregator Pages)
+    const sparePartRoutes: MetadataRoute.Sitemap = spareParts.map((part) => ({
         url: `${BASE_url}/spare-part-listings/${part.slug || part.id}`,
-        lastModified: new Date(part.updatedAt ?? new Date().toISOString()),
+        lastModified: formatSitemapDate(part.updatedAt),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }));
 
-    return [...staticRoutes, ...adRoutes, ...businessRoutes, ...categoryRoutes, ...serviceRoutes, ...sparePartRoutes];
+    return [
+        ...staticRoutes,
+        ...adRoutes,
+        ...businessRoutes,
+        ...categoryRoutes,
+        ...serviceRoutes,
+        ...sparePartRoutes
+    ];
 }
+

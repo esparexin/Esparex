@@ -3,7 +3,7 @@ import * as aiController from '../controllers/ai';
 import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import { aiGenerateSchema } from '../validators/ai.validator';
+import { aiGenerateSchema } from '@core/validators/ai.validator';
 
 const router = express.Router();
 

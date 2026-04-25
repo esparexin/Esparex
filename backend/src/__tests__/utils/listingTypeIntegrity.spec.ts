@@ -3,7 +3,7 @@ import {
     getListingTypeCapability,
     getListingTypeRemediation,
     inferListingType,
-} from '../../utils/listingTypeIntegrity';
+} from '@core/utils/listingTypeIntegrity';
 
 describe('listingTypeIntegrity', () => {
     it('treats business-style resale content without service fields as ad', () => {

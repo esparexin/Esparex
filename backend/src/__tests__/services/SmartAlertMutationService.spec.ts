@@ -38,20 +38,20 @@ jest.mock('../../services/location/LocationNormalizer', () => ({
 }));
 
 import mongoose from 'mongoose';
-import { calculateUserPlan } from '../../services/PlanEngine';
-import { PlanModel, UserPlanModel } from '../../services/PlanService';
-import { consumeCredit, credit, WalletModel } from '../../services/WalletService';
-import { SmartAlertModel } from '../../services/SmartAlertService';
-import { resolveMasterDataIds } from '../../utils/masterDataResolver';
+import { calculateUserPlan } from '@core/services/PlanEngine';
+import { PlanModel, UserPlanModel } from '@core/services/PlanService';
+import { consumeCredit, credit, WalletModel } from '@core/services/WalletService';
+import { SmartAlertModel } from '@core/services/SmartAlertService';
+import { resolveMasterDataIds } from '@core/utils/masterDataResolver';
 import {
     normalizeCoordinates,
     normalizeLocation,
-} from '../../services/location/LocationNormalizer';
+} from '@core/services/location/LocationNormalizer';
 import {
     createSmartAlertMutation,
     deleteSmartAlertMutation,
     toggleSmartAlertStatusMutation,
-} from '../../services/smartAlert/SmartAlertMutationService';
+} from '@core/services/smartAlert/SmartAlertMutationService';
 
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;
 const mockedUserPlanFind = UserPlanModel.find as jest.Mock;

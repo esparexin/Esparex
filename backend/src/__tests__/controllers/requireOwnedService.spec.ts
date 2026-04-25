@@ -19,7 +19,7 @@ jest.mock('../../models/Ad', () => ({
     default: { findOne: jest.fn() },
 }));
 
-jest.mock('../../services/StatusMutationService', () => ({
+jest.mock('@core/services/StatusMutationService', () => ({
     mutateStatus: jest.fn().mockResolvedValue({ _id: 'svc-id', status: 'deactivated' }),
 }));
 
@@ -40,7 +40,7 @@ jest.mock('../../utils/errorResponse', () => ({
     }),
 }));
 
-jest.mock('../../utils/logger', () => ({
+jest.mock('@core/utils/logger', () => ({
     __esModule: true,
     default: { error: jest.fn(), info: jest.fn(), warn: jest.fn() },
 }));
@@ -53,9 +53,9 @@ jest.mock('../../utils/respond', () => ({
 
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Ad from '../../models/Ad';
+import Ad from '@core/models/Ad';
 import { deactivateService } from '../../controllers/service/serviceMutationController';
-import { getSingleParam } from '../../utils/requestParams';
+import { getSingleParam } from "../utils/requestParams";
 
 // ─── Typed mocks ─────────────────────────────────────────────────────────────
 
@@ -154,7 +154,7 @@ describe('requireOwnedService (via deactivateService)', () => {
 
         // mutateStatus was called → auth guard passed
         // eslint-disable-next-line @typescript-eslint/no-require-imports -- module state is mocked per test.
-        const { mutateStatus } = require('../../services/StatusMutationService');
+        const { mutateStatus } = require('@core/services/StatusMutationService');
         expect(mutateStatus).toHaveBeenCalledWith(
             expect.objectContaining({ entityId: VALID_ID, toStatus: 'deactivated' })
         );

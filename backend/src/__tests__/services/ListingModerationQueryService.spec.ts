@@ -6,11 +6,11 @@ jest.mock('../../models/Ad', () => ({
     },
 }));
 
-import Ad from '../../models/Ad';
+import Ad from '@core/models/Ad';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { getModerationCounts, MODERATION_STATUSES } from '../../services/ListingModerationQueryService';
-import { HIDDEN_MODERATION_STATUSES } from '../../utils/FeedVisibilityGuard';
-import { getLiveStatusCriteria } from '../../utils/statusQueryMapper';
+import { getModerationCounts, MODERATION_STATUSES } from '@core/services/ListingModerationQueryService';
+import { HIDDEN_MODERATION_STATUSES } from '@core/utils/FeedVisibilityGuard';
+import { getLiveStatusCriteria } from '@core/utils/statusQueryMapper';
 
 const mockedAdModel = Ad as unknown as {
     aggregate: jest.Mock;

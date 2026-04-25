@@ -172,4 +172,39 @@ describe('MyAds API Regression Tests', () => {
             expect(result.pagination.hasMore).toBe(false);
         });
     });
+
+    describe('Test 6 — Edge Case Coverage', () => {
+        it('should handle unpaginated array payloads gracefully even when expecting pagination', async () => {
+            const fakeDate = new Date().toISOString();
+            vi.mocked(apiClient.get).mockResolvedValueOnce({
+                success: true,
+                data: [
+                    { _id: 'ad-unpaginated', title: 'Unexpected Shape', price: 10, createdAt: fakeDate }
+                ]
+                // Missing pagination envelope!
+            });
+
+            const result = await getMyListings('ad');
+            expect(result.data).toHaveLength(1);
+            expect(result.data[0]?.id).toBe('ad-unpaginated');
+            expect(result.pagination).toBeDefined();
+            // Should fallback to default pagination safely
+            expect(result.pagination.total).toBe(0); 
+            expect(result.pagination.hasMore).toBe(false);
+        });
+
+        it('should handle API errors during repostListing correctly', async () => {
+            const networkError = new EsparexError({
+                code: 5002,
+                category: ErrorCategory.NETWORK,
+                severity: ErrorSeverity.MEDIUM,
+                userMessage: 'Failed to repost',
+                technicalMessage: 'Rate limited',
+            });
+
+            vi.mocked(apiClient.post as any).mockRejectedValueOnce(networkError);
+
+            await expect(repostListing('part-456', LISTING_TYPE.SPARE_PART)).rejects.toThrow('Failed to repost');
+        });
+    });
 });

@@ -28,7 +28,7 @@ type StartPlanCheckoutInput = {
   waitForCredit?: WaitForCreditConfig;
   onCreditPending?: () => void;
   onPaymentVerified: () => Promise<void> | void;
-  onPaymentFailed?: () => void;
+  onPaymentFailed?: (reason: string) => void;
   onDismiss?: () => void;
 };
 
@@ -101,13 +101,17 @@ export function usePlanCheckout() {
       };
 
       const razorpay = new window.Razorpay(options);
-      razorpay.on?.("payment.failed", () => {
-        onPaymentFailed?.();
+      razorpay.on?.("payment.failed", (response: any) => {
+        const errorDetail = response?.error;
+        console.error("Payment failed:", errorDetail);
+        const reason = errorDetail?.description || errorDetail?.reason || "Payment was declined or failed to process.";
+        onPaymentFailed?.(reason);
         setIsProcessing(false);
       });
       razorpay.open();
     } catch (error) {
-      onPaymentFailed?.();
+      console.error("Checkout initialization failed:", error);
+      onPaymentFailed?.("Failed to initialize payment gateway. Please try again later.");
       setIsProcessing(false);
       throw error;
     }

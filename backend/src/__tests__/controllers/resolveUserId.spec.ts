@@ -25,7 +25,7 @@ jest.mock('../../utils/respond', () => ({
 
 import type { Request, Response } from 'express';
 import { getUserProfileById } from '../../controllers/user/userQueryController';
-import { getUserProfileById as getUserProfileSvc } from '../../services/UserProfileService';
+import { getUserProfileById as getUserProfileSvc } from '@core/services/UserProfileService';
 
 // ─── Typed mock ──────────────────────────────────────────────────────────────
 

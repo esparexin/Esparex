@@ -5,7 +5,7 @@ jest.mock('../../config/env', () => ({
     }
 }));
 
-import { uploadToS3 } from '../../utils/s3';
+import { uploadToS3 } from '@core/utils/s3';
 
 describe('S3 bucket environment resolution', () => {
     it('rejects uploads when S3_BUCKET_NAME is missing', async () => {

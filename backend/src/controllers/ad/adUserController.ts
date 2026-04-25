@@ -5,19 +5,19 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import * as AdAggregationService from '../../services/ad/AdAggregationService';
-import * as AdMutationService from '../../services/AdMutationService';
-import * as adStatusService from '../../services/adStatusService';
-import * as AdEngagementService from '../../services/AdEngagementService';
-import * as adImageService from '../../services/AdImageService';
+import * as AdAggregationService from '@core/services/ad/AdAggregationService';
+import * as AdMutationService from '@core/services/AdMutationService';
+import * as adStatusService from '@core/services/adStatusService';
+import * as AdEngagementService from '@core/services/AdEngagementService';
+import * as adImageService from '@core/services/AdImageService';
 
-import { respond } from '../../utils/respond';
-import { getSingleParam } from '../../utils/requestParams';
+import { respond } from "../../utils/respond";
+import { getSingleParam } from "../../utils/requestParams";
 import { Ad } from '../../../../shared/schemas/ad.schema';
 import { ApiResponse, PaginatedResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { IAuthUser } from '../../types/auth';
-import { validateTransition } from '../../services/LifecycleGuard';
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { IAuthUser } from '@core/types/auth';
+import { validateTransition } from '@core/services/LifecycleGuard';
 import { type ListingTypeValue } from '../../../../shared/enums/listingType';
 
 const sendClientError = (
@@ -316,7 +316,7 @@ export const getUploadPresignedUrl = async (req: Request, res: Response, next: N
         const keyPrefix = adId ? `${normalizedFolder}/${adId}` : `${normalizedFolder}/${userId}`;
         const key = `${keyPrefix}/${timestamp}-${random}.${ext}`;
 
-        const { generatePresignedUploadUrl } = await import('../../utils/s3');
+        const { generatePresignedUploadUrl } = await import('@core/utils/s3');
         const result = await generatePresignedUploadUrl(key, contentType);
 
         res.json(respond({

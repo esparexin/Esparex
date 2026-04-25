@@ -1,4 +1,4 @@
-jest.mock("../../services/AdMutationService", () => ({
+jest.mock("@core/services/AdMutationService", () => ({
     __esModule: true,
     updateAd: jest.fn(),
     assertOwnership: jest.fn(),
@@ -10,7 +10,7 @@ jest.mock("../../services/adStatusService", () => ({
     restoreAd: jest.fn(),
 }));
 
-jest.mock("../../services/AdOrchestrator", () => ({
+jest.mock("@core/services/AdOrchestrator", () => ({
     __esModule: true,
     createAd: jest.fn(),
 }));
@@ -22,8 +22,8 @@ jest.mock("../../services/BusinessService", () => ({
 
 import type { NextFunction, Request, Response } from "express";
 import * as AdMutationController from "../../controllers/ad/adMutationController";
-import * as AdMutationService from "../../services/AdMutationService";
-import * as AdOrchestrator from "../../services/AdOrchestrator";
+import * as AdMutationService from "@core/services/AdMutationService";
+import * as AdOrchestrator from "@core/services/AdOrchestrator";
 
 const createMockRes = (req?: Record<string, unknown>) => ({
     status: jest.fn().mockReturnThis(),

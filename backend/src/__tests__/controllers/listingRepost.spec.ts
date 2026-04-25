@@ -15,7 +15,7 @@ jest.mock('../../models/Ad', () => ({
     },
 }));
 
-jest.mock('../../services/StatusMutationService', () => ({
+jest.mock('@core/services/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
@@ -34,8 +34,8 @@ jest.mock('../../utils/requestParams', () => ({
 }));
 
 import { Request, Response } from 'express';
-import Ad from '../../models/Ad';
-import { mutateStatus } from '../../services/StatusMutationService';
+import Ad from '@core/models/Ad';
+import { mutateStatus } from '@core/services/StatusMutationService';
 import { repostService } from '../../controllers/service/serviceMutationController';
 import { repostSparePartListing } from '../../controllers/sparePartListing/sparePartListingController';
 

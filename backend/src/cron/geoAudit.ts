@@ -1,6 +1,6 @@
-import User from '../models/User';
-import logger from '../utils/logger';
-import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import User from '@core/models/User';
+import logger from '@core/utils/logger';
+import { runWithDistributedJobLock } from '@core/utils/distributedJobLock';
 
 const GEO_AUDIT_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24h
 const GEO_AUDIT_STARTUP_DELAY_MS = 15_000;

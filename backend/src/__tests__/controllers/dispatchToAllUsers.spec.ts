@@ -35,10 +35,10 @@ jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-import NotificationLog from "../../models/NotificationLog";
-import { NotificationDispatcher } from "../../services/notification/NotificationDispatcher";
-import { NotificationIntent } from "../../domain/NotificationIntent";
-import { createAdminNotificationTargetCursor } from "../../services/notification/AdminNotificationTargetingService";
+import NotificationLog from "@core/models/NotificationLog";
+import { NotificationDispatcher } from "@core/services/notification/NotificationDispatcher";
+import { NotificationIntent } from "@core/domain/NotificationIntent";
+import { createAdminNotificationTargetCursor } from "@core/services/notification/AdminNotificationTargetingService";
 import type { Request, Response } from "express";
 import { sendNotification } from "../../controllers/admin/adminNotificationController";
 

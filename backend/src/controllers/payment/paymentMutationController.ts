@@ -1,5 +1,5 @@
-import logger from '../../utils/logger';
-import { env } from '../../config/env';
+import logger from '@core/utils/logger';
+import { env } from '@core/config/env';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import {
@@ -7,13 +7,13 @@ import {
     findPendingTransaction,
     createPaymentTransaction,
     getUserForPayment,
-} from '../../services/TransactionService';
-import { getPlanById } from '../../services/PlanService';
-import { respond } from '../../utils/respond';
+} from '@core/services/TransactionService';
+import { getPlanById } from '@core/services/PlanService';
+import { respond } from "../../utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from './shared';
-import { logBusiness, logSecurity } from '../../utils/logger';
+import { logBusiness, logSecurity } from '@core/utils/logger';
 import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
 
 /**

@@ -1,31 +1,31 @@
 import { Request, Response } from "express";
-import type { IAuthUser } from '../../types/auth';
-import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "../../utils/redisCache";
-import logger from "../../utils/logger";
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { getSystemConfigDoc } from "../../utils/systemConfigHelper";
-import { env } from '../../config/env';
+import type { IAuthUser } from '@core/types/auth';
+import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "@core/utils/redisCache";
+import logger from "@core/utils/logger";
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { getSystemConfigDoc } from "@core/utils/systemConfigHelper";
+import { env } from '@core/config/env';
 import { respond } from "../../utils/respond";
-import { createLocationEvent } from '../../services/location/LocationEventService';
+import { createLocationEvent } from '@core/services/location/LocationEventService';
 import {
     getDefaultCenterLocation,
     getAreasByCityId,
     getCitiesByStateId,
     getStateLocations,
     ingestLocation as ingestLocationService
-} from '../../services/location/LocationHierarchyService';
+} from '@core/services/location/LocationHierarchyService';
 import {
     lookupLocationByPincode as lookupLocationByPincodeService,
     searchLocations as searchLocationsService
-} from '../../services/location/LocationSearchService';
+} from '@core/services/location/LocationSearchService';
 import {
     touchLocationSearchAnalytics,
     logLocationEvent as logLocationAnalyticsEvent
-} from '../../services/location/LocationAnalyticsService';
+} from '@core/services/location/LocationAnalyticsService';
 import {
     reverseGeocode as reverseGeocodeService
-} from '../../services/location/ReverseGeocodeService';
-import { formatLocationResponse as formatCanonicalLocationResponse, type LocationResponseLike } from '../../lib/location/formatLocation';
+} from '@core/services/location/ReverseGeocodeService';
+import { formatLocationResponse as formatCanonicalLocationResponse, type LocationResponseLike } from '@core/lib/location/formatLocation';
 
 /* -------------------------------------------------------------------------- */
 /* LOCATION CONFIG & UTILS                                                    */

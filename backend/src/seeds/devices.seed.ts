@@ -1,6 +1,6 @@
 
-import { bulkImportService } from "../services/BulkImportService";
-import logger from "../utils/logger";
+import { bulkImportService } from "@core/services/BulkImportService";
+import logger from ".@core/utils/logger";
 
 const DEVICE_SEED_DATA = [
     // ── Smartphones ─────────────────────────────────────────────────────────

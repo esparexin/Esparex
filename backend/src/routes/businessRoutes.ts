@@ -9,10 +9,10 @@ import {
     createBusinessSchema,
     publicBusinessQuerySchema,
     updateBusinessSchema
-} from '../validators/business.validator';
+} from '@core/validators/business.validator';
 
 import { idempotencyMiddleware } from '../middleware/idempotency';
-import { createUploadMiddleware } from '../utils/uploadFactory';
+import { createUploadMiddleware } from "../utils/uploadFactory";
 import { uploadFile } from '../controllers/user';
 
 const router = express.Router();

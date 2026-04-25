@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { buildAdFilterFromCriteria } from '../../utils/adFilterHelper';
+import { buildAdFilterFromCriteria } from '@core/utils/adFilterHelper';
 
 describe('buildAdFilterFromCriteria location hierarchy guards', () => {
     it('keeps structured locationId filtering for region-level requests even when coordinates are present', () => {

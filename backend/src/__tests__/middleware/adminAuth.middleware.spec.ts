@@ -23,9 +23,9 @@ jest.mock("../../utils/cookieHelper", () => ({
 }));
 
 import type { Request, Response } from "express";
-import Admin from "../../models/Admin";
-import { verifyAdminToken } from "../../utils/auth";
-import { validateAdminSession } from "../../services/AdminSessionService";
+import Admin from "@core/models/Admin";
+import { verifyAdminToken } from "@core/utils/auth";
+import { validateAdminSession } from "@core/services/AdminSessionService";
 import { requireAdmin, requirePermission } from "../../middleware/adminAuth";
 
 const createMockRes = () => {

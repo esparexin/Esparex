@@ -45,6 +45,7 @@ export const AppLocationSchema = z.object({
     display: z.string().trim().min(1).optional(),
     detectedAt: z.number().finite().optional(),
     isAuto: z.boolean().optional(),
+    isSnapped: z.boolean().optional(),
 });
 
 export const LocationMetaSchema = z.object({
@@ -61,6 +62,7 @@ export const LocationMetaSchema = z.object({
     isActive: z.boolean().optional(),
     verificationStatus: z.enum(['pending', 'verified', 'rejected']).optional(),
     coordinates: coordinatesSchema.optional(),
+    isSnapped: z.boolean().optional(),
 });
 
 export type LocationMeta = z.infer<typeof LocationMetaSchema>;

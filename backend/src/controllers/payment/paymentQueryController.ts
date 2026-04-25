@@ -1,12 +1,12 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
-import { respond } from '../../utils/respond';
+import { respond } from "../../utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { InvoiceUser } from './shared';
-import { getUserTransactions, getTransactionWithUser } from '../../services/TransactionService';
-import { getActivePlans } from '../../services/PlanService';
-import { getInvoiceByIdOrTransaction } from '../../services/InvoiceService';
+import { getUserTransactions, getTransactionWithUser } from '@core/services/TransactionService';
+import { getActivePlans } from '@core/services/PlanService';
+import { getInvoiceByIdOrTransaction } from '@core/services/InvoiceService';
 
 /**
  * 3. GET PLANS

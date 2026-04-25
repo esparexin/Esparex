@@ -3,7 +3,7 @@ import * as reportController from '../controllers/report';
 import { protect } from '../middleware/authMiddleware';
 import { reportLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import { createReportSchema } from '../validators/report.validator';
+import { createReportSchema } from '@core/validators/report.validator';
 
 const router = express.Router();
 

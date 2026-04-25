@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from '../../services/AuthService';
-import { removeUserFcmToken } from '../../services/UserService';
-import { blacklistToken } from '../../utils/redisCache';
-import { verifyToken } from '../../utils/auth';
-import { sendSuccessResponse } from '../../utils/respond';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { SendOtpResult, VerifyOtpResult } from '../../services/AuthService';
-import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../../utils/cookieHelper';
+import { AuthService } from '@core/services/AuthService';
+import { removeUserFcmToken } from '@core/services/UserService';
+import { blacklistToken } from '@core/utils/redisCache';
+import { verifyToken } from '@core/utils/auth';
+import { sendSuccessResponse } from "../../utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { SendOtpResult, VerifyOtpResult } from '@core/services/AuthService';
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@core/utils/cookieHelper';
 
 export class AuthController {
     private static sendAuthFailure(req: Request, res: Response, result: SendOtpResult | VerifyOtpResult) {

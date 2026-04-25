@@ -24,42 +24,33 @@ jest.mock("../../models/SmartAlert", () => ({
     },
 }));
 
-jest.mock("../../utils/adminLogger", () => ({
-    __esModule: true,
-    logAdminAction: jest.fn().mockResolvedValue(undefined),
-}));
-
-import type { Request } from "express";
-import User from "../../models/User";
-import Ad from "../../models/Ad";
-import SmartAlert from "../../models/SmartAlert";
-import { logAdminAction } from "../../utils/adminLogger";
-import { updateUserStatus } from "../../services/UserStatusService";
+import User from "@core/models/User";
+import Ad from "@core/models/Ad";
+import SmartAlert from "@core/models/SmartAlert";
+import { updateUserStatus } from "@core/services/UserStatusService";
 
 describe("userStatusService audit integration", () => {
     const mockUserFindByIdAndUpdate = (User as unknown as { findByIdAndUpdate: jest.Mock }).findByIdAndUpdate;
     const mockAdUpdateMany = (Ad as unknown as { updateMany: jest.Mock }).updateMany;
     const mockAlertUpdateMany = (SmartAlert as unknown as { updateMany: jest.Mock }).updateMany;
-    const mockLogAdminAction = logAdminAction as jest.Mock;
+    let mockLogFn: jest.Mock;
 
     beforeEach(() => {
         jest.clearAllMocks();
         mockUserFindByIdAndUpdate.mockResolvedValue({ _id: "user_1", status: "suspended" });
         mockAdUpdateMany.mockResolvedValue({ modifiedCount: 1 });
         mockAlertUpdateMany.mockResolvedValue({ modifiedCount: 1 });
+        mockLogFn = jest.fn().mockResolvedValue(undefined);
     });
 
     it("logs STATUS_UPDATE_SUSPENDED when admin suspends user", async () => {
-        const req = { originalUrl: "/api/v1/admin/users/user_1/suspend", user: { _id: "admin_1" } } as unknown as Request;
-
         await updateUserStatus("user_1", "suspended", {
             actor: "ADMIN",
-            adminReq: req,
+            logFn: mockLogFn,
             reason: "Policy violation",
         });
 
-        expect(mockLogAdminAction).toHaveBeenCalledWith(
-            req,
+        expect(mockLogFn).toHaveBeenCalledWith(
             "STATUS_UPDATE_SUSPENDED",
             "User",
             "user_1",
@@ -68,17 +59,14 @@ describe("userStatusService audit integration", () => {
     });
 
     it("logs STATUS_UPDATE_BANNED and disables alerts", async () => {
-        const req = { originalUrl: "/api/v1/admin/users/user_1/ban", user: { _id: "admin_1" } } as unknown as Request;
-
         await updateUserStatus("user_1", "banned", {
             actor: "ADMIN",
-            adminReq: req,
+            logFn: mockLogFn,
             reason: "Fraud",
         });
 
         expect(mockAlertUpdateMany).toHaveBeenCalledWith({ userId: "user_1" }, { isActive: false });
-        expect(mockLogAdminAction).toHaveBeenCalledWith(
-            req,
+        expect(mockLogFn).toHaveBeenCalledWith(
             "STATUS_UPDATE_BANNED",
             "User",
             "user_1",

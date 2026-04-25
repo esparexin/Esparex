@@ -1,24 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { IAuthUser } from '../../types/auth';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import logger from '../../utils/logger';
-import { sendSuccessResponse } from '../../utils/respond';
-import { getSingleParam } from '../../utils/requestParams';
+import { IAuthUser } from '@core/types/auth';
+import { sendErrorResponse } from "../../utils/errorResponse";
+import logger from '@core/utils/logger';
+import { sendSuccessResponse } from "../../utils/respond";
+import { getSingleParam } from "../../utils/requestParams";
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
-import { PromotionPolicyService } from '../../services/PromotionPolicyService';
-import { buildPublicAdFilter, isPublicAdVisible } from '../../utils/FeedVisibilityGuard';
-import * as AdAggregationService from '../../services/ad/AdAggregationService';
-import * as AdDetailService from '../../services/ad/AdDetailService';
-import * as AdMutationService from '../../services/AdMutationService';
-import * as AdMetricsService from '../../services/ad/AdMetricsService';
-import * as AdEngagementService from '../../services/AdEngagementService';
-import { mutateStatus } from '../../services/StatusMutationService';
-import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
-import { getSellerPhone } from '../../services/ContactRevealService';
-import { collectImmutableFieldErrors, hasOwnField } from '../../utils/immutableFieldErrors';
+import { PromotionPolicyService } from '@core/services/PromotionPolicyService';
+import { buildPublicAdFilter, isPublicAdVisible } from '@core/utils/FeedVisibilityGuard';
+import * as AdAggregationService from '@core/services/ad/AdAggregationService';
+import * as AdDetailService from '@core/services/ad/AdDetailService';
+import * as AdMutationService from '@core/services/AdMutationService';
+import * as AdMetricsService from '@core/services/ad/AdMetricsService';
+import * as AdEngagementService from '@core/services/AdEngagementService';
+import { mutateStatus } from '@core/services/StatusMutationService';
+import { getAndVerifyOwnedListing } from "../../utils/controllerUtils";
+import { getSellerPhone } from '@core/services/ContactRevealService';
+import { collectImmutableFieldErrors, hasOwnField } from '@core/utils/immutableFieldErrors';
 
 const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     categoryId: 'Category cannot be changed while editing a listing.',
@@ -432,7 +432,7 @@ export const getMyListings = async (req: Request, res: Response) => {
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
         const { type, status, page = 1, limit = 20 } = req.query;
-        const { getStatusMatchCriteria } = await import('../../utils/statusQueryMapper');
+        const { getStatusMatchCriteria } = await import('@core/utils/statusQueryMapper');
 
         const query: Record<string, unknown> = {
             sellerId: userId,

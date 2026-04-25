@@ -6,7 +6,7 @@
  * has introduced a duplicate constant — fix it by importing from shared instead.
  */
 
-import { GOVERNANCE } from '../../config/constants';
+import { GOVERNANCE } from '@core/config/constants';
 import { AD_LIMITS } from '@shared/constants/adLimits';
 
 describe('GOVERNANCE / shared constants sync', () => {

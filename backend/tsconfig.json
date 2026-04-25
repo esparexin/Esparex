@@ -29,7 +29,9 @@
       "ES2023"
     ],
     "paths": {
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*"],
+      "@shared":   ["../shared/index.ts"],
+      "@core/*":   ["../core/src/*"]
     }
   },
   "ts-node": {
@@ -40,7 +42,7 @@
   },
   "files": [
     "src/@types/index.d.ts",
-    "src/types/global.d.ts"
+    "../core/src/types/global.d.ts"
   ],
   "include": [
     "src/**/*.ts",

@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { respond } from '../../utils/respond';
+import { respond } from "../../utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
 import { User as SharedUser } from '../../../../shared/types/User';
-import { serializeDoc } from '../../utils/serialize';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { serializeDoc } from '@core/utils/serialize';
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';
-import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '../../services/UserProfileService';
-import { getUserWithBusiness } from '../../services/UserService';
+import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '@core/services/UserProfileService';
+import { getUserWithBusiness } from '@core/services/UserService';
 
 const resolveUserId = (req: Request, res: Response): string | null => {
   const userId = typeof req.params.id === 'string' ? req.params.id : '';

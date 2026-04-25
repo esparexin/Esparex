@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { loadEnvFiles } from '../../config/loadEnvFiles';
+import { loadEnvFiles } from '@core/config/loadEnvFiles';
 
 const tempDirs: string[] = [];
 

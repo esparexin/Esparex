@@ -1,4 +1,4 @@
-import { buildDuplicateFingerprint } from '../../services/AdValidationService';
+import { buildDuplicateFingerprint } from '@core/services/AdValidationService';
 
 describe('buildDuplicateFingerprint', () => {
     it('builds deterministic fingerprints from normalized payload fields', () => {

@@ -1,4 +1,4 @@
-import type { IAdmin } from "../../models/Admin";
+import type { IAdmin } from "@core/models/Admin";
 import type { IAuthUser } from "../types/auth";
 
 declare module 'express-serve-static-core' {

@@ -1,9 +1,9 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { respond } from '../../utils/respond';
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { respond } from "../../utils/respond";
 import { getErrorMessage } from './shared';
-import * as invoiceService from '../../services/InvoiceService';
+import * as invoiceService from '@core/services/InvoiceService';
 
 export const getInvoices = async (req: Request, res: Response) => {
     try {
