@@ -1,6 +1,6 @@
 import logger from '@core/utils/logger';
-import { Business } from '../../../../shared/types/Business';
-import { ApiResponse } from '../../../../shared/types/Api';
+import { Business } from "@shared/types/Business";
+import { ApiResponse } from "@shared/types/Api";
 import { respond } from "@core/utils/respond";
 import { Request, Response } from 'express';
 import * as businessService from '@core/services/BusinessService';

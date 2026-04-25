@@ -76,7 +76,7 @@ const AdminSchema = new Schema<IAdmin>(
         status: {
             type: String,
             enum: USER_STATUS_VALUES,
-            default: USER_STATUS.ACTIVE
+            default: USER_STATUS.LIVE
         },
 
         resetPasswordToken: String,

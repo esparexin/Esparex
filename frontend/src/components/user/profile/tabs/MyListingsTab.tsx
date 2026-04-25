@@ -6,9 +6,9 @@ import type { Listing, ListingStatsResponse } from "@/lib/api/user/listings";
 import type { User } from "@/types/User";
 import { useProfileListings } from "./useProfileListings";
 import type { ListingStatus } from "@/hooks/useUserListingManagement";
-import { UserListingsTemplate } from "../../shared/UserListingsTemplate";
-import { ListingItem } from "../../shared/ListingItem";
-import { SoldReasonDialog, type SoldReason } from "../../shared/SoldReasonDialog";
+import { UserListingsTemplate } from "@/components/user/shared/UserListingsTemplate";
+import { ListingItem } from "@/components/user/shared/ListingItem";
+import { SoldReasonDialog, type SoldReason } from "@/components/user/shared/SoldReasonDialog";
 import {
     ACCOUNT_LISTING_STATUS_TABS,
     buildAccountListingRoute,

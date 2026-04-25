@@ -3,7 +3,7 @@ import {
     toGeoPoint,
     isValidGeoPoint,
     hasValidCoordinateArray,
-} from '../../../../shared/utils/geoUtils';
+} from "@shared/utils/geoUtils";
 
 describe('toGeoPoint', () => {
     it('returns a GeoJSON Point for valid [lng, lat] tuple input', () => {

@@ -8,7 +8,7 @@ import { chatApi, type ConversationListView } from '@/lib/api/chatApi';
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { RelativeTimeText } from '@/components/common/RelativeTimeText';
 import { EmptyChat } from './EmptyChat';
-import type { IConversationDTO } from '@shared/contracts/chat.contracts';
+import type { IConversationDTO } from "@shared/contracts/chat.contracts";
 
 function buildConversationState(conv: IConversationDTO): { label: string; tone: 'warn' | 'muted' } | null {
   if (conv.isBlocked) return { label: 'Blocked conversation', tone: 'warn' };

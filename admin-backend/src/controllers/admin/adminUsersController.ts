@@ -6,7 +6,7 @@ import {
     sendPaginatedResponse,
     sendAdminError
 } from '@core/utils/adminBaseController';
-import { USER_STATUS, UserStatusValue } from '../../../../shared/enums/userStatus';
+import { USER_STATUS, UserStatusValue } from "@shared/enums/userStatus";
 import * as adminUsersService from '@core/services/AdminUsersService';
 import { logAdminActionDirect } from '@core/utils/adminLogger';
 import type { AdminLogFn } from '@core/services/AdminListingsService';
@@ -163,7 +163,7 @@ export const updateUserStatus = async (req: Request, res: Response) => {
         const { status, reason } = req.body as { status: string; reason?: string };
         const { id: userId } = req.params;
 
-        if (![USER_STATUS.ACTIVE as string, USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string].includes(status)) {
+        if (![USER_STATUS.LIVE as string, USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string].includes(status)) {
             return sendAdminError(req, res, 'Invalid status', 400);
         }
 

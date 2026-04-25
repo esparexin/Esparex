@@ -15,7 +15,7 @@ import { sendErrorResponse } from "@core/utils/errorResponse";
 import { sendSuccessResponse } from "@core/utils/respond";
 import { getSingleParam } from '@core/utils/requestParams';
 
-import { LISTING_TYPE } from '../../../../shared/enums/listingType';
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 const IMMUTABLE_SELLER_ID_MESSAGE =
     '`sellerId` is not accepted on user listing mutations. The authenticated session determines ownership.';

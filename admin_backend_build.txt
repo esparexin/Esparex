@@ -1,4 +1,0 @@
-
-> admin-backend@1.0.0 build
-> rm -rf dist && tsc
-

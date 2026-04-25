@@ -37,7 +37,7 @@ import {
     sendValidationError,
     handleCatalogToggleStatus
 } from './shared';
-import { CATALOG_STATUS } from '@shared/enums/catalogStatus';
+import { CATALOG_STATUS } from "@shared/enums/catalogStatus";
 import { getCache, setCache, CACHE_TTLS } from '@core/utils/redisCache';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────

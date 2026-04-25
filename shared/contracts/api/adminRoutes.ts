@@ -20,7 +20,7 @@ export const ADMIN_ROUTES = {
     CATEGORIES: "/analytics/revenue/categories",
   },
   ACTIVITY: "/activity",
-  AUDIT_LOGS: "/audit-logs",
+  AUDIT_LOGS: "/security/audit",
   SECURITY_AUDIT: "/security/audit",
 
   // Users

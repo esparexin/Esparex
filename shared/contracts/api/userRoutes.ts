@@ -105,6 +105,8 @@ export const USER_ROUTES = {
   USERS_BLOCK: (id: string | number) => `users/${encodeURIComponent(String(id))}/block`,
   USERS_WALLET: "users/me/wallet",
   USERS_POSTING_BALANCE: "users/me/posting-balance",
+  USERS_TRANSACTIONS: "users/me/transactions",
+  USERS_MY_BOOSTS: "users/me/boosts",
   USERS_SAVED_ADS: "users/saved-ads",
   USERS_SAVED_AD_DETAIL: (id: string) => `users/saved-ads/${id}`,
 

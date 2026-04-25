@@ -23,6 +23,7 @@
 import mongoose from 'mongoose';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@core/types';
 import { CATALOG_STATUS } from "@core/constants/enums/catalogStatus";
+import { USER_STATUS } from "@core/constants/enums/userStatus";
 import { connectOpsDb } from './commandUtils';
 import { closeDB } from '@core/config/db';
 import { installCatalogPromotionListener } from '../../../events/listeners/CatalogPromotionListener';
@@ -87,7 +88,7 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
             const [category, brand, user] = await Promise.all([
                 Category.findOne({ isActive: true }).lean(),
                 Brand.findOne({ isActive: true, status: CATALOG_STATUS.ACTIVE }).lean(),
-                User.findOne({ role: 'user', status: 'active' }).lean(),
+                User.findOne({ role: 'user', status: USER_STATUS.LIVE }).lean(),
             ]);
 
             if (!category || !brand || !user) {

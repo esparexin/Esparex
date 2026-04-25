@@ -15,7 +15,7 @@ import { duplicateCooldownMiddleware } from "../middleware/duplicateCooldownMidd
 import { createListingValidator } from "../middleware/listing.validator";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/requireVerifiedBusiness";
 import { requireListingType } from "../middleware/requireListingType";
-import { LISTING_TYPE } from "../../../shared/enums/listingType";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 import { sendErrorResponse } from "@core/utils/errorResponse";
 
 const router = express.Router();
@@ -55,8 +55,10 @@ router.get("/", extractUser, searchLimiter, validateSearchParams, adController.g
 // Nearby ads (distance-first alias over canonical ads search service)
 router.get("/nearby", extractUser, searchLimiter, validateSearchParams, adController.getNearbyAds);
 
-// User's own ads
-router.get("/my-ads", protect, validateSearchParams, adController.getMyAds);
+// User's own ads — DEPRECATED (use /listings/mine)
+router.get("/my-ads", (req: Request, res: Response) => {
+    return res.redirect(308, req.originalUrl.replace("/ads/my-ads", "/listings/mine"));
+});
 
 // Search autocomplete suggestions
 router.get("/suggestions", searchLimiter, adController.getSuggestions);
@@ -96,8 +98,8 @@ router.post(
 // Track ad view — use /listings/:id/view (Layer 2 canonical)
 // GET /:id/view removed (superseded by listingRoutes)
 
-// Reveal phone number (public with masking or private for authenticated users)
-router.get("/:id/phone", validateObjectId, searchLimiter, listingController.getListingPhone);
+// Phone reveal removed from /ads/:id/phone — canonical: GET /listings/:id/phone
+// (see listingRoutes.ts — supersedes this legacy route)
 
 // Update ad
 // D1: PATCH update uses partial schema (updateAdSchema = PartialAdPayloadSchema.passthrough())

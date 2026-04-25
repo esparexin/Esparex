@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 import logger from '@core/utils/logger';
 import { logAdminAction } from '@core/utils/adminLogger';
 import { mutateStatus } from '@core/services/StatusMutationService';
-import { ACTOR_TYPE } from '../../../../shared/enums/actor';
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { REPORT_STATUS } from '../../../../shared/enums/reportStatus';
+import { ACTOR_TYPE } from "@shared/enums/actor";
+import { AD_STATUS } from "@shared/enums/adStatus";
+import { REPORT_STATUS } from "@shared/enums/reportStatus";
 import { getSingleParam } from '@core/utils/requestParams';
 import {
     getPaginationParams,

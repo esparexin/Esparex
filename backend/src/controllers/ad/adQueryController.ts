@@ -11,12 +11,12 @@ import * as feedService from '@core/services/FeedService';
 import * as trendingService from '@core/services/TrendingService';
 import { respond } from "@core/utils/respond";
 import { getSingleParam } from '@core/utils/requestParams';
-import { Ad } from '../../../../shared/schemas/ad.schema';
-import { ApiResponse, PaginatedResponse, HomeFeedResponse } from '../../../../shared/types/Api';
+import { Ad } from "@shared/schemas/ad.schema";
+import { ApiResponse, PaginatedResponse, HomeFeedResponse } from "@shared/types/Api";
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@core/validators/ad.validator';
 import { sendErrorResponse } from "@core/utils/errorResponse";
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { LISTING_TYPE } from '../../../../shared/enums/listingType';
+import { AD_STATUS } from "@shared/enums/adStatus";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 import { warnIfLegacyAdUserIdAliasUsed } from '@core/utils/legacyOwnerAliasTelemetry';
 import type { AdFilters } from '@core/types/ad.types';
 

@@ -12,6 +12,9 @@ import { normalizeBusinessStatus } from '@core/utils/businessStatus';
 import { hashOtp, verifyOtpHash } from '@core/utils/otpSecurity';
 import { env } from '@core/config/env';
 import { 
+    USER_STATUS 
+} from '@core/constants/enums/userStatus';
+import { 
     canonicalizeToIndian, 
     getMobileVariants, 
     normalizeTo10Digits 
@@ -384,7 +387,7 @@ export class AuthService {
                 mobile: canonicalizeToIndian(mobile),
                 name: normalizedName,
                 role: 'user',
-                status: 'active',
+                status: USER_STATUS.LIVE,
                 isPhoneVerified: true,
                 isVerified: true,
                 lastLoginAt: now

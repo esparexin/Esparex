@@ -10,11 +10,11 @@ import {
 } from '@core/services/TransactionService';
 import { getPlanById } from '@core/services/PlanService';
 import { respond } from "@core/utils/respond";
-import { ApiResponse } from '../../../../shared/types/Api';
+import { ApiResponse } from "@shared/types/Api";
 import { sendErrorResponse } from "@core/utils/errorResponse";
 import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from './shared';
 import { logBusiness, logSecurity } from '@core/utils/logger';
-import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
+import { getPrimaryPlanCreditCount } from "@shared/utils/planEntitlements";
 
 /**
  * 1. CREATE ORDER

@@ -1,4 +1,4 @@
-import { LISTING_TYPE } from '../../../../shared/enums/listingType';
+import { LISTING_TYPE } from "@shared/enums/listingType";
 import {
     getListingTypeCapability,
     getListingTypeRemediation,

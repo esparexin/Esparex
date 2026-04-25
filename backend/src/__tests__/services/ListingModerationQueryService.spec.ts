@@ -7,7 +7,7 @@ jest.mock('@core/models/Ad', () => ({
 }));
 
 import Ad from '@core/models/Ad';
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
+import { AD_STATUS } from "@shared/enums/adStatus";
 import { getModerationCounts, MODERATION_STATUSES } from '@core/services/ListingModerationQueryService';
 import { HIDDEN_MODERATION_STATUSES } from '@core/utils/FeedVisibilityGuard';
 import { getLiveStatusCriteria } from '@core/utils/statusQueryMapper';

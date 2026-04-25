@@ -1,5 +1,5 @@
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { LISTING_TYPE } from '../../../../shared/enums/listingType';
+import { AD_STATUS } from "@shared/enums/adStatus";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 import type {
     ModerationListingType,
     ModerationStatus,

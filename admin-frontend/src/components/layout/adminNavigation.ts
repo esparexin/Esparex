@@ -156,7 +156,7 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         href: "/admin-users",
         roles: ["super_admin"],
         section: "System",
-        aliases: ["/admin-users", "/admin-sessions", "/audit-logs", "/api-keys"],
+        aliases: ["/admin-users", "/admin-sessions", "/security/audit", "/api-keys"],
     },
     {
         key: "settings",

@@ -3,7 +3,7 @@ import { LISTING_TYPE } from '@core/constants/enums/listingType';
 import { AD_STATUS } from '@core/constants/enums/adStatus';
 import { SERVICE_STATUS } from '@core/constants/enums/serviceStatus';
 import { ACTOR_TYPE } from '@core/constants/enums/actor';
-import { resolveCategoryId } from '@shared/utils/resolveCategoryId';
+import { resolveCategoryId } from "@shared/utils/resolveCategoryId";
 import type { IBusiness } from '@core/models/Business';
 import type { IAuthUser } from '@core/types/auth';
 import { AppError } from '@core/utils/AppError';

@@ -1,5 +1,5 @@
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { ACTOR_TYPE } from '../../../../shared/enums/actor';
+import { AD_STATUS } from "@shared/enums/adStatus";
+import { ACTOR_TYPE } from "@shared/enums/actor";
 import { enforceLifecycleMutationPolicy } from '@core/services/LifecyclePolicyGuard';
 
 describe('LifecyclePolicyGuard repost invariants', () => {

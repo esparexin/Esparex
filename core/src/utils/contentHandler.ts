@@ -2,7 +2,7 @@ import type { IAuthUser as AuthUser } from "@core/types/auth";
 
 import { Request, Response } from 'express';
 import { Model, Document } from 'mongoose';
-import { LISTING_TYPE_VALUES, type ListingTypeValue } from '@shared/enums/listingType';
+import { LISTING_TYPE_VALUES, type ListingTypeValue } from "@shared/enums/listingType";
 import {
     getPaginationParams,
     sendPaginatedResponse,

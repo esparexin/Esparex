@@ -4,7 +4,7 @@ import Ad from '@core/models/Ad';
 import AdminMetrics from '@core/models/AdminMetrics';
 import { USER_STATUS } from '@core/constants/enums/userStatus';
 import { Role } from '@core/constants/enums/roles';
-import { normalizeUserStatus } from '@shared/utils/userStatus';
+import { normalizeUserStatus } from "@shared/utils/userStatus";
 import { hashPassword } from '@core/utils/auth';
 import { AppError } from '@core/utils/AppError';
 import type { AdminLogFn } from './AdminListingsService';
@@ -18,8 +18,7 @@ export interface UserFilters {
     isVerified?: boolean;
 }
 
-const LEGACY_ACTIVE_STATUS = 'active';
-const ACTIVE_USER_STATUS_QUERY = { $in: [USER_STATUS.LIVE, LEGACY_ACTIVE_STATUS] };
+const ACTIVE_USER_STATUS_QUERY = USER_STATUS.LIVE;
 
 const ADMIN_ROLE_RANK: Record<string, number> = {
     viewer: 10,
@@ -59,7 +58,7 @@ const buildUserStatusFilter = (status?: string) => {
 
     const normalizedStatus = normalizeUserStatus(status);
     if (normalizedStatus === USER_STATUS.LIVE) {
-        return ACTIVE_USER_STATUS_QUERY;
+        return USER_STATUS.LIVE;
     }
 
     return normalizedStatus ?? status;
@@ -340,7 +339,7 @@ export const isLastActiveSuperAdmin = async (adminId: string): Promise<boolean> 
         Admin.findById(adminId).select('role status isDeleted').lean(),
         Admin.countDocuments({
             role: Role.SUPER_ADMIN,
-            status: USER_STATUS.ACTIVE,
+            status: USER_STATUS.LIVE,
             isDeleted: { $ne: true },
         }),
     ]);
@@ -348,7 +347,7 @@ export const isLastActiveSuperAdmin = async (adminId: string): Promise<boolean> 
     if (!targetAdmin) return false;
     const adminDoc = targetAdmin as { role?: string; status?: string };
     if (adminDoc.role !== Role.SUPER_ADMIN) return false;
-    if (adminDoc.status !== USER_STATUS.ACTIVE) return false;
+    if (adminDoc.status !== USER_STATUS.LIVE) return false;
     return superAdminCount <= 1;
 };
 
@@ -419,7 +418,7 @@ export const createAdminAccount = async (
         password: normalizedPassword,
         role: normalizedRole,
         permissions: normalizedPermissions,
-        status: USER_STATUS.ACTIVE
+        status: USER_STATUS.LIVE
     });
 
     const adminObj = newAdmin.toObject() as unknown as Record<string, unknown>;
@@ -550,8 +549,8 @@ export const toggleAdminStatus = async (
         throw new AppError('Admin not found', 404);
     }
 
-    const isCurrentlyActive = admin.status === USER_STATUS.ACTIVE;
-    const nextStatus = isCurrentlyActive ? USER_STATUS.INACTIVE : USER_STATUS.ACTIVE;
+    const isCurrentlyActive = admin.status === USER_STATUS.LIVE;
+    const nextStatus = isCurrentlyActive ? USER_STATUS.INACTIVE : USER_STATUS.LIVE;
 
     if (id === currentId && !isCurrentlyActive === false) {
          // Case: currently active, trying to set to inactive

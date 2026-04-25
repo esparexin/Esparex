@@ -1,4 +1,4 @@
-import { type Ad, AdSchema } from '@shared/schemas/ad.schema';
+import { type Ad, AdSchema } from "@shared/schemas/ad.schema";
 import { type PaginationEnvelope } from '@/lib/api/result';
 import { normalizeAdStatus } from '@/lib/status/statusNormalization';
 import { toSafeImageArray, toSafeImageSrc } from '@/lib/image/imageUrl';

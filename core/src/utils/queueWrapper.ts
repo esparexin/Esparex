@@ -1,5 +1,5 @@
 import { Queue, Job, type WorkerOptions, Worker, type Processor, type JobsOptions } from 'bullmq';
-import { TraceContext } from '@shared/observability/trace';
+import { TraceContext } from "@shared/observability/trace";
 import logger from './logger';
 import { AuditService } from '@core/services/AuditService';
 

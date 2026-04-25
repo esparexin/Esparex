@@ -1,4 +1,4 @@
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
+import { AD_STATUS } from "@shared/enums/adStatus";
 import {
     isValidLifecycleTransition,
     validateTransition

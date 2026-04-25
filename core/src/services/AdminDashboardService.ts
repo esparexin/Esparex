@@ -155,7 +155,7 @@ export const getLocationAnalyticsRawData = async (params: {
     ] = await Promise.all([
         Location.countDocuments(buildScopedLocationQuery()),
         Ad.countDocuments(buildScopedAdQuery({ status: AD_STATUS.LIVE })),
-        User.countDocuments(buildScopedUserQuery({ status: { $in: [USER_STATUS.LIVE, 'active'] } })),
+        User.countDocuments(buildScopedUserQuery({ status: USER_STATUS.LIVE })),
         Ad.aggregate<AdsByLocationResult>([
             {
                 $match: {

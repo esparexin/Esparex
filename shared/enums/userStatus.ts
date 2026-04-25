@@ -9,9 +9,7 @@ export const USER_STATUS = {
     BANNED: LIFECYCLE_STATUS.BANNED,
     DELETED: LIFECYCLE_STATUS.DELETED,
     INACTIVE: LIFECYCLE_STATUS.INACTIVE,
-    // Legacy mapping (remove after migration)
-    ACTIVE: LIFECYCLE_STATUS.LIVE,
-} as const;
+};
 
 export type UserStatusValue = (typeof USER_STATUS)[keyof typeof USER_STATUS];
 

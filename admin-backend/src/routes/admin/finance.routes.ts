@@ -10,7 +10,6 @@ import { validateRequest } from '../../middleware/validateRequest';
 import * as transactionController from '../../controllers/admin/adminTransactionController';
 import * as adminInvoiceController from '../../controllers/admin/adminInvoiceController';
 import * as adminSmartAlertsController from '../../controllers/admin/adminSmartAlertsController';
-import * as smartAlertController from '../../controllers/smartAlert';
 import {
     adminCreateInvoiceSchema,
     adminInvoiceQuerySchema,
@@ -44,10 +43,11 @@ router.post('/invoices', requirePermission('finance:manage'), adminMutationLimit
 router.patch('/invoices/:id/status', requirePermission('finance:manage'), adminMutationLimiter, validateObjectId, validateRequest(adminUpdateInvoiceStatusSchema), adminInvoiceController.updateInvoiceStatus);
 
 // ============================================
-// SMART ALERTS
+// SMART ALERTS (admin-scoped — no user-context filtering)
 // ============================================
 router.get('/smart-alerts/logs', requirePermission('content:read'), adminSmartAlertsController.getSmartAlertLogs);
-router.get('/smart-alerts', requirePermission('content:read'), smartAlertController.getSmartAlerts);
-router.delete('/smart-alerts/:id', requirePermission('content:write'), validateObjectId, smartAlertController.deleteSmartAlert);
+// FIXED (was using user-context smartAlertController which scoped by req.user._id — wrong in admin context)
+router.get('/smart-alerts', requirePermission('content:read'), searchLimiter, adminSmartAlertsController.getAllSmartAlerts);
+router.delete('/smart-alerts/:id', requirePermission('content:write'), adminMutationLimiter, validateObjectId, adminSmartAlertsController.deleteSmartAlertById);
 
 export default router;

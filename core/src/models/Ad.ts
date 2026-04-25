@@ -260,21 +260,17 @@ AdSchema.index({ seoSlug: 1 }, { name: 'ad_seoSlug_unique_idx', unique: true, sp
 // 🚀 CORE PERFORMANCE INDEXES (Explicitly Named)
 AdSchema.index({ 'location.coordinates': '2dsphere' }, { name: 'ad_geo_coordinates_2dsphere' });
 AdSchema.index({ status: 1, createdAt: -1 }, { name: 'ad_status_createdAt_idx' });
-AdSchema.index({ status: 1 }, { name: 'ad_status_idx' });
 AdSchema.index({ sellerId: 1, status: 1 }, { name: 'ad_sellerId_status_idx' });
 AdSchema.index({ duplicateScore: 1 }, { name: 'ad_duplicateScore_idx' });
 AdSchema.index({ isDuplicateFlag: 1 }, { name: 'ad_isDuplicateFlag_idx' });
 AdSchema.index({ fraudScore: 1 }, { name: 'ad_fraudScore_idx' });
 AdSchema.index({ isSpotlight: 1 }, { name: 'ad_isSpotlight_idx' });
 AdSchema.index({ sellerTrustSnapshot: 1 }, { name: 'ad_sellerTrustSnapshot_idx' });
-AdSchema.index({ categoryId: 1 }, { name: 'ad_categoryId_idx' });
 AdSchema.index({ expiresAt: 1 }, { name: 'ad_expiresAt_idx' });
 AdSchema.index({ duplicateOf: 1 }, { name: 'ad_duplicateOf_idx' });
-AdSchema.index({ brandId: 1 }, { name: 'ad_brandId_idx' });
 AdSchema.index({ modelId: 1 }, { name: 'ad_modelId_idx' });
 
 AdSchema.index({ title: 'text', description: 'text' }, { weights: { title: 10, description: 5 }, name: 'ad_text_search_idx' });
-AdSchema.index({ listingType: 1, status: 1 }, { name: 'idx_ad_listingType_status' });
 AdSchema.index({ isDeleted: 1 }, { name: 'idx_ad_isDeleted' });
 AdSchema.index({ sparePartId: 1, status: 1, createdAt: -1 }, { name: 'ad_sparePartId_status_idx', sparse: true });
 AdSchema.index({ businessId: 1, status: 1, createdAt: -1 }, { name: 'ad_businessId_status_idx', sparse: true });
