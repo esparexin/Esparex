@@ -181,7 +181,7 @@ async function run(): Promise<void> {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
-        fs.writeFileSync(outputPath, fixtureJson, "utf8");
+        fs.writeFileSync(outputPath, fixtureJson + "\n", "utf8");
         console.info(`[smoke-fixtures] Written to ${outputPath}`);
     } else {
         console.info("[smoke-fixtures] SMOKE_FIXTURE_OUTPUT_PATH not set — skipping file write.");

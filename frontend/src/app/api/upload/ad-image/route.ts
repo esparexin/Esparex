@@ -61,12 +61,22 @@ export async function POST(req: Request) {
         const cookie = req.headers.get("cookie") || "";
         const csrfToken = req.headers.get("x-csrf-token") || "";
 
+        // 🛡️ Ensure CSRF cookie matches header for backend Double Submit validation
+        // This is necessary because the browser might not send the backend's HttpOnly cookie
+        // to this frontend proxy route if they are on different domains.
+        let forwardedCookie = cookie;
+        if (csrfToken && !cookie.includes("esparex_csrf=")) {
+            forwardedCookie = cookie 
+                ? `${cookie}; esparex_csrf=${csrfToken}` 
+                : `esparex_csrf=${csrfToken}`;
+        }
+
         if (folder === "ads" && adId) {
             const response = await fetch(`${API_BASE_URL}/${API_ROUTES.USER.ADS_UPLOAD_IMAGE}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    ...(cookie ? { cookie } : {}),
+                    ...(forwardedCookie ? { cookie: forwardedCookie } : {}),
                     ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
                 },
                 body: JSON.stringify({
@@ -89,7 +99,7 @@ export async function POST(req: Request) {
         const response = await fetch(`${API_BASE_URL}/${API_ROUTES.USER.BUSINESSES_UPLOAD}`, {
             method: "POST",
             headers: {
-                ...(cookie ? { cookie } : {}),
+                ...(forwardedCookie ? { cookie: forwardedCookie } : {}),
                 ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
             },
             body: forward,

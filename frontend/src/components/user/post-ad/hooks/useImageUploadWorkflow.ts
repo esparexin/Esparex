@@ -33,11 +33,16 @@ export function useImageUploadWorkflow(
 
                         try {
                             const csrfToken = await (apiClient as any).getCsrfToken?.() || "";
+                            console.log("[FRONTEND CSRF TOKEN]", csrfToken);
+                            
+                            const headers = {
+                                "x-csrf-token": csrfToken,
+                            };
+                            console.log("[UPLOAD HEADERS]", headers);
+
                             const response = await fetch("/api/upload/ad-image", {
                                 method: "POST",
-                                headers: {
-                                    "x-csrf-token": csrfToken,
-                                },
+                                headers,
                                 body: formData,
                                 credentials: "include",
                             });
