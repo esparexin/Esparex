@@ -22,11 +22,15 @@ export async function generateMetadata(
         ['q', 'page', 'sort', 'category', 'categoryId', 'modelId', 'minPrice', 'maxPrice', 'location', 'locationId', 'brands', 'radiusKm'].includes(k)
     );
 
-    const titlePrefix = parsed.type === 'service' ? 'Search Services' : parsed.type === 'spare_part' ? 'Search Spare Parts' : 'Search Ads';
+    const titleMap: Record<string, string> = {
+        service: 'Repair Services Near Me | Esparex',
+        spare_part: 'Buy Mobile Spare Parts Online India | Esparex',
+    };
+    const titleDefault = 'Buy Used Electronics & Spare Parts Online India | Esparex';
 
     return {
-        title: `${titlePrefix} | Esparex`,
-        description: 'Browse thousands of electronics, spare parts, and repair services on Esparex.',
+        title: titleMap[parsed.type] ?? titleDefault,
+        description: 'Browse thousands of mobile spare parts, used phones, laptops and repair services across India on Esparex.',
         alternates: {
             canonical: `https://esparex.in${buildPublicBrowseRoute({ type: parsed.type })}`,
         },
@@ -75,14 +79,24 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
         }
     );
 
+    const h1Map: Record<string, string> = {
+        service: 'Find Mobile Repair Services Near You',
+        spare_part: 'Buy Mobile Spare Parts Online India',
+    };
+    const h1Default = 'Buy Used Electronics & Spare Parts Online India';
+
     return (
-        <Suspense fallback={null}>
-            <Component
-                initialCategory={parsed.categoryId ?? parsed.category}
-                initialSearchQuery={parsed.q}
-                initialResults={initialResults as any}
-                initialCategories={initialCategories}
-            />
-        </Suspense>
+        <>
+            {/* Server-rendered H1 — always visible to Googlebot before hydration */}
+            <h1 className="sr-only">{h1Map[parsed.type] ?? h1Default}</h1>
+            <Suspense fallback={null}>
+                <Component
+                    initialCategory={parsed.categoryId ?? parsed.category}
+                    initialSearchQuery={parsed.q}
+                    initialResults={initialResults as any}
+                    initialCategories={initialCategories}
+                />
+            </Suspense>
+        </>
     );
 }

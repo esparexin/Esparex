@@ -11,6 +11,22 @@ import { BusinessQuickActionsShell } from "@/components/home/BusinessQuickAction
 
 const shouldLogHomeServerFallback = () => process.env.NODE_ENV === "development";
 
+/**
+ * Wraps a fetch promise with an AbortController timeout.
+ * Prevents slow APIs from stalling SSR / Googlebot crawls indefinitely.
+ */
+async function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+    try {
+        return await promise;
+    } catch {
+        return fallback;
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 async function getHomeCategories(): Promise<Category[]> {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!baseUrl) {
@@ -60,14 +76,14 @@ async function getHomeCategories(): Promise<Category[]> {
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-    title: "Esparex - Buy & Sell Mobile Spares & Devices",
-    description: "The best marketplace for mobile spare parts, used devices, and repair services.",
+    title: "Buy & Sell Mobile Spare Parts Online India | Esparex",
+    description: "India's marketplace for mobile spare parts, used phones, laptops, tablets and repair services. Buy and sell electronics online across India — free to post.",
     alternates: {
         canonical: "https://esparex.in/",
     },
     openGraph: {
-        title: "Esparex - Buy & Sell Mobile Spares & Devices",
-        description: "The best marketplace for mobile spare parts, used devices, and repair services.",
+        title: "Buy & Sell Mobile Spare Parts Online India | Esparex",
+        description: "India's marketplace for mobile spare parts, used phones, laptops, tablets and repair services.",
         url: "https://esparex.in/",
         siteName: "Esparex",
         images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Esparex — Buy & Sell Spare Parts" }],
@@ -75,18 +91,19 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "Esparex - Buy & Sell Mobile Spares & Devices",
-        description: "The best marketplace for mobile spare parts, used devices, and repair services.",
+        title: "Buy & Sell Mobile Spare Parts Online India | Esparex",
+        description: "India's marketplace for mobile spare parts, used phones, laptops, tablets and repair services.",
         images: ["/og-image.png"],
     },
 };
 
 export default async function Home() {
     const [categories, initialHomeAds] = await Promise.all([
-        getHomeCategories(),
-        getHomeAds(
-            { limit: 12 },
-            { fetchOptions: { next: { revalidate: 60 } } }
+        withTimeout(getHomeCategories(), 5000, []),
+        withTimeout(
+            getHomeAds({ limit: 12 }, { fetchOptions: { next: { revalidate: 60 } } }),
+            5000,
+            undefined
         ),
     ]);
 
@@ -108,6 +125,11 @@ export default async function Home() {
                     }),
                 }}
             />
+
+            {/* Keyword-rich H1 — always server-rendered for Googlebot */}
+            <h1 className="sr-only">
+                Buy &amp; Sell Mobile Spare Parts Online India — Esparex Marketplace
+            </h1>
 
             <section data-primary className="flex flex-col isolate">
                 <CategoryBrowser categories={categories} />

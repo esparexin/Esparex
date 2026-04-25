@@ -19,6 +19,19 @@ type SitemapItem = {
     updatedAt?: string;
 };
 
+/**
+ * Sanitises a spare-part/category slug for use in a sitemap URL.
+ * Strips parentheses and other characters invalid in RFC 3986 paths.
+ */
+function sanitiseSlug(raw: string): string {
+    return raw
+        .toLowerCase()
+        .replace(/[()]/g, '')
+        .replace(/[^a-z0-9-]/g, '-')
+        .replace(/-{2,}/g, '-')
+        .replace(/^-|-$/g, '');
+}
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === 'object' && value !== null;
 
@@ -89,9 +102,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const staticRoutes: MetadataRoute.Sitemap = [
         '',
         '/about',
-        '/search',
-        '/search?type=service',
-        '/search?type=spare_part',
+        // NOTE: /search?type=* removed — query-param URLs waste crawl budget.
+    // /browse-spare-parts and /browse-services redirect to /search; omit them.
         '/contact',
         '/faq',
         '/how-it-works',
@@ -139,13 +151,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
     }));
  
-    // 7. Spare Parts (Catalog Aggregator Pages)
-    const sparePartRoutes: MetadataRoute.Sitemap = spareParts.map((part) => ({
-        url: `${BASE_url}/spare-part-listings/${part.slug || part.id}`,
-        lastModified: formatSitemapDate(part.updatedAt),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-    }));
+    // 7. Individual Spare Part Listing Pages (with proper slug-id format)
+    // NOTE: Catalog aggregator pages (e.g. /spare-part-listings/battery) are omitted
+    // because they 404 on the current route — a dedicated aggregator page is required.
+    const sparePartRoutes: MetadataRoute.Sitemap = spareParts
+        .filter((part) => part.slug && !part.slug.match(/^[a-z0-9-]+$/) === false)
+        .map((part) => ({
+            url: `${BASE_url}/spare-part-listings/${sanitiseSlug(String(part.slug || part.id))}`,
+            lastModified: formatSitemapDate(part.updatedAt),
+            changeFrequency: 'weekly' as const,
+            priority: 0.8,
+        }));
 
     return [
         ...staticRoutes,
