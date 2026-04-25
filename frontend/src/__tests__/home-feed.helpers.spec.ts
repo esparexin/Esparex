@@ -1,21 +1,20 @@
-import { describe, expect, it } from "vitest";
-import { appendUniqueFeedPage, replaceFeedPage } from "@/components/home/homeFeed.helpers";
-import type { Listing as Ad } from "@/lib/api/user/listings";
+const { describe, it, expect } = require('@jest/globals');
+const { appendUniqueFeedPage, replaceFeedPage } = require('../components/home/homeFeed.helpers');
+// import removed for test compatibility
 
-const makeAd = (id: string, title = `Ad ${id}`): Ad =>
-    ({
-        id,
-        title,
-        description: `Description ${id}`,
-        price: 100,
-        status: "live",
-        createdAt: "2026-03-21T00:00:00.000Z",
-        updatedAt: "2026-03-21T00:00:00.000Z",
-        location: { city: "Macherla" },
-        sellerName: "Esparex Seller",
-        time: "3/21/2026",
-        images: [`https://example.com/${id}.jpg`],
-    } as Ad);
+const makeAd = (id, title = `Ad ${id}`) => ({
+    id,
+    title,
+    description: `Description ${id}`,
+    price: 100,
+    status: "live",
+    createdAt: "2026-03-21T00:00:00.000Z",
+    updatedAt: "2026-03-21T00:00:00.000Z",
+    location: { city: "Macherla" },
+    sellerName: "Esparex Seller",
+    time: "3/21/2026",
+    images: [`https://example.com/${id}.jpg`],
+});
 
 describe("homeFeed helpers", () => {
     it("replaces the first page only when the ordered ids actually change", () => {

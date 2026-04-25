@@ -59,6 +59,7 @@ export async function POST(req: Request) {
         }
 
         const cookie = req.headers.get("cookie") || "";
+        const csrfToken = req.headers.get("x-csrf-token") || "";
 
         if (folder === "ads" && adId) {
             const response = await fetch(`${API_BASE_URL}/${API_ROUTES.USER.ADS_UPLOAD_IMAGE}`, {
@@ -66,6 +67,7 @@ export async function POST(req: Request) {
                 headers: {
                     "Content-Type": "application/json",
                     ...(cookie ? { cookie } : {}),
+                    ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
                 },
                 body: JSON.stringify({
                     adId,
@@ -86,7 +88,10 @@ export async function POST(req: Request) {
 
         const response = await fetch(`${API_BASE_URL}/${API_ROUTES.USER.BUSINESSES_UPLOAD}`, {
             method: "POST",
-            headers: cookie ? { cookie } : undefined,
+            headers: {
+                ...(cookie ? { cookie } : {}),
+                ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+            },
             body: forward,
             cache: "no-store",
         });

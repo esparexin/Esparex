@@ -33,6 +33,8 @@ import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
 import { connectDB } from "@core/config/db";
 import Ad from "@core/models/Ad";
 import User from "@core/models/User";
+import Category from "@core/models/Category";
+import { CATALOG_STATUS } from "@core/constants/enums/catalogStatus";
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                       */
@@ -114,6 +116,19 @@ async function run(): Promise<void> {
     const smokeSlug  = toSlug(smokeTitle);
     const expiresAt  = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
+    let category = await Category.findOne();
+    if (!category) {
+        category = new Category({
+            name: "Smoke Fixture Category",
+            slug: "smoke-fixture-category",
+            type: "ad",
+            isActive: true,
+            status: CATALOG_STATUS.ACTIVE
+        });
+        await category.save();
+        console.info(`[smoke-fixtures] Created fallback category: ${String(category._id)}`);
+    }
+
     let smokeAd = await Ad.findOne({
         sellerId:    seller._id,
         listingType: LISTING_TYPE.AD,
@@ -133,10 +148,19 @@ async function run(): Promise<void> {
     smokeAd.status      = AD_STATUS.LIVE;
     smokeAd.listingType = LISTING_TYPE.AD;
     smokeAd.sellerId    = seller._id;
+    smokeAd.categoryId  = category._id;
     smokeAd.seoSlug     = smokeSlug;
     smokeAd.isDeleted   = false;
     smokeAd.expiresAt   = expiresAt;
-    smokeAd.location    = { city: "Hyderabad", state: "Telangana", country: "India" } as typeof smokeAd.location;
+    smokeAd.location    = { 
+        city: "Hyderabad", 
+        state: "Telangana", 
+        country: "India",
+        coordinates: {
+            type: "Point",
+            coordinates: [78.4867, 17.3850]
+        }
+    } as typeof smokeAd.location;
     await smokeAd.save();
     console.info(`[smoke-fixtures] Smoke ad ready: ${String(smokeAd._id)}`);
 

@@ -1,6 +1,6 @@
-import type { Listing as Ad } from "@/lib/api/user/listings";
+// Helper functions for HomeFeed without TypeScript types
 
-const getAdId = (ad: Ad): string => {
+const getAdId = (ad) => {
     const value = ad?.id;
     if (typeof value === "string" || typeof value === "number") {
         return String(value).trim();
@@ -8,13 +8,13 @@ const getAdId = (ad: Ad): string => {
     return "";
 };
 
-const normalizeString = (value: unknown): string =>
+const normalizeString = (value) =>
     typeof value === "string" ? value.trim() : "";
 
-const toNumber = (value: unknown): number =>
+const toNumber = (value) =>
     typeof value === "number" && Number.isFinite(value) ? value : Number.NaN;
 
-const toPrimaryImage = (ad: Ad): string => {
+const toPrimaryImage = (ad) => {
     if (Array.isArray(ad.images) && typeof ad.images[0] === "string") {
         return ad.images[0].trim();
     }
@@ -24,10 +24,10 @@ const toPrimaryImage = (ad: Ad): string => {
     return "";
 };
 
-const getLocationSignature = (ad: Ad): string => {
+const getLocationSignature = (ad) => {
     const location = ad.location;
     if (!location || typeof location !== "object") return "";
-    const record = location as Record<string, unknown>;
+    const record = location;
     return [
         normalizeString(record.city),
         normalizeString(record.state),
@@ -36,7 +36,7 @@ const getLocationSignature = (ad: Ad): string => {
     ].join("|");
 };
 
-const isSameAdSnapshot = (left: Ad, right: Ad): boolean => {
+const isSameAdSnapshot = (left, right) => {
     return (
         normalizeString(left.title) === normalizeString(right.title) &&
         normalizeString(left.description) === normalizeString(right.description) &&
@@ -52,10 +52,10 @@ const isSameAdSnapshot = (left: Ad, right: Ad): boolean => {
     );
 };
 
-export const replaceFeedPage = (currentAds: Ad[], nextAds: Ad[]): Ad[] => {
+const replaceFeedPage = (currentAds, nextAds) => {
     if (currentAds.length === nextAds.length) {
         const isSameOrder = currentAds.every(
-            (ad, index) => getAdId(ad) === getAdId(nextAds[index] as Ad)
+            (ad, index) => getAdId(ad) === getAdId(nextAds[index])
         );
         if (isSameOrder) {
             const hasChanged = currentAds.some((ad, index) => {
@@ -69,13 +69,13 @@ export const replaceFeedPage = (currentAds: Ad[], nextAds: Ad[]): Ad[] => {
     return nextAds;
 };
 
-export const appendUniqueFeedPage = (currentAds: Ad[], nextAds: Ad[]): Ad[] => {
+const appendUniqueFeedPage = (currentAds, nextAds) => {
     if (nextAds.length === 0) return currentAds;
 
     const seen = new Set(
         currentAds.map(getAdId).filter((value) => value.length > 0)
     );
-    const additions: Ad[] = [];
+    const additions = [];
 
     for (const ad of nextAds) {
         const id = getAdId(ad);
@@ -92,3 +92,8 @@ export const appendUniqueFeedPage = (currentAds: Ad[], nextAds: Ad[]): Ad[] => {
 
     return [...currentAds, ...additions];
 };
+
+// CommonJS export for Jest compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { replaceFeedPage, appendUniqueFeedPage };
+}
