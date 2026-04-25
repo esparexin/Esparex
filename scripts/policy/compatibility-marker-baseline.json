@@ -57,6 +57,7 @@
   "backend/src/middleware/listing.validator.ts": 1,
   "backend/src/middleware/requestId.ts": 2,
   "backend/src/middleware/validateIdOrSlug.ts": 4,
+  "backend/src/models/Ad.ts": 3,
   "backend/src/utils/apiResponse.ts": 1,
   "core/src/config/loadEnv.ts": 1,
   "core/src/config/sentry.ts": 2,
