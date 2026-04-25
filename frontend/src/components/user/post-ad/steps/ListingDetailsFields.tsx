@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Location } from "@/lib/api/user/locations";
 
+import Image from "next/image";
 import { X, Upload, Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
@@ -280,7 +281,13 @@ export default function ListingDetailsFields() {
                     <div className="grid grid-cols-3 gap-3">
                         {listingImages.map((img, idx) => (
                             <div key={img.id} className="aspect-square relative group rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 shadow-sm">
-                                <img src={img.preview} alt="Listing" className="w-full h-full object-cover" />
+                                <Image 
+                                    src={img.preview} 
+                                    alt="Listing" 
+                                    fill
+                                    className="object-cover" 
+                                    unoptimized={true}
+                                />
                                 <button
                                     type="button"
                                     onClick={() => removeImage(idx)}

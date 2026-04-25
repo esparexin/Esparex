@@ -26,7 +26,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "24.x"
           cache: npm
 
       - name: Install dependencies
@@ -58,7 +58,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "24.x"
           cache: npm
 
       - name: Install dependencies
@@ -82,6 +82,7 @@ jobs:
           name: coverage
           path: backend/coverage/
           retention-days: 7
+          if-no-files-found: ignore
 
   # ── Job 3: Architecture guardrails ──────────────────────────────────────────
   architecture-guard:
@@ -94,7 +95,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "24.x"
           cache: npm
 
       - name: Install dependencies
@@ -138,6 +139,7 @@ jobs:
           name: jscpd-report
           path: .jscpd-report/
           retention-days: 7
+          if-no-files-found: ignore
 
   # ── Job 4: Build verification ───────────────────────────────────────────────
   build:
@@ -148,7 +150,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "24.x"
           cache: npm
 
       - name: Install dependencies

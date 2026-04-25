@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getPlans } from "@/lib/api/user/plans";
 import type { ProfilePlan, ProfilePlanType } from "@/components/user/profile/types";
 import type { User } from "@/types/User";
@@ -8,7 +8,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
     const [dynamicPlans, setDynamicPlans] = useState<ProfilePlan[]>([]);
     const [loadingPlans, setLoadingPlans] = useState(false);
 
-    const fetchDynamicPlans = async () => {
+    const fetchDynamicPlans = useCallback(async () => {
         setLoadingPlans(true);
         try {
             const userType =
@@ -34,13 +34,13 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
         } finally {
             setLoadingPlans(false);
         }
-    };
+    }, [user?.role, user?.businessStatus]);
 
     useEffect(() => {
         if (activeTab === 'plans') {
             fetchDynamicPlans();
         }
-    }, [activeTab, user?.businessStatus, user?.role]);
+    }, [activeTab, fetchDynamicPlans]);
 
     return {
         dynamicPlans,

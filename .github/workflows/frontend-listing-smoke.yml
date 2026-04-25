@@ -80,7 +80,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "24.x"
           cache: npm
 
       - name: Install dependencies
@@ -155,6 +155,7 @@ jobs:
             ${{ runner.temp }}/backend-smoke.log
             ${{ runner.temp }}/frontend-smoke.log
           retention-days: 7
+          if-no-files-found: ignore
 
       - name: Stop local servers
         if: always()
