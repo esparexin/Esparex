@@ -23,8 +23,10 @@
 07:16:45 [[32minfo[39m]: User DB connected {"database":"esparex_user","correlationId":"no-context"}
 07:16:45 [[32minfo[39m]: Admin DB connected {"database":"esparex_admin","correlationId":"no-context"}
 08:01:23 [[33mwarn[39m]: Admin DB disconnected {"meta":[],"correlationId":"no-context"}
-08:01:23 [[33mwarn[39m]: User DB disconnected {"meta":[],"correlationId":"no-context"}
-08:01:23 [[32minfo[39m]: Admin DB connected {"database":"esparex_admin","correlationId":"no-context"}
-08:01:23 [[32minfo[39m]: User DB connected {"database":"esparex_user","correlationId":"no-context"}
-":[],"correlationId":"no-context"}
-08:01:23 [[32minfo[39m]: Admin DB connected {"database":"esparex_admin","correlationId":"no-context"}
+08:01:23 [[33mwarn[39m]: User DB disconnected 12:16:51 [[33mwarn[39m]: Admin DB disconnected {"meta":[],"correlationId":"no-context"}
+12:16:58 [[32minfo[39m]: Admin DB connected {"database":"esparex_admin","correlationId":"no-context"}
+tabase":"esparex_user","correlationId":"no-context"}
+12:16:51 [[33mwarn[39m]: Admin DB disconnected {"meta":[],"correlationId":"no-context"}
+12:16:51 [[33mwarn[39m]: User DB disconnected {"meta":[],"correlationId":"no-context"}
+12:16:59 [[32minfo[39m]: Admin DB connected {"da12:16:59 [[32minfo[39m]: Admin DB connected {"database":"esparex_admin","correlationId":"no-context"}
+abase":"esparex_user","correlationId":"no-context"}

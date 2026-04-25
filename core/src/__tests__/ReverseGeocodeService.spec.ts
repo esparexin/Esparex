@@ -1,4 +1,4 @@
-import { reverseGeocode } from '../services/location/ReverseGeocodeService';
+import { reverseGeocode } from '@core/services/location/ReverseGeocodeService';
 import Location from '../models/Location';
 import AdminBoundary from '../models/AdminBoundary';
 import { getCache, setCache } from '../utils/redisCache';

@@ -1,10 +1,10 @@
-import { processSuccessfulPayment } from '../services/PaymentProcessingService';
+import { processSuccessfulPayment } from '@core/services/PaymentProcessingService';
 import { Transaction } from '../models/Transaction';
 import AdminLog from '../models/AdminLog';
 import { getUserConnection } from '../config/db';
-import * as WalletService from '../services/WalletService';
-import * as InvoiceService from '../services/InvoiceService';
-import * as GatewayService from '../services/GatewayService';
+import * as WalletService from '@core/services/WalletService';
+import * as InvoiceService from '@core/services/InvoiceService';
+import * as GatewayService from '@core/services/GatewayService';
 
 jest.mock('../models/Transaction', () => ({
     Transaction: {
