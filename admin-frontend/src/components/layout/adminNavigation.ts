@@ -4,7 +4,6 @@ import type { LucideIcon } from "lucide-react";
 import {
     BarChart3,
     Bell,
-    Database,
     LayoutDashboard,
     Layers,
     MapPin,
@@ -16,7 +15,6 @@ import {
     Wrench,
     Tag,
     List,
-    Box
 } from "lucide-react";
 
 export type AdminModuleKey =

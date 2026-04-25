@@ -28,6 +28,11 @@ export function useChatUnreadCount(currentUserId?: string | null, enabled = true
   useEffect(() => {
     if (!enabled || !currentUserId) {
       setCount(0);
+    }
+  }, [enabled, currentUserId]);
+
+  useEffect(() => {
+    if (!enabled || !currentUserId) {
       return undefined;
     }
 

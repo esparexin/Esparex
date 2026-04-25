@@ -32,7 +32,7 @@ function getRepostListingEndpoint(id: string | number, listingType: ListingTypeV
  * Helper to execute mutation requests with unified error handling.
  */
 const executeListingMutationRequest = async (
-    requestPromise: Promise<any>,
+    requestPromise: Promise<unknown>,
     errorMessage: string
 ): Promise<Listing | null> => {
     try {
