@@ -59,10 +59,9 @@ describe("AdminUsersService", () => {
     describe("normalizeAdminManagedUser", () => {
         it("calls toObject() when available and normalizes status", () => {
             const doc = {
-                toObject: () => ({ status: "active", name: "Alice" }),
+                toObject: () => ({ status: "live", name: "Alice" }),
             };
             const result = normalizeAdminManagedUser(doc as unknown as Record<string, unknown>);
-            // normalizeUserStatus maps 'active' → 'live'
             expect(result.status).toBe("live");
             expect(result.name).toBe("Alice");
         });

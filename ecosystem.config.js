@@ -6,7 +6,6 @@ module.exports = {
       cwd: './backend',
       instances: 'max',
       exec_mode: 'cluster',
-      node_args: '-r tsconfig-paths/register -r ts-node/register/transpile-only',
       autorestart: true,
       max_memory_restart: '1G',
       env: {
@@ -26,7 +25,6 @@ module.exports = {
       cwd: './admin-backend',
       instances: 1,
       exec_mode: 'fork',
-      node_args: '-r tsconfig-paths/register -r ts-node/register/transpile-only',
       autorestart: true,
       max_memory_restart: '500M',
       env: {

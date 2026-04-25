@@ -100,9 +100,13 @@ describe("adminAuth middleware", () => {
         expect(next).toHaveBeenCalledTimes(1);
         expect(req.user).toEqual(
             expect.objectContaining({
-                _id: "admin_1",
+                _id: expect.anything(),
+                id: "admin_1",
                 role: "admin",
                 isAdmin: true,
+                firstName: "Ops",
+                lastName: "Lead",
+                permissions: ["users:read"],
             })
         );
     });
