@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { ChatAttachment, IMessageDTO } from '@shared/contracts/chat.contracts';
+import type { ChatAttachment, IMessageDTO } from "@shared/contracts/chat.contracts";
 import { ChatImageLightbox } from './ChatImageLightbox';
 import { formatAppTime } from '@/lib/formatters';
 

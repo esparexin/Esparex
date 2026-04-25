@@ -1,5 +1,5 @@
 // ...existing code...
-export { formatPrice, formatDate } from '@shared/utils/formatters';
+export { formatPrice, formatDate } from "@shared/utils/formatters";
 
 export const APP_LOCALE = "en-IN";
 export const APP_TIME_ZONE = "Asia/Kolkata";

@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { commonSchemas, sanitizeString } from './common';
 import { ROLE_VALUES } from '@core/constants/enums/roles';
 import { USER_STATUS } from '@core/constants/enums/userStatus';
-import { MOBILE_VISIBILITY_VALUES } from '@shared/constants/mobileVisibility';
+import { MOBILE_VISIBILITY_VALUES } from "@shared/constants/mobileVisibility";
 
 const LEGACY_ADMIN_USERS_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in admin user filters. Use `q` instead.';
 const LEGACY_PROFILE_PHONE_ALIAS_MESSAGE = '`phone` is no longer accepted in profile updates. Mobile number changes are not supported here.';

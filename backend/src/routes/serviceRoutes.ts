@@ -6,7 +6,7 @@ import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
 import { mutationLimiter, searchLimiter, phoneRevealLimiter } from '../middleware/rateLimiter';
 
-import { ServicePayloadSchema, PartialServicePayloadSchema } from '../../../shared/schemas/servicePayload.schema';
+import { ServicePayloadSchema, PartialServicePayloadSchema } from "@shared/schemas/servicePayload.schema";
 import type { ZodTypeAny } from 'zod';
 import { createListingValidator } from '../middleware/listing.validator';
 import { enforceCreateServiceIdempotency } from '../middleware/idempotency';
@@ -14,7 +14,7 @@ import { enforceCreateServiceIdempotency } from '../middleware/idempotency';
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
 import { requireListingType } from '../middleware/requireListingType';
-import { LISTING_TYPE } from '../../../shared/enums/listingType';
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 const router = express.Router();
 

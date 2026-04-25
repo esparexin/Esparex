@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { env } from '@core/config/env';
-import { HomeFeedResponse } from '@shared/types/Api';
+import { HomeFeedResponse } from "@shared/types/Api";
 import logger from '@core/utils/logger';
 import { CACHE_TTLS } from '@core/utils/redisCache';
 

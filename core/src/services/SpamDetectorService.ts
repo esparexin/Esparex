@@ -1,4 +1,4 @@
-import { validateText, type TextValidationResult } from '@shared/utils/textValidator';
+import { validateText, type TextValidationResult } from "@shared/utils/textValidator";
 
 export interface SpamDetectionResult {
     isSpam: boolean;

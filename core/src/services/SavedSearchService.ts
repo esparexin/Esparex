@@ -12,7 +12,7 @@ import {
 } from './savedSearch/SavedSearchMatchService';
 import { SavedSearchRateService } from './savedSearch/SavedSearchRateService';
 
-import type { SavedSearchCreatePayload } from '@shared/schemas/savedSearch.schema';
+import type { SavedSearchCreatePayload } from "@shared/schemas/savedSearch.schema";
 
 const toSavedSearchContract = (search: SavedSearchRecord & { id?: string; userId: Types.ObjectId; createdAt?: Date }) => ({
     id: search._id?.toString() || search.id || '',

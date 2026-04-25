@@ -24,7 +24,7 @@ type FraudScoreDoc = {
 const getAuditAdminId = async (): Promise<mongoose.Types.ObjectId | null> => {
     const admin = await Admin.findOne({
         isDeleted: { $ne: true },
-        status: USER_STATUS.ACTIVE
+        status: USER_STATUS.LIVE
     })
         .select('_id')
         .lean<{ _id: mongoose.Types.ObjectId } | null>();

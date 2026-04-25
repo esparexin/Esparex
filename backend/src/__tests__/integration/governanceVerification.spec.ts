@@ -2,8 +2,8 @@
 import Business from '@core/models/Business';
 import Ad from '@core/models/Ad';
 import { runSuspendExpiredBusinessesJob } from '@core/jobs/suspendExpiredBusinesses.job';
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { MODERATION_STATUS } from '../../../../shared/enums/moderationStatus';
+import { AD_STATUS } from "@shared/enums/adStatus";
+import { MODERATION_STATUS } from "@shared/enums/moderationStatus";
 
 // Mock dependencies
 jest.mock('@core/models/Business');

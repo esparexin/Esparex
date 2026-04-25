@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CATALOG_STATUS } from '@core/constants/enums/catalogStatus';
-import { CATEGORY_TYPES } from '@shared/schemas/catalog.schema';
+import { CATEGORY_TYPES } from "@shared/schemas/catalog.schema";
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from '@core/constants/enums/listingType';
 import { normalizeObjectIdLike } from '@core/utils/idUtils';
 

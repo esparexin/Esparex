@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createUniversalLogger } from "../../../shared/observability/logger";
+import { createUniversalLogger } from "@shared/observability/logger";
 
 describe("UniversalLogger", () => {
     afterEach(() => {

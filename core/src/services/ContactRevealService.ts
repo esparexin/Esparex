@@ -3,8 +3,9 @@ import Ad from '@core/models/Ad';
 import PhoneRevealLog from '@core/models/PhoneRevealLog';
 import PhoneRequest from '@core/models/PhoneRequest';
 import logger from '@core/utils/logger';
-import { MOBILE_VISIBILITY, normalizeMobileVisibility } from '@shared/constants/mobileVisibility';
+import { MOBILE_VISIBILITY, normalizeMobileVisibility } from "@shared/constants/mobileVisibility";
 import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { USER_STATUS } from '@core/constants/enums/userStatus';
 
 type SellerContact = {
     _id?: mongoose.Types.ObjectId;
@@ -141,8 +142,8 @@ export const getSellerPhone = async (
             }
         }
 
-        // Accept both 'live' (canonical) and legacy 'active' alias
-        const sellerActive = seller.status === 'live' || seller.status === 'active';
+        // Validate seller status is canonical LIVE status
+        const sellerActive = seller.status === USER_STATUS.LIVE;
 
         if (!isOwner && (!entityActive || !sellerActive)) {
             const err = new Error('Phone number is unavailable for this listing.');

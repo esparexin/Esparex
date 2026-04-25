@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getActiveBoostsForUser } from '@core/services/BoostService';
 import { respond } from "@core/utils/respond";
-import { ApiResponse } from '../../../../shared/types/Api';
+import { ApiResponse } from "@shared/types/Api";
 import { sendErrorResponse } from "@core/utils/errorResponse";
 
 /**

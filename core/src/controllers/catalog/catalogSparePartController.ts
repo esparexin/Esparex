@@ -39,7 +39,7 @@ import {
     sparePartUpdateSchema
 } from '@core/validators/catalog.validator';
 import CategoryQueryBuilder from '@core/utils/CategoryQueryBuilder';
-import { LISTING_TYPE, type ListingTypeValue } from '@shared/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
 import { getCache, setCache } from '@core/utils/redisCache';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────

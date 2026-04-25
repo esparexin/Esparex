@@ -16,7 +16,7 @@ export const runAdminMetricsJob = async () => {
 
         // 1. PRECOMPUTE USERS OVERVIEW
         const totalUsers = await User.countDocuments({ status: { $ne: USER_STATUS.DELETED } });
-        const activeUsers = await User.countDocuments({ status: USER_STATUS.ACTIVE });
+        const activeUsers = await User.countDocuments({ status: USER_STATUS.LIVE });
         const unverifiedUsers = await User.countDocuments({ isVerified: false, status: { $ne: USER_STATUS.DELETED } });
         const newUsersToday = await User.countDocuments({
             status: { $ne: USER_STATUS.DELETED },

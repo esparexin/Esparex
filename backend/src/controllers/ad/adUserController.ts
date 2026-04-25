@@ -13,12 +13,12 @@ import * as adImageService from '@core/services/AdImageService';
 
 import { respond } from "@core/utils/respond";
 import { getSingleParam } from '@core/utils/requestParams';
-import { Ad } from '../../../../shared/schemas/ad.schema';
-import { ApiResponse, PaginatedResponse } from '../../../../shared/types/Api';
+import { Ad } from "@shared/schemas/ad.schema";
+import { ApiResponse, PaginatedResponse } from "@shared/types/Api";
 import { sendErrorResponse } from "@core/utils/errorResponse";
 import type { AuthUser } from '../../types/auth.types';
 import { validateTransition } from '@core/services/LifecycleGuard';
-import { type ListingTypeValue } from '../../../../shared/enums/listingType';
+import { type ListingTypeValue } from "@shared/enums/listingType";
 
 const sendClientError = (
     req: Request,

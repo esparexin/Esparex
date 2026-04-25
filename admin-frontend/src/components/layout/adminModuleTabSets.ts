@@ -6,7 +6,7 @@ export const administrationTabs: AdminTabItem[] = [
     { label: "Admin Users", href: "/admin-users" },
     { label: "Permissions", href: "/admin-users?view=permissions" },
     { label: "Sessions", href: "/admin-sessions" },
-    { label: "Audit Logs", href: "/audit-logs" },
+    { label: "Audit Logs", href: "/security/audit" },
     { label: "API Keys", href: "/api-keys" },
 ];
 

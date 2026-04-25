@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { respond } from "@core/utils/respond";
-import { ApiResponse } from '../../../../shared/types/Api';
+import { ApiResponse } from "@shared/types/Api";
 import { sendErrorResponse } from "@core/utils/errorResponse";
 import { AppError } from '@core/utils/AppError';
 import {

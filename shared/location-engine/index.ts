@@ -6,7 +6,7 @@
  * All geo, hierarchy, radius, and normalisation utilities are re-exported
  * from this barrel so new code only ever imports from:
  *
- *   import { ... } from '@shared/location-engine';
+ *   import { ... } from "@shared/location-engine";
  *
  * The backing implementation files remain at their current paths for
  * backward compatibility with existing import sites. Migration of existing

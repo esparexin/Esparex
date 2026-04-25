@@ -11,7 +11,7 @@ import { commonSchemas } from './common';
 import {
     AdPayloadSchema as SharedAdPayloadSchema,
     PartialAdPayloadSchema as SharedPartialAdPayloadSchema
-} from '@shared/schemas/adPayload.schema';
+} from "@shared/schemas/adPayload.schema";
 
 /**
  * Seller type enum
@@ -70,7 +70,7 @@ export const createAdSchema = SharedAdPayloadSchema;
  */
 export const updateAdSchema = SharedPartialAdPayloadSchema.passthrough();
 
-import { normalizeStatus } from '@shared/utils/statusNormalization';
+import { normalizeStatus } from "@shared/utils/statusNormalization";
 
 /**
  * Get Ads Query Schema

@@ -3,7 +3,7 @@ import { hasValidCoordinateArray } from '@shared';
 import {
   MOBILE_VISIBILITY,
   normalizeMobileVisibility,
-} from '@shared/constants/mobileVisibility';
+} from "@shared/constants/mobileVisibility";
 import { getUserConnection } from '@core/config/db';
 import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '@core/constants/enums/userStatus';
 
@@ -152,7 +152,7 @@ const UserSchema: Schema = new Schema({
   status: {
     type: String,
     enum: USER_STATUS_VALUES,
-    default: USER_STATUS.ACTIVE,
+    default: USER_STATUS.LIVE,
   },
   statusChangedAt: { type: Date },
   statusReason: { type: String },

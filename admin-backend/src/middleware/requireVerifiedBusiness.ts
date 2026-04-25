@@ -4,7 +4,7 @@ import Business from '@core/models/Business';
 import { isBusinessPublishedStatus } from '@core/utils/businessStatus';
 import { sendErrorResponse } from "@core/utils/errorResponse";
 import logger from '@core/utils/logger';
-import { LISTING_TYPE } from '@shared/enums/listingType';
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 /**
  * Resolve businessStatus for the current request user.

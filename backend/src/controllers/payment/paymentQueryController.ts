@@ -1,7 +1,7 @@
 import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
 import { respond } from "@core/utils/respond";
-import { ApiResponse } from '../../../../shared/types/Api';
+import { ApiResponse } from "@shared/types/Api";
 import { sendErrorResponse } from "@core/utils/errorResponse";
 import { InvoiceUser } from './shared';
 import { getUserTransactions, getTransactionWithUser } from '@core/services/TransactionService';

@@ -4,7 +4,7 @@ import Category from "@core/models/Category";
 import slugify from "slugify";
 import logger from '@core/utils/logger';
 import { escapeRegExp } from '@core/utils/stringUtils';
-import { LISTING_TYPE } from "../../../shared/enums/listingType";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 type SparePartSeed = {
     name: string;

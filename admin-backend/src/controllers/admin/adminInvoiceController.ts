@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import { randomInt } from 'crypto';
 import logger from '@core/utils/logger';
 import { logAdminAction } from '@core/utils/adminLogger';
-import { PAYMENT_STATUS } from '../../../../shared/enums/paymentStatus';
+import { PAYMENT_STATUS } from "@shared/enums/paymentStatus";
 import { generateInvoiceNumber } from '@core/utils/invoiceNumber';
-import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
+import { getPrimaryPlanCreditCount } from "@shared/utils/planEntitlements";
 import * as invoiceService from '@core/services/InvoiceService';
 import {
     createPaymentTransaction,

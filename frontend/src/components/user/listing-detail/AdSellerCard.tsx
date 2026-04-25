@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, ChevronRight, MessageCircle, MessageSquareOff, Phone } from "lucide-react";
 import type { Ad } from "@/schemas/ad.schema";
-import { SellerIdentityPanel } from "../shared/SellerIdentityPanel";
+import { SellerIdentityPanel } from "@/components/user/shared/SellerIdentityPanel";
 import { Button } from "@/components/ui/button";
 import { generateAdSlug } from "@/lib/slug";
 import { getPageRoute } from "@/lib/routeUtils";

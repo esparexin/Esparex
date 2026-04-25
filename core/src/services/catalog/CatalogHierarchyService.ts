@@ -15,7 +15,7 @@
 import { CATALOG_STATUS } from '@core/constants/enums/catalogStatus';
 import type {
     HierarchyTreeResponse,
-} from '@shared/types/CatalogHierarchy';
+} from "@shared/types/CatalogHierarchy";
 import type { AnyBulkWriteOperation } from 'mongoose';
 import mongoose from 'mongoose';
 import Category from '@core/models/Category';

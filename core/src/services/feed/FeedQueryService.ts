@@ -7,7 +7,7 @@ import { buildHomeFeedPipeline } from "@core/services/ad/AdFeedService";
 import type { AdFilters } from "@core/services/ad/_shared/adFilterHelpers";
 import { normalizeAdImagesForResponse } from "@core/services/adQuery/AdQueryHelpers";
 import { buildGeoNearStage, normalizeGeoInput } from '@core/utils/mongoGeoUtils';
-import type { HomeFeedResponse } from '@shared/types/Api';
+import type { HomeFeedResponse } from "@shared/types/Api";
 import logger from '@core/utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';
 import { HomeFeedRequest, ParsedHomeFeedCursor } from './FeedCursorService';

@@ -334,12 +334,16 @@ export type SmartAlertDocument = {
     save: () => Promise<unknown>;
 } & Record<string, unknown>;
 
+export type SmartAlertQuery = Promise<SmartAlertDocument[]> & {
+    sort: (sortBy: Record<string, 1 | -1>) => SmartAlertQuery;
+    skip: (n: number) => SmartAlertQuery;
+    limit: (n: number) => SmartAlertQuery;
+};
+
 export const SmartAlertModel = SmartAlert as unknown as {
     countDocuments: (query: Record<string, unknown>) => Promise<number>;
     create: (payload: Record<string, unknown>) => Promise<SmartAlertDocument>;
-    find: (query: Record<string, unknown>) => {
-        sort: (sortBy: Record<string, 1 | -1>) => Promise<SmartAlertDocument[]>;
-    };
+    find: (query: Record<string, unknown>) => SmartAlertQuery;
     findById: (id: string) => Promise<SmartAlertDocument | null>;
     findByIdAndDelete: (id: string) => Promise<unknown>;
 };

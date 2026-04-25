@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import type { IAuthUser } from '@core/types/auth';
 import redis from '@core/config/redis';
 import logger from '@core/utils/logger';
-import { type ListingTypeValue, LISTING_TYPE } from '@shared/enums/listingType';
+import { type ListingTypeValue, LISTING_TYPE } from "@shared/enums/listingType";
 
 export const duplicateCooldownMiddleware = (listingType: ListingTypeValue = LISTING_TYPE.AD) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {

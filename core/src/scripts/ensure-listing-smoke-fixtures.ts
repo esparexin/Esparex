@@ -10,7 +10,7 @@ import SparePart from '@core/models/SparePart';
 import { AD_STATUS } from '@core/constants/enums/adStatus';
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
 import { MODERATION_STATUS } from '@core/constants/enums/moderationStatus';
-import { MOBILE_VISIBILITY } from '@shared/constants/mobileVisibility';
+import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
 import logger from '@core/utils/logger';
 
 type ListingFixtureType = 'ad' | 'service' | 'spare_part';

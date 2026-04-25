@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { commonSchemas, sanitizeString } from './common';
 import { normalizeTo10Digits } from '@core/utils/phoneUtils';
-import { BUSINESS_LIMITS } from '@shared/schemas/common.schemas';
-import { validateText } from '@shared/utils/textValidator';
+import { BUSINESS_LIMITS } from "@shared/schemas/common.schemas";
+import { validateText } from "@shared/utils/textValidator";
 import { ID_PROOF_TYPE_VALUES } from '@core/constants/enums/idProofType';
 import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
 

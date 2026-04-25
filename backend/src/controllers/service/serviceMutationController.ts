@@ -2,15 +2,15 @@ import logger from '@core/utils/logger';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { findOwnedService } from '@core/services/AdMutationService';
-import { Service } from '../../../../shared/types/Service';
-import { ApiResponse } from '../../../../shared/types/Api';
+import { Service } from "@shared/types/Service";
+import { ApiResponse } from "@shared/types/Api";
 import { respond } from "@core/utils/respond";
 import { getSingleParam } from '@core/utils/requestParams';
 import { sendErrorResponse } from "@core/utils/errorResponse";
-import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { LISTING_TYPE } from '../../../../shared/enums/listingType';
+import { AD_STATUS } from "@shared/enums/adStatus";
+import { LISTING_TYPE } from "@shared/enums/listingType";
 import { mutateStatus } from '@core/services/StatusMutationService';
-import { ACTOR_TYPE } from '../../../../shared/enums/actor';
+import { ACTOR_TYPE } from "@shared/enums/actor";
 import type { IAuthUser } from '@core/types/auth';
 import {
     createServiceMutation,

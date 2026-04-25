@@ -6,10 +6,6 @@ const validUserStatuses = new Set<string>(USER_STATUS_VALUES);
 export type UserStatusLike = UserStatusValue | typeof LEGACY_ACTIVE_STATUS | string | null | undefined;
 
 export function normalizeUserStatus(status: UserStatusLike): UserStatusValue | undefined {
-    if (status === LEGACY_ACTIVE_STATUS) {
-        return USER_STATUS.LIVE;
-    }
-
     if (typeof status !== "string") {
         return undefined;
     }

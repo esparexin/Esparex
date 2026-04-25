@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { Business as SharedBusiness } from '@shared/types/Business';
+import { Business as SharedBusiness } from "@shared/types/Business";
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared';
 import { BUSINESS_STATUS, BUSINESS_STATUS_VALUES } from '@core/constants/enums/businessStatus';
 import { ID_PROOF_TYPE_VALUES, type IdProofTypeValue } from '@core/constants/enums/idProofType';

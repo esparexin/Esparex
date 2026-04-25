@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from '../../routes';
 import { toApiResult } from '@/lib/api/result';
 import logger from "@/lib/logger";
-import { LISTING_TYPE, type ListingTypeValue } from '@shared/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
 import { normalizeListing, stripEmptyObjectIdFields, type Listing } from './normalizer';
 
 function getDeleteListingEndpoint(id: string | number, listingType: ListingTypeValue): string {

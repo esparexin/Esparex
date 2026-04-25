@@ -86,7 +86,7 @@ describe("AdminUsersService", () => {
 
     describe("isLastActiveSuperAdmin", () => {
         it("returns true when target IS the sole active super_admin", async () => {
-            // USER_STATUS.ACTIVE resolves to 'live' (it's an alias)
+            // USER_STATUS.LIVE resolves to 'live'
             mockAdmin.findById.mockReturnValue({
                 select: jest.fn().mockReturnValue({
                     lean: jest.fn().mockResolvedValue({

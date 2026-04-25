@@ -3,13 +3,13 @@
  * Domain: Users, Admin Users, API Keys, Sessions, Audit, Notifications,
  *         Locations, Geofences, System Config, Plans, Business
  */
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { validateObjectId } from '../../middleware/validateObjectId';
 import { requirePermission, requireSuperAdmin } from '../../middleware/adminAuth';
 import { searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
 import { validateRequest } from '../../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
-import { PlanPayloadSchema, PartialPlanPayloadSchema } from '../../../../shared/schemas/planPayload.schema';
+import { PlanPayloadSchema, PartialPlanPayloadSchema } from "@shared/schemas/planPayload.schema";
 
 import * as usersController from '../../controllers/admin/adminUsersController';
 import * as businessController from '../../controllers/admin/adminBusinessController';
@@ -23,6 +23,8 @@ import * as planController from '@core/controllers/plan';
 import * as aiController from '@core/controllers/ai/aiController';
 import * as adminRevealController from '../../controllers/admin/adminRevealController';
 import * as twoFAController from '../../controllers/admin/admin2FAController';
+import * as adminCacheController from '../../controllers/admin/adminCacheController';
+import { hmacSignatureMiddleware } from '../../middleware/HMACSignatureMiddleware';
 import { aiGenerateSchema } from '@core/validators/ai.validator';
 import {
     getUsersQuerySchema,
@@ -56,7 +58,6 @@ import {
     adminNotificationSendSchema,
 } from '../../middleware/notificationValidators';
 import * as walletController from '../../controllers/wallet';
-import importRoutes from '../importRoutes';
 import {
     adminListChats,
     adminGetChat,
@@ -118,7 +119,8 @@ router.get('/rate-limits/metrics', searchLimiter, systemController.getRateLimitM
 // AUDIT LOGS
 // ============================================
 router.get('/security/audit', requirePermission('system:logs'), searchLimiter, validateRequest({ query: adminAuditLogQuerySchema }), auditController.getAuditLogs);
-router.get('/audit-logs', requirePermission('system:logs'), searchLimiter, validateRequest({ query: adminAuditLogQuerySchema }), auditController.getAuditLogs);
+// DEPRECATED: /audit-logs renamed to /security/audit. 308 redirect for backward compatibility.
+router.get('/audit-logs', (_req: Request, res: Response) => res.redirect(308, _req.originalUrl.replace('/audit-logs', '/security/audit')));
 
 
 router.get('/admin-sessions', requireSuperAdmin, requirePermission('system:logs'), searchLimiter, adminSessionController.getAdminSessions);
@@ -137,7 +139,7 @@ router.get('/phone-reveals/requests', requirePermission('ads:read'), searchLimit
 router.get('/user-management/overview', requirePermission('users:read'), usersController.getUserManagementOverview);
 router.get('/users', requirePermission('users:read'), validateRequest({ query: getUsersQuerySchema }), usersController.getUsers);
 
-import { hmacSignatureMiddleware } from '../../middleware/HMACSignatureMiddleware';
+// Note: hmacSignatureMiddleware imported at top of file
 // ✅ ACTIONS
 router.post('/users', requirePermission('users:write'), adminMutationLimiter, usersController.createUser);
 router.patch('/users/:id/status', requirePermission('users:write'), adminMutationLimiter, validateObjectId, validateRequest(updateUserStatusSchema), usersController.updateUserStatus);
@@ -250,7 +252,6 @@ router.get('/cache/health', requirePermission('system:config'), adminMutationLim
 // ============================================
 // SYSTEM CACHE (Monitoring & Control)
 // ============================================
-import * as adminCacheController from '../../controllers/admin/adminCacheController';
 router.get('/system/cache/stats', requirePermission('system:config'), searchLimiter, adminCacheController.getStats);
 router.post('/system/cache/invalidate', requirePermission('system:config'), adminMutationLimiter, adminCacheController.invalidate);
 
@@ -271,9 +272,7 @@ router.post('/chat/mute/:id', requirePermission(ADMIN_PERMISSION_KEYS.CHAT_WRITE
 router.post('/chat/export/:id', requirePermission(ADMIN_PERMISSION_KEYS.CHAT_READ), adminExportChat);
 router.patch('/chat/report/:id', requirePermission(ADMIN_PERMISSION_KEYS.CHAT_WRITE), adminMutationLimiter, adminResolveReport);
 
-// ============================================
-// BULK IMPORT
-// ============================================
-router.use('/import', importRoutes);
+// BULK IMPORT: Mounted exclusively in adminRoutes.ts to avoid double-registration.
+// Do NOT re-mount importRoutes here.
 
 export default router;

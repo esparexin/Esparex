@@ -3,7 +3,7 @@ import { sendSuccessResponse, sendAdminError, getPaginationParams, sendPaginated
 import { serializeBusinessForAdmin } from '../business/shared';
 import * as adminBusinessService from '@core/services/AdminBusinessService';
 import { normalizeBusinessStatus } from '@core/utils/businessStatus';
-import { BUSINESS_STATUS } from '../../../../shared/enums/businessStatus';
+import { BUSINESS_STATUS } from "@shared/enums/businessStatus";
 import { logAdminActionDirect } from '@core/utils/adminLogger';
 import type { AdminLogFn } from '@core/services/AdminListingsService';
 import type { IAuthUser } from '@core/types/auth';

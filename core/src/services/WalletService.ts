@@ -3,7 +3,7 @@ import UserWallet from '@core/models/UserWallet';
 import Transaction, { type ITransaction } from '@core/models/Transaction';
 import { getUserConnection } from '@core/config/db';
 import { AppError } from '@core/utils/AppError';
-import { getPrimaryPlanCreditCount } from '@shared/utils/planEntitlements';
+import { getPrimaryPlanCreditCount } from "@shared/utils/planEntitlements";
 
 
 export interface WalletAmount {

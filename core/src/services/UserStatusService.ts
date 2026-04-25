@@ -53,7 +53,7 @@ export const updateUserStatus = async (
     }
 
     // Clear reasons if activating
-    if (newStatus === USER_STATUS.ACTIVE) {
+    if (newStatus === USER_STATUS.LIVE) {
         updateData.statusReason = undefined;
     }
 
@@ -147,7 +147,7 @@ export const updateUserStatus = async (
 
     // --- Admin Logging ---
     if (context.actor === 'ADMIN') {
-        const actionVerb = newStatus === USER_STATUS.ACTIVE ? 'ACTIVATED' : newStatus.toUpperCase();
+        const actionVerb = newStatus === USER_STATUS.LIVE ? 'ACTIVATED' : newStatus.toUpperCase();
         if (context.logFn) {
             await context.logFn(
                 `STATUS_UPDATE_${actionVerb}`,

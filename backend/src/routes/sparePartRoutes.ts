@@ -10,9 +10,9 @@ import { phoneRevealLimiter } from '../middleware/rateLimiter';
 
 import { validateRequest } from '../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
-import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../shared/schemas/sparePartPayload.schema';
+import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from "@shared/schemas/sparePartPayload.schema";
 import { requireListingType } from '../middleware/requireListingType';
-import { LISTING_TYPE } from '../../../shared/enums/listingType';
+import { LISTING_TYPE } from "@shared/enums/listingType";
 
 const router = Router();
 

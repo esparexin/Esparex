@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import { User as SharedUser, UserRole, BusinessStatus } from '../../../../shared/types/User';
-import { normalizeMobileVisibility } from '../../../../shared/constants/mobileVisibility';
+import { User as SharedUser, UserRole, BusinessStatus } from "@shared/types/User";
+import { normalizeMobileVisibility } from "@shared/constants/mobileVisibility";
 import { serializeDoc } from '@core/utils/serialize';
 
 type UploadedFile = {

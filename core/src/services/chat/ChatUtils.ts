@@ -1,4 +1,4 @@
-import type { IConversationDTO } from '@shared/contracts/chat.contracts';
+import type { IConversationDTO } from "@shared/contracts/chat.contracts";
 import { isListingChatClosed } from '../chatAvailabilityService';
 import type { IChatAttachment } from '@core/models/ChatMessage';
 
