@@ -1,7 +1,7 @@
 // HomeFeedClient.tsx - client component handling feed logic
 "use client";
 
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { Loader2, PackageOpen } from "lucide-react";
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
@@ -20,31 +20,25 @@ interface HomeFeedProps {
     initialData?: HomeAdsPayload;
 }
 
+/**
+ * HomeFeedClient - Handles the state and rendering for the recommended ads feed.
+ * This component is keyed by location in the parent (HomeFeed), so it automatically 
+ * resets when the location changes.
+ */
 export function HomeFeedClient({ initialData }: HomeFeedProps) {
     const [cursor, setCursor] = useState<{ createdAt: string; id?: string } | undefined>(undefined);
     const [nextCursor, setNextCursor] = useState<{ createdAt: string; id: string } | null>(initialData?.nextCursor ?? null);
     const [feedAds, setFeedAds] = useState<Ad[]>(initialData?.ads ?? []);
     const [hasMore, setHasMore] = useState<boolean>(initialData?.hasMore === true);
+    
     const { location, isLoaded } = useLocationData();
     const latitude = getLatitude(location);
     const longitude = getLongitude(location);
     const locationSearchLabel = useMemo(() => getSearchLocationLabel(location), [location]);
-    const locationContextKey = useMemo(
-        () =>
-            [
-                location.locationId ?? "",
-                locationSearchLabel ?? "",
-                location.level ?? "",
-                location.source ?? "",
-                typeof latitude === "number" ? latitude.toFixed(3) : "",
-                typeof longitude === "number" ? longitude.toFixed(3) : "",
-            ].join("|"),
-        [latitude, location.level, location.locationId, locationSearchLabel, location.source, longitude]
-    );
-    const previousContextKeyRef = useRef(locationContextKey);
 
     const isDefaultLocation = location.source === "default";
     const shouldUseGeoSearch = !isDefaultLocation && shouldUseGeoRadiusLocation(location);
+    
     const requestParams = useMemo(() => ({
         cursor,
         limit: HOME_FEED_PAGE_SIZE,
@@ -68,16 +62,9 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
     );
 
     useEffect(() => {
-        if (previousContextKeyRef.current === locationContextKey) return;
-        previousContextKeyRef.current = locationContextKey;
-        setCursor(undefined);
-        setNextCursor(null);
-        setHasMore(false);
-    }, [locationContextKey]);
-
-    useEffect(() => {
         if (!data) return;
         const pageAds = Array.isArray(data.ads) ? data.ads : [];
+        
         if (!cursor) {
             setFeedAds((previous) => (
                 pageAds.length > 0 || (data as any).isFallback || previous.length === 0
@@ -87,6 +74,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         } else if (pageAds.length > 0) {
             setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
         }
+        
         setNextCursor(data.nextCursor ?? null);
         setHasMore(data.hasMore === true);
     }, [cursor, data]);
