@@ -1,23 +1,23 @@
-jest.mock('../../models/Conversation', () => ({
+jest.mock('@core/models/Conversation', () => ({
   Conversation: {
     find: jest.fn(),
     countDocuments: jest.fn(),
   },
 }));
 
-jest.mock('../../models/ChatMessage', () => ({
+jest.mock('@core/models/ChatMessage', () => ({
   ChatMessage: {
     distinct: jest.fn(),
   },
 }));
 
-jest.mock('../../models/ChatReport', () => ({
+jest.mock('@core/models/ChatReport', () => ({
   ChatReport: {
     distinct: jest.fn(),
   },
 }));
 
-jest.mock('../../models/Ad', () => ({
+jest.mock('@core/models/Ad', () => ({
   __esModule: true,
   default: {
     find: jest.fn(),
@@ -25,7 +25,7 @@ jest.mock('../../models/Ad', () => ({
   },
 }));
 
-jest.mock('../../models/User', () => ({
+jest.mock('@core/models/User', () => ({
   User: {
     find: jest.fn(),
   },

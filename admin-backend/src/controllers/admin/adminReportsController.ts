@@ -6,13 +6,13 @@ import { mutateStatus } from '@core/services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { REPORT_STATUS } from '../../../../shared/enums/reportStatus';
-import { getSingleParam } from "../../utils/requestParams";
+import { getSingleParam } from '@core/utils/requestParams';
 import {
     getPaginationParams,
     sendPaginatedResponse,
     sendSuccessResponse,
     sendAdminError
-} from './adminBaseController';
+} from '@core/utils/adminBaseController';
 import {
     getAdminReportById,
     findReportForUpdate,

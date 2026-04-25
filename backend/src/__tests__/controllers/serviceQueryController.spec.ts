@@ -1,4 +1,4 @@
-jest.mock("../../services/ad/AdAggregationService", () => ({
+jest.mock("@core/services/ad/AdAggregationService", () => ({
     __esModule: true,
     getAds: jest.fn(),
 }));

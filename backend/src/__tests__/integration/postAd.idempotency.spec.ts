@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { enforceCreateAdIdempotency } from '../../middleware/idempotency';
 import IdempotencyRequest from '@core/models/IdempotencyRequest';
 
-jest.mock('../../models/IdempotencyRequest', () => ({
+jest.mock('@core/models/IdempotencyRequest', () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),

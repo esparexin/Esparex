@@ -1,12 +1,11 @@
+
 import { Request, Response, NextFunction } from "express";
-import { Types } from "mongoose";
 import { verifyToken, JwtPayload } from "@core/utils/auth";
 import redis from "@core/config/redis";
 import User from "@core/models/User";
 import { isTokenBlacklisted } from "@core/utils/redisCache";
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import logger from '@core/utils/logger';
-import { Role } from "@core/constants/enums/roles";
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@core/utils/cookieHelper';
 
 /* -------------------------------------------------------------------------- */
@@ -74,7 +73,8 @@ export const protect = async (
     res.setHeader("Expires", "0");
 
     // Skip if already verified
-    if (req.admin || req.user?.isAdmin) {
+    const authUser = req.user;
+    if (req.admin || authUser?.isAdmin) {
       return next();
     }
 
@@ -105,19 +105,18 @@ export const protect = async (
 
     // Common req.user Setup
     req.user = {
-      _id: new Types.ObjectId(decoded.id),
-      id: decoded.id,
-      role: decoded.role as Role,
-      isAdmin: (decoded.role as Role) === Role.ADMIN || (decoded.role as Role) === Role.SUPER_ADMIN
+      _id: decoded.id,
+      role: decoded.role,
+      isAdmin: decoded.role === "admin" || decoded.role === "super_admin"
     };
 
     // User Hydration (with Redis Caching)
-    const cacheKey = `user:status:${req.user.id}`;
+    const cacheKey = `user:status:${decoded.id}`;
     const cachedUserStatus = parseCachedUserStatus(await redis.get(cacheKey));
 
     // Always validate tokenVersion using authoritative DB record.
     // Cached user data must never be trusted for tokenVersion checks.
-    const user = await User.findById(req.user._id).select('status tokenVersion').lean();
+    const user = await User.findById(decoded.id).select('status tokenVersion').lean();
     if (!user) {
       clearAuthCookie(res);
       sendErrorResponse(req, res, 401, "User not found");
@@ -134,7 +133,7 @@ export const protect = async (
       return;
     }
 
-    const userStatus = user.status;
+    const userStatus = user.status as string | undefined;
     if (
       !cachedUserStatus ||
       cachedUserStatus.status !== userStatus ||
@@ -153,10 +152,11 @@ export const protect = async (
     // have legacy documents. Remove the 'active' check once the DB migration is confirmed.
     const isActive = (userStatus as string) === 'active' || userStatus === 'live';
     if (!isActive) {
+      const statusStr = userStatus || 'unknown';
       sendErrorResponse(req, res, 403, "Account restricted", {
-        message: `Your account is currently ${userStatus}. Please contact support.`,
-        type: userStatus.toUpperCase(),
-        code: `USER_${userStatus.toUpperCase()}`
+        message: `Your account is currently ${statusStr}. Please contact support.`,
+        type: statusStr.toUpperCase(),
+        code: `USER_${statusStr.toUpperCase()}`
       });
       return;
     }
@@ -188,10 +188,9 @@ export const extractUser = (
 
     if (decoded?.id && decoded.role) {
       req.user = {
-        _id: new Types.ObjectId(decoded.id),
-        id: decoded.id,
-        role: decoded.role as Role,
-        isAdmin: (decoded.role as Role) === Role.ADMIN || (decoded.role as Role) === Role.SUPER_ADMIN
+        _id: decoded.id,
+        role: decoded.role,
+        isAdmin: decoded.role === "admin" || decoded.role === "super_admin"
       };
     }
   } catch {
@@ -212,12 +211,13 @@ export const restrictTo =
       res: Response,
       next: NextFunction
     ): void => {
-      if (!req.user) {
+      const user = req.user;
+      if (!user) {
         sendErrorResponse(req, res, 401, "Not authorized");
         return;
       }
 
-      if (!roles.includes(req.user.role)) {
+      if (!roles.includes(user.role)) {
         sendErrorResponse(req, res, 403, "You do not have permission to perform this action");
         return;
       }
@@ -234,15 +234,16 @@ export const adminOnly = (
   res: Response,
   next: NextFunction
 ): void => {
-  if (!req.user) {
+  const user = req.user;
+  if (!user) {
     sendErrorResponse(req, res, 401, "Not authorized");
     return;
   }
 
   const isAdmin =
-    req.user.isAdmin ||
-    req.user.role === "admin" ||
-    req.user.role === "super_admin";
+    user.isAdmin ||
+    user.role === "admin" ||
+    user.role === "super_admin";
 
   if (!isAdmin) {
     sendErrorResponse(req, res, 403, "Admin access required");

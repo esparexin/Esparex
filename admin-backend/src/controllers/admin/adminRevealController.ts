@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { sendAdminError } from './adminBaseController';
+import { sendAdminError } from '@core/utils/adminBaseController';
 import {
     getPhoneRevealLogsPaginated,
     getPhoneRequestsPaginated,
-} from '../../services/AdminRevealService';
+} from '@core/services/AdminRevealService';
 
 /**
  * Get all phone reveal logs for auditing (Admin only)

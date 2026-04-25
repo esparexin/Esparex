@@ -9,6 +9,7 @@ import { getUserConnection } from '@core/config/db';
 import { FeatureFlag, isEnabled } from '@core/config/featureFlags';
 import { env } from '@core/config/env';
 
+
 export interface FraudRequest extends Request {
     fraudRisk?: RiskLevel;
     fraudScore?: number;
@@ -65,8 +66,9 @@ export const fraudMiddleware = async (req: Request, res: Response, next: NextFun
         const spamCheck = detectSpam(bodyStr); // Full depth scan
         const descAiCheck = detectAiSpam(description); // AI density scan
 
+        const authUser = req.user;
         const context: FraudContext = {
-            userId: req.user?._id ? (typeof req.user._id === 'string' ? new mongoose.Types.ObjectId(req.user._id) : req.user._id) : undefined,
+            userId: authUser?._id ? new mongoose.Types.ObjectId(authUser._id) : undefined,
             ip,
             deviceFingerprint,
             action: `${req.method}_${req.originalUrl}`,

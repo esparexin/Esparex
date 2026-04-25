@@ -11,11 +11,10 @@ import * as AdOrchestrator from '@core/services/AdOrchestrator';
 
 import { getBusinessByUserId } from '@core/services/BusinessService';
 import { isBusinessPublishedStatus } from '@core/utils/businessStatus';
-import { sendErrorResponse } from "../../utils/errorResponse";
-import { sendSuccessResponse } from "../../utils/respond";
-import { getSingleParam } from "../../utils/requestParams";
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { sendSuccessResponse } from "@core/utils/respond";
+import { getSingleParam } from '@core/utils/requestParams';
 
-import { IAuthUser } from '@core/types/auth';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 
 const IMMUTABLE_SELLER_ID_MESSAGE =
@@ -57,7 +56,9 @@ const rejectSellerOverride = (
  */
 export const createAd = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const authUserId = (req.user as IAuthUser)._id.toString();
+        const user = req.user;
+        if (!user) return sendClientError(req, res, 401, 'Unauthorized', 'UNAUTHORIZED');
+        const authUserId = String(user._id);
         const createBody = req.body as Record<string, unknown>;
         if (rejectSellerOverride(req, res, createBody)) return;
         const sellerId = authUserId;
@@ -101,7 +102,9 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        const authUserId = (req.user as IAuthUser)._id.toString();
+        const user = req.user;
+        if (!user) return sendClientError(req, res, 401, 'Unauthorized', 'UNAUTHORIZED');
+        const authUserId = String(user._id);
         const updateBody = req.body as Record<string, unknown>;
         if (rejectSellerOverride(req, res, updateBody)) return;
         const sellerId = authUserId;
@@ -139,15 +142,17 @@ export const updateAd = async (req: Request, res: Response, next: NextFunction) 
  */
 export const deleteAd = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.user) return sendClientError(req, res, 401, 'Unauthorized', 'UNAUTHORIZED');
+        const user = req.user;
+        if (!user) return sendClientError(req, res, 401, 'Unauthorized', 'UNAUTHORIZED');
 
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
 
-        await AdMutationService.assertOwnership(id, (req.user)._id.toString());
+        const authUserId = String(user._id);
+        await AdMutationService.assertOwnership(id, authUserId);
 
         // Use canonical adStatusService (not deprecated adService.deleteAd)
-        const ad = await adStatusService.deleteAd(id, (req.user)._id.toString(), 'user');
+        const ad = await adStatusService.deleteAd(id, authUserId, 'user');
         if (!ad) {
             return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
         }
@@ -163,10 +168,12 @@ export const deleteAd = async (req: Request, res: Response, next: NextFunction) 
  */
 export const restoreAd = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const user = req.user;
+        if (!user) return sendClientError(req, res, 401, 'Unauthorized', 'UNAUTHORIZED');
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
         // Use canonical adStatusService (not deprecated adService.restoreAd)
-        const ad = await adStatusService.restoreAd(id, (req.user as IAuthUser)._id.toString(), 'user');
+        const ad = await adStatusService.restoreAd(id, String(user._id), 'user');
         if (!ad) {
             return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
         }

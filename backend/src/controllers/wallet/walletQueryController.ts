@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { respond } from "../../utils/respond";
+import { respond } from "@core/utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { getErrorMessage } from './shared';
 import {
     getPostingBalanceByUserId,
@@ -11,7 +11,7 @@ import {
 
 export const getWalletSummary = async (req: Request, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = (req.user)?._id;
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
         const wallet = await getWalletSummaryByUserId(userId.toString());
@@ -27,7 +27,7 @@ export const getWalletSummary = async (req: Request, res: Response) => {
 
 export const getTransactionHistory = async (req: Request, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = (req.user)?._id;
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
         const limit = Number(req.query.limit) || 10;
@@ -45,7 +45,7 @@ export const getTransactionHistory = async (req: Request, res: Response) => {
 
 export const getPostingBalance = async (req: Request, res: Response) => {
     try {
-        const userId = req.user?._id?.toString();
+        const userId = (req.user)?._id?.toString();
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
         const balance = await getPostingBalanceByUserId(userId);

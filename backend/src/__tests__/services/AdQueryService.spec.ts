@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-jest.mock('../../models/Ad', () => ({
+jest.mock('@core/models/Ad', () => ({
     __esModule: true,
     default: {
         countDocuments: jest.fn(),
@@ -8,21 +8,21 @@ jest.mock('../../models/Ad', () => ({
     },
 }));
 
-jest.mock('../../models/Category', () => ({
+jest.mock('@core/models/Category', () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
     },
 }));
 
-jest.mock('../../models/Report', () => ({
+jest.mock('@core/models/Report', () => ({
     __esModule: true,
     default: {
         aggregate: jest.fn(),
     },
 }));
 
-jest.mock('../../utils/redisCache', () => ({
+jest.mock('@core/utils/redisCache', () => ({
     getCache: jest.fn(),
     setCache: jest.fn(),
     CACHE_TTLS: {
@@ -30,7 +30,7 @@ jest.mock('../../utils/redisCache', () => ({
     },
 }));
 
-jest.mock('../../utils/s3', () => ({
+jest.mock('@core/utils/s3', () => ({
     sanitizePersistedImageUrls: (urls: string[]) => urls,
 }));
 

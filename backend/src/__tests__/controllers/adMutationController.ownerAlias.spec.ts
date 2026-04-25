@@ -4,7 +4,7 @@ jest.mock("@core/services/AdMutationService", () => ({
     assertOwnership: jest.fn(),
 }));
 
-jest.mock("../../services/adStatusService", () => ({
+jest.mock("@core/services/adStatusService", () => ({
     __esModule: true,
     deleteAd: jest.fn(),
     restoreAd: jest.fn(),
@@ -15,7 +15,7 @@ jest.mock("@core/services/AdOrchestrator", () => ({
     createAd: jest.fn(),
 }));
 
-jest.mock("../../services/BusinessService", () => ({
+jest.mock("@core/services/BusinessService", () => ({
     __esModule: true,
     getBusinessByUserId: jest.fn(),
 }));

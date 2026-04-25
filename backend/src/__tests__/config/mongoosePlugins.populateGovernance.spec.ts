@@ -35,10 +35,13 @@ describe('Populate governance guard', () => {
 
     it('blocks split-db populates for admin-owned refs unless the caller provides an explicit model', async () => {
         await jest.isolateModulesAsync(async () => {
-            await import('../../models/registry');
-            const { default: Ad } = await import('../../models/Ad');
-            const { default: SparePart } = await import('../../models/SparePart');
-            const { default: ServiceType } = await import('../../models/ServiceType');
+            await import('@core/models/registry');
+            const { default: Ad } = await import('@core/models/Ad');
+            const { default: SparePart } = await import('@core/models/SparePart');
+            const { default: ServiceType } = await import('@core/models/ServiceType');
+            const adConnectionModels = (Ad as unknown as { db: { models: Record<string, unknown> } }).db.models;
+            delete adConnectionModels.SparePart;
+            delete adConnectionModels.ServiceType;
 
             expect(() => Ad.find().populate({ path: 'sparePartId', select: 'name slug' })).toThrow(
                 '[PopulateGovernance] Unsafe populate("sparePartId")'

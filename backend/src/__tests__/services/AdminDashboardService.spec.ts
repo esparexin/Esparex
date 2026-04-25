@@ -1,34 +1,34 @@
-jest.mock("../../models/User", () => ({
+jest.mock("@core/models/User", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn(), aggregate: jest.fn() },
 }));
 
-jest.mock("../../models/Ad", () => ({
+jest.mock("@core/models/Ad", () => ({
     __esModule: true,
     default: { aggregate: jest.fn(), countDocuments: jest.fn() },
 }));
 
-jest.mock("../../models/Report", () => ({
+jest.mock("@core/models/Report", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn() },
 }));
 
-jest.mock("../../models/Business", () => ({
+jest.mock("@core/models/Business", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn() },
 }));
 
-jest.mock("../../models/RevenueAnalytics", () => ({
+jest.mock("@core/models/RevenueAnalytics", () => ({
     __esModule: true,
     default: { aggregate: jest.fn() },
 }));
 
-jest.mock("../../models/Model", () => ({
+jest.mock("@core/models/Model", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn() },
 }));
 
-jest.mock("../../models/ContactSubmission", () => ({
+jest.mock("@core/models/ContactSubmission", () => ({
     __esModule: true,
     default: {
         find: jest.fn(),
@@ -37,19 +37,19 @@ jest.mock("../../models/ContactSubmission", () => ({
     },
 }));
 
-jest.mock("../../models/AdminLog", () => ({
+jest.mock("@core/models/AdminLog", () => ({
     __esModule: true,
     default: {
         find: jest.fn(),
     },
 }));
 
-jest.mock("../../models/Location", () => ({
+jest.mock("@core/models/Location", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn(), find: jest.fn(), aggregate: jest.fn() },
 }));
 
-jest.mock("../../models/LocationAnalytics", () => ({
+jest.mock("@core/models/LocationAnalytics", () => ({
     __esModule: true,
     default: { find: jest.fn() },
 }));

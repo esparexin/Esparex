@@ -1,8 +1,8 @@
-jest.mock('../../services/PlanEngine', () => ({
+jest.mock('@core/services/PlanEngine', () => ({
     calculateUserPlan: jest.fn(),
 }));
 
-jest.mock('../../services/PlanService', () => ({
+jest.mock('@core/services/PlanService', () => ({
     UserPlanModel: {
         find: jest.fn(),
     },
@@ -11,7 +11,7 @@ jest.mock('../../services/PlanService', () => ({
     },
 }));
 
-jest.mock('../../services/WalletService', () => ({
+jest.mock('@core/services/WalletService', () => ({
     consumeCredit: jest.fn(),
     credit: jest.fn(),
     WalletModel: {
@@ -19,7 +19,7 @@ jest.mock('../../services/WalletService', () => ({
     },
 }));
 
-jest.mock('../../services/SmartAlertService', () => ({
+jest.mock('@core/services/SmartAlertService', () => ({
     SmartAlertModel: {
         countDocuments: jest.fn(),
         create: jest.fn(),
@@ -28,11 +28,11 @@ jest.mock('../../services/SmartAlertService', () => ({
     },
 }));
 
-jest.mock('../../utils/masterDataResolver', () => ({
+jest.mock('@core/utils/masterDataResolver', () => ({
     resolveMasterDataIds: jest.fn(),
 }));
 
-jest.mock('../../services/location/LocationNormalizer', () => ({
+jest.mock('@core/services/location/LocationNormalizer', () => ({
     normalizeCoordinates: jest.fn(),
     normalizeLocation: jest.fn(),
 }));

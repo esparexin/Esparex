@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { LISTING_TYPE, type ListingTypeValue } from '@shared/enums/listingType';
 
 /** @deprecated Use ListingTypeValue from shared/enums/listingType */

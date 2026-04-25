@@ -1,24 +1,24 @@
-jest.mock("../../models/NotificationLog", () => ({
+jest.mock("@core/models/NotificationLog", () => ({
     __esModule: true,
     default: { create: jest.fn().mockResolvedValue({ _id: "log-id" }) },
 }));
 
-jest.mock("../../models/ScheduledNotification", () => ({
+jest.mock("@core/models/ScheduledNotification", () => ({
     __esModule: true,
     default: { create: jest.fn() },
 }));
 
-jest.mock("../../services/notification/AdminNotificationTargetingService", () => ({
+jest.mock("@core/services/notification/AdminNotificationTargetingService", () => ({
     createAdminNotificationTargetCursor: jest.fn(),
 }));
 
-jest.mock("../../services/notification/NotificationDispatcher", () => ({
+jest.mock("@core/services/notification/NotificationDispatcher", () => ({
     NotificationDispatcher: {
         bulkDispatch: jest.fn().mockResolvedValue({ successCount: 0, skippedCount: 0, failureCount: 0 }),
     },
 }));
 
-jest.mock("../../domain/NotificationIntent", () => ({
+jest.mock("@core/domain/NotificationIntent", () => ({
     NotificationIntent: {
         fromAdminBroadcast: jest.fn((userId, audienceId, title, body, kind, targetType) => ({
             userId,
@@ -31,7 +31,7 @@ jest.mock("../../domain/NotificationIntent", () => ({
     },
 }));
 
-jest.mock("../../utils/adminLogger", () => ({
+jest.mock("@core/utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
@@ -40,7 +40,7 @@ import { NotificationDispatcher } from "@core/services/notification/Notification
 import { NotificationIntent } from "@core/domain/NotificationIntent";
 import { createAdminNotificationTargetCursor } from "@core/services/notification/AdminNotificationTargetingService";
 import type { Request, Response } from "express";
-import { sendNotification } from "../../controllers/admin/adminNotificationController";
+import { sendNotification } from "../../../../admin-backend/src/controllers/admin/adminNotificationController";
 
 const mockedNotificationLog = NotificationLog as unknown as { create: jest.Mock };
 const mockedDispatcher = NotificationDispatcher as unknown as { bulkDispatch: jest.Mock };

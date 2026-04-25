@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import type { IAuthUser } from '@core/types/auth';
 import Business from '@core/models/Business';
 import { isBusinessPublishedStatus } from '@core/utils/businessStatus';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import logger from '@core/utils/logger';
 import { LISTING_TYPE } from '@shared/enums/listingType';
 

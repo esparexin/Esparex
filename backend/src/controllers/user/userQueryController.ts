@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { respond } from "../../utils/respond";
+import { respond } from "@core/utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
 import { User as SharedUser } from '../../../../shared/types/User';
 import { serializeDoc } from '@core/utils/serialize';
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';
 import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '@core/services/UserProfileService';
 import { getUserWithBusiness } from '@core/services/UserService';
+import type { AuthUser } from '../../types/auth.types';
 
 const resolveUserId = (req: Request, res: Response): string | null => {
   const userId = typeof req.params.id === 'string' ? req.params.id : '';
@@ -28,7 +29,8 @@ export const getMe = async (
       return;
     }
 
-    const userId = getStorageSafeId(req.user);
+    const authUser = req.user as AuthUser | undefined;
+    const userId = getStorageSafeId(authUser as unknown as Parameters<typeof getStorageSafeId>[0]);
 
     if (!userId) {
       sendErrorResponse(req, res, 401, 'Invalid session');

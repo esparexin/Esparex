@@ -3,8 +3,8 @@ import { AuthService } from '@core/services/AuthService';
 import { removeUserFcmToken } from '@core/services/UserService';
 import { blacklistToken } from '@core/utils/redisCache';
 import { verifyToken } from '@core/utils/auth';
-import { sendSuccessResponse } from "../../utils/respond";
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendSuccessResponse } from "@core/utils/respond";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { SendOtpResult, VerifyOtpResult } from '@core/services/AuthService';
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@core/utils/cookieHelper';
 
@@ -108,8 +108,8 @@ export class AuthController {
             }
 
             const { fcmToken } = (req.body ?? {}) as { fcmToken?: string };
-            if (fcmToken && req.user?._id) {
-                await removeUserFcmToken(req.user._id, fcmToken);
+            if (fcmToken && (req.user)?._id) {
+                await removeUserFcmToken((req.user)._id, fcmToken);
             }
 
             res.clearCookie('esparex_auth', getLegacyHostOnlyAuthCookieOptions(0));

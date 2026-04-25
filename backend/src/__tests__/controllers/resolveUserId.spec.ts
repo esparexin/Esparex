@@ -13,11 +13,11 @@
 
 // ─── Mocks MUST be declared before any imports ───────────────────────────────
 
-jest.mock('../../services/UserProfileService', () => ({
+jest.mock('@core/services/UserProfileService', () => ({
     getUserProfileById: jest.fn(),
 }));
 
-jest.mock('../../utils/respond', () => ({
+jest.mock('@core/utils/respond', () => ({
     respond: jest.fn((v: unknown) => v),
 }));
 

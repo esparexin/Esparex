@@ -4,8 +4,8 @@ import * as AdAggregationService from '@core/services/ad/AdAggregationService';
 import * as AdMetricsService from '@core/services/ad/AdMetricsService';
 import { Service } from '../../../../shared/types/Service';
 import { ApiResponse, PaginatedResponse } from '../../../../shared/types/Api';
-import { respond } from "../../utils/respond";
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { respond } from "@core/utils/respond";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 

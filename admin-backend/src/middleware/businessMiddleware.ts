@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import Business from '@core/models/Business';
 import { isBusinessPublishedStatus } from '@core/utils/businessStatus';
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 
 /**
  * Middleware: Require Approved Business Account

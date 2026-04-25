@@ -4,7 +4,7 @@ import Admin, { type IAdmin } from '@core/models/Admin';
 import { getAdminCookieOptions } from '@core/utils/cookieHelper';
 import { verifyAdminToken } from '@core/utils/auth';
 import type { IAuthUser } from '@core/types/auth';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { Role } from '@core/constants/enums/roles';
 import { getAdminSessionTtlMs, validateAdminSession } from '@core/services/AdminSessionService';
 import { USER_STATUS } from '@core/constants/enums/userStatus';

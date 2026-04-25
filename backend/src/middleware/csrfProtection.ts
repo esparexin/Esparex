@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { getCsrfCookieOptions } from '@core/utils/cookieHelper';
 import { env } from '@core/config/env';
 

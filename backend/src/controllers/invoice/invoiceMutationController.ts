@@ -2,8 +2,8 @@ import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
 import { createInvoiceRecord } from '@core/services/InvoiceService';
 import { findUserByEmail } from '@core/services/UserService';
-import { sendErrorResponse } from "../../utils/errorResponse";
-import { respond } from "../../utils/respond";
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { respond } from "@core/utils/respond";
 import { getErrorMessage } from './shared';
 import { generateInvoiceNumber } from '@core/utils/invoiceNumber';
 

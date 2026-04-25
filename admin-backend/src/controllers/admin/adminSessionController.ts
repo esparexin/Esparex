@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getAdminSessions as fetchAdminSessions, revokeAdminSessionById as revokeSessionById } from '@core/services/AdminSessionService';
-import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from './adminBaseController';
-import { getSingleParam } from "../../utils/requestParams";
+import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '@core/utils/adminBaseController';
+import { getSingleParam } from '@core/utils/requestParams';
 import { logAdminAction } from '@core/utils/adminLogger';
 
 

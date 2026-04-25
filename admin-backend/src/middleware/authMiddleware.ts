@@ -4,7 +4,7 @@ import { verifyToken, JwtPayload } from "@core/utils/auth";
 import redis from "@core/config/redis";
 import User from "@core/models/User";
 import { isTokenBlacklisted } from "@core/utils/redisCache";
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import logger from '@core/utils/logger';
 import { Role } from "@core/constants/enums/roles";
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@core/utils/cookieHelper';

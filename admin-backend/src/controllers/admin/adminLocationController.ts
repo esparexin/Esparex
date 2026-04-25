@@ -3,7 +3,7 @@ import {
     sendPaginatedResponse,
     sendSuccessResponse,
     sendAdminError as sendBaseAdminError
-} from './adminBaseController';
+} from '@core/utils/adminBaseController';
 import * as adminLocationService from '@core/services/AdminLocationService';
 import { logAdminActionDirect } from '@core/utils/adminLogger';
 import type { AdminLogFn } from '@core/services/AdminListingsService';

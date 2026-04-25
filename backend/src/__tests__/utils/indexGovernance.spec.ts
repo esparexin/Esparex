@@ -10,7 +10,7 @@ jest.mock("@core/utils/logger", () => ({
 }));
 
 import logger from "@core/utils/logger";
-import { governSchema, resetIndexGovernanceForTests } from "../../core/db/indexGovernance";
+import { governSchema, resetIndexGovernanceForTests } from "@core/db/indexGovernance";
 
 describe("index governance", () => {
     beforeEach(() => {

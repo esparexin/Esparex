@@ -1,10 +1,10 @@
 import logger from '@core/utils/logger';
 import { Business } from '../../../../shared/types/Business';
 import { ApiResponse } from '../../../../shared/types/Api';
-import { respond } from "../../utils/respond";
+import { respond } from "@core/utils/respond";
 import { Request, Response } from 'express';
 import * as businessService from '@core/services/BusinessService';
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { BusinessStatsPayload, serializeBusinessForOwner } from './shared';
 
 export const getMyBusiness = async (req: Request, res: Response) => {

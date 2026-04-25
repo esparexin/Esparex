@@ -15,7 +15,7 @@ const mockProductModel = { modelName: 'Model' };
 const mockSparePartModel = { modelName: 'SparePart' };
 const mockServiceTypeModel = { modelName: 'ServiceType' };
 
-jest.mock('../../models/Ad', () => ({
+jest.mock('@core/models/Ad', () => ({
     __esModule: true,
     default: {
         find: mockFind,
@@ -23,36 +23,36 @@ jest.mock('../../models/Ad', () => ({
     },
 }));
 
-jest.mock('../../models/Category', () => ({
+jest.mock('@core/models/Category', () => ({
     __esModule: true,
     default: mockCategoryModel,
 }));
 
-jest.mock('../../models/Brand', () => ({
+jest.mock('@core/models/Brand', () => ({
     __esModule: true,
     default: mockBrandModel,
 }));
 
-jest.mock('../../models/Model', () => ({
+jest.mock('@core/models/Model', () => ({
     __esModule: true,
     default: mockProductModel,
 }));
 
-jest.mock('../../models/SparePart', () => ({
+jest.mock('@core/models/SparePart', () => ({
     __esModule: true,
     default: mockSparePartModel,
 }));
 
-jest.mock('../../models/ServiceType', () => ({
+jest.mock('@core/models/ServiceType', () => ({
     __esModule: true,
     default: mockServiceTypeModel,
 }));
 
-jest.mock('../../utils/respond', () => ({
+jest.mock('@core/utils/respond', () => ({
     sendSuccessResponse: mockSendSuccessResponse,
 }));
 
-jest.mock('../../utils/errorResponse', () => ({
+jest.mock('@core/utils/errorResponse', () => ({
     sendErrorResponse: mockSendErrorResponse,
 }));
 

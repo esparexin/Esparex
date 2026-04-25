@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { validateContactSubmission } from "../middleware/securityValidators";
+import { validateContactSubmission } from "../../middleware/securityValidators";
 
 const createMockRes = () => ({
     status: jest.fn().mockReturnThis(),

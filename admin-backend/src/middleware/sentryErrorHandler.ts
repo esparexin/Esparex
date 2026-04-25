@@ -11,7 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
 import { env } from '@core/config/env';
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { ZodError } from 'zod';
 import { AuditService } from '@core/services/AuditService';
 

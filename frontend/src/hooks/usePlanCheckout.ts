@@ -19,6 +19,16 @@ type WaitForCreditConfig = {
   intervalMs?: number;
 };
 
+type RazorpayPaymentFailedResponse = {
+  error?: {
+    description?: string;
+    reason?: string;
+  };
+};
+
+const isPaymentFailedResponse = (value: unknown): value is RazorpayPaymentFailedResponse =>
+  typeof value === "object" && value !== null;
+
 type StartPlanCheckoutInput = {
   planId: string;
   amount: number;
@@ -101,8 +111,8 @@ export function usePlanCheckout() {
       };
 
       const razorpay = new window.Razorpay(options);
-      razorpay.on?.("payment.failed", (response: any) => {
-        const errorDetail = response?.error;
+      razorpay.on?.("payment.failed", (response: unknown) => {
+        const errorDetail = isPaymentFailedResponse(response) ? response.error : undefined;
         console.error("Payment failed:", errorDetail);
         const reason = errorDetail?.description || errorDetail?.reason || "Payment was declined or failed to process.";
         onPaymentFailed?.(reason);

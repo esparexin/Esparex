@@ -11,20 +11,14 @@ import { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
 import { env } from '@core/config/env';
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { ZodError } from 'zod';
 import { AuditService } from '@core/services/AuditService';
+import type { IAuthUser } from '@core/types/auth';
 
-
-type RequestUser = {
-    id?: string;
-    _id?: string | { toString: () => string };
-    email?: string;
-    role?: string;
-};
 
 type RequestWithUser = Request & {
-    user?: RequestUser;
+    user?: IAuthUser;
     requestId?: string;
 };
 
@@ -41,7 +35,7 @@ type AppError = Error & {
 type ConflictType = 'IDEMPOTENCY' | 'DUPLICATE_AD';
 
 const getUserId = (req: RequestWithUser): string | undefined => {
-    if (typeof req.user?.id === 'string') return req.user.id;
+    if (typeof (req.user?._id) === 'string') return (req.user?._id);
     const raw = req.user?._id;
     if (typeof raw === 'string') return raw;
     if (raw && typeof raw.toString === 'function') return raw.toString();
@@ -82,8 +76,8 @@ export function sentryRequestHandler(req: Request, res: Response, next: NextFunc
     if (authReq.user) {
         Sentry.setUser({
             id: getUserId(authReq),
-            email: authReq.user.email,
-            role: authReq.user.role,
+            email: authReq.user?.email,
+            role: authReq.user?.role,
         });
     }
 

@@ -13,12 +13,12 @@ import {
     getPaginationParams,
     sendAdminError,
     sendSuccessResponse,
-} from "./adminBaseController";
+} from '@core/utils/adminBaseController';
 import { logAdminAction } from "@core/utils/adminLogger";
 import { NotificationDispatcher } from "@core/services/notification/NotificationDispatcher";
 import { createAdminNotificationTargetCursor } from "@core/services/notification/AdminNotificationTargetingService";
 import { type IUser } from "@core/models/User";
-import { respond } from "../../utils/respond";
+import { respond } from "@core/utils/respond";
 
 const BATCH_SIZE = 500;
 

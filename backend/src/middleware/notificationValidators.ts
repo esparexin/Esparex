@@ -54,7 +54,7 @@ export const adminNotificationSendSchema = z
         actionUrl: notificationActionUrlSchema.optional(),
         sendAt: localDateTimeSchema.optional(),
     })
-    .superRefine((value: any, ctx: z.RefinementCtx) => {
+    .superRefine((value, ctx: z.RefinementCtx) => {
         if (value.targetType === ADMIN_NOTIFICATION_TARGET_TYPE.TOPIC && !value.targetValue) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,

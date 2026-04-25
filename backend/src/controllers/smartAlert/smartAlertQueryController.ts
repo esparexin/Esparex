@@ -1,8 +1,8 @@
 import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
-import { respond } from "../../utils/respond";
+import { respond } from "@core/utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import {
     getErrorMessage,
     SmartAlertModel,
@@ -23,7 +23,7 @@ export const getSmartAlerts = async (req: Request, res: Response) => {
         }
 
         if (user) {
-            const userId = user.id || user._id;
+            const userId = user._id;
             const alerts = await SmartAlertModel.find({ userId }).sort({ createdAt: -1 });
             return res.json(respond<ApiResponse<unknown>>({
                 success: true,

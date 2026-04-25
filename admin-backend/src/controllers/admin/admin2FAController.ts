@@ -3,7 +3,7 @@ import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import logger from '@core/utils/logger';
 import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
-import { sendSuccessResponse, sendAdminError } from './adminBaseController';
+import { sendSuccessResponse, sendAdminError } from '@core/utils/adminBaseController';
 import { getAdminWithTwoFactor, saveAdmin } from '@core/services/AdminService';
 
 const resolveAdminId = (req: Request): string | null => {

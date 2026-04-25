@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from './adminBaseController';
+import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '@core/utils/adminBaseController';
 import { logAdminAction } from '@core/utils/adminLogger';
-import { getSingleParam } from "../../utils/requestParams";
+import { getSingleParam } from '@core/utils/requestParams';
 import {
     getApiKeys as getApiKeysService,
     createApiKey as createApiKeyService,

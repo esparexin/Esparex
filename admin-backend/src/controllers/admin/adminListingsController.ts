@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import {
     sendSuccessResponse,
     sendAdminError
-} from './adminBaseController';
+} from '@core/utils/adminBaseController';
 import * as adminListingsService from '@core/services/AdminListingsService';
 import type { AdminLogFn } from '@core/services/AdminListingsService';
 import {

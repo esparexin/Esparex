@@ -1,6 +1,6 @@
 import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
-import { sendSuccessResponse, sendAdminError } from './adminBaseController';
+import { sendSuccessResponse, sendAdminError } from '@core/utils/adminBaseController';
 import * as analyticsService from '@core/services/AnalyticsService';
 
 const getQueryString = (value: unknown): string | undefined => {

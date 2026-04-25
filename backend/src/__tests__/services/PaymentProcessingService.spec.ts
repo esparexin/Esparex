@@ -5,7 +5,11 @@ const mockSession = {
     endSession: jest.fn(),
 };
 
-jest.mock("../../config/db", () => ({
+jest.mock("@core/config/db", () => ({
+    getAdminConnection: () => ({
+        models: {},
+        model: jest.fn().mockReturnValue({}),
+    }),
     getUserConnection: () => ({
         startSession: jest.fn().mockResolvedValue(mockSession),
         models: {},
@@ -13,12 +17,12 @@ jest.mock("../../config/db", () => ({
     }),
 }));
 
-jest.mock("../../models/Business", () => ({
+jest.mock("@core/models/Business", () => ({
     __esModule: true,
     default: {},
 }));
 
-jest.mock("../../models/Transaction", () => ({
+jest.mock("@core/models/Transaction", () => ({
     Transaction: {
         findOneAndUpdate: jest.fn(),
         findOne: jest.fn(),
@@ -26,7 +30,7 @@ jest.mock("../../models/Transaction", () => ({
     },
 }));
 
-jest.mock("../../models/Invoice", () => ({
+jest.mock("@core/models/Invoice", () => ({
     Invoice: {
         findOne: jest.fn(),
         create: jest.fn(),
@@ -35,32 +39,39 @@ jest.mock("../../models/Invoice", () => ({
     },
 }));
 
-jest.mock("../../models/User", () => ({
+jest.mock("@core/models/User", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
     },
 }));
 
-jest.mock("../../services/WalletService", () => ({
+jest.mock("@core/models/AdminLog", () => ({
+    __esModule: true,
+    default: {
+        create: jest.fn().mockResolvedValue({}),
+    },
+}));
+
+jest.mock("@core/services/WalletService", () => ({
     credit: jest.fn(),
     buildWalletIncrement: jest.fn().mockReturnValue({ amounts: {} }),
     hasWalletIncrement: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock("../../services/RevenueAnalytics", () => ({
+jest.mock("@core/services/RevenueAnalytics", () => ({
     recordRevenue: jest.fn(),
 }));
 
-jest.mock("../../utils/invoiceNumber", () => ({
+jest.mock("@core/utils/invoiceNumber", () => ({
     generateInvoiceNumber: jest.fn().mockResolvedValue("ESP-2026-000001"),
 }));
 
-jest.mock("../../services/InvoicePdfService", () => ({
+jest.mock("@core/services/InvoicePdfService", () => ({
     generateInvoicePdf: jest.fn().mockResolvedValue("https://example.com/invoice.pdf"),
 }));
 
-jest.mock("../../services/InvoiceService", () => ({
+jest.mock("@core/services/InvoiceService", () => ({
     buildInvoicePayload: jest.fn().mockReturnValue({ invoiceNumber: "ESP-2026-000001" }),
     ensureInvoicePdf: jest.fn().mockResolvedValue(undefined),
 }));

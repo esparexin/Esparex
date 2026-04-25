@@ -4,7 +4,7 @@ import {
     getPaginationParams,
     sendPaginatedResponse,
     sendAdminError
-} from './adminBaseController';
+} from '@core/utils/adminBaseController';
 
 /**
  * GET /api/v1/admin/audit-logs

@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import Business from '@core/models/Business';
 import { isBusinessPublishedStatus } from '@core/utils/businessStatus';
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
+
 
 /**
  * Middleware: Require Approved Business Account
@@ -11,11 +12,12 @@ import { sendErrorResponse } from "../utils/errorResponse";
  */
 export const requireBusinessApproved = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.user) {
+        const user = req.user;
+        if (!user) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
 
-        const business = await Business.findOne({ userId: req.user._id });
+        const business = await Business.findOne({ userId: user._id });
 
         if (!business) {
             return sendErrorResponse(req, res, 403, 'Business Account Required', {

@@ -9,7 +9,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { ZodError, ZodSchema } from 'zod';
-import { buildErrorResponse } from "../utils/errorResponse";
+import { buildErrorResponse } from "@core/utils/errorResponse";
 import logger from '@core/utils/logger';
 import { commonSchemas, sanitizeString } from '@core/validators/common';
 
@@ -150,11 +150,12 @@ export function validateFile(options: {
     const { maxSize = 5 * 1024 * 1024, allowedTypes = ['image/jpeg', 'image/png', 'image/webp'] } = options;
 
     return (req: Request, res: Response, next: NextFunction) => {
-        if (!req.file && !req.files) {
+        const anyReq = req as any;
+        if (!anyReq.file && !anyReq.files) {
             return next();
         }
 
-        const files = req.files ? (Array.isArray(req.files) ? req.files : Object.values(req.files).flat()) : [req.file];
+        const files = anyReq.files ? (Array.isArray(anyReq.files) ? anyReq.files : Object.values(anyReq.files).flat()) : [anyReq.file];
 
         for (const file of files) {
             if (!file) continue;

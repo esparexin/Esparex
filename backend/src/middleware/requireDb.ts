@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { isDbReady } from "@core/config/db";
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 
 /**
  * 🛡️ DATABASE READINESS GUARD (FAIL-FAST)

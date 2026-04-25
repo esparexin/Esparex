@@ -1,4 +1,4 @@
-jest.mock('../../services/WalletService', () => ({
+jest.mock('@core/services/WalletService', () => ({
     getWallet: jest.fn(),
     TransactionModel: {
         find: jest.fn(),
@@ -6,7 +6,7 @@ jest.mock('../../services/WalletService', () => ({
     },
 }));
 
-jest.mock('../../services/AdSlotService', () => ({
+jest.mock('@core/services/AdSlotService', () => ({
     getAdPostingBalance: jest.fn(),
 }));
 

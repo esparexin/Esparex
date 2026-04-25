@@ -5,7 +5,7 @@
  */
 
 import { Request, Response } from 'express';
-import { sendSuccessResponse, sendAdminError } from '../adminBaseController';
+import { sendSuccessResponse, sendAdminError } from '@core/utils/adminBaseController';
 import { connectDB, getUserConnection, getAdminConnection } from '@core/config/db';
 import { version as appVersion } from '../../../../package.json';
 import {

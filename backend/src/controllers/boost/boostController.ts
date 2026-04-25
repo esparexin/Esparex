@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
 import { getActiveBoostsForUser } from '@core/services/BoostService';
-import { respond } from "../../utils/respond";
+import { respond } from "@core/utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 
 /**
  * Get user's active boosts (Spotlights, etc.)
  */
 export const getMyBoosts = async (req: Request, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = (req.user)?._id;
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
         const boosts = await getActiveBoostsForUser(userId);

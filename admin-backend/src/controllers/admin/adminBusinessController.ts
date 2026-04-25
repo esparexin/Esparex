@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { sendSuccessResponse, sendAdminError, getPaginationParams, sendPaginatedResponse } from './adminBaseController';
+import { sendSuccessResponse, sendAdminError, getPaginationParams, sendPaginatedResponse } from '@core/utils/adminBaseController';
 import { serializeBusinessForAdmin } from '../business/shared';
 import * as adminBusinessService from '@core/services/AdminBusinessService';
 import { normalizeBusinessStatus } from '@core/utils/businessStatus';

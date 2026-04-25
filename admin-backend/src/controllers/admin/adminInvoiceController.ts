@@ -18,7 +18,7 @@ import {
     sendSuccessResponse, 
     sendAdminError,
     sendPaginatedResponse 
-} from './adminBaseController';
+} from '@core/utils/adminBaseController';
 
 /**
  * Get all invoices with pagination and filtering

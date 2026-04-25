@@ -22,7 +22,7 @@ import { getAdminAppUrl } from '@core/utils/appUrl';
 import {
     sendSuccessResponse,
     sendAdminError
-} from '../adminBaseController';
+} from '@core/utils/adminBaseController';
 
 import crypto from 'crypto';
 import speakeasy from 'speakeasy';
@@ -30,7 +30,7 @@ import { emailService } from '@core/services/EmailService';
 import { logAdminAction } from '@core/utils/adminLogger';
 import { comparePassword, generateAdminToken, verifyAdminToken } from '@core/utils/auth';
 import { USER_STATUS } from '@core/constants/enums/userStatus';
-import { getSingleParam } from "../../../utils/requestParams";
+import { getSingleParam } from '@core/utils/requestParams';
 import {
     createAdminSession,
     getAdminSessionTtlMs,

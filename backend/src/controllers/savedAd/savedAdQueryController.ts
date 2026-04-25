@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { respond } from "../../utils/respond";
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { respond } from "@core/utils/respond";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { SavedAdRequest, getUserId } from './shared';
 import { getSavedAds as getSavedAdsService } from '@core/services/SavedAdService';
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { AdminCacheService } from '../../services/admin/AdminCacheService';
-import { sendAdminError } from './adminBaseController';
-import { respond } from "../../utils/respond";
+import { AdminCacheService } from '@core/services/admin/AdminCacheService';
+import { sendAdminError } from '@core/utils/adminBaseController';
+import { respond } from "@core/utils/respond";
 
 /**
  * GET /api/v1/admin/cache/stats

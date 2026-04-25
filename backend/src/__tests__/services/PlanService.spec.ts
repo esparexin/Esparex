@@ -7,14 +7,14 @@
  *  - limits are enforced correctly when quota is exceeded
  */
 
-jest.mock('../../services/AdSlotService', () => ({
+jest.mock('@core/services/AdSlotService', () => ({
     withUserPostingLock: jest.fn((_id: string, _ttl: number, fn: () => Promise<unknown>) => fn()),
     getAdPostingBalance: jest.fn(),
     AdSlotService: { consumeSlot: jest.fn() },
     getMonthlyCycleStart: jest.fn(),
 }));
 
-jest.mock('../../models/UserPlan', () => ({
+jest.mock('@core/models/UserPlan', () => ({
     __esModule: true,
     default: {
         find: jest.fn().mockReturnValue({
@@ -27,7 +27,7 @@ jest.mock('../../models/UserPlan', () => ({
     },
 }));
 
-jest.mock('../../models/Ad', () => ({
+jest.mock('@core/models/Ad', () => ({
     __esModule: true,
     default: {
         countDocuments: jest.fn().mockReturnValue({
@@ -36,12 +36,12 @@ jest.mock('../../models/Ad', () => ({
     },
 }));
 
-jest.mock('../../models/UserWallet', () => ({
+jest.mock('@core/models/UserWallet', () => ({
     __esModule: true,
     default: { updateMany: jest.fn() },
 }));
 
-jest.mock('../../services/PlanEngine', () => ({
+jest.mock('@core/services/PlanEngine', () => ({
     calculateUserPlan: jest.fn(),
 }));
 

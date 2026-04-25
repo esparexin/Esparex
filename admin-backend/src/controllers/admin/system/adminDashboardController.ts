@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse, sendAdminError } from '../adminBaseController';
-import { getSingleParam } from "../../../utils/requestParams";
+import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse, sendAdminError } from '@core/utils/adminBaseController';
+import { getSingleParam } from '@core/utils/requestParams';
 import { escapeRegExp } from '@core/utils/stringUtils';
 
 import { redis } from '@core/lib/redis';

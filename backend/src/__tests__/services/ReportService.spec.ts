@@ -1,4 +1,4 @@
-jest.mock("../../models/Report", () => ({
+jest.mock("@core/models/Report", () => ({
     __esModule: true,
     default: {
         countDocuments: jest.fn(),
@@ -9,7 +9,7 @@ jest.mock("../../models/Report", () => ({
     },
 }));
 
-jest.mock("../../models/Ad", () => ({
+jest.mock("@core/models/Ad", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
@@ -17,21 +17,21 @@ jest.mock("../../models/Ad", () => ({
     },
 }));
 
-jest.mock("../../models/User", () => ({
+jest.mock("@core/models/User", () => ({
     __esModule: true,
     default: {
         exists: jest.fn(),
     },
 }));
 
-jest.mock("../../models/Business", () => ({
+jest.mock("@core/models/Business", () => ({
     __esModule: true,
     default: {
         exists: jest.fn(),
     },
 }));
 
-jest.mock("../../utils/redisCache", () => ({
+jest.mock("@core/utils/redisCache", () => ({
     __esModule: true,
     invalidateAdFeedCaches: jest.fn().mockResolvedValue(undefined),
     invalidatePublicAdCache: jest.fn().mockResolvedValue(undefined),

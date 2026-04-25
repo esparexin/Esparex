@@ -16,7 +16,7 @@ const mockLogger = {
     error: jest.fn(),
 };
 
-jest.mock("../../models/User", () => ({
+jest.mock("@core/models/User", () => ({
     __esModule: true,
     default: {
         bulkWrite: mockBulkWrite,
@@ -25,7 +25,7 @@ jest.mock("../../models/User", () => ({
     },
 }));
 
-jest.mock("../../config/firebaseAdmin", () => ({
+jest.mock("@core/config/firebaseAdmin", () => ({
     __esModule: true,
     default: {
         messaging: mockMessaging,
@@ -37,18 +37,18 @@ jest.mock("@core/utils/logger", () => ({
     default: mockLogger,
 }));
 
-jest.mock("../../utils/systemConfigHelper", () => ({
+jest.mock("@core/utils/systemConfigHelper", () => ({
     __esModule: true,
     getSystemConfigDoc: mockGetSystemConfigDoc,
 }));
 
-jest.mock("../../services/notification/NotificationDispatcher", () => ({
+jest.mock("@core/services/notification/NotificationDispatcher", () => ({
     NotificationDispatcher: {
         dispatch: jest.fn(),
     },
 }));
 
-jest.mock("../../domain/NotificationIntent", () => ({
+jest.mock("@core/domain/NotificationIntent", () => ({
     NotificationIntent: jest.fn().mockImplementation((payload) => payload),
 }));
 

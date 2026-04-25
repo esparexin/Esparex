@@ -3,7 +3,7 @@ import {
     sendSuccessResponse, 
     sendAdminError,
     sendPaginatedResponse 
-} from '../admin/adminBaseController';
+} from '@core/utils/adminBaseController';
 import * as transactionService from '@core/services/TransactionService';
 
 /**

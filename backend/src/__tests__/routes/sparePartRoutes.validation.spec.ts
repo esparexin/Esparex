@@ -18,7 +18,7 @@ jest.mock("../../middleware/duplicateCooldownMiddleware", () => ({
     duplicateCooldownMiddleware: () => (_req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
 }));
 
-jest.mock("../../validators/listing.validator", () => ({
+jest.mock("../../middleware/listing.validator", () => ({
     createListingValidator: (_req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
 }));
 

@@ -1,4 +1,4 @@
-jest.mock("../../models/Notification", () => ({
+jest.mock("@core/models/Notification", () => ({
     __esModule: true,
     default: {
         deleteMany: jest.fn(),

@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 import mongoose from 'mongoose';
 import IdempotencyRequest from '@core/models/IdempotencyRequest';
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 
 const MAX_KEY_LENGTH = 128;
 const IDEMPOTENCY_SCOPE_CREATE_AD = 'POST:/api/v1/ads';

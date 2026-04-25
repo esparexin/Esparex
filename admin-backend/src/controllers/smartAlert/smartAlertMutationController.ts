@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { respond } from "../../utils/respond";
+import { respond } from "@core/utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { AppError } from '@core/utils/AppError';
 import {
     getErrorMessage,

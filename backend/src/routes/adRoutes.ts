@@ -16,7 +16,7 @@ import { createListingValidator } from "../middleware/listing.validator";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/requireVerifiedBusiness";
 import { requireListingType } from "../middleware/requireListingType";
 import { LISTING_TYPE } from "../../../shared/enums/listingType";
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 
 const router = express.Router();
 const LEGACY_AD_OWNER_ALIAS_CODE = "LEGACY_AD_USER_ID_ALIAS_REMOVED";

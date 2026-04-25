@@ -14,7 +14,7 @@
 
 // ─── Mocks MUST be declared before any imports ───────────────────────────────
 
-jest.mock('../../models/Ad', () => ({
+jest.mock('@core/models/Ad', () => ({
     __esModule: true,
     default: { findOne: jest.fn() },
 }));
@@ -23,7 +23,7 @@ jest.mock('@core/services/StatusMutationService', () => ({
     mutateStatus: jest.fn().mockResolvedValue({ _id: 'svc-id', status: 'deactivated' }),
 }));
 
-jest.mock('../../utils/requestParams', () => ({
+jest.mock('@core/utils/requestParams', () => ({
     getSingleParam: jest.fn((req: { params?: Record<string, string> }, res: { status: (n: number) => { json: (v: unknown) => void } }, key: string, options: { error?: string } = {}) => {
         const val = req.params?.[key];
         if (!val && options?.error) {
@@ -34,7 +34,7 @@ jest.mock('../../utils/requestParams', () => ({
     }),
 }));
 
-jest.mock('../../utils/errorResponse', () => ({
+jest.mock('@core/utils/errorResponse', () => ({
     sendErrorResponse: jest.fn((req: unknown, res: { status: (n: number) => { json: (v: unknown) => void } }, status: number, msg: string) => {
         res.status(status).json({ error: msg });
     }),
@@ -45,7 +45,7 @@ jest.mock('@core/utils/logger', () => ({
     default: { error: jest.fn(), info: jest.fn(), warn: jest.fn() },
 }));
 
-jest.mock('../../utils/respond', () => ({
+jest.mock('@core/utils/respond', () => ({
     respond: jest.fn((v: unknown) => v),
 }));
 
@@ -55,7 +55,7 @@ import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Ad from '@core/models/Ad';
 import { deactivateService } from '../../controllers/service/serviceMutationController';
-import { getSingleParam } from "../utils/requestParams";
+import { getSingleParam } from '@core/utils/requestParams';
 
 // ─── Typed mocks ─────────────────────────────────────────────────────────────
 

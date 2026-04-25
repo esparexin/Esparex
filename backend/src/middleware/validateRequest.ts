@@ -9,7 +9,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { ZodError, ZodSchema } from 'zod';
-import { buildErrorResponse } from "../utils/errorResponse";
+import { buildErrorResponse } from "@core/utils/errorResponse";
 import logger from '@core/utils/logger';
 import { commonSchemas, sanitizeString } from '@core/validators/common';
 
@@ -101,13 +101,13 @@ function formatZodError(req: Request, error: ZodLikeError) {
  * Request validation middleware factory
  */
 export function validateRequest(
-    schema: any,
+    schema: ZodSchema | ValidationSchema,
     target: ValidationTarget = 'body'
 ) {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             if ('parse' in schema) {
-                const validated: unknown = await schema.parseAsync(req[target] as unknown);
+                const validated: unknown = await (schema as { parseAsync: (data: unknown) => Promise<unknown> }).parseAsync(req[target] as unknown);
                 assignValidatedTarget(req, target, validated);
                 return next();
             }
@@ -115,15 +115,18 @@ export function validateRequest(
             const schemas = schema;
 
             if (schemas.body) {
-                assignValidatedTarget(req, 'body', await schemas.body.parseAsync(req.body));
+                const parsedBody: unknown = await schemas.body.parseAsync(req.body as unknown);
+                assignValidatedTarget(req, 'body', parsedBody);
             }
 
             if (schemas.query) {
-                assignValidatedTarget(req, 'query', await schemas.query.parseAsync(req.query));
+                const parsedQuery: unknown = await schemas.query.parseAsync(req.query as unknown);
+                assignValidatedTarget(req, 'query', parsedQuery);
             }
 
             if (schemas.params) {
-                assignValidatedTarget(req, 'params', await schemas.params.parseAsync(req.params));
+                const parsedParams: unknown = await schemas.params.parseAsync(req.params as unknown);
+                assignValidatedTarget(req, 'params', parsedParams);
             }
 
             next();

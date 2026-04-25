@@ -1,29 +1,29 @@
-jest.mock("../../models/User", () => ({
+jest.mock("@core/models/User", () => ({
     __esModule: true,
     default: {
         countDocuments: jest.fn(),
     },
 }));
 
-jest.mock("../../models/AdminMetrics", () => ({
+jest.mock("@core/models/AdminMetrics", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
     },
 }));
 
-jest.mock("../../models/Admin", () => ({
+jest.mock("@core/models/Admin", () => ({
     __esModule: true,
     default: {},
 }));
 
-jest.mock("../../models/Ad", () => ({
+jest.mock("@core/models/Ad", () => ({
     __esModule: true,
     default: {},
 }));
 
 import type { Request, Response } from "express";
-import * as adminUsersController from "../../controllers/admin/adminUsersController";
+import * as adminUsersController from "../../../../admin-backend/src/controllers/admin/adminUsersController";
 import User from "@core/models/User";
 import AdminMetrics from "@core/models/AdminMetrics";
 

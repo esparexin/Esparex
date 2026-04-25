@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { logAdminAction } from '@core/utils/adminLogger';
-import { sendErrorResponse } from "../../utils/errorResponse";
-import { sendSuccessResponse } from '../admin/adminBaseController';
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { sendSuccessResponse } from '@core/utils/adminBaseController';
 import { getErrorMessage } from './shared';
 import { credit } from '@core/services/WalletService';
 
@@ -22,7 +22,7 @@ export const adjustWallet = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 400, 'No adjustments provided');
         }
 
-        const adminId = req.user?._id || 'system';
+        const adminId = (req.user)?._id || 'system';
 
         const wallet = await credit({
             userId,

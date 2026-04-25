@@ -1,4 +1,4 @@
-jest.mock("../../models/SavedAd", () => ({
+jest.mock("@core/models/SavedAd", () => ({
     __esModule: true,
     default: {
         aggregate: jest.fn(),
@@ -7,7 +7,7 @@ jest.mock("../../models/SavedAd", () => ({
     },
 }));
 
-jest.mock("../../models/Ad", () => ({
+jest.mock("@core/models/Ad", () => ({
     __esModule: true,
     default: {
         find: jest.fn(),
@@ -17,19 +17,19 @@ jest.mock("../../models/Ad", () => ({
     },
 }));
 
-jest.mock("../../services/ad/AdAggregationService", () => ({
+jest.mock("@core/services/ad/AdAggregationService", () => ({
     hydrateAdMetadata: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("../../utils/s3", () => ({
+jest.mock("@core/utils/s3", () => ({
     sanitizePersistedImageUrls: jest.fn((imgs: string[]) => imgs),
 }));
 
-jest.mock("../../utils/serialize", () => ({
+jest.mock("@core/utils/serialize", () => ({
     serializeDoc: jest.fn((doc: unknown) => ({ ...(doc as object) })),
 }));
 
-jest.mock("../../services/TrendingService", () => ({
+jest.mock("@core/services/TrendingService", () => ({
     recordAdAnalyticsEvent: jest.fn(),
 }));
 

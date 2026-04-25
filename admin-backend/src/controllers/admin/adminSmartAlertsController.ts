@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getPaginationParams, sendAdminError, sendSuccessResponse } from "./adminBaseController";
+import { getPaginationParams, sendAdminError, sendSuccessResponse } from '@core/utils/adminBaseController';
 import { getAlertDeliveryLogs } from "@core/services/SmartAlertService";
 
 /**

@@ -1,11 +1,11 @@
-jest.mock("../../models/User", () => ({
+jest.mock("@core/models/User", () => ({
     __esModule: true,
     default: {
         findByIdAndUpdate: jest.fn(),
     },
 }));
 
-jest.mock("../../models/Ad", () => ({
+jest.mock("@core/models/Ad", () => ({
     __esModule: true,
     default: {
         updateMany: jest.fn(),
@@ -17,7 +17,7 @@ jest.mock("../../models/Ad", () => ({
     },
 }));
 
-jest.mock("../../models/SmartAlert", () => ({
+jest.mock("@core/models/SmartAlert", () => ({
     __esModule: true,
     default: {
         updateMany: jest.fn(),

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../../utils/errorResponse";
-import { respond } from "../../utils/respond";
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { respond } from "@core/utils/respond";
 import {
   startConversation,
   listConversations,

@@ -1,4 +1,4 @@
-jest.mock("../../models/PageContent", () => ({
+jest.mock("@core/models/PageContent", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),

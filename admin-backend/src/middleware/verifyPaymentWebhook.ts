@@ -2,7 +2,7 @@
 import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { env } from '@core/config/env';
 
 /**

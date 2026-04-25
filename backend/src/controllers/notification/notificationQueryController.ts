@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import logger from "@core/utils/logger";
-import { respond } from "../../utils/respond";
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { respond } from "@core/utils/respond";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { getUserId } from "./shared";
 import { getVisibleNotificationWindowQuery } from "@core/services/notification/NotificationRetentionService";
 import { queryNotificationsForUser } from "@core/services/NotificationService";

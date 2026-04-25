@@ -107,7 +107,7 @@ describe('MyAds API Regression Tests', () => {
         });
 
         it('should route spare-part reposts to the spare-part endpoint', async () => {
-            vi.mocked(apiClient.post as any).mockResolvedValueOnce({
+            vi.mocked(apiClient.post).mockResolvedValueOnce({
                 success: true,
                 data: { ok: true }
             });
@@ -202,7 +202,7 @@ describe('MyAds API Regression Tests', () => {
                 technicalMessage: 'Rate limited',
             });
 
-            vi.mocked(apiClient.post as any).mockRejectedValueOnce(networkError);
+            vi.mocked(apiClient.post).mockRejectedValueOnce(networkError);
 
             await expect(repostListing('part-456', LISTING_TYPE.SPARE_PART)).rejects.toThrow('Failed to repost');
         });

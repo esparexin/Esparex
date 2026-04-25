@@ -118,7 +118,7 @@ export function useNotifications() {
     const fetchHistory = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await adminFetch<any>(historyRoute);
+            const response = await adminFetch<unknown>(historyRoute);
             const parsed = parseAdminResponse<NotificationLog>(response);
             setHistory(parsed.items);
             setPagination({
@@ -184,7 +184,7 @@ export function useNotifications() {
             setRecipientSearchError("");
             try {
                 const params = new URLSearchParams({ limit: "8", q: query });
-                const response = await adminFetch<any>(`${ADMIN_ROUTES.NOTIFICATIONS_RECIPIENTS}?${params.toString()}`);
+                const response = await adminFetch<unknown>(`${ADMIN_ROUTES.NOTIFICATIONS_RECIPIENTS}?${params.toString()}`);
                 const parsed = parseAdminResponse<Record<string, unknown>>(response);
                 const selectedIds = new Set(selectedUsers.map((user) => user.id));
                 setRecipientResults(

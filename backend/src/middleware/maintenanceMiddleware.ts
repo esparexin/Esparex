@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
 import logger from '@core/utils/logger';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 
 /**
  * 🛠️ Maintenance Middleware

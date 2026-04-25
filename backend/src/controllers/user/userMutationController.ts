@@ -21,10 +21,10 @@ import {
   isS3UploadConfigured
 } from '@core/utils/s3';
 import { processSingleImage } from '@core/utils/imageProcessor';
-import { sendSuccessResponse } from "../../utils/respond";
+import { sendSuccessResponse } from "@core/utils/respond";
 import { normalizeLocation } from '@core/services/location/LocationNormalizer';
 import { updateUserStatus } from '@core/services/UserStatusService';
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import fs from 'fs/promises';
 import { AuthService } from '@core/services/AuthService';
 import {
@@ -41,7 +41,7 @@ const resolveBlockerEntities = (req: Request, res: Response) => {
         return null;
     }
 
-    const blockerId = getStorageSafeId(req.user);
+    const blockerId = getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]);
     if (!blockerId) {
         sendErrorResponse(req, res, 401, 'Invalid session');
         return null;
@@ -72,7 +72,7 @@ export const updateMe = async (
       return;
     }
 
-    const userId = getStorageSafeId(req.user);
+    const userId = getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]);
 
     if (!userId) {
       sendErrorResponse(req, res, 401, 'Invalid session');
@@ -216,7 +216,7 @@ export const deleteMe = async (
       return;
     }
 
-    const userId = getStorageSafeId(req.user);
+    const userId = getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]);
 
     if (!userId) {
       sendErrorResponse(req, res, 401, 'Invalid session');
@@ -270,7 +270,7 @@ export const uploadFile = async (
     const file = getUploadedFile(req);
     if (!file) {
       logger.warn('[Upload] File upload failed: No file found in request', {
-        userId: getStorageSafeId(req.user),
+        userId: getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]),
         method: req.method,
         url: req.originalUrl,
         contentType: req.headers['content-type']
@@ -279,7 +279,7 @@ export const uploadFile = async (
       return;
     }
 
-    const userId = getStorageSafeId(req.user);
+    const userId = getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]);
     const uploadBody = req.body as Record<string, unknown>;
     const requestedFolder = typeof uploadBody.folder === 'string' ? uploadBody.folder : '';
     const adId = typeof uploadBody.adId === 'string' ? uploadBody.adId.trim() : '';

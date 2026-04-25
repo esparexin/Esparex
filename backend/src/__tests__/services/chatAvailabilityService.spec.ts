@@ -1,4 +1,4 @@
-jest.mock('../../models/Conversation', () => ({
+jest.mock('@core/models/Conversation', () => ({
   Conversation: {
     updateMany: jest.fn(),
   },

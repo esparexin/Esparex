@@ -6,15 +6,15 @@ import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { MODERATION_STATUS } from '../../../../shared/enums/moderationStatus';
 
 // Mock dependencies
-jest.mock('../../models/Business');
-jest.mock('../../models/Ad');
-jest.mock('../../utils/distributedJobLock', () => ({
+jest.mock('@core/models/Business');
+jest.mock('@core/models/Ad');
+jest.mock('@core/utils/distributedJobLock', () => ({
     runWithDistributedJobLock: jest.fn((name, opts, fn) => fn())
 }));
-jest.mock('../../utils/jobRunner', () => ({
+jest.mock('@core/utils/jobRunner', () => ({
     jobRunner: jest.fn((name, fn) => fn())
 }));
-jest.mock('../../services/NotificationService', () => ({
+jest.mock('@core/services/NotificationService', () => ({
     dispatchTemplatedNotification: jest.fn()
 }));
 jest.mock('@core/utils/logger');

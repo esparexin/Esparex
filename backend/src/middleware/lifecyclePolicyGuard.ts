@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 
 const toLower = (value: unknown) => (typeof value === 'string' ? value.trim().toLowerCase() : '');
 

@@ -13,6 +13,8 @@ import { MAX_DROPDOWN_RESULTS, toGeoPoint, type SelectorVariant } from "./locati
 import { useLocationSearch } from "./useLocationSearch";
 import { Z_INDEX } from "@/lib/zIndexConfig";
 
+type SnappedLocation = Location & { isSnapped?: boolean };
+
 interface LocationSelectorProps {
     variant: SelectorVariant;
     mode?: "search" | "profile" | "postAd";
@@ -54,7 +56,7 @@ export default function LocationSelector({
         manuallyClearedRef.current = false;
         if (!isPanel) {
             const rawLabel = normalizeLocationName(loc.display || loc.name || loc.city);
-            const prefix = (loc as any).isSnapped ? "~ " : "";
+            const prefix = (loc as SnappedLocation).isSnapped ? "~ " : "";
             setSelectedLabel(`${prefix}${rawLabel}`);
             setHasSelection(true);
             setIsOpen(false);

@@ -1,4 +1,4 @@
-jest.mock("../../models/Business", () => ({
+jest.mock("@core/models/Business", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
@@ -6,14 +6,14 @@ jest.mock("../../models/Business", () => ({
     },
 }));
 
-jest.mock("../../models/Ad", () => ({
+jest.mock("@core/models/Ad", () => ({
     __esModule: true,
     default: {
         find: jest.fn(),
     },
 }));
 
-jest.mock("../../utils/adminLogger", () => ({
+jest.mock("@core/utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
@@ -30,17 +30,17 @@ jest.mock("@core/utils/logger", () => ({
     logSecurity: jest.fn(),
 }));
 
-jest.mock("../../services/NotificationService", () => ({
+jest.mock("@core/services/NotificationService", () => ({
     __esModule: true,
     createInAppNotification: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("../../services/TrustService", () => ({
+jest.mock("@core/services/TrustService", () => ({
     __esModule: true,
     recalculateTrustScore: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("../../services/BusinessService", () => ({
+jest.mock("@core/services/BusinessService", () => ({
     __esModule: true,
     approveBusiness: jest.fn(),
     rejectBusiness: jest.fn(),
@@ -48,7 +48,7 @@ jest.mock("../../services/BusinessService", () => ({
     buildBusinessLocationPayload: jest.fn(),
 }));
 
-jest.mock("../../services/AdminBusinessService", () => ({
+jest.mock("@core/services/AdminBusinessService", () => ({
     __esModule: true,
     getBusinessOverview: jest.fn(),
     getBusinessAccountsQuery: jest.fn(),
@@ -65,12 +65,12 @@ jest.mock("@core/services/StatusMutationService", () => ({
     mutateStatuses: jest.fn(),
 }));
 
-jest.mock("../../utils/contentHandler", () => ({
+jest.mock("@core/utils/contentHandler", () => ({
     __esModule: true,
     handlePaginatedContent: jest.fn(),
 }));
 
-jest.mock("../../services/location/LocationNormalizer", () => ({
+jest.mock("@core/services/location/LocationNormalizer", () => ({
     normalizeLocation: jest.fn()
 }));
 
@@ -83,7 +83,7 @@ jest.mock("../../controllers/business/shared", () => ({
     resolveDuplicateBusinessMessage: jest.fn().mockReturnValue(null),
 }));
 
-jest.mock("../../utils/s3", () => ({
+jest.mock("@core/utils/s3", () => ({
     __esModule: true,
     sanitizePersistedImageUrls: jest.fn().mockReturnValue([]),
     uploadToS3: jest.fn(),
@@ -91,10 +91,8 @@ jest.mock("../../utils/s3", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as adminBusinessController from "../../controllers/admin/adminBusinessController";
+import * as adminBusinessController from "../../../../admin-backend/src/controllers/admin/adminBusinessController";
 import * as adminBusinessService from "@core/services/AdminBusinessService";
-import { buildBusinessLocationPayload } from "@core/services/BusinessService";
-import { normalizeLocation } from "@core/services/location/LocationNormalizer";
 
 const createMockRes = (req?: Record<string, unknown>) => {
     const res = {
@@ -111,8 +109,6 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
         updateAdminBusiness: jest.Mock;
         updateAdminBusinessFields: jest.Mock;
     };
-    const mockBuildBusinessLocationPayload = buildBusinessLocationPayload as unknown as jest.Mock;
-    const mockNormalizeLocation = normalizeLocation as unknown as jest.Mock;
 
     beforeEach(() => {
         jest.clearAllMocks();

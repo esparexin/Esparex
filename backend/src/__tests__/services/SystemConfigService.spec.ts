@@ -1,11 +1,11 @@
-jest.mock("../../models/SystemConfig", () => ({
+jest.mock("@core/models/SystemConfig", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
     },
 }));
 
-jest.mock("../../utils/systemConfigHelper", () => ({
+jest.mock("@core/utils/systemConfigHelper", () => ({
     __esModule: true,
     SYSTEM_CONFIG_KEY: "global",
     ensureSystemConfig: jest.fn(),

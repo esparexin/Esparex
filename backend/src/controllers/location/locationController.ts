@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import type { IAuthUser } from '@core/types/auth';
 import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "@core/utils/redisCache";
 import logger from "@core/utils/logger";
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { getSystemConfigDoc } from "@core/utils/systemConfigHelper";
 import { env } from '@core/config/env';
-import { respond } from "../../utils/respond";
+import { respond } from "@core/utils/respond";
 import { createLocationEvent } from '@core/services/location/LocationEventService';
 import {
     getDefaultCenterLocation,
@@ -306,7 +305,7 @@ export const logLocationEvent = async (req: Request, res: Response) => {
             reason?: string; eventType?: string; locationId?: string;
         };
 
-        const userId = (req.user as IAuthUser)?._id ?? (req.user as IAuthUser)?.id ?? undefined;
+        const userId = (req.user)?._id;
 
         if (typeof locationId === 'string' && locationId.length > 0 && typeof eventType === 'string' && eventType.length > 0) {
             try {

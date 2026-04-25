@@ -3,21 +3,20 @@ import mongoose from 'mongoose';
 import { generateUniqueSparePartSlug } from '@core/services/SparePartListingService';
 import { findCategoryById } from '@core/services/catalog/CatalogCategoryService';
 import { findSparePartById } from '@core/services/catalog/CatalogSparePartService';
-import { sendErrorResponse as sendContractErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse as sendContractErrorResponse } from "@core/utils/errorResponse";
 import { processImages } from '@core/utils/imageProcessor';
 import { INVENTORY_STATUS } from '../../../../shared/enums/inventoryStatus';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { getAndVerifyOwnedListing } from "../../utils/controllerUtils";
+import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../../shared/schemas/sparePartPayload.schema';
 import { getAds } from '@core/services/ad/AdAggregationService';
 import { mutateStatus } from '@core/services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
-import type { IAuthUser } from '@core/types/auth';
-import { respond } from "../../utils/respond";
-import { getSingleParam } from "../../utils/requestParams";
+import type { AuthUser } from '../../types/auth.types';
+import { respond } from "@core/utils/respond";
+import { getSingleParam } from '@core/utils/requestParams';
 import type { PaginatedResponse } from '../../../../shared/types/Api';
-import { ListingMutationService } from '@core/services/ListingMutationService';
 import * as AdOrchestrator from '@core/services/AdOrchestrator';
 import { saveSparePartListing } from '@core/services/SparePartListingService';
 
@@ -61,7 +60,7 @@ const sparePartListingUpdateSchema = PartialSparePartPayloadSchema.pick({
  */
 export const createSparePartListing = async (req: Request, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = (req.user)?._id;
         const businessId = req.business?._id;
 
         if (!userId || !businessId) {
@@ -110,7 +109,7 @@ export const createSparePartListing = async (req: Request, res: Response) => {
 
         const ad = await AdOrchestrator.createAd(
             {
-                ...req.body,
+                ...(req.body as Record<string, unknown>),
                 listingType: LISTING_TYPE.SPARE_PART,
                 sparePartId,
                 brandId,
@@ -256,7 +255,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
                     domain: 'spare_part_listing',
                     entityId: listing._id,
                     toStatus: INVENTORY_STATUS.PENDING,
-                    actor: { type: ACTOR_TYPE.USER, id: (req.user as IAuthUser)?._id?.toString() },
+                    actor: { type: ACTOR_TYPE.USER, id: (req.user as AuthUser)?._id?.toString() },
                     reason: 'Seller edited listing — re-review required'
                 });
             } catch {
@@ -308,7 +307,7 @@ export const deactivateSparePartListing = async (req: Request, res: Response) =>
             domain: 'spare_part_listing',
             entityId: listingId,
             toStatus: 'deactivated',
-            actor: { type: ACTOR_TYPE.USER, id: (req.user as IAuthUser)?._id?.toString() },
+            actor: { type: ACTOR_TYPE.USER, id: (req.user as AuthUser)?._id?.toString() },
             reason: 'Deactivated by seller',
         });
 
@@ -342,7 +341,7 @@ export const repostSparePartListing = async (req: Request, res: Response) => {
             domain: 'spare_part_listing',
             entityId: listingId,
             toStatus: AD_STATUS.PENDING,
-            actor: { type: ACTOR_TYPE.USER, id: (req.user as IAuthUser)?._id?.toString() },
+            actor: { type: ACTOR_TYPE.USER, id: (req.user as AuthUser)?._id?.toString() },
             reason: 'Reposted by seller for review',
             metadata: { action: 'repost' },
         });

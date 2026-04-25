@@ -1,4 +1,4 @@
-jest.mock('../../models/Ad', () => ({
+jest.mock('@core/models/Ad', () => ({
     __esModule: true,
     default: {
         aggregate: jest.fn(),

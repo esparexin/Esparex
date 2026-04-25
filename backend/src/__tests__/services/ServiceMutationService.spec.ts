@@ -1,9 +1,9 @@
-jest.mock('../../services/service/ServiceMutationRepository', () => ({
+jest.mock('@core/services/service/ServiceMutationRepository', () => ({
     findServiceForUpdate: jest.fn(),
     updateServiceByOwner: jest.fn(),
 }));
 
-jest.mock('../../services/ListingMutationService', () => ({
+jest.mock('@core/services/ListingMutationService', () => ({
     ListingMutationService: {
         processIncomingImages: jest.fn(),
         cleanupRemovedImages: jest.fn(),
@@ -16,7 +16,7 @@ jest.mock('@core/services/AdOrchestrator', () => ({
     },
 }));
 
-jest.mock('../../services/catalog/CatalogValidationService', () => ({
+jest.mock('@core/services/catalog/CatalogValidationService', () => ({
     getCategorySelectionMode: jest.fn(),
     validateBrandBelongsToCategory: jest.fn(),
     validateServiceCategoryCapability: jest.fn(),
@@ -26,11 +26,11 @@ jest.mock('@core/services/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
-jest.mock('../../utils/masterDataResolver', () => ({
+jest.mock('@core/utils/masterDataResolver', () => ({
     resolveMasterDataIds: jest.fn(),
 }));
 
-jest.mock('../../utils/serviceTypeResolver', () => ({
+jest.mock('@core/utils/serviceTypeResolver', () => ({
     resolveServiceTypes: jest.fn(),
 }));
 

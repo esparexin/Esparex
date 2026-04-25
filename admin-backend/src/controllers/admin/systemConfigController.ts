@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { 
     sendSuccessResponse, 
     sendAdminError 
-} from './adminBaseController';
+} from '@core/utils/adminBaseController';
 import {
     getSystemConfigForRead,
     updateSystemConfigSections

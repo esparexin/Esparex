@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { isValidGeoPoint } from '@shared/utils/geoUtils';
 import { z } from 'zod';
 import { DANGEROUS_HTML_PATTERNS, SQL_INJECTION_PATTERNS } from '@shared/utils/securityPatterns';

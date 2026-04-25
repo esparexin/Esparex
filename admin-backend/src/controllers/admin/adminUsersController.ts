@@ -5,7 +5,7 @@ import {
     getPaginationParams,
     sendPaginatedResponse,
     sendAdminError
-} from './adminBaseController';
+} from '@core/utils/adminBaseController';
 import { USER_STATUS, UserStatusValue } from '../../../../shared/enums/userStatus';
 import * as adminUsersService from '@core/services/AdminUsersService';
 import { logAdminActionDirect } from '@core/utils/adminLogger';

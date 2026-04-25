@@ -9,12 +9,12 @@ import * as AdAggregationService from '@core/services/ad/AdAggregationService';
 import * as AdDetailService from '@core/services/ad/AdDetailService';
 import * as feedService from '@core/services/FeedService';
 import * as trendingService from '@core/services/TrendingService';
-import { respond } from "../../utils/respond";
-import { getSingleParam } from "../../utils/requestParams";
+import { respond } from "@core/utils/respond";
+import { getSingleParam } from '@core/utils/requestParams';
 import { Ad } from '../../../../shared/schemas/ad.schema';
 import { ApiResponse, PaginatedResponse, HomeFeedResponse } from '../../../../shared/types/Api';
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@core/validators/ad.validator';
-import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { warnIfLegacyAdUserIdAliasUsed } from '@core/utils/legacyOwnerAliasTelemetry';
@@ -68,9 +68,9 @@ const sendLegacyAliasError = (req: Request, res: Response, source: 'query') =>
 
 const getViewerIdForFeed = (req: Request): string | undefined => {
     const user = req.user;
-    if (!user) return undefined;
+    if (!user?._id) return undefined;
     if (user.isAdmin || user.role === 'admin' || user.role === 'super_admin') return undefined;
-    return user._id?.toString();
+    return String(user._id);
 };
 
 /**
@@ -307,8 +307,8 @@ export const getTrendingAds = async (req: Request, res: Response, next: NextFunc
  */
 export const getAnyAdById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // Admin only access
-        const isAdmin = (req.admin as unknown) || (req.user && ['admin', 'super_admin'].includes((req.user).role));
+        const user = req.user;
+        const isAdmin = Boolean(req.admin) || Boolean(user && ['admin', 'super_admin'].includes(user.role));
         if (!isAdmin) {
             return sendErrorResponse(req, res, 403, 'Admin access required');
         }

@@ -13,7 +13,7 @@
  * mock StatusMutationService at the controller layer.
  */
 
-jest.mock("../../config/db", () => ({
+jest.mock("@core/config/db", () => ({
     getUserConnection: jest.fn(() => ({
         startSession: jest.fn().mockResolvedValue({
             withTransaction: jest.fn().mockImplementation(async (fn: () => Promise<unknown>) => fn()),
@@ -23,7 +23,7 @@ jest.mock("../../config/db", () => ({
     isDbReady: jest.fn(() => true),
 }));
 
-jest.mock("../../models/Ad", () => ({
+jest.mock("@core/models/Ad", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
@@ -31,22 +31,22 @@ jest.mock("../../models/Ad", () => ({
     },
 }));
 
-jest.mock("../../models/User", () => ({
+jest.mock("@core/models/User", () => ({
     __esModule: true,
     default: { findById: jest.fn(), find: jest.fn() },
 }));
 
-jest.mock("../../models/Business", () => ({
+jest.mock("@core/models/Business", () => ({
     __esModule: true,
     default: { findById: jest.fn(), find: jest.fn() },
 }));
 
-jest.mock("../../models/StatusHistory", () => ({
+jest.mock("@core/models/StatusHistory", () => ({
     __esModule: true,
     default: { create: jest.fn().mockResolvedValue([{}]) },
 }));
 
-jest.mock("../../models/AdminMetrics", () => ({
+jest.mock("@core/models/AdminMetrics", () => ({
     __esModule: true,
     default: { findOneAndUpdate: jest.fn().mockResolvedValue({}) },
 }));
@@ -56,11 +56,11 @@ jest.mock("@core/services/LifecycleGuard", () => ({
     resolveLifecycleDomain: jest.fn().mockReturnValue("ad"),
 }));
 
-jest.mock("../../services/LifecyclePolicyGuard", () => ({
+jest.mock("@core/services/LifecyclePolicyGuard", () => ({
     enforceLifecycleMutationPolicy: jest.fn(),
 }));
 
-jest.mock("../../events", () => ({
+jest.mock("@core/events", () => ({
     lifecycleEvents: {
         dispatch: jest.fn().mockResolvedValue(undefined),
     },

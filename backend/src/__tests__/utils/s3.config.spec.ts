@@ -1,4 +1,4 @@
-jest.mock('../../config/env', () => ({
+jest.mock('@core/config/env', () => ({
     env: {
         AWS_REGION: 'ap-south-1',
         S3_BUCKET_NAME: '',
