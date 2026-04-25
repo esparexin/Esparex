@@ -60,10 +60,10 @@ if [ -z "$CHANGED_FILES" ]; then
   exit 0
 fi
 
-SCHEMA_CHANGES="$(echo "$CHANGED_FILES" | grep -E '^backend/src/models/.*\.(ts|js)$' || true)"
+SCHEMA_CHANGES="$(echo "$CHANGED_FILES" | grep -E '^core/src/models/.*\.(ts|js)$' || true)"
 
 if [ -z "$SCHEMA_CHANGES" ]; then
-  echo "[governance] No backend model changes detected; migration gate passed."
+  echo "[governance] No core model changes detected; migration gate passed."
   exit 0
 fi
 
@@ -78,7 +78,7 @@ echo "❌ Schema migration governance violation."
 echo "Changed schema/model files:"
 echo "$SCHEMA_CHANGES"
 echo ""
-echo "Required with backend model changes (pick at least one):"
+echo "Required with core model changes (pick at least one):"
 echo "  1) Add/update a migration under backend/migrations/"
 echo "  2) Update docs/schema-changelog.md"
 exit 1

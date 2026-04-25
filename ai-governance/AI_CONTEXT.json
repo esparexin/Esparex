@@ -84,7 +84,7 @@
     "controller": "backend/src/controllers/ai/aiController.ts",
     "validator": "backend/src/validators/ai.validator.ts",
     "service": "backend/src/services/AiService.ts",
-    "settingsModel": "backend/src/models/SystemConfig.ts",
+    "settingsModel": "core/src/models/SystemConfig.ts",
     "settingsAdminUi": "admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx"
   },
   "duplicates": [

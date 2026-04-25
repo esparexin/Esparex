@@ -34,9 +34,9 @@ const NEVER_AUTO_DELETE_PATTERNS = [
   /[\\/]middleware\.(ts|tsx|js|jsx)$/
 ];
 const ALWAYS_KEEP_PATTERNS = [
-  /^backend\/src\/config\/loadEnv\.ts$/,
-  /^backend\/src\/config\/mongoosePlugins\.ts$/,
-  /^backend\/src\/models\/registry\.ts$/,
+  /^core\/src\/config\/loadEnv\.ts$/,
+  /^core\/src\/config\/mongoosePlugins\.ts$/,
+  /^core\/src\/models\/registry\.ts$/,
   /^backend\/src\/scripts\/restore-database\.ts$/,
   /^backend\/src\/seeds\/(devices\.seed|runSeeds|spareParts\.seed)\.ts$/,
   /^backend\/src\/tests\//,

@@ -1,4 +1,4 @@
-// backend/src/models/UserWallet.ts
+// core/src/models/UserWallet.ts
 import { Schema, Model, Types } from "mongoose";
 import { getUserConnection } from "@core/config/db";
 import { applyToJSONTransform } from '@core/utils/schemaOptions';

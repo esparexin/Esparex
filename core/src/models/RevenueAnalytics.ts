@@ -1,4 +1,4 @@
-// backend/src/models/RevenueAnalytics.ts
+// core/src/models/RevenueAnalytics.ts
 import { Schema, Document } from "mongoose";
 import { getAdminConnection } from "@core/config/db";
 import type { Model } from "mongoose";

@@ -1,4 +1,4 @@
-// backend/src/models/Counter.ts
+// core/src/models/Counter.ts
 import { Schema, Document } from "mongoose";
 import { getUserConnection } from "@core/config/db";
 import type { Model } from "mongoose";

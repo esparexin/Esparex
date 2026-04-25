@@ -1,4 +1,4 @@
-// backend/src/models/Transaction.ts
+// core/src/models/Transaction.ts
 import { Schema, Document, Types } from "mongoose";
 import { getUserConnection } from "@core/config/db";
 import type { Model } from "mongoose";
