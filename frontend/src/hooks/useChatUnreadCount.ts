@@ -18,18 +18,12 @@ function getUnreadCount(conversations: IConversationDTO[], currentUserId?: strin
 }
 
 export function useChatUnreadCount(currentUserId?: string | null, enabled = true): number {
-  const [count, setCount] = useState(0);
+  const [rawCount, setRawCount] = useState(0);
   const currentUserIdRef = useRef(currentUserId);
 
   useEffect(() => {
     currentUserIdRef.current = currentUserId;
   }, [currentUserId]);
-
-  useEffect(() => {
-    if (!enabled || !currentUserId) {
-      setCount(0);
-    }
-  }, [enabled, currentUserId]);
 
   useEffect(() => {
     if (!enabled || !currentUserId) {
@@ -42,11 +36,11 @@ export function useChatUnreadCount(currentUserId?: string | null, enabled = true
       try {
         const response = await chatApi.list(undefined, 'active');
         if (!cancelled) {
-          setCount(getUnreadCount(response.data ?? [], currentUserIdRef.current));
+          setRawCount(getUnreadCount(response.data ?? [], currentUserIdRef.current));
         }
       } catch {
         if (!cancelled) {
-          setCount(0);
+          setRawCount(0);
         }
       }
     };
@@ -72,5 +66,6 @@ export function useChatUnreadCount(currentUserId?: string | null, enabled = true
     };
   }, [currentUserId, enabled]);
 
-  return count;
+  // Return 0 when disabled or not logged in — avoids setState-in-effect for the reset case.
+  return enabled && currentUserId ? rawCount : 0;
 }

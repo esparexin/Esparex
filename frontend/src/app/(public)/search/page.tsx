@@ -4,7 +4,7 @@ import { BrowseServices } from '@/components/user/BrowseServices';
 import { BrowseSpareParts } from '@/components/user/BrowseSpareParts';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { getAdsPage } from "@/lib/api/user/listings";
+import { getAdsPage, type ListingPageResult } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";
 import { getCategories } from "@/lib/api/user/categories";
 import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
@@ -93,7 +93,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
                 <Component
                     initialCategory={parsed.categoryId ?? parsed.category}
                     initialSearchQuery={parsed.q}
-                    initialResults={initialResults as any}
+                    initialResults={initialResults as ListingPageResult}
                     initialCategories={initialCategories}
                 />
             </Suspense>
