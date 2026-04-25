@@ -21,7 +21,7 @@ const ENV_AUTH_TOKEN = (process.env.SMOKE_AUTH_TOKEN || "").trim();
 
 async function resolveAuthToken(request: APIRequestContext): Promise<string> {
   const verifyResponse = await request.post(`${API_BASE_URL.replace(/\/$/, "")}/auth/verify-otp`, {
-    data: { mobile: AUTH_MOBILE, otp: AUTH_OTP },
+    data: { mobile: AUTH_MOBILE, otp: AUTH_OTP, name: "Smoke Test User" },
   });
 
   const payload = await verifyResponse.json().catch(() => null);
@@ -30,6 +30,7 @@ async function resolveAuthToken(request: APIRequestContext): Promise<string> {
     payload?.data?.token ||
     payload?.data?.data?.token ||
     payload?.data?.user?.accessToken ||
+    payload?.data?.user?.token ||
     payload?.user?.accessToken;
 
   if (!verifyResponse.ok() || typeof token !== "string" || token.trim().length === 0) {

@@ -1,19 +1,19 @@
 import { Request, Response } from 'express';
-import logger from '../../utils/logger';
-import { respond } from '../../utils/respond';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import logger from '@core/utils/logger';
+import { respond } from "@core/utils/respond";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { ApiResponse } from '../../../../shared/types/Api';
 import {
     createSavedSearch,
     deleteSavedSearch,
     getSavedSearches
-} from '../../services/SavedSearchService';
+} from '@core/services/SavedSearchService';
 import type { SavedSearchCreatePayload } from '../../../../shared/schemas/savedSearch.schema';
 
 const getUserId = (req: Request): string | null => {
     const user = req.user;
     if (!user) return null;
-    return (user.id || user._id)?.toString() || null;
+    return String(user._id);
 };
 
 export const listSavedSearches = async (req: Request, res: Response) => {

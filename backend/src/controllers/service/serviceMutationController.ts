@@ -1,21 +1,22 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { findOwnedService } from '../../services/AdMutationService';
+import { findOwnedService } from '@core/services/AdMutationService';
 import { Service } from '../../../../shared/types/Service';
 import { ApiResponse } from '../../../../shared/types/Api';
-import { respond } from '../../utils/respond';
-import { getSingleParam } from '../../utils/requestParams';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { respond } from "@core/utils/respond";
+import { getSingleParam } from '@core/utils/requestParams';
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
-import { mutateStatus } from '../../services/StatusMutationService';
+import { mutateStatus } from '@core/services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
+import type { IAuthUser } from '@core/types/auth';
 import {
     createServiceMutation,
     type ServiceBusinessContext,
     updateServiceMutation,
-} from '../../services/service/ServiceMutationService';
+} from '@core/services/service/ServiceMutationService';
 
 const requireOwnedService = async (req: Request, res: Response, fetchFull = false) => {
     const user = req.user;
@@ -46,8 +47,9 @@ const requireOwnedService = async (req: Request, res: Response, fetchFull = fals
 --------------------------------------------------- */
 export const createService = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const user = req.user;
         const service = await createServiceMutation({
-            user: req.user,
+            user: user as unknown as IAuthUser, // Safe boundary cast to core type
             business: req.business as ServiceBusinessContext | undefined,
             body: req.body as Record<string, unknown>,
         });
@@ -73,9 +75,10 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Service ID' });
         if (!id) return;
 
+        const user = req.user;
         const finalServiceData = await updateServiceMutation({
             serviceId: id,
-            user: req.user,
+            user: user as unknown as IAuthUser, // Safe boundary cast to core type
             business: req.business as ServiceBusinessContext | undefined,
             body: req.body as Record<string, unknown>,
         });

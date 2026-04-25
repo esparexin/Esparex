@@ -1,5 +1,5 @@
-import { NotificationIntent } from "../../domain/NotificationIntent";
-import { NOTIFICATION_TYPE } from "@shared/enums/notificationType";
+import { NotificationIntent } from "@core/domain/NotificationIntent";
+import { NOTIFICATION_TYPE } from "@core/constants/enums/notificationType";
 
 describe("NotificationIntent", () => {
     it("uses medium priority for admin broadcasts", () => {

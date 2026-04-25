@@ -1,12 +1,12 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
-import { respond } from '../../utils/respond';
+import { respond } from "@core/utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from '../../utils/errorResponse';
+import { sendErrorResponse } from "@core/utils/errorResponse";
 import { InvoiceUser } from './shared';
-import { getUserTransactions, getTransactionWithUser } from '../../services/TransactionService';
-import { getActivePlans } from '../../services/PlanService';
-import { getInvoiceByIdOrTransaction } from '../../services/InvoiceService';
+import { getUserTransactions, getTransactionWithUser } from '@core/services/TransactionService';
+import { getActivePlans } from '@core/services/PlanService';
+import { getInvoiceByIdOrTransaction } from '@core/services/InvoiceService';
 
 /**
  * 3. GET PLANS
@@ -47,7 +47,7 @@ export const getPurchaseHistory = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
 
-        const transactions = await getUserTransactions(req.user._id);
+        const transactions = await getUserTransactions((req.user)._id);
 
         res.json(respond<ApiResponse<unknown>>({
             success: true,
@@ -71,7 +71,7 @@ export const getInvoice = async (req: Request, res: Response) => {
 
         if (invoice) {
             const ownerId = invoice.userId?.toString?.() ?? String(invoice.userId);
-            if (ownerId !== req.user._id.toString() && !['admin', 'super_admin'].includes(req.user.role)) {
+            if (ownerId !== (req.user)._id.toString() && !['admin', 'super_admin'].includes((req.user).role)) {
                 return sendErrorResponse(req, res, 403, 'Unauthorized');
             }
 
@@ -89,7 +89,7 @@ export const getInvoice = async (req: Request, res: Response) => {
 
         const user = transaction.userId as unknown as InvoiceUser;
 
-        if (user._id.toString() !== req.user._id.toString() && !['admin', 'super_admin'].includes(req.user.role)) {
+        if (user._id.toString() !== (req.user)._id.toString() && !['admin', 'super_admin'].includes((req.user).role)) {
             return sendErrorResponse(req, res, 403, 'Unauthorized');
         }
 

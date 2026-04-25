@@ -1,31 +1,31 @@
-jest.mock("../../models/Admin", () => ({
+jest.mock("@core/models/Admin", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
     },
 }));
 
-jest.mock("../../utils/auth", () => ({
+jest.mock("@core/utils/auth", () => ({
     __esModule: true,
     verifyAdminToken: jest.fn(),
 }));
 
-jest.mock("../../services/AdminSessionService", () => ({
+jest.mock("@core/services/AdminSessionService", () => ({
     __esModule: true,
     validateAdminSession: jest.fn(),
     getAdminSessionTtlMs: jest.fn(() => 8 * 60 * 60 * 1000),
 }));
 
-jest.mock("../../utils/cookieHelper", () => ({
+jest.mock("@core/utils/cookieHelper", () => ({
     __esModule: true,
     getAdminCookieOptions: jest.fn(() => ({ path: "/api/v1/admin" })),
     getAuthCookieOptions: jest.fn(() => ({ path: "/" })),
 }));
 
 import type { Request, Response } from "express";
-import Admin from "../../models/Admin";
-import { verifyAdminToken } from "../../utils/auth";
-import { validateAdminSession } from "../../services/AdminSessionService";
+import Admin from "@core/models/Admin";
+import { verifyAdminToken } from "@core/utils/auth";
+import { validateAdminSession } from "@core/services/AdminSessionService";
 import { requireAdmin, requirePermission } from "../../middleware/adminAuth";
 
 const createMockRes = () => {
@@ -100,7 +100,7 @@ describe("adminAuth middleware", () => {
         expect(next).toHaveBeenCalledTimes(1);
         expect(req.user).toEqual(
             expect.objectContaining({
-                id: "admin_1",
+                _id: "admin_1",
                 role: "admin",
                 isAdmin: true,
             })

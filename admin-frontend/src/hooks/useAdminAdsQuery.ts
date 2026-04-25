@@ -89,7 +89,7 @@ export function useAdminAdsQuery(input: {
         return () => {
             cancelled = true;
         };
-    }, [queryKey]);
+    }, [queryKey, filters, page, limit]);
 
     return state;
 }

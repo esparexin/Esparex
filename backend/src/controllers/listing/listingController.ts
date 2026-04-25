@@ -1,24 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { IAuthUser } from '../../types/auth';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import logger from '../../utils/logger';
-import { sendSuccessResponse } from '../../utils/respond';
-import { getSingleParam } from '../../utils/requestParams';
+import type { AuthUser } from '../../types/auth.types';
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import logger from '@core/utils/logger';
+import { sendSuccessResponse } from "@core/utils/respond";
+import { getSingleParam } from '@core/utils/requestParams';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
-import { PromotionPolicyService } from '../../services/PromotionPolicyService';
-import { buildPublicAdFilter, isPublicAdVisible } from '../../utils/FeedVisibilityGuard';
-import * as AdAggregationService from '../../services/ad/AdAggregationService';
-import * as AdDetailService from '../../services/ad/AdDetailService';
-import * as AdMutationService from '../../services/AdMutationService';
-import * as AdMetricsService from '../../services/ad/AdMetricsService';
-import * as AdEngagementService from '../../services/AdEngagementService';
-import { mutateStatus } from '../../services/StatusMutationService';
-import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
-import { getSellerPhone } from '../../services/ContactRevealService';
-import { collectImmutableFieldErrors, hasOwnField } from '../../utils/immutableFieldErrors';
+import { PromotionPolicyService } from '@core/services/PromotionPolicyService';
+import { buildPublicAdFilter, isPublicAdVisible } from '@core/utils/FeedVisibilityGuard';
+import * as AdAggregationService from '@core/services/ad/AdAggregationService';
+import * as AdDetailService from '@core/services/ad/AdDetailService';
+import * as AdMutationService from '@core/services/AdMutationService';
+import * as AdMetricsService from '@core/services/ad/AdMetricsService';
+import * as AdEngagementService from '@core/services/AdEngagementService';
+import { mutateStatus } from '@core/services/StatusMutationService';
+import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
+import { getSellerPhone } from '@core/services/ContactRevealService';
+import { collectImmutableFieldErrors, hasOwnField } from '@core/utils/immutableFieldErrors';
 
 const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     categoryId: 'Category cannot be changed while editing a listing.',
@@ -54,7 +54,7 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
         const idOrSlug = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID or Slug' });
         if (!idOrSlug) return;
 
-        const viewer = req.user as IAuthUser;
+        const viewer = req.user as AuthUser;
         const viewerId = viewer?._id?.toString();
         const isAdmin = viewer?.role === 'admin' || viewer?.role === 'super_admin';
 
@@ -104,7 +104,7 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
         if (!id) return;
 
-        const user = req.user as IAuthUser;
+        const user = req.user as AuthUser;
         const listing = await getAndVerifyOwnedListing(req, res, {
             errorMessage: 'Listing not found or access denied',
             select: 'status listingType',
@@ -150,7 +150,7 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
  */
 export const markListingSold = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = req.user as IAuthUser;
+        const user = req.user as AuthUser;
         const listing = await getAndVerifyOwnedListing(req, res);
         if (!listing) return;
 
@@ -273,7 +273,7 @@ export const incrementListingView = async (req: Request, res: Response, next: Ne
  */
 export const deactivateListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = req.user as IAuthUser;
+        const user = req.user as AuthUser;
         const listing = await getAndVerifyOwnedListing(req, res, { select: 'status' });
         if (!listing) return;
 
@@ -306,7 +306,7 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
  */
 export const deleteListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = req.user as IAuthUser;
+        const user = req.user as AuthUser;
         const listing = await getAndVerifyOwnedListing(req, res);
         if (!listing) return;
 
@@ -347,7 +347,7 @@ export const repostListing = async (req: Request, res: Response, next: NextFunct
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
         if (!id) return;
-        const userId = (req.user as IAuthUser)._id.toString();
+        const userId = (req.user as AuthUser)._id.toString();
 
         const reposted = await AdMutationService.repostAd(id, userId);
         if (!reposted) {
@@ -377,7 +377,7 @@ export const getListingPhone = async (req: Request, res: Response, next: NextFun
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
         if (!id) return;
 
-        const requesterId = req.user?._id?.toString();
+        const requesterId = (req.user)?._id?.toString();
         const metadata = {
             ip: req.ip || req.socket.remoteAddress,
             device: req.headers['user-agent']
@@ -410,7 +410,7 @@ export const getListingPhone = async (req: Request, res: Response, next: NextFun
  */
 export const getMyListingStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = req.user?._id?.toString();
+        const userId = (req.user)?._id?.toString();
         if (!userId) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
@@ -428,11 +428,11 @@ export const getMyListingStats = async (req: Request, res: Response, next: NextF
  */
 export const getMyListings = async (req: Request, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = (req.user)?._id;
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
         const { type, status, page = 1, limit = 20 } = req.query;
-        const { getStatusMatchCriteria } = await import('../../utils/statusQueryMapper');
+        const { getStatusMatchCriteria } = await import('@core/utils/statusQueryMapper');
 
         const query: Record<string, unknown> = {
             sellerId: userId,
@@ -468,7 +468,7 @@ export const getMyListings = async (req: Request, res: Response) => {
         });
     } catch (error) {
         logger.error('Failed to fetch owner listings', {
-            userId: req.user?._id?.toString?.() ?? String(req.user?._id ?? ''),
+            userId: (req.user)?._id?.toString?.() ?? String((req.user)?._id ?? ''),
             query: req.query,
             error: error instanceof Error ? error.message : String(error),
             stack: error instanceof Error ? error.stack : undefined,

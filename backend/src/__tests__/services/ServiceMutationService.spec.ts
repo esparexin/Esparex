@@ -1,35 +1,40 @@
-jest.mock('../../services/service/ServiceMutationRepository', () => ({
+jest.mock('@core/services/service/ServiceMutationRepository', () => ({
     findServiceForUpdate: jest.fn(),
     updateServiceByOwner: jest.fn(),
 }));
 
-jest.mock('../../services/ListingMutationService', () => ({
+jest.mock('@core/services/ListingMutationService', () => ({
     ListingMutationService: {
         processIncomingImages: jest.fn(),
-        executeCreationTransaction: jest.fn(),
         cleanupRemovedImages: jest.fn(),
     },
 }));
 
-jest.mock('../../services/catalog/CatalogValidationService', () => ({
+jest.mock('@core/services/AdOrchestrator', () => ({
+    AdOrchestrator: {
+        createAd: jest.fn(),
+    },
+}));
+
+jest.mock('@core/services/catalog/CatalogValidationService', () => ({
     getCategorySelectionMode: jest.fn(),
     validateBrandBelongsToCategory: jest.fn(),
     validateServiceCategoryCapability: jest.fn(),
 }));
 
-jest.mock('../../services/StatusMutationService', () => ({
+jest.mock('@core/services/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
-jest.mock('../../utils/masterDataResolver', () => ({
+jest.mock('@core/utils/masterDataResolver', () => ({
     resolveMasterDataIds: jest.fn(),
 }));
 
-jest.mock('../../utils/serviceTypeResolver', () => ({
+jest.mock('@core/utils/serviceTypeResolver', () => ({
     resolveServiceTypes: jest.fn(),
 }));
 
-jest.mock('../../utils/logger', () => ({
+jest.mock('@core/utils/logger', () => ({
     __esModule: true,
     default: {
         error: jest.fn(),
@@ -42,19 +47,20 @@ import mongoose from 'mongoose';
 import {
     findServiceForUpdate,
     updateServiceByOwner,
-} from '../../services/service/ServiceMutationRepository';
-import { ListingMutationService } from '../../services/ListingMutationService';
+} from '@core/services/service/ServiceMutationRepository';
+import { ListingMutationService } from '@core/services/ListingMutationService';
+import { AdOrchestrator } from '@core/services/AdOrchestrator';
 import {
     getCategorySelectionMode,
     validateServiceCategoryCapability,
-} from '../../services/catalog/CatalogValidationService';
-import { resolveMasterDataIds } from '../../utils/masterDataResolver';
-import { resolveServiceTypes } from '../../utils/serviceTypeResolver';
+} from '@core/services/catalog/CatalogValidationService';
+import { resolveMasterDataIds } from '@core/utils/masterDataResolver';
+import { resolveServiceTypes } from '@core/utils/serviceTypeResolver';
 import {
     createServiceMutation,
     type ServiceBusinessContext,
     updateServiceMutation,
-} from '../../services/service/ServiceMutationService';
+} from '@core/services/service/ServiceMutationService';
 
 const mockedFindServiceForUpdate = findServiceForUpdate as jest.Mock;
 const mockedUpdateServiceByOwner = updateServiceByOwner as jest.Mock;
@@ -62,9 +68,11 @@ const mockedResolveMasterDataIds = resolveMasterDataIds as jest.Mock;
 const mockedResolveServiceTypes = resolveServiceTypes as jest.Mock;
 const mockedGetCategorySelectionMode = getCategorySelectionMode as jest.Mock;
 const mockedValidateServiceCategoryCapability = validateServiceCategoryCapability as jest.Mock;
+const mockedAdOrchestrator = AdOrchestrator as unknown as {
+    createAd: jest.Mock;
+};
 const mockedListingMutationService = ListingMutationService as unknown as {
     processIncomingImages: jest.Mock;
-    executeCreationTransaction: jest.Mock;
     cleanupRemovedImages: jest.Mock;
 };
 
@@ -119,7 +127,7 @@ describe('ServiceMutationService', () => {
         });
 
         expect(mockedResolveServiceTypes).not.toHaveBeenCalled();
-        expect(mockedListingMutationService.executeCreationTransaction).not.toHaveBeenCalled();
+        expect(mockedAdOrchestrator.createAd).not.toHaveBeenCalled();
     });
 
     it('throws BUSINESS_LOCATION_REQUIRED before create transaction when business has no location', async () => {
@@ -140,7 +148,7 @@ describe('ServiceMutationService', () => {
             details: [expect.objectContaining({ field: 'location' })],
         });
 
-        expect(mockedListingMutationService.executeCreationTransaction).not.toHaveBeenCalled();
+        expect(mockedAdOrchestrator.createAd).not.toHaveBeenCalled();
     });
 
     it('throws LOCKED_FIELDS before persistence when immutable service fields are patched', async () => {

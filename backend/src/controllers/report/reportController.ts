@@ -1,11 +1,11 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import type { ReportTargetTypeValue } from '../../models/Report';
-import { respond } from '../../utils/respond';
+import type { ReportTargetTypeValue } from '@core/models/Report';
+import { respond } from "@core/utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
 import {
     checkAdExists,
     checkUserExists,
@@ -13,13 +13,8 @@ import {
     createReport as createReportRecord,
     countActiveReports,
     autoHideAdIfOverThreshold,
-} from '../../services/ReportService';
+} from '@core/services/ReportService';
 
-type ReportRequest = Request & {
-    user?: {
-        _id: string | { toString: () => string };
-    };
-};
 
 const normalizeReason = (reason: string) => reason.trim();
 const REPORTABLE_TARGET_TYPES = new Set<ReportTargetTypeValue>(['ad', 'user', 'business']);
@@ -33,8 +28,7 @@ const normalizeTargetType = (value: unknown): ReportTargetTypeValue | null => {
 
 export const createReport = async (req: Request, res: Response) => {
     try {
-        const reportReq = req as ReportRequest;
-        const user = reportReq.user;
+        const user = req.user;
         if (!user) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }

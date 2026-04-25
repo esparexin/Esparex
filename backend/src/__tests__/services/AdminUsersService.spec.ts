@@ -1,4 +1,4 @@
-jest.mock("../../models/User", () => ({
+jest.mock("@core/models/User", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
@@ -10,7 +10,7 @@ jest.mock("../../models/User", () => ({
     },
 }));
 
-jest.mock("../../models/Admin", () => ({
+jest.mock("@core/models/Admin", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
@@ -22,29 +22,29 @@ jest.mock("../../models/Admin", () => ({
     },
 }));
 
-jest.mock("../../models/Ad", () => ({
+jest.mock("@core/models/Ad", () => ({
     __esModule: true,
     default: {
         aggregate: jest.fn(),
     },
 }));
 
-jest.mock("../../models/AdminMetrics", () => ({
+jest.mock("@core/models/AdminMetrics", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
     },
 }));
 
-jest.mock("../../utils/auth", () => ({
+jest.mock("@core/utils/auth", () => ({
     hashPassword: jest.fn().mockResolvedValue("hashed-pw"),
 }));
 
-import Admin from "../../models/Admin";
+import Admin from "@core/models/Admin";
 import {
     normalizeAdminManagedUser,
     isLastActiveSuperAdmin,
-} from "../../services/AdminUsersService";
+} from "@core/services/AdminUsersService";
 
 const mockAdmin = Admin as unknown as {
     findById: jest.Mock;

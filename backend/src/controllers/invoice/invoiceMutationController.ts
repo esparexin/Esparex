@@ -1,11 +1,11 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
-import { createInvoiceRecord } from '../../services/InvoiceService';
-import { findUserByEmail } from '../../services/UserService';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { respond } from '../../utils/respond';
+import { createInvoiceRecord } from '@core/services/InvoiceService';
+import { findUserByEmail } from '@core/services/UserService';
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { respond } from "@core/utils/respond";
 import { getErrorMessage } from './shared';
-import { generateInvoiceNumber } from '../../utils/invoiceNumber';
+import { generateInvoiceNumber } from '@core/utils/invoiceNumber';
 
 export const createInvoice = async (req: Request, res: Response) => {
     try {

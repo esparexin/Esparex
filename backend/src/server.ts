@@ -1,23 +1,23 @@
 import { initializeDatabaseMonitoring } from './middleware/metricsMiddleware';
-import { startSystemMonitor } from './utils/systemMonitor';
+import { startSystemMonitor } from '@core/utils/systemMonitor';
 import { startTaxonomyHealthCron } from './cron/taxonomyHealth';
 import { startGeoAuditCron } from './cron/geoAudit';
 import { startFraudEscalationCron } from './cron/fraudEscalation';
-import { initIO } from './config/socket';
+import { initIO } from '@core/config/socket';
 import app from './app';
-import { connectDB } from './config/db';
+import { connectDB } from '@core/config/db';
 import mongoose from 'mongoose';
 import { Server } from 'http';
-import logger from './utils/logger';
-import { env } from './config/env';
-import { assertDuplicateRolloutReadiness } from './services/DuplicateRolloutGuard';
-import { startScheduler } from './services/SchedulerBoot';
-import Admin from './models/Admin';
-import { USER_STATUS } from '@shared/enums/userStatus';
+import logger from '@core/utils/logger';
+import { env } from '@core/config/env';
+import { assertDuplicateRolloutReadiness } from '@core/services/DuplicateRolloutGuard';
+import { startScheduler } from '@core/services/SchedulerBoot';
+import Admin from '@core/models/Admin';
+import { USER_STATUS } from '@core/constants/enums/userStatus';
 import { createServer } from 'http';
-import { initializeEventDispatcher } from './events';
-import { validateMetadataHealth } from './utils/startupValidator';
-import { warmAllCaches } from './utils/cacheWarmer';
+import { initializeEventDispatcher } from '@core/events';
+import { validateMetadataHealth } from '@core/utils/startupValidator';
+import { warmAllCaches } from '@core/utils/cacheWarmer';
 
 
 const PORT = env.PORT;
@@ -160,8 +160,8 @@ export async function startServer() {
     }
 }
 
-import { gracefulShutdown } from './utils/shutdownHandler';
-import redisClient from './utils/redisCache';
+import { gracefulShutdown } from '@core/utils/shutdownHandler';
+import redisClient from '@core/utils/redisCache';
 
 /**
  * 🛡️ GRACEFUL SHUTDOWN HANDLER

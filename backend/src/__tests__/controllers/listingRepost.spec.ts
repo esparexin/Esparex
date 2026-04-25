@@ -8,34 +8,34 @@
  *  - 200 with mutateStatus called correctly on success
  */
 
-jest.mock('../../models/Ad', () => ({
+jest.mock('@core/models/Ad', () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
     },
 }));
 
-jest.mock('../../services/StatusMutationService', () => ({
+jest.mock('@core/services/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
-jest.mock('../../utils/errorResponse', () => ({
+jest.mock('@core/utils/errorResponse', () => ({
     sendErrorResponse: jest.fn((req: unknown, res: { status: (n: number) => { json: (v: unknown) => void } }, status: number, msg: string) => {
         res.status(status).json({ error: msg });
     }),
 }));
 
-jest.mock('../../utils/respond', () => ({
+jest.mock('@core/utils/respond', () => ({
     respond: jest.fn((data: unknown) => data),
 }));
 
-jest.mock('../../utils/requestParams', () => ({
+jest.mock('@core/utils/requestParams', () => ({
     getSingleParam: jest.fn((req: { params: Record<string, string> }, _res: unknown, param: string) => req.params[param]),
 }));
 
 import { Request, Response } from 'express';
-import Ad from '../../models/Ad';
-import { mutateStatus } from '../../services/StatusMutationService';
+import Ad from '@core/models/Ad';
+import { mutateStatus } from '@core/services/StatusMutationService';
 import { repostService } from '../../controllers/service/serviceMutationController';
 import { repostSparePartListing } from '../../controllers/sparePartListing/sparePartListingController';
 

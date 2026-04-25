@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { 
     ADMIN_NOTIFICATION_TARGET_TYPE, 
@@ -96,13 +96,13 @@ export function useNotifications() {
         ? (searchParams.get("targetType") as "all" | "topic" | "users")
         : "any";
 
-    const replaceQueryState = (updates: Record<string, string | number | null | undefined>) => {
+    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
         const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
         const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    };
+    }, [pathname, router, searchParams]);
 
     const historyRoute = useMemo(() => {
         const params = new URLSearchParams();
@@ -115,10 +115,10 @@ export function useNotifications() {
         return `${ADMIN_ROUTES.NOTIFICATIONS_HISTORY}${queryStr ? `?${queryStr}` : ""}`;
     }, [historyTargetType, page, q, status]);
 
-    const fetchHistory = async () => {
+    const fetchHistory = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await adminFetch<any>(historyRoute);
+            const response = await adminFetch<unknown>(historyRoute);
             const parsed = parseAdminResponse<NotificationLog>(response);
             setHistory(parsed.items);
             setPagination({
@@ -131,7 +131,7 @@ export function useNotifications() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [historyRoute]);
 
     // ── Effects ────────────────────────────────────────────────────────────────
 
@@ -148,19 +148,19 @@ export function useNotifications() {
             }
         }, 300);
         return () => window.clearTimeout(timer);
-    }, [q, searchInput]);
+    }, [q, searchInput, replaceQueryState]);
 
     // Fetch history on route change
     useEffect(() => {
         void fetchHistory();
-    }, [historyRoute]);
+    }, [historyRoute, fetchHistory]);
 
     // Page existence validation
     useEffect(() => {
         if (!loading && page > pagination.totalPages && pagination.totalPages > 0) {
             replaceQueryState({ page: pagination.totalPages > 1 ? pagination.totalPages : null });
         }
-    }, [loading, page, pagination.totalPages]);
+    }, [loading, page, pagination.totalPages, replaceQueryState]);
 
     // Recipient Search (Debounced)
     useEffect(() => {
@@ -184,7 +184,7 @@ export function useNotifications() {
             setRecipientSearchError("");
             try {
                 const params = new URLSearchParams({ limit: "8", q: query });
-                const response = await adminFetch<any>(`${ADMIN_ROUTES.NOTIFICATIONS_RECIPIENTS}?${params.toString()}`);
+                const response = await adminFetch<unknown>(`${ADMIN_ROUTES.NOTIFICATIONS_RECIPIENTS}?${params.toString()}`);
                 const parsed = parseAdminResponse<Record<string, unknown>>(response);
                 const selectedIds = new Set(selectedUsers.map((user) => user.id));
                 setRecipientResults(

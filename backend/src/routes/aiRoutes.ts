@@ -1,9 +1,9 @@
 import express from 'express';
-import * as aiController from '../controllers/ai';
+import * as aiController from '@core/controllers/ai/aiController';
 import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import { aiGenerateSchema } from '../validators/ai.validator';
+import { aiGenerateSchema } from '@core/validators/ai.validator';
 
 const router = express.Router();
 

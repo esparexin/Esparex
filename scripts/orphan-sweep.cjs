@@ -6,15 +6,18 @@ const path = require('path');
 const ROOT = process.cwd();
 const SCAN_DIRS = [
   'backend/src',
+  'admin-backend/src',
   'frontend/src',
   'admin-frontend/src',
+  'core/src',
   'shared'
 ];
 const PACKAGE_MANIFESTS = [
   { manifest: 'package.json', root: '' },
   { manifest: 'backend/package.json', root: 'backend' },
   { manifest: 'frontend/package.json', root: 'frontend' },
-  { manifest: 'admin-frontend/package.json', root: 'admin-frontend' }
+  { manifest: 'admin-frontend/package.json', root: 'admin-frontend' },
+  { manifest: 'core/package.json', root: 'core' }
 ];
 const SCRIPT_ENTRY_PATTERN = /((?:\.\.\/)?(?:backend\/src|frontend\/src|admin-frontend\/src|shared|src)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs))/g;
 const VALID_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
@@ -31,9 +34,9 @@ const NEVER_AUTO_DELETE_PATTERNS = [
   /[\\/]middleware\.(ts|tsx|js|jsx)$/
 ];
 const ALWAYS_KEEP_PATTERNS = [
-  /^backend\/src\/config\/loadEnv\.ts$/,
-  /^backend\/src\/config\/mongoosePlugins\.ts$/,
-  /^backend\/src\/models\/registry\.ts$/,
+  /^core\/src\/config\/loadEnv\.ts$/,
+  /^core\/src\/config\/mongoosePlugins\.ts$/,
+  /^core\/src\/models\/registry\.ts$/,
   /^backend\/src\/scripts\/restore-database\.ts$/,
   /^backend\/src\/seeds\/(devices\.seed|runSeeds|spareParts\.seed)\.ts$/,
   /^backend\/src\/tests\//,
@@ -80,6 +83,7 @@ const collectFiles = () => {
   };
 
   for (const dir of SCAN_DIRS) walk(path.join(ROOT, dir));
+  console.log(`[DEBUG] Scanned ${files.length} files`);
   return files.sort();
 };
 
@@ -124,6 +128,12 @@ const resolveAlias = (specifier, importer) => {
   if (specifier.startsWith('shared/')) {
     return resolveWithExtensions(path.join(ROOT, specifier));
   }
+  if (specifier === '@core') {
+    return resolveWithExtensions(path.join(ROOT, 'core', 'src', 'index'));
+  }
+  if (specifier.startsWith('@core/')) {
+    return resolveWithExtensions(path.join(ROOT, 'core', 'src', specifier.slice('@core/'.length)));
+  }
   return null;
 };
 
@@ -163,6 +173,10 @@ const buildGraph = (files) => {
       const resolved = resolveImport(specifier, file);
       if (resolved && graph.has(resolved)) {
         graph.get(file).add(resolved);
+      } else if (resolved) {
+        console.log(`[DEBUG] Resolved but not in graph: ${specifier} -> ${resolved} from ${file}`);
+      } else {
+        console.log(`[DEBUG] Failed to resolve: ${specifier} from ${file}`);
       }
     }
   }
@@ -207,13 +221,13 @@ const collectPackageScriptRoots = (files) => {
 };
 
 const isRootFile = (filePath) => {
-  if (filePath === 'backend/src/index.ts') return true;
-  if (filePath === 'backend/src/server.ts') return true;
-  if (filePath === 'backend/src/app.ts') return true;
-  if (filePath === 'backend/src/workers/index.ts') return true;
-  if (filePath === 'backend/src/workers.ts') return true;
-  if (filePath.endsWith('/routes.ts')) return true;
-  return SOURCE_ENTRY_PATTERNS.some((pattern) => pattern.test(filePath));
+  if (filePath.includes('/server.ts') || filePath.includes('/app.ts') || filePath.includes('/index.ts')) return true;
+  if (filePath === 'backend/src/workers/index.ts' || filePath === 'backend/src/workers.ts') return true;
+  if (filePath.endsWith('/routes.ts') || filePath.endsWith('.routes.ts')) return true;
+  if (filePath.startsWith('frontend/src/app/') || filePath.startsWith('admin-frontend/src/app/')) {
+    return SOURCE_ENTRY_PATTERNS.some((pattern) => pattern.test(filePath));
+  }
+  return ALWAYS_KEEP_PATTERNS.some((pattern) => pattern.test(filePath));
 };
 
 const reachableFromRoots = (graph, roots) => {
@@ -232,18 +246,31 @@ const reachableFromRoots = (graph, roots) => {
   return visited;
 };
 
-const classifyTier = (filePath) => {
-  if (isNeverAutoDelete(filePath)) return 'C';
-  if (/^frontend\/src\/(api|context)\//.test(filePath)) return 'B';
-  if (/^admin-frontend\/src\/(lib\/api|context)\//.test(filePath)) return 'B';
-  return 'C';
-};
-
-const isNeverAutoDelete = (filePath) =>
-  NEVER_AUTO_DELETE_PATTERNS.some((pattern) => pattern.test(filePath));
-
 const isAlwaysKeep = (filePath) =>
   ALWAYS_KEEP_PATTERNS.some((pattern) => pattern.test(filePath));
+
+const isNeverAutoDelete = (filePath) => {
+  return isAlwaysKeep(filePath) ||
+         NEVER_AUTO_DELETE_PATTERNS.some((pattern) => pattern.test(filePath)) ||
+         filePath === 'shared/index.ts' ||
+         filePath === 'shared/index.js';
+};
+
+const classifyTier = (filePath) => {
+  if (isNeverAutoDelete(filePath)) return 'C';
+  
+  // Tier B: Likely safe orphans
+  if (filePath.endsWith('.js') && fs.existsSync(path.join(ROOT, filePath.replace(/\.js$/, '.ts')))) return 'B';
+  if (filePath.includes('/_archived/')) return 'B';
+  if (filePath.endsWith('/proxy.ts')) return 'B';
+  if (filePath.includes('/scripts/debug-')) return 'B';
+  if (filePath.includes('/scripts/seed-')) return 'B';
+  
+  if (/^frontend\/src\/(api|context)\//.test(filePath)) return 'B';
+  if (/^admin-frontend\/src\/(lib\/api|context)\//.test(filePath)) return 'B';
+  
+  return 'C';
+};
 
 const main = () => {
   const generatedAt = new Date().toISOString();
@@ -304,6 +331,19 @@ const main = () => {
   fs.writeFileSync(reportOutput, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
   fs.writeFileSync(safeOutput, `${JSON.stringify(safe, null, 2)}\n`, 'utf8');
 
+  const commit = process.argv.includes('--commit');
+  let deletedCount = 0;
+
+  if (commit) {
+    for (const filePath of safeDeleteCandidates) {
+      const absPath = path.join(ROOT, filePath);
+      if (fs.existsSync(absPath)) {
+        fs.unlinkSync(absPath);
+        deletedCount++;
+      }
+    }
+  }
+
   console.log(JSON.stringify({
     report: reportOutput,
     safeCandidates: safeOutput,
@@ -312,7 +352,9 @@ const main = () => {
     orphanCount: report.orphanCount,
     tierA: safe.totals.tierA,
     tierB: safe.totals.tierB,
-    tierC: safe.totals.tierC
+    tierC: safe.totals.tierC,
+    commit,
+    deletedCount
   }, null, 2));
 };
 

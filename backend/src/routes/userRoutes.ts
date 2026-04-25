@@ -5,9 +5,9 @@ import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
-import { deleteAccountSchema, updateUserProfileSchema } from '../validators/user.validator';
-import { saveAdSchema, savedAdParamSchema, getSavedAdsQuerySchema } from '../validators/savedAd.validator';
-import { createUploadMiddleware } from '../utils/uploadFactory';
+import { deleteAccountSchema, updateUserProfileSchema } from '@core/validators/user.validator';
+import { saveAdSchema, savedAdParamSchema, getSavedAdsQuerySchema } from '@core/validators/savedAd.validator';
+import { createUploadMiddleware } from '@core/utils/uploadFactory';
 import * as walletController from '../controllers/wallet';
 import * as boostController from '../controllers/boost';
 

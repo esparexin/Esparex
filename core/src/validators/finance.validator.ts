@@ -1,0 +1,120 @@
+import { z } from 'zod';
+import mongoose from 'mongoose';
+import { PAYMENT_STATUS } from '@core/constants/enums/paymentStatus';
+import { commonSchemas } from './common';
+
+const objectIdSchema = z.string().refine(v => mongoose.isValidObjectId(v), 'Invalid ObjectId format');
+const paymentStatusSchema = z.enum([
+    PAYMENT_STATUS.PENDING,
+    PAYMENT_STATUS.SUCCESS,
+    PAYMENT_STATUS.FAILED,
+    PAYMENT_STATUS.CANCELLED,
+]);
+const adminInvoiceStatusFilterSchema = z.enum([
+    'all',
+    PAYMENT_STATUS.PENDING,
+    PAYMENT_STATUS.SUCCESS,
+    PAYMENT_STATUS.FAILED,
+    PAYMENT_STATUS.CANCELLED,
+]);
+const adminTransactionStatusFilterSchema = z.enum([
+    'all',
+    PAYMENT_STATUS.INITIATED,
+    PAYMENT_STATUS.SUCCESS,
+    PAYMENT_STATUS.FAILED,
+]);
+const adminPlanTypeFilterSchema = z.enum(['all', 'AD_PACK', 'SPOTLIGHT', 'SMART_ALERT']);
+const LEGACY_FINANCE_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in admin finance filters. Use `q` instead.';
+
+const hasOwn = (value: unknown, key: string): boolean =>
+    Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, key));
+
+const rejectLegacyFinanceSearchAlias = (raw: unknown) => {
+    if (!hasOwn(raw, 'search')) return;
+
+    throw new z.ZodError([
+        {
+            code: z.ZodIssueCode.custom,
+            path: ['search'],
+            message: LEGACY_FINANCE_SEARCH_ALIAS_MESSAGE,
+        },
+    ]);
+};
+
+const invoiceItemSchema = z.object({
+    description: z.string().trim().min(1).max(500),
+    quantity: z.number().positive(),
+    unitPrice: z.number().min(0)
+});
+
+export const createInvoiceSchema = z.object({
+    customerName: z.string().trim().min(1).max(255),
+    customerEmail: z.string().email(),
+    customerGst: z.string().trim().max(50).optional(),
+    items: z.array(invoiceItemSchema).min(1),
+    isGstInvoice: z.boolean().optional(),
+    currency: z.string().trim().length(3).optional()
+}).strict();
+
+export const createPaymentOrderSchema = z.object({
+    planId: objectIdSchema
+}).strict();
+
+const adminTransactionQuerySchemaBase = z.object({
+    page: z.coerce.number().int().min(1).optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    ...commonSchemas.search.shape,
+    status: adminTransactionStatusFilterSchema.optional(),
+    startDate: z.string().trim().max(50).optional(),
+    endDate: z.string().trim().max(50).optional(),
+}).strict();
+
+export const adminTransactionQuerySchema = z.preprocess((raw) => {
+    rejectLegacyFinanceSearchAlias(raw);
+    return raw;
+}, adminTransactionQuerySchemaBase);
+
+const adminInvoiceQuerySchemaBase = z.object({
+    page: z.coerce.number().int().min(1).optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    ...commonSchemas.search.shape,
+    status: adminInvoiceStatusFilterSchema.optional(),
+}).strict();
+
+export const adminInvoiceQuerySchema = z.preprocess((raw) => {
+    rejectLegacyFinanceSearchAlias(raw);
+    return raw;
+}, adminInvoiceQuerySchemaBase);
+
+export const adminCreateInvoiceSchema = z.object({
+    customerEmail: z.string().email(),
+    planId: objectIdSchema.optional(),
+    amount: z.number().min(0).optional(),
+    currency: z.string().trim().length(3).optional(),
+    items: z.array(invoiceItemSchema).min(1).optional(),
+    isGstInvoice: z.boolean().optional(),
+    status: paymentStatusSchema.optional(),
+}).strict().superRefine((value, ctx) => {
+    if (!value.planId && (!value.items || value.items.length === 0)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['items'],
+            message: 'Either planId or at least one item is required',
+        });
+    }
+});
+
+export const adminUpdateInvoiceStatusSchema = z.object({
+    status: paymentStatusSchema,
+    notes: z.string().trim().max(500).optional(),
+}).strict();
+
+const adminPlanQuerySchemaBase = z.object({
+    ...commonSchemas.search.shape,
+    type: adminPlanTypeFilterSchema.optional(),
+}).strict();
+
+export const adminPlanQuerySchema = z.preprocess((raw) => {
+    rejectLegacyFinanceSearchAlias(raw);
+    return raw;
+}, adminPlanQuerySchemaBase);

@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import type { Request, Response } from "express";
 
-jest.mock("../../models/Admin", () => ({
+jest.mock("@core/models/Admin", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
@@ -9,18 +9,18 @@ jest.mock("../../models/Admin", () => ({
     },
 }));
 
-jest.mock("../../utils/systemConfigHelper", () => ({
+jest.mock("@core/utils/systemConfigHelper", () => ({
     __esModule: true,
     getSystemConfigDoc: jest.fn().mockResolvedValue({}),
 }));
 
-jest.mock("../../utils/cookieHelper", () => ({
+jest.mock("@core/utils/cookieHelper", () => ({
     __esModule: true,
     getAdminCookieOptions: jest.fn(() => ({ path: "/api/v1/admin" })),
     getAuthCookieOptions: jest.fn(() => ({ path: "/" })),
 }));
 
-jest.mock("../../utils/auth", () => ({
+jest.mock("@core/utils/auth", () => ({
     __esModule: true,
     comparePassword: jest.fn().mockResolvedValue(true),
     generateAdminToken: jest.fn(() => "jwt_admin_token"),
@@ -34,7 +34,7 @@ jest.mock("../../utils/auth", () => ({
     })),
 }));
 
-jest.mock("../../services/AdminSessionService", () => ({
+jest.mock("@core/services/AdminSessionService", () => ({
     __esModule: true,
     createAdminSession: jest.fn().mockResolvedValue(undefined),
     revokeAdminSession: jest.fn().mockResolvedValue(undefined),
@@ -42,19 +42,19 @@ jest.mock("../../services/AdminSessionService", () => ({
     getAdminSessionTtlMs: jest.fn(() => 8 * 60 * 60 * 1000),
 }));
 
-jest.mock("../../services/EmailService", () => ({
+jest.mock("@core/services/EmailService", () => ({
     __esModule: true,
     emailService: {
         sendEmail: jest.fn().mockResolvedValue(true),
     },
 }));
 
-jest.mock("../../utils/adminLogger", () => ({
+jest.mock("@core/utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@shared/enums/userStatus", () => ({
+jest.mock("@core/constants/enums/userStatus", () => ({
     __esModule: true,
     USER_STATUS: {
         LIVE: "live",
@@ -67,9 +67,9 @@ jest.mock("@shared/enums/userStatus", () => ({
     USER_STATUS_VALUES: ["live", "active", "suspended", "banned", "deleted", "inactive"]
 }), { virtual: true });
 
-import Admin from "../../models/Admin";
-import { createAdminSession, revokeAdminSessionsForAdmin } from "../../services/AdminSessionService";
-import { adminLogin, resetPassword } from "../../controllers/admin/system/adminAuthController";
+import Admin from "@core/models/Admin";
+import { createAdminSession, revokeAdminSessionsForAdmin } from "@core/services/AdminSessionService";
+import { adminLogin, resetPassword } from "../../../../admin-backend/src/controllers/admin/system/adminAuthController";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {

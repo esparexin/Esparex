@@ -24,11 +24,11 @@ describe("firebaseAdmin", () => {
             __esModule: true,
             default: mockAdmin,
         }));
-        jest.doMock("../../utils/logger", () => ({
+        jest.doMock("@core/utils/logger", () => ({
             __esModule: true,
             default: mockLogger,
         }));
-        jest.doMock("../../config/env", () => ({
+        jest.doMock("@core/config/env", () => ({
             __esModule: true,
             env: {
                 NODE_ENV: envOverrides.NODE_ENV ?? "development",
@@ -38,7 +38,7 @@ describe("firebaseAdmin", () => {
         }));
 
         // eslint-disable-next-line @typescript-eslint/no-require-imports -- resetModules requires a fresh module load.
-        const firebaseAdmin = require("../../config/firebaseAdmin").default;
+        const firebaseAdmin = require("@core/config/firebaseAdmin").default;
 
         return {
             firebaseAdmin,

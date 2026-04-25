@@ -20,7 +20,7 @@ const moderationNormalizerFile = path.join(
   "moderation",
   "normalizeModerationAd.ts"
 );
-const adModelFile = path.join(repoRoot, "backend", "src", "models", "Ad.ts");
+const adModelFile = path.join(repoRoot, "core", "src", "models", "Ad.ts");
 
 const failures = [];
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { UserPlus, Power, Trash2, Save, XCircle } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
@@ -54,49 +54,49 @@ export default function AdminUsersPage() {
     
     const isPermissionsView = searchParams.get("view") === "permissions";
 
-    const onCreate = async (values: AdminCreateUserFormValues) => {
+    const onCreate = useCallback(async (values: AdminCreateUserFormValues) => {
         const result = await handleCreate(values);
         if (result?.success) {
             setShowCreateForm(false);
         }
-    };
+    }, [handleCreate]);
 
-    const onStartEdit = (admin: ManagedAdmin) => {
+    const onStartEdit = useCallback((admin: ManagedAdmin) => {
         setEditingAdminId(admin.id);
         setEditingAdmin(admin);
         setPermissionsDraft(admin.permissions.join(", "));
         setShowCreateForm(false);
-    };
+    }, []);
 
-    const onCancelEdit = () => {
+    const onCancelEdit = useCallback(() => {
         setEditingAdminId(null);
         setEditingAdmin(null);
         setPermissionsDraft("");
-    };
+    }, []);
 
-    const onSaveEdit = async (values: AdminEditUserFormValues) => {
+    const onSaveEdit = useCallback(async (values: AdminEditUserFormValues) => {
         if (!editingAdminId) return;
         const result = await handleUpdate(editingAdminId, values);
         if (result?.success) {
             onCancelEdit();
         }
-    };
+    }, [editingAdminId, handleUpdate, onCancelEdit]);
 
-    const confirmDelete = (id: string) => {
+    const confirmDelete = useCallback((id: string) => {
         setDeletingAdminId(id);
-    };
+    }, []);
 
-    const onConfirmDelete = async () => {
+    const onConfirmDelete = useCallback(async () => {
         if (!deletingAdminId) return;
         const result = await handleDelete(deletingAdminId);
         if (result?.success) {
             setDeletingAdminId(null);
         }
-    };
+    }, [deletingAdminId, handleDelete]);
 
-    const onToggleStatus = async (admin: ManagedAdmin) => {
+    const onToggleStatus = useCallback(async (admin: ManagedAdmin) => {
         await handleToggleStatus(admin.id);
-    };
+    }, [handleToggleStatus]);
 
     const permissionsColumns: ColumnDef<ManagedAdmin>[] = useMemo(
         () => [
@@ -162,7 +162,7 @@ export default function AdminUsersPage() {
                 ),
             },
         ],
-        [editingAdmin, editingAdminId, isMutating, permissionsDraft]
+        [editingAdmin, editingAdminId, isMutating, permissionsDraft, onSaveEdit, onCancelEdit, onStartEdit]
     );
 
     const columns: ColumnDef<ManagedAdmin>[] = useMemo(
@@ -219,7 +219,7 @@ export default function AdminUsersPage() {
                 ),
             },
         ],
-        [isMutating]
+        [isMutating, onToggleStatus, onStartEdit, confirmDelete]
     );
 
     const deletingAdmin = admins.find(a => a.id === deletingAdminId);

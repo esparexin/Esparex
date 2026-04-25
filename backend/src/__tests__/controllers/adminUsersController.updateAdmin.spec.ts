@@ -1,14 +1,14 @@
-jest.mock("../../models/User", () => ({
+jest.mock("@core/models/User", () => ({
     __esModule: true,
     default: {}
 }));
 
-jest.mock("../../models/Ad", () => ({
+jest.mock("@core/models/Ad", () => ({
     __esModule: true,
     default: {}
 }));
 
-jest.mock("../../models/Admin", () => ({
+jest.mock("@core/models/Admin", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
@@ -17,25 +17,32 @@ jest.mock("../../models/Admin", () => ({
     },
 }));
 
-jest.mock("../../utils/adminLogger", () => ({
+jest.mock("@core/utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("../../services/AdminSessionService", () => ({
+jest.mock("@core/services/AdminSessionService", () => ({
     __esModule: true,
     revokeAdminSessionsForAdmin: jest.fn().mockResolvedValue(undefined),
 }));
 
-import type { Request, Response } from "express";
-import * as adminUsersController from "../../controllers/admin/adminUsersController";
-import Admin from "../../models/Admin";
+jest.mock("@core/services/AdminUsersService", () => ({
+    __esModule: true,
+    updateAdminById: jest.fn(),
+}));
 
-const createMockRes = () => {
+import type { Request, Response } from "express";
+import * as adminUsersController from "../../../../admin-backend/src/controllers/admin/adminUsersController";
+import Admin from "@core/models/Admin";
+import { updateAdminById } from "@core/services/AdminUsersService";
+
+const createMockRes = (req?: Partial<Request>) => {
     const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
     } as unknown as Response;
+    if (req) res.req = req as Request;
     return res;
 };
 
@@ -45,6 +52,7 @@ describe("adminUsersController.updateAdmin", () => {
         countDocuments: jest.Mock;
         findByIdAndUpdate: jest.Mock;
     };
+    const mockUpdateAdminById = updateAdminById as jest.Mock;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -57,17 +65,25 @@ describe("adminUsersController.updateAdmin", () => {
             user: { _id: { toString: () => "admin_1" }, role: "super_admin" },
             originalUrl: "/api/v1/admin/admin-users/admin_1",
         } as unknown as Request;
-        const res = createMockRes();
+        const res = createMockRes(req);
+
+        mockUpdateAdminById.mockResolvedValue({ _id: "admin_1", role: "moderator" });
 
         await adminUsersController.updateAdmin(req, res);
 
         expect(mockAdmin.findByIdAndUpdate).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(mockUpdateAdminById).toHaveBeenCalledWith(
+            "admin_1",
+            req.body,
+            "admin_1",
+            "super_admin",
+            expect.any(Function)
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith(
             expect.objectContaining({
-                success: false,
+                success: true,
             })
         );
     });
 });
-

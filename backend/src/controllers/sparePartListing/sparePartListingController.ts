@@ -1,27 +1,27 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { generateUniqueSparePartSlug } from '../../services/SparePartListingService';
-import { findCategoryById } from '../../services/catalog/CatalogCategoryService';
-import { findSparePartById } from '../../services/catalog/CatalogSparePartService';
-import { sendErrorResponse as sendContractErrorResponse } from '../../utils/errorResponse';
-import { processImages } from '../../utils/imageProcessor';
+import { generateUniqueSparePartSlug } from '@core/services/SparePartListingService';
+import { findCategoryById } from '@core/services/catalog/CatalogCategoryService';
+import { findSparePartById } from '@core/services/catalog/CatalogSparePartService';
+import { sendErrorResponse as sendContractErrorResponse } from "@core/utils/errorResponse";
+import { processImages } from '@core/utils/imageProcessor';
 import { INVENTORY_STATUS } from '../../../../shared/enums/inventoryStatus';
 import { AD_STATUS } from '../../../../shared/enums/adStatus';
-import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
+import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
 import { LISTING_TYPE } from '../../../../shared/enums/listingType';
 import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from '../../../../shared/schemas/sparePartPayload.schema';
-import { getAds } from '../../services/ad/AdAggregationService';
-import { mutateStatus } from '../../services/StatusMutationService';
+import { getAds } from '@core/services/ad/AdAggregationService';
+import { mutateStatus } from '@core/services/StatusMutationService';
 import { ACTOR_TYPE } from '../../../../shared/enums/actor';
-import type { IAuthUser } from '../../types/auth';
-import { respond } from '../../utils/respond';
-import { getSingleParam } from '../../utils/requestParams';
+import type { AuthUser } from '../../types/auth.types';
+import { respond } from "@core/utils/respond";
+import { getSingleParam } from '@core/utils/requestParams';
 import type { PaginatedResponse } from '../../../../shared/types/Api';
-import { ListingMutationService } from '../../services/ListingMutationService';
-import { saveSparePartListing } from '../../services/SparePartListingService';
+import * as AdOrchestrator from '@core/services/AdOrchestrator';
+import { saveSparePartListing } from '@core/services/SparePartListingService';
 
-import { normalizeImageTokens, toImageUrls } from '../../utils/listingUtils';
-import { collectImmutableFieldErrors } from '../../utils/immutableFieldErrors';
+import { normalizeImageTokens, toImageUrls } from '@core/utils/listingUtils';
+import { collectImmutableFieldErrors } from '@core/utils/immutableFieldErrors';
 // ---------------------------------------------
 
 const SPARE_PART_EDIT_LOCK_MESSAGES: Record<string, string> = {
@@ -60,7 +60,7 @@ const sparePartListingUpdateSchema = PartialSparePartPayloadSchema.pick({
  */
 export const createSparePartListing = async (req: Request, res: Response) => {
     try {
-        const userId = req.user?._id;
+        const userId = (req.user)?._id;
         const businessId = req.business?._id;
 
         if (!userId || !businessId) {
@@ -107,48 +107,34 @@ export const createSparePartListing = async (req: Request, res: Response) => {
         if (!category) return sendContractErrorResponse(req, res, 404, 'Category not found');
         if (!type) return sendContractErrorResponse(req, res, 404, 'Spare Part not found');
 
-        // Generate listing ID upfront for consistent S3 folder path
-        const listingId = new mongoose.Types.ObjectId();
-        const seoSlug = await generateUniqueSparePartSlug(title);
-
-        // Upload images to S3 — external operation, must run BEFORE the transaction
-        const incomingImages = normalizeImageTokens(images ?? []);
-        const processedImageUrls = incomingImages.length > 0
-            ? toImageUrls(await processImages(incomingImages, `spare-part-listings/${listingId.toString()}`))
-            : [];
-        if (incomingImages.length > 0 && processedImageUrls.length === 0) {
-            return sendContractErrorResponse(req, res, 502, 'Image upload failed. Please retry.');
-        }
-
-        // 🛡️ SEC: Atomic slot reservation + create executed via Unified Service
-        const listing = await ListingMutationService.executeCreationTransaction({
-            userId: userId.toString(),
-            listingType: LISTING_TYPE.SPARE_PART,
-            listingId: listingId.toString(),
-            adDoc: {
-                _id: listingId,
+        const ad = await AdOrchestrator.createAd(
+            {
+                ...(req.body as Record<string, unknown>),
                 listingType: LISTING_TYPE.SPARE_PART,
-                categoryId,
                 sparePartId,
                 brandId,
                 title,
                 description,
                 price,
-                images: processedImageUrls,
-                sellerId: userId,
+                images,
                 sellerType: 'business',
-                businessId, // Linked to businessId field in Ad model
+                businessId,
                 location: {
-                    locationId
+                    locationId,
                 },
-                status: INVENTORY_STATUS.PENDING,
-                seoSlug
+            },
+            {
+                actor: 'USER',
+                authUserId: userId.toString(),
+                sellerId: userId.toString(),
+                ip: req.ip,
+                deviceFingerprint: req.headers['x-device-fingerprint'] as string,
             }
-        });
+        );
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
-            data: listing,
+            data: ad,
             message: 'Spare part listing created successfully. Pending moderation.'
         });
     } catch {
@@ -269,7 +255,7 @@ export const updateSparePartListing = async (req: Request, res: Response) => {
                     domain: 'spare_part_listing',
                     entityId: listing._id,
                     toStatus: INVENTORY_STATUS.PENDING,
-                    actor: { type: ACTOR_TYPE.USER, id: (req.user as IAuthUser)?._id?.toString() },
+                    actor: { type: ACTOR_TYPE.USER, id: (req.user as AuthUser)?._id?.toString() },
                     reason: 'Seller edited listing — re-review required'
                 });
             } catch {
@@ -321,7 +307,7 @@ export const deactivateSparePartListing = async (req: Request, res: Response) =>
             domain: 'spare_part_listing',
             entityId: listingId,
             toStatus: 'deactivated',
-            actor: { type: ACTOR_TYPE.USER, id: (req.user as IAuthUser)?._id?.toString() },
+            actor: { type: ACTOR_TYPE.USER, id: (req.user as AuthUser)?._id?.toString() },
             reason: 'Deactivated by seller',
         });
 
@@ -355,7 +341,7 @@ export const repostSparePartListing = async (req: Request, res: Response) => {
             domain: 'spare_part_listing',
             entityId: listingId,
             toStatus: AD_STATUS.PENDING,
-            actor: { type: ACTOR_TYPE.USER, id: (req.user as IAuthUser)?._id?.toString() },
+            actor: { type: ACTOR_TYPE.USER, id: (req.user as AuthUser)?._id?.toString() },
             reason: 'Reposted by seller for review',
             metadata: { action: 'repost' },
         });

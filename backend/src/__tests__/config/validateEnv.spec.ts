@@ -2,10 +2,10 @@ import {
     validateProductionEnvOrThrow,
     validateS3BucketEnvAliasOrThrow,
     validateS3RuntimeEnvOrThrow
-} from '../../config/validateEnv';
-import bootstrapLogger from '../../utils/bootstrapLogger';
+} from '@core/config/validateEnv';
+import bootstrapLogger from '@core/utils/bootstrapLogger';
 
-jest.mock('../../utils/bootstrapLogger', () => ({
+jest.mock('@core/utils/bootstrapLogger', () => ({
     warn: jest.fn(),
     info: jest.fn(),
     error: jest.fn(),

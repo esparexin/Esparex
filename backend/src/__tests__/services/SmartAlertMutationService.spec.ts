@@ -1,8 +1,8 @@
-jest.mock('../../services/PlanEngine', () => ({
+jest.mock('@core/services/PlanEngine', () => ({
     calculateUserPlan: jest.fn(),
 }));
 
-jest.mock('../../services/PlanService', () => ({
+jest.mock('@core/services/PlanService', () => ({
     UserPlanModel: {
         find: jest.fn(),
     },
@@ -11,7 +11,7 @@ jest.mock('../../services/PlanService', () => ({
     },
 }));
 
-jest.mock('../../services/WalletService', () => ({
+jest.mock('@core/services/WalletService', () => ({
     consumeCredit: jest.fn(),
     credit: jest.fn(),
     WalletModel: {
@@ -19,7 +19,7 @@ jest.mock('../../services/WalletService', () => ({
     },
 }));
 
-jest.mock('../../services/SmartAlertService', () => ({
+jest.mock('@core/services/SmartAlertService', () => ({
     SmartAlertModel: {
         countDocuments: jest.fn(),
         create: jest.fn(),
@@ -28,30 +28,30 @@ jest.mock('../../services/SmartAlertService', () => ({
     },
 }));
 
-jest.mock('../../utils/masterDataResolver', () => ({
+jest.mock('@core/utils/masterDataResolver', () => ({
     resolveMasterDataIds: jest.fn(),
 }));
 
-jest.mock('../../services/location/LocationNormalizer', () => ({
+jest.mock('@core/services/location/LocationNormalizer', () => ({
     normalizeCoordinates: jest.fn(),
     normalizeLocation: jest.fn(),
 }));
 
 import mongoose from 'mongoose';
-import { calculateUserPlan } from '../../services/PlanEngine';
-import { PlanModel, UserPlanModel } from '../../services/PlanService';
-import { consumeCredit, credit, WalletModel } from '../../services/WalletService';
-import { SmartAlertModel } from '../../services/SmartAlertService';
-import { resolveMasterDataIds } from '../../utils/masterDataResolver';
+import { calculateUserPlan } from '@core/services/PlanEngine';
+import { PlanModel, UserPlanModel } from '@core/services/PlanService';
+import { consumeCredit, credit, WalletModel } from '@core/services/WalletService';
+import { SmartAlertModel } from '@core/services/SmartAlertService';
+import { resolveMasterDataIds } from '@core/utils/masterDataResolver';
 import {
     normalizeCoordinates,
     normalizeLocation,
-} from '../../services/location/LocationNormalizer';
+} from '@core/services/location/LocationNormalizer';
 import {
     createSmartAlertMutation,
     deleteSmartAlertMutation,
     toggleSmartAlertStatusMutation,
-} from '../../services/smartAlert/SmartAlertMutationService';
+} from '@core/services/smartAlert/SmartAlertMutationService';
 
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;
 const mockedUserPlanFind = UserPlanModel.find as jest.Mock;

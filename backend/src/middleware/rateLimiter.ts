@@ -1,9 +1,9 @@
 import rateLimit, { type Store } from 'express-rate-limit';
 import RedisStore, { type RedisReply } from 'rate-limit-redis';
-import redisClient from '../config/redis';
+import redisClient from '@core/config/redis';
 import { Request, Response } from 'express';
-import logger from '../utils/logger';
-import { env } from '../config/env';
+import logger from '@core/utils/logger';
+import { env } from '@core/config/env';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedisStore =
@@ -240,7 +240,7 @@ export const adminLimiter = createLimiter({
     // consume each other's quota. Falls back to IP if no admin identity yet
     // (e.g. during the very first /me or /csrf-token call).
     keyGenerator: (req: Request) => {
-        const admin = req.admin as unknown as { id?: string; _id?: { toString(): string } | string } | undefined;
+        const admin = req.admin as unknown as { id?: string; _id?: { toString(): string } | string } | undefined | undefined;
         const adminId = admin?.id ?? admin?._id?.toString();
         return adminId || req.ip || 'unknown';
     }
@@ -253,7 +253,7 @@ export const adminMutationLimiter = createLimiter({
     max: resolvedAdminMutationLimiterMax,
     keyPrefix: 'admin:mutation:',
     keyGenerator: (req: Request) => {
-        const userId = req.user?.id || String(req.user?._id || '');
+        const userId = req.user?._id ? String(req.user._id) : '';
         return userId || req.ip || 'unknown';
     }
 });
@@ -272,13 +272,13 @@ export const phoneRevealLimiter = [
         windowMs: 1 * 60 * 1000, // 1 minute
         max: 10,
         keyPrefix: 'phone:reveal:min:',
-        keyGenerator: (req: Request) => (req.user?._id ? String(req.user._id) : undefined) ?? req.ip ?? 'unknown'
+        keyGenerator: (req: Request) => ((req.user)?._id ? String((req.user)?._id) : undefined) ?? req.ip ?? 'unknown'
     }),
     createLimiter({
         windowMs: 60 * 60 * 1000, // 1 hour
         max: 50,
         keyPrefix: 'phone:reveal:hour:',
-        keyGenerator: (req: Request) => (req.user?._id ? String(req.user._id) : undefined) ?? req.ip ?? 'unknown'
+        keyGenerator: (req: Request) => ((req.user)?._id ? String((req.user)?._id) : undefined) ?? req.ip ?? 'unknown'
     })
 ];
 
@@ -335,7 +335,7 @@ export const chatSendLimiter = createLimiter({
     max: env.NODE_ENV === 'production' ? 20 : 200,
     keyPrefix: 'chat:send:',
     keyGenerator: (req: Request) => {
-        const userId = req.user?._id ? String(req.user._id) : undefined;
+        const userId = (req.user)?._id ? String((req.user)?._id) : undefined;
         return userId ?? req.ip ?? 'unknown';
     }
 });
@@ -346,7 +346,7 @@ export const chatStartLimiter = createLimiter({
     max: env.NODE_ENV === 'production' ? 10 : 100,
     keyPrefix: 'chat:start:',
     keyGenerator: (req: Request) => {
-        const userId = req.user?._id ? String(req.user._id) : undefined;
+        const userId = (req.user)?._id ? String((req.user)?._id) : undefined;
         return userId ?? req.ip ?? 'unknown';
     }
 });
@@ -357,7 +357,7 @@ export const chatReportLimiter = createLimiter({
     max: env.NODE_ENV === 'production' ? 3 : 30,
     keyPrefix: 'chat:report:',
     keyGenerator: (req: Request) => {
-        const userId = req.user?._id ? String(req.user._id) : undefined;
+        const userId = (req.user)?._id ? String((req.user)?._id) : undefined;
         return userId ?? req.ip ?? 'unknown';
     }
 });

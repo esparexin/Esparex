@@ -11,6 +11,7 @@ export interface StepData {
     currentLocationPincode: string;
     currentLocationCountry: string;
     coordinates: GeoJSONPoint | null;
+    isSnapped?: boolean;
     // Contact
     contactNumber: string;
     email: string;

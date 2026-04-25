@@ -4,7 +4,7 @@ import {
     createBusinessSchema,
     publicBusinessQuerySchema,
     updateBusinessSchema,
-} from "../../validators/business.validator";
+} from "@core/validators/business.validator";
 
 const issueMessages = (result: { success: false; error?: { issues: Array<{ message: string }> } }) =>
     result.error?.issues.map((issue) => issue.message).join(" ") || "";

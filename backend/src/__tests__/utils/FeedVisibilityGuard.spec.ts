@@ -3,7 +3,7 @@ import {
     assertFeedSafetyFilter,
     HIDDEN_MODERATION_STATUSES,
     isPublicAdVisible,
-} from '../../utils/FeedVisibilityGuard';
+} from '@core/utils/FeedVisibilityGuard';
 
 describe('FeedVisibilityGuard', () => {
     describe('HIDDEN_MODERATION_STATUSES', () => {

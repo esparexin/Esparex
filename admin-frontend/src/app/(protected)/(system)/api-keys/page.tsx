@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { useToast } from "@/context/ToastContext";
 import type { ApiKeyItem } from "@/types/adminSession";
-import { Plus, ShieldCheck, Loader2 } from "lucide-react";
+import { Plus, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { AdminInlineAlert } from "@/components/ui/AdminInlineAlert";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { useApiKeys } from "@/hooks/useApiKeys";
 
@@ -160,7 +159,11 @@ export default function ApiKeysPage() {
                     ]}
                 />
 
-                <AdminInlineAlert message={error} />
+                {error && (
+                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">
+                        <AlertCircle size={16} /> {error}
+                    </div>
+                )}
 
                 <DataTable
                     data={apiKeys}

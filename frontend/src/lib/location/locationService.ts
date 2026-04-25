@@ -42,6 +42,7 @@ function buildAppLocation(params: {
     locationId?: string;
     name?: string;
     level?: AppLocation["level"];
+    isSnapped?: boolean;
 }): AppLocation {
     const source = params.source ?? "manual";
     const city = params.city || DEFAULT_APP_LOCATION.city;
@@ -70,6 +71,7 @@ function buildAppLocation(params: {
         coordinates: params.coordinates,
         detectedAt: now,
         isAuto: source === "auto",
+        isSnapped: params.isSnapped,
     };
 }
 
@@ -138,6 +140,8 @@ export function normalizeToAppLocation(
             ? rawLocation.level
             : undefined;
 
+    const isSnapped = typeof rawLocation.isSnapped === "boolean" ? rawLocation.isSnapped : undefined;
+
     return buildAppLocation({
         formattedAddress,
         city,
@@ -148,6 +152,7 @@ export function normalizeToAppLocation(
         source,
         locationId,
         level,
+        isSnapped,
         name:
             (typeof rawLocation.name === "string" && rawLocation.name) || city,
     });

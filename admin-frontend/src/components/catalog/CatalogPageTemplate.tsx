@@ -29,8 +29,8 @@ export interface CatalogPageTemplateProps<TItem extends { id: string }, TFormDat
     };
     setPage: (page: number) => void;
     
-    handleCreate: (data: TFormData) => Promise<boolean | any>;
-    handleUpdate: (id: string, data: TFormData | any) => Promise<boolean | any>;
+    handleCreate: (data: TFormData) => Promise<boolean>;
+    handleUpdate: (id: string, data: TFormData) => Promise<boolean>;
     
     generateColumns: (openEditModal: (item: TItem) => void) => ColumnDef<TItem>[];
     filtersRenderer: React.ReactNode;
@@ -38,7 +38,7 @@ export interface CatalogPageTemplateProps<TItem extends { id: string }, TFormDat
     csvFileName: string;
     
     defaultFormData: TFormData;
-    validationSchema?: z.ZodType<any, any>;
+    validationSchema?: z.ZodSchema;
     formRenderer: (
         formData: TFormData,
         setFormData: React.Dispatch<React.SetStateAction<TFormData>>,

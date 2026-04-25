@@ -1,4 +1,4 @@
-import { getIndexAuditTargets } from "../../core/db/indexAuditTargets";
+import { getIndexAuditTargets } from "@core/db/indexAuditTargets";
 
 describe("getIndexAuditTargets", () => {
     it("deduplicates a shared connection when user and admin databases are unified", () => {

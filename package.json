@@ -9,6 +9,8 @@
   },
   "workspaces": [
     "backend",
+    "admin-backend",
+    "core",
     "frontend",
     "admin-frontend",
     "shared",
@@ -18,8 +20,9 @@
     "prepare": "bash scripts/install-git-hooks.sh",
     "hooks:install": "bash scripts/install-git-hooks.sh",
     "clean:workspace-installs": "rm -rf backend/node_modules frontend/node_modules admin-frontend/node_modules shared/node_modules",
-    "build": "npm run build -w backend && npm run build -w frontend && npm run build -w admin-frontend",
-    "type-check": "npm run type-check -w backend && npm run type-check -w frontend && npm run type-check -w admin-frontend",
+    "build": "npm run build -w core && npm run build -w backend && npm run build -w admin-backend && npm run build -w frontend && npm run build -w admin-frontend",
+    "type-check": "npm run type-check -w @esparex/shared && npm run type-check -w core && npm run type-check -w backend && npm run type-check -w admin-backend && npm run type-check -w frontend && npm run type-check -w admin-frontend",
+    "dev:all": "concurrently \"npm run dev -w backend\" \"npm run dev -w admin-backend\"",
     "lint:no-api-string-literals": "node scripts/enforce-no-api-string-literals.js",
     "guard:component-api-boundary": "node scripts/enforce-component-api-boundary.js",
     "guard:compatibility-markers": "node scripts/enforce-compatibility-markers-baseline.js",
@@ -61,6 +64,12 @@
   },
   "devDependencies": {
     "@types/validator": "^13.15.10",
-    "madge": "^8.0.0"
+    "concurrently": "^9.2.1",
+    "madge": "^8.0.0",
+    "pm2": "^6.0.14",
+    "tsc-alias": "^1.8.16"
+  },
+  "dependencies": {
+    "module-alias": "^2.3.4"
   }
 }

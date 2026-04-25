@@ -5,10 +5,10 @@ import { protect } from '../middleware/authMiddleware';
 import { otpIpLimiter, otpSendLimiter, otpVerifyLimiter } from '../middleware/rateLimiter';
 import { otpConfigurationCheck } from '../middleware/otpGuard';
 import { fraudMiddleware } from '../middleware/fraudMiddleware';
-import logger from '../utils/logger';
+import logger from '@core/utils/logger';
 
 import { validateRequest } from '../middleware/validateRequest';
-import { loginSchema, verifyOtpSchema } from '../validators/auth.validator';
+import { loginSchema, verifyOtpSchema } from '@core/validators/auth.validator';
 
 const router = express.Router();
 

@@ -1,0 +1,55 @@
+import { Schema, Model, Types, Document } from 'mongoose';
+import { getUserConnection } from '@core/config/db';
+import { applyToJSONTransform } from '@core/utils/schemaOptions';
+
+export interface ISavedSearch extends Document {
+    userId: Types.ObjectId;
+    query?: string;
+    categoryId?: Types.ObjectId;
+    locationId?: Types.ObjectId;
+    priceMin?: number;
+    priceMax?: number;
+    coordinates?: {
+        type: 'Point';
+        coordinates: [number, number]; // [lng, lat]
+    };
+    radiusKm?: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const SavedSearchSchema = new Schema<ISavedSearch>(
+    {
+        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        query: { type: String, trim: true, maxlength: 120 },
+        categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
+        locationId: { type: Schema.Types.ObjectId, ref: 'Location' },
+        priceMin: { type: Number, min: 0 },
+        priceMax: { type: Number, min: 0 },
+        coordinates: {
+            type: { type: String, enum: ['Point'], default: 'Point' },
+            coordinates: { type: [Number] }
+        },
+        radiusKm: { type: Number, min: 0, max: 500 },
+    },
+    { timestamps: true }
+);
+
+/* -------------------------------------------------------------------------- */
+/* Indexes (Explicitly Named)                                                 */
+/* -------------------------------------------------------------------------- */
+
+SavedSearchSchema.index({ userId: 1 }, { name: 'idx_savedsearch_userId_idx' });
+SavedSearchSchema.index({ categoryId: 1 }, { name: 'idx_savedsearch_categoryId_idx' });
+SavedSearchSchema.index({ locationId: 1 }, { name: 'idx_savedsearch_locationId_idx' });
+SavedSearchSchema.index({ userId: 1, createdAt: -1 }, { name: 'idx_savedsearch_user_freshness_idx' });
+SavedSearchSchema.index({ 'coordinates.coordinates': '2dsphere' }, { name: 'idx_savedsearch_coordinates_2dsphere', sparse: true });
+
+applyToJSONTransform(SavedSearchSchema);
+
+const connection = getUserConnection();
+const SavedSearch: Model<ISavedSearch> =
+    (connection.models.SavedSearch as Model<ISavedSearch>) ||
+    connection.model<ISavedSearch>('SavedSearch', SavedSearchSchema);
+
+export default SavedSearch;

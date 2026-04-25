@@ -5,19 +5,19 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import * as AdAggregationService from '../../services/ad/AdAggregationService';
-import * as AdMutationService from '../../services/AdMutationService';
-import * as adStatusService from '../../services/adStatusService';
-import * as AdEngagementService from '../../services/AdEngagementService';
-import * as adImageService from '../../services/AdImageService';
+import * as AdAggregationService from '@core/services/ad/AdAggregationService';
+import * as AdMutationService from '@core/services/AdMutationService';
+import * as adStatusService from '@core/services/adStatusService';
+import * as AdEngagementService from '@core/services/AdEngagementService';
+import * as adImageService from '@core/services/AdImageService';
 
-import { respond } from '../../utils/respond';
-import { getSingleParam } from '../../utils/requestParams';
+import { respond } from "@core/utils/respond";
+import { getSingleParam } from '@core/utils/requestParams';
 import { Ad } from '../../../../shared/schemas/ad.schema';
 import { ApiResponse, PaginatedResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { IAuthUser } from '../../types/auth';
-import { validateTransition } from '../../services/LifecycleGuard';
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import type { AuthUser } from '../../types/auth.types';
+import { validateTransition } from '@core/services/LifecycleGuard';
 import { type ListingTypeValue } from '../../../../shared/enums/listingType';
 
 const sendClientError = (
@@ -62,7 +62,7 @@ export const getMyAds = async (req: Request, res: Response, next: NextFunction) 
 
         const result = await AdAggregationService.getAds(
             {
-                sellerId: (req.user as IAuthUser)._id.toString(),
+                sellerId: (req.user as AuthUser)._id.toString(),
                 status: req.query.status ? (req.query.status as string) : undefined,
                 listingType,
             },
@@ -95,14 +95,14 @@ export const markAsSold = async (req: Request, res: Response, next: NextFunction
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
 
-        const adToCheck = await AdMutationService.assertOwnership(id, (req.user as IAuthUser)._id.toString());
+        const adToCheck = await AdMutationService.assertOwnership(id, (req.user as AuthUser)._id.toString());
         validateTransition('ad', adToCheck.status, 'sold');
 
         const ad = await adStatusService.updateAdStatus(id, 'sold', {
             soldReason: (req.body as { soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available' }).soldReason,
             reason: 'Marked as sold by seller',
             actorType: 'user',
-            actorId: (req.user as IAuthUser)._id.toString()
+            actorId: (req.user as AuthUser)._id.toString()
         });
 
         const response = respond<ApiResponse<Ad>>({
@@ -290,7 +290,7 @@ const MIME_TO_EXT: Record<string, string> = {
  */
 export const getUploadPresignedUrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = req.user as IAuthUser;
+        const user = req.user as AuthUser;
         const { contentType, folder = 'ads', adId } = req.body as {
             contentType?: string;
             folder?: string;
@@ -316,7 +316,7 @@ export const getUploadPresignedUrl = async (req: Request, res: Response, next: N
         const keyPrefix = adId ? `${normalizedFolder}/${adId}` : `${normalizedFolder}/${userId}`;
         const key = `${keyPrefix}/${timestamp}-${random}.${ext}`;
 
-        const { generatePresignedUploadUrl } = await import('../../utils/s3');
+        const { generatePresignedUploadUrl } = await import('@core/utils/s3');
         const result = await generatePresignedUploadUrl(key, contentType);
 
         res.json(respond({

@@ -6,7 +6,7 @@
 import {
     serializeModerationListing,
     serializeModerationListResponse,
-} from '../../controllers/admin/listingModerationSerializer';
+} from '../../../../admin-backend/src/controllers/admin/listingModerationSerializer';
 
 // ─── throwContractError (via serializeModerationListing) ─────────────────────
 

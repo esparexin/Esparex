@@ -110,7 +110,7 @@ Canonical runtime ownership:
 - Controller: `backend/src/controllers/ai/aiController.ts`
 - Validation: `backend/src/validators/ai.validator.ts`
 - Service and prompts: `backend/src/services/AiService.ts`
-- Runtime settings model: `backend/src/models/SystemConfig.ts`
+- Runtime settings model: `core/src/models/SystemConfig.ts`
 - Admin runtime settings UI: `admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx`
 
 Current runtime provider normalization:

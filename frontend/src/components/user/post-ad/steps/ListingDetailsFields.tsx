@@ -23,6 +23,8 @@ import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import type { ListingLocation } from "@/types/listing";
 import type { GeoJSONPoint } from "@/types/location";
 
+type SnappedLocation = Location & { formattedAddress?: string; isSnapped?: boolean };
+
 const getNestedFieldMeta = (source: unknown, path: string): unknown =>
     path.split(".").reduce<unknown>((current, segment) => {
         if (!current || typeof current !== "object") return undefined;
@@ -34,13 +36,15 @@ const buildLocationValue = (
     city: string,
     state: string | undefined,
     coordinates?: GeoJSONPoint,
-    locationId?: string
+    locationId?: string,
+    isSnapped?: boolean
 ): NonNullable<PostAdFormData["location"]> => ({
     city,
     state,
     display,
     locationId,
     coordinates,
+    isSnapped,
 });
 
 export default function ListingDetailsFields() {
@@ -79,7 +83,8 @@ export default function ListingDetailsFields() {
         formattedAddress: locFormattedAddress,
         name: locName,
         locationId: locLocationId,
-    } = globalLocation ?? {};
+        isSnapped: locIsSnapped,
+    } = (globalLocation ?? {}) as Partial<SnappedLocation>;
 
     // One-shot guard: ensures the auto-sync runs at most once per component
     // lifetime even if the primitives above happen to produce a new identity.
@@ -88,7 +93,11 @@ export default function ListingDetailsFields() {
     const handleSelectLocation = useCallback((loc: Location | null) => {
         // Clear path — called when user clicks "Change" in LocationSelector
         if (!loc) {
-            setValue("location", undefined as any, { shouldValidate: false, shouldDirty: true, shouldTouch: true });
+            setValue("location", undefined as unknown as PostAdFormData["location"], {
+                shouldValidate: false,
+                shouldDirty: true,
+                shouldTouch: true
+            });
             setContextLocation("", null, {});
             setUserHasInteracted(false);
             return;
@@ -117,7 +126,9 @@ export default function ListingDetailsFields() {
             id: canonicalLocationId 
         });
 
-        setValue("location", buildLocationValue(display, city, loc.state, geo, canonicalLocationId), {
+        const isSnapped = (loc as SnappedLocation).isSnapped;
+
+        setValue("location", buildLocationValue(display, city, loc.state, geo, canonicalLocationId, isSnapped), {
             shouldValidate: true,
             shouldDirty: true,
             shouldTouch: true,
@@ -153,7 +164,7 @@ export default function ListingDetailsFields() {
 
         setValue(
             "location",
-            buildLocationValue(display, locCity || "", locState, locCoordinates, canonicalLocationId),
+            buildLocationValue(display, locCity || "", locState, locCoordinates, canonicalLocationId, locIsSnapped),
             { shouldValidate: true, shouldDirty: false }
         );
     }, [
@@ -165,6 +176,7 @@ export default function ListingDetailsFields() {
         locFormattedAddress,
         locName,
         locLocationId,
+        locIsSnapped,
         setContextLocation,
         setValue,
         userHasInteracted,

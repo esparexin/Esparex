@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const repoRoot = path.resolve(__dirname, "..");
-const adminRoutesDir = path.join(repoRoot, "backend", "src", "routes", "admin");
+const adminRoutesDir = path.join(repoRoot, "admin-backend", "src", "routes", "admin");
 const moderationRoutesFile = path.join(adminRoutesDir, "moderation.routes.ts");
 
 const forbiddenModerationPathPattern =
@@ -23,7 +23,7 @@ const requiredCanonicalPaths = [
 
 function main() {
   if (!fs.existsSync(moderationRoutesFile)) {
-    console.error("❌ Missing moderation routes file: backend/src/routes/admin/moderation.routes.ts");
+    console.error("❌ Missing moderation routes file: admin-backend/src/routes/admin/moderation.routes.ts");
     process.exit(1);
   }
 
@@ -70,7 +70,7 @@ function main() {
     console.error(`- ${violation.file}${lineRef} ${violation.source}`);
   }
   console.error("\n[HINT] All listing moderation actions (approve, reject, deactivate, etc.)");
-  console.error("MUST be defined within 'backend/src/routes/admin/moderation.routes.ts'.");
+  console.error("MUST be defined within 'admin-backend/src/routes/admin/moderation.routes.ts'.");
   console.error("1. Move forbidden route definitions to the moderation router.");
   console.error("2. Ensure all required canonical paths are present in moderation.routes.ts.\n");
   process.exit(1);

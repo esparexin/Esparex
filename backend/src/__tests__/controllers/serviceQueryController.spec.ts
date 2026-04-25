@@ -1,11 +1,11 @@
-jest.mock("../../services/ad/AdAggregationService", () => ({
+jest.mock("@core/services/ad/AdAggregationService", () => ({
     __esModule: true,
     getAds: jest.fn(),
 }));
 
 import type { Request, Response } from "express";
 import { getServices } from "../../controllers/service/serviceQueryController";
-import * as AdAggregationService from "../../services/ad/AdAggregationService";
+import * as AdAggregationService from "@core/services/ad/AdAggregationService";
 
 describe("serviceQueryController location filters regression", () => {
     beforeEach(() => {

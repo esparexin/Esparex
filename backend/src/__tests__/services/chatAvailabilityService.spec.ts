@@ -1,14 +1,14 @@
-jest.mock('../../models/Conversation', () => ({
+jest.mock('@core/models/Conversation', () => ({
   Conversation: {
     updateMany: jest.fn(),
   },
 }));
 
-import { Conversation } from '../../models/Conversation';
+import { Conversation } from '@core/models/Conversation';
 import {
   isListingChatClosed,
   syncConversationAvailabilityForListing,
-} from '../../services/chatAvailabilityService';
+} from '@core/services/chatAvailabilityService';
 
 const mockedConversation = Conversation as unknown as {
   updateMany: jest.Mock;

@@ -141,3 +141,5 @@ frontend/test-results/
 
 # Temporary build scripts
 frontend/android/app/new*.sh
+backend/lint_output*.txt
+scratch/

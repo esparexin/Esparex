@@ -1,23 +1,23 @@
-jest.mock('../../models/Conversation', () => ({
+jest.mock('@core/models/Conversation', () => ({
   Conversation: {
     find: jest.fn(),
     countDocuments: jest.fn(),
   },
 }));
 
-jest.mock('../../models/ChatMessage', () => ({
+jest.mock('@core/models/ChatMessage', () => ({
   ChatMessage: {
     distinct: jest.fn(),
   },
 }));
 
-jest.mock('../../models/ChatReport', () => ({
+jest.mock('@core/models/ChatReport', () => ({
   ChatReport: {
     distinct: jest.fn(),
   },
 }));
 
-jest.mock('../../models/Ad', () => ({
+jest.mock('@core/models/Ad', () => ({
   __esModule: true,
   default: {
     find: jest.fn(),
@@ -25,18 +25,18 @@ jest.mock('../../models/Ad', () => ({
   },
 }));
 
-jest.mock('../../models/User', () => ({
+jest.mock('@core/models/User', () => ({
   User: {
     find: jest.fn(),
   },
 }));
 
-import { Conversation } from '../../models/Conversation';
-import { ChatMessage } from '../../models/ChatMessage';
-import { ChatReport } from '../../models/ChatReport';
-import Ad from '../../models/Ad';
-import { User } from '../../models/User';
-import { adminListConversations } from '../../services/chatService';
+import { Conversation } from '@core/models/Conversation';
+import { ChatMessage } from '@core/models/ChatMessage';
+import { ChatReport } from '@core/models/ChatReport';
+import Ad from '@core/models/Ad';
+import { User } from '@core/models/User';
+import { adminListConversations } from '@core/services/chatService';
 
 const mockedConversation = Conversation as unknown as {
   find: jest.Mock;

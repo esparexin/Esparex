@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import { SparePartModel } from "../models/SparePart";
-import Category from "../models/Category";
+import { SparePartModel } from "@core/models/SparePart";
+import Category from "@core/models/Category";
 import slugify from "slugify";
-import logger from '../utils/logger';
-import { escapeRegExp } from '../utils/stringUtils';
+import logger from '@core/utils/logger';
+import { escapeRegExp } from '@core/utils/stringUtils';
 import { LISTING_TYPE } from "../../../shared/enums/listingType";
 
 type SparePartSeed = {

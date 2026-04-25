@@ -2,21 +2,21 @@ import express, { Request, Response, NextFunction } from "express";
 import * as adController from "../controllers/ad";
 import * as listingController from "../controllers/listing/listingController";
 import { protect, extractUser } from "../middleware/authMiddleware";
-import { validateSearchParams } from "../validators/securityValidators";
+import { validateSearchParams } from "../middleware/securityValidators";
 import { mutationLimiter, searchLimiter, adPostLimiter } from "../middleware/rateLimiter";
 import { validateObjectId } from "../middleware/validateObjectId";
 import { validateRequest } from "../middleware/validateRequest";
 import { enforceCreateAdIdempotency } from "../middleware/idempotency";
 import { fraudMiddleware } from "../middleware/fraudMiddleware";
-import { createAdSchema, updateAdSchema } from "../validators/ad.validator";
+import { createAdSchema, updateAdSchema } from "@core/validators/ad.validator";
 import type { ZodTypeAny } from "zod";
 
 import { duplicateCooldownMiddleware } from "../middleware/duplicateCooldownMiddleware";
-import { createListingValidator } from "../validators/listing.validator";
+import { createListingValidator } from "../middleware/listing.validator";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/requireVerifiedBusiness";
 import { requireListingType } from "../middleware/requireListingType";
 import { LISTING_TYPE } from "../../../shared/enums/listingType";
-import { sendErrorResponse } from "../utils/errorResponse";
+import { sendErrorResponse } from "@core/utils/errorResponse";
 
 const router = express.Router();
 const LEGACY_AD_OWNER_ALIAS_CODE = "LEGACY_AD_USER_ID_ALIAS_REMOVED";

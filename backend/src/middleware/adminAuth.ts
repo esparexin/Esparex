@@ -1,14 +1,13 @@
-
 import { Request, Response, NextFunction } from 'express';
-import Admin, { type IAdmin } from '../models/Admin';
-import { getAdminCookieOptions } from '../utils/cookieHelper';
-import { verifyAdminToken } from '../utils/auth';
-import type { IAuthUser } from '../types/auth';
-import { sendErrorResponse } from '../utils/errorResponse';
-import { Role } from '@shared/enums/roles';
-import { getAdminSessionTtlMs, validateAdminSession } from '../services/AdminSessionService';
-import { USER_STATUS } from '@shared/enums/userStatus';
-import { normalizeAdminPermission, roleGrantsPermission } from '../constants/adminPermissions';
+import Admin, { type IAdmin } from '@core/models/Admin';
+import { getAdminCookieOptions } from '@core/utils/cookieHelper';
+import { verifyAdminToken } from '@core/utils/auth';
+import type { AuthUser } from '../types/auth.types';
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { Role } from '@core/constants/enums/roles';
+import { getAdminSessionTtlMs, validateAdminSession } from '@core/services/AdminSessionService';
+import { USER_STATUS } from '@core/constants/enums/userStatus';
+import { normalizeAdminPermission, roleGrantsPermission } from '@core/constants/adminPermissions';
 
 const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
     const cookieToken = req.cookies?.admin_token as string | undefined;
@@ -71,15 +70,11 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 
         req.admin = admin;
 
-        const adminUser: IAuthUser = {
-            _id: admin._id,
-            id: admin._id?.toString(),
+        const adminUser: AuthUser = {
+            _id: admin._id?.toString() || decoded.id,
             role: admin.role || 'admin',
             isAdmin: true,
-            permissions: admin.permissions,
-            firstName: admin.firstName,
-            lastName: admin.lastName,
-            email: admin.email
+            permissions: admin.permissions
         };
 
         // Populate req.user for downstream middleware compatibility
@@ -100,7 +95,8 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 
 export const requireSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
     // req.user is already populated by requireAdmin
-    const userRole = req.user?.role;
+    const user = req.user;
+    const userRole = user?.role;
 
     if (userRole !== Role.SUPER_ADMIN) {
         return sendErrorResponse(req, res, 403, 'Super Admin access required');
@@ -110,7 +106,8 @@ export const requireSuperAdmin = (req: Request, res: Response, next: NextFunctio
 
 export const requireRole = (roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        const userRole = req.user?.role;
+        const user = req.user;
+        const userRole = user?.role;
         if (!userRole) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
@@ -125,13 +122,13 @@ export const requirePermission = (permission: string) => {
     return (req: Request, res: Response, next: NextFunction) => {
         // req.user is populated by requireAdmin
         const user = req.user;
-
         if (!user) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
 
         // Super Admin has all permissions
-        if ((user.role as Role) === Role.SUPER_ADMIN) {
+        const userRole = String(user.role);
+        if (userRole === String(Role.SUPER_ADMIN)) {
             return next();
         }
 
@@ -144,7 +141,7 @@ export const requirePermission = (permission: string) => {
             permissions.includes(permission) ||
             permissions.includes('*') ||
             permissions.includes('all') ||
-            roleGrantsPermission(user.role, normalizedPermission);
+            roleGrantsPermission(userRole, normalizedPermission);
 
         if (!hasPermission) {
             return sendErrorResponse(req, res, 403, 'Forbidden', {

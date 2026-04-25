@@ -32,7 +32,8 @@
       "@shared/*": [
         "../shared/*"
       ]
-    }
+    },
+    "customConditions": []
   },
   "include": [
     "next-env.d.ts",

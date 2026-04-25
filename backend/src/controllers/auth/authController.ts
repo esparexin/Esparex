@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from '../../services/AuthService';
-import { removeUserFcmToken } from '../../services/UserService';
-import { blacklistToken } from '../../utils/redisCache';
-import { verifyToken } from '../../utils/auth';
-import { sendSuccessResponse } from '../../utils/respond';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { SendOtpResult, VerifyOtpResult } from '../../services/AuthService';
-import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../../utils/cookieHelper';
+import { AuthService } from '@core/services/AuthService';
+import { removeUserFcmToken } from '@core/services/UserService';
+import { blacklistToken } from '@core/utils/redisCache';
+import { verifyToken } from '@core/utils/auth';
+import { sendSuccessResponse } from "@core/utils/respond";
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { SendOtpResult, VerifyOtpResult } from '@core/services/AuthService';
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@core/utils/cookieHelper';
 
 export class AuthController {
     private static sendAuthFailure(req: Request, res: Response, result: SendOtpResult | VerifyOtpResult) {
@@ -108,8 +108,8 @@ export class AuthController {
             }
 
             const { fcmToken } = (req.body ?? {}) as { fcmToken?: string };
-            if (fcmToken && req.user?._id) {
-                await removeUserFcmToken(req.user._id, fcmToken);
+            if (fcmToken && (req.user)?._id) {
+                await removeUserFcmToken((req.user)._id, fcmToken);
             }
 
             res.clearCookie('esparex_auth', getLegacyHostOnlyAuthCookieOptions(0));

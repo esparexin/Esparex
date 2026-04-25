@@ -1,9 +1,9 @@
-import logger from '../../utils/logger';
+import logger from '@core/utils/logger';
 import { Request, Response } from 'express';
-import { findContentBySlug, upsertContentBySlug, getAllContent as fetchAllContent } from '../../services/PageContentService';
-import { getSingleParam } from '../../utils/requestParams';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { respond } from '../../utils/respond';
+import { findContentBySlug, upsertContentBySlug, getAllContent as fetchAllContent } from '@core/services/PageContentService';
+import { getSingleParam } from '@core/utils/requestParams';
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { respond } from "@core/utils/respond";
 
 /**
  * EditorialContentController

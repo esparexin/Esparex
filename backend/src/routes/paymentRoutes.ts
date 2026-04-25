@@ -1,14 +1,14 @@
 import express from 'express';
 import * as paymentController from '../controllers/payment';
 import { protect } from '../middleware/authMiddleware';
-import { paymentWebhook } from '../controllers/admin/paymentWebhook';
+import { paymentWebhook } from '@core/controllers/admin/paymentWebhook';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { paymentRateLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import * as Validators from '../validators/finance.validator';
+import * as Validators from '@core/validators/finance.validator';
 
 import { verifyPaymentWebhook } from '../middleware/verifyPaymentWebhook';
-import { env } from '../config/env';
+import { env } from '@core/config/env';
 
 if (env.NODE_ENV === 'production') {
     const missing = (['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'] as const)

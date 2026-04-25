@@ -2,7 +2,7 @@ import { AD_STATUS } from '../../../../shared/enums/adStatus';
 import {
     isValidLifecycleTransition,
     validateTransition
-} from '../../services/LifecycleGuard';
+} from '@core/services/LifecycleGuard';
 
 describe('LifecycleGuard', () => {
     it('allows only the approved transitions', () => {

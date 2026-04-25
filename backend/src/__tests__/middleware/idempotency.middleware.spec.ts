@@ -2,9 +2,9 @@ import type { Request, Response } from 'express';
 import { createHash } from 'crypto';
 import mongoose from 'mongoose';
 import { enforceCreateAdIdempotency, enforceCreateServiceIdempotency } from '../../middleware/idempotency';
-import IdempotencyRequest from '../../models/IdempotencyRequest';
+import IdempotencyRequest from '@core/models/IdempotencyRequest';
 
-jest.mock('../../models/IdempotencyRequest', () => ({
+jest.mock('@core/models/IdempotencyRequest', () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),

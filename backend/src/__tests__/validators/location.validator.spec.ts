@@ -1,7 +1,7 @@
 import {
     adminLocationListQuerySchema,
     logLocationEventSchema,
-} from "../../validators/location.validator";
+} from "@core/validators/location.validator";
 
 describe("location.validator", () => {
     it("accepts shared location event payloads with canonical objectId location references", () => {

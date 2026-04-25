@@ -59,6 +59,7 @@ export const applyDetectedCurrentLocation = ({
         currentLocationPincode: detectedLocation.pincode || previous.currentLocationPincode,
         currentLocationCountry: detectedLocation.country || previous.currentLocationCountry,
         coordinates: normalizedCoordinates || null,
+        isSnapped: detectedLocation.isSnapped,
     }));
 };
 
@@ -266,9 +267,11 @@ export function StepAddress({
                     placeholder="No location detected yet"
                     helperText={
                         hasCurrentLocation
-                            ? isGenericCapturedLocation(normalizedDetectedDisplay)
-                                ? "Current coordinates recorded. Our location database could not name this spot yet, but you can continue with the full address."
-                                : "GPS location recorded. This proof is required for business registration."
+                            ? formData.isSnapped
+                                ? "Approximate city center recorded. You must provide your precise street address below."
+                                : isGenericCapturedLocation(normalizedDetectedDisplay)
+                                    ? "Current coordinates recorded. Our location database could not name this spot yet, but you can continue with the full address."
+                                    : "GPS location recorded. This proof is required for business registration."
                             : "Required. Tap the location button to record your current GPS position."
                     }
                     error={currentLocationError}
@@ -277,6 +280,11 @@ export function StepAddress({
                             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-foreground-secondary">
                                 Required
                             </span>
+                            {formData.isSnapped ? (
+                                <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
+                                    Approximate
+                                </span>
+                            ) : null}
                             {sourceLabel ? (
                                 <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-link-dark">
                                     {sourceLabel}

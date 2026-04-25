@@ -1,4 +1,4 @@
-import { verifyOtpSchema, loginSchema } from '../../validators/auth.validator';
+import { verifyOtpSchema, loginSchema } from '@core/validators/auth.validator';
 
 describe('Auth Validation Schemas', () => {
     

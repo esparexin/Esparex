@@ -1,4 +1,4 @@
-import { getUsersQuerySchema, updateUserProfileSchema } from "../../validators/user.validator";
+import { getUsersQuerySchema, updateUserProfileSchema } from "@core/validators/user.validator";
 
 describe("getUsersQuerySchema", () => {
     it("accepts canonical admin user filters", () => {

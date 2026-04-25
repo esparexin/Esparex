@@ -44,6 +44,7 @@ export interface AppLocation extends Partial<Pick<SharedLocation, "locationId" |
     coordinates?: GeoJSONPoint;
     detectedAt?: number;
     isAuto?: boolean;
+    isSnapped?: boolean;
 }
 
 export const DEFAULT_APP_LOCATION: AppLocation = {

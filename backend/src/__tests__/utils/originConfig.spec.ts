@@ -2,7 +2,7 @@ import {
     getAllowedOriginList,
     inferCookieDomainFromEnv,
     requiresSharedCookieDomain,
-} from '../../utils/originConfig';
+} from '@core/utils/originConfig';
 
 describe('originConfig', () => {
     it('infers the shared cookie domain from split-subdomain first-party origins', () => {

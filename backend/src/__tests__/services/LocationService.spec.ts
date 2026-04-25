@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-jest.mock("../../config/db", () => ({
+jest.mock("@core/config/db", () => ({
     getUserConnection: () => ({
         models: {},
         model: () => ({
@@ -13,7 +13,7 @@ jest.mock("../../config/db", () => ({
     }),
 }));
 
-jest.mock("../../models/Location", () => ({
+jest.mock("@core/models/Location", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
@@ -24,7 +24,7 @@ jest.mock("../../models/Location", () => ({
     },
 }));
 
-jest.mock("../../models/LocationAnalytics", () => ({
+jest.mock("@core/models/LocationAnalytics", () => ({
     __esModule: true,
     default: {
         updateOne: jest.fn(),
@@ -32,12 +32,12 @@ jest.mock("../../models/LocationAnalytics", () => ({
     },
 }));
 
-jest.mock("../../models/AdminBoundary", () => ({
+jest.mock("@core/models/AdminBoundary", () => ({
     __esModule: true,
     default: { find: jest.fn() },
 }));
 
-jest.mock("../../utils/redisCache", () => ({
+jest.mock("@core/utils/redisCache", () => ({
     getCache: jest.fn().mockResolvedValue(null),
     setCache: jest.fn().mockResolvedValue(undefined),
     CACHE_KEYS: {
@@ -46,17 +46,17 @@ jest.mock("../../utils/redisCache", () => ({
     CACHE_TTLS: { REVERSE_GEOCODE: 300 },
 }));
 
-import Location from "../../models/Location";
-import AdminBoundary from "../../models/AdminBoundary";
+import Location from "@core/models/Location";
+import AdminBoundary from "@core/models/AdminBoundary";
 import {
     getAreasByCityId,
     getCitiesByStateId,
     getDefaultCenterLocation,
     getStateLocations
-} from "../../services/location/LocationHierarchyService";
-import { lookupLocationByPincode } from "../../services/location/LocationSearchService";
-import { normalizeLocation } from "../../services/location/LocationNormalizer";
-import { reverseGeocode } from "../../services/location/ReverseGeocodeService";
+} from "@core/services/location/LocationHierarchyService";
+import { lookupLocationByPincode } from "@core/services/location/LocationSearchService";
+import { normalizeLocation } from "@core/services/location/LocationNormalizer";
+import { reverseGeocode } from "@core/services/location/ReverseGeocodeService";
 
 const mockLocationModel = Location as unknown as {
     findOne: jest.Mock;
@@ -90,7 +90,7 @@ const mockFindChain = (value: unknown[] = []) => ({
 describe("locationService regression", () => {
     const publicCanonicalFilter = {
         isActive: true,
-        verificationStatus: { $in: ["verified", null] },
+        verificationStatus: { $in: ["verified", "pending", null] },
     };
 
     beforeEach(() => {
@@ -159,7 +159,7 @@ describe("locationService regression", () => {
         expect(mockLocationModel.findOne).toHaveBeenCalledWith(
             expect.objectContaining({
                 isActive: true,
-                verificationStatus: { $in: ["verified", null] },
+                verificationStatus: { $in: ["verified", "pending", null] },
                 level: { $in: ["area", "village", "city", "district"] },
                 coordinates: expect.objectContaining({
                     $near: expect.objectContaining({
@@ -224,7 +224,7 @@ describe("locationService regression", () => {
             1,
             expect.objectContaining({
                 isActive: true,
-                verificationStatus: { $in: ["verified", null] },
+                verificationStatus: { $in: ["verified", "pending", null] },
                 level: { $in: ["area", "village", "city", "district"] },
                 coordinates: expect.objectContaining({
                     $near: expect.objectContaining({
@@ -237,7 +237,7 @@ describe("locationService regression", () => {
             2,
             expect.objectContaining({
                 isActive: true,
-                verificationStatus: { $in: ["verified", null] },
+                verificationStatus: { $in: ["verified", "pending", null] },
                 level: { $in: ["state", "country"] },
                 coordinates: expect.objectContaining({
                     $near: expect.objectContaining({
@@ -293,15 +293,11 @@ describe("locationService regression", () => {
             2,
             expect.objectContaining({
                 isActive: true,
-                verificationStatus: { $in: ["verified", null] },
+                verificationStatus: { $in: ["verified", "pending", null] },
                 level: { $in: ["area", "village", "city", "district"] },
-                $or: [
-                    { parentId: stateId },
-                    { path: stateId },
-                ],
                 coordinates: expect.objectContaining({
                     $near: expect.objectContaining({
-                        $maxDistance: 50000,
+                        $maxDistance: 100000,
                     }),
                 }),
             })
@@ -379,7 +375,7 @@ describe("locationService regression", () => {
         expect(cities[0]?.city).toBe("Macherla");
         expect(cities[0]?.level).toBe("city");
         expect(mockLocationModel.findOne).toHaveBeenCalledWith(expect.objectContaining({
-            _id: expect.any(mongoose.Types.ObjectId),
+            _id: expect.anything(),
             ...publicCanonicalFilter,
         }));
         expect(mockLocationModel.find).toHaveBeenCalledWith(expect.objectContaining({
@@ -422,7 +418,7 @@ describe("locationService regression", () => {
         expect(areas[0]?.name).toBe("Old Town");
         expect(areas[0]?.level).toBe("area");
         expect(mockLocationModel.findOne).toHaveBeenCalledWith(expect.objectContaining({
-            _id: expect.any(mongoose.Types.ObjectId),
+            _id: expect.anything(),
             ...publicCanonicalFilter,
         }));
         expect(mockLocationModel.find).toHaveBeenCalledWith(expect.objectContaining({

@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { respond } from '../../utils/respond';
+import { respond } from "@core/utils/respond";
 import { ApiResponse } from '../../../../shared/types/Api';
-import { sendErrorResponse } from '../../utils/errorResponse';
-import { AppError } from '../../utils/AppError';
+import { sendErrorResponse } from "@core/utils/errorResponse";
+import { AppError } from '@core/utils/AppError';
 import {
     getErrorMessage,
     getRequiredAlertId,
@@ -13,7 +13,7 @@ import {
     deleteSmartAlertMutation,
     toggleSmartAlertStatusMutation,
     updateSmartAlertMutation,
-} from '../../services/smartAlert/SmartAlertMutationService';
+} from '@core/services/smartAlert/SmartAlertMutationService';
 
 const sendSmartAlertError = (req: Request, res: Response, error: unknown) => {
     const appError = error instanceof AppError ? error : null;
@@ -26,7 +26,7 @@ const sendSmartAlertError = (req: Request, res: Response, error: unknown) => {
 export const createSmartAlert = async (req: Request, res: Response) => {
     try {
         const alert = await createSmartAlertMutation({
-            user: req.user,
+            user: req.user as unknown as import("@core/types/auth").IAuthUser,
             body: req.body as Record<string, unknown>,
         });
 
@@ -43,7 +43,7 @@ export const updateSmartAlert = async (req: Request, res: Response) => {
     try {
         const alert = await updateSmartAlertMutation({
             alertId: getRequiredAlertId(req),
-            user: req.user,
+            user: req.user as unknown as import("@core/types/auth").IAuthUser,
             body: req.body as Record<string, unknown>,
         });
 
@@ -61,7 +61,7 @@ export const deleteSmartAlert = async (req: Request, res: Response) => {
     try {
         const result = await deleteSmartAlertMutation({
             alertId: getRequiredAlertId(req),
-            user: req.user,
+            user: req.user as unknown as import("@core/types/auth").IAuthUser,
             admin: req.admin as { id?: string; _id?: string } | undefined,
         });
 
@@ -79,7 +79,7 @@ export const toggleSmartAlertStatus = async (req: Request, res: Response) => {
     try {
         const alert = await toggleSmartAlertStatusMutation({
             alertId: getRequiredAlertId(req),
-            user: req.user,
+            user: req.user as unknown as import("@core/types/auth").IAuthUser,
         });
 
         res.json(respond<ApiResponse<unknown>>({

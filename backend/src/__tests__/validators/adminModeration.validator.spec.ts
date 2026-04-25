@@ -1,7 +1,7 @@
 import {
     adminModerationListingsQuerySchema,
     adminReportedAdsQuerySchema,
-} from "../../validators/adminModeration.validator";
+} from "@core/validators/adminModeration.validator";
 
 describe("adminModerationListingsQuerySchema", () => {
     it("accepts canonical moderation query filters", () => {

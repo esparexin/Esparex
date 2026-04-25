@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 
@@ -22,7 +22,7 @@ export function useAdminStatusFilteredList<T>({
     const [error, setError] = useState("");
     const [statusFilter, setStatusFilter] = useState(initialStatus);
 
-    const refresh = async () => {
+    const refresh = useCallback(async () => {
         setLoading(true);
 
         try {
@@ -41,11 +41,11 @@ export function useAdminStatusFilteredList<T>({
         } finally {
             setLoading(false);
         }
-    };
+    }, [statusFilter, limit, route, normalizeItem, errorMessage]);
 
     useEffect(() => {
         void refresh();
-    }, [statusFilter]);
+    }, [statusFilter, refresh]);
 
     return {
         items,
