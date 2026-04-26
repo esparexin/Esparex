@@ -262,6 +262,58 @@ select {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* =========================================
+   PREMIUM UI UTILITIES
+   ========================================= */
+.glass {
+  @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-sm;
+}
+
+.dark .glass {
+  @apply bg-slate-900/70 backdrop-blur-md border-slate-700/40 shadow-sm;
+}
+
+.shadow-premium {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08), 0 4px 10px -5px rgba(0, 0, 0, 0.03);
+}
+
+.shadow-premium-hover {
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 8px 16px -8px rgba(0, 0, 0, 0.05);
+}
+
+.mesh-gradient-bg {
+  background-color: hsl(var(--background));
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(142, 76%, 45%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(188, 94%, 42%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(37, 92%, 50%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(221, 83%, 53%, 0.05) 0px, transparent 50%);
+}
+
+.spotlight-bg {
+  background: radial-gradient(circle at 50% 0%, hsla(var(--primary) / 0.08) 0%, transparent 70%);
+}
+
+/* Mobile-first tap targets and safety */
+@media (max-width: 640px) {
+  .mobile-tap-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+}
+
+/* Smooth reveal animations */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-reveal-up {
+  animation: reveal-up 0.5s ease-out forwards;
+}
 
 /* =========================================
    SCROLL-DRIVEN HEADER TRANSITIONS

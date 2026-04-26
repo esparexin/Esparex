@@ -3,6 +3,7 @@ import {
   expect,
   type APIRequestContext,
   type BrowserContext,
+  type Page,
 } from "@playwright/test";
 import {
   resolveListingSmokeFixtures,
@@ -137,7 +138,7 @@ test.describe("listing contact smoke", () => {
     }
   });
 
-  test.beforeEach(async ({ _page }) => {
+  test.beforeEach(async () => {
     // Basic context setup if needed
   });
 

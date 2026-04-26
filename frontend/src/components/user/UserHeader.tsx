@@ -138,7 +138,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
   return (
     <>
       {/* Desktop Header */}
-      <header style={{ zIndex: Z_INDEX.userHeader }} className="sticky top-0 w-full border-b bg-background/80 backdrop-blur-md shadow-sm hidden md:block font-inter">
+      <header style={{ zIndex: Z_INDEX.userHeader }} className="sticky top-0 w-full border-b glass shadow-premium hidden md:block font-inter">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-6">
           {/* Logo */}
           <button onClick={() => navigateTo("home")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">

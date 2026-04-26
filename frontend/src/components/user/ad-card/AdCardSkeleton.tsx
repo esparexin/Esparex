@@ -8,7 +8,7 @@ interface AdCardSkeletonProps {
 export function AdCardSkeleton({ className }: AdCardSkeletonProps) {
   return (
     <div className={cn("space-y-3", className)}>
-      <Skeleton className="aspect-[4/3] w-full rounded-xl" />
+      <Skeleton className="aspect-[4/3] w-full rounded-[20px]" />
       <Skeleton className="h-4 w-5/6" />
       <Skeleton className="h-4 w-1/2" />
     </div>
