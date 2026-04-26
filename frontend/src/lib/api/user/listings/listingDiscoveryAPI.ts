@@ -85,7 +85,7 @@ const withQueryParams = (url: string, params: URLSearchParams): string => {
 };
 
 interface RawListingPayload {
-    ads?: any[];
+    ads?: unknown[];
     nextCursor?: string | { createdAt: string; id?: string };
     hasMore?: boolean;
 }
@@ -97,7 +97,7 @@ const fetchListingPayload = async <TPayload = unknown>(
     const payload =
         typeof window === 'undefined'
             ? await fetchUserApiJson(url, fetchOptions).then(unwrapApiPayload)
-            : await apiClient.get(url).then((res: any) => unwrapApiPayload(res.data));
+            : await apiClient.get(url).then((res: unknown) => unwrapApiPayload((res as { data: { data: unknown } }).data));
     return (payload ?? null) as TPayload | null;
 };
 
@@ -215,9 +215,12 @@ export const getHomeAds = async (
         if (!result) return { ads: [], nextCursor: fallbackCursor, hasMore: false };
 
         return {
-            ads: (result.ads || []).map(normalizeListing),
-            nextCursor: (result.nextCursor && typeof result.nextCursor === 'object' && typeof (result.nextCursor as any).createdAt === 'string')
-                ? { createdAt: (result.nextCursor as any).createdAt, id: typeof (result.nextCursor as any).id === 'string' ? (result.nextCursor as any).id : '' }
+            ads: (result.ads || []).map((ad: unknown) => normalizeListing(ad as Record<string, unknown>)),
+            nextCursor: (result.nextCursor && typeof result.nextCursor === 'object' && typeof (result.nextCursor as Record<string, unknown>).createdAt === 'string')
+                ? {
+                    createdAt: (result.nextCursor as Record<string, unknown>).createdAt as string,
+                    id: typeof (result.nextCursor as Record<string, unknown>).id === 'string' ? (result.nextCursor as Record<string, unknown>).id as string : ''
+                }
                 : (typeof result.nextCursor === 'string' ? { createdAt: result.nextCursor, id: '' } : fallbackCursor),
             hasMore: result.hasMore === true
         };

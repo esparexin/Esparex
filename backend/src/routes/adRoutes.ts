@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
 import * as adController from "../controllers/ad";
-import * as listingController from "../controllers/listing/listingController";
 import { protect, extractUser } from "../middleware/authMiddleware";
 import { validateSearchParams } from "../middleware/securityValidators";
 import { mutationLimiter, searchLimiter, adPostLimiter } from "../middleware/rateLimiter";
