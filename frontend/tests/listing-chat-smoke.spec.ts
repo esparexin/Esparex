@@ -3,7 +3,6 @@ import {
   expect,
   type APIRequestContext,
   type BrowserContext,
-  type Page,
 } from "@playwright/test";
 import {
   resolveListingSmokeFixtures,
@@ -133,8 +132,8 @@ test.describe("listing contact smoke", () => {
       } finally {
         await request.dispose();
       }
-    } catch (error) {
-      console.error("Smoke test bootstrap failed:", error);
+    } catch {
+      // Error handled via smokeFixtures check
     }
   });
 

@@ -66,26 +66,32 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         if (!data) return;
         const pageAds = Array.isArray(data.ads) ? data.ads : [];
         
-        setTimeout(() => {
+        const updateFeed = () => {
             if (!cursor) {
                 setFeedAds((previous) => (
-                    pageAds.length > 0 || data.isFallback || previous.length === 0
+                    pageAds.length > 0 || (data as unknown as { isFallback?: boolean }).isFallback || previous.length === 0
                         ? replaceFeedPage(previous, pageAds)
                         : previous
                 ));
             } else if (pageAds.length > 0) {
                 setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
             }
-        }, 0);
+        };
+
+        const timeoutId = setTimeout(updateFeed, 0);
+        return () => clearTimeout(timeoutId);
     }, [cursor, data]);
 
     // Sync pagination metadata
     useEffect(() => {
         if (!data) return;
-        setTimeout(() => {
+        const updateMetadata = () => {
             setNextCursor(data.nextCursor ?? null);
             setHasMore(data.hasMore === true);
-        }, 0);
+        };
+
+        const timeoutId = setTimeout(updateMetadata, 0);
+        return () => clearTimeout(timeoutId);
     }, [data]);
 
     const recommendedAds = feedAds;

@@ -99,7 +99,7 @@ router.post(
 // GET /:id/view removed (superseded by listingRoutes)
 
 // Phone reveal removed from /ads/:id/phone — canonical: GET /listings/:id/phone
-// (see listingRoutes.ts — supersedes this legacy route)
+// (see listingRoutes.ts — supersedes this previous route)
 
 // Update ad
 // D1: PATCH update uses partial schema (updateAdSchema = PartialAdPayloadSchema.passthrough())

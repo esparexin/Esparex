@@ -32,7 +32,7 @@ export function useImageUploadWorkflow<T>(
                         formData.append("folder", "ads");
 
                         try {
-                            const csrfToken = await (apiClient as { getCsrfToken?: () => Promise<string> }).getCsrfToken?.() || "";
+                            const csrfToken = await (apiClient as unknown as { getCsrfToken?: () => Promise<string> }).getCsrfToken?.() || "";
                             console.log("[FRONTEND CSRF TOKEN]", csrfToken);
                             
                             const headers = {
