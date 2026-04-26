@@ -2,17 +2,16 @@ import { PipelineStage } from 'mongoose';
 import { 
     isValidLngLat, 
     toGeoPoint,
-    type GeoJSONPoint
+    type GeoJSONPoint,
+    MIN_RADIUS_KM,
+    MAX_RADIUS_KM,
+    DEFAULT_RADIUS_KM
 } from '@shared';
 
 /**
  * 🌍 CANONICAL GEO UTILITY LAYER
  * SSOT for all coordinate normalization, distance logic, and MongoDB geo-query building.
  */
-
-export const MIN_RADIUS_KM = 1;
-export const MAX_RADIUS_KM = 500;
-export const DEFAULT_RADIUS_KM = 50;
 
 /**
  * Normalizes input coordinates into a standard object with a boolean flag.
