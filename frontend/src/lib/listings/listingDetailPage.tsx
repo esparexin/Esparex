@@ -136,8 +136,9 @@ export async function renderListingDetailPage({
             </>
         );
     } catch {
-        // Transient API/server failure. Preserve the client-side recovery path
-        // rather than turning a backend error into a false 404.
-        return <ListingPageClient ad={undefined} />;
+        // The slug is invalid (e.g., a category name like "battery" instead of a
+        // MongoDB ObjectId slug). Return 404 so Googlebot stops crawling these
+        // invalid sitemap URLs and doesn't waste budget on empty pages.
+        notFound();
     }
 }

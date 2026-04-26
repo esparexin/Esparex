@@ -101,7 +101,7 @@ class APIClient {
         return ['post', 'put', 'patch', 'delete'].includes(normalized);
     }
 
-    private async getCsrfToken(forceRefresh = false): Promise<string | null> {
+    public async getCsrfToken(forceRefresh = false): Promise<string | null> {
         if (!forceRefresh && this.csrfToken) {
             return this.csrfToken;
         }

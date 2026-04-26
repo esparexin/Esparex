@@ -4,6 +4,7 @@ import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { ListingImage } from "@/types/listing";
 import logger from "@/lib/logger";
 import { notify } from "@/lib/notify";
+import { apiClient } from "@/lib/api/client";
 
 export function useImageUploadWorkflow(
     form: UseFormReturn<PostAdFormData>,
@@ -31,8 +32,17 @@ export function useImageUploadWorkflow(
                         formData.append("folder", "ads");
 
                         try {
+                            const csrfToken = await (apiClient as any).getCsrfToken?.() || "";
+                            console.log("[FRONTEND CSRF TOKEN]", csrfToken);
+                            
+                            const headers = {
+                                "x-csrf-token": csrfToken,
+                            };
+                            console.log("[UPLOAD HEADERS]", headers);
+
                             const response = await fetch("/api/upload/ad-image", {
                                 method: "POST",
+                                headers,
                                 body: formData,
                                 credentials: "include",
                             });

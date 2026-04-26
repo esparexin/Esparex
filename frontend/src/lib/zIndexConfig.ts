@@ -22,6 +22,9 @@ export const Z_INDEX = {
   // ── Mobile Header ────────────────────────────────────────────────────────
   mobileHeaderTooltip: 60,
 
+  // ── Listing Actions ──────────────────────────────────────────────────────
+  listingBottomActions: 70,
+
   // ── Floating Elements ────────────────────────────────────────────────────
   // Tooltips, popovers, dropdowns
   dropdown: 100,
