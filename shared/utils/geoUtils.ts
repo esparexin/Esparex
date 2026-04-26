@@ -8,6 +8,32 @@ export interface GeoJSONPoint {
 const coordsTupleSchema = z.tuple([z.number(), z.number()]);
 const latLngObjSchema = z.object({ lat: z.number(), lng: z.number() });
 
+export const MIN_RADIUS_KM = 1;
+export const MAX_RADIUS_KM = 500;
+export const DEFAULT_RADIUS_KM = 50;
+
+/**
+ * Calculates the Haversine distance between two points in kilometers.
+ */
+export const haversineDistance = (
+    lat1: number,
+    lng1: number,
+    lat2: number,
+    lng2: number
+): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLng = (lng2 - lng1) * (Math.PI / 180);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+};
+
 export const isValidLongitude = (value: unknown): value is number =>
     typeof value === 'number' &&
     Number.isFinite(value) &&
