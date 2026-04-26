@@ -1,4 +1,5 @@
-export type ListingType = "ad" | "service" | "spare_part";
+import fs from "fs";
+import path from "path";
 
 // Example contract: frontend/tests/fixtures/listingSmoke.contract.example.json
 
@@ -117,7 +118,16 @@ function resolveRevealFixture(raw: RawListingSmokeFixtures): RevealSmokeFixture 
 }
 
 export function resolveListingSmokeFixtures(): ListingSmokeFixtures {
-  const raw = parseFixtureContract(process.env.SMOKE_LISTING_FIXTURES || "");
+  let rawJson = process.env.SMOKE_LISTING_FIXTURES || "";
+
+  if (!rawJson) {
+    const fixturePath = process.env.SMOKE_FIXTURE_PATH || path.join(process.cwd(), "smoke-fixtures.json");
+    if (fs.existsSync(fixturePath)) {
+      rawJson = fs.readFileSync(fixturePath, "utf-8");
+    }
+  }
+
+  const raw = parseFixtureContract(rawJson);
 
   return {
     chat: resolveChatFixtures(raw),

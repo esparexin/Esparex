@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { ActionBarVariant } from "@/lib/logic/bottomBarActions";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
+import { Z_INDEX } from "@/lib/zIndexConfig";
 
 interface ListingBottomActionsProps {
   variant: ActionBarVariant;
@@ -200,7 +201,10 @@ export function ListingBottomActions({
 
     return (
       <div className="md:hidden">
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)] z-40">
+        <div 
+          className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)]"
+          style={{ zIndex: Z_INDEX.listingBottomActions }}
+        >
           <div className={`grid gap-2 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] ${showPhoneAction && showChatAction ? "grid-cols-2" : "grid-cols-1"}`}>
             {showPhoneAction ? (
               <Button

@@ -35,6 +35,7 @@ import Ad from "@core/models/Ad";
 import User from "@core/models/User";
 import Category from "@core/models/Category";
 import { CATALOG_STATUS } from "@core/constants/enums/catalogStatus";
+import { MODERATION_STATUS } from "@core/constants/enums/moderationStatus";
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                       */
@@ -146,6 +147,7 @@ async function run(): Promise<void> {
     smokeAd.description = "CI smoke fixture ad — do not index.";
     smokeAd.price       = 499;
     smokeAd.status      = AD_STATUS.LIVE;
+    smokeAd.moderationStatus = MODERATION_STATUS.AUTO_APPROVED;
     smokeAd.listingType = LISTING_TYPE.AD;
     smokeAd.sellerId    = seller._id;
     smokeAd.categoryId  = category._id;
@@ -160,15 +162,75 @@ async function run(): Promise<void> {
             type: "Point",
             coordinates: [78.4867, 17.3850]
         }
-    } as typeof smokeAd.location;
+    } as any;
     await smokeAd.save();
     console.info(`[smoke-fixtures] Smoke ad ready: ${String(smokeAd._id)}`);
 
-    /* ── 3. Build fixture paths ─────────────────────────────────────────── */
+    /* ── 3. Find-or-create smoke service ────────────────────────────────── */
+    const serviceTitle = "CI Smoke Fixture — Repair Service";
+    const serviceSlug = toSlug(serviceTitle);
+    let smokeService = await Ad.findOne({
+        sellerId: seller._id,
+        listingType: LISTING_TYPE.SERVICE,
+        title: serviceTitle,
+    });
+    if (!smokeService) {
+        smokeService = new Ad({
+            sellerId: seller._id,
+            listingType: LISTING_TYPE.SERVICE,
+            title: serviceTitle,
+        });
+    }
+    smokeService.description = "CI smoke fixture service.";
+    smokeService.price = 999;
+    smokeService.status = AD_STATUS.LIVE;
+    smokeService.moderationStatus = MODERATION_STATUS.AUTO_APPROVED;
+    smokeService.categoryId = category._id;
+    smokeService.seoSlug = serviceSlug;
+    smokeService.isDeleted = false;
+    smokeService.expiresAt = expiresAt;
+    smokeService.location = smokeAd.location;
+    await smokeService.save();
+    console.info(`[smoke-fixtures] Smoke service ready: ${String(smokeService._id)}`);
+
+    /* ── 4. Find-or-create smoke spare part ─────────────────────────────── */
+    const sparePartTitle = "CI Smoke Fixture — Replacement Screen";
+    const sparePartSlug = toSlug(sparePartTitle);
+    let smokeSparePart = await Ad.findOne({
+        sellerId: seller._id,
+        listingType: LISTING_TYPE.SPARE_PART,
+        title: sparePartTitle,
+    });
+    if (!smokeSparePart) {
+        smokeSparePart = new Ad({
+            sellerId: seller._id,
+            listingType: LISTING_TYPE.SPARE_PART,
+            title: sparePartTitle,
+        });
+    }
+    smokeSparePart.description = "CI smoke fixture spare part.";
+    smokeSparePart.price = 2499;
+    smokeSparePart.status = AD_STATUS.LIVE;
+    smokeSparePart.moderationStatus = MODERATION_STATUS.AUTO_APPROVED;
+    smokeSparePart.categoryId = category._id;
+    smokeSparePart.seoSlug = sparePartSlug;
+    smokeSparePart.isDeleted = false;
+    smokeSparePart.expiresAt = expiresAt;
+    smokeSparePart.location = smokeAd.location;
+    await smokeSparePart.save();
+    console.info(`[smoke-fixtures] Smoke spare part ready: ${String(smokeSparePart._id)}`);
+
+    /* ── 5. Build fixture paths ─────────────────────────────────────────── */
     const adPath = `/ads/${smokeSlug}-${String(smokeAd._id)}`;
+    const servicePath = `/ads/${serviceSlug}-${String(smokeService._id)}`;
+    const sparePartPath = `/ads/${sparePartSlug}-${String(smokeSparePart._id)}`;
 
     const fixture: FixtureOutput = {
-        chat:   { ad: { path: adPath } },
+        chat: { 
+            ad: { path: adPath },
+            service: { path: servicePath },
+            spare_part: { path: sparePartPath }
+        },
         reveal: { path: adPath, expect: revealExpect },
     };
 
