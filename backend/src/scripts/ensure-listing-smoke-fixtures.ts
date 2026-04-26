@@ -31,7 +31,7 @@ import { LISTING_TYPE } from "@core/constants/enums/listingType";
 import { USER_STATUS } from "@core/constants/enums/userStatus";
 import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
 import { connectDB } from "@core/config/db";
-import Ad from "@core/models/Ad";
+import Ad, { IAd } from "@core/models/Ad";
 import User from "@core/models/User";
 import Category from "@core/models/Category";
 import { CATALOG_STATUS } from "@core/constants/enums/catalogStatus";
@@ -154,15 +154,15 @@ async function run(): Promise<void> {
     smokeAd.seoSlug     = smokeSlug;
     smokeAd.isDeleted   = false;
     smokeAd.expiresAt   = expiresAt;
-    smokeAd.location    = { 
-        city: "Hyderabad", 
-        state: "Telangana", 
+    smokeAd.location    = {
+        city: "Hyderabad",
+        state: "Telangana",
         country: "India",
         coordinates: {
-            type: "Point",
-            coordinates: [78.4867, 17.3850]
-        }
-    } as any;
+            type: "Point" as const,
+            coordinates: [78.4867, 17.3850] as [number, number],
+        },
+    } as IAd["location"];
     await smokeAd.save();
     console.info(`[smoke-fixtures] Smoke ad ready: ${String(smokeAd._id)}`);
 
