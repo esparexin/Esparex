@@ -33,6 +33,26 @@ Install dependencies from the repo root only:
 npm install
 ```
 
+## Governance & Guardrails
+
+This project uses strict automated guardrails to maintain code quality and architectural integrity.
+
+### Pre-commit & Pre-push
+Standard checks run automatically on every commit/push:
+- **Linting**: `npm run lint` (Checks for unused imports, `any` types, and cascading renders).
+- **Type Safety**: `npm run type-check` (Ensures full TypeScript coverage across all workspaces).
+- **Duplication**: `npm run guard:duplication` (Flags code blocks with >10 lines of identical content).
+
+### Platform Governance
+The project enforces a "zero-legacy" policy via:
+```bash
+npm run guard:platform-governance
+```
+This will fail if forbidden keywords (`legacy`, `compatibility`, `@deprecated`) are found in comments, variables, or routes. Use `OLD` or descriptive alternatives instead.
+
+### Pull Request Requirements
+The `guard:pr-impact-analysis` CI check requires every PR to have a description following the repository template. If your PR description is empty, the CI build **will fail**.
+
 Run workspaces as needed:
 
 ```bash
@@ -40,3 +60,23 @@ npm run dev -w backend
 npm run dev -w frontend
 npm run dev -w admin-frontend
 ```
+
+## Governance & Guardrails
+
+This project uses strict automated guardrails to maintain code quality and architectural integrity.
+
+### Pre-commit & Pre-push
+Standard checks run automatically on every commit/push:
+- **Linting**: `npm run lint` (Checks for unused imports, `any` types, and cascading renders).
+- **Type Safety**: `npm run type-check` (Ensures full TypeScript coverage across all workspaces).
+- **Duplication**: `npm run guard:duplication` (Flags code blocks with >10 lines of identical content).
+
+### Platform Governance
+The project enforces a "zero-legacy" policy via:
+```bash
+npm run guard:platform-governance
+```
+This will fail if forbidden keywords (`legacy`, `compatibility`, `@deprecated`) are found in comments, variables, or routes. Use `OLD` or descriptive alternatives instead.
+
+### Pull Request Requirements
+The `guard:pr-impact-analysis` CI check requires every PR to have a description following the repository template. If your PR description is empty, the CI build **will fail**.

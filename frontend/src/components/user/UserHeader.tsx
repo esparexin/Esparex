@@ -68,12 +68,18 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
   const [avatarSrc, setAvatarSrc] = useState<string>(safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
 
   useEffect(() => {
-    setAvatarSrc(safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
+    const timeoutId = setTimeout(() => {
+      setAvatarSrc(safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [safeProfilePhoto]);
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
-    setIsMounted(true);
+    const timeoutId = setTimeout(() => {
+      setIsMounted(true);
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const { isBackendUp, handlePostAdClick } = usePostAdNavigation({
