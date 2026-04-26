@@ -68,7 +68,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
 
     return (
         <>
-            <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md shadow-[0_1px_12px_rgba(0,0,0,0.06)] md:hidden font-inter pt-[env(safe-area-inset-top)] relative">
+            <header className="sticky top-0 z-50 w-full glass shadow-premium md:hidden font-inter pt-[env(safe-area-inset-top)] relative">
                 {/* 1. Top Location Bar (44px) */}
                 <div className="h-11 bg-slate-50/80 border-b border-slate-100 flex items-center px-4">
                     <button

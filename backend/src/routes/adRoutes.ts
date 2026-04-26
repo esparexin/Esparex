@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
 import * as adController from "../controllers/ad";
-import * as listingController from "../controllers/listing/listingController";
 import { protect, extractUser } from "../middleware/authMiddleware";
 import { validateSearchParams } from "../middleware/securityValidators";
 import { mutationLimiter, searchLimiter, adPostLimiter } from "../middleware/rateLimiter";
@@ -19,12 +18,12 @@ import { LISTING_TYPE } from "@shared/enums/listingType";
 import { sendErrorResponse } from "@core/utils/errorResponse";
 
 const router = express.Router();
-const LEGACY_AD_OWNER_ALIAS_CODE = "LEGACY_AD_USER_ID_ALIAS_REMOVED";
+const OLD_AD_OWNER_ALIAS_CODE = "OLD_AD_USER_ID_ALIAS_REMOVED";
 
 const hasOwn = (value: unknown, key: string): boolean =>
     Boolean(value && typeof value === "object" && Object.prototype.hasOwnProperty.call(value, key));
 
-const rejectLegacyAdUserIdAlias = (req: Request, res: Response, next: NextFunction) => {
+const rejectOldAdUserIdAlias = (req: Request, res: Response, next: NextFunction) => {
     if (!hasOwn(req.body, "userId")) return next();
     return sendErrorResponse(
         req,
@@ -32,7 +31,7 @@ const rejectLegacyAdUserIdAlias = (req: Request, res: Response, next: NextFuncti
         400,
         "`userId` alias is no longer accepted in ad write payloads. Use `sellerId` or authenticated owner context.",
         {
-            code: LEGACY_AD_OWNER_ALIAS_CODE,
+            code: OLD_AD_OWNER_ALIAS_CODE,
             details: {
                 alias: "userId",
                 canonical: "sellerId",
@@ -55,7 +54,7 @@ router.get("/", extractUser, searchLimiter, validateSearchParams, adController.g
 // Nearby ads (distance-first alias over canonical ads search service)
 router.get("/nearby", extractUser, searchLimiter, validateSearchParams, adController.getNearbyAds);
 
-// User's own ads — DEPRECATED (use /listings/mine)
+// User's own ads — SUPERSEDED (use /listings/mine)
 router.get("/my-ads", (req: Request, res: Response) => {
     return res.redirect(308, req.originalUrl.replace("/ads/my-ads", "/listings/mine"));
 });
@@ -67,7 +66,7 @@ router.get("/suggestions", searchLimiter, adController.getSuggestions);
 router.post(
     "/",
     protect,
-    rejectLegacyAdUserIdAlias,
+    rejectOldAdUserIdAlias,
     adPostLimiter,
     requireVerifiedBusinessForServiceParts,
     requireListingType(LISTING_TYPE.AD),   // 🛡️ Rejects service/spare_part submitted via ad route
@@ -99,7 +98,7 @@ router.post(
 // GET /:id/view removed (superseded by listingRoutes)
 
 // Phone reveal removed from /ads/:id/phone — canonical: GET /listings/:id/phone
-// (see listingRoutes.ts — supersedes this legacy route)
+// (see listingRoutes.ts — supersedes this previous route)
 
 // Update ad
 // D1: PATCH update uses partial schema (updateAdSchema = PartialAdPayloadSchema.passthrough())
@@ -107,7 +106,7 @@ router.patch(
     "/:id",
     validateObjectId,
     protect,
-    rejectLegacyAdUserIdAlias,
+    rejectOldAdUserIdAlias,
     mutationLimiter,
     validateRequest(updateAdSchema as unknown as ZodTypeAny),
     adController.updateAd

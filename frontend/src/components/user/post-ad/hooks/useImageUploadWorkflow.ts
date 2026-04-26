@@ -6,14 +6,14 @@ import logger from "@/lib/logger";
 import { notify } from "@/lib/notify";
 import { apiClient } from "@/lib/api/client";
 
-export function useImageUploadWorkflow(
+export function useImageUploadWorkflow<T>(
     form: UseFormReturn<PostAdFormData>,
     listingImages: ListingImage[],
     setListingImages: (images: ListingImage[]) => void,
     normalizeIdentityFieldsBeforeSubmit: () => void,
-    onValidSubmit: (data: PostAdFormData) => Promise<any>,
+    onValidSubmit: (data: PostAdFormData) => Promise<T>,
     setFormError: (err: string | null) => void,
-    setSubmittedAd: (ad: any) => void
+    setSubmittedAd: (ad: T) => void
 ) {
     const [isInternalUploading, setIsInternalUploading] = useState(false);
 
@@ -32,7 +32,7 @@ export function useImageUploadWorkflow(
                         formData.append("folder", "ads");
 
                         try {
-                            const csrfToken = await (apiClient as any).getCsrfToken?.() || "";
+                            const csrfToken = await (apiClient as unknown as { getCsrfToken?: () => Promise<string> }).getCsrfToken?.() || "";
                             console.log("[FRONTEND CSRF TOKEN]", csrfToken);
                             
                             const headers = {
@@ -73,10 +73,11 @@ export function useImageUploadWorkflow(
                     if (ad) {
                         setSubmittedAd(ad);
                     }
-                } catch (err: any) {
+                } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : "Submission failed. Please try again.";
                     logger.error("[PostAdSubmit] Overall submission failed:", err);
-                    setFormError(err.message || "Submission failed. Please try again.");
-                    notify.error(err.message || "Failed to post ad.");
+                    setFormError(message);
+                    notify.error(message);
                 } finally {
                     setIsInternalUploading(false);
                 }

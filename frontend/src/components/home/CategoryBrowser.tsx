@@ -34,7 +34,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
             role="region"
             aria-label="Popular Categories"
             aria-labelledby="browse-categories"
-            className="py-6 md:py-14"
+            className="py-8 md:py-16 relative overflow-hidden mesh-gradient-bg"
         >
             <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
                 <div className="mb-5 md:mb-8">
@@ -46,19 +46,20 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                     </p>
                 </div>
 
-                <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    className="
-                        flex gap-3 md:gap-6
-                        md:grid md:grid-cols-6 lg:grid-cols-8
-                        overflow-x-auto snap-x snap-mandatory
-                        pb-3 md:pb-2 scrollbar-hide
-                        w-full scroll-px-4
-                    "
-                >
+                <div className="relative group/scroll">
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        className="
+                            flex gap-4 md:gap-6
+                            md:grid md:grid-cols-6 lg:grid-cols-8
+                            overflow-x-auto snap-x snap-mandatory
+                            pb-4 md:pb-2 scrollbar-hide
+                            w-full scroll-px-4
+                        "
+                    >
                     {displayCategories.map((cat) => {
                         const slug = cat.slug?.toLowerCase();
 
@@ -75,17 +76,19 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                 >
                                     <div
                                         className={`
-                                            flex h-14 w-14 md:h-18 md:w-18 items-center justify-center
-                                            rounded-2xl transition-all duration-300
+                                            flex h-16 w-16 md:h-20 md:w-20 items-center justify-center
+                                            rounded-[22px] transition-all duration-500
                                             ${config.bg}
-                                            group-hover:scale-110
-                                            group-hover:shadow-lg
-                                            border border-white/60 shadow-sm
+                                            glass
+                                            group-hover:scale-105
+                                            group-hover:shadow-premium-hover
+                                            group-active:scale-95
+                                            border-white shadow-premium
                                         `}
                                     >
-                                        <Icon className={`h-6 w-6 md:h-8 md:w-8 ${config.color}`} />
+                                        <Icon className={`h-7 w-7 md:h-9 md:w-9 ${config.color} transition-transform duration-500 group-hover:rotate-6`} />
                                     </div>
-                                    <span className="text-xs md:text-xs font-semibold text-muted-foreground text-center line-clamp-1 group-hover:text-link transition-colors">
+                                    <span className="text-[11px] md:text-sm font-bold text-foreground-tertiary text-center line-clamp-1 group-hover:text-primary transition-colors mt-1">
                                         {cat.name}
                                     </span>
                                 </Link>
@@ -93,6 +96,9 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                         );
                     })}
                 </motion.div>
+                {/* Mobile Scroll Indicator Fade */}
+                <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background/40 to-transparent pointer-events-none md:hidden" />
+                </div>
             </div>
         </section>
     );

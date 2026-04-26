@@ -1,0 +1,17 @@
+{
+  "chat": {
+    "ad": {
+      "path": "/ads/ci-smoke-fixture-mobile-battery-69ed0bc834b68b83dc424d99"
+    },
+    "service": {
+      "path": "/ads/ci-smoke-fixture-repair-service-69ed0bc834b68b83dc424d9c"
+    },
+    "spare_part": {
+      "path": "/ads/ci-smoke-fixture-replacement-screen-69ed0bc834b68b83dc424d9f"
+    }
+  },
+  "reveal": {
+    "path": "/ads/ci-smoke-fixture-mobile-battery-69ed0bc834b68b83dc424d99",
+    "expect": "mobile"
+  }
+}
