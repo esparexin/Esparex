@@ -29,7 +29,7 @@ const makeAd = (id: string, title = `Ad ${id}`): Ad => ({
     reviewVersion: 0,
     freshnessScore: 0,
     categoryId: "cat1"
-} as any);
+} as Ad);
 
 describe("homeFeed helpers", () => {
     it("replaces the first page only when the ordered ids actually change", () => {

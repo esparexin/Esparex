@@ -6,11 +6,8 @@ import {
   type Page,
 } from "@playwright/test";
 import {
-  getMissingChatFixtureMessage,
-  getMissingRevealFixtureMessage,
   resolveListingSmokeFixtures,
   type ListingSmokeFixtures,
-  type RevealExpectation,
 } from "./fixtures/listingSmokeFixtures";
 
 const FRONTEND_BASE_URL = process.env.SMOKE_FRONTEND_URL || "http://localhost:3000";
@@ -70,14 +67,6 @@ async function authenticateContext(context: BrowserContext, token: string) {
   ]);
 }
 
-async function waitForSignedInChrome(page: Page) {
-  const signedInChrome = page
-    .getByRole("button", { name: /notifications/i })
-    .or(page.getByRole("button", { name: /open account menu/i }))
-    .or(page.getByRole("link", { name: /^profile$/i }));
-
-  await expect(signedInChrome.first()).toBeVisible({ timeout: 15_000 });
-}
 
 function buildTargetUrl(path: string): string {
   return /^https?:\/\//i.test(path) ? path : `${FRONTEND_BASE_URL}${path}`;
@@ -129,7 +118,6 @@ async function assertRevealOutcome(page: Page, expectation: string) {
 test.describe("listing contact smoke", () => {
   let authToken = "";
   let smokeFixtures: ListingSmokeFixtures | null = null;
-  let bootstrapError: string | null = null;
 
   test.beforeAll(async ({ playwright }) => {
     try {
@@ -146,11 +134,11 @@ test.describe("listing contact smoke", () => {
         await request.dispose();
       }
     } catch (error) {
-      bootstrapError = error instanceof Error ? error.message : String(error);
+      console.error("Smoke test bootstrap failed:", error);
     }
   });
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ _page }) => {
     // Basic context setup if needed
   });
 

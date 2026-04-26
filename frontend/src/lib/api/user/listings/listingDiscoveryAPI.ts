@@ -53,6 +53,7 @@ export interface HomeAdsPayload {
         id: string;
     } | null;
     hasMore: boolean;
+    isFallback?: boolean;
 }
 
 export interface HomeAdsRequestParams {

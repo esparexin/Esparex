@@ -61,23 +61,32 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         }
     );
 
+    // Sync feed ads accumulation
     useEffect(() => {
         if (!data) return;
         const pageAds = Array.isArray(data.ads) ? data.ads : [];
         
-        if (!cursor) {
-            setFeedAds((previous) => (
-                pageAds.length > 0 || (data as any).isFallback || previous.length === 0
-                    ? replaceFeedPage(previous, pageAds)
-                    : previous
-            ));
-        } else if (pageAds.length > 0) {
-            setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
-        }
-        
-        setNextCursor(data.nextCursor ?? null);
-        setHasMore(data.hasMore === true);
+        setTimeout(() => {
+            if (!cursor) {
+                setFeedAds((previous) => (
+                    pageAds.length > 0 || data.isFallback || previous.length === 0
+                        ? replaceFeedPage(previous, pageAds)
+                        : previous
+                ));
+            } else if (pageAds.length > 0) {
+                setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
+            }
+        }, 0);
     }, [cursor, data]);
+
+    // Sync pagination metadata
+    useEffect(() => {
+        if (!data) return;
+        setTimeout(() => {
+            setNextCursor(data.nextCursor ?? null);
+            setHasMore(data.hasMore === true);
+        }, 0);
+    }, [data]);
 
     const recommendedAds = feedAds;
     const canLoadMore = hasMore && Boolean(nextCursor?.createdAt);
@@ -87,7 +96,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
             role="region"
             aria-label="Recommended Ads"
             aria-labelledby="home-feed-heading"
-            className="bg-slate-50 py-8 md:py-16 border-t border-slate-100"
+            className="bg-slate-50 py-10 md:py-20 border-t border-slate-100 spotlight-bg relative overflow-hidden"
         >
             <div className="mx-auto max-w-7xl px-3 md:px-6 lg:px-8">
                 <div className="mb-4 md:mb-8">
@@ -132,14 +141,15 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
                 {recommendedAds.length > 0 && (
                     <>
-                        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
+                        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
                             {recommendedAds.map((ad, index) => (
-                                <AdCardGrid
-                                    key={ad.id}
-                                    ad={ad}
-                                    href={getListingHref(ad)}
-                                    priority={index < 4}
-                                />
+                                <div key={ad.id} className="animate-reveal-up" style={{ animationDelay: `${(index % 8) * 0.05}s` }}>
+                                    <AdCardGrid
+                                        ad={ad}
+                                        href={getListingHref(ad)}
+                                        priority={index < 4}
+                                    />
+                                </div>
                             ))}
                         </div>
 
