@@ -61,22 +61,27 @@ npm run dev -w frontend
 npm run dev -w admin-frontend
 ```
 
-## Governance & Guardrails
+## Deployment & Environment Configuration
 
-This project uses strict automated guardrails to maintain code quality and architectural integrity.
+The project is deployed using **Vercel** (Frontends) and **Render** (Backends).
 
-### Pre-commit & Pre-push
-Standard checks run automatically on every commit/push:
-- **Linting**: `npm run lint` (Checks for unused imports, `any` types, and cascading renders).
-- **Type Safety**: `npm run type-check` (Ensures full TypeScript coverage across all workspaces).
-- **Duplication**: `npm run guard:duplication` (Flags code blocks with >10 lines of identical content).
+### Admin Backend Deployment (Render)
+When creating the Web Service (e.g., named `backend` or `admin-api`) for the admin system:
+- **Root Directory**: (Leave Empty)
+- **Build Command**: `export NODE_OPTIONS="--max-old-space-size=4096" && npm install && npm run build -w core && npm run build -w admin-backend`
+- **Start Command**: `npm start -w admin-backend`
 
-### Platform Governance
-The project enforces a "zero-legacy" policy via:
-```bash
-npm run guard:platform-governance
-```
-This will fail if forbidden keywords (`legacy`, `compatibility`, `@deprecated`) are found in comments, variables, or routes. Use `OLD` or descriptive alternatives instead.
+### Admin System Configuration (Vercel/Render)
 
-### Pull Request Requirements
-The `guard:pr-impact-analysis` CI check requires every PR to have a description following the repository template. If your PR description is empty, the CI build **will fail**.
+To fix 404/403 errors during login/CSRF discovery, ensure the following environment variables are aligned:
+
+| Workspace | Platform | Variable | Recommended Value |
+| :--- | :--- | :--- | :--- |
+| `admin-frontend` | Vercel | `NEXT_PUBLIC_ADMIN_API_URL` | `https://api.esparex.in/api/v1/admin` |
+| `admin-frontend` | Vercel | `PROD_RISK_OVERRIDE` | `true` |
+| `admin-backend` | Render | `COOKIE_DOMAIN` | `.esparex.in` (required for CSRF) |
+| `admin-backend` | Render | `CORS_ALLOWED_ORIGINS` | `https://admin.esparex.in` |
+| `admin-backend` | Render | `CSRF_SECRET` | *[Random 32-char string]* |
+
+**Note**: The `admin-backend` routes are prefixed with `/api/v1/admin`. If your frontend points to `api.esparex.in`, ensure your load balancer/proxy correctly routes those requests to the admin service.
+
