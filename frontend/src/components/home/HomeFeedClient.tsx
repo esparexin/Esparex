@@ -66,32 +66,22 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         if (!data) return;
         const pageAds = Array.isArray(data.ads) ? data.ads : [];
         
-        const updateFeed = () => {
-            if (!cursor) {
-                setFeedAds((previous) => (
-                    pageAds.length > 0 || (data as unknown as { isFallback?: boolean }).isFallback || previous.length === 0
-                        ? replaceFeedPage(previous, pageAds)
-                        : previous
-                ));
-            } else if (pageAds.length > 0) {
-                setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
-            }
-        };
-
-        const timeoutId = setTimeout(updateFeed, 0);
-        return () => clearTimeout(timeoutId);
+        if (!cursor) {
+            setFeedAds((previous) => (
+                pageAds.length > 0 || (data as unknown as { isFallback?: boolean }).isFallback || previous.length === 0
+                    ? replaceFeedPage(previous, pageAds)
+                    : previous
+            ));
+        } else if (pageAds.length > 0) {
+            setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
+        }
     }, [cursor, data]);
 
     // Sync pagination metadata
     useEffect(() => {
         if (!data) return;
-        const updateMetadata = () => {
-            setNextCursor(data.nextCursor ?? null);
-            setHasMore(data.hasMore === true);
-        };
-
-        const timeoutId = setTimeout(updateMetadata, 0);
-        return () => clearTimeout(timeoutId);
+        setNextCursor(data.nextCursor ?? null);
+        setHasMore(data.hasMore === true);
     }, [data]);
 
     const recommendedAds = feedAds;

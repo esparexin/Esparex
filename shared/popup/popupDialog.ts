@@ -57,8 +57,8 @@ export function usePopupDialogState(
     if (!active) return;
     if (active.type !== "success" && active.type !== "info") return;
 
-    const timer = window.setTimeout(() => onClose(), 4000);
-    return () => window.clearTimeout(timer);
+    const timer = setTimeout(() => onClose(), 4000);
+    return () => clearTimeout(timer);
   }, [active, onClose]);
 
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -69,7 +69,7 @@ export function usePopupDialogState(
     }
 
     setCountdown(active.retryAfter);
-    const interval = window.setInterval(() => {
+    const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
           clearInterval(interval);
@@ -79,7 +79,7 @@ export function usePopupDialogState(
       });
     }, 1000);
 
-    return () => window.clearInterval(interval);
+    return () => clearInterval(interval);
   }, [active?.id, active?.retryAfter]);
 
   const actions = useMemo<PopupAction[]>(

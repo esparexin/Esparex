@@ -61,11 +61,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@esparex/core": "*",
     "@aws-sdk/client-s3": "^3.954.0",
     "@aws-sdk/s3-request-presigner": "^3.975.0",
     "@bull-board/api": "^6.20.3",
     "@bull-board/express": "^6.20.3",
+    "@esparex/core": "*",
     "@sentry/node": "^10.38.0",
     "@sentry/profiling-node": "^10.38.0",
     "@socket.io/redis-adapter": "^8.3.0",
@@ -142,7 +142,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^3.15.0",
     "type-fest": "^5.3.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.54.0"
   }
 }

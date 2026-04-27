@@ -81,7 +81,7 @@ export function useImageUploadWorkflow<T>(
                 } finally {
                     setIsInternalUploading(false);
                 }
-            }, (errors) => {
+            }, (errors: any) => {
                 logger.error("[PostAdSubmit] Form validation errors:", errors);
                 const firstErrorKey = Object.keys(errors)[0];
                 if (typeof document !== "undefined" && firstErrorKey) {

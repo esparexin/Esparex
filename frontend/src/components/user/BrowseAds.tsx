@@ -253,10 +253,8 @@ export function BrowseAds({
   };
 
   return (
-    <div className="bg-slate-50/40">
-      {/* ── Main Layout ────────────────────────────────────────────────────── */}
-      <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
+    <section data-primary className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
 
           {/* ── Filters Sidebar ──────────────────────────────────────────── */}
           <div className="hidden lg:block">
@@ -407,7 +405,6 @@ export function BrowseAds({
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </section>
   );
 }

@@ -179,7 +179,7 @@ describe("systemConfigService.updateSystemConfigSections", () => {
         const serialized =
             readConfig && typeof (readConfig as { toJSON?: () => Record<string, unknown> }).toJSON === "function"
                 ? (readConfig as { toJSON: () => Record<string, unknown> }).toJSON()
-                : (readConfig as Record<string, unknown>);
+                : (readConfig as unknown as Record<string, unknown>);
 
         expect(serialized.security).toEqual(
             expect.objectContaining({

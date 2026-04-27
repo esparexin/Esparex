@@ -6,7 +6,7 @@
 
 import Category from "@core/models/Category";
 import ServiceType from "@core/models/ServiceType";
-import logger from ".@core/utils/logger";
+import logger from "@core/utils/logger";
 
 interface ServiceTypeEntry {
     name: string;

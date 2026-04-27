@@ -1,6 +1,6 @@
 import ScreenSize from "@core/models/ScreenSize";
 import Category from "@core/models/Category";
-import logger from ".@core/utils/logger";
+import logger from "@core/utils/logger";
 
 const TV_SIZES = [
     { size: '32"', value: 32 },
