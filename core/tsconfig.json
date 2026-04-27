@@ -4,8 +4,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "ignoreDeprecations": "5.0",
-    "baseUrl": "..",
-    "rootDir": "..",
+    "baseUrl": ".",
+    "rootDir": "./src",
     "outDir": "./dist",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -17,9 +17,9 @@
     "resolveJsonModule": true,
     "lib": ["ES2023"],
     "paths": {
-      "@shared/*": ["shared/*"],
-      "@shared": ["shared/index.ts"],
-      "@core/*": ["core/src/*"]
+      "@shared/*": ["../shared/*"],
+      "@shared": ["../shared/index.ts"],
+      "@core/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],

@@ -5,59 +5,30 @@
     "moduleResolution": "node",
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",
-    "typeRoots": [
-      "./node_modules/@types",
-      "../node_modules/@types",
-      "./src/@types"
-    ],
-    "types": [
-      "jest",
-      "node"
-    ],
+    "rootDir": "./src",
     "outDir": "./dist",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "strict": true,
     "noImplicitAny": true,
-    "noFallthroughCasesInSwitch": true,
-    "isolatedModules": true,
-    "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "lib": [
-      "ES2023"
-    ],
+    "lib": ["ES2023"],
     "paths": {
       "@shared/*": ["../shared/*"],
-      "@shared":   ["../shared/index.ts"],
-      "@core/*":   ["../core/src/*"]
-    },
-    "rootDir": ".."
-  },
-  "ts-node": {
-    "files": true,
-    "compilerOptions": {
-      "module": "CommonJS"
+      "@shared": ["../shared/index.ts"],
+      "@core/*": ["../core/src/*"],
+      "@core": ["../core/src/index.ts"]
     }
   },
-  "files": [
-    "src/@types/index.d.ts",
-    "../core/src/types/global.d.ts"
-  ],
-  "include": [
-    "src/**/*.ts",
-    "src/@types/**/*.d.ts"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
     "dist",
-    "src/tests",
     "src/__tests__",
     "**/*.spec.ts",
-    "**/*.test.ts",
-    "src/seeds",
-    "src/scripts/_archived"
+    "**/*.test.ts"
   ]
 }
