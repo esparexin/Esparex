@@ -3,7 +3,6 @@
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
     "baseUrl": "..",
     "rootDir": "..",
     "outDir": "./dist",
@@ -22,11 +21,11 @@
       "@core/*": ["core/src/*"]
     }
   },
-  "include": ["core/src/**/*"],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
-    "core/dist",
-    "core/src/__tests__",
+    "dist",
+    "src/__tests__",
     "**/*.spec.ts",
     "**/*.test.ts"
   ]
