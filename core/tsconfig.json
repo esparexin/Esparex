@@ -5,6 +5,11 @@
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
+    "rootDir": ".",
+    "rootDirs": [
+      ".",
+      "../shared"
+    ],
     "typeRoots": [
       "./node_modules/@types",
       "../node_modules/@types"
