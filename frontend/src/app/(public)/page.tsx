@@ -108,7 +108,7 @@ export default async function Home() {
     ]);
 
     return (
-        <main className="min-h-screen bg-white text-foreground">
+        <div className="bg-white text-foreground">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
@@ -138,6 +138,6 @@ export default async function Home() {
                 <HomeFeed initialData={initialHomeAds} />
                 <HomeBannerAd />
             </section>
-        </main>
+        </div>
     );
 }

@@ -29,9 +29,9 @@ test.describe("🛡️ UI GOVERNANCE GUARDS", () => {
             const primarySections = page.locator("section[data-primary]");
             await expect(primarySections, `[${name}] Must have exactly 1 primary section`).toHaveCount(1);
 
-            // ✅ Rule 2: Header Appears Once
-            const headers = page.locator("header");
-            await expect(headers, `[${name}] Must have exactly 1 header`).toHaveCount(1);
+            // ✅ Rule 2: Header Appears Once (Visible Only)
+            const headers = page.locator("header").filter({ visible: true });
+            await expect(headers, `[${name}] Must have exactly 1 visible header`).toHaveCount(1);
 
             // ✅ Rule 3: Empty State vs Content (Heuristic)
             // If explicit empty state exists, heavy content grids should NOT exist

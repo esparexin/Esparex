@@ -11,9 +11,7 @@ jest.mock('@core/services/ListingMutationService', () => ({
 }));
 
 jest.mock('@core/services/AdOrchestrator', () => ({
-    AdOrchestrator: {
-        createAd: jest.fn(),
-    },
+    createAd: jest.fn(),
 }));
 
 jest.mock('@core/services/catalog/CatalogValidationService', () => ({

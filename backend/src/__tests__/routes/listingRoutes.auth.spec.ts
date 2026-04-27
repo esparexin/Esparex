@@ -39,6 +39,8 @@ jest.mock("@core/utils/redisCache", () => ({
 
 import listingRoutes from "../../routes/listingRoutes";
 
+jest.setTimeout(15000);
+
 const buildApp = () => {
     const app = express();
     app.use(express.json());

@@ -6,7 +6,6 @@ const mockSendMulticast = jest.fn();
 const mockSendEachForMulticast = jest.fn();
 const mockMessaging = jest.fn(() => ({
     subscribeToTopic: mockSubscribeToTopic,
-    sendMulticast: mockSendMulticast,
     sendEachForMulticast: mockSendEachForMulticast,
 }));
 const mockGetSystemConfigDoc = jest.fn();
@@ -79,7 +78,6 @@ describe("NotificationService", () => {
         });
         mockMessaging.mockImplementation(() => ({
             subscribeToTopic: mockSubscribeToTopic,
-            sendMulticast: mockSendMulticast,
             sendEachForMulticast: mockSendEachForMulticast,
         }));
         mockedGetSystemConfigDoc.mockResolvedValue({
@@ -136,11 +134,7 @@ describe("NotificationService", () => {
             fcmTokens: [{ token: "good" }, { token: "stale-1" }, { token: "stale-2" }],
         });
         mockedUser.findById.mockReturnValue({ select });
-        mockMessaging.mockImplementation(() => ({
-            subscribeToTopic: mockSubscribeToTopic,
-            sendMulticast: mockSendMulticast,
-            sendEachForMulticast: mockSendEachForMulticast,
-        }));
+
         mockSendEachForMulticast.mockResolvedValue({
             failureCount: 2,
             responses: [
@@ -148,6 +142,16 @@ describe("NotificationService", () => {
                 { success: false, error: { code: "messaging/invalid-registration-token" } },
                 { success: false, error: { code: "messaging/registration-token-not-registered" } },
             ],
+        });
+
+        // Set provider explicitly to firebase
+        mockedGetSystemConfigDoc.mockResolvedValue({
+            notifications: {
+                push: {
+                    enabled: true,
+                    provider: "firebase",
+                },
+            },
         });
 
         await sendNotification("user-1", "Order Update", "Device is ready", { screen: "orders" });

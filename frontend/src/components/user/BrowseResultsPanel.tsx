@@ -85,7 +85,7 @@ export function BrowseResultsPanel<TItem>({
     Boolean(VirtualizedListComponent) && items.length > virtualizationThreshold;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-3 pb-8 md:px-6 lg:px-8 space-y-4">
+    <section data-primary className="mx-auto max-w-7xl px-4 pt-3 pb-8 md:px-6 lg:px-8 space-y-4">
       <SearchResultsHeader
         total={loading && items.length === 0 ? 0 : total}
         sort={sort}
@@ -172,6 +172,6 @@ export function BrowseResultsPanel<TItem>({
           <RefreshCw className="h-5 w-5 animate-spin text-foreground-subtle" />
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }

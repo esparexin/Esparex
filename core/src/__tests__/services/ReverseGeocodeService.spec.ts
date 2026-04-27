@@ -1,24 +1,24 @@
 import { reverseGeocode } from '@core/services/location/ReverseGeocodeService';
-import Location from '../models/Location';
-import AdminBoundary from '../models/AdminBoundary';
-import { getCache, setCache } from '../utils/redisCache';
-import { haversineDistance } from '../utils/mongoGeoUtils';
+import Location from '@core/models/Location';
+import AdminBoundary from '@core/models/AdminBoundary';
+import { getCache, setCache } from '@core/utils/redisCache';
+import { haversineDistance } from '@core/utils/mongoGeoUtils';
 
-jest.mock('../models/Location', () => ({
+jest.mock('@core/models/Location', () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
         find: jest.fn()
     }
 }));
-jest.mock('../models/AdminBoundary', () => ({
+jest.mock('@core/models/AdminBoundary', () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
         find: jest.fn()
     }
 }));
-jest.mock('../utils/redisCache');
+jest.mock('@core/utils/redisCache');
 
 describe('ReverseGeocodeService', () => {
     beforeEach(() => {
