@@ -3,9 +3,9 @@
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
-    "rootDir": "..",
+    "rootDir": "src",
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
@@ -19,10 +19,7 @@
       "@core/types": ["./src/types/index.ts"]
     }
   },
-  "include": [
-    "src/**/*",
-    "../shared/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "src/__tests__",
     "**/*.spec.ts",
