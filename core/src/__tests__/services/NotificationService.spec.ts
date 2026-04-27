@@ -138,6 +138,7 @@ describe("NotificationService", () => {
         mockedUser.findById.mockReturnValue({ select });
         mockMessaging.mockImplementation(() => ({
             subscribeToTopic: mockSubscribeToTopic,
+            sendMulticast: mockSendMulticast,
             sendEachForMulticast: mockSendEachForMulticast,
         }));
         mockSendEachForMulticast.mockResolvedValue({

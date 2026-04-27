@@ -17,7 +17,7 @@ afterAll(async () => {
     );
 
     try {
-        const redisModule = await import('../config/redis');
+        const redisModule = await import('@core/config/redis');
         if (redisModule && redisModule.default && redisModule.default.quit) {
             await redisModule.default.quit();
         }

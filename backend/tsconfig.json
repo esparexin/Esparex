@@ -3,9 +3,8 @@
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
-    "rootDir": "./src",
+    "ignoreDeprecations": "6.0",
+    "rootDir": "..",
     "outDir": "./dist",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -15,7 +14,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "lib": ["ES2023"],
+    "lib": ["ES2023", "DOM"],
     "paths": {
       "@shared/*": ["../shared/*"],
       "@shared": ["../shared/index.ts"],
@@ -23,11 +22,18 @@
       "@core": ["../core/src/index.ts"]
     }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "../shared/**/*.ts",
+    "../core/src/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist",
     "src/__tests__",
+    "src/tests",
+    "../core/src/__tests__",
+    "../shared/**/__tests__",
     "**/*.spec.ts",
     "**/*.test.ts"
   ]

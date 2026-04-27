@@ -49,13 +49,14 @@ import {
     updateServiceByOwner,
 } from '@core/services/service/ServiceMutationRepository';
 import { ListingMutationService } from '@core/services/ListingMutationService';
-import { AdOrchestrator } from '@core/services/AdOrchestrator';
+import * as AdOrchestrator from '@core/services/AdOrchestrator';
 import {
     getCategorySelectionMode,
     validateServiceCategoryCapability,
 } from '@core/services/catalog/CatalogValidationService';
 import { resolveMasterDataIds } from '@core/utils/masterDataResolver';
 import { resolveServiceTypes } from '@core/utils/serviceTypeResolver';
+import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
 import {
     createServiceMutation,
     type ServiceBusinessContext,
@@ -83,10 +84,11 @@ const makeUser = () => ({
 
 const makeBusiness = (overrides: Partial<ServiceBusinessContext> = {}): ServiceBusinessContext => ({
     _id: new mongoose.Types.ObjectId(),
-    status: 'approved',
+    status: BUSINESS_STATUS.LIVE,
     locationId: new mongoose.Types.ObjectId(),
     location: {
-        locationId: new mongoose.Types.ObjectId(),
+        address: 'Test Address',
+        locationId: new mongoose.Types.ObjectId().toString(),
     },
     ...overrides,
 });

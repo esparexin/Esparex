@@ -71,6 +71,7 @@ jest.mock("@core/utils/logger", () => ({
     default: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
 
+import { ACTOR_TYPE } from "@core/constants/enums/actor";
 import Ad from "@core/models/Ad";
 import { mutateStatusesBulk } from "@core/services/StatusMutationService";
 import { validateTransition } from "@core/services/LifecycleGuard";
@@ -86,7 +87,7 @@ describe("StatusMutationService", () => {
     describe("mutateStatusesBulk", () => {
         it("returns 0 immediately when entityIds is empty (no DB calls)", async () => {
             const result = await mutateStatusesBulk("ad", [], "deactivated", {
-                type: "ADMIN" as const,
+                type: ACTOR_TYPE.ADMIN,
                 id: "admin_1",
             });
 
@@ -102,7 +103,7 @@ describe("StatusMutationService", () => {
             });
 
             const result = await mutateStatusesBulk("ad", ["nonexistent_id"], "deactivated", {
-                type: "ADMIN" as const,
+                type: ACTOR_TYPE.ADMIN,
                 id: "admin_1",
             });
 
@@ -145,7 +146,7 @@ describe("StatusMutationService", () => {
                     domain: "ad",
                     entityId: "ad_1",
                     toStatus: "deactivated",
-                    actor: { type: "USER" as const, id: "user_1" },
+                    actor: { type: ACTOR_TYPE.USER, id: "user_1" },
                     metadata: { action: "moderation_deactivate" },
                 })
             ).rejects.toMatchObject({ code: "INVALID_LIFECYCLE_TRANSITION" });
