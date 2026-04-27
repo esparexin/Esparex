@@ -12,6 +12,11 @@
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
     "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -31,6 +36,9 @@
       ],
       "@shared/*": [
         "../shared/*"
+      ],
+      "@shared": [
+        "../shared/index.ts"
       ]
     },
     "customConditions": []
