@@ -32,7 +32,8 @@
       "@shared/*": ["../shared/*"],
       "@shared":   ["../shared/index.ts"],
       "@core/*":   ["../core/src/*"]
-    }
+    },
+    "rootDir": ".."
   },
   "ts-node": {
     "files": true,

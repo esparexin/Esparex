@@ -3,50 +3,23 @@
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
-    "rootDir": ".",
-    "rootDirs": [
-      ".",
-      "../shared"
-    ],
-    "typeRoots": [
-      "./node_modules/@types",
-      "../node_modules/@types"
-    ],
-    "types": [
-      "node"
-    ],
+    "baseUrl": "..",
     "outDir": "./dist",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "strict": true,
     "noImplicitAny": true,
-    "noFallthroughCasesInSwitch": true,
-    "isolatedModules": true,
-    "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "lib": [
-      "ES2023"
-    ],
+    "lib": ["ES2023"],
     "paths": {
-      "@shared/*": ["../shared/*"],
-      "@shared": ["../shared/index.ts"],
-      "@core/*": ["./src/*"],
-      "@core/types": ["./src/types/index.ts"]
+      "@shared/*": ["shared/*"],
+      "@shared": ["shared/index.ts"],
+      "@core/*": ["core/src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/__tests__",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "src/__tests__"]
 }

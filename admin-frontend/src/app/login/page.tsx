@@ -59,6 +59,7 @@ function LoginForm() {
       const id = setTimeout(() => twoFactorInputRef.current?.focus(), 60);
       return () => clearTimeout(id);
     }
+    return;
   }, [requires2FA]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

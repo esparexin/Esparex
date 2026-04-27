@@ -14,7 +14,7 @@ interface State {
 }
 
 export class AdminErrorBoundary extends Component<Props, State> {
-    public state: State = {
+    public override state: State = {
         hasError: false
     };
 
@@ -22,11 +22,11 @@ export class AdminErrorBoundary extends Component<Props, State> {
         return { hasError: true, error };
     }
 
-    public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         console.error("Admin UI Error caught by boundary:", error, errorInfo);
     }
 
-    public render() {
+    public override render() {
         if (this.state.hasError) {
             return (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-red-100 bg-red-50/50 p-8 text-center">
