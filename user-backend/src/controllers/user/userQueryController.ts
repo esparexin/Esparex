@@ -9,6 +9,9 @@ import { getUserProfileById as getPublicUserProfileById, type SellerProfilePaylo
 import { getUserWithBusiness } from '@core/services/UserService';
 import type { AuthUser } from '../../types/auth.types';
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
 const resolveUserId = (req: Request, res: Response): string | null => {
   const userId = typeof req.params.id === 'string' ? req.params.id : '';
   if (!userId) {
@@ -45,9 +48,8 @@ export const getMe = async (
     }
 
     const safeUser = sanitizeUser(user);
-    const safeBusiness: Record<string, unknown> | null = business
-      ? (serializeDoc(business) as any)
-      : null;
+    const serializedBusiness = business ? serializeDoc<unknown>(business) : null;
+    const safeBusiness = isRecord(serializedBusiness) ? serializedBusiness : null;
 
     const businessStatus = getBusinessStatus(
       business?.status

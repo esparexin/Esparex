@@ -23,9 +23,12 @@ const sendSmartAlertError = (req: Request, res: Response, error: unknown) => {
     });
 };
 
+const getRequestBody = (req: Request): Record<string, unknown> =>
+    (req.body ?? {}) as Record<string, unknown>;
+
 export const createSmartAlert = async (req: Request, res: Response) => {
     try {
-        const body: Record<string, unknown> = req.body;
+        const body = getRequestBody(req);
         const alert = await createSmartAlertMutation({
             user: req.user,
             body,
@@ -42,7 +45,7 @@ export const createSmartAlert = async (req: Request, res: Response) => {
 
 export const updateSmartAlert = async (req: Request, res: Response) => {
     try {
-        const body: Record<string, unknown> = req.body;
+        const body = getRequestBody(req);
         const alert = await updateSmartAlertMutation({
             alertId: getRequiredAlertId(req),
             user: req.user,
