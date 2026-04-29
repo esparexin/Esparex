@@ -89,6 +89,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          NODE_ENV: production
           NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
           NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
           NEXT_PUBLIC_APP_URL: https://esparex.in
