@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 /**
  * ensure-listing-smoke-fixtures.ts
  *
@@ -8,7 +10,7 @@
  * the Playwright listing-chat-smoke tests can resolve the listing URL.
  *
  * Invoked by:
- *   npm run smoke:fixtures -w backend
+ *   npm run smoke:fixtures -w user-backend
  *
  * Environment inputs:
  *   MONGODB_URI                  — CI Mongo connection string (injected by workflow)
