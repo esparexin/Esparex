@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { verifyToken, JwtPayload } from "@core/utils/auth";
+import { env } from "@core/config/env";
+import { AlertService } from "@core/services/alertService";
+import { TraceContext } from "@shared/observability/trace";
 import redis from "@core/config/redis";
 import User from "@core/models/User";
 import { isTokenBlacklisted } from "@core/utils/redisCache";
@@ -162,7 +165,11 @@ export const protect = async (
   } catch (err) {
     logger.error("[Auth] Protect error:", err);
     clearAuthCookie(res);
+    AlertService.captureSecurity('admin-backend', 'FAILED_AUTH_TOKEN_VERIFICATION', { 
+        ip: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress 
+    });
     sendErrorResponse(req, res, 401, "Token verification failed");
+    return;
   }
 };
 
@@ -221,6 +228,8 @@ export const restrictTo =
 
       next();
     };
+
+export const authorize = restrictTo;
 
 /* -------------------------------------------------------------------------- */
 /* Admin-only Middleware                                                      */

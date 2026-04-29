@@ -1,14 +1,14 @@
 {
-  "frontend/src/components/catalog/CatalogSlugRoutes.tsx": [
+  "user-frontend/src/components/catalog/CatalogSlugRoutes.tsx": [
     "fetchUserApiJson"
   ],
-  "frontend/src/components/chat/ChatActionsMenu.tsx": [
+  "user-frontend/src/components/chat/ChatActionsMenu.tsx": [
     "chatApi"
   ],
-  "frontend/src/components/chat/ChatList.tsx": [
+  "user-frontend/src/components/chat/ChatList.tsx": [
     "chatApi"
   ],
-  "frontend/src/components/user/ListingDetail.tsx": [
+  "user-frontend/src/components/user/ListingDetail.tsx": [
     "chatApi"
   ]
 }

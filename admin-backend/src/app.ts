@@ -16,6 +16,7 @@ initSentry();
 /* ROUTES                                                                      */
 /* -------------------------------------------------------------------------- */
 import adminRoutes, { publicRouter as adminPublicRoutes } from './routes/adminRoutes';
+import analyticsRoutes from './routes/analyticsRoutes';
 
 /* -------------------------------------------------------------------------- */
 /* MIDDLEWARE                                                                  */
@@ -24,6 +25,11 @@ import { globalLimiter } from './middleware/rateLimiter';
 import { requireDb } from './middleware/requireDb';
 import { maintenanceMiddleware } from './middleware/maintenanceMiddleware';
 import { enforceErrorResponseContract } from './middleware/errorResponseContract';
+import { requestIdMiddleware } from './middleware/requestId';
+import { apiLatencyMiddleware as coreLatency, memoryUsageMiddleware as coreMemory } from '@core/middleware/metricsMiddleware';
+const apiLatencyMiddleware = coreLatency('admin-backend');
+const memoryUsageMiddleware = coreMemory('admin-backend');
+import { sentryRequestHandler, sentryTracingHandler, sentryErrorHandler, customErrorHandler } from './middleware/sentryErrorHandler';
 
 /* -------------------------------------------------------------------------- */
 /* DB / HEALTH                                                                 */
@@ -84,6 +90,14 @@ app.use((req, res, next) => {
 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// SSOT Observability Stack
+app.use(requestIdMiddleware);
+app.use(apiLatencyMiddleware);
+app.use(memoryUsageMiddleware);
+app.use(sentryRequestHandler);
+app.use(sentryTracingHandler);
+
 app.use(globalLimiter);
 
 /* -------------------------------------------------------------------------- */
@@ -109,6 +123,7 @@ app.use(requireDb);
 
 app.use(ADMIN_API_V1_PREFIX, adminPublicRoutes);
 app.use(ADMIN_API_V1_PREFIX, adminRoutes);
+app.use(`${ADMIN_API_V1_PREFIX}/analytics`, analyticsRoutes);
 
 app.use((req, res) => {
     res.status(404).json({
@@ -124,5 +139,9 @@ app.use((req, res) => {
 /* ERROR HANDLING                                                              */
 /* -------------------------------------------------------------------------- */
 app.use(enforceErrorResponseContract);
+
+// SSOT Error Handlers
+app.use(sentryErrorHandler);
+app.use(customErrorHandler);
 
 export default app;

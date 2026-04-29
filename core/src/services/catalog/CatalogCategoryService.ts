@@ -89,7 +89,7 @@ export const findCategoryByIdWithSession = async (id: string | undefined, sessio
     return Category.findById(id).session(session);
 };
 
-export const softDeleteCategoryById = async (id: string | { toString(): string }, session: ClientSession) =>
+export const softDeleteCategoryById = async (id: any, session: ClientSession) =>
     Category.updateOne(
         { _id: id },
         { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } },

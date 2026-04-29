@@ -69,12 +69,12 @@ export const findDuplicateLocation = async (
     Location.findOne({
         name: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
         country,
-        level,
+        level: level as any,
         parentId: parentId || null,
     });
 
 export const getDistinctStateLocations = async () =>
-    Location.find({ isActive: true, level: 'state' })
+    Location.find({ isActive: true, level: 'state' as any })
         .select('name')
         .lean<Array<{ name?: string }>>();
 

@@ -137,15 +137,15 @@ async function resolveCategoryFor(type: ListingFixtureType) {
           ],
         };
 
-  const category = await Category.findOne({
+  const category = (await (Category as any).findOne({
     isDeleted: { $ne: true },
     isActive: true,
-    status: { $in: ['live', 'active'] },
+    status: { $in: ['live', 'active'] as any },
     ...typeSelector,
   })
     .sort({ updatedAt: -1 })
     .select('_id name slug serviceSelectionMode')
-    .lean<{ _id: Types.ObjectId; name: string; slug: string; serviceSelectionMode?: 'single' | 'multi' } | null>();
+    .lean()) as { _id: Types.ObjectId; name: string; slug: string; serviceSelectionMode?: 'single' | 'multi' } | null;
 
   if (!category) {
     throw new Error(`No active category found for listingType=${type}`);

@@ -17,8 +17,8 @@ type NotificationTargetParams = {
 
 const ACTIVE_USER_QUERY = {
     isDeleted: { $ne: true },
-    status: { $nin: ["deleted", "banned"] },
-    role: { $in: ["user", "business"] },
+    status: { $nin: ["deleted" as any, "banned" as any] },
+    role: { $in: ["user" as any, "business" as any] },
 };
 
 const TOPIC_PLATFORM_MAP: Record<AdminNotificationTopicValue, "web" | "android" | "ios"> = {

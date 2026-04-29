@@ -4,9 +4,9 @@ services:
     name: esparex-backend
     env: node
     plan: starter # Starter plan active: 0.5 CPU | 512 MB RAM
-    # Build from repo root so npm workspaces links @esparex/shared correctly
-    buildCommand: npm install --include=dev && npm run build -w backend
-    startCommand: cd backend && node -r ./register.js dist/backend/src/index.js
+    # Build from repo root to ensure workspace dependencies are resolved and compiled
+    buildCommand: npm install && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/user-backend
+    startCommand: cd user-backend && node -r ./register.js dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -83,3 +83,42 @@ services:
       - key: ATLAS_LOCATION_SEARCH_INDEX
         sync: false   # Atlas Search index name (default: location_autocomplete)
 
+
+  # --- Esparex Admin Backend ---
+  - type: web
+    name: esparex-admin-backend
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/admin-backend
+    startCommand: cd admin-backend && node dist/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: ADMIN_MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_JWT_SECRET
+        sync: false
+      - key: REFRESH_TOKEN_SECRET
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: COOKIE_DOMAIN
+        sync: false
+      - key: ADMIN_FRONTEND_URL
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: S3_BUCKET_NAME
+        sync: false

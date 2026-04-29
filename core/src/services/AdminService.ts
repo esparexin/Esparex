@@ -173,7 +173,7 @@ export const findAdminForLogin = async (email: string) => {
     return Admin.findOne({ email }).select('+password +twoFactorSecret');
 };
 
-export const updateAdminLastLogin = async (id: string | { toString(): string }) => {
+export const updateAdminLastLogin = async (id: any) => {
     return Admin.updateOne({ _id: id }, { $set: { lastLogin: new Date() } });
 };
 

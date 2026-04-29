@@ -1,0 +1,349 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const imageDomainRegistryPath = path.resolve(__dirname, '../shared/constants/image-domain-registry.json');
+const imageDomainRegistry = JSON.parse(fs.readFileSync(imageDomainRegistryPath, 'utf8'));
+const staticRemotePatterns = Array.isArray(imageDomainRegistry.nextRemotePatterns)
+    ? imageDomainRegistry.nextRemotePatterns
+    : [];
+const s3Region =
+    process.env.AWS_REGION ||
+    'ap-south-1';
+const s3BucketName = process.env.S3_BUCKET_NAME;
+const dynamicS3BucketPattern = s3BucketName
+    ? [
+        {
+            protocol: 'https',
+            hostname: `${s3BucketName}.s3.${s3Region}.amazonaws.com`,
+            port: '',
+            pathname: '/**',
+        },
+    ]
+    : [];
+const regionalS3RemotePatterns = [
+    {
+        protocol: 'https',
+        hostname: `*.s3.${s3Region}.amazonaws.com`,
+        port: '',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
+        hostname: `s3.${s3Region}.amazonaws.com`,
+        port: '',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
+        hostname: '*.s3.amazonaws.com',
+        port: '',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
+        hostname: 's3.amazonaws.com',
+        port: '',
+        pathname: '/**',
+    },
+];
+const dynamicApiRemotePattern = (() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) return [];
+    try {
+        const parsed = new URL(apiUrl);
+        return [
+            {
+                protocol: parsed.protocol.replace(':', ''),
+                hostname: parsed.hostname,
+                port: parsed.port || '',
+                pathname: '/**',
+            },
+        ];
+    } catch {
+        return [];
+    }
+})();
+
+// The real backend origin used for server-side proxy rewrites.
+// Must be the Render service URL (not the api.esparex.in custom domain) so that
+// Next.js server-to-server requests bypass Render's routing overhead.
+// Browser never calls this URL directly — it always calls esparex.in/api/v1.
+const BACKEND_INTERNAL_URL =
+    process.env.BACKEND_INTERNAL_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'https://esparex-backend.onrender.com';
+
+const dynamicApiConnectSources = (() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) return [];
+    try {
+        const parsed = new URL(apiUrl);
+        const httpOrigin = `${parsed.protocol}//${parsed.host}`;
+        const wsProtocol = parsed.protocol === 'https:' ? 'wss' : parsed.protocol === 'http:' ? 'ws' : null;
+        const socketOrigin = wsProtocol ? `${wsProtocol}://${parsed.host}` : null;
+        return [httpOrigin, socketOrigin].filter(Boolean);
+    } catch {
+        return [];
+    }
+})();
+
+const connectSrc = [
+    "'self'",
+    'http://localhost:*',
+    'http://127.0.0.1:*',
+    'ws://localhost:*',
+    'ws://127.0.0.1:*',
+    'https://maps.googleapis.com',
+    'https://maps.gstatic.com',
+    'https://nominatim.openstreetmap.org',
+    'https://control.msg91.com',
+    'https://images.unsplash.com',
+    'https://ipapi.co',
+    'https://ipinfo.io',
+    'https://*.s3.ap-south-1.amazonaws.com',
+    'https://s3.ap-south-1.amazonaws.com',
+    'https://esparexdev.s3.ap-south-1.amazonaws.com', // Explicitly add known bucket
+    ...dynamicApiConnectSources,
+].join(' '); // Forced update for CSP
+
+const scriptSrc = [
+    "'self'",
+    "'unsafe-inline'",
+    ...(process.env.NODE_ENV === 'development' ? ["'unsafe-eval'"] : []),
+    'https://maps.googleapis.com',
+    'https://maps.gstatic.com',
+].join(' ');
+
+/** @type {import('next').NextConfig} */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    reactStrictMode: true,
+    output: process.env.STATIC_EXPORT === 'true' ? 'export' : undefined,
+    compress: true,
+    poweredByHeader: false,
+    experimental: {
+        optimizePackageImports: [
+            'lucide-react',
+            'framer-motion',
+            'recharts',
+            'socket.io-client',
+        ],
+    },
+    images: {
+        remotePatterns: [
+            ...regionalS3RemotePatterns,
+            ...dynamicS3BucketPattern,
+            ...dynamicApiRemotePattern,
+            ...staticRemotePatterns,
+        ],
+        dangerouslyAllowSVG: true,
+        contentDispositionType: 'attachment',
+        contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    },
+
+    async headers() {
+        return [
+            {
+                source: '/((?!sitemap\\.xml|robots\\.txt|.*\\.png|.*\\.jpg|.*\\.ico).*)',
+                headers: [
+                    { key: 'X-DNS-Prefetch-Control', value: 'on' },
+                    { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+                    { key: 'X-Content-Type-Options', value: 'nosniff' },
+                    { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+
+                    {
+                        key: 'Content-Security-Policy',
+                        value: [
+                            "default-src 'self'",
+                            `script-src ${scriptSrc}`,
+                            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+                            "img-src 'self' data: blob: https: http://localhost:* https://maps.googleapis.com https://maps.gstatic.com https://images.unsplash.com",
+                            "font-src 'self' data: https://fonts.gstatic.com",
+                            "worker-src 'self' blob:",
+
+                            `connect-src ${connectSrc}`,
+
+                            "frame-ancestors 'self'",
+                            "frame-src 'self' https://www.openstreetmap.org",
+                            "base-uri 'self'",
+                            "form-action 'self'"
+                        ].join('; ')
+                    }
+                ]
+            },
+            {
+                source: '/sitemap.xml',
+                headers: [
+                    { key: 'Content-Type', value: 'application/xml' },
+                    { key: 'X-Content-Type-Options', value: 'nosniff' },
+                    { key: 'Cache-Control', value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400' }
+                ]
+            },
+            {
+                source: '/robots.txt',
+                headers: [
+                    { key: 'Content-Type', value: 'text/plain' },
+                    { key: 'Cache-Control', value: 'public, max-age=86400, s-maxage=86400' }
+                ]
+            }
+        ];
+    },
+
+    async redirects() {
+        return [
+            // ── Legacy /account route migrations ─────────────────────────────
+            // Tab-specific redirects must come BEFORE the plain catch-all
+            {
+                source: '/profile',
+                destination: '/account/profile',
+                permanent: true,
+            },
+            {
+                source: '/profile/settings',
+                has: [{ type: 'query', key: 'tab', value: 'plans' }],
+                destination: '/account/plans',
+                permanent: true,
+            },
+            {
+                source: '/profile/settings',
+                has: [{ type: 'query', key: 'tab', value: 'smartalerts' }],
+                destination: '/account/alerts',
+                permanent: true,
+            },
+            {
+                source: '/profile/settings',
+                has: [{ type: 'query', key: 'tab', value: 'business' }],
+                destination: '/account/business',
+                permanent: true,
+            },
+            {
+                source: '/profile/settings',
+                has: [{ type: 'query', key: 'tab', value: 'purchases' }],
+                destination: '/account/purchases',
+                permanent: true,
+            },
+            {
+                source: '/profile/settings',
+                has: [{ type: 'query', key: 'tab', value: 'settings' }],
+                destination: '/account/settings',
+                permanent: true,
+            },
+            {
+                source: '/profile/settings',
+                destination: '/account/settings',
+                permanent: true,
+            },
+            {
+                source: '/purchases',
+                destination: '/account/purchases',
+                permanent: true,
+            },
+            {
+                source: '/business/my-business',
+                destination: '/account/business',
+                permanent: true,
+            },
+            {
+                source: '/business/register',
+                destination: '/account/business/apply',
+                permanent: true,
+            },
+            {
+                source: '/my-ads',
+                destination: '/account/ads?status=live',
+                permanent: true,
+            },
+            {
+                source: '/saved-ads',
+                destination: '/account/saved',
+                permanent: true,
+            },
+            {
+                source: '/messages',
+                destination: '/chat',
+                permanent: true,
+            },
+            {
+                source: '/account/messages',
+                destination: '/chat',
+                permanent: true,
+            },
+            {
+                source: '/my-services',
+                destination: '/account/services?status=live',
+                permanent: true,
+            },
+            // Exact /business match only — /business/[slug] continues to work
+            {
+                source: '/business',
+                destination: '/',
+                permanent: true,
+            },
+            // ── Pre-existing redirects ────────────────────────────────────────
+            {
+                source: '/ad/:id',
+                destination: '/ads/:id',
+                permanent: true,
+            },
+            {
+                source: '/browse',
+                destination: '/search',
+                permanent: true,
+            },
+            {
+                source: '/map-search',
+                destination: '/search',
+                permanent: true,
+            },
+            {
+                source: '/contact-us',
+                destination: '/contact',
+                permanent: true,
+            },
+            {
+                source: '/help-center',
+                destination: '/faq',
+                permanent: true,
+            },
+            {
+                source: '/sitemap',
+                destination: '/site-map',
+                permanent: true,
+            },
+        ];
+    },
+
+    /**
+     * API Proxy Rewrites — fixes Safari/iOS cross-site cookie blocking
+     *
+     * Problem: Safari ITP blocks cookies when the browser calls a different
+     * origin (e.g. esparex-backend.onrender.com or api.esparex.in) from
+     * esparex.in. The CSRF token cookie is silently dropped, causing a 403
+     * which the client surfaces as "connecting to server".
+     *
+     * Solution: All /api/v1/* requests are proxied server-side by Next.js.
+     * The browser only ever talks to https://esparex.in — same origin.
+     * No cross-site request = no ITP restriction = cookies flow freely.
+     *
+     * To activate: set NEXT_PUBLIC_API_URL=https://esparex.in/api/v1
+     * in the frontend Render/Vercel environment variables.
+     */
+    async rewrites() {
+        // Strip trailing slash and /api/v1 suffix so we can forward cleanly.
+        const backendOrigin = BACKEND_INTERNAL_URL
+            .replace(/\/api\/v1\/?$/, '')
+            .replace(/\/$/, '');
+
+        return [
+            {
+                source: '/api/v1/:path*',
+                destination: `${backendOrigin}/api/v1/:path*`,
+            },
+        ];
+    },
+};
+
+export default nextConfig;

@@ -1,6 +1,6 @@
 import {
   ADMIN_API_V1_BASE_PATH,
-  DEFAULT_LOCAL_API_ORIGIN,
+  DEFAULT_ADMIN_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
 
 let cachedAdminApiBase: string | null = null;
@@ -10,7 +10,7 @@ const LOCALHOST_URL_PATTERN = /^https?:\/\/(?:localhost|127(?:\.\d{1,3}){3})(?::
 const normalizeBaseUrl = (value: string): string => value.trim().replace(/\/+$/, "");
 
 const getDefaultAdminApiBase = (): string =>
-  `${DEFAULT_LOCAL_API_ORIGIN}${ADMIN_API_V1_BASE_PATH}`;
+  `${DEFAULT_ADMIN_LOCAL_API_ORIGIN}${ADMIN_API_V1_BASE_PATH}`;
 
 export function resolveValidatedAdminApiBase(): string {
   if (cachedAdminApiBase) {

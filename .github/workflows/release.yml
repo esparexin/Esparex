@@ -1,0 +1,44 @@
+name: Automated Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    name: Release and Tag
+    runs-on: ubuntu-latest
+    
+    # Optional: Prevent circular release triggers if a release commit pushes to main
+    if: "!contains(github.event.head_commit.message, 'chore(release):')"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history for correct changelog generation
+          fetch-depth: 0
+          # We need a personal access token or configure git to push the tag and commit
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Configure Git User
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run Standard Version
+        # This bumps version, creates changelog, creates release commit, and creates the tag
+        run: npm run release
+
+      - name: Push Release and Tag
+        run: git push --follow-tags origin main

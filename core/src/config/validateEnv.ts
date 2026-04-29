@@ -5,6 +5,7 @@ const REQUIRED_PRODUCTION_ENV_VARS = [
     'RAZORPAY_WEBHOOK_SECRET',
     'OTP_HASH_SECRET',
     'JWT_SECRET',
+    'ADMIN_JWT_SECRET',
     'REDIS_URL',
     'MONGODB_URI',
     'ADMIN_MONGODB_URI',
@@ -166,6 +167,18 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
                 'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
             );
         }
+    }
+
+    // 🔒 SECURITY: Enforce JWT secret isolation — admin and user tokens must use different secrets
+    const jwtSecret = (sourceEnv.JWT_SECRET || '').trim();
+    const adminJwtSecret = (sourceEnv.ADMIN_JWT_SECRET || '').trim();
+
+    if (adminJwtSecret && adminJwtSecret === jwtSecret) {
+        throw new Error(
+            '🚨 SECURITY BLOCK: ADMIN_JWT_SECRET must be different from JWT_SECRET in production. ' +
+            'Sharing secrets allows user tokens to authenticate admin APIs. ' +
+            'Set a unique ADMIN_JWT_SECRET in your production environment.'
+        );
     }
 
     bootstrapLogger.info('✅ Production environment secrets and origin constraints validated');

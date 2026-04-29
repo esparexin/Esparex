@@ -1,0 +1,38 @@
+import express from "express";
+import * as locationController from "../controllers/location/locationController";
+import { searchLimiter } from '../middleware/rateLimiter';
+import { validateRequest } from '../middleware/validateRequest';
+import * as Validators from '@core/validators/location.validator';
+
+const router = express.Router();
+
+/**
+ * Location Domain
+ * ---------------------------------------------------------
+ * Unified reference geography and geospatial services.
+ * Mount Point: /api/v1/locations
+ * ---------------------------------------------------------
+ */
+
+// Search (text autocomplete)
+router.get("/", searchLimiter, locationController.searchLocations);
+router.get("/pincode/:pincode", searchLimiter, locationController.lookupPincode);
+
+// Hierarchical selectors
+router.get("/states", searchLimiter, locationController.getStates);
+router.get("/cities", searchLimiter, locationController.getCities);
+router.get("/areas", searchLimiter, locationController.getAreas);
+
+// Default map center/fallback city
+router.get("/default-center", searchLimiter, locationController.getDefaultCenter);
+
+// IP Geolocation — server-side proxy (keeps API key off the client)
+router.get("/ip-locate", searchLimiter, locationController.ipLocate);
+
+// Geospatial & Detection
+router.get("/geocode", searchLimiter, locationController.geocode);
+
+// Analytics
+router.post("/log-event", searchLimiter, validateRequest(Validators.logLocationEventSchema), locationController.logLocationEvent);
+
+export default router;

@@ -16,7 +16,7 @@ export const runQualityScoreBackfill = async (): Promise<void> => {
     try {
         // Query condition: status is live/pending, and listingQualityScore is missing or 0
         const query = {
-            status: { $in: ['live', 'pending'] },
+            status: { $in: ['live' as any, 'pending' as any] },
             $or: [
                 { listingQualityScore: { $exists: false } },
                 { listingQualityScore: null },

@@ -171,5 +171,5 @@ export const buildUserStatusLogFn = (
     ip = '',
     userAgent = ''
 ): AdminLogFn =>
-    (action, targetType, targetId, metadata) =>
+    (action: string, targetType: any, targetId?: string | { toString: () => string }, metadata?: Record<string, unknown>) =>
         logAdminActionDirect(actorId, action, targetType, targetId, metadata, ip, userAgent);

@@ -7,6 +7,7 @@ export interface IAdminLog extends Document {
     action: string;
     targetType: string;
     targetId?: mongoose.Types.ObjectId | string;
+    traceId?: string;
     metadata?: unknown;
     ipAddress?: string;
     userAgent?: string;
@@ -18,6 +19,7 @@ const AdminLogSchema = new Schema<IAdminLog>({
     action: { type: String, required: true },
     targetType: { type: String, enum: ['User', 'Ad', 'Plan', 'Business', 'System', 'Category', 'Brand', 'Model', 'Service', 'SparePart', 'Location', 'ModerationRule', 'Config', 'Notification', 'ScheduledNotification', 'Report', 'Contact', 'Transaction', 'Invoice', 'ServiceType', 'ScreenSize', 'Admin', 'Keyword', 'Geofence', 'ApiKey'], required: true },
     targetId: { type: Schema.Types.Mixed }, // Can be ObjectId or string ID
+    traceId: { type: String, index: true },
     metadata: { type: Schema.Types.Mixed },
     ipAddress: { type: String },
     userAgent: { type: String }

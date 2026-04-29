@@ -10,7 +10,7 @@ type CategoryLite = {
 const ACTIVE_CATEGORY_QUERY = {
     isActive: true,
     isDeleted: { $ne: true },
-    status: 'live'
+    status: 'live' as any
 };
 
 const CACHE_TTL_MS = 60 * 1000;

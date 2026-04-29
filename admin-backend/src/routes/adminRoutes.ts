@@ -21,6 +21,7 @@ import catalogRoutes from './admin/catalog.routes';
 import systemRoutes from './admin/system.routes';
 import financeRoutes from './admin/finance.routes';
 import importRoutes from './importRoutes';
+import editorialRoutes from './editorialRoutes';
 
 
 
@@ -61,5 +62,6 @@ router.use('/', moderationRoutes);
 router.use('/', catalogRoutes);
 router.use('/', financeRoutes);
 router.use('/import', importRoutes);
+router.use('/editorial', editorialRoutes);
 
 export default router;

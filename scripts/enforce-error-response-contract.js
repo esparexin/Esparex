@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const appFile = path.join(__dirname, '..', 'backend', 'src', 'app.ts');
+const appFile = path.join(__dirname, '..', 'user-backend', 'src', 'app.ts');
 
 const source = fs.readFileSync(appFile, 'utf8');
 const importToken = "import { enforceErrorResponseContract } from './middleware/errorResponseContract';";

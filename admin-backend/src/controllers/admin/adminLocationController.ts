@@ -213,6 +213,17 @@ export const approveRejectLocation = async (req: Request, res: Response) => {
     }
 };
 
+export const ingestLocation = async (req: Request, res: Response) => {
+    try {
+        const location = await adminLocationService.adminIngestLocation(
+            req.body as Record<string, unknown>
+        );
+        return sendSuccessResponse(res, location);
+    } catch (error: unknown) {
+        return sendBaseAdminError(req, res, error);
+    }
+};
+
 export const refreshLocationStats = async (req: Request, res: Response) => {
     try {
         await adminLocationService.adminRefreshLocationStats(buildLogFn(req));

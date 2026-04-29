@@ -1,33 +1,23 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "target": "ES2022",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
-    "rootDir": "..",
+    "baseUrl": "..",
+    "rootDir": "./src",
     "outDir": "./dist",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
     "jsx": "react-jsx",
-    "lib": ["ES2023", "DOM"],
     "paths": {
-      "@shared/*": ["../shared/*"],
-      "@shared": ["../shared/index.ts"],
-      "@core/*": ["../core/src/*"],
-      "@core": ["../core/src/index.ts"]
+      "@shared/*": ["shared/dist/*"],
+      "@shared": ["shared/dist/index.d.ts"],
+      "@core/*": ["core/dist/*"],
+      "@core": ["core/dist/index.d.ts"]
     }
   },
+  "references": [
+    { "path": "../shared" },
+    { "path": "../core" }
+  ],
   "include": [
-    "src/**/*",
-    "../core/src/**/*",
-    "../shared/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",

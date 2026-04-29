@@ -1,0 +1,26 @@
+{
+  "header": "# 📝 Changelog\n\nAll notable changes to this project will be documented in this file.",
+  "types": [
+    { "type": "feat", "section": "✨ Features" },
+    { "type": "fix", "section": "🐛 Bug Fixes" },
+    { "type": "chore", "section": "🚀 Chore" },
+    { "type": "docs", "section": "📝 Documentation" },
+    { "type": "style", "section": "💄 Style" },
+    { "type": "refactor", "section": "♻️ Refactor" },
+    { "type": "perf", "section": "⚡️ Performance" },
+    { "type": "test", "section": "✅ Tests" }
+  ],
+  "bumpFiles": [
+    { "filename": "package.json", "type": "json" },
+    { "filename": "core/package.json", "type": "json" },
+    { "filename": "user-backend/package.json", "type": "json" },
+    { "filename": "admin-backend/package.json", "type": "json" },
+    { "filename": "user-frontend/package.json", "type": "json" },
+    { "filename": "admin-frontend/package.json", "type": "json" },
+    { "filename": "shared/package.json", "type": "json" },
+    { "filename": "shared/observability/package.json", "type": "json" }
+  ],
+  "packageFiles": [
+    { "filename": "package.json", "type": "json" }
+  ]
+}

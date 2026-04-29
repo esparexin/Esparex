@@ -84,6 +84,7 @@ import {
     refreshLocationStats,
     getDistinctStates,
     reverseGeocode,
+    ingestLocation,
 } from '../../controllers/admin/adminLocationController';
 import {
     getSystemConfig,
@@ -114,6 +115,7 @@ router.get('/activity', searchLimiter, systemController.getRecentActivity);
 router.post('/ai/generate', adminMutationLimiter, validateRequest(aiGenerateSchema), aiController.generate);
 router.get('/locations/analytics', requirePermission('system:config'), searchLimiter, validateRequest({ query: adminLocationAnalyticsQuerySchema }), systemController.getLocationAnalytics);
 router.get('/rate-limits/metrics', searchLimiter, systemController.getRateLimitMetrics);
+
 
 // ============================================
 // AUDIT LOGS
@@ -210,6 +212,7 @@ router.post('/locations/stats/refresh', requirePermission('system:config'), admi
 router.get('/locations/states', requirePermission('system:config'), searchLimiter, getDistinctStates);
 router.get('/locations/moderation', requirePermission('system:config'), getModerationQueue);
 router.get('/locations/reverse-geocode', requirePermission('users:write'), reverseGeocode);
+router.post('/locations/ingest', requirePermission('system:config'), adminMutationLimiter, ingestLocation);
 
 // ✅ FILTER / QUERY
 router.get('/locations', requirePermission('system:config'), searchLimiter, validateRequest({ query: adminLocationListQuerySchema }), getAllLocations);

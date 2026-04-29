@@ -61,7 +61,7 @@ export const logPhoneReveal = async (
         };
 
         // Create log record asynchronously
-        PhoneRevealLog.create(logData).catch((err: unknown) => {
+        PhoneRevealLog.create(logData as any).catch((err: unknown) => {
             logger.error('Failed to create PhoneRevealLog document', { error: err instanceof Error ? err.message : String(err) });
         });
 
@@ -132,7 +132,7 @@ export const getSellerPhone = async (
                     buyerId: new mongoose.Types.ObjectId(buyerId),
                     sellerId: seller._id,
                     entityId: id,
-                    entityType: resolvedEntityType,
+                    entityType: resolvedEntityType as any,
                     status: 'approved'
                 }).lean();
 

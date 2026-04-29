@@ -9,7 +9,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = process.cwd();
-const USER_API_DIR = path.join(ROOT, "frontend", "src", "lib", "api", "user");
+const USER_API_DIR = path.join(ROOT, "user-frontend", "src", "lib", "api", "user");
 const DISALLOWED = [
   "@/lib/api/safeWrapper",
   "../lib/api/safeWrapper",

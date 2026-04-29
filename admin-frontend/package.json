@@ -1,7 +1,7 @@
 {
-  "name": "admin-frontend",
+  "name": "@esparex/admin-frontend",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "engines": {
     "node": ">=24.0.0 <26",
@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "next dev -p 3001",
+    "prebuild": "npm run build -w @esparex/shared && npm run build -w @shared/observability",
     "build": "next build",
     "start": "next start -p 3001",
     "typecheck": "tsc --noEmit",
@@ -39,12 +40,10 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
-    "@types/node": "^24.10.1",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.19",
-    "typescript": "^5.2.2"
+    "tailwindcss": "^3.4.19"
   }
 }

@@ -103,7 +103,7 @@ export const findOwnedService = async (
 ) => {
     const objectId = new mongoose.Types.ObjectId(id);
     if (fetchFull) {
-        return Ad.findOne({ _id: objectId, listingType, sellerId: userId });
+        return Ad.findOne({ _id: objectId, listingType: listingType as any, sellerId: userId as any });
     }
-    return Ad.findOne({ _id: objectId, listingType, sellerId: userId, isDeleted: { $ne: true } }).select('status');
+    return Ad.findOne({ _id: objectId, listingType: listingType as any, sellerId: userId as any, isDeleted: { $ne: true } }).select('status');
 };

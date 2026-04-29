@@ -1,0 +1,23 @@
+module.exports = {
+    preset: 'ts-jest',
+    testEnvironment: 'node',
+    testMatch: ['**/__tests__/**/*.spec.ts', '**/tests/**/*.spec.ts', '**/__tests__/**/*.test.ts'],
+    setupFiles: ['<rootDir>/src/tests/jest.setup-env.ts'],
+    setupFilesAfterEnv: ['<rootDir>/src/tests/jest.after-env.ts'],
+    globalTeardown: '<rootDir>/src/tests/jest.globalTeardown.ts',
+    verbose: true,
+    roots: ['<rootDir>', '<rootDir>/../shared', '<rootDir>/../core'],
+    transform: {
+        '^.+\\.tsx?$': ['ts-jest', { 
+            diagnostics: false,
+            tsconfig: 'tsconfig.json'
+        }]
+    },
+    moduleNameMapper: {
+        '^uuid$': '<rootDir>/__mocks__/uuid.js',
+        '^@sentry/profiling-node$': '<rootDir>/src/tests/mocks/sentry-profiling-node.ts',
+        '^@shared$': '<rootDir>/../shared/index.ts',
+        '^@shared/(.*)$': '<rootDir>/../shared/$1',
+        '^@core/(.*)$': '<rootDir>/../core/src/$1'
+    }
+};

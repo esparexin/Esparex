@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+
+# Prevent force push to main
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" == "main" ]; then
+    # We detect force push by checking if we're behind the remote
+    git fetch origin main
+    if [ $(git rev-list HEAD..origin/main --count) -gt 0 ]; then
+        echo -e "\033[0;31m🚨 ERROR: Your branch is behind 'origin/main'. Force push is forbidden.\033[0m"
+        echo "Please pull and merge/rebase before pushing."
+        exit 1
+    fi
+fi
+
+# Build & CI Guard
+npm run precheck

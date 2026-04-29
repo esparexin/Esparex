@@ -13,6 +13,9 @@ import {
     countUsersForLocation,
 } from './location/LocationQueryService';
 import {
+    ingestLocation as ingestLocationService
+} from './location/LocationHierarchyService';
+import {
     generateLocationId,
     createLocationRecord,
     saveLocation,
@@ -585,4 +588,8 @@ export const adminRefreshLocationStats = async (logFn: AdminLogFn) => {
     );
     await logFn('REFRESH_STATS', 'System', 'LocationAnalytics', {});
     return true;
+};
+
+export const adminIngestLocation = async (body: Record<string, unknown>) => {
+    return ingestLocationService(body as any);
 };

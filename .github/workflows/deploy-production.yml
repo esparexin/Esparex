@@ -1,0 +1,97 @@
+name: Deploy Production
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  NODE_ENV: production
+
+jobs:
+  build-and-guard:
+    name: Build & CI Guard (Production)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build All Workspaces
+        run: npm run build
+
+      - name: Run CI Guard
+        run: ./scripts/ci-guard.sh
+
+  deploy:
+    name: Deploy to Render (Production)
+    needs: build-and-guard
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [user-backend, admin-backend, user-frontend, admin-frontend]
+      fail-fast: false # Deploy independently
+
+    steps:
+      - name: Trigger Render Deploy Hook
+        run: |
+          # The name must match GitHub Secret formatting
+          SERVICE_CLEAN=$(echo "${{ matrix.service }}" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+          HOOK_URL_SECRET_NAME="RENDER_DEPLOY_HOOK_PROD_${SERVICE_CLEAN}"
+          HOOK_URL="${!HOOK_URL_SECRET_NAME}"
+          
+          if [ -z "$HOOK_URL" ]; then
+            echo "Skipping deploy: Deploy hook secret not found for ${{ matrix.service }} production."
+            exit 0
+          fi
+          
+          echo "Triggering deploy for ${{ matrix.service }}..."
+          curl -sS -X POST "$HOOK_URL" -o deploy_response.json
+          
+          if grep -q "Deploy started" deploy_response.json; then
+            echo "Deployment successfully triggered."
+          else
+            echo "Deployment trigger failed!"
+            cat deploy_response.json
+            exit 1
+          fi
+
+  validate:
+    name: Validate Deployment (Production)
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health Check User Backend
+        run: |
+          URL="${{ secrets.PROD_USER_BACKEND_URL }}"
+          if [ -n "$URL" ]; then
+            curl -f -sS --retry 10 --retry-delay 15 "$URL/" || exit 1
+          fi
+
+      - name: Health Check Admin Backend
+        run: |
+          URL="${{ secrets.PROD_ADMIN_BACKEND_URL }}"
+          if [ -n "$URL" ]; then
+            curl -f -sS --retry 10 --retry-delay 15 "$URL/health" || exit 1
+          fi
+
+  notify-failure:
+    name: Notify on Failure
+    needs: [build-and-guard, deploy, validate]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack Notification
+        run: |
+          SLACK_WEBHOOK="${{ secrets.SLACK_ALERT_WEBHOOK }}"
+          if [ -n "$SLACK_WEBHOOK" ]; then
+            curl -X POST -H 'Content-type: application/json' --data '{"text":"🚨 *PRODUCTION DEPLOYMENT FAILED* for tag ${{ github.ref_name }}! Please check GitHub Actions logs."}' "$SLACK_WEBHOOK"
+          fi

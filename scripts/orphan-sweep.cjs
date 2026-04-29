@@ -14,8 +14,8 @@ const SCAN_DIRS = [
 ];
 const PACKAGE_MANIFESTS = [
   { manifest: 'package.json', root: '' },
-  { manifest: 'backend/package.json', root: 'backend' },
-  { manifest: 'frontend/package.json', root: 'frontend' },
+  { manifest: 'backend/package.json', root: 'user-backend' },
+  { manifest: 'frontend/package.json', root: 'user-frontend' },
   { manifest: 'admin-frontend/package.json', root: 'admin-frontend' },
   { manifest: 'core/package.json', root: 'core' }
 ];

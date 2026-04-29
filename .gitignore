@@ -143,3 +143,11 @@ frontend/test-results/
 frontend/android/app/new*.sh
 backend/lint_output*.txt
 scratch/
+user-frontend/test-results/
+*.diff
+*.txt
+deps_audit.json
+core/src/**/*.js
+core/src/**/*.js.map
+shared/**/*.js
+shared/**/*.js.map

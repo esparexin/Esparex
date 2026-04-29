@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./shared" },
+    { "path": "./shared/observability" },
+    { "path": "./core" },
+    { "path": "./user-backend" },
+    { "path": "./admin-backend" },
+    { "path": "./user-frontend" },
+    { "path": "./admin-frontend" }
+  ]
+}

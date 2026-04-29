@@ -155,7 +155,7 @@ export async function findPendingTransaction(
         applied: false,
         createdAt: { $gte: since },
     };
-    return Transaction.findOne(filter).sort({ createdAt: -1 });
+    return Transaction.findOne(filter as any).sort({ createdAt: -1 });
 }
 
 export async function createPaymentTransaction(

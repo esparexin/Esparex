@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# 1. Protected Files Check
+bash scripts/check-protected-files.sh
+
+# 2. Main Branch Direct Commit Protection
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" == "main" ]; then
+    echo -e "\033[0;33m⚠️  WARNING: Committing directly to 'main' branch.\033[0m"
+    echo "Ensure your changes have passed full local validation."
+fi
+
+# 3. Build & CI Guard
+npm run precheck

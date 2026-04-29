@@ -416,7 +416,7 @@ export const createAdminAccount = async (
         email: normalizedEmail,
         mobile,
         password: normalizedPassword,
-        role: normalizedRole,
+        role: normalizedRole as any,
         permissions: normalizedPermissions,
         status: USER_STATUS.LIVE
     });

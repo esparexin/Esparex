@@ -35,27 +35,25 @@
         "./src/*"
       ],
       "@shared/*": [
-        "../shared/*"
+        "../shared/dist/*"
       ],
       "@shared": [
-        "../shared/index.ts"
+        "../shared/dist/index.d.ts"
       ]
     },
     "customConditions": []
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "../shared/**/*.ts",
-    "../shared/**/*.tsx"
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "../backend",
-    "../backend/**/*",
+    "../user-backend",
+    "../user-backend/**/*",
     "../shared/location-engine",
     "../shared/location-engine/**/*"
   ]

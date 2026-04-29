@@ -9,7 +9,7 @@ import {
 import { USER_STATUS, UserStatusValue } from "@shared/enums/userStatus";
 import * as adminUsersService from '@core/services/AdminUsersService';
 import { logAdminActionDirect } from '@core/utils/adminLogger';
-import type { AdminLogFn } from '@core/services/AdminListingsService';
+import type { AdminLogFn } from '@core/utils/adminLogger';
 import type { IAuthUser } from '@core/types/auth';
 
 // ---------------------------------------------------------

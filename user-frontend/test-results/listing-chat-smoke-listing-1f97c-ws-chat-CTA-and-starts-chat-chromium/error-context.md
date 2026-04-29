@@ -1,0 +1,165 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - button "Esparex Logo" [ref=e5] [cursor=pointer]:
+          - img "Esparex Logo" [ref=e6]
+        - 'button "Current location: India" [ref=e8] [cursor=pointer]':
+          - img [ref=e9]
+          - generic [ref=e13]: India
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - textbox "Search for mobiles, parts, services..." [ref=e19]
+        - generic [ref=e20]:
+          - button "Post Ad" [disabled]:
+            - img
+            - text: Post Ad
+    - generic [ref=e23]: "Some services are temporarily unavailable. You can still browse, but login and transactions may be limited. API health check: http://localhost:5001/api/v1"
+    - main [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e27]:
+          - button "Esparex Logo" [ref=e28] [cursor=pointer]:
+            - img "Esparex Logo" [ref=e29]
+          - 'button "Current location: India" [ref=e31] [cursor=pointer]':
+            - img [ref=e32]
+            - generic [ref=e36]: India
+          - generic [ref=e38]:
+            - img [ref=e39]
+            - textbox "Search for mobiles, parts, services..." [ref=e42]
+          - generic [ref=e43]:
+            - button "Login" [ref=e44] [cursor=pointer]
+            - button "Post Ad" [disabled]:
+              - img
+              - text: Post Ad
+        - generic [ref=e45]: "Some services are temporarily unavailable. You can still browse, but login and transactions may be limited. API health check: http://localhost:5001/api/v1"
+        - main [ref=e46]:
+          - generic [ref=e52]:
+            - generic [ref=e54]:
+              - img [ref=e57]
+              - img [ref=e64]
+            - generic [ref=e67]:
+              - generic [ref=e68]: Error 404
+              - heading "Lost in the Marketplace?" [level=1] [ref=e69]
+              - paragraph [ref=e70]: Oops! It seems this item or page has been moved, sold, or taken off the shelf. Let’s get you back on track.
+            - generic [ref=e71]:
+              - link "Go to Homepage" [ref=e72] [cursor=pointer]:
+                - /url: /
+                - img [ref=e73]
+                - generic [ref=e76]: Go to Homepage
+              - link "Search Marketplace" [ref=e77] [cursor=pointer]:
+                - /url: /search
+                - img [ref=e78]
+                - generic [ref=e81]: Search Marketplace
+            - generic [ref=e82]:
+              - link "Safety Tips" [ref=e83] [cursor=pointer]:
+                - /url: /safety-tips
+              - link "Post Ad" [ref=e84] [cursor=pointer]:
+                - /url: /post-ad
+              - link "Support" [ref=e85] [cursor=pointer]:
+                - /url: /contact
+              - link "Login" [ref=e86] [cursor=pointer]:
+                - /url: /login
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - link "Esparex" [ref=e92] [cursor=pointer]:
+              - /url: /
+              - img "Esparex" [ref=e93]
+            - generic [ref=e94]:
+              - heading "Company" [level=3] [ref=e95]
+              - list [ref=e96]:
+                - listitem [ref=e97]:
+                  - link "About Us" [ref=e98] [cursor=pointer]:
+                    - /url: /about
+                - listitem [ref=e99]:
+                  - link "Contact" [ref=e100] [cursor=pointer]:
+                    - /url: /contact
+            - generic [ref=e101]:
+              - heading "Support" [level=3] [ref=e102]
+              - list [ref=e103]:
+                - listitem [ref=e104]:
+                  - link "Help Center" [ref=e105] [cursor=pointer]:
+                    - /url: /faq
+                - listitem [ref=e106]:
+                  - link "Safety Tips" [ref=e107] [cursor=pointer]:
+                    - /url: /safety-tips
+                - listitem [ref=e108]:
+                  - link "How It Works" [ref=e109] [cursor=pointer]:
+                    - /url: /how-it-works
+            - generic [ref=e110]:
+              - heading "Legal" [level=3] [ref=e111]
+              - list [ref=e112]:
+                - listitem [ref=e113]:
+                  - link "Terms of Service" [ref=e114] [cursor=pointer]:
+                    - /url: /terms
+                - listitem [ref=e115]:
+                  - link "Privacy Policy" [ref=e116] [cursor=pointer]:
+                    - /url: /privacy
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - img
+              - text: Verified Safe Marketplace
+            - generic [ref=e120]: © 2026 Esparex Platform. Built for the future of tech repair.
+    - contentinfo [ref=e121]:
+      - generic [ref=e122]:
+        - generic [ref=e123]:
+          - link "Esparex" [ref=e126] [cursor=pointer]:
+            - /url: /
+            - img "Esparex" [ref=e127]
+          - generic [ref=e128]:
+            - heading "Company" [level=3] [ref=e129]
+            - list [ref=e130]:
+              - listitem [ref=e131]:
+                - link "About Us" [ref=e132] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e133]:
+                - link "Contact" [ref=e134] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e135]:
+            - heading "Support" [level=3] [ref=e136]
+            - list [ref=e137]:
+              - listitem [ref=e138]:
+                - link "Help Center" [ref=e139] [cursor=pointer]:
+                  - /url: /faq
+              - listitem [ref=e140]:
+                - link "Safety Tips" [ref=e141] [cursor=pointer]:
+                  - /url: /safety-tips
+              - listitem [ref=e142]:
+                - link "How It Works" [ref=e143] [cursor=pointer]:
+                  - /url: /how-it-works
+          - generic [ref=e144]:
+            - heading "Legal" [level=3] [ref=e145]
+            - list [ref=e146]:
+              - listitem [ref=e147]:
+                - link "Terms of Service" [ref=e148] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e149]:
+                - link "Privacy Policy" [ref=e150] [cursor=pointer]:
+                  - /url: /privacy
+        - generic [ref=e152]:
+          - generic [ref=e153]:
+            - img
+            - text: Verified Safe Marketplace
+          - generic [ref=e154]: © 2026 Esparex Platform. Built for the future of tech repair.
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e155]:
+        - button "Close toast" [ref=e156] [cursor=pointer]:
+          - img [ref=e157]
+        - img [ref=e161]
+        - generic [ref=e164]: Backend service unavailable.
+  - generic [ref=e169] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e170]:
+      - img [ref=e171]
+    - generic [ref=e174]:
+      - button "Open issues overlay" [ref=e175]:
+        - generic [ref=e176]:
+          - generic [ref=e177]: "0"
+          - generic [ref=e178]: "1"
+        - generic [ref=e179]: Issue
+      - button "Collapse issues badge" [ref=e180]:
+        - img [ref=e181]
+  - alert [ref=e183]
+```

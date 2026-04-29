@@ -189,7 +189,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
 
             // 5. Record Unified Status History
             await StatusHistory.create([{
-                domain,
+                domain: domain as any,
                 entityId: (entityId instanceof mongoose.Types.ObjectId) ? entityId : new mongoose.Types.ObjectId(String(entityId)),
                 fromStatus,
                 toStatus,

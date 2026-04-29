@@ -27,11 +27,11 @@ export async function adminListConversations(
     if (filter === 'closed') {
         const closedAdIds = await Ad.distinct('_id', {
             $or: [
-                { status: { $in: [...CHAT_CLOSED_STATUSES] } },
+                { status: { $in: [...CHAT_CLOSED_STATUSES] as any } },
                 { isDeleted: true },
                 { isChatLocked: true },
             ],
-        });
+        } as any);
         query.adId = { $in: closedAdIds };
     }
     if (filter === 'high_risk') {

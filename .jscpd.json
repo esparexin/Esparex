@@ -4,8 +4,8 @@
   "minTokens": 100,
   "languages": ["typescript", "tsx"],
   "path": [
-    "backend/src",
-    "frontend/src",
+    "user-backend/src",
+    "user-frontend/src",
     "admin-frontend/src",
     "shared"
   ],

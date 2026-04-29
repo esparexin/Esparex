@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import { EventEmitter } from 'node:events';
 import logger from '@core/utils/logger';
 import { env } from '@core/config/env';
 

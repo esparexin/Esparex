@@ -7,8 +7,8 @@ on:
     branches: [main, develop]
 
 jobs:
-  build-backend:
-    name: Build Backend
+  build:
+    name: Build All Workspaces
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,35 +16,10 @@ jobs:
         with:
           node-version: "24.x"
           cache: npm
-      - run: npm ci
-      - run: npm run build -w backend
-
-  build-admin-frontend:
-    name: Build Admin Frontend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24.x"
-          cache: npm
-      - run: npm ci
-      - run: npm run build -w admin-frontend
+      - run: npm ci --legacy-peer-deps
+      - run: npm run build
         env:
           NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
-
-  build-frontend:
-    name: Build Frontend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24.x"
-          cache: npm
-      - run: npm ci
-      - run: npm run build -w frontend
-        env:
           NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
           NEXT_PUBLIC_APP_URL: https://esparex.in
           NEXT_PUBLIC_ENCRYPTION_KEY: ci-placeholder-key-32-characters-x
