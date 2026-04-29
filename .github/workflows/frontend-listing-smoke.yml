@@ -80,11 +80,14 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24.x"
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
