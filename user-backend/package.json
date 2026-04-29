@@ -21,7 +21,7 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "db:seed": "node --max-old-space-size=2048 -r ts-node/register/transpile-only -r tsconfig-paths/register src/seeds/runSeeds.ts",
     "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/seed-admin.ts",
-    "smoke:fixtures": "ts-node -r tsconfig-paths/register src/scripts/ensure-listing-smoke-fixtures.ts",
+    "smoke:fixtures": "ts-node --files -r ../scripts/register-aliases.js src/scripts/ensure-listing-smoke-fixtures.ts",
     "backup": "ts-node src/scripts/backup-database.ts",
     "restore": "ts-node src/scripts/restore-database.ts",
     "verify-backup": "ts-node src/scripts/verify-backup.ts",
