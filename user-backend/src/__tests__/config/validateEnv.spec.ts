@@ -19,6 +19,7 @@ const baseProductionEnv: NodeJS.ProcessEnv = {
     RAZORPAY_WEBHOOK_SECRET: 'webhook_secret',
     OTP_HASH_SECRET: 'otp_hash_secret',
     JWT_SECRET: 'jwt_secret_value_long_enough_for_tests',
+    ADMIN_JWT_SECRET: 'admin_jwt_secret_value_long_enough_for_tests',
     REDIS_URL: 'redis://localhost:6379',
     MONGODB_URI: 'mongodb://localhost:27017/esparex_test',
     ADMIN_MONGODB_URI: 'mongodb://localhost:27017/esparex_admin',
