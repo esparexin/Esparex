@@ -26,11 +26,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24.x"
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Create .env for user-backend
         run: |
@@ -40,14 +40,8 @@ jobs:
           echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> user-backend/.env
           echo "LOG_LEVEL=info" >> user-backend/.env
 
-      - name: Type check user-backend
-        run: npm run type-check -w user-backend
-
-      - name: Type check user-frontend
-        run: npm run type-check -w user-frontend
-
-      - name: Type check admin-frontend
-        run: npm run type-check -w admin-frontend
+      - name: Type check
+        run: npm run type-check
 
   # ── Job 2: Backend unit tests ────────────────────────────────────────────────
   test:
@@ -58,11 +52,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24.x"
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Create .env for user-backend tests
         run: |
@@ -88,6 +82,7 @@ jobs:
   architecture-guard:
     name: Architecture Guardrails
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v4
         with:
@@ -95,11 +90,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24.x"
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Create .env for user-backend guards
         run: |
@@ -150,11 +145,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24.x"
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Create .env for user-backend build
         run: |
@@ -164,12 +159,10 @@ jobs:
           echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> user-backend/.env
           echo "LOG_LEVEL=info" >> user-backend/.env
 
-      - name: Build user-backend
-        run: npm run build -w user-backend
-
-      - name: Build user-frontend
-        run: npm run build -w user-frontend
+      - name: Build
+        run: npm run build
         env:
+          NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
           NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
           NEXT_PUBLIC_APP_URL: https://esparex.in
           NEXT_PUBLIC_ENCRYPTION_KEY: ci-placeholder-key-32-characters-x
@@ -182,8 +175,3 @@ jobs:
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
           NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
           NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
-
-      - name: Build admin-frontend
-        run: npm run build -w admin-frontend
-        env:
-          NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
