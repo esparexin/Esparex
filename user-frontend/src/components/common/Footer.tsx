@@ -9,7 +9,6 @@ import {
 } from "@/icons/IconRegistry";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
 
 interface FooterProps {
     theme?: "light" | "dark";
