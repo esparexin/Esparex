@@ -50,3 +50,5 @@ export const config = {
         "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|ico|webp|woff2?|css|js)$).*)",
     ],
 };
+
+export default proxy;

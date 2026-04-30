@@ -196,7 +196,8 @@ const corsOptions: cors.CorsOptions = {
         'x-no-retry',         // ✅ REQUIRED FOR OTP REQUESTS
         'X-CSRF-Token',       // ✅ REQUIRED FOR CSRF PROTECTION
         'x-correlation-id',   // ✅ REQUIRED FOR DISTRIBUTED TRACING
-        'x-request-id'        // ✅ REQUIRED FOR LOG CORRELATION
+        'x-request-id',       // ✅ REQUIRED FOR LOG CORRELATION
+        'x-app-version'       // ✅ REQUIRED FOR VERSION CONSISTENCY
     ],
     exposedHeaders: [
         'X-RateLimit-Limit',

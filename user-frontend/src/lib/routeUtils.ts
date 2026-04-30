@@ -154,6 +154,7 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     "security-faq": "/faq",
     "account-faq": "/faq",
     "smart-alerts-guide": "/account/alerts",
+    chat: "/chat",
 };
 
 export const PROTECTED_USER_PAGE_KEYS = [
@@ -175,6 +176,7 @@ export const PROTECTED_USER_PAGE_KEYS = [
     "edit-service",
     "edit-spare-part",
     "post-service",
+    "chat",
 ] as const;
 
 const PROTECTED_PAGE_ROUTE_OVERRIDES: Partial<Record<UserPage, string>> = {
