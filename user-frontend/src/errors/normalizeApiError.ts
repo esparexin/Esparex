@@ -20,7 +20,15 @@ export function normalizeApiError(error: unknown): FrontendAppError {
 
     // Handle Axios-like errors
     if (typeof error === 'object' && error !== null && 'isAxiosError' in error) {
-        const axiosError = error as any;
+        interface AxiosLikeError {
+            message: string;
+            code?: string;
+            response?: {
+                status: number;
+                data?: any; // Data can still be anything from the server
+            };
+        }
+        const axiosError = error as unknown as AxiosLikeError;
         const data = axiosError.response?.data;
 
         // Some APIs nest error details under data.error rather than data directly.

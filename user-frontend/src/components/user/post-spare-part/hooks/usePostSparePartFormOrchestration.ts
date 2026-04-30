@@ -80,14 +80,14 @@ export function usePostSparePartFormOrchestration({
         },
     });
 
-    const { onValidSubmit, isSubmitting } = useListingSubmission({
+    const { onValidSubmit, isSubmitting } = useListingSubmission<any, any>({
         form,
         listingImages: images,
         isEditMode,
         editId: editSparePartId,
         schema: PostSparePartFormSchema,
         partialSchema: EditPostSparePartFormSchema,
-        submitFn: async (payload: any) => {
+        submitFn: async (payload: SparePartSubmitPayload) => {
             if (isEditMode && editSparePartId) {
                 return updateSparePartListing(editSparePartId, buildSparePartEditPayload(payload));
             }

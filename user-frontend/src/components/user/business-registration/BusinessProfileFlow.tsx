@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, type FieldErrors, type UseFormReturn, type UseFormSetValue } from "react-hook-form";
+import { useForm, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2 } from "lucide-react";
 
@@ -149,7 +149,7 @@ function getBusinessEditVariant(status: UserBusiness["status"] | undefined): Bus
 }
 
 function useBusinessProfileWizardController<TFormShape extends FieldValues>(
-    form: UseFormReturn<TFormShape, any, any>,
+    form: UseFormReturn<TFormShape>,
     options: { requireDocuments: boolean },
 ) {
     const [currentStep, setCurrentStep] = useState(0);
@@ -163,9 +163,9 @@ function useBusinessProfileWizardController<TFormShape extends FieldValues>(
  
     const formData = watch();
     const { legacyFormData, setLegacyFormData } = useBusinessWizardBridge({
-        formData: formData as TFormShape,
-        errors: errors as FieldErrors<TFormShape>,
-        setValue: setValue as unknown as UseFormSetValue<TFormShape>,
+        formData: formData,
+        errors: errors,
+        setValue: setValue,
     });
  
     const handleNext = async () => {
@@ -494,19 +494,19 @@ function BusinessEditProfileFlow({
         });
 
         try {
-            const images = await processStagedFiles((data.shopImages ?? []) as Array<File | string>, {
+            const images = await processStagedFiles(data.shopImages ?? [], {
                 label: "Uploading shop photos",
                 onProgress: setSubmissionStatus,
             });
-            const idProof = data.idProof ? await processStagedFiles([data.idProof as File | string], {
+            const idProof = data.idProof ? await processStagedFiles([data.idProof], {
                 label: "Uploading owner ID proof",
                 onProgress: setSubmissionStatus,
             }) : [];
-            const businessProof = data.businessProof ? await processStagedFiles([data.businessProof as File | string], {
+            const businessProof = data.businessProof ? await processStagedFiles([data.businessProof], {
                 label: "Uploading business proof",
                 onProgress: setSubmissionStatus,
             }) : [];
-            const certificates = await processStagedFiles((data.certificates ?? []) as Array<File | string>, {
+            const certificates = await processStagedFiles(data.certificates ?? [], {
                 label: "Uploading supporting certificates",
                 onProgress: setSubmissionStatus,
             });

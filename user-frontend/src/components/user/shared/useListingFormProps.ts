@@ -7,7 +7,7 @@ import { appendListingImages, removeListingImageById, getBusinessLocationDisplay
  * Shared hook to generate common props for GenericPostForm.
  * This eliminates the repetitive prop passing in PostServiceForm and PostSparePartForm.
  */
-export function useListingFormProps({
+export function useListingFormProps<TForm extends Record<string, unknown>, TBusiness = unknown>({
     form,
     images,
     setImages,
@@ -16,13 +16,13 @@ export function useListingFormProps({
     onValidSubmit,
     businessData,
 }: {
-    form: UseFormReturn<any>;
+    form: UseFormReturn<TForm>;
     images: ListingImage[];
     setImages: React.Dispatch<React.SetStateAction<ListingImage[]>>;
     isEditMode: boolean;
     isSubmitting: boolean;
-    onValidSubmit: (data: any) => Promise<void | unknown>;
-    businessData: any;
+    onValidSubmit: (data: TForm) => Promise<void | unknown>;
+    businessData: TBusiness;
 }) {
     const router = useRouter();
     const { handleSubmit } = form;
@@ -36,6 +36,6 @@ export function useListingFormProps({
         images,
         onImageUpload: (files: File[]) => setImages(prev => appendListingImages(prev, files)),
         onImageRemove: (id: string) => setImages(prev => removeListingImageById(prev, id)),
-        locationDisplay: getBusinessLocationDisplay(businessData?.location),
+        locationDisplay: getBusinessLocationDisplay((businessData as any)?.location),
     };
 }

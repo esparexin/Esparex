@@ -82,12 +82,12 @@ export function MyListingsTab({
     useEffect(() => {
         const currentParam = searchParams.get("status");
         if (currentParam !== selectedStatus) {
-            void router.replace(buildAccountListingRoute(subTab as AccountListingSection, selectedStatus), { scroll: false });
+            void router.push(buildAccountListingRoute(subTab as AccountListingSection, selectedStatus), { scroll: false });
         }
     }, [selectedStatus, searchParams, subTab, router]);
 
     const handleStatusChange = (status: ListingStatus) => {
-        void router.replace(buildAccountListingRoute(subTab as AccountListingSection, status), { scroll: false });
+        void router.push(buildAccountListingRoute(subTab as AccountListingSection, status), { scroll: false });
     };
 
     const handleSubTabChange = (value: ListingSubTab) => {
@@ -101,17 +101,17 @@ export function MyListingsTab({
         handleDelete: handleDeleteAd, handleMarkSold: handleMarkAdSold,
         handleDeactivate: handleDeactivateAd, handleRepost: handleRepostAd,
         refetch: fetchMyAds
-    } = useProfileListings("ads", subTab, user, adsStatus);
+    } = useProfileListings<Listing>("ads", subTab, user, adsStatus);
 
     const { 
         listings: myServices, loading: loadingServices, error: servicesError, 
         handleDelete: handleDeleteService, handleRepost: handleRepostService, refetch: fetchMyServices 
-    } = useProfileListings("services", subTab, user, servicesStatus);
+    } = useProfileListings<Listing>("services", subTab, user, servicesStatus);
 
     const { 
         listings: mySpare, loading: loadingSpare, error: spareError, 
         handleDelete: handleDeleteSpare, handleMarkSold: handleMarkSpareSold, handleRepost: handleRepostSpare, refetch: fetchMySpare 
-    } = useProfileListings("spare-parts", subTab, user, spareStatus);
+    } = useProfileListings<Listing>("spare-parts", subTab, user, spareStatus);
 
     // Modal States
     const [adToDelete, setAdToDelete] = useState<Listing | null>(null);
@@ -161,13 +161,13 @@ export function MyListingsTab({
         title: string;
         icon: React.ReactNode;
         statusTabs: readonly string[];
-        selectedStatus: string;
+        selectedStatus: ListingStatus;
         onStatusChange: (status: any) => void;
         getStatusCount: (s: any) => number;
         items: Listing[];
         loading: boolean;
-        error: any;
-        onRetry?: () => void | Promise<any>;
+        error: unknown;
+        onRetry?: () => void | Promise<unknown>;
         onPost?: () => void;
         postLabel: string;
         emptyTitle: string;
@@ -183,7 +183,7 @@ export function MyListingsTab({
             statusTabs: ACCOUNT_LISTING_STATUS_TABS.ads,
             selectedStatus: adsStatus,
             onStatusChange: handleStatusChange,
-            getStatusCount: (s: any) => {
+            getStatusCount: (s: string) => {
                 const typeStats = (adCounts?.ad as Record<string, number | undefined>) || {};
                 if (s === 'live') {
                     return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
@@ -230,7 +230,7 @@ export function MyListingsTab({
             statusTabs: ACCOUNT_LISTING_STATUS_TABS.services,
             selectedStatus: servicesStatus,
             onStatusChange: handleStatusChange,
-            getStatusCount: (s: any) => {
+            getStatusCount: (s: string) => {
                 const typeStats = (adCounts?.service as Record<string, number | undefined>) || {};
                 if (s === 'live') {
                     return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
@@ -288,7 +288,7 @@ export function MyListingsTab({
             statusTabs: ACCOUNT_LISTING_STATUS_TABS["spare-parts"],
             selectedStatus: spareStatus,
             onStatusChange: handleStatusChange,
-            getStatusCount: (s: any) => {
+            getStatusCount: (s: string) => {
                 const typeStats = (adCounts?.spare_part as Record<string, number | undefined>) || {};
                 if (s === 'live') {
                     return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
