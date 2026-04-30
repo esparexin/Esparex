@@ -59,7 +59,7 @@ router.put(
     requireBusinessApproved,
     validateObjectId,
     validateRequest(PartialSparePartPayloadSchema.passthrough() as unknown as ZodTypeAny),
-    sparePartListingController.updateSparePartListing
+    listingController.editListing
 );
 
 // D3: Lifecycle routes now fully delegated to generic listingRoutes.ts

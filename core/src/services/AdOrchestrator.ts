@@ -10,7 +10,7 @@ import { analyzeFraudRisk, FraudContext } from './FraudDetectionService';
 import { AdCreationService } from './AdCreationService';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { mutateStatus } from './StatusMutationService';
-import { computeActiveExpiry } from './adStatusService';
+import { computeActiveExpiry } from './AdStatusService';
 import { enqueueImageOptimization } from '@core/queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
@@ -29,6 +29,7 @@ export interface AdOrchestrationContext {
     riskState?: string;
     ip?: string;
     deviceFingerprint?: string;
+    business?: Record<string, unknown>;
 }
 
 /**
@@ -85,6 +86,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                     ? context.fraudRisk
                     : undefined,
                 fraudScore: context.fraudScore,
+                business: (context as any).business,
             };
             const payload = await AdCreationService.preparePayload(data, adContext, false, undefined, adId.toString());
             (payload as Record<string, unknown>)._id = adId;

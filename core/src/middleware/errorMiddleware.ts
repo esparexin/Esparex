@@ -5,7 +5,7 @@ import { env } from '@core/config/env';
 import logger from '@core/utils/logger';
 import { sendErrorResponse } from "@core/utils/errorResponse";
 import { AuditLogService } from '@core/services/AuditService';
-import { AlertService } from '@core/services/alertService';
+import { AlertService } from '@core/services/AlertService';
 import { TraceContext } from '@shared/observability/trace';
 
 export interface AppError extends Error {

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import AdminLog from '@core/models/AdminLog';
 import logger from '@core/utils/logger';
-import { AlertService } from './alertService';
+import { AlertService } from './AlertService';
 import { TraceContext } from '@shared/observability/trace';
 
 export type AuditContext = {

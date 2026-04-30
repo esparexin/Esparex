@@ -142,7 +142,8 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
         const updatedListing = await AdMutationService.updateAd(id, body, {
             actor: 'USER',
             authUserId: user._id.toString(),
-            sellerId: user._id.toString()
+            sellerId: user._id.toString(),
+            business: (req as Request & { business?: Record<string, unknown> }).business
         });
 
         return sendSuccessResponse(res, updatedListing, 'Listing updated successfully');
@@ -390,7 +391,12 @@ export const getListingPhone = async (req: Request, res: Response, next: NextFun
             device: req.headers['user-agent']
         };
 
-        const result = await getSellerPhone(id, LISTING_TYPE.AD, requesterId, metadata);
+        // Fetch listing to get type for reveal policy check
+        const ad = await AdDetailService.getListingDetailById(id);
+        if (!ad) return sendErrorResponse(req, res, 404, 'Listing not found');
+
+        const listingType = (ad as Record<string, unknown>).listingType as "ad" | "service" | "spare_part" || LISTING_TYPE.AD;
+        const result = await getSellerPhone(id, listingType, requesterId, metadata);
 
         if (!result || result.error) {
             switch (result?.error) {

@@ -7,7 +7,7 @@ import { User } from '@core/models/User';
 import { escapeRegExp } from '@core/utils/stringUtils';
 import {
     CHAT_CLOSED_STATUSES,
-} from '../chatAvailabilityService';
+} from '../ChatAvailabilityService';
 import {
     PopulatedConv,
     AdminConvSummary,

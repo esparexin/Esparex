@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AlertService } from '../services/alertService';
+import { AlertService } from '../services/AlertService';
 
 /**
  * API Latency & Performance Tracking Middleware

@@ -12,7 +12,7 @@ import { resolveLocationPathIds } from '@core/utils/locationHierarchy';
 import { processImages } from '@core/utils/imageProcessor';
 import { sanitizeStoredImageUrls } from '@core/utils/s3';
 import { AdContext } from '@core/types/ad.types';
-import { computeActiveExpiry } from './adStatusService';
+import { computeActiveExpiry } from './AdStatusService';
 import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
 import { FeatureFlag, isEnabled } from '@core/config/featureFlags';
 import { computeListingQualityScore } from '@core/utils/adQualityScorer';
@@ -258,7 +258,10 @@ export class AdCreationService {
         // --- Compute Lightweight Listing Quality Score ---
         if (listingType === LISTING_TYPE.SERVICE) {
             const { calculateServiceQuality } = await import('../utils/serviceQuality');
-            payload.listingQualityScore = calculateServiceQuality(payload, (data as any)?.business);
+            const businessData = (data && typeof data === 'object' && 'business' in (data as object)) 
+                ? (data as Record<string, unknown>).business as Record<string, unknown>
+                : context.business;
+            payload.listingQualityScore = calculateServiceQuality(payload, businessData);
         } else {
             payload.listingQualityScore = computeListingQualityScore(payload);
         }

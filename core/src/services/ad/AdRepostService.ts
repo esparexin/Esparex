@@ -7,7 +7,7 @@ import { AD_STATUS } from '@core/constants/enums/adStatus';
 import { consumeAdPostingSlot } from '../PlanService';
 import { getAdPostingBalance } from '../AdSlotService';
 import { mutateStatus } from '../StatusMutationService';
-import { normalizeAdStatus } from "@core/services/adStatusService";
+import { normalizeAdStatus } from "@core/services/AdStatusService";
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@core/utils/redisCache';
 
 export const repostAdLogic = async (

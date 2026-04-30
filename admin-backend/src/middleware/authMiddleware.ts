@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { verifyToken, JwtPayload } from "@core/utils/auth";
 import { env } from "@core/config/env";
-import { AlertService } from "@core/services/alertService";
+import { AlertService } from "@core/services/AlertService";
 import { TraceContext } from "@shared/observability/trace";
 import redis from "@core/config/redis";
 import User from "@core/models/User";

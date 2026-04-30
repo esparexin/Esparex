@@ -40,7 +40,7 @@ router.put(
     requireBusinessApproved,
     validateObjectId,
     validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
-    serviceController.updateService
+    listingController.editListing
 );
 // D2: Lifecycle routes now fully delegated to generic listingRoutes.ts
 

@@ -13,7 +13,7 @@ import {
   hideConversation,
   restoreConversation,
   reportConversation,
-} from '@core/services/chatService';
+} from '@core/services/ChatService';
 import {
   startChatSchema,
   sendMessageSchema,

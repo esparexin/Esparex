@@ -6,7 +6,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import * as AdMutationService from '@core/services/AdMutationService';
-import * as adStatusService from '@core/services/adStatusService';
+import * as AdStatusService from '@core/services/AdStatusService';
 import * as AdOrchestrator from '@core/services/AdOrchestrator';
 
 import { getBusinessByUserId } from '@core/services/BusinessService';
@@ -151,8 +151,8 @@ export const deleteAd = async (req: Request, res: Response, next: NextFunction) 
         const authUserId = String(user._id);
         await AdMutationService.assertOwnership(id, authUserId);
 
-        // Use canonical adStatusService (not deprecated adService.deleteAd)
-        const ad = await adStatusService.deleteAd(id, authUserId, 'user');
+        // Use canonical AdStatusService (not deprecated adService.deleteAd)
+        const ad = await AdStatusService.deleteAd(id, authUserId, 'user');
         if (!ad) {
             return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
         }
@@ -172,8 +172,8 @@ export const restoreAd = async (req: Request, res: Response, next: NextFunction)
         if (!user) return sendClientError(req, res, 401, 'Unauthorized', 'UNAUTHORIZED');
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Ad ID' });
         if (!id) return;
-        // Use canonical adStatusService (not deprecated adService.restoreAd)
-        const ad = await adStatusService.restoreAd(id, String(user._id), 'user');
+        // Use canonical AdStatusService (not deprecated adService.restoreAd)
+        const ad = await AdStatusService.restoreAd(id, String(user._id), 'user');
         if (!ad) {
             return sendClientError(req, res, 404, 'Ad not found', 'NOT_FOUND');
         }

@@ -67,7 +67,7 @@ const PROTECTED_EVENT_SOURCE_MARKERS: Partial<Record<EventKey, string[]>> = {
     'listing.rejected': ['StatusMutationService.ts', 'StatusMutationService.js', 'catalogPromotionE2eTest.command.ts'],
     'ad.expired.bulk': ['StatusMutationService.ts', 'StatusMutationService.js'],
     'listing.expired.bulk': ['ListingExpiryService.ts', 'ListingExpiryService.js'],
-    'ad.spotlight.expired': ['adStatusService.ts', 'adStatusService.js'],
+    'ad.spotlight.expired': ['AdStatusService.ts', 'AdStatusService.js'],
 };
 
 const validateEventSource = <K extends EventKey>(eventName: K): { allowedMarkers: string[]; stack: string } | null => {

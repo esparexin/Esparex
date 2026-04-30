@@ -34,14 +34,14 @@ jest.mock("../../middleware/rateLimiter", () => ({
 
 jest.mock("../../controllers/listing/listingController", () => ({
     getListingPhone: jest.fn(),
+    editListing: jest.fn((req: express.Request, res: express.Response) => {
+        res.status(200).json({ body: req.body });
+    }),
 }));
 
 jest.mock("../../controllers/sparePartListing/sparePartListingController", () => ({
     createSparePartListing: jest.fn(),
     getSparePartListings: jest.fn(),
-    updateSparePartListing: jest.fn((req: express.Request, res: express.Response) => {
-        res.status(200).json({ body: req.body });
-    }),
     deleteSparePartListing: jest.fn(),
     deactivateSparePartListing: jest.fn(),
     repostSparePartListing: jest.fn(),

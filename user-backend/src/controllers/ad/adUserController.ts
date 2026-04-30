@@ -7,7 +7,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as AdAggregationService from '@core/services/ad/AdAggregationService';
 import * as AdMutationService from '@core/services/AdMutationService';
-import * as adStatusService from '@core/services/adStatusService';
+import * as AdStatusService from '@core/services/AdStatusService';
 import * as AdEngagementService from '@core/services/AdEngagementService';
 import * as adImageService from '@core/services/AdImageService';
 
@@ -98,7 +98,7 @@ export const markAsSold = async (req: Request, res: Response, next: NextFunction
         const adToCheck = await AdMutationService.assertOwnership(id, (req.user as AuthUser)._id.toString());
         validateTransition('ad', adToCheck.status, 'sold');
 
-        const ad = await adStatusService.updateAdStatus(id, 'sold', {
+        const ad = await AdStatusService.updateAdStatus(id, 'sold', {
             soldReason: (req.body as { soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available' }).soldReason,
             reason: 'Marked as sold by seller',
             actorType: 'user',

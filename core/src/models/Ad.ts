@@ -7,7 +7,7 @@ import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue
 import { getUserConnection } from '@core/config/db';
 import Location from './Location';
 import logger from '@core/utils/logger';
-import { syncConversationAvailabilityForListing } from '@core/services/chatAvailabilityService';
+import { syncConversationAvailabilityForListing } from '@core/services/ChatAvailabilityService';
 import { generateUniqueSlug } from '@core/utils/slugGenerator';
 
 export interface IAd extends Document, ISoftDeleteDocument {

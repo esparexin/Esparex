@@ -135,5 +135,6 @@
   "shared/types/Service.ts": 1,
   "shared/utils/statusNormalization.d.ts": 1,
   "shared/utils/statusNormalization.js": 1,
-  "shared/utils/statusNormalization.ts": 1
+  "shared/utils/statusNormalization.ts": 1,
+  "shared/schemas/adPayload.schema.ts": 1
 }

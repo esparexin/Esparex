@@ -36,7 +36,7 @@ import { ChatMessage } from '@core/models/ChatMessage';
 import { ChatReport } from '@core/models/ChatReport';
 import Ad from '@core/models/Ad';
 import { User } from '@core/models/User';
-import { adminListConversations } from '@core/services/chatService';
+import { adminListConversations } from '@core/services/ChatService';
 
 const mockedConversation = Conversation as unknown as {
   find: jest.Mock;

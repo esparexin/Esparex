@@ -21,7 +21,7 @@ export { serializeDoc } from '@core/utils/serialize';
 export { normalizeLocationResponse } from '@core/services/location/LocationNormalizer';
 export { touchLocationSearchAnalytics } from '@core/services/location/LocationAnalyticsService';
 export { buildGeoNearStage, normalizeGeoInput } from '@core/utils/mongoGeoUtils';
-export { normalizeAdStatus } from '@core/services/adStatusService';
+export { normalizeAdStatus } from '@core/services/AdStatusService';
 export { buildAdFilterFromCriteria } from '@core/utils/adFilterHelper';
 export type { AdFilterCriteria } from '@core/utils/adFilterHelper';
 export { getCache, setCache, getMultiCache, setMultiCache, CACHE_KEYS } from '@core/utils/redisCache';
