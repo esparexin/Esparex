@@ -14,11 +14,11 @@ interface ListingOptions<T> {
     user: User | null;
     statusFilter: ListingStatus;
     fetchApi: () => Promise<T[]>;
-    deleteApi: (id: string) => Promise<any>;
-    markSoldApi: (id: string, reason?: any) => Promise<any>;
-    deactivateApi: (id: string) => Promise<any>;
-    repostApi: (id: string) => Promise<any>;
-    queryKey: readonly any[];
+    deleteApi: (id: string) => Promise<unknown>;
+    markSoldApi: (id: string, reason?: string) => Promise<unknown>;
+    deactivateApi: (id: string) => Promise<unknown>;
+    repostApi: (id: string) => Promise<unknown>;
+    queryKey: readonly unknown[];
 }
 
 export function useUserListingManagement<T extends { id: string; status: string }>({

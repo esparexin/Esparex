@@ -9,6 +9,7 @@ import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import {
     getUserStatusPresentation,
     normalizeManagedUser,
+    type ManagedUser,
 } from "@/components/system/users/userManagement";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { User } from "@esparex/shared/types/User";
@@ -27,22 +28,22 @@ export default function UserDetailsPage({ params }: Props) {
 
     const { id: userId } = React.use(params);
 
-    const normalizeUser = (raw: Record<string, unknown>): User =>
+    const normalizeUser = (raw: Record<string, unknown>): ManagedUser =>
         normalizeManagedUser({
             id: String(raw.id || raw._id || ""),
             name: String(raw.name || ""),
             email: String(raw.email || ""),
-            mobile: (typeof raw.mobile === "string" ? raw.mobile : "") as string,
+            mobile: String(raw.mobile || ""),
             role: (raw.role as User["role"]) || "user",
             status: (raw.status as User["status"]) || "live",
             isVerified: Boolean(raw.isVerified),
             isPhoneVerified: Boolean(raw.isPhoneVerified),
             isEmailVerified: Boolean(raw.isEmailVerified),
-            businessStatus: (typeof raw.businessStatus === "string" ? raw.businessStatus : undefined) as any,
+            businessStatus: typeof raw.businessStatus === "string" ? raw.businessStatus as User["businessStatus"] : undefined,
             totalAdsPosted: typeof raw.totalAdsPosted === "number" ? raw.totalAdsPosted : undefined,
             createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date(0).toISOString(),
             updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : new Date(0).toISOString(),
-        } as any);
+        });
 
     useEffect(() => {
         let cancelled = false;

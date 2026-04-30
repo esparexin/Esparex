@@ -9,7 +9,6 @@ import type { Plan } from "@esparex/shared/types/Plan";
 import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
 type PlanType = "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";
-type MatchFrequency = "realtime" | "hourly" | "daily";
 
 const DEFAULT_FORM: PlanFormValues = {
     code: "",

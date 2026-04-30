@@ -1,7 +1,6 @@
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 import { buildQueryString } from "./queryParams";
-import type { ListingTypeValue } from "@esparex/shared/enums/listingType";
 
 export interface SparePartFilters {
     q?: string;

@@ -270,7 +270,7 @@ export function ProfileSettingsSidebar({
       case "mylistings": return (
         <MyListingsTab
           adCounts={adCounts as ListingStatsResponse}
-          user={user as any}
+          user={user}
           navigateTo={(page, adId, category, businessId, serviceId) => navigateTo(page as UserPage, adId, category, businessId as string, serviceId as string)}
           getStatusBadge={getStatusBadge}
           formatDate={formatDate}

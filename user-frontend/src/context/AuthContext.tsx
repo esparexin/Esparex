@@ -96,7 +96,7 @@ function replaceToHomeSafely(router: ReturnType<typeof useRouter>) {
     return;
   }
 
-  void router.replace("/");
+  void router.push("/");
 }
 
 /* -------------------------------------------------------------------------- */

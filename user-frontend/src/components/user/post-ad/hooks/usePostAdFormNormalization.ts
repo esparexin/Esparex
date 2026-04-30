@@ -10,7 +10,7 @@ export function usePostAdFormNormalization(
     form: UseFormReturn<PostAdFormData>,
     isLocationLocked: boolean
 ) {
-    const buildEditAdPayload = useCallback((payload: any) => {
+    const buildEditAdPayload = useCallback((payload: PostAdFormData) => {
         return buildPostAdEditPayload(payload, isLocationLocked);
     }, [isLocationLocked]);
 

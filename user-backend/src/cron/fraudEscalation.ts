@@ -135,7 +135,7 @@ const runFraudEscalation = async (): Promise<void> => {
             error: error instanceof Error ? error.message : String(error)
         });
         const { AlertService } = await import('@core/services/alertService');
-        AlertService.trigger({
+        await AlertService.trigger({
             type: 'CRON_FAILURE',
             severity: 'HIGH',
             service: 'user-backend',

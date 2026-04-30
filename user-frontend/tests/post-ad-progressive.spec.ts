@@ -285,7 +285,7 @@ test.describe("📝 POST AD - Progressive Form Flow", () => {
             await completeToSparePartsSection(page);
             
             // Get scroll position before spare parts section
-            const scrollBefore = await page.evaluate(() => window.scrollY);
+            await page.evaluate(() => window.scrollY);
             
             // Complete spare parts
             await page.locator('[data-testid="continue-spareParts"]').click();

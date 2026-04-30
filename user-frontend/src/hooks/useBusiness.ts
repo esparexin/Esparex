@@ -37,7 +37,7 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
     });
     const [isLoading, setIsLoading] = useState(false);
     const [isFetched, setIsFetched] = useState(false);
-    const [error, setError] = useState<any>(null);
+    const [error, setError] = useState<unknown>(null);
     const enabled = options?.enabled ?? true;
     const includeStats = options?.includeStats ?? true;
     const silent = options?.silent ?? false;

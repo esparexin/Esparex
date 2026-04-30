@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useChat } from '@/hooks/useChat';
 import { buildPublicListingDetailRoute } from '@/lib/publicListingRoutes';
 import { buildChatInboxRoute, resolveChatInboxView, resolveChatReturnTo } from '@/lib/chatUiRoutes';
+import Image from 'next/image';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { QuickReplies } from './QuickReplies';
@@ -155,18 +156,20 @@ export function ConversationView({ conversation, currentUserId, embedded = false
             {conversation.ad.thumbnail && (
               listingHref ? (
                 <Link href={listingHref} className="conv-header__thumb-link" aria-label={`Open ${conversation.ad.title}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={conversation.ad.thumbnail}
                     alt={conversation.ad.title}
+                    width={48}
+                    height={48}
                     className="conv-header__ad-thumb"
                   />
                 </Link>
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={conversation.ad.thumbnail}
                   alt={conversation.ad.title}
+                  width={48}
+                  height={48}
                   className="conv-header__ad-thumb"
                 />
               )

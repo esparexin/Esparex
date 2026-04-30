@@ -60,7 +60,7 @@ async function runTaxonomyHealthCheck(): Promise<void> {
         // No HTTP response: this is a cron job - errors are logged for monitoring
         logger.error('[TaxonomyHealth] ❌ Health check failed:', error);
         const { AlertService } = await import('@core/services/alertService');
-        AlertService.trigger({
+        await AlertService.trigger({
             type: 'CRON_FAILURE',
             severity: 'MEDIUM',
             service: 'user-backend',

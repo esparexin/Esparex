@@ -98,7 +98,7 @@ async function run(): Promise<void> {
 
     console.info("[smoke-fixtures] Connecting to MongoDB…");
     await connectDB();
-    console.info("[smoke-fixtures] Connected.");
+    console.info("[smoke-fixtures] Connected to", mongoose.connection.name, "on", mongoose.connection.host);
 
     /* ── 1. Find-or-create smoke seller ─────────────────────────────────── */
     // Avoid findOneAndUpdate with $set:{status} — use find + save instead

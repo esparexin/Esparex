@@ -130,7 +130,6 @@ export default function BusinessesView() {
                 // Premium HSL-based dynamic colors
                 const hue = Math.round((score / 100) * 120); // 0 (red) to 120 (green)
                 const color = `hsl(${hue}, 84%, 45%)`;
-                const bg = `hsl(${hue}, 84%, 96%)`;
                 
                 return (
                     <div className="flex flex-col gap-1.5 w-16 group cursor-default">

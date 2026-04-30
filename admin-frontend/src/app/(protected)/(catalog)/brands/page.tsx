@@ -8,7 +8,6 @@ import { Tag, CheckCircle, XCircle, AlertTriangle, Loader2 } from "lucide-react"
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import { adminBrandSchema } from "@/schemas/admin.schemas";
-import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { useState } from "react";
 import {

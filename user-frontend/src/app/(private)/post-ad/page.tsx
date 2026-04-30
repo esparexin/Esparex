@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import PostAdPageClient from "@/components/user/post-ad/PostAdPageClient";
 import {
     API_ROUTES,
@@ -75,18 +76,18 @@ export default async function PostAdPage() {
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">
-                        <a
+                        <Link
                             href="/account/plans"
                             className="flex-1 inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm h-11 px-4 transition-colors"
                         >
                             Buy Ad Pack
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/"
                             className="flex-1 inline-flex items-center justify-center rounded-xl bg-white border border-amber-300 text-amber-800 font-semibold text-sm h-11 px-4 hover:bg-amber-50 transition-colors"
                         >
                             Back to Home
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

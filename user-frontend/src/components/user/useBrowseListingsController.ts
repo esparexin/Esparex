@@ -92,6 +92,21 @@ export function useBrowseListingsController<TItem, TFilters>({
   const [loading, setLoading] = useState(!initialResults);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
+
+  const performNavigation = useCallback(
+    (url: string) => {
+      void router.push(url, { scroll: false });
+    },
+    [router]
+  );
+
+  useEffect(() => {
+    if (pendingUrl) {
+      void performNavigation(pendingUrl);
+      setPendingUrl(null);
+    }
+  }, [pendingUrl, performNavigation]);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skippedInitialFetchRef = useRef(false);
@@ -285,10 +300,10 @@ export function useBrowseListingsController<TItem, TFilters>({
       }
       debounceRef.current = setTimeout(() => {
         setQuery(value);
-        router.replace(buildNextUrl({ q: value }), { scroll: false });
+        setPendingUrl(buildNextUrl({ q: value }));
       }, SEARCH_DEBOUNCE_MS);
     },
-    [buildNextUrl, router]
+    [buildNextUrl]
   );
 
   const handleCategoryChange = useCallback(
@@ -296,10 +311,10 @@ export function useBrowseListingsController<TItem, TFilters>({
       startTransition(() => {
         setSelectedCategory(value);
         setPage(1);
-        router.replace(buildNextUrl({ category: value }), { scroll: false });
+        setPendingUrl(buildNextUrl({ category: value }));
       });
     },
-    [buildNextUrl, router]
+    [buildNextUrl]
   );
 
   const handleSortChange = useCallback(
@@ -307,10 +322,10 @@ export function useBrowseListingsController<TItem, TFilters>({
       startTransition(() => {
         setSort(value);
         setPage(1);
-        router.replace(buildNextUrl({ sort: value }), { scroll: false });
+        setPendingUrl(buildNextUrl({ sort: value }));
       });
     },
-    [buildNextUrl, router]
+    [buildNextUrl]
   );
 
   const handleReset = useCallback(() => {
@@ -320,9 +335,9 @@ export function useBrowseListingsController<TItem, TFilters>({
       setSelectedCategory("");
       setSort("newest");
       setPage(1);
-      router.replace(buildPublicBrowseRoute({ type: browseType }), { scroll: false });
+      setPendingUrl(buildPublicBrowseRoute({ type: browseType }));
     });
-  }, [browseType, router]);
+  }, [browseType]);
 
   const handleLoadMore = useCallback(() => {
     const nextPage = page + 1;

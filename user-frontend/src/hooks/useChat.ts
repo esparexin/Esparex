@@ -78,7 +78,7 @@ export function useChat({ conversationId, currentUserId, onConversationStateChan
         await chatApi.markRead(conversationId).catch(() => {});
         dispatchChatInboxUpdated();
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load messages');
     } finally {
       setIsLoading(false);

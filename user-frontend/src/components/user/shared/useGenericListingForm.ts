@@ -15,7 +15,7 @@ import { useListingEditPreload } from "./useListingEditPreload";
 interface UseGenericListingFormProps<T extends Record<string, any>> {
     form: UseFormReturn<T>;
     editId?: string;
-    onDataLoaded?: (payload: any) => void;
+    onDataLoaded?: (payload: Record<string, unknown>) => void | Promise<void>;
 }
 
 export function useGenericListingForm<T extends Record<string, any>>({
@@ -40,7 +40,7 @@ export function useGenericListingForm<T extends Record<string, any>>({
                 return;
             }
 
-            form.reset(buildGenericListingEditResetValues(payload) as any);
+            form.reset(buildGenericListingEditResetValues(payload) as unknown as T);
         },
         onError: (error) => {
             logger.error("Failed to load listing", error);

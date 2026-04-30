@@ -106,6 +106,7 @@ export interface Business {
 
     // Public discovery summaries
     distanceKm?: number;
+    locationLabel?: string;
     activeServicesCount?: number;
     matchingServicesCount?: number;
 }

@@ -15,7 +15,7 @@ test('Auth and capture account pages', async ({ page }) => {
     const r = await page.request.get(`${apiBase}/csrf-token`);
     const json = await r.json().catch(() => null);
     csrf = json?.csrfToken || null;
-  } catch (e) {
+  } catch {
     // ignore - backend may not require CSRF in test env
   }
 

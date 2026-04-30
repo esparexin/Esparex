@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Wrench, AlertTriangle, Loader2 } from "lucide-react";
-import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared/enums/listingType";
+import { LISTING_TYPE } from "@esparex/shared/enums/listingType";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { sparePartsMasterTabs } from "@/components/layout/adminModuleTabSets";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
