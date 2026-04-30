@@ -22,6 +22,9 @@ echo "🛡️ Starting Master Architectural Audit..."
 # 5. DIST Integrity
 ./scripts/guard-aliases.sh || EXIT_CODE=1
 
+# 6. Legacy Path Guard
+./scripts/guard-no-legacy-paths.sh || EXIT_CODE=1
+
 if [ $EXIT_CODE -eq 0 ]; then
     echo "✅ ARCHITECTURAL INTEGRITY VERIFIED."
 else

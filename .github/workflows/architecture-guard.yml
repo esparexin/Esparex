@@ -139,6 +139,9 @@ jobs:
       - name: Platform governance guard
         run: npm run guard:platform-governance
 
+      - name: Architecture check
+        run: npm run guard:architecture
+
       - name: Guardrail failure hints
         if: always()
         run: |

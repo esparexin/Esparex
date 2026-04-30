@@ -76,7 +76,7 @@ jest.mock("@core/services/InvoiceService", () => ({
     ensureInvoicePdf: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("../../../../user-backend/src/controllers/payment/shared", () => ({
+jest.mock("../../../../user-user-user-backend/src/controllers/payment/shared", () => ({
     razorpay: {
         orders: {
             fetch: jest.fn(),

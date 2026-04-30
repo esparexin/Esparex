@@ -212,7 +212,7 @@ export function isValidPersistedImageUrl(url: string): boolean {
         return true;
     }
 
-    // Unify frontend/backend whitelists by allowing explicitly defined remote patterns
+    // Unify user-frontend/backend whitelists by allowing explicitly defined remote patterns
     try {
         const parsed = new URL(trimmed);
         const host = parsed.hostname.toLowerCase();

@@ -33,7 +33,7 @@ AI governance does not replace platform architecture governance. For platform be
 
 1. `README.md`
 2. `package.json`
-3. The canonical implementation under `backend/src`, `frontend/src`, `admin-frontend/src`, and `shared/`
+3. The canonical implementation under `user-backend/src`, `user-frontend/src`, `admin-frontend/src`, and `shared/`
 4. Enforcement scripts under `scripts/`
 
 This means:
@@ -85,7 +85,7 @@ Tool-specific files may exist only as compatibility layers for local IDEs or ext
 - Service, controller, validator, utility, and helper files use `camelCase`.
 - Model files use singular `PascalCase`.
 - Container directories remain lowercase and typically plural.
-- Admin UI lives in `admin-frontend`, not `frontend`.
+- Admin UI lives in `admin-frontend`, not `user-frontend`.
 
 ### Enum and Contract Rules
 
@@ -106,10 +106,10 @@ The runtime product AI system is currently OpenAI-backed and is owned by code, n
 
 Canonical runtime ownership:
 
-- Route: `backend/src/routes/aiRoutes.ts`
-- Controller: `backend/src/controllers/ai/aiController.ts`
-- Validation: `backend/src/validators/ai.validator.ts`
-- Service and prompts: `backend/src/services/AiService.ts`
+- Route: `user-backend/src/routes/aiRoutes.ts`
+- Controller: `user-backend/src/controllers/ai/aiController.ts`
+- Validation: `user-backend/src/validators/ai.validator.ts`
+- Service and prompts: `user-backend/src/services/AiService.ts`
 - Runtime settings model: `core/src/models/SystemConfig.ts`
 - Admin runtime settings UI: `admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx`
 

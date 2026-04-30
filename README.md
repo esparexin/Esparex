@@ -2,19 +2,20 @@
 
 Esparex is an npm workspaces monorepo with seven active workspaces:
 
-- `backend`
+- `user-backend`
 - `admin-backend`
 - `core`
-- `frontend`
+- `user-frontend`
 - `admin-frontend`
 - `shared`
 - `shared/observability`
+- `apps/mobile-app`
 
 ## Structure
 
-- `backend/src`: API, services, routes, validators, config
+- `user-backend/src`: API, services, routes, validators, config
 - `core/src`: Canonical domain models, shared business services, database config
-- `frontend/src`: user application
+- `user-frontend/src`: user application
 - `admin-frontend/src`: admin application
 - `shared`: shared contracts, schemas, enums, types, and utilities
 - `scripts`: repo guardrails and maintenance scripts
@@ -56,9 +57,9 @@ The `guard:pr-impact-analysis` CI check requires every PR to have a description 
 Run workspaces as needed:
 
 ```bash
-npm run dev -w backend
-npm run dev -w frontend
-npm run dev -w admin-frontend
+npm run dev -w @esparex/user-backend
+npm run dev -w @esparex/user-frontend
+npm run dev -w @esparex/admin-frontend
 ```
 
 ## Deployment & Environment Configuration

@@ -1,4 +1,4 @@
-// backend/src/utils/suggestionValidation.ts
+// user-user-backend/src/utils/suggestionValidation.ts
 
 export interface ValidationResult {
     isValid: boolean;

@@ -134,7 +134,13 @@ const runFraudEscalation = async (): Promise<void> => {
         logger.error('[FraudEscalation] Job failed', {
             error: error instanceof Error ? error.message : String(error)
         });
-        // TODO: Add telemetry/alerting if escalation failures spike
+        const { AlertService } = await import('@core/services/alertService');
+        AlertService.trigger({
+            type: 'CRON_FAILURE',
+            severity: 'HIGH',
+            service: 'user-backend',
+            message: `Fraud escalation job failed: ${error instanceof Error ? error.message : String(error)}`
+        });
     }
 };
 

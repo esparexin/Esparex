@@ -6,7 +6,7 @@ import {
     DEFAULT_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 export const revalidate = 3600; // Cache for 1 hour to reduce latency
 
 const BASE_url = process.env.NEXT_PUBLIC_APP_URL || 'https://esparex.in';

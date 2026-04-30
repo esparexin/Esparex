@@ -1,7 +1,7 @@
 import logger from '@core/utils/logger';
 import { sendErrorResponse } from "@core/utils/errorResponse";
 import { respond } from "@core/utils/respond";
-// backend/src/controllers/admin/paymentWebhook.ts
+// user-user-backend/src/controllers/admin/paymentWebhook.ts
 import { Request, Response } from "express";
 import { enqueuePaymentProcessing } from "@core/queues/paymentQueue";
 import { logBusiness } from "@core/utils/logger";

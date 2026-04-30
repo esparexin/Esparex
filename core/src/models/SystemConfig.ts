@@ -40,6 +40,7 @@ export interface ISystemConfig extends Document {
             scheduledEnd?: Date;
             bypassToken?: string;
         };
+        minVersion: string;
         branding: {
             platformName: string;
             tagline: string;
@@ -207,6 +208,7 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
             scheduledEnd: { type: Date },
             bypassToken: { type: String }
         },
+        minVersion: { type: String, default: '1.0.0' },
         branding: {
             platformName: { type: String, default: 'Esparex' },
             tagline: { type: String, default: 'Your eco-friendly marketplace' },

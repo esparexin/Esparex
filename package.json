@@ -23,7 +23,7 @@
     "release:patch": "standard-version --release-as patch",
     "release:major": "standard-version --release-as major",
     "release:dry-run": "standard-version --dry-run",
-    "precheck": "npm run build && ./scripts/ci-guard.sh",
+    "precheck": "npm run build && npm run guard:architecture && ./scripts/ci-guard.sh",
     "prepare": "husky",
     "hooks:install": "bash scripts/install-git-hooks.sh",
     "clean:workspace-installs": "rm -rf user-backend/node_modules user-frontend/node_modules admin-frontend/node_modules shared/node_modules",
@@ -57,10 +57,11 @@
     "guard:unused-imports": "node scripts/enforce-no-new-unused-imports.js",
     "guard:duplication": "npx jscpd --config .jscpd.json",
     "guard:api-surface": "node scripts/enforce-api-surface-guard.js",
-    "ci:check": "tsc --build --noEmit && npx syncpack list-mismatches && npm ls",
+    "ci:check": "npm run type-check && npx syncpack list-mismatches && npm ls",
     "mobile:sync": "STATIC_EXPORT=true npm run build -w @esparex/user-frontend && node scripts/guard-mobile-build.js && npm run sync -w @esparex/mobile-app",
     "mobile:build:android": "npm run mobile:sync && npm run build:android -w @esparex/mobile-app",
-    "mobile:build:ios": "npm run mobile:sync && npm run build:ios -w @esparex/mobile-app"
+    "mobile:build:ios": "npm run mobile:sync && npm run build:ios -w @esparex/mobile-app",
+    "guard:architecture": "./scripts/guard-no-legacy-paths.sh"
   },
   "optionalDependencies": {
     "@emnapi/runtime": "^1.8.1"

@@ -46,8 +46,8 @@ Do not create a new file or folder when:
 
 Placement rules:
 
-- backend logic belongs under canonical `backend/src/*` ownership boundaries
-- user UI belongs under `frontend/src/*`
+- backend logic belongs under canonical `user-backend/src/*` ownership boundaries
+- user UI belongs under `user-frontend/src/*`
 - admin UI belongs under `admin-frontend/src/*`
 - cross-app contracts and reusable schemas belong under `shared/`
 - AI governance documents belong only under `ai-governance/`
@@ -108,7 +108,7 @@ Examples:
 
 - `.antigravity.system.prompt.md`
 - `.cursorrules`
-- `frontend/.cursorrules`
+- `user-frontend/.cursorrules`
 - `.claude/settings.local.json`
 - `.kilo/`
 - `.kombai/`

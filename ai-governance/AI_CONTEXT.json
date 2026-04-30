@@ -9,8 +9,8 @@
   "platformAuthorities": [
     "README.md",
     "package.json",
-    "backend/src/**",
-    "frontend/src/**",
+    "user-backend/src/**",
+    "user-frontend/src/**",
     "admin-frontend/src/**",
     "shared/**",
     "scripts/**"
@@ -36,7 +36,7 @@
       "status": "local_compatibility_surface",
       "paths": [
         ".cursorrules",
-        "frontend/.cursorrules",
+        "user-frontend/.cursorrules",
         ".cursorignore"
       ],
       "authoritativeSource": "ai-governance/*"
@@ -80,10 +80,10 @@
   ],
   "runtimeAi": {
     "provider": "OpenAI",
-    "route": "backend/src/routes/aiRoutes.ts",
-    "controller": "backend/src/controllers/ai/aiController.ts",
-    "validator": "backend/src/validators/ai.validator.ts",
-    "service": "backend/src/services/AiService.ts",
+    "route": "user-backend/src/routes/aiRoutes.ts",
+    "controller": "user-backend/src/controllers/ai/aiController.ts",
+    "validator": "user-backend/src/validators/ai.validator.ts",
+    "service": "user-backend/src/services/AiService.ts",
     "settingsModel": "core/src/models/SystemConfig.ts",
     "settingsAdminUi": "admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx"
   },
@@ -103,7 +103,7 @@
       "area": "runtime_ai_provider",
       "sources": [
         "README.md",
-        "backend/src/services/AiService.ts",
+        "user-backend/src/services/AiService.ts",
         "admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx"
       ],
       "normalizedDecision": "OpenAI is canonical until runtime code changes"
@@ -123,7 +123,7 @@
       "area": "react_component_naming",
       "sources": [
         "README.md",
-        "frontend/src/**",
+        "user-frontend/src/**",
         "admin-frontend/src/**"
       ],
       "normalizedDecision": "PascalCase is canonical for React component filenames"
@@ -144,7 +144,7 @@
   "localCompatibilitySurfaces": [
     ".antigravity.system.prompt.md",
     ".cursorrules",
-    "frontend/.cursorrules",
+    "user-frontend/.cursorrules",
     ".claude/settings.local.json",
     ".config/.commands/*",
     ".config/.agent/workflows/*",

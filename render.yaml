@@ -4,6 +4,7 @@ services:
     name: esparex-backend
     env: node
     plan: starter # Starter plan active: 0.5 CPU | 512 MB RAM
+    healthCheckPath: /api/v1/health
     # Build from repo root to ensure workspace dependencies are resolved and compiled
     buildCommand: npm install && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/user-backend
     startCommand: cd user-backend && node -r ./register.js dist/index.js
@@ -89,6 +90,7 @@ services:
     name: esparex-admin-backend
     env: node
     plan: starter
+    healthCheckPath: /health
     buildCommand: npm install && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/admin-backend
     startCommand: cd admin-backend && node dist/server.js
     envVars:
