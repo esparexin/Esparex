@@ -1,6 +1,6 @@
 # Esparex Admin System
 
-Esparex is an npm workspaces monorepo with seven active workspaces:
+Esparex is an npm workspaces monorepo with eight active workspaces:
 
 - `user-backend`
 - `admin-backend`

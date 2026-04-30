@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 /**
  * Layout for authenticated (private) pages.
- * Auth guard is enforced by src/middleware.ts via isProtectedPath().
+ * Auth guard is enforced by src/proxy.ts via isProtectedPath().
  * Route groups are transparent to the URL — paths remain unchanged.
  */
 export default async function PrivateLayout({ children }: { children: ReactNode }) {
