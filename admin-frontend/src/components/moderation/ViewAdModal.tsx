@@ -6,7 +6,7 @@ import type { ModerationItem } from "./moderationTypes";
 import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "./moderationStatus";
 import { resolveLocationDisplay } from "@/lib/location/display";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
-import type { ListingTypeValue } from "@shared/enums/listingType";
+import type { ListingTypeValue } from "@esparex/shared/enums/listingType";
 import {
     Dialog,
     DialogContent,

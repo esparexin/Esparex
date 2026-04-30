@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Wrench, AlertTriangle, Loader2 } from "lucide-react";
-import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
+import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared/enums/listingType";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { sparePartsMasterTabs } from "@/components/layout/adminModuleTabSets";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
@@ -26,7 +26,7 @@ import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { useAdminSpareParts } from "@/hooks/useAdminSparePartCatalog";
 import { categorySupportsSpareParts, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
-import type { SparePart } from "@shared/schemas/catalog.schema";
+import type { SparePart } from "@esparex/shared/schemas/catalog.schema";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 
 type SparePartFormData = {

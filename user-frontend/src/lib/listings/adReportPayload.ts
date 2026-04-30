@@ -1,4 +1,4 @@
-import type { ReportReasonValue } from "@shared/enums/reportReason";
+import type { ReportReasonValue } from "@esparex/shared/enums/reportReason";
 
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 

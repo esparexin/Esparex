@@ -5,7 +5,7 @@ import {
   type PopupAction,
   type PopupState,
   type PopupType,
-} from "@shared/popup/popupEvents";
+} from "@esparex/shared/popup/popupEvents";
 
 const popupBus = createUnifiedPopupBus();
 

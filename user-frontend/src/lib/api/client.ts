@@ -12,7 +12,7 @@ import { emitErrorPopup } from '@/lib/popup/popupEvents';
 import {
     API_ROUTES,
 } from "@/lib/api/routes";
-import { TraceContext } from "@shared/observability/trace";
+import { TraceContext } from "@esparex/shared/observability/trace";
 import { resolveRuntimeApiBaseUrl } from "./runtimeApiBase";
 import { validateApiEnv } from './validateApiEnv';
 

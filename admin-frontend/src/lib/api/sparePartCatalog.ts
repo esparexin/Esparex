@@ -1,7 +1,7 @@
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 import { buildQueryString } from "./queryParams";
-import type { ListingTypeValue } from "@shared/enums/listingType";
+import type { ListingTypeValue } from "@esparex/shared/enums/listingType";
 
 export interface SparePartFilters {
     q?: string;
@@ -13,7 +13,7 @@ export interface SparePartFilters {
     [key: string]: string | number | boolean | undefined;
 }
 
-import type { SparePart, CreateSparePartDTO, UpdateSparePartDTO } from "@shared/schemas/catalog.schema";
+import type { SparePart, CreateSparePartDTO, UpdateSparePartDTO } from "@esparex/shared/schemas/catalog.schema";
 
 export async function getSpareParts(filters?: SparePartFilters) {
     const { search, q, ...rest } = filters ?? {};

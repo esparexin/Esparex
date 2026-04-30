@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { mergeRefreshedConversations } from "@/hooks/useChatList";
-import type { IConversationDTO } from "@shared/contracts/chat.contracts";
+import type { IConversationDTO } from "@esparex/shared/contracts/chat.contracts";
 
 const conversation = (id: string, updatedAt: string): IConversationDTO => ({
     id,

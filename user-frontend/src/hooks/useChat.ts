@@ -11,7 +11,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { chatApi } from "@/lib/api/chatApi";
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
-import type { IMessageDTO } from "@shared/contracts/chat.contracts";
+import type { IMessageDTO } from "@esparex/shared/contracts/chat.contracts";
 
 const POLL_INTERVAL_MS = 4000;
 

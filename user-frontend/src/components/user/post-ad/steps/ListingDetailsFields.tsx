@@ -14,12 +14,12 @@ import Image from "next/image";
 import { X, Upload, Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
-import { resolveCanonicalLocationId } from "@shared/listingUtils/locationUtils";
+import { resolveCanonicalLocationId } from "@esparex/shared/listingUtils/locationUtils";
 import { useLocationData } from "@/context/LocationContext";
 
 import LocationSelector from "@/components/location/LocationSelector";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
-import { MAX_AD_IMAGES, MAX_AD_DESCRIPTION_CHARS, MAX_AD_TITLE_CHARS } from "@shared/constants/adLimits";
+import { MAX_AD_IMAGES, MAX_AD_DESCRIPTION_CHARS, MAX_AD_TITLE_CHARS } from "@esparex/shared/constants/adLimits";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import type { ListingLocation } from "@/types/listing";
 import type { GeoJSONPoint } from "@/types/location";

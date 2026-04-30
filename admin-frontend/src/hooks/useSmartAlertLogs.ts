@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { fetchSmartAlertLogs } from "@/lib/api/smartAlerts";
 import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
-import type { SmartAlertDeliveryLogDTO } from "@shared/schemas/smartAlert.schema";
+import type { SmartAlertDeliveryLogDTO } from "@esparex/shared/schemas/smartAlert.schema";
 
 interface LogFilters {
     page: number;

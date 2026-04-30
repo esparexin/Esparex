@@ -53,7 +53,7 @@ export type ModerationItem = {
     riskScore?: number;
 };
 
-import type { ListingTypeValue } from "@shared/enums/listingType";
+import type { ListingTypeValue } from "@esparex/shared/enums/listingType";
 
 export type ModerationFilters = {
     search: string;

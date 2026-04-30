@@ -55,7 +55,7 @@ import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorks
 import AccountHeader from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
 import type { ConversationListView } from "@/lib/api/chatApi";
-import type { IConversationDTO } from "@shared/contracts/chat.contracts";
+import type { IConversationDTO } from "@esparex/shared/contracts/chat.contracts";
 
 interface ProfileSettingsProps {
   navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string, serviceId?: string | number) => void;

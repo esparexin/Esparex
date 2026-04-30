@@ -240,6 +240,8 @@ app.use(cookieParser());
 
 // SSOT Observability Stack
 app.use(requestIdMiddleware); 
+import { versionCheckMiddleware } from './middleware/versionCheck';
+app.use(versionCheckMiddleware);
 app.use(apiLatencyMiddleware);
 app.use(memoryUsageMiddleware);
 app.use(sentryRequestHandler);

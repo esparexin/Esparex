@@ -1,4 +1,4 @@
-import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
+import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared/enums/listingType";
 import type { ModerationItem } from "./moderationTypes";
 
 type ListingPresentation = {

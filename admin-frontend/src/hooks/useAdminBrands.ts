@@ -7,9 +7,9 @@ import {
     toggleBrandStatus,
     updateBrand,
 } from "@/lib/api/brands";
-import { CreateBrandDTO, UpdateBrandDTO } from "@shared/schemas/catalog.schema";
+import { CreateBrandDTO, UpdateBrandDTO } from "@esparex/shared/schemas/catalog.schema";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
-import type { Brand } from "@shared/types";
+import type { Brand } from "@esparex/shared/types";
 
 export function useAdminBrands() {
     const {

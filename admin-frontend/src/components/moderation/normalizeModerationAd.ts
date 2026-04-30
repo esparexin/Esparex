@@ -1,6 +1,6 @@
 import type { ModerationItem, ModerationStatus } from "./moderationTypes";
-import type { ListingTypeValue } from "@shared/enums/listingType";
-import { LISTING_TYPE_VALUES } from "@shared/enums/listingType";
+import type { ListingTypeValue } from "@esparex/shared/enums/listingType";
+import { LISTING_TYPE_VALUES } from "@esparex/shared/enums/listingType";
 import { toGeoPoint } from "@/lib/location/display";
 
 const asString = (value: unknown): string | undefined =>

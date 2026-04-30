@@ -1,11 +1,11 @@
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 import { useCallback, useState } from "react";
 import { getCategories, toggleCategoryStatus, deleteCategory, createCategory, updateCategory } from "@/lib/api/categories";
-import type { Category } from "@shared/schemas/catalog.schema";
+import type { Category } from "@esparex/shared/schemas/catalog.schema";
 import { useToast } from "@/context/ToastContext";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useAdminCrudList, AdminListPagination } from "@/hooks/useAdminCrudList";
-import type { ListingTypeValue } from "@shared/enums/listingType";
+import type { ListingTypeValue } from "@esparex/shared/enums/listingType";
 
 interface UseAdminCategoriesOptions {
     initialPagination?: Partial<AdminListPagination>;

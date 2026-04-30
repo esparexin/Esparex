@@ -1,8 +1,12 @@
-export interface RuntimeConfig {
-  apiUrl: string;
-  maintenanceMode: boolean;
-  minAppVersion: string;
-}
+import { z } from 'zod';
+
+const RuntimeConfigSchema = z.object({
+  apiUrl: z.string().url(),
+  maintenanceMode: z.boolean(),
+  minAppVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
+});
+
+export type RuntimeConfig = z.infer<typeof RuntimeConfigSchema>;
 
 const DEFAULT_CONFIG: RuntimeConfig = {
   apiUrl: process.env.NEXT_PUBLIC_API_URL || 'https://api.esparex.in',
@@ -32,10 +36,13 @@ export async function getRuntimeConfig(): Promise<RuntimeConfig> {
     
     if (!response.ok) throw new Error('Failed to fetch runtime config');
     
-    cachedConfig = await response.json();
-    return cachedConfig!;
+    const rawData = await response.json();
+    const validatedData = RuntimeConfigSchema.parse(rawData);
+    
+    cachedConfig = validatedData;
+    return cachedConfig;
   } catch (error) {
-    console.warn('⚠️ Runtime config load failed, using environment fallbacks:', error);
+    console.warn('⚠️ Runtime config load failed or invalid, using environment fallbacks:', error);
     return DEFAULT_CONFIG;
   }
 }

@@ -10,9 +10,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { chatApi } from "@/lib/api/chatApi";
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
-import { CHAT_REPORT_REASON } from "@shared/enums/chatStatus";
+import { CHAT_REPORT_REASON } from "@esparex/shared/enums/chatStatus";
 import { Z_INDEX } from "@/lib/zIndexConfig";
-import type { ChatReportReasonValue } from "@shared/enums/chatStatus";
+import type { ChatReportReasonValue } from "@esparex/shared/enums/chatStatus";
 import { BlockChatDialog } from './BlockChatDialog';
 import { ReportChatDialog } from './ReportChatDialog';
 import { HideChatDialog } from './HideChatDialog';

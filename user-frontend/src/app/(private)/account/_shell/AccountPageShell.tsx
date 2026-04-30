@@ -14,7 +14,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
 import { markLogoutRedirectBypass } from "@/lib/authHelpers";
 import type { ProfileTabValue } from "@/config/navigation";
 import type { ConversationListView } from "@/lib/api/chatApi";
-import type { IConversationDTO } from "@shared/contracts/chat.contracts";
+import type { IConversationDTO } from "@esparex/shared/contracts/chat.contracts";
 
 interface AccountPageShellProps {
     tab: ProfileTabValue;

@@ -2,7 +2,7 @@ import type {
     CanonicalGeoPoint as SharedCanonicalGeoPoint,
     Location as SharedLocation,
     LocationLevel as SharedLocationLevel
-} from "@shared/types/Location";
+} from "@esparex/shared/types/Location";
 
 /**
  * PR-3: Location Contract Normalization

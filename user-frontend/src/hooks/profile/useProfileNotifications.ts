@@ -13,7 +13,7 @@ import logger from "@/lib/logger";
 import {
   MOBILE_VISIBILITY,
   normalizeMobileVisibility as normalizeSharedMobileVisibility,
-} from "@shared/constants/mobileVisibility";
+} from "@esparex/shared/constants/mobileVisibility";
 import type { User } from "@/types/User";
 import type {
   MobileVisibility,

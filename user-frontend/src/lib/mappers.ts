@@ -1,4 +1,4 @@
-import type { ListingTypeValue } from "@shared/enums/listingType";
+import type { ListingTypeValue } from "@esparex/shared/enums/listingType";
 
 export interface UiAd {
     id: string;

@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
     BaseSparePartPayloadSchema,
     PartialSparePartPayloadSchema,
-} from "@shared/schemas/sparePartPayload.schema";
+} from "@esparex/shared/schemas/sparePartPayload.schema";
 
 const stringId = z.string().optional();
 const requiredStringId = z.string().min(1, "Required");

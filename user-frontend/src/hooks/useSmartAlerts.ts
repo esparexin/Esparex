@@ -15,11 +15,11 @@ import type { SavedSearch } from "@/lib/api/user/savedSearches";
 import {
   SmartAlertCreateSchema,
   SmartAlertUpdateSchema,
-} from "@shared/schemas/smartAlert.schema";
-import type { SmartAlertCreatePayload } from "@shared/schemas/smartAlert.schema";
+} from "@esparex/shared/schemas/smartAlert.schema";
+import type { SmartAlertCreatePayload } from "@esparex/shared/schemas/smartAlert.schema";
 import type { SmartAlertListItem, SmartAlertFieldErrors, SmartAlertFormData, SmartAlertItem } from "@/components/user/profile/types";
 import { smartAlertFormSchema } from "@/schemas/smartAlertForm.schema";
-import { sanitizeMongoObjectId } from "@shared/listingUtils/locationUtils";
+import { sanitizeMongoObjectId } from "@esparex/shared/listingUtils/locationUtils";
 import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
 import type { Location as AppLocation } from "@/lib/api/user/locations";
 

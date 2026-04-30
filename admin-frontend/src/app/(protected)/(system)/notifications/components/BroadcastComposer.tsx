@@ -4,7 +4,7 @@ import { AlertCircle, CheckCircle2, Loader2, Send, X } from "lucide-react";
 import { 
     ADMIN_NOTIFICATION_TOPIC_OPTIONS, 
     ADMIN_NOTIFICATION_TARGET_TYPE 
-} from "@shared/constants/adminNotificationTargets";
+} from "@esparex/shared/constants/adminNotificationTargets";
 import type { NotificationRecipient } from "../hooks/useNotifications";
 
 interface BroadcastComposerProps {

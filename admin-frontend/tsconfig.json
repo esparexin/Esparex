@@ -34,10 +34,22 @@
       "@/*": [
         "./src/*"
       ],
+      "@core/*": [
+        "../core/dist/*"
+      ],
+      "@esparex/core/*": [
+        "../core/dist/*"
+      ],
       "@shared/*": [
         "../shared/dist/*"
       ],
+      "@esparex/shared/*": [
+        "../shared/dist/*"
+      ],
       "@shared": [
+        "../shared/dist/index.d.ts"
+      ],
+      "@esparex/shared": [
         "../shared/dist/index.d.ts"
       ]
     },

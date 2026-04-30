@@ -5,8 +5,8 @@ import { IconRegistry } from "@/icons/IconRegistry";
 import type { ScreenSize } from "@/lib/api/user/masterData";
 import type { Category } from "@/lib/api/user/categories";
 import type { ListingCategory } from "@/types/listing";
-import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
-import type { CategoryFilter } from "@shared/schemas/catalog.schema";
+import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared/enums/listingType";
+import type { CategoryFilter } from "@esparex/shared/schemas/catalog.schema";
 
 export interface CategorySchemaType {
     categoryId: string;

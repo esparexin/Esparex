@@ -2,8 +2,8 @@ import { apiClient } from "@/lib/api/client";
 import type { EsparexRequestConfig } from "@/lib/api/client";
 import { toApiResult } from "@/lib/api/result";
 import { API_ROUTES } from "@/lib/api/routes";
-export type { Location } from "@shared/types/Location";
-import type { Location } from "@shared/types/Location";
+export type { Location } from "@esparex/shared/types/Location";
+import type { Location } from "@esparex/shared/types/Location";
 
 /* -------------------------------------------------------------------------- */
 /* SEARCH LOCATIONS (TEXT SEARCH)                                             */

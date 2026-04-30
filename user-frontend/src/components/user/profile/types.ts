@@ -1,5 +1,5 @@
 import type { User, UserNotificationSettings } from "@/types/User";
-import type { MobileVisibilityValue } from "@shared/constants/mobileVisibility";
+import type { MobileVisibilityValue } from "@esparex/shared/constants/mobileVisibility";
 
 export type MobileVisibility = MobileVisibilityValue;
 

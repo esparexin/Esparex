@@ -1,6 +1,6 @@
 'use client';
 
-import type { ChatReportReasonValue } from "@shared/enums/chatStatus";
+import type { ChatReportReasonValue } from "@esparex/shared/enums/chatStatus";
 
 interface ReportReasonOption {
   value: ChatReportReasonValue;

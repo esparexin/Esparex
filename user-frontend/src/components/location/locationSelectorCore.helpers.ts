@@ -1,4 +1,4 @@
-import { toGeoPoint as parseGeoPoint } from "@shared/utils/geoUtils";
+import { toGeoPoint as parseGeoPoint } from "@esparex/shared/utils/geoUtils";
 import type { Location } from "@/lib/api/user/locations";
 
 export type ErrorType = "network" | "timeout" | "server" | "not_found" | "unknown";

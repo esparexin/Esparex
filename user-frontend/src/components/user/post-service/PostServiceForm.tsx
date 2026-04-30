@@ -22,7 +22,7 @@ import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingS
 import { useRouter } from "next/navigation";
 import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 import { usePostServiceFormOrchestration } from "./hooks/usePostServiceFormOrchestration";
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE } from "@esparex/shared/enums/listingType";
 
 export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
     const isEditMode = !!editServiceId;

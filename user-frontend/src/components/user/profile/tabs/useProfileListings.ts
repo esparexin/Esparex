@@ -6,7 +6,7 @@ import {
     deactivateListing, 
     repostListing 
 } from "@/lib/api/user/listings";
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE } from "@esparex/shared/enums/listingType";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import type { User } from "@/types/User";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { CategoryFilter } from "@shared/schemas/catalog.schema";
+import type { CategoryFilter } from "@esparex/shared/schemas/catalog.schema";
 import logger from "@/lib/logger";
 import { getCategorySchema } from "@/lib/api/user/categories";
 import type { CategorySchemaType } from "./catalogShared";

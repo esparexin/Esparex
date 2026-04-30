@@ -1,7 +1,7 @@
 import { adminFetch } from "./adminClient";
 import { parseAdminResponse } from "./parseAdminResponse";
 import { ADMIN_ROUTES } from "./routes";
-import type { SmartAlertDeliveryLogDTO } from "@shared/schemas/smartAlert.schema";
+import type { SmartAlertDeliveryLogDTO } from "@esparex/shared/schemas/smartAlert.schema";
 
 interface FetchLogsParams {
     page: number;

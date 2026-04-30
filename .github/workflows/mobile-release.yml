@@ -24,7 +24,10 @@ jobs:
         run: npm ci
 
       - name: Build Web & Sync Capacitor
-        run: npm run mobile:sync
+        run: |
+          npm run build -w @esparex/user-frontend
+          node scripts/increment-version.js
+          npm run mobile:sync
         env:
           STATIC_EXPORT: true
 

@@ -9,8 +9,8 @@
   },
   "scripts": {
     "dev": "NODE_OPTIONS='--disable-warning=DEP0169' next dev -p 3000",
-    "prebuild": "npm run build -w @esparex/shared && npm run build -w @shared/observability",
-    "build": "next build --webpack",
+    "prebuild": "npm run build -w @esparex/shared && npm run build -w @shared/observability && npm run build -w @esparex/core",
+    "build": "next build",
     "build:webpack": "next build --webpack",
     "analyze:routes": "node scripts/analyze-next-build.cjs",
     "analyze:build": "npm run build:webpack && npm run analyze:routes",
@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@esparex/shared": "1.0.0",
+    "@esparex/core": "1.0.0",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",

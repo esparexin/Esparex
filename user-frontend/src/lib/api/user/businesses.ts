@@ -8,8 +8,8 @@ import {
 
 // --- Types ---
 
-import type { Business as SharedBusiness } from "@shared/types/Business";
-import type { Service as SharedService } from "@shared/types/Service";
+import type { Business as SharedBusiness } from "@esparex/shared/types/Business";
+import type { Service as SharedService } from "@esparex/shared/types/Service";
 import type { Ad } from '@/schemas/ad.schema';
 
 // Re-export shared types for local use, adding any frontend-specific extensions if needed

@@ -6,7 +6,7 @@ import type { ConversationListView } from '@/lib/api/chatApi';
 import { buildChatConversationRoute, buildChatInboxRoute } from '@/lib/chatUiRoutes';
 import { ChatList } from './ChatList';
 import { ConversationView } from './ConversationView';
-import type { IConversationDTO } from "@shared/contracts/chat.contracts";
+import type { IConversationDTO } from "@esparex/shared/contracts/chat.contracts";
 
 interface AccountMessagesWorkspaceProps {
   currentUserId: string;

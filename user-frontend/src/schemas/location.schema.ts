@@ -2,4 +2,4 @@ export {
   AppLocationSchema as appLocationSchema,
   coordinatesSchema,
   LogLocationEventSchema as logLocationEventSchema,
-} from "@shared/schemas/location.schema";
+} from "@esparex/shared/schemas/location.schema";

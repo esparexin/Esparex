@@ -10,7 +10,7 @@ import {
     DialogTitle,
     DialogDescription,
 } from "@/components/ui/dialog";
-import { Business } from "@shared/types";
+import { Business } from "@esparex/shared/types";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { getLocationOptions, reverseGeocode } from "@/lib/api/locations";
 import type { Location } from "@/types/location";

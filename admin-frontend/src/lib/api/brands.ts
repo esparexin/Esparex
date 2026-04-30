@@ -1,4 +1,4 @@
-import { Brand, CreateBrandDTO, UpdateBrandDTO } from "@shared/schemas/catalog.schema";
+import { Brand, CreateBrandDTO, UpdateBrandDTO } from "@esparex/shared/schemas/catalog.schema";
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 import { buildQueryString } from "./queryParams";

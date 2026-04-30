@@ -124,6 +124,7 @@ const nextConfig = {
     output: process.env.STATIC_EXPORT === 'true' ? 'export' : undefined,
     compress: true,
     poweredByHeader: false,
+    transpilePackages: ['@esparex/shared'],
     experimental: {
         optimizePackageImports: [
             'lucide-react',

@@ -1,9 +1,9 @@
 import { createModel, deleteModel, getModels, updateModel, toggleModelStatus } from "@/lib/api/models";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
-import type { Model } from "@shared/types";
+import type { Model } from "@esparex/shared/types";
 import { useToast } from "@/context/ToastContext";
 import { useCallback } from "react";
-import { CreateModelDTO, UpdateModelDTO } from "@shared/schemas/catalog.schema";
+import { CreateModelDTO, UpdateModelDTO } from "@esparex/shared/schemas/catalog.schema";
 
 
 export function useAdminModels() {

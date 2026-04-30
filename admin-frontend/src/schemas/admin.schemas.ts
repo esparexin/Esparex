@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ObjectIdSchema } from "@shared/schemas/catalog.schema";
-import { LISTING_TYPE_VALUES } from "@shared/enums/listingType";
+import { ObjectIdSchema } from "@esparex/shared/schemas/catalog.schema";
+import { LISTING_TYPE_VALUES } from "@esparex/shared/enums/listingType";
 
 /**
  * Common Admin Validation Schemas

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "next dev -p 3001",
-    "prebuild": "npm run build -w @esparex/shared && npm run build -w @shared/observability",
+    "prebuild": "npm run build -w @esparex/shared && npm run build -w @shared/observability && npm run build -w @esparex/core",
     "build": "next build",
     "start": "next start -p 3001",
     "typecheck": "tsc --noEmit",
@@ -25,6 +25,8 @@
     "guard:unused-imports": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0 --rule \"unused-imports/no-unused-imports:error\""
   },
   "dependencies": {
+    "@esparex/shared": "1.0.0",
+    "@esparex/core": "1.0.0",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-dialog": "^1.1.15",
     "@tanstack/react-virtual": "^3.13.19",

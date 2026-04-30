@@ -16,10 +16,10 @@ import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 import { useNavigation } from "@/context/NavigationContext";
 import { UseFormReturn, Control, FieldErrors, UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { CategoryFilter } from "@shared/schemas/catalog.schema";
+import { CategoryFilter } from "@esparex/shared/schemas/catalog.schema";
 import { Listing } from "@/lib/api/user/listings/normalizer";
 import { GeoJSONPoint } from "@/types/location";
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE } from "@esparex/shared/enums/listingType";
 
 // Custom hooks
 import { useBrandCatalog } from "@/hooks/listings/useBrandCatalog";
