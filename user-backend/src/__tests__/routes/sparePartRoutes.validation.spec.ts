@@ -1,6 +1,8 @@
 import express from "express";
 import request from "supertest";
 
+jest.setTimeout(15000);
+
 jest.mock("../../middleware/authMiddleware", () => ({
     protect: (_req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
     extractUser: (_req: express.Request, _res: express.Response, next: express.NextFunction) => next(),

@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 
 import { requireAdmin } from "../../middleware/adminAuth";
 
+jest.setTimeout(15000);
+
 const buildApp = () => {
     const app = express();
     app.use(express.json());

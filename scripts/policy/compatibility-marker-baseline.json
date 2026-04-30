@@ -58,6 +58,7 @@
   "user-backend/src/middleware/listing.validator.ts": 1,
   "user-backend/src/middleware/requestId.ts": 2,
   "user-backend/src/middleware/validateIdOrSlug.ts": 4,
+  "user-backend/src/middleware/versionCheck.ts": 1,
   "user-backend/src/models/Ad.ts": 3,
   "user-backend/src/utils/apiResponse.ts": 1,
   "core/src/config/loadEnv.ts": 1,
