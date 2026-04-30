@@ -88,6 +88,7 @@ export type UserPage =
     | "account-faq"
     | "smart-alerts-guide"
     | "plans-payments"
+    | "chat"
     | "account";  // /account root — protects all /account/* paths
 
 const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
