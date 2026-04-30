@@ -30,7 +30,7 @@ export function usePostAdFormNormalization(
                 : String(currentValue ?? "") !== String(value ?? "");
 
             if (hasChanged) {
-                form.setValue(field as keyof PostAdFormData, value as any, {
+                form.setValue(field as keyof PostAdFormData, value as PostAdFormData[keyof PostAdFormData], {
                     shouldValidate: false,
                     shouldDirty: false,
                 });

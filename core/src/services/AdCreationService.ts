@@ -140,6 +140,14 @@ export class AdCreationService {
             attributes: source.attributes && typeof source.attributes === 'object' ? source.attributes as Record<string, unknown> : undefined,
         };
 
+        // Standardize location extraction to nested location.locationId (PR #36 SSOT)
+        if (source.locationId && (!payload.location || typeof payload.location !== 'object')) {
+            payload.location = { locationId: source.locationId };
+        } else if (source.locationId && payload.location && typeof payload.location === 'object') {
+            (payload.location as Record<string, unknown>).locationId = source.locationId;
+        }
+
+
         if (payload.title) payload.title = payload.title.replace(/<[^>]*>?/gm, '').trim();
         if (payload.description) {
             payload.description = payload.description.replace(/<[^>]*>?/gm, '').trim();

@@ -12,17 +12,18 @@ import { useAuth } from "@/context/AuthContext";
 import { buildGenericListingEditResetValues } from "@/lib/listings/postingFormNormalization";
 import { useListingEditPreload } from "./useListingEditPreload";
 
-interface UseGenericListingFormProps<T extends Record<string, any>> {
+interface UseGenericListingFormProps<T extends Record<string, unknown>> {
     form: UseFormReturn<T>;
     editId?: string;
     onDataLoaded?: (payload: Record<string, unknown>) => void | Promise<void>;
 }
 
-export function useGenericListingForm<T extends Record<string, any>>({
+export function useGenericListingForm<T extends Record<string, unknown>>({
     form,
     editId,
     onDataLoaded,
 }: UseGenericListingFormProps<T>) {
+
     const { user } = useAuth();
     const { businessData } = useBusiness(user, undefined, {
         includeStats: false,

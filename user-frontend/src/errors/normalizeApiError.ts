@@ -25,11 +25,23 @@ export function normalizeApiError(error: unknown): FrontendAppError {
             code?: string;
             response?: {
                 status: number;
-                data?: any; // Data can still be anything from the server
+                data?: unknown; // Data can still be anything from the server
             };
         }
+        interface ErrorResponse {
+            error?: {
+                message?: string;
+                status?: number;
+                code?: string;
+                details?: unknown;
+            };
+            message?: string;
+            code?: string;
+            details?: unknown;
+        }
+
         const axiosError = error as unknown as AxiosLikeError;
-        const data = axiosError.response?.data;
+        const data = axiosError.response?.data as ErrorResponse | undefined;
 
         // Some APIs nest error details under data.error rather than data directly.
         const message = data?.error?.message || data?.message || axiosError.message || "A network error occurred";
@@ -38,6 +50,8 @@ export function normalizeApiError(error: unknown): FrontendAppError {
         const details = data?.error?.details || data?.details || data;
 
         return new FrontendAppError(message, { status, code, details });
+
+
     }
 
     // Handle standard JS errors

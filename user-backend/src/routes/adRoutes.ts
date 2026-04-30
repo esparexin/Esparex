@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import * as adController from "../controllers/ad";
+import * as listingController from "../controllers/listing/listingController";
 import { protect, extractUser } from "../middleware/authMiddleware";
 import { validateSearchParams } from "../middleware/securityValidators";
 import { mutationLimiter, searchLimiter, adPostLimiter } from "../middleware/rateLimiter";
@@ -104,12 +105,18 @@ router.post(
 // D1: PATCH update uses partial schema (updateAdSchema = PartialAdPayloadSchema.passthrough())
 router.patch(
     "/:id",
-    validateObjectId,
-    protect,
-    rejectOldAdUserIdAlias,
     mutationLimiter,
     validateRequest(updateAdSchema as unknown as ZodTypeAny),
-    adController.updateAd
+    listingController.editListing
+);
+
+// Delete ad — use /listings/:id (Layer 2 canonical)
+router.delete(
+    "/:id",
+    validateObjectId,
+    protect,
+    mutationLimiter,
+    listingController.deleteListing
 );
 
 

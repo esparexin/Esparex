@@ -116,13 +116,20 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
 
         if (
             (listing.status === AD_STATUS.LIVE || listing.status === AD_STATUS.PENDING)
-            && (hasOwnField(body, 'location') || hasOwnField(body, 'locationId'))
+            && (hasOwnField(body, 'location'))
         ) {
             lockErrors.push({
-                field: hasOwnField(body, 'location') ? 'location' : 'locationId',
+                field: 'location',
                 message: 'Location cannot be changed once a listing is live or under review.',
                 code: 'IMMUTABLE_FIELD',
             });
+        }
+
+        // Canonicalize root locationId into nested location.locationId for SSOT compliance
+        if (hasOwnField(body, 'locationId')) {
+            const currentLoc = (body.location && typeof body.location === 'object') ? body.location : {};
+            body.location = { ...currentLoc, locationId: body.locationId };
+            delete body.locationId;
         }
 
         if (lockErrors.length > 0) {
