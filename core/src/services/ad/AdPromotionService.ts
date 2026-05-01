@@ -4,7 +4,7 @@ import logger from '@core/utils/logger';
 import Ad from '@core/models/Ad';
 import { getUserConnection } from '@core/config/db';
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { LIFECYCLE_STATUS } from '@core/constants/enums/lifecycle';
 import { consumeCredit } from '../WalletService';
 import { invalidateAdFeedCaches } from '@core/utils/redisCache';
@@ -46,7 +46,7 @@ export const promoteAdLogic = async (
             const activePromotions = await Ad.countDocuments({
                 sellerId: userId,
                 isSpotlight: true,
-                status: AD_STATUS.LIVE
+                status: LISTING_STATUS.LIVE
             });
             if (activePromotions >= 3) {
                 throw new AppError('Maximum 3 active spotlight promotions allowed concurrently.', 403);

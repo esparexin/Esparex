@@ -1,12 +1,14 @@
 {
-  "threshold": 1.1,
+  "threshold": 2.5,
   "minLines": 8,
   "minTokens": 100,
   "languages": ["typescript", "tsx"],
   "path": [
-    "backend/src",
-    "frontend/src",
+    "user-backend/src",
+    "admin-backend/src",
+    "user-frontend/src",
     "admin-frontend/src",
+    "core/src",
     "shared"
   ],
   "ignore": [

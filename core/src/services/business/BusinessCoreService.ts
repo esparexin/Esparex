@@ -3,7 +3,7 @@ import Business from '@core/models/Business';
 import User from '@core/models/User';
 import Ad from '@core/models/Ad';
 import { normalizeAdImagesForResponse } from "@core/services/adQuery/AdQueryHelpers";
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { AppError } from '@core/utils/AppError';
 import { getUserConnection } from '@core/config/db';
 import logger from '@core/utils/logger';
@@ -261,9 +261,9 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
 
 export const getBusinessListings = async (sellerId: string, listingType: string) => {
     const listings = await Ad.find({
-        sellerId,
-        listingType,
-        status: AD_STATUS.LIVE,
+        sellerId: sellerId as any,
+        listingType: listingType as any,
+        status: LISTING_STATUS.LIVE,
         isDeleted: { $ne: true },
     }).sort({ createdAt: -1 }).lean();
     return listings.map((l) => normalizeAdImagesForResponse(l as unknown as Record<string, unknown>));
@@ -271,9 +271,9 @@ export const getBusinessListings = async (sellerId: string, listingType: string)
 
 export const getBusinessStats = async (userId: string) => {
     const [totalServices, approvedServices, pendingServices] = await Promise.all([
-        Ad.countDocuments({ sellerId: userId, listingType: 'service' }),
-        Ad.countDocuments({ sellerId: userId, listingType: 'service', status: AD_STATUS.LIVE }),
-        Ad.countDocuments({ sellerId: userId, listingType: 'service', status: AD_STATUS.PENDING }),
+        Ad.countDocuments({ sellerId: userId as any, listingType: 'service' as any }),
+        Ad.countDocuments({ sellerId: userId as any, listingType: 'service' as any, status: LISTING_STATUS.LIVE }),
+        Ad.countDocuments({ sellerId: userId as any, listingType: 'service' as any, status: LISTING_STATUS.PENDING }),
     ]);
     return { totalServices, approvedServices, pendingServices, views: 0 };
 };

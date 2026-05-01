@@ -10,7 +10,7 @@ import Ad, { type IAd } from '@core/models/Ad';
 import logger from '@core/utils/logger';
 import { touchLocationAnalytics } from './location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from './TrendingService';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 
 // ─────────────────────────────────────────────────
 // VIEW TRACKING
@@ -136,7 +136,7 @@ export const getSellerAdStats = async (
 
         const totalViews = ads.reduce((sum, ad) => sum + (ad.views?.total || 0), 0);
 
-        const activeAds = ads.filter(ad => ad.status === AD_STATUS.LIVE).length;
+        const activeAds = ads.filter(ad => ad.status === LISTING_STATUS.LIVE).length;
 
         return {
             totalViews,

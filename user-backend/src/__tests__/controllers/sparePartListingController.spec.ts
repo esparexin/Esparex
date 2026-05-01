@@ -3,16 +3,20 @@ jest.mock("@core/services/ad/AdAggregationService", () => ({
     getAds: jest.fn(),
 }));
 
+jest.mock("@core/utils/respond", () => ({
+    respond: jest.fn((data: unknown) => data),
+}));
+
 import type { Request, Response } from "express";
-import { getSparePartListings } from "../../controllers/sparePartListing/sparePartListingController";
+import { getListings } from "../../controllers/listing/listingController";
 import * as AdAggregationService from "@core/services/ad/AdAggregationService";
 
-describe("sparePartListingController pagination envelope", () => {
+describe("listingController discovery", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    it("returns a standardized pagination envelope for public spare-part browse", async () => {
+    it("returns a standardized pagination envelope for public spare-part browse via unified getListings", async () => {
         const mockedGetAds = AdAggregationService.getAds as jest.Mock;
         mockedGetAds.mockResolvedValueOnce({
             data: [{ id: "part-1", title: "iPhone screen" }],
@@ -23,6 +27,7 @@ describe("sparePartListingController pagination envelope", () => {
             query: {
                 page: "2",
                 limit: "20",
+                listingType: "spare_part"
             },
         } as unknown as Request;
 
@@ -30,7 +35,9 @@ describe("sparePartListingController pagination envelope", () => {
             json: jest.fn(),
         } as unknown as Response;
 
-        await getSparePartListings(req, res);
+        const next = jest.fn();
+
+        await getListings(req, res, next);
 
         expect(res.json).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -44,6 +51,14 @@ describe("sparePartListingController pagination envelope", () => {
                     totalPages: 3,
                 }),
             })
+        );
+        
+        expect(mockedGetAds).toHaveBeenCalledWith(
+            expect.objectContaining({
+                listingType: "spare_part"
+            }),
+            expect.any(Object),
+            expect.any(Object)
         );
     });
 });

@@ -133,6 +133,18 @@ export const getBusinessSpareParts = async (req: Request, res: Response) => {
     }
 };
 
+export const getBusinessListingsById = async (req: Request, res: Response) => {
+    try {
+        const business = await requireBusiness(req, res);
+        if (!business) return;
+        const listingType = req.query.listingType as string;
+        const data = await getBusinessListings(business.userId.toString(), listingType);
+        res.json(respond<ApiResponse<unknown[]>>({ success: true, data }));
+    } catch {
+        sendErrorResponse(req, res, 500, 'Failed to fetch business listings');
+    }
+};
+
 export const getBusinessStatsById = async (req: Request, res: Response) => {
     try {
         const business = await requireBusiness(req, res);

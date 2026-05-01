@@ -12,8 +12,39 @@ import type { ZodTypeAny } from "zod";
 const router = Router();
 
 /**
- * Protected Routes (Owner Only)
+ * Public Discovery Routes
  */
+
+// GET /api/v1/listings/home
+router.get("/home", searchLimiter, listingController.getHomeFeed);
+
+// GET /api/v1/listings/trending
+router.get("/trending", searchLimiter, listingController.getTrending);
+
+// GET /api/v1/listings/nearby
+router.get("/nearby", extractUser, searchLimiter, validateIdOrSlug('id'), listingController.getNearbyListings);
+
+// GET /api/v1/listings/suggestions
+router.get("/suggestions", searchLimiter, listingController.getListingSuggestions);
+
+// GET /api/v1/listings
+// Browse / Search
+router.get("/", extractUser, searchLimiter, listingController.getListings);
+
+
+/**
+ * Protected Routes (Owner/Creator Only)
+ */
+
+// POST /api/v1/listings
+// Unified creation entry point
+router.post("/", protect, mutationLimiter, idempotencyMiddleware, listingController.createListing);
+
+// POST /api/v1/listings/upload-image
+router.post("/upload-image", protect, mutationLimiter, listingController.uploadImage);
+
+// POST /api/v1/listings/upload-presign
+router.post("/upload-presign", protect, mutationLimiter, listingController.getUploadPresignedUrl);
 
 // GET /api/v1/listings/mine/stats
 // Unified fetch for user's listing counts across all types
@@ -24,7 +55,7 @@ router.get("/mine/stats", protect, listingController.getMyListingStats);
 router.get("/mine", protect, listingController.getMyListings);
 
 /**
- * Public Routes
+ * Public Detail Routes
  */
 
 // GET /api/v1/listings/:id

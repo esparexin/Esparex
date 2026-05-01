@@ -26,7 +26,7 @@ import mongoose from "mongoose";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { AD_STATUS } from "@core/constants/enums/adStatus";
+import { LISTING_STATUS } from "@shared/enums/listingStatus";
 import { LISTING_TYPE } from "@core/constants/enums/listingType";
 import { USER_STATUS } from "@core/constants/enums/userStatus";
 import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
@@ -131,8 +131,8 @@ async function run(): Promise<void> {
     }
 
     let smokeAd = await Ad.findOne({
-        sellerId:    seller._id,
-        listingType: LISTING_TYPE.AD,
+        sellerId:    seller._id as any,
+        listingType: LISTING_TYPE.AD as any,
         title:       smokeTitle,
         isDeleted:   false,
     });
@@ -146,7 +146,7 @@ async function run(): Promise<void> {
     // Variable named 'smokeAd' (not 'ad/doc/listing/entity') — outside the rule's identifier blocklist.
     smokeAd.description = "CI smoke fixture ad — do not index.";
     smokeAd.price       = 499;
-    smokeAd.status      = AD_STATUS.LIVE;
+    smokeAd.status      = LISTING_STATUS.LIVE;
     smokeAd.moderationStatus = MODERATION_STATUS.AUTO_APPROVED;
     smokeAd.listingType = LISTING_TYPE.AD;
     smokeAd.sellerId    = seller._id;
@@ -170,8 +170,8 @@ async function run(): Promise<void> {
     const serviceTitle = "CI Smoke Fixture — Repair Service";
     const serviceSlug = toSlug(serviceTitle);
     let smokeService = await Ad.findOne({
-        sellerId: seller._id,
-        listingType: LISTING_TYPE.SERVICE,
+        sellerId: seller._id as any,
+        listingType: LISTING_TYPE.SERVICE as any,
         title: serviceTitle,
     });
     if (!smokeService) {
@@ -183,7 +183,7 @@ async function run(): Promise<void> {
     }
     smokeService.description = "CI smoke fixture service.";
     smokeService.price = 999;
-    smokeService.status = AD_STATUS.LIVE;
+    smokeService.status = LISTING_STATUS.LIVE;
     smokeService.moderationStatus = MODERATION_STATUS.AUTO_APPROVED;
     smokeService.categoryId = category._id;
     smokeService.seoSlug = serviceSlug;
@@ -197,8 +197,8 @@ async function run(): Promise<void> {
     const sparePartTitle = "CI Smoke Fixture — Replacement Screen";
     const sparePartSlug = toSlug(sparePartTitle);
     let smokeSparePart = await Ad.findOne({
-        sellerId: seller._id,
-        listingType: LISTING_TYPE.SPARE_PART,
+        sellerId: seller._id as any,
+        listingType: LISTING_TYPE.SPARE_PART as any,
         title: sparePartTitle,
     });
     if (!smokeSparePart) {
@@ -210,7 +210,7 @@ async function run(): Promise<void> {
     }
     smokeSparePart.description = "CI smoke fixture spare part.";
     smokeSparePart.price = 2499;
-    smokeSparePart.status = AD_STATUS.LIVE;
+    smokeSparePart.status = LISTING_STATUS.LIVE;
     smokeSparePart.moderationStatus = MODERATION_STATUS.AUTO_APPROVED;
     smokeSparePart.categoryId = category._id;
     smokeSparePart.seoSlug = sparePartSlug;

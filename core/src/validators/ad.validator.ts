@@ -97,6 +97,7 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     maxPrice: z.string().transform(Number).pipe(z.number().min(0)).optional(),
 
     isSpotlight: z.boolean().or(z.string().transform(val => val === 'true')).optional(),
+    listingType: z.string().optional(),
 
     // 📍 New Location Filters
     radiusKm: z.string().transform(Number).pipe(z.number().min(0).max(500)).optional(),

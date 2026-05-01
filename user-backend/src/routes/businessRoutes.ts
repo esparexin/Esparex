@@ -77,4 +77,7 @@ router.get('/:id/ads', validateIdOrSlug('id'), businessController.getBusinessAds
 // GET /api/v1/businesses/:id/spare-parts - Get business spare part listings (Public)
 router.get('/:id/spare-parts', validateIdOrSlug('id'), businessController.getBusinessSpareParts);
 
+// GET /api/v1/businesses/:id/listings - Get business listings (Public/Unified)
+router.get('/:id/listings', validateIdOrSlug('id'), businessController.getBusinessListingsById);
+
 export default router;

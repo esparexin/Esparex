@@ -1,5 +1,5 @@
 import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 
 export interface PromotionPolicyResult {
     allowed: boolean;
@@ -22,7 +22,7 @@ export class PromotionPolicyService {
         const type = listing.listingType as ListingTypeValue;
 
         // 1. Basic Status Guard — Only LIVE listings can be promoted
-        if (listing.status !== AD_STATUS.LIVE) {
+        if (listing.status !== LISTING_STATUS.LIVE) {
             return {
                 allowed: false,
                 reason: 'Only live listings can be promoted.',

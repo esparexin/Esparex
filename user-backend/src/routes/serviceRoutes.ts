@@ -1,24 +1,33 @@
 import express from 'express';
-import * as serviceController from '../controllers/service';
 import * as listingController from '../controllers/listing/listingController';
 import { protect, extractUser } from '../middleware/authMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
 import { mutationLimiter, searchLimiter, phoneRevealLimiter } from '../middleware/rateLimiter';
-
 import { ServicePayloadSchema, PartialServicePayloadSchema } from "@shared/schemas/servicePayload.schema";
 import type { ZodTypeAny } from 'zod';
 import { createListingValidator } from '../middleware/listing.validator';
 import { enforceCreateServiceIdempotency } from '../middleware/idempotency';
-
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
 import { requireListingType } from '../middleware/requireListingType';
 import { LISTING_TYPE } from "@shared/enums/listingType";
+import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
+import logger from "@core/utils/logger";
 
 const router = express.Router();
 
-// Protected CRUD (Business Only)
+/**
+ * 🛡️ LEGACY PROXY LAYER
+ * All routes here delegate to listingController.ts (SSOT).
+ * Log warnings to track legacy usage for eventual decommissioning.
+ */
+
+const logLegacyHit = (endpoint: string) => {
+    logger.warn(`[DEPRECATED API HIT] ${endpoint} - Use /api/v1/listings instead.`);
+};
+
+// Create
 router.post(
     '/',
     protect,
@@ -29,28 +38,42 @@ router.post(
     validateRequest(ServicePayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
     enforceCreateServiceIdempotency,
-    serviceController.createService
+    (req, res, next) => {
+        logLegacyHit('POST /services');
+        listingController.createListing(req, res, next);
+    }
 );
-// router.get('/analytics', ...) — removed: admin-only endpoint moved exclusively to
-// /api/v1/admin/services/analytics (adminRoutes.ts). Do not re-add here.
 
+// Update
 router.put(
     '/:id',
     protect,
     requireBusinessApproved,
     validateObjectId,
+    mutationLimiter,
     validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
-    serviceController.updateService
+    (req, res, next) => {
+        logLegacyHit('PUT /services/:id');
+        listingController.editListing(req, res, next);
+    }
 );
-// D2: Lifecycle routes now fully delegated to generic listingRoutes.ts
 
+// Get All
+router.get('/', searchLimiter, (req: any, res: any, next: any) => {
+    logLegacyHit('GET /services');
+    listingController.getListings(req, res, next);
+});
 
-import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
+// View Increment
+router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), (req: any, res: any, next: any) => {
+    logLegacyHit('GET /services/:id/view');
+    listingController.incrementListingView(req, res, next);
+});
 
-// Public Get
-router.get('/', searchLimiter, serviceController.getServices);
-router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), listingController.incrementListingView);
-
-router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, listingController.getListingPhone);
+// Phone Reveal
+router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req: any, res: any, next: any) => {
+    logLegacyHit('GET /services/:id/phone');
+    listingController.getListingPhone(req, res, next);
+});
 
 export default router;

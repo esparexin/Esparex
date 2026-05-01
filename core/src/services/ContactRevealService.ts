@@ -4,8 +4,9 @@ import PhoneRevealLog from '@core/models/PhoneRevealLog';
 import PhoneRequest from '@core/models/PhoneRequest';
 import logger from '@core/utils/logger';
 import { MOBILE_VISIBILITY, normalizeMobileVisibility } from "@shared/constants/mobileVisibility";
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { USER_STATUS } from '@core/constants/enums/userStatus';
+import { REQUEST_STATUS } from '@core/constants/enums/requestStatus';
 
 type SellerContact = {
     _id?: mongoose.Types.ObjectId;
@@ -42,7 +43,7 @@ export const maskPhone = (phone?: string): string | undefined => {
 /* eslint-disable @typescript-eslint/require-await */
 export const logPhoneReveal = async (
     entityId: string,
-    entityType: string,
+    entityType: 'ad' | 'service' | 'spare_part',
     sellerId: string,
     buyerId: string,
     ipAddress?: string,
@@ -114,8 +115,8 @@ export const getSellerPhone = async (
         if (!seller) return { error: 'Seller not found' };
 
         const sellerPhone = seller.mobile;
-        const entityActive = entity.status === AD_STATUS.LIVE && !entity.isDeleted;
-        const resolvedEntityType = entity.listingType || (entityType === 'spare_part' ? 'spare_part' : 'ad');
+        const entityActive = entity.status === LISTING_STATUS.LIVE && !entity.isDeleted;
+        const resolvedEntityType = (entity.listingType as 'ad' | 'service' | 'spare_part') || (entityType === 'spare_part' ? 'spare_part' : 'ad');
 
         const isOwner = Boolean(buyerId && seller._id && buyerId === seller._id.toString());
 
@@ -133,8 +134,8 @@ export const getSellerPhone = async (
                     sellerId: seller._id,
                     entityId: id,
                     entityType: resolvedEntityType,
-                    status: 'approved'
-                }).lean();
+                    status: REQUEST_STATUS.APPROVED as any
+                } as any).lean();
 
                 if (!approvedRequest) {
                     return { error: 'REQUEST_REQUIRED' };

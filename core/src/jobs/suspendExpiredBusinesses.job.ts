@@ -4,7 +4,7 @@ import { jobRunner } from '@core/utils/jobRunner';
 import logger from '@core/utils/logger';
 import { runWithDistributedJobLock } from '@core/utils/distributedJobLock';
 import { dispatchTemplatedNotification } from '@core/services/NotificationService';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { MODERATION_STATUS } from '@core/constants/enums/moderationStatus';
 
 
@@ -86,12 +86,12 @@ export const runSuspendExpiredBusinessesJob = async () => {
                         const adResult = await Ad.updateMany(
                             { 
                                 sellerId: { $in: suspendedUserIds }, 
-                                status: AD_STATUS.LIVE,
+                                status: LISTING_STATUS.LIVE,
                                 isDeleted: { $ne: true }
                             },
                             {
                                 $set: { 
-                                    status: AD_STATUS.PENDING,
+                                    status: LISTING_STATUS.PENDING,
                                     moderationStatus: MODERATION_STATUS.HELD_FOR_REVIEW,
                                     statusReason: 'Automatic deactivation: Business subscription expired'
                                 }

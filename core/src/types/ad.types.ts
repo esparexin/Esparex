@@ -28,7 +28,8 @@ export interface AdFilters {
     flagged?: boolean;
     reportThreshold?: number;
     riskThreshold?: number;
-    sortBy?: 'date' | 'price' | 'views';
+    sortBy?: 'date' | 'price' | 'views' | 'distance';
+    listingType?: string;
     sortOrder?: 'asc' | 'desc';
 }
 

@@ -15,10 +15,13 @@ type NotificationTargetParams = {
     userIds?: string[];
 };
 
-const ACTIVE_USER_QUERY = {
+import { USER_STATUS } from "@core/constants/enums/userStatus";
+import { Role } from "@core/constants/enums/roles";
+
+const ACTIVE_USER_QUERY: Record<string, any> = {
     isDeleted: { $ne: true },
-    status: { $nin: ["deleted", "banned"] },
-    role: { $in: ["user", "business"] },
+    status: { $nin: [USER_STATUS.DELETED, USER_STATUS.BANNED] },
+    role: { $in: [Role.USER, Role.BUSINESS] },
 };
 
 const TOPIC_PLATFORM_MAP: Record<AdminNotificationTopicValue, "web" | "android" | "ios"> = {

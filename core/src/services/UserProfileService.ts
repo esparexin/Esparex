@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import User from '@core/models/User';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import * as AdAggregationService from './ad/AdAggregationService';
 
 export type SellerPublicUser = {
@@ -61,7 +61,7 @@ export const getUserProfileById = async (
     const sellerAds = await AdAggregationService.getAds(
         {
             sellerId: userId,
-            status: AD_STATUS.LIVE,
+            status: LISTING_STATUS.LIVE,
         },
         { page: 1, limit: 20 },
         {}

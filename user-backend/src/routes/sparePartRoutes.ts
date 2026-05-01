@@ -2,25 +2,30 @@ import { Router } from 'express';
 import { protect, extractUser } from '../middleware/authMiddleware';
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
-import * as sparePartListingController from '../controllers/sparePartListing/sparePartListingController';
 import * as listingController from '../controllers/listing/listingController';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
 import { createListingValidator } from '../middleware/listing.validator';
-import { phoneRevealLimiter } from '../middleware/rateLimiter';
-
+import { phoneRevealLimiter, mutationLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
 import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from "@shared/schemas/sparePartPayload.schema";
 import { requireListingType } from '../middleware/requireListingType';
 import { LISTING_TYPE } from "@shared/enums/listingType";
+import logger from "@core/utils/logger";
 
 const router = Router();
 
 /**
- * @route   POST /api/v1/spare-part-listings
- * @desc    Create a new spare part listing (Requires Approved Business)
- * @access  Private (Business)
+ * 🛡️ LEGACY PROXY LAYER
+ * All routes here delegate to listingController.ts (SSOT).
+ * Log warnings to track legacy usage for eventual decommissioning.
  */
+
+const logLegacyHit = (endpoint: string) => {
+    logger.warn(`[DEPRECATED API HIT] ${endpoint} - Use /api/v1/listings instead.`);
+};
+
+// Create
 router.post(
     '/',
     protect,
@@ -29,40 +34,36 @@ router.post(
     duplicateCooldownMiddleware(LISTING_TYPE.SPARE_PART),
     validateRequest(SparePartPayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
-    sparePartListingController.createSparePartListing
+    (req, res, next) => {
+        logLegacyHit('POST /spare-part-listings');
+        listingController.createListing(req, res, next);
+    }
 );
 
-/**
- * @route   GET /api/v1/spare-part-listings
- * @desc    Get all spare part listings (Public)
- * @access  Public
- */
-router.get('/', sparePartListingController.getSparePartListings);
+// Get All (Search)
+router.get('/', searchLimiter, (req: any, res: any, next: any) => {
+    logLegacyHit('GET /spare-part-listings');
+    listingController.getListings(req, res, next);
+});
 
-/**
- * @route   GET /api/v1/spare-part-listings/:id/phone
- * @desc    Reveal seller phone for a spare part listing
- * @access  Public with optional auth context
- */
-router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, listingController.getListingPhone);
+// Phone Reveal
+router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req: any, res: any, next: any) => {
+    logLegacyHit('GET /spare-part-listings/:id/phone');
+    listingController.getListingPhone(req, res, next);
+});
 
-
-
-/**
- * @route   PUT /api/v1/spare-part-listings/:id
- * @desc    Update a spare part listing (Owner only)
- * @access  Private (Business)
- */
+// Update
 router.put(
     '/:id',
     protect,
     requireBusinessApproved,
     validateObjectId,
+    mutationLimiter,
     validateRequest(PartialSparePartPayloadSchema.passthrough() as unknown as ZodTypeAny),
-    sparePartListingController.updateSparePartListing
+    (req: any, res: any, next: any) => {
+        logLegacyHit('PUT /spare-part-listings/:id');
+        listingController.editListing(req, res, next);
+    }
 );
-
-// D3: Lifecycle routes now fully delegated to generic listingRoutes.ts
-
 
 export default router;

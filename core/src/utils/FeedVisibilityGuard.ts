@@ -1,4 +1,4 @@
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { getStatusMatchCriteria } from './statusQueryMapper';
 
 /**
@@ -24,12 +24,12 @@ export const HIDDEN_MODERATION_STATUSES = ['rejected', 'community_hidden', 'held
 
 export const buildPublicAdFilter = () => {
     // Runtime safety check to prevent accidental status bypass
-    if (AD_STATUS.LIVE !== 'live') {
-        throw new Error('[FeedVisibilityGuard] CRITICAL: AD_STATUS.LIVE is corrupted or improperly defined.');
+    if (LISTING_STATUS.LIVE !== 'live') {
+        throw new Error('[FeedVisibilityGuard] CRITICAL: LISTING_STATUS.LIVE is corrupted or improperly defined.');
     }
 
     return {
-        status: getStatusMatchCriteria(AD_STATUS.LIVE),
+        status: getStatusMatchCriteria(LISTING_STATUS.LIVE),
         isDeleted: { $ne: true },
         expiresAt: { $gt: new Date() },
         moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] }

@@ -2,7 +2,7 @@
 import type { ListingFilters as AdFilters, HomeAdsRequestParams } from "@/lib/api/user/listings";
 
 const listingKeys = {
-    all: ['ads'] as const,
+    all: ['listings'] as const,
     lists: () => [...listingKeys.all, 'list'] as const,
     list: (filters: AdFilters) => [...listingKeys.lists(), filters] as const,
     details: () => [...listingKeys.all, 'detail'] as const,

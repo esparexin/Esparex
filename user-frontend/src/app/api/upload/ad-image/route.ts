@@ -72,7 +72,7 @@ export async function POST(req: Request) {
         }
 
         if (folder === "ads" && adId) {
-            const response = await fetch(`${API_BASE_URL}/${API_ROUTES.USER.ADS_UPLOAD_IMAGE}`, {
+            const response = await fetch(`${API_BASE_URL}/${API_ROUTES.USER.LISTINGS_UPLOAD_IMAGE}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

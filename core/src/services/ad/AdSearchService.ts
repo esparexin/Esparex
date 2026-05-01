@@ -7,7 +7,7 @@ import {
     getCache,
     setCache,
     buildAdSortStageFromHelper,
-    AD_STATUS,
+    LISTING_STATUS,
     FeatureFlag,
     isEnabled,
     recordListingTypeCompatMetric,
@@ -30,7 +30,7 @@ export const buildAdMatchStage = async (
         ?? await isEnabled(FeatureFlag.ENABLE_AD_LISTINGTYPE_NULL_COMPAT);
 
     if (!filters.status) {
-        filters.status = AD_STATUS.LIVE;
+        filters.status = LISTING_STATUS.LIVE;
     }
 
     let resolvedCategoryId = filters.categoryId;
@@ -61,7 +61,7 @@ export const buildAdMatchStage = async (
         }
     }
 
-    const requestedStatus = filters.status || AD_STATUS.LIVE;
+    const requestedStatus = filters.status || LISTING_STATUS.LIVE;
     const statusQuery = getStatusMatchCriteria(requestedStatus);
 
     let match = buildAdFilterFromCriteria({

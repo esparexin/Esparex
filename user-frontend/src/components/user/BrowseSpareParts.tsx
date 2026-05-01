@@ -77,7 +77,7 @@ export function BrowseSpareParts({
       logScope="BrowseSpareParts"
       loadErrorMessage="Failed to load spare parts. Please try again."
       buildFilters={buildSparePartFilters}
-      fetchPage={(filters) => getAdsPage(filters, { endpoint: API_ROUTES.USER.SPARE_PART_LISTINGS })}
+      fetchPage={(filters) => getAdsPage({ ...filters, type: 'spare_part' }, { endpoint: API_ROUTES.USER.LISTINGS })}
       searchAriaLabel="Search spare parts"
       searchPlaceholder="Search spare parts..."
       inputClassName="pl-9 h-11 rounded-xl"

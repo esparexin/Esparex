@@ -174,7 +174,7 @@ export const findAdminForLogin = async (email: string) => {
 };
 
 export const updateAdminLastLogin = async (id: string | { toString(): string }) => {
-    return Admin.updateOne({ _id: id }, { $set: { lastLogin: new Date() } });
+    return Admin.updateOne({ _id: id as any }, { $set: { lastLogin: new Date() } });
 };
 
 export const getAdminProfileById = async (adminId: unknown) => {

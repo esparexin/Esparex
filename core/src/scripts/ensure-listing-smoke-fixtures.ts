@@ -7,7 +7,7 @@ import Ad from '@core/models/Ad';
 import Category from '@core/models/Category';
 import ServiceType from '@core/models/ServiceType';
 import SparePart from '@core/models/SparePart';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
 import { MODERATION_STATUS } from '@core/constants/enums/moderationStatus';
 import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
@@ -140,9 +140,9 @@ async function resolveCategoryFor(type: ListingFixtureType) {
   const category = await Category.findOne({
     isDeleted: { $ne: true },
     isActive: true,
-    status: { $in: ['live', 'active'] },
+    status: { $in: ['live', 'active'] as any[] },
     ...typeSelector,
-  })
+  } as any)
     .sort({ updatedAt: -1 })
     .select('_id name slug serviceSelectionMode')
     .lean<{ _id: Types.ObjectId; name: string; slug: string; serviceSelectionMode?: 'single' | 'multi' } | null>();
@@ -207,7 +207,7 @@ function buildBaseListingDocument(params: {
     listingType: params.type,
     sellerId: params.sellerId,
     sellerType: 'user',
-    status: AD_STATUS.LIVE,
+    status: LISTING_STATUS.LIVE,
     moderationStatus: MODERATION_STATUS.MANUAL_APPROVED,
     seoSlug: FIXTURE_SLUGS[params.type],
     location: FIXTURE_LOCATION,

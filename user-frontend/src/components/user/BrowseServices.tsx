@@ -82,7 +82,7 @@ export function BrowseServices({
       logScope="BrowseServices"
       loadErrorMessage="Failed to load services. Please try again."
       buildFilters={buildServiceFilters}
-      fetchPage={(filters) => getAdsPage(filters, { endpoint: API_ROUTES.USER.SERVICES })}
+      fetchPage={(filters) => getAdsPage({ ...filters, type: 'service' }, { endpoint: API_ROUTES.USER.LISTINGS })}
       inputId="browse-services-search"
       searchAriaLabel="Search services"
       searchPlaceholder="Search repair services..."

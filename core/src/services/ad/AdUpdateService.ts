@@ -3,7 +3,7 @@ import { AppError } from '@core/utils/AppError';
 import logger from '@core/utils/logger';
 import Ad, { type IAd } from '@core/models/Ad';
 import { getUserConnection } from '@core/config/db';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { LIFECYCLE_STATUS } from '@core/constants/enums/lifecycle';
 import { NOTIFICATION_TYPE } from '@core/constants/enums/notificationType';
 import { AdContext } from '@core/types/ad.types';
@@ -42,7 +42,7 @@ export const updateAdLogic = async (
 
             // 🔒 LOCATION LOCK: Location is a trust signal — once an ad reaches pending/live
             // it cannot be silently changed. Prevents location gaming and buyer trust breaks.
-            if (context.actor === 'USER' && (ad.status === AD_STATUS.LIVE || ad.status === AD_STATUS.PENDING)) {
+            if (context.actor === 'USER' && (ad.status === LISTING_STATUS.LIVE || ad.status === LISTING_STATUS.PENDING)) {
                 const untypedData = data as Record<string, unknown>;
                 delete untypedData.location;
                 delete untypedData.locationId;
@@ -56,7 +56,7 @@ export const updateAdLogic = async (
             }
 
             const payload = await AdCreationService.preparePayload(data, context, true, adId.toString(), adId);
-            const requiresReviewTransition = context.actor === 'USER' && ad.status === AD_STATUS.LIVE;
+            const requiresReviewTransition = context.actor === 'USER' && ad.status === LISTING_STATUS.LIVE;
 
             if (context.actor === 'USER') {
                 const untypedPayload = payload as Record<string, unknown>;
@@ -92,7 +92,7 @@ export const updateAdLogic = async (
                 updatedAd = await mutateStatus({
                     domain: 'ad',
                     entityId: id,
-                    toStatus: AD_STATUS.PENDING,
+                    toStatus: LISTING_STATUS.PENDING,
                     actor: {
                         type: context.actor === 'ADMIN' ? 'admin' : 'user',
                         id: context.authUserId,
@@ -106,7 +106,7 @@ export const updateAdLogic = async (
                         moderationStatus: 'held_for_review',
                         $push: {
                             timeline: {
-                                status: AD_STATUS.PENDING,
+                                status: LISTING_STATUS.PENDING,
                                 timestamp: new Date(),
                                 reason: 'Re-submitted for review after edit',
                             },

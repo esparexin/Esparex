@@ -5,28 +5,12 @@ import logger from "@/lib/logger";
 import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
 import { normalizeListing, stripEmptyObjectIdFields, type Listing } from './normalizer';
 
-function getDeleteListingEndpoint(id: string | number, listingType: ListingTypeValue): string {
-    switch (listingType) {
-        case LISTING_TYPE.SERVICE:
-            return `${API_ROUTES.USER.SERVICES}/${encodeURIComponent(String(id))}`;
-        case LISTING_TYPE.SPARE_PART:
-            return API_ROUTES.USER.SPARE_PART_LISTING_DETAIL(String(id));
-        case LISTING_TYPE.AD:
-        default:
-            return API_ROUTES.USER.AD_DETAIL(id);
-    }
+function getDeleteListingEndpoint(id: string | number): string {
+    return API_ROUTES.USER.LISTING_DETAIL(id);
 }
 
-function getRepostListingEndpoint(id: string | number, listingType: ListingTypeValue): string {
-    switch (listingType) {
-        case LISTING_TYPE.SERVICE:
-            return API_ROUTES.USER.SERVICE_REPOST(String(id));
-        case LISTING_TYPE.SPARE_PART:
-            return API_ROUTES.USER.SPARE_PART_REPOST(String(id));
-        case LISTING_TYPE.AD:
-        default:
-            return API_ROUTES.USER.AD_REPOST(id);
-    }
+function getRepostListingEndpoint(id: string | number): string {
+    return API_ROUTES.USER.LISTING_REPOST(id);
 }
 /**
  * Helper to execute mutation requests with unified error handling.
@@ -54,7 +38,7 @@ export const createListing = async (
     options?: { endpoint?: string; idempotencyKey?: string; errorMessage?: string }
 ): Promise<Listing | null> => {
     const sanitizedPayload = stripEmptyObjectIdFields(listingData as Record<string, unknown>);
-    const endpoint = options?.endpoint || API_ROUTES.USER.ADS;
+    const endpoint = options?.endpoint || API_ROUTES.USER.LISTINGS;
     const headers = options?.idempotencyKey && options.idempotencyKey.trim().length > 0
         ? { 'Idempotency-Key': options.idempotencyKey.trim() }
         : undefined;
@@ -92,11 +76,11 @@ export const updateListing = async (
  */
 export const deleteListing = async (
     id: string | number,
-    listingType: ListingTypeValue = LISTING_TYPE.AD
+    _listingType: ListingTypeValue = LISTING_TYPE.AD
 ): Promise<boolean> => {
     try {
         const api = await toApiResult<{ success?: boolean }>(
-            apiClient.delete(getDeleteListingEndpoint(id, listingType), { silent: true })
+            apiClient.delete(getDeleteListingEndpoint(id), { silent: true })
         );
         if (api.error) throw api.error;
         return api.data?.success !== false;
@@ -145,11 +129,11 @@ export const deactivateListing = async (id: string | number): Promise<boolean> =
  */
 export const repostListing = async (
     id: string | number,
-    listingType: ListingTypeValue = LISTING_TYPE.AD
+    _listingType: ListingTypeValue = LISTING_TYPE.AD
 ): Promise<boolean> => {
     try {
         const { data: result, error } = await toApiResult<unknown>(
-            apiClient.post(getRepostListingEndpoint(id, listingType), undefined, { silent: true })
+            apiClient.post(getRepostListingEndpoint(id), undefined, { silent: true })
         );
         if (error) throw error;
         return !!result;

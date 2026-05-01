@@ -5,7 +5,7 @@ import { sendErrorResponse } from "@core/utils/errorResponse";
 import logger from '@core/utils/logger';
 import { sendSuccessResponse } from "@core/utils/respond";
 import { getSingleParam } from '@core/utils/requestParams';
-import { AD_STATUS } from "@shared/enums/adStatus";
+import { LISTING_STATUS } from "@shared/enums/listingStatus";
 import { ACTOR_TYPE } from "@shared/enums/actor";
 import { LISTING_TYPE } from "@shared/enums/listingType";
 import { PromotionPolicyService } from '@core/services/PromotionPolicyService';
@@ -15,10 +15,20 @@ import * as AdDetailService from '@core/services/ad/AdDetailService';
 import * as AdMutationService from '@core/services/AdMutationService';
 import * as AdMetricsService from '@core/services/ad/AdMetricsService';
 import * as AdEngagementService from '@core/services/AdEngagementService';
+import * as AdOrchestrator from '@core/services/AdOrchestrator';
+import * as feedService from '@core/services/FeedService';
+import * as trendingService from '@core/services/TrendingService';
+import * as adImageService from '@core/services/AdImageService';
 import { mutateStatus } from '@core/services/StatusMutationService';
 import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
 import { getSellerPhone } from '@core/services/ContactRevealService';
 import { collectImmutableFieldErrors, hasOwnField } from '@core/utils/immutableFieldErrors';
+import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@core/validators/ad.validator';
+import { warnIfLegacyAdUserIdAliasUsed } from '@core/utils/legacyOwnerAliasTelemetry';
+import { respond } from "@core/utils/respond";
+import type { AdFilters } from '@core/types/ad.types';
+import type { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@shared/types/Api";
+import type { Ad } from "@shared/schemas/ad.schema";
 
 const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     categoryId: 'Category cannot be changed while editing a listing.',
@@ -38,6 +48,79 @@ const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     deletedAt: 'Deletion state cannot be changed while editing a listing.',
     expiresAt: 'Expiry cannot be changed while editing a listing.',
 };
+
+const IMMUTABLE_SELLER_ID_MESSAGE =
+    '`sellerId` is not accepted on user listing mutations. The authenticated session determines ownership.';
+
+const LEGACY_AD_OWNER_ALIAS_CODE = 'LEGACY_AD_USER_ID_ALIAS_REMOVED';
+
+// --- Helpers ---
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+    Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+type CachedSearchResult = {
+    data: unknown;
+    pagination?: {
+        page?: number;
+        limit?: number;
+    };
+};
+
+const asCachedSearchResult = (value: unknown): CachedSearchResult | null => {
+    if (!isRecord(value)) return null;
+    const pagination = isRecord(value.pagination) ? value.pagination : undefined;
+    return {
+        data: value.data,
+        pagination: pagination
+            ? {
+                page: typeof pagination.page === 'number' ? pagination.page : undefined,
+                limit: typeof pagination.limit === 'number' ? pagination.limit : undefined,
+            }
+            : undefined,
+    };
+};
+
+const getViewerIdForFeed = (req: Request): string | undefined => {
+    const user = req.user as AuthUser | undefined;
+    if (!user?._id) return undefined;
+    if (user.role === 'admin' || user.role === 'super_admin') return undefined;
+    return String(user._id);
+};
+
+const rejectSellerOverride = (
+    req: Request,
+    res: Response,
+    body: Record<string, unknown>
+) => {
+    if (!Object.prototype.hasOwnProperty.call(body, 'sellerId')) return false;
+
+    sendErrorResponse(req, res, 400, IMMUTABLE_SELLER_ID_MESSAGE, {
+        code: 'IMMUTABLE_SELLER_ID',
+        details: [{ field: 'sellerId', message: IMMUTABLE_SELLER_ID_MESSAGE }]
+    });
+    return true;
+};
+
+const sendLegacyAliasError = (req: Request, res: Response, source: 'query') =>
+    sendErrorResponse(
+        req,
+        res,
+        400,
+        '`userId` alias is no longer accepted in ad filters. Use `sellerId` instead.',
+        {
+            code: LEGACY_AD_OWNER_ALIAS_CODE,
+            details: {
+                alias: 'userId',
+                canonical: 'sellerId',
+                source,
+                rolloutPhase: 'PR-D',
+            },
+        }
+    );
+
+const hasLegacyAdUserIdAlias = (value: unknown): boolean =>
+    Boolean(value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'userId'));
 
 
 /**
@@ -115,7 +198,7 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
         const lockErrors = collectImmutableFieldErrors(body, LOCKED_AD_EDIT_FIELD_MESSAGES);
 
         if (
-            (listing.status === AD_STATUS.LIVE || listing.status === AD_STATUS.PENDING)
+            (listing.status === LISTING_STATUS.LIVE || listing.status === LISTING_STATUS.PENDING)
             && (hasOwnField(body, 'location') || hasOwnField(body, 'locationId'))
         ) {
             lockErrors.push({
@@ -154,7 +237,7 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
         const listing = await getAndVerifyOwnedListing(req, res);
         if (!listing) return;
 
-        if (listing.status !== AD_STATUS.LIVE) {
+        if (listing.status !== LISTING_STATUS.LIVE) {
             return sendErrorResponse(req, res, 400, 'Only live listings can be marked as sold');
         }
 
@@ -163,12 +246,12 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
         const updatedListing = await mutateStatus({
             domain: 'ad',
             entityId: listing._id.toString(),
-            toStatus: AD_STATUS.SOLD,
+            toStatus: LISTING_STATUS.SOLD,
             actor: {
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
-                ip: req.ip,
-                userAgent: req.headers['user-agent'],
+                ip: req.ip || '',
+                userAgent: (req.headers['user-agent'] as string) || '',
             },
             reason: soldReason || 'Marked as sold by owner',
             metadata: {
@@ -182,7 +265,7 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
                 isSpotlight: false,
                 $push: {
                     timeline: {
-                        status: AD_STATUS.SOLD,
+                        status: LISTING_STATUS.SOLD,
                         timestamp: new Date(),
                         reason: soldReason || 'Marked as sold by owner',
                     },
@@ -218,7 +301,7 @@ export const promoteListing = async (req: Request, res: Response, next: NextFunc
             );
         }
 
-        if (listing.status !== AD_STATUS.LIVE) {
+        if (listing.status !== LISTING_STATUS.LIVE) {
             return sendErrorResponse(req, res, 400, 'Only live listings can be promoted');
         }
 
@@ -284,8 +367,8 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
             actor: {
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
-                ip: req.ip,
-                userAgent: req.headers['user-agent'],
+                ip: req.ip || '',
+                userAgent: (req.headers['user-agent'] as string) || '',
             },
             reason: 'Deactivated by owner',
             metadata: {
@@ -317,8 +400,8 @@ export const deleteListing = async (req: Request, res: Response, next: NextFunct
             actor: {
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
-                ip: req.ip,
-                userAgent: req.headers['user-agent'],
+                ip: req.ip || '',
+                userAgent: (req.headers['user-agent'] as string) || '',
             },
             reason: 'Listing soft deleted by owner',
             metadata: {
@@ -474,5 +557,381 @@ export const getMyListings = async (req: Request, res: Response) => {
             stack: error instanceof Error ? error.stack : undefined,
         });
         return sendErrorResponse(req, res, 500, 'Failed to fetch your listings');
+    }
+};
+
+/**
+ * Get paginated list of active listings with filters and geospatial search
+ */
+export const getListings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        warnIfLegacyAdUserIdAliasUsed(req, 'query');
+        if (hasLegacyAdUserIdAlias(req.query)) {
+            return sendLegacyAliasError(req, res, 'query');
+        }
+        const viewerId = getViewerIdForFeed(req);
+        const query = getAdsQuerySchema.parse(req.query);
+        const requestedPage = Number(query.page ?? 1);
+        const shouldUseSearchCache =
+            !query.lat &&
+            !query.lng &&
+            !query.cursor &&
+            Number.isFinite(requestedPage) &&
+            requestedPage <= 5;
+
+        const {
+            getCache,
+            setCache,
+            buildDeterministicSearchCacheKey
+        } = await import('@core/utils/redisCache');
+        let cacheKey: string | null = null;
+        let cachedResult: CachedSearchResult | null = null;
+
+        if (shouldUseSearchCache) {
+            cacheKey = buildDeterministicSearchCacheKey(query as Record<string, unknown>);
+            cachedResult = asCachedSearchResult(await getCache(cacheKey));
+
+            if (cachedResult) {
+                const pagination = {
+                    ...(cachedResult.pagination ?? {}),
+                    page: cachedResult.pagination?.page ?? query.page ?? 1,
+                    limit: cachedResult.pagination?.limit ?? query.limit ?? 20
+                };
+                return res.json(respond<PaginatedResponse<Ad>>({
+                    success: true,
+                    data: cachedResult.data as Ad[],
+                    pagination
+                }));
+            }
+        }
+
+        const result = await AdAggregationService.getAds(
+            {
+                listingType: (query as any).listingType as any,
+                status: query.status || LISTING_STATUS.LIVE,
+                categoryId: query.categoryId,
+                brandId: query.brandId,
+                modelId: query.modelId,
+                locationId: query.locationId,
+                level: query.level,
+                sellerId: query.sellerId,
+                isSpotlight: query.isSpotlight,
+                search: query.q,
+                minPrice: query.minPrice,
+                maxPrice: query.maxPrice,
+                sortBy: query.sortBy as AdFilters['sortBy'],
+                radiusKm: query.radiusKm,
+                lat: query.lat,
+                lng: query.lng
+            },
+            {
+                page: query.page,
+                limit: query.limit,
+                cursor: query.cursor,
+            },
+            { enforcePublicVisibility: true, viewerId }
+        );
+
+        if (cacheKey && shouldUseSearchCache) {
+            const { CACHE_TTLS } = await import('@core/utils/redisCache');
+            await setCache(cacheKey, result, CACHE_TTLS.SEARCH);
+        }
+
+        const pagination = {
+            ...result.pagination,
+            page: result.pagination.page ?? query.page ?? 1,
+            limit: result.pagination.limit ?? query.limit ?? 20
+        };
+
+        res.json(respond<PaginatedResponse<Ad>>({
+            success: true,
+            data: result.data as unknown as Ad[],
+            pagination
+        }));
+    } catch (error: unknown) {
+        next(error);
+    }
+};
+
+/**
+ * Get nearby listings sorted by distance
+ */
+export const getNearbyListings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        warnIfLegacyAdUserIdAliasUsed(req, 'query');
+        if (hasLegacyAdUserIdAlias(req.query)) {
+            return sendLegacyAliasError(req, res, 'query');
+        }
+        const viewerId = getViewerIdForFeed(req);
+        const query = getAdsQuerySchema.parse({
+            ...req.query,
+            status: typeof req.query.status === 'string' ? req.query.status : LISTING_STATUS.LIVE,
+            sortBy: 'distance'
+        });
+
+        if (!Number.isFinite(Number(query.lat)) || !Number.isFinite(Number(query.lng))) {
+            return sendErrorResponse(req, res, 400, 'lat and lng are required for nearby search');
+        }
+
+        const result = await AdAggregationService.getAds(
+            {
+                listingType: (query as any).listingType as any,
+                status: query.status || LISTING_STATUS.LIVE,
+                categoryId: query.categoryId,
+                brandId: query.brandId,
+                modelId: query.modelId,
+                locationId: query.locationId,
+                level: query.level,
+                sellerId: query.sellerId,
+                isSpotlight: query.isSpotlight,
+                search: query.q,
+                minPrice: query.minPrice,
+                maxPrice: query.maxPrice,
+                sortBy: 'distance',
+                radiusKm: query.radiusKm || 25,
+                lat: query.lat,
+                lng: query.lng
+            },
+            {
+                page: query.page,
+                limit: query.limit,
+                cursor: query.cursor,
+            },
+            {
+                enforcePublicVisibility: true,
+                disableLocationIntelligence: true,
+                viewerId
+            }
+        );
+
+        const pagination = {
+            ...result.pagination,
+            page: result.pagination.page ?? query.page ?? 1,
+            limit: result.pagination.limit ?? query.limit ?? 20
+        };
+
+        return res.json(respond<PaginatedResponse<Ad>>({
+            success: true,
+            data: result.data as unknown as Ad[],
+            pagination
+        }));
+    } catch (error: unknown) {
+        next(error);
+    }
+};
+
+/**
+ * Get ranked homepage feed
+ */
+export const getHomeFeed = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const query = homeFeedQuerySchema.parse(req.query);
+        const limit = query.limit ?? 20;
+        const cursorRaw = query.cursor;
+        const cursorId = query.cursorId;
+        const cursor = cursorRaw
+            ? (cursorId
+                ? { createdAt: cursorRaw, id: cursorId }
+                : cursorRaw)
+            : undefined;
+
+        const data = await feedService.getHomeFeedAds({
+            cursor,
+            limit,
+            locationId: query.locationId,
+            level: query.level,
+            lat: query.lat,
+            lng: query.lng,
+            radiusKm: query.radiusKm,
+            categoryId: query.categoryId,
+        });
+
+        return res.json(respond<ApiResponse<HomeFeedResponse>>({
+            success: true,
+            data: data
+        }));
+    } catch (error: unknown) {
+        return next(error);
+    }
+};
+
+/**
+ * Get top trending listings
+ */
+export const getTrending = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const query = trendingAdsQuerySchema.parse(req.query);
+
+        const data = await trendingService.getTrendingAds({
+            limit: query.limit ?? 20,
+            locationId: query.locationId,
+            categoryId: query.categoryId,
+        });
+
+        return res.json(respond<ApiResponse<{ ads: Ad[] }>>({
+            success: true,
+            data: data as { ads: Ad[] }
+        }));
+    } catch (error: unknown) {
+        return next(error);
+    }
+};
+
+/**
+ * Search autocomplete suggestions
+ */
+export const getListingSuggestions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const q = String(req.query.q ?? '').trim();
+        const suggestions = await AdDetailService.getAdSuggestions(q);
+        return res.json({ success: true, data: { suggestions } });
+    } catch (error: unknown) {
+        return next(error);
+    }
+};
+
+/**
+ * Create a new listing (Unified Ad, Service, Spare Part)
+ */
+export const createListing = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user as AuthUser;
+        if (!user) return sendErrorResponse(req, res, 401, 'Unauthorized');
+        
+        const authUserId = String(user._id);
+        const createBody = req.body as Record<string, unknown>;
+        const listingType = (createBody.listingType as string) || LISTING_TYPE.AD;
+        
+        if (rejectSellerOverride(req, res, createBody)) return;
+        
+        // Handle Specialized Service Creation
+        if (listingType === LISTING_TYPE.SERVICE) {
+            const { createServiceMutation } = await import('@core/services/service/ServiceMutationService');
+            const service = await createServiceMutation({
+                user: user as any,
+                business: (req as any).business,
+                body: createBody
+            });
+            return sendSuccessResponse(res, service, 'Service submitted for approval', 201);
+        }
+
+        // Handle Business Context for Spare Parts
+        const businessId = (req as any).business?._id;
+        if (listingType === LISTING_TYPE.SPARE_PART && !businessId) {
+            return sendErrorResponse(req, res, 401, 'Business account required for spare parts');
+        }
+
+        const ad = await AdOrchestrator.createAd(
+            {
+                ...createBody,
+                sellerType: businessId ? 'business' : 'individual',
+                businessId: businessId || undefined,
+            },
+            {
+                actor: user.role === 'admin' ? 'ADMIN' : 'USER',
+                authUserId,
+                sellerId: authUserId,
+                idempotencyKey: req.idempotencyKey || req.header('Idempotency-Key') || req.header('x-idempotency-key') || undefined,
+                requestId: req.requestId,
+                fraudRisk: (req as any).fraudRisk,
+                fraudScore: (req as any).fraudScore,
+                riskState: (req as any).riskState,
+                ip: req.ip,
+                deviceFingerprint: req.headers['x-device-fingerprint'] as string,
+            }
+        );
+
+        return sendSuccessResponse(res, ad, 'Listing created successfully', 201);
+    } catch (error: unknown) {
+        next(error);
+    }
+};
+
+/**
+ * Granular Image Upload
+ */
+export const uploadImage = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { image, adId } = req.body as { image?: string; adId?: string };
+        if (!image) {
+            return sendErrorResponse(req, res, 400, 'Image data (base64) is required');
+        }
+
+        // Convert base64 to Buffer for adImageService
+        const match = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        let buffer: Buffer;
+        let mimeType = 'image/jpeg';
+
+        if (match && match.length === 3) {
+            mimeType = match[1] ?? mimeType;
+            buffer = Buffer.from(match[2] ?? '', 'base64');
+        } else {
+            buffer = Buffer.from(image.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+        }
+
+        const result = await adImageService.uploadSingleImage(adId as string, buffer, mimeType);
+
+        res.json(respond({
+            success: true,
+            data: result
+        }));
+    } catch (error: unknown) {
+        next(error);
+    }
+};
+
+/**
+ * Pre-signed S3 Upload URL
+ */
+const PRESIGN_ALLOWED_FOLDERS = new Set(['ads', 'staging', 'business', 'avatars', 'service']);
+
+const MIME_TO_EXT: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/heic': 'heic',
+    'image/heif': 'heif',
+};
+
+export const getUploadPresignedUrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user as AuthUser;
+        const { contentType, folder = 'ads', adId } = req.body as {
+            contentType?: string;
+            folder?: string;
+            adId?: string;
+        };
+
+        if (!contentType || typeof contentType !== 'string') {
+            return sendErrorResponse(req, res, 400, 'contentType is required');
+        }
+
+        const normalizedFolder = folder.trim().toLowerCase();
+        if (!PRESIGN_ALLOWED_FOLDERS.has(normalizedFolder)) {
+            return sendErrorResponse(req, res, 400, `Invalid folder. Allowed: ${[...PRESIGN_ALLOWED_FOLDERS].join(', ')}`);
+        }
+
+        const ext = MIME_TO_EXT[contentType.split(';')[0]?.trim().toLowerCase() ?? ''] ?? 'jpg';
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).slice(2, 8);
+        const userId = user._id.toString();
+
+        const keyPrefix = adId ? `${normalizedFolder}/${adId}` : `${normalizedFolder}/${userId}`;
+        const key = `${keyPrefix}/${timestamp}-${random}.${ext}`;
+
+        const { generatePresignedUploadUrl } = await import('@core/utils/s3');
+        const result = await generatePresignedUploadUrl(key, contentType);
+
+        res.json(respond({
+            success: true,
+            data: {
+                uploadUrl: result.uploadUrl,
+                publicUrl: result.publicUrl,
+                key: result.key,
+                expiresIn: 300,
+            }
+        }));
+    } catch (error: unknown) {
+        next(error);
     }
 };

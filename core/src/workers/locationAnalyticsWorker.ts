@@ -2,7 +2,7 @@ import Ad from "@core/models/Ad";
 import User from "@core/models/User";
 import Location from "@core/models/Location";
 import LocationAnalytics from "@core/models/LocationAnalytics";
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import logger from '@core/utils/logger';
 import { runWithDistributedJobLock } from '@core/utils/distributedJobLock';
 
@@ -64,7 +64,7 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
                         _id: '$location.locationId',
                         adsCount: { $sum: 1 },
                         activeAdsCount: {
-                            $sum: { $cond: [{ $eq: ['$status', AD_STATUS.LIVE] }, 1, 0] }
+                            $sum: { $cond: [{ $eq: ['$status', LISTING_STATUS.LIVE] }, 1, 0] }
                         }
                     }
                 }

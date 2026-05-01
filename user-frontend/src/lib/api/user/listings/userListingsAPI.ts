@@ -10,7 +10,7 @@ import { normalizeListing, type ListingPageResult, type Listing } from './normal
 export const getMyListings = async (type?: string, status?: string, page = 1, limit = 20): Promise<ListingPageResult> => {
     try {
         const params = new URLSearchParams();
-        if (type) params.append('type', type);
+        if (type) params.append('listingType', type);
         if (status) params.append('status', status);
         params.append('page', String(page));
         params.append('limit', String(limit));

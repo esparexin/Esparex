@@ -3,7 +3,7 @@ import { AppError } from '@core/utils/AppError';
 import logger from '@core/utils/logger';
 import Ad from '@core/models/Ad';
 import { getUserConnection } from '@core/config/db';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { consumeAdPostingSlot } from '../PlanService';
 import { getAdPostingBalance } from '../AdSlotService';
 import { mutateStatus } from '../StatusMutationService';
@@ -39,8 +39,8 @@ export const repostAdLogic = async (
             }
 
             const currentStatus = normalizeAdStatus(String(ad.status));
-            const isExpired = currentStatus === AD_STATUS.EXPIRED;
-            const isRejected = currentStatus === AD_STATUS.REJECTED;
+            const isExpired = currentStatus === LISTING_STATUS.EXPIRED;
+            const isRejected = currentStatus === LISTING_STATUS.REJECTED;
 
             if (!isExpired && !isRejected) {
                 throw new AppError('Only expired or rejected ads can be reposted', 400);
@@ -53,7 +53,7 @@ export const repostAdLogic = async (
 
             await consumeAdPostingSlot(userId, session);
 
-            const nextStatus = AD_STATUS.PENDING;
+            const nextStatus = LISTING_STATUS.PENDING;
             const now = new Date();
             ad.expiresAt = undefined;
             ad.approvedAt = undefined;

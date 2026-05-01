@@ -8,7 +8,7 @@ import { logAdminActionDirect } from '@core/utils/adminLogger';
 import logger from '@core/utils/logger';
 
 import { USER_STATUS, UserStatusValue } from '@core/constants/enums/userStatus';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { ACTOR_TYPE } from '@core/constants/enums/actor';
 import { mutateStatuses } from './StatusMutationService';
 import { AppError } from '@core/utils/AppError';
@@ -92,7 +92,7 @@ export const updateUserStatus = async (
             ]);
         } else {
             const liveListings = await Ad.find(
-                { sellerId: userId, status: AD_STATUS.LIVE, isDeleted: { $ne: true } }
+                { sellerId: userId, status: LISTING_STATUS.LIVE, isDeleted: { $ne: true } }
             )
                 .select('_id')
                 .lean<Array<{ _id: unknown }>>();
@@ -102,7 +102,7 @@ export const updateUserStatus = async (
                     liveListings.map((listing) => ({
                         domain: 'ad',
                         entityId: String(listing._id),
-                        toStatus: AD_STATUS.REJECTED,
+                        toStatus: LISTING_STATUS.REJECTED,
                         actor: {
                             type: ACTOR_TYPE.SYSTEM,
                             id: `user_status_${newStatus}`,

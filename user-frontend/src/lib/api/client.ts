@@ -265,7 +265,7 @@ class APIClient {
 
         this.client.interceptors.response.use(
             (response) => {
-                const ct = response.headers['content-type'] || '';
+                const ct = String(response.headers['content-type'] || '');
                 const responseType = response.config?.responseType;
                 const acceptsDocument =
                     responseType === 'blob' || responseType === 'arraybuffer' || responseType === 'document';

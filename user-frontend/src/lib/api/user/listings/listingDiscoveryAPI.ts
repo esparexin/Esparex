@@ -21,7 +21,7 @@ export const getNearbyAdsPage = async (filters: Pick<ListingFilters, "lat" | "ln
     if (filters.limit) params.append("limit", String(filters.limit));
 
     const { data: result } = await toPaginatedApiResult<Listing>(
-        apiClient.get(`${API_ROUTES.USER.ADS_NEARBY}?${params.toString()}`, {
+        apiClient.get(`${API_ROUTES.USER.LISTINGS_NEARBY}?${params.toString()}`, {
             silent: true,
         })
     );
@@ -37,7 +37,7 @@ export const getSearchSuggestions = async (query: string): Promise<string[]> => 
     if (!query || query.trim().length < 2) return [];
     try {
         const { data } = await toApiResult<{ suggestions: string[] }>(
-            apiClient.get(`${API_ROUTES.USER.ADS_SUGGESTIONS}?q=${encodeURIComponent(query.trim())}`, { silent: true })
+            apiClient.get(`${API_ROUTES.USER.LISTINGS_SUGGESTIONS}?q=${encodeURIComponent(query.trim())}`, { silent: true })
         );
         return data?.suggestions || [];
     } catch {
@@ -107,7 +107,7 @@ export const getAdsPage = async (
 ): Promise<ListingPageResult> => {
     try {
         const params = new URLSearchParams();
-        const baseEndpoint = options?.endpoint || API_ROUTES.USER.ADS;
+        const baseEndpoint = options?.endpoint || API_ROUTES.USER.LISTINGS;
 
         if (filters) {
             Object.entries(filters).forEach(([key, value]) => {
@@ -116,6 +116,8 @@ export const getAdsPage = async (
                         params.append('q', String(value));
                     } else if (key === 'category' || key === 'location') {
                         return;
+                    } else if (key === 'type') {
+                        params.append('listingType', String(value));
                     } else {
                         params.append(key, String(value));
                     }
@@ -243,7 +245,7 @@ export const getTrendingAds = async (
         if (effectiveParams.locationId) params.append('locationId', effectiveParams.locationId);
         if (effectiveParams.categoryId) params.append('categoryId', effectiveParams.categoryId);
         if (effectiveParams.limit) params.append('limit', String(effectiveParams.limit));
-        const url = withQueryParams(API_ROUTES.USER.ADS_TRENDING, params);
+        const url = withQueryParams(API_ROUTES.USER.LISTINGS_TRENDING, params);
         const result = await fetchListingPayload<RawListingPayload>(url, options?.fetchOptions);
 
         if (!result) return { ads: [] };

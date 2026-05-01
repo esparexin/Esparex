@@ -1,5 +1,6 @@
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
+import type { LifecycleStatus } from "@core/constants/enums/lifecycle";
 import type { ClientSession } from 'mongoose';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
 import { Conversation } from '@core/models/Conversation';
 import logger from '@core/utils/logger';
 
@@ -10,15 +11,15 @@ export type ListingChatState = {
   isChatLocked?: boolean | null;
 } | null | undefined;
 
-export const CHAT_CLOSED_STATUSES = new Set<string>([
-  AD_STATUS.SOLD,
-  AD_STATUS.EXPIRED,
-  AD_STATUS.DEACTIVATED,
-  AD_STATUS.REJECTED,
-  AD_STATUS.DELETED,
-  AD_STATUS.SUSPENDED,
-  AD_STATUS.BANNED,
-  AD_STATUS.INACTIVE,
+export const CHAT_CLOSED_STATUSES = new Set<LifecycleStatus>([
+  LISTING_STATUS.SOLD,
+  LISTING_STATUS.EXPIRED,
+  LISTING_STATUS.DEACTIVATED,
+  LISTING_STATUS.REJECTED,
+  LISTING_STATUS.DELETED,
+  LISTING_STATUS.SUSPENDED,
+  LISTING_STATUS.BANNED,
+  LISTING_STATUS.INACTIVE,
 ]);
 
 const normalizeStatus = (value: unknown): string =>
@@ -30,7 +31,7 @@ export function isListingChatClosed(listing: ListingChatState): boolean {
   return Boolean(
     listing.isDeleted ||
     listing.isChatLocked ||
-    CHAT_CLOSED_STATUSES.has(normalizeStatus(listing.status))
+    CHAT_CLOSED_STATUSES.has(normalizeStatus(listing.status) as LifecycleStatus)
   );
 }
 

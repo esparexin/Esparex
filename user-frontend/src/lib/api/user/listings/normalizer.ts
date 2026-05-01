@@ -23,6 +23,9 @@ export interface Listing extends Ad {
     sparePartId?: string;
     onsiteService?: boolean;
     turnaroundTime?: string;
+    deviceType?: string;
+    locationId?: string;
+    warranty?: string;
 }
 
 export interface ListingFilters {

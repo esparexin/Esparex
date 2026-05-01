@@ -56,7 +56,7 @@ export async function resolveNotificationDeliveryPlan({
     const settings = normalizeSnapshot(user?.notificationSettings);
 
     if (
-        (type === NOTIFICATION_TYPE.AD_STATUS || type === NOTIFICATION_TYPE.BUSINESS_STATUS) &&
+        (type === NOTIFICATION_TYPE.LISTING_STATUS || type === NOTIFICATION_TYPE.BUSINESS_STATUS) &&
         settings.adUpdates === false
     ) {
         return { suppress: true, channels: [] };

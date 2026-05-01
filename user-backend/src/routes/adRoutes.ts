@@ -1,5 +1,5 @@
-import express, { Request, Response, NextFunction } from "express";
-import * as adController from "../controllers/ad";
+import express from "express";
+import * as listingController from "../controllers/listing/listingController";
 import { protect, extractUser } from "../middleware/authMiddleware";
 import { validateSearchParams } from "../middleware/securityValidators";
 import { mutationLimiter, searchLimiter, adPostLimiter } from "../middleware/rateLimiter";
@@ -9,109 +9,96 @@ import { enforceCreateAdIdempotency } from "../middleware/idempotency";
 import { fraudMiddleware } from "../middleware/fraudMiddleware";
 import { createAdSchema, updateAdSchema } from "@core/validators/ad.validator";
 import type { ZodTypeAny } from "zod";
-
 import { duplicateCooldownMiddleware } from "../middleware/duplicateCooldownMiddleware";
 import { createListingValidator } from "../middleware/listing.validator";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/requireVerifiedBusiness";
 import { requireListingType } from "../middleware/requireListingType";
 import { LISTING_TYPE } from "@shared/enums/listingType";
-import { sendErrorResponse } from "@core/utils/errorResponse";
+import logger from "@core/utils/logger";
 
 const router = express.Router();
-const OLD_AD_OWNER_ALIAS_CODE = "OLD_AD_USER_ID_ALIAS_REMOVED";
 
-const hasOwn = (value: unknown, key: string): boolean =>
-    Boolean(value && typeof value === "object" && Object.prototype.hasOwnProperty.call(value, key));
+/**
+ * 🛡️ LEGACY PROXY LAYER
+ * All routes here delegate to listingController.ts (SSOT).
+ * Log warnings to track legacy usage for eventual decommissioning.
+ */
 
-const rejectOldAdUserIdAlias = (req: Request, res: Response, next: NextFunction) => {
-    if (!hasOwn(req.body, "userId")) return next();
-    return sendErrorResponse(
-        req,
-        res,
-        400,
-        "`userId` alias is no longer accepted in ad write payloads. Use `sellerId` or authenticated owner context.",
-        {
-            code: OLD_AD_OWNER_ALIAS_CODE,
-            details: {
-                alias: "userId",
-                canonical: "sellerId",
-                source: "body",
-                rolloutPhase: "PR-D",
-            },
-        }
-    );
+const logLegacyHit = (endpoint: string) => {
+    logger.warn(`[DEPRECATED API HIT] ${endpoint} - Use /api/v1/listings instead.`);
 };
 
-/* -------------------------------------------------------------------------- */
-/* Public Routes                                                              */
-/* -------------------------------------------------------------------------- */
-router.get("/home", searchLimiter, adController.getHomeFeedAds);
-router.get("/trending", searchLimiter, adController.getTrendingAds);
-
-// Browse / Search ads
-router.get("/", extractUser, searchLimiter, validateSearchParams, adController.getAds);
-
-// Nearby ads (distance-first alias over canonical ads search service)
-router.get("/nearby", extractUser, searchLimiter, validateSearchParams, adController.getNearbyAds);
-
-// User's own ads — SUPERSEDED (use /listings/mine)
-router.get("/my-ads", (req: Request, res: Response) => {
-    return res.redirect(308, req.originalUrl.replace("/ads/my-ads", "/listings/mine"));
+// Home Feed
+router.get("/home", searchLimiter, (req, res, next) => {
+    logLegacyHit('GET /ads/home');
+    listingController.getHomeFeed(req, res, next);
 });
 
-// Search autocomplete suggestions
-router.get("/suggestions", searchLimiter, adController.getSuggestions);
+// Trending
+router.get("/trending", searchLimiter, (req, res, next) => {
+    logLegacyHit('GET /ads/trending');
+    listingController.getTrending(req, res, next);
+});
 
-// Create ad
+// Search
+router.get("/", extractUser, searchLimiter, validateSearchParams, (req, res, next) => {
+    logLegacyHit('GET /ads');
+    listingController.getListings(req, res, next);
+});
+
+// Nearby
+router.get("/nearby", extractUser, searchLimiter, validateSearchParams, (req, res, next) => {
+    logLegacyHit('GET /ads/nearby');
+    listingController.getNearbyListings(req, res, next);
+});
+
+// Suggestions
+router.get("/suggestions", searchLimiter, (req, res, next) => {
+    logLegacyHit('GET /ads/suggestions');
+    listingController.getListingSuggestions(req, res, next);
+});
+
+// Create
 router.post(
     "/",
     protect,
-    rejectOldAdUserIdAlias,
     adPostLimiter,
     requireVerifiedBusinessForServiceParts,
-    requireListingType(LISTING_TYPE.AD),   // 🛡️ Rejects service/spare_part submitted via ad route
+    requireListingType(LISTING_TYPE.AD),
     duplicateCooldownMiddleware('ad'),
     fraudMiddleware,
     validateRequest(createAdSchema as unknown as ZodTypeAny),
     createListingValidator,
     enforceCreateAdIdempotency,
-    adController.createAd
+    (req, res, next) => {
+        logLegacyHit('POST /ads');
+        listingController.createListing(req, res, next);
+    }
 );
 
-// Granular Image Upload (Enterprise Audit Standard)
-router.post(
-    "/upload-image",
-    protect,
-    mutationLimiter,
-    adController.uploadImage
-);
+// Upload Image
+router.post("/upload-image", protect, mutationLimiter, (req, res, next) => {
+    logLegacyHit('POST /ads/upload-image');
+    listingController.uploadImage(req, res, next);
+});
 
-// Pre-signed S3 Upload URL — browser uploads directly to S3 (no file bytes through Node.js)
-router.post(
-    "/upload-presign",
-    protect,
-    mutationLimiter,
-    adController.getUploadPresignedUrl
-);
+// Upload Presign
+router.post("/upload-presign", protect, mutationLimiter, (req, res, next) => {
+    logLegacyHit('POST /ads/upload-presign');
+    listingController.getUploadPresignedUrl(req, res, next);
+});
 
-// Track ad view — use /listings/:id/view (Layer 2 canonical)
-// GET /:id/view removed (superseded by listingRoutes)
-
-// Phone reveal removed from /ads/:id/phone — canonical: GET /listings/:id/phone
-// (see listingRoutes.ts — supersedes this previous route)
-
-// Update ad
-// D1: PATCH update uses partial schema (updateAdSchema = PartialAdPayloadSchema.passthrough())
+// Update (Partial)
 router.patch(
     "/:id",
     validateObjectId,
     protect,
-    rejectOldAdUserIdAlias,
     mutationLimiter,
     validateRequest(updateAdSchema as unknown as ZodTypeAny),
-    adController.updateAd
+    (req, res, next) => {
+        logLegacyHit('PATCH /ads/:id');
+        listingController.editListing(req, res, next);
+    }
 );
-
-
 
 export default router;

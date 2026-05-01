@@ -148,7 +148,7 @@ export async function findPendingTransaction(
     windowMs: number
 ): Promise<ITransaction | null> {
     const since = new Date(Date.now() - windowMs);
-    const filter = {
+    const filter: Record<string, any> = {
         userId,
         planId,
         status: 'INITIATED',

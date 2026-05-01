@@ -372,49 +372,20 @@ export const getMyBusinessStats = async (
     }
 };
 
-export const getBusinessServices = async (
+export const getBusinessListings = async (
     id: string,
-    options?: BusinessRequestOptions
-): Promise<Service[]> => {
-    try {
-        const { data: result } =
-            typeof window === 'undefined'
-                ? await toApiResult<Service[]>(
-                    Promise.resolve(
-                        fetchUserApiJson(
-                            API_ROUTES.USER.BUSINESS_SERVICES(id),
-                            {
-                                ...(options?.fetchOptions ?? {}),
-                                ...(options?.headers ? { headers: options.headers } : {}),
-                            },
-                            { returnNullOnHttpError: true }
-                        )
-                    )
-                )
-                : await toApiResult<Service[]>(
-                    apiClient.get(API_ROUTES.USER.BUSINESS_SERVICES(id))
-                );
-        if (!Array.isArray(result)) {
-            throw new Error('Invalid services response');
-        }
-        return result;
-    } catch (e) {
-        logger.error('Failed to load business services', e);
-        throw e;
-    }
-};
-
-export const getBusinessAds = async (
-    id: string,
+    listingType?: string,
     options?: BusinessRequestOptions
 ): Promise<Ad[]> => {
     try {
+        const query = listingType ? `?listingType=${listingType}` : '';
+        const route = `${API_ROUTES.USER.BUSINESS_LISTINGS(id)}${query}`;
         const { data: result } =
             typeof window === 'undefined'
                 ? await toApiResult<Ad[]>(
                     Promise.resolve(
                         fetchUserApiJson(
-                            API_ROUTES.USER.BUSINESS_ADS(id),
+                            route,
                             {
                                 ...(options?.fetchOptions ?? {}),
                                 ...(options?.headers ? { headers: options.headers } : {}),
@@ -424,43 +395,23 @@ export const getBusinessAds = async (
                     )
                 )
                 : await toApiResult<Ad[]>(
-                    apiClient.get(API_ROUTES.USER.BUSINESS_ADS(id))
+                    apiClient.get(route)
                 );
         return Array.isArray(result) ? result : [];
     } catch (e) {
-        logger.error('Failed to load business ads', e);
+        logger.error(`Failed to load business listings (${listingType})`, e);
         return [];
     }
 };
 
-export const getBusinessSpareParts = async (
-    id: string,
-    options?: BusinessRequestOptions
-): Promise<Ad[]> => {
-    try {
-        const { data: result } =
-            typeof window === 'undefined'
-                ? await toApiResult<Ad[]>(
-                    Promise.resolve(
-                        fetchUserApiJson(
-                            API_ROUTES.USER.BUSINESS_SPARE_PARTS(id),
-                            {
-                                ...(options?.fetchOptions ?? {}),
-                                ...(options?.headers ? { headers: options.headers } : {}),
-                            },
-                            { returnNullOnHttpError: true }
-                        )
-                    )
-                )
-                : await toApiResult<Ad[]>(
-                    apiClient.get(API_ROUTES.USER.BUSINESS_SPARE_PARTS(id))
-                );
-        return Array.isArray(result) ? result : [];
-    } catch (e) {
-        logger.error('Failed to load business spare parts', e);
-        return [];
-    }
-};
+export const getBusinessServices = (id: string, options?: BusinessRequestOptions): Promise<Service[]> => 
+    getBusinessListings(id, 'service', options) as unknown as Promise<Service[]>;
+
+export const getBusinessAds = (id: string, options?: BusinessRequestOptions): Promise<Ad[]> => 
+    getBusinessListings(id, 'ad', options);
+
+export const getBusinessSpareParts = (id: string, options?: BusinessRequestOptions): Promise<Ad[]> => 
+    getBusinessListings(id, 'spare_part', options);
 
 /**
  * Withdraw/cancel a pending business application.

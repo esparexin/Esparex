@@ -10,7 +10,7 @@ import CategoryModel from '@core/models/Category';
 import BrandModel from '@core/models/Brand';
 import AdModel from '@core/models/Ad';
 import { CATALOG_STATUS } from '@core/constants/enums/catalogStatus';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
 // Re-export model instances for generic handler calls in the controller layer
 export const ServiceTypeModel = ServiceTypeModelImport;
@@ -44,7 +44,7 @@ export const checkServiceTypeDependencies = async (id: string) => {
     if (!item) return { count: 0, details: {} };
 
     const inUseCount = await AdModel.countDocuments({
-        status: AD_STATUS.LIVE,
+        status: LISTING_STATUS.LIVE,
         $or: [
             { serviceTypeIds: item._id },
             { serviceTypes: item.name }

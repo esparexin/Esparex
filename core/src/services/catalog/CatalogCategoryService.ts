@@ -91,7 +91,7 @@ export const findCategoryByIdWithSession = async (id: string | undefined, sessio
 
 export const softDeleteCategoryById = async (id: string | { toString(): string }, session: ClientSession) =>
     Category.updateOne(
-        { _id: id },
+        { _id: id as any },
         { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } },
         { session }
     );

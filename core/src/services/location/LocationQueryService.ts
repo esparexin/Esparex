@@ -70,8 +70,8 @@ export const findDuplicateLocation = async (
         name: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
         country,
         level,
-        parentId: parentId || null,
-    });
+        parentId: (parentId || null) as any,
+    } as any);
 
 export const getDistinctStateLocations = async () =>
     Location.find({ isActive: true, level: 'state' })

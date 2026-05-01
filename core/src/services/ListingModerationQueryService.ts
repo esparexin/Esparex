@@ -2,17 +2,17 @@ import mongoose from 'mongoose';
 import Ad from '@core/models/Ad';
 import { getAds } from './ad/AdAggregationService';
 import { getAnyAdById } from './ad/AdDetailService';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { LISTING_TYPE_VALUES, ListingTypeValue } from '@core/constants/enums/listingType';
 import { buildPublicAdFilter } from '@core/utils/FeedVisibilityGuard';
 
 export const MODERATION_STATUSES = [
-    AD_STATUS.PENDING,
-    AD_STATUS.LIVE,
-    AD_STATUS.REJECTED,
-    AD_STATUS.EXPIRED,
-    AD_STATUS.SOLD,
-    AD_STATUS.DEACTIVATED,
+    LISTING_STATUS.PENDING,
+    LISTING_STATUS.LIVE,
+    LISTING_STATUS.REJECTED,
+    LISTING_STATUS.EXPIRED,
+    LISTING_STATUS.SOLD,
+    LISTING_STATUS.DEACTIVATED,
 ] as const;
 
 export type ModerationStatus = (typeof MODERATION_STATUSES)[number];

@@ -7,10 +7,10 @@ export const findServiceForUpdate = async (
     listingType: string
 ) =>
     Ad.findOne({
-        _id: id,
-        listingType,
-        businessId: businessId || { $exists: false },
-        sellerId: userId,
+        _id: id as any,
+        listingType: listingType as any,
+        businessId: (businessId || { $exists: false }) as any,
+        sellerId: userId as any,
     })
     .select('images status approvedAt categoryId brandId')
     .lean();
@@ -23,7 +23,7 @@ export const updateServiceByOwner = async (
     updates: Record<string, unknown>
 ) =>
     Ad.findOneAndUpdate(
-        { _id: id, listingType, businessId: businessId || { $exists: false }, sellerId: userId },
+        { _id: id as any, listingType: listingType as any, businessId: (businessId || { $exists: false }) as any, sellerId: userId as any },
         updates,
         { new: true }
     );

@@ -92,9 +92,9 @@ async function fetchDynamicIds(endpoint: string, key = 'id', slugKey?: string): 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 1. Parallel Fetch all dynamic data
     const [ads, businesses, services, spareParts] = await Promise.all([
-        fetchDynamicIds(API_ROUTES.USER.ADS, 'id', 'seoSlug'),
+        fetchDynamicIds(`${API_ROUTES.USER.LISTINGS}?listingType=ad`, 'id', 'seoSlug'),
         fetchDynamicIds(API_ROUTES.USER.BUSINESSES_PUBLIC, 'id', 'slug'),
-        fetchDynamicIds(API_ROUTES.USER.SERVICES, 'id', 'slug'),
+        fetchDynamicIds(`${API_ROUTES.USER.LISTINGS}?listingType=service`, 'id', 'slug'),
         fetchDynamicIds('catalog/spare-parts', 'id', 'slug')
     ]);
 

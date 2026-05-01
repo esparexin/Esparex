@@ -54,7 +54,7 @@ jest.mock('@core/utils/respond', () => ({
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Ad from '@core/models/Ad';
-import { deactivateService } from '../../controllers/service/serviceMutationController';
+import { deactivateListing } from '../../controllers/listing/listingController';
 import { getSingleParam } from '@core/utils/requestParams';
 
 // ─── Typed mocks ─────────────────────────────────────────────────────────────
@@ -102,7 +102,7 @@ describe('requireOwnedService (via deactivateService)', () => {
         const req = makeReq({ user: undefined }) as unknown as Request;
         const res = makeRes() as unknown as Response;
 
-        await deactivateService(req, res);
+        await deactivateListing(req, res, jest.fn());
 
         expect(res.status).toHaveBeenCalledWith(401);
     });
@@ -111,7 +111,7 @@ describe('requireOwnedService (via deactivateService)', () => {
         const req = makeReq({ params: { id: '' } }) as unknown as Request;
         const res = makeRes() as unknown as Response;
 
-        await deactivateService(req, res);
+        await deactivateListing(req, res, jest.fn());
 
         expect(res.status).toHaveBeenCalledWith(400);
     });
@@ -121,7 +121,7 @@ describe('requireOwnedService (via deactivateService)', () => {
         const req = makeReq({ params: { id: 'not-an-objectid' } }) as unknown as Request;
         const res = makeRes() as unknown as Response;
 
-        await deactivateService(req, res);
+        await deactivateListing(req, res, jest.fn());
 
         expect(res.status).toHaveBeenCalledWith(400);
     });
@@ -134,7 +134,7 @@ describe('requireOwnedService (via deactivateService)', () => {
         const req = makeReq() as unknown as Request;
         const res = makeRes() as unknown as Response;
 
-        await deactivateService(req, res);
+        await deactivateListing(req, res, jest.fn());
 
         expect(res.status).toHaveBeenCalledWith(404);
         expect(mockedAd.findOne).toHaveBeenCalledWith(
@@ -150,7 +150,7 @@ describe('requireOwnedService (via deactivateService)', () => {
         const req = makeReq() as unknown as Request;
         const res = makeRes() as unknown as Response;
 
-        await deactivateService(req, res);
+        await deactivateListing(req, res, jest.fn());
 
         // mutateStatus was called → auth guard passed
         // eslint-disable-next-line @typescript-eslint/no-require-imports -- module state is mocked per test.

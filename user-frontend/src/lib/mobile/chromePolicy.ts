@@ -13,7 +13,7 @@ const DEFAULT_POLICY: MobileChromePolicy = {
 };
 
 const STICKY_SEARCH_PREFIXES = ["/search", "/category"];
-const LISTING_DETAIL_PREFIXES = ["/ads/", "/services/", "/spare-part-listings/"];
+const LISTING_DETAIL_PREFIXES = ["/ads/", "/services/", "/spare-part-listings/", "/listings/"];
 
 export function isChatRoute(pathname?: string | null): boolean {
   return pathname === "/chat" || Boolean(pathname?.startsWith("/chat/"));

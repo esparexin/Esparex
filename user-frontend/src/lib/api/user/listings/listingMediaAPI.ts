@@ -20,7 +20,7 @@ export const getListingImagePresignedUrl = async (
     adId?: string
 ): Promise<PresignedUploadResult> => {
     const { data: result } = await toApiResult<PresignedUploadResult>(
-        apiClient.post(API_ROUTES.USER.ADS_UPLOAD_PRESIGN, { contentType, folder, adId })
+        apiClient.post(API_ROUTES.USER.LISTINGS_UPLOAD_PRESIGN, { contentType, folder, adId })
     );
     if (!result) throw new Error('Failed to get presigned upload URL');
     return result;

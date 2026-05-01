@@ -36,8 +36,7 @@ jest.mock('@core/utils/requestParams', () => ({
 import { Request, Response } from 'express';
 import Ad from '@core/models/Ad';
 import { mutateStatus } from '@core/services/StatusMutationService';
-import { repostService } from '../../controllers/service/serviceMutationController';
-import { repostSparePartListing } from '../../controllers/sparePartListing/sparePartListingController';
+import { repostListing } from '../../controllers/listing/listingController';
 
 const mockedAd = Ad as unknown as { findOne: jest.Mock };
 const mockedMutate = mutateStatus as jest.Mock;
@@ -65,7 +64,8 @@ describe('repostService', () => {
     it('returns 401 when unauthenticated', async () => {
         const req = makeReq({ user: undefined });
         const res = makeRes();
-        await repostService(req, res);
+        const next = jest.fn();
+        await repostListing(req, res, next);
         expect(res.status).toHaveBeenCalledWith(401);
     });
 
@@ -73,7 +73,8 @@ describe('repostService', () => {
         mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue(null) });
         const req = makeReq();
         const res = makeRes();
-        await repostService(req, res);
+        const next = jest.fn();
+        await repostListing(req, res, next);
         expect(res.status).toHaveBeenCalledWith(404);
     });
 
@@ -81,7 +82,8 @@ describe('repostService', () => {
         mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'live' }) });
         const req = makeReq();
         const res = makeRes();
-        await repostService(req, res);
+        const next = jest.fn();
+        await repostListing(req, res, next);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(mockedMutate).not.toHaveBeenCalled();
     });
@@ -91,7 +93,8 @@ describe('repostService', () => {
         mockedMutate.mockResolvedValue({ id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' });
         const req = makeReq();
         const res = makeRes();
-        await repostService(req, res);
+        const next = jest.fn();
+        await repostListing(req, res, next);
         expect(mockedMutate).toHaveBeenCalledWith(
             expect.objectContaining({ domain: 'service', toStatus: 'pending' })
         );
@@ -103,7 +106,8 @@ describe('repostService', () => {
         mockedMutate.mockResolvedValue({ id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' });
         const req = makeReq();
         const res = makeRes();
-        await repostService(req, res);
+        const next = jest.fn();
+        await repostListing(req, res, next);
         expect(mockedMutate).toHaveBeenCalledWith(
             expect.objectContaining({ domain: 'service', toStatus: 'pending' })
         );
@@ -114,7 +118,8 @@ describe('repostSparePartListing', () => {
     it('returns 401 when unauthenticated', async () => {
         const req = makeReq({ user: undefined });
         const res = makeRes();
-        await repostSparePartListing(req, res);
+        const next = jest.fn();
+        await repostListing(req, res, next);
         expect(res.status).toHaveBeenCalledWith(401);
     });
 
@@ -122,7 +127,8 @@ describe('repostSparePartListing', () => {
         mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'live' }) });
         const req = makeReq();
         const res = makeRes();
-        await repostSparePartListing(req, res);
+        const next = jest.fn();
+        await repostListing(req, res, next);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(mockedMutate).not.toHaveBeenCalled();
     });
@@ -132,7 +138,8 @@ describe('repostSparePartListing', () => {
         mockedMutate.mockResolvedValue({ id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' });
         const req = makeReq();
         const res = makeRes();
-        await repostSparePartListing(req, res);
+        const next = jest.fn();
+        await repostListing(req, res, next);
         expect(mockedMutate).toHaveBeenCalledWith(
             expect.objectContaining({ domain: 'spare_part_listing', toStatus: 'pending' })
         );

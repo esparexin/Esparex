@@ -25,19 +25,24 @@ export const USER_ROUTES = {
   SERVICE_TYPES: "catalog/service-types",
   SCREEN_SIZES: "catalog/screen-sizes",
 
-  // Ads
-  ADS: "ads",
-  ADS_NEARBY: "ads/nearby",
-  ADS_SUGGESTIONS: "ads/suggestions",
-  AD_DETAIL: (id: string | number) => `ads/${encodeURIComponent(String(id))}`,
+  // Ads (Legacy - Redirected to Listings)
+  ADS: "listings",
+  ADS_NEARBY: "listings/nearby",
+  ADS_SUGGESTIONS: "listings/suggestions",
+  AD_DETAIL: (id: string | number) => `listings/${encodeURIComponent(String(id))}`,
   AD_REPOST: (id: string | number) => `listings/${id}/repost`,
-  ADS_UPLOAD_IMAGE: "ads/upload-image",
-  ADS_UPLOAD_PRESIGN: "ads/upload-presign",
-  ADS_TRENDING: "ads/trending",
-  HOME_FEED: "ads/home", // canonical home feed endpoint
+  ADS_UPLOAD_IMAGE: "listings/upload-image",
+  ADS_UPLOAD_PRESIGN: "listings/upload-presign",
+  ADS_TRENDING: "listings/trending",
+  HOME_FEED: "listings/home", // canonical home feed endpoint
   
   // Listings (Unified SSOT)
   LISTINGS: "listings",
+  LISTINGS_NEARBY: "listings/nearby",
+  LISTINGS_SUGGESTIONS: "listings/suggestions",
+  LISTINGS_TRENDING: "listings/trending",
+  LISTINGS_UPLOAD_IMAGE: "listings/upload-image",
+  LISTINGS_UPLOAD_PRESIGN: "listings/upload-presign",
   MY_LISTINGS: "listings/mine",
   MY_LISTINGS_STATS: "listings/mine/stats",
   LISTING_DETAIL: (id: string | number) => `listings/${id}`,
@@ -48,6 +53,7 @@ export const USER_ROUTES = {
   LISTING_ANALYTICS: (id: string | number) => `listings/${id}/analytics`,
   LISTING_VIEW: (id: string | number) => `listings/${id}/view`,
   LISTING_PHONE: (id: string | number) => `listings/${id}/phone`,
+  LISTING_REPOST: (id: string | number) => `listings/${id}/repost`,
 
 
   // Locations
@@ -83,18 +89,19 @@ export const USER_ROUTES = {
   BUSINESS_SERVICES: (id: string) => `businesses/${id}/services`,
   BUSINESS_ADS: (id: string) => `businesses/${id}/ads`,
   BUSINESS_SPARE_PARTS: (id: string) => `businesses/${id}/spare-parts`,
+  BUSINESS_LISTINGS: (id: string) => `businesses/${id}/listings`,
 
-  // Services
-  SERVICES: "services",
-  SERVICE_DETAIL: (id: string) => `services/${encodeURIComponent(id)}`,
-  SERVICE_VIEW: (id: string) => `services/${encodeURIComponent(id)}/view`,
+  // Services (Legacy - Redirected to Listings)
+  SERVICES: "listings",
+  SERVICE_DETAIL: (id: string) => `listings/${encodeURIComponent(id)}`,
+  SERVICE_VIEW: (id: string) => `listings/${encodeURIComponent(id)}/view`,
   SERVICE_SOLD: (id: string) => `listings/${id}/mark-sold`,
   SERVICE_DEACTIVATE: (id: string) => `listings/${id}/deactivate`,
   SERVICE_REPOST: (id: string) => `listings/${id}/repost`,
 
-  // Spare Part Listings
-  SPARE_PART_LISTINGS: "spare-part-listings",
-  SPARE_PART_LISTING_DETAIL: (id: string) => `spare-part-listings/${encodeURIComponent(id)}`,
+  // Spare Part Listings (Legacy - Redirected to Listings)
+  SPARE_PART_LISTINGS: "listings",
+  SPARE_PART_LISTING_DETAIL: (id: string) => `listings/${encodeURIComponent(id)}`,
   SPARE_PART_DEACTIVATE: (id: string) => `listings/${id}/deactivate`,
   SPARE_PART_REPOST: (id: string) => `listings/${id}/repost`,
 

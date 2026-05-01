@@ -46,12 +46,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
         redirect(buildPublicBrowseRoute(parsed));
     }
 
-    const endpointMap = {
-        ad: API_ROUTES.USER.ADS,
-        service: API_ROUTES.USER.SERVICES,
-        spare_part: API_ROUTES.USER.SPARE_PART_LISTINGS,
-    };
-    const endpoint = endpointMap[parsed.type];
+    const endpoint = API_ROUTES.USER.LISTINGS;
     const Component = parsed.type === 'service' ? BrowseServices : parsed.type === 'spare_part' ? BrowseSpareParts : BrowseAds;
     const initialCategories = await getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
     const resolvedCategory = resolveBrowseCategorySelection(
@@ -61,6 +56,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
     const initialResults = await getAdsPage(
         {
             status: 'live',
+            type: parsed.type,
             page: parsed.page ?? 1,
             limit: 20,
             ...(parsed.q ? { search: parsed.q } : {}),

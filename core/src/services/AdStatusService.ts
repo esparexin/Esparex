@@ -1,6 +1,6 @@
 import { LIFECYCLE_STATUS, type LifecycleStatus } from '@core/constants/enums/lifecycle';
 import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
-import { AD_STATUS_VALUES } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS_VALUES } from "@core/constants/enums/listingStatus";
 import { getSystemConfigForRead } from './SystemConfigService';
 
 export type AdStatus = LifecycleStatus;
@@ -29,7 +29,7 @@ export const normalizeAdStatus = (status: string): string => {
  */
 export const isValidAdStatus = (status: string): boolean => {
     if (!status || typeof status !== 'string') return false;
-    return (AD_STATUS_VALUES as readonly string[]).includes(status);
+    return (LISTING_STATUS_VALUES as readonly string[]).includes(status);
 };
 
 
