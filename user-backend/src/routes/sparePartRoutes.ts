@@ -41,13 +41,13 @@ router.post(
 );
 
 // Get All (Search)
-router.get('/', searchLimiter, (req, res, next) => {
+router.get('/', searchLimiter, (req: Request, res: Response, next: NextFunction) => {
     logLegacyHit('GET /spare-part-listings');
     void listingController.getListings(req, res, next);
 });
 
 // Phone Reveal
-router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req, res, next) => {
+router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req: Request, res: Response, next: NextFunction) => {
     logLegacyHit('GET /spare-part-listings/:id/phone');
     void listingController.getListingPhone(req, res, next);
 });
