@@ -41,7 +41,7 @@ const resolveBlockerEntities = (req: Request, res: Response) => {
         return null;
     }
 
-    const blockerId = getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]);
+    const blockerId = getStorageSafeId(req.user);
     if (!blockerId) {
         sendErrorResponse(req, res, 401, 'Invalid session');
         return null;
@@ -72,7 +72,7 @@ export const updateMe = async (
       return;
     }
 
-    const userId = getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]);
+    const userId = getStorageSafeId(req.user);
 
     if (!userId) {
       sendErrorResponse(req, res, 401, 'Invalid session');
@@ -216,7 +216,7 @@ export const deleteMe = async (
       return;
     }
 
-    const userId = getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]);
+    const userId = getStorageSafeId(req.user);
 
     if (!userId) {
       sendErrorResponse(req, res, 401, 'Invalid session');
@@ -270,7 +270,7 @@ export const uploadFile = async (
     const file = getUploadedFile(req);
     if (!file) {
       logger.warn('[Upload] File upload failed: No file found in request', {
-        userId: getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]),
+        userId: getStorageSafeId(req.user),
         method: req.method,
         url: req.originalUrl,
         contentType: req.headers['content-type']
@@ -279,7 +279,7 @@ export const uploadFile = async (
       return;
     }
 
-    const userId = getStorageSafeId(req.user as unknown as Parameters<typeof getStorageSafeId>[0]);
+    const userId = getStorageSafeId(req.user);
     const uploadBody = req.body as Record<string, unknown>;
     const requestedFolder = typeof uploadBody.folder === 'string' ? uploadBody.folder : '';
     const adId = typeof uploadBody.adId === 'string' ? uploadBody.adId.trim() : '';

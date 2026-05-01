@@ -34,7 +34,7 @@ router.post(
     duplicateCooldownMiddleware(LISTING_TYPE.SPARE_PART),
     validateRequest(SparePartPayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
-    (req, res, next) => {
+    (req: Request, res: Response, next: NextFunction) => {
         logLegacyHit('POST /spare-part-listings');
         void listingController.createListing(req, res, next);
     }
@@ -60,9 +60,9 @@ router.put(
     validateObjectId,
     mutationLimiter,
     validateRequest(PartialSparePartPayloadSchema.passthrough() as unknown as ZodTypeAny),
-    (req: any, res: any, next: any) => {
+    (req: Request, res: Response, next: NextFunction) => {
         logLegacyHit('PUT /spare-part-listings/:id');
-        listingController.editListing(req, res, next);
+        void listingController.editListing(req, res, next);
     }
 );
 

@@ -18,6 +18,15 @@ import * as AdEngagementService from '@core/services/AdEngagementService';
 import * as AdOrchestrator from '@core/services/AdOrchestrator';
 import * as feedService from '@core/services/FeedService';
 import * as trendingService from '@core/services/TrendingService';
+
+interface ExtendedRequest extends Request {
+    business?: { _id: string | mongoose.Types.ObjectId };
+    fraudRisk?: unknown;
+    fraudScore?: unknown;
+    riskState?: unknown;
+    idempotencyKey?: string;
+    requestId?: string;
+}
 import * as adImageService from '@core/services/AdImageService';
 import { mutateStatus } from '@core/services/StatusMutationService';
 import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
@@ -26,7 +35,6 @@ import { collectImmutableFieldErrors, hasOwnField } from '@core/utils/immutableF
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@core/validators/ad.validator';
 import { warnIfLegacyAdUserIdAliasUsed } from '@core/utils/legacyOwnerAliasTelemetry';
 import { respond } from "@core/utils/respond";
-import type { AdFilters } from '@core/types/ad.types';
 import type { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@shared/types/Api";
 import type { Ad } from "@shared/schemas/ad.schema";
 
@@ -421,7 +429,7 @@ export const deleteListing = async (req: Request, res: Response, next: NextFunct
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
                 ip: req.ip || '',
-                userAgent: (req.headers['user-agent'] as string) || '',
+                userAgent: req.headers['user-agent'] || '',
             },
             reason: 'Listing soft deleted by owner',
             metadata: {
@@ -608,7 +616,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
         let cachedResult: CachedSearchResult | null = null;
 
         if (shouldUseSearchCache) {
-            cacheKey = buildDeterministicSearchCacheKey(query as Record<string, unknown>);
+            cacheKey = buildDeterministicSearchCacheKey(query);
             cachedResult = asCachedSearchResult(await getCache(cacheKey));
 
             if (cachedResult) {
@@ -627,7 +635,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
 
         const result = await AdAggregationService.getAds(
             {
-                listingType: (query as any).listingType as any,
+                listingType: query.listingType as string,
                 status: query.status || LISTING_STATUS.LIVE,
                 categoryId: query.categoryId,
                 brandId: query.brandId,
@@ -639,7 +647,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
                 search: query.q,
                 minPrice: query.minPrice,
                 maxPrice: query.maxPrice,
-                sortBy: query.sortBy as AdFilters['sortBy'],
+                sortBy: query.sortBy,
                 radiusKm: query.radiusKm,
                 lat: query.lat,
                 lng: query.lng
@@ -665,7 +673,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
 
         res.json(respond<PaginatedResponse<Ad>>({
             success: true,
-            data: result.data as unknown as Ad[],
+            data: result.data,
             pagination
         }));
     } catch (error: unknown) {
@@ -695,7 +703,7 @@ export const getNearbyListings = async (req: Request, res: Response, next: NextF
 
         const result = await AdAggregationService.getAds(
             {
-                listingType: (query as any).listingType as any,
+                listingType: query.listingType as string,
                 status: query.status || LISTING_STATUS.LIVE,
                 categoryId: query.categoryId,
                 brandId: query.brandId,
@@ -828,15 +836,15 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
         if (listingType === LISTING_TYPE.SERVICE) {
             const { createServiceMutation } = await import('@core/services/service/ServiceMutationService');
             const service = await createServiceMutation({
-                user: user as any,
-                business: (req as any).business,
+                user: user,
+                business: (req as ExtendedRequest).business,
                 body: createBody
             });
             return sendSuccessResponse(res, service, 'Service submitted for approval', 201);
         }
 
         // Handle Business Context for Spare Parts
-        const businessId = (req as any).business?._id;
+        const businessId = (req as ExtendedRequest).business?._id;
         if (listingType === LISTING_TYPE.SPARE_PART && !businessId) {
             return sendErrorResponse(req, res, 401, 'Business account required for spare parts');
         }
@@ -853,9 +861,9 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
                 sellerId: authUserId,
                 idempotencyKey: req.idempotencyKey || req.header('Idempotency-Key') || req.header('x-idempotency-key') || undefined,
                 requestId: req.requestId,
-                fraudRisk: (req as any).fraudRisk,
-                fraudScore: (req as any).fraudScore,
-                riskState: (req as any).riskState,
+                fraudRisk: (req as ExtendedRequest).fraudRisk,
+                fraudScore: (req as ExtendedRequest).fraudScore,
+                riskState: (req as ExtendedRequest).riskState,
                 ip: req.ip,
                 deviceFingerprint: req.headers['x-device-fingerprint'] as string,
             }

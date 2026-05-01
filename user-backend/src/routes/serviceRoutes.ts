@@ -38,7 +38,7 @@ router.post(
     validateRequest(ServicePayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
     enforceCreateServiceIdempotency,
-    (req, res, next) => {
+    (req: Request, res: Response, next: NextFunction) => {
         logLegacyHit('POST /services');
         void listingController.createListing(req, res, next);
     }
@@ -52,7 +52,7 @@ router.put(
     validateObjectId,
     mutationLimiter,
     validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
-    (req, res, next) => {
+    (req: Request, res: Response, next: NextFunction) => {
         logLegacyHit('PUT /services/:id');
         void listingController.editListing(req, res, next);
     }

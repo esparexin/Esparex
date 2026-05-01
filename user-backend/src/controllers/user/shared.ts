@@ -109,7 +109,7 @@ export const toSharedUser = (
     mobileVisibility: normalizeMobileVisibility(safeUser.mobileVisibility),
     notificationSettings:
       safeUser.notificationSettings && typeof safeUser.notificationSettings === 'object'
-        ? (safeUser.notificationSettings as SharedUser['notificationSettings'])
+        ? safeUser.notificationSettings
         : undefined,
     location: locationCity
       ? {

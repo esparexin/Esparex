@@ -115,17 +115,17 @@ export function validateRequest(
             const schemas = schema;
 
             if (schemas.body) {
-                const parsedBody: unknown = await schemas.body.parseAsync(req.body as unknown);
+                const parsedBody: unknown = await schemas.body.parseAsync(req.body);
                 assignValidatedTarget(req, 'body', parsedBody);
             }
 
             if (schemas.query) {
-                const parsedQuery: unknown = await schemas.query.parseAsync(req.query as unknown);
+                const parsedQuery: unknown = await schemas.query.parseAsync(req.query);
                 assignValidatedTarget(req, 'query', parsedQuery);
             }
 
             if (schemas.params) {
-                const parsedParams: unknown = await schemas.params.parseAsync(req.params as unknown);
+                const parsedParams: unknown = await schemas.params.parseAsync(req.params);
                 assignValidatedTarget(req, 'params', parsedParams);
             }
 

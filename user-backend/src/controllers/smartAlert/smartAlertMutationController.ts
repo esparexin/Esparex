@@ -26,7 +26,7 @@ const sendSmartAlertError = (req: Request, res: Response, error: unknown) => {
 export const createSmartAlert = async (req: Request, res: Response) => {
     try {
         const alert = await createSmartAlertMutation({
-            user: req.user as unknown as import("@core/types/auth").IAuthUser,
+            user: req.user,
             body: req.body as Record<string, unknown>,
         });
 
@@ -43,7 +43,7 @@ export const updateSmartAlert = async (req: Request, res: Response) => {
     try {
         const alert = await updateSmartAlertMutation({
             alertId: getRequiredAlertId(req),
-            user: req.user as unknown as import("@core/types/auth").IAuthUser,
+            user: req.user,
             body: req.body as Record<string, unknown>,
         });
 
@@ -61,7 +61,7 @@ export const deleteSmartAlert = async (req: Request, res: Response) => {
     try {
         const result = await deleteSmartAlertMutation({
             alertId: getRequiredAlertId(req),
-            user: req.user as unknown as import("@core/types/auth").IAuthUser,
+            user: req.user,
             admin: req.admin as { id?: string; _id?: string } | undefined,
         });
 
@@ -79,7 +79,7 @@ export const toggleSmartAlertStatus = async (req: Request, res: Response) => {
     try {
         const alert = await toggleSmartAlertStatusMutation({
             alertId: getRequiredAlertId(req),
-            user: req.user as unknown as import("@core/types/auth").IAuthUser,
+            user: req.user,
         });
 
         res.json(respond<ApiResponse<unknown>>({
