@@ -342,9 +342,27 @@ export const incrementListingView = async (req: Request, res: Response, next: Ne
             ? { _id: idOrSlug }
             : { seoSlug: idOrSlug };
 
-        await AdEngagementService.incrementAdViewByFilter(filter);
+        // Centralized Unique Tracking Logic
+        const viewedIdsCookie = req.cookies.v_ids || '';
+        const viewedIds = viewedIdsCookie ? viewedIdsCookie.split(',') : [];
+        
+        let isUnique = false;
+        if (!viewedIds.includes(idOrSlug)) {
+            isUnique = true;
+            viewedIds.push(idOrSlug);
+            // Keep cookie size manageable (last 50 viewed listings)
+            if (viewedIds.length > 50) viewedIds.shift();
+            
+            res.cookie('v_ids', viewedIds.join(','), {
+                maxAge: 24 * 60 * 60 * 1000, // 24 hours
+                httpOnly: true,
+                sameSite: 'lax'
+            });
+        }
 
-        return sendSuccessResponse(res, { success: true });
+        await AdEngagementService.incrementAdViewWithUniqueness(filter, isUnique);
+
+        return sendSuccessResponse(res, { success: true, isUnique });
     } catch (error) {
         next(error);
     }

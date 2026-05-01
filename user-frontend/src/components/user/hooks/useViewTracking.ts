@@ -28,8 +28,10 @@ export function useViewTracking(
     let cancelled = false;
 
     void incrementListingView(adId)
-      .then(() => {
+      .then((response) => {
         if (!cancelled) {
+          const isUnique = (response as { isUnique?: boolean })?.isUnique ?? false;
+          
           queryClient.setQueryData<Ad | undefined>(queryKeys.ads.detail(String(adId)), (current) => {
             if (!current) return current;
 
@@ -49,7 +51,8 @@ export function useViewTracking(
               views: {
                 ...currentViews,
                 total: (typeof currentViews.total === "number" ? currentViews.total : 0) + 1,
-                unique: typeof currentViews.unique === "number" ? currentViews.unique : 0,
+                unique: (typeof currentViews.unique === "number" ? currentViews.unique : 0) + (isUnique ? 1 : 0),
+                lastViewedAt: new Date().toISOString(),
               },
             };
           });

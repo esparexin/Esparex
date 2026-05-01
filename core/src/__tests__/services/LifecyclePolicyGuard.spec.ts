@@ -1,4 +1,4 @@
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus"";
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { ACTOR_TYPE } from "@shared/enums/actor";
 import { enforceLifecycleMutationPolicy } from '@core/services/LifecyclePolicyGuard';
 

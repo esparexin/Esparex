@@ -1,45 +1,35 @@
 /**
- * Repost controller tests — repostService & repostSparePartListing
- *
- * Verifies:
- *  - 401 when unauthenticated
- *  - 404 when listing not found or not owned
- *  - 400 when status is not expired/rejected
- *  - 200 with mutateStatus called correctly on success
+ * Repost controller tests
+ * Verifies the unified repostListing controller.
  */
 
-jest.mock('@core/models/Ad', () => ({
-    __esModule: true,
-    default: {
-        findOne: jest.fn(),
-    },
-}));
-
-jest.mock('@core/services/StatusMutationService', () => ({
-    mutateStatus: jest.fn(),
+jest.mock('@core/services/AdMutationService', () => ({
+    repostAd: jest.fn(),
 }));
 
 jest.mock('@core/utils/errorResponse', () => ({
     sendErrorResponse: jest.fn((req: unknown, res: { status: (n: number) => { json: (v: unknown) => void } }, status: number, msg: string) => {
         res.status(status).json({ error: msg });
+        return res;
     }),
 }));
 
 jest.mock('@core/utils/respond', () => ({
-    respond: jest.fn((data: unknown) => data),
+    sendSuccessResponse: jest.fn((res: { status: (n: number) => { json: (v: unknown) => void } }, data: unknown, msg: string) => {
+        res.status(200).json({ data, message: msg });
+        return res;
+    }),
 }));
 
 jest.mock('@core/utils/requestParams', () => ({
     getSingleParam: jest.fn((req: { params: Record<string, string> }, _res: unknown, param: string) => req.params[param]),
 }));
 
-import { Request, Response } from 'express';
-import Ad from '@core/models/Ad';
-import { mutateStatus } from '@core/services/StatusMutationService';
+import { Request, Response, NextFunction } from 'express';
+import AdMutationService from '@core/services/AdMutationService';
 import { repostListing } from '../../controllers/listing/listingController';
 
-const mockedAd = Ad as unknown as { findOne: jest.Mock };
-const mockedMutate = mutateStatus as jest.Mock;
+const mockedRepostAd = AdMutationService.repostAd as jest.Mock;
 
 const makeRes = (): Response => {
     const res = {} as Response;
@@ -60,89 +50,55 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-describe('repostService', () => {
-    it('returns 401 when unauthenticated', async () => {
-        const req = makeReq({ user: undefined });
-        const res = makeRes();
-        const next = jest.fn();
-        await repostListing(req, res, next);
-        expect(res.status).toHaveBeenCalledWith(401);
-    });
-
-    it('returns 404 when service not found', async () => {
-        mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue(null) });
+describe('repostListing', () => {
+    it('returns 404 when listing not found or not owned', async () => {
+        mockedRepostAd.mockResolvedValue(null);
         const req = makeReq();
         const res = makeRes();
         const next = jest.fn();
+        
         await repostListing(req, res, next);
+        
         expect(res.status).toHaveBeenCalledWith(404);
+        expect(mockedRepostAd).toHaveBeenCalledWith('65f0a1b2c3d4e5f6a7b8c9d0', '65f0a1b2c3d4e5f6a7b8c9d1');
     });
 
-    it('returns 400 when service is live (not repostable)', async () => {
-        mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'live' }) });
+    it('returns 200 with reposted listing on success', async () => {
+        const fakeAd = { _id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' };
+        mockedRepostAd.mockResolvedValue(fakeAd);
         const req = makeReq();
         const res = makeRes();
         const next = jest.fn();
+        
         await repostListing(req, res, next);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(mockedMutate).not.toHaveBeenCalled();
-    });
-
-    it('calls mutateStatus with pending for expired service', async () => {
-        mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'expired' }) });
-        mockedMutate.mockResolvedValue({ id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' });
-        const req = makeReq();
-        const res = makeRes();
-        const next = jest.fn();
-        await repostListing(req, res, next);
-        expect(mockedMutate).toHaveBeenCalledWith(
-            expect.objectContaining({ domain: 'service', toStatus: 'pending' })
-        );
-        expect(res.json).toHaveBeenCalled();
-    });
-
-    it('calls mutateStatus with pending for rejected service', async () => {
-        mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'rejected' }) });
-        mockedMutate.mockResolvedValue({ id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' });
-        const req = makeReq();
-        const res = makeRes();
-        const next = jest.fn();
-        await repostListing(req, res, next);
-        expect(mockedMutate).toHaveBeenCalledWith(
-            expect.objectContaining({ domain: 'service', toStatus: 'pending' })
-        );
-    });
-});
-
-describe('repostSparePartListing', () => {
-    it('returns 401 when unauthenticated', async () => {
-        const req = makeReq({ user: undefined });
-        const res = makeRes();
-        const next = jest.fn();
-        await repostListing(req, res, next);
-        expect(res.status).toHaveBeenCalledWith(401);
-    });
-
-    it('returns 400 when spare part is live (not repostable)', async () => {
-        mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'live' }) });
-        const req = makeReq();
-        const res = makeRes();
-        const next = jest.fn();
-        await repostListing(req, res, next);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(mockedMutate).not.toHaveBeenCalled();
-    });
-
-    it('calls mutateStatus with pending for expired spare part', async () => {
-        mockedAd.findOne.mockReturnValue({ select: jest.fn().mockResolvedValue({ status: 'expired' }) });
-        mockedMutate.mockResolvedValue({ id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'pending' });
-        const req = makeReq();
-        const res = makeRes();
-        const next = jest.fn();
-        await repostListing(req, res, next);
-        expect(mockedMutate).toHaveBeenCalledWith(
-            expect.objectContaining({ domain: 'spare_part_listing', toStatus: 'pending' })
-        );
+        
         expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ data: fakeAd, message: 'Listing reposted successfully' });
+    });
+
+    it('passes unknown errors to next()', async () => {
+        const error = new Error('Database down');
+        mockedRepostAd.mockRejectedValue(error);
+        const req = makeReq();
+        const res = makeRes();
+        const next = jest.fn();
+        
+        await repostListing(req, res, next);
+        
+        expect(next).toHaveBeenCalledWith(error);
+    });
+
+    it('handles known AdMutationService status errors as 400', async () => {
+        const error = new Error('Listing is live');
+        (error as any).statusCode = 400;
+        mockedRepostAd.mockRejectedValue(error);
+        const req = makeReq();
+        const res = makeRes();
+        const next = jest.fn();
+        
+        await repostListing(req, res, next);
+        
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(next).not.toHaveBeenCalled();
     });
 });

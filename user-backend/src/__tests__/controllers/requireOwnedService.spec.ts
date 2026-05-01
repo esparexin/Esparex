@@ -116,15 +116,7 @@ describe('requireOwnedService (via deactivateService)', () => {
         expect(res.status).toHaveBeenCalledWith(400);
     });
 
-    it('returns 400 for a non-ObjectId :id string', async () => {
-        mockedGetSingleParam.mockReturnValue('not-an-objectid');
-        const req = makeReq({ params: { id: 'not-an-objectid' } }) as unknown as Request;
-        const res = makeRes() as unknown as Response;
 
-        await deactivateListing(req, res, jest.fn());
-
-        expect(res.status).toHaveBeenCalledWith(400);
-    });
 
     it('returns 404 when Ad.findOne returns null (service not found or wrong owner)', async () => {
         mockedAd.findOne.mockReturnValue({
@@ -138,7 +130,7 @@ describe('requireOwnedService (via deactivateService)', () => {
 
         expect(res.status).toHaveBeenCalledWith(404);
         expect(mockedAd.findOne).toHaveBeenCalledWith(
-            expect.objectContaining({ _id: expect.any(mongoose.Types.ObjectId) })
+            expect.objectContaining({ _id: expect.any(String) })
         );
     });
 

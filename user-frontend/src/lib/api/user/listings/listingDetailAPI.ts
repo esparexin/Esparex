@@ -53,11 +53,13 @@ export const getListingAnalytics = async (id: string | number): Promise<ListingA
     }
 };
 
-export const incrementListingView = async (id: string | number): Promise<void> => {
+export const incrementListingView = async (id: string | number): Promise<unknown> => {
     try {
-        await apiClient.get(API_ROUTES.USER.LISTING_VIEW(id), { silent: true });
+        const { data } = await toApiResult<unknown>(apiClient.get(API_ROUTES.USER.LISTING_VIEW(id), { silent: true }));
+        return data;
     } catch (e) {
         logger.error('Failed to increment listing view', e);
+        return null;
     }
 };
 /**

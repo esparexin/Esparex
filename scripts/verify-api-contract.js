@@ -4,8 +4,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const repoRoot = path.resolve(__dirname, "..");
-const frontendRoutesFile = path.join(repoRoot, "frontend/src/api/routes.ts");
-const backendAppFile = path.join(repoRoot, "backend/src/app.ts");
+const frontendRoutesFile = path.join(repoRoot, "user-frontend/src/api/routes.ts");
+const backendAppFile = path.join(repoRoot, "user-backend/src/app.ts");
 
 const METHOD_REGEX =
   /\b([A-Za-z_$][A-Za-z0-9_$]*)\.(get|post|put|patch|delete)\(\s*['"`]([^'"`]+)['"`]/g;
@@ -279,7 +279,7 @@ function printReport(reports) {
         `Checked ${report.checked} ${report.groupName} route keys, failed ${report.failures.length}.`
       );
       console.error(`\n[HINT] The frontend ${report.groupName}_ROUTES constant has drifted from the backend implementation.`);
-      console.error("1. Check if the route is actually mounted in 'backend/src/app.ts' or relevant sub-routers.");
+      console.error("1. Check if the route is actually mounted in 'user-backend/src/app.ts' or relevant sub-routers.");
       console.error("2. Ensure the path string in the frontend contract exactly matches the backend path.");
       console.error("3. If this is a new route, verify it is properly versioned under /api/v1/.\n");
     } else {
