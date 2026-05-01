@@ -18,7 +18,6 @@ import type {
     UnknownRecord,
     ListingTypeCompatMetricContext,
     BuildAdMatchStageOptions,
-    AdFilterCriteria,
     SortStage
 } from './_shared/adServiceBase';
 
@@ -72,7 +71,7 @@ export const buildAdMatchStage = async (
         keywords: filters.search, // Map 'search' to 'keywords' for the helper
         location: filters.location,
         status: statusQuery
-    } as AdFilterCriteria & { lat?: number | string; lng?: number | string; });
+    });
 
     if (filters.isDeleted) {
         match.isDeleted = filters.isDeleted;
@@ -104,7 +103,7 @@ export const buildAdMatchStage = async (
             .filter((id) => mongoose.Types.ObjectId.isValid(id))
             .map((id) => new mongoose.Types.ObjectId(id));
         if (excludedObjectIds.length > 0) {
-            match._id = { ...(match._id as UnknownRecord || {}), $nin: excludedObjectIds };
+            match._id = { ...(match._id || {}), $nin: excludedObjectIds };
         }
     }
 

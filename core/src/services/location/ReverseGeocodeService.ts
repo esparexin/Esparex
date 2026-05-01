@@ -100,7 +100,7 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
     }
 
     // Fallback to state-level response if no city found within range
-    const [mappedState] = await mapLocationDocsToResponses([stateLocation as LocationInputObject]);
+    const [mappedState] = await mapLocationDocsToResponses([stateLocation]);
     if (mappedState) {
         return {
             ...mappedState,

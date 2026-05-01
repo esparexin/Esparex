@@ -20,7 +20,7 @@ const getActorId = (req: Request): string =>
     (req.user as IAuthUser)?._id?.toString() ?? (req.user as IAuthUser)?.id ?? '';
 
 const getActorRole = (req: Request): string =>
-    ((req.user as IAuthUser)?.role as string) ?? '';
+    ((req.user as IAuthUser)?.role) ?? '';
 
 const getIp = (req: Request): string =>
     (((req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || '').split(',')[0] ?? '').trim();

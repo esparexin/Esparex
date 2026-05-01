@@ -1,14 +1,13 @@
 import SystemConfig, { ISystemConfig } from '@core/models/SystemConfig';
 import redis from '@core/config/redis';
 import logger from './logger';
-import { Model } from 'mongoose';
 
 export const SYSTEM_CONFIG_KEY = 'global';
 export const SYSTEM_CONFIG_CACHE_KEY = `system:config:${SYSTEM_CONFIG_KEY}`;
 const CACHE_TTL = 60; // 60 seconds
 
 // Explicitly type the model to avoid dynamic export typing issues
-const ModelObj = SystemConfig as unknown as Model<ISystemConfig>;
+const ModelObj = SystemConfig;
 
 export const getSystemConfigDoc = async () => {
     try {

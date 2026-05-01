@@ -92,7 +92,7 @@ export const repostAdLogic = async (
                 },
                 session,
             });
-            updatedAd = transitioned as Record<string, unknown>;
+            updatedAd = transitioned;
 
             logger.info('[RepostLifecycle] Repost mutation applied', {
                 adId: id,

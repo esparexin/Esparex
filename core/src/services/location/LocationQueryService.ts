@@ -124,7 +124,7 @@ export const getLocationsPaginated = async (
     };
 
     const [total, locations] = await Promise.all([getTotal(), getLocations()]);
-    return { locations: locations as unknown[], total };
+    return { locations: locations, total };
 };
 
 export const getModerationQueuePaginated = async (page: number, limit: number) => {

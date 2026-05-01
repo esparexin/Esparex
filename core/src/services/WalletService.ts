@@ -242,7 +242,7 @@ export const consumeCredit = async ({
 
     return debit({
         userId,
-        amount: { [creditType]: amount } as WalletAmount,
+        amount: { [creditType]: amount },
         reason,
         metadata,
         session

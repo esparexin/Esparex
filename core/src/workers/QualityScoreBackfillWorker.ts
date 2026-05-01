@@ -2,7 +2,6 @@ import { type AnyBulkWriteOperation } from 'mongoose';
 import Ad, { type IAd } from '@core/models/Ad';
 import logger from '@core/utils/logger';
 import { computeListingQualityScore } from '@core/utils/adQualityScorer';
-import { LISTING_STATUS } from '@core/constants/enums/listingStatus';
 
 type BackfillAd = Pick<IAd, '_id' | 'title' | 'description' | 'images' | 'brandId' | 'price' | 'location'>;
 

@@ -27,7 +27,7 @@ export function getStatusMatchCriteria(requestedStatus: string | string[]): stri
     });
 
     const unique = Array.from(new Set(expanded));
-    return unique.length === 1 ? unique[0] as string : { $in: unique };
+    return unique.length === 1 ? unique[0] : { $in: unique };
 }
 
 /**

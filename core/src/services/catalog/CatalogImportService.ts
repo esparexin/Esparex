@@ -65,7 +65,7 @@ export class CatalogImportService {
             const allBrands = await Brand.find({}).setOptions({ withDeleted: true }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[] }[]>();
             const brandMap = new Map(allBrands.map(b => [b.name.toLowerCase(), b]));
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             const ops: any[] = [];
 
             for (const item of data) {
@@ -111,7 +111,7 @@ export class CatalogImportService {
             }
 
             if (ops.length > 0) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                 
                 const bulkRes = await Brand.bulkWrite(ops);
                 result.success = (bulkRes.insertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.upsertedCount || 0);
             }
@@ -131,7 +131,7 @@ export class CatalogImportService {
             const allBrands = await Brand.find({}, { _id: 1, name: 1, categoryIds: 1 }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[] }[]>();
             const brandMap = new Map(allBrands.map(b => [b.name.toLowerCase(), b]));
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             const ops: any[] = [];
 
             for (const item of data) {
@@ -172,7 +172,7 @@ export class CatalogImportService {
             }
 
             if (ops.length > 0) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                 
                 const bulkRes = await ProductModel.bulkWrite(ops);
                 result.success = (bulkRes.upsertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.matchedCount || 0);
             }

@@ -29,7 +29,6 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 /* DB / HEALTH                                                                 */
 /* -------------------------------------------------------------------------- */
 import { isDbReady } from '@core/config/db';
-import logger from '@core/utils/logger';
 import { getAllowedOriginList, normalizeOrigin } from '@core/utils/originConfig';
 
 /* -------------------------------------------------------------------------- */

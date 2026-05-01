@@ -238,7 +238,7 @@ export async function getHistory(req: Request, res: Response) {
         const includeScheduled = historyStatus === "all" || historyStatus === "scheduled";
 
         const { logs, logsTotal, scheduled, scheduledTotal } = await getNotificationHistory(
-            logMatch as Record<string, unknown>,
+            logMatch,
             scheduledMatch,
             { includeLogs, includeScheduled, mergeWindow }
         );

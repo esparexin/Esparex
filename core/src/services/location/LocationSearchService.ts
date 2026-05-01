@@ -116,7 +116,7 @@ export const lookupLocationByPincode = async (
         .lean();
 
     if (exactCandidates.length > 0) {
-        const [bestMatch] = await mapLocationDocsToResponses(exactCandidates as LocationInputObject[]);
+        const [bestMatch] = await mapLocationDocsToResponses(exactCandidates);
         if (bestMatch) return {
             ...bestMatch,
             pincode,
@@ -298,7 +298,7 @@ export const searchLocations = async (
     const mapped = results
         .slice(0, LOCATION_AUTOCOMPLETE_LIMIT);
 
-    const mappedResponses = await mapLocationDocsToResponses(mapped as LocationInputObject[]);
+    const mappedResponses = await mapLocationDocsToResponses(mapped);
 
     // If no results and query is a 6-digit Indian pincode, try Nominatim
     if (mappedResponses.length === 0 && /^\d{6}$/.test(query)) {

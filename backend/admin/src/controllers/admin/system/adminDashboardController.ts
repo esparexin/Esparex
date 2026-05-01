@@ -27,7 +27,7 @@ export const getStats = async (req: Request, res: Response) => {
         const { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg } =
             await getDashboardOverviewStats(publicAdFilter);
 
-        const stats = unifiedStats[0]!;
+        const stats = unifiedStats[0];
         const totalAds = stats.totalAds[0]?.count || 0;
         const activeAds = stats.activeAds[0]?.count || 0;
         const pendingAds = stats.pendingAds[0]?.count || 0;
@@ -73,8 +73,8 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         const { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg } =
             await getDashboardCardStats(publicAdFilter);
 
-        const activeAds = adStats[0]!.live[0]?.count || 0;
-        const pendingAds = adStats[0]!.pending[0]?.count || 0;
+        const activeAds = adStats[0].live[0]?.count || 0;
+        const pendingAds = adStats[0].pending[0]?.count || 0;
 
         const revenue = totalRevenueAgg[0]?.total || 0;
         sendSuccessResponse(res, {
@@ -172,7 +172,7 @@ export const getRateLimitMetrics = async (req: Request, res: Response) => {
 
 export const getLocationAnalytics = async (req: Request, res: Response) => {
     try {
-        const data = await adminGetLocationAnalyticsData(req.query as Record<string, unknown>);
+        const data = await adminGetLocationAnalyticsData(req.query);
         sendSuccessResponse(res, data);
     } catch (error) {
         sendDashboardError(req, res, error);

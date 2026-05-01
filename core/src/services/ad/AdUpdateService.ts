@@ -162,7 +162,7 @@ export const updateAdLogic = async (
         if (typeof (updatedAd as { toObject?: unknown }).toObject === 'function') {
             return (updatedAd as unknown as { toObject: () => Record<string, unknown> }).toObject();
         }
-        return updatedAd as Record<string, unknown>;
+        return updatedAd;
     } catch (error) {
         logger.error('Failed to update ad', {
             error: error instanceof Error ? error.message : String(error),

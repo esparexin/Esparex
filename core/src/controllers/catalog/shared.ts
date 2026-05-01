@@ -67,7 +67,7 @@ export const getAdminActorId = (req: Request): string | undefined => {
     const adminEntry = catalogRequest.admin as { _id?: string | { toString(): string }; id?: string } | undefined;
     const adminId = adminEntry?._id ?? adminEntry?.id;
     if (typeof adminId === 'string') return adminId;
-    if (adminId && typeof (adminId as { toString?: unknown }).toString === 'function') return (adminId as { toString(): string }).toString();
+    if (adminId && typeof (adminId as { toString?: unknown }).toString === 'function') return (adminId).toString();
     return undefined;
 };
 

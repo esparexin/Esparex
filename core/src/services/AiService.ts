@@ -257,7 +257,7 @@ const callGemini = async (
             const mimeType = image.slice(image.indexOf(':') + 1, image.indexOf(';'));
             const base64Data = image.slice(separatorIndex + 1);
             // The array is always initialised with one element above
-            contents[0]!.parts.push({
+            contents[0].parts.push({
                 inline_data: {
                     mime_type: mimeType || 'image/jpeg',
                     data: base64Data

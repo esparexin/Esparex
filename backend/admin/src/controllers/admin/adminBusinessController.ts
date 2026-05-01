@@ -64,7 +64,7 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
         if (search) {
             const { escapeRegExp } = await import('@core/utils/stringUtils');
             const safeSearch = escapeRegExp(search);
-            (adminQuery as Record<string, unknown>).$or = [
+            (adminQuery).$or = [
                 { name: { $regex: safeSearch, $options: 'i' } },
                 { email: { $regex: safeSearch, $options: 'i' } },
                 { mobile: { $regex: safeSearch, $options: 'i' } },
@@ -74,16 +74,16 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
 
         const Business = (await import('@core/models/Business')).default;
         const [rawItems, total] = await Promise.all([
-            Business.find(adminQuery as Record<string, unknown>)
+            Business.find(adminQuery)
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
                 .populate('userId')
                 .setOptions({ withDeleted: true }),
-            Business.countDocuments(adminQuery as Record<string, unknown>)
+            Business.countDocuments(adminQuery)
                 .setOptions({ withDeleted: true }),
         ]);
-        const items = adminBusinessService.transformBusinessDocs(rawItems as unknown[]);
+        const items = adminBusinessService.transformBusinessDocs(rawItems);
         return sendPaginatedResponse(res, items, total, page, limit);
     } catch (error: unknown) {
         sendAdminError(req, res, error);

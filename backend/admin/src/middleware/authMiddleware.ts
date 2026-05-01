@@ -107,7 +107,7 @@ export const protect = async (
     req.user = {
       _id: new Types.ObjectId(decoded.id),
       id: decoded.id,
-      role: decoded.role as Role,
+      role: decoded.role,
       isAdmin: (decoded.role as Role) === Role.ADMIN || (decoded.role as Role) === Role.SUPER_ADMIN
     };
 
@@ -187,7 +187,7 @@ export const extractUser = (
       req.user = {
         _id: new Types.ObjectId(decoded.id),
         id: decoded.id,
-        role: decoded.role as Role,
+        role: decoded.role,
         isAdmin: (decoded.role as Role) === Role.ADMIN || (decoded.role as Role) === Role.SUPER_ADMIN
       };
     }

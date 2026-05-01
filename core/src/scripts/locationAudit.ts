@@ -39,7 +39,7 @@ async function runAudit() {
             }
 
             if (loc.parentId && !locationMap.has(loc.parentId.toString())) {
-                problems.push(`Broken Parent Link: parentId ${loc.parentId} not found in DB`);
+                problems.push(`Broken Parent Link: parentId ${String(loc.parentId)} not found in DB`);
             }
 
             // 3. Path Integrity
@@ -220,12 +220,15 @@ async function runAudit() {
     }
 }
 
-// Ensure database connection before running
-import { connectDB } from '@core/config/db';
-
-connectDB().then(() => {
-    runAudit().then(() => {
+// Execute audit
+void (async () => {
+    try {
+        await connectDB();
+        await runAudit();
         logger.info('🏁 Audit process finished.');
         process.exit(0);
-    });
-});
+    } catch (error) {
+        logger.error('❌ Global Audit Failure:', error);
+        process.exit(1);
+    }
+})();

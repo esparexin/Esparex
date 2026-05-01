@@ -295,10 +295,10 @@ export const createServiceMutation = async ({
             },
             sellerType: 'business' as const,
             businessId: business._id,
-            price: (safeBody.priceMin as number) || 0,
-            title: safeBody.title as string,
-            description: safeBody.description as string,
-            images: safeBody.images as string[],
+            price: (safeBody.priceMin) || 0,
+            title: safeBody.title,
+            description: safeBody.description,
+            images: safeBody.images,
             attributes: {
                 ...safeBody,
             },
@@ -392,7 +392,7 @@ export const updateServiceMutation = async ({
     const mergedForQuality = { ...existingService, ...updates };
     updates.listingQualityScore = calculateServiceQuality(
         mergedForQuality,
-        business as unknown as Record<string, unknown>
+        business
     );
 
     if (updates.priceMin !== undefined) {

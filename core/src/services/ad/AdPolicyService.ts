@@ -16,7 +16,7 @@ export const assertOwnership = async (adId: string, userId: string): Promise<{ s
     if (String(ad.sellerId) !== String(userId)) {
         throw new AppError('Unauthorized', 403, 'UNAUTHORIZED');
     }
-    return ad as { sellerId: mongoose.Types.ObjectId; status: string };
+    return ad;
 };
 
 /**

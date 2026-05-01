@@ -57,7 +57,7 @@ export const ingestLocation = async (payload: {
         if (existing) {
             await session.commitTransaction();
             void session.endSession();
-            return mapToLocationResponse(buildNormalizedFromLocationDoc(existing as LocationInputObject));
+            return mapToLocationResponse(buildNormalizedFromLocationDoc(existing));
         }
 
         const radiusInRadians = 2 / 6378.1; // 2km radius
@@ -74,7 +74,7 @@ export const ingestLocation = async (payload: {
         if (existing) {
             await session.commitTransaction();
             void session.endSession();
-            return mapToLocationResponse(buildNormalizedFromLocationDoc(existing as LocationInputObject));
+            return mapToLocationResponse(buildNormalizedFromLocationDoc(existing));
         }
 
         // city/state flat fields omitted — use parentId/path hierarchy (Sprint 3)
@@ -118,7 +118,7 @@ export const getStateLocations = async (): Promise<NormalizedLocationResponse[]>
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
 
-    return mapLocationDocsToResponses(stateAnchors as LocationInputObject[]);
+    return mapLocationDocsToResponses(stateAnchors);
 };
 
 export const getCitiesByStateId = async (
@@ -148,7 +148,7 @@ export const getCitiesByStateId = async (
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
 
-    return mapLocationDocsToResponses(cities as LocationInputObject[]);
+    return mapLocationDocsToResponses(cities);
 };
 
 export const getAreasByCityId = async (
@@ -178,7 +178,7 @@ export const getAreasByCityId = async (
         .sort({ isPopular: -1, priority: -1, name: 1 })
         .lean();
 
-    return mapLocationDocsToResponses(areas as LocationInputObject[]);
+    return mapLocationDocsToResponses(areas);
 };
 
 export const getNearbyLocations = async (
@@ -210,7 +210,7 @@ export const getNearbyLocations = async (
         .limit(50)
         .lean();
 
-    return mapLocationDocsToResponses(nearby as LocationInputObject[]);
+    return mapLocationDocsToResponses(nearby);
 };
 
 export const getHierarchy = async (
@@ -255,7 +255,7 @@ export const getHierarchy = async (
         .limit(200)
         .lean();
 
-    return mapLocationDocsToResponses(hierarchyItems as LocationInputObject[]);
+    return mapLocationDocsToResponses(hierarchyItems);
 };
 
 export const getDefaultCenterLocation = async (
@@ -281,7 +281,7 @@ export const getDefaultCenterLocation = async (
             .lean();
 
         if (nearest) {
-            const [mappedNearest] = await mapLocationDocsToResponses([nearest as LocationInputObject]);
+            const [mappedNearest] = await mapLocationDocsToResponses([nearest]);
             if (!mappedNearest) {
                 return null;
             }
@@ -316,7 +316,7 @@ export const getDefaultCenterLocation = async (
         .lean();
 
     if (fallbackLocation) {
-        const [mappedFallbackLocation] = await mapLocationDocsToResponses([fallbackLocation as LocationInputObject]);
+        const [mappedFallbackLocation] = await mapLocationDocsToResponses([fallbackLocation]);
         if (!mappedFallbackLocation) {
             return null;
         }
@@ -332,7 +332,7 @@ export const getDefaultCenterLocation = async (
         .lean();
 
     if (anyActiveLocation) {
-        const [mappedActiveLocation] = await mapLocationDocsToResponses([anyActiveLocation as LocationInputObject]);
+        const [mappedActiveLocation] = await mapLocationDocsToResponses([anyActiveLocation]);
         if (!mappedActiveLocation) {
             return null;
         }

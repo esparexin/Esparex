@@ -70,7 +70,7 @@ const validatePatchPayload = (payload: unknown): SystemConfigPatch => {
     }
 
     try {
-        return systemConfigUpdateSchema.parse(payload) as SystemConfigPatch;
+        return systemConfigUpdateSchema.parse(payload);
     } catch (error) {
         if (!(error instanceof ZodError)) {
             throw error;
