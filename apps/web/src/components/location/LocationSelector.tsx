@@ -79,19 +79,25 @@ export default function LocationSelector({
     const searchApi = useLocationSearch({ isOpen, isPanel, query, onApplySelection: applySelection, onClose });
 
     useEffect(() => {
-        if (detectError) searchApi.setDetectFeedback(detectError);
+        if (!detectError) return;
+        const timeoutId = setTimeout(() => searchApi.setDetectFeedback(detectError), 0);
+        return () => clearTimeout(timeoutId);
     }, [detectError, searchApi]);
 
     useEffect(() => {
-        if (isPanel) return;
-        if (manuallyClearedRef.current) return;
-        if (currentDisplay) {
-            setSelectedLabel(currentDisplay);
-            setHasSelection(true);
-        } else if (!currentDisplay && !isOpen && !query) {
-            setSelectedLabel("");
-            setHasSelection(false);
-        }
+        if (isPanel || manuallyClearedRef.current) return;
+
+        const timeoutId = setTimeout(() => {
+            if (currentDisplay) {
+                setSelectedLabel(currentDisplay);
+                setHasSelection(true);
+            } else if (!currentDisplay && !isOpen && !query) {
+                setSelectedLabel("");
+                setHasSelection(false);
+            }
+        }, 0);
+
+        return () => clearTimeout(timeoutId);
     }, [currentDisplay, isOpen, isPanel, query]);
 
     useEffect(() => {
