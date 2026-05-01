@@ -334,7 +334,8 @@ export const mutateStatusesBulk = async (
     entityIds: string[],
     toStatus: string,
     actor: MutationRequest['actor'],
-    reason?: string
+    reason?: string,
+    patch?: Record<string, unknown>
 ): Promise<number> => {
     if (!entityIds.length) return 0;
     
@@ -352,6 +353,7 @@ export const mutateStatusesBulk = async (
             toStatus,
             actor,
             reason,
+            patch,
             metadata: {
                 action: 'bulk_mutation',
                 sourceRoute: 'StatusMutationService.mutateStatusesBulk',
