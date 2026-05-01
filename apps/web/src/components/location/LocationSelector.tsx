@@ -79,15 +79,13 @@ export default function LocationSelector({
     const searchApi = useLocationSearch({ isOpen, isPanel, query, onApplySelection: applySelection, onClose });
 
     useEffect(() => {
-        if (detectError) {
-            const timeoutId = setTimeout(() => searchApi.setDetectFeedback(detectError), 0);
-            return () => clearTimeout(timeoutId);
-        }
+        if (!detectError) return;
+        const timeoutId = setTimeout(() => searchApi.setDetectFeedback(detectError), 0);
+        return () => clearTimeout(timeoutId);
     }, [detectError, searchApi]);
 
     useEffect(() => {
-        if (isPanel) return;
-        if (manuallyClearedRef.current) return;
+        if (isPanel || manuallyClearedRef.current) return;
 
         const timeoutId = setTimeout(() => {
             if (currentDisplay) {
