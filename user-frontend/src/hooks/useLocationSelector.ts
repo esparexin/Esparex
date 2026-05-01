@@ -50,9 +50,9 @@ export function useLocationSelector({ mode = "local", onLocationSelect, initialD
 
     const prePopulatedRef = useRef(false);
     useEffect(() => {
-        if (mode !== "local") return;
-        if (prePopulatedRef.current || locationDisplay) return;
-        if (!glCity) return;
+        if (mode !== "local") return undefined;
+        if (prePopulatedRef.current || locationDisplay) return undefined;
+        if (!glCity) return undefined;
 
         prePopulatedRef.current = true;
         

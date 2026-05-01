@@ -114,7 +114,7 @@ export function useSmartAlerts(enabled = true) {
 
     // Fetch alerts and saved searches on mount
     useEffect(() => {
-        if (!enabled) return;
+        if (!enabled) return undefined;
         
         const timeoutId = setTimeout(() => {
             setIsInitialLoading(true);

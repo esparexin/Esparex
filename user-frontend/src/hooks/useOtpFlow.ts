@@ -143,13 +143,13 @@ export function useOtpFlow(
     const otpRateLimitMessage = step !== "enterMobile" && rateLimit ? formatRateLimitMessage(rateLimit.message) : "";
 
     useEffect(() => {
-        if (step !== "enterMobile") return;
+        if (step !== "enterMobile") return undefined;
         const id = window.setTimeout(() => mobileInputRef.current?.focus(), 0);
         return () => window.clearTimeout(id);
     }, [step]);
 
     useEffect(() => {
-        if (step !== "enterNameAndOtp") return;
+        if (step !== "enterNameAndOtp") return undefined;
         const id = window.setTimeout(() => nameInputRef.current?.focus(), 0);
         return () => window.clearTimeout(id);
     }, [step]);

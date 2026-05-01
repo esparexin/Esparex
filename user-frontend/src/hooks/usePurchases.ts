@@ -22,7 +22,7 @@ export function usePurchases(enabled = true) {
     }, []);
 
     useEffect(() => {
-        if (!enabled) return;
+        if (!enabled) return undefined;
         const timeoutId = setTimeout(() => {
             void fetchPurchaseHistory();
         }, 0);

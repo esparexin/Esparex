@@ -14,7 +14,7 @@ export function useDismissableLayer<T extends HTMLElement>({
     onDismiss,
 }: UseDismissableLayerParams<T>) {
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen) return undefined;
 
         const handleClickOutside = (event: MouseEvent) => {
             if (

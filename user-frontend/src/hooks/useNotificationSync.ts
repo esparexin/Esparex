@@ -42,7 +42,7 @@ export const useNotificationSync = ({ enabled = true }: UseNotificationSyncOptio
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
-        if (!enabled || typeof window === 'undefined') return;
+        if (!enabled || typeof window === 'undefined') return undefined;
 
         // Reuse an existing connection if the hook is remounted (e.g. HMR)
         if (!socketRef.current) {

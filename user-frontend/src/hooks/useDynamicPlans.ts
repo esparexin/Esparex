@@ -44,6 +44,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
             }, 0);
             return () => clearTimeout(timeoutId);
         }
+        return undefined;
     }, [activeTab, fetchDynamicPlans]);
 
     return {
