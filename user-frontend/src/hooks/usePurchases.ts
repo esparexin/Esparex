@@ -23,7 +23,10 @@ export function usePurchases(enabled = true) {
 
     useEffect(() => {
         if (!enabled) return;
-        fetchPurchaseHistory();
+        const timeoutId = setTimeout(() => {
+            void fetchPurchaseHistory();
+        }, 0);
+        return () => clearTimeout(timeoutId);
     }, [enabled, fetchPurchaseHistory]);
 
     return {

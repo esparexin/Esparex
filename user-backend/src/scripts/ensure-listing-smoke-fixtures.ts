@@ -27,11 +27,11 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
-import { LISTING_TYPE } from "@core/constants/enums/listingType";
+import { LISTING_TYPE, type ListingTypeValue } from "@core/constants/enums/listingType";
 import { USER_STATUS } from "@core/constants/enums/userStatus";
 import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
 import { connectDB } from "@core/config/db";
-import Ad, { IAd } from "@core/models/Ad";
+import Ad from "@core/models/Ad";
 import User from "@core/models/User";
 import Category from "@core/models/Category";
 import { CATALOG_STATUS } from "@core/constants/enums/catalogStatus";
@@ -131,8 +131,8 @@ async function run(): Promise<void> {
     }
 
     let smokeAd = await Ad.findOne({
-        sellerId:    seller._id as any,
-        listingType: LISTING_TYPE.AD as any,
+        sellerId:    seller._id,
+        listingType: LISTING_TYPE.AD as ListingTypeValue,
         title:       smokeTitle,
         isDeleted:   false,
     });
@@ -162,7 +162,7 @@ async function run(): Promise<void> {
             type: "Point" as const,
             coordinates: [78.4867, 17.3850] as [number, number],
         },
-    } as IAd["location"];
+    };
     await smokeAd.save();
     console.info(`[smoke-fixtures] Smoke ad ready: ${String(smokeAd._id)}`);
 
@@ -170,8 +170,8 @@ async function run(): Promise<void> {
     const serviceTitle = "CI Smoke Fixture — Repair Service";
     const serviceSlug = toSlug(serviceTitle);
     let smokeService = await Ad.findOne({
-        sellerId: seller._id as any,
-        listingType: LISTING_TYPE.SERVICE as any,
+        sellerId: seller._id,
+        listingType: LISTING_TYPE.SERVICE,
         title: serviceTitle,
     });
     if (!smokeService) {
@@ -197,8 +197,8 @@ async function run(): Promise<void> {
     const sparePartTitle = "CI Smoke Fixture — Replacement Screen";
     const sparePartSlug = toSlug(sparePartTitle);
     let smokeSparePart = await Ad.findOne({
-        sellerId: seller._id as any,
-        listingType: LISTING_TYPE.SPARE_PART as any,
+        sellerId: seller._id,
+        listingType: LISTING_TYPE.SPARE_PART,
         title: sparePartTitle,
     });
     if (!smokeSparePart) {

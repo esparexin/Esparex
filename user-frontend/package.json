@@ -27,6 +27,7 @@
     "api:generate": "openapi-zod-client http://localhost:5001/api-docs.json -o src/api/generated",
     "test": "vitest",
     "e2e": "playwright test",
+    "test:smoke": "playwright test tests/listing-chat-smoke.spec.ts",
     "guard:unused-imports": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0 --rule \"unused-imports/no-unused-imports:error\""
   },
   "dependencies": {

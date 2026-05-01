@@ -30,7 +30,7 @@ export const getMe = async (
     }
 
     const authUser = req.user as AuthUser | undefined;
-    const userId = getStorageSafeId(authUser as unknown as Parameters<typeof getStorageSafeId>[0]);
+    const userId = getStorageSafeId(authUser);
 
     if (!userId) {
       sendErrorResponse(req, res, 401, 'Invalid session');

@@ -24,7 +24,7 @@ const shouldRunInShadowMode = (req: Request): boolean => {
     return SHADOW_ONLY_PREFIXES.some((prefix) => url.startsWith(prefix));
 };
 
-const isFraudDatastoreReady = (): boolean => (getUserConnection().readyState as number) === 1;
+const isFraudDatastoreReady = (): boolean => getUserConnection().readyState === mongoose.ConnectionStates.connected;
 
 const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T> =>
     new Promise<T>((resolve, reject) => {

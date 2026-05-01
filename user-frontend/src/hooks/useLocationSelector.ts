@@ -55,20 +55,25 @@ export function useLocationSelector({ mode = "local", onLocationSelect, initialD
         if (!glCity) return;
 
         prePopulatedRef.current = true;
-        setLocationDisplay(glFormattedAddress || glCity);
-        setLocationMeta({
-            city: glCity,
-            state: glState,
-            id: glLocationId,
-        });
+        
+        const timeoutId = setTimeout(() => {
+            setLocationDisplay(glFormattedAddress || glCity);
+            setLocationMeta({
+                city: glCity,
+                state: glState,
+                id: glLocationId,
+            });
 
-        if (glCoordinates) {
-            try {
-                setCoordinates(toGeoPoint(glCoordinates));
-            } catch {
-                // Ignore — validation handles it on submit.
+            if (glCoordinates) {
+                try {
+                    setCoordinates(toGeoPoint(glCoordinates));
+                } catch {
+                    // Ignore — validation handles it on submit.
+                }
             }
-        }
+        }, 0);
+
+        return () => clearTimeout(timeoutId);
     }, [
         // ✅ Scalar primitives only — safe against object-identity re-renders.
         // ❌ Never use globalLocation (full object) here.

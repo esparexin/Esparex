@@ -296,7 +296,7 @@ export function ListingDetail({
     } finally {
       setIsStartingChat(false);
     }
-  }, [ad?.id, handleListingUnavailable, router]);
+  }, [ad, handleListingUnavailable, router]);
 
   useEffect(() => {
     if (!pendingChatIntent || !isAuthResolved) return;

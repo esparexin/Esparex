@@ -7,7 +7,8 @@ import { sendSuccessResponse } from "@core/utils/respond";
 import { getSingleParam } from '@core/utils/requestParams';
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
 import { ACTOR_TYPE } from "@shared/enums/actor";
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE, type ListingTypeValue } from "@core/constants/enums/listingType";
+import type { ServiceBusinessContext } from '@core/services/service/ServiceMutationService';
 import { PromotionPolicyService } from '@core/services/PromotionPolicyService';
 import { buildPublicAdFilter, isPublicAdVisible } from '@core/utils/FeedVisibilityGuard';
 import * as AdAggregationService from '@core/services/ad/AdAggregationService';
@@ -19,14 +20,7 @@ import * as AdOrchestrator from '@core/services/AdOrchestrator';
 import * as feedService from '@core/services/FeedService';
 import * as trendingService from '@core/services/TrendingService';
 
-interface ExtendedRequest extends Request {
-    business?: { _id: string | mongoose.Types.ObjectId };
-    fraudRisk?: unknown;
-    fraudScore?: unknown;
-    riskState?: unknown;
-    idempotencyKey?: string;
-    requestId?: string;
-}
+
 import * as adImageService from '@core/services/AdImageService';
 import { mutateStatus } from '@core/services/StatusMutationService';
 import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
@@ -635,7 +629,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
 
         const result = await AdAggregationService.getAds(
             {
-                listingType: query.listingType as string,
+                listingType: query.listingType as ListingTypeValue | undefined,
                 status: query.status || LISTING_STATUS.LIVE,
                 categoryId: query.categoryId,
                 brandId: query.brandId,
@@ -703,7 +697,7 @@ export const getNearbyListings = async (req: Request, res: Response, next: NextF
 
         const result = await AdAggregationService.getAds(
             {
-                listingType: query.listingType as string,
+                listingType: query.listingType as ListingTypeValue | undefined,
                 status: query.status || LISTING_STATUS.LIVE,
                 categoryId: query.categoryId,
                 brandId: query.brandId,
@@ -837,14 +831,14 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
             const { createServiceMutation } = await import('@core/services/service/ServiceMutationService');
             const service = await createServiceMutation({
                 user: user,
-                business: (req as ExtendedRequest).business,
+                business: (req.business as unknown) as ServiceBusinessContext,
                 body: createBody
             });
             return sendSuccessResponse(res, service, 'Service submitted for approval', 201);
         }
 
         // Handle Business Context for Spare Parts
-        const businessId = (req as ExtendedRequest).business?._id;
+        const businessId = req.business?._id?.toString();
         if (listingType === LISTING_TYPE.SPARE_PART && !businessId) {
             return sendErrorResponse(req, res, 401, 'Business account required for spare parts');
         }
@@ -861,9 +855,9 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
                 sellerId: authUserId,
                 idempotencyKey: req.idempotencyKey || req.header('Idempotency-Key') || req.header('x-idempotency-key') || undefined,
                 requestId: req.requestId,
-                fraudRisk: (req as ExtendedRequest).fraudRisk,
-                fraudScore: (req as ExtendedRequest).fraudScore,
-                riskState: (req as ExtendedRequest).riskState,
+                fraudRisk: req.fraudRisk,
+                fraudScore: req.fraudScore,
+                riskState: req.riskState,
                 ip: req.ip,
                 deviceFingerprint: req.headers['x-device-fingerprint'] as string,
             }

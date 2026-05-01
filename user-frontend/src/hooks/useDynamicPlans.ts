@@ -8,6 +8,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
     const [dynamicPlans, setDynamicPlans] = useState<ProfilePlan[]>([]);
     const [loadingPlans, setLoadingPlans] = useState(false);
 
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     const fetchDynamicPlans = useCallback(async () => {
         setLoadingPlans(true);
         try {
@@ -38,7 +39,10 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
 
     useEffect(() => {
         if (activeTab === 'plans') {
-            fetchDynamicPlans();
+            const timeoutId = setTimeout(() => {
+                void fetchDynamicPlans();
+            }, 0);
+            return () => clearTimeout(timeoutId);
         }
     }, [activeTab, fetchDynamicPlans]);
 

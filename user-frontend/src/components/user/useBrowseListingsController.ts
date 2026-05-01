@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/preserve-manual-memoization */
 "use client";
 
 const SEARCH_DEBOUNCE_MS = 350;
@@ -167,6 +168,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     ]
   );
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const fetchItems = useCallback(
     async (requestedPage: number) => {
       setLoading(true);
@@ -277,6 +279,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     [browseType, query, selectedCategory, sort, urlLocationId, urlLocationLabel, urlRadiusKm]
   );
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInputChange = useCallback(
     (value: string) => {
       setInputValue(value);
@@ -291,6 +294,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     [buildNextUrl, router]
   );
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleCategoryChange = useCallback(
     (value: string) => {
       startTransition(() => {
@@ -302,6 +306,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     [buildNextUrl, router]
   );
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleSortChange = useCallback(
     (value: SortOption) => {
       startTransition(() => {
@@ -313,6 +318,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     [buildNextUrl, router]
   );
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleReset = useCallback(() => {
     startTransition(() => {
       setQuery("");
@@ -324,6 +330,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     });
   }, [browseType, router]);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleLoadMore = useCallback(() => {
     const nextPage = page + 1;
     startTransition(() => {

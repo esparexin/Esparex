@@ -8,6 +8,11 @@ declare global {
             user?: IAuthUser;
             admin?: IAdmin;
             business?: IBusiness;
+            fraudRisk?: string;
+            fraudScore?: number;
+            riskState?: string;
+            idempotencyKey?: string;
+            requestId?: string;
         }
     }
 }

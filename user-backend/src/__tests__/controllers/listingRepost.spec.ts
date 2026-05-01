@@ -25,7 +25,7 @@ jest.mock('@core/utils/requestParams', () => ({
     getSingleParam: jest.fn((req: { params: Record<string, string> }, _res: unknown, param: string) => req.params[param]),
 }));
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import AdMutationService from '@core/services/AdMutationService';
 import { repostListing } from '../../controllers/listing/listingController';
 

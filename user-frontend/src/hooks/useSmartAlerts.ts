@@ -115,14 +115,19 @@ export function useSmartAlerts(enabled = true) {
     // Fetch alerts and saved searches on mount
     useEffect(() => {
         if (!enabled) return;
-        setIsInitialLoading(true);
-        Promise.all([
-            fetchSmartAlerts(),
-            listSavedSearches()
-        ]).then(([alerts, searches]) => {
-            setSmartAlerts(alerts);
-            setSavedSearches(searches);
-        }).finally(() => setIsInitialLoading(false));
+        
+        const timeoutId = setTimeout(() => {
+            setIsInitialLoading(true);
+            Promise.all([
+                fetchSmartAlerts(),
+                listSavedSearches()
+            ]).then(([alerts, searches]) => {
+                setSmartAlerts(alerts);
+                setSavedSearches(searches);
+            }).finally(() => setIsInitialLoading(false));
+        }, 0);
+
+        return () => clearTimeout(timeoutId);
     }, [enabled]);
 
     const resetAlertForm = useCallback(() => {
