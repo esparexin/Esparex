@@ -12,13 +12,13 @@ npm --workspace user-backend run typecheck
 echo "[governance] user-backend build"
 npm --workspace user-backend run build
 
-echo "[governance] user-frontend lint"
-npm --workspace user-frontend run lint
+echo "[governance] apps/web lint"
+npm --workspace apps/web run lint
 
-echo "[governance] user-frontend typecheck"
-npm --workspace user-frontend run typecheck
+echo "[governance] apps/web typecheck"
+npm --workspace apps/web run typecheck
 
-echo "[governance] user-frontend build"
-npm --workspace user-frontend run build
+echo "[governance] apps/web build"
+npm --workspace apps/web run build
 
 echo "[governance] Quality gates passed."

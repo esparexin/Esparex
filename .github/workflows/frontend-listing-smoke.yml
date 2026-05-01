@@ -150,8 +150,8 @@ jobs:
         with:
           name: frontend-listing-smoke-artifacts
           path: |
-            user-frontend/playwright-report/
-            user-frontend/test-results/
+            apps/web/playwright-report/
+            apps/web/test-results/
             ${{ runner.temp }}/backend-smoke.log
             ${{ runner.temp }}/frontend-smoke.log
           retention-days: 7

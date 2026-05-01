@@ -7,7 +7,7 @@ const ROOT = process.cwd();
 const SCAN_DIRS = [
   'user-backend/src',
   'admin-backend/src',
-  'user-frontend/src',
+  'apps/web/src',
   'admin-frontend/src',
   'core/src',
   'shared'
@@ -15,7 +15,7 @@ const SCAN_DIRS = [
 const PACKAGE_MANIFESTS = [
   { manifest: 'package.json', root: '' },
   { manifest: 'user-backend/package.json', root: 'user-backend' },
-  { manifest: 'user-frontend/package.json', root: 'user-frontend' },
+  { manifest: 'apps/web/package.json', root: 'apps/web' },
   { manifest: 'admin-frontend/package.json', root: 'admin-frontend' },
   { manifest: 'core/package.json', root: 'core' }
 ];
@@ -116,7 +116,7 @@ const resolveWithExtensions = (basePath) => {
 const resolveAlias = (specifier, importer) => {
   if (specifier.startsWith('@/')) {
     const isAdminImporter = importer.startsWith('admin-frontend/src/');
-    const base = isAdminImporter ? 'admin-frontend/src' : 'user-frontend/src';
+    const base = isAdminImporter ? 'admin-frontend/src' : 'apps/web/src';
     return resolveWithExtensions(path.join(ROOT, base, specifier.slice(2)));
   }
   if (specifier === '@shared') {
@@ -224,7 +224,7 @@ const isRootFile = (filePath) => {
   if (filePath.includes('/server.ts') || filePath.includes('/app.ts') || filePath.includes('/index.ts')) return true;
   if (filePath === 'user-backend/src/workers/index.ts' || filePath === 'user-backend/src/workers.ts') return true;
   if (filePath.endsWith('/routes.ts') || filePath.endsWith('.routes.ts')) return true;
-  if (filePath.startsWith('user-frontend/src/app/') || filePath.startsWith('admin-frontend/src/app/')) {
+  if (filePath.startsWith('apps/web/src/app/') || filePath.startsWith('admin-frontend/src/app/')) {
     return SOURCE_ENTRY_PATTERNS.some((pattern) => pattern.test(filePath));
   }
   return ALWAYS_KEEP_PATTERNS.some((pattern) => pattern.test(filePath));
