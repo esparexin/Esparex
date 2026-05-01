@@ -10,7 +10,7 @@ import { analyzeFraudRisk, FraudContext } from './FraudDetectionService';
 import { AdCreationService } from './AdCreationService';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { mutateStatus } from './StatusMutationService';
-import { computeActiveExpiry } from './adStatusService';
+import { computeActiveExpiry } from './AdStatusService';
 import { enqueueImageOptimization } from '@core/queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
 import { LISTING_TYPE } from '@core/constants/enums/listingType';

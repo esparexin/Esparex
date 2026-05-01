@@ -1,5 +1,5 @@
 import type { IConversationDTO } from "@shared/contracts/chat.contracts";
-import { isListingChatClosed } from '../chatAvailabilityService';
+import { isListingChatClosed } from '../ChatAvailabilityService';
 import type { IChatAttachment } from '@core/models/ChatMessage';
 
 export const PAGE_SIZE_MESSAGES = 30;

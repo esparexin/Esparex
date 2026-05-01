@@ -6,7 +6,7 @@ import type { AdminLogTargetType } from '@core/utils/adminLogger';
 import { mutateStatus } from './StatusMutationService';
 import { ACTOR_TYPE } from '@core/constants/enums/actor';
 import { AD_STATUS } from '@core/constants/enums/adStatus';
-import { computeActiveExpiry } from './adStatusService';
+import { computeActiveExpiry } from './AdStatusService';
 import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
 import { updateAdTransactional } from './AdMutationService';
 import { createAd } from './AdOrchestrator';

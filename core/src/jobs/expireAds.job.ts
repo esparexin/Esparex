@@ -1,5 +1,5 @@
 import logger from "@core/utils/logger";
-import { expireBoosts } from "@core/services/adStatusService";
+import { expireBoosts } from "@core/services/AdStatusService";
 import { ListingExpiryService } from "@core/services/ListingExpiryService";
 import { runWithDistributedJobLock } from "@core/utils/distributedJobLock";
 

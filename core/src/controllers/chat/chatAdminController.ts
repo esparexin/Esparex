@@ -9,7 +9,7 @@ import {
   adminMuteConversation,
   adminExportConversation,
   resolveReport,
-} from '@core/services/chatService';
+} from '@core/services/ChatService';
 import {
   adminListQuerySchema,
   adminDeleteMessageSchema,

@@ -82,7 +82,7 @@
   "core/src/services/ad/AdSearchService.ts": 1,
   "core/src/services/AdminService.ts": 1,
   "core/src/services/AdMutationService.ts": 1,
-  "core/src/services/adStatusService.ts": 1,
+  "core/src/services/AdStatusService.ts": 1,
   "core/src/services/AdValidationService.ts": 1,
   "core/src/services/catalog/CatalogOrchestrator.ts": 1,
   "core/src/services/ContactRevealService.ts": 2,

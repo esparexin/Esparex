@@ -8,21 +8,21 @@
     "npm": ">=11.8.0 <12"
   },
   "workspaces": [
-    "backend",
     "admin-backend",
     "core",
-    "frontend",
     "admin-frontend",
     "shared",
-    "shared/observability"
+    "shared/observability",
+    "user-backend",
+    "user-frontend"
   ],
   "scripts": {
     "prepare": "bash scripts/install-git-hooks.sh",
     "hooks:install": "bash scripts/install-git-hooks.sh",
-    "clean:workspace-installs": "rm -rf backend/node_modules frontend/node_modules admin-frontend/node_modules shared/node_modules",
-    "build": "npm run build -w core && npm run build -w backend && npm run build -w admin-backend && npm run build -w frontend && npm run build -w admin-frontend",
-    "type-check": "npm run type-check -w @esparex/shared && npm run type-check -w core && npm run type-check -w backend && npm run type-check -w admin-backend && npm run type-check -w frontend && npm run type-check -w admin-frontend",
-    "dev:all": "concurrently \"npm run dev -w backend\" \"npm run dev -w admin-backend\"",
+    "clean:workspace-installs": "rm -rf admin-backend/node_modules admin-frontend/node_modules shared/node_modules",
+    "build": "npm run build -w core && npm run build -w admin-backend && npm run build -w admin-frontend",
+    "type-check": "npm run type-check -w @esparex/shared && npm run type-check -w core && npm run type-check -w admin-backend && npm run type-check -w admin-frontend",
+    "dev:all": "concurrently \"npm run dev -w admin-backend\"",
     "lint:no-api-string-literals": "node scripts/enforce-no-api-string-literals.js",
     "guard:component-api-boundary": "node scripts/enforce-component-api-boundary.js",
     "guard:compatibility-markers": "node scripts/enforce-compatibility-markers-baseline.js",
@@ -35,7 +35,6 @@
     "guard:moderation-namespace": "node scripts/enforce-moderation-route-whitelist.js",
     "guard:schema-migration": "bash scripts/enforce-schema-migration-gate.sh",
     "guard:pr-impact-analysis": "node scripts/enforce-pr-impact-analysis.js",
-    "ci:image-domains": "npm run ci:image-domains -w frontend",
     "lint:admin-status:ssot": "node scripts/enforce-admin-status-literals.js",
     "lint:user-api-result:ssot": "node scripts/enforce-user-api-result-ssot.js",
     "contract:user-api": "node scripts/verify-api-contract.js --scope=user",
@@ -63,6 +62,8 @@
     "socket.io-parser": "^4.2.6"
   },
   "devDependencies": {
+    "@types/multer": "^2.1.0",
+    "@types/nodemailer": "^8.0.0",
     "@types/validator": "^13.15.10",
     "concurrently": "^9.2.1",
     "madge": "^8.0.0",
@@ -70,6 +71,13 @@
     "tsc-alias": "^1.8.16"
   },
   "dependencies": {
-    "module-alias": "^2.3.4"
+    "@bull-board/api": "^7.0.0",
+    "@bull-board/express": "^7.0.0",
+    "@sentry/node": "^10.51.0",
+    "@sentry/profiling-node": "^10.51.0",
+    "module-alias": "^2.3.4",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.7",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }

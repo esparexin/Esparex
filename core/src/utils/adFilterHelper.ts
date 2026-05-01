@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { normalizeGeoInput } from './mongoGeoUtils';
-import { normalizeAdStatus } from '@core/services/adStatusService';
+import { normalizeAdStatus } from '@core/services/AdStatusService';
 import CategoryQueryBuilder from './CategoryQueryBuilder';
 
 type UnknownRecord = Record<string, unknown>;

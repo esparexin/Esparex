@@ -8,13 +8,13 @@ import { Conversation } from '@core/models/Conversation';
 import {
   isListingChatClosed,
   syncConversationAvailabilityForListing,
-} from '@core/services/chatAvailabilityService';
+} from '@core/services/ChatAvailabilityService';
 
 const mockedConversation = Conversation as unknown as {
   updateMany: jest.Mock;
 };
 
-describe('chatAvailabilityService', () => {
+describe('ChatAvailabilityService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockedConversation.updateMany.mockReturnValue(Promise.resolve({ modifiedCount: 1 }));

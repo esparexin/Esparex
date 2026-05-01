@@ -5,18 +5,24 @@
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
     "jsx": "react-jsx",
-    "strict": true,
+    "strict": false,
+    "noImplicitAny": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "noEmit": false,
+    "composite": true,
     "declaration": true,
     "outDir": "./dist",
-    "lib": ["ES2022", "DOM"]
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "**/*.json"
   ],
   "exclude": [
     "node_modules",

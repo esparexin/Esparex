@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { Conversation } from '@core/models/Conversation';
 import { ChatMessage } from '@core/models/ChatMessage';
 import Ad from '@core/models/Ad';
-import { isListingChatClosed } from '../chatAvailabilityService';
+import { isListingChatClosed } from '../ChatAvailabilityService';
 import logger from '@core/utils/logger';
 import { NOTIFICATION_TYPE } from '@core/constants/enums/notificationType';
 import type { IChatAttachment } from '@core/models/ChatMessage';
