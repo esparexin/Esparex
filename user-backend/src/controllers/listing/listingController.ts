@@ -667,7 +667,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
 
         res.json(respond<PaginatedResponse<Ad>>({
             success: true,
-            data: result.data,
+            data: result.data as unknown as Ad[],
             pagination
         }));
     } catch (error: unknown) {
