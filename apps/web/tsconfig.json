@@ -20,10 +20,10 @@
         "./src/*"
       ],
       "@shared/*": [
-        "../shared/*"
+        "../../shared/*"
       ],
       "@shared": [
-        "../shared/index.ts"
+        "../../shared/index.ts"
       ]
     },
     /* Linting */
@@ -51,8 +51,8 @@
   },
   "include": [
     "src",
-    "../shared/**/*.ts",
-    "../shared/**/*.tsx",
+    "../../shared/**/*.ts",
+    "../../shared/**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
@@ -65,9 +65,9 @@
     "node_modules/**/*.spec.tsx",
     "src/supabase",
     "src/backend",
-    "../backend",
-    "../backend/**/*",
-    "../shared/location-engine",
-    "../shared/location-engine/**/*"
+    "../../backend",
+    "../../backend/**/*",
+    "../../shared/location-engine",
+    "../../shared/location-engine/**/*"
   ]
 }

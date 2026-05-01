@@ -6,7 +6,7 @@
   "path": [
     "user-backend/src",
     "admin-backend/src",
-    "user-frontend/src",
+    "apps/web/src",
     "admin-frontend/src",
     "core/src",
     "shared"

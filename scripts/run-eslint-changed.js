@@ -4,7 +4,7 @@ const { execSync, spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const WORKSPACES = ["user-frontend", "user-backend", "admin-frontend"];
+const WORKSPACES = ["apps/web", "user-backend", "admin-frontend"];
 
 function run(cmd) {
   return execSync(cmd, { stdio: ["ignore", "pipe", "pipe"], encoding: "utf8" }).trim();
@@ -42,10 +42,12 @@ function getChangedLintFiles(baseSha) {
 function groupFiles(files) {
   const grouped = new Map();
   for (const file of files) {
-    const [workspace] = file.split("/");
-    const rel = file.replace(`${workspace}/`, "");
-    if (!grouped.has(workspace)) grouped.set(workspace, []);
-    grouped.get(workspace).push(rel);
+    // Find the matching workspace by longest prefix (handles apps/web, not just top-level)
+    const ws = WORKSPACES.find((w) => file.startsWith(`${w}/`));
+    if (!ws) continue;
+    const rel = file.slice(ws.length + 1);
+    if (!grouped.has(ws)) grouped.set(ws, []);
+    grouped.get(ws).push(rel);
   }
   return grouped;
 }
