@@ -83,7 +83,7 @@ const toUserGeoPoint = (value: unknown): GeoJSONPoint | undefined => {
   if (typeof value === 'object') {
     const node = value as { type?: unknown; coordinates?: unknown };
     
-    // Legacy support: if it's an object with coordinates but no type, assume Point
+    // Previous support: if it's an object with coordinates but no type, assume Point
     const coords = node.coordinates || (Array.isArray(value) ? value : undefined);
     
     if (Array.isArray(coords) && coords.length === 2 && hasValidCoordinateArray(coords)) {

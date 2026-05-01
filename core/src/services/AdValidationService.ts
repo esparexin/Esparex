@@ -73,7 +73,7 @@ export const isSeoSlugConflict = (error: unknown): boolean => {
 };
 
 // ─────────────────────────────────────────────────
-// RE-EXPORTS (Backward Compatibility)
+// RE-EXPORTS (Backward Support)
 // ─────────────────────────────────────────────────
 
 export {

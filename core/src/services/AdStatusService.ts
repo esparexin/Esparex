@@ -15,7 +15,7 @@ export interface StatusTransitionData {
 
 /**
  * Normalizes status input to canonical LIFECYCLE_STATUS.
- * Maps legacy 'active' and 'approved' to 'live'.
+ * Maps historical 'active' and 'approved' to 'live'.
  */
 export const normalizeAdStatus = (status: string): string => {
     if (!status) return status;

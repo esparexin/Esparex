@@ -53,12 +53,12 @@ const PlanSchema = new Schema<IPlan>(
         },
 
         /**
-         * @deprecated Legacy field kept for backward compatibility with old plans.
+         * Superseded field kept for backward support with old plans.
          * New plans use `limits` (maxAds, spotlightCredits, smartAlerts).
          * Used as a fallback in planEntitlements.ts via getPrimaryPlanCreditCount().
          * Do NOT remove — old UserPlan records may reference plans that only have this field.
          */
-        credits: { type: Number, default: 0 }, // Legacy/Fallback
+        credits: { type: Number, default: 0 }, // Previous/Fallback
         price: { type: Number, required: true }, // final payable amount
         currency: { type: String, default: "INR" },
 

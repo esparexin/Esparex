@@ -36,7 +36,7 @@ import './AdminBoundary';
 import './SmartAlert';
 import './Notification';
 import './Report';
-// Legacy `Service` model was merged into unified `Ad` listings.
+// Previous `Service` model was merged into unified `Ad` listings.
 // Keep registry aligned with real model files to prevent runtime module load failures.
 import './Invoice';
 import './ContactSubmission';

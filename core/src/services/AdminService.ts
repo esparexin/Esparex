@@ -37,7 +37,7 @@ export const seedAdmin = async (email: string) => {
     const adminExists = await Admin.findOne({ email });
 
     if (adminExists) {
-        // 🔄 AUTO-CORRECTION: If admin exists but is not LIVE (e.g. legacy "active" status), fix it.
+        // 🔄 AUTO-CORRECTION: If admin exists but is not LIVE (e.g. previous "active" status), fix it.
         if (adminExists.status !== USER_STATUS.LIVE) {
             logger.warn(`Admin ${email} found with status ${adminExists.status}. Auto-correcting to LIVE.`);
             adminExists.status = USER_STATUS.LIVE;

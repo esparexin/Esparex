@@ -63,7 +63,7 @@ BrandSchema.index(
     name: 'idx_brand_categoryIds_name_unique',
     partialFilterExpression: {
       isDeleted: false,
-      // 'live' is CATALOG_STATUS.ACTIVE; 'active' kept for legacy records
+      // 'live' is CATALOG_STATUS.ACTIVE; 'active' kept for historical records
       status: { $in: ['live', 'active', 'pending'] }
     },
     collation: { locale: 'en', strength: 2 }
@@ -77,7 +77,7 @@ BrandSchema.index(
     name: 'idx_brand_categoryIds_slug_unique',
     partialFilterExpression: {
       isDeleted: false,
-      // 'live' is CATALOG_STATUS.ACTIVE; 'active' kept for legacy records
+      // 'live' is CATALOG_STATUS.ACTIVE; 'active' kept for historical records
       status: { $in: ['live', 'active', 'pending'] }
     }
   }

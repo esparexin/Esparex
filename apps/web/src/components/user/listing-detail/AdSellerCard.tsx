@@ -110,7 +110,6 @@ export function AdSellerCard({
                                                 e.stopPropagation();
                                                 void navigator.clipboard.writeText(revealedPhone);
                                             }}
-                                            variant="outline"
                                             size="icon"
                                             className="h-11 w-11 shrink-0 rounded-xl border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                                             title="Copy number"

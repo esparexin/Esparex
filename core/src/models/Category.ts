@@ -87,7 +87,7 @@ import { installSafeSoftDeleteQuery } from '@core/utils/safeSoftDeleteQuery';
 CategorySchema.plugin(installSafeSoftDeleteQuery);
 
 // ON-THE-FLY NORMALIZATION (Safe Migration)
-// Ensures legacy uppercase types and 'post' prefixes are mapped to the new standard at runtime.
+// Ensures historical uppercase types and 'post' prefixes are mapped to the new standard at runtime.
 CategorySchema.post('init', function(doc) {
     if (doc.type && ['AD', 'SERVICE', 'SPARE_PART'].includes(doc.type)) {
         doc.type = doc.type.toLowerCase() as typeof doc.type;

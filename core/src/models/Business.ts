@@ -277,7 +277,7 @@ BusinessSchema.index(
     }
 );
 
-// Backward Compatibility Virtual
+// Backward Support Virtual
 BusinessSchema.virtual('phone')
     .get(function () { return this.mobile; })
     .set(function (v: string) { this.mobile = v; });

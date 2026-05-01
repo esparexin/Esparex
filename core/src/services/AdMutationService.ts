@@ -10,7 +10,7 @@ import { promoteAdLogic } from './ad/AdPromotionService';
 import { repostAdLogic } from './ad/AdRepostService';
 import { assertOwnership } from './ad/AdPolicyService';
 
-// Re-export for backward compatibility
+// Re-export for backward support
 export { assertOwnership };
 
 export const updateAd = async (

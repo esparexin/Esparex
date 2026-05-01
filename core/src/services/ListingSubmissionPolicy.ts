@@ -2,7 +2,7 @@ import type { ClientSession } from 'mongoose';
 import { AdSlotService, type AdPostingSlotSource } from './AdSlotService';
 import { type ListingTypeValue } from '@core/constants/enums/listingType';
 
-/** @deprecated Use ListingTypeValue from shared/enums/listingType */
+/** Superseded Use ListingTypeValue from shared/enums/listingType */
 export type SubmissionListingType = ListingTypeValue;
 
 export type ListingSubmissionReservation = {
