@@ -220,6 +220,8 @@ async function runAudit() {
     }
 }
 
+import { connectDB } from '@core/config/db';
+
 // Execute audit
 void (async () => {
     try {
