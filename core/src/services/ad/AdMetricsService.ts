@@ -40,7 +40,7 @@ export const getAdCounts = async (
         const listingTypeFilterResult = buildListingTypeFilter(filters.listingType, allowLegacyListingTypeNullCompat);
         if (listingTypeFilterResult !== undefined) {
             query.listingType = listingTypeFilterResult.filter;
-            if (listingTypeFilterResult.compatibilityApplied && options.trackListingTypeCompatMetrics) {
+            if (listingTypeFilterResult.fallbackApplied && options.trackListingTypeCompatMetrics) {
                 setImmediate(() => {
                     void recordListingTypeCompatMetric('getAdCounts', filters.listingType);
                 });

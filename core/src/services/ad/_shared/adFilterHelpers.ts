@@ -85,7 +85,7 @@ export type ListingTypeCompatMetricContext = 'getAds' | 'getAdCounts';
 
 export type ListingTypeFilterBuildResult = {
     filter: Record<string, unknown> | string;
-    compatibilityApplied: boolean;
+    fallbackApplied: boolean;
 };
 
 export type BuildAdMatchStageOptions = {
@@ -102,30 +102,30 @@ export const buildListingTypeFilter = (
 
     if (Array.isArray(listingType)) {
         const values = [...listingType];
-        // Legacy rows can miss listingType; treat them as "ad" during transition.
+        // Previous rows can miss listingType; treat them as "ad" during transition.
         if (allowLegacyListingTypeNullCompat && values.includes('ad')) {
             return {
                 filter: { $in: [...values, null] },
-                compatibilityApplied: true
+                fallbackApplied: true
             };
         }
         return {
             filter: { $in: values },
-            compatibilityApplied: false
+            fallbackApplied: false
         };
     }
 
     if (allowLegacyListingTypeNullCompat && listingType === 'ad') {
-        // `{ $in: ['ad', null] }` matches explicit "ad" and missing/null legacy rows.
+        // `{ $in: ['ad', null] }` matches explicit "ad" and missing/null previous rows.
         return {
             filter: { $in: ['ad', null] },
-            compatibilityApplied: true
+            fallbackApplied: true
         };
     }
 
     return {
         filter: listingType,
-        compatibilityApplied: false
+        fallbackApplied: false
     };
 };
 
@@ -159,7 +159,7 @@ export const recordListingTypeCompatMetric = async (
             { upsert: true }
         );
     } catch (error) {
-        logger.warn('Failed to record listingType compatibility metric', {
+        logger.warn('Failed to record listingType fallback metric', {
             context,
             listingType,
             error: error instanceof Error ? error.message : String(error)
@@ -219,7 +219,7 @@ export const getBlockedSellerIds = async (viewerId?: string): Promise<mongoose.T
  *   price range, location, keywords, status). Used when only a basic match is needed.
  *
  * `buildAdMatchStage` (ad/AdSearchService.ts) — Stage 2 (Enriched Pipeline Stage)
- *   Wraps Stage 1, then adds: geo-enrichment, legacy category slug resolution,
+ *   Wraps Stage 1, then adds: geo-enrichment, previous category slug resolution,
  *   listingType null-compat filters, and seller blocking. Used in $geoNear aggregation
  *   pipelines (AdAggregationService, FeedQueryService) where stage ordering matters.
  *

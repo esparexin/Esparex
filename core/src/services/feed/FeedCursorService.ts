@@ -29,7 +29,7 @@ export type ParsedHomeFeedCursor = {
 
     createdAt: Date;
     id: string | null;
-    mode: 'compound' | 'legacy';
+    mode: 'compound' | 'simple';
 };
 
 const parseCursorObject = (raw: unknown): ParsedHomeFeedCursor | null => {
@@ -46,7 +46,7 @@ const parseCursorObject = (raw: unknown): ParsedHomeFeedCursor | null => {
     return {
         createdAt,
         id: normalizedId,
-        mode: normalizedId ? 'compound' : 'legacy'
+        mode: normalizedId ? 'compound' : 'simple'
     };
 };
 
@@ -67,21 +67,21 @@ export const parseCursor = (cursor: string | Partial<HomeFeedCursor> | undefined
         const parsedObjectCursor = parseCursorObject(parsedJson);
         if (parsedObjectCursor) return parsedObjectCursor;
     } catch {
-        // Backward compatibility path: timestamp-only cursor string.
+        // Backward support path: timestamp-only cursor string.
     }
 
-    const legacyDate = new Date(raw);
-    if (Number.isNaN(legacyDate.getTime())) return null;
+    const timestampDate = new Date(raw);
+    if (Number.isNaN(timestampDate.getTime())) return null;
     return {
-        createdAt: legacyDate,
+        createdAt: timestampDate,
         id: null,
-        mode: 'legacy'
+        mode: 'simple'
     };
 };
 
 export const toCursorKey = (cursor: ParsedHomeFeedCursor | null): string => {
     if (!cursor) return 'start';
     const createdAtKey = cursor.createdAt.toISOString().replace(/[^a-z0-9]/gi, '_');
-    if (!cursor.id) return `legacy_${createdAtKey}`;
+    if (!cursor.id) return `simple_${createdAtKey}`;
     return `${createdAtKey}_${cursor.id}`;
 };

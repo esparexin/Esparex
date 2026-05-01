@@ -86,7 +86,7 @@ export const buildAdMatchStage = async (
         const listingTypeFilterResult = buildListingTypeFilter(filters.listingType, allowLegacyListingTypeNullCompat);
         if (listingTypeFilterResult !== undefined) {
             match.listingType = listingTypeFilterResult.filter;
-            if (listingTypeFilterResult.compatibilityApplied && options.trackListingTypeCompatMetrics && options.metricContext) {
+            if (listingTypeFilterResult.fallbackApplied && options.trackListingTypeCompatMetrics && options.metricContext) {
                 setImmediate(() => {
                     void recordListingTypeCompatMetric(options.metricContext as ListingTypeCompatMetricContext, filters.listingType);
                 });

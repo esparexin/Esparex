@@ -56,10 +56,10 @@ export interface NormalizedLocationResponse {
     parentId?: string | null;
     path?: string[];
     name?: string;
-    /** @deprecated Use `display` instead */
+    /** Superseded by `display` */
     displayName?: string;
     display: string;
-    /** @deprecated Use `display` instead */
+    /** Superseded by `display` */
     formattedAddress: string;
     address?: string;
     city: string;
@@ -94,7 +94,7 @@ export type HierarchyLevel = LocationLevel;
 export const VERIFIED_LOCATION_STATUS = 'verified' as const;
 export const PUBLIC_CANONICAL_LOCATION_FILTER = {
     isActive: true,
-    // Legacy canonical master-data rows were imported before verificationStatus
+    // Historical canonical master-data rows were imported before verificationStatus
     // existed. Treat missing status as public/verified until data is backfilled.
     // Also include 'pending' status so auto-detection works for newly added cities.
     verificationStatus: { $in: [VERIFIED_LOCATION_STATUS, 'pending', null] },
