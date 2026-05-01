@@ -12,7 +12,7 @@ import { resolveLocationPathIds } from '@core/utils/locationHierarchy';
 import { processImages } from '@core/utils/imageProcessor';
 import { sanitizeStoredImageUrls } from '@core/utils/s3';
 import { AdContext } from '@core/types/ad.types';
-import { computeActiveExpiry } from './adStatusService';
+import { computeActiveExpiry } from './AdStatusService';
 import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
 import { FeatureFlag, isEnabled } from '@core/config/featureFlags';
 import { computeListingQualityScore } from '@core/utils/adQualityScorer';

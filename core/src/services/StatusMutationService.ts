@@ -10,7 +10,7 @@ import StatusHistory from '@core/models/StatusHistory';
 import AdminMetrics from '@core/models/AdminMetrics';
 import logger from '@core/utils/logger';
 import { ActorMetadata, ACTOR_TYPE } from '@core/constants/enums/actor';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { lifecycleEvents } from '../events';
 
 // Import domain models
@@ -53,7 +53,7 @@ const canBypassInvalidTransition = (params: {
     if (typedError.code !== 'INVALID_LIFECYCLE_TRANSITION') return false;
     if (params.actor.type !== ACTOR_TYPE.ADMIN) return false;
     if (!isListingLifecycleDomain(params.resolvedDomain)) return false;
-    if (toLower(params.toStatus) !== AD_STATUS.DEACTIVATED) return false;
+    if (toLower(params.toStatus) !== LISTING_STATUS.DEACTIVATED) return false;
     return isModerationDeactivationAction(params.metadata);
 };
 
@@ -202,7 +202,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
                     ua: actor.userAgent,
                     mutationService: 'v1'
                 }
-            }], { session: activeSession });
+            }] as any, { session: activeSession });
 
             return (typeof doc.toObject === 'function' ? doc.toObject() : doc) as Record<string, unknown>;
         };
@@ -360,7 +360,7 @@ export const mutateStatusesBulk = async (
         }))
     );
 
-    if (domain === 'ad' && toStatus === AD_STATUS.EXPIRED) {
+    if (domain === 'ad' && toStatus === LISTING_STATUS.EXPIRED) {
         await lifecycleEvents.dispatch('ad.expired.bulk', { count: docs.length, source: 'cron_expireOutdatedAds' });
     }
 

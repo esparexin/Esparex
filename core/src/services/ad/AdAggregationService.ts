@@ -23,7 +23,7 @@ import {
     isEnabled,
     getBlockedSellerIds,
     ServiceType,
-    AD_STATUS,
+    LISTING_STATUS,
     LISTING_TYPE
 } from './_shared/adServiceBase';
 import type {

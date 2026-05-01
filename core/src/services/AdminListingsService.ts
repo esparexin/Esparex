@@ -5,8 +5,8 @@ import { bulkResolveReports } from './ReportService';
 import type { AdminLogTargetType } from '@core/utils/adminLogger';
 import { mutateStatus } from './StatusMutationService';
 import { ACTOR_TYPE } from '@core/constants/enums/actor';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
-import { computeActiveExpiry } from './adStatusService';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
+import { computeActiveExpiry } from './AdStatusService';
 import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
 import { updateAdTransactional } from './AdMutationService';
 import { createAd } from './AdOrchestrator';
@@ -297,7 +297,7 @@ export const adminApproveListing = async (
     const updated = await mutateStatus({
         domain: 'ad',
         entityId: id,
-        toStatus: AD_STATUS.LIVE,
+        toStatus: LISTING_STATUS.LIVE,
         actor: buildAdminActor(actorId),
         reason: 'Approved by moderation',
         metadata: {
@@ -314,7 +314,7 @@ export const adminApproveListing = async (
             rejectionReason: undefined,
             $push: {
                 timeline: {
-                    status: AD_STATUS.LIVE,
+                    status: LISTING_STATUS.LIVE,
                     timestamp: approvedAt,
                     reason: 'Approved by moderation',
                 },
@@ -322,7 +322,7 @@ export const adminApproveListing = async (
         },
     });
 
-    await logFn('LISTING_APPROVE', 'Ad', id, { status: AD_STATUS.LIVE });
+    await logFn('LISTING_APPROVE', 'Ad', id, { status: LISTING_STATUS.LIVE });
     return updated;
 };
 
@@ -342,7 +342,7 @@ export const adminRejectListing = async (
     const updated = await mutateStatus({
         domain: 'ad',
         entityId: id,
-        toStatus: AD_STATUS.REJECTED,
+        toStatus: LISTING_STATUS.REJECTED,
         actor: buildAdminActor(actorId),
         reason: rejectionReason,
         metadata: {
@@ -355,7 +355,7 @@ export const adminRejectListing = async (
             moderationStatus: 'rejected',
             $push: {
                 timeline: {
-                    status: AD_STATUS.REJECTED,
+                    status: LISTING_STATUS.REJECTED,
                     timestamp: new Date(),
                     reason: rejectionReason,
                 },
@@ -375,15 +375,15 @@ export const adminDeactivateListing = async (
     validateListingId(id);
     const listing = await getListingForMutation(id);
 
-    if (listing.status === AD_STATUS.DEACTIVATED) {
+    if (listing.status === LISTING_STATUS.DEACTIVATED) {
         const currentListing = await getModerationListingById(id);
-        return { action: 'deactivated', listing: currentListing || { id, status: AD_STATUS.DEACTIVATED, listingType: listing.listingType || 'ad' }, message: 'Listing is already deactivated' };
+        return { action: 'deactivated', listing: currentListing || { id, status: LISTING_STATUS.DEACTIVATED, listingType: listing.listingType || 'ad' }, message: 'Listing is already deactivated' };
     }
 
     const updated = await mutateStatus({
         domain: 'ad',
         entityId: id,
-        toStatus: AD_STATUS.DEACTIVATED,
+        toStatus: LISTING_STATUS.DEACTIVATED,
         actor: buildAdminActor(actorId),
         reason: 'Deactivated by moderation',
         metadata: {
@@ -395,7 +395,7 @@ export const adminDeactivateListing = async (
             isChatLocked: true,
             $push: {
                 timeline: {
-                    status: AD_STATUS.DEACTIVATED,
+                    status: LISTING_STATUS.DEACTIVATED,
                     timestamp: new Date(),
                     reason: 'Deactivated by moderation',
                 },
@@ -418,7 +418,7 @@ export const adminExpireListing = async (
     const updated = await mutateStatus({
         domain: 'ad',
         entityId: id,
-        toStatus: AD_STATUS.EXPIRED,
+        toStatus: LISTING_STATUS.EXPIRED,
         actor: buildAdminActor(actorId),
         reason: 'Expired by moderation',
         metadata: {
@@ -430,7 +430,7 @@ export const adminExpireListing = async (
             isChatLocked: true,
             $push: {
                 timeline: {
-                    status: AD_STATUS.EXPIRED,
+                    status: LISTING_STATUS.EXPIRED,
                     timestamp: new Date(),
                     reason: 'Expired by moderation',
                 },
@@ -452,14 +452,14 @@ export const adminExtendListing = async (
 
     const newExpiresAt = await computeActiveExpiry((listing.listingType as ListingTypeValue) || LISTING_TYPE.AD);
     const now = new Date();
-    const isExpired = listing.status === AD_STATUS.EXPIRED;
+    const isExpired = listing.status === LISTING_STATUS.EXPIRED;
     let updated: unknown;
 
     if (isExpired) {
         updated = await mutateStatus({
             domain: 'ad',
             entityId: id,
-            toStatus: AD_STATUS.LIVE,
+            toStatus: LISTING_STATUS.LIVE,
             actor: buildAdminActor(actorId),
             reason: 'Expiry extended by admin',
             metadata: {
@@ -475,7 +475,7 @@ export const adminExtendListing = async (
                 moderationStatus: 'manual_approved',
                 $push: {
                     timeline: {
-                        status: AD_STATUS.LIVE,
+                        status: LISTING_STATUS.LIVE,
                         timestamp: now,
                         reason: 'Expiry extended by admin',
                     },
@@ -514,7 +514,7 @@ export const adminSoftDeleteListing = async (
     const updated = await mutateStatus({
         domain: 'ad',
         entityId: id,
-        toStatus: AD_STATUS.DEACTIVATED,
+        toStatus: LISTING_STATUS.DEACTIVATED,
         actor: buildAdminActor(actorId),
         reason: 'Soft deleted by moderation',
         metadata: {
@@ -528,7 +528,7 @@ export const adminSoftDeleteListing = async (
             isChatLocked: true,
             $push: {
                 timeline: {
-                    status: AD_STATUS.DEACTIVATED,
+                    status: LISTING_STATUS.DEACTIVATED,
                     timestamp: new Date(),
                     reason: 'Soft deleted by moderation',
                 },
@@ -562,7 +562,7 @@ export const adminResolveListingReport = async (
         listingResult = await mutateStatus({
             domain: 'ad',
             entityId: id,
-            toStatus: AD_STATUS.REJECTED,
+            toStatus: LISTING_STATUS.REJECTED,
             actor: buildAdminActor(actorId),
             reason: note || 'Taken down from reports queue',
             metadata: {

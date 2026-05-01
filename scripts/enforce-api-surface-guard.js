@@ -9,8 +9,8 @@ const FORBIDDEN_PATTERNS = [
 ];
 
 const ROUTE_SCOPE = [
-  "backend/src/app.ts",
-  "backend/src/routes",
+  "user-backend/src/app.ts",
+  "user-backend/src/routes",
 ];
 
 function run(cmd) {

@@ -31,7 +31,7 @@ import ContactSubmission from '@core/models/ContactSubmission';
 import Location from '@core/models/Location';
 import LocationAnalytics from '@core/models/LocationAnalytics';
 import AdminLog from '@core/models/AdminLog';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
 import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
 import { CATALOG_STATUS } from '@core/constants/enums/catalogStatus';
@@ -57,14 +57,14 @@ export const getDashboardOverviewStats = async (publicAdFilter: Record<string, u
                 $facet: {
                     totalAds:        [{ $match: { listingType: LISTING_TYPE.AD } }, { $count: "count" }],
                     activeAds:       [{ $match: { listingType: LISTING_TYPE.AD,      ...publicAdFilter } }, { $count: "count" }],
-                    pendingAds:      [{ $match: { listingType: LISTING_TYPE.AD,      status: AD_STATUS.PENDING } }, { $count: "count" }],
+                    pendingAds:      [{ $match: { listingType: LISTING_TYPE.AD,      status: LISTING_STATUS.PENDING } }, { $count: "count" }],
                     totalServices:    [{ $match: { listingType: LISTING_TYPE.SERVICE } }, { $count: "count" }],
                     activeServices:   [{ $match: { listingType: LISTING_TYPE.SERVICE, ...publicAdFilter } }, { $count: "count" }],
-                    pendingServices:  [{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.PENDING } }, { $count: "count" }],
-                    rejectedServices: [{ $match: { listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.REJECTED } }, { $count: "count" }],
+                    pendingServices:  [{ $match: { listingType: LISTING_TYPE.SERVICE, status: LISTING_STATUS.PENDING } }, { $count: "count" }],
+                    rejectedServices: [{ $match: { listingType: LISTING_TYPE.SERVICE, status: LISTING_STATUS.REJECTED } }, { $count: "count" }],
                     totalSpareParts:  [{ $match: { listingType: LISTING_TYPE.SPARE_PART } }, { $count: "count" }],
                     activeSpareParts: [{ $match: { listingType: LISTING_TYPE.SPARE_PART, ...publicAdFilter } }, { $count: "count" }],
-                    pendingSpareParts:[{ $match: { listingType: LISTING_TYPE.SPARE_PART, status: AD_STATUS.PENDING } }, { $count: "count" }]
+                    pendingSpareParts:[{ $match: { listingType: LISTING_TYPE.SPARE_PART, status: LISTING_STATUS.PENDING } }, { $count: "count" }]
                 }
             }
         ]),
@@ -89,7 +89,7 @@ export const getDashboardCardStats = async (publicAdFilter: Record<string, unkno
             {
                 $facet: {
                     live:    [{ $match: { listingType: LISTING_TYPE.AD, ...publicAdFilter } }, { $count: "count" }],
-                    pending: [{ $match: { listingType: LISTING_TYPE.AD, status: AD_STATUS.PENDING } }, { $count: "count" }]
+                    pending: [{ $match: { listingType: LISTING_TYPE.AD, status: LISTING_STATUS.PENDING } }, { $count: "count" }]
                 }
             }
         ]),
@@ -154,12 +154,12 @@ export const getLocationAnalyticsRawData = async (params: {
         topHotZonesRaw
     ] = await Promise.all([
         Location.countDocuments(buildScopedLocationQuery()),
-        Ad.countDocuments(buildScopedAdQuery({ status: AD_STATUS.LIVE })),
+        Ad.countDocuments(buildScopedAdQuery({ status: LISTING_STATUS.LIVE })),
         User.countDocuments(buildScopedUserQuery({ status: USER_STATUS.LIVE })),
         Ad.aggregate<AdsByLocationResult>([
             {
                 $match: {
-                    ...buildScopedAdQuery({ status: AD_STATUS.LIVE }),
+                    ...buildScopedAdQuery({ status: LISTING_STATUS.LIVE }),
                     'location.locationId': { $exists: true, $ne: null },
                 }
             },

@@ -1,4 +1,4 @@
-import { AD_STATUS } from "@shared/enums/adStatus";
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { ACTOR_TYPE } from "@shared/enums/actor";
 import { enforceLifecycleMutationPolicy } from '@core/services/LifecyclePolicyGuard';
 
@@ -7,8 +7,8 @@ describe('LifecyclePolicyGuard repost invariants', () => {
         expect(() =>
             enforceLifecycleMutationPolicy({
                 domain: 'ad',
-                fromStatus: AD_STATUS.EXPIRED,
-                toStatus: AD_STATUS.LIVE,
+                fromStatus: LISTING_STATUS.EXPIRED,
+                toStatus: LISTING_STATUS.LIVE,
                 actor: { type: ACTOR_TYPE.USER, id: 'u1' },
                 metadata: { action: 'repost' },
             })
@@ -19,8 +19,8 @@ describe('LifecyclePolicyGuard repost invariants', () => {
         expect(() =>
             enforceLifecycleMutationPolicy({
                 domain: 'ad',
-                fromStatus: AD_STATUS.EXPIRED,
-                toStatus: AD_STATUS.PENDING,
+                fromStatus: LISTING_STATUS.EXPIRED,
+                toStatus: LISTING_STATUS.PENDING,
                 actor: { type: ACTOR_TYPE.USER, id: 'u1' },
                 metadata: { action: 'repost' },
             })

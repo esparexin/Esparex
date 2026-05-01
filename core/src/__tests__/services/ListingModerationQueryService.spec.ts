@@ -7,7 +7,7 @@ jest.mock('@core/models/Ad', () => ({
 }));
 
 import Ad from '@core/models/Ad';
-import { AD_STATUS } from "@shared/enums/adStatus";
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { getModerationCounts, MODERATION_STATUSES } from '@core/services/ListingModerationQueryService';
 import { HIDDEN_MODERATION_STATUSES } from '@core/utils/FeedVisibilityGuard';
 import { getLiveStatusCriteria } from '@core/utils/statusQueryMapper';
@@ -29,9 +29,9 @@ describe('getModerationCounts', () => {
                 { _id: 'service', count: 2 },
             ])
             .mockResolvedValueOnce([
-                { _id: { listingType: 'ad', status: AD_STATUS.LIVE }, count: 10 },
-                { _id: { listingType: 'ad', status: AD_STATUS.PENDING }, count: 3 },
-                { _id: { listingType: 'service', status: AD_STATUS.LIVE }, count: 4 },
+                { _id: { listingType: 'ad', status: LISTING_STATUS.LIVE }, count: 10 },
+                { _id: { listingType: 'ad', status: LISTING_STATUS.PENDING }, count: 3 },
+                { _id: { listingType: 'service', status: LISTING_STATUS.LIVE }, count: 4 },
             ]);
         mockedAdModel.countDocuments.mockResolvedValueOnce(5);
 
@@ -83,8 +83,8 @@ describe('getModerationCounts', () => {
                 { _id: 'service', count: 3 }
             ])
             .mockResolvedValueOnce([
-                { _id: { listingType: 'service', status: AD_STATUS.PENDING }, count: 4 },
-                { _id: { listingType: 'service', status: AD_STATUS.LIVE }, count: 6 },
+                { _id: { listingType: 'service', status: LISTING_STATUS.PENDING }, count: 4 },
+                { _id: { listingType: 'service', status: LISTING_STATUS.LIVE }, count: 6 },
             ]);
         mockedAdModel.countDocuments.mockResolvedValueOnce(2);
 

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { AppError } from '@core/utils/AppError';
 import Ad from '@core/models/Ad';
 import User from '@core/models/User';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
 import { getSystemConfigForRead } from '../SystemConfigService';
 import logger from '@core/utils/logger';
@@ -52,7 +52,7 @@ export const validateSellerTypeThreshold = async (
         const activeCount = await Ad.countDocuments({
             sellerId: new mongoose.Types.ObjectId(sellerId),
             listingType: LISTING_TYPE.SPARE_PART,
-            status: { $in: [AD_STATUS.LIVE, 'pending'] },
+            status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
             isDeleted: false
         });
 

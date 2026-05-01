@@ -2,8 +2,11 @@ import { type AnyBulkWriteOperation } from 'mongoose';
 import Ad, { type IAd } from '@core/models/Ad';
 import logger from '@core/utils/logger';
 import { computeListingQualityScore } from '@core/utils/adQualityScorer';
+import { LISTING_STATUS } from '@core/constants/enums/listingStatus';
 
 type BackfillAd = Pick<IAd, '_id' | 'title' | 'description' | 'images' | 'brandId' | 'price' | 'location'>;
+
+import { LIFECYCLE_STATUS, type LifecycleStatus } from '@core/constants/enums/lifecycle';
 
 /**
  * Lazy Quality Score Backfill Worker
@@ -16,7 +19,7 @@ export const runQualityScoreBackfill = async (): Promise<void> => {
     try {
         // Query condition: status is live/pending, and listingQualityScore is missing or 0
         const query = {
-            status: { $in: ['live', 'pending'] },
+            status: { $in: [LIFECYCLE_STATUS.LIVE, LIFECYCLE_STATUS.PENDING] as LifecycleStatus[] },
             $or: [
                 { listingQualityScore: { $exists: false } },
                 { listingQualityScore: null },

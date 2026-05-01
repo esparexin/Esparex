@@ -3,7 +3,7 @@ import User from '@core/models/User';
 import Ad from '@core/models/Ad';
 import Business from '@core/models/Business';
 import logger from '@core/utils/logger';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
 
 /**
@@ -86,7 +86,7 @@ export const recalculateTrustScore = async (userId: string | mongoose.Types.Obje
 
             // 8. 🚀 Synchronize Snapshot to Ad Collection for Pre-calculated Search Performance
             await Ad.updateMany(
-                { sellerId: user._id, status: AD_STATUS.LIVE },
+                { sellerId: user._id, status: LISTING_STATUS.LIVE },
                 { $set: { sellerTrustSnapshot: finalScore } }
             );
             logger.info(`Score Engine: Synced trust snapshot [${finalScore}] to active ads for User ${String(userId)}`);

@@ -1,0 +1,19 @@
+{
+	"appId": "in.esparex.app",
+	"appName": "Esparex",
+	"webDir": "capacitor-shell",
+	"server": {
+		"url": "https://esparex.in",
+		"cleartext": false
+	},
+	"plugins": {
+		"CapacitorCookies": {
+			"enabled": true
+		},
+		"Keyboard": {
+			"resize": "body",
+			"style": "default",
+			"resizeOnFullScreen": true
+		}
+	}
+}

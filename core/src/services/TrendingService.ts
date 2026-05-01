@@ -3,7 +3,7 @@ import Ad from '@core/models/Ad';
 import AdAnalytics from '@core/models/AdAnalytics';
 import Category from '@core/models/Category';
 import { getCache, setCache } from '@core/utils/redisCache';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import logger from '@core/utils/logger';
 import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';
 import { toObjectId } from '@core/utils/idUtils';
@@ -103,7 +103,7 @@ const resolveCategoryId = async (category?: string, categoryId?: string): Promis
 
 const buildAggregateAdMatch = async (input: TrendingInput): Promise<Record<string, unknown>> => {
     const match: Record<string, unknown> = {
-        'ad.status': AD_STATUS.LIVE,
+        'ad.status': LISTING_STATUS.LIVE,
         'ad.isDeleted': { $ne: true },
         'ad.listingType': LISTING_TYPE.AD,
     };
@@ -126,7 +126,7 @@ const buildAggregateAdMatch = async (input: TrendingInput): Promise<Record<strin
 
 const buildDirectAdMatch = async (input: TrendingInput): Promise<Record<string, unknown>> => {
     const match: Record<string, unknown> = {
-        status: AD_STATUS.LIVE,
+        status: LISTING_STATUS.LIVE,
         isDeleted: { $ne: true },
         listingType: LISTING_TYPE.AD,
     };
@@ -164,7 +164,7 @@ export const recordAdAnalyticsEvent = async (
             .select('_id createdAt status isDeleted')
             .lean<{ _id: mongoose.Types.ObjectId; createdAt: Date; status: string; isDeleted?: boolean } | null>();
 
-        if (!ad || ad.isDeleted || ad.status !== AD_STATUS.LIVE) return;
+        if (!ad || ad.isDeleted || ad.status !== LISTING_STATUS.LIVE) return;
 
         const snapshot = await AdAnalytics.findOneAndUpdate(
             { adId: objectId },

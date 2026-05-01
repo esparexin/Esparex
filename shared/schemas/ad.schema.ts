@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { coordinatesSchema } from "./coordinates.schema";
 import { LISTING_TYPE_VALUES } from "../enums/listingType";
-import { AD_DISPLAY_STATUS_VALUES } from "../enums/adStatus";
+import { LISTING_DISPLAY_STATUS_VALUES } from "../enums/listingStatus";
 
 export const AdSchema = z.object({
     id: z.string().or(z.number()).transform(String),
@@ -30,7 +30,7 @@ export const AdSchema = z.object({
         coordinates: coordinatesSchema.optional(),
     }).passthrough(),
     sellerId: z.string(), // Canonical Ownership Key (SSOT)
-    status: z.enum(AD_DISPLAY_STATUS_VALUES),
+    status: z.enum(LISTING_DISPLAY_STATUS_VALUES),
     sellerType: z.enum(['business', 'user']).optional(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }).optional(),

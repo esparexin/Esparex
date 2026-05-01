@@ -3,7 +3,7 @@ import Ad from '@core/models/Ad';
 import { GOVERNANCE, MS_IN_DAY } from '@core/config/constants';
 import { publishedBusinessStatusQuery } from '@core/utils/businessStatus';
 import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
 import { ACTOR_TYPE, type ActorMetadata } from '@core/constants/enums/actor';
 import { serializeBusinessForAdmin } from '@core/utils/businessSerializer';
@@ -124,7 +124,7 @@ export const cascadeExpireBusinessListings = async (
         id: actor.id,
     };
 
-    const listings = await Ad.find({ businessId: normalizedBusinessId, status: { $ne: AD_STATUS.EXPIRED } }).select('_id listingType');
+    const listings = await Ad.find({ businessId: normalizedBusinessId, status: { $ne: LISTING_STATUS.EXPIRED } }).select('_id listingType');
     if (listings.length > 0) {
         await mutateStatuses(listings.map((l) => ({
             domain: (l.listingType === LISTING_TYPE.SERVICE
@@ -133,7 +133,7 @@ export const cascadeExpireBusinessListings = async (
                     ? 'spare_part_listing'
                     : LISTING_TYPE.AD) as ValidDomain,
             entityId: l._id.toString(),
-            toStatus: AD_STATUS.EXPIRED,
+            toStatus: LISTING_STATUS.EXPIRED,
             actor: normalizedActor,
             reason,
         })));

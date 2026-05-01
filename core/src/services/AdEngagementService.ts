@@ -10,7 +10,7 @@ import Ad, { type IAd } from '@core/models/Ad';
 import logger from '@core/utils/logger';
 import { touchLocationAnalytics } from './location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from './TrendingService';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 
 // ─────────────────────────────────────────────────
 // VIEW TRACKING
@@ -66,6 +66,41 @@ export const incrementAdView = async (
  */
 export const incrementAdViewByFilter = async (filter: Record<string, unknown>) =>
     Ad.findOneAndUpdate(filter, { $inc: { 'views.total': 1 } });
+
+/**
+ * Enterprise view increment with unique tracking support.
+ * Updates both total and unique view counters.
+ */
+export const incrementAdViewWithUniqueness = async (
+    filter: Record<string, unknown>,
+    isUnique: boolean
+): Promise<void> => {
+    try {
+        const update: Record<string, unknown> = { 
+            $inc: { 'views.total': 1 },
+            $set: { 'views.lastViewedAt': new Date() }
+        };
+        
+        if (isUnique) {
+            (update.$inc as Record<string, number>)['views.unique'] = 1;
+        }
+
+        const result = await Ad.findOneAndUpdate(filter, update, { new: true }).select('_id location views').lean();
+        
+        if (result) {
+            const adId = result._id;
+            const locationId = result.location?.locationId?.toString?.();
+            
+            if (locationId) {
+                void touchLocationAnalytics(locationId, 'ad_view', 1).catch(() => {});
+            }
+            
+            void recordAdAnalyticsEvent(adId, 'view');
+        }
+    } catch (error) {
+        logger.error('Failed to increment unique ad view', { filter, error });
+    }
+};
 
 
 // ─────────────────────────────────────────────────
@@ -136,7 +171,7 @@ export const getSellerAdStats = async (
 
         const totalViews = ads.reduce((sum, ad) => sum + (ad.views?.total || 0), 0);
 
-        const activeAds = ads.filter(ad => ad.status === AD_STATUS.LIVE).length;
+        const activeAds = ads.filter(ad => ad.status === LISTING_STATUS.LIVE).length;
 
         return {
             totalViews,

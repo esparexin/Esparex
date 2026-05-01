@@ -3,7 +3,7 @@ import {
     Ad,
     Business,
     Report,
-    AD_STATUS,
+    LISTING_STATUS,
     isBusinessPublishedStatus
 } from './_shared/adServiceBase';
 import type { PaginationOptions } from './_shared/adServiceBase';
@@ -233,7 +233,7 @@ export const getReportedAdsAggregation = async (filters: { status?: string, reas
         }] : []),
         {
             $addFields: {
-                isAutoHidden: { $eq: ['$adDetails.moderationStatus', AD_STATUS.REJECTED] }
+                isAutoHidden: { $eq: ['$adDetails.moderationStatus', LISTING_STATUS.REJECTED] }
             }
         },
         {
@@ -298,7 +298,7 @@ export const getAdSuggestions = async (q: string, limit = 10): Promise<string[]>
     const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(escaped, 'i');
     const docs = await Ad.find(
-        { title: regex, status: AD_STATUS.LIVE, isDeleted: { $ne: true } },
+        { title: regex, status: LISTING_STATUS.LIVE, isDeleted: { $ne: true } },
         { title: 1 }
     ).limit(limit).lean();
     return Array.from(new Set(docs.map((d) => d.title).filter(Boolean)));
@@ -319,12 +319,12 @@ export const getAdsByStatus = async (
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
-        Ad.find({ status, isDeleted: { $ne: true } })
+        Ad.find({ status: status as any, isDeleted: { $ne: true } })
             .sort({ createdAt: 1 })
             .skip(skip)
             .limit(limit)
             .lean(),
-        Ad.countDocuments({ status, isDeleted: { $ne: true } })
+        Ad.countDocuments({ status: status as any, isDeleted: { $ne: true } })
     ]);
     return { data: data as unknown as Record<string, unknown>[], total };
 };

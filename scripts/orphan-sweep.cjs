@@ -5,21 +5,21 @@ const path = require('path');
 
 const ROOT = process.cwd();
 const SCAN_DIRS = [
-  'backend/src',
+  'user-backend/src',
   'admin-backend/src',
-  'frontend/src',
+  'user-frontend/src',
   'admin-frontend/src',
   'core/src',
   'shared'
 ];
 const PACKAGE_MANIFESTS = [
   { manifest: 'package.json', root: '' },
-  { manifest: 'backend/package.json', root: 'backend' },
-  { manifest: 'frontend/package.json', root: 'frontend' },
+  { manifest: 'user-backend/package.json', root: 'user-backend' },
+  { manifest: 'user-frontend/package.json', root: 'user-frontend' },
   { manifest: 'admin-frontend/package.json', root: 'admin-frontend' },
   { manifest: 'core/package.json', root: 'core' }
 ];
-const SCRIPT_ENTRY_PATTERN = /((?:\.\.\/)?(?:backend\/src|frontend\/src|admin-frontend\/src|shared|src)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs))/g;
+const SCRIPT_ENTRY_PATTERN = /((?:\.\.\/)?(?:user-backend\/src|user-frontend\/src|admin-frontend\/src|shared|src)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs))/g;
 const VALID_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
 const SOURCE_ENTRY_PATTERNS = [
   /[\\/]app[\\/](?:.*[\\/])?(page|layout|route|loading|error|global-error|not-found|template|sitemap|robots)\.(ts|tsx|js|jsx)$/,
@@ -37,11 +37,11 @@ const ALWAYS_KEEP_PATTERNS = [
   /^core\/src\/config\/loadEnv\.ts$/,
   /^core\/src\/config\/mongoosePlugins\.ts$/,
   /^core\/src\/models\/registry\.ts$/,
-  /^backend\/src\/scripts\/restore-database\.ts$/,
-  /^backend\/src\/seeds\/(devices\.seed|runSeeds|spareParts\.seed)\.ts$/,
-  /^backend\/src\/tests\//,
-  /^backend\/src\/__tests__\//,
-  /^frontend\/src\/__tests__\//
+  /^user-backend\/src\/scripts\/restore-database\.ts$/,
+  /^user-backend\/src\/seeds\/(devices\.seed|runSeeds|spareParts\.seed)\.ts$/,
+  /^user-backend\/src\/tests\//,
+  /^user-backend\/src\/__tests__\//,
+  /^user-frontend\/src\/__tests__\//
 ];
 const IMPORT_PATTERNS = [
   /\bimport\s+(?:type\s+)?[^'"]*?from\s*['"]([^'"]+)['"]/g,
@@ -116,7 +116,7 @@ const resolveWithExtensions = (basePath) => {
 const resolveAlias = (specifier, importer) => {
   if (specifier.startsWith('@/')) {
     const isAdminImporter = importer.startsWith('admin-frontend/src/');
-    const base = isAdminImporter ? 'admin-frontend/src' : 'frontend/src';
+    const base = isAdminImporter ? 'admin-frontend/src' : 'user-frontend/src';
     return resolveWithExtensions(path.join(ROOT, base, specifier.slice(2)));
   }
   if (specifier === '@shared') {
@@ -222,9 +222,9 @@ const collectPackageScriptRoots = (files) => {
 
 const isRootFile = (filePath) => {
   if (filePath.includes('/server.ts') || filePath.includes('/app.ts') || filePath.includes('/index.ts')) return true;
-  if (filePath === 'backend/src/workers/index.ts' || filePath === 'backend/src/workers.ts') return true;
+  if (filePath === 'user-backend/src/workers/index.ts' || filePath === 'user-backend/src/workers.ts') return true;
   if (filePath.endsWith('/routes.ts') || filePath.endsWith('.routes.ts')) return true;
-  if (filePath.startsWith('frontend/src/app/') || filePath.startsWith('admin-frontend/src/app/')) {
+  if (filePath.startsWith('user-frontend/src/app/') || filePath.startsWith('admin-frontend/src/app/')) {
     return SOURCE_ENTRY_PATTERNS.some((pattern) => pattern.test(filePath));
   }
   return ALWAYS_KEEP_PATTERNS.some((pattern) => pattern.test(filePath));
@@ -266,7 +266,7 @@ const classifyTier = (filePath) => {
   if (filePath.includes('/scripts/debug-')) return 'B';
   if (filePath.includes('/scripts/seed-')) return 'B';
   
-  if (/^frontend\/src\/(api|context)\//.test(filePath)) return 'B';
+  if (/^user-frontend\/src\/(api|context)\//.test(filePath)) return 'B';
   if (/^admin-frontend\/src\/(lib\/api|context)\//.test(filePath)) return 'B';
   
   return 'C';

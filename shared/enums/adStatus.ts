@@ -1,11 +1,12 @@
-import { LIFECYCLE_STATUS, type LifecycleStatus } from './lifecycle';
+import { LISTING_STATUS, type ListingStatus } from './listingStatus';
 
 /**
- * Ad Status Enum — Unified Reference
+ * @deprecated Use LISTING_STATUS from ./listingStatus instead.
+ * Legacy Ad Status Enum — Unified Reference
  */
-export const AD_STATUS = LIFECYCLE_STATUS;
+export const AD_STATUS = LISTING_STATUS;
 
-export type AdStatusValue = LifecycleStatus;
+export type AdStatusValue = ListingStatus;
 
 /** Tuple of all lifecycle status values (includes admin-only: deleted, suspended, banned, inactive) */
 export const AD_STATUS_VALUES = Object.values(AD_STATUS) as [AdStatusValue, ...AdStatusValue[]];
@@ -16,12 +17,12 @@ export const AD_STATUS_VALUES = Object.values(AD_STATUS) as [AdStatusValue, ...A
  * Excludes admin-only lifecycle states (deleted, suspended, banned, inactive).
  */
 export const AD_DISPLAY_STATUSES = [
-    LIFECYCLE_STATUS.LIVE,
-    LIFECYCLE_STATUS.PENDING,
-    LIFECYCLE_STATUS.SOLD,
-    LIFECYCLE_STATUS.EXPIRED,
-    LIFECYCLE_STATUS.REJECTED,
-    LIFECYCLE_STATUS.DEACTIVATED,
+    LISTING_STATUS.LIVE,
+    LISTING_STATUS.PENDING,
+    LISTING_STATUS.SOLD,
+    LISTING_STATUS.EXPIRED,
+    LISTING_STATUS.REJECTED,
+    LISTING_STATUS.DEACTIVATED,
 ] as const;
 
 export type AdDisplayStatus = typeof AD_DISPLAY_STATUSES[number];

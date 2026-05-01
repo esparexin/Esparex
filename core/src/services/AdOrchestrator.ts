@@ -10,11 +10,11 @@ import { analyzeFraudRisk, FraudContext } from './FraudDetectionService';
 import { AdCreationService } from './AdCreationService';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { mutateStatus } from './StatusMutationService';
-import { computeActiveExpiry } from './adStatusService';
+import { computeActiveExpiry } from './AdStatusService';
 import { enqueueImageOptimization } from '@core/queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import type { AdContext } from '@core/types/ad.types';
 
 export interface AdOrchestrationContext {
@@ -142,12 +142,12 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             // 7. Persistence
             const shouldAutoApprove = context.actor === 'ADMIN' && payload.moderationStatus !== 'held_for_review';
             if (shouldAutoApprove) {
-                payload.status = AD_STATUS.PENDING;
+                payload.status = LISTING_STATUS.PENDING;
                 payload.moderationStatus = 'held_for_review';
                 payload.expiresAt = undefined;
             }
 
-            const ads = await Ad.create([payload], { session });
+            const ads = await Ad.create([payload] as any, { session });
             if (ads && ads.length > 0) {
                 createdAd = ads[0] as unknown as IAd;
             }
@@ -158,7 +158,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 await mutateStatus({
                     domain: 'ad',
                     entityId: (createdAd as IAd & { _id: mongoose.Types.ObjectId })._id.toString(),
-                    toStatus: AD_STATUS.LIVE,
+                    toStatus: LISTING_STATUS.LIVE,
                     actor: {
                         type: 'admin',
                         id: context.authUserId,
@@ -178,7 +178,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                         rejectionReason: undefined,
                         $push: {
                             timeline: {
-                                status: AD_STATUS.LIVE,
+                                status: LISTING_STATUS.LIVE,
                                 timestamp: approvedAt,
                                 reason: 'Approved during admin create flow',
                             },

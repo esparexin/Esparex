@@ -7,7 +7,7 @@ import { User } from '@core/models/User';
 import { escapeRegExp } from '@core/utils/stringUtils';
 import {
     CHAT_CLOSED_STATUSES,
-} from '../chatAvailabilityService';
+} from '../ChatAvailabilityService';
 import {
     PopulatedConv,
     AdminConvSummary,
@@ -27,7 +27,7 @@ export async function adminListConversations(
     if (filter === 'closed') {
         const closedAdIds = await Ad.distinct('_id', {
             $or: [
-                { status: { $in: [...CHAT_CLOSED_STATUSES] } },
+                { status: { $in: Array.from(CHAT_CLOSED_STATUSES) as any } },
                 { isDeleted: true },
                 { isChatLocked: true },
             ],

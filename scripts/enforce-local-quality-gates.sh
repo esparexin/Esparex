@@ -3,22 +3,22 @@ set -euo pipefail
 
 echo "[governance] Running mandatory local quality gates..."
 
-echo "[governance] backend lint"
-npm --workspace backend run lint
+echo "[governance] user-backend lint"
+npm --workspace user-backend run lint
 
-echo "[governance] backend typecheck"
-npm --workspace backend run typecheck
+echo "[governance] user-backend typecheck"
+npm --workspace user-backend run typecheck
 
-echo "[governance] backend build"
-npm --workspace backend run build
+echo "[governance] user-backend build"
+npm --workspace user-backend run build
 
-echo "[governance] frontend lint"
-npm --workspace frontend run lint
+echo "[governance] user-frontend lint"
+npm --workspace user-frontend run lint
 
-echo "[governance] frontend typecheck"
-npm --workspace frontend run typecheck
+echo "[governance] user-frontend typecheck"
+npm --workspace user-frontend run typecheck
 
-echo "[governance] frontend build"
-npm --workspace frontend run build
+echo "[governance] user-frontend build"
+npm --workspace user-frontend run build
 
 echo "[governance] Quality gates passed."

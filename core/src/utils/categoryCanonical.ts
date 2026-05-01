@@ -7,10 +7,12 @@ type CategoryLite = {
     name?: string;
 };
 
+import { CATALOG_STATUS, type CatalogStatusValue } from '@core/constants/enums/catalogStatus';
+
 const ACTIVE_CATEGORY_QUERY = {
     isActive: true,
     isDeleted: { $ne: true },
-    status: 'live'
+    status: CATALOG_STATUS.LIVE as CatalogStatusValue
 };
 
 const CACHE_TTL_MS = 60 * 1000;

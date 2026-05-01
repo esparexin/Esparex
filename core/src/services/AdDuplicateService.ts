@@ -2,7 +2,7 @@ import mongoose, { ClientSession } from 'mongoose';
 import { createHash } from 'crypto';
 import Ad from '@core/models/Ad';
 import DuplicateEvent from '@core/models/DuplicateEvent';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import logger from '@core/utils/logger';
 
 // ─────────────────────────────────────────────────
@@ -149,7 +149,7 @@ export const findExistingSelfDuplicate = async (
 
     const query: Record<string, unknown> = {
         sellerId: new mongoose.Types.ObjectId(sellerId),
-        status: { $in: [AD_STATUS.LIVE, 'pending'] },
+        status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
         isDeleted: { $ne: true },
         categoryId: new mongoose.Types.ObjectId(categoryId),
         'location.locationId': new mongoose.Types.ObjectId(locationId),
@@ -192,7 +192,7 @@ export const assessCrossUserDuplicateRisk = async (
         categoryId: new mongoose.Types.ObjectId(categoryId),
         'location.locationId': new mongoose.Types.ObjectId(locationId),
         price: priceRange,
-        status: { $in: [AD_STATUS.LIVE, 'pending'] },
+        status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
         sellerId: { $ne: new mongoose.Types.ObjectId(sellerId) },
         ...(payloadImageHashes.length > 0 ? { imageHashes: { $in: payloadImageHashes } } : {}),
     })
@@ -284,7 +284,7 @@ export class AdDuplicateService {
         if (fingerprint) {
             const fingerprintMatch = await Ad.findOne({
                 duplicateFingerprint: fingerprint,
-                status: { $in: [AD_STATUS.LIVE, AD_STATUS.PENDING] }
+                status: { $in: [LISTING_STATUS.LIVE, LISTING_STATUS.PENDING] }
             }).session(session as ClientSession).select('_id').lean<{ _id: mongoose.Types.ObjectId } | null>();
             
             if (fingerprintMatch) {

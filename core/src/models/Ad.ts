@@ -1,13 +1,14 @@
 import { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
 import softDeletePlugin, { ISoftDeleteDocument } from '@core/utils/softDeletePlugin';
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared';
-import { AD_STATUS, AD_STATUS_VALUES, AdStatusValue } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS, LISTING_STATUS_VALUES } from '@core/constants/enums/listingStatus';
+import { type AdStatusValue } from '@core/constants/enums/adStatus';
 import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@core/constants/enums/listingType';
 import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@core/constants/enums/moderationStatus';
 import { getUserConnection } from '@core/config/db';
 import Location from './Location';
 import logger from '@core/utils/logger';
-import { syncConversationAvailabilityForListing } from '@core/services/chatAvailabilityService';
+import { syncConversationAvailabilityForListing } from '@core/services/ChatAvailabilityService';
 import { generateUniqueSlug } from '@core/utils/slugGenerator';
 
 export interface IAd extends Document, ISoftDeleteDocument {
@@ -132,8 +133,8 @@ const AdSchema: Schema = new Schema({
     sellerType: { type: String, enum: ['user', 'business'], default: 'user' },
     status: {
         type: String,
-        enum: AD_STATUS_VALUES,
-        default: AD_STATUS.PENDING
+        enum: LISTING_STATUS_VALUES,
+        default: LISTING_STATUS.PENDING
     },
     rejectionReason: { type: String },
     duplicateFingerprint: { type: String },
@@ -212,7 +213,7 @@ const AdSchema: Schema = new Schema({
     approvedAt: { type: Date },
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     timeline: [{
-        status: { type: String, enum: [...AD_STATUS_VALUES, 'deleted', 'restored', 'spotlight_expired'], required: true },
+        status: { type: String, enum: [...LISTING_STATUS_VALUES, 'deleted', 'restored', 'spotlight_expired'], required: true },
         timestamp: { type: Date, required: true },
         reason: { type: String }
     }],
@@ -295,7 +296,7 @@ AdSchema.index(
     { status: 1, isDeleted: 1, expiresAt: 1, createdAt: -1 },
     {
         name: 'ad_public_visibility_createdAt_idx',
-        partialFilterExpression: { status: AD_STATUS.LIVE, isDeleted: false }
+        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
     }
 );
 
@@ -304,7 +305,7 @@ AdSchema.index(
     { status: 1, isSpotlight: 1, createdAt: -1 },
     { 
         name: 'ad_spotlight_live_createdAt_minus1_partial',
-        partialFilterExpression: { status: AD_STATUS.LIVE } 
+        partialFilterExpression: { status: LISTING_STATUS.LIVE } 
     }
 );
 
@@ -345,7 +346,7 @@ AdSchema.index(
     { 'location.state': 1, status: 1, createdAt: -1 },
     {
         name: 'ad_state_status_freshness_idx',
-        partialFilterExpression: { status: AD_STATUS.LIVE, isDeleted: false }
+        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
     }
 );
 
@@ -354,7 +355,7 @@ AdSchema.index(
     { 'location.city': 1, status: 1, createdAt: -1 },
     {
         name: 'ad_city_status_freshness_idx',
-        partialFilterExpression: { status: AD_STATUS.LIVE, isDeleted: false }
+        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
     }
 );
 
@@ -366,7 +367,7 @@ AdSchema.index(
     { categoryId: 1, status: 1, createdAt: -1 },
     { 
         name: 'ad_category_listing_search_idx',
-        partialFilterExpression: { status: AD_STATUS.LIVE, isDeleted: false }
+        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
     }
 );
 
@@ -385,7 +386,7 @@ AdSchema.index(
         name: 'ad_duplicateFingerprint_unique_partial',
         unique: true,
         partialFilterExpression: {
-            status: { $in: [AD_STATUS.LIVE, AD_STATUS.PENDING] },
+            status: { $in: [LISTING_STATUS.LIVE, LISTING_STATUS.PENDING] },
             duplicateFingerprint: { $exists: true },
             isDeleted: false
         }

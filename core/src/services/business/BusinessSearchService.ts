@@ -4,7 +4,7 @@ import Ad from '@core/models/Ad';
 import { normalizeLocationResponse } from "@core/services/location/LocationNormalizer";
 import { serializeDoc } from '@core/utils/serialize';
 import { publishedBusinessStatusQuery } from '@core/utils/businessStatus';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
 
 type BusinessCandidate = {
@@ -126,7 +126,7 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
     const baseServiceMatch: Record<string, unknown> = {
         businessId: { $in: candidateIds },
         listingType: LISTING_TYPE.SERVICE,
-        status: AD_STATUS.LIVE,
+        status: LISTING_STATUS.LIVE,
         isDeleted: { $ne: true }
     };
 

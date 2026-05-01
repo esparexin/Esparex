@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { SERVICE_STATUS } from '@core/constants/enums/serviceStatus';
 import { ACTOR_TYPE } from '@core/constants/enums/actor';
 import { resolveCategoryId } from "@shared/utils/resolveCategoryId";
@@ -418,7 +418,7 @@ export const updateServiceMutation = async ({
     );
 
     const prevStatus = existingService.status;
-    if (prevStatus === AD_STATUS.LIVE || prevStatus === SERVICE_STATUS.REJECTED) {
+    if (prevStatus === LISTING_STATUS.LIVE || prevStatus === SERVICE_STATUS.REJECTED) {
         try {
             return await mutateStatus({
                 domain: 'service',

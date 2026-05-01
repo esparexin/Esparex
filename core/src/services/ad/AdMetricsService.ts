@@ -2,7 +2,7 @@ import {
     mongoose,
     Ad,
     normalizeAdStatus,
-    AD_STATUS,
+    LISTING_STATUS,
     FeatureFlag,
     isEnabled,
     recordListingTypeCompatMetric,
@@ -20,7 +20,7 @@ export const getServiceAnalyticsStats = async () => {
     const [totalServices, pendingServices, activeServices] = await Promise.all([
         Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE }),
         Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: 'pending' }),
-        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: AD_STATUS.LIVE }),
+        Ad.countDocuments({ listingType: LISTING_TYPE.SERVICE, status: LISTING_STATUS.LIVE }),
     ]);
     return { totalServices, pendingServices, activeServices };
 };
@@ -49,12 +49,12 @@ export const getAdCounts = async (
     }
 
     const [live, pending, sold, rejected, expired, deactivated, total] = await Promise.all([
-        Ad.countDocuments({ ...query, status: AD_STATUS.LIVE }),
-        Ad.countDocuments({ ...query, status: AD_STATUS.PENDING }),
-        Ad.countDocuments({ ...query, status: AD_STATUS.SOLD }),
-        Ad.countDocuments({ ...query, status: AD_STATUS.REJECTED }),
-        Ad.countDocuments({ ...query, status: AD_STATUS.EXPIRED }),
-        Ad.countDocuments({ ...query, status: AD_STATUS.DEACTIVATED }),
+        Ad.countDocuments({ ...query, status: LISTING_STATUS.LIVE }),
+        Ad.countDocuments({ ...query, status: LISTING_STATUS.PENDING }),
+        Ad.countDocuments({ ...query, status: LISTING_STATUS.SOLD }),
+        Ad.countDocuments({ ...query, status: LISTING_STATUS.REJECTED }),
+        Ad.countDocuments({ ...query, status: LISTING_STATUS.EXPIRED }),
+        Ad.countDocuments({ ...query, status: LISTING_STATUS.DEACTIVATED }),
         Ad.countDocuments(query)
     ]);
 

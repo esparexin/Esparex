@@ -1,11 +1,13 @@
-import { LIFECYCLE_STATUS, type LifecycleStatus } from './lifecycle';
+import { LISTING_STATUS, type ListingStatus } from './listingStatus';
+import { LIFECYCLE_STATUS } from './lifecycle';
 
 /**
+ * @deprecated Use LISTING_STATUS from ./listingStatus instead.
  * Ad Status Enum — Unified Reference
  */
-export const AD_STATUS = LIFECYCLE_STATUS;
+export const AD_STATUS = LISTING_STATUS;
 
-export type AdStatusValue = LifecycleStatus;
+export type AdStatusValue = ListingStatus;
 
 /** Tuple of all lifecycle status values (includes admin-only: deleted, suspended, banned, inactive) */
 export const AD_STATUS_VALUES = Object.values(AD_STATUS) as [AdStatusValue, ...AdStatusValue[]];

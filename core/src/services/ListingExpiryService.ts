@@ -1,5 +1,5 @@
 import Ad from '@core/models/Ad';
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { ACTOR_TYPE } from '@core/constants/enums/actor';
 import { mutateStatusesBulk } from './StatusMutationService';
 import { lifecycleEvents } from '../events';
@@ -14,7 +14,7 @@ export type ListingExpirySweepResult = {
 export class ListingExpiryService {
     static async runSweep(now: Date = new Date()): Promise<ListingExpirySweepResult> {
         const expiringListings = await Ad.find({
-            status: AD_STATUS.LIVE,
+            status: LISTING_STATUS.LIVE,
             expiresAt: { $lte: now },
             isDeleted: { $ne: true },
         })
@@ -46,7 +46,7 @@ export class ListingExpiryService {
         const expiredCount = await mutateStatusesBulk(
             'ad',
             listingIds,
-            AD_STATUS.EXPIRED,
+            LISTING_STATUS.EXPIRED,
             { type: ACTOR_TYPE.SYSTEM, id: 'listing_expiry_cron' },
             'Automated expiry'
         );

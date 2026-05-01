@@ -3,7 +3,7 @@ import { Conversation } from '@core/models/Conversation';
 import Ad from '@core/models/Ad';
 import BlockedUser from '@core/models/BlockedUser';
 import logger from '@core/utils/logger';
-import { isListingChatClosed } from '../chatAvailabilityService';
+import { isListingChatClosed } from '../ChatAvailabilityService';
 import type { IConversationDTO } from "@shared/contracts/chat.contracts";
 import {
     PAGE_SIZE_INBOX,

@@ -1,4 +1,4 @@
-import { AD_STATUS } from '@core/constants/enums/adStatus';
+import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { ACTOR_TYPE, type ActorMetadata } from '@core/constants/enums/actor';
 
 type ListingDomain = 'ad' | 'service' | 'spare_part_listing';
@@ -38,14 +38,14 @@ export const enforceLifecycleMutationPolicy = (input: LifecycleMutationPolicyInp
 
     if (
         action === 'repost'
-        && toLower(input.fromStatus) === AD_STATUS.EXPIRED
-        && toLower(input.toStatus) === AD_STATUS.LIVE
+        && toLower(input.fromStatus) === LISTING_STATUS.EXPIRED
+        && toLower(input.toStatus) === LISTING_STATUS.LIVE
     ) {
         throw toPolicyError('Repost from expired must transition to pending first.', 'REPOST_LIVE_FORBIDDEN', 400);
     }
 
     if (!isListingDomain(input.domain)) return;
-    if (toLower(input.toStatus) !== AD_STATUS.LIVE) return;
+    if (toLower(input.toStatus) !== LISTING_STATUS.LIVE) return;
 
     if (action !== 'moderation_approve') {
         throw toPolicyError('Live transition must be initiated by moderation approval.', 'LIVE_TRANSITION_REQUIRES_APPROVAL_ACTION', 400);

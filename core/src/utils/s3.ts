@@ -217,7 +217,7 @@ export function isValidPersistedImageUrl(url: string): boolean {
         const parsed = new URL(trimmed);
         const host = parsed.hostname.toLowerCase();
 
-        const isWhitelistedRemotePattern = imageDomainRegistry.nextRemotePatterns.some(pattern => {
+        const isWhitelistedRemotePattern = imageDomainRegistry.nextRemotePatterns.some((pattern: { hostname: string }) => {
             const patternHost = pattern.hostname.toLowerCase();
             if (patternHost === host) return true;
             if (patternHost.startsWith('**.')) {
