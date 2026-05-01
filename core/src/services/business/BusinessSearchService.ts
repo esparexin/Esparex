@@ -184,7 +184,7 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
                     : undefined;
 
             return {
-                ...serialized,
+                ...(serialized as any),
                 activeServicesCount,
                 matchingServicesCount,
                 brandMatchedServicesCount,
