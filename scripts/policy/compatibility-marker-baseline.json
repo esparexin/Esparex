@@ -134,5 +134,7 @@
   "shared/types/Service.ts": 1,
   "shared/utils/statusNormalization.d.ts": 1,
   "shared/utils/statusNormalization.js": 1,
-  "shared/utils/statusNormalization.ts": 1
+  "shared/utils/statusNormalization.ts": 1,
+  "shared/contracts/api/userRoutes.ts": 3,
+  "shared/enums/adStatus.ts": 2
 }
