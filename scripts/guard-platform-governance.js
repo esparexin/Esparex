@@ -14,9 +14,9 @@ const STATUS_MUTATION_PATTERN = /(status\s*[:=]|moderationStatus\s*[:=]|expiresA
 const MIGRATION_SHADOW_NAME_PATTERN = /user-backend\/scripts\/.*(migrate|remediate|repair|cleanup).+\.js$/;
 
 const FORBIDDEN_SW_FILES = [
-  'user-frontend/firebase-messaging-sw.js',
-  'user-frontend/firebase-messaging-sw.template.js',
-  'user-frontend/public/firebase-messaging-sw-dynamic.js',
+  'apps/web/firebase-messaging-sw.js',
+  'apps/web/firebase-messaging-sw.template.js',
+  'apps/web/public/firebase-messaging-sw-dynamic.js',
 ];
 
 const readBaseline = () => {
@@ -77,7 +77,7 @@ const main = () => {
 
     if (hasDbRisk && !isMigration) {
       riskyJsMutationFiles.push(file);
-      if (file.startsWith('user-frontend/scripts/')) {
+      if (file.startsWith('apps/web/scripts/')) {
         frontendDbMutationFiles.push(file);
       }
     }

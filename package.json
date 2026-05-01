@@ -14,7 +14,7 @@
     "shared",
     "shared/observability",
     "user-backend",
-    "user-frontend"
+    "apps/web"
   ],
   "scripts": {
     "prepare": "bash scripts/install-git-hooks.sh",

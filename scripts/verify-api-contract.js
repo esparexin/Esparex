@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const repoRoot = path.resolve(__dirname, "..");
-const frontendRoutesFile = path.join(repoRoot, "user-frontend/src/api/routes.ts");
+const frontendRoutesFile = path.join(repoRoot, "apps/web/src/api/routes.ts");
 const backendAppFile = path.join(repoRoot, "user-backend/src/app.ts");
 
 const METHOD_REGEX =
