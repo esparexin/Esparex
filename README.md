@@ -2,20 +2,23 @@
 
 Esparex is an npm workspaces monorepo with seven active workspaces:
 
-- `backend`
-- `admin-backend`
+- `backend/user`
+- `backend/admin`
 - `core`
-- `frontend`
-- `admin-frontend`
+- `apps/web`
+- `apps/admin`
+- `apps/mobile`
 - `shared`
 - `shared/observability`
 
 ## Structure
 
-- `backend/src`: API, services, routes, validators, config
+- `backend/user`: API, services, routes, validators, config for user platform
+- `backend/admin`: API, services, routes for admin moderation and management
 - `core/src`: Canonical domain models, shared business services, database config
-- `frontend/src`: user application
-- `admin-frontend/src`: admin application
+- `apps/web`: User application (Next.js)
+- `apps/admin`: Admin application (Next.js)
+- `apps/mobile`: Mobile app native projects (Capacitor)
 - `shared`: shared contracts, schemas, enums, types, and utilities
 - `scripts`: repo guardrails and maintenance scripts
 - `ai-governance`: canonical AI/governance instructions still referenced by repo tooling
@@ -56,9 +59,9 @@ The `guard:pr-impact-analysis` CI check requires every PR to have a description 
 Run workspaces as needed:
 
 ```bash
-npm run dev -w backend
-npm run dev -w frontend
-npm run dev -w admin-frontend
+npm run dev -w backend/user
+npm run dev -w apps/web
+npm run dev -w apps/admin
 ```
 
 ## Deployment & Environment Configuration
@@ -68,8 +71,8 @@ The project is deployed using **Vercel** (Frontends) and **Render** (Backends).
 ### Admin Backend Deployment (Render)
 When creating the Web Service (e.g., named `backend` or `admin-api`) for the admin system:
 - **Root Directory**: (Leave Empty)
-- **Build Command**: `export NODE_OPTIONS="--max-old-space-size=4096" && npm install && npm run build -w core && npm run build -w admin-backend`
-- **Start Command**: `npm start -w admin-backend`
+- **Build Command**: `export NODE_OPTIONS="--max-old-space-size=4096" && npm install && npm run build -w core && npm run build -w backend/admin`
+- **Start Command**: `npm start -w backend/admin`
 
 ### Admin System Configuration (Vercel/Render)
 

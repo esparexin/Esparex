@@ -5,7 +5,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
-    "rootDir": "..",
+    "rootDir": "../..",
     "outDir": "./dist",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -18,23 +18,23 @@
     "jsx": "react-jsx",
     "lib": ["ES2023", "DOM"],
     "paths": {
-      "@shared/*": ["../shared/*"],
-      "@shared": ["../shared/index.ts"],
-      "@core/*": ["../core/src/*"],
-      "@core": ["../core/src/index.ts"]
+      "@shared/*": ["../../shared/*"],
+      "@shared": ["../../shared/index.ts"],
+      "@core/*": ["../../core/src/*"],
+      "@core": ["../../core/src/index.ts"]
     }
   },
   "include": [
     "src/**/*",
-    "../core/src/**/*",
-    "../shared/**/*"
+    "../../core/src/**/*",
+    "../../shared/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "src/__tests__",
-    "../core/src/__tests__",
-    "../shared/**/__tests__",
+    "../../core/src/__tests__",
+    "../../shared/**/__tests__",
     "**/*.spec.ts",
     "**/*.test.ts"
   ]

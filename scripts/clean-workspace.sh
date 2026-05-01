@@ -13,7 +13,7 @@ find . -name "dist" -type d -not -path "*/node_modules/*" -exec rm -rf {} +
 echo "📝 Removing log files..."
 find . -name "*.log" -type f -exec rm -f {} +
 rm -rf logs/
-rm -rf admin-backend/logs/
+rm -rf backend/admin/logs/
 rm -rf backend/logs/
 
 # 3. Remove system temporary files

@@ -35,10 +35,10 @@
         "./src/*"
       ],
       "@shared/*": [
-        "../shared/*"
+        "../../shared/*"
       ],
       "@shared": [
-        "../shared/index.ts"
+        "../../shared/index.ts"
       ]
     },
     "customConditions": []
@@ -49,14 +49,14 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "../shared/**/*.ts",
-    "../shared/**/*.tsx"
+    "../../shared/**/*.ts",
+    "../../shared/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
-    "../backend",
-    "../backend/**/*",
-    "../shared/location-engine",
-    "../shared/location-engine/**/*"
+    "../../backend",
+    "../../backend/**/*",
+    "../../shared/location-engine",
+    "../../shared/location-engine/**/*"
   ]
 }

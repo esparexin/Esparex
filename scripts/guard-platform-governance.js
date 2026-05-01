@@ -11,7 +11,7 @@ const EXCLUDED_DIRS = new Set(['node_modules', 'dist', '.next', 'coverage']);
 const DB_CONNECT_PATTERN = /(mongoose\.connect|MongoClient\(|new\s+MongoClient\(|client\.db\(|connectDB\()/i;
 const DB_MUTATION_PATTERN = /(updateOne\(|updateMany\(|findOneAndUpdate\(|bulkWrite\(|insertOne\(|insertMany\(|deleteOne\(|deleteMany\(|replaceOne\(|createIndex\(|dropIndex\(|renameCollection\()/;
 const STATUS_MUTATION_PATTERN = /(status\s*[:=]|moderationStatus\s*[:=]|expiresAt\b|resolvedAt\b|approved|rejected|pending|active|suspended|dismissed)/i;
-const MIGRATION_SHADOW_NAME_PATTERN = /user-backend\/scripts\/.*(migrate|remediate|repair|cleanup).+\.js$/;
+const MIGRATION_SHADOW_NAME_PATTERN = /backend/user\/scripts\/.*(migrate|remediate|repair|cleanup).+\.js$/;
 
 const FORBIDDEN_SW_FILES = [
   'apps/web/firebase-messaging-sw.js',
@@ -72,7 +72,7 @@ const main = () => {
   for (const file of files) {
     const abs = path.join(repoRoot, file);
     const content = fs.readFileSync(abs, 'utf8');
-    const isMigration = file.startsWith('user-backend/migrations/');
+    const isMigration = file.startsWith('backend/user/migrations/');
     const hasDbRisk = DB_CONNECT_PATTERN.test(content) && DB_MUTATION_PATTERN.test(content);
 
     if (hasDbRisk && !isMigration) {
@@ -104,7 +104,7 @@ const main = () => {
   failIfAny('New JS DB mutation scripts detected outside tracked migrations:', unknownRisky, failures);
   failIfAny('Frontend repository contains DB mutation scripts (forbidden):', frontendDbMutationFiles, failures);
   failIfAny('New lifecycle bypass JS mutations detected:', unknownLifecycleBypass, failures);
-  failIfAny('New migration shadow scripts detected in user-backend/scripts:', unknownMigrationShadow, failures);
+  failIfAny('New migration shadow scripts detected in backend/user/scripts:', unknownMigrationShadow, failures);
 
   const forbiddenSwFound = FORBIDDEN_SW_FILES.filter((file) => fs.existsSync(path.join(repoRoot, file)));
   failIfAny('Forbidden service worker files detected (must keep single SW strategy):', forbiddenSwFound, failures);
@@ -114,7 +114,7 @@ const main = () => {
     for (const failure of failures) {
       console.error(`\n${failure}`);
     }
-    console.error('\n💡 HINT: JS-based database mutations outside of user-backend/migrations/ bypass audit trails and lifecycle hooks.');
+    console.error('\n💡 HINT: JS-based database mutations outside of backend/user/migrations/ bypass audit trails and lifecycle hooks.');
     console.error('   Action: Move logic to a Mongoose migration. If this is a one-off repair, add the script to the allowlist');
     console.error('   in scripts/policy/legacy-js-risk-allowlist.json ONLY after senior review.');
     process.exit(1);

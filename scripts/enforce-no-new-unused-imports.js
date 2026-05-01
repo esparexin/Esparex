@@ -4,7 +4,7 @@ const { execSync, spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const WORKSPACE_ROOTS = ["frontend", "backend", "admin-frontend"];
+const WORKSPACE_ROOTS = ["apps/web", "backend/user", "apps/admin"];
 
 function run(cmd) {
   return execSync(cmd, { stdio: ["ignore", "pipe", "pipe"], encoding: "utf8" }).trim();
@@ -42,7 +42,8 @@ function getChangedTsFiles(baseSha) {
 function groupByWorkspace(files) {
   const grouped = new Map();
   for (const file of files) {
-    const [workspace] = file.split("/");
+    const parts = file.split("/");
+    const workspace = (parts[0] === 'apps' || parts[0] === 'backend') ? `${parts[0]}/${parts[1]}` : parts[0];
     const rel = file.replace(`${workspace}/`, "");
     if (!grouped.has(workspace)) grouped.set(workspace, []);
     grouped.get(workspace).push(rel);

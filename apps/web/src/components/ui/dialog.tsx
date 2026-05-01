@@ -52,7 +52,7 @@ const DialogOverlay = React.forwardRef<
     style={{ zIndex: Z_INDEX.dialogOverlay }}
     className={cn(
       // Radix injects data-[state] so we can animate in/out with tailwindcss-animate
-      "fixed inset-0 bg-black/50 backdrop-blur-[2px]",
+      "fixed inset-0 bg-black/60 backdrop-blur-md",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className

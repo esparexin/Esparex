@@ -298,12 +298,12 @@ export default function LocationSelector({
                                     selectedIndex === index && "bg-accent"
                                 )}
                             >
-                                <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
-                                <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-xs font-semibold text-foreground">
+                                <MapPin className="mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                                <span className="min-w-0 flex-1 py-0.5">
+                                    <span className="block truncate text-sm font-semibold text-foreground">
                                         {getLocationPrimaryLabel(loc)}
                                     </span>
-                                    <span className="block truncate text-[11px] text-muted-foreground">
+                                    <span className="block truncate text-xs text-muted-foreground">
                                         {getLocationSecondaryLabel(loc)}
                                     </span>
                                 </span>

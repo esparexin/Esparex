@@ -5,21 +5,21 @@ const path = require('path');
 
 const ROOT = process.cwd();
 const SCAN_DIRS = [
-  'user-backend/src',
-  'admin-backend/src',
-  'apps/web/src',
-  'admin-frontend/src',
+  'backend\/user/src',
+  'backend\/admin/src',
+  'apps\/web/src',
+  'apps\/admin/src',
   'core/src',
   'shared'
 ];
 const PACKAGE_MANIFESTS = [
   { manifest: 'package.json', root: '' },
-  { manifest: 'user-backend/package.json', root: 'user-backend' },
-  { manifest: 'apps/web/package.json', root: 'apps/web' },
-  { manifest: 'admin-frontend/package.json', root: 'admin-frontend' },
+  { manifest: 'backend\/user/package.json', root: 'backend\/user' },
+  { manifest: 'apps\/web/package.json', root: 'apps\/web' },
+  { manifest: 'apps\/admin/package.json', root: 'apps\/admin' },
   { manifest: 'core/package.json', root: 'core' }
 ];
-const SCRIPT_ENTRY_PATTERN = /((?:\.\.\/)?(?:user-backend\/src|user-frontend\/src|admin-frontend\/src|shared|src)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs))/g;
+const SCRIPT_ENTRY_PATTERN = /((?:\.\.\/)?(?:backend\/user\/src|apps\/web\/src|apps\/admin\/src|shared|src)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs))/g;
 const VALID_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
 const SOURCE_ENTRY_PATTERNS = [
   /[\\/]app[\\/](?:.*[\\/])?(page|layout|route|loading|error|global-error|not-found|template|sitemap|robots)\.(ts|tsx|js|jsx)$/,
@@ -37,11 +37,11 @@ const ALWAYS_KEEP_PATTERNS = [
   /^core\/src\/config\/loadEnv\.ts$/,
   /^core\/src\/config\/mongoosePlugins\.ts$/,
   /^core\/src\/models\/registry\.ts$/,
-  /^user-backend\/src\/scripts\/restore-database\.ts$/,
-  /^user-backend\/src\/seeds\/(devices\.seed|runSeeds|spareParts\.seed)\.ts$/,
-  /^user-backend\/src\/tests\//,
-  /^user-backend\/src\/__tests__\//,
-  /^user-frontend\/src\/__tests__\//
+  /^backend\/user\/src\/scripts\/restore-database\.ts$/,
+  /^backend\/user\/src\/seeds\/(devices\.seed|runSeeds|spareParts\.seed)\.ts$/,
+  /^backend\/user\/src\/tests\//,
+  /^backend\/user\/src\/__tests__\//,
+  /^apps\/web\/src\/__tests__\//
 ];
 const IMPORT_PATTERNS = [
   /\bimport\s+(?:type\s+)?[^'"]*?from\s*['"]([^'"]+)['"]/g,
@@ -115,8 +115,8 @@ const resolveWithExtensions = (basePath) => {
 
 const resolveAlias = (specifier, importer) => {
   if (specifier.startsWith('@/')) {
-    const isAdminImporter = importer.startsWith('admin-frontend/src/');
-    const base = isAdminImporter ? 'admin-frontend/src' : 'apps/web/src';
+    const isAdminImporter = importer.startsWith('apps\/admin/src/');
+    const base = isAdminImporter ? 'apps\/admin/src' : 'apps\/web/src';
     return resolveWithExtensions(path.join(ROOT, base, specifier.slice(2)));
   }
   if (specifier === '@shared') {
@@ -222,9 +222,9 @@ const collectPackageScriptRoots = (files) => {
 
 const isRootFile = (filePath) => {
   if (filePath.includes('/server.ts') || filePath.includes('/app.ts') || filePath.includes('/index.ts')) return true;
-  if (filePath === 'user-backend/src/workers/index.ts' || filePath === 'user-backend/src/workers.ts') return true;
+  if (filePath === 'backend\/user/src/workers/index.ts' || filePath === 'backend\/user/src/workers.ts') return true;
   if (filePath.endsWith('/routes.ts') || filePath.endsWith('.routes.ts')) return true;
-  if (filePath.startsWith('apps/web/src/app/') || filePath.startsWith('admin-frontend/src/app/')) {
+  if (filePath.startsWith('apps\/web/src/app/') || filePath.startsWith('apps\/admin/src/app/')) {
     return SOURCE_ENTRY_PATTERNS.some((pattern) => pattern.test(filePath));
   }
   return ALWAYS_KEEP_PATTERNS.some((pattern) => pattern.test(filePath));
@@ -266,8 +266,8 @@ const classifyTier = (filePath) => {
   if (filePath.includes('/scripts/debug-')) return 'B';
   if (filePath.includes('/scripts/seed-')) return 'B';
   
-  if (/^user-frontend\/src\/(api|context)\//.test(filePath)) return 'B';
-  if (/^admin-frontend\/src\/(lib\/api|context)\//.test(filePath)) return 'B';
+  if (/^apps\/web\/src\/(api|context)\//.test(filePath)) return 'B';
+  if (/^apps\/admin\/src\/(lib\/api|context)\//.test(filePath)) return 'B';
   
   return 'C';
 };

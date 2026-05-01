@@ -126,7 +126,21 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             )}
           </div>
         )}
-        <span className="chat-bubble__time">{formatTime(message.createdAt)}</span>
+        <div className="flex items-center justify-end gap-1.5 mt-1">
+          <span className="chat-bubble__time">{formatTime(message.createdAt)}</span>
+          {isOwn && (
+            <div className="flex items-center" aria-label={message.readAt ? 'Message read' : 'Message sent'}>
+              {message.readAt ? (
+                <div className="flex -space-x-1.5">
+                  <span className="text-[10px] text-blue-500 font-bold">✓</span>
+                  <span className="text-[10px] text-blue-500 font-bold">✓</span>
+                </div>
+              ) : (
+                <span className="text-[10px] text-slate-400 font-bold">✓</span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {imageAttachments.length > 0 && (

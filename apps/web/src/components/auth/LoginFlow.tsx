@@ -61,7 +61,7 @@ export function LoginFlow({
       />
 
       {isRedirecting && status !== "unauthenticated" && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/85 backdrop-blur-md">
           <div className="space-y-3 text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground">

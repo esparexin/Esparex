@@ -6,7 +6,7 @@ import path from "node:path";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
-const esparexRules = require("../scripts/eslint-rules/index.js");
+const esparexRules = require("../../scripts/eslint-rules/index.js");
 
 export default tseslint.config(
     // Base: non-type-aware recommended (applies to all files)

@@ -14,7 +14,7 @@ const baselinePath = path.join(
 
 const scanRoots = [
   path.join(repoRoot, "frontend", "src", "components"),
-  path.join(repoRoot, "admin-frontend", "src", "components"),
+  path.join(repoRoot, "apps/admin", "src", "components"),
 ];
 
 const EXCLUDED_DIRS = new Set(["node_modules", "dist", ".next", "coverage"]);
