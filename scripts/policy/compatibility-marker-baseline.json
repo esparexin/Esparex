@@ -35,7 +35,7 @@
   "user-backend/src/__tests__/validators/servicePayload.schema.spec.ts": 2,
   "user-backend/src/__tests__/validators/user.validator.spec.ts": 2,
   "user-backend/src/app.ts": 2,
-  "user-backend/src/routes/adRoutes.ts": 1,
+  "user-backend/src/routes/adRoutes.ts": 2,
   "user-backend/src/controllers/ad/index.ts": 1,
   "user-backend/src/controllers/admin/paymentWebhook.ts": 1,
   "user-backend/src/controllers/auth/index.ts": 1,
@@ -136,5 +136,7 @@
   "shared/utils/statusNormalization.js": 1,
   "shared/utils/statusNormalization.ts": 1,
   "shared/contracts/api/userRoutes.ts": 3,
-  "shared/enums/adStatus.ts": 2
+  "shared/enums/adStatus.ts": 2,
+  "user-backend/src/routes/serviceRoutes.ts": 2,
+  "user-backend/src/routes/sparePartRoutes.ts": 2
 }
