@@ -7,8 +7,21 @@ on:
     branches: [main, develop]
 
 jobs:
+  build-core:
+    name: Build Core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+          cache: npm
+      - run: npm ci
+      - run: npm run build -w core
+
   build-backend:
     name: Build Backend
+    needs: build-core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,9 +31,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build -w backend/user
+      - run: npm run build -w backend/admin
 
   build-apps/admin:
     name: Build Admin Frontend
+    needs: build-core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,6 +50,7 @@ jobs:
 
   build-frontend:
     name: Build Frontend
+    needs: build-core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

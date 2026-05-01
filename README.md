@@ -47,11 +47,15 @@ Standard checks run automatically on every commit/push:
 - **Duplication**: `npm run guard:duplication` (Flags code blocks with >10 lines of identical content).
 
 ### Platform Governance
-The project enforces a "zero-legacy" policy via:
+The project enforces a strict terminology policy via:
 ```bash
 npm run guard:platform-governance
 ```
-This will fail if forbidden keywords (`legacy`, `compatibility`, `@deprecated`) are found in comments, variables, or routes. Use `OLD` or descriptive alternatives instead.
+This check ensures architectural clarity by preventing negative-connotation keywords.
+- **Forbidden**: `legacy`, `compatibility`, `@deprecated`
+- **Recommended**: `historical`, `support`, `reach`, `Superseded`
+
+This policy is enforced at the CI level with zero tolerance for new markers.
 
 ### Pull Request Requirements
 The `guard:pr-impact-analysis` CI check requires every PR to have a description following the repository template. If your PR description is empty, the CI build **will fail**.
@@ -60,6 +64,7 @@ Run workspaces as needed:
 
 ```bash
 npm run dev -w backend/user
+npm run dev -w backend/admin
 npm run dev -w apps/web
 npm run dev -w apps/admin
 ```

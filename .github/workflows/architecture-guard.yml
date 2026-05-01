@@ -49,6 +49,12 @@ jobs:
       - name: Type check apps/admin
         run: npm run type-check -w apps/admin
 
+      - name: Type check backend/admin
+        run: npm run type-check -w backend/admin
+
+      - name: Type check core
+        run: npm run type-check -w core
+
   # ── Job 2: Backend unit tests ────────────────────────────────────────────────
   test:
     name: Tests
@@ -187,3 +193,9 @@ jobs:
         run: npm run build -w apps/admin
         env:
           NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
+
+      - name: Build backend/admin
+        run: npm run build -w backend/admin
+
+      - name: Build core
+        run: npm run build -w core
