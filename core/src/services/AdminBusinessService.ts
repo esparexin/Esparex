@@ -150,11 +150,11 @@ export interface AdminBusinessPaginationParams {
     [key: string]: unknown;
 }
 
-export const getAdminBusinessAccountsData = async (params: AdminBusinessPaginationParams) => {
+export const getAdminBusinessAccountsData = (params: AdminBusinessPaginationParams) => {
     const { status, locationId } = params;
     const adminQuery = getBusinessAccountsQuery(status);
     if (locationId) adminQuery.locationId = locationId;
-    return { adminQuery };
+    return Promise.resolve({ adminQuery });
 };
 
 

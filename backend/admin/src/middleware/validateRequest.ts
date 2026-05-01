@@ -8,7 +8,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { ZodError, ZodSchema } from 'zod';
+import { ZodError } from 'zod';
 import { buildErrorResponse } from "@core/utils/errorResponse";
 import logger from '@core/utils/logger';
 import { commonSchemas, sanitizeString } from '@core/validators/common';
@@ -23,11 +23,6 @@ type ValidationTarget = 'body' | 'query' | 'params';
 /**
  * Validation schema configuration
  */
-interface ValidationSchema {
-    body?: ZodSchema;
-    query?: ZodSchema;
-    params?: ZodSchema;
-}
 
 const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === 'object' && value !== null && !Array.isArray(value);

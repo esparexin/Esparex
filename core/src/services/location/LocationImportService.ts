@@ -22,7 +22,7 @@ export class LocationImportService {
     static async importLocations(data: LocationImportInput[]): Promise<ImportResult> {
         const result: ImportResult = { success: 0, failed: 0, errors: [] };
         const Location = (await import('@core/models/Location')).default;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const ops: any[] = [];
 
         for (const item of data) {
@@ -84,7 +84,7 @@ export class LocationImportService {
 
         if (ops.length > 0) {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                 
                 const bulkRes = await Location.bulkWrite(ops);
                 result.success = (bulkRes.upsertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.matchedCount || 0);
             } catch (error) {

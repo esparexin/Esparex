@@ -6,7 +6,7 @@ import { env } from '@core/config/env';
 
 const PORT = env.PORT || 5001; // Override port to 5001 if not set
 
-const startServer = async () => {
+const startServer = async (): Promise<void> => {
     try {
         await connectDB();
         const server = app.listen(PORT, () => {
@@ -27,4 +27,4 @@ const startServer = async () => {
     }
 };
 
-startServer();
+void startServer();

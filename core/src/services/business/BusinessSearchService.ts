@@ -17,15 +17,6 @@ type BusinessCandidate = {
     [key: string]: unknown;
 };
 
-type EnrichedBusinessCandidate = Record<string, unknown> & {
-    activeServicesCount: number;
-    matchingServicesCount: number;
-    brandMatchedServicesCount: number;
-    distanceKm?: number;
-    isVerified?: boolean;
-    trustScore?: number;
-    createdAt?: unknown;
-};
 
 const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
     if (value instanceof mongoose.Types.ObjectId) return value;
