@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import * as listingController from '../controllers/listing/listingController';
 import { protect, extractUser } from '../middleware/authMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
@@ -40,7 +40,7 @@ router.post(
     enforceCreateServiceIdempotency,
     (req, res, next) => {
         logLegacyHit('POST /services');
-        listingController.createListing(req, res, next);
+        void listingController.createListing(req, res, next);
     }
 );
 
@@ -54,26 +54,26 @@ router.put(
     validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
     (req, res, next) => {
         logLegacyHit('PUT /services/:id');
-        listingController.editListing(req, res, next);
+        void listingController.editListing(req, res, next);
     }
 );
 
 // Get All
-router.get('/', searchLimiter, (req: any, res: any, next: any) => {
+router.get('/', searchLimiter, (req, res, next) => {
     logLegacyHit('GET /services');
-    listingController.getListings(req, res, next);
+    void listingController.getListings(req, res, next);
 });
 
 // View Increment
-router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), (req: any, res: any, next: any) => {
+router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), (req, res, next) => {
     logLegacyHit('GET /services/:id/view');
-    listingController.incrementListingView(req, res, next);
+    void listingController.incrementListingView(req, res, next);
 });
 
 // Phone Reveal
-router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req: any, res: any, next: any) => {
+router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req, res, next) => {
     logLegacyHit('GET /services/:id/phone');
-    listingController.getListingPhone(req, res, next);
+    void listingController.getListingPhone(req, res, next);
 });
 
 export default router;

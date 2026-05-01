@@ -31,31 +31,31 @@ const logLegacyHit = (endpoint: string) => {
 // Home Feed
 router.get("/home", searchLimiter, (req, res, next) => {
     logLegacyHit('GET /ads/home');
-    listingController.getHomeFeed(req, res, next);
+    void listingController.getHomeFeed(req, res, next);
 });
 
 // Trending
 router.get("/trending", searchLimiter, (req, res, next) => {
     logLegacyHit('GET /ads/trending');
-    listingController.getTrending(req, res, next);
+    void listingController.getTrending(req, res, next);
 });
 
 // Search
 router.get("/", extractUser, searchLimiter, validateSearchParams, (req, res, next) => {
     logLegacyHit('GET /ads');
-    listingController.getListings(req, res, next);
+    void listingController.getListings(req, res, next);
 });
 
 // Nearby
 router.get("/nearby", extractUser, searchLimiter, validateSearchParams, (req, res, next) => {
     logLegacyHit('GET /ads/nearby');
-    listingController.getNearbyListings(req, res, next);
+    void listingController.getNearbyListings(req, res, next);
 });
 
 // Suggestions
 router.get("/suggestions", searchLimiter, (req, res, next) => {
     logLegacyHit('GET /ads/suggestions');
-    listingController.getListingSuggestions(req, res, next);
+    void listingController.getListingSuggestions(req, res, next);
 });
 
 // Create
@@ -72,20 +72,20 @@ router.post(
     enforceCreateAdIdempotency,
     (req, res, next) => {
         logLegacyHit('POST /ads');
-        listingController.createListing(req, res, next);
+        void listingController.createListing(req, res, next);
     }
 );
 
 // Upload Image
 router.post("/upload-image", protect, mutationLimiter, (req, res, next) => {
     logLegacyHit('POST /ads/upload-image');
-    listingController.uploadImage(req, res, next);
+    void listingController.uploadImage(req, res, next);
 });
 
 // Upload Presign
 router.post("/upload-presign", protect, mutationLimiter, (req, res, next) => {
     logLegacyHit('POST /ads/upload-presign');
-    listingController.getUploadPresignedUrl(req, res, next);
+    void listingController.getUploadPresignedUrl(req, res, next);
 });
 
 // Update (Partial)
@@ -97,7 +97,7 @@ router.patch(
     validateRequest(updateAdSchema as unknown as ZodTypeAny),
     (req, res, next) => {
         logLegacyHit('PATCH /ads/:id');
-        listingController.editListing(req, res, next);
+        void listingController.editListing(req, res, next);
     }
 );
 

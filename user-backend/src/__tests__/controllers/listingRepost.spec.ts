@@ -90,7 +90,7 @@ describe('repostListing', () => {
 
     it('handles known AdMutationService status errors as 400', async () => {
         const error = new Error('Listing is live');
-        (error as any).statusCode = 400;
+        (error as Error & { statusCode?: number }).statusCode = 400;
         mockedRepostAd.mockRejectedValue(error);
         const req = makeReq();
         const res = makeRes();

@@ -82,7 +82,7 @@ const asCachedSearchResult = (value: unknown): CachedSearchResult | null => {
 };
 
 const getViewerIdForFeed = (req: Request): string | undefined => {
-    const user = req.user as AuthUser | undefined;
+    const user = req.user;
     if (!user?._id) return undefined;
     if (user.role === 'admin' || user.role === 'super_admin') return undefined;
     return String(user._id);
@@ -251,7 +251,7 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
                 ip: req.ip || '',
-                userAgent: (req.headers['user-agent'] as string) || '',
+                userAgent: req.headers['user-agent'] || '',
             },
             reason: soldReason || 'Marked as sold by owner',
             metadata: {
@@ -343,15 +343,17 @@ export const incrementListingView = async (req: Request, res: Response, next: Ne
             : { seoSlug: idOrSlug };
 
         // Centralized Unique Tracking Logic
-        const viewedIdsCookie = req.cookies.v_ids || '';
-        const viewedIds = viewedIdsCookie ? viewedIdsCookie.split(',') : [];
+        const viewedIdsCookie: string = (req.cookies as Record<string, string | undefined>).v_ids || '';
+        const viewedIds: string[] = viewedIdsCookie ? viewedIdsCookie.split(',') : [];
         
         let isUnique = false;
         if (!viewedIds.includes(idOrSlug)) {
             isUnique = true;
             viewedIds.push(idOrSlug);
             // Keep cookie size manageable (last 50 viewed listings)
-            if (viewedIds.length > 50) viewedIds.shift();
+            if (viewedIds.length > 50) {
+                viewedIds.shift();
+            }
             
             res.cookie('v_ids', viewedIds.join(','), {
                 maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -386,7 +388,7 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
                 ip: req.ip || '',
-                userAgent: (req.headers['user-agent'] as string) || '',
+                userAgent: req.headers['user-agent'] || '',
             },
             reason: 'Deactivated by owner',
             metadata: {

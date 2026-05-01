@@ -57,10 +57,10 @@ export const getBusinesses = async (req: Request, res: Response) => {
             latitude: typeof latitude === 'number' ? latitude : latitude ? Number(latitude) : undefined,
             longitude: typeof longitude === 'number' ? longitude : longitude ? Number(longitude) : undefined,
             radiusKm: typeof radiusKm === 'number' ? radiusKm : radiusKm ? Number(radiusKm) : undefined,
-            locationId: locationId as string,
-            listingCategoryId: listingCategoryId as string,
-            brandId: brandId as string,
-            excludeBusinessId: excludeBusinessId as string,
+            locationId: locationId,
+            listingCategoryId: listingCategoryId,
+            brandId: brandId,
+            excludeBusinessId: excludeBusinessId,
             serviceOnly:
                 rawServiceOnly === true
                 || rawServiceOnly === 'true',

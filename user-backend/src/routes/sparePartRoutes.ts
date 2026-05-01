@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { protect, extractUser } from '../middleware/authMiddleware';
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
@@ -36,20 +36,20 @@ router.post(
     createListingValidator,
     (req, res, next) => {
         logLegacyHit('POST /spare-part-listings');
-        listingController.createListing(req, res, next);
+        void listingController.createListing(req, res, next);
     }
 );
 
 // Get All (Search)
-router.get('/', searchLimiter, (req: any, res: any, next: any) => {
+router.get('/', searchLimiter, (req, res, next) => {
     logLegacyHit('GET /spare-part-listings');
-    listingController.getListings(req, res, next);
+    void listingController.getListings(req, res, next);
 });
 
 // Phone Reveal
-router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req: any, res: any, next: any) => {
+router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req, res, next) => {
     logLegacyHit('GET /spare-part-listings/:id/phone');
-    listingController.getListingPhone(req, res, next);
+    void listingController.getListingPhone(req, res, next);
 });
 
 // Update
