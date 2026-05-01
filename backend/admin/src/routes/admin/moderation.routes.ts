@@ -1,7 +1,7 @@
 /**
  * MODERATION ROUTES
  * Canonical namespace: /api/v1/admin/listings*
- * Legacy aliases are preserved via controlled deprecation facade.
+ * Historical aliases are preserved via controlled support facade.
  */
 import express from 'express';
 import { validateObjectId } from '../../middleware/validateObjectId';
@@ -45,7 +45,7 @@ router.post('/reports/:id/resolve', requirePermission('ads:write'), adminMutatio
 router.patch('/reports/:id/status', requirePermission('ads:write'), adminMutationLimiter, validateObjectId, reportsController.updateReportStatus);
 
 // ============================================
-// LEGACY ALIASES (Sunset mapping to Listings)
+// HISTORICAL ALIASES (Sunset mapping to Listings)
 // ============================================
 router.get('/ads/counts', requirePermission('ads:read'), listingsController.adminGetListingCountsLegacyAdapter);
 router.get('/ads', requirePermission('ads:read'), validateRequest({ query: adminModerationListingsQuerySchema }), listingsController.adminListListings);

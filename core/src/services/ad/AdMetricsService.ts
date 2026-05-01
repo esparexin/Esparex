@@ -141,7 +141,7 @@ export const getSellerListingStats = async (sellerId: string) => {
 
     results.forEach(res => {
         const type = res._id.listingType;
-        // Normalize status using the legacy-aware logic
+        // Normalize status using the historical-aware logic
         const status = normalizeAdStatus(res._id.status);
 
         if (!stats[type]) stats[type] = { total: 0 };

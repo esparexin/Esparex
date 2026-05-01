@@ -233,7 +233,7 @@ export const createBrand = async (req: Request, res: Response) => {
         auditAction: 'BRAND_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
-            // Backward compatibility mapping
+            // Backward support mapping
             if (!payload.categoryIds && payload.categoryId) {
                 payload.categoryIds = [payload.categoryId];
             }
@@ -256,7 +256,7 @@ export const updateBrand = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, BrandModel, brandUpdateSchema, {
         auditAction: 'BRAND_RENAME',
         preUpdate: async (_id, payload, oldBrand) => {
-            // Backward compatibility mapping
+            // Backward support mapping
             if (!payload.categoryIds && payload.categoryId) {
                 payload.categoryIds = [payload.categoryId];
             }

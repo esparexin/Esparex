@@ -27,7 +27,7 @@ const registeredIndexes: IndexDefinition[] = [];
 function validateNaming(collection: string, name: string): boolean {
   if (name === '_id_') return true;
   // Standard: idx_<collection>_<fields>
-  // Allow ad_ for specific legacy but valid ads indexes
+  // Allow ad_ for specific historical but valid ads indexes
   const isValid = name.startsWith(`idx_${collection.toLowerCase()}_`) || name.startsWith('ad_');
   
   if (!isValid) {

@@ -150,7 +150,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             doc.statusChangedAt = new Date();
             if (reason) doc.statusReason = reason;
 
-            // 🛡️ DATA INTEGRITY: Coerce stale/legacy moderationStatus values that are
+            // 🛡️ DATA INTEGRITY: Coerce stale/historical moderationStatus values that are
             // not in the current enum. These exist in documents written before the enum
             // was tightened (e.g. "approved" was an old value, now split into
             // "auto_approved" / "manual_approved"). Mongoose validates the entire

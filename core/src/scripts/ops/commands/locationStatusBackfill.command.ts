@@ -22,7 +22,7 @@ const LEGACY_PUBLIC_LOCATION_QUERY = {
 
 export const locationStatusBackfillCommand: OpsCommand = {
   name: 'location-status-backfill',
-  description: 'Backfill missing verificationStatus on active legacy canonical locations to verified.',
+  description: 'Backfill missing verificationStatus on active historical canonical locations to verified.',
   blastRadius: 'high',
   run: async (context: OpsExecutionContext): Promise<OpsCommandResult> => {
     const db = await connectOpsDb();
@@ -102,7 +102,7 @@ export const locationStatusBackfillCommand: OpsCommand = {
       return {
         summary,
         warnings: missingBefore > 0
-          ? ['This command promotes legacy active locations without status to verified. Review dry-run output before apply.']
+          ? ['This command promotes historical active locations without status to verified. Review dry-run output before apply.']
           : [],
         rollbackGuidance: [
           'Use point-in-time recovery if apply mode verified unintended location rows.',

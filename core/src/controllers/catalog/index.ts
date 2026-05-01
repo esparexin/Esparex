@@ -1,7 +1,7 @@
 /**
  * Catalog Controllers - Re-export Index
  * 
- * This index file maintains backward compatibility by re-exporting all functions
+ * This index file maintains backward support by re-exporting all functions
  * from the split catalog controllers. Routes can continue importing from this
  * single point of entry while functions are organized into focused controllers.
  */

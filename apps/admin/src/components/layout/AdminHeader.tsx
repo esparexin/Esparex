@@ -78,7 +78,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
     },
     "spare-parts-catalog": {
         title: "Spare Parts Master",
-        subtitle: "Manage the spare parts catalog and compatibility matrix.",
+        subtitle: "Manage the spare parts catalog and support matrix.",
     },
     "admin-users": {
         title: "Administration",

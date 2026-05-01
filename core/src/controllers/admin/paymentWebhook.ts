@@ -48,7 +48,7 @@ export async function paymentWebhook(req: Request, res: Response) {
 
     // Extract payment ID from payload
     const payment = payload.payment?.entity ?? payload.order?.entity;
-    const payment_id = payment?.id ?? body.payment_id; // Fallback to root for legacy/test
+    const payment_id = payment?.id ?? body.payment_id; // Fallback to root for previous/test
     const order_id = payload.order?.entity?.id ?? payment?.order_id ?? body.order_id;
 
     // Only process successful capture events

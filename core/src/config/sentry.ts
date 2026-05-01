@@ -186,7 +186,7 @@ export function addBreadcrumb(
 /**
  * Note: Transaction API has been deprecated in Sentry v8+
  * Use Sentry.startSpan() instead for performance monitoring
- * This function is kept for backward compatibility but does nothing
+ * This function is kept for backward support but does nothing
  */
 export function startTransaction(name: string, op: string) {
     void name;
@@ -199,7 +199,7 @@ export function startTransaction(name: string, op: string) {
         };
     }
 
-    // Return a no-op object for backward compatibility
+    // Return a no-op object for backward support
     return {
         finish: () => { },
         setStatus: () => { },

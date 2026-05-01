@@ -106,7 +106,7 @@ export const createServiceType = async (req: Request, res: Response) => {
     return handleCatalogCreate(req, res, ServiceTypeModel, serviceTypeCreateSchema, {
         auditAction: 'SERVICE_TYPE_CREATE',
         preOp: (payload) => {
-            // Backward compatibility mapping
+            // Backward support mapping
             if (!payload.categoryIds && payload.categoryId) {
                 payload.categoryIds = [payload.categoryId];
             }
@@ -123,7 +123,7 @@ export const updateServiceType = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, ServiceTypeModel, serviceTypeUpdateSchema, {
         auditAction: 'SERVICE_TYPE_UPDATE',
         preUpdate: (id, payload) => {
-            // Backward compatibility mapping
+            // Backward support mapping
             if (!payload.categoryIds && payload.categoryId) {
                 payload.categoryIds = [payload.categoryId];
             }

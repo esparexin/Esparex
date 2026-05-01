@@ -249,7 +249,7 @@ export const createSparePart = async (req: Request, res: Response) => {
         auditAction: 'SPARE_PART_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
-            // Backward compatibility mapping
+            // Backward support mapping
             const categoryId = toOptionalString(payload.categoryId);
             if (!payload.categoryIds && categoryId) {
                 payload.categoryIds = [categoryId];
@@ -284,7 +284,7 @@ export const updateSparePart = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, SparePartModel, sparePartUpdateSchema, {
         auditAction: 'SPARE_PART_UPDATE',
         preUpdate: async (id, payload, existingPart) => {
-            // Backward compatibility mapping
+            // Backward support mapping
             const categoryId = toOptionalString(payload.categoryId);
             if (!payload.categoryIds && categoryId) {
                 payload.categoryIds = [categoryId];

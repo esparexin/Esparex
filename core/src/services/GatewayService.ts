@@ -108,5 +108,5 @@ export const matchesGatewayAmount = (tx: ITransaction, gatewayAmountPaise?: numb
     return Math.round(tx.amount * 100) === gatewayAmountPaise;
 };
 
-// Legacy exports for backward compatibility if needed, though they should be migrated to static class methods.
+// Historical exports for backward support if needed, though they should be migrated to static class methods.
 

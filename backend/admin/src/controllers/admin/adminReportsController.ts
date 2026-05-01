@@ -74,7 +74,7 @@ export const resolveReport = async (req: Request, res: Response) => {
 
         if (action === 'take_down') {
             if (!report.adId) {
-                return sendAdminError(req, res, 'Cannot take down: report has no legacy adId', 400);
+                return sendAdminError(req, res, 'Cannot take down: report has no previous adId', 400);
             }
             await mutateStatus({
                 domain: 'ad',

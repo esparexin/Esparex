@@ -4,7 +4,7 @@
  * Backend controller: validates req.body on POST /api/v1/spare-part-listings
  * Frontend form: extends BaseSparePartPayloadSchema for UI-only fields before upload
  *
- * Field name SSOT: 'title' (not 'partName' — partPayload.schema.ts was legacy and is now deleted)
+ * Field name SSOT: 'title' (not 'partName' — partPayload.schema.ts was previous and is now deleted)
  */
 import { z } from 'zod';
 import { validatedTextSchema } from './text.schema';

@@ -17,7 +17,7 @@ const GRACE_PERIOD_HOURS = 2;
 
 /**
  * S3 prefixes to scan. Each should match a folder that the application writes to.
- *   ads/       - Ad images (pre-signed + legacy proxy uploads)
+ *   ads/       - Ad images (pre-signed + previous proxy uploads)
  *   staging/   - Temporary landing zone for pre-signed uploads before ad creation
  *   users/     - User avatars
  *   avatars/   - Alternative avatar prefix

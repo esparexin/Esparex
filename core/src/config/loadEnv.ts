@@ -5,7 +5,7 @@
  * Import this file FIRST in your application entry point.
  * 
  * The actual validation logic is in ./env.ts
- * This file maintains backward compatibility with existing imports.
+ * This file maintains backward support with existing imports.
  */
 
 import './env'; // This will validate env vars on import and throw if invalid

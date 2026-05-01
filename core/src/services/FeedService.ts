@@ -19,7 +19,7 @@ import {
 } from './feed/FeedCacheService';
 import { buildHomeFeed } from './feed/FeedQueryService';
 
-// Re-export core types for backward compatibility in controllers
+// Re-export core types for backward support in controllers
 export type { HomeFeedRequest, HomeFeedCursor };
 
 

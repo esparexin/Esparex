@@ -51,7 +51,7 @@ export function formatLocationDisplay(location: unknown): string {
 export function normalizeListingLocation(raw: any) {
     if (!raw) return null;
     
-    // Handle string inputs (manual entry or legacy)
+    // Handle string inputs (manual entry or historical)
     if (typeof raw === "string") {
         const value = raw.trim();
         if (!value) return null;

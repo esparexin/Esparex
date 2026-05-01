@@ -197,7 +197,7 @@ describe('buildHomeFeedPipeline', () => {
         });
     });
 
-    it('falls back to legacy date-only cursor matching when no cursor id is available', () => {
+    it('falls back to historical date-only cursor matching when no cursor id is available', () => {
         const cursorDate = new Date('2026-03-21T12:00:00.000Z');
 
         const pipeline = buildHomeFeedPipeline(

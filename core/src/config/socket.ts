@@ -41,7 +41,7 @@ export function initIO(httpServer: HttpServer): Server {
             origin: corsOrigins,
             credentials: true,
         },
-        // We start with polling and upgrade to websocket for maximum compatibility
+        // We start with polling and upgrade to websocket for maximum reach
         // behind various browser/proxy configurations.
         transports: ['polling', 'websocket'],
         // Prevent lingering connections from blocking a graceful shutdown.

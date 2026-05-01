@@ -108,7 +108,7 @@ beforeEach(() => {
 });
 
 describe('ServiceMutationService', () => {
-    it('rejects legacy serviceTypes payloads before create transaction', async () => {
+    it('rejects historical serviceTypes payloads before create transaction', async () => {
         await expect(
             createServiceMutation({
                 user: makeUser(),
@@ -179,7 +179,7 @@ describe('ServiceMutationService', () => {
         expect(mockedUpdateServiceByOwner).not.toHaveBeenCalled();
     });
 
-    it('rejects legacy serviceTypes payloads before update persistence', async () => {
+    it('rejects historical serviceTypes payloads before update persistence', async () => {
         mockedFindServiceForUpdate.mockResolvedValue({
             _id: new mongoose.Types.ObjectId(),
             categoryId: new mongoose.Types.ObjectId(),

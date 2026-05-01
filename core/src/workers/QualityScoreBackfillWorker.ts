@@ -10,7 +10,7 @@ import { LIFECYCLE_STATUS, type LifecycleStatus } from '@core/constants/enums/li
 
 /**
  * Lazy Quality Score Backfill Worker
- * Enriches legacy ads where `listingQualityScore` is `0` or `null`
+ * Enriches historical ads where `listingQualityScore` is `0` or `null`
  * Runs periodically (e.g. cron schedule via BullMQ)
  */
 export const runQualityScoreBackfill = async (): Promise<void> => {

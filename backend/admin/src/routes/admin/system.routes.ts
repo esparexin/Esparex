@@ -119,7 +119,7 @@ router.get('/rate-limits/metrics', searchLimiter, systemController.getRateLimitM
 // AUDIT LOGS
 // ============================================
 router.get('/security/audit', requirePermission('system:logs'), searchLimiter, validateRequest({ query: adminAuditLogQuerySchema }), auditController.getAuditLogs);
-// DEPRECATED: /audit-logs renamed to /security/audit. 308 redirect for backward compatibility.
+// OBSOLETE: /audit-logs renamed to /security/audit. 308 redirect for backward support.
 router.get('/audit-logs', (_req: Request, res: Response) => res.redirect(308, _req.originalUrl.replace('/audit-logs', '/security/audit')));
 
 

@@ -475,7 +475,7 @@ describe("locationService regression", () => {
         });
     });
 
-    it("reverseGeocode accepts legacy canonical rows without verificationStatus", async () => {
+    it("reverseGeocode accepts historical canonical rows without verificationStatus", async () => {
         mockAdminBoundary.find.mockReturnValueOnce({
             select: jest.fn().mockReturnValue({
                 lean: jest.fn().mockResolvedValue([]),

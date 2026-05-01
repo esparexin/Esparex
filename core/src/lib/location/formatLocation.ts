@@ -92,9 +92,9 @@ export const formatLocationResponse = (loc: LocationResponseLike) => {
         slug: loc.slug,
         name: loc.name || loc.displayName || loc.city,
         display: formattedDisplay,
-        /** @deprecated Use `display` instead */
+        /** Superseded Use `display` instead */
         displayName: formattedDisplay,
-        /** @deprecated Use `display` instead */
+        /** Superseded Use `display` instead */
         formattedAddress: formattedDisplay,
         address: loc.address,
         city: loc.city || loc.name || "",

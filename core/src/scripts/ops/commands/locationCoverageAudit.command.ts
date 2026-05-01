@@ -43,7 +43,7 @@ type LevelCountRow = {
 
 export const locationCoverageAuditCommand: OpsCommand = {
   name: 'location-coverage-audit',
-  description: 'Audit public canonical coverage, legacy verification gaps, and admin boundary availability.',
+  description: 'Audit public canonical coverage, historical verification gaps, and admin boundary availability.',
   blastRadius: 'low',
   run: async (context: OpsExecutionContext): Promise<OpsCommandResult> => {
     const db = await connectOpsDb();
@@ -197,7 +197,7 @@ export const locationCoverageAuditCommand: OpsCommand = {
         warnings.push('No admin boundaries are present. Reverse geocode will use nearest-point fallback only.');
       }
       if (missingVerificationTotal > 0) {
-        warnings.push('Active legacy locations are missing verificationStatus. Run location-status-backfill to normalize them.');
+        warnings.push('Active historical locations are missing verificationStatus. Run location-status-backfill to normalize them.');
       }
       if (businessesWithCoordsNoLocationId > 0) {
         warnings.push('Some businesses have coordinates without canonical locationId. Review samples and backfill if needed.');

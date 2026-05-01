@@ -7,7 +7,7 @@ export type DomainStatus = 'pending' | 'live' | 'rejected' | 'suspended' | 'expi
 
 /**
  * Base normalization logic for any domain status.
- * Coerces legacy/UI aliases ('approved', 'active') to canonical 'live'.
+ * Coerces historical/UI aliases ('approved', 'active') to canonical 'live'.
  */
 export function normalizeStatus(value: unknown, fallback: DomainStatus = 'pending'): DomainStatus {
     if (typeof value !== 'string') return fallback;

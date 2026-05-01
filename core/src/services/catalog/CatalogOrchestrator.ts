@@ -246,7 +246,7 @@ export class CatalogOrchestrator {
     }
 
     /**
-     * Resolve a single CategoryID from a BrandID (backward compatibility)
+     * Resolve a single CategoryID from a BrandID (backward support)
      */
     static async resolveCategoryIdFromBrand(brandId: string): Promise<string | null> {
         const ids = await this.resolveCategoryIdsFromBrand(brandId);

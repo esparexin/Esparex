@@ -88,7 +88,7 @@ export const logPhoneReveal = async (
  */
 export const getSellerPhone = async (
     entityId: string | mongoose.Types.ObjectId,
-    entityType: 'ad' | 'service' | 'spare_part', // Keep for compatibility, but query Ad
+    entityType: 'ad' | 'service' | 'spare_part', // Keep for support, but query Ad
     buyerId?: string,
     metadata?: { ip?: string; device?: string }
 ): Promise<{
