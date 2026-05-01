@@ -1,6 +1,6 @@
 /**
  * Admin System Controller - Re-export Index
- * Maintains backward compatibility by re-exporting all functions
+ * Maintains backward support by re-exporting all functions
  * from the split admin controllers
  */
 

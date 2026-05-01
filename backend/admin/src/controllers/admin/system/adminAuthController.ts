@@ -256,7 +256,7 @@ export const adminLogin = async (req: Request, res: Response) => {
         const cookieOptions = getAdminCookieOptions(await getAdminSessionTtlMs());
         res.cookie('admin_token', token, cookieOptions);
 
-        // Also clear legacy cookie just in case
+        // Also clear previous cookie just in case
         res.clearCookie('admin_access_token');
 
         const decodedToken = verifyAdminToken(token) as { jti?: string } | null;
@@ -305,7 +305,7 @@ export const adminLogout = async (req: Request, res: Response) => {
             await revokeAdminSession(token);
         }
         res.clearCookie('admin_token', getAdminCookieOptions(0));
-        res.clearCookie('admin_access_token'); // Clean legacy
+        res.clearCookie('admin_access_token'); // Clean old
         sendSuccessResponse(res, { message: 'Logged out successfully' });
     } catch (error: unknown) {
         sendAuthError(req, res, error);
@@ -340,6 +340,6 @@ export const getMe = async (req: Request, res: Response) => {
     }
 };
 
-// Aliases for compatibility if needed, but routes should update to use these new names
+// Aliases for backward support if needed, but routes should update to use these new names
 export const login = adminLogin;
 export const logout = adminLogout;

@@ -35,8 +35,8 @@ export function validateIdOrSlug(param: string = 'id') {
             return next();
         }
 
-        // 2. Slug compatibility:
-        // Allow canonical kebab-case plus legacy underscore/dot forms.
+        // 2. Slug support:
+        // Allow canonical kebab-case plus previous underscore/dot forms.
         const slugRegex = /^[a-z0-9]+(?:[-_.][a-z0-9]+)*$/i;
 
         if (slugRegex.test(value) && value.length >= 2) {
@@ -44,7 +44,7 @@ export function validateIdOrSlug(param: string = 'id') {
             return next();
         }
 
-        // 3. Last-resort compatibility path for legacy slugs with encoded characters.
+        // 3. Last-resort support path for previous slugs with encoded characters.
         // We still reject path traversal markers.
         if (!value.includes('/') && !value.includes('\\') && value.length >= 2) {
             req.params[param] = value;

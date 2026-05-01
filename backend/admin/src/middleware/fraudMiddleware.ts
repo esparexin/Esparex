@@ -159,7 +159,7 @@ export const fraudMiddleware = async (req: Request, res: Response, next: NextFun
             return next();
         }
 
-        // Legacy/Fail-Open fallback (not recommended for production)
+        // Previous/Fail-Open fallback (not recommended for production)
         next();
     }
 };

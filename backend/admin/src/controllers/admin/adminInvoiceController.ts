@@ -99,7 +99,7 @@ export const createInvoice = async (req: Request, res: Response) => {
         let transactionDescription = "Invoice Payment";
         let resolvedPlanId: string | undefined;
 
-        // CASE A: Subscription Plan Invoice (Legacy/Strict)
+        // CASE A: Subscription Plan Invoice (Standard/Strict)
         if (planId) {
             const plan = await findPlanByIdOrCode(planId);
 

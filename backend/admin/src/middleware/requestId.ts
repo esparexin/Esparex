@@ -34,7 +34,7 @@ declare module 'express-serve-static-core' {
  */
 export function requestIdMiddleware(req: Request, res: Response, next: NextFunction) {
     // 🆔 TRACE CORRELATION
-    // Check for x-correlation-id (standardized across stack) or legacy x-request-id
+    // Check for x-correlation-id (standardized across stack) or previous x-request-id
     const correlationHeader = req.headers['x-correlation-id'] || req.headers['x-request-id'];
     const correlationId = Array.isArray(correlationHeader) ? correlationHeader[0] : correlationHeader;
 
@@ -44,7 +44,7 @@ export function requestIdMiddleware(req: Request, res: Response, next: NextFunct
     // Sync with TraceContext for specialized loggers
     TraceContext.setCorrelationId(requestId);
 
-    // Attach to request for legacy consumers
+    // Attach to request for previous version consumers
     req.requestId = requestId;
 
     // Add to response headers for debugging

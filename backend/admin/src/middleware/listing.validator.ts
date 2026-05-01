@@ -2,8 +2,6 @@ import type { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "@core/utils/errorResponse";
 import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
 
-/** @deprecated Use ListingTypeValue from shared/enums/listingType */
-export type ListingType = ListingTypeValue;
 
 const resolveListingType = (req: Request): ListingTypeValue => {
     const listingBody = req.body as { listingType?: unknown };

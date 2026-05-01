@@ -53,7 +53,7 @@ const parseCachedUserStatus = (cached: string | null): CachedUserStatus | null =
       };
     }
   } catch {
-    // Backward compatibility: previously cache stored only plain status string
+    // Backward support: previously cache stored only plain status string
   }
   return { status: cached };
 };
