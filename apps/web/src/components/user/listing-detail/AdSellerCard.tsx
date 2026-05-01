@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, ChevronRight, MessageCircle, MessageSquareOff, Phone } from "lucide-react";
+import { Building2, ChevronRight, Copy, MessageCircle, MessageSquareOff, Phone } from "lucide-react";
 import type { Ad } from "@/schemas/ad.schema";
 import { SellerIdentityPanel } from "@/components/user/shared/SellerIdentityPanel";
 import { Button } from "@/components/ui/button";
@@ -92,16 +92,33 @@ export function AdSellerCard({
                     <div className="hidden md:block space-y-2.5">
                         <div className={`grid gap-2 ${showInlineChat && showInlinePhone ? "grid-cols-2" : "grid-cols-1"}`}>
                             {showInlinePhone && (
-                                <Button
-                                    onClick={onRevealPhone}
-                                    variant="outline"
-                                    disabled={isPhoneLoading}
-                                    aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
-                                    className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50"
-                                >
-                                    <Phone className="h-4 w-4" />
-                                    <span className="min-w-0 truncate">{phoneButtonLabel}</span>
-                                </Button>
+                                <div className="flex gap-1.5 min-w-0">
+                                    <Button
+                                        variant="outline"
+                                        onClick={onRevealPhone}
+                                        disabled={isPhoneLoading}
+                                        aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
+                                        className="flex-1 h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50 overflow-hidden"
+                                    >
+                                        <Phone className="h-4 w-4 shrink-0" />
+                                        <span className="min-w-0 truncate font-mono">{phoneButtonLabel}</span>
+                                    </Button>
+                                    {revealedPhone && (
+                                        <Button
+                                            variant="outline"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                void navigator.clipboard.writeText(revealedPhone);
+                                            }}
+                                            variant="outline"
+                                            size="icon"
+                                            className="h-11 w-11 shrink-0 rounded-xl border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                                            title="Copy number"
+                                        >
+                                            <Copy className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                </div>
                             )}
                             {showInlineChat && (
                                 <Button

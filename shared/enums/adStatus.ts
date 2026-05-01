@@ -1,8 +1,8 @@
 import { LISTING_STATUS, type ListingStatus } from './listingStatus';
 
 /**
- * @deprecated Use LISTING_STATUS from ./listingStatus instead.
- * Legacy Ad Status Enum — Unified Reference
+ * Superseded Use LISTING_STATUS from ./listingStatus instead.
+ * Previous Ad Status Enum — Unified Reference
  */
 export const AD_STATUS = LISTING_STATUS;
 

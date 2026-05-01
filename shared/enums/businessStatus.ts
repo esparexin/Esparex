@@ -9,7 +9,7 @@ export const BUSINESS_STATUS = {
     REJECTED: LIFECYCLE_STATUS.REJECTED,
     SUSPENDED: LIFECYCLE_STATUS.SUSPENDED,
     DELETED: LIFECYCLE_STATUS.DELETED,
-    // Legacy mapping (remove after migration)
+    // Historical mapping (remove after migration)
     APPROVED: LIFECYCLE_STATUS.LIVE,
     ACTIVE: LIFECYCLE_STATUS.LIVE,
 } as const;

@@ -294,7 +294,7 @@ export function sanitizePersistedImageUrls(
 
 export const sanitizeStoredImageUrls = (urls: string[]): string[] => {
     // We relax placeholder filtering here. 
-    // Even if S3 is configured, we allow placeholders (e.g. from tests or legacy data) 
+    // Even if S3 is configured, we allow placeholders (e.g. from tests or previous data) 
     // to prevent stripping the images array entirely if no real S3 images are found.
     return sanitizePersistedImageUrls(urls, {
         fallbackToPlaceholder: true,

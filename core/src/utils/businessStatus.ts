@@ -1,7 +1,7 @@
 import { BUSINESS_STATUS, BusinessStatusValue } from '@core/constants/enums/businessStatus';
 
 /**
- * Legacy compatibility:
+ * Historical support:
  * historical records may still contain "active" or "approved".
  * Canonical published state is "live".
  */

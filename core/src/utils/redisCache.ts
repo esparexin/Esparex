@@ -420,7 +420,7 @@ export const invalidateAdFeedCaches = async (): Promise<void> => {
         clearCachePattern('spotlight:*'),
         clearCachePattern('feed:*:home:*'),
         clearCachePattern(`${CACHE_NAMESPACES.ADS_HOME}:*`),
-        // Canonical search namespace invalidation (covers search:ads:* and legacy search:{...} keys).
+        // Canonical search namespace invalidation (covers search:ads:* and previous search:{...} keys).
         clearCachePattern(`${CACHE_NAMESPACES.SEARCH}:*`)
     ]);
 };

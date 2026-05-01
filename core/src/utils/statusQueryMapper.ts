@@ -1,6 +1,6 @@
 /**
  * Status Query Mapper
- * Enterprise utility for building legacy-aware MongoDB status queries.
+ * Enterprise utility for building historical-aware MongoDB status queries.
  * Standardizes mapping of canonical 'live', 'pending' statuses to multiple DB-level string values.
  */
 

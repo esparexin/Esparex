@@ -8,7 +8,7 @@ export interface AdminUser {
     permissions?: string[];
     lastLogin?: string;
     isActive?: boolean;
-    status?: 'active' | 'inactive'; // Frontend compatibility
+    status?: 'active' | 'inactive'; // Frontend support
     createdAt?: string;
 }
 

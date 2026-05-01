@@ -29,7 +29,7 @@ export const ADMIN_ROUTES = {
   USER_OVERVIEW: "/user-management/overview",
   USER_STATUS: (id: string) => `/users/${id}/status`,
   USER_VERIFY: (id: string) => `/users/${id}/verify`,
-  // Legacy aliases mapped to canonical admin-users surface
+  // Historical aliases mapped to canonical admin-users surface
   ADMINS: "/admin-users",
   ADMIN_BY_ID: (id: string) => `/admin-users/${id}`,
   ADMIN_USERS: "/admin-users",
@@ -64,7 +64,7 @@ export const ADMIN_ROUTES = {
   LISTING_COUNTS: "/listings/counts",
   LISTING_DELETE: (id: string) => `/listings/${id}`,
   LISTING_REPORT_RESOLVE: (id: string) => `/listings/${id}/report-resolve`,
-  // Legacy report aliases mapped to canonical reports surface
+  // Historical report aliases mapped to canonical reports surface
   REPORTED_ADS: "/reports",
   REPORTED_AD_DETAIL: (id: string) => `/reports/${id}`,
   REPORTED_AD_RESOLVE: (id: string) => `/reports/${id}/resolve`,

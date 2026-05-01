@@ -25,7 +25,7 @@ export const USER_ROUTES = {
   SERVICE_TYPES: "catalog/service-types",
   SCREEN_SIZES: "catalog/screen-sizes",
 
-  // Ads (Legacy - Redirected to Listings)
+  // Ads (Historical - Redirected to Listings)
   ADS: "listings",
   ADS_NEARBY: "listings/nearby",
   ADS_SUGGESTIONS: "listings/suggestions",
@@ -91,7 +91,7 @@ export const USER_ROUTES = {
   BUSINESS_SPARE_PARTS: (id: string) => `businesses/${id}/spare-parts`,
   BUSINESS_LISTINGS: (id: string) => `businesses/${id}/listings`,
 
-  // Services (Legacy - Redirected to Listings)
+  // Services (Historical - Redirected to Listings)
   SERVICES: "listings",
   SERVICE_DETAIL: (id: string) => `listings/${encodeURIComponent(id)}`,
   SERVICE_VIEW: (id: string) => `listings/${encodeURIComponent(id)}/view`,
@@ -99,7 +99,7 @@ export const USER_ROUTES = {
   SERVICE_DEACTIVATE: (id: string) => `listings/${id}/deactivate`,
   SERVICE_REPOST: (id: string) => `listings/${id}/repost`,
 
-  // Spare Part Listings (Legacy - Redirected to Listings)
+  // Spare Part Listings (Historical - Redirected to Listings)
   SPARE_PART_LISTINGS: "listings",
   SPARE_PART_LISTING_DETAIL: (id: string) => `listings/${encodeURIComponent(id)}`,
   SPARE_PART_DEACTIVATE: (id: string) => `listings/${id}/deactivate`,

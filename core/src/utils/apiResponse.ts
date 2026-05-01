@@ -62,7 +62,7 @@ export class ApiResponse {
         const fullPayload = {
             ...payload,
             ...options,
-            status // Consistent with legacy errorResponse
+            status // Consistent with previous errorResponse
         };
 
         return res.status(status).json(fullPayload);

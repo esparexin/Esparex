@@ -63,17 +63,17 @@ export interface Business {
     images?: string[];
     /** 
      * Canonical Documents Structure
-     * SSOT: Array of BusinessDocument objects.
-     * Includes compatibility aliases for legacy UI components.
+     * SSOT: Array of BusinessDocument objects.    /**
+     * Includes support aliases for previous UI components.
      */
     documents: BusinessDocument[] & {
-        /** @deprecated Use canonical array filtering */
+        /** Superseded Use canonical array filtering */
         idProof?: string[];
-        /** @deprecated Use canonical array filtering */
+        /** Superseded Use canonical array filtering */
         idProofType?: IdProofTypeValue;
-        /** @deprecated Use canonical array filtering */
+        /** Superseded Use canonical array filtering */
         businessProof?: string[];
-        /** @deprecated Use canonical array filtering */
+        /** Superseded Use canonical array filtering */
         certificates?: string[];
     };
     
@@ -90,7 +90,7 @@ export interface Business {
     isDeleted?: boolean;
     deletedAt?: string;
 
-    // Derived UI / Compatibility Aliases
+    // Derived UI / Support Aliases
     businessName?: string;
     ownerName?: string;
     tagline?: string;

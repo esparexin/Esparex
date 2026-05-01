@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, ExternalLink, MapPin, Pause, Phone, Play, RefreshCw, User, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Check, Copy, ExternalLink, Eye, EyeOff, MapPin, Pause, Phone, Play, RefreshCw, User, X } from "lucide-react";
 import Link from "next/link";
 import type { ModerationItem } from "./moderationTypes";
 import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "./moderationStatus";
@@ -45,6 +46,26 @@ export function ViewAdModal({
     onBlockSeller,
     onExtend,
 }: ViewAdModalProps) {
+    const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
+
+    useEffect(() => {
+        if (!open) {
+            setIsPhoneRevealed(false);
+        }
+    }, [open]);
+
+    const maskPhone = (phone: string) => {
+        if (!phone) return "Not available";
+        const cleaned = phone.trim();
+        if (cleaned.length < 8) return "****" + cleaned.slice(-3);
+        return cleaned.slice(0, 4) + " •••• " + cleaned.slice(-3);
+    };
+
+    const handleCopyPhone = (phone: string) => {
+        void navigator.clipboard.writeText(phone);
+        // We could add a toast here if available
+    };
+
     const locationDisplay = ad
         ? resolveLocationDisplay({
             locationLabel: ad.locationLabel,
@@ -240,8 +261,36 @@ export function ViewAdModal({
                                         {ad.sellerId && <span className="text-xs text-slate-500">({ad.sellerId})</span>}
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-slate-700">
-                                        <Phone size={14} />
-                                        <span>{ad.sellerPhone || "Not available"}</span>
+                                        <Phone size={14} className="shrink-0 text-slate-400" />
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-mono font-medium">
+                                                {isPhoneRevealed ? (ad.sellerPhone || "Not available") : maskPhone(ad.sellerPhone || "")}
+                                            </span>
+                                            {ad.sellerPhone && (
+                                                <div className="flex items-center gap-1 ml-1">
+                                                    <button
+                                                        onClick={() => setIsPhoneRevealed(!isPhoneRevealed)}
+                                                        className="h-7 px-2 flex items-center gap-1 rounded-md bg-slate-100 hover:bg-slate-200 text-[11px] font-semibold text-slate-600 transition-colors"
+                                                        title={isPhoneRevealed ? "Hide number" : "Show full number"}
+                                                    >
+                                                        {isPhoneRevealed ? (
+                                                            <><EyeOff size={12} /> Hide</>
+                                                        ) : (
+                                                            <><Eye size={12} /> Show</>
+                                                        )}
+                                                    </button>
+                                                    {isPhoneRevealed && (
+                                                        <button
+                                                            onClick={() => handleCopyPhone(ad.sellerPhone!)}
+                                                            className="h-7 w-7 flex items-center justify-center rounded-md bg-sky-50 hover:bg-sky-100 text-sky-600 transition-colors"
+                                                            title="Copy to clipboard"
+                                                        >
+                                                            <Copy size={12} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                     {ad.sellerId && (
                                         <Link

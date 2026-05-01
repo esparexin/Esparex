@@ -8,7 +8,7 @@ export const CATALOG_STATUS = {
     LIVE: LIFECYCLE_STATUS.LIVE,
     REJECTED: LIFECYCLE_STATUS.REJECTED,
     INACTIVE: LIFECYCLE_STATUS.INACTIVE,
-    // Legacy mapping
+    // Historical mapping
     ACTIVE: LIFECYCLE_STATUS.LIVE,
 } as const;
 

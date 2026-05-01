@@ -30,7 +30,7 @@ export interface ApiResponse<T> {
     message?: string;
 }
 
-// For legacy/inconsistent controllers that use 'output' or 'status' in body
+// For previous/inconsistent controllers that use 'output' or 'status' in body
 export interface LegacyApiResponse<T> {
     status: number;
     output?: T;

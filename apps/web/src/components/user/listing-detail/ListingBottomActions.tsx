@@ -8,6 +8,7 @@ import {
   Trash2,
   MessageCircle,
   Phone,
+  Copy,
 } from "lucide-react";
 import { ActionBarVariant } from "@/lib/logic/bottomBarActions";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
@@ -207,16 +208,30 @@ export function ListingBottomActions({
         >
           <div className={`grid gap-2 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] ${showPhoneAction && showChatAction ? "grid-cols-2" : "grid-cols-1"}`}>
             {showPhoneAction ? (
-              <Button
-                variant="outline"
-                onClick={onRevealPhone}
-                disabled={isPhoneLoading}
-                aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
-                className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50"
-              >
-                <Phone className="h-4 w-4" />
-                <span className="min-w-0 truncate">{phoneButtonLabel}</span>
-              </Button>
+              <div className="flex gap-1.5 min-w-0">
+                <Button
+                  variant="outline"
+                  onClick={onRevealPhone}
+                  disabled={isPhoneLoading}
+                  aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
+                  className="flex-1 h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50 overflow-hidden"
+                >
+                  <Phone className="h-4 w-4 shrink-0" />
+                  <span className="min-w-0 truncate font-mono">{phoneButtonLabel}</span>
+                </Button>
+                {revealedPhone && (
+                  <Button
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void navigator.clipboard.writeText(revealedPhone);
+                    }}
+                    className="h-11 w-11 px-0 shrink-0 rounded-xl border-slate-200 text-slate-400"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             ) : null}
             {showChatAction ? (
               <Button

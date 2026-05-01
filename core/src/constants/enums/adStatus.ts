@@ -2,7 +2,7 @@ import { LISTING_STATUS, type ListingStatus } from './listingStatus';
 import { LIFECYCLE_STATUS } from './lifecycle';
 
 /**
- * @deprecated Use LISTING_STATUS from ./listingStatus instead.
+ * @Superseded Use LISTING_STATUS from ./listingStatus instead.
  * Ad Status Enum — Unified Reference
  */
 export const AD_STATUS = LISTING_STATUS;

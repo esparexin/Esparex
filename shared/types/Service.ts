@@ -55,7 +55,7 @@ export interface Service {
     createdAt: string; // ISO Date
     updatedAt: string; // ISO Date
 
-    // Legacy/compat fields (avoid use in new code)
+    // Previous/support fields (avoid use in new code)
     name?: string;
     price?: number;
     category?:

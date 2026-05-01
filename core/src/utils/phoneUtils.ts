@@ -32,7 +32,7 @@ export const canonicalizeToIndian = (phone: string): string => {
 };
 
 /**
- * Generates variants to support legacy DB records
+ * Generates variants to support previous DB records
  * e.g., "9876543210" -> ["+919876543210", "919876543210", "9876543210"]
  */
 export const getMobileVariants = (phone: string): string[] => {
