@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["core/src/*"],
+      "@shared/*": ["shared/*"]
+    },
+    "strict": true,
+    "skipLibCheck": true,
+    "composite": true,
+    "declaration": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./core" },
+    { "path": "./shared" },
+    { "path": "./backend/user" },
+    { "path": "./backend/admin" },
+    { "path": "./apps/web" },
+    { "path": "./apps/admin" }
+  ]
+}

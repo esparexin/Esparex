@@ -45,9 +45,11 @@
     "audit:orphans": "node scripts/orphan-sweep.cjs",
     "ci:admin-guardrails": "npm run ci:guardrails -w @esparex/apps-admin",
     "check:s3-images": "npx ts-node --compiler-options '{\"moduleResolution\":\"NodeNext\"}' scripts/check-s3-images.ts",
-    "lint": "node scripts/run-eslint-changed.js",
-    "lint:all": "npm run lint -w @esparex/backend-user && npm run lint -w @esparex/apps-web && npm run lint -w @esparex/apps-admin",
-    "ci": "npm run lint && npm run type-check && npm run guard:duplication",
+    "lint": "eslint .",
+    "lint:changed": "node scripts/run-eslint-changed.js",
+    "lint:all": "npm run lint",
+    "test": "npm test -w core && npm test -w @esparex/backend-user",
+    "ci": "npm run lint && npm run type-check && npm run test && npm run guard:duplication",
     "guard:unused-imports": "node scripts/enforce-no-new-unused-imports.js",
     "guard:duplication": "npx jscpd --config .jscpd.json",
     "guard:api-surface": "node scripts/enforce-api-surface-guard.js"
@@ -86,7 +88,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "node scripts/run-eslint-changed.js"
+      "npm run lint:changed --"
     ]
   }
 }
