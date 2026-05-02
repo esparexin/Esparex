@@ -1,10 +1,6 @@
-import { getUserConnection } from '@core/config/db';
-import type { ListingTypeValue } from '@core/constants/enums/listingType';
-import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { processImages } from '@core/utils/imageProcessor';
 import { sanitizeStoredImageUrls, deleteFromS3Url } from '@core/utils/s3';
 import logger from '@core/utils/logger';
-import AdModel from '@core/models/Ad';
 
 export interface BaseListingCreationContext {
     userId: string;

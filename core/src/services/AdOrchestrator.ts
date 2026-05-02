@@ -91,10 +91,10 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
 
             // 3. Duplicate Detection
             const duplicateCheck = await AdDuplicateService.checkDuplicate(
-                payload as unknown as Parameters<typeof AdDuplicateService.checkDuplicate>[0],
+                payload,
                 context.sellerId,
                 payload.imageHashes,
-                session as unknown as Parameters<typeof AdDuplicateService.checkDuplicate>[3]
+                session
             );
 
             if (duplicateCheck.isDuplicate) {
@@ -103,9 +103,9 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                     matchedAdId: duplicateCheck.matchedAdId,
                     action: 'blocked',
                     reason: duplicateCheck.reason,
-                    duplicateFingerprint: buildDuplicateFingerprint(payload as unknown as Parameters<typeof buildDuplicateFingerprint>[0], context.sellerId),
+                    duplicateFingerprint: buildDuplicateFingerprint(payload, context.sellerId),
                     details: { checkResult: duplicateCheck }
-                }, session as unknown as Parameters<typeof logDuplicateEvent>[1]);
+                }, session);
 
                 const { createDuplicateError } = await import('./AdValidationService');
                 throw createDuplicateError(duplicateCheck.reason);
@@ -149,7 +149,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
 
             const ads = await Ad.create([payload] as any, { session });
             if (ads && ads.length > 0) {
-                createdAd = ads[0] as unknown as IAd;
+                createdAd = ads[0];
             }
 
             // 8. Final Approval (Only if actor is ADMIN and not held for review)
@@ -187,7 +187,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                     session,
                 });
 
-                createdAd = await Ad.findById((createdAd as IAd & { _id: mongoose.Types.ObjectId })._id).session(session) as IAd | null;
+                createdAd = await Ad.findById((createdAd as IAd & { _id: mongoose.Types.ObjectId })._id).session(session);
             }
 
             // 9. Dispatch Image Optimization

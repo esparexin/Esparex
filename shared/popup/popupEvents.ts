@@ -9,7 +9,7 @@ export type { PopupAction, PopupState, PopupType };
 
 /**
  * Creates a standard popup bus with optional prefix.
- * Shared between frontend and admin-frontend.
+ * Shared between frontend and apps/admin.
  */
 export function createUnifiedPopupBus(idPrefix?: string) {
   const bus = createPopupBus({ idPrefix });

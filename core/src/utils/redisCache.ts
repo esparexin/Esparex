@@ -141,7 +141,7 @@ const normalizeQueryValue = (value: unknown): string | null => {
     }
     if (typeof value === 'object') {
         try {
-            const sorted = Object.keys(value as Record<string, unknown>)
+            const sorted = Object.keys(value)
                 .sort()
                 .reduce<Record<string, unknown>>((acc, key) => {
                     acc[key] = (value as Record<string, unknown>)[key];

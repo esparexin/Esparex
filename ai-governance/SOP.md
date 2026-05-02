@@ -48,7 +48,7 @@ Placement rules:
 
 - backend logic belongs under canonical `backend/src/*` ownership boundaries
 - user UI belongs under `frontend/src/*`
-- admin UI belongs under `admin-frontend/src/*`
+- admin UI belongs under `apps/admin/src/*`
 - cross-app contracts and reusable schemas belong under `shared/`
 - AI governance documents belong only under `ai-governance/`
 

@@ -168,7 +168,7 @@ export const findExistingSelfDuplicate = async (
     const queryBuilder = Ad.findOne(query).select('_id status').lean();
     if (session) queryBuilder.session(session);
 
-    return (await queryBuilder) as DuplicateLookupResult | null;
+    return (await queryBuilder);
 };
 
 export const assessCrossUserDuplicateRisk = async (

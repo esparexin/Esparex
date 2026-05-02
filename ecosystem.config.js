@@ -20,9 +20,9 @@ module.exports = {
       time: true
     },
     {
-      name: 'esparex-admin-backend',
-      script: 'dist/admin-backend/src/server.js',
-      cwd: './admin-backend',
+      name: 'esparex-backend/admin',
+      script: 'dist/backend/admin/src/server.js',
+      cwd: './backend/admin',
       instances: 1,
       exec_mode: 'fork',
       autorestart: true,

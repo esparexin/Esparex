@@ -49,10 +49,10 @@ backend/.env.*
 backend/src/config/.env
 frontend/.env.local
 frontend/.env.test
-admin-frontend/.env.local
-admin-frontend/.env.*
-!admin-frontend/.env.local.example
-!admin-frontend/.env.production.example
+apps/admin/.env.local
+apps/admin/.env.*
+!apps/admin/.env.local.example
+!apps/admin/.env.production.example
 
 # Service credentials
 service-account.json

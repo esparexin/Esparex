@@ -20,7 +20,6 @@ import {
 } from './ListingModerationQueryService';
 import { REPORT_STATUS } from '@core/constants/enums/reportStatus';
 import { AppError } from '@core/utils/AppError';
-import type AdminLog from '@core/models/AdminLog';
 
 // ---------------------------------------------------------
 // Types
@@ -187,7 +186,7 @@ export const adminCreateListing = async (
 ) => {
     const safeBody = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
     const { allowDuplicateBypass, duplicateBypassReason } = parseDuplicateBypassPayload(
-        safeBody as DuplicateBypassBody
+        safeBody
     );
     validateDuplicateBypass(allowDuplicateBypass, duplicateBypassReason);
 
@@ -235,7 +234,7 @@ export const adminUpdateListing = async (
     validateListingId(id);
     const safeBody = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
     const { allowDuplicateBypass, duplicateBypassReason } = parseDuplicateBypassPayload(
-        safeBody as DuplicateBypassBody
+        safeBody
     );
     validateDuplicateBypass(allowDuplicateBypass, duplicateBypassReason);
 

@@ -43,7 +43,6 @@ import {
     loadHierarchyMapForLocations,
     normalizeStateLabel,
     resolveLocationScope,
-    type CanonicalLocationDoc,
 } from '@core/utils/locationHierarchy';
 
 export const getDashboardOverviewStats = async (publicAdFilter: Record<string, unknown>) => {
@@ -321,7 +320,7 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
     );
     const hotZones = topHotZonesRaw.map((zone) => {
         const location = hotZoneLocationMap.get(String(zone.locationId));
-        const summary = location ? buildLocationSummary(location as CanonicalLocationDoc, hotZoneHierarchyMap) : undefined;
+        const summary = location ? buildLocationSummary(location, hotZoneHierarchyMap) : undefined;
         return {
             _id: String(zone._id),
             city: summary?.city ?? '',

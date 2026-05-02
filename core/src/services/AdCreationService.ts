@@ -94,7 +94,7 @@ export const validateSparePartsForCategory = async (
         throw new AppError('One or more selected spare parts are invalid for the selected category.', 400);
     }
 
-    return validParts as Array<{ _id: unknown; name: string; brandId?: unknown }>;
+    return validParts;
 };
 
 /**
@@ -137,7 +137,7 @@ export class AdCreationService {
             serviceTypeIds: Array.isArray(source.serviceTypeIds) ? source.serviceTypeIds : undefined,
             businessId: source.businessId,
             sellerType: typeof source.sellerType === 'string' ? source.sellerType : undefined,
-            attributes: source.attributes && typeof source.attributes === 'object' ? source.attributes as Record<string, unknown> : undefined,
+            attributes: source.attributes && typeof source.attributes === 'object' ? source.attributes : undefined,
         };
 
         if (payload.title) payload.title = payload.title.replace(/<[^>]*>?/gm, '').trim();

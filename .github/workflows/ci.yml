@@ -17,9 +17,9 @@ jobs:
           node-version: "24.x"
           cache: npm
       - run: npm ci
-      - run: npm run build -w user-backend
+      - run: npm run build -w @esparex/backend-user
 
-  build-admin-frontend:
+  build-apps/admin:
     name: Build Admin Frontend
     runs-on: ubuntu-latest
     steps:
@@ -29,7 +29,7 @@ jobs:
           node-version: "24.x"
           cache: npm
       - run: npm ci
-      - run: npm run build -w admin-frontend
+      - run: npm run build -w @esparex/apps-admin
         env:
           NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
 
@@ -43,7 +43,7 @@ jobs:
           node-version: "24.x"
           cache: npm
       - run: npm ci
-      - run: npm run build -w user-frontend
+      - run: npm run build -w @esparex/apps-web
         env:
           NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
           NEXT_PUBLIC_APP_URL: https://esparex.in

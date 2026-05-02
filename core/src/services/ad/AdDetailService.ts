@@ -268,7 +268,7 @@ export const getReportedAdsAggregation = async (filters: { status?: string, reas
     const total = totalResults[0]?.count ?? 0;
 
     const transformedData = results.map(group => {
-        const latestReport = group.reports[group.reports.length - 1] as ReportDoc;
+        const latestReport = group.reports[group.reports.length - 1];
         return {
             id: String(group._id),
             reportId: String(latestReport._id),

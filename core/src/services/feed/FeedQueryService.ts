@@ -15,8 +15,7 @@ import {
     filterBeforeCursor, 
     mergeRankedFeed, 
     extractAdId, 
-    extractObjectIdHex,
-    FeedAdRecord 
+    extractObjectIdHex 
 } from './FeedRankerService';
 
 interface FeedFacetResult {
@@ -157,7 +156,7 @@ export const buildHomeFeed = async (
             const id = extractAdId(ad);
             if (!id || seenIds.has(id)) continue;
             seenIds.add(id);
-            merged.ads.push(ad as FeedAdRecord);
+            merged.ads.push(ad);
         }
     }
 

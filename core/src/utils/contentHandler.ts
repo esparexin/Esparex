@@ -1,4 +1,3 @@
-import type { IAuthUser as AuthUser } from "@core/types/auth";
 
 import { Request, Response } from 'express';
 import { Model, Document } from 'mongoose';
@@ -64,7 +63,7 @@ export async function handlePaginatedContent<T extends Document>(
     options: ContentOptions = {}
 ) {
     try {
-        const user = req.user as AuthUser | undefined;
+        const user = req.user;
         const isAdmin =
             Boolean((req as unknown as { admin?: unknown }).admin) ||
             user?.role === 'admin' ||

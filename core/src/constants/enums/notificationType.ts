@@ -3,7 +3,7 @@
  *
  * Used across backend (model, dispatcher, intents),
  * frontend (api/user/notifications.ts, Notifications.tsx),
- * and admin-frontend (types/notification.ts).
+ * and apps/admin (types/notification.ts).
  */
 
 export const NOTIFICATION_TYPE = {

@@ -337,7 +337,7 @@ export const adminCreateLocation = async (createBody: AdminCreateLocationBody) =
 
     await invalidateLocationStateCache();
 
-    const [response] = await hydrateLocationResponses([location.toObject() as CanonicalLocationDoc]);
+    const [response] = await hydrateLocationResponses([location.toObject()]);
     return response;
 };
 
@@ -410,11 +410,11 @@ export const adminUpdateLocation = async (id: string, updateBody: AdminUpdateLoc
     if (name || country || level || hasParentMutation) {
         let parentLocation: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[]; country?: string; level?: string } | null = null;
         if (location.parentId) {
-            parentLocation = await findLocationParent(location.parentId) as typeof parentLocation;
+            parentLocation = await findLocationParent(location.parentId);
         }
         location.path = buildHierarchyPath(location._id, parentLocation);
         const parentSummary = parentLocation
-            ? await resolveLocationSummary(parentLocation as CanonicalLocationDoc)
+            ? await resolveLocationSummary(parentLocation)
             : null;
 
         const slugParts = [
@@ -428,7 +428,7 @@ export const adminUpdateLocation = async (id: string, updateBody: AdminUpdateLoc
     await saveLocation(location);
     await invalidateLocationStateCache();
 
-    const [response] = await hydrateLocationResponses([location.toObject() as CanonicalLocationDoc]);
+    const [response] = await hydrateLocationResponses([location.toObject()]);
     return response;
 };
 

@@ -5,7 +5,7 @@ const path = require("node:path");
 
 const repoRoot = path.resolve(__dirname, "..");
 const frontendAppRoot = path.join(repoRoot, "apps", "web", "src", "app");
-const backendAppFile = path.join(repoRoot, "user-backend", "src", "app.ts");
+const backendAppFile = path.join(repoRoot, "backend/user", "src", "app.ts");
 
 const RESERVED_STATIC_SEGMENTS = new Set([
   "create",
@@ -215,7 +215,7 @@ function findBackendMountDuplicates() {
 
 function main() {
   if (!exists(frontendAppRoot)) {
-    console.error("❌ Missing frontend app directory: user-frontend/src/app");
+    console.error("❌ Missing frontend app directory: apps/web/src/app");
     process.exit(1);
   }
 

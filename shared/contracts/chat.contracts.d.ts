@@ -1,6 +1,6 @@
 /**
  * ESPAREX — Chat API Contracts (SSOT)
- * Request + Response TypeScript interfaces shared between backend, frontend, and admin-frontend.
+ * Request + Response TypeScript interfaces shared between backend, frontend, and apps/admin.
  */
 import type { ChatReportReasonValue } from '../enums/chatStatus';
 export interface ChatUserRef {

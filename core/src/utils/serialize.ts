@@ -47,7 +47,7 @@ export function serializeDoc<T>(doc: T): T {
     const docWithObject = doc as unknown as Partial<ToObjectCapable>;
     const obj: unknown = (typeof docWithObject.toObject === 'function')
         ? docWithObject.toObject({ virtuals: true, versionKey: false })
-        : (doc as unknown as Record<string, unknown>);
+        : (doc);
 
     if (!isObjectRecord(obj)) {
         if (obj instanceof Buffer || isObjectIdLike(obj)) {
@@ -110,5 +110,5 @@ export function serializePaginated<T extends { docs: unknown[] }>(
     return {
         ...data,
         docs: serializeDocs(data.docs)
-    } as T;
+    };
 }

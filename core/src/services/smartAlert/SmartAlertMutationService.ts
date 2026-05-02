@@ -91,7 +91,7 @@ const normalizeSmartAlertLocationPayload = async (
         (criteria as Record<string, unknown>).location = normalized.display;
     }
 
-    payload.criteria = criteria as SmartAlertCriteriaPayload;
+    payload.criteria = criteria;
 };
 
 const resolveSmartAlertCriteriaIds = async (criteria?: SmartAlertCriteriaPayload) => {

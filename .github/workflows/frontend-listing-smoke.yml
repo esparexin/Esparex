@@ -91,7 +91,7 @@ jobs:
 
       - name: Start backend
         run: |
-          nohup npm run start:ts -w user-backend > "$RUNNER_TEMP/backend-smoke.log" 2>&1 &
+          nohup npm run start:ts -w @esparex/backend-user > "$RUNNER_TEMP/backend-smoke.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/backend.pid"
 
       - name: Wait for backend
@@ -108,7 +108,7 @@ jobs:
 
       - name: Start frontend
         run: |
-          nohup npm run dev -w user-frontend > "$RUNNER_TEMP/frontend-smoke.log" 2>&1 &
+          nohup npm run dev -w @esparex/apps-web > "$RUNNER_TEMP/frontend-smoke.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/frontend.pid"
 
       - name: Wait for frontend
@@ -125,23 +125,23 @@ jobs:
 
       - name: Provision smoke fixtures
         run: |
-          SMOKE_FIXTURE_OUTPUT_PATH="$RUNNER_TEMP/smoke-fixtures.json" npm run smoke:fixtures -w user-backend
+          SMOKE_FIXTURE_OUTPUT_PATH="$RUNNER_TEMP/smoke-fixtures.json" npm run smoke:fixtures -w @esparex/backend-user
           echo "SMOKE_LISTING_FIXTURES<<EOF" >> "$GITHUB_ENV"
           cat "$RUNNER_TEMP/smoke-fixtures.json" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
 
       - name: Run full listing contact smoke
-        run: npm run e2e -w user-frontend -- tests/listing-chat-smoke.spec.ts --project=chromium --project=mobile-chrome
+        run: npm run e2e -w @esparex/apps-web -- tests/listing-chat-smoke.spec.ts --project=chromium --project=mobile-chrome
 
       - name: Run reveal-policy smoke matrix
         run: |
           for expectation in masked request_only hidden; do
             SMOKE_FIXTURE_REVEAL_EXPECT="$expectation" \
             SMOKE_FIXTURE_OUTPUT_PATH="$RUNNER_TEMP/reveal-${expectation}.json" \
-            npm run smoke:fixtures -w user-backend
+            npm run smoke:fixtures -w @esparex/backend-user
 
             SMOKE_LISTING_FIXTURES="$(cat "$RUNNER_TEMP/reveal-${expectation}.json")" \
-            npm run e2e -w user-frontend -- tests/listing-chat-smoke.spec.ts --grep "listing detail show number reveals canonical contact data" --project=chromium --project=mobile-chrome
+            npm run e2e -w @esparex/apps-web -- tests/listing-chat-smoke.spec.ts --grep "listing detail show number reveals canonical contact data" --project=chromium --project=mobile-chrome
           done
 
       - name: Upload Playwright artifacts

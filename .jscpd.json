@@ -4,10 +4,10 @@
   "minTokens": 100,
   "languages": ["typescript", "tsx"],
   "path": [
-    "user-backend/src",
-    "admin-backend/src",
+    "backend/user/src",
+    "backend/admin/src",
     "apps/web/src",
-    "admin-frontend/src",
+    "apps/admin/src",
     "core/src",
     "shared"
   ],

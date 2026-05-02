@@ -110,7 +110,7 @@ export const computeActiveExpiry = async (listingType: ListingTypeValue = LISTIN
     try {
         const config = await getSystemConfigForRead();
         if (config?.listing?.expiryDays) {
-            const dynamicDays = config.listing.expiryDays[listingType as keyof typeof config.listing.expiryDays];
+            const dynamicDays = config.listing.expiryDays[listingType];
             if (typeof dynamicDays === 'number') {
                 days = dynamicDays;
             } else if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {

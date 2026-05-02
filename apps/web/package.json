@@ -1,5 +1,5 @@
 {
-  "name": "user-frontend",
+  "name": "@esparex/apps-web",
   "private": true,
   "version": "0.0.0",
   "type": "module",

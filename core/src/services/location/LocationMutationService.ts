@@ -27,7 +27,7 @@ export const saveLocation = async (location: HydratedDocument<ILocation>): Promi
 };
 
 export const softDeleteLocation = async (location: HydratedDocument<ILocation>): Promise<void> => {
-    await (location as HydratedDocument<ILocation> & { softDelete: () => Promise<unknown> }).softDelete();
+    await (location).softDelete();
     if (location?._id) {
         LocationCacheService.invalidate(location._id.toString()).catch(() => {});
     }

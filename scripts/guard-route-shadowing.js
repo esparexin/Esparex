@@ -8,16 +8,20 @@ const path = require('path');
  * that shares the same base path.
  */
 
-const ROUTES_DIR = path.join(__dirname, '../backend/src/routes');
+const BACKEND_DIRS = [
+    path.join(__dirname, '../backend/user/src/routes'),
+    path.join(__dirname, '../backend/admin/src/routes')
+];
 const STATIC_PATTERNS = ['/summary', '/stats', '/analytics', '/export', '/search', '/metrics', '/health', '/rules', '/keywords'];
 
 function getFiles(dir) {
+    if (!fs.existsSync(dir)) return [];
     const files = [];
     const items = fs.readdirSync(dir, { withFileTypes: true });
     for (const item of items) {
         if (item.isDirectory()) {
             files.push(...getFiles(path.join(dir, item.name)));
-        } else if (item.name.endsWith('.routes.ts')) {
+        } else if (item.name.endsWith('.routes.ts') || item.name.endsWith('Routes.ts')) {
             files.push(path.join(dir, item.name));
         }
     }
@@ -26,7 +30,7 @@ function getFiles(dir) {
 
 let hasError = false;
 
-const routeFiles = getFiles(ROUTES_DIR);
+const routeFiles = BACKEND_DIRS.flatMap(dir => getFiles(dir));
 
 routeFiles.forEach((filePath) => {
     const content = fs.readFileSync(filePath, 'utf8');

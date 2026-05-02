@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const repoRoot = path.resolve(__dirname, "..");
-const scanRoot = path.join(repoRoot, "backend", "src");
+const scanRoot = path.join(repoRoot, "backend", "user", "src");
 
 const EXCLUDED_DIRS = new Set(["__tests__", "dist", "coverage", "node_modules"]);
 const FILE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs"]);
@@ -40,7 +40,7 @@ function collectFiles(dir) {
 
 function main() {
   if (!fs.existsSync(scanRoot)) {
-    console.log("PASS: backend/src not found.");
+    console.log("PASS: backend/user/src not found.");
     return;
   }
 

@@ -4,7 +4,7 @@
  * Single Source of Truth for all admin authentication and permission checking.
  * Extracted from:
  *   - backend/src/middleware/adminAuth.ts
- *   - admin-backend/src/middleware/adminAuth.ts
+ *   - backend/admin/src/middleware/adminAuth.ts
  *
  * Both workspace files now re-export from here.
  */

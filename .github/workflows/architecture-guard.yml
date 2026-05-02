@@ -34,20 +34,20 @@ jobs:
 
       - name: Create .env for backend
         run: |
-          echo "NODE_ENV=test" > user-backend/.env
-          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> user-backend/.env
-          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> user-backend/.env
-          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> user-backend/.env
-          echo "LOG_LEVEL=info" >> user-backend/.env
+          echo "NODE_ENV=test" > backend/user/.env
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/user/.env
+          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/user/.env
+          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> backend/user/.env
+          echo "LOG_LEVEL=info" >> backend/user/.env
 
       - name: Type check backend
-        run: npm run type-check -w user-backend
+        run: npm run type-check -w @esparex/backend-user
 
       - name: Type check frontend
-        run: npm run type-check -w user-frontend
+        run: npm run type-check -w @esparex/apps-web
 
-      - name: Type check admin-frontend
-        run: npm run type-check -w admin-frontend
+      - name: Type check apps/admin
+        run: npm run type-check -w @esparex/apps-admin
 
   # ── Job 2: Backend unit tests ────────────────────────────────────────────────
   test:
@@ -66,21 +66,21 @@ jobs:
 
       - name: Create .env for backend tests
         run: |
-          echo "NODE_ENV=test" > user-backend/.env
-          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> user-backend/.env
-          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> user-backend/.env
-          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> user-backend/.env
-          echo "LOG_LEVEL=info" >> user-backend/.env
+          echo "NODE_ENV=test" > backend/user/.env
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/user/.env
+          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/user/.env
+          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> backend/user/.env
+          echo "LOG_LEVEL=info" >> backend/user/.env
 
       - name: Run backend tests
-        run: npm run test:ci -w user-backend
+        run: npm run test:ci -w @esparex/backend-user
 
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: user-backend/coverage/
+          path: backend/user/coverage/
           retention-days: 7
           if-no-files-found: ignore
 
@@ -103,11 +103,11 @@ jobs:
 
       - name: Create .env for backend guards
         run: |
-          echo "NODE_ENV=test" > user-backend/.env
-          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> user-backend/.env
-          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> user-backend/.env
-          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> user-backend/.env
-          echo "LOG_LEVEL=info" >> user-backend/.env
+          echo "NODE_ENV=test" > backend/user/.env
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/user/.env
+          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/user/.env
+          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> backend/user/.env
+          echo "LOG_LEVEL=info" >> backend/user/.env
 
       - name: Lint repository
         run: npm run lint
@@ -158,17 +158,17 @@ jobs:
 
       - name: Create .env for backend build
         run: |
-          echo "NODE_ENV=test" > user-backend/.env
-          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> user-backend/.env
-          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> user-backend/.env
-          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> user-backend/.env
-          echo "LOG_LEVEL=info" >> user-backend/.env
+          echo "NODE_ENV=test" > backend/user/.env
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/user/.env
+          echo "ADMIN_MONGODB_URI=mongodb://127.0.0.1:27017/esparex_test" >> backend/user/.env
+          echo "JWT_SECRET=ci_test_secret_at_least_32_characters_long_for_validation_safety" >> backend/user/.env
+          echo "LOG_LEVEL=info" >> backend/user/.env
 
       - name: Build backend
-        run: npm run build -w user-backend
+        run: npm run build -w @esparex/backend-user
 
       - name: Build frontend
-        run: npm run build -w user-frontend
+        run: npm run build -w @esparex/apps-web
         env:
           NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
           NEXT_PUBLIC_APP_URL: https://esparex.in
@@ -183,7 +183,7 @@ jobs:
           NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
           NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
 
-      - name: Build admin-frontend
-        run: npm run build -w admin-frontend
+      - name: Build apps/admin
+        run: npm run build -w @esparex/apps-admin
         env:
           NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
