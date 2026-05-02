@@ -1,5 +1,5 @@
 {
-  "name": "backend/admin",
+  "name": "@esparex/backend-admin",
   "version": "1.0.0",
   "description": "Administrative Backend for Esparex",
   "main": "index.js",

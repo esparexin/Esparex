@@ -1,5 +1,5 @@
 {
-  "name": "backend/user",
+  "name": "@esparex/backend-user",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
