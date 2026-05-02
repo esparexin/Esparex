@@ -298,19 +298,24 @@ export function logSecurity(
 /**
  * Log external API call
  */
-export function logExternalAPI(service: string, endpoint: string, duration: number, success: boolean, error?: Error) {
+export function logExternalAPI(service: string, endpoint: string, durationMs: number, success: boolean, error?: Error) {
+    // 📊 RECORD PROMETHEUS METRIC
+    import('@core/utils/metrics').then(({ externalApiDuration: prometheusMetric }) => {
+        prometheusMetric.labels(service, endpoint, success ? 'success' : 'failed').observe(durationMs / 1000);
+    }).catch(() => {});
+
     if (error) {
         logger.error('External API Call Failed', {
             service,
             endpoint,
-            duration: `${duration}ms`,
+            duration: `${durationMs}ms`,
             error: error.message,
         });
     } else {
         logger.debug('External API Call', {
             service,
             endpoint,
-            duration: `${duration}ms`,
+            duration: `${durationMs}ms`,
             success,
         });
     }

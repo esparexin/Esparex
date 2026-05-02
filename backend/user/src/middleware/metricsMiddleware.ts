@@ -2,21 +2,34 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import logger from '@core/utils/logger';
 
+import { httpRequestDuration } from '@core/utils/metrics';
+
 export const apiLatencyMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
 
     res.on('finish', () => {
-        const duration = Date.now() - start;
+        const durationMs = Date.now() - start;
+        const durationSec = durationMs / 1000;
         const requestUrl = req.originalUrl || req.url;
-        const msg = `${req.method} ${requestUrl} ${res.statusCode} - ${duration}ms`;
+        const route = req.route?.path || requestUrl.split('?')[0];
+        
+        // 1. Record Prometheus Metric
+        httpRequestDuration.labels(
+            req.method,
+            route || 'unknown',
+            res.statusCode.toString()
+        ).observe(durationSec);
+
+        // 2. Existing Structured Logging
+        const msg = `${req.method} ${requestUrl} ${res.statusCode} - ${durationMs}ms`;
         const isAdminLocationRoute = requestUrl.startsWith('/api/v1/admin/locations');
         const warnThresholdMs = isAdminLocationRoute ? 800 : 500;
         const errorThresholdMs = isAdminLocationRoute ? 2500 : 2000;
 
-        if (duration > errorThresholdMs) {
-            logger.error(`[SLOW_API] ${msg}`, { duration, method: req.method, url: req.originalUrl || req.url, status: res.statusCode });
-        } else if (duration > warnThresholdMs) {
-            logger.warn(`[SLOW_API] ${msg}`, { duration, method: req.method, url: req.originalUrl || req.url, status: res.statusCode });
+        if (durationMs > errorThresholdMs) {
+            logger.error(`[SLOW_API] ${msg}`, { duration: durationMs, method: req.method, url: requestUrl, status: res.statusCode });
+        } else if (durationMs > warnThresholdMs) {
+            logger.warn(`[SLOW_API] ${msg}`, { duration: durationMs, method: req.method, url: requestUrl, status: res.statusCode });
         }
     });
 
@@ -54,14 +67,22 @@ export const initializeDatabaseMonitoring = () => {
     const logSlowOperation = function (this: unknown, _docs: unknown, next: () => void) {
         const ctx = this as QueryContext & AggregateContext;
         if (ctx._startTime) {
-            const duration = Date.now() - ctx._startTime;
-            if (duration > slowQueryThresholdMs) {
-                const collectionName = ctx.mongooseCollection?.name ?? ctx._model?.collection?.name ?? 'unknown_collection';
-                const operation = ctx.op || 'aggregate';
-                logger.warn(`[SLOW_DB_QUERY] ${collectionName}.${operation} took ${duration}ms`, {
+            const durationMs = Date.now() - ctx._startTime;
+            const durationSec = durationMs / 1000;
+            const collectionName = ctx.mongooseCollection?.name ?? ctx._model?.collection?.name ?? 'unknown_collection';
+            const operation = ctx.op || 'aggregate';
+
+            // 1. Record Prometheus Metric (Always record, not just slow ones)
+            import('@core/utils/metrics').then(({ dbQueryDuration: prometheusDbMetric }) => {
+                prometheusDbMetric.labels(collectionName, operation).observe(durationSec);
+            }).catch(() => {});
+
+            // 2. Existing Slow Query Logging
+            if (durationMs > slowQueryThresholdMs) {
+                logger.warn(`[SLOW_DB_QUERY] ${collectionName}.${operation} took ${durationMs}ms`, {
                     collection: collectionName,
                     operation,
-                    duration,
+                    duration: durationMs,
                     query: typeof ctx.pipeline === 'function' ? ctx.pipeline() : ctx._conditions || 'unknown_conditions'
                 });
             }
