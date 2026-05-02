@@ -6,7 +6,7 @@ module.exports = {
     setupFilesAfterEnv: ['<rootDir>/src/tests/jest.after-env.ts'],
     globalTeardown: '<rootDir>/src/tests/jest.globalTeardown.js',
     verbose: true,
-    roots: ['<rootDir>', '<rootDir>/../../shared', '<rootDir>/../../core'],
+    roots: ['<rootDir>', '<rootDir>/../../shared', '<rootDir>/../../core', '<rootDir>/../admin'],
     transform: {
         '^.+\\.tsx?$': ['ts-jest', { 
             diagnostics: false,
