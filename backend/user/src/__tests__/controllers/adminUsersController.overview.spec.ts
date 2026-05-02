@@ -23,7 +23,7 @@ jest.mock("@core/models/Ad", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as adminUsersController from "../../../../backend/admin/src/controllers/admin/adminUsersController";
+import * as adminUsersController from "../../../../admin/src/controllers/admin/adminUsersController";
 import User from "@core/models/User";
 import AdminMetrics from "@core/models/AdminMetrics";
 

@@ -26,7 +26,7 @@ jest.mock("@core/services/AdminUsersService", () => ({
     createAdminAccount: jest.fn(),
 }));
 
-import * as adminUsersController from "../../../../backend/admin/src/controllers/admin/adminUsersController";
+import * as adminUsersController from "../../../../admin/src/controllers/admin/adminUsersController";
 import type { Request, Response } from "express";
 import { createAdminAccount } from "@core/services/AdminUsersService";
 

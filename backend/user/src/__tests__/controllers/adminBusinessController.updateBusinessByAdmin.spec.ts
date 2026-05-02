@@ -91,7 +91,7 @@ jest.mock("@core/utils/s3", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as adminBusinessController from "../../../../backend/admin/src/controllers/admin/adminBusinessController";
+import * as adminBusinessController from "../../../../admin/src/controllers/admin/adminBusinessController";
 import * as adminBusinessService from "@core/services/AdminBusinessService";
 
 const createMockRes = (req?: Record<string, unknown>) => {

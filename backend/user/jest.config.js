@@ -19,5 +19,9 @@ module.exports = {
         '^@shared$': '<rootDir>/../../shared/index.ts',
         '^@shared/(.*)$': '<rootDir>/../../shared/$1',
         '^@core/(.*)$': '<rootDir>/../../core/src/$1'
-    }
+    },
+    modulePathIgnorePatterns: [
+        '<rootDir>/../../core/dist',
+        '<rootDir>/../../shared/dist'
+    ]
 };

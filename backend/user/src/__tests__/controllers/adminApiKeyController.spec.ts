@@ -11,7 +11,7 @@ jest.mock("@core/utils/adminLogger", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as apiKeyController from "../../../../backend/admin/src/controllers/admin/adminApiKeyController";
+import * as apiKeyController from "../../../../admin/src/controllers/admin/adminApiKeyController";
 import * as apiKeyService from "@core/services/ApiKeyService";
 
 const createMockRes = (req?: Record<string, unknown>) => ({

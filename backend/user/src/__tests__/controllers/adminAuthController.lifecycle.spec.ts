@@ -69,7 +69,7 @@ jest.mock("@core/constants/enums/userStatus", () => ({
 
 import Admin from "@core/models/Admin";
 import { createAdminSession, revokeAdminSessionsForAdmin } from "@core/services/AdminSessionService";
-import { adminLogin, resetPassword } from "../../../../backend/admin/src/controllers/admin/system/adminAuthController";
+import { adminLogin, resetPassword } from "../../../../admin/src/controllers/admin/system/adminAuthController";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {

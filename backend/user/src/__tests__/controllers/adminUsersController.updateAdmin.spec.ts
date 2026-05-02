@@ -33,7 +33,7 @@ jest.mock("@core/services/AdminUsersService", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as adminUsersController from "../../../../backend/admin/src/controllers/admin/adminUsersController";
+import * as adminUsersController from "../../../../admin/src/controllers/admin/adminUsersController";
 import Admin from "@core/models/Admin";
 import { updateAdminById } from "@core/services/AdminUsersService";
 

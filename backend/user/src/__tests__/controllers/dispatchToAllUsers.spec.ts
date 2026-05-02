@@ -40,7 +40,7 @@ import { NotificationDispatcher } from "@core/services/notification/Notification
 import { NotificationIntent } from "@core/domain/NotificationIntent";
 import { createAdminNotificationTargetCursor } from "@core/services/notification/AdminNotificationTargetingService";
 import type { Request, Response } from "express";
-import { sendNotification } from "../../../../backend/admin/src/controllers/admin/adminNotificationController";
+import { sendNotification } from "../../../../admin/src/controllers/admin/adminNotificationController";
 
 const mockedNotificationLog = NotificationLog as unknown as { create: jest.Mock };
 const mockedDispatcher = NotificationDispatcher as unknown as { bulkDispatch: jest.Mock };
