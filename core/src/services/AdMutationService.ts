@@ -13,13 +13,22 @@ import { assertOwnership } from './ad/AdPolicyService';
 // Re-export for backward compatibility
 export { assertOwnership };
 
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@core/utils/redisCache';
+
 export const updateAd = async (
     adId: string,
     data: unknown,
     context: AdContext,
     externalSession?: mongoose.ClientSession
 ): Promise<Record<string, unknown> | null> => {
-    return updateAdLogic(adId, data, context, externalSession);
+    const result = await updateAdLogic(adId, data, context, externalSession);
+    if (result) {
+        // 🛡️ STAFF+ CONSISTENCY GUARD
+        // Bust both search and detail caches to prevent stale data visibility.
+        void invalidateAdFeedCaches().catch(() => {});
+        void invalidatePublicAdCache(adId).catch(() => {});
+    }
+    return result;
 };
 
 export const updateAdTransactional = async (options: {
@@ -63,14 +72,24 @@ export const promoteAd = async (
     userId: string,
     isAdmin: boolean = false
 ) => {
-    return promoteAdLogic(id, days, type, userId, isAdmin);
+    const result = await promoteAdLogic(id, days, type, userId, isAdmin);
+    if (result) {
+        void invalidateAdFeedCaches().catch(() => {});
+        void invalidatePublicAdCache(id).catch(() => {});
+    }
+    return result;
 };
 
 export const repostAd = async (
     id: string,
     userId: string
 ): Promise<Record<string, unknown> | null> => {
-    return repostAdLogic(id, userId);
+    const result = await repostAdLogic(id, userId);
+    if (result) {
+        void invalidateAdFeedCaches().catch(() => {});
+        void invalidatePublicAdCache(id).catch(() => {});
+    }
+    return result;
 };
 
 export const extendListingExpiry = async (

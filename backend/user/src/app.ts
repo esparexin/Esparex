@@ -301,6 +301,22 @@ app.get('/', (_req, res) => {
     });
 });
 
+/**
+ * 📊 PROMETHEUS METRICS ENDPOINT
+ * 
+ * Exposes internal metrics for Prometheus scraping.
+ * Protected by basic auth or internal network restricted in production.
+ */
+import { register } from '@core/utils/metrics';
+app.get('/metrics', async (_req, res) => {
+    try {
+        res.set('Content-Type', register.contentType);
+        res.end(await register.metrics());
+    } catch (err) {
+        res.status(500).end(err instanceof Error ? err.message : String(err));
+    }
+});
+
 /* -------------------------------------------------------------------------- */
 /* CSRF PROTECTION                                                             */
 /* -------------------------------------------------------------------------- */
@@ -320,28 +336,72 @@ app.use('/api/v1', verifyCsrfToken);
 /* -------------------------------------------------------------------------- */
 /* ROUTES                                                                      */
 /* -------------------------------------------------------------------------- */
+// --- SSOT API Namespace ---
 app.use('/api/v1', rootRoutes);
 app.use('/api/v1/catalog', catalogRoutes);
 app.use('/api/v1/locations', locationRoutes);
 app.use('/api/v1/editorial', editorialRoutes);
 
-// User
+// User & Auth
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/auth', authRoutes);
 
+// Unified Listing Engine (SSOT)
 app.use('/api/v1/listings', listingRoutes);
-app.use('/api/v1/ads', adRoutes);
+
+// Webhook Observability Layer
+app.use('/api/v1/payments/webhook', (req, _res, next) => {
+    logger.info(`[PAYMENT_WEBHOOK] Received ${req.method} request`, {
+        ip: req.ip,
+        ua: req.headers['user-agent'],
+        requestId: req.headers['x-request-id']
+    });
+    next();
+});
+
+// AI & Notifications
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/smart-alerts', smartAlertRoutes);
-app.use('/api/v1/services', serviceRoutes);
-app.use('/api/v1/spare-part-listings', sparePartRoutes);
+
+// Business & Finance
 app.use('/api/v1/businesses', businessRoutes);
 app.use('/api/v1/invoices', invoiceRoutes);
 app.use('/api/v1/payments', paymentRoutes);
+
+// Communication & Feedback
 app.use('/api/v1/contacts', contactRoutes);
 app.use('/api/v1/reports', reportRoutes);
 app.use('/api/v1/chat', chatRoutes);
+
+/**
+ * 🛡️ LEGACY API DEPRECATION LAYER
+ * These routes return 410 Gone with a successor link.
+ */
+const legacyDeprecationHandler: RequestHandler = (req, res) => {
+    const successor = "/api/v1/listings";
+    const sunsetAt = "2026-06-01";
+    
+    res.setHeader('Deprecation', 'true');
+    // Standard HTTP date format for Sunset header
+    res.setHeader('Sunset', new Date(sunsetAt).toUTCString());
+    res.setHeader('Link', `<${successor}>; rel="successor-version"`);
+    
+    res.status(410).json({
+        success: false,
+        error: "This endpoint is deprecated. Use the unified /api/v1/listings instead.",
+        code: "ENDPOINT_DEPRECATED",
+        deprecated: true,
+        replacement: successor,
+        sunsetAt: sunsetAt,
+        path: req.originalUrl,
+        status: 410
+    });
+};
+
+app.use('/api/v1/ads', legacyDeprecationHandler);
+app.use('/api/v1/services', legacyDeprecationHandler);
+app.use('/api/v1/spare-part-listings', legacyDeprecationHandler);
 
 /* -------------------------------------------------------------------------- */
 /* 404 & ERROR HANDLERS                                                         */

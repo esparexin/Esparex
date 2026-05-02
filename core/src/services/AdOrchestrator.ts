@@ -215,6 +215,19 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             sellerId: context.sellerId
         });
 
+        // 📊 BUSINESS METRIC: Listing Creation
+        import('@core/utils/metrics').then(({ register: prometheusRegister }) => {
+            const counter = prometheusRegister.getSingleMetric('esparex_listing_creation_total') || new (require('prom-client').Counter)({
+                name: 'esparex_listing_creation_total',
+                help: 'Total number of listings created',
+                labelNames: ['listingType', 'actor']
+            });
+            (counter as any).inc({ 
+                listingType: String(createdAd?.listingType || 'ad'), 
+                actor: context.actor 
+            });
+        }).catch(() => {});
+
         return createdAd;
     } catch (error) {
         const duration = Date.now() - start;
