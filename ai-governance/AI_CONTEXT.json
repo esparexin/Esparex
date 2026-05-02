@@ -11,7 +11,7 @@
     "package.json",
     "backend/src/**",
     "frontend/src/**",
-    "admin-frontend/src/**",
+    "apps/admin/src/**",
     "shared/**",
     "scripts/**"
   ],
@@ -85,7 +85,7 @@
     "validator": "backend/src/validators/ai.validator.ts",
     "service": "backend/src/services/AiService.ts",
     "settingsModel": "core/src/models/SystemConfig.ts",
-    "settingsAdminUi": "admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx"
+    "settingsAdminUi": "apps/admin/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx"
   },
   "duplicates": [
     {
@@ -104,7 +104,7 @@
       "sources": [
         "README.md",
         "backend/src/services/AiService.ts",
-        "admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx"
+        "apps/admin/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx"
       ],
       "normalizedDecision": "OpenAI is canonical until runtime code changes"
     },
@@ -117,14 +117,14 @@
         ".config/.commands/admin-ui.md",
         ".config/.commands/pre-check.md"
       ],
-      "normalizedDecision": "admin-frontend is canonical and app requests must use centralized API client layers"
+      "normalizedDecision": "apps/admin is canonical and app requests must use centralized API client layers"
     },
     {
       "area": "react_component_naming",
       "sources": [
         "README.md",
         "frontend/src/**",
-        "admin-frontend/src/**"
+        "apps/admin/src/**"
       ],
       "normalizedDecision": "PascalCase is canonical for React component filenames"
     },

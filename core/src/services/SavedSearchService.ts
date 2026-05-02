@@ -38,7 +38,7 @@ export const createSavedSearch = async (
         priceMax: typeof payload.priceMax === 'number' ? payload.priceMax : undefined
     });
 
-    return toSavedSearchContract(record.toObject() as SavedSearchRecord & { id?: string; userId: Types.ObjectId; createdAt?: Date });
+    return toSavedSearchContract(record.toObject());
 };
 
 export const getSavedSearches = async (userId: string) => {

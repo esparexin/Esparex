@@ -22,9 +22,7 @@ import {
     FeatureFlag,
     isEnabled,
     getBlockedSellerIds,
-    ServiceType,
-    LISTING_STATUS,
-    LISTING_TYPE
+    ServiceType
 } from './_shared/adServiceBase';
 import type {
     AdsListResult,
@@ -667,7 +665,7 @@ export const getAds = async (
     const data = results.map(ad => {
         const serializedAd = serializeDoc(ad);
         if (serializedAd.location) {
-            serializedAd.location = normalizeLocationResponse(serializedAd.location as Record<string, unknown>);
+            serializedAd.location = normalizeLocationResponse(serializedAd.location);
         }
         return normalizeAdImagesForResponse(serializedAd as unknown as Record<string, unknown>);
     });

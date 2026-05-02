@@ -213,7 +213,7 @@ export const normalizeDocuments = async (
             uploadedAt: new Date(),
             expiryDate: doc.expiryDate ? new Date(doc.expiryDate) : undefined,
             version: doc.version || 1
-        })) as IBusinessDocument[];
+        }));
     }
 
     const idProofType =

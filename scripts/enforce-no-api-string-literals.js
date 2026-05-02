@@ -8,7 +8,7 @@ const RULE_NAME = "no-api-string-literals";
 const repoRoot = path.resolve(__dirname, "..");
 const scanRoots = [
   path.join(repoRoot, "frontend", "src"),
-  path.join(repoRoot, "admin-frontend", "src"),
+  path.join(repoRoot, "apps/admin", "src"),
 ];
 
 const filePattern = /\.(ts|tsx|js|jsx|mjs|cjs)$/;

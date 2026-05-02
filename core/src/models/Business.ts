@@ -160,7 +160,7 @@ BusinessSchema.plugin(softDeletePlugin);
 // Removing isModified('name') prevents slug mutation on edits, which would
 // break external links and canonical tags.
 BusinessSchema.pre('save', async function () {
-    this.location = sanitizeBusinessLocation(this.location) as IBusiness['location'];
+    this.location = sanitizeBusinessLocation(this.location);
 
     if (!this.slug) {
         this.slug = await generateUniqueSlug(Business, this.name as string, undefined, undefined, 'slug');

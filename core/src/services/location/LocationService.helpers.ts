@@ -62,7 +62,7 @@ export const coerceLocationInput = (input: unknown): LocationInputObject => {
         return {};
     }
 
-    return input as LocationInputObject;
+    return input;
 };
 
 export const extractObjectIdString = (input: unknown): string | undefined => {

@@ -151,7 +151,7 @@ export const getInvoiceById = async (id: string, userId?: string) => {
 export const getInvoiceByIdOrTransaction = async (id: string): Promise<IInvoice | null> => {
     return Invoice.findOne({
         $or: [{ _id: id }, { transactionId: id }]
-    }).lean() as Promise<IInvoice | null>;
+    }).lean();
 };
 
 export const buildInvoicePayload = async (

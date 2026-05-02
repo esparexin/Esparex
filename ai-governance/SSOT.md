@@ -33,7 +33,7 @@ AI governance does not replace platform architecture governance. For platform be
 
 1. `README.md`
 2. `package.json`
-3. The canonical implementation under `backend/src`, `frontend/src`, `admin-frontend/src`, and `shared/`
+3. The canonical implementation under `backend/src`, `frontend/src`, `apps/admin/src`, and `shared/`
 4. Enforcement scripts under `scripts/`
 
 This means:
@@ -85,7 +85,7 @@ Tool-specific files may exist only as compatibility layers for local IDEs or ext
 - Service, controller, validator, utility, and helper files use `camelCase`.
 - Model files use singular `PascalCase`.
 - Container directories remain lowercase and typically plural.
-- Admin UI lives in `admin-frontend`, not `frontend`.
+- Admin UI lives in `apps/admin`, not `frontend`.
 
 ### Enum and Contract Rules
 
@@ -111,7 +111,7 @@ Canonical runtime ownership:
 - Validation: `backend/src/validators/ai.validator.ts`
 - Service and prompts: `backend/src/services/AiService.ts`
 - Runtime settings model: `core/src/models/SystemConfig.ts`
-- Admin runtime settings UI: `admin-frontend/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx`
+- Admin runtime settings UI: `apps/admin/src/app/(protected)/(system)/settings/components/ModerationSettings.tsx`
 
 Current runtime provider normalization:
 
@@ -139,7 +139,7 @@ These files may exist for tool interoperability, but:
 
 The following conflicts are resolved here for all AI agents:
 
-- Admin UI ownership: `admin-frontend` is canonical
+- Admin UI ownership: `apps/admin` is canonical
 - Component filenames: `PascalCase` is canonical for AI edits
 - Runtime AI provider: OpenAI is canonical until runtime code changes
 - Missing-file references such as `rules.md`, `GOVERNANCE.md`, and `CHANGE_PROOF.md` are non-authoritative and must not be treated as active SSOT inputs

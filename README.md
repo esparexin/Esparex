@@ -3,10 +3,10 @@
 Esparex is an npm workspaces monorepo with seven active workspaces:
 
 - `backend`
-- `admin-backend`
+- `backend/admin`
 - `core`
 - `frontend`
-- `admin-frontend`
+- `apps/admin`
 - `shared`
 - `shared/observability`
 
@@ -15,7 +15,7 @@ Esparex is an npm workspaces monorepo with seven active workspaces:
 - `backend/src`: API, services, routes, validators, config
 - `core/src`: Canonical domain models, shared business services, database config
 - `frontend/src`: user application
-- `admin-frontend/src`: admin application
+- `apps/admin/src`: admin application
 - `shared`: shared contracts, schemas, enums, types, and utilities
 - `scripts`: repo guardrails and maintenance scripts
 - `ai-governance`: canonical AI/governance instructions still referenced by repo tooling
@@ -58,7 +58,7 @@ Run workspaces as needed:
 ```bash
 npm run dev -w backend
 npm run dev -w frontend
-npm run dev -w admin-frontend
+npm run dev -w apps/admin
 ```
 
 ## Deployment & Environment Configuration
@@ -68,8 +68,8 @@ The project is deployed using **Vercel** (Frontends) and **Render** (Backends).
 ### Admin Backend Deployment (Render)
 When creating the Web Service (e.g., named `backend` or `admin-api`) for the admin system:
 - **Root Directory**: (Leave Empty)
-- **Build Command**: `export NODE_OPTIONS="--max-old-space-size=4096" && npm install && npm run build -w core && npm run build -w admin-backend`
-- **Start Command**: `npm start -w admin-backend`
+- **Build Command**: `export NODE_OPTIONS="--max-old-space-size=4096" && npm install && npm run build -w core && npm run build -w backend/admin`
+- **Start Command**: `npm start -w backend/admin`
 
 ### Admin System Configuration (Vercel/Render)
 
@@ -77,11 +77,11 @@ To fix 404/403 errors during login/CSRF discovery, ensure the following environm
 
 | Workspace | Platform | Variable | Recommended Value |
 | :--- | :--- | :--- | :--- |
-| `admin-frontend` | Vercel | `NEXT_PUBLIC_ADMIN_API_URL` | `https://api.esparex.in/api/v1/admin` |
-| `admin-frontend` | Vercel | `PROD_RISK_OVERRIDE` | `true` |
-| `admin-backend` | Render | `COOKIE_DOMAIN` | `.esparex.in` (required for CSRF) |
-| `admin-backend` | Render | `CORS_ALLOWED_ORIGINS` | `https://admin.esparex.in` |
-| `admin-backend` | Render | `CSRF_SECRET` | *[Random 32-char string]* |
+| `apps/admin` | Vercel | `NEXT_PUBLIC_ADMIN_API_URL` | `https://api.esparex.in/api/v1/admin` |
+| `apps/admin` | Vercel | `PROD_RISK_OVERRIDE` | `true` |
+| `backend/admin` | Render | `COOKIE_DOMAIN` | `.esparex.in` (required for CSRF) |
+| `backend/admin` | Render | `CORS_ALLOWED_ORIGINS` | `https://admin.esparex.in` |
+| `backend/admin` | Render | `CSRF_SECRET` | *[Random 32-char string]* |
 
-**Note**: The `admin-backend` routes are prefixed with `/api/v1/admin`. If your frontend points to `api.esparex.in`, ensure your load balancer/proxy correctly routes those requests to the admin service.
+**Note**: The `backend/admin` routes are prefixed with `/api/v1/admin`. If your frontend points to `api.esparex.in`, ensure your load balancer/proxy correctly routes those requests to the admin service.
 

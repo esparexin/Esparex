@@ -7,7 +7,7 @@ import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 import { LISTING_TYPE } from '@core/constants/enums/listingType';
 import { ACTOR_TYPE, type ActorMetadata } from '@core/constants/enums/actor';
 import { serializeBusinessForAdmin } from '@core/utils/businessSerializer';
-import { mutateStatuses, mutateStatus, ValidDomain } from './StatusMutationService';
+import { mutateStatuses, mutateStatus } from './StatusMutationService';
 import { AppError } from '@core/utils/AppError';
 import type { AdminLogFn } from './AdminListingsService';
 import { dispatchTemplatedNotification } from './NotificationService';
@@ -131,7 +131,7 @@ export const cascadeExpireBusinessListings = async (
                 ? LISTING_TYPE.SERVICE
                 : l.listingType === LISTING_TYPE.SPARE_PART
                     ? 'spare_part_listing'
-                    : LISTING_TYPE.AD) as ValidDomain,
+                    : LISTING_TYPE.AD),
             entityId: l._id.toString(),
             toStatus: LISTING_STATUS.EXPIRED,
             actor: normalizedActor,
@@ -335,7 +335,7 @@ export const deleteAdminBusiness = async (
         throw new AppError('Business not found', 404);
     }
 
-    const bizForDelete = business as typeof business & { name?: string; userId: { toString(): string } };
+    const bizForDelete = business;
     const businessName = bizForDelete.name;
     const userId = bizForDelete.userId.toString();
 

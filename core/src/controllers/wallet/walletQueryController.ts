@@ -4,7 +4,7 @@
  * Single Source of Truth for user-facing wallet read operations.
  * Extracted from:
  *   - backend/src/controllers/wallet/walletQueryController.ts
- *   - admin-backend/src/controllers/wallet/walletQueryController.ts
+ *   - backend/admin/src/controllers/wallet/walletQueryController.ts
  *
  * Both workspace files now re-export from here.
  */

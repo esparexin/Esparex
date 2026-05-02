@@ -6,7 +6,7 @@ const path = require("node:path");
 const repoRoot = path.resolve(__dirname, "..");
 const moderationApiFile = path.join(
   repoRoot,
-  "admin-frontend",
+  "apps/admin",
   "src",
   "lib",
   "api",
@@ -14,7 +14,7 @@ const moderationApiFile = path.join(
 );
 const moderationNormalizerFile = path.join(
   repoRoot,
-  "admin-frontend",
+  "apps/admin",
   "src",
   "components",
   "moderation",

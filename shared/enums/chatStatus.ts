@@ -1,6 +1,6 @@
 /**
  * ESPAREX — Chat System Enums (SSOT)
- * Shared between backend, frontend, and admin-frontend.
+ * Shared between backend, frontend, and apps/admin.
  */
 
 /* -------------------------------------------------------------------------- */

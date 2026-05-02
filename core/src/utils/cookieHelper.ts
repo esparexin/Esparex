@@ -35,7 +35,7 @@ type SameSiteValue = Exclude<CookieOptions['sameSite'], boolean | undefined>;
 
 const resolveCookieSameSite = (): SameSiteValue => {
     if (env.COOKIE_SAME_SITE) {
-        return env.COOKIE_SAME_SITE as SameSiteValue;
+        return env.COOKIE_SAME_SITE;
     }
     return env.NODE_ENV === 'production' ? 'none' : 'lax';
 };

@@ -229,7 +229,7 @@ UserSchema.index({ 'location.coordinates': '2dsphere' }, { sparse: true, name: '
 
 UserSchema.pre('save', function (this: IUser) {
   this.location = normalizeUserLocation(this.location) as IUser['location'];
-  this.mobileVisibility = normalizeUserMobileVisibility(this.mobileVisibility) as IUser['mobileVisibility'];
+  this.mobileVisibility = normalizeUserMobileVisibility(this.mobileVisibility);
 });
 
 UserSchema.pre('findOneAndUpdate', function () {

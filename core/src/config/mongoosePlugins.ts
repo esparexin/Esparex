@@ -50,7 +50,7 @@ const toPopulateSpecs = (args: unknown[]): Array<{ path: string; hasExplicitMode
             addPathSpecs(node.path, Boolean(node.model));
             return;
         }
-        Object.keys(value as Record<string, unknown>).forEach((key) => {
+        Object.keys(value).forEach((key) => {
             addPathSpecs(key, false);
         });
     };

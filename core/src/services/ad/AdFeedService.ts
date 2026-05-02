@@ -32,7 +32,7 @@ export const buildHomeFeedPipeline = (
     
     // SSOT Pipeline Protection
     const visibilityMatch = { ...(matchStage || {}), ...buildPublicAdFilter() };
-    pipeline.push({ $match: visibilityMatch as UnknownRecord });
+    pipeline.push({ $match: visibilityMatch });
 
     if (cursor?.id && mongoose.Types.ObjectId.isValid(cursor.id)) {
         pipeline.push({
@@ -59,7 +59,7 @@ export const buildHomeFeedPipeline = (
         {
             $facet: {
                 spotlight: [
-                    { $match: { ...visibilityMatch, ...effectiveSpotlightMatch } as UnknownRecord },
+                    { $match: { ...visibilityMatch, ...effectiveSpotlightMatch } },
                     { $limit: limit * 2 }
                 ],
                 boosted: [
@@ -68,7 +68,7 @@ export const buildHomeFeedPipeline = (
                             _id: { $in: boostedIds },
                             ...visibilityMatch,
                             ...nonSpotlightFallbackMatch
-                        } as UnknownRecord
+                        }
                     },
                     { $limit: limit * 2 }
                 ],
@@ -78,7 +78,7 @@ export const buildHomeFeedPipeline = (
                             _id: { $nin: boostedIds },
                             ...visibilityMatch,
                             ...nonSpotlightFallbackMatch
-                        } as UnknownRecord
+                        }
                     },
                     { $limit: limit * 2 }
                 ]

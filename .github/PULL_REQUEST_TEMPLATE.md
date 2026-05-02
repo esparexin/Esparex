@@ -12,7 +12,7 @@
 ## Packages affected
 - [ ] `backend`
 - [ ] `frontend`
-- [ ] `admin-frontend`
+- [ ] `apps/admin`
 - [ ] `shared`
 
 ## Test plan

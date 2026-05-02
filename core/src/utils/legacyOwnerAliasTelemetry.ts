@@ -14,7 +14,7 @@ export const warnIfLegacyAdUserIdAliasUsed = (
     req: Request,
     source: AliasSource
 ): void => {
-    const container: Record<string, unknown> = source === 'body' ? (req.body as Record<string, unknown>) : (req.query as Record<string, unknown>);
+    const container: Record<string, unknown> = source === 'body' ? (req.body as Record<string, unknown>) : (req.query);
     if (!hasOwn(container, 'userId')) return;
 
     const hasSellerId = hasOwn(container, 'sellerId');

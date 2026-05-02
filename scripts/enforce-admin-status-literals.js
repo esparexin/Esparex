@@ -4,7 +4,7 @@ const path = require("path");
 const ADMIN_COMPONENTS_ROOT = path.resolve(
   __dirname,
   "..",
-  "admin-frontend",
+  "apps/admin",
   "src",
   "components",
 );
@@ -71,7 +71,7 @@ function findViolations(filePath) {
 function main() {
   if (!fs.existsSync(ADMIN_COMPONENTS_ROOT)) {
     console.log(
-      "PASS: admin-frontend/src/components does not exist — nothing to scan."
+      "PASS: apps/admin/src/components does not exist — nothing to scan."
     );
     return;
   }
@@ -91,7 +91,7 @@ function main() {
 
   if (allViolations.length === 0) {
     console.log(
-      "PASS: no raw admin status literals found in admin-frontend/src/components."
+      "PASS: no raw admin status literals found in apps/admin/src/components."
     );
     return;
   }
@@ -109,7 +109,7 @@ function main() {
     }
   }
 
-  console.error("\n[HINT] Do not use hardcoded status strings in admin-frontend components.");
+  console.error("\n[HINT] Do not use hardcoded status strings in apps/admin components.");
   console.error("1. Import canonical shared enums or approved status helpers.");
   console.error("2. Normalize display labels through a mapper instead of inline literals.\n");
 
