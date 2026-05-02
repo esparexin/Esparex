@@ -16,48 +16,31 @@ import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
 // VIEW TRACKING
 // ─────────────────────────────────────────────────
 
+import { ViewBufferingService } from './ViewBufferingService';
+
 export const incrementAdView = async (
     adId: string | mongoose.Types.ObjectId,
     viewerIp?: string
-): Promise<number | null> => {
+): Promise<void> => {
     void viewerIp;
     if (!mongoose.Types.ObjectId.isValid(String(adId))) {
-        return null;
+        return;
     }
 
     const id = new mongoose.Types.ObjectId(String(adId));
 
     try {
-        const result = await Ad.findByIdAndUpdate(
-            id,
-            { $inc: { 'views.total': 1 } },
-            { new: true }
-        );
+        // 🚀 STAFF+ PRODUCTION HARDENING: Buffered increments
+        // Decouples view tracking from DB write latency to prevent contention.
+        await ViewBufferingService.recordView(id);
 
-        if (!result) {
-            return null;
-        }
-
-        const locationId = result.location?.locationId?.toString?.();
-        if (locationId) {
-            void touchLocationAnalytics(locationId, 'ad_view', 1).catch((error) => {
-                logger.warn('Failed to update location analytics for ad_view', {
-                    adId: String(id),
-                    locationId,
-                    error: error instanceof Error ? error.message : String(error)
-                });
-            });
-        }
-
+        void touchLocationAnalytics(id.toString(), 'ad_view', 1).catch(() => {});
         void recordAdAnalyticsEvent(id, 'view');
-
-        return result.views?.total || 0;
     } catch (error) {
         logger.error('Failed to increment ad view', {
             error: error instanceof Error ? error.message : String(error),
             adId: String(id)
         });
-        return null;
     }
 };
 

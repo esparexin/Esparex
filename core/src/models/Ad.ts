@@ -59,6 +59,8 @@ export interface IAd extends Document, ISoftDeleteDocument {
         locationId?: Types.ObjectId;
     };
     locationPath: Types.ObjectId[];
+    // ⚠️ DEPRECATED: Views are now tracked in the 'AdMetrics' collection.
+    // Fields preserved for backward compatibility during migration.
     views: {
         total: number;
         unique: number;
@@ -260,14 +262,21 @@ AdSchema.index({ seoSlug: 1 }, { name: 'ad_seoSlug_unique_idx', unique: true, sp
 
 // 🚀 CORE PERFORMANCE INDEXES (Explicitly Named)
 AdSchema.index({ 'location.coordinates': '2dsphere' }, { name: 'ad_geo_coordinates_2dsphere' });
-AdSchema.index({ status: 1, createdAt: -1 }, { name: 'ad_status_createdAt_idx' });
+AdSchema.index(
+    { createdAt: -1 },
+    { 
+        name: 'ad_status_live_createdAt_partial_idx',
+        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
+    }
+);
+
 AdSchema.index({ sellerId: 1, status: 1 }, { name: 'ad_sellerId_status_idx' });
 AdSchema.index({ duplicateScore: 1 }, { name: 'ad_duplicateScore_idx' });
 AdSchema.index({ isDuplicateFlag: 1 }, { name: 'ad_isDuplicateFlag_idx' });
 AdSchema.index({ fraudScore: 1 }, { name: 'ad_fraudScore_idx' });
 AdSchema.index({ isSpotlight: 1 }, { name: 'ad_isSpotlight_idx' });
 AdSchema.index({ sellerTrustSnapshot: 1 }, { name: 'ad_sellerTrustSnapshot_idx' });
-AdSchema.index({ expiresAt: 1 }, { name: 'ad_expiresAt_idx' });
+AdSchema.index({ expiresAt: 1 }, { name: 'ad_expiresAt_ttl_idx', expireAfterSeconds: 0 });
 AdSchema.index({ duplicateOf: 1 }, { name: 'ad_duplicateOf_idx' });
 AdSchema.index({ modelId: 1 }, { name: 'ad_modelId_idx' });
 

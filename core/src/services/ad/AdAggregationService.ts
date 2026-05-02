@@ -299,7 +299,17 @@ export const getAds = async (
     pagination: PaginationOptions,
     options: PublicQueryOptions = {}
 ): Promise<AdsListResult> => {
-    const { page, limit, cursor } = pagination;
+    const { page: rawPage, limit: rawLimit, cursor } = pagination;
+    
+    // 🛡️ STAFF+ STABILITY GUARD: Anti-Skip Attack Protection
+    // Prevents deep-pagination resource exhaustion (CPU/Memory spikes on skip > 10,000)
+    // and enforces a hard ceiling on result set size.
+    const MAX_PAGE_SIZE = 50;
+    const MAX_PAGE = 1000;
+    
+    const limit = Math.min(Math.max(Number(rawLimit) || 20, 1), MAX_PAGE_SIZE);
+    const page = Math.min(Math.max(Number(rawPage) || 1, 1), MAX_PAGE);
+    
     const cursorId =
         typeof cursor === 'string' && mongoose.Types.ObjectId.isValid(cursor)
             ? new mongoose.Types.ObjectId(cursor)
