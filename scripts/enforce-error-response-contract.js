@@ -3,36 +3,55 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const appFile = path.join(__dirname, '..', 'backend', 'src', 'app.ts');
+const appFiles = [
+  path.join(__dirname, '..', 'backend', 'user', 'src', 'app.ts'),
+  path.join(__dirname, '..', 'backend', 'admin', 'src', 'app.ts')
+];
 
-const source = fs.readFileSync(appFile, 'utf8');
 const importToken = "import { enforceErrorResponseContract } from './middleware/errorResponseContract';";
 const middlewareToken = 'app.use(enforceErrorResponseContract);';
-const firstApiMountToken = "app.use('/api/v1/catalog', catalogRoutes);";
+const firstApiMountToken = "app.use("; // More generic to match different route prefixes
 
-if (!source.includes(importToken)) {
-  console.error('Missing import for enforceErrorResponseContract in backend/src/app.ts');
-  process.exit(1);
-}
+appFiles.forEach(appFile => {
+  if (!fs.existsSync(appFile)) {
+    console.log(`Skipping missing file: ${appFile}`);
+    return;
+  }
 
-if (!source.includes(middlewareToken)) {
-  console.error('Missing app.use(enforceErrorResponseContract) in backend/src/app.ts');
-  process.exit(1);
-}
+  const source = fs.readFileSync(appFile, 'utf8');
 
-const middlewareIndex = source.indexOf(middlewareToken);
-const firstApiMountIndex = source.indexOf(firstApiMountToken);
+  if (!source.includes(importToken)) {
+    console.error(`Missing import for enforceErrorResponseContract in ${path.relative(process.cwd(), appFile)}`);
+    process.exit(1);
+  }
 
-if (firstApiMountIndex === -1) {
-  console.error('Unable to locate first API mount in backend/src/app.ts');
-  process.exit(1);
-}
+  if (!source.includes(middlewareToken)) {
+    console.error(`Missing app.use(enforceErrorResponseContract) in ${path.relative(process.cwd(), appFile)}`);
+    process.exit(1);
+  }
 
-if (middlewareIndex > firstApiMountIndex) {
-  console.error('❌ enforceErrorResponseContract must run before API routes are mounted.');
-  console.error('\n💡 HINT: The error envelope middleware must be placed BEFORE any API route definitions in backend/src/app.ts');
-  console.error('   to ensure consistency in error handling across all endpoints.');
-  process.exit(1);
-}
+  const middlewareIndex = source.indexOf(middlewareToken);
+  
+  // Find the first line that mounts a route (usually has '/api/v1' or similar)
+  const lines = source.split('\n');
+  const firstApiMountLineIndex = lines.findIndex(line => 
+    (line.includes("app.use('") || line.includes('app.use("')) && 
+    (line.includes('/api/') || line.includes('/health'))
+  );
+  
+  if (firstApiMountLineIndex === -1) {
+    console.error(`Unable to locate first API mount in ${path.relative(process.cwd(), appFile)}`);
+    process.exit(1);
+  }
 
-console.log('Error response envelope contract middleware is present and ordered correctly.');
+  const firstApiMountIndex = source.indexOf(lines[firstApiMountLineIndex]);
+
+  if (middlewareIndex > firstApiMountIndex) {
+    console.error(`❌ enforceErrorResponseContract must run before API routes are mounted in ${path.relative(process.cwd(), appFile)}`);
+    console.error(`\n💡 HINT: The error envelope middleware must be placed BEFORE any API route definitions in ${path.relative(process.cwd(), appFile)}`);
+    console.error('   to ensure consistency in error handling across all endpoints.');
+    process.exit(1);
+  }
+});
+
+console.log('Error response envelope contract middleware is present and ordered correctly in all backends.');

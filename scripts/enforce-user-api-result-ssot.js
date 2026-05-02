@@ -2,7 +2,7 @@
 
 /**
  * Enforce frontend user API SSOT:
- * `frontend/src/api/user/*` must not import legacy safeWrapper helpers.
+ * `apps/web/src/api/user/*` must not import legacy safeWrapper helpers.
  */
 
 const fs = require("fs");
@@ -57,7 +57,7 @@ function main() {
   }
 
   if (offending.length > 0) {
-    console.error("❌ Legacy safeWrapper imports are not allowed in frontend/src/api/user/*");
+    console.error("❌ Legacy safeWrapper imports are not allowed in apps/web/src/api/user/*");
     for (const file of offending) {
       console.error(`   - ${file}`);
     }

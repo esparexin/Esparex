@@ -21,7 +21,7 @@ const excludedPathFragments = [
   `${path.sep}shared${path.sep}contracts${path.sep}api${path.sep}`,
 ];
 const excludedFileRegexes = [/\.spec\./, /\.test\./];
-const excludedExactSuffixes = ["/frontend/src/proxy.ts"];
+const excludedExactSuffixes = ["/apps/web/src/proxy.ts"];
 
 function toUnixPath(input) {
   return input.replaceAll(path.sep, "/");

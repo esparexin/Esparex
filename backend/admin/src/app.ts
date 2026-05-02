@@ -106,6 +106,8 @@ app.use(maintenanceMiddleware);
 /* -------------------------------------------------------------------------- */
 app.use(requireDb);
 
+app.use(enforceErrorResponseContract);
+
 app.use(ADMIN_API_V1_PREFIX, adminPublicRoutes);
 app.use(ADMIN_API_V1_PREFIX, adminRoutes);
 
@@ -122,6 +124,6 @@ app.use((req, res) => {
 /* -------------------------------------------------------------------------- */
 /* ERROR HANDLING                                                              */
 /* -------------------------------------------------------------------------- */
-app.use(enforceErrorResponseContract);
+
 
 export default app;
