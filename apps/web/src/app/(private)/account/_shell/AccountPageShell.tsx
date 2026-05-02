@@ -47,7 +47,7 @@ export function AccountPageShell({ tab, listingSubTab, messagesView, conversatio
             onUpdateUser={() => { void refreshUser(); }}
             onLogout={async (options) => {
                 markLogoutRedirectBypass();
-                void router.replace("/");
+                void router.push("/");
                 await logout({ skipServerLogout: options?.skipServerLogout });
             }}
             initialTab={tab}

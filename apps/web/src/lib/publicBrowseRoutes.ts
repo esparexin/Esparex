@@ -33,6 +33,7 @@ export interface ParsedPublicBrowseParams {
     brands?: string;
     radiusKm?: number;
     page?: number;
+    [key: string]: unknown;
 }
 
 type BrowseCategoryRecord = {

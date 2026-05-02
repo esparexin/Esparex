@@ -82,12 +82,12 @@ export function MyListingsTab({
     useEffect(() => {
         const currentParam = searchParams.get("status");
         if (currentParam !== selectedStatus) {
-            void router.replace(buildAccountListingRoute(subTab as AccountListingSection, selectedStatus), { scroll: false });
+            void router.push(buildAccountListingRoute(subTab as AccountListingSection, selectedStatus), { scroll: false });
         }
     }, [selectedStatus, searchParams, subTab, router]);
 
     const handleStatusChange = (status: ListingStatus) => {
-        void router.replace(buildAccountListingRoute(subTab as AccountListingSection, status), { scroll: false });
+        void router.push(buildAccountListingRoute(subTab as AccountListingSection, status), { scroll: false });
     };
 
     const handleSubTabChange = (value: ListingSubTab) => {

@@ -5,11 +5,16 @@ import {
   buildPublicBrowseRoute,
   resolvePublicBrowseBrands,
   resolvePublicBrowseCategory,
+  type ParsedPublicBrowseParams,
 } from "@/lib/publicBrowseRoutes";
 
 export const DEFAULT_PRICE_RANGE: [number, number] = [0, 200000];
 
-export function useFilterState(routeParams: any, initialSearchQuery: string, initialCategory?: string) {
+export function useFilterState(
+  routeParams: ParsedPublicBrowseParams, 
+  initialSearchQuery: string, 
+  initialCategory?: string
+) {
   const router = useRouter();
   const [query, setQuery] = useState(
     routeParams.q ?? initialSearchQuery
@@ -39,7 +44,7 @@ export function useFilterState(routeParams: any, initialSearchQuery: string, ini
       setCategoryFilters({});
       setSort("newest");
       setPage(1);
-      router.replace(buildPublicBrowseRoute({ type: "ad" }), { scroll: false });
+      void router.push(buildPublicBrowseRoute({ type: "ad" }), { scroll: false });
     });
   };
 

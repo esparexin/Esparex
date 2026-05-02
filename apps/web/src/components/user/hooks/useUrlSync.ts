@@ -92,7 +92,7 @@ export function useUrlSync(
   useEffect(() => {
     if (page !== 1) return;
     if (currentBrowseRoute !== canonicalBrowseRoute) {
-      router.replace(canonicalBrowseRoute, { scroll: false });
+      void router.push(canonicalBrowseRoute, { scroll: false });
     }
   }, [canonicalBrowseRoute, currentBrowseRoute, page, router]);
 }

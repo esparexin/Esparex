@@ -288,7 +288,7 @@ export function useBrowseListingsController<TItem, TFilters>({
       }
       debounceRef.current = setTimeout(() => {
         setQuery(value);
-        router.replace(buildNextUrl({ q: value }), { scroll: false });
+        void router.push(buildNextUrl({ q: value }), { scroll: false });
       }, SEARCH_DEBOUNCE_MS);
     },
     [buildNextUrl, router]
@@ -300,7 +300,7 @@ export function useBrowseListingsController<TItem, TFilters>({
       startTransition(() => {
         setSelectedCategory(value);
         setPage(1);
-        router.replace(buildNextUrl({ category: value }), { scroll: false });
+        void router.push(buildNextUrl({ category: value }), { scroll: false });
       });
     },
     [buildNextUrl, router]
@@ -312,7 +312,7 @@ export function useBrowseListingsController<TItem, TFilters>({
       startTransition(() => {
         setSort(value);
         setPage(1);
-        router.replace(buildNextUrl({ sort: value }), { scroll: false });
+        void router.push(buildNextUrl({ sort: value }), { scroll: false });
       });
     },
     [buildNextUrl, router]
@@ -326,7 +326,7 @@ export function useBrowseListingsController<TItem, TFilters>({
       setSelectedCategory("");
       setSort("newest");
       setPage(1);
-      router.replace(buildPublicBrowseRoute({ type: browseType }), { scroll: false });
+      void router.push(buildPublicBrowseRoute({ type: browseType }), { scroll: false });
     });
   }, [browseType, router]);
 

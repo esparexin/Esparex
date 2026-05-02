@@ -1,7 +1,6 @@
 import express from 'express';
 import * as paymentController from '../controllers/payment';
 import { protect } from '../middleware/authMiddleware';
-import { paymentWebhook } from '@core/controllers/admin/paymentWebhook';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { paymentRateLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
@@ -43,7 +42,7 @@ router.get('/plans', searchLimiter, paymentController.getPlans);
 router.post(
     '/webhook',
     verifyPaymentWebhook(env.RAZORPAY_WEBHOOK_SECRET ?? ''),
-    paymentWebhook
+    paymentController.paymentWebhook
 );
 
 export default router;

@@ -63,25 +63,34 @@ function lintWorkspaceFiles(workspace, files) {
 }
 
 function main() {
-  const baseRef = resolveBaseRef();
-  const baseSha = resolveMergeBase(baseRef);
+  const args = process.argv.slice(2);
+  let changedFiles = [];
 
-  if (!baseSha) {
-    console.log("✅ Skipping lint guard (git base could not be resolved).");
-    return;
-  }
+  if (args.length > 0) {
+    changedFiles = args.filter((file) => /\.(js|jsx|ts|tsx)$/.test(file));
+    console.log(`Checking ${changedFiles.length} files passed from arguments...`);
+  } else {
+    const baseRef = resolveBaseRef();
+    const baseSha = resolveMergeBase(baseRef);
 
-  const changedFiles = getChangedLintFiles(baseSha);
-  if (changedFiles.length === 0) {
-    console.log("✅ No JS/TS changes detected for lint guard.");
-    return;
+    if (!baseSha) {
+      console.log("✅ Skipping lint guard (git base could not be resolved).");
+      return;
+    }
+
+    changedFiles = getChangedLintFiles(baseSha);
+    if (changedFiles.length === 0) {
+      console.log("✅ No JS/TS changes detected for lint guard.");
+      return;
+    }
+    console.log(`Checking ${changedFiles.length} files changed relative to ${baseRef}...`);
   }
 
   const grouped = groupFiles(changedFiles);
   let hasFailures = false;
 
   for (const [workspace, files] of grouped.entries()) {
-    console.log(`Running ESLint for changed files in ${workspace}...`);
+    console.log(`Running ESLint for files in ${workspace}...`);
     // Final safety check: filter out files that may have been deleted/moved
     const existingFiles = files.filter(f => fs.existsSync(path.join(workspace, f)));
     if (existingFiles.length === 0) continue;
@@ -91,11 +100,11 @@ function main() {
   }
 
   if (hasFailures) {
-    console.error("❌ ESLint failed on changed files.");
+    console.error("❌ ESLint failed.");
     process.exit(1);
   }
 
-  console.log("✅ ESLint passed on changed files.");
+  console.log("✅ ESLint passed.");
 }
 
 main();

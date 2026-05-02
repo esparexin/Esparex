@@ -134,6 +134,7 @@ tail*.json
 last*.json
 .claude/
 .jscpd-report/
+test-results/
 frontend/test-results/
 
 # Keep only example/template env files — never real values

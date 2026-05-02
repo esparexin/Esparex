@@ -39,7 +39,7 @@ export function LoginFlow({
 
       setIsRedirecting(true);
       onClose?.();
-      void router.replace(target);
+      void router.push(target);
     },
     [safeCallbackUrl, onClose, router]
   );
@@ -49,7 +49,7 @@ export function LoginFlow({
     // Do not redirect while auth is still resolving (SSR hydration guard).
     if (status === "loading" || status !== "authenticated") return;
     onClose?.();
-    void router.replace(safeCallbackUrl);
+    void router.push(safeCallbackUrl);
   }, [isRedirecting, status, safeCallbackUrl, onClose, router]);
 
   return (

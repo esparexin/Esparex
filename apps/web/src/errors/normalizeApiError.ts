@@ -1,6 +1,26 @@
 import { FrontendAppError } from "./FrontendAppError";
 import { isAPIError } from "@/lib/api/APIError";
 
+interface AxiosLikeError {
+    isAxiosError: boolean;
+    message: string;
+    code?: string;
+    response?: {
+        status: number;
+        data?: {
+            message?: string;
+            code?: string;
+            details?: unknown;
+            error?: {
+                message?: string;
+                status?: number;
+                code?: string;
+                details?: unknown;
+            };
+        };
+    };
+}
+
 export function normalizeApiError(error: unknown): FrontendAppError {
     if (error instanceof FrontendAppError) {
         return error;
@@ -20,7 +40,7 @@ export function normalizeApiError(error: unknown): FrontendAppError {
 
     // Handle Axios-like errors
     if (typeof error === 'object' && error !== null && 'isAxiosError' in error) {
-        const axiosError = error as any;
+        const axiosError = error as unknown as AxiosLikeError;
         const data = axiosError.response?.data;
 
         // Some APIs nest error details under data.error rather than data directly.

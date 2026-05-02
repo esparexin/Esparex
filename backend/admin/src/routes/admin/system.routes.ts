@@ -19,8 +19,8 @@ import * as analyticsController from '../../controllers/admin/adminAnalyticsCont
 import * as apiKeyController from '../../controllers/admin/adminApiKeyController';
 import * as adminSessionController from '../../controllers/admin/adminSessionController';
 import * as notificationController from '../../controllers/admin/adminNotificationController';
-import * as planController from '@core/controllers/plan';
-import * as aiController from '@core/controllers/ai/aiController';
+import * as planController from '../../controllers/plan';
+import * as aiController from '../../controllers/ai/aiController';
 import * as adminRevealController from '../../controllers/admin/adminRevealController';
 import * as twoFAController from '../../controllers/admin/admin2FAController';
 import * as adminCacheController from '../../controllers/admin/adminCacheController';
@@ -65,7 +65,7 @@ import {
     adminMuteChat,
     adminExportChat,
     adminResolveReport,
-} from '@core/controllers/chat/chatAdminController';
+} from '../../controllers/chat/chatAdminController';
 import {
     getAllLocations,
     createAreaLocation,

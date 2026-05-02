@@ -1,5 +1,5 @@
 import express from 'express';
-import * as importController from '@core/controllers/content/import.content.controller';
+import * as importController from '../controllers/content/import.content.controller';
 import { requireAdmin } from '../middleware/adminAuth';
 
 const router = express.Router();
