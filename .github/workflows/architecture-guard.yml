@@ -41,13 +41,13 @@ jobs:
           echo "LOG_LEVEL=info" >> backend/user/.env
 
       - name: Type check backend
-        run: npm run type-check -w backend/user
+        run: npm run type-check -w @esparex/backend-user
 
       - name: Type check frontend
-        run: npm run type-check -w apps/web
+        run: npm run type-check -w @esparex/apps-web
 
       - name: Type check apps/admin
-        run: npm run type-check -w apps/admin
+        run: npm run type-check -w @esparex/apps-admin
 
   # ── Job 2: Backend unit tests ────────────────────────────────────────────────
   test:
@@ -73,7 +73,7 @@ jobs:
           echo "LOG_LEVEL=info" >> backend/user/.env
 
       - name: Run backend tests
-        run: npm run test:ci -w backend/user
+        run: npm run test:ci -w @esparex/backend-user
 
       - name: Upload coverage report
         if: always()
@@ -165,10 +165,10 @@ jobs:
           echo "LOG_LEVEL=info" >> backend/user/.env
 
       - name: Build backend
-        run: npm run build -w backend/user
+        run: npm run build -w @esparex/backend-user
 
       - name: Build frontend
-        run: npm run build -w apps/web
+        run: npm run build -w @esparex/apps-web
         env:
           NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
           NEXT_PUBLIC_APP_URL: https://esparex.in
@@ -184,6 +184,6 @@ jobs:
           NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
 
       - name: Build apps/admin
-        run: npm run build -w apps/admin
+        run: npm run build -w @esparex/apps-admin
         env:
           NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
