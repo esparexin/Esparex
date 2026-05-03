@@ -45,7 +45,18 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 export const uploadImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as AuthUser;
-        const result = await adImageService.uploadAdImage(req, user._id.toString());
+        
+        if (!req.file) {
+            const { AppError } = await import("@core/utils/AppError");
+            throw new AppError('No image file provided', 400, 'NO_IMAGE');
+        }
+
+        const result = await adImageService.uploadSingleImage(
+            user._id.toString(), 
+            req.file.buffer, 
+            req.file.mimetype
+        );
+
         return sendSuccessResponse(res, result, 'Image uploaded successfully');
     } catch (error) {
         next(error);

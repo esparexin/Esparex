@@ -21,8 +21,8 @@ export const incrementListingView = async (req: Request, res: Response, next: Ne
             : { seoSlug: idOrSlug };
 
         // 🛡️ ARCHITECTURAL REFINEMENT
-        // Delegating cookie-based uniqueness logic to EngagementService to keep controller thin (SSOT).
-        const result = await AdEngagementService.processListingView(filter, req, res);
+        // Delegating view increment to EngagementService (SSOT).
+        const result = await AdEngagementService.incrementAdViewByFilter(filter);
 
         return sendSuccessResponse(res, result);
     } catch (error) {

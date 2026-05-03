@@ -362,8 +362,22 @@ export const findImageDuplicates = async (
 };
 
 // ─────────────────────────────────────────────────
-// EXPORTS
+// CANONICAL METHODS (Ex-Shims)
 // ─────────────────────────────────────────────────
+
+import { generatePresignedUploadUrl, PresignedUploadResult } from '@core/utils/s3';
+
+/**
+ * Generates a presigned URL for direct S3 upload from the client.
+ */
+export const getUploadPresignedUrl = async (
+    userId: string, 
+    fileName: string, 
+    fileType: string
+): Promise<PresignedUploadResult> => {
+    const key = `temp/uploads/${userId}/${Date.now()}-${fileName}`;
+    return generatePresignedUploadUrl(key, fileType);
+};
 
 export {
     ALLOWED_IMAGE_TYPES,

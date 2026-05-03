@@ -105,7 +105,7 @@ router.patch(
     mutationLimiter,
     validateRequest(updateAdSchema as unknown as ZodTypeAny),
     (req, res, next) => {
-        logLegacyHit('PATCH /ads/:id');
+        logLegacyHit('PATCH /ads/:id', req);
         void editListingController.editListing(req, res, next);
     }
 );

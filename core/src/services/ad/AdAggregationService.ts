@@ -902,3 +902,14 @@ export const getAds = async (
 // ─────────────────────────────────────────────────
 // AD COUNTS
 // ─────────────────────────────────────────────────
+// ─────────────────────────────────────────────────
+// SHIMS (Backward Compatibility)
+// ─────────────────────────────────────────────────
+
+/**
+ * @deprecated Suggestions flow has been refactored
+ */
+export const getListingSuggestions = async (query: string): Promise<any[]> => {
+    void query;
+    return []; // Return empty array to satisfy contract without breaking runtime
+};

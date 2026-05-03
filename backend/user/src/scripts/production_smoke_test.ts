@@ -89,7 +89,6 @@ async function runScenarioA(verifiedLocation: any, validCategory: any) {
         {
             actor: 'USER',
             authUserId: userId.toString(),
-            userId: userId.toString(),
             sellerId: userId.toString(),
             ip: '1.1.1.1'
         }
@@ -155,7 +154,6 @@ async function runScenarioB(verifiedLocation: any, validCategory: any) {
         {
             actor: 'USER',
             authUserId: userId.toString(),
-            userId: userId.toString(),
             sellerId: userId.toString(),
             riskState: 'SAFE_MODE'
         }
@@ -198,7 +196,6 @@ async function runScenarioC(verifiedLocation: any, validCategory: any) {
         {
             actor: 'ADMIN',
             authUserId: adminId.toString(),
-            userId: adminId.toString(),
             sellerId: adminId.toString()
         }
     );
@@ -229,7 +226,6 @@ async function runScenarioC(verifiedLocation: any, validCategory: any) {
             {
                 actor: 'ADMIN',
                 authUserId: userId.toString(),
-                userId: userId.toString(),
                 sellerId: userId.toString()
             }
         );
