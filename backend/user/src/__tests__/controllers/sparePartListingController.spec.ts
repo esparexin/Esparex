@@ -8,10 +8,10 @@ jest.mock("@core/utils/respond", () => ({
 }));
 
 import type { Request, Response } from "express";
-import { getListings } from "../../controllers/listing/listingController";
+import { getListings } from "../../controllers/listing/getListings.controller";
 import * as AdAggregationService from "@core/services/ad/AdAggregationService";
 
-describe("listingController discovery", () => {
+describe("getListings.controller spare-part discovery", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });

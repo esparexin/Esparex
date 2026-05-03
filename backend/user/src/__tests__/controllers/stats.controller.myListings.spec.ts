@@ -62,9 +62,9 @@ jest.mock('@core/utils/logger', () => ({
 }));
 
 import type { Request, Response } from 'express';
-import { getMyListings } from '../../controllers/listing/listingController';
+import { getMyListings } from '../../controllers/listing/stats.controller';
 
-describe('listingController.getMyListings', () => {
+describe('stats.controller getMyListings', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });

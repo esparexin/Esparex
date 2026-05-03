@@ -54,7 +54,7 @@ jest.mock('@core/utils/respond', () => ({
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Ad from '@core/models/Ad';
-import { deactivateListing } from '../../controllers/listing/listingController';
+import { deactivateListing } from '../../controllers/listing/lifecycle.controller';
 import { getSingleParam } from '@core/utils/requestParams';
 
 // ─── Typed mocks ─────────────────────────────────────────────────────────────

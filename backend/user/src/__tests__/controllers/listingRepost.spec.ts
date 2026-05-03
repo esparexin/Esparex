@@ -27,7 +27,7 @@ jest.mock('@core/utils/requestParams', () => ({
 
 import { Request, Response } from 'express';
 import AdMutationService from '@core/services/AdMutationService';
-import { repostListing } from '../../controllers/listing/listingController';
+import { repostListing } from '../../controllers/listing/lifecycle.controller';
 
 const mockedRepostAd = AdMutationService.repostAd as jest.Mock;
 

@@ -2,7 +2,10 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { protect, extractUser } from '../middleware/authMiddleware';
 import { requireBusinessApproved } from '../middleware/businessMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
-import * as listingController from '../controllers/listing/listingController';
+import * as createListingController from '../controllers/listing/createListing.controller';
+import * as getListingsController from '../controllers/listing/getListings.controller';
+import * as engagementController from '../controllers/listing/engagement.controller';
+import * as editListingController from '../controllers/listing/editListing.controller';
 import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMiddleware';
 import { createListingValidator } from '../middleware/listing.validator';
 import { phoneRevealLimiter, mutationLimiter, searchLimiter } from '../middleware/rateLimiter';
@@ -17,7 +20,7 @@ const router = Router();
 
 /**
  * 🛡️ LEGACY PROXY LAYER
- * All routes here delegate to listingController.ts (SSOT).
+ * All routes here delegate to the appropriate listing controller (SSOT).
  * Log warnings to track legacy usage for eventual decommissioning.
  */
 
@@ -36,20 +39,20 @@ router.post(
     createListingValidator,
     (req: Request, res: Response, next: NextFunction) => {
         logLegacyHit('POST /spare-part-listings');
-        void listingController.createListing(req, res, next);
+        void createListingController.createListing(req, res, next);
     }
 );
 
 // Get All (Search)
 router.get('/', searchLimiter, (req: Request, res: Response, next: NextFunction) => {
     logLegacyHit('GET /spare-part-listings');
-    void listingController.getListings(req, res, next);
+    void getListingsController.getListings(req, res, next);
 });
 
 // Phone Reveal
 router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req: Request, res: Response, next: NextFunction) => {
     logLegacyHit('GET /spare-part-listings/:id/phone');
-    void listingController.getListingPhone(req, res, next);
+    void engagementController.getListingPhone(req, res, next);
 });
 
 // Update
@@ -62,7 +65,7 @@ router.put(
     validateRequest(PartialSparePartPayloadSchema.passthrough() as unknown as ZodTypeAny),
     (req: Request, res: Response, next: NextFunction) => {
         logLegacyHit('PUT /spare-part-listings/:id');
-        void listingController.editListing(req, res, next);
+        void editListingController.editListing(req, res, next);
     }
 );
 

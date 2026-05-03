@@ -1,5 +1,7 @@
 import express from "express";
-import * as listingController from "../controllers/listing/listingController";
+import * as getListingsController from "../controllers/listing/getListings.controller";
+import * as createListingController from "../controllers/listing/createListing.controller";
+import * as editListingController from "../controllers/listing/editListing.controller";
 import { protect, extractUser } from "../middleware/authMiddleware";
 import { validateSearchParams } from "../middleware/securityValidators";
 import { mutationLimiter, searchLimiter, adPostLimiter } from "../middleware/rateLimiter";
@@ -20,7 +22,7 @@ const router = express.Router();
 
 /**
  * 🛡️ LEGACY PROXY LAYER
- * All routes here delegate to listingController.ts (SSOT).
+ * All routes here delegate to the appropriate listing controller (SSOT).
  * Log warnings to track legacy usage for eventual decommissioning.
  */
 
@@ -31,31 +33,31 @@ const logLegacyHit = (endpoint: string) => {
 // Home Feed
 router.get("/home", searchLimiter, (req, res, next) => {
     logLegacyHit('GET /ads/home');
-    void listingController.getHomeFeed(req, res, next);
+    void getListingsController.getHomeFeed(req, res, next);
 });
 
 // Trending
 router.get("/trending", searchLimiter, (req, res, next) => {
     logLegacyHit('GET /ads/trending');
-    void listingController.getTrending(req, res, next);
+    void getListingsController.getTrending(req, res, next);
 });
 
 // Search
 router.get("/", extractUser, searchLimiter, validateSearchParams, (req, res, next) => {
     logLegacyHit('GET /ads');
-    void listingController.getListings(req, res, next);
+    void getListingsController.getListings(req, res, next);
 });
 
 // Nearby
 router.get("/nearby", extractUser, searchLimiter, validateSearchParams, (req, res, next) => {
     logLegacyHit('GET /ads/nearby');
-    void listingController.getNearbyListings(req, res, next);
+    void getListingsController.getNearbyListings(req, res, next);
 });
 
 // Suggestions
 router.get("/suggestions", searchLimiter, (req, res, next) => {
     logLegacyHit('GET /ads/suggestions');
-    void listingController.getListingSuggestions(req, res, next);
+    void getListingsController.getListingSuggestions(req, res, next);
 });
 
 // Create
@@ -72,20 +74,20 @@ router.post(
     enforceCreateAdIdempotency,
     (req, res, next) => {
         logLegacyHit('POST /ads');
-        void listingController.createListing(req, res, next);
+        void createListingController.createListing(req, res, next);
     }
 );
 
 // Upload Image
 router.post("/upload-image", protect, mutationLimiter, (req, res, next) => {
     logLegacyHit('POST /ads/upload-image');
-    void listingController.uploadImage(req, res, next);
+    void createListingController.uploadImage(req, res, next);
 });
 
 // Upload Presign
 router.post("/upload-presign", protect, mutationLimiter, (req, res, next) => {
     logLegacyHit('POST /ads/upload-presign');
-    void listingController.getUploadPresignedUrl(req, res, next);
+    void createListingController.getUploadPresignedUrl(req, res, next);
 });
 
 // Update (Partial)
@@ -97,7 +99,7 @@ router.patch(
     validateRequest(updateAdSchema as unknown as ZodTypeAny),
     (req, res, next) => {
         logLegacyHit('PATCH /ads/:id');
-        void listingController.editListing(req, res, next);
+        void editListingController.editListing(req, res, next);
     }
 );
 

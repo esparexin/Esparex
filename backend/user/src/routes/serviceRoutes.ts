@@ -1,5 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
-import * as listingController from '../controllers/listing/listingController';
+import * as createListingController from '../controllers/listing/createListing.controller';
+import * as editListingController from '../controllers/listing/editListing.controller';
+import * as getListingsController from '../controllers/listing/getListings.controller';
+import * as engagementController from '../controllers/listing/engagement.controller';
 import { protect, extractUser } from '../middleware/authMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
@@ -19,7 +22,7 @@ const router = express.Router();
 
 /**
  * 🛡️ LEGACY PROXY LAYER
- * All routes here delegate to listingController.ts (SSOT).
+ * All routes here delegate to the appropriate listing controller (SSOT).
  * Log warnings to track legacy usage for eventual decommissioning.
  */
 
@@ -40,7 +43,7 @@ router.post(
     enforceCreateServiceIdempotency,
     (req: Request, res: Response, next: NextFunction) => {
         logLegacyHit('POST /services');
-        void listingController.createListing(req, res, next);
+        void createListingController.createListing(req, res, next);
     }
 );
 
@@ -54,26 +57,26 @@ router.put(
     validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
     (req: Request, res: Response, next: NextFunction) => {
         logLegacyHit('PUT /services/:id');
-        void listingController.editListing(req, res, next);
+        void editListingController.editListing(req, res, next);
     }
 );
 
 // Get All
 router.get('/', searchLimiter, (req: Request, res: Response, next: NextFunction) => {
     logLegacyHit('GET /services');
-    void listingController.getListings(req, res, next);
+    void getListingsController.getListings(req, res, next);
 });
 
 // View Increment
 router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), (req: Request, res: Response, next: NextFunction) => {
     logLegacyHit('GET /services/:id/view');
-    void listingController.incrementListingView(req, res, next);
+    void engagementController.incrementListingView(req, res, next);
 });
 
 // Phone Reveal
 router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req: Request, res: Response, next: NextFunction) => {
     logLegacyHit('GET /services/:id/phone');
-    void listingController.getListingPhone(req, res, next);
+    void engagementController.getListingPhone(req, res, next);
 });
 
 export default router;

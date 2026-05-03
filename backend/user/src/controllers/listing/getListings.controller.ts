@@ -339,8 +339,6 @@ export const getTrending = async (req: Request, res: Response, next: NextFunctio
  * GET /api/v1/listings/suggestions
  */
 export const getListingSuggestions = async (req: Request, res: Response, next: NextFunction) => {
-    // Logic extracted from original listingController (simplified for this turn)
-    // In a real scenario, I'd port the exact code.
     try {
         const q = String(req.query.q || '');
         const data = await AdAggregationService.getListingSuggestions(q);

@@ -47,7 +47,7 @@ export const USER_ROUTES = {
   MY_LISTINGS_STATS: "listings/mine/stats",
   LISTING_DETAIL: (id: string | number) => `listings/${id}`,
   LISTING_EDIT: (id: string | number) => `listings/${id}/edit`,
-  LISTING_SOLD: (id: string | number) => `listings/${id}/mark-sold`,
+  LISTING_SOLD: (id: string | number) => `listings/${id}/sold`,
   LISTING_DEACTIVATE: (id: string | number) => `listings/${id}/deactivate`,
   LISTING_PROMOTE: (id: string | number) => `listings/${id}/promote`,
   LISTING_ANALYTICS: (id: string | number) => `listings/${id}/analytics`,
@@ -95,7 +95,7 @@ export const USER_ROUTES = {
   SERVICES: "listings",
   SERVICE_DETAIL: (id: string) => `listings/${encodeURIComponent(id)}`,
   SERVICE_VIEW: (id: string) => `listings/${encodeURIComponent(id)}/view`,
-  SERVICE_SOLD: (id: string) => `listings/${id}/mark-sold`,
+  SERVICE_SOLD: (id: string) => `listings/${id}/sold`,
   SERVICE_DEACTIVATE: (id: string) => `listings/${id}/deactivate`,
   SERVICE_REPOST: (id: string) => `listings/${id}/repost`,
 

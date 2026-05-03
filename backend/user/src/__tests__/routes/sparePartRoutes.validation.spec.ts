@@ -32,17 +32,22 @@ jest.mock("../../middleware/rateLimiter", () => ({
     searchLimiter: (_req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
 }));
 
-jest.mock("../../controllers/listing/listingController", () => ({
-    getListingPhone: jest.fn(),
+jest.mock("../../controllers/listing/createListing.controller", () => ({
     createListing: jest.fn(),
+}));
+
+jest.mock("../../controllers/listing/getListings.controller", () => ({
     getListings: jest.fn(),
+}));
+
+jest.mock("../../controllers/listing/engagement.controller", () => ({
+    getListingPhone: jest.fn(),
+}));
+
+jest.mock("../../controllers/listing/editListing.controller", () => ({
     editListing: jest.fn((req: express.Request, res: express.Response) => {
         res.status(200).json({ body: req.body });
     }),
-    updateListing: jest.fn(),
-    deleteListing: jest.fn(),
-    deactivateListing: jest.fn(),
-    repostListing: jest.fn(),
 }));
 
 import sparePartRoutes from "../../routes/sparePartRoutes";
