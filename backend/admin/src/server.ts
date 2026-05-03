@@ -1,4 +1,4 @@
-import '../../../../core/src/config/loadEnv'; // MUST BE FIRST (Registers Aliases)
+import '@esparex/core/config/loadEnv'; // MUST BE FIRST (Registers Aliases)
 import app from './app';
 import { connectDB } from '@core/config/db';
 import logger from '@core/utils/logger';

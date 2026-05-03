@@ -4,6 +4,14 @@
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    "./config/loadEnv": "./dist/config/loadEnv.js",
+    "./config/db": "./dist/config/db.js",
+    "./config/env": "./dist/config/env.js",
+    "./config/sentry": "./dist/config/sentry.js",
+    "./utils/logger": "./dist/utils/logger.js",
+    "./models/registry": "./dist/models/registry.js"
+  },
   "scripts": {
     "build": "rm -rf dist && tsc",
     "type-check": "tsc --noEmit",

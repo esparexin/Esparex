@@ -21,7 +21,9 @@
       "@shared/*": ["../../shared/*"],
       "@shared": ["../../shared/index.ts"],
       "@core/*": ["../../core/src/*"],
-      "@core": ["../../core/src/index.ts"]
+      "@core": ["../../core/src/index.ts"],
+      "@esparex/core/*": ["../../core/src/*"],
+      "@esparex/core": ["../../core/src/index.ts"]
     }
   },
   "include": [
