@@ -96,6 +96,10 @@ router.delete("/:id", protect, validateObjectId, mutationLimiter, lifecycleContr
 // Lifecycle: Repost expired/rejected listing
 router.post("/:id/repost", protect, validateObjectId, mutationLimiter, idempotencyMiddleware, lifecycleController.repostListing);
 
+// POST /api/v1/listings/:id/promote
+// Promotion entry point
+router.post("/:id/promote", protect, validateObjectId, mutationLimiter, lifecycleController.promoteListing);
+
 // GET /api/v1/listings/:id/analytics
 // Performance tracking
 router.get("/:id/analytics", protect, validateObjectId, statsController.getListingAnalytics);

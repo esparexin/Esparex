@@ -51,5 +51,16 @@ export const activeWebSocketConnections = new client.Gauge({
     help: 'Total number of active WebSocket connections'
 });
 
+/**
+ * Listing Creation Counter
+ * Tracks total listings created, segmented by type and actor.
+ * Looked up by AdOrchestrator after each successful createAd call.
+ */
+export const listingCreationTotal = new client.Counter({
+    name: 'esparex_listing_creation_total',
+    help: 'Total number of listings created',
+    labelNames: ['listingType', 'actor'] as const,
+});
+
 export const register = client.register;
 export default client;

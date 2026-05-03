@@ -232,18 +232,17 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
         
         // 7. Dispatch Global Lifecycle Event (Decoupled side-effects)
         if (domain === 'ad') {
-            // 🛡️ PRODUCTION HARDENING: Synchronous cache invalidation
-            // Even though a listener exists, we bust the critical detail cache synchronously
-            // to ensure no stale data is served immediately after mutation.
-            try {
-                const { invalidatePublicAdCache, invalidateAdFeedCaches } = await import('@core/utils/redisCache');
-                await Promise.all([
+            // 🛡️ PRODUCTION HARDENING: Fire-and-forget cache invalidation
+            // Cache bust runs independently — a Redis failure must NOT block
+            // lifecycle event dispatch that downstream consumers depend on.
+            import('@core/utils/redisCache').then(({ invalidatePublicAdCache, invalidateAdFeedCaches }) => {
+                return Promise.all([
                     invalidatePublicAdCache(entityId.toString()),
                     invalidateAdFeedCaches()
                 ]);
-            } catch (cacheErr) {
+            }).catch((cacheErr) => {
                 logger.error('Failed to bust cache during status mutation', { adId: entityId.toString(), cacheErr });
-            }
+            });
 
             await lifecycleEvents.dispatch('ad.lifecycle.changed', {
                 adId: entityId.toString(),

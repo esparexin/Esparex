@@ -7,6 +7,7 @@ import { ACTOR_TYPE } from "@shared/enums/actor";
 import { mutateStatus } from '@core/services/StatusMutationService';
 import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
 import * as AdMutationService from '@core/services/AdMutationService';
+import { PromotionPolicyService } from '@core/services/PromotionPolicyService';
 import type { AuthUser } from '../../types/auth.types';
 
 /**
@@ -155,6 +156,38 @@ export const repostListing = async (req: Request, res: Response, next: NextFunct
                 { code: knownError.code }
             );
         }
+        next(error);
+    }
+};
+
+/**
+ * POST /api/v1/listings/:id/promote
+ * Promotion entry point
+ */
+export const promoteListing = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType' });
+        if (!listing) return;
+
+        const policyResult = PromotionPolicyService.canPromote({
+            listingType: listing.listingType || 'ad',
+            status: listing.status
+        });
+
+        if (!policyResult.allowed) {
+            return sendErrorResponse(
+                req, res, 403,
+                policyResult.reason || `Listings of type ${listing.listingType} cannot be promoted.`,
+                { code: policyResult.code || 'PROMOTION_POLICY_REJECTED' }
+            );
+        }
+
+        if (listing.status !== LISTING_STATUS.LIVE) {
+            return sendErrorResponse(req, res, 400, 'Only live listings can be promoted');
+        }
+
+        return sendSuccessResponse(res, { listingId: listing._id.toString(), currentStatus: listing.status, listingType: listing.listingType }, 'Proceed to promotion checkout');
+    } catch (error) {
         next(error);
     }
 };
