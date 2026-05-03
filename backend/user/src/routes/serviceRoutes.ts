@@ -26,8 +26,15 @@ const router = express.Router();
  * Log warnings to track legacy usage for eventual decommissioning.
  */
 
-const logLegacyHit = (endpoint: string) => {
-    logger.warn(`[DEPRECATED API HIT] ${endpoint} - Use /api/v1/listings instead.`);
+const logLegacyHit = (endpoint: string, req: Request) => {
+    logger.warn('DEPRECATED_ROUTE_HIT', {
+        event: 'DEPRECATED_ROUTE_HIT',
+        route: endpoint,
+        userId: (req.user as { _id?: string } | undefined)?._id ?? 'anonymous',
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+        redirect: '/api/v1/listings',
+    });
 };
 
 // Create
@@ -42,7 +49,7 @@ router.post(
     createListingValidator,
     enforceCreateServiceIdempotency,
     (req: Request, res: Response, next: NextFunction) => {
-        logLegacyHit('POST /services');
+        logLegacyHit('POST /services', req);
         void createListingController.createListing(req, res, next);
     }
 );
@@ -56,26 +63,26 @@ router.put(
     mutationLimiter,
     validateRequest(PartialServicePayloadSchema as unknown as ZodTypeAny),
     (req: Request, res: Response, next: NextFunction) => {
-        logLegacyHit('PUT /services/:id');
+        logLegacyHit('PUT /services/:id', req);
         void editListingController.editListing(req, res, next);
     }
 );
 
 // Get All
 router.get('/', searchLimiter, (req: Request, res: Response, next: NextFunction) => {
-    logLegacyHit('GET /services');
+    logLegacyHit('GET /services', req);
     void getListingsController.getListings(req, res, next);
 });
 
 // View Increment
 router.get('/:id/view', searchLimiter, validateIdOrSlug('id'), (req: Request, res: Response, next: NextFunction) => {
-    logLegacyHit('GET /services/:id/view');
+    logLegacyHit('GET /services/:id/view', req);
     void engagementController.incrementListingView(req, res, next);
 });
 
 // Phone Reveal
 router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req: Request, res: Response, next: NextFunction) => {
-    logLegacyHit('GET /services/:id/phone');
+    logLegacyHit('GET /services/:id/phone', req);
     void engagementController.getListingPhone(req, res, next);
 });
 

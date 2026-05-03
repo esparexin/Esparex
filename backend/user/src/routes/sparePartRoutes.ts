@@ -24,8 +24,15 @@ const router = Router();
  * Log warnings to track legacy usage for eventual decommissioning.
  */
 
-const logLegacyHit = (endpoint: string) => {
-    logger.warn(`[DEPRECATED API HIT] ${endpoint} - Use /api/v1/listings instead.`);
+const logLegacyHit = (endpoint: string, req: Request) => {
+    logger.warn('DEPRECATED_ROUTE_HIT', {
+        event: 'DEPRECATED_ROUTE_HIT',
+        route: endpoint,
+        userId: (req.user as { _id?: string } | undefined)?._id ?? 'anonymous',
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+        redirect: '/api/v1/listings',
+    });
 };
 
 // Create
@@ -38,20 +45,20 @@ router.post(
     validateRequest(SparePartPayloadSchema as unknown as ZodTypeAny),
     createListingValidator,
     (req: Request, res: Response, next: NextFunction) => {
-        logLegacyHit('POST /spare-part-listings');
+        logLegacyHit('POST /spare-part-listings', req);
         void createListingController.createListing(req, res, next);
     }
 );
 
 // Get All (Search)
 router.get('/', searchLimiter, (req: Request, res: Response, next: NextFunction) => {
-    logLegacyHit('GET /spare-part-listings');
+    logLegacyHit('GET /spare-part-listings', req);
     void getListingsController.getListings(req, res, next);
 });
 
 // Phone Reveal
 router.get('/:id/phone', validateObjectId, extractUser, phoneRevealLimiter, (req: Request, res: Response, next: NextFunction) => {
-    logLegacyHit('GET /spare-part-listings/:id/phone');
+    logLegacyHit('GET /spare-part-listings/:id/phone', req);
     void engagementController.getListingPhone(req, res, next);
 });
 
@@ -64,7 +71,7 @@ router.put(
     mutationLimiter,
     validateRequest(PartialSparePartPayloadSchema.passthrough() as unknown as ZodTypeAny),
     (req: Request, res: Response, next: NextFunction) => {
-        logLegacyHit('PUT /spare-part-listings/:id');
+        logLegacyHit('PUT /spare-part-listings/:id', req);
         void editListingController.editListing(req, res, next);
     }
 );

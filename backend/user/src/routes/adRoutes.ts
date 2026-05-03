@@ -26,37 +26,44 @@ const router = express.Router();
  * Log warnings to track legacy usage for eventual decommissioning.
  */
 
-const logLegacyHit = (endpoint: string) => {
-    logger.warn(`[DEPRECATED API HIT] ${endpoint} - Use /api/v1/listings instead.`);
+const logLegacyHit = (endpoint: string, req: express.Request) => {
+    logger.warn('DEPRECATED_ROUTE_HIT', {
+        event: 'DEPRECATED_ROUTE_HIT',
+        route: endpoint,
+        userId: (req.user as { _id?: string } | undefined)?._id ?? 'anonymous',
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+        redirect: '/api/v1/listings',
+    });
 };
 
 // Home Feed
 router.get("/home", searchLimiter, (req, res, next) => {
-    logLegacyHit('GET /ads/home');
+    logLegacyHit('GET /ads/home', req);
     void getListingsController.getHomeFeed(req, res, next);
 });
 
 // Trending
 router.get("/trending", searchLimiter, (req, res, next) => {
-    logLegacyHit('GET /ads/trending');
+    logLegacyHit('GET /ads/trending', req);
     void getListingsController.getTrending(req, res, next);
 });
 
 // Search
 router.get("/", extractUser, searchLimiter, validateSearchParams, (req, res, next) => {
-    logLegacyHit('GET /ads');
+    logLegacyHit('GET /ads', req);
     void getListingsController.getListings(req, res, next);
 });
 
 // Nearby
 router.get("/nearby", extractUser, searchLimiter, validateSearchParams, (req, res, next) => {
-    logLegacyHit('GET /ads/nearby');
+    logLegacyHit('GET /ads/nearby', req);
     void getListingsController.getNearbyListings(req, res, next);
 });
 
 // Suggestions
 router.get("/suggestions", searchLimiter, (req, res, next) => {
-    logLegacyHit('GET /ads/suggestions');
+    logLegacyHit('GET /ads/suggestions', req);
     void getListingsController.getListingSuggestions(req, res, next);
 });
 
@@ -73,20 +80,20 @@ router.post(
     createListingValidator,
     enforceCreateAdIdempotency,
     (req, res, next) => {
-        logLegacyHit('POST /ads');
+        logLegacyHit('POST /ads', req);
         void createListingController.createListing(req, res, next);
     }
 );
 
 // Upload Image
 router.post("/upload-image", protect, mutationLimiter, (req, res, next) => {
-    logLegacyHit('POST /ads/upload-image');
+    logLegacyHit('POST /ads/upload-image', req);
     void createListingController.uploadImage(req, res, next);
 });
 
 // Upload Presign
 router.post("/upload-presign", protect, mutationLimiter, (req, res, next) => {
-    logLegacyHit('POST /ads/upload-presign');
+    logLegacyHit('POST /ads/upload-presign', req);
     void createListingController.getUploadPresignedUrl(req, res, next);
 });
 
