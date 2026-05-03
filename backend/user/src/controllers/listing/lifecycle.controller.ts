@@ -33,8 +33,6 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
             actor: {
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
-                ip: req.ip || '',
-                userAgent: req.headers['user-agent'] || '',
             },
             reason: soldReason || 'Marked as sold by owner',
             metadata: {
@@ -78,8 +76,6 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
             actor: {
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
-                ip: req.ip || '',
-                userAgent: req.headers['user-agent'] || '',
             },
             reason: 'Deactivated by owner',
             metadata: {
@@ -110,8 +106,6 @@ export const deleteListing = async (req: Request, res: Response, next: NextFunct
             actor: {
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
-                ip: req.ip || '',
-                userAgent: req.headers['user-agent'] || '',
             },
             reason: 'Listing soft deleted by owner',
             metadata: {

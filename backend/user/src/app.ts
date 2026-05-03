@@ -42,7 +42,6 @@ import catalogRoutes from './routes/catalogRoutes';
 import userRoutes from './routes/userRoutes';
 import authRoutes from './routes/authRoutes';
 
-import adRoutes from './routes/adRoutes';
 import listingRoutes from './routes/listingRoutes';
 import smartAlertRoutes from './routes/smartAlertRoutes';
 import locationRoutes from './routes/locationRoutes';

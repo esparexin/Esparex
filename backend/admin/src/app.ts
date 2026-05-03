@@ -1,4 +1,4 @@
-import '@core/config/loadEnv'; // MUST BE FIRST
+import '../../../../core/src/config/loadEnv'; // MUST BE FIRST (Registers Aliases)
 import { initSentry } from '@core/config/sentry'; // Initialize Sentry early
 import express, { type RequestHandler } from 'express';
 import cors from 'cors';
