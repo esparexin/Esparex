@@ -3,7 +3,7 @@
 import { createContext, useContext, useMemo } from "react";
 
 import { AdminPopup } from "@/components/system/AdminPopup";
-import { usePopupQueue } from "@shared/popup/usePopupQueue";
+import { usePopupQueue } from "@esparex/shared/popup/usePopupQueue";
 import {
   PopupState,
   showAdminPopup,

@@ -9,7 +9,7 @@ import {
     Smartphone, 
     Users 
 } from "lucide-react";
-import { ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@shared/constants/adminNotificationTargets";
+import { ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/shared/constants/adminNotificationTargets";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import type { NotificationLog } from "@/types/notification";
 

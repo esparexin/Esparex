@@ -9,7 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import type { Business } from "@shared/types";
+import type { Business } from "@esparex/shared/types";
 
 interface BusinessDeleteModalProps {
     business: Business;

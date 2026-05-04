@@ -416,7 +416,7 @@ export function CatalogArchivedCategoryNotice({
 }
 
 import { Box, Briefcase, Smartphone, Wrench as WrenchIcon } from "lucide-react";
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE } from "@esparex/shared/enums/listingType";
 
 /**
  * Standardized icon getter for listing types.
