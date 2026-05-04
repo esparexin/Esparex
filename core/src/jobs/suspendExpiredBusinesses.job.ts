@@ -5,7 +5,8 @@ import logger from '@esparex/core/utils/logger';
 import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
 import { dispatchTemplatedNotification } from '@esparex/core/services/NotificationService';
 import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
-import { MODERATION_STATUS } from '@esparex/core/constants/enums/moderationStatus';
+import { mutateStatusesBulk } from '@esparex/core/services/StatusMutationService';
+import { ACTOR_TYPE } from '@esparex/core/constants/enums/actor';
 
 
 const MS_IN_DAY = 24 * 60 * 60 * 1000;
@@ -58,24 +59,27 @@ export const runSuspendExpiredBusinessesJob = async () => {
                 }
 
                 // 2. Transition approved → suspended when expiresAt has passed
-                const result = await Business.updateMany(
-                    {
-                        status: 'live',
-                        expiresAt: { $lte: new Date() },
-                        isDeleted: { $ne: true }
-                    },
-                    {
-                        $set: { status: 'suspended' }
-                    }
+                const businessesToSuspend = await Business.find({
+                    status: 'live',
+                    expiresAt: { $lte: new Date() },
+                    isDeleted: { $ne: true }
+                }).select('_id').lean();
+
+                const suspendedIds = businessesToSuspend.map(b => b._id.toString());
+                const suspendedCount = await mutateStatusesBulk(
+                    'business',
+                    suspendedIds,
+                    'suspended',
+                    { type: ACTOR_TYPE.SYSTEM, id: 'cron_expireBusinesses' },
+                    'Business account expired (natural expiry)'
                 );
 
-                if (result.matchedCount > 0) {
-                    logger.info('Suspended business accounts (natural expiry)', { count: result.modifiedCount });
+                if (suspendedCount > 0) {
+                    logger.info('Suspended business accounts (natural expiry)', { count: suspendedCount });
 
                     // Fetch the newly-suspended businesses to handle secondary effects and notifications
                     const suspendedBusinesses = await Business.find({
-                        status: 'suspended', 
-                        expiresAt: { $lte: new Date() },
+                        _id: { $in: suspendedIds },
                         isDeleted: { $ne: true }
                     }).select('userId name');
 
@@ -83,22 +87,23 @@ export const runSuspendExpiredBusinessesJob = async () => {
 
                     // 3. Deactivate ads of suspended businesses (New Governance Policy)
                     if (suspendedUserIds.length > 0) {
-                        const adResult = await Ad.updateMany(
-                            { 
-                                sellerId: { $in: suspendedUserIds }, 
-                                status: LISTING_STATUS.LIVE,
-                                isDeleted: { $ne: true }
-                            },
-                            {
-                                $set: { 
-                                    status: LISTING_STATUS.PENDING,
-                                    moderationStatus: MODERATION_STATUS.HELD_FOR_REVIEW,
-                                    statusReason: 'Automatic deactivation: Business subscription expired'
-                                }
-                            }
+                        const adsToDeactivate = await Ad.find({
+                            sellerId: { $in: suspendedUserIds },
+                            status: LISTING_STATUS.LIVE,
+                            isDeleted: { $ne: true }
+                        }).select('_id').lean();
+
+                        const adIds = adsToDeactivate.map(a => a._id.toString());
+                        const deactivatedAdCount = await mutateStatusesBulk(
+                            'ad',
+                            adIds,
+                            LISTING_STATUS.PENDING,
+                            { type: ACTOR_TYPE.SYSTEM, id: 'cron_expireBusinesses' },
+                            'Automatic deactivation: Business subscription expired'
                         );
-                        if (adResult.modifiedCount > 0) {
-                            logger.info('Deactivated ads for suspended businesses', { count: adResult.modifiedCount });
+
+                        if (deactivatedAdCount > 0) {
+                            logger.info('Deactivated ads for suspended businesses', { count: deactivatedAdCount });
                         }
                     }
 
@@ -121,7 +126,7 @@ export const runSuspendExpiredBusinessesJob = async () => {
                     logger.info('Processed suspension flow for expired businesses');
                 }
 
-                return { expiredCount: result.modifiedCount, warningsSent: expiringBusinesses.length };
+                return { expiredCount: suspendedCount, warningsSent: expiringBusinesses.length };
             });
         }
     );
