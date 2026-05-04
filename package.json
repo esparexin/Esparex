@@ -57,6 +57,7 @@
     "test": "npm test -w core && npm test -w @esparex/backend-user",
     "ci": "npm run lint && npm run type-check && npm run test && npm run guard:duplication",
     "ci:strict": "npm run lint -- --max-warnings=0 && npm run type-check && npm run test",
+    "ci:governance": "node scripts/lint-baseline-enforcement.js ci-lint-results.json",
     "guard:unused-imports": "node scripts/enforce-no-new-unused-imports.js",
     "guard:duplication": "npx jscpd --config .jscpd.json",
     "guard:api-surface": "node scripts/enforce-api-surface-guard.js"
