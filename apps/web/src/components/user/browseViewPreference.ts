@@ -17,7 +17,7 @@ export function usePersistedBrowseView(defaultView: BrowseViewMode = "grid") {
     try {
       const storedValue = window.localStorage.getItem(BROWSE_VIEW_STORAGE_KEY);
       if (isBrowseViewMode(storedValue)) {
-        setViewState(storedValue);
+        void (async () => { setViewState(storedValue); })();
       }
     } catch {
       // Storage access can fail in restricted contexts. Ignore and keep defaults.

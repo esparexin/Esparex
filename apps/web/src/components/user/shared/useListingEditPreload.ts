@@ -40,9 +40,11 @@ export function useListingEditPreload<TPayload extends Record<string, unknown>>(
 
     React.useEffect(() => {
         if (!editId || !enabled) {
-            loadedIdRef.current = undefined;
-            setIsFetchingData(false);
-            callbacksRef.current.onLoadingChange?.(false);
+            loadedIdRef.current = null;
+            void (async () => {
+                setIsFetchingData(false);
+                callbacksRef.current.onLoadingChange?.(false);
+            })();
             return;
         }
 

@@ -13,26 +13,22 @@ export function isImageAsset(file: File | string | null | undefined) {
 }
 
 export function useFilePreviewUrl(file: File | string | null | undefined) {
-    const [previewUrl, setPreviewUrl] = useState<string | null>(typeof file === "string" ? file : null);
-
+    const [objectUrl, setObjectUrl] = useState<string | null>(null);
     useEffect(() => {
-        if (!file) {
-            setPreviewUrl(null);
+        if (!(file instanceof File)) {
+            void (async () => { setObjectUrl(null); })();
             return;
         }
 
-        if (typeof file === "string") {
-            setPreviewUrl(file);
-            return;
-        }
-
-        const objectUrl = URL.createObjectURL(file);
-        setPreviewUrl(objectUrl);
+        const url = URL.createObjectURL(file);
+        void (async () => { setObjectUrl(url); })();
 
         return () => {
-            URL.revokeObjectURL(objectUrl);
+            URL.revokeObjectURL(url);
         };
     }, [file]);
+
+    const previewUrl = typeof file === "string" ? file : objectUrl;
 
     return previewUrl;
 }

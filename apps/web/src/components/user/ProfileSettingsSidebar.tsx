@@ -144,7 +144,7 @@ export function ProfileSettingsSidebar({
   useEffect(() => {
     if (initialTab) {
       const normalizedTab = initialTab as ProfileTabValue;
-      setActiveTab(normalizedTab);
+      void (async () => { setActiveTab(normalizedTab); })();
     }
   }, [initialTab]);
 

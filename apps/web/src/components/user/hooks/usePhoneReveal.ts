@@ -12,9 +12,11 @@ export function usePhoneReveal(ad: Ad | undefined | null, user: User | undefined
   const [isPhoneLoading, setIsPhoneLoading] = useState(false);
 
   useEffect(() => {
-    setRevealedPhone(null);
-    setIsPhoneMasked(false);
-    setPhoneMessage(null);
+    void (async () => {
+      setRevealedPhone(null);
+      setIsPhoneMasked(false);
+      setPhoneMessage(null);
+    })();
   }, [ad?.id]);
 
   const handleRevealPhone = async () => {

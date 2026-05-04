@@ -8,8 +8,10 @@ export function useAnalyticsDialog(ad: Ad | undefined | null, viewCount: number)
   const [analytics, setAnalytics] = useState<ListingAnalytics | null>(null);
 
   useEffect(() => {
-    setAnalytics(null);
-    setShowAnalyticsDialog(false);
+    void (async () => {
+      setAnalytics(null);
+      setShowAnalyticsDialog(false);
+    })();
   }, [ad?.id]);
 
   const analyticsSummary = useMemo(() => {

@@ -24,7 +24,7 @@ export function PurchasesTab({
     const [nowMs, setNowMs] = useState<number | null>(null);
 
     useEffect(() => {
-        setNowMs(Date.now());
+        void (async () => { setNowMs(Date.now()); })();
     }, []);
 
     if (loading) return <div className="p-12 text-center text-muted-foreground animate-pulse">Loading History...</div>;

@@ -69,12 +69,12 @@ export function SmartAlertsTab({
 
     useEffect(() => {
         if (!smartAlertForm.location.trim()) {
-            setSelectedLocation(null);
+            void (async () => { setSelectedLocation(null); })();
         }
     }, [smartAlertForm.location]);
 
     useEffect(() => {
-        setSelectedLocation(null);
+        void (async () => { setSelectedLocation(null); })();
     }, [editingAlertId]);
 
     const handleLocationSelect = (loc: Location | null) => {
