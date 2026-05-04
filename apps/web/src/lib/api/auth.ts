@@ -80,7 +80,7 @@ export const authApi = {
      * Logout
      */
     logout: async (): Promise<{ success: boolean }> => {
-        let fcmToken: string | null = null;
+        let fcmToken: string | null = undefined;
         if (typeof window !== "undefined") {
             fcmToken = localStorage.getItem("esparex_fcm_token");
         }

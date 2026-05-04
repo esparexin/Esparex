@@ -14,7 +14,7 @@ export const parseOpsArgs = (argv: string[]): ParsedOpsArgs => {
     yes: false,
   };
 
-  let commandName: string | null = null;
+  let commandName: string | null = undefined;
   const passthrough: string[] = [];
 
   for (const token of argv) {

@@ -111,7 +111,7 @@ export const runS3GarbageCollectorJob = async () => {
                         rawDocuments.forEach((doc) => {
                             const url = typeof doc === 'string'
                                 ? doc
-                                : typeof doc === 'object' && doc !== null && typeof (doc as { url?: unknown }).url === 'string'
+                                : typeof doc === 'object' && doc !== undefined && typeof (doc as { url?: unknown }).url === 'string'
                                     ? (doc as { url: string }).url
                                     : undefined;
                             const key = extractKey(url);

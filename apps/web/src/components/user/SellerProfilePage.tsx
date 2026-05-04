@@ -57,7 +57,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                             <div className="flex-shrink-0">
                                 <div className="bg-white p-1.5 rounded-2xl shadow-md w-fit mx-auto md:mx-0">
                                     {profile.user.profilePhoto ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
+                                         
                                         <img
                                             src={profile.user.profilePhoto}
                                             alt={sellerName}

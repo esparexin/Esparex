@@ -72,7 +72,7 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
         .lean<LocationInputObject | null>();
 
     if (nearestCity) {
-        const cityCoords = (nearestCity.coordinates as any)?.coordinates;
+        const cityCoords = (nearestCity.coordinates as unknown)?.coordinates;
         if (cityCoords) {
             const distance = haversineDistance(lat, lng, cityCoords[1], cityCoords[0]);
             if (distance <= SNAP_THRESHOLD_KM) {
@@ -95,7 +95,7 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
                 ...mappedCity,
                 coordinates: { type: 'Point', coordinates: [lng, lat] },
                 isSnapped: isSnapped
-            } as any;
+            } as unknown;
         }
     }
 
@@ -182,12 +182,12 @@ export const reverseGeocode = async (
         coordinates: { type: 'Point', coordinates: [lng, lat] as [number, number] }
     };
 
-    const candidateCoords = (nearest.coordinates as any)?.coordinates;
+    const candidateCoords = (nearest.coordinates as unknown)?.coordinates;
     if (candidateCoords) {
         const distance = haversineDistance(lat, lng, candidateCoords[1], candidateCoords[0]);
         if (distance <= SNAP_THRESHOLD_KM) {
             finalResponse.coordinates.coordinates = [candidateCoords[0], candidateCoords[1]];
-            (finalResponse as any).isSnapped = true;
+            (finalResponse as unknown).isSnapped = true;
         }
     }
 

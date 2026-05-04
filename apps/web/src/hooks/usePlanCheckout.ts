@@ -27,7 +27,7 @@ type RazorpayPaymentFailedResponse = {
 };
 
 const isPaymentFailedResponse = (value: unknown): value is RazorpayPaymentFailedResponse =>
-  typeof value === "object" && value !== null;
+  typeof value === "object" && value !== undefined;
 
 type StartPlanCheckoutInput = {
   planId: string;

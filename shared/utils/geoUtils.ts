@@ -62,7 +62,7 @@ export const hasValidCoordinateArray = (coords: unknown): coords is [number, num
 export const isValidGeoPoint = (input: unknown): input is GeoJSONPoint => {
     try {
         if (!input || typeof input !== 'object') return false;
-        const obj = input as any;
+        const obj = input as unknown;
         return obj.type === 'Point'
             && hasValidCoordinateArray(obj.coordinates);
     } catch {
@@ -94,11 +94,11 @@ export const toGeoPoint = (input: unknown): GeoJSONPoint => {
     if (isValidGeoPoint(input)) {
         return {
             type: 'Point',
-            coordinates: [Number((input as any).coordinates[0]), Number((input as any).coordinates[1])]
+            coordinates: [Number((input as unknown).coordinates[0]), Number((input as unknown).coordinates[1])]
         };
     }
 
-    const rawInput = input as any;
+    const rawInput = input as unknown;
 
     if (rawInput.coordinates && isValidGeoPoint(rawInput.coordinates)) {
         return {

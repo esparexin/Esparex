@@ -25,7 +25,7 @@ type ValidationTarget = 'body' | 'query' | 'params';
  */
 
 const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
-    typeof value === 'object' && value !== null && !Array.isArray(value);
+    typeof value === 'object' && value !== undefined && !Array.isArray(value);
 
 const assignValidatedTarget = (
     req: Request,
@@ -96,7 +96,7 @@ function formatZodError(req: Request, error: ZodLikeError) {
  * Request validation middleware factory
  */
 export function validateRequest(
-    schema: any,
+    schema: unknown,
     target: ValidationTarget = 'body'
 ) {
     return async (req: Request, res: Response, next: NextFunction) => {
@@ -145,7 +145,7 @@ export function validateFile(options: {
     const { maxSize = 5 * 1024 * 1024, allowedTypes = ['image/jpeg', 'image/png', 'image/webp'] } = options;
 
     return (req: Request, res: Response, next: NextFunction) => {
-        const anyReq = req as any;
+        const anyReq = req as unknown;
         if (!anyReq.file && !anyReq.files) {
             return next();
         }

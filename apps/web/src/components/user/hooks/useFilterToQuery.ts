@@ -59,7 +59,7 @@ export function useFilterToQuery(
       }
       const lat = getLatitude(location);
       const lng = getLongitude(location);
-      if (shouldUseContextGeoRadius && lat != null && lng != null) {
+      if (shouldUseContextGeoRadius && lat != undefined && lng != undefined) {
         nextFilters.lat = lat;
         nextFilters.lng = lng;
         nextFilters.radiusKm = radiusKm;

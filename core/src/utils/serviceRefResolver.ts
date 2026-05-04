@@ -18,7 +18,7 @@ interface LookupDoc {
 
 const asString = (value: unknown): string | undefined => {
     if (typeof value === 'string' && value.length > 0) return value;
-    if (value !== null && value !== undefined) {
+    if (value !== undefined && value !== undefined) {
         const converted = String(value);
         return converted.length > 0 ? converted : undefined;
     }
@@ -32,7 +32,7 @@ const asString = (value: unknown): string | undefined => {
 const normalizeId = (value: unknown): string | null => {
     if (!value) return null;
     if (typeof value === 'string') return value;
-    if (typeof value === 'object' && value !== null) {
+    if (typeof value === 'object' && value !== undefined) {
         const idLike = value as { _id?: unknown; id?: unknown };
         if (idLike._id) return String(idLike._id);
         if (idLike.id) return String(idLike.id);

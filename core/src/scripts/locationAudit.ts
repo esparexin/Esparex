@@ -23,7 +23,7 @@ async function runAudit() {
         logger.info(`📋 Total locations to audit: ${locations.length}`);
 
         const locationMap = new Map(locations.map(loc => [loc._id.toString(), loc]));
-        const issues: any[] = [];
+        const issues: unknown[] = [];
 
         for (const loc of locations) {
             const problems: string[] = [];
@@ -58,7 +58,7 @@ async function runAudit() {
             let stateName = '';
             if (loc.level !== 'state' && loc.level !== 'country') {
                 for (const pid of loc.path || []) {
-                    const p = locationMap.get(pid.toString()) as any;
+                    const p = locationMap.get(pid.toString()) as unknown;
                     if (p && p.level === 'state') {
                         stateName = p.name;
                         break;
@@ -102,16 +102,16 @@ async function runAudit() {
 
         if (isSmartReparent && isApply) {
             logger.info('🧠 --smart-reparent + --apply detected. Starting intelligent hierarchy repair...');
-            const bulkOps: any[] = [];
+            const bulkOps: unknown[] = [];
             let reparentedCount = 0;
 
             for (const issue of issues) {
                 if (!issue.problems.some((p: string) => p.includes('Parent') || p.includes('Hierarchy'))) continue;
 
-                const locRaw = locationMap.get(issue.id) as any;
+                const locRaw = locationMap.get(issue.id) as unknown;
                 if (!locRaw) continue;
 
-                const updates: any = {};
+                const updates: unknown = {};
                 
                 // 1. Level Correction (area -> city)
                 if (locRaw.level === 'area' && locRaw.name === locRaw.city) {
@@ -158,13 +158,13 @@ async function runAudit() {
 
         if (isApply) {
             logger.info('🚀 --apply flag detected. Starting general remediation via bulkWrite...');
-            const bulkOps: any[] = [];
+            const bulkOps: unknown[] = [];
 
             for (const issue of issues) {
-                const locRaw = locationMap.get(issue.id) as any;
+                const locRaw = locationMap.get(issue.id) as unknown;
                 if (!locRaw) continue;
 
-                const updates: any = {};
+                const updates: unknown = {};
 
                 // Fix path if mismatch
                 if (issue.problems.some((p: string) => p.includes('Path mismatch') || p.includes('Path array is empty'))) {
@@ -177,7 +177,7 @@ async function runAudit() {
                     const pathForSlug = updates.path || locRaw.path || [];
                     if (locRaw.level !== 'state' && locRaw.level !== 'country') {
                         for (const pid of pathForSlug) {
-                            const p = locationMap.get(pid.toString()) as any;
+                            const p = locationMap.get(pid.toString()) as unknown;
                             if (p && p.level === 'state') {
                                 stateName = p.name;
                                 break;

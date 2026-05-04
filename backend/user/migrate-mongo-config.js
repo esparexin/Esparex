@@ -1,6 +1,6 @@
 // Accepted lint exception: migrate-mongo loads this file as CommonJS sync config.
 // `dotenv` must be required at module evaluation time to resolve env-backed config values.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const dotenv = require('dotenv');
 dotenv.config();
 

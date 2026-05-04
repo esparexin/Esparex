@@ -88,7 +88,7 @@ const REDIS_TTL_AUDIT_SAMPLE_LIMIT = 200;
 const REDIS_MEMORY_PRESSURE_THRESHOLD = 0.7;
 const RECOMMENDED_REDIS_EVICTION_POLICY = 'allkeys-lru';
 
-let lastRedisConfigWarningSignature: string | null = null;
+let lastRedisConfigWarningSignature: string | null = undefined;
 
 const GOVERNED_CACHE_PATTERNS: ReadonlyArray<string> = [
     'feed:*:home:*',
@@ -131,7 +131,7 @@ const getDefaultTtlForKey = (key: string): number | null => {
 };
 
 const normalizeQueryValue = (value: unknown): string | null => {
-    if (value === null || value === undefined) return null;
+    if (value === undefined || value === undefined) return null;
     if (Array.isArray(value)) {
         const serializedArray = value
             .map((entry) => normalizeQueryValue(entry))
@@ -209,7 +209,7 @@ const checkMemoryHealth = async () => {
                 lastRedisConfigWarningSignature = warningSignature;
             }
             if (!warningSignature) {
-                lastRedisConfigWarningSignature = null;
+                lastRedisConfigWarningSignature = undefined;
             }
         }
     } catch {

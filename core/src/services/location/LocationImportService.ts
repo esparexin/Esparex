@@ -23,7 +23,7 @@ export class LocationImportService {
         const result: ImportResult = { success: 0, failed: 0, errors: [] };
         const Location = (await import('@esparex/core/models/Location')).default;
          
-        const ops: any[] = [];
+        const ops: unknown[] = [];
 
         for (const item of data) {
             try {

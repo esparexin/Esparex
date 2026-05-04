@@ -32,7 +32,7 @@ export const isEnabled = async (flag: FeatureFlag): Promise<boolean> => {
     const cacheKey = `ff:${flag}`;
     try {
         const cached = await getCache<boolean>(cacheKey);
-        if (cached !== null && cached !== undefined) {
+        if (cached !== undefined && cached !== undefined) {
             return cached;
         }
     } catch (err) {

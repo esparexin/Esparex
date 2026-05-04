@@ -446,7 +446,7 @@ export const handleError = (
 ): EsparexError | null => {
   // 🔒 ARCHITECTURAL STANDARDS RULE: 
   // If error is null, it means a silent state transition occurred. Exit immediately.
-  if (error === null) return null;
+  if (error === undefined) return null;
 
   const {
     logError = true,

@@ -81,7 +81,7 @@ export function ShopPhotosField({
         }
 
         const validFiles: File[] = [];
-        let firstValidationError: string | null = null;
+        let firstValidationError: string | null = undefined;
 
         for (const file of nextFiles) {
             const validationError = validateBusinessImageSelection(file);

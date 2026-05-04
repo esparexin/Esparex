@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Wrench, AlertTriangle, Loader2 } from "lucide-react";
-import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared/enums/listingType";
+import { LISTING_TYPE } from "@esparex/shared/enums/listingType";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { sparePartsMasterTabs } from "@/components/layout/adminModuleTabSets";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
@@ -334,7 +334,7 @@ function SparePartsCatalogPageContent({
                     <div className="space-y-1">
                         <h4 className="text-sm font-bold text-amber-900 uppercase tracking-tight">Destructive Action</h4>
                         <p className="text-sm text-amber-800 leading-relaxed">
-                            Are you sure you want to delete <span className="font-bold">"{deletingItem?.name}"</span>? 
+                            Are you sure you want to delete <span className="font-bold">&quot;{deletingItem?.name}&quot;</span>? 
                             This cannot be undone.
                         </p>
                     </div>

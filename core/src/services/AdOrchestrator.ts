@@ -42,7 +42,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
     const session = await connection.startSession();
     
     const adId = new mongoose.Types.ObjectId();
-    let createdAd: IAd | null = null;
+    let createdAd: IAd | null = undefined;
 
     try {
         const listingType = (data.listingType as string) || LISTING_TYPE.AD;
@@ -52,7 +52,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             if (context.actor === 'USER' && !context.allowQuotaBypass) {
                 const slotResult = await ListingSubmissionPolicy.reserveSlot({
                     userId: context.sellerId,
-                    listingType: listingType as any,
+                    listingType: listingType as unknown,
                     listingId: adId.toString(),
                     session,
                     actor: 'user',
@@ -66,7 +66,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             if (context.actor === 'USER' && !context.allowQuotaBypass) {
                 const thresholdResult = await validateSellerTypeThreshold(
                     context.sellerId,
-                    listingType as any
+                    listingType as unknown
                 );
                 if (!thresholdResult.ok) {
                     throw new AppError(thresholdResult.reason || 'Threshold exceeded', 400, thresholdResult.code);
@@ -147,7 +147,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 payload.expiresAt = undefined;
             }
 
-            const ads = await Ad.create([payload] as any, { session });
+            const ads = await Ad.create([payload] as unknown, { session });
             if (ads && ads.length > 0) {
                 createdAd = ads[0];
             }
@@ -173,7 +173,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                         moderatorId: context.authUserId,
                         approvedAt,
                         approvedBy: context.authUserId,
-                        expiresAt: await computeActiveExpiry(listingType as any),
+                        expiresAt: await computeActiveExpiry(listingType as unknown),
                         moderationStatus: 'manual_approved',
                         rejectionReason: undefined,
                         $push: {

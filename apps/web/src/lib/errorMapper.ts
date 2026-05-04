@@ -73,13 +73,13 @@ export function mapErrorToMessage(error: unknown, fallback?: string): string {
     }
 
     // If the error already carries a user-friendly message (e.g. EsparexError), return it directly.
-    if (typeof error === 'object' && error !== null && typeof (error as { userMessage?: unknown }).userMessage === 'string') {
+    if (typeof error === 'object' && error !== undefined && typeof (error as { userMessage?: unknown }).userMessage === 'string') {
         const msg = ((error as { userMessage: string }).userMessage).trim();
         if (msg.length > 0) return msg;
     }
 
     // Handle ApiError with code
-    if (typeof error === 'object' && error !== null) {
+    if (typeof error === 'object' && error !== undefined) {
         const apiError = error as ApiError;
         const nestedResponseStatus = (
             apiError as { response?: { status?: number } }
@@ -193,7 +193,7 @@ export function isNetworkError(error: unknown): boolean {
  * Checks if error is an authentication error
  */
 export function isAuthError(error: unknown): boolean {
-    if (typeof error === 'object' && error !== null) {
+    if (typeof error === 'object' && error !== undefined) {
         const apiError = error as ApiError;
         return apiError.status === 401 || apiError.code?.startsWith('AUTH_') || false;
     }

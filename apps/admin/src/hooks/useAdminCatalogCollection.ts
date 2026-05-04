@@ -23,13 +23,13 @@ type MutationOptions = {
 };
 
 interface UseAdminCatalogCollectionOptions<
-    T extends { id: string },
+    _T extends { id: string },
     F extends AdminCollectionFilters,
     CreatePayload,
     UpdatePayload = CreatePayload,
 > {
     initialFilters: F;
-    fetchList: (query: any) => Promise<AdminResponseLike>;
+    fetchList: (query: Record<string, string | number | boolean>) => Promise<AdminResponseLike>;
     listErrorMessage: string;
     createItem: (data: CreatePayload) => Promise<AdminResponseLike>;
     createSuccessMessage: string;
@@ -40,7 +40,7 @@ interface UseAdminCatalogCollectionOptions<
     deleteItem: (id: string) => Promise<AdminResponseLike>;
     deleteSuccessMessage: string;
     deleteErrorMessage: string;
-    deleteConfirmMessage?: string;
+    _deleteConfirmMessage?: string;
     deleteStrategy?: "filter" | "refresh";
     initialPagination?: Partial<AdminListPagination>;
 }
@@ -79,7 +79,7 @@ export async function fetchAdminCatalogPage<T, F extends AdminCollectionFilters>
 }: {
     filters: F;
     pagination: { page: number; limit: number };
-    fetchList: (query: any) => Promise<AdminResponseLike>;
+    fetchList: (query: Record<string, string | number | boolean>) => Promise<AdminResponseLike>;
     errorMessage: string;
 }) {
     const response = await fetchList(buildAdminListQuery(filters, pagination));
@@ -122,7 +122,7 @@ export function useAdminCatalogCollection<
     deleteItem,
     deleteSuccessMessage,
     deleteErrorMessage,
-    deleteConfirmMessage,
+    _deleteConfirmMessage,
     deleteStrategy = "filter",
     initialPagination,
 }: UseAdminCatalogCollectionOptions<T, F, CreatePayload, UpdatePayload>) {

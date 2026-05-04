@@ -117,7 +117,7 @@ async function assertRevealOutcome(page: Page, expectation: string) {
 
 test.describe("listing contact smoke", () => {
   let authToken = "";
-  let smokeFixtures: ListingSmokeFixtures | null = null;
+  let smokeFixtures: ListingSmokeFixtures | null = undefined;
 
   test.beforeAll(async ({ playwright }) => {
     try {

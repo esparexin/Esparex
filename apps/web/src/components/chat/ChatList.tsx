@@ -43,7 +43,7 @@ function ConversationCard({
       <Link href={href} className="conv-card" aria-current={isActive ? 'page' : undefined}>
         <div className="conv-card__thumb">
           {conv.ad.thumbnail ? (
-            // eslint-disable-next-line @next/next/no-img-element
+             
             <img src={conv.ad.thumbnail} alt={conv.ad.title} />
           ) : (
             <div className="conv-card__thumb-placeholder">🛍️</div>

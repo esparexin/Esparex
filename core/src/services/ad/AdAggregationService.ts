@@ -909,7 +909,7 @@ export const getAds = async (
 /**
  * @deprecated Suggestions flow has been refactored
  */
-export const getListingSuggestions = async (query: string): Promise<any[]> => {
+export const getListingSuggestions = async (query: string): Promise<unknown[]> => {
     void query;
     return []; // Return empty array to satisfy contract without breaking runtime
 };

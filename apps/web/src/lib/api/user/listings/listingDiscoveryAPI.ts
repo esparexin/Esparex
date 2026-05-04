@@ -111,7 +111,7 @@ export const getAdsPage = async (
 
         if (filters) {
             Object.entries(filters).forEach(([key, value]) => {
-                if (value !== undefined && value !== null) {
+                if (value !== undefined && value !== undefined) {
                     if (key === 'search') {
                         params.append('q', String(value));
                     } else if (key === 'category' || key === 'location') {

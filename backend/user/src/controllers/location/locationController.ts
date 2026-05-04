@@ -47,7 +47,7 @@ export const DEFAULT_LOCATION_CONFIG: LocationConfig = {
 };
 
 const LOCATION_CONFIG_TTL_MS = 60 * 1000;
-let cachedLocationConfig: { data: LocationConfig; timestamp: number } | null = null;
+let cachedLocationConfig: { data: LocationConfig; timestamp: number } | null = undefined;
 
 export const getLocationConfig = async (): Promise<LocationConfig> => {
     if (cachedLocationConfig && Date.now() - cachedLocationConfig.timestamp < LOCATION_CONFIG_TTL_MS) {
@@ -240,7 +240,7 @@ export const ipLocate = async (req: Request, res: Response) => {
             return res.json(respond({ success: false, data: null }));
         }
 
-        if (!data?.city || data.latitude == null || data.longitude == null) {
+        if (!data?.city || data.latitude == undefined || data.longitude == undefined) {
             return res.json(respond({ success: false, data: null }));
         }
 
@@ -324,7 +324,7 @@ export const logLocationEvent = async (req: Request, res: Response) => {
             source,
             city,
             state,
-            coordinates: (lat != null && lng != null) ? { type: 'Point', coordinates: [Number(lng), Number(lat)] } : undefined,
+            coordinates: (lat != undefined && lng != undefined) ? { type: 'Point', coordinates: [Number(lng), Number(lat)] } : undefined,
             reason,
             userId,
         });

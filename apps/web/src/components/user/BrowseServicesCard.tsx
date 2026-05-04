@@ -23,7 +23,7 @@ export const BrowseServicesCard = memo(function BrowseServicesCard({
   const location = resolveListingLocationLabel(service.location, "brief");
 
   const displayPrice =
-    service.priceMin != null && service.priceMax != null
+    service.priceMin != undefined && service.priceMax != undefined
       ? `${formatPrice(service.priceMin)} – ${formatPrice(service.priceMax)}`
       : service.price
         ? formatPrice(service.price)

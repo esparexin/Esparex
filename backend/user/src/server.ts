@@ -1,3 +1,4 @@
+/* global NodeJS */
 import { initializeDatabaseMonitoring } from './middleware/metricsMiddleware';
 import { startSystemMonitor } from '@esparex/core/utils/systemMonitor';
 import { startTaxonomyHealthCron } from './cron/taxonomyHealth';

@@ -144,7 +144,7 @@ export function useBrowseListingsController<TItem, TFilters>({
   const hasLocationFilter = useMemo(() => {
     return (
       Boolean(urlLocationId || stableLocation.locationId) ||
-      (locationLatitude != null && locationLongitude != null)
+      (locationLatitude != undefined && locationLongitude != undefined)
     );
   }, [locationLatitude, locationLongitude, stableLocation.locationId, urlLocationId]);
 
@@ -168,7 +168,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     ]
   );
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+   
   const fetchItems = useCallback(
     async (requestedPage: number) => {
       setLoading(true);
@@ -279,7 +279,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     [browseType, query, selectedCategory, sort, urlLocationId, urlLocationLabel, urlRadiusKm]
   );
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+   
   const handleInputChange = useCallback(
     (value: string) => {
       setInputValue(value);
@@ -294,7 +294,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     [buildNextUrl, router]
   );
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+   
   const handleCategoryChange = useCallback(
     (value: string) => {
       startTransition(() => {
@@ -306,7 +306,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     [buildNextUrl, router]
   );
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+   
   const handleSortChange = useCallback(
     (value: SortOption) => {
       startTransition(() => {
@@ -318,7 +318,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     [buildNextUrl, router]
   );
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+   
   const handleReset = useCallback(() => {
     startTransition(() => {
       setQuery("");
@@ -330,7 +330,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     });
   }, [browseType, router]);
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+   
   const handleLoadMore = useCallback(() => {
     const nextPage = page + 1;
     startTransition(() => {

@@ -40,7 +40,7 @@ export const maskPhone = (phone?: string): string | undefined => {
  * Log when a phone number is revealed to a buyer
  * This helps track suspicious activity and validate business metrics
  */
-/* eslint-disable @typescript-eslint/require-await */
+ 
 export const logPhoneReveal = async (
     entityId: string,
     entityType: 'ad' | 'service' | 'spare_part',
@@ -48,7 +48,7 @@ export const logPhoneReveal = async (
     buyerId: string,
     ipAddress?: string,
     device?: string
-): Promise<void> => { /* eslint-enable @typescript-eslint/require-await */
+): Promise<void> => {  
     try {
         // 1. Persistent Audit Log (Non-blocking DB insertion)
         const logData = {
@@ -134,8 +134,8 @@ export const getSellerPhone = async (
                     sellerId: seller._id,
                     entityId: id,
                     entityType: resolvedEntityType,
-                    status: REQUEST_STATUS.APPROVED as any
-                } as any).lean();
+                    status: REQUEST_STATUS.APPROVED as unknown
+                } as unknown).lean();
 
                 if (!approvedRequest) {
                     return { error: 'REQUEST_REQUIRED' };

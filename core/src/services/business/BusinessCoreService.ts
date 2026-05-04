@@ -238,7 +238,7 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
     }
 
     const session = await getUserConnection().startSession();
-    let updatedBusiness: Awaited<ReturnType<typeof Business.findByIdAndUpdate>> = null;
+    let updatedBusiness: Awaited<ReturnType<typeof Business.findByIdAndUpdate>> = undefined;
     try {
         await session.withTransaction(async () => {
             updatedBusiness = await Business.findByIdAndUpdate(id, safeUpdate, { new: true, session });
@@ -261,8 +261,8 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
 
 export const getBusinessListings = async (sellerId: string, listingType: string) => {
     const listings = await Ad.find({
-        sellerId: sellerId as any,
-        listingType: listingType as any,
+        sellerId: sellerId as unknown,
+        listingType: listingType as unknown,
         status: LISTING_STATUS.LIVE,
         isDeleted: { $ne: true },
     }).sort({ createdAt: -1 }).lean();
@@ -271,9 +271,9 @@ export const getBusinessListings = async (sellerId: string, listingType: string)
 
 export const getBusinessStats = async (userId: string) => {
     const [totalServices, approvedServices, pendingServices] = await Promise.all([
-        Ad.countDocuments({ sellerId: userId as any, listingType: 'service' as any }),
-        Ad.countDocuments({ sellerId: userId as any, listingType: 'service' as any, status: LISTING_STATUS.LIVE }),
-        Ad.countDocuments({ sellerId: userId as any, listingType: 'service' as any, status: LISTING_STATUS.PENDING }),
+        Ad.countDocuments({ sellerId: userId as unknown, listingType: 'service' as unknown }),
+        Ad.countDocuments({ sellerId: userId as unknown, listingType: 'service' as unknown, status: LISTING_STATUS.LIVE }),
+        Ad.countDocuments({ sellerId: userId as unknown, listingType: 'service' as unknown, status: LISTING_STATUS.PENDING }),
     ]);
     return { totalServices, approvedServices, pendingServices, views: 0 };
 };

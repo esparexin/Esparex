@@ -53,7 +53,7 @@ export default function AboutPage() {
                             </div>
                             <div>
                                 <h4 className="text-base font-bold text-foreground">Verified B2B Storefronts</h4>
-                                <p className="text-sm text-muted-foreground leading-relaxed mt-1">We actively vet our business partners. Sellers with the "Verified Business" badge have submitted legitimate KYC, GST, or Shop Establishment Act documents, ensuring you receive authentic parts.</p>
+                                <p className="text-sm text-muted-foreground leading-relaxed mt-1">We actively vet our business partners. Sellers with the &quot;Verified Business&quot; badge have submitted legitimate KYC, GST, or Shop Establishment Act documents, ensuring you receive authentic parts.</p>
                             </div>
                         </div>
                         <div className="flex items-start gap-4 p-5 rounded-xl bg-white border border-slate-200 shadow-sm">
@@ -71,7 +71,7 @@ export default function AboutPage() {
                             </div>
                             <div>
                                 <h4 className="text-base font-bold text-foreground">Hyper-Local Services</h4>
-                                <p className="text-sm text-muted-foreground leading-relaxed mt-1">Don't want to repair it yourself? Use our Services portal to find highly-rated, local technicians who offer on-site repairs or shop walk-ins with transparent pricing.</p>
+                                <p className="text-sm text-muted-foreground leading-relaxed mt-1">Don&apos;t want to repair it yourself? Use our Services portal to find highly-rated, local technicians who offer on-site repairs or shop walk-ins with transparent pricing.</p>
                             </div>
                         </div>
                         <div className="flex items-start gap-4 p-5 rounded-xl bg-white border border-slate-200 shadow-sm">

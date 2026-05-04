@@ -29,7 +29,7 @@ const maskPII = winston.format((info) => {
         Object.keys(obj).forEach(key => {
             if (typeof obj[key] === 'string' && piiFields.includes(key.toLowerCase())) {
                 obj[key] = '[REDACTED PII]';
-            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+            } else if (typeof obj[key] === 'object' && obj[key] !== undefined) {
                 mask(obj[key] as Record<string, unknown>, seen);
             }
         });

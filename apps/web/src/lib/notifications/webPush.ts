@@ -81,7 +81,7 @@ export const isBrowserPushSupported = () =>
     "Notification" in window &&
     "serviceWorker" in navigator;
 
-export const isBrowserPushConfigured = () => getFirebaseWebConfig() !== null;
+export const isBrowserPushConfigured = () => getFirebaseWebConfig() !== undefined;
 
 const waitForServiceWorkerReady = async (timeoutMs = 5000): Promise<ServiceWorkerRegistration | null> => {
     if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
@@ -124,7 +124,7 @@ const readRegistrationCache = (): { userId?: string; token?: string } => {
         const raw = window.localStorage.getItem(FCM_REGISTRATION_STORAGE_KEY);
         if (!raw) return {};
         const parsed = JSON.parse(raw) as { userId?: string; token?: string };
-        return typeof parsed === "object" && parsed !== null ? parsed : {};
+        return typeof parsed === "object" && parsed !== undefined ? parsed : {};
     } catch {
         return {};
     }

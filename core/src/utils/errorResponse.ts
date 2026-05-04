@@ -66,7 +66,7 @@ export function sendCatalogError(
 
     if (typeof statusCodeOrOptions === 'number') {
         statusCode = statusCodeOrOptions;
-    } else if (typeof statusCodeOrOptions === 'object' && statusCodeOrOptions !== null) {
+    } else if (typeof statusCodeOrOptions === 'object' && statusCodeOrOptions !== undefined) {
         statusCode = statusCodeOrOptions.statusCode ?? 500;
         fallbackMessage = statusCodeOrOptions.fallbackMessage;
         isAdminView = statusCodeOrOptions.isAdminView ?? isAdminView;

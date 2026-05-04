@@ -10,7 +10,7 @@ test('Auth and capture account pages', async ({ page }) => {
   const otp = '123456';
 
   // 1) Fetch CSRF token (if provided) to include in verify request
-  let csrf: string | null = null;
+  let csrf: string | null = undefined;
   try {
     const r = await page.request.get(`${apiBase}/csrf-token`);
     const json = await r.json().catch(() => null);

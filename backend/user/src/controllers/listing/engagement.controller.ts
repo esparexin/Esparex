@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import { getSingleParam } from '@esparex/core/utils/requestParams';
-import { extractUser } from '../../middleware/authMiddleware';
 import * as AdEngagementService from '@esparex/core/services/AdEngagementService';
 import { getSellerPhone } from '@esparex/core/services/ContactRevealService';
 import { LISTING_TYPE } from "@esparex/core/constants/enums/listingType";
@@ -38,7 +37,7 @@ export const getListingPhone = async (req: Request, res: Response, next: NextFun
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
         if (!id) return;
 
-        const requesterId = (req.user as any)?._id?.toString();
+        const requesterId = (req.user as unknown)?._id?.toString();
         const metadata = {
             ip: req.ip || req.socket.remoteAddress,
             device: req.headers['user-agent']

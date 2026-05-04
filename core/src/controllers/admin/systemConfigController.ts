@@ -41,7 +41,7 @@ const maskSecrets = (obj: unknown): unknown => {
                 } else {
                     current[key] = '****';
                 }
-            } else if (typeof current[key] === 'object' && current[key] !== null) {
+            } else if (typeof current[key] === 'object' && current[key] !== undefined) {
                 recurse(current[key] as Record<string, unknown>);
             }
         }

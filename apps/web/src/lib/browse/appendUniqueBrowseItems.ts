@@ -25,7 +25,7 @@ export function appendUniqueBrowseItems<T>(current: T[], incoming: T[]): T[] {
   const seen = new Set(
     current
       .map((item) => resolveBrowseItemIdentity(item))
-      .filter((identity): identity is string => identity !== null)
+      .filter((identity): identity is string => identity !== undefined)
   );
 
   const additions = incoming.filter((item) => {

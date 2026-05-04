@@ -71,7 +71,7 @@ export default function SmartAlertLogsPage() {
                                             </div>
                                             <div>
                                                 <p className="text-slate-600 font-medium">No Alerts Delivered Yet</p>
-                                                <p className="text-sm text-slate-400 mt-1 max-w-sm">When an active listing matches a user's saved criteria, the delivery log will appear here.</p>
+                                                <p className="text-sm text-slate-400 mt-1 max-w-sm">When an active listing matches a user&apos;s saved criteria, the delivery log will appear here.</p>
                                             </div>
                                         </div>
                                     </td>

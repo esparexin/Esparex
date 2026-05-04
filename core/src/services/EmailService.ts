@@ -11,7 +11,7 @@ import { env } from '@esparex/core/config/env';
 // }
 
 export class EmailService {
-    private transporter: nodemailer.Transporter | null = null;
+    private transporter: nodemailer.Transporter | null = undefined;
     private configSignature = '';
 
     constructor() {
@@ -39,7 +39,7 @@ export class EmailService {
         const config = await this.resolveConfig();
 
         if (!config.enabled) {
-            this.transporter = null;
+            this.transporter = undefined;
             this.configSignature = '';
             return { config, available: false };
         }

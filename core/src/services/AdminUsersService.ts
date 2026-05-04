@@ -152,7 +152,7 @@ export const getUserManagementOverview = async () => {
     const startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
 
-    const payload = (cachedMetrics && typeof cachedMetrics.payload === 'object' && cachedMetrics.payload !== null)
+    const payload = (cachedMetrics && typeof cachedMetrics.payload === 'object' && cachedMetrics.payload !== undefined)
         ? cachedMetrics.payload
         : {};
 
@@ -416,7 +416,7 @@ export const createAdminAccount = async (
         email: normalizedEmail,
         mobile,
         password: normalizedPassword,
-        role: normalizedRole as any,
+        role: normalizedRole as unknown,
         permissions: normalizedPermissions,
         status: USER_STATUS.LIVE
     });

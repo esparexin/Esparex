@@ -80,8 +80,8 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
         installCatalogPromotionListener();
 
         const warnings: string[] = [];
-        let testModelId: mongoose.Types.ObjectId | null = null;
-        let testAdId: mongoose.Types.ObjectId | null = null;
+        let testModelId: mongoose.Types.ObjectId | null = undefined;
+        let testAdId: mongoose.Types.ObjectId | null = undefined;
 
         try {
             // 1. Find seed data

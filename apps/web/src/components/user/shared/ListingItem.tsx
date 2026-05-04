@@ -53,8 +53,8 @@ export function ListingItem({
     const canEdit = ["live", "pending", "rejected"].includes(status);
     const showRenew = status === "expired" || status === "rejected";
 
-    const totalViews = typeof views === "number" ? views : (views as any)?.total ?? 0;
-    const totalLikes = typeof views === "object" ? (views as any)?.favorites : likes ?? 0;
+    const totalViews = typeof views === "number" ? views : (views as unknown)?.total ?? 0;
+    const totalLikes = typeof views === "object" ? (views as unknown)?.favorites : likes ?? 0;
 
     const colorVariants = {
         blue: {

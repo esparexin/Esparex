@@ -290,8 +290,8 @@ export async function closeDB() {
         ]);
         userCache.isReady = false;
         adminCache.isReady = false;
-        userCache.conn = null;
-        adminCache.conn = null;
+        userCache.conn = undefined;
+        adminCache.conn = undefined;
     } catch (err) {
         logger.error('Error during DB shutdown', {
             error: err instanceof Error ? err.message : String(err),

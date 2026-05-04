@@ -47,8 +47,6 @@ import smartAlertRoutes from './routes/smartAlertRoutes';
 import locationRoutes from './routes/locationRoutes';
 import aiRoutes from './routes/aiRoutes';
 import notificationRoutes from './routes/notificationRoutes';
-import serviceRoutes from './routes/serviceRoutes';
-import sparePartRoutes from './routes/sparePartRoutes';
 import businessRoutes from './routes/businessRoutes';
 import invoiceRoutes from './routes/invoiceRoutes';
 import paymentRoutes from './routes/paymentRoutes';

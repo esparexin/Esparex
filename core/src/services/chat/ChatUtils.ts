@@ -128,7 +128,7 @@ export interface PopulatedConv {
 export function normalizeNestedId(value?: { id?: string; _id?: unknown } | null): string {
     if (!value) return '';
     if (typeof value.id === 'string' && value.id.trim().length > 0) return value.id.trim();
-    if (value._id != null) return String(value._id);
+    if (value._id != undefined) return String(value._id);
     return '';
 }
 
@@ -146,7 +146,7 @@ export function extractLastMessage(raw?: string | { text?: string } | null): str
 export function isConversationArchivedForViewer(c: PopulatedConv, viewerId?: string): boolean {
     if (!viewerId || !Array.isArray(c.deletedFor)) return false;
     return c.deletedFor.some((entry) => {
-        if (entry == null) return false;
+        if (entry == undefined) return false;
         if (typeof entry === 'string') return entry === viewerId;
         if (typeof entry === 'object' && '_id' in (entry as Record<string, unknown>)) {
             return String((entry as { _id?: unknown })._id) === viewerId;

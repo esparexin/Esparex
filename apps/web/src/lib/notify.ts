@@ -19,7 +19,7 @@ export const notify = {
 
         if (
             typeof fallbackOrOptions === 'object' &&
-            fallbackOrOptions !== null &&
+            fallbackOrOptions !== undefined &&
             !Array.isArray(fallbackOrOptions)
         ) {
             const opts = fallbackOrOptions as { onRetry?: () => void };

@@ -24,7 +24,7 @@ export function createUnifiedPopupBus(idPrefix?: string) {
  * Common error popup emission logic.
  */
 export function emitGenericErrorPopup(
-  showFn: (popup: any, options?: any) => string,
+  showFn: (popup: unknown, options?: unknown) => string,
   {
     status,
     message,

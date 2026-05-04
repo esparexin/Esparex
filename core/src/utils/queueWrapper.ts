@@ -32,7 +32,7 @@ export async function addJobWithTrace<T extends TraceableJobData>(
     };
 
      
-    return queue.add(name as any, enrichedData as any, opts);
+    return queue.add(name as unknown, enrichedData as unknown, opts);
 }
 
 /**

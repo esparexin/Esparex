@@ -163,7 +163,7 @@ export const buildInvoicePayload = async (
         .session(session)
         .lean<PaymentUserLike | null>();
 
-    let business: PaymentBusinessLike | null = null;
+    let business: PaymentBusinessLike | null = undefined;
     if (user?.businessId) {
         business = await Business.findById(user.businessId).session(session).lean<PaymentBusinessLike | null>();
     }
@@ -226,7 +226,7 @@ export const ensureInvoicePdf = async (invoiceId?: string) => {
     if (!invoice || invoice.pdfUrl) return;
 
     const user = await User.findById(invoice.userId).select('name email mobile location businessId').lean<PaymentUserLike | null>();
-    let business: PaymentBusinessLike | null = null;
+    let business: PaymentBusinessLike | null = undefined;
     if (user?.businessId) {
         business = await Business.findById(user.businessId).lean<PaymentBusinessLike | null>();
     }

@@ -33,7 +33,7 @@ function sanitiseSlug(raw: string): string {
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
-    typeof value === 'object' && value !== null;
+    typeof value === 'object' && value !== undefined;
 
 /**
  * Formats date to W3C format without milliseconds for strict XML parsers (Google standard)

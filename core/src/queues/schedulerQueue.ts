@@ -87,8 +87,8 @@ const schedulerQueue = shouldDisableSchedulerQueue
     });
 
 let processorsRegistered = false;
-let schedulerWorker: Worker<TraceableJobData, unknown, string> | null = null;
-let schedulerQueueEvents: QueueEvents | null = null;
+let schedulerWorker: Worker<TraceableJobData, unknown, string> | null = undefined;
+let schedulerQueueEvents: QueueEvents | null = undefined;
 
 export const registerSchedulerJobProcessors = async (
     processors: Record<SchedulerJobName, SchedulerProcessor>
@@ -152,12 +152,12 @@ export const registerSchedulerRepeatableJobs = async () => {
 export const closeSchedulerQueue = async () => {
     if (!shouldDisableSchedulerQueue && schedulerWorker) {
         await schedulerWorker.close();
-        schedulerWorker = null;
+        schedulerWorker = undefined;
     }
 
     if (!shouldDisableSchedulerQueue && schedulerQueueEvents) {
         await schedulerQueueEvents.close();
-        schedulerQueueEvents = null;
+        schedulerQueueEvents = undefined;
     }
 
     if (!shouldDisableSchedulerQueue && schedulerQueue) {

@@ -16,13 +16,13 @@ export function useListingFormProps({
     onValidSubmit,
     businessData,
 }: {
-    form: UseFormReturn<any>;
+    form: UseFormReturn<unknown>;
     images: ListingImage[];
     setImages: React.Dispatch<React.SetStateAction<ListingImage[]>>;
     isEditMode: boolean;
     isSubmitting: boolean;
-    onValidSubmit: (data: any) => Promise<void | unknown>;
-    businessData: any;
+    onValidSubmit: (data: unknown) => Promise<void | unknown>;
+    businessData: unknown;
 }) {
     const router = useRouter();
     const { handleSubmit } = form;

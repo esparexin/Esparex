@@ -36,11 +36,11 @@ export function useCountdown(
       return false;
     };
 
-    let intervalId: number | null = null;
+    let intervalId: number | null = undefined;
     const timeoutId = window.setTimeout(() => {
       if (tick()) return;
       intervalId = window.setInterval(() => {
-        if (tick() && intervalId !== null) {
+        if (tick() && intervalId !== undefined) {
           window.clearInterval(intervalId);
         }
       }, intervalMs);
@@ -48,7 +48,7 @@ export function useCountdown(
 
     return () => {
       window.clearTimeout(timeoutId);
-      if (intervalId !== null) {
+      if (intervalId !== undefined) {
         window.clearInterval(intervalId);
       }
     };

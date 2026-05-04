@@ -44,7 +44,7 @@ export function ChatImageLightbox({
         </DialogTitle>
 
         <div className="chat-image-lightbox__frame">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          { }
           <img
             src={activeImage.url}
             alt={activeImage.name ?? `Chat image ${activeIndex + 1}`}

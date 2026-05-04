@@ -68,7 +68,7 @@ export interface IUser extends Document {
 }
 
 const toUserGeoPoint = (value: unknown): GeoJSONPoint | undefined => {
-  if (value === undefined || value === null) return undefined;
+  if (value === undefined || value === undefined) return undefined;
 
   if (Array.isArray(value)) {
     if (value.length !== 2) {

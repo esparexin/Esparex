@@ -77,7 +77,7 @@ const asString = (value: unknown): string | undefined =>
     typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
 
 const asNumber = (value: unknown): number | undefined => {
-    if (value === null || value === undefined || value === '') return undefined;
+    if (value === undefined || value === undefined || value === '') return undefined;
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : undefined;
 };

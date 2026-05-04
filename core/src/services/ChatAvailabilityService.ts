@@ -39,7 +39,7 @@ export async function syncConversationAvailabilityForListing(
   listing: ListingChatState,
   session?: ClientSession | null
 ): Promise<void> {
-  const listingId = listing?._id != null ? String(listing._id) : '';
+  const listingId = listing?._id != undefined ? String(listing._id) : '';
   if (!listingId) return;
 
   const isClosed = isListingChatClosed(listing);

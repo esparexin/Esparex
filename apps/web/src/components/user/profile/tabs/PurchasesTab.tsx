@@ -31,7 +31,7 @@ export function PurchasesTab({
     const successfulOrders = purchaseHistory.filter((purchase) => purchase.status === "SUCCESS").length;
     const pendingOrders = purchaseHistory.filter((purchase) => purchase.status === "INITIATED").length;
     const activeEntitlements = purchaseHistory.filter((purchase) => {
-        if (nowMs === null || purchase.status !== "SUCCESS" || !purchase.validUntil) return false;
+        if (nowMs === undefined || purchase.status !== "SUCCESS" || !purchase.validUntil) return false;
         return new Date(purchase.validUntil).getTime() > nowMs;
     }).length;
 

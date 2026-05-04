@@ -37,7 +37,7 @@ export function useAdminSessions(initialStatus: string = "active") {
             const response = await adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.ADMIN_SESSIONS}?${query}`);
             const parsed = parseAdminResponse<Record<string, unknown>>(response);
             setSessions(parsed.items.map(normalizeAdminSession));
-        } catch (err: any) {
+        } catch (err: unknown) {
             const msg = err.message || "Failed to load admin sessions";
             setError(msg);
             showToast(msg, "error");
@@ -56,7 +56,7 @@ export function useAdminSessions(initialStatus: string = "active") {
             showToast("Admin session revoked successfully", "success");
             await fetchSessions();
             return { success: true };
-        } catch (err: any) {
+        } catch (err: unknown) {
             const msg = err.message || "Failed to revoke session";
             showToast(msg, "error");
             return { success: false, error: msg };

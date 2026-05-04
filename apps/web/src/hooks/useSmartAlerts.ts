@@ -46,7 +46,7 @@ const mapAlertToListItem = (alert: SmartAlert): SmartAlertListItem => {
     const record = alert as Record<string, unknown>;
     const name = typeof record.name === "string" ? record.name : "Smart Alert";
     const criteriaRaw = record.criteria;
-    const criteria = typeof criteriaRaw === "object" && criteriaRaw !== null ? (criteriaRaw as Record<string, unknown>) : null;
+    const criteria = typeof criteriaRaw === "object" && criteriaRaw !== undefined ? (criteriaRaw as Record<string, unknown>) : null;
     const keywords = typeof criteria?.keywords === "string" ? criteria.keywords : "";
     const category = typeof criteria?.category === "string" ? criteria.category : "";
     const locationId = typeof criteria?.locationId === "string" ? criteria.locationId : undefined;
@@ -195,12 +195,12 @@ export function useSmartAlerts(enabled = true) {
         setSmartAlertGlobalError(null);
     }, []);
 
-    const handleCreateAlert = async (selectedLocation: SmartAlertLocationSelection | null = null): Promise<void> => {
+    const handleCreateAlert = async (selectedLocation: SmartAlertLocationSelection | null = undefined): Promise<void> => {
         setIsMutating(true);
         const parsedForm = smartAlertFormSchema.safeParse(smartAlertForm);
         if (!parsedForm.success) {
             const nextErrors = emptySmartAlertFieldErrors();
-            let nextGlobalError: string | null = null;
+            let nextGlobalError: string | null = undefined;
             for (const issue of parsedForm.error.issues) {
                 const field = issue.path[0];
                 if (field === "name") nextErrors.name = issue.message;
@@ -248,7 +248,7 @@ export function useSmartAlerts(enabled = true) {
 
         if (!parsedPayload.success) {
             const nextErrors = emptySmartAlertFieldErrors();
-            let nextGlobalError: string | null = null;
+            let nextGlobalError: string | null = undefined;
             for (const issue of parsedPayload.error.issues) {
                 const [root, nested] = issue.path;
                 if (root === "name") nextErrors.name = issue.message;

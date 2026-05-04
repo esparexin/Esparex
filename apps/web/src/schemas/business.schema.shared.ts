@@ -123,7 +123,7 @@ const requiredBusinessFields = {
         })
         .readonly()
         .nullable()
-        .refine((value) => value !== null, "Use current location to continue"),
+        .refine((value) => value !== undefined, "Use current location to continue"),
 };
 
 const requiredIdProofType = z
@@ -138,8 +138,8 @@ const optionalIdProofType = z
 
 const registrationOnlyFields = {
     idProofType: requiredIdProofType,
-    idProof: businessDocumentFileValidator.nullable().refine((val) => val !== null, "ID Proof is required"),
-    businessProof: businessDocumentFileValidator.nullable().refine((val) => val !== null, "Business Proof is required"),
+    idProof: businessDocumentFileValidator.nullable().refine((val) => val !== undefined, "ID Proof is required"),
+    businessProof: businessDocumentFileValidator.nullable().refine((val) => val !== undefined, "Business Proof is required"),
     certificates: z.array(businessDocumentFileValidator).optional(),
     shopImages: z
         .array(businessImageFileValidator)

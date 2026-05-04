@@ -157,7 +157,7 @@ export const uploadMultipleImages = async (
     );
 
     const results = await Promise.all(uploadPromises);
-    return results.filter((result): result is ProcessedImage => result !== null);
+    return results.filter((result): result is ProcessedImage => result !== undefined);
 };
 
 // ─────────────────────────────────────────────────

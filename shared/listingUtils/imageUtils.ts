@@ -7,7 +7,7 @@ const nextRemotePatterns = Array.isArray(imageDomainRegistry.nextRemotePatterns)
     : [];
 
 const allowedHostPatterns = nextRemotePatterns
-    .map((pattern: any) => pattern?.hostname)
+    .map((pattern: unknown) => pattern?.hostname)
     .filter((hostname): hostname is string => typeof hostname === 'string' && hostname.length > 0);
 
 const s3PublicHostRegex = new RegExp(imageDomainRegistry.s3PublicHostPattern, 'i');

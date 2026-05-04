@@ -22,7 +22,7 @@ import {
 const GEOLOCATION_TIMEOUT_MS = 20000;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
-    typeof value === "object" && value !== null && !Array.isArray(value);
+    typeof value === "object" && value !== undefined && !Array.isArray(value);
 
 const normalizeSource = (value: unknown): AppLocationSource => {
     if (value === "auto" || value === "ip" || value === "manual" || value === "default") {
@@ -339,7 +339,7 @@ const detectPreciseLocation = async (
 
     // PR-3 Hardening: 3 attempts with exponential backoff for transient "Unknown" errors
     const MAX_ATTEMPTS = 3;
-    let lastError: unknown = null;
+    let lastError: unknown = undefined;
     let lastFailureReason: LocationDetectFailureReason = "unknown";
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {

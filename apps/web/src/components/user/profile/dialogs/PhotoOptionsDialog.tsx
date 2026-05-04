@@ -30,7 +30,7 @@ export function PhotoOptionsDialog({
                         Profile Photo Options
                     </DialogTitle>
                     <DialogDescription>
-                        Choose what you'd like to do with your profile photo
+                        Choose what you&apos;d like to do with your profile photo
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-3 py-4">

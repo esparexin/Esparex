@@ -36,9 +36,9 @@ export default function SafetyTipsPage() {
                         <h3 className="text-xl font-bold text-foreground">Golden Rules of Buying</h3>
                     </div>
                     <div className="space-y-4 text-muted-foreground leading-relaxed">
-                        <p><strong>1. Never pay in advance:</strong> Do not transfer money (via UPI, bank transfer, or digital wallets) to individual sellers before inspecting the spare part or device in person. Be cautious of sellers demanding "booking fees" or "shipping charges" upfront.</p>
+                        <p><strong>1. Never pay in advance:</strong> Do not transfer money (via UPI, bank transfer, or digital wallets) to individual sellers before inspecting the spare part or device in person. Be cautious of sellers demanding {"\""}booking fees{"\""} or {"\""}shipping charges{"\""} upfront.</p>
                         <p><strong>2. Use Esparex Chat:</strong> Do not move conversations to WhatsApp or Telegram immediately. Keeping your negotiations and proof of agreements within the Esparex chat portal protects you in case you need to report abusive or fraudulent behavior.</p>
-                        <p><strong>3. Buy from Verified Businesses:</strong> Whenever possible, purchase critical components (like screens or motherboards) from sellers with the <span className="font-semibold text-emerald-600">"Verified Business"</span> shield. These sellers have legitimate GST registrations on file with us.</p>
+                        <p><strong>3. Buy from Verified Businesses:</strong> Whenever possible, purchase critical components (like screens or motherboards) from sellers with the <span className="font-semibold text-emerald-600">{"\""}Verified Business{"\""}</span> shield. These sellers have legitimate GST registrations on file with us.</p>
                     </div>
                 </section>
 
@@ -66,7 +66,7 @@ export default function SafetyTipsPage() {
                     <div className="space-y-4 text-muted-foreground leading-relaxed">
                         <ul className="list-disc pl-6 space-y-2">
                             <li>Always agree to meet in well-lit, highly populated public areas (e.g., malls, popular cafes, or near police stations).</li>
-                            <li>If you are buying a replacement part like an iPhone battery or display, bring the tools necessary to test it *before* handing over the cash, or arrange to meet at a neutral technician's shop.</li>
+                            <li>If you are buying a replacement part like an iPhone battery or display, bring the tools necessary to test it *before* handing over the cash, or arrange to meet at a neutral technician{"'"}s shop.</li>
                             <li>Trust your instincts. If a deal feels too good to be true, or the other party refuses to meet in a public location, walk away.</li>
                         </ul>
                     </div>

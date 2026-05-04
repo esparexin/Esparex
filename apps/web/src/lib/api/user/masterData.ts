@@ -65,7 +65,7 @@ export interface ServiceType {
 /* -------------------------------------------------------------------------- */
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
-    typeof value === "object" && value !== null;
+    typeof value === "object" && value !== undefined;
 
 const normalizeEntityId = (value: unknown): string | undefined => {
     if (!value || typeof value !== "object") return undefined;

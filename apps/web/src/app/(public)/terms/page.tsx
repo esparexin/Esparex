@@ -22,7 +22,7 @@ export default function TermsPage() {
             <div className="space-y-8 text-muted-foreground leading-relaxed">
                 <section>
                     <p>
-                        Welcome to Esparex. These Terms of Service ("Terms") govern your access to and use of the Esparex marketplace, including our website, mobile applications, and associated services (collectively, the "Platform"). By creating an account or using the Platform, you agree to be bound by these Terms.
+                        Welcome to Esparex. These Terms of Service ({"\""}Terms{"\""}) govern your access to and use of the Esparex marketplace, including our website, mobile applications, and associated services (collectively, the {"\""}Platform{"\""}). By creating an account or using the Platform, you agree to be bound by these Terms.
                     </p>
                 </section>
 
@@ -60,14 +60,14 @@ export default function TermsPage() {
                 <section>
                     <h3 className="text-xl font-bold text-foreground mb-3">4. Payments & Subscriptions</h3>
                     <p>
-                        While basic ad posting is free, Esparex offers premium services (such as "Ads Spotlight" and "Business Storefronts"). All payments made for premium features on the Platform are non-refundable unless explicitly stated. Transactions made *between* buyers and sellers off-platform are strictly at your own risk.
+                        While basic ad posting is free, Esparex offers premium services (such as {"\""}Ads Spotlight{"\""} and {"\""}Business Storefronts{"\""}). All payments made for premium features on the Platform are non-refundable unless explicitly stated. Transactions made *between* buyers and sellers off-platform are strictly at your own risk.
                     </p>
                 </section>
 
                 <section>
                     <h3 className="text-xl font-bold text-foreground mb-3">5. Disclaimer of Warranties & Limitation of Liability</h3>
                     <p>
-                        The Esparex Platform is provided on an "AS IS" and "AS AVAILABLE" basis. We disclaim all warranties, express or implied, including the warranties of merchantability and fitness for a particular purpose. In no event shall Esparex, its directors, or employees be liable for any direct, indirect, incidental, or consequential damages resulting from a transaction conducted via our Platform.
+                        The Esparex Platform is provided on an {"\""}AS IS{"\""} and {"\""}AS AVAILABLE{"\""} basis. We disclaim all warranties, express or implied, including the warranties of merchantability and fitness for a particular purpose. In no event shall Esparex, its directors, or employees be liable for any direct, indirect, incidental, or consequential damages resulting from a transaction conducted via our Platform.
                     </p>
                 </section>
             </div>

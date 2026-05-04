@@ -21,7 +21,7 @@ import logger from '@esparex/core/utils/logger';
 // 🧪 MOCK: Override logger to capture smoke test output
 const logs: string[] = [];
 const originalInfo = logger.info;
-logger.info = (message: string, ...meta: any[]) => {
+logger.info = (message: string, ...meta: unknown[]) => {
     if (typeof message === 'string' && message.startsWith('[SMOKE_TEST]')) {
         logs.push(message);
         console.log('\x1b[36m%s\x1b[0m', message);
@@ -59,7 +59,7 @@ async function getValidCategory() {
     return cat;
 }
 
-async function runScenarioA(verifiedLocation: any, validCategory: any) {
+async function runScenarioA(verifiedLocation: unknown, validCategory: unknown) {
     logger.info('[SMOKE_TEST] SCENARIO A: SAFE USER FLOW START');
     
     const userId = new mongoose.Types.ObjectId();
@@ -124,7 +124,7 @@ async function runScenarioA(verifiedLocation: any, validCategory: any) {
     logger.info('[SMOKE_TEST] scenario=A status=LIVE expiresAt=SET (Verified)');
 }
 
-async function runScenarioB(verifiedLocation: any, validCategory: any) {
+async function runScenarioB(verifiedLocation: unknown, validCategory: unknown) {
     logger.info('[SMOKE_TEST] SCENARIO B: HIGH RISK FLOW START');
     
     const userId = new mongoose.Types.ObjectId();
@@ -166,7 +166,7 @@ async function runScenarioB(verifiedLocation: any, validCategory: any) {
     logger.info('[SMOKE_TEST] scenario=B Fraud guardrail=ENFORCED');
 }
 
-async function runScenarioC(verifiedLocation: any, validCategory: any) {
+async function runScenarioC(verifiedLocation: unknown, validCategory: unknown) {
     logger.info('[SMOKE_TEST] SCENARIO C: ADMIN FLOW START');
     
     const adminId = new mongoose.Types.ObjectId();
@@ -230,7 +230,7 @@ async function runScenarioC(verifiedLocation: any, validCategory: any) {
             }
         );
         throw new Error('Scenario C Negative Failed: Escalation succeeded!');
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err.code === 'PRIVILEGE_ESCALATION_DETECTED') {
             logger.info('[SMOKE_TEST] scenario=C Privilege Boundary=ENFORCED (Verified)');
         } else {
@@ -278,18 +278,18 @@ async function runScenarioD() {
     await ViewBufferingService.recordView(adId); // Add 1 to Redis
     
     const originalUpdate = Ad.updateOne;
-    (Ad as any).updateOne = async () => { throw new Error('DB_FAILURE_SIMULATED'); };
+    (Ad as unknown).updateOne = async () => { throw new Error('DB_FAILURE_SIMULATED'); };
 
     try {
         await ViewBufferingService.flush(adId.toString());
-    } catch (err) {
+    } catch (_err) {
         // Expected failure
     }
 
     const restoredCount = await redis.get(`views:buffer:${adId.toString()}`);
     if (restoredCount !== '1') throw new Error(`Recovery failed: count not restored to Redis. Got ${restoredCount}`);
     
-    (Ad as any).updateOne = originalUpdate; // Restore
+    (Ad as unknown).updateOne = originalUpdate; // Restore
     logger.info('[SMOKE_TEST] scenario=D Atomic Aggregation=RESILIENT (Verified)');
 }
 

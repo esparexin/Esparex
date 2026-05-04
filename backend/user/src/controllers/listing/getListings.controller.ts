@@ -81,7 +81,7 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
         const viewerId = viewer?._id?.toString();
         const isAdmin = viewer?.role === 'admin' || viewer?.role === 'super_admin';
 
-        let adId: string | null = null;
+        let adId: string | null = undefined;
         if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
             adId = idOrSlug;
         }
@@ -142,8 +142,8 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
             setCache,
             buildDeterministicSearchCacheKey
         } = await import('@esparex/core/utils/redisCache');
-        let cacheKey: string | null = null;
-        let cachedResult: CachedSearchResult | null = null;
+        let cacheKey: string | null = undefined;
+        let cachedResult: CachedSearchResult | null = undefined;
 
         if (shouldUseSearchCache) {
             cacheKey = buildDeterministicSearchCacheKey(query);

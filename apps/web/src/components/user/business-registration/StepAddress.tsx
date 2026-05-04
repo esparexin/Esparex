@@ -139,7 +139,7 @@ export function StepAddress({
             || !normalizedDetectedDisplay
             || !isGenericCapturedLocation(normalizedDetectedDisplay)
         ) {
-            refreshedGenericLocationKeyRef.current = null;
+            refreshedGenericLocationKeyRef.current = undefined;
             return;
         }
 
@@ -198,7 +198,7 @@ export function StepAddress({
     const handleDetectCurrentLocation = async () => {
         setIsDetectingLocation(true);
         setDetectFeedback(null);
-        refreshedGenericLocationKeyRef.current = null;
+        refreshedGenericLocationKeyRef.current = undefined;
 
         try {
             const detectionResult = await getCurrentLocationResult({

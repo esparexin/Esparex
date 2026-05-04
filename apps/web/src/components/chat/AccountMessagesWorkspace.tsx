@@ -19,7 +19,7 @@ export function AccountMessagesWorkspace({
   currentUserId,
   conversationId,
   initialView = 'active',
-  initialConversation = null,
+  initialConversation = undefined,
 }: AccountMessagesWorkspaceProps) {
   const router = useRouter();
 

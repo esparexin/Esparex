@@ -66,7 +66,7 @@ export class CatalogImportService {
             const brandMap = new Map(allBrands.map(b => [b.name.toLowerCase(), b]));
 
              
-            const ops: any[] = [];
+            const ops: unknown[] = [];
 
             for (const item of data) {
                 const categoryIds = item.categories
@@ -132,7 +132,7 @@ export class CatalogImportService {
             const brandMap = new Map(allBrands.map(b => [b.name.toLowerCase(), b]));
 
              
-            const ops: any[] = [];
+            const ops: unknown[] = [];
 
             for (const item of data) {
                 const brandRecord = brandMap.get(item.brand.toLowerCase());

@@ -80,7 +80,7 @@ export const createReport = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 400, 'Invalid target ID');
         }
 
-        let ad: { _id: mongoose.Types.ObjectId; title?: string } | null = null;
+        let ad: { _id: mongoose.Types.ObjectId; title?: string } | null = undefined;
         if (canonicalTargetType === 'ad') {
             ad = await checkAdExists(canonicalTargetId);
             if (!ad) {

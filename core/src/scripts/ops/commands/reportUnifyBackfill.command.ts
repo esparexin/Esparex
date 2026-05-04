@@ -18,7 +18,7 @@ const ALLOWED_TARGET_TYPES = new Set(['ad', 'chat', 'user', 'business']);
 
 const isMissing = (value: unknown): boolean =>
   value === undefined ||
-  value === null ||
+  value === undefined ||
   (typeof value === 'string' && value.trim().length === 0);
 
 const toTrimmedOrUndefined = (value: unknown): string | undefined => {
@@ -29,7 +29,7 @@ const toTrimmedOrUndefined = (value: unknown): string | undefined => {
 
 const isValidObjectIdLike = (value: unknown): boolean =>
   value !== undefined &&
-  value !== null &&
+  value !== undefined &&
   mongoose.Types.ObjectId.isValid(String(value));
 
 const countMissingField = async (collection: mongoose.mongo.Collection<ReportDoc>, field: string): Promise<number> =>

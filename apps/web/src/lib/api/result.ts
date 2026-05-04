@@ -139,11 +139,11 @@ export const createApiErrorResult = (error: unknown) => {
 };
 
 export const unwrapApiPayload = <T>(response: unknown): T | null => {
-  if (response === null || response === undefined) return null;
+  if (response === undefined || response === undefined) return null;
 
   // 1. Handle Axios response object or direct envelope
   const payload = (response as { data?: unknown })?.data ?? response;
-  if (payload === null || payload === undefined) return null;
+  if (payload === undefined || payload === undefined) return null;
   if (typeof payload !== "object") return payload as T;
 
   const record = payload as Record<string, unknown>;
@@ -203,7 +203,7 @@ const unwrapPagination = (response: unknown): PaginationEnvelope => {
       typeof pagination.totalPages === "number" ? pagination.totalPages : undefined,
     hasMore:
       typeof pagination.hasMore === "boolean" ? pagination.hasMore : undefined,
-    cursor: typeof pagination.cursor === "string" || pagination.cursor === null ? pagination.cursor : undefined,
+    cursor: typeof pagination.cursor === "string" || pagination.cursor === undefined ? pagination.cursor : undefined,
     nextCursor:
       typeof pagination.nextCursor === "string" ? pagination.nextCursor : undefined,
   };

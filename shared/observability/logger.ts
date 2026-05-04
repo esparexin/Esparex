@@ -78,7 +78,7 @@ class UniversalLogger implements Logger {
         }
     }
 
-    private format(message: any, ...meta: any[]): string {
+    private format(message: unknown, ...meta: unknown[]): string {
         const defaultMeta = { ...this.defaultMeta };
         let msgStr = '';
         if (message instanceof Error) {
@@ -102,7 +102,7 @@ class UniversalLogger implements Logger {
         return `${this.prefix}${msgStr}${metaStr}${defaultMetaStr}`;
     }
 
-    public log(level: LogLevel, message: any, ...meta: any[]): void {
+    public log(level: LogLevel, message: unknown, ...meta: unknown[]): void {
         const formatted = this.format(message, ...meta);
         switch (level) {
             case 'debug': console.debug(formatted); break;
@@ -114,12 +114,12 @@ class UniversalLogger implements Logger {
         }
     }
 
-    debug(message: any, ...meta: any[]): void { this.log('debug', message, ...meta); }
-    info(message: any, ...meta: any[]): void { this.log('info', message, ...meta); }
-    warn(message: any, ...meta: any[]): void { this.log('warn', message, ...meta); }
-    warning(message: any, ...meta: any[]): void { this.log('warning', message, ...meta); }
-    error(message: any, ...meta: any[]): void { this.log('error', message, ...meta); }
-    http(message: any, ...meta: any[]): void { this.log('http', message, ...meta); }
+    debug(message: unknown, ...meta: unknown[]): void { this.log('debug', message, ...meta); }
+    info(message: unknown, ...meta: unknown[]): void { this.log('info', message, ...meta); }
+    warn(message: unknown, ...meta: unknown[]): void { this.log('warn', message, ...meta); }
+    warning(message: unknown, ...meta: unknown[]): void { this.log('warning', message, ...meta); }
+    error(message: unknown, ...meta: unknown[]): void { this.log('error', message, ...meta); }
+    http(message: unknown, ...meta: unknown[]): void { this.log('http', message, ...meta); }
 
     child(defaultMeta: LogDetails): Logger {
         return new UniversalLogger(this.prefix, { ...this.defaultMeta, ...defaultMeta });

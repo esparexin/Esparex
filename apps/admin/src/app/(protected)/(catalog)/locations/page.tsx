@@ -477,7 +477,7 @@ function LocationsPageContent({
                     <div className="space-y-1">
                         <h4 className="text-sm font-bold text-red-900 uppercase tracking-tight">Permanent Deletion</h4>
                         <p className="text-sm text-red-800 leading-relaxed">
-                            Are you sure you want to delete <span className="font-bold">"{deletingLocation?.name || deletingLocation?.city}"</span>?
+                            Are you sure you want to delete <span className="font-bold">&quot;{deletingLocation?.name || deletingLocation?.city}&quot;</span>?
                         </p>
                     </div>
                 </div>

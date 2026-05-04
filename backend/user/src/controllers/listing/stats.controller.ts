@@ -6,14 +6,13 @@ import { LISTING_TYPE } from "@esparex/core/constants/enums/listingType";
 import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
 import * as AdMetricsService from '@esparex/core/services/ad/AdMetricsService';
 import { getAndVerifyOwnedListing } from "@esparex/core/utils/controllerUtils";
-import type { AuthUser } from '../../types/auth.types';
 
 /**
  * GET /api/v1/listings/mine/stats
  */
 export const getMyListingStats = async (req: Request, res: Response) => {
     try {
-        const userId = (req.user as any)?._id?.toString();
+        const userId = (req.user as unknown)?._id?.toString();
         if (!userId) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
@@ -31,7 +30,7 @@ export const getMyListingStats = async (req: Request, res: Response) => {
  */
 export const getMyListings = async (req: Request, res: Response) => {
     try {
-        const userId = (req.user as any)?._id;
+        const userId = (req.user as unknown)?._id;
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
         const { type, status, page = 1, limit = 20 } = req.query;

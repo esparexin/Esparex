@@ -83,7 +83,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
                     onClick={() => openLightbox(index)}
                     aria-label={`Open image attachment ${index + 1}`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    { }
                     <img
                       src={attachment.url}
                       alt={attachment.name ?? `Attachment ${index + 1}`}

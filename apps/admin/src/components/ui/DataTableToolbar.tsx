@@ -7,7 +7,7 @@ export interface DataTableToolbarProps<T> {
     selectedCount: number;
     enableColumnVisibility: boolean;
     hideColumnVisibilityButton: boolean;
-    columns: any[];
+    columns: unknown[];
     columnVisibility: Record<string, boolean>;
     setColumnVisibility: (updater: Record<string, boolean> | ((prev: Record<string, boolean>) => Record<string, boolean>)) => void;
     enableCsvExport: boolean;

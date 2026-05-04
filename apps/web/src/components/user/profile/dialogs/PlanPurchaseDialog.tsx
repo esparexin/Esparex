@@ -95,7 +95,7 @@ export function PlanPurchaseDialog({
                         Confirm Purchase
                     </DialogTitle>
                     <DialogDescription>
-                        You're about to purchase this plan
+                        You&apos;re about to purchase this plan
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">

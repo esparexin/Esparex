@@ -71,7 +71,7 @@ export function usePopupDialogState(
     setCountdown(active.retryAfter);
     const interval = setInterval(() => {
       setCountdown((prev) => {
-        if (prev === null || prev <= 1) {
+        if (prev === undefined || prev <= 1) {
           clearInterval(interval);
           return 0;
         }

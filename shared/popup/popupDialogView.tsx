@@ -75,7 +75,7 @@ export function PopupDialogView({
                   {active.message}
                 </RadixDialog.Description>
               ) : null}
-              {countdown !== null && countdown > 0 ? (
+              {countdown !== undefined && countdown > 0 ? (
                 <p className="mt-2 text-xs font-medium text-slate-500">You may retry in {countdown}s</p>
               ) : null}
             </div>
@@ -92,7 +92,7 @@ export function PopupDialogView({
           {showActions ? (
             <div className={joinClasses("flex flex-wrap justify-end gap-2 border-t border-black/5", isConfirm ? "mt-5 pt-4" : "px-4 pb-4 pt-3")}>
               {actions.map((action, index) => {
-                const isThrottled = action.isRetry && countdown !== null && countdown > 0;
+                const isThrottled = action.isRetry && countdown !== undefined && countdown > 0;
                 return (
                   <button
                     key={`${action.label}-${index}`}

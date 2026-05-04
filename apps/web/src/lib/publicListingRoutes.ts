@@ -36,7 +36,7 @@ export const buildPublicListingDetailRoute = ({
 }: PublicListingRouteInput): string => {
     const type = normalizePublicListingType(listingType);
     const basePath = LISTING_BASE_PATH[type];
-    const normalizedId = id == null ? "" : String(id).trim();
+    const normalizedId = id == undefined ? "" : String(id).trim();
     const normalizedSlug =
         (slug && String(slug).trim()) ||
         (seoSlug && String(seoSlug).trim()) ||

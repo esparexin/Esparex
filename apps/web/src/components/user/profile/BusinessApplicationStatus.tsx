@@ -155,7 +155,7 @@ export function BusinessApplicationStatus({
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-link-dark mb-4">
                     <p className="font-medium mb-1">What happens next?</p>
-                    <p className="text-xs">You'll receive a notification once your business is verified. After approval, you can start adding services and managing your business profile.</p>
+                    <p className="text-xs">You&apos;ll receive a notification once your business is verified. After approval, you can start adding services and managing your business profile.</p>
                 </div>
             </StatusCard>
         );

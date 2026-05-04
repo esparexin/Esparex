@@ -3,7 +3,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { ModelListItem } from "./ModelListItem";
 import { StatusDot, CountBadge } from "./CategoryTreeRow";
 
-export const BrandTreeRow = ({ brand, isExpanded, onToggle }: { brand: any, isExpanded: boolean, onToggle: () => void }) => {
+export const BrandTreeRow = ({ brand, isExpanded, onToggle }: { brand: unknown, isExpanded: boolean, onToggle: () => void }) => {
     return (
         <li className="border-b border-slate-100 last:border-none">
             <button
@@ -30,7 +30,7 @@ export const BrandTreeRow = ({ brand, isExpanded, onToggle }: { brand: any, isEx
                             No models for this brand
                         </li>
                     ) : (
-                        brand.models.map((model: any) => (
+                        brand.models.map((model: unknown) => (
                             <ModelListItem key={model.id} model={model} />
                         ))
                     )}

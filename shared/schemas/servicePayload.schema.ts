@@ -61,7 +61,7 @@ const servicePayloadShape = {
     ...serviceTypeField
 };
 
-const rejectLegacyServiceTypesAlias = (data: any, ctx: z.RefinementCtx) => {
+const rejectLegacyServiceTypesAlias = (data: unknown, ctx: z.RefinementCtx) => {
     if (Object.prototype.hasOwnProperty.call(data, 'serviceTypes')) {
         ctx.addIssue({
             code: z.ZodIssueCode.custom,

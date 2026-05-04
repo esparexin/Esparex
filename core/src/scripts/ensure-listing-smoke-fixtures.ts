@@ -140,9 +140,9 @@ async function resolveCategoryFor(type: ListingFixtureType) {
   const category = await Category.findOne({
     isDeleted: { $ne: true },
     isActive: true,
-    status: { $in: ['live', 'active'] as any[] },
+    status: { $in: ['live', 'active'] as unknown[] },
     ...typeSelector,
-  } as any)
+  } as unknown)
     .sort({ updatedAt: -1 })
     .select('_id name slug serviceSelectionMode')
     .lean<{ _id: Types.ObjectId; name: string; slug: string; serviceSelectionMode?: 'single' | 'multi' } | null>();

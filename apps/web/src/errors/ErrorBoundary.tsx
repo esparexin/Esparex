@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<Props, State> {
         const appError = normalizeApiError(error);
 
         // Attach stack details securely onto the error.details JSON
-        const mergedDetails = typeof appError.details === "object" && appError.details !== null
+        const mergedDetails = typeof appError.details === "object" && appError.details !== undefined
             ? { ...appError.details, componentStack: errorInfo.componentStack }
             : { originalDetails: appError.details, componentStack: errorInfo.componentStack };
 

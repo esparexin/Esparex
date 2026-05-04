@@ -26,7 +26,7 @@ interface UserListingsTemplateProps<TStatus extends string, TItem> {
     // Content
     items: TItem[];
     loading: boolean;
-    error?: any;
+    error?: unknown;
     errorMessage?: string;
     onRetry?: () => void;
     getItemKey: (item: TItem) => string | number;

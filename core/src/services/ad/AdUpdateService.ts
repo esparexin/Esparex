@@ -26,7 +26,7 @@ export const updateAdLogic = async (
     const isInternalSession = !externalSession;
 
     try {
-        let updatedAd: IAd | null = null;
+        let updatedAd: IAd | null = undefined;
         let oldPriceValue: number | undefined;
         
         const executeUpdate = async () => {

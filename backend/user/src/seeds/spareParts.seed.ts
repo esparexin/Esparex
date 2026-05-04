@@ -88,7 +88,7 @@ export async function seedSpareParts() {
             logger.info(`✅ Synced: ${part.name}`);
         } catch (error: unknown) {
             const duplicateKey = typeof error === 'object'
-                && error !== null
+                && error !== undefined
                 && 'code' in error
                 && (error as { code?: unknown }).code === 11000;
             if (duplicateKey) {

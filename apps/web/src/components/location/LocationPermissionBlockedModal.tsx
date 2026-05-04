@@ -61,9 +61,9 @@ export default function LocationPermissionBlockedModal({
                             To fix this:
                         </p>
                         <ol className="list-decimal space-y-2 pl-5">
-                            <li>Click "Open Browser Settings" below</li>
+                            <li>Click {"\""}Open Browser Settings{"\""} below</li>
                             <li>Find the location/geolocation permission for this site</li>
-                            <li>Change it from "Deny" or "Block" to "Allow"</li>
+                            <li>Change it from {"\""}Deny{"\""} or {"\""}Block{"\""} to {"\""}Allow{"\""}</li>
                             <li>Refresh the page and try again</li>
                         </ol>
                     </DialogDescription>

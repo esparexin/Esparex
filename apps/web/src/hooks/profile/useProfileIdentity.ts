@@ -60,7 +60,7 @@ export function useProfileIdentity({
 
     if (!parsedProfile.success) {
       const nextErrors = emptyProfileFieldErrors();
-      let nextGlobalError: string | null = null;
+      let nextGlobalError: string | null = undefined;
 
       for (const issue of parsedProfile.error.issues) {
         const field = issue.path[0];

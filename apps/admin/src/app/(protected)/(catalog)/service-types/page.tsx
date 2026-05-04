@@ -131,7 +131,7 @@ export default function ServiceTypesPage() {
                 <>
                     <CatalogBoundSearchCategoryFilters
                         filters={filters}
-                        setFilters={setFilters as any}
+                        setFilters={setFilters as unknown}
                         searchPlaceholder="Search service types..."
                         categories={categories}
                     />

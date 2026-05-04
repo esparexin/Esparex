@@ -83,7 +83,7 @@ const buildSmartAlertQuery = (criteria: AdMatchCriteria): Record<string, unknown
     // triggers on a Mumbai ad because Mumbai's locationPath includes Maharashtra).
     const parentLocationIds: Types.ObjectId[] = (criteria.locationParentIds ?? [])
         .map((id: string) => toObjectId(id))
-        .filter((id): id is Types.ObjectId => id !== null);
+        .filter((id): id is Types.ObjectId => id !== undefined);
 
     const locationCandidates = [
         ...(locationId ? [locationId] : []),

@@ -95,7 +95,7 @@ export const useNotificationSync = ({ enabled = true }: UseNotificationSyncOptio
     useEffect(() => {
         if (!enabled && socketRef.current?.connected) {
             socketRef.current.disconnect();
-            socketRef.current = null;
+            socketRef.current = undefined;
             localVersion.current = 0;
         }
     }, [enabled]);

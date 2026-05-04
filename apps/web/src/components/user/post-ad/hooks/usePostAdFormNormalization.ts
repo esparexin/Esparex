@@ -10,7 +10,7 @@ export function usePostAdFormNormalization(
     form: UseFormReturn<PostAdFormData>,
     isLocationLocked: boolean
 ) {
-    const buildEditAdPayload = useCallback((payload: any) => {
+    const buildEditAdPayload = useCallback((payload: unknown) => {
         return buildPostAdEditPayload(payload, isLocationLocked);
     }, [isLocationLocked]);
 
@@ -30,7 +30,7 @@ export function usePostAdFormNormalization(
                 : String(currentValue ?? "") !== String(value ?? "");
 
             if (hasChanged) {
-                form.setValue(field as keyof PostAdFormData, value as any, {
+                form.setValue(field as keyof PostAdFormData, value as unknown, {
                     shouldValidate: false,
                     shouldDirty: false,
                 });

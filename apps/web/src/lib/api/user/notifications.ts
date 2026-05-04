@@ -62,7 +62,7 @@ const normalizeNotification = (raw: Record<string, unknown>): Notification => ({
     title: String(raw.title || ""),
     message: String(raw.message || ""),
     data:
-        typeof raw.data === "object" && raw.data !== null
+        typeof raw.data === "object" && raw.data !== undefined
             ? (raw.data as Record<string, unknown>)
             : undefined,
     isRead: Boolean(raw.isRead),
@@ -80,11 +80,11 @@ const normalizeNotification = (raw: Record<string, unknown>): Notification => ({
             : undefined,
     channels: Array.isArray(raw.channels) ? raw.channels.filter((value): value is string => typeof value === "string") : undefined,
     deliveryStatus:
-        typeof raw.deliveryStatus === "object" && raw.deliveryStatus !== null
+        typeof raw.deliveryStatus === "object" && raw.deliveryStatus !== undefined
             ? (raw.deliveryStatus as Record<string, "pending" | "sent" | "failed" | "skipped">)
             : undefined,
     entityRef:
-        typeof raw.entityRef === "object" && raw.entityRef !== null
+        typeof raw.entityRef === "object" && raw.entityRef !== undefined
             ? (raw.entityRef as { domain: string; id: string })
             : undefined,
 });

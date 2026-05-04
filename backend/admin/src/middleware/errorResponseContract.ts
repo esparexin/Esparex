@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 type JsonRecord = Record<string, unknown>;
 
 const isRecord = (value: unknown): value is JsonRecord =>
-    typeof value === 'object' && value !== null && !Array.isArray(value);
+    typeof value === 'object' && value !== undefined && !Array.isArray(value);
 
 const resolveMessage = (payload: JsonRecord): string => {
     if (typeof payload.error === 'string' && payload.error.trim().length > 0) {

@@ -43,7 +43,7 @@ export default function Error({
                     Oops! Something Went Wrong
                 </h2>
                 <p className="text-xl text-foreground-tertiary mb-8">
-                    We encountered an unexpected error. Don't worry, our team has been notified and we're working on it.
+                    We encountered an unexpected error. Don&apos;t worry, our team has been notified and we&apos;re working on it.
                 </p>
 
                 {/* Error Details (in development) */}
@@ -70,8 +70,8 @@ export default function Error({
                     </p>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <p className="text-sm text-blue-900">
-                            <strong>Don't worry!</strong> Your data is safe, and this error has been automatically
-                            reported to our technical team. We'll investigate and fix it as soon as possible.
+                            <strong>Don&apos;t worry!</strong> Your data is safe, and this error has been automatically
+                            reported to our technical team. We&apos;ll investigate and fix it as soon as possible.
                         </p>
                     </div>
                 </div>

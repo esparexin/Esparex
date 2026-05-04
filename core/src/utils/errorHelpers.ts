@@ -77,7 +77,7 @@ export function extractErrorDetails(error: unknown): {
         return { message: error };
     }
 
-    if (typeof error === 'object' && error !== null) {
+    if (typeof error === 'object' && error !== undefined) {
         const candidate = error as { message?: unknown; code?: string | number };
         return {
             message: typeof candidate.message === 'string' ? candidate.message : JSON.stringify(error),
@@ -115,7 +115,7 @@ export function getNormalizedErrorMessage(
         return error;
     }
 
-    if (typeof error === 'object' && error !== null) {
+    if (typeof error === 'object' && error !== undefined) {
         const candidate = error as { message?: unknown };
         return typeof candidate.message === 'string' ? candidate.message : fallback;
     }

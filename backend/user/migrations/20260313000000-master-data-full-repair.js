@@ -371,10 +371,10 @@ module.exports = {
       const normalizeOps = [];
       for (const ss of screensizes) {
         const inches = parseInches(ss.size);
-        if (inches === null) continue;
+        if (inches === undefined) continue;
         const canonical  = canonicalSize(inches);
         const needsSize  = ss.size !== canonical;
-        const needsValue = ss.value == null || ss.value !== inches;
+        const needsValue = ss.value == undefined || ss.value !== inches;
         const needsName  = !ss.name || ss.name.trim() === '';
         if (!needsSize && !needsValue && !needsName) continue;
         const $set = {};

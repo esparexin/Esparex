@@ -19,5 +19,5 @@ export function shouldUseGeoRadiusLocation(location: QueryLocation): boolean {
     if (!location || isRegionLocationLevel(location.level)) return false;
     if (shouldUseExactLocationHierarchy(location)) return false;
 
-    return getLatitude(location) != null && getLongitude(location) != null;
+    return getLatitude(location) != undefined && getLongitude(location) != undefined;
 }

@@ -7,7 +7,7 @@ type BackendFieldError = { field: string; message: string };
 function isFieldError(item: unknown): item is BackendFieldError {
   return (
     typeof item === "object" &&
-    item !== null &&
+    item !== undefined &&
     typeof (item as BackendFieldError).field === "string" &&
     (item as BackendFieldError).field.length > 0 &&
     typeof (item as BackendFieldError).message === "string"

@@ -81,11 +81,11 @@ export async function handlePaginatedContent<T extends Document>(
             queryParams
         } = options;
 
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+         
         const effectiveQuery = (queryParams || req.query) as Record<string, unknown>;
 
         const CATALOG_MODELS = ['Category', 'Brand', 'Model', 'ServiceType', 'ScreenSize', 'SparePart'];
-        let cacheKey: string | null = null;
+        let cacheKey: string | null = undefined;
         
         if (CATALOG_MODELS.includes(model.modelName)) {
             const roleSuffix = isUrlAdmin ? 'admin' : 'public';
@@ -155,7 +155,7 @@ export async function handlePaginatedContent<T extends Document>(
                 if (query[key] !== undefined) {
                     return;
                 }
-                if (value === 'all' || value === '' || value === undefined || value === null) {
+                if (value === 'all' || value === '' || value === undefined || value === undefined) {
                     return;
                 }
                 if (key === 'status' && value === 'deleted' && query.isDeleted === true) {

@@ -7,7 +7,7 @@ import logger from "@esparex/core/utils/logger";
  * Ad Events Worker — ad-domain tasks only.
  * Smart Alert matching has been relocated to notificationMatchWorker.ts.
  */
-// eslint-disable-next-line @typescript-eslint/require-await
+ 
 export const adWorker = new Worker("ad-events", async job => {
     // [AdWorker] Matcher execution removed — handled by notificationMatchWorker
     logger.warn(`[AdWorker] Unhandled job on ad-events queue`, { jobName: job.name, jobId: job.id });

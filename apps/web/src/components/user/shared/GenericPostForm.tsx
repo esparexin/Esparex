@@ -10,7 +10,7 @@ import { cn } from "@/components/ui/utils";
 import type { ListingImage } from "@/types/listing";
 
 interface GenericPostFormProps {
-    form: UseFormReturn<any>;
+    form: UseFormReturn<unknown>;
     title: string;
     onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
     onClose: () => void;

@@ -65,7 +65,7 @@ export default function FaqPage() {
             />
             
             <p className="mb-8 text-muted-foreground text-lg">
-                Find answers to common questions about navigating India's top electronics marketplace.
+                Find answers to common questions about navigating India&apos;s top electronics marketplace.
             </p>
 
             <div className="not-prose max-w-3xl">
@@ -73,7 +73,7 @@ export default function FaqPage() {
                     <AccordionItem value="item-1">
                         <AccordionTrigger className="text-left text-base font-semibold">How do I post an ad?</AccordionTrigger>
                         <AccordionContent className="text-muted-foreground leading-relaxed">
-                            To post an ad, click on the <span className="font-semibold text-foreground">Post Ad</span> button in the top navigation bar. You'll need to log in or create an account via OTP first. Then, simply follow the step-by-step wizard to upload photos, select the category, and set your price.
+                            To post an ad, click on the <span className="font-semibold text-foreground">Post Ad</span> button in the top navigation bar. You&apos;ll need to log in or create an account via OTP first. Then, simply follow the step-by-step wizard to upload photos, select the category, and set your price.
                         </AccordionContent>
                     </AccordionItem>
                     

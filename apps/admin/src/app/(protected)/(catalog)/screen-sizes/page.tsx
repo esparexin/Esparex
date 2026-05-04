@@ -17,7 +17,6 @@ import {
     CatalogEntityCell,
     CatalogSelectField,
     CatalogSelectFilter,
-    CatalogStatusBadge,
     CatalogTextInputField,
 } from "@/components/catalog/CatalogUiPrimitives";
 import { toCategoryOptions } from "@/components/catalog/catalogDomainUtils";

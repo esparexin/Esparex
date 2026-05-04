@@ -155,7 +155,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
             {conversation.ad.thumbnail && (
               listingHref ? (
                 <Link href={listingHref} className="conv-header__thumb-link" aria-label={`Open ${conversation.ad.title}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  { }
                   <img
                     src={conversation.ad.thumbnail}
                     alt={conversation.ad.title}
@@ -163,7 +163,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
                   />
                 </Link>
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
+                 
                 <img
                   src={conversation.ad.thumbnail}
                   alt={conversation.ad.title}

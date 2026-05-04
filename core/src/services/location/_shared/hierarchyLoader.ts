@@ -121,7 +121,7 @@ export const SEARCH_RESULT_LEVEL_PRIORITY: Record<string, number> = {
     state: 5,
     country: 6
 };
-export const withPublicCanonicalLocationFilter = <T extends Record<string, unknown>>(query: T): any => ({
+export const withPublicCanonicalLocationFilter = <T extends Record<string, unknown>>(query: T): unknown => ({
     ...PUBLIC_CANONICAL_LOCATION_FILTER,
     ...query,
 });

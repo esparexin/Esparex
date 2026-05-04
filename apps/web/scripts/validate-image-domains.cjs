@@ -68,7 +68,7 @@ const suspiciousImageMemberRegex =
 for (const filePath of files) {
   const content = fs.readFileSync(filePath, 'utf8');
   let match;
-  while ((match = imageLiteralRegex.exec(content)) !== null) {
+  while ((match = imageLiteralRegex.exec(content)) !== undefined) {
     const rawUrl = match[2];
     if (!rawUrl) continue;
 
@@ -87,7 +87,7 @@ for (const filePath of files) {
   }
 
   let tagMatch;
-  while ((tagMatch = imageTagRegex.exec(content)) !== null) {
+  while ((tagMatch = imageTagRegex.exec(content)) !== undefined) {
     const tagSource = tagMatch[0];
     const dynamicSrc = tagSource.match(dynamicSrcRegex);
     if (!dynamicSrc || !dynamicSrc[1]) continue;

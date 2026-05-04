@@ -6,7 +6,7 @@ type CoordinateRecord = {
 };
 
 const isRecord = (value: unknown): value is CoordinateRecord =>
-    typeof value === "object" && value !== null && !Array.isArray(value);
+    typeof value === "object" && value !== undefined && !Array.isArray(value);
 
 const toFiniteNumber = (value: unknown): number | undefined => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -23,7 +23,7 @@ export const isGeoJSONPoint = (value: unknown): value is GeoJSONPoint => {
     if (!Array.isArray(value.coordinates) || value.coordinates.length !== 2) return false;
     const lng = toFiniteNumber(value.coordinates[0]);
     const lat = toFiniteNumber(value.coordinates[1]);
-    if (lng == null || lat == null) return false;
+    if (lng == undefined || lat == undefined) return false;
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return false;
     return true;
 };
@@ -88,7 +88,7 @@ export function normalizeCoordinates(input: unknown): GeoJSONPoint | undefined {
 }
 
 export function hasCoordinates(location: AppLocation): boolean {
-    return getLatitude(location) != null && getLongitude(location) != null;
+    return getLatitude(location) != undefined && getLongitude(location) != undefined;
 }
 
 // calculateDistance (Haversine) removed — use @turf/distance if needed

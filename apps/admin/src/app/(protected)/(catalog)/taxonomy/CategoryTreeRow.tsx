@@ -23,7 +23,7 @@ export const CategoryTreeRow = ({
     onToggleCategory,
     onToggleBrand
 }: {
-    category: any,
+    category: unknown,
     isExpanded: boolean,
     expandedBrands: Record<string, boolean>,
     onToggleCategory: () => void,
@@ -61,7 +61,7 @@ export const CategoryTreeRow = ({
                             No brands in this category
                         </li>
                     ) : (
-                        category.brands.map((brand: any) => (
+                        category.brands.map((brand: unknown) => (
                             <BrandTreeRow
                                 key={brand.id}
                                 brand={brand}

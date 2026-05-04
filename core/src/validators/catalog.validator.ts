@@ -9,7 +9,7 @@ const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId for
 
 
 const optionalObjectIdSchema = z.preprocess((value) => {
-    if (value === undefined || value === null || value === '') return undefined;
+    if (value === undefined || value === undefined || value === '') return undefined;
     return normalizeObjectIdLike(value) ?? value;
 }, objectIdSchema.optional());
 

@@ -1,3 +1,4 @@
+/* global NodeJS */
 import bootstrapLogger from '@esparex/core/utils/bootstrapLogger';
 import { inferCookieDomainFromEnv, requiresSharedCookieDomain } from '@esparex/core/utils/originConfig';
 

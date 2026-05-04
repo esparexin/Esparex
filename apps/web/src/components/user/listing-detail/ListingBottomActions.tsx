@@ -128,7 +128,7 @@ export function ListingBottomActions({
           <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 px-4 py-2 bg-green-50 border-t border-green-200 z-40">
             <p className="text-xs text-center text-green-700">
               <Info className="h-3 w-3 inline mr-1" />
-              You're viewing your active listing
+              You&apos;re viewing your active listing
             </p>
           </div>
 

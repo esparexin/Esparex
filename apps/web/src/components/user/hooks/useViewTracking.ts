@@ -11,7 +11,7 @@ export function useViewTracking(
   const trackedViewRef = useRef<string | null>(null);
 
   useEffect(() => {
-    trackedViewRef.current = null;
+    trackedViewRef.current = undefined;
   }, [adId]);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export function useViewTracking(
       })
       .catch(() => {
         if (!cancelled) {
-          trackedViewRef.current = null;
+          trackedViewRef.current = undefined;
         }
       });
 

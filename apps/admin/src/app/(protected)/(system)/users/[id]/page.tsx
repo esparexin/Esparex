@@ -38,11 +38,11 @@ export default function UserDetailsPage({ params }: Props) {
             isVerified: Boolean(raw.isVerified),
             isPhoneVerified: Boolean(raw.isPhoneVerified),
             isEmailVerified: Boolean(raw.isEmailVerified),
-            businessStatus: (typeof raw.businessStatus === "string" ? raw.businessStatus : undefined) as any,
+            businessStatus: (typeof raw.businessStatus === "string" ? raw.businessStatus : undefined) as unknown,
             totalAdsPosted: typeof raw.totalAdsPosted === "number" ? raw.totalAdsPosted : undefined,
             createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date(0).toISOString(),
             updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : new Date(0).toISOString(),
-        } as any);
+        } as unknown);
 
     useEffect(() => {
         let cancelled = false;

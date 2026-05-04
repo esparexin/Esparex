@@ -196,7 +196,7 @@ export const getBusinesses = async (
         if (!Array.isArray(apiData)) return [];
         return apiData
             .map(normalizeBusiness)
-            .filter((b): b is Business => b !== null);
+            .filter((b): b is Business => b !== undefined);
     } catch (e) {
         logger.error('Failed to load businesses', e);
         return [];

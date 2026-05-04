@@ -12,7 +12,7 @@ import type { User } from "@/types/User";
 
 export type ProfileListingType = "ads" | "services" | "spare-parts";
 
-export function useProfileListings<T extends { id: any; status: string } = any>(
+export function useProfileListings<T extends { id: unknown; status: string } = any>(
     type: ProfileListingType,
     activeSubTab: string,
     user: User | null,
@@ -20,7 +20,7 @@ export function useProfileListings<T extends { id: any; status: string } = any>(
 ) {
     const isActive = activeSubTab === type;
 
-    const config: any = {
+    const config: unknown = {
         ads: {
             fetchApi: () => getMyListings(LISTING_TYPE.AD, statusFilter).then(res => res.data),
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.AD),
@@ -57,7 +57,7 @@ export function useProfileListings<T extends { id: any; status: string } = any>(
         handleDeactivate,
         handleRepost,
     } = useUserListingManagement<T>({
-        type: type as any,
+        type: type as unknown,
         activeTab: isActive ? type : "",
         user,
         statusFilter,

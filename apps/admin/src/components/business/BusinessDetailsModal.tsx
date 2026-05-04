@@ -95,13 +95,13 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
     const scoreBg = trustScore > 70 ? 'bg-emerald-100' : trustScore > 40 ? 'bg-amber-100' : 'bg-red-100';
 
     const locationDisplay = resolveLocationDisplay({
-        locationLabel: (business as any).locationLabel,
+        locationLabel: (business as unknown).locationLabel,
         coordinates: business.location?.coordinates,
         fallbackDisplay: buildBusinessFallbackLocationDisplay(business.location),
         emptyText: "Location not available",
     });
     const preferredLocationDisplay =
-        (business as any).locationLabel ||
+        (business as unknown).locationLabel ||
         business.location?.display ||
         buildBusinessFallbackLocationDisplay(business.location) ||
         [business.location?.city, business.location?.state].filter(Boolean).join(", ") ||
@@ -288,7 +288,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         </h3>
                         <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
                             {(business.images || []).map((url, i) => (
-                                <a key={i} href={url} target="_blank" className="shrink-0 w-48 h-32 rounded-xl overflow-hidden border border-slate-200 hover:border-primary transition-colors">
+                                <a key={i} href={url} target="_blank" className="shrink-0 w-48 h-32 rounded-xl overflow-hidden border border-slate-200 hover:border-primary transition-colors" rel="noreferrer">
                                     <img src={url} className="w-full h-full object-cover" alt={`Shop ${i + 1}`} />
                                 </a>
                             ))}

@@ -16,7 +16,7 @@ const ACTIVE_CATEGORY_QUERY = {
 };
 
 const CACHE_TTL_MS = 60 * 1000;
-let activeCategoryCache: { at: number; categories: CategoryLite[] } | null = null;
+let activeCategoryCache: { at: number; categories: CategoryLite[] } | null = undefined;
 
 const normalizeToken = (value: string): string =>
     value
@@ -92,5 +92,5 @@ export const resolveEquivalentActiveCategoryIds = async (categoryId: string): Pr
 };
 
 export const clearCategoryCanonicalCache = () => {
-    activeCategoryCache = null;
+    activeCategoryCache = undefined;
 };

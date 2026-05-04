@@ -319,12 +319,12 @@ export const getAdsByStatus = async (
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
-        Ad.find({ status: status as any, isDeleted: { $ne: true } })
+        Ad.find({ status: status as unknown, isDeleted: { $ne: true } })
             .sort({ createdAt: 1 })
             .skip(skip)
             .limit(limit)
             .lean(),
-        Ad.countDocuments({ status: status as any, isDeleted: { $ne: true } })
+        Ad.countDocuments({ status: status as unknown, isDeleted: { $ne: true } })
     ]);
     return { data: data as unknown as Record<string, unknown>[], total };
 };

@@ -18,7 +18,7 @@ export function BlockChatDialog({ open, isSubmitting, onCancel, onConfirm }: Blo
         </div>
         <div className="chat-modal__content">
           <p className="chat-modal__body">
-            This chat will become read-only and you won't receive further messages.
+            This chat will become read-only and you won&apos;t receive further messages.
           </p>
         </div>
         <div className="chat-modal__actions">

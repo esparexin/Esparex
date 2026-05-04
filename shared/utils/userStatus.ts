@@ -1,9 +1,8 @@
 import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from "../enums/userStatus";
 
-const LEGACY_ACTIVE_STATUS = "active";
 const validUserStatuses = new Set<string>(USER_STATUS_VALUES);
 
-export type UserStatusLike = UserStatusValue | typeof LEGACY_ACTIVE_STATUS | string | null | undefined;
+export type UserStatusLike = UserStatusValue | "active" | string | null | undefined;
 
 export function normalizeUserStatus(status: UserStatusLike): UserStatusValue | undefined {
     if (typeof status !== "string") {

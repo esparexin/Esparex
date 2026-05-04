@@ -1,3 +1,4 @@
+/* global NodeJS */
 import { Worker } from "bullmq";
 import sharp from "sharp";
 import { GetObjectCommand } from "@aws-sdk/client-s3";

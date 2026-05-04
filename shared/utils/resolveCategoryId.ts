@@ -5,7 +5,7 @@
  * - Simple string (slug or name)
  * - Object with id or _id field
  */
-export function resolveCategoryId(input: any): string | undefined {
+export function resolveCategoryId(input: unknown): string | undefined {
     if (!input) return undefined;
 
     // 1. Direct string

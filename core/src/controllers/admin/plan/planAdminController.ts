@@ -19,7 +19,7 @@ export const createPlan = async (req: Request, res: Response) => {
 
         const plan = await adminCreatePlan(safeBody);
         const planId = plan._id;
-        await logAdminAction(req, 'CREATE_PLAN', 'Plan', planId == null ? undefined : String(planId));
+        await logAdminAction(req, 'CREATE_PLAN', 'Plan', planId == undefined ? undefined : String(planId));
         res.status(201).json(respond({ success: true, data: plan }));
     } catch (error: unknown) {
         const err = error as Error;

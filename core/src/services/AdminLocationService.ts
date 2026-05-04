@@ -59,7 +59,7 @@ const ADMIN_STATES_CACHE_KEY = 'admin:locations:states';
 const ADMIN_STATES_CACHE_TTL_SECONDS = 300;
 
 const toScopeQuery = (locationIds: mongoose.Types.ObjectId[] | null) => {
-    if (locationIds === null) return {};
+    if (locationIds === undefined) return {};
     if (locationIds.length === 0) {
         return { _id: { $in: [] as mongoose.Types.ObjectId[] } };
     }
@@ -285,7 +285,7 @@ export const adminCreateLocation = async (createBody: AdminCreateLocationBody) =
             : 'city';
 
     const explicitParentId = resolveStringField(createBody.parentId);
-    let parentLocation: { _id: unknown; level?: string; path?: unknown } | null = null;
+    let parentLocation: { _id: unknown; level?: string; path?: unknown } | null = undefined;
 
     if (explicitParentId) {
         if (!/^[a-f\d]{24}$/i.test(explicitParentId)) {
@@ -383,8 +383,8 @@ export const adminUpdateLocation = async (id: string, updateBody: AdminUpdateLoc
     const parentIdFromBody = updateBody.parentId;
     const hasParentMutation = parentIdFromBody !== undefined;
     if (hasParentMutation) {
-        if (parentIdFromBody === null || parentIdFromBody === '') {
-            location.parentId = null;
+        if (parentIdFromBody === undefined || parentIdFromBody === '') {
+            location.parentId = undefined;
         } else {
             const parentId = resolveStringField(parentIdFromBody);
             if (!parentId || !/^[a-f\d]{24}$/i.test(parentId)) {
@@ -408,7 +408,7 @@ export const adminUpdateLocation = async (id: string, updateBody: AdminUpdateLoc
     if (isActive !== undefined) location.isActive = Boolean(isActive);
 
     if (name || country || level || hasParentMutation) {
-        let parentLocation: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[]; country?: string; level?: string } | null = null;
+        let parentLocation: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[]; country?: string; level?: string } | null = undefined;
         if (location.parentId) {
             parentLocation = await findLocationParent(location.parentId);
         }

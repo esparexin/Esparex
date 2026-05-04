@@ -43,7 +43,7 @@ const PAGE_SIZE = 20;
 import { SearchFilters } from "@/components/search/SearchFilters";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
 
-let categoriesRequest: Promise<Category[]> | null = null;
+let categoriesRequest: Promise<Category[]> | null = undefined;
 
 const loadCategories = async (): Promise<Category[]> => {
   if (!categoriesRequest) {
@@ -120,7 +120,7 @@ export function BrowseAds({
     () => !urlLocationId && shouldUseGeoRadiusLocation(location),
     [location, urlLocationId]
   );
-  const showRadiusFilter = Boolean(urlLocationId) ? false : shouldUseContextGeoRadius;
+  const showRadiusFilter = urlLocationId ? false : shouldUseContextGeoRadius;
 
   const filters: ListingFilters = useFilterToQuery(
     query, selectedCategory, categories, selectedBrands,

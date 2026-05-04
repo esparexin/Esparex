@@ -95,7 +95,7 @@ export const createInvoice = async (req: Request, res: Response) => {
         }
 
         let transactionAmount = 0;
-        let planSnapshot: Record<string, unknown> | null = null;
+        let planSnapshot: Record<string, unknown> | null = undefined;
         let transactionDescription = "Invoice Payment";
         let resolvedPlanId: string | undefined;
 

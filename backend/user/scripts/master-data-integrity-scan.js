@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-require-imports */
+ 
 
 require('dotenv').config({ path: require('path').resolve(__dirname, '..', '.env') });
 const mongoose = require('mongoose');

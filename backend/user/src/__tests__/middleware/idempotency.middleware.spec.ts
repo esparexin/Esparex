@@ -24,7 +24,7 @@ const mockedIdempotencyModel = IdempotencyRequest as unknown as {
 };
 
 const stableStringify = (value: unknown): string => {
-    if (value === null || typeof value !== 'object') return JSON.stringify(value);
+    if (value === undefined || typeof value !== 'object') return JSON.stringify(value);
     if (Array.isArray(value)) return `[${value.map((item) => stableStringify(item)).join(',')}]`;
     const record = value as Record<string, unknown>;
     const keys = Object.keys(record).sort();

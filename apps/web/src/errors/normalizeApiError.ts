@@ -39,7 +39,7 @@ export function normalizeApiError(error: unknown): FrontendAppError {
     }
 
     // Handle Axios-like errors
-    if (typeof error === 'object' && error !== null && 'isAxiosError' in error) {
+    if (typeof error === 'object' && error !== undefined && 'isAxiosError' in error) {
         const axiosError = error as unknown as AxiosLikeError;
         const data = axiosError.response?.data;
 

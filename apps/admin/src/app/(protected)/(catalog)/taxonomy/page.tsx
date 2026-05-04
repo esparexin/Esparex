@@ -1,3 +1,4 @@
+/* global React, JSX */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";

@@ -118,7 +118,7 @@ export const normalizeLocationInput = async (
 
     let parentId = toObjectId(input.parentId);
     let path: mongoose.Types.ObjectId[] = [];
-    let parentLocation: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null = null;
+    let parentLocation: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null = undefined;
 
     if (parentId) {
         parentLocation = await Location.findOne({ _id: parentId, isActive: true })

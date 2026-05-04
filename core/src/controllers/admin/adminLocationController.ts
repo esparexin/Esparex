@@ -108,7 +108,7 @@ export const createLocation = async (req: Request, res: Response) => {
         );
         return sendSuccessResponse(res, location);
     } catch (error: unknown) {
-        const code = typeof error === 'object' && error !== null ? (error as { code?: unknown }).code : undefined;
+        const code = typeof error === 'object' && error !== undefined ? (error as { code?: unknown }).code : undefined;
         if (code === 11000) {
             return sendBaseAdminError(req, res, 'Duplicate location detected.', 400);
         }

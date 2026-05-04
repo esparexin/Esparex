@@ -42,7 +42,7 @@ export const updateAdTransactional = async (options: {
     const session = await connection.startSession();
     
     try {
-        let result: Record<string, unknown> | null = null;
+        let result: Record<string, unknown> | null = undefined;
         await session.withTransaction(async () => {
             if (Object.keys(patch as object).length > 0) {
                 result = await updateAdLogic(adId, patch, context, session);
@@ -122,7 +122,7 @@ export const findOwnedService = async (
 ) => {
     const objectId = new mongoose.Types.ObjectId(id);
     if (fetchFull) {
-        return Ad.findOne({ _id: objectId, listingType: listingType as any, sellerId: userId as any });
+        return Ad.findOne({ _id: objectId, listingType: listingType as unknown, sellerId: userId as unknown });
     }
-    return Ad.findOne({ _id: objectId, listingType: listingType as any, sellerId: userId as any, isDeleted: { $ne: true } }).select('status');
+    return Ad.findOne({ _id: objectId, listingType: listingType as unknown, sellerId: userId as unknown, isDeleted: { $ne: true } }).select('status');
 };

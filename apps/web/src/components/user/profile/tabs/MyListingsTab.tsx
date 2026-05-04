@@ -1,5 +1,4 @@
-"use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "lucide-react";
 import type { Listing, ListingStatsResponse } from "@/lib/api/user/listings";
@@ -162,12 +161,12 @@ export function MyListingsTab({
         icon: React.ReactNode;
         statusTabs: readonly string[];
         selectedStatus: string;
-        onStatusChange: (status: any) => void;
-        getStatusCount: (s: any) => number;
+        onStatusChange: (status: ListingStatus) => void;
+        getStatusCount: (s: string) => number;
         items: Listing[];
         loading: boolean;
-        error: any;
-        onRetry?: () => void | Promise<any>;
+        error: unknown;
+        onRetry?: () => void | Promise<unknown>;
         onPost?: () => void;
         postLabel: string;
         emptyTitle: string;
@@ -183,7 +182,7 @@ export function MyListingsTab({
             statusTabs: ACCOUNT_LISTING_STATUS_TABS.ads,
             selectedStatus: adsStatus,
             onStatusChange: handleStatusChange,
-            getStatusCount: (s: any) => {
+            getStatusCount: (s: string) => {
                 const typeStats = (adCounts?.ad as Record<string, number | undefined>) || {};
                 if (s === 'live') {
                     return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
@@ -230,7 +229,7 @@ export function MyListingsTab({
             statusTabs: ACCOUNT_LISTING_STATUS_TABS.services,
             selectedStatus: servicesStatus,
             onStatusChange: handleStatusChange,
-            getStatusCount: (s: any) => {
+            getStatusCount: (s: string) => {
                 const typeStats = (adCounts?.service as Record<string, number | undefined>) || {};
                 if (s === 'live') {
                     return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
@@ -271,14 +270,14 @@ export function MyListingsTab({
                             className: service.onsiteService ? "text-green-600" : "text-muted-foreground"
                         } : null,
                         service.turnaroundTime ? { label: service.turnaroundTime, icon: <Timer className="h-3 w-3" /> } : null
-                    ].filter((v): v is NonNullable<typeof v> => v !== null))}
+                    ].filter((v): v is NonNullable<typeof v> => v !== undefined))}
                     tags={([
                         buildTag(
                             resolveReadableListingReferenceLabel(service.category),
                             "bg-violet-50 text-violet-700 border-violet-100"
                         ),
                         buildTag(resolveReadableListingReferenceLabel(service.brand))
-                    ].filter((v): v is NonNullable<typeof v> => v !== null))}
+                    ].filter((v): v is NonNullable<typeof v> => v !== undefined))}
                 />
             )
         },
@@ -288,7 +287,7 @@ export function MyListingsTab({
             statusTabs: ACCOUNT_LISTING_STATUS_TABS["spare-parts"],
             selectedStatus: spareStatus,
             onStatusChange: handleStatusChange,
-            getStatusCount: (s: any) => {
+            getStatusCount: (s: string) => {
                 const typeStats = (adCounts?.spare_part as Record<string, number | undefined>) || {};
                 if (s === 'live') {
                     return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
@@ -324,7 +323,7 @@ export function MyListingsTab({
                     onMarkSold={listing.status === "live" ? () => { setSpareToSell(listing); setSparesSoldReason(null); setIsSparesSoldOpen(true); } : undefined}
                     metaBadges={([
                         buildLocationMetaBadge(listing.location)
-                    ].filter((v): v is NonNullable<typeof v> => v !== null))}
+                    ].filter((v): v is NonNullable<typeof v> => v !== undefined))}
                 />
             )
         }

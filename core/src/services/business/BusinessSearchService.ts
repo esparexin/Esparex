@@ -184,14 +184,14 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
                     : undefined;
 
             return {
-                ...(serialized as any),
+                ...(serialized as unknown),
                 activeServicesCount,
                 matchingServicesCount,
                 brandMatchedServicesCount,
                 ...(typeof distanceKm === 'number' ? { distanceKm } : {})
             };
         }))
-        .sort((left: any, right: any) => {
+        .sort((left: unknown, right: unknown) => {
             const brandMatchedDiff = right.brandMatchedServicesCount - left.brandMatchedServicesCount;
             if (brandMatchedDiff !== 0) return brandMatchedDiff;
 

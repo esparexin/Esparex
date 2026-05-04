@@ -18,7 +18,7 @@ export default function ContactPage() {
     return (
         <InfoPage title="Contact Us">
             <p className="lead">
-                We're here to help! Whether you have questions about a product, need support with an order,
+                We&apos;re here to help! Whether you have questions about a product, need support with an order,
                 or want to partner with us, reach out.
             </p>
 

@@ -27,7 +27,7 @@ export async function adminListConversations(
     if (filter === 'closed') {
         const closedAdIds = await Ad.distinct('_id', {
             $or: [
-                { status: { $in: Array.from(CHAT_CLOSED_STATUSES) as any } },
+                { status: { $in: Array.from(CHAT_CLOSED_STATUSES) as unknown } },
                 { isDeleted: true },
                 { isChatLocked: true },
             ],

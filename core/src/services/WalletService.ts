@@ -94,7 +94,7 @@ export const recordTransaction = async ({
     session
 }: RecordTransactionParams) => {
     // If credit/debit amount object is passed, build description string.
-    const isAmountObj = typeof amount === 'object' && amount !== null;
+    const isAmountObj = typeof amount === 'object' && amount !== undefined;
     const descPrefix = type === 'credit' ? 'Credit' : 'Debit';
 
     let descriptionStr = reason;
@@ -119,7 +119,7 @@ export const recordTransaction = async ({
         }
     };
 
-    const records = await Transaction.create([transactionPayload] as any, { session });
+    const records = await Transaction.create([transactionPayload] as unknown, { session });
     return records[0];
 };
 

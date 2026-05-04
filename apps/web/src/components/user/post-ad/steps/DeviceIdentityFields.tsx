@@ -195,13 +195,13 @@ export default function DeviceIdentityFields() {
                                 value={modelId || modelNameValue}
                                 modelDisplayName={modelNameValue}
                                 onChange={(mId, mName) => {
-                                    setValue("modelId", mId as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                    setValue("modelId", mId as unknown, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                     setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                 }}
                                 onBrandResolved={(resolvedBrandId, resolvedBrandName) => {
                                     // A new pending brand was created — sync its ID back into the form
                                     // so the ad payload carries the correct brandId ObjectId.
-                                    setValue("brandId", resolvedBrandId as any, { shouldDirty: true });
+                                    setValue("brandId", resolvedBrandId as unknown, { shouldDirty: true });
                                     setValue("brand", resolvedBrandName, { shouldDirty: true });
                                 }}
                             />
@@ -292,7 +292,7 @@ export default function DeviceIdentityFields() {
                             <button
                                 key={value}
                                 type="button"
-                                onClick={() => setValue("deviceCondition", value as any, { shouldValidate: true, shouldTouch: true })}
+                                onClick={() => setValue("deviceCondition", value as unknown, { shouldValidate: true, shouldTouch: true })}
                                 className={cn(
                                     "flex items-center gap-2 h-11 px-4 rounded-xl border-2 text-sm font-bold transition-all",
                                     deviceCondition === value

@@ -19,7 +19,7 @@ export function sanitizeMongoObjectId(value: unknown): string | undefined {
  * Ensures a location object has a canonical `locationId`.
  * Prioritizes `locationId`, then falls back to `id`.
  */
-export function resolveCanonicalLocationId(location: any): string | undefined {
+export function resolveCanonicalLocationId(location: unknown): string | undefined {
     if (!location || typeof location !== "object") return undefined;
 
     const candidate =
@@ -48,7 +48,7 @@ export function formatLocationDisplay(location: unknown): string {
  * Normalizes a raw location into a stable structure for the UI.
  * Ensures `locationId` is always present if a valid ID exists.
  */
-export function normalizeListingLocation(raw: any) {
+export function normalizeListingLocation(raw: unknown) {
     if (!raw) return null;
     
     // Handle string inputs (manual entry or legacy)
