@@ -11,7 +11,6 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start -p 3001",
-    "typecheck": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "guard:admin": "node scripts/admin-guardrails.mjs",
     "guard:ui": "node scripts/admin-ui-guard.mjs",
