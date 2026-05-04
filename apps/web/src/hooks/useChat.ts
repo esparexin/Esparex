@@ -78,7 +78,7 @@ export function useChat({ conversationId, currentUserId, onConversationStateChan
         await chatApi.markRead(conversationId).catch(() => {});
         dispatchChatInboxUpdated();
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load messages');
     } finally {
       setIsLoading(false);
@@ -170,7 +170,7 @@ export function useChat({ conversationId, currentUserId, onConversationStateChan
   useEffect(() => {
     pollCountRef.current = 0;
     latestCreatedAtRef.current = undefined;
-    void loadInitial();
+    void (async () => { await loadInitial(); })();
   }, [loadInitial]);
 
   /* Polling lifecycle */

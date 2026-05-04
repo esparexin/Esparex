@@ -123,23 +123,8 @@ export function useBrowseListingsController<TItem, TFilters>({
     };
   }, []);
 
-  useEffect(() => {
-    const nextQuery = routeParams.q ?? "";
-    const nextCategory = routeCategory;
-    const nextSort = (routeParams.sort as SortOption | undefined) ?? "newest";
-    const nextPage = routeParams.page && routeParams.page > 0 ? routeParams.page : 1;
 
-    setQuery((current) => (current === nextQuery ? current : nextQuery));
-    setInputValue((current) => (current === nextQuery ? current : nextQuery));
-    setSelectedCategory((current) => (current === nextCategory ? current : nextCategory));
-    setSort((current) => (current === nextSort ? current : nextSort));
-    setPage((current) => (current === nextPage ? current : nextPage));
-  }, [
-    routeParams.page,
-    routeParams.q,
-    routeParams.sort,
-    routeCategory,
-  ]);
+
 
   const hasLocationFilter = useMemo(() => {
     return (

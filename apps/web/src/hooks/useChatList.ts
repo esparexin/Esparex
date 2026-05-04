@@ -99,7 +99,7 @@ export function useChatList(view: ConversationListView = 'active'): UseChatListR
   }, [hasMore, cursor, isLoadingMore, view]);
 
   useEffect(() => {
-    void load();
+    void (async () => { await load(); })();
     pollerRef.current = setInterval(() => {
       // Phase 9: skip silent refresh if tab is not visible
       if (document.visibilityState !== 'hidden') {

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useLayoutEffect, useMemo, useReducer, useCallback, useEffect } from "react";
+import { useState, useLayoutEffect, useMemo, useReducer, useCallback, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { UserPage } from "@/lib/routeUtils";
 import type { User } from "@/types/User";
@@ -114,7 +114,7 @@ export function ListingDetail({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [listingUnavailableMessage, setListingUnavailableMessage] = useState<string | null>(null);
-  const [pendingChatIntent, setPendingChatIntent] = useState(false);
+  const pendingChatIntentRef = useRef(false);
   const [isStartingChat, setIsStartingChat] = useState(false);
   
   const { data: savedAds = [] } = useSavedAdsQuery({
@@ -299,18 +299,18 @@ export function ListingDetail({
   }, [ad, handleListingUnavailable, router]);
 
   useEffect(() => {
-    if (!pendingChatIntent || !isAuthResolved) return;
+    if (!pendingChatIntentRef.current || !isAuthResolved) return;
 
     const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    setPendingChatIntent(false);
+    pendingChatIntentRef.current = false;
 
     if (!user) {
       void router.push(buildLoginUrl(returnTo));
       return;
     }
 
-    void startChatWithSeller(returnTo);
-  }, [isAuthResolved, pendingChatIntent, router, startChatWithSeller, user]);
+    void (async () => { await startChatWithSeller(returnTo); })();
+  }, [isAuthResolved, router, startChatWithSeller, user]);
 
   const handleChatWithSeller = () => {
     if (isStartingChat) return;
@@ -319,7 +319,7 @@ export function ListingDetail({
 
     if (!user) {
       if (!isAuthResolved) {
-        setPendingChatIntent(true);
+        pendingChatIntentRef.current = true;
         return;
       }
       void router.push(buildLoginUrl(returnTo));

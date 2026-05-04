@@ -23,16 +23,15 @@ export function BackendStatusProvider({
 }: {
     children: React.ReactNode;
 }) {
+    // resolveRuntimeApiBaseUrl() reads env vars — pure, sync, stable across renders.
+    // No need for state: derive it directly at render time.
+    const apiBaseUrl = useMemo(() => resolveRuntimeApiBaseUrl(), []);
     const [isBackendUp, setIsBackendUp] = useState(true);
     const [checked, setChecked] = useState(false);
-    const [apiBaseUrl, setApiBaseUrl] = useState("");
 
     useEffect(() => {
-        const apiBase = resolveRuntimeApiBaseUrl();
-        setApiBaseUrl(apiBase);
-
         const check = () => {
-            fetch(`${apiBase}/${API_ROUTES.USER.HEALTH}`, { method: "GET" })
+            fetch(`${apiBaseUrl}/${API_ROUTES.USER.HEALTH}`, { method: "GET" })
                 .then(() => setIsBackendUp(true))
                 .catch(() => setIsBackendUp(false))
                 .finally(() => setChecked(true));
@@ -41,7 +40,7 @@ export function BackendStatusProvider({
         check();
         const interval = setInterval(check, HEALTH_CHECK_INTERVAL_MS);
         return () => clearInterval(interval);
-    }, []);
+    }, [apiBaseUrl]);
 
     const value = useMemo(
         () => ({ isBackendUp, checked, apiBaseUrl }),
