@@ -581,7 +581,7 @@ export const getCacheStats = async () => {
                     keysAutoFixed
                 };
             }
-        } catch { }
+        } catch { /* ignore */ }
     }
 
     return {

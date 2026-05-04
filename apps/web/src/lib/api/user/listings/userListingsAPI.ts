@@ -8,14 +8,13 @@ import { normalizeListing, type ListingPageResult, type Listing } from './normal
  * Fetch the current user's listings across all types.
  */
 export const getMyListings = async (type?: string, status?: string, page = 1, limit = 20): Promise<ListingPageResult> => {
-    try {
-        const params = new URLSearchParams();
-        if (type) params.append('listingType', type);
-        if (status) params.append('status', status);
-        params.append('page', String(page));
-        params.append('limit', String(limit));
+    const params = new URLSearchParams();
+    if (type) params.append('listingType', type);
+    if (status) params.append('status', status);
+    params.append('page', String(page));
+    params.append('limit', String(limit));
 
-        const endpoint = `${API_ROUTES.USER.MY_LISTINGS}?${params.toString()}`;
+    const endpoint = `${API_ROUTES.USER.MY_LISTINGS}?${params.toString()}`;
         const { data: result, error } = await toPaginatedApiResult<Listing>(
             apiClient.get(endpoint)
         );
@@ -32,9 +31,6 @@ export const getMyListings = async (type?: string, status?: string, page = 1, li
             data: result.data.map(normalizeListing),
             pagination: result.pagination,
         };
-    } catch (e) {
-        throw e;
-    }
 };
 
 

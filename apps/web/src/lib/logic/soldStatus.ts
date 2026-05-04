@@ -77,7 +77,7 @@ export const getSoldDetails = (ad: CheckSoldParams["ad"]) => {
                     soldAt: localDetail.soldAt
                 };
             }
-        } catch { }
+        } catch { /* ignore */ }
     }
 
     return null;
