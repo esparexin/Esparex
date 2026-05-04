@@ -60,7 +60,9 @@
     "ci:governance": "node scripts/lint-baseline-enforcement.js ci-lint-results.json",
     "guard:unused-imports": "node scripts/enforce-no-new-unused-imports.js",
     "guard:duplication": "npx jscpd --config .jscpd.json",
-    "guard:api-surface": "node scripts/enforce-api-surface-guard.js"
+    "guard:api-surface": "node scripts/enforce-api-surface-guard.js",
+    "debt:baseline": "export NODE_OPTIONS='--max-old-space-size=8192' && node scripts/generate-eslint-baseline.js",
+    "debt:insights": "node scripts/analyze-tech-debt.js"
   },
   "optionalDependencies": {
     "@emnapi/runtime": "^1.8.1"
