@@ -144,3 +144,9 @@ frontend/test-results/
 frontend/android/app/new*.sh
 backend/lint_output*.txt
 scratch/
+
+# Build Artifacts in Source (Governance)
+**/src/**/*.js
+**/src/**/*.js.map
+!**/src/**/*.config.js
+!**/src/tests/jest.globalTeardown.js

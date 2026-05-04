@@ -1,361 +1,76 @@
-#!/usr/bin/env node
-/* eslint-disable no-console */
+/**
+ * 🧹 Esparex Orphan Sweep
+ * 
+ * This script identifies "orphan" files—files that are not imported or referenced
+ * by any other file in the repository.
+ * 
+ * Usage: node scripts/orphan-sweep.cjs
+ */
+
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-const ROOT = process.cwd();
-const SCAN_DIRS = [
-  'backend/user/src',
-  'backend/admin/src',
-  'apps/web/src',
-  'apps/admin/src',
-  'core/src',
-  'shared'
-];
-const PACKAGE_MANIFESTS = [
-  { manifest: 'package.json', root: '' },
-  { manifest: 'backend/user/package.json', root: 'backend/user' },
-  { manifest: 'apps/web/package.json', root: 'apps/web' },
-  { manifest: 'apps/admin/package.json', root: 'apps/admin' },
-  { manifest: 'core/package.json', root: 'core' }
-];
-const SCRIPT_ENTRY_PATTERN = /((?:\.\.\/)?(?:backend/user\/src|apps/web\/src|apps/admin\/src|shared|src)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs))/g;
-const VALID_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
-const SOURCE_ENTRY_PATTERNS = [
-  /[\\/]app[\\/](?:.*[\\/])?(page|layout|route|loading|error|global-error|not-found|template|sitemap|robots)\.(ts|tsx|js|jsx)$/,
-  /[\\/]proxy\.(ts|tsx|js|jsx)$/,
-  /[\\/]middleware\.(ts|tsx|js|jsx)$/,
-  /[\\/]instrumentation\.(ts|tsx|js|jsx)$/
-];
-const NEVER_AUTO_DELETE_PATTERNS = [
-  /(\.test\.|\.spec\.|\/__tests__\/|\/__mocks__\/)/,
-  /[\\/]app[\\/](?:.*[\\/])?(page|layout|route|loading|error|global-error|not-found|template|sitemap|robots)\.(ts|tsx|js|jsx)$/,
-  /[\\/]proxy\.(ts|tsx|js|jsx)$/,
-  /[\\/]middleware\.(ts|tsx|js|jsx)$/
-];
-const ALWAYS_KEEP_PATTERNS = [
-  /^core\/src\/config\/loadEnv\.ts$/,
-  /^core\/src\/config\/mongoosePlugins\.ts$/,
-  /^core\/src\/models\/registry\.ts$/,
-  /^backend/user\/src\/scripts\/restore-database\.ts$/,
-  /^backend/user\/src\/seeds\/(devices\.seed|runSeeds|spareParts\.seed)\.ts$/,
-  /^backend/user\/src\/tests\//,
-  /^backend/user\/src\/__tests__\//,
-  /^apps/web\/src\/__tests__\//
-];
-const IMPORT_PATTERNS = [
-  /\bimport\s+(?:type\s+)?[^'"]*?from\s*['"]([^'"]+)['"]/g,
-  /\bexport\s+[^'"]*?from\s*['"]([^'"]+)['"]/g,
-  /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-  /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g
-];
+const SEARCH_DIRS = ['apps', 'backend', 'core', 'shared'];
+const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];
 
-const reportOutput = process.argv.includes('--report')
-  ? process.argv[process.argv.indexOf('--report') + 1]
-  : '/tmp/repo_orphan_report.json';
-const safeOutput = process.argv.includes('--safe')
-  ? process.argv[process.argv.indexOf('--safe') + 1]
-  : '/tmp/repo_orphan_safe_candidates.json';
+function getAllFiles(dir, allFiles = []) {
+    const files = fs.readdirSync(dir);
+    files.forEach(file => {
+        const name = path.join(dir, file);
+        if (fs.statSync(name).isDirectory()) {
+            if (file !== 'node_modules' && file !== 'dist' && !file.startsWith('.')) {
+                getAllFiles(name, allFiles);
+            }
+        } else {
+            if (EXTENSIONS.includes(path.extname(file))) {
+                allFiles.push(name);
+            }
+        }
+    });
+    return allFiles;
+}
 
-const normalizePath = (p) => p.split(path.sep).join('/');
-const isSourceFile = (filePath) => {
-  if (!VALID_EXTENSIONS.has(path.extname(filePath))) return false;
-  if (filePath.endsWith('.d.ts')) return false;
-  if (filePath.includes('/dist/')) return false;
-  if (filePath.includes('/node_modules/')) return false;
-  if (filePath.includes('/coverage/')) return false;
-  return true;
-};
+console.log('🔍 Scanning repository for orphan files...');
 
-const collectFiles = () => {
-  const files = [];
-  const walk = (absDir) => {
-    if (!fs.existsSync(absDir)) return;
-    for (const dirent of fs.readdirSync(absDir, { withFileTypes: true })) {
-      const absPath = path.join(absDir, dirent.name);
-      if (dirent.isDirectory()) {
-        walk(absPath);
-        continue;
-      }
-      const rel = normalizePath(path.relative(ROOT, absPath));
-      if (isSourceFile(rel)) files.push(rel);
-    }
-  };
+const allFiles = SEARCH_DIRS.flatMap(dir => {
+    const fullPath = path.join(process.cwd(), dir);
+    return fs.existsSync(fullPath) ? getAllFiles(fullPath) : [];
+});
 
-  for (const dir of SCAN_DIRS) walk(path.join(ROOT, dir));
-  console.log(`[DEBUG] Scanned ${files.length} files`);
-  return files.sort();
-};
+console.log(`📦 Found ${allFiles.length} source files. Checking references...`);
 
-const resolveWithExtensions = (basePath) => {
-  const candidates = [
-    basePath,
-    `${basePath}.ts`,
-    `${basePath}.tsx`,
-    `${basePath}.js`,
-    `${basePath}.jsx`,
-    `${basePath}.mjs`,
-    `${basePath}.cjs`,
-    path.join(basePath, 'index.ts'),
-    path.join(basePath, 'index.tsx'),
-    path.join(basePath, 'index.js'),
-    path.join(basePath, 'index.jsx'),
-    path.join(basePath, 'index.mjs'),
-    path.join(basePath, 'index.cjs')
-  ];
+const orphans = [];
 
-  for (const candidate of candidates) {
-    const rel = normalizePath(path.relative(ROOT, candidate));
-    if (fs.existsSync(candidate) && isSourceFile(rel)) {
-      return rel;
-    }
-  }
-  return null;
-};
+allFiles.forEach((file, index) => {
+    const fileName = path.basename(file, path.extname(file));
+    const relPath = path.relative(process.cwd(), file);
+    
+    // Progress indicator
+    if (index % 50 === 0) process.stdout.write('.');
 
-const resolveAlias = (specifier, importer) => {
-  if (specifier.startsWith('@/')) {
-    const isAdminImporter = importer.startsWith('apps/admin/src/');
-    const base = isAdminImporter ? 'apps/admin/src' : 'apps/web/src';
-    return resolveWithExtensions(path.join(ROOT, base, specifier.slice(2)));
-  }
-  if (specifier === '@shared') {
-    return resolveWithExtensions(path.join(ROOT, 'shared', 'index'));
-  }
-  if (specifier.startsWith('@shared/')) {
-    return resolveWithExtensions(path.join(ROOT, 'shared', specifier.slice('@shared/'.length)));
-  }
-  if (specifier.startsWith('shared/')) {
-    return resolveWithExtensions(path.join(ROOT, specifier));
-  }
-  if (specifier === '@core') {
-    return resolveWithExtensions(path.join(ROOT, 'core', 'src', 'index'));
-  }
-  if (specifier.startsWith('@core/')) {
-    return resolveWithExtensions(path.join(ROOT, 'core', 'src', specifier.slice('@core/'.length)));
-  }
-  return null;
-};
-
-const resolveImport = (specifier, importer) => {
-  if (!specifier || specifier.startsWith('http')) return null;
-
-  if (specifier.startsWith('.')) {
-    const importerAbs = path.join(ROOT, importer);
-    const resolvedBase = path.resolve(path.dirname(importerAbs), specifier);
-    return resolveWithExtensions(resolvedBase);
-  }
-
-  return resolveAlias(specifier, importer);
-};
-
-const collectImports = (filePath) => {
-  const content = fs.readFileSync(path.join(ROOT, filePath), 'utf8');
-  const imports = [];
-  for (const pattern of IMPORT_PATTERNS) {
-    pattern.lastIndex = 0;
-    let match;
-    while ((match = pattern.exec(content)) !== null) {
-      const specifier = match[1];
-      if (specifier) imports.push(specifier);
-    }
-  }
-  return imports;
-};
-
-const buildGraph = (files) => {
-  const graph = new Map();
-  for (const file of files) graph.set(file, new Set());
-
-  for (const file of files) {
-    const imports = collectImports(file);
-    for (const specifier of imports) {
-      const resolved = resolveImport(specifier, file);
-      if (resolved && graph.has(resolved)) {
-        graph.get(file).add(resolved);
-      } else if (resolved) {
-        console.log(`[DEBUG] Resolved but not in graph: ${specifier} -> ${resolved} from ${file}`);
-      } else {
-        console.log(`[DEBUG] Failed to resolve: ${specifier} from ${file}`);
-      }
-    }
-  }
-  return graph;
-};
-
-const collectPackageScriptRoots = (files) => {
-  const fileSet = new Set(files);
-  const roots = new Set();
-
-  for (const { manifest, root } of PACKAGE_MANIFESTS) {
-    const manifestPath = path.join(ROOT, manifest);
-    if (!fs.existsSync(manifestPath)) continue;
-
-    let pkg;
     try {
-      pkg = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-    } catch {
-      continue;
+        // Grep for the filename in the entire repo, excluding itself
+        // We look for imports like 'from "filename"' or 'require("filename")'
+        const count = execSync(`grep -r "${fileName}" . --exclude="${relPath}" --exclude-dir="node_modules" --exclude-dir="dist" | wc -l`, { encoding: 'utf8' }).trim();
+        
+        if (parseInt(count) === 0) {
+            orphans.push(relPath);
+        }
+    } catch (e) {
+        // Ignore errors from grep
     }
+});
 
-    const scripts = pkg && typeof pkg === 'object' ? pkg.scripts : null;
-    if (!scripts || typeof scripts !== 'object') continue;
+console.log('\n\n--------------------------------------------------');
+console.log('🧹 ORPHAN REPORT');
+console.log(`Detected ${orphans.length} potentially unused files:`);
+console.log('--------------------------------------------------');
 
-    for (const command of Object.values(scripts)) {
-      if (typeof command !== 'string') continue;
+orphans.forEach(o => console.log(`[DELETE] ${o}`));
 
-      SCRIPT_ENTRY_PATTERN.lastIndex = 0;
-      let match;
-      while ((match = SCRIPT_ENTRY_PATTERN.exec(command)) !== null) {
-        const entry = match[1];
-        if (!entry) continue;
-
-        const absPath = path.resolve(ROOT, root, entry);
-        const relPath = normalizePath(path.relative(ROOT, absPath));
-        if (fileSet.has(relPath)) roots.add(relPath);
-      }
-    }
-  }
-
-  return [...roots];
-};
-
-const isRootFile = (filePath) => {
-  if (filePath.includes('/server.ts') || filePath.includes('/app.ts') || filePath.includes('/index.ts')) return true;
-  if (filePath === 'backend/user/src/workers/index.ts' || filePath === 'backend/user/src/workers.ts') return true;
-  if (filePath.endsWith('/routes.ts') || filePath.endsWith('.routes.ts')) return true;
-  if (filePath.startsWith('apps/web/src/app/') || filePath.startsWith('apps/admin/src/app/')) {
-    return SOURCE_ENTRY_PATTERNS.some((pattern) => pattern.test(filePath));
-  }
-  return ALWAYS_KEEP_PATTERNS.some((pattern) => pattern.test(filePath));
-};
-
-const reachableFromRoots = (graph, roots) => {
-  const visited = new Set();
-  const queue = [...roots];
-  while (queue.length > 0) {
-    const node = queue.shift();
-    if (visited.has(node)) continue;
-    visited.add(node);
-    const edges = graph.get(node);
-    if (!edges) continue;
-    for (const next of edges) {
-      if (!visited.has(next)) queue.push(next);
-    }
-  }
-  return visited;
-};
-
-const isAlwaysKeep = (filePath) =>
-  ALWAYS_KEEP_PATTERNS.some((pattern) => pattern.test(filePath));
-
-const isNeverAutoDelete = (filePath) => {
-  return isAlwaysKeep(filePath) ||
-         NEVER_AUTO_DELETE_PATTERNS.some((pattern) => pattern.test(filePath)) ||
-         filePath === 'shared/index.ts' ||
-         filePath === 'shared/index.js';
-};
-
-const classifyTier = (filePath) => {
-  if (isNeverAutoDelete(filePath)) return 'C';
-  
-  // Tier B: Likely safe orphans
-  if (filePath.endsWith('.js') && fs.existsSync(path.join(ROOT, filePath.replace(/\.js$/, '.ts')))) return 'B';
-  if (filePath.includes('/_archived/')) return 'B';
-  if (filePath.endsWith('/proxy.ts')) return 'B';
-  if (filePath.includes('/scripts/debug-')) return 'B';
-  if (filePath.includes('/scripts/seed-')) return 'B';
-  
-  if (/^apps/web\/src\/(api|context)\//.test(filePath)) return 'B';
-  if (/^apps/admin\/src\/(lib\/api|context)\//.test(filePath)) return 'B';
-  
-  return 'C';
-};
-
-const main = () => {
-  const generatedAt = new Date().toISOString();
-  const files = collectFiles();
-  const graph = buildGraph(files);
-  const packageScriptRoots = collectPackageScriptRoots(files);
-  const roots = [...new Set([
-    ...files.filter((filePath) => isRootFile(filePath) || isAlwaysKeep(filePath)),
-    ...packageScriptRoots
-  ])];
-  const reachable = reachableFromRoots(graph, roots);
-
-  const orphanFiles = files.filter((f) => !reachable.has(f));
-  const orphanFilesByProject = orphanFiles.reduce((acc, filePath) => {
-    const project = filePath.split('/')[0];
-    acc[project] = (acc[project] || 0) + 1;
-    return acc;
-  }, {});
-
-  const tierA = [];
-  const tierB = [];
-  const tierC = [];
-  for (const orphan of orphanFiles) {
-    const tier = classifyTier(orphan);
-    if (tier === 'A') tierA.push(orphan);
-    else if (tier === 'B') tierB.push(orphan);
-    else tierC.push(orphan);
-  }
-
-  const safeDeleteCandidates = [...tierA, ...tierB]
-    .filter((filePath) => !isNeverAutoDelete(filePath) && !isAlwaysKeep(filePath));
-
-  const report = {
-    generatedAt,
-    method: 'import-graph with package-script roots (ts-prune unavailable in offline environment)',
-    scannedFiles: files.length,
-    rootCount: roots.length,
-    packageScriptRootCount: packageScriptRoots.length,
-    orphanCount: orphanFiles.length,
-    orphanFilesByProject,
-    safeDeleteCandidateCount: safeDeleteCandidates.length,
-    safeDeleteCandidates
-  };
-
-  const safe = {
-    generatedAt,
-    method: 'import-graph tiering with package-script roots',
-    tierA,
-    tierB,
-    tierC,
-    totals: {
-      tierA: tierA.length,
-      tierB: tierB.length,
-      tierC: tierC.length
-    }
-  };
-
-  fs.writeFileSync(reportOutput, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  fs.writeFileSync(safeOutput, `${JSON.stringify(safe, null, 2)}\n`, 'utf8');
-
-  const commit = process.argv.includes('--commit');
-  let deletedCount = 0;
-
-  if (commit) {
-    for (const filePath of safeDeleteCandidates) {
-      const absPath = path.join(ROOT, filePath);
-      if (fs.existsSync(absPath)) {
-        fs.unlinkSync(absPath);
-        deletedCount++;
-      }
-    }
-  }
-
-  console.log(JSON.stringify({
-    report: reportOutput,
-    safeCandidates: safeOutput,
-    scannedFiles: report.scannedFiles,
-    roots: report.rootCount,
-    orphanCount: report.orphanCount,
-    tierA: safe.totals.tierA,
-    tierB: safe.totals.tierB,
-    tierC: safe.totals.tierC,
-    commit,
-    deletedCount
-  }, null, 2));
-};
-
-main();
+if (orphans.length > 0) {
+    console.log('\n⚠️ ACTION REQUIRED: Verify these files are not used dynamically before deletion.');
+} else {
+    console.log('\n✅ No orphans detected. Repository is lean!');
+}
