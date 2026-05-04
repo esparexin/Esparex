@@ -53,16 +53,22 @@ export default tseslint.config(
       ],
       "esparex/no-status-mutation-outside-status-mutation-service": "error",
       "no-console": "warn",
-      "no-undef": "off", // Handled by environment-specific blocks below
     },
   },
 
-  // 4. Type-Awareness for TS files
+  // 4. Scoped Type-Awareness (Enterprise Precision)
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parserOptions: {
-        project: true,
+        project: [
+          "./tsconfig.json",
+          "./apps/web/tsconfig.json",
+          "./backend/admin/tsconfig.json",
+          "./backend/user/tsconfig.json",
+          "./core/tsconfig.json",
+          "./shared/tsconfig.json"
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -105,13 +111,12 @@ export default tseslint.config(
     },
   },
 
-  // 6. Backend & Node Specific (Backend, Core, Shared Utilities, Scripts)
+  // 6. Backend & Node Specific (Backend, Core, Scripts)
   {
     files: [
       "backend/**/*.{ts,js,cjs,mjs}", 
       "core/**/*.{ts,js,cjs,mjs}", 
       "scripts/**/*.{ts,js,cjs,mjs}",
-      "shared/utils/**/*.{ts,js,cjs,mjs}",
       "eslint.config.js"
     ],
     languageOptions: {
@@ -136,6 +141,17 @@ export default tseslint.config(
     }
   },
 
-  // 7. Prettier (Must be last)
+  // 7. Neutral Shared Zone (Isomorphism Enforcement)
+  {
+    files: ["shared/**/*.{ts,js,cjs,mjs}"],
+    rules: {
+      "no-restricted-globals": ["error", "process", "window", "document"],
+    },
+    // Except for specific sub-directories like shared/components which are frontend-only
+    // or shared/utils which might be isomorphic.
+    // We already have a frontend-specific block for shared/components.
+  },
+
+  // 8. Prettier (Must be last)
   prettier
 );
