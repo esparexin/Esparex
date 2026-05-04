@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Info, TriangleAlert } from "lucide-react";
 
-import type { PopupAction, PopupState } from "./popupCore";
+import type { PopupAction, PopupState } from "@shared/popup/popupCore";
 
 export type RenderablePopup = PopupState & { count?: number };
 
@@ -71,7 +71,7 @@ export function usePopupDialogState(
     setCountdown(active.retryAfter);
     const interval = setInterval(() => {
       setCountdown((prev) => {
-        if (prev === undefined || prev <= 1) {
+        if (prev === null || prev <= 1) {
           clearInterval(interval);
           return 0;
         }

@@ -5,7 +5,7 @@ import {
   popupKey,
   type PopupState,
   type QueuedPopup,
-} from "./popupCore";
+} from "@shared/popup/popupCore";
 
 interface UsePopupQueueOptions {
   subscribe: (listener: (popup: PopupState | null) => void) => () => void;

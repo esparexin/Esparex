@@ -4,7 +4,7 @@ import { createContext, useContext, useMemo } from "react";
 
 import { AppPopup } from "@/components/system/AppPopup";
 import { recordNotificationEvent } from "@/lib/analytics/notificationAnalytics";
-import { usePopupQueue } from "@shared/popup/usePopupQueue";
+import { usePopupQueue } from "@/components/ui/popup/usePopupQueue";
 import {
   PopupState,
   showPopup as emitPopupEvent,

@@ -1,7 +1,7 @@
 "use client";
 
-import type { RenderablePopup } from "@shared/popup/popupDialog";
-import { PopupDialogView } from "@shared/popup/popupDialogView";
+import type { RenderablePopup } from "@/components/ui/popup/popupDialog";
+import { PopupDialogView } from "@/components/ui/popup/popupDialogView";
 
 export function AppPopup({
   popup,

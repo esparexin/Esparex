@@ -30,7 +30,7 @@ const toNonNegativeInt = (value: NumericLike): number | null => {
 
 const preferCanonical = (canonical: NumericLike, fallback: NumericLike): number => {
     const normalizedCanonical = toNonNegativeInt(canonical);
-    if (normalizedCanonical !== undefined) {
+    if (normalizedCanonical !== null) {
         return normalizedCanonical;
     }
 

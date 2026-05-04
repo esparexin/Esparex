@@ -60,14 +60,9 @@ export const hasValidCoordinateArray = (coords: unknown): coords is [number, num
     isValidLngLat(coords[0], coords[1]);
 
 export const isValidGeoPoint = (input: unknown): input is GeoJSONPoint => {
-    try {
-        if (!input || typeof input !== 'object') return false;
-        const obj = input as unknown;
-        return obj.type === 'Point'
-            && hasValidCoordinateArray(obj.coordinates);
-    } catch {
-        return false;
-    }
+    if (!input || typeof input !== 'object') return false;
+    const obj = input as Record<string, unknown>;
+    return obj.type === 'Point' && hasValidCoordinateArray(obj.coordinates);
 };
 
 /**
@@ -78,8 +73,8 @@ export const isValidGeoPoint = (input: unknown): input is GeoJSONPoint => {
 export const sanitizeGeoPoint = (value: unknown): unknown => {
     if (!value || typeof value !== 'object') return undefined;
     const node = value as Record<string, unknown>;
-    const coords = Array.isArray(node.coordinates) ? node.coordinates as number[] : undefined;
-    return coords && hasValidCoordinateArray(coords) ? node : undefined;
+    const coords = node.coordinates;
+    return hasValidCoordinateArray(coords) ? node : undefined;
 };
 
 /**
@@ -92,18 +87,25 @@ export const toGeoPoint = (input: unknown): GeoJSONPoint => {
     }
 
     if (isValidGeoPoint(input)) {
+        const point = input as GeoJSONPoint;
         return {
             type: 'Point',
-            coordinates: [Number((input as unknown).coordinates[0]), Number((input as unknown).coordinates[1])]
+            coordinates: [Number(point.coordinates[0]), Number(point.coordinates[1])]
         };
     }
 
-    const rawInput = input as unknown;
+    if (typeof input !== "object" || input === null) {
+        throw new Error("ERR_GEO_INVALID_INPUT");
+    }
 
+    const rawInput = input as Record<string, unknown>;
+
+    // Handle nested coordinates property (common in legacy structures)
     if (rawInput.coordinates && isValidGeoPoint(rawInput.coordinates)) {
+        const coords = (rawInput.coordinates as GeoJSONPoint).coordinates;
         return {
             type: 'Point',
-            coordinates: [Number(rawInput.coordinates.coordinates[0]), Number(rawInput.coordinates.coordinates[1])]
+            coordinates: [Number(coords[0]), Number(coords[1])]
         };
     }
 

@@ -3,7 +3,18 @@
  * Enforces `locationId` as the canonical key and consolidates normalization.
  */
 
+import { type GeoJSONPoint, toGeoPoint } from "../utils/geoUtils";
+
 export const MONGOOSE_OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
+
+export type ListingLocation = {
+  locationId?: string;
+  display?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  coordinates?: GeoJSONPoint;
+};
 
 /**
  * Validates and sanitizes a MongoDB ObjectId.
@@ -22,9 +33,14 @@ export function sanitizeMongoObjectId(value: unknown): string | undefined {
 export function resolveCanonicalLocationId(location: unknown): string | undefined {
     if (!location || typeof location !== "object") return undefined;
 
+    const loc = location as Record<string, unknown>;
+
     const candidate =
-        location.locationId ??
-        location.id;
+        typeof loc.locationId === "string"
+            ? loc.locationId
+            : typeof loc.id === "string"
+            ? loc.id
+            : undefined;
 
     return sanitizeMongoObjectId(candidate);
 }
@@ -35,54 +51,78 @@ export function resolveCanonicalLocationId(location: unknown): string | undefine
  */
 export function formatLocationDisplay(location: unknown): string {
     if (!location) return "";
+
     if (typeof location === "string") return location;
+
+    if (typeof location !== "object") return "";
+
     const loc = location as Record<string, unknown>;
-    if (typeof loc.display === "string" && loc.display) return loc.display;
-    const parts = [loc.city, loc.state].filter(
-        (v): v is string => typeof v === "string" && (v as string).trim().length > 0
-    );
-    return parts.join(", ");
+
+    if (typeof loc.display === "string" && loc.display.trim()) {
+        return loc.display;
+    }
+
+    const city = typeof loc.city === "string" ? loc.city : "";
+    const state = typeof loc.state === "string" ? loc.state : "";
+
+    return [city, state].filter(Boolean).join(", ");
 }
 
 /**
  * Normalizes a raw location into a stable structure for the UI.
  * Ensures `locationId` is always present if a valid ID exists.
  */
-export function normalizeListingLocation(raw: unknown) {
+export function normalizeListingLocation(raw: unknown): ListingLocation | null {
     if (!raw) return null;
-    
-    // Handle string inputs (manual entry or legacy)
+
     if (typeof raw === "string") {
         const value = raw.trim();
         if (!value) return null;
-        const parts = value.split(",");
-        const city = parts[0]?.trim() || value;
-        const state = parts[1]?.trim() || city;
+
+        const [cityRaw, stateRaw] = value.split(",");
+        const city = cityRaw?.trim() || value;
+        const state = stateRaw?.trim() || city;
+
         return {
             display: value,
             city,
             state,
-            country: "India", // Default for platform
-            locationId: undefined,
-            coordinates: undefined
+            country: "India"
         };
     }
 
-    const city = (typeof raw.city === "string" && raw.city) || (typeof raw.name === "string" && raw.name) || "";
-    const state = (typeof raw.state === "string" && raw.state) || city;
-    const display = raw.display || raw.formattedAddress || raw.address || city;
-    
+    if (typeof raw !== "object") return null;
+
+    const loc = raw as Record<string, unknown>;
+
+    const city =
+        typeof loc.city === "string"
+            ? loc.city
+            : typeof loc.name === "string"
+            ? loc.name
+            : "";
+
+    const state =
+        typeof loc.state === "string"
+            ? loc.state
+            : city;
+
+    const display =
+        typeof loc.display === "string"
+            ? loc.display
+            : typeof loc.formattedAddress === "string"
+            ? loc.formattedAddress
+            : typeof loc.address === "string"
+            ? loc.address
+            : city;
+
     const locationId = resolveCanonicalLocationId(raw);
-    
-    // Extract coordinates safely
-    let coordinates = raw.coordinates;
-    if (coordinates && coordinates.type === "Point" && Array.isArray(coordinates.coordinates)) {
-        // Already canonical
-    } else if (Array.isArray(raw.coordinates) && raw.coordinates.length === 2) {
-        coordinates = { type: "Point", coordinates: raw.coordinates };
-    } else if (typeof raw.lat === "number" && typeof raw.lng === "number") {
-        coordinates = { type: "Point", coordinates: [raw.lng, raw.lat] };
-    } else {
+
+    let coordinates: GeoJSONPoint | undefined;
+
+    try {
+        coordinates = toGeoPoint(loc.coordinates ?? loc);
+    } catch {
         coordinates = undefined;
     }
 
@@ -90,7 +130,8 @@ export function normalizeListingLocation(raw: unknown) {
         display,
         city,
         state,
-        country: raw.country || "India",
+        country:
+            typeof loc.country === "string" ? loc.country : "India",
         locationId,
         coordinates
     };

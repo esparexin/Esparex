@@ -2,7 +2,7 @@ import { createUniversalLogger } from './logger';
 import type { Logger } from './types';
 
 // Singleton instance
-let logger: Logger | null = undefined;
+let logger: Logger | null = null;
 
 export const getLogger = (serviceName: string = 'app'): Logger => {
     if (!logger) {

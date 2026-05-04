@@ -56,7 +56,7 @@ interface PopupBus {
 
 export function createPopupBus({ idPrefix = "" }: PopupBusOptions = {}): PopupBus {
   const listeners = new Set<PopupListener>();
-  let lastEmission: { key: string; at: number } | null = undefined;
+  let lastEmission: { key: string; at: number } | null = null;
 
   const makeId = () => {
     const random = Math.random().toString(36).slice(2, 8);
