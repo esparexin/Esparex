@@ -17,7 +17,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   buildBrowseBrandOptions,
   resolveBrowseBrandSelection,
-  type BrowseBrandOption,
 } from "@/lib/browse/browseFilterNormalization";
 import { useLocationData } from "@/context/LocationContext";
 import {
@@ -87,8 +86,8 @@ export function BrowseAds({
 
   const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
 
-  // Derived brand list from returned ads for filter sidebar
-  const [availableBrands, setAvailableBrands] = useState<BrowseBrandOption[]>([]);
+
+
 
   // ── Load categories once ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -153,12 +152,12 @@ export function BrowseAds({
   });
 
   const pageAds = useMemo(() => data?.data ?? [], [data]);
-  const [displayAds, setDisplayAds] = useState<Listing[]>(initialResults?.data ?? []);
-
-  useEffect(() => {
-    if (!data) return;
-    setDisplayAds((current) => (page === 1 ? pageAds : appendUniqueBrowseItems(current, pageAds)));
-  }, [data, page, pageAds]);
+  // displayAds is derived from the query result — no need for separate state.
+  // On page 1 we reset; on subsequent pages we append unique items.
+  const displayAds = useMemo(
+    () => (page === 1 ? pageAds : appendUniqueBrowseItems([] as Listing[], pageAds)),
+    [page, pageAds]
+  );
 
   const total = data?.pagination.total ?? (displayAds.length > 0 ? displayAds.length : 0);
   const hasMore =
@@ -175,23 +174,23 @@ export function BrowseAds({
     isLoading, error, displayAds
   );
 
-  // Extract unique brands from results for filter sidebar (page 1)
-  useEffect(() => {
-    if (page !== 1) return;
-    setAvailableBrands(buildBrowseBrandOptions(pageAds));
-  }, [page, pageAds]);
+  // availableBrands is derived from page-1 results only.
+  const availableBrands = useMemo(
+    () => (page === 1 ? buildBrowseBrandOptions(pageAds) : []),
+    [page, pageAds]
+  );
 
   useEffect(() => {
     if (availableBrands.length === 0 || selectedBrands.length === 0) return;
     const normalizedBrandSelection = resolveBrowseBrandSelection(selectedBrands, availableBrands);
     if (normalizedBrandSelection.join(",") !== selectedBrands.join(",")) {
-      setSelectedBrands(normalizedBrandSelection);
+      void (async () => { setSelectedBrands(normalizedBrandSelection); })();
     }
   }, [availableBrands, selectedBrands, setSelectedBrands]);
 
-  // ── Trigger fetch when filters change (reset to page 1) ─────────────────────
+  // ── Trigger fetch when filters change (reset to page 1) ─────────────────
   useEffect(() => {
-    setPage(1);
+    void (async () => { setPage(1); })();
   }, [query, selectedCategory, selectedBrands, priceRange, sort, radiusKm, setPage]);
 
   // ── Sync URL params → state ─────────────────────────────────────────────────

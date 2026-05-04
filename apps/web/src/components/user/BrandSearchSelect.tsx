@@ -37,14 +37,11 @@ export function BrandSearchSelect({
     // For custom brands typed by the user, value is the name and brandId will be empty.
     const selectedName = value ?? "";
 
-    // Fixed-position dropdown using useLayoutEffect to avoid layout-push flash
+    // Fixed-position dropdown using useLayoutEffect to avoid layout-push flash.
+    // Resets dropdownStyle via cleanup when search is cleared.
     useLayoutEffect(() => {
-        if (!search) {
-            setDropdownStyle(null);
-            return;
-        }
         const container = containerRef.current;
-        if (!container) { setDropdownStyle(null); return; }
+        if (!container) return;
 
         const calculate = () => {
             const rect = container.getBoundingClientRect();
@@ -64,13 +61,13 @@ export function BrandSearchSelect({
         return () => {
             window.removeEventListener("scroll", calculate, true);
             window.removeEventListener("resize", calculate);
+            setDropdownStyle(null);
         };
     }, [search]);
 
-    // Clear search when selection changes
-    useLayoutEffect(() => {
-        if (selectedName) setSearch("");
-    }, [selectedName]);
+
+
+
 
     const filtered = useMemo(
         () =>

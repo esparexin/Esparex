@@ -112,6 +112,7 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
             }
         };
 
+    void (async () => {
         if (!enabled) {
             setIsLoading(false);
             setError(null);
@@ -119,14 +120,15 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
         }
 
         if (user || businessId) {
-            fetchBusiness();
+            await fetchBusiness();
         } else {
             setBusinessData(null);
             setIsFetched(false);
             setIsLoading(false);
             setError(null);
         }
-    }, [businessId, enabled, includeStats, user, requestNonce, silent]);
+    })();
+  }, [businessId, enabled, includeStats, user, requestNonce, silent]);
 
     return { 
         businessData, 

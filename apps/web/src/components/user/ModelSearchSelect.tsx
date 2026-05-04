@@ -51,33 +51,27 @@ export function ModelSearchSelect({
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
-    // Local selection state to bridge the gap during prop/context sync
+    // Local selection bridges the gap during prop/context sync.
+    // Only consulted when selectedModel (from catalog) is not yet available.
     const [localSelection, setLocalSelection] = useState<{ id: string; name: string } | null>(null);
 
     // Resolve selected model name.
-    // Priority: matched model in list > local tentative selection > explicit displayName > raw value (ObjectId fallback)
+    // Priority: matched model in list > local tentative selection > explicit displayName > raw value
     const selectedModel = useMemo(() => {
         return availableModels.find(m => m.id === value || m._id === value);
     }, [availableModels, value]);
 
-    const selectedName = selectedModel?.name || localSelection?.name || modelDisplayName || value || "";
-
-    // Clear local selection once the catalog has actually picked up the new model
-    useEffect(() => {
-        if (localSelection && selectedModel) {
-            // Success: the model is now officially in the catalog list
-            setLocalSelection(null);
-        }
-    }, [selectedModel, localSelection]);
-
-    // Debounced search logic
+    // If selectedModel is present in the catalog, localSelection is superseded — no effect needed.
+    const selectedName = selectedModel?.name || (!selectedModel ? localSelection?.name : null) || modelDisplayName || value || "";
     useEffect(() => {
         if (!search || search.length < 2) return;
-        
-        const timer = setTimeout(async () => {
-            setIsLoading(true);
-            await loadModelsForBrand(brandId, categoryId, search);
-            setIsLoading(false);
+
+        const timer = setTimeout(() => {
+            void (async () => {
+                setIsLoading(true);
+                await loadModelsForBrand(brandId, categoryId, search);
+                setIsLoading(false);
+            })();
         }, 400);
 
         return () => clearTimeout(timer);
@@ -90,12 +84,8 @@ export function ModelSearchSelect({
         }
     }, [brandId, categoryId, loadModelsForBrand, search]);
 
-    // Dropdown positioning
+    // Dropdown positioning — only runs when isEditing or search is active.
     useLayoutEffect(() => {
-        if (!isEditing && !search) {
-            setDropdownStyle(null);
-            return;
-        }
         const container = containerRef.current;
         if (!container) return;
 
@@ -117,8 +107,10 @@ export function ModelSearchSelect({
         return () => {
             window.removeEventListener("scroll", calculate, true);
             window.removeEventListener("resize", calculate);
+            setDropdownStyle(null);
         };
     }, [isEditing, search]);
+
 
     const handleSelect = (model: DeviceModel) => {
         const id = String(model.id || model._id);

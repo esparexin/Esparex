@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     Bell,
@@ -65,16 +65,14 @@ export function NotificationBellDropdown({
     const router = useRouter();
     const pathname = usePathname();
     const queryClient = useQueryClient();
+    // Keying DropdownMenu by pathname auto-unmounts/remounts on navigation,
+    // which closes the dropdown without needing a setState inside an effect.
+
     const [open, setOpen] = useState(false);
 
     const notifications = sortNotifications(
         Array.isArray(notificationsData?.notifications) ? notificationsData.notifications : []
     );
-
-    useEffect(() => {
-        setOpen(false);
-    }, [pathname]);
-
     const syncNotificationCaches = (
         updater: (current: NotificationResponse) => NotificationResponse
     ) => {
@@ -86,6 +84,7 @@ export function NotificationBellDropdown({
             }
         );
     };
+
 
     const markReadMutation = useMutation({
         mutationFn: (id: string) => notificationApi.markRead(id),
@@ -160,7 +159,7 @@ export function NotificationBellDropdown({
     const iconClassName = variant === "mobile" ? "h-6 w-6 text-foreground/80" : "h-5 w-5";
 
     return (
-        <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+        <DropdownMenu key={pathname} open={open} onOpenChange={handleOpenChange}>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
