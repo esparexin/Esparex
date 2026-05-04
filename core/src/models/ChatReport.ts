@@ -1,12 +1,12 @@
 import { Schema, Document, Model, Types } from 'mongoose';
-import { getUserConnection } from '@core/config/db';
+import { getUserConnection } from '@esparex/core/config/db';
 import {
   CHAT_REPORT_STATUS,
   CHAT_REPORT_STATUS_VALUES,
   type ChatReportStatusValue,
   CHAT_REPORT_REASON_VALUES,
   type ChatReportReasonValue,
-} from '@core/constants/enums/chatStatus';
+} from '@esparex/core/constants/enums/chatStatus';
 
 /* -------------------------------------------------------------------------- */
 /* Interface                                                                   */

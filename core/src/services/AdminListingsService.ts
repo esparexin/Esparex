@@ -2,12 +2,12 @@ import mongoose from 'mongoose';
 import { getAdForModerationById } from './ad/AdDetailService';
 import { extendListingExpiry } from './AdMutationService';
 import { bulkResolveReports } from './ReportService';
-import type { AdminLogTargetType } from '@core/utils/adminLogger';
+import type { AdminLogTargetType } from '@esparex/core/utils/adminLogger';
 import { mutateStatus } from './StatusMutationService';
-import { ACTOR_TYPE } from '@core/constants/enums/actor';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
+import { ACTOR_TYPE } from '@esparex/core/constants/enums/actor';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
 import { computeActiveExpiry } from './AdStatusService';
-import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/core/constants/enums/listingType';
 import { updateAdTransactional } from './AdMutationService';
 import { createAd } from './AdOrchestrator';
 import {
@@ -18,8 +18,8 @@ import {
     normalizeModerationStatusFilter,
     type ListingModerationFilters,
 } from './ListingModerationQueryService';
-import { REPORT_STATUS } from '@core/constants/enums/reportStatus';
-import { AppError } from '@core/utils/AppError';
+import { REPORT_STATUS } from '@esparex/core/constants/enums/reportStatus';
+import { AppError } from '@esparex/core/utils/AppError';
 
 // ---------------------------------------------------------
 // Types

@@ -1,7 +1,7 @@
 import { Queue, Job, type WorkerOptions, Worker, type Processor, type JobsOptions } from 'bullmq';
-import { TraceContext } from "@shared/observability/trace";
+import { TraceContext } from "@esparex/shared/observability/trace";
 import logger from './logger';
-import { AuditService } from '@core/services/AuditService';
+import { AuditService } from '@esparex/core/services/AuditService';
 
 export interface TraceableJobData {
     _trace?: {

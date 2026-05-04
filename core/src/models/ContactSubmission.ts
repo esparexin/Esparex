@@ -1,6 +1,6 @@
 import { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '@core/config/db';
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { getUserConnection } from '@esparex/core/config/db';
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 
 export interface IContactSubmission extends Document {
     name: string;

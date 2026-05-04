@@ -1,10 +1,10 @@
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
-import Ad from '@core/models/Ad';
-import Model from '@core/models/Model';
-import Brand from '@core/models/Brand';
-import { CATALOG_STATUS } from '@core/constants/enums/catalogStatus';
-import logger from '@core/utils/logger';
-import { clearCachePattern } from '@core/utils/redisCache';
+import Ad from '@esparex/core/models/Ad';
+import Model from '@esparex/core/models/Model';
+import Brand from '@esparex/core/models/Brand';
+import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
+import logger from '@esparex/core/utils/logger';
+import { clearCachePattern } from '@esparex/core/utils/redisCache';
 
 /**
  * 🚀 Catalog Promotion Listener

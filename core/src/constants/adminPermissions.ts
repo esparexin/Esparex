@@ -1,4 +1,4 @@
-import { Role } from '@core/constants/enums/roles';
+import { Role } from '@esparex/core/constants/enums/roles';
 
 export type AdminRole =
     | Role.SUPER_ADMIN

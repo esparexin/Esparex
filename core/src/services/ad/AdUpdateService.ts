@@ -1,16 +1,16 @@
 import mongoose from 'mongoose';
-import { AppError } from '@core/utils/AppError';
-import logger from '@core/utils/logger';
-import Ad, { type IAd } from '@core/models/Ad';
-import { getUserConnection } from '@core/config/db';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import { LIFECYCLE_STATUS } from '@core/constants/enums/lifecycle';
-import { NOTIFICATION_TYPE } from '@core/constants/enums/notificationType';
-import { AdContext } from '@core/types/ad.types';
-import { generateUniqueSlug } from '@core/utils/slugGenerator';
+import { AppError } from '@esparex/core/utils/AppError';
+import logger from '@esparex/core/utils/logger';
+import Ad, { type IAd } from '@esparex/core/models/Ad';
+import { getUserConnection } from '@esparex/core/config/db';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { LIFECYCLE_STATUS } from '@esparex/core/constants/enums/lifecycle';
+import { NOTIFICATION_TYPE } from '@esparex/core/constants/enums/notificationType';
+import { AdContext } from '@esparex/core/types/ad.types';
+import { generateUniqueSlug } from '@esparex/core/utils/slugGenerator';
 import { AdCreationService } from '../AdCreationService';
 import { mutateStatus } from '../StatusMutationService';
-import { enqueueImageOptimization } from '@core/queues/imageQueue';
+import { enqueueImageOptimization } from '@esparex/core/queues/imageQueue';
 
 export const updateAdLogic = async (
     adId: string,
@@ -49,7 +49,7 @@ export const updateAdLogic = async (
             }
 
             if (context.actor === 'USER' && !context.allowSuspendedUser) {
-                const User = (await import('@core/models/User')).default;
+                const User = (await import('@esparex/core/models/User')).default;
                 const user = await User.findById(context.authUserId).select('isSuspended').lean();
                 if ((user as { isSuspended?: boolean } | null)?.isSuspended)
                     throw Object.assign(new Error('Account suspended'), { statusCode: 403, code: 'ACCOUNT_SUSPENDED' });
@@ -136,7 +136,7 @@ export const updateAdLogic = async (
         if (oldPriceValue && updatedAdTyped.price < oldPriceValue) {
             void (async () => {
                 try {
-                    const SavedAd = (await import('@core/models/SavedAd')).default;
+                    const SavedAd = (await import('@esparex/core/models/SavedAd')).default;
                     const keepers = await SavedAd.find({ adId: id }).select('userId').lean();
                     if (keepers.length > 0) {
                         const { dispatchTemplatedNotification } = await import('../NotificationService');

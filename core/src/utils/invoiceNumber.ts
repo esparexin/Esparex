@@ -1,6 +1,6 @@
 // backend/src/utils/invoiceNumber.ts
 import type { ClientSession } from "mongoose";
-import Counter from "@core/models/Counter";
+import Counter from "@esparex/core/models/Counter";
 
 /**
  * 🧾 ATOMIC INVOICE NUMBER GENERATOR

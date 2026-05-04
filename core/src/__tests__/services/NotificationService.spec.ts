@@ -15,7 +15,7 @@ const mockLogger = {
     error: jest.fn(),
 };
 
-jest.mock("@core/models/User", () => ({
+jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: {
         bulkWrite: mockBulkWrite,
@@ -24,36 +24,36 @@ jest.mock("@core/models/User", () => ({
     },
 }));
 
-jest.mock("@core/config/firebaseAdmin", () => ({
+jest.mock("@esparex/core/config/firebaseAdmin", () => ({
     __esModule: true,
     default: {
         messaging: mockMessaging,
     },
 }));
 
-jest.mock("@core/utils/logger", () => ({
+jest.mock("@esparex/core/utils/logger", () => ({
     __esModule: true,
     default: mockLogger,
 }));
 
-jest.mock("@core/utils/systemConfigHelper", () => ({
+jest.mock("@esparex/core/utils/systemConfigHelper", () => ({
     __esModule: true,
     getSystemConfigDoc: mockGetSystemConfigDoc,
 }));
 
-jest.mock("@core/services/notification/NotificationDispatcher", () => ({
+jest.mock("@esparex/core/services/notification/NotificationDispatcher", () => ({
     NotificationDispatcher: {
         dispatch: jest.fn(),
     },
 }));
 
-jest.mock("@core/domain/NotificationIntent", () => ({
+jest.mock("@esparex/core/domain/NotificationIntent", () => ({
     NotificationIntent: jest.fn().mockImplementation((payload) => payload),
 }));
 
-import User from "@core/models/User";
-import { getSystemConfigDoc } from "@core/utils/systemConfigHelper";
-import { registerToken, sendNotification } from "@core/services/NotificationService";
+import User from "@esparex/core/models/User";
+import { getSystemConfigDoc } from "@esparex/core/utils/systemConfigHelper";
+import { registerToken, sendNotification } from "@esparex/core/services/NotificationService";
 
 const mockedUser = User as unknown as {
     bulkWrite: jest.Mock;

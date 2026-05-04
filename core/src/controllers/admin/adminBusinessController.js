@@ -38,7 +38,7 @@ const adminBaseController_1 = require("@esparex/core/utils/adminBaseController")
 const shared_1 = require("./business/shared");
 const adminBusinessService = __importStar(require("@esparex/core/services/AdminBusinessService"));
 const businessStatus_1 = require("@esparex/core/utils/businessStatus");
-const businessStatus_2 = require("@shared/enums/businessStatus");
+const businessStatus_2 = require("@esparex/shared/enums/businessStatus");
 const adminLogger_1 = require("@esparex/core/utils/adminLogger");
 // ---------------------------------------------------------
 // Helpers

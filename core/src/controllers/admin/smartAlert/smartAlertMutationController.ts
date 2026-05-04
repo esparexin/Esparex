@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { respond } from "@esparex/core/utils/respond";
-import { ApiResponse } from "@shared/types/Api";
+import { ApiResponse } from "@esparex/shared/types/Api";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { AppError } from '@esparex/core/utils/AppError';
 import {

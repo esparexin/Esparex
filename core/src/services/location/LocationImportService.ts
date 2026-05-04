@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { normalizeLocationInput } from '@core/utils/locationInputNormalizer';
+import { normalizeLocationInput } from '@esparex/core/utils/locationInputNormalizer';
 
 interface ImportResult {
     success: number;
@@ -21,7 +21,7 @@ interface LocationImportInput {
 export class LocationImportService {
     static async importLocations(data: LocationImportInput[]): Promise<ImportResult> {
         const result: ImportResult = { success: 0, failed: 0, errors: [] };
-        const Location = (await import('@core/models/Location')).default;
+        const Location = (await import('@esparex/core/models/Location')).default;
          
         const ops: any[] = [];
 

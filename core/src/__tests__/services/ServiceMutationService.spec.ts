@@ -1,38 +1,38 @@
-jest.mock('@core/services/service/ServiceMutationRepository', () => ({
+jest.mock('@esparex/core/services/service/ServiceMutationRepository', () => ({
     findServiceForUpdate: jest.fn(),
     updateServiceByOwner: jest.fn(),
 }));
 
-jest.mock('@core/services/ListingMutationService', () => ({
+jest.mock('@esparex/core/services/ListingMutationService', () => ({
     ListingMutationService: {
         processIncomingImages: jest.fn(),
         cleanupRemovedImages: jest.fn(),
     },
 }));
 
-jest.mock('@core/services/AdOrchestrator', () => ({
+jest.mock('@esparex/core/services/AdOrchestrator', () => ({
     createAd: jest.fn(),
 }));
 
-jest.mock('@core/services/catalog/CatalogValidationService', () => ({
+jest.mock('@esparex/core/services/catalog/CatalogValidationService', () => ({
     getCategorySelectionMode: jest.fn(),
     validateBrandBelongsToCategory: jest.fn(),
     validateServiceCategoryCapability: jest.fn(),
 }));
 
-jest.mock('@core/services/StatusMutationService', () => ({
+jest.mock('@esparex/core/services/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
-jest.mock('@core/utils/masterDataResolver', () => ({
+jest.mock('@esparex/core/utils/masterDataResolver', () => ({
     resolveMasterDataIds: jest.fn(),
 }));
 
-jest.mock('@core/utils/serviceTypeResolver', () => ({
+jest.mock('@esparex/core/utils/serviceTypeResolver', () => ({
     resolveServiceTypes: jest.fn(),
 }));
 
-jest.mock('@core/utils/logger', () => ({
+jest.mock('@esparex/core/utils/logger', () => ({
     __esModule: true,
     default: {
         error: jest.fn(),
@@ -45,21 +45,21 @@ import mongoose from 'mongoose';
 import {
     findServiceForUpdate,
     updateServiceByOwner,
-} from '@core/services/service/ServiceMutationRepository';
-import { ListingMutationService } from '@core/services/ListingMutationService';
-import * as AdOrchestrator from '@core/services/AdOrchestrator';
+} from '@esparex/core/services/service/ServiceMutationRepository';
+import { ListingMutationService } from '@esparex/core/services/ListingMutationService';
+import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
 import {
     getCategorySelectionMode,
     validateServiceCategoryCapability,
-} from '@core/services/catalog/CatalogValidationService';
-import { resolveMasterDataIds } from '@core/utils/masterDataResolver';
-import { resolveServiceTypes } from '@core/utils/serviceTypeResolver';
-import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
+} from '@esparex/core/services/catalog/CatalogValidationService';
+import { resolveMasterDataIds } from '@esparex/core/utils/masterDataResolver';
+import { resolveServiceTypes } from '@esparex/core/utils/serviceTypeResolver';
+import { BUSINESS_STATUS } from '@esparex/core/constants/enums/businessStatus';
 import {
     createServiceMutation,
     type ServiceBusinessContext,
     updateServiceMutation,
-} from '@core/services/service/ServiceMutationService';
+} from '@esparex/core/services/service/ServiceMutationService';
 
 const mockedFindServiceForUpdate = findServiceForUpdate as jest.Mock;
 const mockedUpdateServiceByOwner = updateServiceByOwner as jest.Mock;

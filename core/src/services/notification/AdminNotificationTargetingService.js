@@ -7,7 +7,7 @@ exports.sanitizeNotificationUserIds = exports.isAdminNotificationTopic = void 0;
 exports.buildAdminNotificationTargetQuery = buildAdminNotificationTargetQuery;
 exports.createAdminNotificationTargetCursor = createAdminNotificationTargetCursor;
 const mongoose_1 = __importDefault(require("mongoose"));
-const adminNotificationTargets_1 = require("@shared/constants/adminNotificationTargets");
+const adminNotificationTargets_1 = require("@esparex/shared/constants/adminNotificationTargets");
 const User_1 = __importDefault(require("@core/models/User"));
 const userStatus_1 = require("@core/constants/enums/userStatus");
 const roles_1 = require("@core/constants/enums/roles");

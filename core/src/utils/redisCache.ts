@@ -1,6 +1,6 @@
-import redisClient from '@core/config/redis';
+import redisClient from '@esparex/core/config/redis';
 import logger from './logger';
-import { env } from '@core/config/env';
+import { env } from '@esparex/core/config/env';
 
 /* ============================================================================
  * 📊 CACHE METRICS (In-Memory)

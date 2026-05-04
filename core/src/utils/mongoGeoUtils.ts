@@ -6,7 +6,7 @@ import {
     MIN_RADIUS_KM,
     MAX_RADIUS_KM,
     DEFAULT_RADIUS_KM
-} from '@shared';
+} from '@esparex/shared';
 
 /**
  * 🌍 CANONICAL GEO UTILITY LAYER

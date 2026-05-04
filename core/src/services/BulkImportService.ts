@@ -1,4 +1,4 @@
-import { ICategory } from '@core/models/Category';
+import { ICategory } from '@esparex/core/models/Category';
 import { CatalogImportService } from './catalog/CatalogImportService';
 import { LocationImportService } from './location/LocationImportService';
 

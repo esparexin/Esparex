@@ -1,10 +1,10 @@
 import mongoose, { Types } from 'mongoose';
-import SavedSearch from '@core/models/SavedSearch';
-import Ad from '@core/models/Ad';
-import { notificationMatchQueue } from '@core/queues/adQueue';
+import SavedSearch from '@esparex/core/models/SavedSearch';
+import Ad from '@esparex/core/models/Ad';
+import { notificationMatchQueue } from '@esparex/core/queues/adQueue';
 import { dispatchTemplatedNotification } from './NotificationService';
-import logger from '@core/utils/logger';
-import { toObjectId } from '@core/utils/idUtils';
+import logger from '@esparex/core/utils/logger';
+import { toObjectId } from '@esparex/core/utils/idUtils';
 import { 
     SavedSearchMatchService, 
     type MinimalAdRecord, 
@@ -12,7 +12,7 @@ import {
 } from './savedSearch/SavedSearchMatchService';
 import { SavedSearchRateService } from './savedSearch/SavedSearchRateService';
 
-import type { SavedSearchCreatePayload } from "@shared/schemas/savedSearch.schema";
+import type { SavedSearchCreatePayload } from "@esparex/shared/schemas/savedSearch.schema";
 
 const toSavedSearchContract = (search: SavedSearchRecord & { id?: string; userId: Types.ObjectId; createdAt?: Date }) => ({
     id: search._id?.toString() || search.id || '',

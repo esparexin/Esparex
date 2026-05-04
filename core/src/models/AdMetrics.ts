@@ -1,5 +1,5 @@
 import { Schema, Model, Document, Types } from 'mongoose';
-import { getUserConnection } from '@core/config/db';
+import { getUserConnection } from '@esparex/core/config/db';
 
 export interface IAdMetrics extends Document {
     adId: Types.ObjectId;

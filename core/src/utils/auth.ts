@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
-import { env } from '@core/config/env';
+import { env } from '@esparex/core/config/env';
 import { Types } from 'mongoose';
 
 const JWT_SECRET = env.JWT_SECRET;

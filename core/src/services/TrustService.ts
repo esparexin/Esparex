@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import User from '@core/models/User';
-import Ad from '@core/models/Ad';
-import Business from '@core/models/Business';
-import logger from '@core/utils/logger';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
+import User from '@esparex/core/models/User';
+import Ad from '@esparex/core/models/Ad';
+import Business from '@esparex/core/models/Business';
+import logger from '@esparex/core/utils/logger';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { BUSINESS_STATUS } from '@esparex/core/constants/enums/businessStatus';
 
 /**
  * 🏆 OFFICIAL TRUST SCORE ENGINE (V1)

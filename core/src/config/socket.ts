@@ -13,10 +13,10 @@ type Socket = BaseSocket & { userId?: string };
 import { Server as HttpServer } from 'http';
 import { createAdapter } from '@socket.io/redis-adapter';
 import Redis from 'ioredis';
-import logger from '@core/utils/logger';
-import { verifyToken } from '@core/utils/auth';
-import redisClient from '@core/utils/redisCache';
-import { getAllowedOriginList } from '@core/utils/originConfig';
+import logger from '@esparex/core/utils/logger';
+import { verifyToken } from '@esparex/core/utils/auth';
+import redisClient from '@esparex/core/utils/redisCache';
+import { getAllowedOriginList } from '@esparex/core/utils/originConfig';
 import { env } from './env';
 
 let io: Server | null = null;

@@ -1,6 +1,6 @@
-import User, { IUser } from '@core/models/User';
-import Business from '@core/models/Business';
-import BlockedUser from '@core/models/BlockedUser';
+import User, { IUser } from '@esparex/core/models/User';
+import Business from '@esparex/core/models/Business';
+import BlockedUser from '@esparex/core/models/BlockedUser';
 import mongoose from 'mongoose';
 
 

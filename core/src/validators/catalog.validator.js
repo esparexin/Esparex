@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.screenSizeUpdateSchema = exports.screenSizeCreateSchema = exports.serviceTypeUpdateSchema = exports.serviceTypeCreateSchema = exports.sparePartUpdateSchema = exports.sparePartCreateSchema = exports.ensureModelSchema = exports.modelUpdateSchema = exports.modelCreateSchema = exports.brandUpdateSchema = exports.brandCreateSchema = exports.toggleCategoryStatusSchema = exports.categorySchemaUpdateBodySchema = exports.categoryUpdateSchema = exports.categoryCreateSchema = exports.rejectionSchema = void 0;
 const zod_1 = require("zod");
 const catalogStatus_1 = require("@core/constants/enums/catalogStatus");
-const catalog_schema_1 = require("@shared/schemas/catalog.schema");
+const catalog_schema_1 = require("@esparex/shared/schemas/catalog.schema");
 const listingType_1 = require("@core/constants/enums/listingType");
 const idUtils_1 = require("@core/utils/idUtils");
 // Shared Helpers

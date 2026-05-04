@@ -1,7 +1,7 @@
-import { jobRunner } from '@core/utils/jobRunner';
-import logger from '@core/utils/logger';
-import { runWithDistributedJobLock } from '@core/utils/distributedJobLock';
-import UserPlan from '@core/models/UserPlan';
+import { jobRunner } from '@esparex/core/utils/jobRunner';
+import logger from '@esparex/core/utils/logger';
+import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
+import UserPlan from '@esparex/core/models/UserPlan';
 
 export const runExpireUserPlansJob = async () => {
     await runWithDistributedJobLock(

@@ -1,11 +1,11 @@
 import { Schema, Document, Model, Types } from 'mongoose';
-import { hasValidCoordinateArray } from '@shared';
+import { hasValidCoordinateArray } from '@esparex/shared';
 import {
   MOBILE_VISIBILITY,
   normalizeMobileVisibility,
-} from "@shared/constants/mobileVisibility";
-import { getUserConnection } from '@core/config/db';
-import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '@core/constants/enums/userStatus';
+} from "@esparex/shared/constants/mobileVisibility";
+import { getUserConnection } from '@esparex/core/config/db';
+import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '@esparex/core/constants/enums/userStatus';
 
 export interface GeoJSONPoint {
   type: 'Point';

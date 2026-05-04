@@ -1,10 +1,10 @@
-import UserPlan from '@core/models/UserPlan';
-import Plan, { type IPlan } from '@core/models/Plan';
+import UserPlan from '@esparex/core/models/UserPlan';
+import Plan, { type IPlan } from '@esparex/core/models/Plan';
 import { type AdPostingSlotSource } from './AdSlotService';
-import { SERVICE_STATUS } from '@core/constants/enums/serviceStatus';
-import { LISTING_TYPE } from '@core/constants/enums/listingType';
-import { INVENTORY_STATUS } from '@core/constants/enums/inventoryStatus';
-import AdModel from '@core/models/Ad';
+import { SERVICE_STATUS } from '@esparex/core/constants/enums/serviceStatus';
+import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
+import { INVENTORY_STATUS } from '@esparex/core/constants/enums/inventoryStatus';
+import AdModel from '@esparex/core/models/Ad';
 import { 
     AdSlotService, 
     getMonthlyCycleStart,
@@ -12,9 +12,9 @@ import {
 } from './AdSlotService';
 import mongoose, { type ClientSession } from 'mongoose';
 
-import { AppError } from '@core/utils/AppError';
+import { AppError } from '@esparex/core/utils/AppError';
 import { calculateUserPlan } from './PlanEngine';
-import UserWallet from '@core/models/UserWallet';
+import UserWallet from '@esparex/core/models/UserWallet';
 import { withUserPostingLock } from './AdSlotService'; // Import the lock
 
 export type UserPlanWithPlanId = { planId: unknown };

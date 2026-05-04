@@ -1,34 +1,34 @@
-jest.mock("@core/models/User", () => ({
+jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn(), aggregate: jest.fn() },
 }));
 
-jest.mock("@core/models/Ad", () => ({
+jest.mock("@esparex/core/models/Ad", () => ({
     __esModule: true,
     default: { aggregate: jest.fn(), countDocuments: jest.fn() },
 }));
 
-jest.mock("@core/models/Report", () => ({
+jest.mock("@esparex/core/models/Report", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn() },
 }));
 
-jest.mock("@core/models/Business", () => ({
+jest.mock("@esparex/core/models/Business", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn() },
 }));
 
-jest.mock("@core/models/RevenueAnalytics", () => ({
+jest.mock("@esparex/core/models/RevenueAnalytics", () => ({
     __esModule: true,
     default: { aggregate: jest.fn() },
 }));
 
-jest.mock("@core/models/Model", () => ({
+jest.mock("@esparex/core/models/Model", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn() },
 }));
 
-jest.mock("@core/models/ContactSubmission", () => ({
+jest.mock("@esparex/core/models/ContactSubmission", () => ({
     __esModule: true,
     default: {
         find: jest.fn(),
@@ -37,29 +37,29 @@ jest.mock("@core/models/ContactSubmission", () => ({
     },
 }));
 
-jest.mock("@core/models/AdminLog", () => ({
+jest.mock("@esparex/core/models/AdminLog", () => ({
     __esModule: true,
     default: {
         find: jest.fn(),
     },
 }));
 
-jest.mock("@core/models/Location", () => ({
+jest.mock("@esparex/core/models/Location", () => ({
     __esModule: true,
     default: { countDocuments: jest.fn(), find: jest.fn(), aggregate: jest.fn() },
 }));
 
-jest.mock("@core/models/LocationAnalytics", () => ({
+jest.mock("@esparex/core/models/LocationAnalytics", () => ({
     __esModule: true,
     default: { find: jest.fn() },
 }));
 
-import Ad from "@core/models/Ad";
-import User from "@core/models/User";
-import Report from "@core/models/Report";
-import Business from "@core/models/Business";
-import RevenueAnalytics from "@core/models/RevenueAnalytics";
-import { getDashboardCardStats } from "@core/services/AdminDashboardService";
+import Ad from "@esparex/core/models/Ad";
+import User from "@esparex/core/models/User";
+import Report from "@esparex/core/models/Report";
+import Business from "@esparex/core/models/Business";
+import RevenueAnalytics from "@esparex/core/models/RevenueAnalytics";
+import { getDashboardCardStats } from "@esparex/core/services/AdminDashboardService";
 
 const mockAd = Ad as unknown as { aggregate: jest.Mock };
 const mockUser = User as unknown as { countDocuments: jest.Mock };

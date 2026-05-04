@@ -1,8 +1,8 @@
 import { Worker } from "bullmq";
 import { redisConnection } from "../queues/redisConnection";
 import type { PaymentQueueJobData } from "../queues/paymentQueue";
-import { processSuccessfulPayment } from "@core/services/PaymentProcessingService";
-import logger from "@core/utils/logger";
+import { processSuccessfulPayment } from "@esparex/core/services/PaymentProcessingService";
+import logger from "@esparex/core/utils/logger";
 
 export const paymentWorker = new Worker<PaymentQueueJobData, void, "process_payment_capture">(
     "payment-events",

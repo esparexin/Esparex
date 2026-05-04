@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '@core/config/db';
+import { getUserConnection } from '@esparex/core/config/db';
 
 export interface IFraudScore extends Document {
     userId: mongoose.Types.ObjectId;

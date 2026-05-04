@@ -1,5 +1,5 @@
 import { randomInt } from 'crypto';
-import { env } from '@core/config/env';
+import { env } from '@esparex/core/config/env';
 
 /**
  * Generate a cryptographically secure 6-digit OTP.

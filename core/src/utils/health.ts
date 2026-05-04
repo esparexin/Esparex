@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { isDbReady } from '@core/config/db';
-import { getRedisHealthProbe, isConnected as redisConnected } from '@core/utils/redisCache';
-import logger from '@core/utils/logger';
+import { isDbReady } from '@esparex/core/config/db';
+import { getRedisHealthProbe, isConnected as redisConnected } from '@esparex/core/utils/redisCache';
+import logger from '@esparex/core/utils/logger';
 
 /**
  * Shared Health Check Logic

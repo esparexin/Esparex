@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import redisClient from '@core/config/redis';
+import redisClient from '@esparex/core/config/redis';
 import logger from './logger';
 
 type RedisLockClient = {

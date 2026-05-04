@@ -4,12 +4,12 @@
  * Re-exports the Mongoose model instance for generic handler calls.
  */
 
-import SparePartModelImport from '@core/models/SparePart';
-import CategoryModel from '@core/models/Category';
-import BrandModel from '@core/models/Brand';
-import CatalogModel from '@core/models/Model';
-import AdModel from '@core/models/Ad';
-import { CATALOG_STATUS } from '@core/constants/enums/catalogStatus';
+import SparePartModelImport from '@esparex/core/models/SparePart';
+import CategoryModel from '@esparex/core/models/Category';
+import BrandModel from '@esparex/core/models/Brand';
+import CatalogModel from '@esparex/core/models/Model';
+import AdModel from '@esparex/core/models/Ad';
+import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
 
 // Re-export model instance for generic handler calls in the controller layer
 export const SparePartModel = SparePartModelImport;

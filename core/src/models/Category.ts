@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '@core/constants/enums/catalogStatus';
+import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '@esparex/core/constants/enums/catalogStatus';
 
 export interface ICategory extends Document {
     name: string;
@@ -79,11 +79,11 @@ CategorySchema.index(
     }
 );
 
-import softDeletePlugin from '@core/utils/softDeletePlugin';
+import softDeletePlugin from '@esparex/core/utils/softDeletePlugin';
 CategorySchema.plugin(softDeletePlugin);
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
-import { installSafeSoftDeleteQuery } from '@core/utils/safeSoftDeleteQuery';
+import { installSafeSoftDeleteQuery } from '@esparex/core/utils/safeSoftDeleteQuery';
 CategorySchema.plugin(installSafeSoftDeleteQuery);
 
 // ON-THE-FLY NORMALIZATION (Safe Migration)
@@ -94,7 +94,7 @@ CategorySchema.post('init', function(doc) {
     }
 });
 
-import { getUserConnection } from '@core/config/db';
+import { getUserConnection } from '@esparex/core/config/db';
 const Category: Model<ICategory> = (getUserConnection().models.Category as Model<ICategory> | undefined) || getUserConnection().model<ICategory>('Category', CategorySchema);
 
 export default Category;

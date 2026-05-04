@@ -1,22 +1,22 @@
 import mongoose, { ClientSession } from 'mongoose';
-import { getUserConnection } from '@core/config/db';
+import { getUserConnection } from '@esparex/core/config/db';
 import { 
     validateTransition as validateLifecycleTransition, 
     resolveLifecycleDomain,
     type ValidDomain 
 } from './LifecycleGuard';
 import { enforceLifecycleMutationPolicy } from './LifecyclePolicyGuard';
-import StatusHistory from '@core/models/StatusHistory';
-import AdminMetrics from '@core/models/AdminMetrics';
-import logger from '@core/utils/logger';
-import { ActorMetadata, ACTOR_TYPE } from '@core/constants/enums/actor';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
+import StatusHistory from '@esparex/core/models/StatusHistory';
+import AdminMetrics from '@esparex/core/models/AdminMetrics';
+import logger from '@esparex/core/utils/logger';
+import { ActorMetadata, ACTOR_TYPE } from '@esparex/core/constants/enums/actor';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
 import { lifecycleEvents } from '../events';
 
 // Import domain models
-import Ad from '@core/models/Ad';
-import User from '@core/models/User';
-import Business from '@core/models/Business';
+import Ad from '@esparex/core/models/Ad';
+import User from '@esparex/core/models/User';
+import Business from '@esparex/core/models/Business';
 
 export type { ValidDomain };
 
@@ -235,7 +235,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             // 🛡️ PRODUCTION HARDENING: Fire-and-forget cache invalidation
             // Cache bust runs independently — a Redis failure must NOT block
             // lifecycle event dispatch that downstream consumers depend on.
-            import('@core/utils/redisCache').then(({ invalidatePublicAdCache, invalidateAdFeedCaches }) => {
+            import('@esparex/core/utils/redisCache').then(({ invalidatePublicAdCache, invalidateAdFeedCaches }) => {
                 return Promise.all([
                     invalidatePublicAdCache(entityId.toString()),
                     invalidateAdFeedCaches()

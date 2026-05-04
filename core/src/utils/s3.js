@@ -20,7 +20,7 @@ exports.deleteFromS3Url = deleteFromS3Url;
 const client_s3_1 = require("@aws-sdk/client-s3");
 const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
 const logger_1 = __importDefault(require("./logger"));
-const image_domain_registry_json_1 = __importDefault(require("@shared/constants/image-domain-registry.json"));
+const image_domain_registry_json_1 = __importDefault(require("@esparex/shared/constants/image-domain-registry.json"));
 const env_1 = require("@core/config/env");
 const ALLOWED_S3_MIME_TYPES = new Set([
     'image/jpeg',

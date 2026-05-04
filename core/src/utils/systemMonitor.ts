@@ -1,5 +1,5 @@
 import logger from './logger';
-import { env } from '@core/config/env';
+import { env } from '@esparex/core/config/env';
 
 export const startSystemMonitor = () => {
     const role = env.PROCESS_ROLE as string;

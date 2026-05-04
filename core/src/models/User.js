@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const mongoose_1 = require("mongoose");
-const _shared_1 = require("@shared");
-const mobileVisibility_1 = require("@shared/constants/mobileVisibility");
+const shared_1 = require("@esparex/shared");
+const mobileVisibility_1 = require("@esparex/shared/constants/mobileVisibility");
 const db_1 = require("@core/config/db");
 const userStatus_1 = require("@core/constants/enums/userStatus");
 const toUserGeoPoint = (value) => {
@@ -13,7 +13,7 @@ const toUserGeoPoint = (value) => {
         if (value.length !== 2) {
             return undefined; // Be resilient
         }
-        if (!(0, _shared_1.hasValidCoordinateArray)(value)) {
+        if (!(0, shared_1.hasValidCoordinateArray)(value)) {
             return undefined; // Be resilient
         }
         return { type: 'Point', coordinates: [Number(value[0]), Number(value[1])] };
@@ -22,7 +22,7 @@ const toUserGeoPoint = (value) => {
         const node = value;
         // Legacy support: if it's an object with coordinates but no type, assume Point
         const coords = node.coordinates || (Array.isArray(value) ? value : undefined);
-        if (Array.isArray(coords) && coords.length === 2 && (0, _shared_1.hasValidCoordinateArray)(coords)) {
+        if (Array.isArray(coords) && coords.length === 2 && (0, shared_1.hasValidCoordinateArray)(coords)) {
             return {
                 type: 'Point',
                 coordinates: [Number(coords[0]), Number(coords[1])]

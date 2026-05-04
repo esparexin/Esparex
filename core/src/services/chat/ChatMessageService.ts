@@ -1,11 +1,11 @@
 import { Types } from 'mongoose';
-import { Conversation } from '@core/models/Conversation';
-import { ChatMessage } from '@core/models/ChatMessage';
-import Ad from '@core/models/Ad';
+import { Conversation } from '@esparex/core/models/Conversation';
+import { ChatMessage } from '@esparex/core/models/ChatMessage';
+import Ad from '@esparex/core/models/Ad';
 import { isListingChatClosed } from '../ChatAvailabilityService';
-import logger from '@core/utils/logger';
-import { NOTIFICATION_TYPE } from '@core/constants/enums/notificationType';
-import type { IChatAttachment } from '@core/models/ChatMessage';
+import logger from '@esparex/core/utils/logger';
+import { NOTIFICATION_TYPE } from '@esparex/core/constants/enums/notificationType';
+import type { IChatAttachment } from '@esparex/core/models/ChatMessage';
 import {
     PAGE_SIZE_MESSAGES,
     sanitizeText,
@@ -113,7 +113,7 @@ export async function sendMessage(
     void (async () => {
         try {
             const { dispatchTemplatedNotification } = await import('../NotificationService');
-            const UserModel = (await import('@core/models/User')).default;
+            const UserModel = (await import('@esparex/core/models/User')).default;
             const senderSnippet = await UserModel.findById(senderId).select('name').lean();
             
             await dispatchTemplatedNotification(

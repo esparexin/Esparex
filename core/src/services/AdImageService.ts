@@ -7,11 +7,11 @@
 
 import mongoose, { ClientSession } from 'mongoose';
 import { createHash } from 'crypto';
-import AdImage from '@core/models/AdImage';
-import { deleteFromS3Url } from '@core/utils/s3';
-import { processSingleImage } from '@core/utils/imageProcessor';
-import logger from '@core/utils/logger';
-import { AppError } from '@core/utils/AppError';
+import AdImage from '@esparex/core/models/AdImage';
+import { deleteFromS3Url } from '@esparex/core/utils/s3';
+import { processSingleImage } from '@esparex/core/utils/imageProcessor';
+import logger from '@esparex/core/utils/logger';
+import { AppError } from '@esparex/core/utils/AppError';
 
 // ─────────────────────────────────────────────────
 // TYPES & CONSTANTS
@@ -365,7 +365,7 @@ export const findImageDuplicates = async (
 // CANONICAL METHODS (Ex-Shims)
 // ─────────────────────────────────────────────────
 
-import { generatePresignedUploadUrl, PresignedUploadResult } from '@core/utils/s3';
+import { generatePresignedUploadUrl, PresignedUploadResult } from '@esparex/core/utils/s3';
 
 /**
  * Generates a presigned URL for direct S3 upload from the client.

@@ -1,6 +1,6 @@
 
 import mongoose from 'mongoose';
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 
 /**
  * ESPAREX INDEX GOVERNANCE ENGINE

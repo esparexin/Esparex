@@ -1,10 +1,10 @@
 import { Types } from 'mongoose';
-import { Conversation } from '@core/models/Conversation';
-import { ChatMessage } from '@core/models/ChatMessage';
-import { ChatReport } from '@core/models/ChatReport';
-import Ad from '@core/models/Ad';
-import { User } from '@core/models/User';
-import { escapeRegExp } from '@core/utils/stringUtils';
+import { Conversation } from '@esparex/core/models/Conversation';
+import { ChatMessage } from '@esparex/core/models/ChatMessage';
+import { ChatReport } from '@esparex/core/models/ChatReport';
+import Ad from '@esparex/core/models/Ad';
+import { User } from '@esparex/core/models/User';
+import { escapeRegExp } from '@esparex/core/utils/stringUtils';
 import {
     CHAT_CLOSED_STATUSES,
 } from '../ChatAvailabilityService';

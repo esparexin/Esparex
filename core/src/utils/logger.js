@@ -58,7 +58,7 @@ const winston_1 = __importDefault(require("winston"));
 const winston_daily_rotate_file_1 = __importDefault(require("winston-daily-rotate-file"));
 const path_1 = __importDefault(require("path"));
 const env_1 = require("@core/config/env");
-const trace_1 = require("@shared/observability/trace");
+const trace_1 = require("@esparex/shared/observability/trace");
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldSilenceForTests = env_1.isTest || isJestRuntime;
 const maskPII = winston_1.default.format((info) => {

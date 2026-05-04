@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
-import { AppError } from '@core/utils/AppError';
-import logger from '@core/utils/logger';
-import Ad from '@core/models/Ad';
-import { getUserConnection } from '@core/config/db';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
+import { AppError } from '@esparex/core/utils/AppError';
+import logger from '@esparex/core/utils/logger';
+import Ad from '@esparex/core/models/Ad';
+import { getUserConnection } from '@esparex/core/config/db';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
 import { consumeAdPostingSlot } from '../PlanService';
 import { getAdPostingBalance } from '../AdSlotService';
 import { mutateStatus } from '../StatusMutationService';
-import { normalizeAdStatus } from "@core/services/AdStatusService";
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@core/utils/redisCache';
+import { normalizeAdStatus } from "@esparex/core/services/AdStatusService";
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@esparex/core/utils/redisCache';
 
 export const repostAdLogic = async (
     id: string,

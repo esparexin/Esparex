@@ -1,4 +1,4 @@
-jest.mock("@core/models/SavedAd", () => ({
+jest.mock("@esparex/core/models/SavedAd", () => ({
     __esModule: true,
     default: {
         aggregate: jest.fn(),
@@ -7,7 +7,7 @@ jest.mock("@core/models/SavedAd", () => ({
     },
 }));
 
-jest.mock("@core/models/Ad", () => ({
+jest.mock("@esparex/core/models/Ad", () => ({
     __esModule: true,
     default: {
         find: jest.fn(),
@@ -17,25 +17,25 @@ jest.mock("@core/models/Ad", () => ({
     },
 }));
 
-jest.mock("@core/services/ad/AdAggregationService", () => ({
+jest.mock("@esparex/core/services/ad/AdAggregationService", () => ({
     hydrateAdMetadata: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@core/utils/s3", () => ({
+jest.mock("@esparex/core/utils/s3", () => ({
     sanitizePersistedImageUrls: jest.fn((imgs: string[]) => imgs),
 }));
 
-jest.mock("@core/utils/serialize", () => ({
+jest.mock("@esparex/core/utils/serialize", () => ({
     serializeDoc: jest.fn((doc: unknown) => ({ ...(doc as object) })),
 }));
 
-jest.mock("@core/services/TrendingService", () => ({
+jest.mock("@esparex/core/services/TrendingService", () => ({
     recordAdAnalyticsEvent: jest.fn(),
 }));
 
-import SavedAd from "@core/models/SavedAd";
-import Ad from "@core/models/Ad";
-import { saveAd, unsaveAd } from "@core/services/SavedAdService";
+import SavedAd from "@esparex/core/models/SavedAd";
+import Ad from "@esparex/core/models/Ad";
+import { saveAd, unsaveAd } from "@esparex/core/services/SavedAdService";
 
 const mockSavedAd = SavedAd as unknown as {
     aggregate: jest.Mock;

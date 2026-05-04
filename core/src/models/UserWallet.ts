@@ -1,7 +1,7 @@
 // core/src/models/UserWallet.ts
 import { Schema, Model, Types } from "mongoose";
-import { getUserConnection } from "@core/config/db";
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { getUserConnection } from "@esparex/core/config/db";
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 
 export interface IUserWallet {
     userId: Types.ObjectId;

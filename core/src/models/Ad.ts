@@ -1,15 +1,15 @@
 import { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
-import softDeletePlugin, { ISoftDeleteDocument } from '@core/utils/softDeletePlugin';
-import { hasValidCoordinateArray, sanitizeGeoPoint } from '@shared';
-import { LISTING_STATUS, LISTING_STATUS_VALUES } from '@core/constants/enums/listingStatus';
-import { type AdStatusValue } from '@core/constants/enums/adStatus';
-import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@core/constants/enums/listingType';
-import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@core/constants/enums/moderationStatus';
-import { getUserConnection } from '@core/config/db';
+import softDeletePlugin, { ISoftDeleteDocument } from '@esparex/core/utils/softDeletePlugin';
+import { hasValidCoordinateArray, sanitizeGeoPoint } from '@esparex/shared';
+import { LISTING_STATUS, LISTING_STATUS_VALUES } from '@esparex/core/constants/enums/listingStatus';
+import { type AdStatusValue } from '@esparex/core/constants/enums/adStatus';
+import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/core/constants/enums/listingType';
+import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@esparex/core/constants/enums/moderationStatus';
+import { getUserConnection } from '@esparex/core/config/db';
 import Location from './Location';
-import logger from '@core/utils/logger';
-import { syncConversationAvailabilityForListing } from '@core/services/ChatAvailabilityService';
-import { generateUniqueSlug } from '@core/utils/slugGenerator';
+import logger from '@esparex/core/utils/logger';
+import { syncConversationAvailabilityForListing } from '@esparex/core/services/ChatAvailabilityService';
+import { generateUniqueSlug } from '@esparex/core/utils/slugGenerator';
 
 export interface IAd extends Document, ISoftDeleteDocument {
     title: string;

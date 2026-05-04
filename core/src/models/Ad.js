@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const softDeletePlugin_1 = __importDefault(require("@core/utils/softDeletePlugin"));
-const _shared_1 = require("@shared");
+const shared_1 = require("@esparex/shared");
 const listingStatus_1 = require("@core/constants/enums/listingStatus");
 const listingType_1 = require("@core/constants/enums/listingType");
 const moderationStatus_1 = require("@core/constants/enums/moderationStatus");
@@ -93,7 +93,7 @@ const AdSchema = new mongoose_1.Schema({
                 type: [Number],
                 required: true,
                 validate: {
-                    validator: (coords) => (0, _shared_1.hasValidCoordinateArray)(coords),
+                    validator: (coords) => (0, shared_1.hasValidCoordinateArray)(coords),
                     message: 'Valid [longitude, latitude] coordinates are required.'
                 }
             }
@@ -264,7 +264,7 @@ const sanitizeAdLocation = (value) => {
         return value;
     const location = value;
     if ('coordinates' in location) {
-        const nextGeo = (0, _shared_1.sanitizeGeoPoint)(location.coordinates);
+        const nextGeo = (0, shared_1.sanitizeGeoPoint)(location.coordinates);
         if (!nextGeo) {
             delete location.coordinates;
         }
@@ -347,7 +347,7 @@ AdSchema.pre('findOneAndUpdate', function () {
             setObj.location = sanitizeAdLocation(setObj.location);
         }
         if ('location.coordinates' in setObj) {
-            const nextGeo = (0, _shared_1.sanitizeGeoPoint)(setObj['location.coordinates']);
+            const nextGeo = (0, shared_1.sanitizeGeoPoint)(setObj['location.coordinates']);
             if (!nextGeo) {
                 delete setObj['location.coordinates'];
             }

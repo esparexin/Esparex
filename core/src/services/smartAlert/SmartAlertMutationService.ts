@@ -1,15 +1,15 @@
-import { PLAN_STATUS } from '@core/constants/enums/planStatus';
+import { PLAN_STATUS } from '@esparex/core/constants/enums/planStatus';
 import { calculateUserPlan } from '../PlanEngine';
 import { UserPlanModel, PlanModel } from '../PlanService';
 import { consumeCredit, credit as creditWallet, WalletModel } from '../WalletService';
 import { SmartAlertModel, type SmartAlertDocument } from '../SmartAlertService';
-import { resolveMasterDataIds } from '@core/utils/masterDataResolver';
-import { AppError } from '@core/utils/AppError';
-import { GOVERNANCE, MS_IN_DAY } from '@core/config/constants';
+import { resolveMasterDataIds } from '@esparex/core/utils/masterDataResolver';
+import { AppError } from '@esparex/core/utils/AppError';
+import { GOVERNANCE, MS_IN_DAY } from '@esparex/core/config/constants';
 import {
     normalizeCoordinates,
     normalizeLocation,
-} from "@core/services/location/LocationNormalizer";
+} from "@esparex/core/services/location/LocationNormalizer";
 
 export type SmartAlertCriteriaPayload = {
     keywords?: string;

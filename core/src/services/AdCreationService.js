@@ -43,7 +43,7 @@ const Ad_1 = __importDefault(require("@core/models/Ad"));
 const SparePart_1 = __importDefault(require("@core/models/SparePart"));
 const Brand_1 = __importDefault(require("@core/models/Brand"));
 const LocationNormalizer_1 = require("./location/LocationNormalizer");
-const _shared_1 = require("@shared");
+const shared_1 = require("@esparex/shared");
 const categoryCanonical_1 = require("@core/utils/categoryCanonical");
 const slugGenerator_1 = require("@core/utils/slugGenerator");
 const lifecycle_1 = require("@core/constants/enums/lifecycle");
@@ -170,7 +170,7 @@ class AdCreationService {
             if (normalized) {
                 payload.location = {
                     ...normalized,
-                    coordinates: (0, _shared_1.toGeoPoint)(normalized.coordinates)
+                    coordinates: (0, shared_1.toGeoPoint)(normalized.coordinates)
                 };
                 payload.locationId = normalized.locationId || normalized.id;
                 const canonicalId = toObjectIdString(payload.locationId);

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@core/types';
+import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@esparex/core/types';
 import { connectOpsDb } from './commandUtils';
 
 interface ReportDoc {

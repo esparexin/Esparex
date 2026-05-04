@@ -21,7 +21,7 @@ const CatalogOrchestrator_1 = __importDefault(require("@esparex/core/services/ca
 const CatalogValidationService_1 = require("@esparex/core/services/catalog/CatalogValidationService");
 const catalog_validator_1 = require("@esparex/core/validators/catalog.validator");
 const CategoryQueryBuilder_1 = __importDefault(require("@esparex/core/utils/CategoryQueryBuilder"));
-const listingType_1 = require("@shared/enums/listingType");
+const listingType_1 = require("@esparex/shared/enums/listingType");
 const redisCache_1 = require("@esparex/core/utils/redisCache");
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes

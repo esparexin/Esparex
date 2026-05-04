@@ -40,9 +40,9 @@ exports.getPrintableInvoice = exports.updateInvoiceStatus = exports.createInvoic
 const crypto_1 = require("crypto");
 const logger_1 = __importDefault(require("@esparex/core/utils/logger"));
 const adminLogger_1 = require("@esparex/core/utils/adminLogger");
-const paymentStatus_1 = require("@shared/enums/paymentStatus");
+const paymentStatus_1 = require("@esparex/shared/enums/paymentStatus");
 const invoiceNumber_1 = require("@esparex/core/utils/invoiceNumber");
-const planEntitlements_1 = require("@shared/utils/planEntitlements");
+const planEntitlements_1 = require("@esparex/shared/utils/planEntitlements");
 const invoiceService = __importStar(require("@esparex/core/services/InvoiceService"));
 const TransactionService_1 = require("@esparex/core/services/TransactionService");
 const PlanService_1 = require("@esparex/core/services/PlanService");

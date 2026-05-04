@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handlePaginatedContent = handlePaginatedContent;
-const listingType_1 = require("@shared/enums/listingType");
+const listingType_1 = require("@esparex/shared/enums/listingType");
 const adminBaseController_1 = require("./adminBaseController");
 const stringUtils_1 = require("@core/utils/stringUtils");
 const redisCache_1 = require("@core/utils/redisCache");

@@ -1,6 +1,6 @@
-import { LIFECYCLE_STATUS, type LifecycleStatus } from '@core/constants/enums/lifecycle';
-import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
-import { LISTING_STATUS_VALUES } from "@core/constants/enums/listingStatus";
+import { LIFECYCLE_STATUS, type LifecycleStatus } from '@esparex/core/constants/enums/lifecycle';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/core/constants/enums/listingType';
+import { LISTING_STATUS_VALUES } from "@esparex/core/constants/enums/listingStatus";
 import { getSystemConfigForRead } from './SystemConfigService';
 
 export type AdStatus = LifecycleStatus;
@@ -33,10 +33,10 @@ export const isValidAdStatus = (status: string): boolean => {
 };
 
 
-import Ad from '@core/models/Ad';
+import Ad from '@esparex/core/models/Ad';
 import { mutateStatus } from './StatusMutationService';
-import { MS_IN_DAY, GOVERNANCE } from '@core/config/constants';
-import logger from '@core/utils/logger';
+import { MS_IN_DAY, GOVERNANCE } from '@esparex/core/config/constants';
+import logger from '@esparex/core/utils/logger';
 import { lifecycleEvents } from '../events';
 import { ListingExpiryService } from './ListingExpiryService';
 

@@ -9,15 +9,15 @@
  * Both workspace files now re-export from here.
  */
 import { Request, Response, NextFunction } from 'express';
-import Admin, { type IAdmin } from '@core/models/Admin';
-import { getAdminCookieOptions } from '@core/utils/cookieHelper';
-import { verifyAdminToken } from '@core/utils/auth';
-import type { IAuthUser } from '@core/types/auth';
-import { sendErrorResponse } from '@core/utils/errorResponse';
-import { Role } from '@core/constants/enums/roles';
-import { getAdminSessionTtlMs, validateAdminSession } from '@core/services/AdminSessionService';
-import { USER_STATUS } from '@core/constants/enums/userStatus';
-import { normalizeAdminPermission, roleGrantsPermission } from '@core/constants/adminPermissions';
+import Admin, { type IAdmin } from '@esparex/core/models/Admin';
+import { getAdminCookieOptions } from '@esparex/core/utils/cookieHelper';
+import { verifyAdminToken } from '@esparex/core/utils/auth';
+import type { IAuthUser } from '@esparex/core/types/auth';
+import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
+import { Role } from '@esparex/core/constants/enums/roles';
+import { getAdminSessionTtlMs, validateAdminSession } from '@esparex/core/services/AdminSessionService';
+import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
+import { normalizeAdminPermission, roleGrantsPermission } from '@esparex/core/constants/adminPermissions';
 
 export const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
     const cookieToken = req.cookies?.admin_token as string | undefined;

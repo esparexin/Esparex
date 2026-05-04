@@ -225,7 +225,7 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
             SparePart.find({ _id: { $in: missing } }).lean<MetadataEntity[]>()
         ),
         fetchMetadataWithCache<MetadataEntity>(serviceTypeIds, 'servicetype', async (missing) => {
-            const ServiceType = (await import('@core/models/ServiceType')).default;
+            const ServiceType = (await import('@esparex/core/models/ServiceType')).default;
             return ServiceType.find({ _id: { $in: missing } }).select('name').lean<MetadataEntity[]>();
         })
     ]);

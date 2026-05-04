@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import { redisConnection } from "../queues/redisConnection";
-import logger from "@core/utils/logger";
+import logger from "@esparex/core/utils/logger";
 // Notification matching is handled exclusively by notificationMatchWorker.ts
 
 /**

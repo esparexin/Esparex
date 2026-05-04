@@ -1,5 +1,5 @@
 import mongoose, { Schema, Model, type Document } from 'mongoose';
-import { getUserConnection } from '@core/config/db';
+import { getUserConnection } from '@esparex/core/config/db';
 
 export interface ISellerReputation extends Document {
     userId: mongoose.Types.ObjectId;

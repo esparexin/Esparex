@@ -1,5 +1,5 @@
 import { connectOpsDb } from './commandUtils';
-import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@core/types';
+import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@esparex/core/types';
 
 /**
  * 🗺️ Add Missing Indian States/UTs

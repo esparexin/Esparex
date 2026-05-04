@@ -25,6 +25,7 @@
   "type": "commonjs",
   "dependencies": {
     "@esparex/core": "*",
+    "@esparex/shared": "*",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",

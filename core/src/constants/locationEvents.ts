@@ -5,4 +5,4 @@ export {
     type LocationEventReason,
     type LocationEventSource,
     type LocationEventType,
-} from "@shared/constants/locationEvents";
+} from "@esparex/shared/constants/locationEvents";

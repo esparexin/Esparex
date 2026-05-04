@@ -1,8 +1,8 @@
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
 import {
     isValidLifecycleTransition,
     validateTransition
-} from '@core/services/LifecycleGuard';
+} from '@esparex/core/services/LifecycleGuard';
 
 describe('LifecycleGuard', () => {
     it('allows only the approved transitions', () => {

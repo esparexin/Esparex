@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApiResponse = void 0;
 const serialize_1 = require("@core/utils/serialize");
-const trace_1 = require("@shared/observability/trace");
+const trace_1 = require("@esparex/shared/observability/trace");
 class ApiResponse {
     /**
      * Standard success response

@@ -7,9 +7,9 @@ export { respond } from "./respond";
  * Ensures the admin user has the required scope for the action.
  * Supports wildcard (*) for full access.
  */
-import type { IAuthUser as AuthUser } from '@core/types/auth';
+import type { IAuthUser as AuthUser } from '@esparex/core/types/auth';
 import { ApiResponse } from "./apiResponse";
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 
 
 /**

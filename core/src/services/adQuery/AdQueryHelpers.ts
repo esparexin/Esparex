@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { sanitizePersistedImageUrls } from '@core/utils/s3';
+import { sanitizePersistedImageUrls } from '@esparex/core/utils/s3';
 
 export type SortStage = Record<string, 1 | -1 | { $meta: 'textScore' }>;
 

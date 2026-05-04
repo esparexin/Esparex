@@ -1,5 +1,5 @@
-import { getCache, setCache, delCache, CACHE_NAMESPACES, CACHE_TTLS } from '@core/utils/redisCache';
-import logger from '@core/utils/logger';
+import { getCache, setCache, delCache, CACHE_NAMESPACES, CACHE_TTLS } from '@esparex/core/utils/redisCache';
+import logger from '@esparex/core/utils/logger';
 
 const LOCATION_DOC_PREFIX = `${CACHE_NAMESPACES.LOCATION}:doc`;
 

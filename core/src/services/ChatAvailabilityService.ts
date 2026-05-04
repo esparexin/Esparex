@@ -1,8 +1,8 @@
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import type { LifecycleStatus } from "@core/constants/enums/lifecycle";
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import type { LifecycleStatus } from "@esparex/core/constants/enums/lifecycle";
 import type { ClientSession } from 'mongoose';
-import { Conversation } from '@core/models/Conversation';
-import logger from '@core/utils/logger';
+import { Conversation } from '@esparex/core/models/Conversation';
+import logger from '@esparex/core/utils/logger';
 
 export type ListingChatState = {
   _id?: unknown;

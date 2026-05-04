@@ -1,6 +1,6 @@
-import { getUserConnection } from '@core/config/db';
-import { Invoice } from '@core/models/Invoice';
-import { Transaction, type ITransaction } from '@core/models/Transaction';
+import { getUserConnection } from '@esparex/core/config/db';
+import { Invoice } from '@esparex/core/models/Invoice';
+import { Transaction, type ITransaction } from '@esparex/core/models/Transaction';
 import { 
     credit, 
     buildWalletIncrement, 
@@ -18,8 +18,8 @@ import {
 } from './GatewayService';
 
 import { resolveCategoryName } from './TransactionService';
-import logger, { logBusiness, logSecurity } from '@core/utils/logger';
-import AdminLog from '@core/models/AdminLog';
+import logger, { logBusiness, logSecurity } from '@esparex/core/utils/logger';
+import AdminLog from '@esparex/core/models/AdminLog';
 
 export type PaymentProcessingSource = 'webhook' | 'recovery';
 

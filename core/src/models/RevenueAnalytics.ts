@@ -1,8 +1,8 @@
 // core/src/models/RevenueAnalytics.ts
 import { Schema, Document } from "mongoose";
-import { getAdminConnection } from "@core/config/db";
+import { getAdminConnection } from "@esparex/core/config/db";
 import type { Model } from "mongoose";
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 
 export interface IRevenueAnalytics extends Document {
     date: string; // YYYY-MM-DD

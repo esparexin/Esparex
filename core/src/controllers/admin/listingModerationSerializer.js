@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.serializeLegacyCountsAdapter = exports.serializeListingCountsResponse = exports.serializeLifecycleActionResponse = exports.serializeModerationDetailResponse = exports.serializeModerationListResponse = exports.serializeModerationListing = void 0;
-const adStatus_1 = require("@shared/enums/adStatus");
-const listingType_1 = require("@shared/enums/listingType");
+const adStatus_1 = require("@esparex/shared/enums/adStatus");
+const listingType_1 = require("@esparex/shared/enums/listingType");
 const MODERATION_STATUS_SET = new Set([
     adStatus_1.AD_STATUS.PENDING,
     adStatus_1.AD_STATUS.LIVE,

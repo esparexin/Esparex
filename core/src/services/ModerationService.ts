@@ -1,4 +1,4 @@
-import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
+import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
 
 /* ────────────────────────────────────────────── */
 /* MODERATION SERVICE                             */

@@ -1,4 +1,4 @@
-jest.mock('@core/services/WalletService', () => ({
+jest.mock('@esparex/core/services/WalletService', () => ({
     getWallet: jest.fn(),
     TransactionModel: {
         find: jest.fn(),
@@ -6,17 +6,17 @@ jest.mock('@core/services/WalletService', () => ({
     },
 }));
 
-jest.mock('@core/services/AdSlotService', () => ({
+jest.mock('@esparex/core/services/AdSlotService', () => ({
     getAdPostingBalance: jest.fn(),
 }));
 
-import { getAdPostingBalance } from '@core/services/AdSlotService';
-import { getWallet, TransactionModel } from '@core/services/WalletService';
+import { getAdPostingBalance } from '@esparex/core/services/AdSlotService';
+import { getWallet, TransactionModel } from '@esparex/core/services/WalletService';
 import {
     getPostingBalanceByUserId,
     getTransactionHistoryByUserId,
     getWalletSummaryByUserId,
-} from '@core/services/wallet/WalletQueryService';
+} from '@esparex/core/services/wallet/WalletQueryService';
 
 const mockedGetWallet = getWallet as jest.Mock;
 const mockedGetAdPostingBalance = getAdPostingBalance as jest.Mock;

@@ -3,7 +3,7 @@ import { sendSuccessResponse, sendAdminError, getPaginationParams, sendPaginated
 import { serializeBusinessForAdmin } from './business/shared';
 import * as adminBusinessService from '@esparex/core/services/AdminBusinessService';
 import { normalizeBusinessStatus } from '@esparex/core/utils/businessStatus';
-import { BUSINESS_STATUS } from "@shared/enums/businessStatus";
+import { BUSINESS_STATUS } from "@esparex/shared/enums/businessStatus";
 import { logAdminActionDirect } from '@esparex/core/utils/adminLogger';
 import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
 import type { IAuthUser } from '@esparex/core/types/auth';

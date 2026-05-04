@@ -1,5 +1,5 @@
 import { connectOpsDb } from './commandUtils';
-import { OpsCommand, OpsCommandResult } from '@core/types';
+import { OpsCommand, OpsCommandResult } from '@esparex/core/types';
 
 /**
  * 📋 Catalog Categorization Audit

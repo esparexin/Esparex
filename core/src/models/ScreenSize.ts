@@ -41,15 +41,15 @@ ScreenSizeSchema.index({ brandId: 1 }, { name: 'idx_screensize_brandId' });
 ScreenSizeSchema.index({ isActive: 1 }, { name: 'idx_screensize_isActive' });
 ScreenSizeSchema.index({ isDeleted: 1 }, { name: 'idx_screensize_isDeleted' });
 
-import softDeletePlugin from '@core/utils/softDeletePlugin';
+import softDeletePlugin from '@esparex/core/utils/softDeletePlugin';
 ScreenSizeSchema.plugin(softDeletePlugin);
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
-import { installSafeSoftDeleteQuery } from '@core/utils/safeSoftDeleteQuery';
+import { installSafeSoftDeleteQuery } from '@esparex/core/utils/safeSoftDeleteQuery';
 ScreenSizeSchema.plugin(installSafeSoftDeleteQuery);
 
-import { getUserConnection } from '@core/config/db';
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { getUserConnection } from '@esparex/core/config/db';
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 applyToJSONTransform(ScreenSizeSchema);
 
 const userConnection = getUserConnection();

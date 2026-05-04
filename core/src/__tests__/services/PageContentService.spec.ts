@@ -1,4 +1,4 @@
-jest.mock("@core/models/PageContent", () => ({
+jest.mock("@esparex/core/models/PageContent", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
@@ -11,9 +11,9 @@ import {
     findContentBySlug,
     upsertContentBySlug,
     getAllContent,
-} from "@core/services/PageContentService";
+} from "@esparex/core/services/PageContentService";
 
-import mockPageContentRaw from "@core/models/PageContent";
+import mockPageContentRaw from "@esparex/core/models/PageContent";
 
 const mockPageContent = mockPageContentRaw as unknown as {
     findOne: jest.Mock;

@@ -15,8 +15,8 @@
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "paths": {
-      "@shared/*": ["../shared/dist/*"],
-      "@shared": ["../shared/dist/index.d.ts"],
+      "@esparex/shared/*": ["../shared/src/*"],
+      "@esparex/shared": ["../shared/src/index.ts"],
       "@core/*": ["./src/*"],
       "@core": ["./src/index.ts"],
       "@esparex/core/*": ["./src/*"],

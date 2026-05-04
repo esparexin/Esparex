@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUser = exports.toggleAdminStatus = exports.deactivateAdmin = exports.deleteAdmin = exports.updateAdmin = exports.createAdmin = exports.updateUserStatus = exports.updateUser = exports.createUser = exports.verifyUser = exports.getUserById = exports.getAdminById = exports.getAdmins = exports.getUserManagementOverview = exports.getUsers = void 0;
 const userStatusService = __importStar(require("@esparex/core/services/UserStatusService"));
 const adminBaseController_1 = require("@esparex/core/utils/adminBaseController");
-const userStatus_1 = require("@shared/enums/userStatus");
+const userStatus_1 = require("@esparex/shared/enums/userStatus");
 const adminUsersService = __importStar(require("@esparex/core/services/AdminUsersService"));
 const adminLogger_1 = require("@esparex/core/utils/adminLogger");
 // ---------------------------------------------------------

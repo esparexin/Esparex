@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import { randomInt } from 'crypto';
 import logger from '@esparex/core/utils/logger';
 import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { PAYMENT_STATUS } from "@shared/enums/paymentStatus";
+import { PAYMENT_STATUS } from "@esparex/shared/enums/paymentStatus";
 import { generateInvoiceNumber } from '@esparex/core/utils/invoiceNumber';
-import { getPrimaryPlanCreditCount } from "@shared/utils/planEntitlements";
+import { getPrimaryPlanCreditCount } from "@esparex/shared/utils/planEntitlements";
 import * as invoiceService from '@esparex/core/services/InvoiceService';
 import {
     createPaymentTransaction,

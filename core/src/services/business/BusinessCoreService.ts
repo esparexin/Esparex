@@ -1,15 +1,15 @@
 import mongoose from 'mongoose';
-import Business from '@core/models/Business';
-import User from '@core/models/User';
-import Ad from '@core/models/Ad';
-import { normalizeAdImagesForResponse } from "@core/services/adQuery/AdQueryHelpers";
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import { AppError } from '@core/utils/AppError';
-import { getUserConnection } from '@core/config/db';
-import logger from '@core/utils/logger';
-import { normalizeLocation } from "@core/services/location/LocationNormalizer";
-import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
-import { processImages } from '@core/utils/imageProcessor';
+import Business from '@esparex/core/models/Business';
+import User from '@esparex/core/models/User';
+import Ad from '@esparex/core/models/Ad';
+import { normalizeAdImagesForResponse } from "@esparex/core/services/adQuery/AdQueryHelpers";
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { AppError } from '@esparex/core/utils/AppError';
+import { getUserConnection } from '@esparex/core/config/db';
+import logger from '@esparex/core/utils/logger';
+import { normalizeLocation } from "@esparex/core/services/location/LocationNormalizer";
+import { BUSINESS_STATUS } from '@esparex/core/constants/enums/businessStatus';
+import { processImages } from '@esparex/core/utils/imageProcessor';
 
 import {
     asBusinessDocView,

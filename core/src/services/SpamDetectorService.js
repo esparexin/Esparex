@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.detectSpam = void 0;
-const textValidator_1 = require("@shared/utils/textValidator");
+const textValidator_1 = require("@esparex/shared/utils/textValidator");
 /**
  * Spam Detector Service
  * Integrates with centralized text validator for comprehensive checks

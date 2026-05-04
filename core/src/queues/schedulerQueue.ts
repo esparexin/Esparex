@@ -1,7 +1,7 @@
 import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
-import logger from '@core/utils/logger';
-import { env } from '@core/config/env';
-import { registerWorkerWithTrace, type TraceableJobData } from '@core/utils/queueWrapper';
+import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core/config/env';
+import { registerWorkerWithTrace, type TraceableJobData } from '@esparex/core/utils/queueWrapper';
 
 export type SchedulerJobName =
     | 'expire_ads_job'

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-jest.mock("@core/config/db", () => ({
+jest.mock("@esparex/core/config/db", () => ({
     getUserConnection: () => ({
         models: {},
         model: () => ({
@@ -13,7 +13,7 @@ jest.mock("@core/config/db", () => ({
     }),
 }));
 
-jest.mock("@core/models/Location", () => ({
+jest.mock("@esparex/core/models/Location", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
@@ -24,7 +24,7 @@ jest.mock("@core/models/Location", () => ({
     },
 }));
 
-jest.mock("@core/models/LocationAnalytics", () => ({
+jest.mock("@esparex/core/models/LocationAnalytics", () => ({
     __esModule: true,
     default: {
         updateOne: jest.fn(),
@@ -32,12 +32,12 @@ jest.mock("@core/models/LocationAnalytics", () => ({
     },
 }));
 
-jest.mock("@core/models/AdminBoundary", () => ({
+jest.mock("@esparex/core/models/AdminBoundary", () => ({
     __esModule: true,
     default: { find: jest.fn() },
 }));
 
-jest.mock("@core/utils/redisCache", () => ({
+jest.mock("@esparex/core/utils/redisCache", () => ({
     getCache: jest.fn().mockResolvedValue(null),
     setCache: jest.fn().mockResolvedValue(undefined),
     CACHE_KEYS: {
@@ -46,17 +46,17 @@ jest.mock("@core/utils/redisCache", () => ({
     CACHE_TTLS: { REVERSE_GEOCODE: 300 },
 }));
 
-import Location from "@core/models/Location";
-import AdminBoundary from "@core/models/AdminBoundary";
+import Location from "@esparex/core/models/Location";
+import AdminBoundary from "@esparex/core/models/AdminBoundary";
 import {
     getAreasByCityId,
     getCitiesByStateId,
     getDefaultCenterLocation,
     getStateLocations
-} from "@core/services/location/LocationHierarchyService";
-import { lookupLocationByPincode } from "@core/services/location/LocationSearchService";
-import { normalizeLocation } from "@core/services/location/LocationNormalizer";
-import { reverseGeocode } from "@core/services/location/ReverseGeocodeService";
+} from "@esparex/core/services/location/LocationHierarchyService";
+import { lookupLocationByPincode } from "@esparex/core/services/location/LocationSearchService";
+import { normalizeLocation } from "@esparex/core/services/location/LocationNormalizer";
+import { reverseGeocode } from "@esparex/core/services/location/ReverseGeocodeService";
 
 const mockLocationModel = Location as unknown as {
     findOne: jest.Mock;

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import Location from '@core/models/Location';
+import Location from '@esparex/core/models/Location';
 import { escapeRegExp, toTitleCase } from './stringUtils';
 import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel } from './locationPrimitives';
 import { toObjectId } from './idUtils';

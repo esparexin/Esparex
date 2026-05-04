@@ -9,7 +9,7 @@ import { requirePermission, requireSuperAdmin } from '../../middleware/adminAuth
 import { searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
 import { validateRequest } from '../../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
-import { PlanPayloadSchema, PartialPlanPayloadSchema } from "@shared/schemas/planPayload.schema";
+import { PlanPayloadSchema, PartialPlanPayloadSchema } from "@esparex/shared/schemas/planPayload.schema";
 
 import * as usersController from '@esparex/core/controllers/admin/adminUsersController';
 import * as businessController from '@esparex/core/controllers/admin/adminBusinessController';

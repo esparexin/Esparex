@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import SavedAd from '@core/models/SavedAd';
-import Ad from '@core/models/Ad';
+import SavedAd from '@esparex/core/models/SavedAd';
+import Ad from '@esparex/core/models/Ad';
 import { hydrateAdMetadata, type HydratedAd } from './ad/AdAggregationService';
-import { sanitizePersistedImageUrls } from '@core/utils/s3';
-import { serializeDoc } from '@core/utils/serialize';
+import { sanitizePersistedImageUrls } from '@esparex/core/utils/s3';
+import { serializeDoc } from '@esparex/core/utils/serialize';
 import { recordAdAnalyticsEvent } from './TrendingService';
 
 export const getSavedAds = async (userId: string, page: number, limit: number) => {

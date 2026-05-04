@@ -1,9 +1,9 @@
 import mongoose, { ClientSession } from 'mongoose';
 import { createHash } from 'crypto';
-import Ad from '@core/models/Ad';
-import DuplicateEvent from '@core/models/DuplicateEvent';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import logger from '@core/utils/logger';
+import Ad from '@esparex/core/models/Ad';
+import DuplicateEvent from '@esparex/core/models/DuplicateEvent';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import logger from '@esparex/core/utils/logger';
 
 // ─────────────────────────────────────────────────
 // TYPES

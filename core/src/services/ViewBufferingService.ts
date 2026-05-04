@@ -1,6 +1,6 @@
-import redis, { shouldDisableRedis } from '@core/config/redis';
-import AdMetrics from '@core/models/AdMetrics';
-import logger from '@core/utils/logger';
+import redis, { shouldDisableRedis } from '@esparex/core/config/redis';
+import AdMetrics from '@esparex/core/models/AdMetrics';
+import logger from '@esparex/core/utils/logger';
 import mongoose from 'mongoose';
 
 /**

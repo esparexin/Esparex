@@ -1,9 +1,9 @@
-import logger from '@core/utils/logger';
-import AdminMetrics from '@core/models/AdminMetrics';
-import User from '@core/models/User';
-import Business from '@core/models/Business';
-import { USER_STATUS } from '@core/constants/enums/userStatus';
-import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
+import logger from '@esparex/core/utils/logger';
+import AdminMetrics from '@esparex/core/models/AdminMetrics';
+import User from '@esparex/core/models/User';
+import Business from '@esparex/core/models/Business';
+import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
+import { BUSINESS_STATUS } from '@esparex/core/constants/enums/businessStatus';
 
 export const runAdminMetricsJob = async () => {
     logger.info('Starting AdminMetrics cron job...');

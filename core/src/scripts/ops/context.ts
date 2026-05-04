@@ -1,4 +1,4 @@
-import { OpsFlags } from '@core/types';
+import { OpsFlags } from '@esparex/core/types';
 
 export interface ParsedOpsArgs {
   commandName: string | null;

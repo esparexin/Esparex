@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 
-import { NOTIFICATION_TYPE } from "@shared/enums/notificationType";
+import { NOTIFICATION_TYPE } from "@esparex/shared/enums/notificationType";
 import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
 import {
     createNotificationLog,

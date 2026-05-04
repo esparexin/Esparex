@@ -4,8 +4,8 @@ exports.adminBusinessUpdateSchema = exports.adminBusinessStatusSchema = exports.
 const zod_1 = require("zod");
 const common_1 = require("./common");
 const phoneUtils_1 = require("@core/utils/phoneUtils");
-const common_schemas_1 = require("@shared/schemas/common.schemas");
-const textValidator_1 = require("@shared/utils/textValidator");
+const common_schemas_1 = require("@esparex/shared/schemas/common.schemas");
+const textValidator_1 = require("@esparex/shared/utils/textValidator");
 const idProofType_1 = require("@core/constants/enums/idProofType");
 const businessStatus_1 = require("@core/constants/enums/businessStatus");
 const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'];

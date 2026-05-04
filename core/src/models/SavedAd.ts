@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 
 export interface ISavedAd extends Document {
     userId: mongoose.Types.ObjectId;
@@ -23,7 +23,7 @@ SavedAdSchema.index({ userId: 1, createdAt: -1 }, { name: 'idx_savedad_userId_cr
 
 applyToJSONTransform(SavedAdSchema);
 
-import { getUserConnection } from '@core/config/db';
+import { getUserConnection } from '@esparex/core/config/db';
 const SavedAd: Model<ISavedAd> = (getUserConnection().models.SavedAd as Model<ISavedAd> | undefined) || getUserConnection().model<ISavedAd>('SavedAd', SavedAdSchema);
 
 export default SavedAd;

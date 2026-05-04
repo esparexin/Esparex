@@ -1,6 +1,6 @@
-import { getUserConnection } from '@core/config/db';
-import logger from '@core/utils/logger';
-import { env } from '@core/config/env';
+import { getUserConnection } from '@esparex/core/config/db';
+import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core/config/env';
 
 const STRICT_ENV_FLAG = 'ENABLE_STRICT_DUPLICATE_INDEX';
 const DEFAULT_MIGRATION_TAG = '20260219193000_backfill_duplicate_fingerprint_and_image_hashes';

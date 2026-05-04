@@ -1,7 +1,7 @@
 import logger from './logger';
-import Category from '@core/models/Category';
-import Brand from '@core/models/Brand';
-import ProductModel from '@core/models/Model';
+import Category from '@esparex/core/models/Category';
+import Brand from '@esparex/core/models/Brand';
+import ProductModel from '@esparex/core/models/Model';
 import type { Model as MongooseModel } from 'mongoose';
 
 const STARTUP_COUNT_MAX_TIME_MS = 1200;

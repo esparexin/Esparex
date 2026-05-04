@@ -1,7 +1,7 @@
 import { Schema, Document, Types, Model } from 'mongoose'
-import { ISoftDeleteDocument } from '@core/utils/softDeletePlugin'
-import softDeletePlugin from '@core/utils/softDeletePlugin'
-import { CATALOG_STATUS } from '@core/constants/enums/catalogStatus'
+import { ISoftDeleteDocument } from '@esparex/core/utils/softDeletePlugin'
+import softDeletePlugin from '@esparex/core/utils/softDeletePlugin'
+import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus'
 
 export interface IBrand extends Document, ISoftDeleteDocument {
   name: string
@@ -48,7 +48,7 @@ const BrandSchema = new Schema<IBrand>({
 BrandSchema.plugin(softDeletePlugin);
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
-import { installSafeSoftDeleteQuery } from '@core/utils/safeSoftDeleteQuery';
+import { installSafeSoftDeleteQuery } from '@esparex/core/utils/safeSoftDeleteQuery';
 BrandSchema.plugin(installSafeSoftDeleteQuery);
 
 // 🚀 CORE INDEXES (Aligned with Atlas ground truth in migrations)
@@ -89,7 +89,7 @@ BrandSchema.index(
  * - brand_name_categoryId_text_idx: { name: 1, categoryId: 1 } (Collation: {locale: 'en', strength: 2})
  */
 
-import { getUserConnection } from '@core/config/db'
+import { getUserConnection } from '@esparex/core/config/db'
 
 BrandSchema.pre('deleteOne',
   { document: true, query: false },

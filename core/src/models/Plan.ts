@@ -1,8 +1,8 @@
 import { Schema, Document } from "mongoose";
-import { getUserConnection } from "@core/config/db";
+import { getUserConnection } from "@esparex/core/config/db";
 import type { Model } from "mongoose";
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
-import type { Plan as SharedPlan } from "@shared/types/Plan";
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import type { Plan as SharedPlan } from "@esparex/shared/types/Plan";
 
 export interface IPlan extends Document, Omit<SharedPlan, "id" | "createdAt" | "updatedAt"> {
     createdByAdmin: Schema.Types.ObjectId;

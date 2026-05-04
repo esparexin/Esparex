@@ -12,17 +12,17 @@
  * Do NOT duplicate these checks inside individual controllers.
  */
 
-import { CATALOG_STATUS } from '@core/constants/enums/catalogStatus';
+import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
 import type {
     HierarchyTreeResponse,
-} from "@shared/types/CatalogHierarchy";
+} from "@esparex/shared/types/CatalogHierarchy";
 import type { AnyBulkWriteOperation } from 'mongoose';
 import mongoose from 'mongoose';
-import Category from '@core/models/Category';
-import Brand, { IBrand } from '@core/models/Brand';
-import Model from '@core/models/Model';
-import SparePartModel, { ISparePart } from '@core/models/SparePart';
-import ScreenSize, { IScreenSize } from '@core/models/ScreenSize';
+import Category from '@esparex/core/models/Category';
+import Brand, { IBrand } from '@esparex/core/models/Brand';
+import Model from '@esparex/core/models/Model';
+import SparePartModel, { ISparePart } from '@esparex/core/models/SparePart';
+import ScreenSize, { IScreenSize } from '@esparex/core/models/ScreenSize';
 import { getActiveCategoryIds } from './CatalogValidationService';
 
 type WithId = { _id: unknown };

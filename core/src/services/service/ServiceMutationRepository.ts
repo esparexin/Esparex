@@ -1,4 +1,4 @@
-import Ad from '@core/models/Ad';
+import Ad from '@esparex/core/models/Ad';
 
 export const findServiceForUpdate = async (
     id: string,

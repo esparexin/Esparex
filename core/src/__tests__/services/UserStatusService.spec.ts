@@ -1,11 +1,11 @@
-jest.mock("@core/models/User", () => ({
+jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: {
         findByIdAndUpdate: jest.fn(),
     },
 }));
 
-jest.mock("@core/models/Ad", () => ({
+jest.mock("@esparex/core/models/Ad", () => ({
     __esModule: true,
     default: {
         updateMany: jest.fn(),
@@ -17,17 +17,17 @@ jest.mock("@core/models/Ad", () => ({
     },
 }));
 
-jest.mock("@core/models/SmartAlert", () => ({
+jest.mock("@esparex/core/models/SmartAlert", () => ({
     __esModule: true,
     default: {
         updateMany: jest.fn(),
     },
 }));
 
-import User from "@core/models/User";
-import Ad from "@core/models/Ad";
-import SmartAlert from "@core/models/SmartAlert";
-import { updateUserStatus } from "@core/services/UserStatusService";
+import User from "@esparex/core/models/User";
+import Ad from "@esparex/core/models/Ad";
+import SmartAlert from "@esparex/core/models/SmartAlert";
+import { updateUserStatus } from "@esparex/core/services/UserStatusService";
 
 describe("userStatusService audit integration", () => {
     const mockUserFindByIdAndUpdate = (User as unknown as { findByIdAndUpdate: jest.Mock }).findByIdAndUpdate;

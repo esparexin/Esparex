@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
-import { env } from '@core/config/env';
-import Ad from '@core/models/Ad';
-import Boost from '@core/models/Boost';
-import { buildAdMatchStage } from "@core/services/ad/AdSearchService";
-import { buildHomeFeedPipeline } from "@core/services/ad/AdFeedService";
-import type { AdFilters } from "@core/services/ad/_shared/adFilterHelpers";
-import { normalizeAdImagesForResponse } from "@core/services/adQuery/AdQueryHelpers";
-import { buildGeoNearStage, normalizeGeoInput } from '@core/utils/mongoGeoUtils';
-import type { HomeFeedResponse } from "@shared/types/Api";
-import logger from '@core/utils/logger';
+import { env } from '@esparex/core/config/env';
+import Ad from '@esparex/core/models/Ad';
+import Boost from '@esparex/core/models/Boost';
+import { buildAdMatchStage } from "@esparex/core/services/ad/AdSearchService";
+import { buildHomeFeedPipeline } from "@esparex/core/services/ad/AdFeedService";
+import type { AdFilters } from "@esparex/core/services/ad/_shared/adFilterHelpers";
+import { normalizeAdImagesForResponse } from "@esparex/core/services/adQuery/AdQueryHelpers";
+import { buildGeoNearStage, normalizeGeoInput } from '@esparex/core/utils/mongoGeoUtils';
+import type { HomeFeedResponse } from "@esparex/shared/types/Api";
+import logger from '@esparex/core/utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';
 import { HomeFeedRequest, ParsedHomeFeedCursor } from './FeedCursorService';
 import { 
@@ -29,7 +29,7 @@ export const buildHomeFeed = async (
     limit: number,
     cursor: ParsedHomeFeedCursor | null
 ): Promise<HomeFeedResponse> => {
-    const { LISTING_TYPE } = await import('@core/constants/enums/listingType');
+    const { LISTING_TYPE } = await import('@esparex/core/constants/enums/listingType');
 
     const startedAt = Date.now();
     

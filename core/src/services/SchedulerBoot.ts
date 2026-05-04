@@ -1,5 +1,5 @@
-import logger from '@core/utils/logger';
-import redis from '@core/config/redis';
+import logger from '@esparex/core/utils/logger';
+import redis from '@esparex/core/config/redis';
 import { startSchedulerQueueEngine, stopSchedulerQueueEngine } from './SchedulerQueueEngine';
 import { randomUUID } from 'crypto';
 

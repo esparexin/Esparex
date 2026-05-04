@@ -2,13 +2,13 @@ import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
 import { respond } from "@esparex/core/utils/respond";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { ApiResponse } from "@shared/types/Api";
+import { ApiResponse } from "@esparex/shared/types/Api";
 import {
     createSavedSearch,
     deleteSavedSearch,
     getSavedSearches
 } from '@esparex/core/services/SavedSearchService';
-import type { SavedSearchCreatePayload } from "@shared/schemas/savedSearch.schema";
+import type { SavedSearchCreatePayload } from "@esparex/shared/schemas/savedSearch.schema";
 
 const getUserId = (req: Request): string | null => {
     const user = req.user;

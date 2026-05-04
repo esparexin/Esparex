@@ -31,9 +31,9 @@
 import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
-import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@core/types';
+import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@esparex/core/types';
 import { connectOpsDb } from './commandUtils';
-import { closeDB } from '@core/config/db';
+import { closeDB } from '@esparex/core/config/db';
 
 const DEFAULT_GEOJSON_URL =
     'https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson';
@@ -128,7 +128,7 @@ export const adminBoundaryIngestCommand: OpsCommand = {
 
         try {
             const [{ default: AdminBoundary }] = await Promise.all([
-                import('@core/models/AdminBoundary'),
+                import('@esparex/core/models/AdminBoundary'),
             ]);
 
             if (!db) throw new Error('DB handle not available');

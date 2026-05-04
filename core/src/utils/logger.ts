@@ -10,9 +10,9 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
-import { env, isProduction, isDevelopment, isTest } from '@core/config/env';
-import { TraceContext } from "@shared/observability/trace";
-import type { Logger as BaseLogger, LogDetails, LogLevel } from "@shared/observability/types";
+import { env, isProduction, isDevelopment, isTest } from '@esparex/core/config/env';
+import { TraceContext } from "@esparex/shared/observability/trace";
+import type { Logger as BaseLogger, LogDetails, LogLevel } from "@esparex/shared/observability/types";
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldSilenceForTests = isTest || isJestRuntime;
@@ -300,7 +300,7 @@ export function logSecurity(
  */
 export function logExternalAPI(service: string, endpoint: string, durationMs: number, success: boolean, error?: Error) {
     // 📊 RECORD PROMETHEUS METRIC
-    import('@core/utils/metrics').then(({ externalApiDuration: prometheusMetric }) => {
+    import('@esparex/core/utils/metrics').then(({ externalApiDuration: prometheusMetric }) => {
         prometheusMetric.labels(service, endpoint, success ? 'success' : 'failed').observe(durationMs / 1000);
     }).catch(() => {});
 

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const db_1 = require("@core/config/db");
 const softDeletePlugin_1 = __importDefault(require("@core/utils/softDeletePlugin"));
-const geoUtils_1 = require("@shared/utils/geoUtils");
+const geoUtils_1 = require("@esparex/shared/utils/geoUtils");
 const locationPrimitives_1 = require("@core/utils/locationPrimitives");
 const locationStatus_1 = require("@core/constants/enums/locationStatus");
 /* -------------------------------------------------------------------------- */

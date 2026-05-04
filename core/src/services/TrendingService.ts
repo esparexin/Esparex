@@ -1,13 +1,13 @@
 import mongoose, { type PipelineStage } from 'mongoose';
-import Ad from '@core/models/Ad';
-import AdAnalytics from '@core/models/AdAnalytics';
-import Category from '@core/models/Category';
-import { getCache, setCache } from '@core/utils/redisCache';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import logger from '@core/utils/logger';
+import Ad from '@esparex/core/models/Ad';
+import AdAnalytics from '@esparex/core/models/AdAnalytics';
+import Category from '@esparex/core/models/Category';
+import { getCache, setCache } from '@esparex/core/utils/redisCache';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import logger from '@esparex/core/utils/logger';
 import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';
-import { toObjectId } from '@core/utils/idUtils';
-import { LISTING_TYPE } from '@core/constants/enums/listingType';
+import { toObjectId } from '@esparex/core/utils/idUtils';
+import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
 
 type AnalyticsEventType = 'view' | 'favorite';
 

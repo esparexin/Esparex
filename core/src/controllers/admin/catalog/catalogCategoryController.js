@@ -22,7 +22,7 @@ const categoryCanonical_1 = require("@esparex/core/utils/categoryCanonical");
 // Note: constants/categorySchema was removed; category filters are now DB-stored.
 const catalog_validator_1 = require("@esparex/core/validators/catalog.validator");
 const shared_1 = require("./shared");
-const catalogStatus_1 = require("@shared/enums/catalogStatus");
+const catalogStatus_1 = require("@esparex/shared/enums/catalogStatus");
 const redisCache_1 = require("@esparex/core/utils/redisCache");
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Category operations delegated to shared.ts or CatalogOrchestrator.

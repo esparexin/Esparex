@@ -17,10 +17,10 @@
     "jsx": "react-jsx",
     "lib": ["ES2023", "DOM"],
     "paths": {
-      "@shared/*": ["./../../shared/dist/*", "./../../shared/src/*"],
-      "@shared": ["./../../shared/dist/index.d.ts", "./../../shared/src/index.ts"],
-      "@esparex/core/*": ["./../../core/dist/*", "./../../core/src/*"],
-      "@esparex/core": ["./../../core/dist/index.d.ts", "./../../core/src/index.ts"]
+      "@esparex/shared/*": ["./../../shared/dist/*"],
+      "@esparex/shared": ["./../../shared/dist/index.d.ts"],
+      "@esparex/core/*": ["./../../core/dist/*"],
+      "@esparex/core": ["./../../core/dist/index.d.ts"]
     }
   },
   "include": [

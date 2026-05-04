@@ -8,9 +8,9 @@
 
 import { backupDatabase, cleanupOldBackups } from '../scripts/backup-database';
 import { verifyBackup } from '../scripts/verify-backup';
-import { env, isProduction } from '@core/config/env';
-import logger from '@core/utils/logger';
-import { runWithDistributedJobLock } from '@core/utils/distributedJobLock';
+import { env, isProduction } from '@esparex/core/config/env';
+import logger from '@esparex/core/utils/logger';
+import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
 
 /**
  * Run backup job

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { commonSchemas, sanitizeString } from './common';
-import { REPORT_REASON_VALUES } from '@core/constants/enums/reportReason';
-import { REPORT_TARGET_TYPE_VALUES } from '@core/models/Report';
+import { REPORT_REASON_VALUES } from '@esparex/core/constants/enums/reportReason';
+import { REPORT_TARGET_TYPE_VALUES } from '@esparex/core/models/Report';
 
 const optionalTrimmed = (max: number) =>
     z.string().max(max).transform((val) => val.replace(/<[^>]*>/g, '').trim()).optional();

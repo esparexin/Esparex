@@ -1,12 +1,12 @@
 import { Schema, Document, Model } from 'mongoose';
-import { getAdminConnection } from '@core/config/db';
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { getAdminConnection } from '@esparex/core/config/db';
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 import {
     LOCATION_EVENT_REASONS,
     LOCATION_EVENT_SOURCES,
     LocationEventReason,
     LocationEventSource,
-} from '@core/constants/locationEvents';
+} from '@esparex/core/constants/locationEvents';
 
 export interface ILocationEvent extends Document {
     userId?: Schema.Types.ObjectId;

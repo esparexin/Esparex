@@ -7,14 +7,14 @@
  *  - limits are enforced correctly when quota is exceeded
  */
 
-jest.mock('@core/services/AdSlotService', () => ({
+jest.mock('@esparex/core/services/AdSlotService', () => ({
     withUserPostingLock: jest.fn((_id: string, _ttl: number, fn: () => Promise<unknown>) => fn()),
     getAdPostingBalance: jest.fn(),
     AdSlotService: { consumeSlot: jest.fn() },
     getMonthlyCycleStart: jest.fn(),
 }));
 
-jest.mock('@core/models/UserPlan', () => ({
+jest.mock('@esparex/core/models/UserPlan', () => ({
     __esModule: true,
     default: {
         find: jest.fn().mockReturnValue({
@@ -27,7 +27,7 @@ jest.mock('@core/models/UserPlan', () => ({
     },
 }));
 
-jest.mock('@core/models/Ad', () => ({
+jest.mock('@esparex/core/models/Ad', () => ({
     __esModule: true,
     default: {
         countDocuments: jest.fn().mockReturnValue({
@@ -36,18 +36,18 @@ jest.mock('@core/models/Ad', () => ({
     },
 }));
 
-jest.mock('@core/models/UserWallet', () => ({
+jest.mock('@esparex/core/models/UserWallet', () => ({
     __esModule: true,
     default: { updateMany: jest.fn() },
 }));
 
-jest.mock('@core/services/PlanEngine', () => ({
+jest.mock('@esparex/core/services/PlanEngine', () => ({
     calculateUserPlan: jest.fn(),
 }));
 
-import Ad from '@core/models/Ad';
-import { calculateUserPlan } from '@core/services/PlanEngine';
-import { checkPostLimit } from '@core/services/PlanService';
+import Ad from '@esparex/core/models/Ad';
+import { calculateUserPlan } from '@esparex/core/services/PlanEngine';
+import { checkPostLimit } from '@esparex/core/services/PlanService';
 
 const mockedAd = Ad as unknown as { countDocuments: jest.Mock };
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;

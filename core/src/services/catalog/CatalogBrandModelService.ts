@@ -6,12 +6,12 @@
  * without importing from models/ directly.
  */
 
-import BrandModelImport from '@core/models/Brand';
-import CatalogModelImport from '@core/models/Model';
-import AdModel from '@core/models/Ad';
-import SparePartModel from '@core/models/SparePart';
-import CategoryModel from '@core/models/Category';
-import { CATALOG_STATUS } from '@core/constants/enums/catalogStatus';
+import BrandModelImport from '@esparex/core/models/Brand';
+import CatalogModelImport from '@esparex/core/models/Model';
+import AdModel from '@esparex/core/models/Ad';
+import SparePartModel from '@esparex/core/models/SparePart';
+import CategoryModel from '@esparex/core/models/Category';
+import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
 
 // Re-export model instances for generic handler calls in the controller layer

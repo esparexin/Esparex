@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
-import { AppError } from '@core/utils/AppError';
-import logger from '@core/utils/logger';
-import Ad from '@core/models/Ad';
-import { getUserConnection } from '@core/config/db';
-import { LISTING_TYPE } from '@core/constants/enums/listingType';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import { LIFECYCLE_STATUS } from '@core/constants/enums/lifecycle';
+import { AppError } from '@esparex/core/utils/AppError';
+import logger from '@esparex/core/utils/logger';
+import Ad from '@esparex/core/models/Ad';
+import { getUserConnection } from '@esparex/core/config/db';
+import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { LIFECYCLE_STATUS } from '@esparex/core/constants/enums/lifecycle';
 import { consumeCredit } from '../WalletService';
-import { invalidateAdFeedCaches } from '@core/utils/redisCache';
+import { invalidateAdFeedCaches } from '@esparex/core/utils/redisCache';
 
 export const promoteAdLogic = async (
     id: string,
@@ -16,8 +16,8 @@ export const promoteAdLogic = async (
     userId: string,
     isAdmin: boolean = false
 ) => {
-    const Boost = (await import('@core/models/Boost')).default;
-    const User = (await import('@core/models/User')).default;
+    const Boost = (await import('@esparex/core/models/Boost')).default;
+    const User = (await import('@esparex/core/models/User')).default;
 
     if (!mongoose.Types.ObjectId.isValid(id)) throw new AppError('Invalid Ad ID', 400);
 

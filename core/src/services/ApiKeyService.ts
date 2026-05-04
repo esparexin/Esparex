@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import mongoose from 'mongoose';
-import ApiKey from '@core/models/ApiKey';
-import { API_KEY_STATUS } from '@core/constants/enums/apiKeyStatus';
+import ApiKey from '@esparex/core/models/ApiKey';
+import { API_KEY_STATUS } from '@esparex/core/constants/enums/apiKeyStatus';
 
 const hashApiKey = (rawKey: string) => crypto.createHash('sha256').update(rawKey).digest('hex');
 

@@ -21,11 +21,11 @@
  */
 
 import mongoose from 'mongoose';
-import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@core/types';
-import { CATALOG_STATUS } from "@core/constants/enums/catalogStatus";
-import { USER_STATUS } from "@core/constants/enums/userStatus";
+import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@esparex/core/types';
+import { CATALOG_STATUS } from "@esparex/core/constants/enums/catalogStatus";
+import { USER_STATUS } from "@esparex/core/constants/enums/userStatus";
 import { connectOpsDb } from './commandUtils';
-import { closeDB } from '@core/config/db';
+import { closeDB } from '@esparex/core/config/db';
 import { installCatalogPromotionListener } from '../../../events/listeners/CatalogPromotionListener';
 
 
@@ -68,11 +68,11 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
             { default: User },
             { lifecycleEvents },
         ] = await Promise.all([
-            import('@core/models/Category'),
-            import('@core/models/Brand'),
-            import('@core/models/Model'),
-            import('@core/models/Ad'),
-            import('@core/models/User'),
+            import('@esparex/core/models/Category'),
+            import('@esparex/core/models/Brand'),
+            import('@esparex/core/models/Model'),
+            import('@esparex/core/models/Ad'),
+            import('@esparex/core/models/User'),
             import('../../../events'),
         ]);
 
@@ -216,8 +216,8 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
         } finally {
             // 7. Always clean up test data and disconnect
             const [{ default: Ad }, { default: Model }] = await Promise.all([
-                import('@core/models/Ad'),
-                import('@core/models/Model'),
+                import('@esparex/core/models/Ad'),
+                import('@esparex/core/models/Model'),
             ]);
 
             const cleanupOps: Promise<unknown>[] = [];

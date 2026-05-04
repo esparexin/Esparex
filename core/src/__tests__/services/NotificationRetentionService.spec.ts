@@ -1,16 +1,16 @@
-jest.mock("@core/models/Notification", () => ({
+jest.mock("@esparex/core/models/Notification", () => ({
     __esModule: true,
     default: {
         deleteMany: jest.fn(),
     },
 }));
 
-import Notification from "@core/models/Notification";
+import Notification from "@esparex/core/models/Notification";
 import {
     getNotificationReadRetentionCutoff,
     getVisibleNotificationWindowQuery,
     purgeExpiredReadNotifications,
-} from "@core/services/notification/NotificationRetentionService";
+} from "@esparex/core/services/notification/NotificationRetentionService";
 
 const mockedNotification = Notification as unknown as { deleteMany: jest.Mock };
 

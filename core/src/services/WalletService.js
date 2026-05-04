@@ -8,7 +8,7 @@ const UserWallet_1 = __importDefault(require("@core/models/UserWallet"));
 const Transaction_1 = __importDefault(require("@core/models/Transaction"));
 const db_1 = require("@core/config/db");
 const AppError_1 = require("@core/utils/AppError");
-const planEntitlements_1 = require("@shared/utils/planEntitlements");
+const planEntitlements_1 = require("@esparex/shared/utils/planEntitlements");
 const buildWalletIncrement = (tx) => {
     const kind = tx.planSnapshot?.type;
     const credits = (0, planEntitlements_1.getPrimaryPlanCreditCount)(tx.planSnapshot);

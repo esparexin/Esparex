@@ -1,5 +1,5 @@
 import { Queue } from "bullmq";
-import logger from "@core/utils/logger";
+import logger from "@esparex/core/utils/logger";
 import { redisConnection } from "./redisConnection";
 
 export type PaymentQueueJobName = "process_payment_capture";

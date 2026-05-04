@@ -1,11 +1,11 @@
 import mongoose, { ClientSession } from 'mongoose';
-import Category, { ICategory } from '@core/models/Category';
-import Brand from '@core/models/Brand';
-import Model from '@core/models/Model';
-import SparePart from '@core/models/SparePart';
-import ScreenSize from '@core/models/ScreenSize';
-import { clearCachePattern } from '@core/utils/redisCache';
-import logger from '@core/utils/logger';
+import Category, { ICategory } from '@esparex/core/models/Category';
+import Brand from '@esparex/core/models/Brand';
+import Model from '@esparex/core/models/Model';
+import SparePart from '@esparex/core/models/SparePart';
+import ScreenSize from '@esparex/core/models/ScreenSize';
+import { clearCachePattern } from '@esparex/core/utils/redisCache';
+import logger from '@esparex/core/utils/logger';
 
 type CascadeDoc = {
     _id: mongoose.Types.ObjectId;

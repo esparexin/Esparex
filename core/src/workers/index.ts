@@ -1,4 +1,4 @@
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 import { adWorker } from './adWorker';
 import { notificationDeliveryWorker } from './notificationDeliveryWorker';
 import { notificationMatchWorker } from './notificationMatchWorker';
@@ -6,8 +6,8 @@ import { notificationMatchWorker } from './notificationMatchWorker';
 import { paymentWorker } from './paymentWorker';
 import { imageOptimizationWorker } from './imageWorker';
 import mongoose from 'mongoose';
-import redisClient from '@core/utils/redisCache';
-import { gracefulShutdown } from '@core/utils/shutdownHandler';
+import redisClient from '@esparex/core/utils/redisCache';
+import { gracefulShutdown } from '@esparex/core/utils/shutdownHandler';
 
 export const startWorkers = () => {
     logger.info('Starting background workers...');

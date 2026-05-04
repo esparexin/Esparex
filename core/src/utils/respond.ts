@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { serializeDoc } from '@core/utils/serialize';
+import { serializeDoc } from '@esparex/core/utils/serialize';
 import { ApiResponse } from './apiResponse';
 
 /**

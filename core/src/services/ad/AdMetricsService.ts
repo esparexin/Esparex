@@ -9,7 +9,7 @@ import {
     buildListingTypeFilter
 } from './_shared/adServiceBase';
 import type { AdFilters } from './_shared/adServiceBase';
-import { LISTING_TYPE } from '@core/constants/enums/listingType';
+import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
 
 interface ListingStatusGroup { _id: { listingType: string; status: string }; count: number }
 

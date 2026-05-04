@@ -1,4 +1,4 @@
-import ContactSubmission, { IContactSubmission } from '@core/models/ContactSubmission';
+import ContactSubmission, { IContactSubmission } from '@esparex/core/models/ContactSubmission';
 
 interface CreateContactInput {
     name: string;

@@ -1,5 +1,5 @@
 import { Schema, Document, Types, Model } from 'mongoose';
-import { getAdminConnection } from '@core/config/db';
+import { getAdminConnection } from '@esparex/core/config/db';
 
 export type DuplicateEventAction = 'blocked' | 'flagged' | 'bypass_allowed';
 

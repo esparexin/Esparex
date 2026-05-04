@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { getAdminConnection } from '@core/config/db';
+import { getAdminConnection } from '@esparex/core/config/db';
 
 export interface IAdminMetrics extends Document {
     metricModule: string;

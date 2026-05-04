@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import Business from '@core/models/Business';
-import Ad from '@core/models/Ad';
-import { normalizeLocationResponse } from "@core/services/location/LocationNormalizer";
-import { serializeDoc } from '@core/utils/serialize';
-import { publishedBusinessStatusQuery } from '@core/utils/businessStatus';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import { LISTING_TYPE } from '@core/constants/enums/listingType';
+import Business from '@esparex/core/models/Business';
+import Ad from '@esparex/core/models/Ad';
+import { normalizeLocationResponse } from "@esparex/core/services/location/LocationNormalizer";
+import { serializeDoc } from '@esparex/core/utils/serialize';
+import { publishedBusinessStatusQuery } from '@esparex/core/utils/businessStatus';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
 
 type BusinessCandidate = {
     _id?: mongoose.Types.ObjectId | string;

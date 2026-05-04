@@ -1,4 +1,4 @@
-import { normalizeToGeoJSON } from '@core/utils/mongoGeoUtils';
+import { normalizeToGeoJSON } from '@esparex/core/utils/mongoGeoUtils';
 
 export interface LocationInputObject {
     id?: unknown;

@@ -1,5 +1,5 @@
-import PhoneRevealLog from '@core/models/PhoneRevealLog';
-import PhoneRequest from '@core/models/PhoneRequest';
+import PhoneRevealLog from '@esparex/core/models/PhoneRevealLog';
+import PhoneRequest from '@esparex/core/models/PhoneRequest';
 import { handlePaginatedContent } from "../utils/contentHandler";
 import type { Request, Response } from 'express';
 

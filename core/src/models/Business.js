@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const _shared_1 = require("@shared");
+const shared_1 = require("@esparex/shared");
 const businessStatus_1 = require("@core/constants/enums/businessStatus");
 const idProofType_1 = require("@core/constants/enums/idProofType");
 const normalizeEmail = (value) => {
@@ -49,7 +49,7 @@ const BusinessSchema = new mongoose_1.Schema({
                 type: [Number],
                 required: false,
                 validate: {
-                    validator: (coords) => !coords || (0, _shared_1.hasValidCoordinateArray)(coords),
+                    validator: (coords) => !coords || (0, shared_1.hasValidCoordinateArray)(coords),
                     message: 'Valid [longitude, latitude] coordinates are required.'
                 }
             }
@@ -91,7 +91,7 @@ const sanitizeBusinessLocation = (value) => {
         return value;
     const location = value;
     if ('coordinates' in location) {
-        const nextGeo = (0, _shared_1.sanitizeGeoPoint)(location.coordinates);
+        const nextGeo = (0, shared_1.sanitizeGeoPoint)(location.coordinates);
         if (!nextGeo) {
             delete location.coordinates;
         }
@@ -126,7 +126,7 @@ BusinessSchema.pre('findOneAndUpdate', function () {
             setObj.location = sanitizeBusinessLocation(setObj.location);
         }
         if ('location.coordinates' in setObj) {
-            const nextGeo = (0, _shared_1.sanitizeGeoPoint)(setObj['location.coordinates']);
+            const nextGeo = (0, shared_1.sanitizeGeoPoint)(setObj['location.coordinates']);
             if (!nextGeo) {
                 delete setObj['location.coordinates'];
             }

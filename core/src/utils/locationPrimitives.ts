@@ -4,4 +4,4 @@ export {
     normalizeLocationLevel,
     normalizeLocationNameForSearch,
     buildLocationSlug
-} from '@shared';
+} from '@esparex/shared';

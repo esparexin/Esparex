@@ -1,6 +1,6 @@
-import logger from '@core/utils/logger';
-import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
-import { env } from '@core/config/env';
+import logger from '@esparex/core/utils/logger';
+import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
+import { env } from '@esparex/core/config/env';
 
 type OpenAIMessageContent =
     | string

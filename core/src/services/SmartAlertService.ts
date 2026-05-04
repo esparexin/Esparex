@@ -1,12 +1,12 @@
-import SmartAlert from '@core/models/SmartAlert';
-import AlertDeliveryLog from '@core/models/AlertDeliveryLog';
+import SmartAlert from '@esparex/core/models/SmartAlert';
+import AlertDeliveryLog from '@esparex/core/models/AlertDeliveryLog';
 import { Types } from 'mongoose';
-import logger from '@core/utils/logger';
-import { buildGeoNearStage } from '@core/utils/mongoGeoUtils';
+import logger from '@esparex/core/utils/logger';
+import { buildGeoNearStage } from '@esparex/core/utils/mongoGeoUtils';
 
-import { getCache, setCache } from '@core/utils/redisCache';
+import { getCache, setCache } from '@esparex/core/utils/redisCache';
 import crypto from 'crypto';
-import { toObjectId } from '@core/utils/idUtils';
+import { toObjectId } from '@esparex/core/utils/idUtils';
 
 interface MatchableAlert {
     _id: Types.ObjectId;
@@ -218,7 +218,7 @@ export const findMatchingGeoAlerts = async (
 
 export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
     try {
-        const Ad = (await import('@core/models/Ad')).default;
+        const Ad = (await import('@esparex/core/models/Ad')).default;
         const ad = await Ad.findById(adId);
 
         if (!ad) {

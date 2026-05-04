@@ -1,5 +1,5 @@
 import { Schema, Document, Types, Model } from 'mongoose';
-import { getUserConnection } from '@core/config/db';
+import { getUserConnection } from '@esparex/core/config/db';
 
 export type IdempotencyStatus = 'processing' | 'completed';
 

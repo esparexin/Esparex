@@ -5,7 +5,7 @@ const mockSession = {
     endSession: jest.fn(),
 };
 
-jest.mock("@core/config/db", () => ({
+jest.mock("@esparex/core/config/db", () => ({
     getAdminConnection: () => ({
         models: {},
         model: jest.fn().mockReturnValue({}),
@@ -17,12 +17,12 @@ jest.mock("@core/config/db", () => ({
     }),
 }));
 
-jest.mock("@core/models/Business", () => ({
+jest.mock("@esparex/core/models/Business", () => ({
     __esModule: true,
     default: {},
 }));
 
-jest.mock("@core/models/Transaction", () => ({
+jest.mock("@esparex/core/models/Transaction", () => ({
     Transaction: {
         findOneAndUpdate: jest.fn(),
         findOne: jest.fn(),
@@ -30,7 +30,7 @@ jest.mock("@core/models/Transaction", () => ({
     },
 }));
 
-jest.mock("@core/models/Invoice", () => ({
+jest.mock("@esparex/core/models/Invoice", () => ({
     Invoice: {
         findOne: jest.fn(),
         create: jest.fn(),
@@ -39,39 +39,39 @@ jest.mock("@core/models/Invoice", () => ({
     },
 }));
 
-jest.mock("@core/models/User", () => ({
+jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
     },
 }));
 
-jest.mock("@core/models/AdminLog", () => ({
+jest.mock("@esparex/core/models/AdminLog", () => ({
     __esModule: true,
     default: {
         create: jest.fn().mockResolvedValue({}),
     },
 }));
 
-jest.mock("@core/services/WalletService", () => ({
+jest.mock("@esparex/core/services/WalletService", () => ({
     credit: jest.fn(),
     buildWalletIncrement: jest.fn().mockReturnValue({ amounts: {} }),
     hasWalletIncrement: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock("@core/services/RevenueAnalytics", () => ({
+jest.mock("@esparex/core/services/RevenueAnalytics", () => ({
     recordRevenue: jest.fn(),
 }));
 
-jest.mock("@core/utils/invoiceNumber", () => ({
+jest.mock("@esparex/core/utils/invoiceNumber", () => ({
     generateInvoiceNumber: jest.fn().mockResolvedValue("ESP-2026-000001"),
 }));
 
-jest.mock("@core/services/InvoicePdfService", () => ({
+jest.mock("@esparex/core/services/InvoicePdfService", () => ({
     generateInvoicePdf: jest.fn().mockResolvedValue("https://example.com/invoice.pdf"),
 }));
 
-jest.mock("@core/services/InvoiceService", () => ({
+jest.mock("@esparex/core/services/InvoiceService", () => ({
     buildInvoicePayload: jest.fn().mockReturnValue({ invoiceNumber: "ESP-2026-000001" }),
     ensureInvoicePdf: jest.fn().mockResolvedValue(undefined),
 }));
@@ -88,12 +88,12 @@ jest.mock("@esparex/core/config/razorpay", () => ({
     }),
 }));
 
-import User from "@core/models/User";
-import { Invoice } from "@core/models/Invoice";
-import { Transaction } from "@core/models/Transaction";
-import { credit } from "@core/services/WalletService";
-import { recordRevenue } from "@core/services/RevenueAnalytics";
-import { processSuccessfulPayment, recoverPendingPayment } from "@core/services/PaymentProcessingService";
+import User from "@esparex/core/models/User";
+import { Invoice } from "@esparex/core/models/Invoice";
+import { Transaction } from "@esparex/core/models/Transaction";
+import { credit } from "@esparex/core/services/WalletService";
+import { recordRevenue } from "@esparex/core/services/RevenueAnalytics";
+import { processSuccessfulPayment, recoverPendingPayment } from "@esparex/core/services/PaymentProcessingService";
 
 describe("PaymentProcessingService", () => {
     beforeEach(() => {

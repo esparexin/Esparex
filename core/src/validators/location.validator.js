@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminUpdateGeofenceSchema = exports.adminCreateGeofenceSchema = exports.adminVerifyLocationSchema = exports.adminUpdateLocationSchema = exports.adminCreateLocationSchema = exports.adminCreateAreaLocationSchema = exports.adminCreateCityLocationSchema = exports.adminCreateStateLocationSchema = exports.adminLocationAnalyticsQuerySchema = exports.adminLocationListQuerySchema = exports.ingestLocationSchema = exports.logLocationEventSchema = void 0;
 const zod_1 = require("zod");
-const location_schema_1 = require("@shared/schemas/location.schema");
+const location_schema_1 = require("@esparex/shared/schemas/location.schema");
 const common_1 = require("./common");
 exports.logLocationEventSchema = location_schema_1.LogLocationEventSchema.extend({
     locationId: common_1.commonSchemas.objectId.optional(),

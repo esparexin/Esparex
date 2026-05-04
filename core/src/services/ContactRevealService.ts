@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import Ad from '@core/models/Ad';
-import PhoneRevealLog from '@core/models/PhoneRevealLog';
-import PhoneRequest from '@core/models/PhoneRequest';
-import logger from '@core/utils/logger';
-import { MOBILE_VISIBILITY, normalizeMobileVisibility } from "@shared/constants/mobileVisibility";
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import { USER_STATUS } from '@core/constants/enums/userStatus';
-import { REQUEST_STATUS } from '@core/constants/enums/requestStatus';
+import Ad from '@esparex/core/models/Ad';
+import PhoneRevealLog from '@esparex/core/models/PhoneRevealLog';
+import PhoneRequest from '@esparex/core/models/PhoneRequest';
+import logger from '@esparex/core/utils/logger';
+import { MOBILE_VISIBILITY, normalizeMobileVisibility } from "@esparex/shared/constants/mobileVisibility";
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
+import { REQUEST_STATUS } from '@esparex/core/constants/enums/requestStatus';
 
 type SellerContact = {
     _id?: mongoose.Types.ObjectId;

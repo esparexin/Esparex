@@ -1,6 +1,6 @@
 // backend/src/services/revenueAnalytics.ts
-import { RevenueAnalytics } from "@core/models/RevenueAnalytics";
-import { ITransaction } from "@core/models/Transaction";
+import { RevenueAnalytics } from "@esparex/core/models/RevenueAnalytics";
+import { ITransaction } from "@esparex/core/models/Transaction";
 import type { ClientSession } from "mongoose";
 
 /**

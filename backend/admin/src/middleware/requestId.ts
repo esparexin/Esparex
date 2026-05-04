@@ -9,7 +9,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
-import { TraceContext } from "@shared/observability/trace";
+import { TraceContext } from "@esparex/shared/observability/trace";
 
 /**
  * Extend Express Request to include requestId

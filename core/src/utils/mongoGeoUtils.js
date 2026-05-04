@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.haversineDistance = exports.buildGeoNearStage = exports.normalizeToGeoJSON = exports.normalizeGeoInput = void 0;
-const _shared_1 = require("@shared");
+const shared_1 = require("@esparex/shared");
 /**
  * 🌍 CANONICAL GEO UTILITY LAYER
  * SSOT for all coordinate normalization, distance logic, and MongoDB geo-query building.
@@ -13,7 +13,7 @@ const _shared_1 = require("@shared");
 const normalizeGeoInput = (lat, lng) => {
     const latNum = Number(lat);
     const lngNum = Number(lng);
-    const hasGeo = (0, _shared_1.isValidLngLat)(lngNum, latNum);
+    const hasGeo = (0, shared_1.isValidLngLat)(lngNum, latNum);
     return {
         lat: hasGeo ? latNum : 0,
         lng: hasGeo ? lngNum : 0,
@@ -29,7 +29,7 @@ const normalizeToGeoJSON = (input) => {
     if (!input)
         return undefined;
     try {
-        return (0, _shared_1.toGeoPoint)(input);
+        return (0, shared_1.toGeoPoint)(input);
     }
     catch {
         return undefined;
@@ -47,7 +47,7 @@ const buildGeoNearStage = (options) => {
         throw new Error('ERR_GEO_04: Invalid coordinates for $geoNear. Must be finite and non-zero.');
     }
     // Enforce standardized radius caps
-    const safeRadius = Math.min(Math.max(Number(radiusKm) || _shared_1.DEFAULT_RADIUS_KM, _shared_1.MIN_RADIUS_KM), _shared_1.MAX_RADIUS_KM);
+    const safeRadius = Math.min(Math.max(Number(radiusKm) || shared_1.DEFAULT_RADIUS_KM, shared_1.MIN_RADIUS_KM), shared_1.MAX_RADIUS_KM);
     return {
         $geoNear: {
             near: { type: 'Point', coordinates: [lng, lat] },

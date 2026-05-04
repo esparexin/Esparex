@@ -1,13 +1,13 @@
 import type { HydratedDocument } from 'mongoose';
 import { ZodError } from 'zod';
 
-import SystemConfig, { ISystemConfig } from '@core/models/SystemConfig';
-import { deepMerge } from '@core/utils/objectUtils';
+import SystemConfig, { ISystemConfig } from '@esparex/core/models/SystemConfig';
+import { deepMerge } from '@esparex/core/utils/objectUtils';
 import {
     ensureSystemConfig,
     invalidateSystemConfigCache,
     SYSTEM_CONFIG_KEY,
-} from '@core/utils/systemConfigHelper';
+} from '@esparex/core/utils/systemConfigHelper';
 import { systemConfigUpdateSchema } from '../validators/systemConfig.validator';
 
 type ObjectLike = Record<string, unknown>;

@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import Report, { ReportTargetTypeValue } from '@core/models/Report';
-import Ad from '@core/models/Ad';
-import User from '@core/models/User';
-import Business from '@core/models/Business';
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@core/utils/redisCache';
-import logger from '@core/utils/logger';
+import Report, { ReportTargetTypeValue } from '@esparex/core/models/Report';
+import Ad from '@esparex/core/models/Ad';
+import User from '@esparex/core/models/User';
+import Business from '@esparex/core/models/Business';
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@esparex/core/utils/redisCache';
+import logger from '@esparex/core/utils/logger';
 
 const ACTIVE_REPORT_STATUSES = ['open', 'pending', 'reviewed'] as const;
 

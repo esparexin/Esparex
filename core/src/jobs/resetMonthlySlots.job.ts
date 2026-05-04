@@ -1,7 +1,7 @@
-import { jobRunner } from '@core/utils/jobRunner';
-import logger from '@core/utils/logger';
-import { runWithDistributedJobLock } from '@core/utils/distributedJobLock';
-import { resetWalletsForNewCycle } from '@core/services/PlanService';
+import { jobRunner } from '@esparex/core/utils/jobRunner';
+import logger from '@esparex/core/utils/logger';
+import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
+import { resetWalletsForNewCycle } from '@esparex/core/services/PlanService';
 
 export const runMonthlySlotResetJob = async () => {
     await runWithDistributedJobLock(

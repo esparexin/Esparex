@@ -40,15 +40,15 @@ ServiceTypeSchema.index(
     }
 );
 
-import softDeletePlugin from '@core/utils/softDeletePlugin';
+import softDeletePlugin from '@esparex/core/utils/softDeletePlugin';
 ServiceTypeSchema.plugin(softDeletePlugin);
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
-import { installSafeSoftDeleteQuery } from '@core/utils/safeSoftDeleteQuery';
+import { installSafeSoftDeleteQuery } from '@esparex/core/utils/safeSoftDeleteQuery';
 ServiceTypeSchema.plugin(installSafeSoftDeleteQuery);
 
-import { getUserConnection } from '@core/config/db';
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { getUserConnection } from '@esparex/core/config/db';
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 const ServiceType: Model<IServiceType> = (getUserConnection().models.ServiceType as Model<IServiceType> | undefined) || getUserConnection().model<IServiceType>('ServiceType', ServiceTypeSchema);
 
 applyToJSONTransform(ServiceTypeSchema);

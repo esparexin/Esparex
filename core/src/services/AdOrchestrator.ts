@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import Ad, { IAd } from '@core/models/Ad';
-import { getUserConnection } from '@core/config/db';
-import logger from '@core/utils/logger';
-import { AppError } from '@core/utils/AppError';
+import Ad, { IAd } from '@esparex/core/models/Ad';
+import { getUserConnection } from '@esparex/core/config/db';
+import logger from '@esparex/core/utils/logger';
+import { AppError } from '@esparex/core/utils/AppError';
 
 // Specialized Services
 import { AdDuplicateService, logDuplicateEvent, buildDuplicateFingerprint } from './AdDuplicateService';
@@ -11,11 +11,11 @@ import { AdCreationService } from './AdCreationService';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { mutateStatus } from './StatusMutationService';
 import { computeActiveExpiry } from './AdStatusService';
-import { enqueueImageOptimization } from '@core/queues/imageQueue';
+import { enqueueImageOptimization } from '@esparex/core/queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
-import { LISTING_TYPE } from '@core/constants/enums/listingType';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import type { AdContext } from '@core/types/ad.types';
+import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import type { AdContext } from '@esparex/core/types/ad.types';
 
 export interface AdOrchestrationContext {
     authUserId: string; // The authenticated subject (JWT)
@@ -216,9 +216,9 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
         });
 
         // 📊 BUSINESS METRIC: Listing Creation
-        // NOTE: Counter must be pre-registered in @core/utils/metrics at startup.
+        // NOTE: Counter must be pre-registered in @esparex/core/utils/metrics at startup.
         // We only look it up here — never create it — to avoid prom-client double-registration errors.
-        import('@core/utils/metrics').then(({ register: prometheusRegister }) => {
+        import('@esparex/core/utils/metrics').then(({ register: prometheusRegister }) => {
             const counter = prometheusRegister.getSingleMetric('esparex_listing_creation_total');
             if (counter) {
                 (counter as { inc(labels: Record<string, string>): void }).inc({

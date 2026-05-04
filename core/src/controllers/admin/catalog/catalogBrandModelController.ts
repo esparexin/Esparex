@@ -11,7 +11,7 @@ import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import { CATALOG_STATUS } from "@shared/enums/catalogStatus";
+import { CATALOG_STATUS } from "@esparex/shared/enums/catalogStatus";
 import {
     BrandModel,
     CatalogModel,

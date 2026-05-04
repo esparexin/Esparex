@@ -1,5 +1,5 @@
-import logger from '@core/utils/logger';
-import { getCache, setCache } from '@core/utils/redisCache';
+import logger from '@esparex/core/utils/logger';
+import { getCache, setCache } from '@esparex/core/utils/redisCache';
 
 export enum FeatureFlag {
     ENABLE_AD_ORCHESTRATOR = 'ENABLE_AD_ORCHESTRATOR',

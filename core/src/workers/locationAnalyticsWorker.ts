@@ -1,10 +1,10 @@
-import Ad from "@core/models/Ad";
-import User from "@core/models/User";
-import Location from "@core/models/Location";
-import LocationAnalytics from "@core/models/LocationAnalytics";
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import logger from '@core/utils/logger';
-import { runWithDistributedJobLock } from '@core/utils/distributedJobLock';
+import Ad from "@esparex/core/models/Ad";
+import User from "@esparex/core/models/User";
+import Location from "@esparex/core/models/Location";
+import LocationAnalytics from "@esparex/core/models/LocationAnalytics";
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import logger from '@esparex/core/utils/logger';
+import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
 
 export const runLocationAnalyticsJob = async () => {
     await runWithDistributedJobLock(
@@ -34,7 +34,7 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
 
     let jobLog;
     try {
-        const JobLogStart = (await import('@core/models/JobLog')).default;
+        const JobLogStart = (await import('@esparex/core/models/JobLog')).default;
         jobLog = await JobLogStart.create({
             jobName: 'refreshLocationStats',
             status: 'started',

@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq';
 import { redisConnection } from './redisConnection';
-import logger from '@core/utils/logger';
-import { addJobWithTrace, type TraceableJobData } from '@core/utils/queueWrapper';
+import logger from '@esparex/core/utils/logger';
+import { addJobWithTrace, type TraceableJobData } from '@esparex/core/utils/queueWrapper';
 
 export interface ImageOptimizationJobPayload extends TraceableJobData {
     entityId: string;

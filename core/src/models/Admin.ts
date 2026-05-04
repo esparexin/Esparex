@@ -1,9 +1,9 @@
 import { Schema, Document, Model } from "mongoose";
-import { getAdminConnection } from "@core/config/db";
-import softDeletePlugin from '@core/utils/softDeletePlugin';
+import { getAdminConnection } from "@esparex/core/config/db";
+import softDeletePlugin from '@esparex/core/utils/softDeletePlugin';
 import bcrypt from 'bcryptjs';
-import { USER_STATUS, USER_STATUS_VALUES, UserStatusValue } from "@core/constants/enums/userStatus";
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { USER_STATUS, USER_STATUS_VALUES, UserStatusValue } from "@esparex/core/constants/enums/userStatus";
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 
 export interface IAdmin extends Document {
     firstName: string;

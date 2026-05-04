@@ -1,11 +1,11 @@
-import Admin, { IAdmin } from '@core/models/Admin';
-import AdminLog from '@core/models/AdminLog';
-import { comparePassword, generateAdminToken } from '@core/utils/auth';
-import { USER_STATUS } from '@core/constants/enums/userStatus';
-import logger from '@core/utils/logger';
-import { AppError } from '@core/utils/AppError';
-import { env } from '@core/config/env';
-import { escapeRegExp } from '@core/utils/stringUtils';
+import Admin, { IAdmin } from '@esparex/core/models/Admin';
+import AdminLog from '@esparex/core/models/AdminLog';
+import { comparePassword, generateAdminToken } from '@esparex/core/utils/auth';
+import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
+import logger from '@esparex/core/utils/logger';
+import { AppError } from '@esparex/core/utils/AppError';
+import { env } from '@esparex/core/config/env';
+import { escapeRegExp } from '@esparex/core/utils/stringUtils';
 
 interface AdminLoginResult {
     token: string;

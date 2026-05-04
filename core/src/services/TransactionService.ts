@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import Transaction, { type ITransaction } from '@core/models/Transaction';
-import User from '@core/models/User';
-import { escapeRegExp } from '@core/utils/stringUtils';
+import Transaction, { type ITransaction } from '@esparex/core/models/Transaction';
+import User from '@esparex/core/models/User';
+import { escapeRegExp } from '@esparex/core/utils/stringUtils';
 
 
 export interface TransactionFilters {

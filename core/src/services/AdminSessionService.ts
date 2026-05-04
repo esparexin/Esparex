@@ -1,6 +1,6 @@
-import AdminSession, { hashAdminSessionToken } from '@core/models/AdminSession';
-import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
-import { env } from '@core/config/env';
+import AdminSession, { hashAdminSessionToken } from '@esparex/core/models/AdminSession';
+import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
+import { env } from '@esparex/core/config/env';
 
 const ADMIN_SESSION_TTL_MS = env.ADMIN_SESSION_TTL_MS ?? (8 * 60 * 60 * 1000);
 

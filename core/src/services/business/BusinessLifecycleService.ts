@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import Business from '@core/models/Business';
-import User from '@core/models/User';
+import Business from '@esparex/core/models/Business';
+import User from '@esparex/core/models/User';
 import { mutateStatus } from '../StatusMutationService';
-import { BUSINESS_STATUS } from '@core/constants/enums/businessStatus';
-import { ACTOR_TYPE } from '@core/constants/enums/actor';
+import { BUSINESS_STATUS } from '@esparex/core/constants/enums/businessStatus';
+import { ACTOR_TYPE } from '@esparex/core/constants/enums/actor';
 
 export const approveBusiness = async (id: string, moderatorId: string = 'SYSTEM') => {
     const existing = await Business.findById(id).lean();

@@ -8,7 +8,7 @@ const logger_1 = __importDefault(require("@core/utils/logger"));
 const AppError_1 = require("@core/utils/AppError");
 const imageProcessor_1 = require("@core/utils/imageProcessor");
 const s3_1 = require("@core/utils/s3");
-const _shared_1 = require("@shared");
+const shared_1 = require("@esparex/shared");
 exports.DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'];
 exports.ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;
 const asBusinessDocView = (value) => value || {};
@@ -76,8 +76,8 @@ const buildBusinessLocationPayload = ({ currentLocation, incomingLocation, norma
             state: resolvedState,
             country: resolvedCountry,
             pincode: resolvedPincode,
-            coordinates: (0, _shared_1.toGeoPoint)(incomingLocation.coordinates)
-                || (0, _shared_1.toGeoPoint)(normalizedLocation?.coordinates)
+            coordinates: (0, shared_1.toGeoPoint)(incomingLocation.coordinates)
+                || (0, shared_1.toGeoPoint)(normalizedLocation?.coordinates)
                 || currentLocation?.coordinates
         }
     };

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 
 const logDeprecatedSignal = (signal: string, userIdInput: string | mongoose.Types.ObjectId): void => {
     logger.debug('Deprecated seller reputation signal ignored', {

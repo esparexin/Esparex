@@ -1,9 +1,9 @@
-import Ad from '@core/models/Ad';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import { ACTOR_TYPE } from '@core/constants/enums/actor';
+import Ad from '@esparex/core/models/Ad';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { ACTOR_TYPE } from '@esparex/core/constants/enums/actor';
 import { mutateStatusesBulk } from './StatusMutationService';
 import { lifecycleEvents } from '../events';
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 
 export type ListingExpirySweepResult = {
     expiredCount: number;

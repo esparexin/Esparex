@@ -1,8 +1,8 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import logger from './logger';
-import imageDomainRegistry from "@shared/constants/image-domain-registry.json";
-import { env } from '@core/config/env';
+import imageDomainRegistry from "@esparex/shared/constants/image-domain-registry.json";
+import { env } from '@esparex/core/config/env';
 
 const ALLOWED_S3_MIME_TYPES = new Set([
     'image/jpeg',

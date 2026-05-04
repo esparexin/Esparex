@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const module_alias_1 = __importDefault(require("module-alias"));
 const path_1 = __importDefault(require("path"));
 // 🛡️ RUNTIME ALIAS RESOLUTION (SSOT)
-// This ensures that @core and @shared aliases work in production (dist/) 
+// This ensures that @core and @esparex/shared aliases work in production (dist/) 
 // without relying on fragile build-time tsc-alias replacements.
 if (process.env.NODE_ENV === 'production' || process.env.NODE_PATH?.includes('dist')) {
     // Assuming this file is at [ROOT]/core/src/config/loadEnv.ts
@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_PATH?.includes('di
     const distRoot = path_1.default.resolve(__dirname, '../../../');
     module_alias_1.default.addAliases({
         '@core': path_1.default.join(distRoot, 'core/src'),
-        '@shared': path_1.default.join(distRoot, 'shared')
+        '@esparex/shared': path_1.default.join(distRoot, 'shared')
     });
 }
 /**

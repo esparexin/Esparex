@@ -1,11 +1,11 @@
-import logger from '@core/utils/logger';
-import { AppError } from '@core/utils/AppError';
-import { processImages } from '@core/utils/imageProcessor';
-import { deleteFromS3Url, sanitizeStoredImageUrls } from '@core/utils/s3';
-import { normalizeLocation } from "@core/services/location/LocationNormalizer";
-import { toGeoPoint } from '@shared';
-import { IBusinessDocument } from '@core/models/Business';
-import { type IdProofTypeValue } from '@core/constants/enums/idProofType';
+import logger from '@esparex/core/utils/logger';
+import { AppError } from '@esparex/core/utils/AppError';
+import { processImages } from '@esparex/core/utils/imageProcessor';
+import { deleteFromS3Url, sanitizeStoredImageUrls } from '@esparex/core/utils/s3';
+import { normalizeLocation } from "@esparex/core/services/location/LocationNormalizer";
+import { toGeoPoint } from '@esparex/shared';
+import { IBusinessDocument } from '@esparex/core/models/Business';
+import { type IdProofTypeValue } from '@esparex/core/constants/enums/idProofType';
 
 export const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
 export const ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;

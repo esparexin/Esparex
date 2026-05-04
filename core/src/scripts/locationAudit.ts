@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import Location from '@core/models/Location';
-import logger from '@core/utils/logger';
-import { buildLocationSlug } from '@core/utils/locationPrimitives';
+import Location from '@esparex/core/models/Location';
+import logger from '@esparex/core/utils/logger';
+import { buildLocationSlug } from '@esparex/core/utils/locationPrimitives';
 import fs from 'fs';
 import path from 'path';
 
@@ -220,7 +220,7 @@ async function runAudit() {
     }
 }
 
-import { connectDB } from '@core/config/db';
+import { connectDB } from '@esparex/core/config/db';
 
 // Execute audit
 void (async () => {

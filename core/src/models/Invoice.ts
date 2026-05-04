@@ -1,9 +1,9 @@
 // core/src/models/Invoice.ts
 import { Schema, Document, Types } from "mongoose";
-import { getUserConnection } from "@core/config/db";
+import { getUserConnection } from "@esparex/core/config/db";
 import type { Model } from "mongoose";
-import { PAYMENT_STATUS, PAYMENT_STATUS_VALUES, PaymentStatusValue } from "@core/constants/enums/paymentStatus";
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { PAYMENT_STATUS, PAYMENT_STATUS_VALUES, PaymentStatusValue } from "@esparex/core/constants/enums/paymentStatus";
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 
 export interface IInvoice extends Document {
     invoiceNumber: string;

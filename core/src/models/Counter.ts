@@ -1,8 +1,8 @@
 // core/src/models/Counter.ts
 import { Schema, Document } from "mongoose";
-import { getUserConnection } from "@core/config/db";
+import { getUserConnection } from "@esparex/core/config/db";
 import type { Model } from "mongoose";
-import { applyToJSONTransform } from '@core/utils/schemaOptions';
+import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
 
 export interface ICounter extends Document {
     key: string;

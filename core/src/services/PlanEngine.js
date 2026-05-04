@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.calculateUserPlan = calculateUserPlan;
-const planEntitlements_1 = require("@shared/utils/planEntitlements");
+const planEntitlements_1 = require("@esparex/shared/utils/planEntitlements");
 function calculateUserPlan(plans) {
     return plans.reduce((acc, rawPlan) => {
         const plan = (rawPlan || {});

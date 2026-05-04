@@ -1,17 +1,17 @@
 import 'dotenv/config';
 import fs from 'fs';
 import { Types } from 'mongoose';
-import { connectDB } from '@core/config/db';
-import User from '@core/models/User';
-import Ad from '@core/models/Ad';
-import Category from '@core/models/Category';
-import ServiceType from '@core/models/ServiceType';
-import SparePart from '@core/models/SparePart';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import { LISTING_TYPE } from '@core/constants/enums/listingType';
-import { MODERATION_STATUS } from '@core/constants/enums/moderationStatus';
-import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
-import logger from '@core/utils/logger';
+import { connectDB } from '@esparex/core/config/db';
+import User from '@esparex/core/models/User';
+import Ad from '@esparex/core/models/Ad';
+import Category from '@esparex/core/models/Category';
+import ServiceType from '@esparex/core/models/ServiceType';
+import SparePart from '@esparex/core/models/SparePart';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
+import { MODERATION_STATUS } from '@esparex/core/constants/enums/moderationStatus';
+import { MOBILE_VISIBILITY } from "@esparex/shared/constants/mobileVisibility";
+import logger from '@esparex/core/utils/logger';
 
 type ListingFixtureType = 'ad' | 'service' | 'spare_part';
 type RevealExpectation = 'mobile' | 'masked' | 'request_only' | 'hidden';

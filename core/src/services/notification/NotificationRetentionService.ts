@@ -1,5 +1,5 @@
-import Notification from "@core/models/Notification";
-import { READ_NOTIFICATION_RETENTION_HOURS, READ_NOTIFICATION_RETENTION_MS } from "@shared/constants/notificationRetention";
+import Notification from "@esparex/core/models/Notification";
+import { READ_NOTIFICATION_RETENTION_HOURS, READ_NOTIFICATION_RETENTION_MS } from "@esparex/shared/constants/notificationRetention";
 
 export const getNotificationReadRetentionCutoff = (now: Date = new Date()) =>
     new Date(now.getTime() - READ_NOTIFICATION_RETENTION_MS);

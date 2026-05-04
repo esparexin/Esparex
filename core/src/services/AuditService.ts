@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import AdminLog from '@core/models/AdminLog';
-import logger from '@core/utils/logger';
+import AdminLog from '@esparex/core/models/AdminLog';
+import logger from '@esparex/core/utils/logger';
 
 export type AuditContext = {
     actorId?: string;

@@ -1,5 +1,5 @@
 
-import JobLog from '@core/models/JobLog';
+import JobLog from '@esparex/core/models/JobLog';
 import logger from './logger';
 
 /**

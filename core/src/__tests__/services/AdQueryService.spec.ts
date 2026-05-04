@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-jest.mock('@core/models/Ad', () => ({
+jest.mock('@esparex/core/models/Ad', () => ({
     __esModule: true,
     default: {
         countDocuments: jest.fn(),
@@ -8,21 +8,21 @@ jest.mock('@core/models/Ad', () => ({
     },
 }));
 
-jest.mock('@core/models/Category', () => ({
+jest.mock('@esparex/core/models/Category', () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
     },
 }));
 
-jest.mock('@core/models/Report', () => ({
+jest.mock('@esparex/core/models/Report', () => ({
     __esModule: true,
     default: {
         aggregate: jest.fn(),
     },
 }));
 
-jest.mock('@core/utils/redisCache', () => ({
+jest.mock('@esparex/core/utils/redisCache', () => ({
     getCache: jest.fn(),
     setCache: jest.fn(),
     CACHE_TTLS: {
@@ -30,15 +30,15 @@ jest.mock('@core/utils/redisCache', () => ({
     },
 }));
 
-jest.mock('@core/utils/s3', () => ({
+jest.mock('@esparex/core/utils/s3', () => ({
     sanitizePersistedImageUrls: (urls: string[]) => urls,
 }));
 
-import Ad from '@core/models/Ad';
-import { buildAdSortStage } from '@core/services/ad/AdSearchService';
-import { buildHomeFeedPipeline } from '@core/services/ad/AdFeedService';
-import { getAdCounts } from '@core/services/ad/AdMetricsService';
-import { buildPublicAdFilter } from '@core/utils/FeedVisibilityGuard';
+import Ad from '@esparex/core/models/Ad';
+import { buildAdSortStage } from '@esparex/core/services/ad/AdSearchService';
+import { buildHomeFeedPipeline } from '@esparex/core/services/ad/AdFeedService';
+import { getAdCounts } from '@esparex/core/services/ad/AdMetricsService';
+import { buildPublicAdFilter } from '@esparex/core/utils/FeedVisibilityGuard';
 
 const mockedAdModel = Ad as unknown as {
     countDocuments: jest.Mock;

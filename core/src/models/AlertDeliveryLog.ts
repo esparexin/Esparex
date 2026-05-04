@@ -1,5 +1,5 @@
 import { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '@core/config/db';
+import { getUserConnection } from '@esparex/core/config/db';
 
 export interface IAlertDeliveryLog extends Document {
     alertId: Schema.Types.ObjectId;

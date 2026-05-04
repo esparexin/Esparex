@@ -2,8 +2,8 @@ import { getBucketName, uploadToS3 } from './s3';
 import crypto from 'crypto';
 import sharp from 'sharp';
 import logger from './logger';
-import { env } from '@core/config/env';
-import imageDomainRegistry from "@shared/constants/image-domain-registry.json";
+import { env } from '@esparex/core/config/env';
+import imageDomainRegistry from "@esparex/shared/constants/image-domain-registry.json";
 
 let hasWarnedMissingS3InTest = false;
 const MAX_IMAGE_DIMENSION = 1600;

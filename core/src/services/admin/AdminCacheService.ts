@@ -1,5 +1,5 @@
-import { getCacheStats, clearCachePattern } from '@core/utils/redisCache';
-import logger from '@core/utils/logger';
+import { getCacheStats, clearCachePattern } from '@esparex/core/utils/redisCache';
+import logger from '@esparex/core/utils/logger';
 
 export class AdminCacheService {
     /**

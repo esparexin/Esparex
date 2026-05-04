@@ -1,21 +1,21 @@
 import mongoose from 'mongoose';
-import { AppError } from '@core/utils/AppError';
-import Ad from '@core/models/Ad';
-import SparePart from '@core/models/SparePart';
-import Brand from '@core/models/Brand';
+import { AppError } from '@esparex/core/utils/AppError';
+import Ad from '@esparex/core/models/Ad';
+import SparePart from '@esparex/core/models/SparePart';
+import Brand from '@esparex/core/models/Brand';
 import { normalizeLocation } from './location/LocationNormalizer';
-import { toGeoPoint } from '@shared';
-import { resolveEquivalentActiveCategoryIds } from '@core/utils/categoryCanonical';
-import { generateUniqueSlug } from '@core/utils/slugGenerator';
-import { LIFECYCLE_STATUS } from '@core/constants/enums/lifecycle';
-import { resolveLocationPathIds } from '@core/utils/locationHierarchy';
-import { processImages } from '@core/utils/imageProcessor';
-import { sanitizeStoredImageUrls } from '@core/utils/s3';
-import { AdContext } from '@core/types/ad.types';
+import { toGeoPoint } from '@esparex/shared';
+import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils/categoryCanonical';
+import { generateUniqueSlug } from '@esparex/core/utils/slugGenerator';
+import { LIFECYCLE_STATUS } from '@esparex/core/constants/enums/lifecycle';
+import { resolveLocationPathIds } from '@esparex/core/utils/locationHierarchy';
+import { processImages } from '@esparex/core/utils/imageProcessor';
+import { sanitizeStoredImageUrls } from '@esparex/core/utils/s3';
+import { AdContext } from '@esparex/core/types/ad.types';
 import { computeActiveExpiry } from './AdStatusService';
-import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
-import { FeatureFlag, isEnabled } from '@core/config/featureFlags';
-import { computeListingQualityScore } from '@core/utils/adQualityScorer';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/core/constants/enums/listingType';
+import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';
+import { computeListingQualityScore } from '@esparex/core/utils/adQualityScorer';
 import { 
     validateBrandBelongsToCategory, 
     validateModelBelongsToBrand,

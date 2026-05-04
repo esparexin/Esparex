@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { IAuthUser } from '@core/types/auth';
+import { IAuthUser } from '@esparex/core/types/auth';
 import { sendErrorResponse } from './errorResponse';
 import { getSingleParam } from './requestParams';
-import AdModel from '@core/models/Ad';
+import AdModel from '@esparex/core/models/Ad';
 
 /**
  * Shared Controller Helpers

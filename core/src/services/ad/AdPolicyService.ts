@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import { AppError } from '@core/utils/AppError';
-import Ad from '@core/models/Ad';
-import User from '@core/models/User';
-import { LISTING_STATUS } from "@core/constants/enums/listingStatus";
-import { LISTING_TYPE, type ListingTypeValue } from '@core/constants/enums/listingType';
+import { AppError } from '@esparex/core/utils/AppError';
+import Ad from '@esparex/core/models/Ad';
+import User from '@esparex/core/models/User';
+import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/core/constants/enums/listingType';
 import { getSystemConfigForRead } from '../SystemConfigService';
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 
 
 export const assertOwnership = async (adId: string, userId: string): Promise<{ sellerId: mongoose.Types.ObjectId; status: string }> => {

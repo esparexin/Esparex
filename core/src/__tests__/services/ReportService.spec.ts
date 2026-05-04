@@ -1,4 +1,4 @@
-jest.mock("@core/models/Report", () => ({
+jest.mock("@esparex/core/models/Report", () => ({
     __esModule: true,
     default: {
         countDocuments: jest.fn(),
@@ -9,7 +9,7 @@ jest.mock("@core/models/Report", () => ({
     },
 }));
 
-jest.mock("@core/models/Ad", () => ({
+jest.mock("@esparex/core/models/Ad", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
@@ -17,27 +17,27 @@ jest.mock("@core/models/Ad", () => ({
     },
 }));
 
-jest.mock("@core/models/User", () => ({
+jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: {
         exists: jest.fn(),
     },
 }));
 
-jest.mock("@core/models/Business", () => ({
+jest.mock("@esparex/core/models/Business", () => ({
     __esModule: true,
     default: {
         exists: jest.fn(),
     },
 }));
 
-jest.mock("@core/utils/redisCache", () => ({
+jest.mock("@esparex/core/utils/redisCache", () => ({
     __esModule: true,
     invalidateAdFeedCaches: jest.fn().mockResolvedValue(undefined),
     invalidatePublicAdCache: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@core/utils/logger", () => ({
+jest.mock("@esparex/core/utils/logger", () => ({
     __esModule: true,
     default: {
         warn: jest.fn(),
@@ -47,18 +47,18 @@ jest.mock("@core/utils/logger", () => ({
 }));
 
 import mongoose from "mongoose";
-import Ad from "@core/models/Ad";
+import Ad from "@esparex/core/models/Ad";
 import {
     findReportForUpdate,
     autoHideAdIfOverThreshold,
     countActiveReports,
-} from "@core/services/ReportService";
+} from "@esparex/core/services/ReportService";
 
 const mockAd = Ad as unknown as {
     findByIdAndUpdate: jest.Mock;
 };
 
-import mockReportRaw from "@core/models/Report";
+import mockReportRaw from "@esparex/core/models/Report";
 
 describe("ReportService", () => {
     beforeEach(() => jest.clearAllMocks());

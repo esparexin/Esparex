@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import User from '@core/models/User';
-import FraudSignal from '@core/models/FraudSignal';
-import FraudScore from '@core/models/FraudScore';
-import logger from '@core/utils/logger';
+import User from '@esparex/core/models/User';
+import FraudSignal from '@esparex/core/models/FraudSignal';
+import FraudScore from '@esparex/core/models/FraudScore';
+import logger from '@esparex/core/utils/logger';
 
 export interface FraudContext {
     userId?: mongoose.Types.ObjectId;

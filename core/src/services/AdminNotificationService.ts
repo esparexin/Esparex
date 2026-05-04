@@ -1,6 +1,6 @@
-import NotificationLog from '@core/models/NotificationLog';
-import ScheduledNotification from '@core/models/ScheduledNotification';
-import User from '@core/models/User';
+import NotificationLog from '@esparex/core/models/NotificationLog';
+import ScheduledNotification from '@esparex/core/models/ScheduledNotification';
+import User from '@esparex/core/models/User';
 
 export const createNotificationLog = async (data: Record<string, unknown>) => {
     return NotificationLog.create(data);

@@ -1,4 +1,4 @@
-import { getStatusMatchCriteria } from '@core/utils/statusQueryMapper';
+import { getStatusMatchCriteria } from '@esparex/core/utils/statusQueryMapper';
 import {
     mongoose,
     Category,

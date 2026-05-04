@@ -1,11 +1,11 @@
 import { type AnyBulkWriteOperation } from 'mongoose';
-import Ad, { type IAd } from '@core/models/Ad';
-import logger from '@core/utils/logger';
-import { computeListingQualityScore } from '@core/utils/adQualityScorer';
+import Ad, { type IAd } from '@esparex/core/models/Ad';
+import logger from '@esparex/core/utils/logger';
+import { computeListingQualityScore } from '@esparex/core/utils/adQualityScorer';
 
 type BackfillAd = Pick<IAd, '_id' | 'title' | 'description' | 'images' | 'brandId' | 'price' | 'location'>;
 
-import { LIFECYCLE_STATUS, type LifecycleStatus } from '@core/constants/enums/lifecycle';
+import { LIFECYCLE_STATUS, type LifecycleStatus } from '@esparex/core/constants/enums/lifecycle';
 
 /**
  * Lazy Quality Score Backfill Worker

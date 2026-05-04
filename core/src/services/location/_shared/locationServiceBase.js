@@ -29,8 +29,8 @@ Object.defineProperty(exports, "escapeRegExp", { enumerable: true, get: function
 Object.defineProperty(exports, "toTitleCase", { enumerable: true, get: function () { return stringUtils_1.toTitleCase; } });
 var formatLocation_1 = require("../../../lib/location/formatLocation");
 Object.defineProperty(exports, "formatLocationResponse", { enumerable: true, get: function () { return formatLocation_1.formatLocationResponse; } });
-var _shared_1 = require("@shared");
-Object.defineProperty(exports, "toGeoPoint", { enumerable: true, get: function () { return _shared_1.toGeoPoint; } });
+var shared_1 = require("@esparex/shared");
+Object.defineProperty(exports, "toGeoPoint", { enumerable: true, get: function () { return shared_1.toGeoPoint; } });
 var redisCache_1 = require("@core/utils/redisCache");
 Object.defineProperty(exports, "CACHE_KEYS", { enumerable: true, get: function () { return redisCache_1.CACHE_KEYS; } });
 Object.defineProperty(exports, "CACHE_TTLS", { enumerable: true, get: function () { return redisCache_1.CACHE_TTLS; } });
