@@ -290,6 +290,15 @@ app.use('/api/v1', globalLimiter);
 // Health check moved to before rate limiter
 
 
+app.get('/health', (_req, res) => {
+    res.json({
+        status: 'ok',
+        service: 'backend/user',
+        isDbReady: isDbReady(),
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.get('/', (_req, res) => {
     res.json({
         status: 'ok',
