@@ -65,18 +65,15 @@ export default tseslint.config(
     },
   },
 
-  // 4. Scoped Type-Awareness (Enterprise Precision)
+  // 4. Disable no-undef for TypeScript (TS Compiler handles this)
   {
     files: ["**/*.{ts,tsx}"],
-    languageOptions: {
-      parserOptions: {
-        projectService: {
-          allowDefaultProject: ["*.config.ts", "*.config.js", "vitest.config.ts", "jest.config.ts", "next.config.mjs"]
-        },
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
+    rules: {
+      "no-undef": "off"
+    }
   },
+
+
 
   // 5. Frontend Specific (Apps & Components)
   {
@@ -103,7 +100,6 @@ export default tseslint.config(
       "react-hooks/exhaustive-deps": "warn",
       "react-hooks/set-state-in-effect": "warn",
       "@next/next/no-img-element": "off",
-      "no-undef": "error",
     },
     settings: {
       react: {
@@ -126,7 +122,6 @@ export default tseslint.config(
       },
     },
     rules: {
-      "no-undef": "error",
       "no-console": "off", // Scripts usually need console
     }
   },
