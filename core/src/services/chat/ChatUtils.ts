@@ -15,7 +15,7 @@ export const DEFAULT_BLACKLIST: RegExp[] = [
 ];
 
 export const PHONE_REGEX = /(\+?\d[\d\s\-().]{6,}\d)/g;
-export const EMAIL_REGEX = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+export const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 export const URL_REGEX = /https?:\/\/\S+/gi;
 
 export function encodeHtmlEntities(raw: string): string {

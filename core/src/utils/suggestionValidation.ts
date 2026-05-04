@@ -87,8 +87,7 @@ export function validateBrandSuggestion(input: string): ValidationResult {
 
     // 1. Basic Cleaning
     // Allowed: A-Z, a-z, 0-9, \s, -, /, ., +
-    // We escape the hyphen to be safe in the character class
-    let cleanName = cleanInput(input, /[a-zA-Z0-9\s\-\/\.\+]/);
+    let cleanName = cleanInput(input, /[a-zA-Z0-9\s\-/.+]/);
 
     // 2. Extra Spam Protection (Run on original and cleaned)
     const spamError = hasSpamCharacteristics(cleanName, originalInput);
@@ -124,8 +123,8 @@ export function validateModelSuggestion(input: string): ValidationResult {
     // Allowed: A-Z, a-z, 0-9, \s, -, +
     // Wait: if a user types S24.5/Plus it strips . and / leaving S245Plus which is correct per rules,
     // but we can make it safer by replacing disallowed chars with a space first, then cleaning.
-    const strippedCharsToSpaces = input.replace(/[^a-zA-Z0-9\s\-\+]/gi, ' ');
-    let cleanName = cleanInput(strippedCharsToSpaces, /[a-zA-Z0-9\s\-\+]/);
+    const strippedCharsToSpaces = input.replace(/[^a-zA-Z0-9\s\-+]/gi, ' ');
+    let cleanName = cleanInput(strippedCharsToSpaces, /[a-zA-Z0-9\s\-+]/);
 
     // 2. Extra Spam Protection
     const spamError = hasSpamCharacteristics(cleanName, originalInput);

@@ -145,13 +145,14 @@ export const applySystemFix = async (req: Request, res: Response) => {
                 await ensureSystemConfig();
                 message = "Default system configuration restored";
                 break;
-            case 'clear_rate_limits':
+            case 'clear_rate_limits': {
                 const [rlDeleted, legacyRlDeleted] = await Promise.all([
                     clearCachePattern('rl:*'),
                     clearCachePattern('rate_limit:*')
                 ]);
                 message = `Cleared ${rlDeleted + legacyRlDeleted} rate limit entries`;
                 break;
+            }
             default:
                 return sendAdminError(req, res, `Unknown system fix action: ${String(action)}`, 400);
         }

@@ -183,7 +183,7 @@ export function isValidS3PublicImageUrl(url: string): boolean {
                 if (host === cdnHost || host.endsWith('.cloudfront.net') || host.endsWith('.esparex.com')) {
                     return true;
                 }
-            } catch { }
+            } catch { /* ignore */ }
         }
 
         if (S3_PUBLIC_HOST_REGEX.test(host)) {
@@ -338,7 +338,7 @@ export function extractS3KeyFromUrl(url: string): string | null {
                 if (host === cdnHost || host.endsWith('.cloudfront.net') || host.endsWith('.esparex.com')) {
                     return normalizedPath;
                 }
-            } catch { }
+            } catch { /* ignore */ }
         }
 
         const bucketLower = activeBucket.toLowerCase();

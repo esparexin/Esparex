@@ -107,7 +107,7 @@ for (const filePath of files) {
 
 if (issues.length > 0 || dynamicSrcIssues.length > 0) {
   console.error('Image safety validation failed.');
-  console.error('\nUnauthorized image domains detected in <Image src=\"...\"> literals:');
+  console.error('\nUnauthorized image domains detected in <Image src="..."> literals:');
   if (issues.length === 0) {
     console.error(' - none');
   } else {

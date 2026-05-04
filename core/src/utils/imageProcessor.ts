@@ -115,7 +115,7 @@ export const processSingleImage = async (
         } else if (image.startsWith('http')) {
             return { url: image, thumbnailUrl: image, hash: "existing-url" };
         } else {
-            const match = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+            const match = image.match(new RegExp('^data:([A-Za-z-+/]+);base64,(.+)$'));
             if (match && match.length === 3) {
                 mimeType = match[1] ?? 'image/jpeg';
                 buffer = Buffer.from(match[2] ?? '', 'base64');

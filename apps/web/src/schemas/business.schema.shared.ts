@@ -64,7 +64,7 @@ export const validateBusinessDocumentSelection = (file: File): string | null =>
     validateBusinessUploadSelection(file, BUSINESS_DOCUMENT_MIME_TYPES, "document");
 
 export const sanitizedBusinessText = (text: string) => {
-    const excessiveSpecialChars = /[!@#$%^&*()_+=\[\]{};:'"<>,.?/\\|`~]{3,}/.test(text);
+    const excessiveSpecialChars = /[!@#$%^&*()_+=[\]{};:'"<>,.?/\\|`~]{3,}/.test(text);
     const suspiciousPatterns = /xss|sql|script|select|drop|insert|exec/i.test(text);
     return !excessiveSpecialChars && !suspiciousPatterns;
 };

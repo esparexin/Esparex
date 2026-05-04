@@ -30,8 +30,9 @@ export function PageStateGuard({
             return <>{empty}</>;
         case 'ready':
             return <>{children}</>;
-        default:
+        default: {
             const unreachableState: never = state;
             throw new Error(`Unhandled page state: ${unreachableState}`);
+        }
     }
 }
