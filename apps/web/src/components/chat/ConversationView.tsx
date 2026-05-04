@@ -133,7 +133,6 @@ export function ConversationView({ conversation, currentUserId, embedded = false
   };
 
   // Render date separator between messages on different days
-  let lastDate = '';
 
   return (
     <div className={`conversation-view ${embedded ? 'conversation-view--embedded' : ''}`}>
@@ -244,10 +243,10 @@ export function ConversationView({ conversation, currentUserId, embedded = false
             </button>
           </div>
         )}
-        {messages.map((msg) => {
+        {messages.map((msg, index) => {
           const msgDate = msg.createdAt.slice(0, 10);
-          const showSep = msgDate !== lastDate;
-          lastDate = msgDate;
+          const prevMsgDate = index > 0 ? messages[index - 1]?.createdAt.slice(0, 10) : '';
+          const showSep = msgDate !== prevMsgDate;
           return (
             <div key={msg.id}>
               {showSep && <DateSeparator date={msg.createdAt} />}

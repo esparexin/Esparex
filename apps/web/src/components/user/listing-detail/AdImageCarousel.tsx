@@ -40,7 +40,11 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
         if (touchStartX.current === undefined) return;
         const diff = touchStartX.current - (e.changedTouches[0]?.clientX ?? 0);
         if (Math.abs(diff) >= SWIPE_THRESHOLD) {
-            diff > 0 ? nextImage() : prevImage();
+            if (diff > 0) {
+                nextImage();
+            } else {
+                prevImage();
+            }
         }
         touchStartX.current = undefined;
     };

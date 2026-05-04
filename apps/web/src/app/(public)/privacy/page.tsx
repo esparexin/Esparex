@@ -22,7 +22,7 @@ export default function PrivacyPage() {
             <div className="space-y-8 text-muted-foreground leading-relaxed">
                 <section>
                     <p>
-                        Your privacy is critically important to us at Esparex. This Privacy Policy outlines how we collect, use, and protect your personal data when you use the Esparex marketplace (the "Platform"). By accessing our Platform, you consent to the data practices described in this policy.
+                        Your privacy is critically important to us at Esparex. This Privacy Policy outlines how we collect, use, and protect your personal data when you use the Esparex marketplace (the &quot;Platform&quot;). By accessing our Platform, you consent to the data practices described in this policy.
                     </p>
                 </section>
 

@@ -173,7 +173,7 @@ export function BoostPlanDialog({
             Boost Your Ad
           </DialogTitle>
           <DialogDescription>
-            Choose a spotlight plan to boost "{adTitle}" and get more visibility
+            Choose a spotlight plan to boost &quot;{adTitle}&quot; and get more visibility
             {currentPlan !== "Free" && (
               <Badge className="ml-2 bg-green-100 text-green-700">
                 Current: {currentPlan}

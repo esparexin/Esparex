@@ -137,7 +137,7 @@ export function AuthProvider({
   /* Fetch User                                                               */
   /* ------------------------------------------------------------------------ */
 
-  const fetchUser = useCallback(async () => {
+  const fetchUser = useCallback(async function doFetch(): Promise<void> {
     /* ---------------- Dev Bypass ---------------- */
 
     if (!backendReady) {
@@ -253,7 +253,7 @@ export function AuthProvider({
           }
           networkRetryTimerRef.current = setTimeout(() => {
             fetchingRef.current = false;
-            void fetchUser();
+            void doFetch();
           }, delay);
           // Stay in "loading" — withGuard shows null, no login redirect
           return;
@@ -361,9 +361,11 @@ export function AuthProvider({
     const pathname = window.location.pathname;
 
     if (pathname.startsWith("/admin")) {
-      setStatus((prev) =>
-        prev === "loading" ? "unauthenticated" : prev
-      );
+      setTimeout(() => {
+        setStatus((prev) =>
+          prev === "loading" ? "unauthenticated" : prev
+        );
+      }, 0);
       return;
     }
 

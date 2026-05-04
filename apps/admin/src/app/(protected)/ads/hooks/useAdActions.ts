@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useRef } from "react";
 import { 
     type ModerationItem,
 } from "@/components/moderation/moderationTypes";
@@ -54,7 +54,7 @@ export function useAdActions({
     const [banTargetSellerId, setBanTargetSellerId] = useState<string | null>(null);
     const [banTargetSellerName, setBanTargetSellerName] = useState<string | undefined>(undefined);
 
-    const lastRequestId = useMemo(() => ({ current: 0 }), []);
+    const lastRequestId = useRef(0);
 
     const resolveAdId = (item: ModerationItem) => {
         const nestedAd = (item as ModerationItem & { ad?: { _id?: string; id?: string } }).ad;

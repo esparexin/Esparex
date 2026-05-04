@@ -119,7 +119,7 @@ export function LocationProvider({
     const [locationExpired, setLocationExpired] = useState(false);
 
     const initializedRef = useRef(false);
-    const promptDelayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const promptDelayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const genericLocationRefreshKeyRef = useRef<string | null>(null);
     const autoDetectedRef = useRef(false);
 
@@ -263,6 +263,11 @@ export function LocationProvider({
         }
     }, [initialHasAuthCookie]);
 
+    const readPromptDismissedFromStorage = () => {
+        if (typeof window === "undefined") return false;
+        return localStorage.getItem(LOCATION_PROMPT_DISMISSED_KEY) === "true";
+    };
+
     useEffect(() => {
         if (initializedRef.current) return;
         initializedRef.current = true;
@@ -312,10 +317,6 @@ export function LocationProvider({
         };
     }, [applyResolvedLocation, hydrateProfileLocation, readStoredLocation, readPermissionBlockedFlag]);
 
-    const readPromptDismissedFromStorage = () => {
-        if (typeof window === "undefined") return false;
-        return localStorage.getItem(LOCATION_PROMPT_DISMISSED_KEY) === "true";
-    };
 
     const resetPermissionBlocked = useCallback(() => {
         setPermissionBlockedFlag(false);

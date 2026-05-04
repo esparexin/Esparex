@@ -67,9 +67,10 @@ export function useListingEditPreload<TPayload extends Record<string, unknown>>(
                 loadedIdRef.current = undefined;
                 callbacksRef.current.onError?.(error);
             } finally {
-                if (!isActive) return;
-                setIsFetchingData(false);
-                callbacksRef.current.onLoadingChange?.(false);
+                if (isActive) {
+                    setIsFetchingData(false);
+                    callbacksRef.current.onLoadingChange?.(false);
+                }
             }
         };
 

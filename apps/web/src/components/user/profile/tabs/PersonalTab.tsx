@@ -315,7 +315,7 @@ export function PersonalTab({
                         <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 mt-2">
                             <Shield className="h-4 w-4 text-blue-500" />
                             <p className="text-xs text-muted-foreground font-medium italic">
-                                Note: Visibility changes will apply across all your active listings when you click "Save Changes" above.
+                                Note: Visibility changes will apply across all your active listings when you click &quot;Save Changes&quot; above.
                             </p>
                         </div>
                     </div>

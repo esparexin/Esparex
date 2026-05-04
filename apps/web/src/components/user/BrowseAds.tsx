@@ -215,7 +215,7 @@ export function BrowseAds({
   }, [setPage]);
 
   // ── Skeleton ─────────────────────────────────────────────────────────────────
-  const GridSkeleton = () => (
+  const gridSkeleton = (
     <div className="grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="space-y-3">
@@ -293,7 +293,7 @@ export function BrowseAds({
             )}
 
             {/* ── Loading skeleton (initial load only) ─────────────────── */}
-            {isLoading && displayAds.length === 0 && !error && <GridSkeleton />}
+            {isLoading && displayAds.length === 0 && !error && gridSkeleton}
 
             {/* ── Empty state ──────────────────────────────────────────── */}
             {isEmptyState && (
@@ -314,7 +314,7 @@ export function BrowseAds({
                 )}
                 {query && (
                   <p className="mb-6 max-w-sm text-sm text-muted-foreground">
-                    No results for "{query}". Try different keywords or clear your filters.
+                    No results for &quot;{query}&quot;. Try different keywords or clear your filters.
                   </p>
                 )}
                 
