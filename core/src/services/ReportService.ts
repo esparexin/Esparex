@@ -5,6 +5,8 @@ import User from '@esparex/core/models/User';
 import Business from '@esparex/core/models/Business';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@esparex/core/utils/redisCache';
 import logger from '@esparex/core/utils/logger';
+import { mutateStatus } from '@esparex/core/services/StatusMutationService';
+import { ACTOR_TYPE } from '@esparex/core/constants/enums/actor';
 
 const ACTIVE_REPORT_STATUSES = ['open', 'pending', 'reviewed'] as const;
 
@@ -69,6 +71,8 @@ export const bulkResolveReports = async (
     note: string | undefined,
     actorId: string
 ) => {
+    // 🛡️ ARCHITECTURAL EXCEPTION: Report domain is not yet centralized in StatusMutationService.
+    // Raw Mongoose update is permitted for bulk Report resolution until the domain is migrated.
     // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
     return Report.updateMany(
         {
@@ -96,9 +100,19 @@ export const autoHideAdIfOverThreshold = async (
 ) => {
     if (uniqueReports < threshold) return;
 
-    await Ad.findByIdAndUpdate(adId, {
-        moderationStatus: 'community_hidden',
-        moderationReason: `Auto-hidden: Received ${uniqueReports} community reports (threshold: ${threshold}).`,
+    await mutateStatus({
+        domain: 'ad',
+        entityId: adId,
+        toStatus: 'live', // Keeping current status, only updating moderationStatus
+        actor: { type: ACTOR_TYPE.SYSTEM, id: 'system_auto_moderator' },
+        reason: `Auto-hidden: Received ${uniqueReports} community reports (threshold: ${threshold}).`,
+        patch: {
+            moderationStatus: 'community_hidden',
+        },
+        metadata: {
+            action: 'community_auto_hide',
+            source: 'ReportService.autoHideAdIfOverThreshold',
+        }
     });
 
     setImmediate(() => {

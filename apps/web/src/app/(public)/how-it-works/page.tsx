@@ -17,7 +17,7 @@ export default function HowItWorksPage() {
     return (
         <InfoPage title="How Esparex Works">
             <p className="mb-6 text-muted-foreground text-base leading-relaxed">
-                Whether you're looking to offload old electronics, source bulk iPhone displays, or find a technician to fix your shattered screen, Esparex is built to make the process completely seamless and transparent.
+                Whether you{"'"}re looking to offload old electronics, source bulk iPhone displays, or find a technician to fix your shattered screen, Esparex is built to make the process completely seamless and transparent.
             </p>
             <div className="space-y-6 not-prose">
                 <div className="flex flex-col md:flex-row items-stretch gap-4 p-6 rounded-2xl bg-blue-50/50 border border-blue-100 shadow-sm">
@@ -29,7 +29,7 @@ export default function HowItWorksPage() {
                         </p>
                         <ul className="text-sm text-blue-900/70 list-disc pl-5 space-y-1">
                             <li>Use advanced filters to instantly filter by exact Device Brand and Model so you never order the wrong flex cable again.</li>
-                            <li>Look for the <span className="font-semibold text-blue-800">"Verified Business"</span> shield to buy confidently from registered wholesale distributors.</li>
+                            <li>Look for the <span className="font-semibold text-blue-800">&quot;Verified Business&quot;</span> shield to buy confidently from registered wholesale distributors.</li>
                             <li>Found what you need? Use our instant chat to negotiate the final price and arrange a local pickup or delivery directly with the seller.</li>
                         </ul>
                     </div>
@@ -40,12 +40,12 @@ export default function HowItWorksPage() {
                     <div>
                         <h3 className="font-bold text-emerald-900 text-lg mb-2">For Sellers: Turning Inventory into Cash</h3>
                         <p className="text-sm text-emerald-800/80 leading-relaxed mb-3">
-                            Whether you're stripping a broken phone for OEM parts or running a massive B2B repair shop, posting on Esparex takes less than 60 seconds.
+                            Whether you{"'"}re stripping a broken phone for OEM parts or running a massive B2B repair shop, posting on Esparex takes less than 60 seconds.
                         </p>
                         <ul className="text-sm text-emerald-900/70 list-disc pl-5 space-y-1">
-                            <li>Click "Post Ad" to snap clear photos and categorize your item exactly. Be specific about whether it is an OEM pull or an aftermarket compatible part.</li>
+                            <li>Click &quot;Post Ad&quot; to snap clear photos and categorize your item exactly. Be specific about whether it is an OEM pull or an aftermarket compatible part.</li>
                             <li>Leverage our hyper-local radius matching so buyers right in your city find your inventory first.</li>
-                            <li>Boost your listings using the "Ads Spotlight" premium feature to pin your parts to the top of the search algorithm.</li>
+                            <li>Boost your listings using the &quot;Ads Spotlight&quot; premium feature to pin your parts to the top of the search algorithm.</li>
                         </ul>
                     </div>
                 </div>
@@ -55,11 +55,11 @@ export default function HowItWorksPage() {
                     <div>
                         <h3 className="font-bold text-violet-900 text-lg mb-2">For Service Providers & Technicians</h3>
                         <p className="text-sm text-violet-800/80 leading-relaxed mb-3">
-                            Are you a micro-soldering expert or a quick screen-replacement wizard? Don't let your skills sit undiscovered.
+                            Are you a micro-soldering expert or a quick screen-replacement wizard? Don{"'"}t let your skills sit undiscovered.
                         </p>
                         <ul className="text-sm text-violet-900/70 list-disc pl-5 space-y-1">
                             <li>List your Repair Services by defining the specific devices you service and your standard rates.</li>
-                            <li>Offer "On-Site" repair or "Shop Walk-in" depending on your capability. Customers can view your turnaround times instantly.</li>
+                            <li>Offer &quot;On-Site&quot; repair or &quot;Shop Walk-in&quot; depending on your capability. Customers can view your turnaround times instantly.</li>
                             <li>Build a glowing reputation with reviews and dominate the local repair market without paying massive lead-generation fees.</li>
                         </ul>
                     </div>

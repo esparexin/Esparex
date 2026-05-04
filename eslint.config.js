@@ -1,4 +1,3 @@
-import nextConfig from "eslint-config-next";
 import tseslint from "typescript-eslint";
 import prettier from "eslint-config-prettier";
 import unusedImports from "eslint-plugin-unused-imports";
@@ -22,14 +21,34 @@ export default tseslint.config(
       "**/__tests__/**",
       "**/tests/**",
       "**/*.spec.ts",
-      "**/*.test.ts",
-      "**/*.js",
-      "**/*.cjs",
-      "**/*.mjs"
+      "**/*.test.ts"
     ]
   },
   ...tseslint.configs.recommended,
   prettier,
+  {
+    files: ["**/*.{js,cjs,mjs}"],
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        process: "readonly",
+        require: "readonly",
+        module: "readonly",
+        exports: "readonly",
+        __dirname: "readonly",
+        __filename: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
+        setInterval: "readonly",
+        clearInterval: "readonly",
+        Buffer: "readonly",
+      }
+    },
+    rules: {
+      "no-undef": "error",
+      "no-unused-vars": "warn",
+    }
+  },
   {
     files: ["**/*.{ts,tsx}"],
     plugins: {
@@ -39,27 +58,33 @@ export default tseslint.config(
       "@next/next": nextPlugin,
       "esparex": esparexRules,
     },
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
     rules: {
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
       "react/react-in-jsx-scope": "off",
-      "react/no-unescaped-entities": "off",
+      "react/no-unescaped-entities": "error",
       "react/prop-types": "off",
-      "react-hooks/rules-of-hooks": "warn",
+      "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/set-state-in-effect": "warn",
       "@next/next/no-img-element": "off",
-      "@typescript-eslint/no-empty-object-type": "off",
-      "@typescript-eslint/no-this-alias": "off",
-      "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-empty-object-type": "warn",
+      "@typescript-eslint/no-this-alias": "warn",
+      "@typescript-eslint/no-require-imports": "warn",
+      "@typescript-eslint/no-unused-expressions": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-namespace": "off",
-      "no-console": "off",
-      "unused-imports/no-unused-imports": "off",
-      "esparex/no-status-mutation-outside-status-mutation-service": "off",
-      "no-undef": "off"
+      "no-console": "warn",
+      "unused-imports/no-unused-imports": "warn",
+      "esparex/no-status-mutation-outside-status-mutation-service": "error",
     },
     settings: {
       react: {

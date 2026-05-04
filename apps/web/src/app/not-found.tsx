@@ -44,7 +44,7 @@ export default function NotFound() {
                                 Lost in the <span className="text-green-600">Marketplace?</span>
                             </h1>
                             <p className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
-                                Oops! It seems this item or page has been moved, sold, or taken off the shelf. Let’s get you back on track.
+                                Oops! It seems this item or page has been moved, sold, or taken off the shelf. Let{"'"}s get you back on track.
                             </p>
                         </div>
 
