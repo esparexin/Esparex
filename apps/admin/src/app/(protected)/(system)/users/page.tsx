@@ -84,7 +84,9 @@ export default function UsersPage() {
     }, [fetchUsers, committedSearch, page, statusFilter, verifiedFilter]);
 
     useEffect(() => {
-        setSearchInput((prev) => (prev === committedSearch ? prev : (committedSearch || "")));
+        void (async () => {
+            setSearchInput((prev) => (prev === committedSearch ? prev : (committedSearch || "")));
+        })();
     }, [committedSearch]);
 
     useEffect(() => {

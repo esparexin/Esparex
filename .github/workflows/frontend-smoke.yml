@@ -1,0 +1,163 @@
+name: 🧪 Esparex CI: Frontend Smoke
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  listing-smoke:
+    name: Listing Contact Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CI: "true"
+      NODE_ENV: development
+      PORT: "5001"
+      MONGODB_URI: mongodb://127.0.0.1:27017/esparex_smoke
+      ADMIN_MONGODB_URI: mongodb://127.0.0.1:27017/esparex_smoke
+      JWT_SECRET: ci_test_secret_at_least_32_characters_long_for_listing_smoke
+      HMAC_SECRET: ci_hmac_secret_at_least_32_characters_long_for_listing_smoke
+      FRONTEND_URL: http://localhost:3000
+      FRONTEND_INTERNAL_URL: http://localhost:3000
+      CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000
+      REDIS_URL: redis://127.0.0.1:6379
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: "6379"
+      ALLOW_REDIS: "true"
+      ENABLE_SCHEDULER: "false"
+      RUN_SCHEDULERS: "false"
+      ALLOW_BOOT_AUTO_INDEX: "false"
+      USE_DEFAULT_OTP: "true"
+      DEV_STATIC_OTP: "123456"
+      AUTH_BYPASS_OTP_LOCK: "true"
+      AUTH_LOCAL_RELAXED: "true"
+      SMOKE_FRONTEND_URL: http://localhost:3000
+      SMOKE_API_BASE_URL: http://localhost:5001/api/v1
+      SMOKE_AUTH_MOBILE: "9030787819"
+      SMOKE_AUTH_OTP: "123456"
+      NEXT_PUBLIC_API_URL: http://localhost:5001/api/v1
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_ENV: local
+      NEXT_PUBLIC_ENCRYPTION_KEY: ci-placeholder-key-32-characters-x
+      NEXT_PUBLIC_USE_DEFAULT_OTP: "true"
+      NEXT_PUBLIC_LOCAL_DEV_AUTH: "false"
+      NEXT_PUBLIC_FIREBASE_API_KEY: placeholder
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: placeholder
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+      NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
+      NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Start backend
+        run: |
+          nohup npm run start:ts -w @esparex/backend-user > "$RUNNER_TEMP/backend-smoke.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/backend.pid"
+
+      - name: Wait for backend
+        run: |
+          for attempt in $(seq 1 60); do
+            if curl -fsS "$SMOKE_API_BASE_URL/health" >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Backend failed to become ready"
+          cat "$RUNNER_TEMP/backend-smoke.log" || true
+          exit 1
+
+      - name: Start frontend
+        run: |
+          nohup npm run dev -w @esparex/apps-web > "$RUNNER_TEMP/frontend-smoke.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/frontend.pid"
+
+      - name: Wait for frontend
+        run: |
+          for attempt in $(seq 1 60); do
+            if curl -fsS "$SMOKE_FRONTEND_URL" >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Frontend failed to become ready"
+          cat "$RUNNER_TEMP/frontend-smoke.log" || true
+          exit 1
+
+      - name: Provision smoke fixtures
+        run: |
+          SMOKE_FIXTURE_OUTPUT_PATH="$RUNNER_TEMP/smoke-fixtures.json" npm run smoke:fixtures -w @esparex/backend-user
+          echo "SMOKE_LISTING_FIXTURES<<EOF" >> "$GITHUB_ENV"
+          cat "$RUNNER_TEMP/smoke-fixtures.json" >> "$GITHUB_ENV"
+          echo "EOF" >> "$GITHUB_ENV"
+
+      - name: Run full listing contact smoke
+        run: npm run e2e -w @esparex/apps-web -- tests/listing-chat-smoke.spec.ts --project=chromium --project=mobile-chrome
+
+      - name: Run reveal-policy smoke matrix
+        run: |
+          for expectation in masked request_only hidden; do
+            SMOKE_FIXTURE_REVEAL_EXPECT="$expectation" \
+            SMOKE_FIXTURE_OUTPUT_PATH="$RUNNER_TEMP/reveal-${expectation}.json" \
+            npm run smoke:fixtures -w @esparex/backend-user
+
+            SMOKE_LISTING_FIXTURES="$(cat "$RUNNER_TEMP/reveal-${expectation}.json")" \
+            npm run e2e -w @esparex/apps-web -- tests/listing-chat-smoke.spec.ts --grep "listing detail show number reveals canonical contact data" --project=chromium --project=mobile-chrome
+          done
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-listing-smoke-artifacts
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+            ${{ runner.temp }}/backend-smoke.log
+            ${{ runner.temp }}/frontend-smoke.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Stop local servers
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/backend.pid" ]; then
+            kill -9 "$(cat "$RUNNER_TEMP/backend.pid")" || true
+          fi
+          if [ -f "$RUNNER_TEMP/frontend.pid" ]; then
+            kill -9 "$(cat "$RUNNER_TEMP/frontend.pid")" || true
+          fi

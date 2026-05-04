@@ -13,6 +13,19 @@ services:
       - key: PORT
         value: 10000
 
+  # --- Esparex User Backend (Main API) ---
+  - type: web
+    name: esparex-user-api
+    env: node
+    plan: starter
+    buildCommand: npm install --include=dev && npm run build -w @esparex/shared && npm run build -w core && npm run build -w @esparex/backend-user
+    startCommand: cd backend/user && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+
       # ── Core ──────────────────────────────────────────────────────────────
       - key: MONGODB_URI
         sync: false   # MongoDB Atlas connection string

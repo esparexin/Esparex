@@ -18,7 +18,7 @@ type NotificationTargetParams = {
 import { USER_STATUS } from "@esparex/core/constants/enums/userStatus";
 import { Role } from "@esparex/core/constants/enums/roles";
 
-const ACTIVE_USER_QUERY: Record<string, any> = {
+const ACTIVE_USER_QUERY: Record<string, unknown> = {
     isDeleted: { $ne: true },
     status: { $nin: [USER_STATUS.DELETED, USER_STATUS.BANNED] },
     role: { $in: [Role.USER, Role.BUSINESS] },

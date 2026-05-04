@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image, { ImageProps } from "next/image";
 import { DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";
 import { cn } from "@/components/ui/utils";
@@ -24,20 +24,14 @@ export function SafeImage({
   className,
   ...props
 }: SafeImageProps) {
-  const [errorStatus, setErrorStatus] = useState<"none" | "errored">("none");
-  const [currentSrc, setCurrentSrc] = useState(src);
+  const [errorSrc, setErrorSrc] = useState<string | null>(null);
 
-  // Sync internal src if the prop changes (e.g. from parent state update)
-  useEffect(() => {
-    setCurrentSrc(src);
-    setErrorStatus("none");
-  }, [src]);
+  // Derive currentSrc
+  const currentSrc = (errorSrc === src) ? fallback : src;
 
   const handleError = () => {
-    if (errorStatus === "errored") return; // Prevent infinite fallback loops
-    
-    setErrorStatus("errored");
-    setCurrentSrc(fallback);
+    if (errorSrc === src) return; // Prevent infinite fallback loops
+    setErrorSrc(src as string);
   };
 
   return (
@@ -48,7 +42,7 @@ export function SafeImage({
       onError={handleError}
       className={cn(
         "transition-opacity duration-300",
-        errorStatus === "errored" && "opacity-80 grayscale-[0.5]",
+        errorSrc !== null && "opacity-80 grayscale-[0.5]",
         className
       )}
     />

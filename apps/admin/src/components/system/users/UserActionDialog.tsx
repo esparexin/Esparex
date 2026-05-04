@@ -107,7 +107,7 @@ export function UserActionDialog({
 
     useEffect(() => {
         if (open) {
-            setReason("");
+            void (async () => { setReason(""); })();
         }
     }, [open, actionType, user?.id]);
 

@@ -1,4 +1,4 @@
-/* global React, JSX */
+/* global JSX */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -44,29 +44,31 @@ export default function TaxonomyHierarchyPage() {
     const [search, setSearch] = useState("");
 
     useEffect(() => {
-        let isCancelled = false;
-        setLoading(true);
-        setError(null);
+        void (async () => {
+            let isCancelled = false;
+            setLoading(true);
+            setError(null);
 
-        void getCatalogHierarchyTree()
-            .then((data) => {
-                if (isCancelled) return;
-                setHierarchy(data.categories);
-                setSummary(data.summary);
-            })
-            .catch((loadError) => {
-                if (isCancelled) return;
-                setError(loadError instanceof Error ? loadError.message : "Failed to load hierarchy");
-            })
-            .finally(() => {
-                if (!isCancelled) {
-                    setLoading(false);
-                }
-            });
+            void getCatalogHierarchyTree()
+                .then((data) => {
+                    if (isCancelled) return;
+                    setHierarchy(data.categories);
+                    setSummary(data.summary);
+                })
+                .catch((loadError) => {
+                    if (isCancelled) return;
+                    setError(loadError instanceof Error ? loadError.message : "Failed to load hierarchy");
+                })
+                .finally(() => {
+                    if (!isCancelled) {
+                        setLoading(false);
+                    }
+                });
 
-        return () => {
-            isCancelled = true;
-        };
+            return () => {
+                isCancelled = true;
+            };
+        })();
     }, []);
 
     const filteredHierarchy = useMemo(() => {

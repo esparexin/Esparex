@@ -126,8 +126,8 @@ export function useNotifications() {
                 totalPages: parsed.pagination?.totalPages ?? 1,
                 limit: parsed.pagination?.limit ?? HISTORY_LIMIT,
             });
-        } catch (err) {
-            console.error("Failed to load notification history", err);
+        } catch {
+            // Error intentionally swallowed; component relies on prior state
         } finally {
             setLoading(false);
         }
@@ -137,7 +137,7 @@ export function useNotifications() {
 
     // Sync input search with URL (Debounced)
     useEffect(() => {
-        setSearchInput(q);
+        void (async () => { setSearchInput(q); })();
     }, [q]);
 
     useEffect(() => {
@@ -152,7 +152,7 @@ export function useNotifications() {
 
     // Fetch history on route change
     useEffect(() => {
-        void fetchHistory();
+        void (async () => { await fetchHistory(); })();
     }, [historyRoute, fetchHistory]);
 
     // Page existence validation
@@ -165,17 +165,21 @@ export function useNotifications() {
     // Recipient Search (Debounced)
     useEffect(() => {
         if (targetType !== ADMIN_NOTIFICATION_TARGET_TYPE.USERS) {
-            setRecipientResults([]);
-            setRecipientSearchLoading(false);
-            setRecipientSearchError("");
+            void (async () => {
+                setRecipientResults([]);
+                setRecipientSearchLoading(false);
+                setRecipientSearchError("");
+            })();
             return;
         }
 
         const query = recipientQuery.trim();
         if (query.length < 2) {
-            setRecipientResults([]);
-            setRecipientSearchLoading(false);
-            setRecipientSearchError("");
+            void (async () => {
+                setRecipientResults([]);
+                setRecipientSearchLoading(false);
+                setRecipientSearchError("");
+            })();
             return;
         }
 

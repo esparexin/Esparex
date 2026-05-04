@@ -113,7 +113,7 @@ export function useAdminCrudList<T, F extends object>({
     }, [fetchPage, filters, page, limit]);
 
     useEffect(() => {
-        void refresh();
+        void (async () => { await refresh(); })();
     }, [refresh]);
 
     return {

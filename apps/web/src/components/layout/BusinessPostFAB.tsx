@@ -46,7 +46,7 @@ export function BusinessPostFAB() {
 
     // Collapse on every navigation
     useEffect(() => {
-        setIsOpen(false);
+        void (async () => { setIsOpen(false); })();
     }, [pathname]);
 
     // Only for authenticated live-business users

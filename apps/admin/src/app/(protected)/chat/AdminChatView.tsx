@@ -65,7 +65,9 @@ export default function AdminChatView() {
   const [isMuting, setIsMuting] = useState(false);
 
   useEffect(() => {
-    setSearchInput((prev) => (prev === search ? prev : search));
+    void (async () => {
+      setSearchInput((prev) => (prev === search ? prev : search));
+    })();
   }, [search]);
 
   const replaceQueryState = useCallback(

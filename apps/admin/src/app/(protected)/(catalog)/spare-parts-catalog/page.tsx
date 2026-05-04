@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Wrench, AlertTriangle, Loader2 } from "lucide-react";
 import { LISTING_TYPE } from "@esparex/shared/enums/listingType";
@@ -91,9 +91,7 @@ function SparePartsCatalogPageContent({
         assignableCategoryIdSet: assignableSpareCategoryIds,
     } = useAssignableCategories(categories, categorySupportsSpareParts);
 
-    useEffect(() => {
-        setSearchInput(initialSearch);
-    }, [initialSearch]);
+
 
     const { replaceQueryState } = useCatalogQueryStateSync({
         searchInput,

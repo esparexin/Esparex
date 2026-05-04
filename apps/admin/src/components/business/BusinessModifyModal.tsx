@@ -81,7 +81,9 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
         if (form.pincode) return; // Don't override existing pincode
         const match = form.address.match(/\b\d{6}\b/);
         if (match) {
-            setForm(f => ({ ...f, pincode: match[0] }));
+            void (async () => {
+                setForm(f => ({ ...f, pincode: match[0] }));
+            })();
         }
     }, [form.address, form.pincode]);
 
@@ -89,16 +91,20 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
     useEffect(() => {
         const parts = [form.shopNo, form.street, form.landmark, form.city].filter(Boolean);
         if (parts.length > 0 && !form.address) {
-             setForm(f => ({ ...f, address: parts.join(', ') }));
+            void (async () => {
+                setForm(f => ({ ...f, address: parts.join(', ') }));
+            })();
         }
     }, [form.shopNo, form.street, form.landmark, form.city, form.address]);
 
     useEffect(() => {
         const nextQuery = locationQuery.trim();
         if (nextQuery.length < 2) {
-            setLocationResults([]);
-            setLocationSearchLoading(false);
-            setLocationSearchError("");
+            void (async () => {
+                setLocationResults([]);
+                setLocationSearchLoading(false);
+                setLocationSearchError("");
+            })();
             return;
         }
 

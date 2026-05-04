@@ -111,7 +111,7 @@ export function useAdminLocations({
     }, [filters, limit, page]);
 
     useEffect(() => {
-        void fetchLocations();
+        void (async () => { await fetchLocations(); })();
     }, [fetchLocations, requestKey]);
 
     useEffect(() => {

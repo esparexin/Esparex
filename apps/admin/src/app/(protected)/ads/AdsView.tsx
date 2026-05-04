@@ -31,7 +31,7 @@ type AdsViewProps = {
     listingType?: "ad" | "service" | "spare_part";
 };
 
-export default function AdsView({ mode: _mode = "ads", listingType }: AdsViewProps) {
+export default function AdsView({ listingType }: AdsViewProps) {
     const presentation = getListingPresentation(listingType);
     const entityLabel = presentation.actionEntityLabel;
     const entityLabelPlural = presentation.actionEntityLabelPlural;
@@ -61,7 +61,7 @@ export default function AdsView({ mode: _mode = "ads", listingType }: AdsViewPro
     } = useAdFilters(listingType);
 
     const { 
-        items, pagination, summary: _summary, isLoading, error, moduleTabs, activeStatusOptions 
+        items, pagination, isLoading, error, moduleTabs, activeStatusOptions 
     } = useAdTableData({ filters, page, pageSize, refreshKey });
 
     const { 

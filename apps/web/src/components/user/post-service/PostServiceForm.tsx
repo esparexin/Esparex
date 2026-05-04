@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
     ServiceListingPayloadSchema,
@@ -43,13 +43,13 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         },
     });
 
-    const { register, watch, setValue, setError, clearErrors, formState: { errors } } = form;
+    const { register, control, setValue, setError, clearErrors, formState: { errors } } = form;
 
-    const categoryId = watch("categoryId");
-    const brandId = watch("brandId");
-    const selectedServiceTypes = watch("serviceTypeIds") || [];
-    const titleVal = watch("title") || "";
-    const descVal = watch("description") || "";
+    const categoryId = useWatch({ control, name: "categoryId" });
+    const brandId = useWatch({ control, name: "brandId" });
+    const selectedServiceTypes = useWatch({ control, name: "serviceTypeIds" }) || [];
+    const titleVal = useWatch({ control, name: "title" }) || "";
+    const descVal = useWatch({ control, name: "description" }) || "";
 
     const {
         dynamicCategories,

@@ -26,26 +26,20 @@ export function RelativeTimeText({
         () => fallback ?? formatAppDate(parsedValue),
         [fallback, parsedValue]
     );
-    const [label, setLabel] = useState(fallbackLabel);
+    const [tick, setTick] = useState(0);
 
     useEffect(() => {
-        if (Number.isNaN(parsedValue.getTime())) {
-            setLabel(fallbackLabel);
-            return;
-        }
-
-        const updateLabel = () => {
-            setLabel(
-                variant === "short"
-                    ? formatShortRelativeTime(parsedValue)
-                    : formatDistanceToNow(parsedValue, { addSuffix: true })
-            );
-        };
-
-        updateLabel();
-        const intervalId = window.setInterval(updateLabel, updateIntervalMs);
+        const intervalId = window.setInterval(() => setTick(t => t + 1), updateIntervalMs);
         return () => window.clearInterval(intervalId);
-    }, [fallbackLabel, parsedValue, updateIntervalMs, variant]);
+    }, [updateIntervalMs]);
+
+    const label = useMemo(() => {
+        if (Number.isNaN(parsedValue.getTime())) return fallbackLabel;
+        return variant === "short"
+            ? formatShortRelativeTime(parsedValue)
+            : formatDistanceToNow(parsedValue, { addSuffix: true });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fallbackLabel, parsedValue, tick, variant]);
 
     return <>{label}</>;
 }

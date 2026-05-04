@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable no-console */
 
 import { useEffect } from 'react';
 import Link from 'next/link';

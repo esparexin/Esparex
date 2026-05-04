@@ -48,10 +48,12 @@ export function useLocationSearch({
         if (!interactionOpen) return;
 
         if (query.length < 2) {
-            setLocations([]);
-            setIsSearching(false);
-            setSearchError(null);
-            setShowSkeleton(false);
+            void (async () => {
+                setLocations([]);
+                setIsSearching(false);
+                setSearchError(null);
+                setShowSkeleton(false);
+            })();
             abortControllerRef.current?.abort();
             return;
         }
@@ -63,14 +65,16 @@ export function useLocationSearch({
         abortControllerRef.current = new AbortController();
         const signal = abortControllerRef.current.signal;
 
-        setSearchError(null);
+        void (async () => { setSearchError(null); })();
 
         if (isCacheAvailable()) {
             const cached = getCacheEntry<Location[]>(getSearchCacheKey(query));
             if (cached && !signal.aborted) {
-                setLocations(cached);
-                setIsSearching(false);
-                setShowSkeleton(false);
+                void (async () => {
+                    setLocations(cached);
+                    setIsSearching(false);
+                    setShowSkeleton(false);
+                })();
                 return;
             }
         }

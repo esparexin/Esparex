@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Edit, Trash2, Monitor, AlignJustify, AlertTriangle, Loader2 } from "lucide-react";
 import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from "@esparex/shared/enums/listingType";
@@ -84,9 +84,7 @@ function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: Ca
         },
     });
 
-    useEffect(() => {
-        setSearchInput(initialSearch);
-    }, [initialSearch]);
+
 
     const { replaceQueryState } = useCatalogQueryStateSync({
         searchInput,

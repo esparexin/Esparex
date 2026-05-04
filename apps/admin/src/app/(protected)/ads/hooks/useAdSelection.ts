@@ -11,7 +11,9 @@ export function useAdSelection(items: ModerationItem[]) {
     // Cleanup: Remove selected IDs that are no longer in the current item list
     // This typically happens on pagination or status changes
     useEffect(() => {
-        setSelectedIds((prev) => prev.filter((id) => items.some((item) => item.id === id)));
+        void (async () => {
+            setSelectedIds((prev) => prev.filter((id) => items.some((item) => item.id === id)));
+        })();
     }, [items]);
 
     const toggleSelect = (adId: string, checked: boolean) => {

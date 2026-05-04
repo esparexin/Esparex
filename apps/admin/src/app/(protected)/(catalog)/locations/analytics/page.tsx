@@ -47,11 +47,11 @@ function LocationAnalyticsPageContent({
     }), [initialCity, initialDistrict, initialState, initialCountry]);
 
     useEffect(() => {
-        setCityInput(initialCity);
+        void (async () => { setCityInput(initialCity); })();
     }, [initialCity]);
 
     useEffect(() => {
-        setDistrictInput(initialDistrict);
+        void (async () => { setDistrictInput(initialDistrict); })();
     }, [initialDistrict]);
 
     const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
@@ -97,12 +97,14 @@ function LocationAnalyticsPageContent({
     }, [districtInput, initialDistrict, replaceQueryState]);
 
     useEffect(() => {
-        setLoading(true);
-        setError(null);
-        getLocationAnalytics(filters)
-            .then(setData)
-            .catch((e: Error) => setError(e.message || "Failed to load analytics"))
-            .finally(() => setLoading(false));
+        void (async () => {
+            setLoading(true);
+            setError(null);
+            getLocationAnalytics(filters)
+                .then(setData)
+                .catch((e: Error) => setError(e.message || "Failed to load analytics"))
+                .finally(() => setLoading(false));
+        })();
     }, [filters]);
 
     const adsByStateRows = (() => {

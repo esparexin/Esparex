@@ -13,7 +13,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     if (typeof window === "undefined") return;
     const saved = window.localStorage.getItem("esparex_admin_sidebar_minified");
     if (saved === "true") {
-      setIsMinified(true);
+      void (async () => { setIsMinified(true); })();
     }
   }, []);
 

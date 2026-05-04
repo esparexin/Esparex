@@ -36,16 +36,20 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
     }, []);
 
     useEffect(() => {
-        const trimmed = query.trim();
-        if (trimmed.length < 2) {
-            setResults(EMPTY_ADMIN_SEARCH_STATE);
-            setLoading(false);
-            return;
-        }
+        void (async () => {
+            const trimmed = query.trim();
+            if (trimmed.length < 2) {
+                setResults(EMPTY_ADMIN_SEARCH_STATE);
+                setLoading(false);
+                return;
+            }
+            setLoading(true);
+        })();
 
         let cancelled = false;
-        setLoading(true);
         const timer = setTimeout(async () => {
+            const trimmed = query.trim();
+            if (trimmed.length < 2) return;
             try {
                 const nextState = await searchAdminRecords(trimmed);
                 if (cancelled) return;

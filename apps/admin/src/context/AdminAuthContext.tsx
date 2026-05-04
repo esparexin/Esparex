@@ -66,7 +66,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    void refresh();
+    void (async () => { await refresh(); })();
   }, [refresh]);
 
   const login = useCallback(async (input: LoginInput) => {

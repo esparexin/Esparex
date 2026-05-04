@@ -66,22 +66,26 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         if (!data) return;
         const pageAds = Array.isArray(data.ads) ? data.ads : [];
         
-        if (!cursor) {
-            setFeedAds((previous) => (
-                pageAds.length > 0 || (data as unknown as { isFallback?: boolean }).isFallback || previous.length === 0
-                    ? replaceFeedPage(previous, pageAds)
-                    : previous
-            ));
-        } else if (pageAds.length > 0) {
-            setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
-        }
+        void (async () => {
+            if (!cursor) {
+                setFeedAds((previous) => (
+                    pageAds.length > 0 || (data as unknown as { isFallback?: boolean }).isFallback || previous.length === 0
+                        ? replaceFeedPage(previous, pageAds)
+                        : previous
+                ));
+            } else if (pageAds.length > 0) {
+                setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
+            }
+        })();
     }, [cursor, data]);
 
     // Sync pagination metadata
     useEffect(() => {
         if (!data) return;
-        setNextCursor(data.nextCursor ?? null);
-        setHasMore(data.hasMore === true);
+        void (async () => {
+            setNextCursor(data.nextCursor ?? null);
+            setHasMore(data.hasMore === true);
+        })();
     }, [data]);
 
     const recommendedAds = feedAds;

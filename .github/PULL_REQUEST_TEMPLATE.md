@@ -11,7 +11,7 @@
 
 ## Packages affected
 - [ ] `backend`
-- [ ] `frontend`
+- [ ] `apps/web`
 - [ ] `apps/admin`
 - [ ] `shared`
 

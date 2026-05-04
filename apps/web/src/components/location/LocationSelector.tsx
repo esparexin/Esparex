@@ -80,14 +80,13 @@ export default function LocationSelector({
 
     useEffect(() => {
         if (!detectError) return;
-        const timeoutId = setTimeout(() => searchApi.setDetectFeedback(detectError), 0);
-        return () => clearTimeout(timeoutId);
+        void (async () => { searchApi.setDetectFeedback(detectError); })();
     }, [detectError, searchApi]);
 
     useEffect(() => {
         if (isPanel || manuallyClearedRef.current) return;
 
-        const timeoutId = setTimeout(() => {
+        void (async () => {
             if (currentDisplay) {
                 setSelectedLabel(currentDisplay);
                 setHasSelection(true);
@@ -95,9 +94,7 @@ export default function LocationSelector({
                 setSelectedLabel("");
                 setHasSelection(false);
             }
-        }, 0);
-
-        return () => clearTimeout(timeoutId);
+        })();
     }, [currentDisplay, isOpen, isPanel, query]);
 
     useEffect(() => {
@@ -144,7 +141,7 @@ export default function LocationSelector({
     useEffect(() => {
         const interactionOpen = isPanel || isOpen;
         if (!interactionOpen) return;
-        setSelectedIndex(-1);
+        void (async () => { setSelectedIndex(-1); })();
     }, [isOpen, isPanel, query]);
 
     const handleSelect = useCallback(async (loc: Location) => {

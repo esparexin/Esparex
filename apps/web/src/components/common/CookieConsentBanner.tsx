@@ -19,7 +19,7 @@ export function CookieConsentBanner() {
 
     useEffect(() => {
         const stored = localStorage.getItem(CONSENT_KEY);
-        if (!stored) setVisible(true);
+        if (!stored) void (async () => { setVisible(true); })();
     }, []);
 
     if (!visible || shouldShowFirstVisitPrompt) return null;

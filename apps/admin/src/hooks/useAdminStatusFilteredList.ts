@@ -44,7 +44,7 @@ export function useAdminStatusFilteredList<T>({
     }, [statusFilter, limit, route, normalizeItem, errorMessage]);
 
     useEffect(() => {
-        void refresh();
+        void (async () => { await refresh(); })();
     }, [statusFilter, refresh]);
 
     return {

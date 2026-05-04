@@ -55,30 +55,32 @@ export function GenericSettingsSection({
 
   // Sync from config when it changes
   useEffect(() => {
-    const rootConfig = config as Record<string, unknown> | null;
-    const sectionConfig = (rootConfig?.[configPath] ?? {}) as SettingsObject;
-    const initialData: Record<string, SettingsValue> = {};
+    void (async () => {
+      const rootConfig = config as Record<string, unknown> | null;
+      const sectionConfig = (rootConfig?.[configPath] ?? {}) as SettingsObject;
+      const initialData: Record<string, SettingsValue> = {};
 
-    fields.forEach((field) => {
-      // Handle nested paths if needed
-      const parts = field.path.split(".");
-      let val: unknown = parts.reduce(
-        (acc, part) => (acc && typeof acc === "object" ? (acc as Record<string, unknown>)[part] : undefined),
-        sectionConfig as unknown
-      );
+      fields.forEach((field) => {
+        // Handle nested paths if needed
+        const parts = field.path.split(".");
+        let val: unknown = parts.reduce(
+          (acc, part) => (acc && typeof acc === "object" ? (acc as Record<string, unknown>)[part] : undefined),
+          sectionConfig as unknown
+        );
 
-      if (val === undefined) val = field.default;
+        if (val === undefined) val = field.default;
 
-      if (field.transform) {
-        val = field.transform(val);
-      }
-      if (field.preserveMasked && typeof val === "string" && val.includes("*")) {
-        val = "";
-      }
-      initialData[field.path] = val as SettingsValue;
-    });
+        if (field.transform) {
+          val = field.transform(val);
+        }
+        if (field.preserveMasked && typeof val === "string" && val.includes("*")) {
+          val = "";
+        }
+        initialData[field.path] = val as SettingsValue;
+      });
 
-    setFormData(initialData);
+      setFormData(initialData);
+    })();
   }, [config, configPath, fields]);
 
   const handleSave = () => {

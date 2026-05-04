@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Building2,
   Briefcase,
@@ -76,17 +76,13 @@ export function BusinessPublicProfile({
     return allTabs.filter((tab) => tab.count > 0);
   }, [ads.length, services.length, spareParts.length]);
 
-  useEffect(() => {
-    if (!tabs.some((tab) => tab.key === activeTab) && tabs[0]) {
-      setActiveTab(tabs[0].key);
-    }
-  }, [activeTab, tabs]);
+  const effectiveActiveTab = tabs.some((tab) => tab.key === activeTab) ? activeTab : (tabs[0]?.key || "ads");
 
   const activeItems: (Ad | Service)[] = useMemo(() => {
-    if (activeTab === "services") return services;
-    if (activeTab === "spare-parts") return spareParts;
+    if (effectiveActiveTab === "services") return services;
+    if (effectiveActiveTab === "spare-parts") return spareParts;
     return ads;
-  }, [activeTab, ads, services, spareParts]);
+  }, [effectiveActiveTab, ads, services, spareParts]);
 
   const heroImage = business.coverImage || business.images?.[0] || business.logo || null;
   const logoImage = business.logo || business.images?.[0] || business.coverImage || null;

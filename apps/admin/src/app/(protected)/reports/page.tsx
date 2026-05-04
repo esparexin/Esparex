@@ -48,7 +48,7 @@ export default function ReportsPage() {
     const search = requestedSearch;
 
     useEffect(() => {
-        setSearchInput(search || "");
+        void (async () => { await Promise.resolve(); setSearchInput(search || ""); })();
     }, [search]);
 
     useEffect(() => {

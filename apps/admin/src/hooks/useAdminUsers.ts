@@ -30,7 +30,7 @@ export function useAdminUsers() {
     }, []);
 
     useEffect(() => {
-        void fetchAdmins();
+        void (async () => { await fetchAdmins(); })();
     }, [fetchAdmins]);
 
     const handleCreate = useCallback(async (values: AdminCreateUserFormValues) => {

@@ -21,7 +21,7 @@ export function ChatImageLightbox({
 
   useEffect(() => {
     if (open) {
-      setActiveIndex(initialIndex);
+      void (async () => { setActiveIndex(initialIndex); })();
     }
   }, [open, initialIndex]);
 

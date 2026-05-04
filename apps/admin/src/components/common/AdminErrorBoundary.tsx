@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable no-console */
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { AlertTriangle } from "lucide-react";

@@ -38,10 +38,13 @@ export default function BrowseServicesVirtualizedList({
     return () => window.removeEventListener("resize", updateLanes);
   }, [view]);
 
+  const getScrollElement = useRef(() => parentRef.current).current;
+  const estimateSize = useRef(() => (view === "list" ? LIST_ITEM_HEIGHT : GRID_ITEM_HEIGHT)).current;
+
   const rowVirtualizer = useVirtualizer({
     count: items.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => (view === "list" ? LIST_ITEM_HEIGHT : GRID_ITEM_HEIGHT),
+    getScrollElement,
+    estimateSize,
     overscan: 5,
     lanes: view === "list" ? 1 : lanes,
   });

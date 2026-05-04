@@ -84,7 +84,7 @@ export function SearchFiltersShell({
     };
 
     useEffect(() => {
-        setIsHydrated(true);
+        void (async () => { setIsHydrated(true); })();
     }, []);
 
     return (

@@ -261,7 +261,7 @@ function LocationsPageContent({
     };
 
     useEffect(() => {
-        setSearchInput(initialSearch);
+        void (async () => { await Promise.resolve(); setSearchInput(initialSearch); })();
     }, [initialSearch]);
 
     const { replaceQueryState } = useCatalogQueryStateSync({

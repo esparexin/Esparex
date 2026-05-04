@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Logger, LogDetails, LogLevel } from './types';
 
 /**
