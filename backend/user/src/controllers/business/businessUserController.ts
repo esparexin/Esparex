@@ -1,10 +1,10 @@
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 import { Business } from "@shared/types/Business";
 import { ApiResponse } from "@shared/types/Api";
-import { respond } from "@core/utils/respond";
+import { respond } from "@esparex/core/utils/respond";
 import { Request, Response } from 'express';
-import * as businessService from '@core/services/BusinessService';
-import { sendErrorResponse } from "@core/utils/errorResponse";
+import * as businessService from '@esparex/core/services/BusinessService';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { BusinessStatsPayload, serializeBusinessForOwner } from './shared';
 
 export const getMyBusiness = async (req: Request, res: Response) => {

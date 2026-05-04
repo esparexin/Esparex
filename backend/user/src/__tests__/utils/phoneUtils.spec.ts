@@ -2,7 +2,7 @@ import {
     canonicalizeToIndian, 
     getMobileVariants, 
     normalizeTo10Digits 
-} from '@core/utils/phoneUtils';
+} from '@esparex/core/utils/phoneUtils';
 
 describe('Phone Utilities', () => {
     describe('normalizeTo10Digits', () => {

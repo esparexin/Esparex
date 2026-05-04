@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import Business from '@core/models/Business';
-import { isBusinessPublishedStatus } from '@core/utils/businessStatus';
-import logger from '@core/utils/logger';
-import { sendErrorResponse } from "@core/utils/errorResponse";
+import Business from '@esparex/core/models/Business';
+import { isBusinessPublishedStatus } from '@esparex/core/utils/businessStatus';
+import logger from '@esparex/core/utils/logger';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 
 
 /**

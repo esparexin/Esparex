@@ -1,9 +1,9 @@
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
-import { findContentBySlug, upsertContentBySlug, getAllContent as fetchAllContent } from '@core/services/PageContentService';
-import { getSingleParam } from '@core/utils/requestParams';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { respond } from "@core/utils/respond";
+import { findContentBySlug, upsertContentBySlug, getAllContent as fetchAllContent } from '@esparex/core/services/PageContentService';
+import { getSingleParam } from '@esparex/core/utils/requestParams';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { respond } from "@esparex/core/utils/respond";
 
 /**
  * EditorialContentController

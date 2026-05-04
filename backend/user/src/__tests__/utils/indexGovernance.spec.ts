@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-jest.mock("@core/utils/logger", () => ({
+jest.mock("@esparex/core/utils/logger", () => ({
     __esModule: true,
     default: {
         warn: jest.fn(),
@@ -9,8 +9,8 @@ jest.mock("@core/utils/logger", () => ({
     },
 }));
 
-import logger from "@core/utils/logger";
-import { governSchema, resetIndexGovernanceForTests } from "@core/db/indexGovernance";
+import logger from "@esparex/core/utils/logger";
+import { governSchema, resetIndexGovernanceForTests } from "@esparex/core/db/indexGovernance";
 
 describe("index governance", () => {
     beforeEach(() => {

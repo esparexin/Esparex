@@ -120,3 +120,4 @@ export interface IAdminMutePayload {
 export interface IAdminDeleteMessagePayload {
     reason?: string;
 }
+//# sourceMappingURL=chat.contracts.d.ts.map

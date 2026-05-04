@@ -48,3 +48,4 @@ export interface HomeFeedResponse {
 export interface ContactResponse {
     mobile: string;
 }
+//# sourceMappingURL=Api.d.ts.map

@@ -38,3 +38,4 @@ export declare function isTextValid(text: string, options?: TextValidationOption
  */
 export declare function getValidationError(result: TextValidationResult): string | null;
 export { BANNED_WORDS, ALL_BANNED_WORDS, GIBBERISH_PATTERNS, TEXT_QUALITY_RULES };
+//# sourceMappingURL=textValidator.d.ts.map

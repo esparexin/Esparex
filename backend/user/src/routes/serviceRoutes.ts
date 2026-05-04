@@ -16,7 +16,7 @@ import { duplicateCooldownMiddleware } from '../middleware/duplicateCooldownMidd
 import { requireListingType } from '../middleware/requireListingType';
 import { LISTING_TYPE } from "@shared/enums/listingType";
 import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
-import logger from "@core/utils/logger";
+import logger from "@esparex/core/utils/logger";
 
 const router = express.Router();
 

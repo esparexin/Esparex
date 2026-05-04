@@ -11,34 +11,34 @@ import { validateRequest } from '../../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
 import { PlanPayloadSchema, PartialPlanPayloadSchema } from "@shared/schemas/planPayload.schema";
 
-import * as usersController from '../../controllers/admin/adminUsersController';
-import * as businessController from '../../controllers/admin/adminBusinessController';
-import * as systemController from '../../controllers/admin/system';
-import * as auditController from '../../controllers/admin/adminAuditController';
-import * as analyticsController from '../../controllers/admin/adminAnalyticsController';
-import * as apiKeyController from '../../controllers/admin/adminApiKeyController';
-import * as adminSessionController from '../../controllers/admin/adminSessionController';
-import * as notificationController from '../../controllers/admin/adminNotificationController';
-import * as planController from '../../controllers/plan';
-import * as aiController from '../../controllers/ai/aiController';
-import * as adminRevealController from '../../controllers/admin/adminRevealController';
-import * as twoFAController from '../../controllers/admin/admin2FAController';
-import * as adminCacheController from '../../controllers/admin/adminCacheController';
+import * as usersController from '@esparex/core/controllers/admin/adminUsersController';
+import * as businessController from '@esparex/core/controllers/admin/adminBusinessController';
+import * as systemController from '@esparex/core/controllers/admin/system';
+import * as auditController from '@esparex/core/controllers/admin/adminAuditController';
+import * as analyticsController from '@esparex/core/controllers/admin/adminAnalyticsController';
+import * as apiKeyController from '@esparex/core/controllers/admin/adminApiKeyController';
+import * as adminSessionController from '@esparex/core/controllers/admin/adminSessionController';
+import * as notificationController from '@esparex/core/controllers/admin/adminNotificationController';
+import * as planController from '@esparex/core/controllers/admin/plan';
+import * as aiController from '@esparex/core/controllers/admin/ai/aiController';
+import * as adminRevealController from '@esparex/core/controllers/admin/adminRevealController';
+import * as twoFAController from '@esparex/core/controllers/admin/admin2FAController';
+import * as adminCacheController from '@esparex/core/controllers/admin/adminCacheController';
 import { hmacSignatureMiddleware } from '../../middleware/HMACSignatureMiddleware';
-import { aiGenerateSchema } from '@core/validators/ai.validator';
+import { aiGenerateSchema } from '@esparex/core/validators/ai.validator';
 import {
     getUsersQuerySchema,
     updateUserStatusSchema,
     updateUserVerificationSchema,
-} from '@core/validators/user.validator';
+} from '@esparex/core/validators/user.validator';
 import {
     adminBusinessAccountsQuerySchema,
     adminBusinessRejectSchema,
     adminBusinessStatusSchema,
     adminBusinessUpdateSchema,
-} from '@core/validators/business.validator';
-import { walletAdjustmentSchema } from '@core/validators/wallet.validator';
-import { adminPlanQuerySchema } from '@core/validators/finance.validator';
+} from '@esparex/core/validators/business.validator';
+import { walletAdjustmentSchema } from '@esparex/core/validators/wallet.validator';
+import { adminPlanQuerySchema } from '@esparex/core/validators/finance.validator';
 import {
     adminCreateAreaLocationSchema,
     adminCreateCityLocationSchema,
@@ -50,14 +50,14 @@ import {
     adminUpdateGeofenceSchema,
     adminUpdateLocationSchema,
     adminVerifyLocationSchema,
-} from '@core/validators/location.validator';
-import { adminAuditLogQuerySchema } from '@core/validators/adminAudit.validator';
+} from '@esparex/core/validators/location.validator';
+import { adminAuditLogQuerySchema } from '@esparex/core/validators/adminAudit.validator';
 import {
     adminNotificationHistoryQuerySchema,
     adminNotificationRecipientQuerySchema,
     adminNotificationSendSchema,
 } from '../../middleware/notificationValidators';
-import * as walletController from '../../controllers/wallet';
+import * as walletController from '@esparex/core/controllers/admin/wallet';
 import {
     adminListChats,
     adminGetChat,
@@ -65,7 +65,7 @@ import {
     adminMuteChat,
     adminExportChat,
     adminResolveReport,
-} from '../../controllers/chat/chatAdminController';
+} from '@esparex/core/controllers/admin/chat/chatAdminController';
 import {
     getAllLocations,
     createAreaLocation,
@@ -84,13 +84,13 @@ import {
     refreshLocationStats,
     getDistinctStates,
     reverseGeocode,
-} from '../../controllers/admin/adminLocationController';
+} from '@esparex/core/controllers/admin/adminLocationController';
 import {
     getSystemConfig,
     updateSystemConfig,
-} from '../../controllers/admin/systemConfigController';
-import { ADMIN_PERMISSION_KEYS } from '@core/constants/adminPermissions';
-import { systemConfigUpdateSchema } from '@core/validators/systemConfig.validator';
+} from '@esparex/core/controllers/admin/systemConfigController';
+import { ADMIN_PERMISSION_KEYS } from '@esparex/core/constants/adminPermissions';
+import { systemConfigUpdateSchema } from '@esparex/core/validators/systemConfig.validator';
 
 const router = Router();
 

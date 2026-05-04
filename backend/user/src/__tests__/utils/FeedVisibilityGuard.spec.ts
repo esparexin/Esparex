@@ -3,7 +3,7 @@ import {
     assertFeedSafetyFilter,
     HIDDEN_MODERATION_STATUSES,
     isPublicAdVisible,
-} from '@core/utils/FeedVisibilityGuard';
+} from '@esparex/core/utils/FeedVisibilityGuard';
 
 describe('FeedVisibilityGuard', () => {
     describe('HIDDEN_MODERATION_STATUSES', () => {

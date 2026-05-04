@@ -16,3 +16,4 @@ export declare const MAX_AD_TITLE_CHARS: 60;
 export declare const MIN_AD_DESCRIPTION_CHARS: 20;
 export declare const MAX_AD_DESCRIPTION_CHARS: 500;
 export declare const MAX_AD_SPARE_PARTS: 20;
+//# sourceMappingURL=adLimits.d.ts.map

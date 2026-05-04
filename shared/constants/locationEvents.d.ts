@@ -4,3 +4,4 @@ export declare const LOCATION_EVENT_TYPES: readonly ["location_search", "ad_view
 export type LocationEventSource = (typeof LOCATION_EVENT_SOURCES)[number];
 export type LocationEventReason = (typeof LOCATION_EVENT_REASONS)[number];
 export type LocationEventType = (typeof LOCATION_EVENT_TYPES)[number];
+//# sourceMappingURL=locationEvents.d.ts.map

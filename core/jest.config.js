@@ -1,0 +1,18 @@
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  setupFiles: ['<rootDir>/src/__tests__/setup.ts'],
+  testMatch: ['**/__tests__/**/*.spec.ts'],
+  moduleNameMapper: {
+    '^uuid$': '<rootDir>/__mocks__/uuid.js',
+    '^@core/(.*)$': '<rootDir>/src/$1',
+    '^@esparex/core/(.*)$': '<rootDir>/src/$1',
+    '^@shared/(.*)$': '<rootDir>/../shared/$1',
+    '^@shared$': '<rootDir>/../shared/index.ts'
+  },
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
+      tsconfig: 'tsconfig.json'
+    }]
+  }
+};

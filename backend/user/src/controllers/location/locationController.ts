@@ -1,30 +1,30 @@
 import { Request, Response } from "express";
-import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "@core/utils/redisCache";
-import logger from "@core/utils/logger";
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { getSystemConfigDoc } from "@core/utils/systemConfigHelper";
-import { env } from '@core/config/env';
-import { respond } from "@core/utils/respond";
-import { createLocationEvent } from '@core/services/location/LocationEventService';
+import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "@esparex/core/utils/redisCache";
+import logger from "@esparex/core/utils/logger";
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { getSystemConfigDoc } from "@esparex/core/utils/systemConfigHelper";
+import { env } from '@esparex/core/config/env';
+import { respond } from "@esparex/core/utils/respond";
+import { createLocationEvent } from '@esparex/core/services/location/LocationEventService';
 import {
     getDefaultCenterLocation,
     getAreasByCityId,
     getCitiesByStateId,
     getStateLocations,
     ingestLocation as ingestLocationService
-} from '@core/services/location/LocationHierarchyService';
+} from '@esparex/core/services/location/LocationHierarchyService';
 import {
     lookupLocationByPincode as lookupLocationByPincodeService,
     searchLocations as searchLocationsService
-} from '@core/services/location/LocationSearchService';
+} from '@esparex/core/services/location/LocationSearchService';
 import {
     touchLocationSearchAnalytics,
     logLocationEvent as logLocationAnalyticsEvent
-} from '@core/services/location/LocationAnalyticsService';
+} from '@esparex/core/services/location/LocationAnalyticsService';
 import {
     reverseGeocode as reverseGeocodeService
-} from '@core/services/location/ReverseGeocodeService';
-import { formatLocationResponse as formatCanonicalLocationResponse, type LocationResponseLike } from '@core/lib/location/formatLocation';
+} from '@esparex/core/services/location/ReverseGeocodeService';
+import { formatLocationResponse as formatCanonicalLocationResponse, type LocationResponseLike } from '@esparex/core/lib/location/formatLocation';
 
 /* -------------------------------------------------------------------------- */
 /* LOCATION CONFIG & UTILS                                                    */

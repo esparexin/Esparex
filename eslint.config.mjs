@@ -26,6 +26,14 @@ export default ts.config(
       'no-unused-vars': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       'no-console': 'off',
+      'no-restricted-imports': ['error', {
+        'patterns': [
+          {
+            'group': ['../../../../**', '../../../../../**'],
+            'message': 'Direct cross-package relative imports are forbidden. Use @esparex/ core or shared instead.'
+          }
+        ]
+      }],
     },
   }
 );

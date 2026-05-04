@@ -20,3 +20,4 @@ export declare function normalizeAdStatus(value: unknown, fallback?: 'pending'):
  * Specific normalizer for Service status.
  */
 export declare function normalizeServiceStatus(value: unknown, fallback?: 'pending'): 'live' | 'pending' | 'expired' | 'rejected' | 'deactivated';
+//# sourceMappingURL=statusNormalization.d.ts.map

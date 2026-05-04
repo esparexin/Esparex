@@ -35,10 +35,10 @@ describe('Populate governance guard', () => {
 
     it('blocks split-db populates for admin-owned refs unless the caller provides an explicit model', async () => {
         await jest.isolateModulesAsync(async () => {
-            await import('@core/models/registry');
-            const { default: Ad } = await import('@core/models/Ad');
-            const { default: SparePart } = await import('@core/models/SparePart');
-            const { default: ServiceType } = await import('@core/models/ServiceType');
+            await import('@esparex/core/models/registry');
+            const { default: Ad } = await import('@esparex/core/models/Ad');
+            const { default: SparePart } = await import('@esparex/core/models/SparePart');
+            const { default: ServiceType } = await import('@esparex/core/models/ServiceType');
             const adConnectionModels = (Ad as unknown as { db: { models: Record<string, unknown> } }).db.models;
             delete adConnectionModels.SparePart;
             delete adConnectionModels.ServiceType;

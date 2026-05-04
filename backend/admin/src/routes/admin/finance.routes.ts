@@ -7,15 +7,15 @@ import { validateObjectId } from '../../middleware/validateObjectId';
 import { searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
 import { requirePermission } from '../../middleware/adminAuth';
 import { validateRequest } from '../../middleware/validateRequest';
-import * as transactionController from '../../controllers/admin/adminTransactionController';
-import * as adminInvoiceController from '../../controllers/admin/adminInvoiceController';
-import * as adminSmartAlertsController from '../../controllers/admin/adminSmartAlertsController';
+import * as transactionController from '@esparex/core/controllers/admin/adminTransactionController';
+import * as adminInvoiceController from '@esparex/core/controllers/admin/adminInvoiceController';
+import * as adminSmartAlertsController from '@esparex/core/controllers/admin/adminSmartAlertsController';
 import {
     adminCreateInvoiceSchema,
     adminInvoiceQuerySchema,
     adminTransactionQuerySchema,
     adminUpdateInvoiceStatusSchema,
-} from '@core/validators/finance.validator';
+} from '@esparex/core/validators/finance.validator';
 
 const router = Router();
 

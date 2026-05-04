@@ -2,7 +2,7 @@ import {
     adminInvoiceQuerySchema,
     adminPlanQuerySchema,
     adminTransactionQuerySchema,
-} from "@core/validators/finance.validator";
+} from "@esparex/core/validators/finance.validator";
 
 describe("admin finance query schemas", () => {
     it("accepts canonical transaction filters", () => {

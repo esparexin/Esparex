@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 
-import { httpRequestDuration } from '@core/utils/metrics';
+import { httpRequestDuration } from '@esparex/core/utils/metrics';
 
 export const apiLatencyMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
@@ -73,7 +73,7 @@ export const initializeDatabaseMonitoring = () => {
             const operation = ctx.op || 'aggregate';
 
             // 1. Record Prometheus Metric (Always record, not just slow ones)
-            import('@core/utils/metrics').then(({ dbQueryDuration: prometheusDbMetric }) => {
+            import('@esparex/core/utils/metrics').then(({ dbQueryDuration: prometheusDbMetric }) => {
                 prometheusDbMetric.labels(collectionName, operation).observe(durationSec);
             }).catch(() => {});
 

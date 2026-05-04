@@ -10,3 +10,4 @@ export declare const LISTING_TYPE: {
 export type ListingTypeValue = (typeof LISTING_TYPE)[keyof typeof LISTING_TYPE];
 /** Tuple of all valid listing type values — use with z.enum() */
 export declare const LISTING_TYPE_VALUES: [ListingTypeValue, ...ListingTypeValue[]];
+//# sourceMappingURL=listingType.d.ts.map

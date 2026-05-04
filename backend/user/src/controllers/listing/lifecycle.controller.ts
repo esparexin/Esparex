@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { sendSuccessResponse } from "@core/utils/respond";
-import { getSingleParam } from '@core/utils/requestParams';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
 import { ACTOR_TYPE } from "@shared/enums/actor";
-import { mutateStatus } from '@core/services/StatusMutationService';
-import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
-import * as AdMutationService from '@core/services/AdMutationService';
-import { PromotionPolicyService } from '@core/services/PromotionPolicyService';
+import { mutateStatus } from '@esparex/core/services/StatusMutationService';
+import { getAndVerifyOwnedListing } from "@esparex/core/utils/controllerUtils";
+import * as AdMutationService from '@esparex/core/services/AdMutationService';
+import { PromotionPolicyService } from '@esparex/core/services/PromotionPolicyService';
 import type { AuthUser } from '../../types/auth.types';
 
 /**

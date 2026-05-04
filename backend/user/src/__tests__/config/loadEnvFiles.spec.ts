@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { loadEnvFiles } from '@core/config/loadEnvFiles';
+import { loadEnvFiles } from '@esparex/core/config/loadEnvFiles';
 
 const tempDirs: string[] = [];
 

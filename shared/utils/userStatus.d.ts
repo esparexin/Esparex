@@ -4,3 +4,4 @@ export type UserStatusLike = UserStatusValue | typeof LEGACY_ACTIVE_STATUS | str
 export declare function normalizeUserStatus(status: UserStatusLike): UserStatusValue | undefined;
 export declare function isActiveUserStatus(status: UserStatusLike): boolean;
 export {};
+//# sourceMappingURL=userStatus.d.ts.map

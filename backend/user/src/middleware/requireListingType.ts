@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
-import { sendErrorResponse } from "@core/utils/errorResponse";
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 
 /**
  * requireListingType — Route-level middleware that enforces the listingType

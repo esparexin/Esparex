@@ -1,8 +1,8 @@
-import logger from '@core/utils/logger';
-import * as notificationService from '@core/services/NotificationService';
+import logger from '@esparex/core/utils/logger';
+import * as notificationService from '@esparex/core/services/NotificationService';
 import { Request, Response } from 'express';
-import { respond } from "@core/utils/respond";
-import { sendErrorResponse } from "@core/utils/errorResponse";
+import { respond } from "@esparex/core/utils/respond";
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { getUserId } from './shared';
 
 export const markAllRead = async (req: Request, res: Response) => {

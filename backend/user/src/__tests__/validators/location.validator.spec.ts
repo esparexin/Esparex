@@ -1,7 +1,7 @@
 import {
     adminLocationListQuerySchema,
     logLocationEventSchema,
-} from "@core/validators/location.validator";
+} from "@esparex/core/validators/location.validator";
 
 describe("location.validator", () => {
     it("accepts shared location event payloads with canonical objectId location references", () => {

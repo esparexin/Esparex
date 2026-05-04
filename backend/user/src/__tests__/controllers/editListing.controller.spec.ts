@@ -23,28 +23,28 @@ const mockUpdateAd = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
-jest.mock('@core/utils/requestParams', () => ({
+jest.mock('@esparex/core/utils/requestParams', () => ({
     getSingleParam: (...args: unknown[]) => mockGetSingleParam(...args),
 }));
 
-jest.mock('@core/utils/controllerUtils', () => ({
+jest.mock('@esparex/core/utils/controllerUtils', () => ({
     getAndVerifyOwnedListing: (...args: unknown[]) => mockGetAndVerifyOwnedListing(...args),
 }));
 
-jest.mock('@core/utils/immutableFieldErrors', () => ({
+jest.mock('@esparex/core/utils/immutableFieldErrors', () => ({
     collectImmutableFieldErrors: (...args: unknown[]) => mockCollectImmutableFieldErrors(...args),
     hasOwnField: (obj: Record<string, unknown>, field: string) => mockHasOwnField(obj, field),
 }));
 
-jest.mock('@core/services/AdMutationService', () => ({
+jest.mock('@esparex/core/services/AdMutationService', () => ({
     updateAd: (...args: unknown[]) => mockUpdateAd(...args),
 }));
 
-jest.mock('@core/utils/respond', () => ({
+jest.mock('@esparex/core/utils/respond', () => ({
     sendSuccessResponse: (...args: unknown[]) => mockSendSuccessResponse(...args),
 }));
 
-jest.mock('@core/utils/errorResponse', () => ({
+jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 

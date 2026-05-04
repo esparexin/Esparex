@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import logger from '@core/utils/logger';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { respond } from "@core/utils/respond";
+import logger from '@esparex/core/utils/logger';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { respond } from "@esparex/core/utils/respond";
 import {
   startConversation,
   listConversations,
@@ -13,7 +13,7 @@ import {
   hideConversation,
   restoreConversation,
   reportConversation,
-} from '@core/services/ChatService';
+} from '@esparex/core/services/ChatService';
 import {
   startChatSchema,
   sendMessageSchema,
@@ -23,8 +23,8 @@ import {
   conversationListQuerySchema,
   messagesQuerySchema,
   chatUploadUrlSchema,
-} from '@core/validators/chat.validator';
-import { generatePresignedUploadUrl } from '@core/utils/s3';
+} from '@esparex/core/validators/chat.validator';
+import { generatePresignedUploadUrl } from '@esparex/core/utils/s3';
 
 const MIME_TO_EXT: Record<string, string> = {
   'image/jpeg': 'jpg',

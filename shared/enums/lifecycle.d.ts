@@ -12,3 +12,4 @@ export declare const LIFECYCLE_STATUS: {
 };
 export type LifecycleStatus = typeof LIFECYCLE_STATUS[keyof typeof LIFECYCLE_STATUS];
 export declare const LIFECYCLE_STATUS_VALUES: ("pending" | "live" | "rejected" | "expired" | "deactivated" | "sold" | "deleted" | "suspended" | "banned" | "inactive")[];
+//# sourceMappingURL=lifecycle.d.ts.map

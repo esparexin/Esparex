@@ -3,7 +3,7 @@ import * as locationController from "../controllers/location/locationController"
 import { requireAdmin } from "../middleware/adminAuth";
 import { searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import * as Validators from '@core/validators/location.validator';
+import * as Validators from '@esparex/core/validators/location.validator';
 
 const router = express.Router();
 

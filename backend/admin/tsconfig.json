@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "commonjs",
-    "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
-    "rootDir": "../..",
+    "moduleResolution": "bundler",
+    "rootDir": "./src",
     "outDir": "./dist",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -18,18 +17,15 @@
     "jsx": "react-jsx",
     "lib": ["ES2023", "DOM"],
     "paths": {
-      "@shared/*": ["../../shared/*"],
-      "@shared": ["../../shared/index.ts"],
-      "@core/*": ["../../core/src/*"],
-      "@core": ["../../core/src/index.ts"],
-      "@esparex/core/*": ["../../core/src/*"],
-      "@esparex/core": ["../../core/src/index.ts"]
+      "@shared/*": ["./../../shared/dist/*", "./../../shared/src/*"],
+      "@shared": ["./../../shared/dist/index.d.ts", "./../../shared/src/index.ts"],
+      "@esparex/core/*": ["./../../core/dist/*", "./../../core/src/*"],
+      "@esparex/core": ["./../../core/dist/index.d.ts", "./../../core/src/index.ts"]
     }
   },
   "include": [
     "src/**/*",
-    "../../core/src/**/*",
-    "../../shared/**/*"
+    "../../core/dist/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",

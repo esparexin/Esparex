@@ -76,8 +76,8 @@ jest.mock("@core/services/InvoiceService", () => ({
     ensureInvoicePdf: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("../../../../backend/user/src/controllers/payment/shared", () => ({
-    razorpay: {
+jest.mock("@esparex/core/config/razorpay", () => ({
+    getRazorpayClient: jest.fn().mockResolvedValue({
         orders: {
             fetch: jest.fn(),
             fetchPayments: jest.fn(),
@@ -85,7 +85,7 @@ jest.mock("../../../../backend/user/src/controllers/payment/shared", () => ({
         payments: {
             fetch: jest.fn(),
         },
-    },
+    }),
 }));
 
 import User from "@core/models/User";

@@ -2,7 +2,7 @@ import express from "express";
 import request from "supertest";
 import cookieParser from "cookie-parser";
 
-jest.mock("@core/utils/redisCache", () => ({
+jest.mock("@esparex/core/utils/redisCache", () => ({
     __esModule: true,
     default: {
         on: jest.fn(),

@@ -1,21 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { sendSuccessResponse } from "@core/utils/respond";
-import { getSingleParam } from '@core/utils/requestParams';
-import { buildPublicAdFilter, isPublicAdVisible } from '@core/utils/FeedVisibilityGuard';
-import * as AdAggregationService from '@core/services/ad/AdAggregationService';
-import * as AdDetailService from '@core/services/ad/AdDetailService';
-import * as feedService from '@core/services/FeedService';
-import * as trendingService from '@core/services/TrendingService';
-import { warnIfLegacyAdUserIdAliasUsed } from '@core/utils/legacyOwnerAliasTelemetry';
-import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@core/validators/ad.validator';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { getSingleParam } from '@esparex/core/utils/requestParams';
+import { buildPublicAdFilter, isPublicAdVisible } from '@esparex/core/utils/FeedVisibilityGuard';
+import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
+import * as AdDetailService from '@esparex/core/services/ad/AdDetailService';
+import * as feedService from '@esparex/core/services/FeedService';
+import * as trendingService from '@esparex/core/services/TrendingService';
+import { warnIfLegacyAdUserIdAliasUsed } from '@esparex/core/utils/legacyOwnerAliasTelemetry';
+import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
-import { respond } from "@core/utils/respond";
+import { respond } from "@esparex/core/utils/respond";
 import type { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@shared/types/Api";
 import type { Ad } from "@shared/schemas/ad.schema";
 import type { AuthUser } from '../../types/auth.types';
-import type { ListingTypeValue } from "@core/constants/enums/listingType";
+import type { ListingTypeValue } from "@esparex/core/constants/enums/listingType";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -141,7 +141,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
             getCache,
             setCache,
             buildDeterministicSearchCacheKey
-        } = await import('@core/utils/redisCache');
+        } = await import('@esparex/core/utils/redisCache');
         let cacheKey: string | null = null;
         let cachedResult: CachedSearchResult | null = null;
 
@@ -191,7 +191,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
         );
 
         if (cacheKey && shouldUseSearchCache) {
-            const { CACHE_TTLS } = await import('@core/utils/redisCache');
+            const { CACHE_TTLS } = await import('@esparex/core/utils/redisCache');
             await setCache(cacheKey, result, CACHE_TTLS.SEARCH);
         }
 

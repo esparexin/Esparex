@@ -13,9 +13,9 @@
  * in a multi-instance deployment.
  */
 
-import { ViewBufferingService } from '@core/services/ViewBufferingService';
-import { runWithDistributedJobLock } from '@core/utils/distributedJobLock';
-import logger from '@core/utils/logger';
+import { ViewBufferingService } from '@esparex/core/services/ViewBufferingService';
+import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
+import logger from '@esparex/core/utils/logger';
 
 const VIEW_FLUSH_INTERVAL_MS = 60_000; // 1 minute
 const VIEW_FLUSH_STARTUP_DELAY_MS = 30_000;

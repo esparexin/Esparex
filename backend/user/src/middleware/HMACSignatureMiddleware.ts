@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
-import { env } from '@core/config/env';
-import logger from '@core/utils/logger';
+import { env } from '@esparex/core/config/env';
+import logger from '@esparex/core/utils/logger';
 
 /**
  * Middleware to validate HMAC signatures on sensitive financial requests.

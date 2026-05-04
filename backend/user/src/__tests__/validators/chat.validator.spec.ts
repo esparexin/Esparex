@@ -1,4 +1,4 @@
-import { adminListQuerySchema } from "@core/validators/chat.validator";
+import { adminListQuerySchema } from "@esparex/core/validators/chat.validator";
 
 describe("adminListQuerySchema", () => {
     it("accepts canonical admin chat filters", () => {

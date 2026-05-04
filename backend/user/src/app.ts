@@ -9,16 +9,16 @@
  *
  * Any architectural changes must pass SSOT audit.
  */
-import '@core/config/loadEnv'; // MUST BE FIRST
-import { initSentry } from '@core/config/sentry'; // Initialize Sentry early
+import '@esparex/core/config/loadEnv'; // MUST BE FIRST
+import { initSentry } from '@esparex/core/config/sentry'; // Initialize Sentry early
 import express, { type RequestHandler } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import '@core/models/registry';
-import { env } from '@core/config/env';
+import '@esparex/core/models/registry';
+import { env } from '@esparex/core/config/env';
 import { validateOtpConfiguration } from './middleware/otpGuard';
 
 // Initialize Sentry for error tracking
@@ -75,9 +75,9 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 /* -------------------------------------------------------------------------- */
 /* DB / HEALTH                                                                 */
 /* -------------------------------------------------------------------------- */
-import { isDbReady } from '@core/config/db';
-import logger from '@core/utils/logger';
-import { getAllowedOriginList, normalizeOrigin } from '@core/utils/originConfig';
+import { isDbReady } from '@esparex/core/config/db';
+import logger from '@esparex/core/utils/logger';
+import { getAllowedOriginList, normalizeOrigin } from '@esparex/core/utils/originConfig';
 
 /* -------------------------------------------------------------------------- */
 /* SWAGGER                                                                     */
@@ -306,7 +306,7 @@ app.get('/', (_req, res) => {
  * Exposes internal metrics for Prometheus scraping.
  * Protected by basic auth or internal network restricted in production.
  */
-import { register } from '@core/utils/metrics';
+import { register } from '@esparex/core/utils/metrics';
 app.get('/metrics', async (_req, res) => {
     try {
         res.set('Content-Type', register.contentType);

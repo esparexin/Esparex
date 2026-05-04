@@ -1,11 +1,11 @@
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
-import { createInvoiceRecord } from '@core/services/InvoiceService';
-import { findUserByEmail } from '@core/services/UserService';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { respond } from "@core/utils/respond";
+import { createInvoiceRecord } from '@esparex/core/services/InvoiceService';
+import { findUserByEmail } from '@esparex/core/services/UserService';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { respond } from "@esparex/core/utils/respond";
 import { getErrorMessage } from './shared';
-import { generateInvoiceNumber } from '@core/utils/invoiceNumber';
+import { generateInvoiceNumber } from '@esparex/core/utils/invoiceNumber';
 
 export const createInvoice = async (req: Request, res: Response) => {
     try {

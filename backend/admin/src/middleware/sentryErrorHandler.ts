@@ -9,11 +9,11 @@
 
 import { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
-import { env } from '@core/config/env';
-import logger from '@core/utils/logger';
-import { sendErrorResponse } from "@core/utils/errorResponse";
+import { env } from '@esparex/core/config/env';
+import logger from '@esparex/core/utils/logger';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { ZodError } from 'zod';
-import { AuditService } from '@core/services/AuditService';
+import { AuditService } from '@esparex/core/services/AuditService';
 
 
 type RequestUser = {

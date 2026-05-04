@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
-import { connectDB } from "@core/config/db";
-import { loadEnvFiles } from "@core/config/loadEnvFiles";
+import { connectDB } from "@esparex/core/config/db";
+import { loadEnvFiles } from "@esparex/core/config/loadEnvFiles";
 import { seedSpareParts } from "./spareParts.seed";
 import { seedDevices } from "./devices.seed";
 import { seedServiceTypes } from "./serviceTypes.seed";
 import { seedScreenSizes } from "./screenSizes.seed";
-import logger from "@core/utils/logger";
+import logger from "@esparex/core/utils/logger";
 
 // Load env vars
 loadEnvFiles();

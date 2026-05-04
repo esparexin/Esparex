@@ -8,19 +8,19 @@ const mockLogger = {
     debug: jest.fn(),
 };
 
-jest.mock('@core/services/ad/AdAggregationService', () => ({
+jest.mock('@esparex/core/services/ad/AdAggregationService', () => ({
     getOwnerListings: mockGetOwnerListings,
 }));
 
-jest.mock('@core/utils/respond', () => ({
+jest.mock('@esparex/core/utils/respond', () => ({
     sendSuccessResponse: mockSendSuccessResponse,
 }));
 
-jest.mock('@core/utils/errorResponse', () => ({
+jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: mockSendErrorResponse,
 }));
 
-jest.mock('@core/utils/logger', () => ({
+jest.mock('@esparex/core/utils/logger', () => ({
     __esModule: true,
     default: mockLogger,
 }));

@@ -5,7 +5,7 @@ import * as notificationController from '../controllers/notification';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import { registerFcmTokenSchema } from '@core/validators/user.validator';
+import { registerFcmTokenSchema } from '@esparex/core/validators/user.validator';
 import { userNotificationsQuerySchema } from '../middleware/notificationValidators';
 
 const router = express.Router();

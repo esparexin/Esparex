@@ -1,31 +1,31 @@
-jest.mock("@core/models/Admin", () => ({
+jest.mock("@esparex/core/models/Admin", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
     },
 }));
 
-jest.mock("@core/utils/auth", () => ({
+jest.mock("@esparex/core/utils/auth", () => ({
     __esModule: true,
     verifyAdminToken: jest.fn(),
 }));
 
-jest.mock("@core/services/AdminSessionService", () => ({
+jest.mock("@esparex/core/services/AdminSessionService", () => ({
     __esModule: true,
     validateAdminSession: jest.fn(),
     getAdminSessionTtlMs: jest.fn(() => 8 * 60 * 60 * 1000),
 }));
 
-jest.mock("@core/utils/cookieHelper", () => ({
+jest.mock("@esparex/core/utils/cookieHelper", () => ({
     __esModule: true,
     getAdminCookieOptions: jest.fn(() => ({ path: "/api/v1/admin" })),
     getAuthCookieOptions: jest.fn(() => ({ path: "/" })),
 }));
 
 import type { Request, Response } from "express";
-import Admin from "@core/models/Admin";
-import { verifyAdminToken } from "@core/utils/auth";
-import { validateAdminSession } from "@core/services/AdminSessionService";
+import Admin from "@esparex/core/models/Admin";
+import { verifyAdminToken } from "@esparex/core/utils/auth";
+import { validateAdminSession } from "@esparex/core/services/AdminSessionService";
 import { requireAdmin, requirePermission } from "../../middleware/adminAuth";
 
 const createMockRes = () => {

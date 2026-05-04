@@ -18,22 +18,22 @@ const mockCreateAd = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
-jest.mock('@core/services/AdOrchestrator', () => ({
+jest.mock('@esparex/core/services/AdOrchestrator', () => ({
     createAd: (...args: unknown[]) => mockCreateAd(...args),
 }));
 
-jest.mock('@core/services/AdImageService', () => ({
+jest.mock('@esparex/core/services/AdImageService', () => ({
     uploadAdImage: jest.fn(),
     getUploadPresignedUrl: jest.fn(),
 }));
 
-jest.mock('@core/utils/respond', () => ({
+jest.mock('@esparex/core/utils/respond', () => ({
     sendSuccessResponse: (...args: unknown[]) => mockSendSuccessResponse(...args),
 }));
 
 // errorResponse is dynamically imported inside the controller — mock it here
 // so the dynamic import resolves to our mock during tests.
-jest.mock('@core/utils/errorResponse', () => ({
+jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 

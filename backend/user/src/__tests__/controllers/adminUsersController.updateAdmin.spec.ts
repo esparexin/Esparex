@@ -1,14 +1,14 @@
-jest.mock("@core/models/User", () => ({
+jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: {}
 }));
 
-jest.mock("@core/models/Ad", () => ({
+jest.mock("@esparex/core/models/Ad", () => ({
     __esModule: true,
     default: {}
 }));
 
-jest.mock("@core/models/Admin", () => ({
+jest.mock("@esparex/core/models/Admin", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
@@ -17,25 +17,25 @@ jest.mock("@core/models/Admin", () => ({
     },
 }));
 
-jest.mock("@core/utils/adminLogger", () => ({
+jest.mock("@esparex/core/utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@core/services/AdminSessionService", () => ({
+jest.mock("@esparex/core/services/AdminSessionService", () => ({
     __esModule: true,
     revokeAdminSessionsForAdmin: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@core/services/AdminUsersService", () => ({
+jest.mock("@esparex/core/services/AdminUsersService", () => ({
     __esModule: true,
     updateAdminById: jest.fn(),
 }));
 
 import type { Request, Response } from "express";
-import * as adminUsersController from "../../../../admin/src/controllers/admin/adminUsersController";
-import Admin from "@core/models/Admin";
-import { updateAdminById } from "@core/services/AdminUsersService";
+import * as adminUsersController from "@esparex/core/controllers/admin/adminUsersController";
+import Admin from "@esparex/core/models/Admin";
+import { updateAdminById } from "@esparex/core/services/AdminUsersService";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {

@@ -27,15 +27,15 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
-import { LISTING_TYPE, type ListingTypeValue } from "@core/constants/enums/listingType";
-import { USER_STATUS } from "@core/constants/enums/userStatus";
+import { LISTING_TYPE, type ListingTypeValue } from "@esparex/core/constants/enums/listingType";
+import { USER_STATUS } from "@esparex/core/constants/enums/userStatus";
 import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
-import { connectDB } from "@core/config/db";
-import Ad from "@core/models/Ad";
-import User from "@core/models/User";
-import Category from "@core/models/Category";
-import { CATALOG_STATUS } from "@core/constants/enums/catalogStatus";
-import { MODERATION_STATUS } from "@core/constants/enums/moderationStatus";
+import { connectDB } from "@esparex/core/config/db";
+import Ad from "@esparex/core/models/Ad";
+import User from "@esparex/core/models/User";
+import Category from "@esparex/core/models/Category";
+import { CATALOG_STATUS } from "@esparex/core/constants/enums/catalogStatus";
+import { MODERATION_STATUS } from "@esparex/core/constants/enums/moderationStatus";
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                       */
@@ -152,7 +152,7 @@ async function run(): Promise<void> {
     smokeAd.sellerId    = seller._id;
     smokeAd.categoryId  = category._id;
     smokeAd.seoSlug     = smokeSlug;
-    smokeAd.isDeleted   = false;
+    smokeAd.set('isDeleted', false);
     smokeAd.expiresAt   = expiresAt;
     smokeAd.location    = {
         city: "Hyderabad",
@@ -187,7 +187,7 @@ async function run(): Promise<void> {
     smokeService.moderationStatus = MODERATION_STATUS.AUTO_APPROVED;
     smokeService.categoryId = category._id;
     smokeService.seoSlug = serviceSlug;
-    smokeService.isDeleted = false;
+    smokeService.set('isDeleted', false);
     smokeService.expiresAt = expiresAt;
     smokeService.location = smokeAd.location;
     await smokeService.save();
@@ -214,7 +214,7 @@ async function run(): Promise<void> {
     smokeSparePart.moderationStatus = MODERATION_STATUS.AUTO_APPROVED;
     smokeSparePart.categoryId = category._id;
     smokeSparePart.seoSlug = sparePartSlug;
-    smokeSparePart.isDeleted = false;
+    smokeSparePart.set('isDeleted', false);
     smokeSparePart.expiresAt = expiresAt;
     smokeSparePart.location = smokeAd.location;
     await smokeSparePart.save();

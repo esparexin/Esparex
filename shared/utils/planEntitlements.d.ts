@@ -20,3 +20,4 @@ export type NormalizedPlanLimits = {
 export declare function getNormalizedPlanLimits(plan: PlanEntitlementsLike | null | undefined): NormalizedPlanLimits;
 export declare function getPrimaryPlanCreditCount(plan: PlanEntitlementsLike | null | undefined): number;
 export {};
+//# sourceMappingURL=planEntitlements.d.ts.map

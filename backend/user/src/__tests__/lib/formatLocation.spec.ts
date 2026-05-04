@@ -1,4 +1,4 @@
-import { formatLocationResponse } from "@core/lib/location/formatLocation";
+import { formatLocationResponse } from "@esparex/core/lib/location/formatLocation";
 
 describe("formatLocationResponse", () => {
     it("defaults missing verification status to pending", () => {

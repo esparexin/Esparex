@@ -1,13 +1,13 @@
 import '@esparex/core/config/loadEnv'; // MUST BE FIRST (Registers Aliases)
-import { initSentry } from '@core/config/sentry'; // Initialize Sentry early
+import { initSentry } from '@esparex/core/config/sentry'; // Initialize Sentry early
 import express, { type RequestHandler } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import '@core/models/registry';
-import { env } from '@core/config/env';
+import '@esparex/core/models/registry';
+import { env } from '@esparex/core/config/env';
 
 // Initialize Sentry for error tracking
 initSentry();
@@ -28,8 +28,8 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 /* -------------------------------------------------------------------------- */
 /* DB / HEALTH                                                                 */
 /* -------------------------------------------------------------------------- */
-import { isDbReady } from '@core/config/db';
-import { getAllowedOriginList, normalizeOrigin } from '@core/utils/originConfig';
+import { isDbReady } from '@esparex/core/config/db';
+import { getAllowedOriginList, normalizeOrigin } from '@esparex/core/utils/originConfig';
 
 /* -------------------------------------------------------------------------- */
 /* APP INIT                                                                    */

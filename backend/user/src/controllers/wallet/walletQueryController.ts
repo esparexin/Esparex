@@ -9,13 +9,13 @@
  * Both workspace files now re-export from here.
  */
 import { Request, Response } from 'express';
-import { respond } from '@core/utils/respond';
-import { sendErrorResponse } from '@core/utils/errorResponse';
+import { respond } from '@esparex/core/utils/respond';
+import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
 import {
     getPostingBalanceByUserId,
     getTransactionHistoryByUserId,
     getWalletSummaryByUserId,
-} from '@core/services/wallet/WalletQueryService';
+} from '@esparex/core/services/wallet/WalletQueryService';
 
 const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';

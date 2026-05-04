@@ -2,9 +2,9 @@ import express, { Request, Response } from 'express';
 import request from 'supertest';
 import mongoose from 'mongoose';
 import { enforceCreateAdIdempotency } from '../../middleware/idempotency';
-import IdempotencyRequest from '@core/models/IdempotencyRequest';
+import IdempotencyRequest from '@esparex/core/models/IdempotencyRequest';
 
-jest.mock('@core/models/IdempotencyRequest', () => ({
+jest.mock('@esparex/core/models/IdempotencyRequest', () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),

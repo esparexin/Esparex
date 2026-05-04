@@ -2,6 +2,13 @@ export interface GeoJSONPoint {
     type: 'Point';
     coordinates: [number, number];
 }
+export declare const MIN_RADIUS_KM = 1;
+export declare const MAX_RADIUS_KM = 500;
+export declare const DEFAULT_RADIUS_KM = 50;
+/**
+ * Calculates the Haversine distance between two points in kilometers.
+ */
+export declare const haversineDistance: (lat1: number, lng1: number, lat2: number, lng2: number) => number;
 export declare const isValidLongitude: (value: unknown) => value is number;
 export declare const isValidLatitude: (value: unknown) => value is number;
 export declare const isNonZeroLngLat: (lng: number, lat: number) => boolean;
@@ -19,3 +26,4 @@ export declare const sanitizeGeoPoint: (value: unknown) => unknown;
  * THROWS explicit errors on bad data to prevent silent logic bypasses.
  */
 export declare const toGeoPoint: (input: unknown) => GeoJSONPoint;
+//# sourceMappingURL=geoUtils.d.ts.map

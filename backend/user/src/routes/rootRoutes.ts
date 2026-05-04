@@ -1,6 +1,6 @@
 import express from 'express';
 import { setCsrfToken, getCsrfToken } from '../middleware/csrfProtection';
-import { healthCheckHandler } from '@core/utils/health';
+import { healthCheckHandler } from '@esparex/core/utils/health';
 
 const router = express.Router();
 

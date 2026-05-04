@@ -1,23 +1,23 @@
 import { initializeDatabaseMonitoring } from './middleware/metricsMiddleware';
-import { startSystemMonitor } from '@core/utils/systemMonitor';
+import { startSystemMonitor } from '@esparex/core/utils/systemMonitor';
 import { startTaxonomyHealthCron } from './cron/taxonomyHealth';
 import { startGeoAuditCron } from './cron/geoAudit';
 import { startFraudEscalationCron } from './cron/fraudEscalation';
-import { initIO } from '@core/config/socket';
+import { initIO } from '@esparex/core/config/socket';
 import app from './app';
-import { connectDB } from '@core/config/db';
+import { connectDB } from '@esparex/core/config/db';
 import mongoose from 'mongoose';
 import { Server } from 'http';
-import logger from '@core/utils/logger';
-import { env } from '@core/config/env';
-import { assertDuplicateRolloutReadiness } from '@core/services/DuplicateRolloutGuard';
-import { startScheduler } from '@core/services/SchedulerBoot';
-import Admin from '@core/models/Admin';
-import { USER_STATUS } from '@core/constants/enums/userStatus';
+import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core/config/env';
+import { assertDuplicateRolloutReadiness } from '@esparex/core/services/DuplicateRolloutGuard';
+import { startScheduler } from '@esparex/core/services/SchedulerBoot';
+import Admin from '@esparex/core/models/Admin';
+import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
 import { createServer } from 'http';
-import { initializeEventDispatcher } from '@core/events';
-import { validateMetadataHealth } from '@core/utils/startupValidator';
-import { warmAllCaches } from '@core/utils/cacheWarmer';
+import { initializeEventDispatcher } from '@esparex/core/events';
+import { validateMetadataHealth } from '@esparex/core/utils/startupValidator';
+import { warmAllCaches } from '@esparex/core/utils/cacheWarmer';
 
 
 const PORT = env.PORT;
@@ -160,8 +160,8 @@ export async function startServer() {
     }
 }
 
-import { gracefulShutdown } from '@core/utils/shutdownHandler';
-import redisClient from '@core/utils/redisCache';
+import { gracefulShutdown } from '@esparex/core/utils/shutdownHandler';
+import redisClient from '@esparex/core/utils/redisCache';
 
 /**
  * 🛡️ GRACEFUL SHUTDOWN HANDLER

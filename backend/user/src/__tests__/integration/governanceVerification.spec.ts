@@ -1,23 +1,23 @@
 
-import Business from '@core/models/Business';
-import Ad from '@core/models/Ad';
-import { runSuspendExpiredBusinessesJob } from '@core/jobs/suspendExpiredBusinesses.job';
+import Business from '@esparex/core/models/Business';
+import Ad from '@esparex/core/models/Ad';
+import { runSuspendExpiredBusinessesJob } from '@esparex/core/jobs/suspendExpiredBusinesses.job';
 import { AD_STATUS } from "@shared/enums/adStatus";
 import { MODERATION_STATUS } from "@shared/enums/moderationStatus";
 
 // Mock dependencies
-jest.mock('@core/models/Business');
-jest.mock('@core/models/Ad');
-jest.mock('@core/utils/distributedJobLock', () => ({
+jest.mock('@esparex/core/models/Business');
+jest.mock('@esparex/core/models/Ad');
+jest.mock('@esparex/core/utils/distributedJobLock', () => ({
     runWithDistributedJobLock: jest.fn((name, opts, fn) => fn())
 }));
-jest.mock('@core/utils/jobRunner', () => ({
+jest.mock('@esparex/core/utils/jobRunner', () => ({
     jobRunner: jest.fn((name, fn) => fn())
 }));
-jest.mock('@core/services/NotificationService', () => ({
+jest.mock('@esparex/core/services/NotificationService', () => ({
     dispatchTemplatedNotification: jest.fn()
 }));
-jest.mock('@core/utils/logger');
+jest.mock('@esparex/core/utils/logger');
 
 describe('Governance Fixes Verification', () => {
     beforeEach(() => {

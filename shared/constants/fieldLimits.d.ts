@@ -174,3 +174,4 @@ export declare const COORDINATE_LIMITS: {
 export type TextLimitKey = keyof typeof TEXT_LIMITS;
 export type ContactLimitKey = keyof typeof CONTACT_LIMITS;
 export type BusinessLimitKey = keyof typeof BUSINESS_LIMITS;
+//# sourceMappingURL=fieldLimits.d.ts.map

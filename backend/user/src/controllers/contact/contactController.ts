@@ -1,8 +1,8 @@
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
-import { createContactSubmission } from '@core/services/ContactService';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { respond } from "@core/utils/respond";
+import { createContactSubmission } from '@esparex/core/services/ContactService';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { respond } from "@esparex/core/utils/respond";
 
 /**
  * CONTACT US CONTROLLER

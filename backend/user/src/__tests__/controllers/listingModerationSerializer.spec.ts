@@ -6,7 +6,7 @@
 import {
     serializeModerationListing,
     serializeModerationListResponse,
-} from '../../../../admin/src/controllers/admin/listingModerationSerializer';
+} from '@esparex/core/controllers/admin/listingModerationSerializer';
 
 // ─── throwContractError (via serializeModerationListing) ─────────────────────
 

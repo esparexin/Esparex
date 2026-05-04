@@ -1,31 +1,31 @@
-jest.mock("@core/models/User", () => ({
+jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: {
         countDocuments: jest.fn(),
     },
 }));
 
-jest.mock("@core/models/AdminMetrics", () => ({
+jest.mock("@esparex/core/models/AdminMetrics", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
     },
 }));
 
-jest.mock("@core/models/Admin", () => ({
+jest.mock("@esparex/core/models/Admin", () => ({
     __esModule: true,
     default: {},
 }));
 
-jest.mock("@core/models/Ad", () => ({
+jest.mock("@esparex/core/models/Ad", () => ({
     __esModule: true,
     default: {},
 }));
 
 import type { Request, Response } from "express";
-import * as adminUsersController from "../../../../admin/src/controllers/admin/adminUsersController";
-import User from "@core/models/User";
-import AdminMetrics from "@core/models/AdminMetrics";
+import * as adminUsersController from "@esparex/core/controllers/admin/adminUsersController";
+import User from "@esparex/core/models/User";
+import AdminMetrics from "@esparex/core/models/AdminMetrics";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {

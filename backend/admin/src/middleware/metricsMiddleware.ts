@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 
 export const apiLatencyMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();

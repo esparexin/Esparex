@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { sendSuccessResponse } from "@core/utils/respond";
-import * as AdOrchestrator from '@core/services/AdOrchestrator';
-import * as adImageService from '@core/services/AdImageService';
+import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
+import * as adImageService from '@esparex/core/services/AdImageService';
 import type { AuthUser } from '../../types/auth.types';
 
 const IMMUTABLE_SELLER_ID_MESSAGE =
@@ -17,7 +17,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         // SSOT: Security guard to prevent seller impersonation
         if (Object.prototype.hasOwnProperty.call(body, 'sellerId')) {
-            const { sendErrorResponse } = await import("@core/utils/errorResponse");
+            const { sendErrorResponse } = await import("@esparex/core/utils/errorResponse");
             return sendErrorResponse(req, res, 400, IMMUTABLE_SELLER_ID_MESSAGE, {
                 code: 'IMMUTABLE_SELLER_ID',
                 details: [{ field: 'sellerId', message: IMMUTABLE_SELLER_ID_MESSAGE }]
@@ -47,7 +47,7 @@ export const uploadImage = async (req: Request, res: Response, next: NextFunctio
         const user = req.user as AuthUser;
         
         if (!req.file) {
-            const { AppError } = await import("@core/utils/AppError");
+            const { AppError } = await import("@esparex/core/utils/AppError");
             throw new AppError('No image file provided', 400, 'NO_IMAGE');
         }
 

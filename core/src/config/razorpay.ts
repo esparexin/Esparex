@@ -1,6 +1,14 @@
 import Razorpay from 'razorpay';
-import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
-import { env } from '@core/config/env';
+import crypto from 'crypto';
+import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
+import { env } from '@esparex/core/config/env';
+
+export type InvoiceUser = {
+    _id: { toString: () => string };
+    name?: string;
+    email?: string;
+    mobile?: string;
+};
 
 const DEFAULT_RAZORPAY_KEY_ID = env.RAZORPAY_KEY_ID || 'rzp_test_placeholder';
 const DEFAULT_RAZORPAY_KEY_SECRET = env.RAZORPAY_KEY_SECRET || 'secret_placeholder';
@@ -40,3 +48,12 @@ export const getRazorpayClient = async () => {
         key_secret: keySecret,
     });
 };
+
+export const buildMockOrder = (amount: number, currency: string) => ({
+    id: `order_mock_${crypto.randomBytes(4).toString('hex')}_${Date.now()}`,
+    entity: 'order',
+    amount,
+    currency,
+    status: 'created',
+    attempts: 0
+});

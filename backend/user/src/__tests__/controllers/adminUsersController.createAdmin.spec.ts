@@ -1,14 +1,14 @@
-jest.mock("@core/models/User", () => ({
+jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: {}
 }));
 
-jest.mock("@core/models/Ad", () => ({
+jest.mock("@esparex/core/models/Ad", () => ({
     __esModule: true,
     default: {}
 }));
 
-jest.mock("@core/models/Admin", () => ({
+jest.mock("@esparex/core/models/Admin", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
@@ -16,19 +16,19 @@ jest.mock("@core/models/Admin", () => ({
     },
 }));
 
-jest.mock("@core/utils/adminLogger", () => ({
+jest.mock("@esparex/core/utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@core/services/AdminUsersService", () => ({
+jest.mock("@esparex/core/services/AdminUsersService", () => ({
     __esModule: true,
     createAdminAccount: jest.fn(),
 }));
 
-import * as adminUsersController from "../../../../admin/src/controllers/admin/adminUsersController";
+import * as adminUsersController from "@esparex/core/controllers/admin/adminUsersController";
 import type { Request, Response } from "express";
-import { createAdminAccount } from "@core/services/AdminUsersService";
+import { createAdminAccount } from "@esparex/core/services/AdminUsersService";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {

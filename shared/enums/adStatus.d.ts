@@ -1,6 +1,7 @@
-import { type LifecycleStatus } from './lifecycle';
+import { type ListingStatus } from './listingStatus';
 /**
- * Ad Status Enum — Unified Reference
+ * @deprecated Use LISTING_STATUS from ./listingStatus instead.
+ * Legacy Ad Status Enum — Unified Reference
  */
 export declare const AD_STATUS: {
     readonly PENDING: "pending";
@@ -14,7 +15,7 @@ export declare const AD_STATUS: {
     readonly BANNED: "banned";
     readonly INACTIVE: "inactive";
 };
-export type AdStatusValue = LifecycleStatus;
+export type AdStatusValue = ListingStatus;
 /** Tuple of all lifecycle status values (includes admin-only: deleted, suspended, banned, inactive) */
 export declare const AD_STATUS_VALUES: [AdStatusValue, ...AdStatusValue[]];
 /**
@@ -25,3 +26,4 @@ export declare const AD_STATUS_VALUES: [AdStatusValue, ...AdStatusValue[]];
 export declare const AD_DISPLAY_STATUSES: readonly ["live", "pending", "sold", "expired", "rejected", "deactivated"];
 export type AdDisplayStatus = typeof AD_DISPLAY_STATUSES[number];
 export declare const AD_DISPLAY_STATUS_VALUES: [AdDisplayStatus, ...AdDisplayStatus[]];
+//# sourceMappingURL=adStatus.d.ts.map

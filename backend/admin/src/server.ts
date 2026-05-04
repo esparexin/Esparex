@@ -1,8 +1,8 @@
 import '@esparex/core/config/loadEnv'; // MUST BE FIRST (Registers Aliases)
 import app from './app';
-import { connectDB } from '@core/config/db';
-import logger from '@core/utils/logger';
-import { env } from '@core/config/env';
+import { connectDB } from '@esparex/core/config/db';
+import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core/config/env';
 
 const PORT = env.PORT || 5001; // Override port to 5001 if not set
 

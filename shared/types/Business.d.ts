@@ -94,3 +94,4 @@ export interface Business {
     activeServicesCount?: number;
     matchingServicesCount?: number;
 }
+//# sourceMappingURL=Business.d.ts.map

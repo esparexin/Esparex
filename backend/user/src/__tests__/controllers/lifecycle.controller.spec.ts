@@ -19,29 +19,29 @@ const mockCanPromote = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
-jest.mock('@core/utils/controllerUtils', () => ({
+jest.mock('@esparex/core/utils/controllerUtils', () => ({
     getAndVerifyOwnedListing: (...args: unknown[]) => mockGetAndVerifyOwnedListing(...args),
 }));
 
-jest.mock('@core/services/StatusMutationService', () => ({
+jest.mock('@esparex/core/services/StatusMutationService', () => ({
     mutateStatus: (...args: unknown[]) => mockMutateStatus(...args),
 }));
 
-jest.mock('@core/services/AdMutationService', () => ({
+jest.mock('@esparex/core/services/AdMutationService', () => ({
     repostAd: jest.fn(),
 }));
 
-jest.mock('@core/services/PromotionPolicyService', () => ({
+jest.mock('@esparex/core/services/PromotionPolicyService', () => ({
     PromotionPolicyService: {
         canPromote: (...args: unknown[]) => mockCanPromote(...args),
     },
 }));
 
-jest.mock('@core/utils/respond', () => ({
+jest.mock('@esparex/core/utils/respond', () => ({
     sendSuccessResponse: (...args: unknown[]) => mockSendSuccessResponse(...args),
 }));
 
-jest.mock('@core/utils/errorResponse', () => ({
+jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 
@@ -53,7 +53,7 @@ jest.mock('@shared/enums/actor', () => ({
     ACTOR_TYPE: { USER: 'USER', ADMIN: 'ADMIN' },
 }));
 
-jest.mock('@core/utils/requestParams', () => ({
+jest.mock('@esparex/core/utils/requestParams', () => ({
     getSingleParam: jest.fn(),
 }));
 

@@ -14,7 +14,7 @@ import type { ZodTypeAny } from 'zod';
 import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from "@shared/schemas/sparePartPayload.schema";
 import { requireListingType } from '../middleware/requireListingType';
 import { LISTING_TYPE } from "@shared/enums/listingType";
-import logger from "@core/utils/logger";
+import logger from "@esparex/core/utils/logger";
 
 const router = Router();
 

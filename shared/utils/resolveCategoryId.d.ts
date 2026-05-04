@@ -6,3 +6,4 @@
  * - Object with id or _id field
  */
 export declare function resolveCategoryId(input: any): string | undefined;
+//# sourceMappingURL=resolveCategoryId.d.ts.map

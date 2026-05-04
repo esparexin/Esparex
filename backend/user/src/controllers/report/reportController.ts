@@ -1,11 +1,11 @@
-import logger from '@core/utils/logger';
+import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import type { ReportTargetTypeValue } from '@core/models/Report';
-import { respond } from "@core/utils/respond";
+import type { ReportTargetTypeValue } from '@esparex/core/models/Report';
+import { respond } from "@esparex/core/utils/respond";
 import { ApiResponse } from "@shared/types/Api";
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
 import {
     checkAdExists,
     checkUserExists,
@@ -13,7 +13,7 @@ import {
     createReport as createReportRecord,
     countActiveReports,
     autoHideAdIfOverThreshold,
-} from '@core/services/ReportService';
+} from '@esparex/core/services/ReportService';
 
 
 const normalizeReason = (reason: string) => reason.trim();

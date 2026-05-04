@@ -4,7 +4,7 @@ import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
-import * as Validators from '@core/validators/finance.validator';
+import * as Validators from '@esparex/core/validators/finance.validator';
 
 const router = express.Router();
 

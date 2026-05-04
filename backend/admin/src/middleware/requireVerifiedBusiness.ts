@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import type { IAuthUser } from '@core/types/auth';
-import Business from '@core/models/Business';
-import { isBusinessPublishedStatus } from '@core/utils/businessStatus';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import logger from '@core/utils/logger';
+import type { IAuthUser } from '@esparex/core/types/auth';
+import Business from '@esparex/core/models/Business';
+import { isBusinessPublishedStatus } from '@esparex/core/utils/businessStatus';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import logger from '@esparex/core/utils/logger';
 import { LISTING_TYPE } from "@shared/enums/listingType";
 
 /**

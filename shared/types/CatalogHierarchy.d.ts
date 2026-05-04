@@ -28,3 +28,4 @@ export interface HierarchyTreeResponse {
     };
     categories: HierarchyTreeCategoryNode[];
 }
+//# sourceMappingURL=CatalogHierarchy.d.ts.map

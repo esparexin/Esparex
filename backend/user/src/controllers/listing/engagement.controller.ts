@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { sendSuccessResponse } from "@core/utils/respond";
-import { getSingleParam } from '@core/utils/requestParams';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { extractUser } from '../../middleware/authMiddleware';
-import * as AdEngagementService from '@core/services/AdEngagementService';
-import { getSellerPhone } from '@core/services/ContactRevealService';
-import { LISTING_TYPE } from "@core/constants/enums/listingType";
+import * as AdEngagementService from '@esparex/core/services/AdEngagementService';
+import { getSellerPhone } from '@esparex/core/services/ContactRevealService';
+import { LISTING_TYPE } from "@esparex/core/constants/enums/listingType";
 
 /**
  * GET /api/v1/listings/:id/view

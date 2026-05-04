@@ -5,8 +5,8 @@ services:
     env: node
     plan: starter # Starter plan active: 0.5 CPU | 512 MB RAM
     # Build from repo root so npm workspaces links @esparex/shared correctly
-    buildCommand: npm install --include=dev && npm run build -w backend
-    startCommand: cd backend && node -r ./register.js dist/backend/src/index.js
+    buildCommand: npm install --include=dev && npm run build -w @esparex/core && npm run build -w @esparex/backend-admin
+    startCommand: cd backend/admin && node dist/server.js
     envVars:
       - key: NODE_ENV
         value: production

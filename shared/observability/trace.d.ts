@@ -7,3 +7,4 @@ export declare class TraceContext {
     static setCorrelationId(id: string): void;
     static clear(): void;
 }
+//# sourceMappingURL=trace.d.ts.map

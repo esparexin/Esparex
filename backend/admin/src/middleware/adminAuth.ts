@@ -2,7 +2,7 @@
  * Admin Auth Middleware — backend/admin workspace shim.
  * SSOT: core/src/middleware/adminAuth.ts
  *
- * Do NOT add logic here. All changes must go to @core/middleware/adminAuth.
+ * Do NOT add logic here. All changes must go to @esparex/core/middleware/adminAuth.
  */
 export {
     extractAdminToken,
@@ -10,4 +10,4 @@ export {
     requirePermission,
     requireRole,
     requireSuperAdmin,
-} from '@core/middleware/adminAuth';
+} from '@esparex/core/middleware/adminAuth';

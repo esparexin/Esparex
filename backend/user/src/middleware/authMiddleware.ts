@@ -1,12 +1,12 @@
 
 import { Request, Response, NextFunction } from "express";
-import { verifyToken, JwtPayload } from "@core/utils/auth";
-import redis from "@core/config/redis";
-import User from "@core/models/User";
-import { isTokenBlacklisted } from "@core/utils/redisCache";
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import logger from '@core/utils/logger';
-import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@core/utils/cookieHelper';
+import { verifyToken, JwtPayload } from "@esparex/core/utils/auth";
+import redis from "@esparex/core/config/redis";
+import User from "@esparex/core/models/User";
+import { isTokenBlacklisted } from "@esparex/core/utils/redisCache";
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import logger from '@esparex/core/utils/logger';
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                      */

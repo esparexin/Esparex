@@ -1,0 +1,133 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateS3BucketEnvAliasOrThrow = validateS3BucketEnvAliasOrThrow;
+exports.validateS3RuntimeEnvOrThrow = validateS3RuntimeEnvOrThrow;
+exports.validateProductionEnvOrThrow = validateProductionEnvOrThrow;
+const bootstrapLogger_1 = __importDefault(require("@core/utils/bootstrapLogger"));
+const originConfig_1 = require("@core/utils/originConfig");
+const REQUIRED_PRODUCTION_ENV_VARS = [
+    'RAZORPAY_WEBHOOK_SECRET',
+    'OTP_HASH_SECRET',
+    'JWT_SECRET',
+    'REDIS_URL',
+    'MONGODB_URI',
+    'ADMIN_MONGODB_URI',
+    'AWS_ACCESS_KEY_ID',
+    'AWS_SECRET_ACCESS_KEY',
+    'S3_BUCKET_NAME',
+];
+const REQUIRED_S3_RUNTIME_ENV_VARS = [
+    'AWS_ACCESS_KEY_ID',
+    'AWS_SECRET_ACCESS_KEY',
+    'AWS_REGION',
+    'S3_BUCKET_NAME',
+];
+const AWS_ACCESS_KEY_ID_PATTERN = /^(AKIA|ASIA|AIDA|AROA)[A-Z0-9]{16}$/;
+const AWS_SECRET_ACCESS_KEY_PATTERN = /^[A-Za-z0-9/+=]{40}$/;
+const hasValue = (value) => typeof value === 'string' && value.trim().length > 0;
+function validateS3BucketEnvAliasOrThrow(sourceEnv) {
+    const legacyBucket = sourceEnv.AWS_S3_BUCKET?.trim();
+    const canonicalBucket = sourceEnv.S3_BUCKET_NAME?.trim();
+    if (legacyBucket && !canonicalBucket) {
+        bootstrapLogger_1.default.warn('⚠️  DEPRECATION: AWS_S3_BUCKET is deprecated. Please rename it to S3_BUCKET_NAME in your environment configuration.');
+        sourceEnv.S3_BUCKET_NAME = legacyBucket;
+        return;
+    }
+    if (legacyBucket && canonicalBucket && legacyBucket !== canonicalBucket) {
+        bootstrapLogger_1.default.info('ℹ️  S3 CONFIG: Both AWS_S3_BUCKET and S3_BUCKET_NAME are set. Using S3_BUCKET_NAME.');
+    }
+}
+function validateS3RuntimeEnvOrThrow(sourceEnv) {
+    const nodeEnv = sourceEnv.NODE_ENV || 'development';
+    if (nodeEnv === 'test') {
+        return;
+    }
+    const anyS3RuntimeVarProvided = REQUIRED_S3_RUNTIME_ENV_VARS.some((key) => hasValue(sourceEnv[key]));
+    const shouldEnforceRuntimeS3Validation = nodeEnv === 'production' || anyS3RuntimeVarProvided;
+    if (!shouldEnforceRuntimeS3Validation) {
+        return;
+    }
+    const missingVars = REQUIRED_S3_RUNTIME_ENV_VARS.filter((key) => !hasValue(sourceEnv[key]));
+    if (missingVars.length > 0) {
+        throw new Error(`Missing required S3 environment variables: ${missingVars.join(', ')}`);
+    }
+    const accessKeyId = (sourceEnv.AWS_ACCESS_KEY_ID || '').trim();
+    const secretAccessKey = (sourceEnv.AWS_SECRET_ACCESS_KEY || '').trim();
+    const accessKeyLooksValid = AWS_ACCESS_KEY_ID_PATTERN.test(accessKeyId);
+    const secretKeyLooksValid = AWS_SECRET_ACCESS_KEY_PATTERN.test(secretAccessKey);
+    if (!accessKeyLooksValid && AWS_ACCESS_KEY_ID_PATTERN.test(secretAccessKey) && AWS_SECRET_ACCESS_KEY_PATTERN.test(accessKeyId)) {
+        throw new Error('Invalid S3 configuration: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY appear swapped.');
+    }
+    if (!accessKeyLooksValid) {
+        throw new Error('Invalid S3 configuration: AWS_ACCESS_KEY_ID format is invalid.');
+    }
+    if (!secretKeyLooksValid) {
+        throw new Error('Invalid S3 configuration: AWS_SECRET_ACCESS_KEY format is invalid.');
+    }
+}
+const hasWildcardCorsOrigin = (corsOrigin) => corsOrigin
+    .split(',')
+    .map(origin => origin.trim())
+    .some(origin => origin === '*' || origin.includes('*'));
+function validateProductionEnvOrThrow(sourceEnv) {
+    validateS3BucketEnvAliasOrThrow(sourceEnv);
+    if (sourceEnv.NODE_ENV !== 'production') {
+        return;
+    }
+    const missingVars = REQUIRED_PRODUCTION_ENV_VARS.filter((key) => !hasValue(sourceEnv[key]));
+    if (missingVars.length > 0) {
+        throw new Error(`Missing required production environment variables: ${missingVars.join(', ')}`);
+    }
+    const corsOrigin = sourceEnv.CORS_ORIGIN;
+    if (!hasValue(corsOrigin)) {
+        throw new Error('CORS_ORIGIN must be defined in production');
+    }
+    if (hasWildcardCorsOrigin(corsOrigin)) {
+        throw new Error('CORS_ORIGIN cannot include wildcard (*) in production');
+    }
+    const runtimeOriginEnv = {
+        NODE_ENV: sourceEnv.NODE_ENV,
+        CORS_ORIGIN: sourceEnv.CORS_ORIGIN,
+        COOKIE_DOMAIN: sourceEnv.COOKIE_DOMAIN,
+        FRONTEND_URL: sourceEnv.FRONTEND_URL,
+        FRONTEND_INTERNAL_URL: sourceEnv.FRONTEND_INTERNAL_URL,
+        ADMIN_FRONTEND_URL: sourceEnv.ADMIN_FRONTEND_URL,
+        ADMIN_URL: sourceEnv.ADMIN_URL,
+    };
+    if (!sourceEnv.COOKIE_DOMAIN?.trim()) {
+        const inferredCookieDomain = (0, originConfig_1.inferCookieDomainFromEnv)(runtimeOriginEnv);
+        if (inferredCookieDomain) {
+            sourceEnv.COOKIE_DOMAIN = inferredCookieDomain;
+            bootstrapLogger_1.default.warn(`⚠️ COOKIE_DOMAIN was missing in production; inferred ${inferredCookieDomain} from configured origins.`);
+        }
+        else if ((0, originConfig_1.requiresSharedCookieDomain)(runtimeOriginEnv)) {
+            throw new Error('COOKIE_DOMAIN must be set in production for split-subdomain auth deployments');
+        }
+    }
+    const isRiskOverrideActive = (sourceEnv.PROD_RISK_OVERRIDE || '').trim().toLowerCase() === 'true';
+    if ((sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase() === 'true') {
+        if (isRiskOverrideActive) {
+            bootstrapLogger_1.default.warn('⚠️  SECURITY WARNING: USE_DEFAULT_OTP is enabled in production via PROD_RISK_OVERRIDE. Static OTPs are active!');
+        }
+        else {
+            throw new Error('🚨 SECURITY BLOCK: USE_DEFAULT_OTP=true is not allowed in production. ' +
+                'This flag enables authentication bypass with a static OTP for every user. ' +
+                'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.');
+        }
+    }
+    if ((sourceEnv.AUTH_BYPASS_OTP_LOCK || '').trim().toLowerCase() === 'true') {
+        if (isRiskOverrideActive) {
+            bootstrapLogger_1.default.warn('⚠️  SECURITY WARNING: AUTH_BYPASS_OTP_LOCK is enabled in production via PROD_RISK_OVERRIDE. Brute-force protection is disabled!');
+        }
+        else {
+            throw new Error('🚨 SECURITY BLOCK: AUTH_BYPASS_OTP_LOCK=true is not allowed in production. ' +
+                'This flag disables OTP attempt-count locking, enabling brute-force attacks. ' +
+                'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.');
+        }
+    }
+    bootstrapLogger_1.default.info('✅ Production environment secrets and origin constraints validated');
+}
+//# sourceMappingURL=validateEnv.js.map

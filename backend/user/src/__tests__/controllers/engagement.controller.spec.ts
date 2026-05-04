@@ -34,23 +34,23 @@ const mockGetSellerPhone = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
-jest.mock('@core/utils/requestParams', () => ({
+jest.mock('@esparex/core/utils/requestParams', () => ({
     getSingleParam: (...args: unknown[]) => mockGetSingleParam(...args),
 }));
 
-jest.mock('@core/services/AdEngagementService', () => ({
+jest.mock('@esparex/core/services/AdEngagementService', () => ({
     processListingView: (...args: unknown[]) => mockProcessListingView(...args),
 }));
 
-jest.mock('@core/services/ContactRevealService', () => ({
+jest.mock('@esparex/core/services/ContactRevealService', () => ({
     getSellerPhone: (...args: unknown[]) => mockGetSellerPhone(...args),
 }));
 
-jest.mock('@core/utils/respond', () => ({
+jest.mock('@esparex/core/utils/respond', () => ({
     sendSuccessResponse: (...args: unknown[]) => mockSendSuccessResponse(...args),
 }));
 
-jest.mock('@core/utils/errorResponse', () => ({
+jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 
@@ -59,7 +59,7 @@ jest.mock('../../middleware/authMiddleware', () => ({
     protect: jest.fn((_req: unknown, _res: unknown, next: () => void) => next()),
 }));
 
-jest.mock('@core/constants/enums/listingType', () => ({
+jest.mock('@esparex/core/constants/enums/listingType', () => ({
     LISTING_TYPE: { AD: 'ad', SERVICE: 'service', SPARE_PART: 'spare_part' },
 }));
 

@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "commonjs",
-    "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
-    "rootDir": "..",
+    "moduleResolution": "bundler",
+    "rootDir": "./src",
     "outDir": "./dist",
     "composite": true,
     "declaration": true,
@@ -16,16 +15,17 @@
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "paths": {
-      "@shared/*": ["../shared/*"],
-      "@shared": ["../shared/index.ts"],
-      "@core/*": ["src/*"],
-      "@core": ["src/index.ts"]
-    }
+      "@shared/*": ["../shared/dist/*"],
+      "@shared": ["../shared/dist/index.d.ts"],
+      "@core/*": ["./src/*"],
+      "@core": ["./src/index.ts"],
+      "@esparex/core/*": ["./src/*"],
+      "@esparex/core": ["./src/index.ts"]
+    },
+    "types": ["jest", "node"]
   },
   "include": [
-    "src/**/*",
-    "../shared/**/*",
-    "../shared/**/*.json"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",

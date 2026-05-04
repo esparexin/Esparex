@@ -1,4 +1,4 @@
-jest.mock("@core/models/Business", () => ({
+jest.mock("@esparex/core/models/Business", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
@@ -6,19 +6,19 @@ jest.mock("@core/models/Business", () => ({
     },
 }));
 
-jest.mock("@core/models/Ad", () => ({
+jest.mock("@esparex/core/models/Ad", () => ({
     __esModule: true,
     default: {
         find: jest.fn(),
     },
 }));
 
-jest.mock("@core/utils/adminLogger", () => ({
+jest.mock("@esparex/core/utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@core/utils/logger", () => ({
+jest.mock("@esparex/core/utils/logger", () => ({
     __esModule: true,
     default: {
         info: jest.fn(),
@@ -30,17 +30,17 @@ jest.mock("@core/utils/logger", () => ({
     logSecurity: jest.fn(),
 }));
 
-jest.mock("@core/services/NotificationService", () => ({
+jest.mock("@esparex/core/services/NotificationService", () => ({
     __esModule: true,
     createInAppNotification: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@core/services/TrustService", () => ({
+jest.mock("@esparex/core/services/TrustService", () => ({
     __esModule: true,
     recalculateTrustScore: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@core/services/BusinessService", () => ({
+jest.mock("@esparex/core/services/BusinessService", () => ({
     __esModule: true,
     approveBusiness: jest.fn(),
     rejectBusiness: jest.fn(),
@@ -48,7 +48,7 @@ jest.mock("@core/services/BusinessService", () => ({
     buildBusinessLocationPayload: jest.fn(),
 }));
 
-jest.mock("@core/services/AdminBusinessService", () => ({
+jest.mock("@esparex/core/services/AdminBusinessService", () => ({
     __esModule: true,
     getBusinessOverview: jest.fn(),
     getBusinessAccountsQuery: jest.fn(),
@@ -59,18 +59,18 @@ jest.mock("@core/services/AdminBusinessService", () => ({
     serializeBusinessForAdmin: jest.fn().mockImplementation((b) => b),
 }));
 
-jest.mock("@core/services/StatusMutationService", () => ({
+jest.mock("@esparex/core/services/StatusMutationService", () => ({
     __esModule: true,
     mutateStatus: jest.fn(),
     mutateStatuses: jest.fn(),
 }));
 
-jest.mock("@core/utils/contentHandler", () => ({
+jest.mock("@esparex/core/utils/contentHandler", () => ({
     __esModule: true,
     handlePaginatedContent: jest.fn(),
 }));
 
-jest.mock("@core/services/location/LocationNormalizer", () => ({
+jest.mock("@esparex/core/services/location/LocationNormalizer", () => ({
     normalizeLocation: jest.fn()
 }));
 
@@ -83,7 +83,7 @@ jest.mock("../../controllers/business/shared", () => ({
     resolveDuplicateBusinessMessage: jest.fn().mockReturnValue(null),
 }));
 
-jest.mock("@core/utils/s3", () => ({
+jest.mock("@esparex/core/utils/s3", () => ({
     __esModule: true,
     sanitizePersistedImageUrls: jest.fn().mockReturnValue([]),
     uploadToS3: jest.fn(),
@@ -91,8 +91,8 @@ jest.mock("@core/utils/s3", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as adminBusinessController from "../../../../admin/src/controllers/admin/adminBusinessController";
-import * as adminBusinessService from "@core/services/AdminBusinessService";
+import * as adminBusinessController from "@esparex/core/controllers/admin/adminBusinessController";
+import * as adminBusinessService from "@esparex/core/services/AdminBusinessService";
 
 const createMockRes = (req?: Record<string, unknown>) => {
     const res = {

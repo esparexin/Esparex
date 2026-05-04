@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { respond } from "@core/utils/respond";
+import { respond } from "@esparex/core/utils/respond";
 import { ApiResponse } from "@shared/types/Api";
 import { User as SharedUser } from "@shared/types/User";
-import { serializeDoc } from '@core/utils/serialize';
-import { sendErrorResponse } from "@core/utils/errorResponse";
+import { serializeDoc } from '@esparex/core/utils/serialize';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';
-import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '@core/services/UserProfileService';
-import { getUserWithBusiness } from '@core/services/UserService';
+import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '@esparex/core/services/UserProfileService';
+import { getUserWithBusiness } from '@esparex/core/services/UserService';
 import type { AuthUser } from '../../types/auth.types';
 
 const resolveUserId = (req: Request, res: Response): string | null => {

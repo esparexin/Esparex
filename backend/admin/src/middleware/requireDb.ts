@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { isDbReady } from "@core/config/db";
-import logger from '@core/utils/logger';
-import { sendErrorResponse } from "@core/utils/errorResponse";
+import { isDbReady } from "@esparex/core/config/db";
+import logger from '@esparex/core/utils/logger';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 
 /**
  * 🛡️ DATABASE READINESS GUARD (FAIL-FAST)

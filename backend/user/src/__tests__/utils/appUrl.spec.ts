@@ -14,12 +14,12 @@ describe('appUrl helpers', () => {
             error: jest.fn(),
         };
 
-        jest.doMock('@core/utils/logger', () => ({
+        jest.doMock('@esparex/core/utils/logger', () => ({
             __esModule: true,
             default: mockLogger,
         }));
 
-        jest.doMock('@core/config/env', () => ({
+        jest.doMock('@esparex/core/config/env', () => ({
             __esModule: true,
             env: {
                 NODE_ENV: envOverrides.NODE_ENV ?? 'development',
@@ -31,7 +31,7 @@ describe('appUrl helpers', () => {
         }));
 
         // eslint-disable-next-line @typescript-eslint/no-require-imports -- resetModules requires a fresh module load.
-        const appUrl = require('@core/utils/appUrl') as typeof import('@core/utils/appUrl');
+        const appUrl = require('@esparex/core/utils/appUrl') as typeof import('@esparex/core/utils/appUrl');
 
         return {
             ...appUrl,

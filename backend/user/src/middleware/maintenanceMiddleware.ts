@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { getSystemConfigDoc } from '@core/utils/systemConfigHelper';
-import logger from '@core/utils/logger';
-import { sendErrorResponse } from "@core/utils/errorResponse";
+import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
+import logger from '@esparex/core/utils/logger';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 
 /**
  * 🛠️ Maintenance Middleware

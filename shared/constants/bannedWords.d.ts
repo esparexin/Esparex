@@ -27,3 +27,4 @@ export declare const TEXT_QUALITY_RULES: {
 export declare const HARD_REJECT_CATEGORIES: readonly ["adult", "weapons", "drugs", "hate"];
 export declare const MODERATION_CATEGORIES: readonly ["scam", "counterfeit"];
 export type BannedCategory = keyof typeof BANNED_WORDS;
+//# sourceMappingURL=bannedWords.d.ts.map

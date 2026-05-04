@@ -1,15 +1,15 @@
-jest.mock("@core/services/ad/AdAggregationService", () => ({
+jest.mock("@esparex/core/services/ad/AdAggregationService", () => ({
     __esModule: true,
     getAds: jest.fn(),
 }));
 
-jest.mock("@core/utils/respond", () => ({
+jest.mock("@esparex/core/utils/respond", () => ({
     respond: jest.fn((data: unknown) => data),
 }));
 
 import type { Request, Response } from "express";
 import { getListings } from "../../controllers/listing/getListings.controller";
-import * as AdAggregationService from "@core/services/ad/AdAggregationService";
+import * as AdAggregationService from "@esparex/core/services/ad/AdAggregationService";
 
 describe("getListings.controller spare-part discovery", () => {
     beforeEach(() => {

@@ -13,3 +13,4 @@ export declare const BUSINESS_STATUS: {
 export type BusinessStatusValue = (typeof BUSINESS_STATUS)[keyof typeof BUSINESS_STATUS];
 /** Tuple of all valid business status values */
 export declare const BUSINESS_STATUS_VALUES: [BusinessStatusValue, ...BusinessStatusValue[]];
+//# sourceMappingURL=businessStatus.d.ts.map

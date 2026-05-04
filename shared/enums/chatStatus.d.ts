@@ -34,3 +34,4 @@ export declare const CHAT_REPORT_REASON: {
 };
 export type ChatReportReasonValue = (typeof CHAT_REPORT_REASON)[keyof typeof CHAT_REPORT_REASON];
 export declare const CHAT_REPORT_REASON_VALUES: [ChatReportReasonValue, ...ChatReportReasonValue[]];
+//# sourceMappingURL=chatStatus.d.ts.map

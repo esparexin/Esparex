@@ -4,7 +4,7 @@ import {
     createBusinessSchema,
     publicBusinessQuerySchema,
     updateBusinessSchema,
-} from "@core/validators/business.validator";
+} from "@esparex/core/validators/business.validator";
 
 const issueMessages = (result: { success: false; error?: { issues: Array<{ message: string }> } }) =>
     result.error?.issues.map((issue) => issue.message).join(" ") || "";

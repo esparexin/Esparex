@@ -1,18 +1,18 @@
-jest.mock("@core/services/ApiKeyService", () => ({
+jest.mock("@esparex/core/services/ApiKeyService", () => ({
     __esModule: true,
     getApiKeys: jest.fn(),
     createApiKey: jest.fn(),
     revokeApiKey: jest.fn(),
 }));
 
-jest.mock("@core/utils/adminLogger", () => ({
+jest.mock("@esparex/core/utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
 import type { Request, Response } from "express";
-import * as apiKeyController from "../../../../admin/src/controllers/admin/adminApiKeyController";
-import * as apiKeyService from "@core/services/ApiKeyService";
+import * as apiKeyController from "@esparex/core/controllers/admin/adminApiKeyController";
+import * as apiKeyService from "@esparex/core/services/ApiKeyService";
 
 const createMockRes = (req?: Record<string, unknown>) => ({
     status: jest.fn().mockReturnThis(),

@@ -1,26 +1,26 @@
 import { Request, Response } from 'express';
-jest.mock('@core/models/AdminMetrics', () => ({
+jest.mock('@esparex/core/models/AdminMetrics', () => ({
     AdminMetrics: { index: jest.fn() },
     default: { index: jest.fn() }
 }));
-jest.mock('@core/models/Ad', () => ({
+jest.mock('@esparex/core/models/Ad', () => ({
     Ad: { index: jest.fn(), findOne: jest.fn(), countDocuments: jest.fn(), aggregate: jest.fn() },
     default: { index: jest.fn(), findOne: jest.fn(), countDocuments: jest.fn(), aggregate: jest.fn() }
 }));
 
-jest.mock('@core/services/ad/AdMetricsService');
-jest.mock('@core/utils/controllerUtils');
-jest.mock('@core/utils/respond', () => ({
+jest.mock('@esparex/core/services/ad/AdMetricsService');
+jest.mock('@esparex/core/utils/controllerUtils');
+jest.mock('@esparex/core/utils/respond', () => ({
     sendSuccessResponse: jest.fn((res, data) => res.status(200).json({ success: true, data })),
 }));
-jest.mock('@core/utils/errorResponse', () => ({
+jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: jest.fn((req, res, code, msg) => res.status(code).json({ success: false, error: msg })),
 }));
 
 // Use dynamic require to ensure mocks are in place before controller imports its dependencies
 const statsController = require('../../controllers/listing/stats.controller');
-const AdMetricsService = require('@core/services/ad/AdMetricsService');
-const controllerUtils = require('@core/utils/controllerUtils');
+const AdMetricsService = require('@esparex/core/services/ad/AdMetricsService');
+const controllerUtils = require('@esparex/core/utils/controllerUtils');
 
 const mockGetSellerListingStats = AdMetricsService.getSellerListingStats;
 const mockGetAndVerifyOwnedListing = controllerUtils.getAndVerifyOwnedListing;

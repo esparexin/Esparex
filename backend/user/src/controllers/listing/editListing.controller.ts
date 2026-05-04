@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { sendSuccessResponse } from "@core/utils/respond";
-import { getSingleParam } from '@core/utils/requestParams';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
-import * as AdMutationService from '@core/services/AdMutationService';
-import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
-import { collectImmutableFieldErrors, hasOwnField } from '@core/utils/immutableFieldErrors';
+import * as AdMutationService from '@esparex/core/services/AdMutationService';
+import { getAndVerifyOwnedListing } from "@esparex/core/utils/controllerUtils";
+import { collectImmutableFieldErrors, hasOwnField } from '@esparex/core/utils/immutableFieldErrors';
 import type { AuthUser } from '../../types/auth.types';
 
 const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {

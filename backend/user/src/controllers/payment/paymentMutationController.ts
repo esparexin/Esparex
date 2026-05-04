@@ -1,5 +1,5 @@
-import logger from '@core/utils/logger';
-import { env } from '@core/config/env';
+import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core/config/env';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import {
@@ -7,13 +7,13 @@ import {
     findPendingTransaction,
     createPaymentTransaction,
     getUserForPayment,
-} from '@core/services/TransactionService';
-import { getPlanById } from '@core/services/PlanService';
-import { respond } from "@core/utils/respond";
+} from '@esparex/core/services/TransactionService';
+import { getPlanById } from '@esparex/core/services/PlanService';
+import { respond } from "@esparex/core/utils/respond";
 import { ApiResponse } from "@shared/types/Api";
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from './shared';
-import { logBusiness, logSecurity } from '@core/utils/logger';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
+import { logBusiness, logSecurity } from '@esparex/core/utils/logger';
 import { getPrimaryPlanCreditCount } from "@shared/utils/planEntitlements";
 
 /**

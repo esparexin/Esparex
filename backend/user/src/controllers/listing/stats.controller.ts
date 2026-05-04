@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { sendSuccessResponse } from "@core/utils/respond";
-import logger from '@core/utils/logger';
-import { LISTING_TYPE } from "@core/constants/enums/listingType";
-import * as AdAggregationService from '@core/services/ad/AdAggregationService';
-import * as AdMetricsService from '@core/services/ad/AdMetricsService';
-import { getAndVerifyOwnedListing } from "@core/utils/controllerUtils";
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import logger from '@esparex/core/utils/logger';
+import { LISTING_TYPE } from "@esparex/core/constants/enums/listingType";
+import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
+import * as AdMetricsService from '@esparex/core/services/ad/AdMetricsService';
+import { getAndVerifyOwnedListing } from "@esparex/core/utils/controllerUtils";
 import type { AuthUser } from '../../types/auth.types';
 
 /**
@@ -35,7 +35,7 @@ export const getMyListings = async (req: Request, res: Response) => {
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
         const { type, status, page = 1, limit = 20 } = req.query;
-        const { getStatusMatchCriteria } = await import('@core/utils/statusQueryMapper');
+        const { getStatusMatchCriteria } = await import('@esparex/core/utils/statusQueryMapper');
 
         const query: Record<string, unknown> = {
             sellerId: userId,

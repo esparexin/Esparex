@@ -1,9 +1,9 @@
 import rateLimit, { type Store } from 'express-rate-limit';
 import RedisStore, { type RedisReply } from 'rate-limit-redis';
-import redisClient from '@core/config/redis';
+import redisClient from '@esparex/core/config/redis';
 import { Request, Response } from 'express';
-import logger from '@core/utils/logger';
-import { env } from '@core/config/env';
+import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core/config/env';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedisStore =

@@ -4,10 +4,10 @@ import { protect } from '../middleware/authMiddleware';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { paymentRateLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import * as Validators from '@core/validators/finance.validator';
+import * as Validators from '@esparex/core/validators/finance.validator';
 
 import { verifyPaymentWebhook } from '../middleware/verifyPaymentWebhook';
-import { env } from '@core/config/env';
+import { env } from '@esparex/core/config/env';
 
 if (env.NODE_ENV === 'production') {
     const missing = (['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'] as const)

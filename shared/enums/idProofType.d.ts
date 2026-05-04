@@ -9,3 +9,4 @@ export declare const ID_PROOF_TYPE: {
 };
 export type IdProofTypeValue = (typeof ID_PROOF_TYPE)[keyof typeof ID_PROOF_TYPE];
 export declare const ID_PROOF_TYPE_VALUES: [IdProofTypeValue, ...IdProofTypeValue[]];
+//# sourceMappingURL=idProofType.d.ts.map

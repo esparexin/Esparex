@@ -1,11 +1,11 @@
-jest.mock('@core/config/env', () => ({
+jest.mock('@esparex/core/config/env', () => ({
     env: {
         AWS_REGION: 'ap-south-1',
         S3_BUCKET_NAME: '',
     }
 }));
 
-import { uploadToS3 } from '@core/utils/s3';
+import { uploadToS3 } from '@esparex/core/utils/s3';
 
 describe('S3 bucket environment resolution', () => {
     it('rejects uploads when S3_BUCKET_NAME is missing', async () => {

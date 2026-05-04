@@ -3,30 +3,30 @@
  * Verifies the unified repostListing controller.
  */
 
-jest.mock('@core/services/AdMutationService', () => ({
+jest.mock('@esparex/core/services/AdMutationService', () => ({
     repostAd: jest.fn(),
 }));
 
-jest.mock('@core/utils/errorResponse', () => ({
+jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: jest.fn((req: unknown, res: { status: (n: number) => { json: (v: unknown) => void } }, status: number, msg: string) => {
         res.status(status).json({ error: msg });
         return res;
     }),
 }));
 
-jest.mock('@core/utils/respond', () => ({
+jest.mock('@esparex/core/utils/respond', () => ({
     sendSuccessResponse: jest.fn((res: { status: (n: number) => { json: (v: unknown) => void } }, data: unknown, msg: string) => {
         res.status(200).json({ data, message: msg });
         return res;
     }),
 }));
 
-jest.mock('@core/utils/requestParams', () => ({
+jest.mock('@esparex/core/utils/requestParams', () => ({
     getSingleParam: jest.fn((req: { params: Record<string, string> }, _res: unknown, param: string) => req.params[param]),
 }));
 
 import { Request, Response } from 'express';
-import AdMutationService from '@core/services/AdMutationService';
+import AdMutationService from '@esparex/core/services/AdMutationService';
 import { repostListing } from '../../controllers/listing/lifecycle.controller';
 
 const mockedRepostAd = AdMutationService.repostAd as jest.Mock;

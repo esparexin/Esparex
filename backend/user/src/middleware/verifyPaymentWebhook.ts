@@ -1,9 +1,9 @@
 // backend/src/middleware/verifyPaymentWebhook.ts
 import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
-import logger from '@core/utils/logger';
-import { sendErrorResponse } from "@core/utils/errorResponse";
-import { env } from '@core/config/env';
+import logger from '@esparex/core/utils/logger';
+import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { env } from '@esparex/core/config/env';
 
 /**
  * 🔐 PAYMENT WEBHOOK VERIFIER (HMAC)
