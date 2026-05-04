@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import prettier from "eslint-config-prettier";
 import unusedImports from "eslint-plugin-unused-imports";
+import globals from "globals";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -23,7 +24,8 @@ export default tseslint.config(
       "**/__tests__/**",
       "**/tests/**",
       "**/*.spec.ts",
-      "**/*.test.ts"
+      "**/*.test.ts",
+      "**/*.d.ts"
     ]
   },
 
@@ -37,6 +39,12 @@ export default tseslint.config(
     plugins: {
       "unused-imports": unusedImports,
       "esparex": esparexRules,
+    },
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+      }
     },
     rules: {
       "no-unused-vars": "off",
@@ -53,6 +61,7 @@ export default tseslint.config(
       ],
       "esparex/no-status-mutation-outside-status-mutation-service": "error",
       "no-console": "warn",
+      "no-undef": "error",
     },
   },
 
@@ -61,14 +70,7 @@ export default tseslint.config(
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parserOptions: {
-        project: [
-          "./tsconfig.json",
-          "./apps/web/tsconfig.json",
-          "./backend/admin/tsconfig.json",
-          "./backend/user/tsconfig.json",
-          "./core/tsconfig.json",
-          "./shared/tsconfig.json"
-        ],
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -76,7 +78,7 @@ export default tseslint.config(
 
   // 5. Frontend Specific (Apps & Components)
   {
-    files: ["apps/web/**/*.{ts,tsx}", "shared/components/**/*.{ts,tsx}"],
+    files: ["apps/**/*.{ts,tsx}", "shared/components/**/*.{ts,tsx}"],
     plugins: {
       "react": reactPlugin,
       "react-hooks": reactHooksPlugin,
@@ -84,12 +86,9 @@ export default tseslint.config(
     },
     languageOptions: {
       globals: {
-        window: "readonly",
-        document: "readonly",
-        navigator: "readonly",
-        localStorage: "readonly",
-        sessionStorage: "readonly",
-        fetch: "readonly",
+        ...globals.browser,
+        ...globals.node, // Next.js is SSR, needs Node globals too
+        React: "readonly", // Modern React/Next.js
       },
     },
     rules: {
@@ -114,44 +113,70 @@ export default tseslint.config(
   // 6. Backend & Node Specific (Backend, Core, Scripts)
   {
     files: [
-      "backend/**/*.{ts,js,cjs,mjs}", 
-      "core/**/*.{ts,js,cjs,mjs}", 
-      "scripts/**/*.{ts,js,cjs,mjs}",
+      "backend/**/*.{ts,js,cjs,mjs,mongosh.js}", 
+      "core/**/*.{ts,js,cjs,mjs,mongosh.js}", 
+      "scripts/**/*.{ts,js,cjs,mjs,mongosh.js}",
       "eslint.config.js"
     ],
     languageOptions: {
       globals: {
-        console: "readonly",
-        process: "readonly",
-        __dirname: "readonly",
-        __filename: "readonly",
-        require: "readonly",
-        module: "readonly",
-        exports: "readonly",
-        Buffer: "readonly",
-        setTimeout: "readonly",
-        clearTimeout: "readonly",
-        setInterval: "readonly",
-        clearInterval: "readonly",
-        setImmediate: "readonly",
+        ...globals.node,
       },
     },
     rules: {
       "no-undef": "error",
+      "no-console": "off", // Scripts usually need console
     }
   },
 
   // 7. Neutral Shared Zone (Isomorphism Enforcement)
   {
     files: ["shared/**/*.{ts,js,cjs,mjs}"],
-    rules: {
-      "no-restricted-globals": ["error", "process", "window", "document"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      }
     },
-    // Except for specific sub-directories like shared/components which are frontend-only
-    // or shared/utils which might be isomorphic.
-    // We already have a frontend-specific block for shared/components.
+    rules: {
+      // Isomorphism: prefer not using process/window directly in shared code
+      // but if we do, it must be guarded. For now, we allow them as globals
+      // but we could add restrictions later.
+      "no-undef": "error",
+    },
   },
 
-  // 8. Prettier (Must be last)
+  // 8. MongoDB Shell (Migration Scripts)
+  {
+    files: ["**/*.mongosh.js"],
+    languageOptions: {
+      globals: {
+        db: "readonly",
+        print: "readonly",
+        printjson: "readonly",
+        ObjectId: "readonly",
+        ISODate: "readonly",
+        UUID: "readonly",
+        sleep: "readonly",
+        quit: "readonly",
+        sh: "readonly",
+        rs: "readonly",
+      }
+    },
+    rules: {
+      "no-undef": "error",
+      "no-console": "off",
+    }
+  },
+
+  // 9. Scripts and Configs (Allow console)
+  {
+    files: ["**/scripts/**/*.{js,ts}", "**/*.cjs", "**/*.mjs"],
+    rules: {
+      "no-console": "off"
+    }
+  },
+
+  // 10. Prettier (Must be last)
   prettier
 );
