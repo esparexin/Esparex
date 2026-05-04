@@ -23,6 +23,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # ── Build Core Dependencies (Required for SSOT resolution) ──
+      - name: Build @esparex/shared
+        run: npm run build -w @esparex/shared
+
+      - name: Build @esparex/core
+        run: npm run build -w core
+
       # ── Quality Gates (SSOT) ──
       - name: Run CI Suite (Lint, Type-check, Duplication)
         run: npm run ci
