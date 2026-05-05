@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -14,12 +13,12 @@
     "resolveJsonModule": true,
     "lib": ["ES2023", "DOM"],
     "paths": {
-      "@shared": ["./../../shared/src/index.ts"],
-      "@shared/*": ["./../../shared/src/*"],
+      "@shared": ["./../../shared/dist/index"],
+      "@shared/*": ["./../../shared/dist/*"],
       "@esparex/core": ["./../../core/dist/index.d.ts"],
       "@esparex/core/*": ["./../../core/dist/*"]
     }
   },
-  "include": ["src/config/**/*", "src/models/**/*", "src/middleware/**/*"],
+  "include": ["src/app.ts", "src/config/**/*", "src/models/**/*", "src/middleware/**/*", "src/@types/**/*"],
   "exclude": ["node_modules", "dist", "src/middleware/metricsMiddleware.ts"]
 }

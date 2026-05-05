@@ -5,12 +5,13 @@ import path from 'path';
 // This ensures that @esparex/core and @esparex/shared aliases work in production (dist/) 
 // without relying on fragile build-time tsc-alias replacements.
 if (process.env.NODE_ENV === 'production' || process.env.NODE_PATH?.includes('dist')) {
-    // Assuming this file is at [ROOT]/core/src/config/loadEnv.ts
-    // In production dist, it's at [ROOT]/dist/core/src/config/loadEnv.js
-    const distRoot = path.resolve(__dirname, '../../../');
+    // Source path: [repo]/core/src/config/loadEnv.ts
+    // Build path:  [repo]/core/dist/config/loadEnv.js
+    // Resolve aliases to built JS artifacts to avoid loading TypeScript in runtime.
+    const repoRoot = path.resolve(__dirname, '../../../');
     (moduleAlias as any).addAliases({
-        '@esparex/core': path.join(distRoot, 'core/src'),
-        '@esparex/shared': path.join(distRoot, 'shared')
+        '@esparex/core': path.join(repoRoot, 'core/dist'),
+        '@esparex/shared': path.join(repoRoot, 'shared/dist')
     });
 }
 

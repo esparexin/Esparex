@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
+    "baseUrl": ".",
     "rootDir": "./src",
     "outDir": "./dist",
     "composite": false,
@@ -18,7 +18,7 @@
       "@core/*": ["./src/*"],
       "@esparex/core/*": ["./src/*"],
       "@esparex/shared/*": ["../shared/dist/*"],
-      "@esparex/shared": ["../shared/dist/index.d.ts"]
+      "@esparex/shared": ["../shared/dist/index"]
     }
   },
   "include": [
