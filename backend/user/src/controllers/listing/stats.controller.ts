@@ -12,7 +12,7 @@ import { getAndVerifyOwnedListing } from "@esparex/core/utils/controllerUtils";
  */
 export const getMyListingStats = async (req: Request, res: Response) => {
     try {
-        const userId = (req.user as unknown)?._id?.toString();
+        const userId = req.user?._id?.toString();
         if (!userId) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
@@ -30,7 +30,7 @@ export const getMyListingStats = async (req: Request, res: Response) => {
  */
 export const getMyListings = async (req: Request, res: Response) => {
     try {
-        const userId = (req.user as unknown)?._id;
+        const userId = req.user?._id;
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
         const { type, status, page = 1, limit = 20 } = req.query;

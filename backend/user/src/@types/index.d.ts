@@ -5,6 +5,7 @@ declare module 'express-serve-static-core' {
   interface Request {
     user?: IAuthUser;
     admin?: IAdmin;
+    business?: unknown;
   }
 }
 
@@ -13,6 +14,7 @@ declare global { // Fallback for some configurations
     interface Request {
       user?: IAuthUser;
       admin?: IAdmin;
+      business?: unknown;
     }
   }
 }

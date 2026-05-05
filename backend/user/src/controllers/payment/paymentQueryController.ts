@@ -1,7 +1,7 @@
 import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
 import { respond } from "@esparex/core/utils/respond";
-import { ApiResponse } from "@shared/types/Api";
+import { ApiResponse } from "@shared/types/api";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { InvoiceUser } from '@esparex/core/config/razorpay';
 import { getUserTransactions, getTransactionWithUser } from '@esparex/core/services/TransactionService';

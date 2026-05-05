@@ -37,7 +37,7 @@ export const getListingPhone = async (req: Request, res: Response, next: NextFun
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Listing ID' });
         if (!id) return;
 
-        const requesterId = (req.user as unknown)?._id?.toString();
+        const requesterId = req.user?._id?.toString();
         const metadata = {
             ip: req.ip || req.socket.remoteAddress,
             device: req.headers['user-agent']

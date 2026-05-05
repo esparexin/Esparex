@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import type { ReportTargetTypeValue } from '@esparex/core/models/Report';
 import { respond } from "@esparex/core/utils/respond";
-import { ApiResponse } from "@shared/types/Api";
+import { ApiResponse } from "@shared/types/api";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
 import {
@@ -80,7 +80,7 @@ export const createReport = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 400, 'Invalid target ID');
         }
 
-        let ad: { _id: mongoose.Types.ObjectId; title?: string } | null = undefined;
+        let ad: { _id: mongoose.Types.ObjectId; title?: string } | null = null;
         if (canonicalTargetType === 'ad') {
             ad = await checkAdExists(canonicalTargetId);
             if (!ad) {

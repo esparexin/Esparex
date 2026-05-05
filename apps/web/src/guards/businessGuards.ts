@@ -1,5 +1,5 @@
-import type { User } from "@/types/User";
-import type { BusinessStatus } from "@shared/types/Business";
+import type { User } from "@/types/user";
+import type { BusinessStatus } from "@shared/types/business";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 
 export function canEditBusiness(status: BusinessStatus | undefined) {

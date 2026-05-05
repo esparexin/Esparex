@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { respond } from "@esparex/core/utils/respond";
-import { ApiResponse } from "@shared/types/Api";
-import { User as SharedUser } from "@shared/types/User";
+import { ApiResponse } from "@shared/types/api";
+import { User as SharedUser } from "@shared/types/user";
 import { serializeDoc } from '@esparex/core/utils/serialize';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';

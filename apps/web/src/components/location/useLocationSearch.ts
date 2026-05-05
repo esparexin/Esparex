@@ -87,7 +87,7 @@ export function useLocationSearch({
 
         setIsSearching(true);
         const debounce = setTimeout(async () => {
-            let requestTimeoutId: ReturnType<typeof setTimeout> | null = undefined;
+            let requestTimeoutId: ReturnType<typeof setTimeout> | null = null;
             try {
                 const timeoutPromise = new Promise<never>((_, reject) => {
                     requestTimeoutId = setTimeout(() => reject(new Error("timeout")), 10000);

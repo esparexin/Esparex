@@ -3,7 +3,7 @@ import { toApiResult } from "@/lib/api/result";
 import { API_ROUTES } from "../routes";
 import logger from "@/lib/logger";
 
-import type { Plan } from "@shared/types/Plan";
+import type { Plan } from "@shared/types/plan";
 export type { Plan };
 
 export interface PlanQuery {

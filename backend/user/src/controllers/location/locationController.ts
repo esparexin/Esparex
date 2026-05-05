@@ -47,7 +47,7 @@ export const DEFAULT_LOCATION_CONFIG: LocationConfig = {
 };
 
 const LOCATION_CONFIG_TTL_MS = 60 * 1000;
-let cachedLocationConfig: { data: LocationConfig; timestamp: number } | null = undefined;
+let cachedLocationConfig: { data: LocationConfig; timestamp: number } | null = null;
 
 export const getLocationConfig = async (): Promise<LocationConfig> => {
     if (cachedLocationConfig && Date.now() - cachedLocationConfig.timestamp < LOCATION_CONFIG_TTL_MS) {

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
 import { respond } from "@esparex/core/utils/respond";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { ApiResponse } from "@shared/types/Api";
+import { ApiResponse } from "@shared/types/api";
 import {
     createSavedSearch,
     deleteSavedSearch,

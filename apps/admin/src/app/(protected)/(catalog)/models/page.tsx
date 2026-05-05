@@ -184,7 +184,7 @@ export default function ModelsPage() {
                     />
                     <CatalogSelectFilter
                         value={filters.status}
-                        onChange={(status) => setFilters((prev) => ({ ...prev, status: status as unknown }))}
+                        onChange={(status) => setFilters((prev) => ({ ...prev, status: String(status) }))}
                         options={[
                             { value: "all", label: "All Status" },
                             { value: "live", label: "Live" },
@@ -229,7 +229,7 @@ export default function ModelsPage() {
                             <CatalogSelectField
                                 label="Status"
                                 value={formData.status}
-                                onChange={(status: string) => setFormData((prev) => ({ ...prev, status: status as unknown }))}
+                                onChange={(status: string) => setFormData((prev) => ({ ...prev, status: status as typeof prev.status }))}
                                 options={[
                                     { value: "live", label: "Live" },
                                     { value: "pending", label: "Pending" },

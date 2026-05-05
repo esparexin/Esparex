@@ -12,7 +12,7 @@ import { warnIfLegacyAdUserIdAliasUsed } from '@esparex/core/utils/legacyOwnerAl
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
 import { respond } from "@esparex/core/utils/respond";
-import type { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@shared/types/Api";
+import type { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@shared/types/api";
 import type { Ad } from "@shared";
 import type { AuthUser } from '../../types/auth.types';
 import type { ListingTypeValue } from "@esparex/core/constants/enums/listingType";
@@ -81,7 +81,7 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
         const viewerId = viewer?._id?.toString();
         const isAdmin = viewer?.role === 'admin' || viewer?.role === 'super_admin';
 
-        let adId: string | null = undefined;
+        let adId: string | null = null;
         if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
             adId = idOrSlug;
         }
@@ -142,8 +142,8 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
             setCache,
             buildDeterministicSearchCacheKey
         } = await import('@esparex/core/utils/redisCache');
-        let cacheKey: string | null = undefined;
-        let cachedResult: CachedSearchResult | null = undefined;
+        let cacheKey: string | null = null;
+        let cachedResult: CachedSearchResult | null = null;
 
         if (shouldUseSearchCache) {
             cacheKey = buildDeterministicSearchCacheKey(query);

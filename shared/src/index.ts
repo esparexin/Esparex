@@ -42,7 +42,16 @@ export * from './enums/serviceType';
 export * from './enums/userStatus';
 
 // CONSTANTS
-// export * from './constants/adLimits'; // Redundant: Already in common.schemas
+export {
+    MIN_AD_IMAGES,
+    MAX_AD_IMAGES,
+    MAX_AD_IMAGE_BYTES,
+    MIN_AD_TITLE_CHARS,
+    MAX_AD_TITLE_CHARS,
+    MIN_AD_DESCRIPTION_CHARS,
+    MAX_AD_DESCRIPTION_CHARS,
+    MAX_AD_SPARE_PARTS,
+} from './constants/adLimits';
 export * from './constants/bannedWords';
 export * from './constants/fieldLimits';
 export * from './constants/notificationRetention';
@@ -61,6 +70,8 @@ export * from './utils/geoUtils';
 export * from './utils/locationPrimitives';
 export * from './utils/textValidator';
 export * from './utils/planEntitlements';
+export * from './listingUtils/locationUtils';
+export { adaptLocationInput } from './location/location.utils';
 
 // POPUP
 export * from './popup/popupCore';
@@ -87,6 +98,7 @@ export * from './types/catalogHierarchy';
 // OBSERVABILITY
 export * from './observability/trace';
 export * from './observability/types';
+export { getLogger } from './observability/index';
 
 // IMAGE DOMAIN REGISTRY
 import imageDomainRegistry from './constants/image-domain-registry.json';

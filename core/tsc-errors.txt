@@ -20,24 +20,24 @@ src/models/Ad.ts(3,59): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/sh
     Imported via '@shared' from file '/Users/admin/Desktop/EsparexAdmin/core/src/scripts/ops/commands/geoRepair.command.ts'
     Imported via '@shared' from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/AdCreationService.ts'
     Imported via '@shared' from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/business/BusinessUtils.ts'
-src/models/Business.ts(2,44): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/types/Business.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
-src/models/Plan.ts(5,41): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/types/Plan.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+src/models/Business.ts(2,44): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/types/business.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+src/models/Plan.ts(5,41): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/types/plan.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
 src/models/User.ts(6,8): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/constants/mobileVisibility.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
   The file is in the program because:
     Imported via "@shared/constants/mobileVisibility" from file '/Users/admin/Desktop/EsparexAdmin/core/src/models/User.ts'
     Imported via "@shared/constants/mobileVisibility" from file '/Users/admin/Desktop/EsparexAdmin/core/src/scripts/ensure-listing-smoke-fixtures.ts'
     Imported via "@shared/constants/mobileVisibility" from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/ContactRevealService.ts'
     Imported via "@shared/constants/mobileVisibility" from file '/Users/admin/Desktop/EsparexAdmin/core/src/validators/user.validator.ts'
-src/services/catalog/CatalogHierarchyService.ts(18,8): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/types/CatalogHierarchy.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+src/services/catalog/CatalogHierarchyService.ts(18,8): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/types/catalogHierarchy.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
 src/services/chat/ChatUtils.ts(1,39): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/contracts/chat.contracts.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
   The file is in the program because:
     Imported via "@shared/contracts/chat.contracts" from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/chat/ChatUtils.ts'
     Imported via "@shared/contracts/chat.contracts" from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/chat/ChatConversationService.ts'
-src/services/FeedService.ts(3,34): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/types/Api.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+src/services/FeedService.ts(3,34): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/types/api.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
   The file is in the program because:
-    Imported via "@shared/types/Api" from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/FeedService.ts'
-    Imported via "@shared/types/Api" from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/feed/FeedCacheService.ts'
-    Imported via "@shared/types/Api" from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/feed/FeedQueryService.ts'
+    Imported via "@shared/types/api" from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/FeedService.ts'
+    Imported via "@shared/types/api" from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/feed/FeedCacheService.ts'
+    Imported via "@shared/types/api" from file '/Users/admin/Desktop/EsparexAdmin/core/src/services/feed/FeedQueryService.ts'
 src/services/notification/AdminNotificationTargetingService.ts(9,8): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/constants/adminNotificationTargets.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
 src/services/notification/NotificationRetentionService.ts(2,83): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/constants/notificationRetention.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
 src/services/SavedSearchService.ts(15,47): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/schemas/savedSearch.schema.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
@@ -98,7 +98,7 @@ src/validators/catalog.validator.ts(3,32): error TS6307: File '/Users/admin/Desk
 ../shared/index.ts(10,15): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/enums/businessStatus.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
   The file is in the program because:
     Imported via './enums/businessStatus' from file '/Users/admin/Desktop/EsparexAdmin/shared/index.ts'
-    Imported via '../enums/businessStatus' from file '/Users/admin/Desktop/EsparexAdmin/shared/types/Business.ts'
+    Imported via '../enums/businessStatus' from file '/Users/admin/Desktop/EsparexAdmin/shared/types/business.ts'
 ../shared/index.ts(14,15): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/enums/roles.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
 ../shared/index.ts(15,15): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/enums/actor.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
 ../shared/index.ts(16,15): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/enums/chatStatus.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
@@ -130,8 +130,8 @@ src/validators/catalog.validator.ts(3,32): error TS6307: File '/Users/admin/Desk
   The file is in the program because:
     Imported via './text.schema' from file '/Users/admin/Desktop/EsparexAdmin/shared/schemas/common.schemas.ts'
     Imported via './text.schema' from file '/Users/admin/Desktop/EsparexAdmin/shared/schemas/adPayload.schema.ts'
-../shared/types/Api.ts(11,20): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/schemas/ad.schema.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
-../shared/types/Business.ts(1,39): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/enums/idProofType.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+../shared/types/api.ts(11,20): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/schemas/ad.schema.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+../shared/types/business.ts(1,39): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/enums/idProofType.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
 ../shared/utils/textValidator.ts(14,8): error TS6307: File '/Users/admin/Desktop/EsparexAdmin/shared/constants/bannedWords.ts' is not listed within the file list of project '/Users/admin/Desktop/EsparexAdmin/core/tsconfig.json'. Projects must list all files or use an 'include' pattern.
   The file is in the program because:
     Imported via '../constants/bannedWords' from file '/Users/admin/Desktop/EsparexAdmin/shared/utils/textValidator.ts'

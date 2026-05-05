@@ -1,4 +1,11 @@
-import { createScreenSize, deleteScreenSize, getScreenSizes, updateScreenSize, toggleScreenSizeStatus } from "@/lib/api/screenSizes";
+import {
+    createScreenSize,
+    deleteScreenSize,
+    getScreenSizes,
+    type ScreenSizeMutationPayload,
+    updateScreenSize,
+    toggleScreenSizeStatus,
+} from "@/lib/api/screenSizes";
 import { useToast } from "@/context/ToastContext";
 import { useCallback } from "react";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
@@ -22,7 +29,7 @@ export function useAdminScreenSizes() {
     } = useAdminCatalogCollection<
         ScreenSize,
         { search: string; categoryId: string },
-        Record<string, unknown>
+        ScreenSizeMutationPayload
     >({
         initialFilters: { search: "", categoryId: "all" },
         fetchList: getScreenSizes,

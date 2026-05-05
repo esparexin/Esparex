@@ -1,7 +1,7 @@
 "use client";
 
-import type { RenderablePopup } from "@esparex/shared";
-import { PopupDialogView } from "@esparex/shared";
+import type { RenderablePopup } from "@/components/ui/popup/popupDialog";
+import { PopupDialogView } from "@/components/ui/popup/popupDialogView";
 
 export function AdminPopup({
   popup,

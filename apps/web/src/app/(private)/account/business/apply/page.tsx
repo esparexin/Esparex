@@ -42,7 +42,7 @@ export default function BusinessApplyPage() {
             return;
         }
 
-        if (user && !canRegisterBusiness({ ...user, businessStatus: status as unknown })) {
+        if (user && !canRegisterBusiness({ ...user, businessStatus: status })) {
             notify.warning("You cannot register a business at this time.");
             void router.replace("/account/business");
             return;

@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   buildBrowseBrandOptions,
+  type BrowseBrandOption,
   resolveBrowseBrandSelection,
 } from "@/lib/browse/browseFilterNormalization";
 import { useLocationData } from "@/context/LocationContext";
@@ -42,7 +43,7 @@ const PAGE_SIZE = 20;
 import { SearchFilters } from "@/components/search/SearchFilters";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
 
-let categoriesRequest: Promise<Category[]> | null = undefined;
+let categoriesRequest: Promise<Category[]> | null = null;
 
 const loadCategories = async (): Promise<Category[]> => {
   if (!categoriesRequest) {
@@ -85,6 +86,7 @@ export function BrowseAds({
   const [view, setView] = usePersistedBrowseView("grid");
 
   const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
+  const [availableBrands, setAvailableBrands] = useState<BrowseBrandOption[]>([]);
 
 
 
@@ -152,6 +154,11 @@ export function BrowseAds({
   });
 
   const pageAds = useMemo(() => data?.data ?? [], [data]);
+  useEffect(() => {
+    if (page !== 1) return;
+    setAvailableBrands(buildBrowseBrandOptions(pageAds));
+  }, [page, pageAds]);
+
   // displayAds is derived from the query result — no need for separate state.
   // On page 1 we reset; on subsequent pages we append unique items.
   const displayAds = useMemo(
@@ -172,12 +179,6 @@ export function BrowseAds({
     query, priceRange, urlLocationId, globalLocationLabel,
     selectedBrands, showRadiusFilter, radiusKm, sort,
     isLoading, error, displayAds
-  );
-
-  // availableBrands is derived from page-1 results only.
-  const availableBrands = useMemo(
-    () => (page === 1 ? buildBrowseBrandOptions(pageAds) : []),
-    [page, pageAds]
   );
 
   useEffect(() => {
