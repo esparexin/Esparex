@@ -1,5 +1,5 @@
-import type { IAdmin } from '@esparex/core/models/Admin';
-import type { IBusiness } from '@esparex/core/models/Business';
+import type { IAdmin } from '../models/Admin';
+import type { IBusiness } from '../models/Business';
 import type { IAuthUser } from './auth';
 
 declare global {

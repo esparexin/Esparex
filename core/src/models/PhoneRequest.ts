@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { REQUEST_STATUS, REQUEST_STATUS_VALUES } from '@esparex/core/constants/enums/requestStatus';
+import { REQUEST_STATUS, REQUEST_STATUS_VALUES } from '../constants/enums/requestStatus';
 
 export interface IPhoneRequest extends Document {
     buyerId: mongoose.Types.ObjectId;
@@ -36,8 +36,8 @@ PhoneRequestSchema.index(
     { name: 'idx_phonereq_buyer_seller_entity_unique_idx', unique: true }
 );
 
-import { getUserConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 applyToJSONTransform(PhoneRequestSchema);
 const PhoneRequest: Model<IPhoneRequest> = (getUserConnection().models.PhoneRequest as Model<IPhoneRequest> | undefined) || getUserConnection().model<IPhoneRequest>('PhoneRequest', PhoneRequestSchema);

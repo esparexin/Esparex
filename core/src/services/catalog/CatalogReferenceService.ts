@@ -4,13 +4,13 @@
  * Re-exports the Mongoose model instances for generic handler calls.
  */
 
-import ServiceTypeModelImport from '@esparex/core/models/ServiceType';
-import ScreenSizeModelImport from '@esparex/core/models/ScreenSize';
-import CategoryModel from '@esparex/core/models/Category';
-import BrandModel from '@esparex/core/models/Brand';
-import AdModel from '@esparex/core/models/Ad';
-import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import ServiceTypeModelImport from '../../models/ServiceType';
+import ScreenSizeModelImport from '../../models/ScreenSize';
+import CategoryModel from '../../models/Category';
+import BrandModel from '../../models/Brand';
+import AdModel from '../../models/Ad';
+import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import { LISTING_STATUS } from "../../constants/enums/listingStatus";
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
 // Re-export model instances for generic handler calls in the controller layer
 export const ServiceTypeModel = ServiceTypeModelImport;

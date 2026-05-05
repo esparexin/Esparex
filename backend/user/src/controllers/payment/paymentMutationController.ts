@@ -14,7 +14,7 @@ import { ApiResponse } from "@shared/types/Api";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
 import { logBusiness, logSecurity } from '@esparex/core/utils/logger';
-import { getPrimaryPlanCreditCount } from "@shared/utils/planEntitlements";
+import { getPrimaryPlanCreditCount } from "@shared";
 
 /**
  * 1. CREATE ORDER

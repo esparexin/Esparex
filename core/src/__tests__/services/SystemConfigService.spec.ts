@@ -12,16 +12,16 @@ jest.mock("@esparex/core/utils/systemConfigHelper", () => ({
     invalidateSystemConfigCache: jest.fn(),
 }));
 
-import SystemConfig from "@esparex/core/models/SystemConfig";
+import SystemConfig from "../../models/SystemConfig";
 import {
     ensureSystemConfig,
     invalidateSystemConfigCache,
-} from "@esparex/core/utils/systemConfigHelper";
+} from "../../utils/systemConfigHelper";
 import {
     SystemConfigValidationError,
     getSystemConfigForRead,
     updateSystemConfigSections,
-} from "@esparex/core/services/SystemConfigService";
+} from "../../services/SystemConfigService";
 
 type MutableRecord = Record<string, unknown>;
 

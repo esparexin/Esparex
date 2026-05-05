@@ -1,11 +1,11 @@
-import logger from '@esparex/core/utils/logger';
+import logger from '../utils/logger';
 import type { Job } from 'bullmq';
 import {
     closeSchedulerQueue,
     registerSchedulerJobProcessors,
     registerSchedulerRepeatableJobs,
     type SchedulerJobName
-} from '@esparex/core/queues/schedulerQueue';
+} from '../queues/schedulerQueue';
 import { runExpireAdsJob } from '../jobs/expireAds.job';
 import { runSuspendExpiredBusinessesJob } from '../jobs/suspendExpiredBusinesses.job';
 import { runNotifyBusinessJob } from '../jobs/notifyBusiness.job';

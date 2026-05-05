@@ -13,7 +13,6 @@
 // ── geoPoint & radius ────────────────────────────────────────────────────────
 // GeoJSON type, coordinate validators, and distance math.
 export {
-    type GeoJSONPoint,
     isValidLongitude,
     isValidLatitude,
     isNonZeroLngLat,
@@ -31,7 +30,6 @@ export {
 // Shared primitives: enums, basic slug building, and level normalization.
 export {
     LOCATION_LEVELS,
-    type LocationLevel,
     normalizeLocationLevel,
     normalizeLocationNameForSearch,
     buildLocationSlug,
@@ -39,6 +37,5 @@ export {
 
 export {
     LOCATION_LEVELS as HIERARCHY_LEVELS,
-    type LocationLevel as HierarchyLevel,
     normalizeLocationLevel as normalizeHierarchyLevel,
 } from '../utils/locationPrimitives';

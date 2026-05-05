@@ -1,12 +1,12 @@
-import SmartAlert from '@esparex/core/models/SmartAlert';
-import AlertDeliveryLog from '@esparex/core/models/AlertDeliveryLog';
+import SmartAlert from '../models/SmartAlert';
+import AlertDeliveryLog from '../models/AlertDeliveryLog';
 import { Types } from 'mongoose';
-import logger from '@esparex/core/utils/logger';
-import { buildGeoNearStage } from '@esparex/core/utils/mongoGeoUtils';
+import logger from '../utils/logger';
+import { buildGeoNearStage } from '../utils/mongoGeoUtils';
 
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
+import { getCache, setCache } from '../utils/redisCache';
 import crypto from 'crypto';
-import { toObjectId } from '@esparex/core/utils/idUtils';
+import { toObjectId } from '../utils/idUtils';
 
 interface MatchableAlert {
     _id: Types.ObjectId;

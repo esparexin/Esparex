@@ -1,6 +1,6 @@
-import { NOTIFICATION_TYPE, type NotificationTypeValue } from "@esparex/core/constants/enums/notificationType";
+import { NOTIFICATION_TYPE, type NotificationTypeValue } from "../../constants/enums/notificationType";
 
-import User from "@esparex/core/models/User";
+import User from "../../models/User";
 
 type NotificationChannel = "push" | "email" | "sms" | "in-app";
 

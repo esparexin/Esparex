@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ObjectIdSchema } from "@shared/schemas/catalog.schema";
+import { ObjectIdSchema } from "@shared";
 import { LISTING_TYPE_VALUES } from "@shared/enums/listingType";
 
 /**

@@ -1,9 +1,9 @@
-import logger from '@esparex/core/utils/logger';
+import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
 import type { AdStatusChangedEvent } from '../LifecycleEventDispatcher';
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@esparex/core/utils/redisCache';
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
 import axios from 'axios';
-import { getFrontendInternalUrl } from '@esparex/core/utils/appUrl';
+import { getFrontendInternalUrl } from '../../utils/appUrl';
 
 const triggerNextJsRevalidation = async () => {
     try {

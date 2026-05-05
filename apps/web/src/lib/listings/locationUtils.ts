@@ -4,11 +4,11 @@ import {
     normalizeListingLocation,
     sanitizeMongoObjectId,
     formatLocationDisplay
-} from "@shared/listingUtils/locationUtils";
+} from "@shared";
 
 /**
  * 📍 Location Utilities for Listings — re-export barrel.
- * All logic lives in @shared/listingUtils/locationUtils (SSOT).
+ * All logic lives in @shared (SSOT).
  */
 
 export {

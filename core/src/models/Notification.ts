@@ -1,5 +1,5 @@
 import { Schema, Document, Model, Types } from 'mongoose';
-import { NOTIFICATION_TYPE_VALUES, NotificationTypeValue } from '@esparex/core/constants/enums/notificationType';
+import { NOTIFICATION_TYPE_VALUES, NotificationTypeValue } from '../constants/enums/notificationType';
 
 export interface INotification extends Document {
     userId: Types.ObjectId;
@@ -58,8 +58,8 @@ NotificationSchema.index({ isRead: 1, readAt: 1 }, { name: 'idx_notification_rea
 NotificationSchema.index({ userId: 1, dedupKey: 1 }, { unique: true, partialFilterExpression: { dedupKey: { $exists: true } }, name: 'idx_notification_dedup_idempotency_idx' });
 NotificationSchema.index({ createdAt: 1 }, { name: 'idx_notification_createdAt_ttl_idx', expireAfterSeconds: 7776000 }); // 90 days
 
-import { getUserConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 applyToJSONTransform(NotificationSchema);
 
 const modelName = 'Notification';

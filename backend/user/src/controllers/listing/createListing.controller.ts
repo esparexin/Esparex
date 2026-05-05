@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
 import * as adImageService from '@esparex/core/services/AdImageService';
+import { normalizeListingLocation } from '@esparex/shared';
 import type { AuthUser } from '../../types/auth.types';
 
 const IMMUTABLE_SELLER_ID_MESSAGE =
@@ -23,6 +24,16 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
                 details: [{ field: 'sellerId', message: IMMUTABLE_SELLER_ID_MESSAGE }]
             });
         }
+
+        const normalizedLocation = normalizeListingLocation(body.location);
+        if (!normalizedLocation || !normalizedLocation.coordinates) {
+            const { sendErrorResponse } = await import("@esparex/core/utils/errorResponse");
+            return sendErrorResponse(req, res, 400, 'Valid location with coordinates is required.', {
+                code: 'INVALID_LOCATION',
+                details: [{ field: 'location', message: 'Valid location with coordinates is required.' }]
+            });
+        }
+        body.location = normalizedLocation;
 
         const ad = await AdOrchestrator.createAd(body, {
             actor: 'USER',

@@ -1,4 +1,4 @@
-import { getLogger } from "@shared/observability";
+import { getLogger } from "@shared";
 
 const logger = getLogger('frontend');
 

@@ -13,7 +13,7 @@ import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
 import { respond } from "@esparex/core/utils/respond";
 import type { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@shared/types/Api";
-import type { Ad } from "@shared/schemas/ad.schema";
+import type { Ad } from "@shared";
 import type { AuthUser } from '../../types/auth.types';
 import type { ListingTypeValue } from "@esparex/core/constants/enums/listingType";
 

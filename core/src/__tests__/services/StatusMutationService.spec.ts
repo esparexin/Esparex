@@ -71,10 +71,10 @@ jest.mock("@esparex/core/utils/logger", () => ({
     default: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
 
-import { ACTOR_TYPE } from "@esparex/core/constants/enums/actor";
-import Ad from "@esparex/core/models/Ad";
-import { mutateStatusesBulk } from "@esparex/core/services/StatusMutationService";
-import { validateTransition } from "@esparex/core/services/LifecycleGuard";
+import { ACTOR_TYPE } from "../../constants/enums/actor";
+import Ad from "../../models/Ad";
+import { mutateStatusesBulk } from "../../services/StatusMutationService";
+import { validateTransition } from "../../services/LifecycleGuard";
 
 const mockAd = Ad as unknown as { findById: jest.Mock; find: jest.Mock };
 const mockValidate = validateTransition as jest.Mock;

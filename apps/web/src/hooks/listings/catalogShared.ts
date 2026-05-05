@@ -6,7 +6,7 @@ import type { ScreenSize } from "@/lib/api/user/masterData";
 import type { Category } from "@/lib/api/user/categories";
 import type { ListingCategory } from "@/types/listing";
 import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
-import type { CategoryFilter } from "@shared/schemas/catalog.schema";
+import type { CategoryFilter } from "@shared";
 
 export interface CategorySchemaType {
     categoryId: string;

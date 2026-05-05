@@ -3,7 +3,7 @@
 import { parseOpsArgs } from './context';
 import { getOpsCommand, opsCommands } from './commands';
 import { createOpsEmitter, writeRunArtifact } from './logger';
-import { OpsExecutionContext } from '@esparex/core/types';
+import { OpsExecutionContext } from '../../types';
 
 const randomSuffix = (): string => Math.random().toString(36).slice(2, 8);
 const runId = `${Date.now()}-${randomSuffix()}`;

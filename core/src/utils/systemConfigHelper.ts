@@ -1,5 +1,5 @@
-import SystemConfig, { ISystemConfig } from '@esparex/core/models/SystemConfig';
-import redis from '@esparex/core/config/redis';
+import SystemConfig, { ISystemConfig } from '../models/SystemConfig';
+import redis from '../config/redis';
 import logger from './logger';
 
 export const SYSTEM_CONFIG_KEY = 'global';

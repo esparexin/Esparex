@@ -14,7 +14,7 @@
  */
 
 import mongoose, { Connection } from 'mongoose';
-import logger from '@esparex/core/utils/logger';
+import logger from '../utils/logger';
 import { mongooseSerializationPlugin } from './mongooseSerializationPlugin';
 import { env } from './env';
 

@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
-import logger from '@esparex/core/utils/logger';
-import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
-import { getAdminAppUrl } from '@esparex/core/utils/appUrl';
-import { env } from '@esparex/core/config/env';
+import logger from '../utils/logger';
+import { getSystemConfigDoc } from '../utils/systemConfigHelper';
+import { getAdminAppUrl } from '../utils/appUrl';
+import { env } from '../config/env';
 
 // interface EmailOptions {
 //     to: string;

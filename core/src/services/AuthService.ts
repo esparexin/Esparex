@@ -1,25 +1,25 @@
 import axios from 'axios';
-import Plan from '@esparex/core/models/Plan';
-import UserPlan from '@esparex/core/models/UserPlan';
-import Otp from '@esparex/core/models/Otp';
-import User from '@esparex/core/models/User';
-import Business from '@esparex/core/models/Business';
-import { generateToken } from '@esparex/core/utils/auth';
-import { serializeDoc } from '@esparex/core/utils/serialize';
-import logger from '@esparex/core/utils/logger';
-import { generateSecureOtp } from '@esparex/core/utils/otpGenerator';
-import { normalizeBusinessStatus } from '@esparex/core/utils/businessStatus';
-import { hashOtp, verifyOtpHash } from '@esparex/core/utils/otpSecurity';
-import { env } from '@esparex/core/config/env';
+import Plan from '../models/Plan';
+import UserPlan from '../models/UserPlan';
+import Otp from '../models/Otp';
+import User from '../models/User';
+import Business from '../models/Business';
+import { generateToken } from '../utils/auth';
+import { serializeDoc } from '../utils/serialize';
+import logger from '../utils/logger';
+import { generateSecureOtp } from '../utils/otpGenerator';
+import { normalizeBusinessStatus } from '../utils/businessStatus';
+import { hashOtp, verifyOtpHash } from '../utils/otpSecurity';
+import { env } from '../config/env';
 import { 
     USER_STATUS 
-} from '@esparex/core/constants/enums/userStatus';
+} from '../constants/enums/userStatus';
 import { 
     canonicalizeToIndian, 
     getMobileVariants, 
     normalizeTo10Digits 
-} from '@esparex/core/utils/phoneUtils';
-import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
+} from '../utils/phoneUtils';
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../utils/cookieHelper';
 
 type AuthFailure = {
     success: false;

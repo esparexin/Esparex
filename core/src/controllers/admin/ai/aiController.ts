@@ -1,13 +1,13 @@
-import logger from '@esparex/core/utils/logger';
+import logger from '../../../utils/logger';
 import { Request, Response } from 'express';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { respond } from "@esparex/core/utils/respond";
+import { sendErrorResponse } from "../../../utils/errorResponse";
+import { respond } from "../../../utils/respond";
 import {
     AIRequestBody,
     executeAiRequest,
     getAiContext,
     isAIRequestType
-} from '@esparex/core/services/AiService';
+} from '../../../services/AiService';
 
 export const catalogSuggest = async (req: Request, res: Response) => {
     try {

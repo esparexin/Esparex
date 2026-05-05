@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import Report, { ReportTargetTypeValue } from '@esparex/core/models/Report';
-import Ad from '@esparex/core/models/Ad';
-import User from '@esparex/core/models/User';
-import Business from '@esparex/core/models/Business';
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@esparex/core/utils/redisCache';
-import logger from '@esparex/core/utils/logger';
-import { mutateStatus } from '@esparex/core/services/StatusMutationService';
-import { ACTOR_TYPE } from '@esparex/core/constants/enums/actor';
+import Report, { ReportTargetTypeValue } from '../models/Report';
+import Ad from '../models/Ad';
+import User from '../models/User';
+import Business from '../models/Business';
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
+import logger from '../utils/logger';
+import { mutateStatus } from './StatusMutationService';
+import { ACTOR_TYPE } from '../constants/enums/actor';
 
 const ACTIVE_REPORT_STATUSES = ['open', 'pending', 'reviewed'] as const;
 

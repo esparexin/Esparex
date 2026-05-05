@@ -1,10 +1,10 @@
 import { Types } from 'mongoose';
-import { Conversation } from '@esparex/core/models/Conversation';
-import Ad from '@esparex/core/models/Ad';
-import BlockedUser from '@esparex/core/models/BlockedUser';
-import logger from '@esparex/core/utils/logger';
+import { Conversation } from '../../models/Conversation';
+import Ad from '../../models/Ad';
+import BlockedUser from '../../models/BlockedUser';
+import logger from '../../utils/logger';
 import { isListingChatClosed } from '../ChatAvailabilityService';
-import type { IConversationDTO } from "@esparex/shared/contracts/chat.contracts";
+import type { IConversationDTO } from "@esparex/shared";
 import {
     PAGE_SIZE_INBOX,
     toConversationDto,

@@ -1,4 +1,4 @@
-import { calculateUserPlan } from "@esparex/core/services/PlanEngine";
+import { calculateUserPlan } from "../../services/PlanEngine";
 
 describe("PlanEngine", () => {
     it("does not double count AD_PACK credits when both legacy credits and canonical limits exist", () => {

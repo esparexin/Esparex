@@ -1,5 +1,5 @@
-import { redisConnection } from '@esparex/core/queues/redisConnection';
-import logger from '@esparex/core/utils/logger';
+import { redisConnection } from '../../queues/redisConnection';
+import logger from '../../utils/logger';
 
 export class NotificationVersionService {
     /**

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import ServiceType from '@esparex/core/models/ServiceType';
+import ServiceType from '../models/ServiceType';
 import { escapeRegExp } from './stringUtils';
 
 export const toServiceTypeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined => {

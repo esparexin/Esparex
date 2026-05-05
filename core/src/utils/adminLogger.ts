@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import AdminLog from '@esparex/core/models/AdminLog';
+import AdminLog from '../models/AdminLog';
 import logger from './logger';
 
 export type AdminLogTargetType =

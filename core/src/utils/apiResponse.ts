@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { serializeDoc } from '@esparex/core/utils/serialize';
-import { TraceContext } from "@esparex/shared/observability/trace";
+import { serializeDoc } from './serialize';
+import { TraceContext } from "@esparex/shared";
 
 export interface ApiResponseEnvelope<T = unknown> {
     success: boolean;

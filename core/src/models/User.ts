@@ -3,9 +3,9 @@ import { hasValidCoordinateArray } from '@esparex/shared';
 import {
   MOBILE_VISIBILITY,
   normalizeMobileVisibility,
-} from "@esparex/shared/constants/mobileVisibility";
-import { getUserConnection } from '@esparex/core/config/db';
-import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '@esparex/core/constants/enums/userStatus';
+} from "@esparex/shared";
+import { getUserConnection } from '../config/db';
+import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '../constants/enums/userStatus';
 
 export interface GeoJSONPoint {
   type: 'Point';

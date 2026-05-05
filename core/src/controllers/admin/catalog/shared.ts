@@ -11,10 +11,10 @@ import { Document, Model as MongooseModel } from 'mongoose';
 import { z } from 'zod';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import { respond, sendSuccessResponse } from "@esparex/core/utils/respond";
-import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "@esparex/core/utils/errorResponse";
-import { sendAdminError } from '@esparex/core/utils/adminBaseController';
-import { CatalogStatusValue, CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
+import { respond, sendSuccessResponse } from "../../../utils/respond";
+import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "../../../utils/errorResponse";
+import { sendAdminError } from '../../../utils/adminBaseController';
+import { CatalogStatusValue, CATALOG_STATUS } from '../../../constants/enums/catalogStatus';
 
 // Re-export SSOT validation helpers so controllers import from one place.
 import {
@@ -22,10 +22,10 @@ import {
     ACTIVE_BRAND_QUERY,
     getActiveCategoryIds,
     validateActiveCategories,
-} from '@esparex/core/services/catalog/CatalogValidationService';
+} from '../../../services/catalog/CatalogValidationService';
 
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
+import { logAdminAction } from '../../../utils/adminLogger';
+import { handlePaginatedContent } from "../../../utils/contentHandler";
 
 export type { CatalogStatusValue };
 export { 
@@ -76,7 +76,7 @@ export const getAdminActorId = (req: Request): string | undefined => {
  */
 export const asModel = <T extends Document>(model: MongooseModel<T>): MongooseModel<T> => model;
 
-// sendCatalogError is imported and re-exported from "@esparex/core/utils/errorResponse" (line above)
+// sendCatalogError is imported and re-exported from "../../../utils/errorResponse" (line above)
 
 /**
  * Send Zod validation error response mapping issues to field-level details

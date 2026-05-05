@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { isValidGeoPoint } from "@esparex/shared/utils/geoUtils";
+import { isValidGeoPoint } from "@esparex/shared";
 import { z } from 'zod';
-import { DANGEROUS_HTML_PATTERNS, SQL_INJECTION_PATTERNS } from "@esparex/shared/utils/securityPatterns";
+import { DANGEROUS_HTML_PATTERNS, SQL_INJECTION_PATTERNS } from "@esparex/shared";
 
 /**
  * CONTACT US FORM VALIDATOR

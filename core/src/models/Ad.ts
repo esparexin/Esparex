@@ -1,15 +1,15 @@
 import { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
-import softDeletePlugin, { ISoftDeleteDocument } from '@esparex/core/utils/softDeletePlugin';
+import softDeletePlugin, { ISoftDeleteDocument } from '../utils/softDeletePlugin';
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@esparex/shared';
-import { LISTING_STATUS, LISTING_STATUS_VALUES } from '@esparex/core/constants/enums/listingStatus';
-import { type AdStatusValue } from '@esparex/core/constants/enums/adStatus';
-import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/core/constants/enums/listingType';
-import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@esparex/core/constants/enums/moderationStatus';
-import { getUserConnection } from '@esparex/core/config/db';
+import { LISTING_STATUS, LISTING_STATUS_VALUES } from '../constants/enums/listingStatus';
+import { type AdStatusValue } from '../constants/enums/adStatus';
+import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '../constants/enums/listingType';
+import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '../constants/enums/moderationStatus';
+import { getUserConnection } from '../config/db';
 import Location from './Location';
-import logger from '@esparex/core/utils/logger';
-import { syncConversationAvailabilityForListing } from '@esparex/core/services/ChatAvailabilityService';
-import { generateUniqueSlug } from '@esparex/core/utils/slugGenerator';
+import logger from '../utils/logger';
+import { syncConversationAvailabilityForListing } from '../services/ChatAvailabilityService';
+import { generateUniqueSlug } from '../utils/slugGenerator';
 
 export interface IAd extends Document, ISoftDeleteDocument {
     title: string;
@@ -179,13 +179,28 @@ const AdSchema: Schema = new Schema({
         country: { type: String },
         display: { type: String },
         coordinates: {
-            type: { type: String, enum: ['Point'], default: 'Point' },
+            type: {
+                type: String,
+                enum: ['Point'],
+                required: true,
+                default: 'Point'
+            },
             coordinates: {
                 type: [Number],
                 required: true,
                 validate: {
-                    validator: (coords: number[]) => hasValidCoordinateArray(coords),
-                    message: 'Valid [longitude, latitude] coordinates are required.'
+                    validator: function (coords: number[]) {
+                        if (!coords || coords.length !== 2) return false;
+                        const [lng, lat] = coords;
+                        if (lng === 0 && lat === 0) return false;
+                        return (
+                            lng >= -180 &&
+                            lng <= 180 &&
+                            lat >= -90 &&
+                            lat <= 90
+                        );
+                    },
+                    message: 'Invalid coordinates: must be [longitude, latitude] within valid ranges and non-zero.'
                 }
             }
         },

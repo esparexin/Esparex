@@ -45,21 +45,21 @@ import mongoose from 'mongoose';
 import {
     findServiceForUpdate,
     updateServiceByOwner,
-} from '@esparex/core/services/service/ServiceMutationRepository';
-import { ListingMutationService } from '@esparex/core/services/ListingMutationService';
-import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
+} from '../../services/service/ServiceMutationRepository';
+import { ListingMutationService } from '../../services/ListingMutationService';
+import * as AdOrchestrator from '../../services/AdOrchestrator';
 import {
     getCategorySelectionMode,
     validateServiceCategoryCapability,
-} from '@esparex/core/services/catalog/CatalogValidationService';
-import { resolveMasterDataIds } from '@esparex/core/utils/masterDataResolver';
-import { resolveServiceTypes } from '@esparex/core/utils/serviceTypeResolver';
-import { BUSINESS_STATUS } from '@esparex/core/constants/enums/businessStatus';
+} from '../../services/catalog/CatalogValidationService';
+import { resolveMasterDataIds } from '../../utils/masterDataResolver';
+import { resolveServiceTypes } from '../../utils/serviceTypeResolver';
+import { BUSINESS_STATUS } from '../../constants/enums/businessStatus';
 import {
     createServiceMutation,
     type ServiceBusinessContext,
     updateServiceMutation,
-} from '@esparex/core/services/service/ServiceMutationService';
+} from '../../services/service/ServiceMutationService';
 
 const mockedFindServiceForUpdate = findServiceForUpdate as jest.Mock;
 const mockedUpdateServiceByOwner = updateServiceByOwner as jest.Mock;

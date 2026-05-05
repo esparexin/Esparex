@@ -10,8 +10,9 @@ import { z } from 'zod';
 import { commonSchemas } from './common';
 import {
     AdPayloadSchema as SharedAdPayloadSchema,
-    PartialAdPayloadSchema as SharedPartialAdPayloadSchema
-} from "@esparex/shared/schemas/adPayload.schema";
+    PartialAdPayloadSchema as SharedPartialAdPayloadSchema,
+    coordinatesSchema
+} from "@esparex/shared";
 
 /**
  * Seller type enum
@@ -70,7 +71,7 @@ export const createAdSchema = SharedAdPayloadSchema;
  */
 export const updateAdSchema = SharedPartialAdPayloadSchema.passthrough();
 
-import { normalizeStatus } from "@esparex/shared/utils/statusNormalization";
+import { normalizeStatus } from "@esparex/shared";
 
 /**
  * Get Ads Query Schema
@@ -103,7 +104,7 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     radiusKm: z.string().transform(Number).pipe(z.number().min(0).max(500)).optional(),
     lat: z.string().transform(Number).pipe(z.number().min(-90).max(90)).optional(),
     lng: z.string().transform(Number).pipe(z.number().min(-180).max(180)).optional(),
-    coordinates: z.any().optional(),
+    coordinates: coordinatesSchema.optional(),
     cursor: commonSchemas.objectId.optional(),
 });
 

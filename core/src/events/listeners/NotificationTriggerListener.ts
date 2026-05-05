@@ -1,8 +1,8 @@
 import crypto from 'crypto';
-import logger from '@esparex/core/utils/logger';
+import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
-import { notificationMatchQueue } from '@esparex/core/queues/adQueue';
-import { assertListingApprovedEvent } from '@esparex/core/services/LifecyclePolicyGuard';
+import { notificationMatchQueue } from '../../queues/adQueue';
+import { assertListingApprovedEvent } from '../../services/LifecyclePolicyGuard';
 
 export const registerNotificationTriggerListener = () => {
     lifecycleEvents.on('listing.approved', async (payload) => {

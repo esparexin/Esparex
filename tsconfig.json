@@ -5,8 +5,8 @@
     "moduleResolution": "NodeNext",
     "baseUrl": ".",
     "paths": {
-      "@core/*": ["core/src/*"],
-      "@shared/*": ["shared/*"]
+      "@esparex/core/*": ["core/src/*"],
+      "@esparex/shared": ["shared/src"]
     },
     "strict": true,
     "skipLibCheck": true,

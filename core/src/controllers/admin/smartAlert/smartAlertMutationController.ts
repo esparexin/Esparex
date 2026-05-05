@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { respond } from "@esparex/core/utils/respond";
-import { ApiResponse } from "@esparex/shared/types/Api";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { AppError } from '@esparex/core/utils/AppError';
+import { respond } from "../../../utils/respond";
+import { ApiResponse } from "@esparex/shared";
+import { sendErrorResponse } from "../../../utils/errorResponse";
+import { AppError } from '../../../utils/AppError';
 import {
     getErrorMessage,
     getRequiredAlertId,
@@ -13,7 +13,7 @@ import {
     deleteSmartAlertMutation,
     toggleSmartAlertStatusMutation,
     updateSmartAlertMutation,
-} from '@esparex/core/services/smartAlert/SmartAlertMutationService';
+} from '../../../services/smartAlert/SmartAlertMutationService';
 
 const sendSmartAlertError = (req: Request, res: Response, error: unknown) => {
     const appError = error instanceof AppError ? error : null;

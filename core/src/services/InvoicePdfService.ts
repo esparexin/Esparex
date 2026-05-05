@@ -1,6 +1,6 @@
-import type { IInvoice } from '@esparex/core/models/Invoice';
-import { uploadToS3 } from '@esparex/core/utils/s3';
-import logger from '@esparex/core/utils/logger';
+import type { IInvoice } from '../models/Invoice';
+import { uploadToS3 } from '../utils/s3';
+import logger from '../utils/logger';
 
 type InvoiceUserLike = {
     name?: string;

@@ -8,7 +8,7 @@
  */
 
 import { z } from 'zod';
-import bootstrapLogger from '@esparex/core/utils/bootstrapLogger';
+import bootstrapLogger from '../utils/bootstrapLogger';
 import {
     validateProductionEnvOrThrow,
     validateS3BucketEnvAliasOrThrow,

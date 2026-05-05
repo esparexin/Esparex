@@ -6,12 +6,22 @@ export type LocationLevel =
     | "area"
     | "village";
 
-export type CanonicalGeoPoint = {
+export type GeoJSONPoint = {
     type: "Point";
     coordinates: [number, number]; // [lng, lat]
 };
 
-export type LocationCoordinates = CanonicalGeoPoint;
+/**
+ * SSOT: Canonical Listing Location Contract
+ * Used for all listing-related operations.
+ */
+export interface ListingLocation {
+    display: string;
+    city: string;
+    state: string;
+    country: string;
+    coordinates?: GeoJSONPoint;
+}
 
 export interface Location {
     id: string;
@@ -19,22 +29,16 @@ export interface Location {
     parentId?: string | null;
     path?: string[];
     slug?: string;
-    name: string;        // Specific area/city name
-    display: string;     // Formatted joint name (e.g., "Andheri East, Mumbai")
+    name: string;
+    display: string;
     displayName?: string;
     city: string;
     state: string;
     country: string;
     pincode?: string;
     level: LocationLevel;
-    coordinates: LocationCoordinates; // [lng, lat]
+    coordinates: GeoJSONPoint;
     isActive: boolean;
     isPopular: boolean;
     verificationStatus?: "pending" | "verified" | "rejected";
-    priority?: number;
-    tier?: number;
-    aliases?: string[];
-    distance?: number;    // Calculated distance for nearby searches
-    createdAt?: string | Date;
-    updatedAt?: string | Date;
 }

@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
-import { env } from '@esparex/core/config/env';
-import Ad from '@esparex/core/models/Ad';
-import Boost from '@esparex/core/models/Boost';
-import { buildAdMatchStage } from "@esparex/core/services/ad/AdSearchService";
-import { buildHomeFeedPipeline } from "@esparex/core/services/ad/AdFeedService";
-import type { AdFilters } from "@esparex/core/services/ad/_shared/adFilterHelpers";
-import { normalizeAdImagesForResponse } from "@esparex/core/services/adQuery/AdQueryHelpers";
-import { buildGeoNearStage, normalizeGeoInput } from '@esparex/core/utils/mongoGeoUtils';
-import type { HomeFeedResponse } from "@esparex/shared/types/Api";
-import logger from '@esparex/core/utils/logger';
+import { env } from '../../config/env';
+import Ad from '../../models/Ad';
+import Boost from '../../models/Boost';
+import { buildAdMatchStage } from "../ad/AdSearchService";
+import { buildHomeFeedPipeline } from "../ad/AdFeedService";
+import type { AdFilters } from "../ad/_shared/adFilterHelpers";
+import { normalizeAdImagesForResponse } from "../adQuery/AdQueryHelpers";
+import { buildGeoNearStage, normalizeGeoInput } from '../../utils/mongoGeoUtils';
+import type { HomeFeedResponse } from "@esparex/shared";
+import logger from '../../utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';
 import { HomeFeedRequest, ParsedHomeFeedCursor } from './FeedCursorService';
 import { 

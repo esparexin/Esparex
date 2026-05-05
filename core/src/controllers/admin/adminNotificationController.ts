@@ -1,24 +1,24 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 
-import { NOTIFICATION_TYPE } from "@esparex/shared/enums/notificationType";
-import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
+import { NOTIFICATION_TYPE } from "@esparex/shared";
+import { NotificationIntent } from "../../domain/NotificationIntent";
 import {
     createNotificationLog,
     createScheduledNotification,
     getNotificationHistory,
     searchNotificationRecipients,
-} from "@esparex/core/services/AdminNotificationService";
+} from "../../services/AdminNotificationService";
 import {
     getPaginationParams,
     sendAdminError,
     sendSuccessResponse,
-} from '@esparex/core/utils/adminBaseController';
-import { logAdminAction } from "@esparex/core/utils/adminLogger";
-import { NotificationDispatcher } from "@esparex/core/services/notification/NotificationDispatcher";
-import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
-import { type IUser } from "@esparex/core/models/User";
-import { respond } from "@esparex/core/utils/respond";
+} from '../../utils/adminBaseController';
+import { logAdminAction } from "../../utils/adminLogger";
+import { NotificationDispatcher } from "../../services/notification/NotificationDispatcher";
+import { createAdminNotificationTargetCursor } from "../../services/notification/AdminNotificationTargetingService";
+import { type IUser } from "../../models/User";
+import { respond } from "../../utils/respond";
 
 const BATCH_SIZE = 500;
 

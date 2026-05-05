@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '@esparex/core/config/db';
+import { getUserConnection } from '../config/db';
 
 export interface IPhoneRevealLog extends Document {
     buyerId: mongoose.Types.ObjectId;

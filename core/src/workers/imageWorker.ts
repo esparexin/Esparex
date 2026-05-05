@@ -3,9 +3,9 @@ import { Worker } from "bullmq";
 import sharp from "sharp";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { redisConnection } from "../queues/redisConnection";
-import { s3Client, getBucketName, extractS3KeyFromUrl, uploadToS3, deleteFromS3ByKey } from "@esparex/core/utils/s3";
-import Ad from "@esparex/core/models/Ad";
-import logger from "@esparex/core/utils/logger";
+import { s3Client, getBucketName, extractS3KeyFromUrl, uploadToS3, deleteFromS3ByKey } from "../utils/s3";
+import Ad from "../models/Ad";
+import logger from "../utils/logger";
 import { ImageOptimizationJobPayload } from "../queues/imageQueue";
 
 // Use a strict concurrency of 2 to avoid memory overloads when processing 10MB raw JPEGs natively.

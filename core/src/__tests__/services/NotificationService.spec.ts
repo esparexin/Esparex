@@ -51,9 +51,9 @@ jest.mock("@esparex/core/domain/NotificationIntent", () => ({
     NotificationIntent: jest.fn().mockImplementation((payload) => payload),
 }));
 
-import User from "@esparex/core/models/User";
-import { getSystemConfigDoc } from "@esparex/core/utils/systemConfigHelper";
-import { registerToken, sendNotification } from "@esparex/core/services/NotificationService";
+import User from "../../models/User";
+import { getSystemConfigDoc } from "../../utils/systemConfigHelper";
+import { registerToken, sendNotification } from "../../services/NotificationService";
 
 const mockedUser = User as unknown as {
     bulkWrite: jest.Mock;

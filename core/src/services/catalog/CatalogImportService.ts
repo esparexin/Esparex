@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import Category, { ICategory } from '@esparex/core/models/Category';
-import Brand from '@esparex/core/models/Brand';
-import ProductModel from '@esparex/core/models/Model';
+import Category, { ICategory } from '../../models/Category';
+import Brand from '../../models/Brand';
+import ProductModel from '../../models/Model';
 import CatalogOrchestrator from '../catalog/CatalogOrchestrator';
-import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
+import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
 
 interface ImportResult {
     success: number;

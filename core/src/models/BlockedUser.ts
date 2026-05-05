@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IBlockedUser extends Document {
     blockerId: mongoose.Types.ObjectId;

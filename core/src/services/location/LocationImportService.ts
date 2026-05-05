@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { normalizeLocationInput } from '@esparex/core/utils/locationInputNormalizer';
+import { normalizeLocationInput } from '../../utils/locationInputNormalizer';
 
 interface ImportResult {
     success: number;

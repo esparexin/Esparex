@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@esparex/core/types';
+import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
 import { connectOpsDb } from './commandUtils';
 
 interface LocationDoc {

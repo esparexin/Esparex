@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { respond } from "@esparex/core/utils/respond";
+import logger from '../../../utils/logger';
+import { sendErrorResponse } from "../../../utils/errorResponse";
+import { respond } from "../../../utils/respond";
 import {
   adminListConversations,
   adminGetConversation,
@@ -9,12 +9,12 @@ import {
   adminMuteConversation,
   adminExportConversation,
   resolveReport,
-} from '@esparex/core/services/ChatService';
+} from '../../../services/ChatService';
 import {
   adminListQuerySchema,
   adminDeleteMessageSchema,
   adminMuteSchema,
-} from '@esparex/core/validators/chat.validator';
+} from '../../../validators/chat.validator';
 
 /* -------------------------------------------------------------------------- */
 /* Helper                                                                      */

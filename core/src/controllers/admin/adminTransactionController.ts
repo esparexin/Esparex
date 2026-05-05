@@ -3,8 +3,8 @@ import {
     sendSuccessResponse, 
     sendAdminError,
     sendPaginatedResponse 
-} from '@esparex/core/utils/adminBaseController';
-import * as transactionService from '@esparex/core/services/TransactionService';
+} from '../../utils/adminBaseController';
+import * as transactionService from '../../services/TransactionService';
 
 /**
  * Get all transactions with pagination and filtering

@@ -1,16 +1,16 @@
 import mongoose from 'mongoose';
-import { AppError } from '@esparex/core/utils/AppError';
-import logger from '@esparex/core/utils/logger';
-import Ad, { type IAd } from '@esparex/core/models/Ad';
-import { getUserConnection } from '@esparex/core/config/db';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
-import { LIFECYCLE_STATUS } from '@esparex/core/constants/enums/lifecycle';
-import { NOTIFICATION_TYPE } from '@esparex/core/constants/enums/notificationType';
-import { AdContext } from '@esparex/core/types/ad.types';
-import { generateUniqueSlug } from '@esparex/core/utils/slugGenerator';
+import { AppError } from '../../utils/AppError';
+import logger from '../../utils/logger';
+import Ad, { type IAd } from '../../models/Ad';
+import { getUserConnection } from '../../config/db';
+import { LISTING_STATUS } from "../../constants/enums/listingStatus";
+import { LIFECYCLE_STATUS } from '../../constants/enums/lifecycle';
+import { NOTIFICATION_TYPE } from '../../constants/enums/notificationType';
+import { AdContext } from '../../types/ad.types';
+import { generateUniqueSlug } from '../../utils/slugGenerator';
 import { AdCreationService } from '../AdCreationService';
 import { mutateStatus } from '../StatusMutationService';
-import { enqueueImageOptimization } from '@esparex/core/queues/imageQueue';
+import { enqueueImageOptimization } from '../../queues/imageQueue';
 
 export const updateAdLogic = async (
     adId: string,

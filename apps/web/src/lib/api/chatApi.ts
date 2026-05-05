@@ -10,7 +10,7 @@ import type {
   IConversationListResponse,
   IMessageListResponse,
   IChatSendResponse,
-} from "@shared/contracts/chat.contracts";
+} from "@shared";
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                       */

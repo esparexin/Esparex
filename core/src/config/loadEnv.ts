@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_PATH?.includes('di
  */
 
 import './env'; // This will validate env vars on import and throw if invalid
-import logger from '@esparex/core/utils/logger';
+import logger from '../utils/logger';
 
 if (process.env.NODE_ENV !== 'test' && process.env.STARTUP_VERBOSE === 'true') {
     logger.info('✅ Environment variables loaded and validated');

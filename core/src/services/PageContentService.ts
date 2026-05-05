@@ -1,4 +1,4 @@
-import PageContent from '@esparex/core/models/PageContent';
+import PageContent from '../models/PageContent';
 
 export const findContentBySlug = async (slug: string) => {
     return PageContent.findOne({ slug });

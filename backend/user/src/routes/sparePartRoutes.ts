@@ -11,7 +11,7 @@ import { createListingValidator } from '../middleware/listing.validator';
 import { phoneRevealLimiter, mutationLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
-import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from "@shared/schemas/sparePartPayload.schema";
+import { SparePartPayloadSchema, PartialSparePartPayloadSchema } from "@shared";
 import { requireListingType } from '../middleware/requireListingType';
 import { LISTING_TYPE } from "@shared/enums/listingType";
 import logger from "@esparex/core/utils/logger";

@@ -1,17 +1,17 @@
 import 'dotenv/config';
 import fs from 'fs';
 import { Types } from 'mongoose';
-import { connectDB } from '@esparex/core/config/db';
-import User from '@esparex/core/models/User';
-import Ad from '@esparex/core/models/Ad';
-import Category from '@esparex/core/models/Category';
-import ServiceType from '@esparex/core/models/ServiceType';
-import SparePart from '@esparex/core/models/SparePart';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
-import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
-import { MODERATION_STATUS } from '@esparex/core/constants/enums/moderationStatus';
-import { MOBILE_VISIBILITY } from "@esparex/shared/constants/mobileVisibility";
-import logger from '@esparex/core/utils/logger';
+import { connectDB } from '../config/db';
+import User from '../models/User';
+import Ad from '../models/Ad';
+import Category from '../models/Category';
+import ServiceType from '../models/ServiceType';
+import SparePart from '../models/SparePart';
+import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { LISTING_TYPE } from '../constants/enums/listingType';
+import { MODERATION_STATUS } from '../constants/enums/moderationStatus';
+import { MOBILE_VISIBILITY } from "@esparex/shared";
+import logger from '../utils/logger';
 
 type ListingFixtureType = 'ad' | 'service' | 'spare_part';
 type RevealExpectation = 'mobile' | 'masked' | 'request_only' | 'hidden';
@@ -140,9 +140,9 @@ async function resolveCategoryFor(type: ListingFixtureType) {
   const category = await Category.findOne({
     isDeleted: { $ne: true },
     isActive: true,
-    status: { $in: ['live', 'active'] as unknown[] },
+    status: { $in: ['live', 'active'] },
     ...typeSelector,
-  } as unknown)
+  } as any)
     .sort({ updatedAt: -1 })
     .select('_id name slug serviceSelectionMode')
     .lean<{ _id: Types.ObjectId; name: string; slug: string; serviceSelectionMode?: 'single' | 'multi' } | null>();

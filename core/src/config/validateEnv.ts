@@ -1,6 +1,6 @@
 /* global NodeJS */
-import bootstrapLogger from '@esparex/core/utils/bootstrapLogger';
-import { inferCookieDomainFromEnv, requiresSharedCookieDomain } from '@esparex/core/utils/originConfig';
+import bootstrapLogger from '../utils/bootstrapLogger';
+import { inferCookieDomainFromEnv, requiresSharedCookieDomain } from '../utils/originConfig';
 
 const REQUIRED_PRODUCTION_ENV_VARS = [
     'RAZORPAY_WEBHOOK_SECRET',

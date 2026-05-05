@@ -1,6 +1,6 @@
 import { ClientSession } from 'mongoose';
 import * as adImageService from './AdImageService';
-import logger from '@esparex/core/utils/logger';
+import logger from '../utils/logger';
 
 export interface ImageMeta {
     url: string;

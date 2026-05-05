@@ -1,5 +1,5 @@
 import { Schema, Document, Types, Model } from 'mongoose'
-import { getUserConnection } from '@esparex/core/config/db'
+import { getUserConnection } from '../config/db'
 
 export interface ISmartAlert extends Document {
   userId: Types.ObjectId

@@ -6,7 +6,7 @@
 
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
 import {
     sendCatalogError,
     QueryRecord,
@@ -20,14 +20,14 @@ import {
     sendSuccessResponse,
     handlePaginatedContent
 } from './shared';
-import { validateScreenSizeRelations } from '@esparex/core/services/catalog/CatalogValidationService';
+import { validateScreenSizeRelations } from '../../../services/catalog/CatalogValidationService';
 import {
     screenSizeCreateSchema,
     screenSizeUpdateSchema,
     serviceTypeCreateSchema,
     serviceTypeUpdateSchema
-} from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
+} from '../../../validators/catalog.validator';
+import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import {
     ServiceTypeModel,
     ScreenSizeModel,
@@ -37,7 +37,7 @@ import {
     checkServiceTypeDependencies,
     findScreenSizeById,
     getActiveBrandsForScreenSizes,
-} from '@esparex/core/services/catalog/CatalogReferenceService';
+} from '../../../services/catalog/CatalogReferenceService';
 
 const toOptionalString = (value: unknown): string | undefined => {
     if (typeof value === 'string') {

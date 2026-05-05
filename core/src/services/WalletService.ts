@@ -1,9 +1,9 @@
 import { ClientSession } from 'mongoose';
-import UserWallet from '@esparex/core/models/UserWallet';
-import Transaction, { type ITransaction } from '@esparex/core/models/Transaction';
-import { getUserConnection } from '@esparex/core/config/db';
-import { AppError } from '@esparex/core/utils/AppError';
-import { getPrimaryPlanCreditCount } from "@esparex/shared/utils/planEntitlements";
+import UserWallet from '../models/UserWallet';
+import Transaction, { type ITransaction } from '../models/Transaction';
+import { getUserConnection } from '../config/db';
+import { AppError } from '../utils/AppError';
+import { getPrimaryPlanCreditCount } from "@esparex/shared";
 
 
 export interface WalletAmount {

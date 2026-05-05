@@ -21,11 +21,11 @@
  */
 
 import mongoose from 'mongoose';
-import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@esparex/core/types';
-import { CATALOG_STATUS } from "@esparex/core/constants/enums/catalogStatus";
-import { USER_STATUS } from "@esparex/core/constants/enums/userStatus";
+import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
+import { CATALOG_STATUS } from "../../../constants/enums/catalogStatus";
+import { USER_STATUS } from "../../../constants/enums/userStatus";
 import { connectOpsDb } from './commandUtils';
-import { closeDB } from '@esparex/core/config/db';
+import { closeDB } from '../../../config/db';
 import { installCatalogPromotionListener } from '../../../events/listeners/CatalogPromotionListener';
 
 

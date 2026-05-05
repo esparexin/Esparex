@@ -1,11 +1,11 @@
 import { Types } from 'mongoose';
-import { Conversation } from '@esparex/core/models/Conversation';
-import { ChatMessage } from '@esparex/core/models/ChatMessage';
-import Ad from '@esparex/core/models/Ad';
+import { Conversation } from '../../models/Conversation';
+import { ChatMessage } from '../../models/ChatMessage';
+import Ad from '../../models/Ad';
 import { isListingChatClosed } from '../ChatAvailabilityService';
-import logger from '@esparex/core/utils/logger';
-import { NOTIFICATION_TYPE } from '@esparex/core/constants/enums/notificationType';
-import type { IChatAttachment } from '@esparex/core/models/ChatMessage';
+import logger from '../../utils/logger';
+import { NOTIFICATION_TYPE } from '../../constants/enums/notificationType';
+import type { IChatAttachment } from '../../models/ChatMessage';
 import {
     PAGE_SIZE_MESSAGES,
     sanitizeText,

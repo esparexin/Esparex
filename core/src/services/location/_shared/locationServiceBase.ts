@@ -8,20 +8,20 @@
 
 export { default as mongoose } from 'mongoose';
 export { default as https } from 'https';
-export { default as Location } from '@esparex/core/models/Location';
-export { default as AdminBoundary } from '@esparex/core/models/AdminBoundary';
-export { default as LocationAnalytics } from '@esparex/core/models/LocationAnalytics';
-export { default as logger } from '@esparex/core/utils/logger';
-export { escapeRegExp, toTitleCase } from '@esparex/core/utils/stringUtils';
+export { default as Location } from '../../../models/Location';
+export { default as AdminBoundary } from '../../../models/AdminBoundary';
+export { default as LocationAnalytics } from '../../../models/LocationAnalytics';
+export { default as logger } from '../../../utils/logger';
+export { escapeRegExp, toTitleCase } from '../../../utils/stringUtils';
 export { formatLocationResponse } from '../../../lib/location/formatLocation';
 export { toGeoPoint } from '@esparex/shared';
-export { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '@esparex/core/utils/redisCache';
-export { AppError } from '@esparex/core/utils/AppError';
+export { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../../utils/redisCache';
+export { AppError } from '../../../utils/AppError';
 export {
     buildLocationSummary,
     loadHierarchyMapForLocations,
-} from '@esparex/core/utils/locationHierarchy';
-export type { CanonicalLocationDoc } from '@esparex/core/utils/locationHierarchy';
+} from '../../../utils/locationHierarchy';
+export type { CanonicalLocationDoc } from '../../../utils/locationHierarchy';
 export {
     asString,
     buildDisplay,
@@ -35,8 +35,8 @@ export {
     normalizeLocationInput,
     normalizeLocationLevel,
     normalizeLocationNameForSearch,
-} from '@esparex/core/utils/locationInputNormalizer';
-export type { LocationLevel } from '@esparex/core/utils/locationInputNormalizer';
+} from '../../../utils/locationInputNormalizer';
+export type { LocationLevel } from '../../../utils/locationInputNormalizer';
 export type {
     LatLng,
     GeoJSONPoint,

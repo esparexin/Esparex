@@ -1,15 +1,15 @@
 
 import { Request, Response } from 'express';
 import { Model, Document } from 'mongoose';
-import { LISTING_TYPE_VALUES, type ListingTypeValue } from "@esparex/shared/enums/listingType";
+import { LISTING_TYPE_VALUES, type ListingTypeValue } from "@esparex/shared";
 import {
     getPaginationParams,
     sendPaginatedResponse,
     sendSuccessResponse,
     sendAdminError
 } from './adminBaseController';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
-import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
+import { escapeRegExp } from './stringUtils';
+import { getCache, setCache, CACHE_TTLS } from './redisCache';
 
 interface ContentOptions {
     searchFields?: string[];

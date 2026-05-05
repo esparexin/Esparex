@@ -46,17 +46,17 @@ jest.mock("@esparex/core/utils/redisCache", () => ({
     CACHE_TTLS: { REVERSE_GEOCODE: 300 },
 }));
 
-import Location from "@esparex/core/models/Location";
-import AdminBoundary from "@esparex/core/models/AdminBoundary";
+import Location from "../../models/Location";
+import AdminBoundary from "../../models/AdminBoundary";
 import {
     getAreasByCityId,
     getCitiesByStateId,
     getDefaultCenterLocation,
     getStateLocations
-} from "@esparex/core/services/location/LocationHierarchyService";
-import { lookupLocationByPincode } from "@esparex/core/services/location/LocationSearchService";
-import { normalizeLocation } from "@esparex/core/services/location/LocationNormalizer";
-import { reverseGeocode } from "@esparex/core/services/location/ReverseGeocodeService";
+} from "../../services/location/LocationHierarchyService";
+import { lookupLocationByPincode } from "../../services/location/LocationSearchService";
+import { normalizeLocation } from "../../services/location/LocationNormalizer";
+import { reverseGeocode } from "../../services/location/ReverseGeocodeService";
 
 const mockLocationModel = Location as unknown as {
     findOne: jest.Mock;

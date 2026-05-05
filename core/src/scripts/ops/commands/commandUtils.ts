@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
-import { connectDB, getUserConnection } from '@esparex/core/config/db';
+import { connectDB, getUserConnection } from '../../../config/db';
 
 /** Resolve the MongoDB connection URI from environment variables. */
 export const getMongoUri = (): string => {

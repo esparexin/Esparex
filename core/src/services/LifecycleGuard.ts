@@ -1,5 +1,5 @@
-import { LIFECYCLE_STATUS } from '@esparex/core/constants/enums/lifecycle';
-import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
+import { LIFECYCLE_STATUS } from '../constants/enums/lifecycle';
+import { LISTING_TYPE } from '../constants/enums/listingType';
 
 /**
  * Ad Transitions

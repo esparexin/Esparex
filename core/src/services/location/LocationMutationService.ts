@@ -1,6 +1,6 @@
 import mongoose, { type HydratedDocument } from 'mongoose';
-import Location from '@esparex/core/models/Location';
-import type { ILocation } from '@esparex/core/models/Location';
+import Location from '../../models/Location';
+import type { ILocation } from '../../models/Location';
 import { LocationCacheService } from './LocationCacheService';
 
 

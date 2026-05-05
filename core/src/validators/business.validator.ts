@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { commonSchemas, sanitizeString } from './common';
-import { normalizeTo10Digits } from '@esparex/core/utils/phoneUtils';
-import { BUSINESS_LIMITS } from "@esparex/shared/schemas/common.schemas";
-import { validateText } from "@esparex/shared/utils/textValidator";
-import { ID_PROOF_TYPE_VALUES } from '@esparex/core/constants/enums/idProofType';
-import { BUSINESS_STATUS } from '@esparex/core/constants/enums/businessStatus';
+import { normalizeTo10Digits } from '../utils/phoneUtils';
+import { BUSINESS_LIMITS } from "@esparex/shared";
+import { validateText } from "@esparex/shared";
+import { ID_PROOF_TYPE_VALUES } from '../constants/enums/idProofType';
+import { BUSINESS_STATUS } from '../constants/enums/businessStatus';
 
 const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
 const FULL_ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;

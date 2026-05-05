@@ -6,8 +6,8 @@
 
 import { Request, Response } from 'express';
 import slugify from 'slugify';
-import { getAdminConnection } from '@esparex/core/config/db';
-import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
+import { getAdminConnection } from '../../../config/db';
+import { handlePaginatedContent } from "../../../utils/contentHandler";
 import {
     CategoryModel,
     getCatalogEntityCounts,
@@ -16,19 +16,19 @@ import {
     updateCategorySchemaById,
     findCategoryByIdWithSession,
     softDeleteCategoryById,
-} from '@esparex/core/services/catalog/CatalogCategoryService';
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { AppError } from '@esparex/core/utils/AppError';
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
+} from '../../../services/catalog/CatalogCategoryService';
+import { logAdminAction } from '../../../utils/adminLogger';
+import { AppError } from '../../../utils/AppError';
+import { sendSuccessResponse } from "../../../utils/respond";
 // import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
-import { clearCategoryCanonicalCache } from '@esparex/core/utils/categoryCanonical';
+import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
+import { clearCategoryCanonicalCache } from '../../../utils/categoryCanonical';
 // Note: constants/categorySchema was removed; category filters are now DB-stored.
 import {
     categoryCreateSchema,
     categoryUpdateSchema,
     categorySchemaUpdateBodySchema
-} from '@esparex/core/validators/catalog.validator';
+} from '../../../validators/catalog.validator';
 import {
     hasAdminAccess,
     sendCatalogError,
@@ -37,8 +37,8 @@ import {
     sendValidationError,
     handleCatalogToggleStatus
 } from './shared';
-import { CATALOG_STATUS } from "@esparex/shared/enums/catalogStatus";
-import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
+import { CATALOG_STATUS } from "@esparex/shared";
+import { getCache, setCache, CACHE_TTLS } from '../../../utils/redisCache';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Category operations delegated to shared.ts or CatalogOrchestrator.

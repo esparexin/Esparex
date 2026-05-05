@@ -31,12 +31,12 @@ jest.mock('@esparex/core/models/User', () => ({
   },
 }));
 
-import { Conversation } from '@esparex/core/models/Conversation';
-import { ChatMessage } from '@esparex/core/models/ChatMessage';
-import { ChatReport } from '@esparex/core/models/ChatReport';
-import Ad from '@esparex/core/models/Ad';
-import { User } from '@esparex/core/models/User';
-import { adminListConversations } from '@esparex/core/services/ChatService';
+import { Conversation } from '../../models/Conversation';
+import { ChatMessage } from '../../models/ChatMessage';
+import { ChatReport } from '../../models/ChatReport';
+import Ad from '../../models/Ad';
+import { User } from '../../models/User';
+import { adminListConversations } from '../../services/ChatService';
 
 const mockedConversation = Conversation as unknown as {
   find: jest.Mock;

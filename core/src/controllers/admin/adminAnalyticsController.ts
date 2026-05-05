@@ -1,7 +1,7 @@
-import logger from '@esparex/core/utils/logger';
+import logger from '../../utils/logger';
 import { Request, Response } from 'express';
-import { sendSuccessResponse, sendAdminError } from '@esparex/core/utils/adminBaseController';
-import * as analyticsService from '@esparex/core/services/AnalyticsService';
+import { sendSuccessResponse, sendAdminError } from '../../utils/adminBaseController';
+import * as analyticsService from '../../services/AnalyticsService';
 
 const getQueryString = (value: unknown): string | undefined => {
     if (typeof value === 'string') return value;

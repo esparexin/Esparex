@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
+import { getUserConnection } from '../config/db';
 
 export interface IRankingTelemetry extends Document {
     eventId: string;
@@ -31,4 +32,6 @@ const RankingTelemetrySchema = new Schema({
     createdAt: { type: Date, default: Date.now, expires: '7d' }
 });
 
-export default mongoose.model<IRankingTelemetry>('RankingTelemetry', RankingTelemetrySchema);
+const RankingTelemetry: Model<IRankingTelemetry> = (getUserConnection().models.RankingTelemetry as Model<IRankingTelemetry> | undefined) || getUserConnection().model<IRankingTelemetry>('RankingTelemetry', RankingTelemetrySchema);
+
+export default RankingTelemetry;

@@ -12,7 +12,6 @@
     "core",
     "apps/admin",
     "shared",
-    "shared/observability",
     "backend/user",
     "apps/web"
   ],

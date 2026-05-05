@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { toGeoPoint } from '@esparex/shared';
-import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@esparex/core/types';
+import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
 
 type GeoEval =
   | { status: 'valid'; point: { type: 'Point'; coordinates: [number, number] }; changed: boolean; source: string }

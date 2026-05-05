@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
-import { AppError } from '@esparex/core/utils/AppError';
-import logger from '@esparex/core/utils/logger';
-import Ad from '@esparex/core/models/Ad';
-import { getUserConnection } from '@esparex/core/config/db';
-import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
-import { LIFECYCLE_STATUS } from '@esparex/core/constants/enums/lifecycle';
+import { AppError } from '../../utils/AppError';
+import logger from '../../utils/logger';
+import Ad from '../../models/Ad';
+import { getUserConnection } from '../../config/db';
+import { LISTING_TYPE } from '../../constants/enums/listingType';
+import { LISTING_STATUS } from "../../constants/enums/listingStatus";
+import { LIFECYCLE_STATUS } from '../../constants/enums/lifecycle';
 import { consumeCredit } from '../WalletService';
-import { invalidateAdFeedCaches } from '@esparex/core/utils/redisCache';
+import { invalidateAdFeedCaches } from '../../utils/redisCache';
 
 export const promoteAdLogic = async (
     id: string,

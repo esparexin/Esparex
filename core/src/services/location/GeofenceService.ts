@@ -1,4 +1,4 @@
-import Geofence from '@esparex/core/models/Geofence';
+import Geofence from '../../models/Geofence';
 
 /**
  * Handles all Geofence-specific CRUD operations.

@@ -1,7 +1,7 @@
 import {
     PartialServicePayloadSchema,
     ServicePayloadSchema,
-} from "@shared/schemas/servicePayload.schema";
+} from "@shared";
 
 describe("service payload contract", () => {
     const canonicalServiceTypeId = "507f1f77bcf86cd799439011";

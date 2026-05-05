@@ -6,11 +6,11 @@ jest.mock('@esparex/core/models/Ad', () => ({
     },
 }));
 
-import Ad from '@esparex/core/models/Ad';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
-import { getModerationCounts, MODERATION_STATUSES } from '@esparex/core/services/ListingModerationQueryService';
-import { HIDDEN_MODERATION_STATUSES } from '@esparex/core/utils/FeedVisibilityGuard';
-import { getLiveStatusCriteria } from '@esparex/core/utils/statusQueryMapper';
+import Ad from '../../models/Ad';
+import { LISTING_STATUS } from "../../constants/enums/listingStatus";
+import { getModerationCounts, MODERATION_STATUSES } from '../../services/ListingModerationQueryService';
+import { HIDDEN_MODERATION_STATUSES } from '../../utils/FeedVisibilityGuard';
+import { getLiveStatusCriteria } from '../../utils/statusQueryMapper';
 
 const mockedAdModel = Ad as unknown as {
     aggregate: jest.Mock;

@@ -1,4 +1,4 @@
-import logger from '@esparex/core/utils/logger';
+import logger from '../utils/logger';
 import { registerCacheInvalidationListener } from './listeners/CacheInvalidationListener';
 import { registerSearchIndexListener } from './listeners/SearchIndexListener';
 import { registerWebsocketNotifierListener } from './listeners/WebsocketNotifierListener';

@@ -3,7 +3,7 @@ import {
   normalizeAdStatus as sharedNormalizeAdStatus,
   normalizeServiceStatus as sharedNormalizeServiceStatus,
   type DomainStatus
-} from "@shared/utils/statusNormalization";
+} from "@shared";
 
 export type AdStatus = DomainStatus;
 export type ServiceStatus = DomainStatus;

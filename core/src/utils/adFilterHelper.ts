@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { normalizeGeoInput } from './mongoGeoUtils';
-import { normalizeAdStatus } from '@esparex/core/services/AdStatusService';
+import { normalizeAdStatus } from '../services/AdStatusService';
 import CategoryQueryBuilder from './CategoryQueryBuilder';
 
 type UnknownRecord = Record<string, unknown>;

@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
-import { CATEGORY_TYPES } from "@esparex/shared/schemas/catalog.schema";
-import { LISTING_TYPE, LISTING_TYPE_VALUES } from '@esparex/core/constants/enums/listingType';
-import { normalizeObjectIdLike } from '@esparex/core/utils/idUtils';
+import { CATALOG_STATUS } from '../constants/enums/catalogStatus';
+import { CATEGORY_TYPES } from "@esparex/shared";
+import { LISTING_TYPE, LISTING_TYPE_VALUES } from '../constants/enums/listingType';
+import { normalizeObjectIdLike } from '../utils/idUtils';
 
 // Shared Helpers
 const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format');

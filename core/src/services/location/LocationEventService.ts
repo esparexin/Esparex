@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import LocationEvent, { ILocationEvent } from '@esparex/core/models/LocationEvent';
+import LocationEvent, { ILocationEvent } from '../../models/LocationEvent';
 
 interface CreateLocationEventInput {
     source?: string;

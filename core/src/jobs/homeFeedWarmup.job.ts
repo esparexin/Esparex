@@ -1,6 +1,6 @@
-import { warmHomeFeedCache } from '@esparex/core/services/FeedService';
-import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
-import logger from '@esparex/core/utils/logger';
+import { warmHomeFeedCache } from '../services/FeedService';
+import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import logger from '../utils/logger';
 
 export const runHomeFeedWarmupJob = async () => {
     await runWithDistributedJobLock(

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model } from 'mongoose';
 import { NOTIFICATION_BASE_FIELDS } from './NotificationLog';
-import { getAdminConnection } from '@esparex/core/config/db';
+import { getAdminConnection } from '../config/db';
 
 export interface IScheduledNotification extends mongoose.Document {
     title: string;

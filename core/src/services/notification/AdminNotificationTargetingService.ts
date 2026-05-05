@@ -6,8 +6,8 @@ import {
     ADMIN_NOTIFICATION_TOPIC_VALUES,
     type AdminNotificationTargetTypeValue,
     type AdminNotificationTopicValue,
-} from "@esparex/shared/constants/adminNotificationTargets";
-import User from "@esparex/core/models/User";
+} from "@esparex/shared";
+import User from "../../models/User";
 
 type NotificationTargetParams = {
     targetType: AdminNotificationTargetTypeValue;
@@ -15,8 +15,8 @@ type NotificationTargetParams = {
     userIds?: string[];
 };
 
-import { USER_STATUS } from "@esparex/core/constants/enums/userStatus";
-import { Role } from "@esparex/core/constants/enums/roles";
+import { USER_STATUS } from "../../constants/enums/userStatus";
+import { Role } from "../../constants/enums/roles";
 
 const ACTIVE_USER_QUERY: Record<string, unknown> = {
     isDeleted: { $ne: true },

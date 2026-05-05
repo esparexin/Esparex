@@ -15,7 +15,7 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import logger from '@esparex/core/utils/logger';
+import logger from '../utils/logger';
 
 const BACKUP_DIR = process.env.BACKUP_DIR || path.join(process.cwd(), 'backups');
 const MIN_BACKUP_SIZE_MB = 0.1; // Minimum expected backup size

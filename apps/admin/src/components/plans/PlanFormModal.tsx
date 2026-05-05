@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, CreditCard, Zap, BellRing, Package } from "lucide-react";
 import { createPlan, updatePlan } from "@/lib/api/plans";
-import type { Plan } from "@esparex/shared/types/Plan";
+import type { Plan } from "@esparex/shared";
 import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
 type PlanType = "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";

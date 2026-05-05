@@ -11,9 +11,9 @@ import {
     findContentBySlug,
     upsertContentBySlug,
     getAllContent,
-} from "@esparex/core/services/PageContentService";
+} from "../../services/PageContentService";
 
-import mockPageContentRaw from "@esparex/core/models/PageContent";
+import mockPageContentRaw from "../../models/PageContent";
 
 const mockPageContent = mockPageContentRaw as unknown as {
     findOne: jest.Mock;

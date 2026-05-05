@@ -1,10 +1,10 @@
-import { notificationDeliveryQueue } from '@esparex/core/queues/adQueue';
-import Notification from '@esparex/core/models/Notification';
+import { notificationDeliveryQueue } from '../../queues/adQueue';
+import Notification from '../../models/Notification';
 import { NotificationVersionService } from './NotificationVersionService';
-import { getIO } from '@esparex/core/config/socket';
+import { getIO } from '../../config/socket';
 import { sendNotification } from './PushGatewayService';
 import { NotificationIntent } from '../../domain/NotificationIntent';
-import logger from '@esparex/core/utils/logger';
+import logger from '../../utils/logger';
 import { resolveNotificationDeliveryPlan } from './NotificationPreferenceService';
 
 interface DispatchOptions {

@@ -1,4 +1,4 @@
-import { env } from '@esparex/core/config/env';
+import { env } from '../config/env';
 import { inferCookieDomainFromEnv, normalizeCookieDomainValue } from './originConfig';
 
 /**

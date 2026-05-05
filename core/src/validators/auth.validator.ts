@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import logger from '@esparex/core/utils/logger';
-import { normalizeTo10Digits } from '@esparex/core/utils/phoneUtils';
-import { isProduction } from '@esparex/core/config/env';
+import logger from '../utils/logger';
+import { normalizeTo10Digits } from '../utils/phoneUtils';
+import { isProduction } from '../config/env';
 
 /**
  * Mobile Number Schema

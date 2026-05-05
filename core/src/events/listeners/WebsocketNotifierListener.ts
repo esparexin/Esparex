@@ -1,4 +1,4 @@
-import logger from '@esparex/core/utils/logger';
+import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
 
 export const registerWebsocketNotifierListener = () => {

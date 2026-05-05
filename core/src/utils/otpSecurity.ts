@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { env } from '@esparex/core/config/env';
+import { env } from '../config/env';
 
 const getOtpHashSecret = (): string => {
     const secret = env.OTP_HASH_SECRET || env.JWT_SECRET;

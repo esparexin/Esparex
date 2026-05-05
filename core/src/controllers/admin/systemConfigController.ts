@@ -2,12 +2,12 @@ import { Request, Response } from 'express';
 import { 
     sendSuccessResponse, 
     sendAdminError 
-} from '@esparex/core/utils/adminBaseController';
+} from '../../utils/adminBaseController';
 import {
     getSystemConfigForRead,
     updateSystemConfigSections
-} from '@esparex/core/services/SystemConfigService';
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
+} from '../../services/SystemConfigService';
+import { logAdminAction } from '../../utils/adminLogger';
 
 type AuthenticatedRequest = Request & { user?: { _id?: string } };
 

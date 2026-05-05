@@ -1,6 +1,6 @@
 import { Redis } from "ioredis";
-import bootstrapLogger from "@esparex/core/utils/bootstrapLogger";
-import { env } from "@esparex/core/config/env";
+import bootstrapLogger from "../utils/bootstrapLogger";
+import { env } from "../config/env";
 
 const REDIS_URL = env.REDIS_URL || 'redis://127.0.0.1:6379';
 

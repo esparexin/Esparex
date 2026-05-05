@@ -1,7 +1,7 @@
-import logger from "@esparex/core/utils/logger";
-import { expireBoosts } from "@esparex/core/services/AdStatusService";
-import { ListingExpiryService } from "@esparex/core/services/ListingExpiryService";
-import { runWithDistributedJobLock } from "@esparex/core/utils/distributedJobLock";
+import logger from "../utils/logger";
+import { expireBoosts } from "../services/AdStatusService";
+import { ListingExpiryService } from "../services/ListingExpiryService";
+import { runWithDistributedJobLock } from "../utils/distributedJobLock";
 
 export const runExpireAdsJob = async () => {
     await runWithDistributedJobLock(

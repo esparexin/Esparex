@@ -45,9 +45,9 @@ jest.mock('@esparex/core/services/PlanEngine', () => ({
     calculateUserPlan: jest.fn(),
 }));
 
-import Ad from '@esparex/core/models/Ad';
-import { calculateUserPlan } from '@esparex/core/services/PlanEngine';
-import { checkPostLimit } from '@esparex/core/services/PlanService';
+import Ad from '../../models/Ad';
+import { calculateUserPlan } from '../../services/PlanEngine';
+import { checkPostLimit } from '../../services/PlanService';
 
 const mockedAd = Ad as unknown as { countDocuments: jest.Mock };
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;

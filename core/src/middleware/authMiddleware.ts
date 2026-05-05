@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
-import { verifyToken, JwtPayload } from "@esparex/core/utils/auth";
-import redis from "@esparex/core/config/redis";
-import User from "@esparex/core/models/User";
-import { isTokenBlacklisted } from "@esparex/core/utils/redisCache";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import logger from '@esparex/core/utils/logger';
-import { Role } from "@esparex/core/constants/enums/roles";
-import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
+import { verifyToken, JwtPayload } from "../utils/auth";
+import redis from "../config/redis";
+import User from "../models/User";
+import { isTokenBlacklisted } from "../utils/redisCache";
+import { sendErrorResponse } from "../utils/errorResponse";
+import logger from '../utils/logger';
+import { Role } from "../constants/enums/roles";
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../utils/cookieHelper';
 
 /**
  * ESPAREX — CANONICAL END-USER AUTH MIDDLEWARE (SSOT)

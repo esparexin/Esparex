@@ -3,26 +3,22 @@
     "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "commonjs",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "rootDir": "./src",
     "outDir": "./dist",
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "paths": {
-      "@esparex/shared/*": ["../shared/src/*"],
-      "@esparex/shared": ["../shared/src/index.ts"],
       "@core/*": ["./src/*"],
-      "@core": ["./src/index.ts"],
       "@esparex/core/*": ["./src/*"],
-      "@esparex/core": ["./src/index.ts"]
-    },
-    "types": ["jest", "node"]
+      "@esparex/shared": ["../shared/src"]
+    }
   },
   "include": [
     "src/**/*"

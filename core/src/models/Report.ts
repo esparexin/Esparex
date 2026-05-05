@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { REPORT_STATUS, REPORT_STATUS_VALUES, ReportStatusValue } from '@esparex/core/constants/enums/reportStatus';
-import { REPORT_REASON_VALUES, ReportReasonValue } from '@esparex/core/constants/enums/reportReason';
+import { REPORT_STATUS, REPORT_STATUS_VALUES, ReportStatusValue } from '../constants/enums/reportStatus';
+import { REPORT_REASON_VALUES, ReportReasonValue } from '../constants/enums/reportReason';
 
 export const REPORT_TARGET_TYPE_VALUES = ['ad', 'chat', 'user', 'business'] as const;
 export type ReportTargetTypeValue = (typeof REPORT_TARGET_TYPE_VALUES)[number];
@@ -89,8 +89,8 @@ ReportSchema.index(
     }
 );
 
-import { getUserConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 applyToJSONTransform(ReportSchema);
 const Report: Model<IReport> = (getUserConnection().models.Report as Model<IReport> | undefined) || getUserConnection().model<IReport>('Report', ReportSchema);

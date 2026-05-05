@@ -88,12 +88,12 @@ jest.mock("@esparex/core/config/razorpay", () => ({
     }),
 }));
 
-import User from "@esparex/core/models/User";
-import { Invoice } from "@esparex/core/models/Invoice";
-import { Transaction } from "@esparex/core/models/Transaction";
-import { credit } from "@esparex/core/services/WalletService";
-import { recordRevenue } from "@esparex/core/services/RevenueAnalytics";
-import { processSuccessfulPayment, recoverPendingPayment } from "@esparex/core/services/PaymentProcessingService";
+import User from "../../models/User";
+import { Invoice } from "../../models/Invoice";
+import { Transaction } from "../../models/Transaction";
+import { credit } from "../../services/WalletService";
+import { recordRevenue } from "../../services/RevenueAnalytics";
+import { processSuccessfulPayment, recoverPendingPayment } from "../../services/PaymentProcessingService";
 
 describe("PaymentProcessingService", () => {
     beforeEach(() => {

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Info, TriangleAlert } from "lucide-react";
 
-import type { PopupAction, PopupState } from "@shared/popup/popupCore";
+import type { PopupAction, PopupState } from "@shared";
 
 export type RenderablePopup = PopupState & { count?: number };
 

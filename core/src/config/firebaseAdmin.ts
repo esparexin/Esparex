@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-import logger from '@esparex/core/utils/logger';
+import logger from '../utils/logger';
 import { env } from './env';
 
 const hasFirebaseServiceAccountJson = typeof env.FIREBASE_SERVICE_ACCOUNT_JSON === 'string'

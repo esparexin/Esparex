@@ -42,8 +42,8 @@ const NotificationLogSchema: Schema = new Schema({
 
 NotificationLogSchema.index({ sentBy: 1, createdAt: -1 }, { name: 'idx_notificationlog_sender_freshness_idx' });
 
-import { getAdminConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 applyToJSONTransform(NotificationLogSchema);
 
 const connection = getAdminConnection();

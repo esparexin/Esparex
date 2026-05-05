@@ -1,5 +1,5 @@
 import logger from './logger';
-import { closeIO } from '@esparex/core/config/socket';
+import { closeIO } from '../config/socket';
 
 interface ShutdownDependencies {
     server?: import('http').Server;

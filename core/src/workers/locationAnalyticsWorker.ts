@@ -1,10 +1,10 @@
-import Ad from "@esparex/core/models/Ad";
-import User from "@esparex/core/models/User";
-import Location from "@esparex/core/models/Location";
-import LocationAnalytics from "@esparex/core/models/LocationAnalytics";
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
-import logger from '@esparex/core/utils/logger';
-import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
+import Ad from "../models/Ad";
+import User from "../models/User";
+import Location from "../models/Location";
+import LocationAnalytics from "../models/LocationAnalytics";
+import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import logger from '../utils/logger';
+import { runWithDistributedJobLock } from '../utils/distributedJobLock';
 
 export const runLocationAnalyticsJob = async () => {
     await runWithDistributedJobLock(

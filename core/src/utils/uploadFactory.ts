@@ -1,7 +1,7 @@
 import multer from 'multer';
 import os from 'os';
 import path from 'path';
-import { AppError } from '@esparex/core/utils/AppError';
+import { AppError } from './AppError';
 
 /**
  * Universal Multer Upload Factory

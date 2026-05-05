@@ -47,18 +47,18 @@ jest.mock("@esparex/core/utils/logger", () => ({
 }));
 
 import mongoose from "mongoose";
-import Ad from "@esparex/core/models/Ad";
+import Ad from "../../models/Ad";
 import {
     findReportForUpdate,
     autoHideAdIfOverThreshold,
     countActiveReports,
-} from "@esparex/core/services/ReportService";
+} from "../../services/ReportService";
 
 const mockAd = Ad as unknown as {
     findByIdAndUpdate: jest.Mock;
 };
 
-import mockReportRaw from "@esparex/core/models/Report";
+import mockReportRaw from "../../models/Report";
 
 describe("ReportService", () => {
     beforeEach(() => jest.clearAllMocks());

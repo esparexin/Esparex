@@ -16,9 +16,9 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
-import { env } from '@esparex/core/config/env';
-import logger from '@esparex/core/utils/logger';
-import { parseMongoUri } from '@esparex/core/utils/mongoUtils';
+import { env } from '../config/env';
+import logger from '../utils/logger';
+import { parseMongoUri } from '../utils/mongoUtils';
 
 
 /**

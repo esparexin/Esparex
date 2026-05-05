@@ -1,7 +1,7 @@
-import redisClient from '@esparex/core/config/redis';
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
+import redisClient from '../../config/redis';
+import { getCache, setCache } from '../../utils/redisCache';
 import { HomeFeedRequest, ParsedHomeFeedCursor, toCursorKey } from './FeedCursorService';
-import { HomeFeedResponse } from "@esparex/shared/types/Api";
+import { HomeFeedResponse } from "@esparex/shared";
 
 const FEED_BUILD_LOCK_KEY = 'feed:home:build-lock';
 const FEED_BUILD_LOCK_TTL_SECONDS = 5;

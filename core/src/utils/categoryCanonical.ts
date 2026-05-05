@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import Category from '@esparex/core/models/Category';
+import Category from '../models/Category';
 
 type CategoryLite = {
     _id: mongoose.Types.ObjectId;
@@ -7,7 +7,7 @@ type CategoryLite = {
     name?: string;
 };
 
-import { CATALOG_STATUS, type CatalogStatusValue } from '@esparex/core/constants/enums/catalogStatus';
+import { CATALOG_STATUS, type CatalogStatusValue } from '../constants/enums/catalogStatus';
 
 const ACTIVE_CATEGORY_QUERY = {
     isActive: true,

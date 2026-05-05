@@ -4,8 +4,7 @@ import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
-import { SmartAlertCreateSchema, SmartAlertUpdateSchema } from "@shared/schemas/smartAlert.schema";
-import { SavedSearchCreateSchema } from "@shared/schemas/savedSearch.schema";
+import { SmartAlertCreateSchema, SmartAlertUpdateSchema, SavedSearchCreateSchema } from "@shared";
 import type { ZodTypeAny } from 'zod';
 
 const router = express.Router();

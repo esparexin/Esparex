@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from '@esparex/core/constants/enums/listingType';
+import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from '../constants/enums/listingType';
 
 export interface ISparePart extends Document {
     name: string;
@@ -50,11 +50,11 @@ const SparePartSchema = new Schema<ISparePart>(
     }
 );
 
-import softDeletePlugin from '@esparex/core/utils/softDeletePlugin';
+import softDeletePlugin from '../utils/softDeletePlugin';
 SparePartSchema.plugin(softDeletePlugin);
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
-import { installSafeSoftDeleteQuery } from '@esparex/core/utils/safeSoftDeleteQuery';
+import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 SparePartSchema.plugin(installSafeSoftDeleteQuery);
 
 // INDEXES
@@ -75,8 +75,8 @@ SparePartSchema.index({ sortOrder: 1 }, { name: 'idx_sparepart_sortOrder' });
 SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });
 SparePartSchema.index({ isDeleted: 1 }, { name: 'idx_sparepart_isDeleted' });
 
-import { getUserConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 applyToJSONTransform(SparePartSchema);
 export const SparePartModel: Model<ISparePart> =

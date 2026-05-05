@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import { env } from '@esparex/core/config/env';
-import Location from '@esparex/core/models/Location';
-import { toTitleCase } from '@esparex/core/utils/stringUtils';
+import { env } from '../../../config/env';
+import Location from '../../../models/Location';
+import { toTitleCase } from '../../../utils/stringUtils';
 import { toGeoPoint } from '@esparex/shared';
 export { toGeoPoint };
-import { CACHE_KEYS } from '@esparex/core/utils/redisCache';
-import { AppError } from '@esparex/core/utils/AppError';
-import { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '@esparex/core/utils/locationHierarchy';
+import { CACHE_KEYS } from '../../../utils/redisCache';
+import { AppError } from '../../../utils/AppError';
+import { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../../../utils/locationHierarchy';
 import {
     asString,
     buildDisplay,
@@ -19,8 +19,8 @@ export { normalizeCoordinates };
 import {
     type LocationLevel,
     normalizeLocationNameForSearch
-} from '@esparex/core/utils/locationInputNormalizer';
-import { formatLocationResponse } from '@esparex/core/lib/location/formatLocation';
+} from '../../../utils/locationInputNormalizer';
+import { formatLocationResponse } from '../../../lib/location/formatLocation';
 
 export interface LatLng {
     lat: number;

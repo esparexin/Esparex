@@ -5,16 +5,16 @@
 
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { getHierarchyTree as buildHierarchyTree, scanHierarchyIntegrity, repairHierarchy } from '@esparex/core/services/catalog/CatalogHierarchyService';
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { getHierarchyTree as buildHierarchyTree, scanHierarchyIntegrity, repairHierarchy } from '../../../services/catalog/CatalogHierarchyService';
+import { sendSuccessResponse } from "../../../utils/respond";
 import { sendCatalogError, hasAdminAccess } from './shared';
-import { findCategoryByIdLean, getCategoryHealthMetrics } from '@esparex/core/services/catalog/CatalogGovernanceService';
-import { sendErrorResponse as sendContractErrorResponse } from "@esparex/core/utils/errorResponse";
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { IAuthUser as AuthUser } from '@esparex/core/types/auth';
+import { findCategoryByIdLean, getCategoryHealthMetrics } from '../../../services/catalog/CatalogGovernanceService';
+import { sendErrorResponse as sendContractErrorResponse } from "../../../utils/errorResponse";
+import { logAdminAction } from '../../../utils/adminLogger';
+import { IAuthUser as AuthUser } from '../../../types/auth';
 
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
-import logger from '@esparex/core/utils/logger';
+import { getCache, setCache } from '../../../utils/redisCache';
+import logger from '../../../utils/logger';
 
 const HIERARCHY_TREE_CACHE_KEY = 'catalog:hierarchy-tree';
 const HIERARCHY_CACHE_TTL = 3600; // 1 hour

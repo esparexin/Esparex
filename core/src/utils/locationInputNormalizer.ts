@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 import { hasValidCoordinateArray } from '@esparex/shared';
-import { asString } from '@esparex/core/services/location/LocationService.helpers';
+import { asString } from '../services/location/LocationService.helpers';
 import { toTitleCase } from './stringUtils';
 import { toObjectId } from './idUtils';
 import { buildHierarchyPath } from './locationHierarchy';
 
-import Location from '@esparex/core/models/Location';
+import Location from '../models/Location';
 import { resolveParentLocation } from './locationHierarchy';
 import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel, normalizeLocationNameForSearch, buildLocationSlug } from './locationPrimitives';
 

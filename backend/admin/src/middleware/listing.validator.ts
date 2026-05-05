@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared/enums/listingType";
+import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared";
 
 /** @deprecated Use ListingTypeValue from shared/enums/listingType */
 export type ListingType = ListingTypeValue;

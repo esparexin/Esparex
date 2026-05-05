@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '@esparex/core/constants/enums/catalogStatus';
+import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../constants/enums/catalogStatus';
 
 export interface IModel extends Document {
     name: string;
@@ -62,14 +62,14 @@ ModelSchema.index({ brandId: 1 }, { name: 'idx_model_brandId' });
  * - model_brand_category_idx: { brandId: 1, categoryId: 1 }
  */
 
-import softDeletePlugin from '@esparex/core/utils/softDeletePlugin';
+import softDeletePlugin from '../utils/softDeletePlugin';
 ModelSchema.plugin(softDeletePlugin);
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
-import { installSafeSoftDeleteQuery } from '@esparex/core/utils/safeSoftDeleteQuery';
+import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 ModelSchema.plugin(installSafeSoftDeleteQuery);
 
-import { getUserConnection } from '@esparex/core/config/db';
+import { getUserConnection } from '../config/db';
 const ProductModel: Model<IModel> = (getUserConnection().models.Model as Model<IModel> | undefined) || getUserConnection().model<IModel>('Model', ModelSchema);
 
 export default ProductModel;

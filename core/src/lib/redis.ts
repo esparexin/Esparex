@@ -1,3 +1,3 @@
-import redisClient from '@esparex/core/config/redis';
+import redisClient from '../config/redis';
 export const redis = redisClient;
 export default redisClient;

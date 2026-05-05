@@ -1,6 +1,6 @@
 import { Model, Schema, Types } from 'mongoose';
-import { getUserConnection } from '@esparex/core/config/db';
-import { LOCATION_LEVELS, type LocationLevel } from '@esparex/core/utils/locationInputNormalizer';
+import { getUserConnection } from '../config/db';
+import { LOCATION_LEVELS, type LocationLevel } from '../utils/locationInputNormalizer';
 
 export interface IAdminBoundary {
     _id: Types.ObjectId;

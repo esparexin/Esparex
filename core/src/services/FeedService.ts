@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
-import { env } from '@esparex/core/config/env';
-import { HomeFeedResponse } from "@esparex/shared/types/Api";
-import logger from '@esparex/core/utils/logger';
-import { CACHE_TTLS } from '@esparex/core/utils/redisCache';
+import { env } from '../config/env';
+import { HomeFeedResponse } from "@esparex/shared";
+import logger from '../utils/logger';
+import { CACHE_TTLS } from '../utils/redisCache';
 
 // Leaf Services
 import { 

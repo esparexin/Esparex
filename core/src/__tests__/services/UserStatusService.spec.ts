@@ -24,10 +24,10 @@ jest.mock("@esparex/core/models/SmartAlert", () => ({
     },
 }));
 
-import User from "@esparex/core/models/User";
-import Ad from "@esparex/core/models/Ad";
-import SmartAlert from "@esparex/core/models/SmartAlert";
-import { updateUserStatus } from "@esparex/core/services/UserStatusService";
+import User from "../../models/User";
+import Ad from "../../models/Ad";
+import SmartAlert from "../../models/SmartAlert";
+import { updateUserStatus } from "../../services/UserStatusService";
 
 describe("userStatusService audit integration", () => {
     const mockUserFindByIdAndUpdate = (User as unknown as { findByIdAndUpdate: jest.Mock }).findByIdAndUpdate;

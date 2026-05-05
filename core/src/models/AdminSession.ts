@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { Schema, Document, Model, Types } from 'mongoose';
-import { getAdminConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IAdminSession extends Document {
     adminId: Types.ObjectId;

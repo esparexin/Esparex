@@ -1,8 +1,8 @@
 import { Worker } from 'bullmq';
-import { redisConnection } from '@esparex/core/queues/redisConnection';
-import { processAdForAlerts } from '@esparex/core/services/SmartAlertService';
-import { enqueueSavedSearchAlertDispatch, processSavedSearchAlertDispatch } from '@esparex/core/services/SavedSearchService';
-import logger from '@esparex/core/utils/logger';
+import { redisConnection } from '../queues/redisConnection';
+import { processAdForAlerts } from '../services/SmartAlertService';
+import { enqueueSavedSearchAlertDispatch, processSavedSearchAlertDispatch } from '../services/SavedSearchService';
+import logger from '../utils/logger';
 
 /**
  * Notification Match Worker

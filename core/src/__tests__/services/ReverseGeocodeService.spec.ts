@@ -1,8 +1,8 @@
-import { reverseGeocode } from '@esparex/core/services/location/ReverseGeocodeService';
-import Location from '@esparex/core/models/Location';
-import AdminBoundary from '@esparex/core/models/AdminBoundary';
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
-import { haversineDistance } from '@esparex/core/utils/mongoGeoUtils';
+import { reverseGeocode } from '../../services/location/ReverseGeocodeService';
+import Location from '../../models/Location';
+import AdminBoundary from '../../models/AdminBoundary';
+import { getCache, setCache } from '../../utils/redisCache';
+import { haversineDistance } from '../../utils/mongoGeoUtils';
 
 jest.mock('@esparex/core/models/Location', () => ({
     __esModule: true,

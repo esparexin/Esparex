@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import Ad from '@esparex/core/models/Ad';
-import { env } from '@esparex/core/config/env';
-import { buildPublicAdFilter } from '@esparex/core/utils/FeedVisibilityGuard';
-import logger from '@esparex/core/utils/logger';
+import Ad from '../models/Ad';
+import { env } from '../config/env';
+import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
+import logger from '../utils/logger';
 
 export type FallbackStage = 'RADIUS' | 'CITY' | 'STATE' | 'REGIONAL' | 'NATIONAL';
 

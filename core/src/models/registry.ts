@@ -1,5 +1,5 @@
-import logger from '@esparex/core/utils/logger';
-import { env } from '@esparex/core/config/env';
+import logger from '../utils/logger';
+import { env } from '../config/env';
 import '../config/mongoosePlugins';
 import './Admin';
 import './Category';
@@ -52,7 +52,7 @@ import './ChatReport';
 import './BlockedUser';
 import './FraudScore';
 
-import { getUserConnection, getAdminConnection } from '@esparex/core/config/db';
+import { getUserConnection, getAdminConnection } from '../config/db';
 import { getIndexAuditTargets } from '../db/indexAuditTargets';
 import { governSchema, runStartupIndexAudit } from '../db/indexGovernance';
 

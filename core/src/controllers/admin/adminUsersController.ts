@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
-import * as userStatusService from '@esparex/core/services/UserStatusService';
+import * as userStatusService from '../../services/UserStatusService';
 import {
     sendSuccessResponse,
     getPaginationParams,
     sendPaginatedResponse,
     sendAdminError
-} from '@esparex/core/utils/adminBaseController';
-import { USER_STATUS, UserStatusValue } from "@esparex/shared/enums/userStatus";
-import * as adminUsersService from '@esparex/core/services/AdminUsersService';
-import { logAdminActionDirect } from '@esparex/core/utils/adminLogger';
-import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
-import type { IAuthUser } from '@esparex/core/types/auth';
+} from '../../utils/adminBaseController';
+import { USER_STATUS, UserStatusValue } from "@esparex/shared";
+import * as adminUsersService from '../../services/AdminUsersService';
+import { logAdminActionDirect } from '../../utils/adminLogger';
+import type { AdminLogFn } from '../../services/AdminListingsService';
+import type { IAuthUser } from '../../types/auth';
 
 // ---------------------------------------------------------
 // Helpers

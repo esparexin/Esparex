@@ -1,8 +1,8 @@
-import logger from '@esparex/core/utils/logger';
+import logger from '../../../utils/logger';
 import { Request, Response } from 'express';
-import { respond } from "@esparex/core/utils/respond";
-import { ApiResponse } from "@esparex/shared/types/Api";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { respond } from "../../../utils/respond";
+import { ApiResponse } from "@esparex/shared";
+import { sendErrorResponse } from "../../../utils/errorResponse";
 import {
     getErrorMessage,
     SmartAlertModel,

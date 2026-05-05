@@ -10,7 +10,7 @@
  */
 
 import { z } from 'zod';
-import { BaseServicePayloadSchema } from "@shared/schemas/servicePayload.schema";
+import { BaseServicePayloadSchema } from "@shared";
 
 // ObjectIdSchema uses z.preprocess which TypeScript infers as `unknown` output.
 // Override with plain z.string() so react-hook-form can infer the correct field types.

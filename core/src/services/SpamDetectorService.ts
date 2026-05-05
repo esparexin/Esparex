@@ -1,4 +1,4 @@
-import { validateText, type TextValidationResult } from "@esparex/shared/utils/textValidator";
+import { validateText, type TextValidationResult } from "@esparex/shared";
 
 export interface SpamDetectionResult {
     isSpam: boolean;

@@ -1,4 +1,4 @@
-import { buildDuplicateFingerprint } from '@esparex/core/services/AdValidationService';
+import { buildDuplicateFingerprint } from '../../services/AdValidationService';
 
 describe('buildDuplicateFingerprint', () => {
     it('builds deterministic fingerprints from normalized payload fields', () => {

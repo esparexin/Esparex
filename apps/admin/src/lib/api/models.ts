@@ -1,4 +1,4 @@
-import { Model, CreateModelDTO, UpdateModelDTO } from "@shared/schemas/catalog.schema";
+import { Model, CreateModelDTO, UpdateModelDTO } from "@shared";
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 

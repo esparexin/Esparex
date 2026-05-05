@@ -1,5 +1,5 @@
 import { Schema, Document, Model, Types } from 'mongoose';
-import { getUserConnection } from '@esparex/core/config/db';
+import { getUserConnection } from '../config/db';
 
 /* -------------------------------------------------------------------------- */
 /* Interface                                                                   */

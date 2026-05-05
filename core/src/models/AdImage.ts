@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '@esparex/core/config/db';
+import { getUserConnection } from '../config/db';
 
 export interface IAdImage extends Document {
     adId: mongoose.Types.ObjectId;

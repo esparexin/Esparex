@@ -1,5 +1,5 @@
 import logger from './logger';
-import { env } from '@esparex/core/config/env';
+import { env } from '../config/env';
 
 const PRODUCTION_FRONTEND_URL = 'https://esparex.in';
 const PRODUCTION_ADMIN_URL = 'https://admin.esparex.in';

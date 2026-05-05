@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import User from '@esparex/core/models/User';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import User from '../models/User';
+import { LISTING_STATUS } from "../constants/enums/listingStatus";
 import * as AdAggregationService from './ad/AdAggregationService';
 
 export type SellerPublicUser = {

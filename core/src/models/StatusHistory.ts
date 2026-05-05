@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '@esparex/core/config/db';
-import { ACTOR_TYPE_VALUES } from '@esparex/core/constants/enums/actor';
+import { getUserConnection } from '../config/db';
+import { ACTOR_TYPE_VALUES } from '../constants/enums/actor';
 
 export interface IStatusHistory extends Document {
     domain: 'ad' | 'user' | 'business' | 'service';

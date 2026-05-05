@@ -1,4 +1,4 @@
-import { OpsCommand } from '@esparex/core/types';
+import { OpsCommand } from '../../../types';
 import { geoRepairCommand } from './geoRepair.command';
 import { locationCoverageAuditCommand } from './locationCoverageAudit.command';
 import { locationStatusBackfillCommand } from './locationStatusBackfill.command';

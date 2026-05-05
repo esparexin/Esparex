@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getPaginationParams, sendAdminError, sendSuccessResponse } from '@esparex/core/utils/adminBaseController';
-import { getAlertDeliveryLogs, SmartAlertModel } from "@esparex/core/services/SmartAlertService";
+import { getPaginationParams, sendAdminError, sendSuccessResponse } from '../../utils/adminBaseController';
+import { getAlertDeliveryLogs, SmartAlertModel } from "../../services/SmartAlertService";
 
 /**
  * GET /api/v1/admin/smart-alerts/logs

@@ -5,8 +5,8 @@
  */
 
 import { Request, Response } from 'express';
-import { IAuthUser } from '@esparex/core/types/auth';
-import type { IAdmin } from '@esparex/core/models/Admin';
+import { IAuthUser } from '../../../types/auth';
+import type { IAdmin } from '../../../models/Admin';
 import {
     findAdminByEmailForAuth,
     findAdminByResetToken,
@@ -14,29 +14,29 @@ import {
     updateAdminLastLogin,
     getAdminProfileById,
     saveAdmin,
-} from '@esparex/core/services/AdminService';
-import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
-import { getAdminCookieOptions } from '@esparex/core/utils/cookieHelper';
-import logger from '@esparex/core/utils/logger';
-import { getAdminAppUrl } from '@esparex/core/utils/appUrl';
+} from '../../../services/AdminService';
+import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
+import { getAdminCookieOptions } from '../../../utils/cookieHelper';
+import logger from '../../../utils/logger';
+import { getAdminAppUrl } from '../../../utils/appUrl';
 import {
     sendSuccessResponse,
     sendAdminError
-} from '@esparex/core/utils/adminBaseController';
+} from '../../../utils/adminBaseController';
 
 import crypto from 'crypto';
 import speakeasy from 'speakeasy';
-import { emailService } from '@esparex/core/services/EmailService';
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { comparePassword, generateAdminToken, verifyAdminToken } from '@esparex/core/utils/auth';
-import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
-import { getSingleParam } from '@esparex/core/utils/requestParams';
+import { emailService } from '../../../services/EmailService';
+import { logAdminAction } from '../../../utils/adminLogger';
+import { comparePassword, generateAdminToken, verifyAdminToken } from '../../../utils/auth';
+import { USER_STATUS } from '../../../constants/enums/userStatus';
+import { getSingleParam } from '../../../utils/requestParams';
 import {
     createAdminSession,
     getAdminSessionTtlMs,
     revokeAdminSession,
     revokeAdminSessionsForAdmin
-} from '@esparex/core/services/AdminSessionService';
+} from '../../../services/AdminSessionService';
 
 const normalizeIp = (value: string) => value.replace(/^::ffff:/, '').trim();
 

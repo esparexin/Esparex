@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { sendSuccessResponse } from '@esparex/core/utils/adminBaseController';
+import { logAdminAction } from '../../../utils/adminLogger';
+import { sendErrorResponse } from "../../../utils/errorResponse";
+import { sendSuccessResponse } from '../../../utils/adminBaseController';
 import { getErrorMessage } from './shared';
-import { credit } from '@esparex/core/services/WalletService';
+import { credit } from '../../../services/WalletService';
 
 export const adjustWallet = async (req: Request, res: Response) => {
     try {

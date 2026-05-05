@@ -1,6 +1,6 @@
 /* global NodeJS */
-import logger from '@esparex/core/utils/logger';
-import redis from '@esparex/core/config/redis';
+import logger from '../utils/logger';
+import redis from '../config/redis';
 import { startSchedulerQueueEngine, stopSchedulerQueueEngine } from './SchedulerQueueEngine';
 import { randomUUID } from 'crypto';
 

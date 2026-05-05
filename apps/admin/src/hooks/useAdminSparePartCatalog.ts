@@ -7,7 +7,7 @@ import {
 } from "@/lib/api/sparePartCatalog";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import type { AdminListPagination } from "@/hooks/useAdminCrudList";
-import type { SparePart, CreateSparePartDTO, UpdateSparePartDTO } from "@shared/schemas/catalog.schema";
+import type { SparePart, CreateSparePartDTO, UpdateSparePartDTO } from "@shared";
 import { useState, useCallback } from "react";
 
 interface UseAdminSparePartsOptions {

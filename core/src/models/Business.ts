@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { Business as SharedBusiness } from "@esparex/shared/types/Business";
+import { Business as SharedBusiness } from "@esparex/shared";
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@esparex/shared';
-import { BUSINESS_STATUS, BUSINESS_STATUS_VALUES } from '@esparex/core/constants/enums/businessStatus';
-import { ID_PROOF_TYPE_VALUES, type IdProofTypeValue } from '@esparex/core/constants/enums/idProofType';
+import { BUSINESS_STATUS, BUSINESS_STATUS_VALUES } from '../constants/enums/businessStatus';
+import { ID_PROOF_TYPE_VALUES, type IdProofTypeValue } from '../constants/enums/idProofType';
 
 export interface IBusinessDocument {
     type: 'id_proof' | 'business_proof' | 'certificate';
@@ -150,8 +150,8 @@ const sanitizeBusinessLocation = (value: unknown): unknown => {
     return location;
 };
 
-import softDeletePlugin from '@esparex/core/utils/softDeletePlugin';
-import { generateUniqueSlug } from '@esparex/core/utils/slugGenerator';
+import softDeletePlugin from '../utils/softDeletePlugin';
+import { generateUniqueSlug } from '../utils/slugGenerator';
 
 BusinessSchema.plugin(softDeletePlugin);
 
@@ -299,7 +299,7 @@ BusinessSchema.set('toObject', {
     transform: transformLogic
 });
 
-import { getUserConnection } from '@esparex/core/config/db';
+import { getUserConnection } from '../config/db';
 const Business: Model<IBusiness> = (getUserConnection().models.Business as Model<IBusiness> | undefined) || getUserConnection().model<IBusiness>('Business', BusinessSchema);
 
 export default Business;

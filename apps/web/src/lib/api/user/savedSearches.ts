@@ -1,6 +1,6 @@
 import { API_ROUTES } from "@/lib/api/routes";
 import { apiClient } from "@/lib/api/client";
-import type { SavedSearchCreatePayload } from "@shared/schemas/savedSearch.schema";
+import type { SavedSearchCreatePayload } from "@shared";
 
 export interface SavedSearch {
   id: string;

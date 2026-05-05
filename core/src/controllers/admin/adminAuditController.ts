@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { getAuditLogs as fetchAuditLogs } from '@esparex/core/services/AdminService';
+import { getAuditLogs as fetchAuditLogs } from '../../services/AdminService';
 import {
     getPaginationParams,
     sendPaginatedResponse,
     sendAdminError
-} from '@esparex/core/utils/adminBaseController';
+} from '../../utils/adminBaseController';
 
 /**
  * GET /api/v1/admin/audit-logs

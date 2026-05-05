@@ -1,5 +1,5 @@
-import Boost from '@esparex/core/models/Boost';
-import Ad from '@esparex/core/models/Ad';
+import Boost from '../models/Boost';
+import Ad from '../models/Ad';
 import { Types } from 'mongoose';
 
 export async function getActiveBoostsForUser(userId: Types.ObjectId | string) {

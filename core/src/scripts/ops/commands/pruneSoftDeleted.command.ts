@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '@esparex/core/types';
+import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
 
 const getMongoUri = (): string => {
   const uri = process.env.MONGODB_URI || process.env.MONGO_URI;

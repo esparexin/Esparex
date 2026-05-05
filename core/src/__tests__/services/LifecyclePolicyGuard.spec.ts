@@ -1,6 +1,6 @@
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
-import { ACTOR_TYPE } from "@esparex/shared/enums/actor";
-import { enforceLifecycleMutationPolicy } from '@esparex/core/services/LifecyclePolicyGuard';
+import { LISTING_STATUS } from "../../constants/enums/listingStatus";
+import { ACTOR_TYPE } from "@esparex/shared";
+import { enforceLifecycleMutationPolicy } from '../../services/LifecyclePolicyGuard';
 
 describe('LifecyclePolicyGuard repost invariants', () => {
     it('rejects repost transition expired -> live', () => {

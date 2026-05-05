@@ -1,7 +1,7 @@
 import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
-import logger from '@esparex/core/utils/logger';
-import { env } from '@esparex/core/config/env';
-import { registerWorkerWithTrace, type TraceableJobData } from '@esparex/core/utils/queueWrapper';
+import logger from '../utils/logger';
+import { env } from '../config/env';
+import { registerWorkerWithTrace, type TraceableJobData } from '../utils/queueWrapper';
 
 export type SchedulerJobName =
     | 'expire_ads_job'
@@ -87,8 +87,8 @@ const schedulerQueue = shouldDisableSchedulerQueue
     });
 
 let processorsRegistered = false;
-let schedulerWorker: Worker<TraceableJobData, unknown, string> | null = undefined;
-let schedulerQueueEvents: QueueEvents | null = undefined;
+let schedulerWorker: Worker<TraceableJobData, unknown, string> | null = null;
+let schedulerQueueEvents: QueueEvents | null = null;
 
 export const registerSchedulerJobProcessors = async (
     processors: Record<SchedulerJobName, SchedulerProcessor>
@@ -152,12 +152,12 @@ export const registerSchedulerRepeatableJobs = async () => {
 export const closeSchedulerQueue = async () => {
     if (!shouldDisableSchedulerQueue && schedulerWorker) {
         await schedulerWorker.close();
-        schedulerWorker = undefined;
+        schedulerWorker = null;
     }
 
     if (!shouldDisableSchedulerQueue && schedulerQueueEvents) {
         await schedulerQueueEvents.close();
-        schedulerQueueEvents = undefined;
+        schedulerQueueEvents = null;
     }
 
     if (!shouldDisableSchedulerQueue && schedulerQueue) {

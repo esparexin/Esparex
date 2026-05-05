@@ -1,9 +1,9 @@
 // core/src/models/Transaction.ts
 import { Schema, Document, Types } from "mongoose";
-import { getUserConnection } from "@esparex/core/config/db";
+import { getUserConnection } from "../config/db";
 import type { Model } from "mongoose";
-import { PAYMENT_STATUS, PAYMENT_STATUS_VALUES, PaymentStatusValue } from "@esparex/core/constants/enums/paymentStatus";
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { PAYMENT_STATUS, PAYMENT_STATUS_VALUES, PaymentStatusValue } from "../constants/enums/paymentStatus";
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface ITransaction extends Document {
     userId: Types.ObjectId | string;

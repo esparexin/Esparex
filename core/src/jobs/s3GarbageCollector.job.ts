@@ -1,12 +1,12 @@
-import logger from "@esparex/core/utils/logger";
-import { env } from '@esparex/core/config/env';
-import { runWithDistributedJobLock } from "@esparex/core/utils/distributedJobLock";
-import AdImage from '@esparex/core/models/AdImage';
+import logger from "../utils/logger";
+import { env } from '../config/env';
+import { runWithDistributedJobLock } from "../utils/distributedJobLock";
+import AdImage from '../models/AdImage';
 import { ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
-import { s3Client, getBucketName } from '@esparex/core/utils/s3';
-import User from '@esparex/core/models/User';
-import Ad from '@esparex/core/models/Ad';
-import Business from '@esparex/core/models/Business';
+import { s3Client, getBucketName } from '../utils/s3';
+import User from '../models/User';
+import Ad from '../models/Ad';
+import Business from '../models/Business';
 
 /**
  * How long after upload a key is treated as "safe" regardless of DB reference.

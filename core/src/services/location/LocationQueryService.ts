@@ -1,10 +1,10 @@
 import { type HydratedDocument } from 'mongoose';
-import Location from '@esparex/core/models/Location';
-import type { ILocation } from '@esparex/core/models/Location';
-import Ad from '@esparex/core/models/Ad';
-import User from '@esparex/core/models/User';
-import { LOCATION_STATUS } from '@esparex/core/constants/enums/locationStatus';
-import logger from '@esparex/core/utils/logger';
+import Location from '../../models/Location';
+import type { ILocation } from '../../models/Location';
+import Ad from '../../models/Ad';
+import User from '../../models/User';
+import { LOCATION_STATUS } from '../../constants/enums/locationStatus';
+import logger from '../../utils/logger';
 
 const LOCATION_LIST_HINT = { isActive: 1, createdAt: -1 } as const;
 let hasWarnedLocationListHintFailure = false;

@@ -1,4 +1,4 @@
-import type { CanonicalGeoPoint } from './Location';
+import type { GeoJSONPoint } from './location';
 import { ServiceStatusValue } from '../enums/serviceStatus';
 
 export type ServiceStatus = ServiceStatusValue;
@@ -24,7 +24,7 @@ export interface Service {
     categoryId: string | { id?: string; name?: string; icon?: string };
     brandId?: string | { id?: string; name?: string };
     modelId?: string | { id?: string; name?: string };
-    locationId: string | { id?: string; name?: string; city?: string; state?: string; country?: string; address?: string; coordinates?: CanonicalGeoPoint };
+    locationId: string | { id?: string; name?: string; city?: string; state?: string; country?: string; address?: string; coordinates?: GeoJSONPoint };
     location?: {
         id?: string;
         locationId?: string;
@@ -36,7 +36,7 @@ export interface Service {
         state?: string;
         country?: string;
         pincode?: string;
-        coordinates?: CanonicalGeoPoint;
+        coordinates?: GeoJSONPoint;
     };
     serviceTypeIds?: string[];
     priceMin?: number;

@@ -1,6 +1,6 @@
 import { Schema, Document, Model } from 'mongoose';
-import { getAdminConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getAdminConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IPageContent extends Document {
     slug: string; // 'about', 'faq', 'terms', etc.

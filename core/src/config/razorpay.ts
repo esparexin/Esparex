@@ -1,7 +1,7 @@
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
-import { env } from '@esparex/core/config/env';
+import { getSystemConfigDoc } from '../utils/systemConfigHelper';
+import { env } from './env';
 
 export type InvoiceUser = {
     _id: { toString: () => string };

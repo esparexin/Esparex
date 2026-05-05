@@ -1,25 +1,25 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import logger from '@esparex/core/utils/logger';
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { mutateStatus } from '@esparex/core/services/StatusMutationService';
-import { ACTOR_TYPE } from "@esparex/shared/enums/actor";
-import { AD_STATUS } from "@esparex/shared/enums/adStatus";
-import { REPORT_STATUS } from "@esparex/shared/enums/reportStatus";
-import { getSingleParam } from '@esparex/core/utils/requestParams';
+import logger from '../../utils/logger';
+import { logAdminAction } from '../../utils/adminLogger';
+import { mutateStatus } from '../../services/StatusMutationService';
+import { ACTOR_TYPE } from "@esparex/shared";
+import { AD_STATUS } from "@esparex/shared";
+import { REPORT_STATUS } from "@esparex/shared";
+import { getSingleParam } from '../../utils/requestParams';
 import {
     getPaginationParams,
     sendPaginatedResponse,
     sendSuccessResponse,
     sendAdminError
-} from '@esparex/core/utils/adminBaseController';
+} from '../../utils/adminBaseController';
 import {
     getAdminReportById,
     findReportForUpdate,
     saveReport,
     updateReportById,
-} from '@esparex/core/services/ReportService';
-import { getReportedAdsAggregation } from '@esparex/core/services/ad/AdDetailService';
+} from '../../services/ReportService';
+import { getReportedAdsAggregation } from '../../services/ad/AdDetailService';
 
 export const getReportedAds = async (req: Request, res: Response) => {
     try {

@@ -14,12 +14,10 @@ import Image from "next/image";
 import { X, Upload, Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
-import { resolveCanonicalLocationId } from "@shared/listingUtils/locationUtils";
-import { useLocationData } from "@/context/LocationContext";
-
 import LocationSelector from "@/components/location/LocationSelector";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
-import { MAX_AD_IMAGES, MAX_AD_DESCRIPTION_CHARS, MAX_AD_TITLE_CHARS } from "@shared/constants/adLimits";
+import { adaptLocationInput } from "@shared";
+import { MAX_AD_IMAGES, MAX_AD_DESCRIPTION_CHARS, MAX_AD_TITLE_CHARS } from "@shared";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import type { ListingLocation } from "@/types/listing";
 import type { GeoJSONPoint } from "@/types/location";
@@ -32,20 +30,12 @@ const getNestedFieldMeta = (source: unknown, path: string): unknown =>
         return (current as Record<string, unknown>)[segment];
     }, source);
 
-const buildLocationValue = (
-    display: string,
-    city: string,
-    state: string | undefined,
-    coordinates?: GeoJSONPoint,
-    locationId?: string,
-    isSnapped?: boolean
-): NonNullable<PostAdFormData["location"]> => ({
-    city,
-    state,
-    display,
-    locationId,
-    coordinates,
-    isSnapped,
+const buildLocationValue = (adapted: ReturnType<typeof adaptLocationInput>): NonNullable<PostAdFormData["location"]> => ({
+    city: adapted?.city || "",
+    state: adapted?.state,
+    display: adapted?.display || "",
+    locationId: adapted?.locationId,
+    coordinates: adapted?.coordinates,
 });
 
 export default function ListingDetailsFields() {
@@ -116,20 +106,23 @@ export default function ListingDetailsFields() {
         }
 
         setUserHasInteracted(true);
-        const geo = loc.coordinates;
-        const canonicalLocationId = resolveCanonicalLocationId(loc);
-        const display = loc.display || loc.name || loc.city || "";
-        const city = loc.city || loc.name || "";
+        const adapted = adaptLocationInput(loc);
+        
+        if (!adapted || !adapted.coordinates) {
+            setError("location.display", {
+                type: "manual",
+                message: "Valid location with coordinates is required."
+            });
+            return;
+        }
 
-        setContextLocation(display, geo, {
-            city,
-            state: loc.state, 
-            id: canonicalLocationId 
+        setContextLocation(adapted.display, adapted.coordinates, {
+            city: adapted.city,
+            state: adapted.state,
+            id: adapted.locationId
         });
 
-        const isSnapped = (loc as SnappedLocation).isSnapped;
-
-        setValue("location", buildLocationValue(display, city, loc.state, geo, canonicalLocationId, isSnapped), {
+        setValue("location", buildLocationValue(adapted), {
             shouldValidate: true,
             shouldDirty: true,
             shouldTouch: true,
@@ -146,26 +139,22 @@ export default function ListingDetailsFields() {
 
         hasSyncedRef.current = true;
 
-        const display =
-            locFormattedAddress ||
-            (locState ? `${locName || locCity}, ${locState}` : locName || locCity) ||
-            "";
-        const locationSeed: Partial<ListingLocation> = {
-            city: locCity,
-            state: locState,
-            locationId: locLocationId,
-        };
-        const canonicalLocationId = resolveCanonicalLocationId(locationSeed);
+        const adapted = adaptLocationInput({
+            ...globalLocation,
+            display: locFormattedAddress || (locState ? `${locName || locCity}, ${locState}` : locName || locCity) || ""
+        });
 
-        setContextLocation(display, locCoordinates, {
-            city: locCity || "",
-            state: locState,
-            id: canonicalLocationId,
+        if (!adapted) return;
+
+        setContextLocation(adapted.display, adapted.coordinates!, {
+            city: adapted.city,
+            state: adapted.state,
+            id: adapted.locationId,
         });
 
         setValue(
             "location",
-            buildLocationValue(display, locCity || "", locState, locCoordinates, canonicalLocationId, locIsSnapped),
+            buildLocationValue(adapted),
             { shouldValidate: true, shouldDirty: false }
         );
     }, [

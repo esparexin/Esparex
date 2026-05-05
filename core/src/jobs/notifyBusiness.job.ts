@@ -1,9 +1,9 @@
-import Business from '@esparex/core/models/Business';
-import { emailService } from '@esparex/core/services/EmailService';
-import { jobRunner } from '@esparex/core/utils/jobRunner';
-import logger from '@esparex/core/utils/logger';
-import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
-import { getFrontendAppUrl } from '@esparex/core/utils/appUrl';
+import Business from '../models/Business';
+import { emailService } from '../services/EmailService';
+import { jobRunner } from '../utils/jobRunner';
+import logger from '../utils/logger';
+import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import { getFrontendAppUrl } from '../utils/appUrl';
 
 export const runNotifyBusinessJob = async () => {
     await runWithDistributedJobLock(

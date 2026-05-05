@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import Ad, { IAd } from '@esparex/core/models/Ad';
-import { getUserConnection } from '@esparex/core/config/db';
-import logger from '@esparex/core/utils/logger';
-import { AppError } from '@esparex/core/utils/AppError';
+import Ad, { IAd } from '../models/Ad';
+import { getUserConnection } from '../config/db';
+import logger from '../utils/logger';
+import { AppError } from '../utils/AppError';
 
 // Specialized Services
 import { AdDuplicateService, logDuplicateEvent, buildDuplicateFingerprint } from './AdDuplicateService';
@@ -11,11 +11,11 @@ import { AdCreationService } from './AdCreationService';
 import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
 import { mutateStatus } from './StatusMutationService';
 import { computeActiveExpiry } from './AdStatusService';
-import { enqueueImageOptimization } from '@esparex/core/queues/imageQueue';
+import { enqueueImageOptimization } from '../queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
-import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
-import type { AdContext } from '@esparex/core/types/ad.types';
+import { LISTING_TYPE } from '../constants/enums/listingType';
+import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import type { AdContext } from '../types/ad.types';
 
 export interface AdOrchestrationContext {
     authUserId: string; // The authenticated subject (JWT)

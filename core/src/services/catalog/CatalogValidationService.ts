@@ -1,9 +1,9 @@
-import Category from '@esparex/core/models/Category';
-import Brand from '@esparex/core/models/Brand';
-import Model from '@esparex/core/models/Model';
-import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { validateObjectIdOrThrow } from '@esparex/core/utils/idUtils';
+import Category from '../../models/Category';
+import Brand from '../../models/Brand';
+import Model from '../../models/Model';
+import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
+import { validateObjectIdOrThrow } from '../../utils/idUtils';
 
 // ─── Shared Mongo query fragments ────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 import { Schema, Model, Types, Document } from 'mongoose';
-import { getUserConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface ISavedSearch extends Document {
     userId: Types.ObjectId;

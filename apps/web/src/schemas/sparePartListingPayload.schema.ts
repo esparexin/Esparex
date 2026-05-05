@@ -12,7 +12,7 @@
  */
 
 import { z } from 'zod';
-import { BaseSparePartPayloadSchema } from "@shared/schemas/sparePartPayload.schema";
+import { BaseSparePartPayloadSchema } from "@shared";
 
 // UI-only fields: display names that are resolved to IDs before submission
 const uiOnlyFields = z.object({

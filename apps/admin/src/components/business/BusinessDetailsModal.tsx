@@ -1,6 +1,6 @@
 "use client";
 
-import { Business } from "@esparex/shared/types";
+import { Business } from "@esparex/shared";
 import {
     X,
     Building2,

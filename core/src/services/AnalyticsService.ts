@@ -1,6 +1,6 @@
-import User from '@esparex/core/models/User';
-import Ad from '@esparex/core/models/Ad';
-import RevenueAnalytics from '@esparex/core/models/RevenueAnalytics';
+import User from '../models/User';
+import Ad from '../models/Ad';
+import RevenueAnalytics from '../models/RevenueAnalytics';
 
 interface AggregationBucket {
     _id: {

@@ -33,9 +33,9 @@ jest.mock("@esparex/core/services/TrendingService", () => ({
     recordAdAnalyticsEvent: jest.fn(),
 }));
 
-import SavedAd from "@esparex/core/models/SavedAd";
-import Ad from "@esparex/core/models/Ad";
-import { saveAd, unsaveAd } from "@esparex/core/services/SavedAdService";
+import SavedAd from "../../models/SavedAd";
+import Ad from "../../models/Ad";
+import { saveAd, unsaveAd } from "../../services/SavedAdService";
 
 const mockSavedAd = SavedAd as unknown as {
     aggregate: jest.Mock;

@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
-import { Conversation } from '@esparex/core/models/Conversation';
-import { ChatReport } from '@esparex/core/models/ChatReport';
-import type { ChatReportReasonValue } from '@esparex/core/constants/enums/chatStatus';
+import { Conversation } from '../../models/Conversation';
+import { ChatReport } from '../../models/ChatReport';
+import type { ChatReportReasonValue } from '../../constants/enums/chatStatus';
 
 export async function reportConversation(
     conversationId: string,

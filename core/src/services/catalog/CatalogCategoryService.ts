@@ -5,18 +5,18 @@
  */
 
 import type { ClientSession, Model as MongooseModel } from 'mongoose';
-import Category from '@esparex/core/models/Category';
-import Brand from '@esparex/core/models/Brand';
-import CatalogModel from '@esparex/core/models/Model';
-import SparePart from '@esparex/core/models/SparePart';
-import ServiceType from '@esparex/core/models/ServiceType';
-import ScreenSize from '@esparex/core/models/ScreenSize';
-import logger from '@esparex/core/utils/logger';
+import Category from '../../models/Category';
+import Brand from '../../models/Brand';
+import CatalogModel from '../../models/Model';
+import SparePart from '../../models/SparePart';
+import ServiceType from '../../models/ServiceType';
+import ScreenSize from '../../models/ScreenSize';
+import logger from '../../utils/logger';
 
 // Re-export the Category model so controllers can pass it to generic handler
 // utilities (handlePaginatedContent, handleCatalogToggleStatus) without importing
 // from models/ directly.
-export { default as CategoryModel } from '@esparex/core/models/Category';
+export { default as CategoryModel } from '../../models/Category';
 
 // ─── Catalog-wide counts ──────────────────────────────────────────────────────
 

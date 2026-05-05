@@ -1,6 +1,6 @@
 import type { User } from "@shared/types/User";
 import { USER_STATUS } from "@shared/enums/userStatus";
-import { isActiveUserStatus, normalizeUserStatus } from "@shared/utils/userStatus";
+import { isActiveUserStatus, normalizeUserStatus } from "@shared";
 
 export type ManagedUser = User & {
     totalAdsPosted?: number;

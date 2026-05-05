@@ -8,7 +8,7 @@ import {
     deleteSavedSearch,
     getSavedSearches
 } from '@esparex/core/services/SavedSearchService';
-import type { SavedSearchCreatePayload } from "@shared/schemas/savedSearch.schema";
+import type { SavedSearchCreatePayload } from "@shared";
 
 const getUserId = (req: Request): string | null => {
     const user = req.user;

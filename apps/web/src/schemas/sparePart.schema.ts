@@ -1,5 +1,4 @@
-import { SparePartSchema } from "@shared/schemas/sparePart.schema";
-import type { SparePart } from "@shared/schemas/sparePart.schema";
+import { SparePartSchema, type SparePart } from "@shared";
 
 export { SparePartSchema };
 export type { SparePart };

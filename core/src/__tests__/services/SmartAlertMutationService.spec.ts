@@ -38,20 +38,20 @@ jest.mock('@esparex/core/services/location/LocationNormalizer', () => ({
 }));
 
 import mongoose from 'mongoose';
-import { calculateUserPlan } from '@esparex/core/services/PlanEngine';
-import { PlanModel, UserPlanModel } from '@esparex/core/services/PlanService';
-import { consumeCredit, credit, WalletModel } from '@esparex/core/services/WalletService';
-import { SmartAlertModel } from '@esparex/core/services/SmartAlertService';
-import { resolveMasterDataIds } from '@esparex/core/utils/masterDataResolver';
+import { calculateUserPlan } from '../../services/PlanEngine';
+import { PlanModel, UserPlanModel } from '../../services/PlanService';
+import { consumeCredit, credit, WalletModel } from '../../services/WalletService';
+import { SmartAlertModel } from '../../services/SmartAlertService';
+import { resolveMasterDataIds } from '../../utils/masterDataResolver';
 import {
     normalizeCoordinates,
     normalizeLocation,
-} from '@esparex/core/services/location/LocationNormalizer';
+} from '../../services/location/LocationNormalizer';
 import {
     createSmartAlertMutation,
     deleteSmartAlertMutation,
     toggleSmartAlertStatusMutation,
-} from '@esparex/core/services/smartAlert/SmartAlertMutationService';
+} from '../../services/smartAlert/SmartAlertMutationService';
 
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;
 const mockedUserPlanFind = UserPlanModel.find as jest.Mock;

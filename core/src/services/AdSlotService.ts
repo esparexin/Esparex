@@ -1,7 +1,7 @@
 import mongoose, { ClientSession } from 'mongoose';
-import UserWallet from '@esparex/core/models/UserWallet';
+import UserWallet from '../models/UserWallet';
 import { recordTransaction, consumeCredit } from './WalletService';
-import { AppError } from '@esparex/core/utils/AppError';
+import { AppError } from '../utils/AppError';
 
 export type AdPostingSlotSource = 'free_slot' | 'ad_credit' | 'idempotency_hit';
 
@@ -49,7 +49,7 @@ export const getAdPostingBalance = async (userId: string, session?: ClientSessio
     };
 };
 
-import redisClient from '@esparex/core/config/redis';
+import redisClient from '../config/redis';
 
 export const withUserPostingLock = async <T>(userId: string, ttlSeconds: number, callback: () => Promise<T>): Promise<T> => {
     const lockKey = `lock:posting_quota:${userId}`;

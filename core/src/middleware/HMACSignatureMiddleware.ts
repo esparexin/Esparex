@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
-import { env } from '@esparex/core/config/env';
-import logger from '@esparex/core/utils/logger';
+import { env } from '../config/env';
+import logger from '../utils/logger';
 
 /**
  * ESPAREX — CANONICAL HMAC SIGNATURE MIDDLEWARE (SSOT)

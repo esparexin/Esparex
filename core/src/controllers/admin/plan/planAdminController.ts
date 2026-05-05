@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { respond } from "@esparex/core/utils/respond";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { AppError } from '@esparex/core/utils/AppError';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
+import { logAdminAction } from '../../../utils/adminLogger';
+import { respond } from "../../../utils/respond";
+import { sendErrorResponse } from "../../../utils/errorResponse";
+import { AppError } from '../../../utils/AppError';
+import { escapeRegExp } from '../../../utils/stringUtils';
 import { buildPlanPayload, getErrorMessage, getRequiredPlanId } from './shared';
 import {
     adminCreatePlan,
     adminUpdatePlan,
     adminGetPlans,
     adminGetPlanById,
-} from '@esparex/core/services/PlanService';
+} from '../../../services/PlanService';
 
 export const createPlan = async (req: Request, res: Response) => {
     try {

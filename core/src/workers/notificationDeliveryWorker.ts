@@ -1,8 +1,8 @@
 import { Worker } from 'bullmq';
-import { redisConnection } from '@esparex/core/queues/redisConnection';
-import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
+import { redisConnection } from '../queues/redisConnection';
+import { NotificationDispatcher } from '../services/notification/NotificationDispatcher';
 import { NotificationIntent } from '../domain/NotificationIntent';
-import logger from '@esparex/core/utils/logger';
+import logger from '../utils/logger';
 
 /**
  * Notification Delivery Worker

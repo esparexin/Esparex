@@ -1,6 +1,6 @@
-import { getRazorpayClient } from '@esparex/core/config/razorpay';
-import { type ITransaction } from '@esparex/core/models/Transaction';
-import logger from '@esparex/core/utils/logger';
+import { getRazorpayClient } from '../config/razorpay';
+import { type ITransaction } from '../models/Transaction';
+import logger from '../utils/logger';
 
 export type RazorpayOrderLike = {
     amount?: number;

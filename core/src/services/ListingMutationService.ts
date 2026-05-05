@@ -1,6 +1,6 @@
-import { processImages } from '@esparex/core/utils/imageProcessor';
-import { sanitizeStoredImageUrls, deleteFromS3Url } from '@esparex/core/utils/s3';
-import logger from '@esparex/core/utils/logger';
+import { processImages } from '../utils/imageProcessor';
+import { sanitizeStoredImageUrls, deleteFromS3Url } from '../utils/s3';
+import logger from '../utils/logger';
 
 export interface BaseListingCreationContext {
     userId: string;

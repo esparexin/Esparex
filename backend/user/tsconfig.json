@@ -4,6 +4,7 @@
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "bundler",
+    "baseUrl": ".",
     "rootDir": "./src",
     "outDir": "./dist",
     "emitDecoratorMetadata": true,
@@ -16,10 +17,10 @@
     "resolveJsonModule": true,
     "lib": ["ES2023", "DOM"],
     "paths": {
-      "@shared/*": ["./../../shared/dist/*", "./../../shared/src/*"],
-      "@shared": ["./../../shared/dist/index.d.ts", "./../../shared/src/index.ts"],
-      "@esparex/core/*": ["./../../core/dist/*", "./../../core/src/*"],
-      "@esparex/core": ["./../../core/dist/index.d.ts", "./../../core/src/index.ts"]
+      "@shared": ["./../../shared/src/index.ts"],
+      "@shared/*": ["./../../shared/src/*"],
+      "@esparex/core": ["./../../core/src/index.ts"],
+      "@esparex/core/*": ["./../../core/src/*"]
     }
   },
   "include": [

@@ -1,7 +1,7 @@
-import { jobRunner } from "@esparex/core/utils/jobRunner";
-import logger from "@esparex/core/utils/logger";
-import { runWithDistributedJobLock } from "@esparex/core/utils/distributedJobLock";
-import { purgeExpiredReadNotifications } from "@esparex/core/services/notification/NotificationRetentionService";
+import { jobRunner } from "../utils/jobRunner";
+import logger from "../utils/logger";
+import { runWithDistributedJobLock } from "../utils/distributedJobLock";
+import { purgeExpiredReadNotifications } from "../services/notification/NotificationRetentionService";
 
 export const runCleanupReadNotificationsJob = async () => {
     await runWithDistributedJobLock(

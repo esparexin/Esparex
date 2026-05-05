@@ -5,13 +5,13 @@
  */
 
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { respond, sendSuccessResponse } from "@esparex/core/utils/respond";
-import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
+import logger from '../../../utils/logger';
+import { respond, sendSuccessResponse } from "../../../utils/respond";
+import { handlePaginatedContent } from "../../../utils/contentHandler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import { CATALOG_STATUS } from "@esparex/shared/enums/catalogStatus";
+import { CATALOG_STATUS } from "@esparex/shared";
 import {
     BrandModel,
     CatalogModel,
@@ -30,10 +30,10 @@ import {
     findModelByNameAndBrand,
     createModelRecord,
     checkModelDependencies,
-} from '@esparex/core/services/catalog/CatalogBrandModelService';
-import { validateBrandIsActive, validateCategoryIsActive } from '@esparex/core/services/catalog/CatalogValidationService';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+} from '../../../services/catalog/CatalogBrandModelService';
+import { validateBrandIsActive, validateCategoryIsActive } from '../../../services/catalog/CatalogValidationService';
+import { escapeRegExp } from '../../../utils/stringUtils';
+import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
 import {
     sendCatalogError,
     QueryRecord,
@@ -48,17 +48,17 @@ import {
     isDuplicateKeyError,
     sendEmptyPublicList
 } from './shared';
-import { sendErrorResponse as sendContractErrorResponse } from "@esparex/core/utils/errorResponse";
-import { validateBrandSuggestion, validateModelSuggestion } from '@esparex/core/utils/suggestionValidation';
+import { sendErrorResponse as sendContractErrorResponse } from "../../../utils/errorResponse";
+import { validateBrandSuggestion, validateModelSuggestion } from '../../../utils/suggestionValidation';
 import {
     brandCreateSchema,
     brandUpdateSchema,
     modelCreateSchema,
     modelUpdateSchema,
     rejectionSchema
-} from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
+} from '../../../validators/catalog.validator';
+import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
+import { getCache, setCache } from '../../../utils/redisCache';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes

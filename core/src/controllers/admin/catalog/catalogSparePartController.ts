@@ -5,11 +5,11 @@
  */
 
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
+import logger from '../../../utils/logger';
+import { handlePaginatedContent } from "../../../utils/contentHandler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { sendSuccessResponse } from "../../../utils/respond";
 import {
     SparePartModel,
     findCategoryIdBySlug,
@@ -17,8 +17,8 @@ import {
     getActiveModelIdsForCategories,
     findSparePartById,
     checkSparePartDependencies,
-} from '@esparex/core/services/catalog/CatalogSparePartService';
-import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils/categoryCanonical';
+} from '../../../services/catalog/CatalogSparePartService';
+import { resolveEquivalentActiveCategoryIds } from '../../../utils/categoryCanonical';
 import {
     sendCatalogError,
     QueryRecord,
@@ -32,15 +32,15 @@ import {
     sendEmptyPublicList,
     getAdminActorId
 } from './shared';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
-import { validateSparePartRelations } from '@esparex/core/services/catalog/CatalogValidationService';
+import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
+import { validateSparePartRelations } from '../../../services/catalog/CatalogValidationService';
 import {
     sparePartCreateSchema,
     sparePartUpdateSchema
-} from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared/enums/listingType";
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
+} from '../../../validators/catalog.validator';
+import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
+import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared";
+import { getCache, setCache } from '../../../utils/redisCache';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes

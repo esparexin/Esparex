@@ -1,5 +1,5 @@
-import User from '@esparex/core/models/User';
-import Ad from '@esparex/core/models/Ad';
+import User from '../models/User';
+import Ad from '../models/Ad';
 
 interface CountResult { count: number }
 interface MonthlyCountResult { _id: { month: number; year: number }; count: number }
@@ -23,27 +23,27 @@ interface CardFacetResult {
 }
 interface RevenueAggResult { _id: null; total: number }
 
-import CatalogModel from '@esparex/core/models/Model';
-import Report from '@esparex/core/models/Report';
-import Business from '@esparex/core/models/Business';
-import RevenueAnalytics from '@esparex/core/models/RevenueAnalytics';
-import ContactSubmission from '@esparex/core/models/ContactSubmission';
-import Location from '@esparex/core/models/Location';
-import LocationAnalytics from '@esparex/core/models/LocationAnalytics';
-import AdminLog from '@esparex/core/models/AdminLog';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
-import { LISTING_TYPE } from '@esparex/core/constants/enums/listingType';
-import { BUSINESS_STATUS } from '@esparex/core/constants/enums/businessStatus';
-import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
-import { REPORT_STATUS } from '@esparex/core/constants/enums/reportStatus';
-import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
+import CatalogModel from '../models/Model';
+import Report from '../models/Report';
+import Business from '../models/Business';
+import RevenueAnalytics from '../models/RevenueAnalytics';
+import ContactSubmission from '../models/ContactSubmission';
+import Location from '../models/Location';
+import LocationAnalytics from '../models/LocationAnalytics';
+import AdminLog from '../models/AdminLog';
+import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { LISTING_TYPE } from '../constants/enums/listingType';
+import { BUSINESS_STATUS } from '../constants/enums/businessStatus';
+import { CATALOG_STATUS } from '../constants/enums/catalogStatus';
+import { REPORT_STATUS } from '../constants/enums/reportStatus';
+import { USER_STATUS } from '../constants/enums/userStatus';
+import { escapeRegExp } from '../utils/stringUtils';
 import {
     buildLocationSummary,
     loadHierarchyMapForLocations,
     normalizeStateLabel,
     resolveLocationScope,
-} from '@esparex/core/utils/locationHierarchy';
+} from '../utils/locationHierarchy';
 
 export const getDashboardOverviewStats = async (publicAdFilter: Record<string, unknown>) => {
     const [

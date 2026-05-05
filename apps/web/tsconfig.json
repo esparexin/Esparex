@@ -20,10 +20,10 @@
         "./src/*"
       ],
       "@shared/*": [
-        "../../shared/*"
+        "../../shared/src/*"
       ],
       "@shared": [
-        "../../shared/index.ts"
+        "../../shared/src/index.ts"
       ]
     },
     /* Linting */

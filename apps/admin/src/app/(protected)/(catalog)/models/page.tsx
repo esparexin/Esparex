@@ -3,7 +3,7 @@
 import { useAdminModels } from "@/hooks/useAdminModels";
 import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
-import type { Model } from "@esparex/shared/types";
+import type { Model } from "@esparex/shared";
 import { useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { Layers, AlertTriangle, Loader2 } from "lucide-react";
 import { CatalogModal } from "@/components/catalog/CatalogModal";

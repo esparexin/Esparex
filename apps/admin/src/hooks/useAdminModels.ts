@@ -3,7 +3,7 @@ import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import type { Model } from "@shared/types";
 import { useToast } from "@/context/ToastContext";
 import { useCallback } from "react";
-import { CreateModelDTO, UpdateModelDTO } from "@shared/schemas/catalog.schema";
+import { CreateModelDTO, UpdateModelDTO } from "@shared";
 
 
 export function useAdminModels() {

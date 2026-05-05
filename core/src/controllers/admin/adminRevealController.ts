@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { sendAdminError } from '@esparex/core/utils/adminBaseController';
+import { sendAdminError } from '../../utils/adminBaseController';
 import {
     getPhoneRevealLogsPaginated,
     getPhoneRequestsPaginated,
-} from '@esparex/core/services/AdminRevealService';
+} from '../../services/AdminRevealService';
 
 /**
  * Get all phone reveal logs for auditing (Admin only)

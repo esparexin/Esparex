@@ -27,10 +27,10 @@ import {
 import { updateLocationStats as runStatsUpdate } from '../workers/locationAnalyticsWorker';
 import type { AdminLogFn } from './AdminListingsService';
 import slugify from 'slugify';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
-import logger from '@esparex/core/utils/logger';
-import { delCache, getCache, setCache, invalidateLocationCaches } from '@esparex/core/utils/redisCache';
-import { LOCATION_STATUS } from '@esparex/core/constants/enums/locationStatus';
+import { escapeRegExp } from '../utils/stringUtils';
+import logger from '../utils/logger';
+import { delCache, getCache, setCache, invalidateLocationCaches } from '../utils/redisCache';
+import { LOCATION_STATUS } from '../constants/enums/locationStatus';
 import {
     normalizeLocationResponse,
     normalizeCoordinates
@@ -46,8 +46,8 @@ import {
     resolveLocationSummary,
     asString as resolveStringField,
     CanonicalLocationDoc
-} from '@esparex/core/utils/locationHierarchy';
-import { AppError } from '@esparex/core/utils/AppError';
+} from '../utils/locationHierarchy';
+import { AppError } from '../utils/AppError';
 
 // --- Helpers ---
 

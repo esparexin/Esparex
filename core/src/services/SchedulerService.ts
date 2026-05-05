@@ -1,12 +1,12 @@
 import type { Types } from "mongoose";
 
-import ScheduledNotification from "@esparex/core/models/ScheduledNotification";
-import NotificationLog from "@esparex/core/models/NotificationLog";
-import { NOTIFICATION_TYPE } from "@esparex/core/constants/enums/notificationType";
+import ScheduledNotification from "../models/ScheduledNotification";
+import NotificationLog from "../models/NotificationLog";
+import { NOTIFICATION_TYPE } from "../constants/enums/notificationType";
 import { NotificationIntent } from "../domain/NotificationIntent";
 import { NotificationDispatcher } from "./notification/NotificationDispatcher";
-import logger from "@esparex/core/utils/logger";
-import { runWithDistributedJobLock } from "@esparex/core/utils/distributedJobLock";
+import logger from "../utils/logger";
+import { runWithDistributedJobLock } from "../utils/distributedJobLock";
 import { createAdminNotificationTargetCursor } from "./notification/AdminNotificationTargetingService";
 
 interface ScheduledJobLike {

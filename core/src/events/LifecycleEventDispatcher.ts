@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
-import logger from '@esparex/core/utils/logger';
-import { env } from '@esparex/core/config/env';
+import logger from '../utils/logger';
+import { env } from '../config/env';
 
 // ---------------------------------------------------------
 // Event Payload Definitions

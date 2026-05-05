@@ -40,11 +40,11 @@ jest.mock("@esparex/core/utils/auth", () => ({
     hashPassword: jest.fn().mockResolvedValue("hashed-pw"),
 }));
 
-import Admin from "@esparex/core/models/Admin";
+import Admin from "../../models/Admin";
 import {
     normalizeAdminManagedUser,
     isLastActiveSuperAdmin,
-} from "@esparex/core/services/AdminUsersService";
+} from "../../services/AdminUsersService";
 
 const mockAdmin = Admin as unknown as {
     findById: jest.Mock;

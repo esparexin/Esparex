@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import type { IAuthUser } from '@esparex/core/types/auth';
 import redis from '@esparex/core/config/redis';
 import logger from '@esparex/core/utils/logger';
-import { type ListingTypeValue, LISTING_TYPE } from "@esparex/shared/enums/listingType";
+import { type ListingTypeValue, LISTING_TYPE } from "@esparex/shared";
 
 export const duplicateCooldownMiddleware = (listingType: ListingTypeValue = LISTING_TYPE.AD) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {

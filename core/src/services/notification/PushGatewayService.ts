@@ -1,7 +1,7 @@
-import User from '@esparex/core/models/User';
-import admin from '@esparex/core/config/firebaseAdmin';
-import logger from '@esparex/core/utils/logger';
-import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
+import User from '../../models/User';
+import admin from '../../config/firebaseAdmin';
+import logger from '../../utils/logger';
+import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
 
 export interface TokenResponse {
     success: boolean;

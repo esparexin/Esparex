@@ -54,12 +54,12 @@ jest.mock("@esparex/core/models/LocationAnalytics", () => ({
     default: { find: jest.fn() },
 }));
 
-import Ad from "@esparex/core/models/Ad";
-import User from "@esparex/core/models/User";
-import Report from "@esparex/core/models/Report";
-import Business from "@esparex/core/models/Business";
-import RevenueAnalytics from "@esparex/core/models/RevenueAnalytics";
-import { getDashboardCardStats } from "@esparex/core/services/AdminDashboardService";
+import Ad from "../../models/Ad";
+import User from "../../models/User";
+import Report from "../../models/Report";
+import Business from "../../models/Business";
+import RevenueAnalytics from "../../models/RevenueAnalytics";
+import { getDashboardCardStats } from "../../services/AdminDashboardService";
 
 const mockAd = Ad as unknown as { aggregate: jest.Mock };
 const mockUser = User as unknown as { countDocuments: jest.Mock };

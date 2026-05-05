@@ -1,4 +1,4 @@
-import { getNormalizedPlanLimits } from "@esparex/shared/utils/planEntitlements";
+import { getNormalizedPlanLimits } from "@esparex/shared";
 
 interface PlanLike {
     credits?: number;

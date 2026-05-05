@@ -62,6 +62,17 @@ export default tseslint.config(
       "esparex/no-status-mutation-outside-status-mutation-service": "error",
       "no-console": "warn",
       "no-undef": "error",
+      "no-restricted-imports": [
+        "error",
+        {
+          "patterns": [
+            {
+              "group": ["@esparex/shared/*", "../shared/*", "**/shared/src/*"],
+              "message": "Please use the clean '@esparex/shared' entry point instead of internal paths."
+            }
+          ]
+        }
+      ],
     },
   },
 

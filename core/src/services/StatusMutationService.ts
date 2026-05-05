@@ -1,22 +1,22 @@
 import mongoose, { ClientSession } from 'mongoose';
-import { getUserConnection } from '@esparex/core/config/db';
+import { getUserConnection } from '../config/db';
 import { 
     validateTransition as validateLifecycleTransition, 
     resolveLifecycleDomain,
     type ValidDomain 
 } from './LifecycleGuard';
 import { enforceLifecycleMutationPolicy } from './LifecyclePolicyGuard';
-import StatusHistory from '@esparex/core/models/StatusHistory';
-import AdminMetrics from '@esparex/core/models/AdminMetrics';
-import logger from '@esparex/core/utils/logger';
-import { ActorMetadata, ACTOR_TYPE } from '@esparex/core/constants/enums/actor';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import StatusHistory from '../models/StatusHistory';
+import AdminMetrics from '../models/AdminMetrics';
+import logger from '../utils/logger';
+import { ActorMetadata, ACTOR_TYPE } from '../constants/enums/actor';
+import { LISTING_STATUS } from "../constants/enums/listingStatus";
 import { lifecycleEvents } from '../events';
 
 // Import domain models
-import Ad from '@esparex/core/models/Ad';
-import User from '@esparex/core/models/User';
-import Business from '@esparex/core/models/Business';
+import Ad from '../models/Ad';
+import User from '../models/User';
+import Business from '../models/Business';
 
 export type { ValidDomain };
 

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import Ad from '@esparex/core/models/Ad';
-import { getUserConnection } from '@esparex/core/config/db';
-import { AdContext } from '@esparex/core/types/ad.types';
+import Ad from '../models/Ad';
+import { getUserConnection } from '../config/db';
+import { AdContext } from '../types/ad.types';
 import { mutateStatus } from './StatusMutationService';
 
 // Leaf Services
@@ -13,7 +13,7 @@ import { assertOwnership } from './ad/AdPolicyService';
 // Re-export for backward compatibility
 export { assertOwnership };
 
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '@esparex/core/utils/redisCache';
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
 
 export const updateAd = async (
     adId: string,

@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import logger from '@esparex/core/utils/logger';
+import logger from '../utils/logger';
 import { env } from './env';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';

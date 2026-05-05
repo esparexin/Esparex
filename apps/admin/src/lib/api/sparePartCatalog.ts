@@ -12,7 +12,7 @@ export interface SparePartFilters {
     [key: string]: string | number | boolean | undefined;
 }
 
-import type { SparePart, CreateSparePartDTO, UpdateSparePartDTO } from "@shared/schemas/catalog.schema";
+import type { SparePart, CreateSparePartDTO, UpdateSparePartDTO } from "@shared";
 
 export async function getSpareParts(filters?: SparePartFilters) {
     const { search, q, ...rest } = filters ?? {};

@@ -1,6 +1,6 @@
-import type { IConversationDTO } from "@esparex/shared/contracts/chat.contracts";
+import type { IConversationDTO } from "@esparex/shared";
 import { isListingChatClosed } from '../ChatAvailabilityService';
-import type { IChatAttachment } from '@esparex/core/models/ChatMessage';
+import type { IChatAttachment } from '../../models/ChatMessage';
 
 export const PAGE_SIZE_MESSAGES = 30;
 export const PAGE_SIZE_INBOX = 20;

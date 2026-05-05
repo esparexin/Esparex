@@ -2,9 +2,9 @@ import type { Request, Response } from 'express';
 import {
     sendSuccessResponse,
     sendAdminError
-} from '@esparex/core/utils/adminBaseController';
-import * as adminListingsService from '@esparex/core/services/AdminListingsService';
-import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
+} from '../../utils/adminBaseController';
+import * as adminListingsService from '../../services/AdminListingsService';
+import type { AdminLogFn } from '../../services/AdminListingsService';
 import {
     serializeLegacyCountsAdapter,
     serializeLifecycleActionResponse,
@@ -12,8 +12,8 @@ import {
     serializeModerationDetailResponse,
     serializeModerationListResponse,
 } from './listingModerationSerializer';
-import { logAdminActionDirect } from '@esparex/core/utils/adminLogger';
-import type { IAuthUser } from '@esparex/core/types/auth';
+import { logAdminActionDirect } from '../../utils/adminLogger';
+import type { IAuthUser } from '../../types/auth';
 
 // ---------------------------------------------------------
 // Helpers

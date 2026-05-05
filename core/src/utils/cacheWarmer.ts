@@ -1,4 +1,4 @@
-import Category from '@esparex/core/models/Category';
+import Category from '../models/Category';
 import { setCache, CACHE_KEYS, CACHE_TTLS } from './redisCache';
 import logger from './logger';
 

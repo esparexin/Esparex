@@ -1,9 +1,9 @@
 import { Schema, Model, Types } from "mongoose";
-import { getUserConnection } from "@esparex/core/config/db";
-import softDeletePlugin, { ISoftDeleteDocument } from "@esparex/core/utils/softDeletePlugin";
-import { hasValidCoordinateArray, sanitizeGeoPoint } from "@esparex/shared/utils/geoUtils";
-import { LOCATION_LEVELS, buildLocationSlug, normalizeLocationNameForSearch } from "@esparex/core/utils/locationPrimitives";
-import { LOCATION_STATUS, LOCATION_STATUS_VALUES, type LocationStatusValue } from "@esparex/core/constants/enums/locationStatus";
+import { getUserConnection } from "../config/db";
+import softDeletePlugin, { ISoftDeleteDocument } from "../utils/softDeletePlugin";
+import { hasValidCoordinateArray, sanitizeGeoPoint } from "@esparex/shared";
+import { LOCATION_LEVELS, buildLocationSlug, normalizeLocationNameForSearch } from "../utils/locationPrimitives";
+import { LOCATION_STATUS, LOCATION_STATUS_VALUES, type LocationStatusValue } from "../constants/enums/locationStatus";
 
 /* -------------------------------------------------------------------------- */
 /* TYPES                                                                      */

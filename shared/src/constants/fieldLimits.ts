@@ -160,31 +160,13 @@ export const BUSINESS_LIMITS = {
     },
 } as const;
 
+import { AD_LIMITS as AD_CORE_LIMITS } from "./adLimits";
+
 // ============================================================================
-// AD-SPECIFIC LIMITS (imported from adLimits.ts for consistency)
+// AD-SPECIFIC LIMITS
 // ============================================================================
 
-export const AD_LIMITS = {
-    IMAGES: {
-        MIN: 1,
-        MAX: 6,
-        MAX_BYTES: 5 * 1024 * 1024, // 5MB
-        ERROR_MIN: 'At least 1 image is required',
-        ERROR_MAX: 'Maximum 6 images allowed',
-    },
-
-    SPARE_PARTS: {
-        MAX: 20,
-        ERROR_MAX: 'Maximum 20 spare parts allowed',
-    },
-
-    PRICE: {
-        MIN: 0,
-        MAX: 10000000, // 1 crore
-        ERROR_MIN: 'Price must be at least 0',
-        ERROR_MAX: 'Price cannot exceed ₹1 crore',
-    },
-} as const;
+export const AD_LIMITS = AD_CORE_LIMITS;
 
 // ============================================================================
 // SERVICE LIMITS

@@ -1,9 +1,9 @@
-import logger from '@esparex/core/utils/logger';
+import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
-import { emailService } from '@esparex/core/services/EmailService';
-import Ad from '@esparex/core/models/Ad';
-import User from '@esparex/core/models/User';
-import { getFrontendAppUrl } from '@esparex/core/utils/appUrl';
+import { emailService } from '../../services/EmailService';
+import Ad from '../../models/Ad';
+import User from '../../models/User';
+import { getFrontendAppUrl } from '../../utils/appUrl';
 
 const FRONTEND_URL = getFrontendAppUrl();
 

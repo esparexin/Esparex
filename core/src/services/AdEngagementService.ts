@@ -6,11 +6,11 @@
  */
 
 import mongoose from 'mongoose';
-import Ad, { type IAd } from '@esparex/core/models/Ad';
-import logger from '@esparex/core/utils/logger';
+import Ad, { type IAd } from '../models/Ad';
+import logger from '../utils/logger';
 import { touchLocationAnalytics } from './location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from './TrendingService';
-import { LISTING_STATUS } from "@esparex/core/constants/enums/listingStatus";
+import { LISTING_STATUS } from "../constants/enums/listingStatus";
 
 // ─────────────────────────────────────────────────
 // VIEW TRACKING

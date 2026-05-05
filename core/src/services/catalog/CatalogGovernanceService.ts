@@ -4,10 +4,10 @@
  */
 
 import mongoose from 'mongoose';
-import Category from '@esparex/core/models/Category';
-import Ad from '@esparex/core/models/Ad';
-import Brand from '@esparex/core/models/Brand';
-import CatalogModel from '@esparex/core/models/Model';
+import Category from '../../models/Category';
+import Ad from '../../models/Ad';
+import Brand from '../../models/Brand';
+import CatalogModel from '../../models/Model';
 
 export async function findCategoryByIdLean(id: string) {
     return Category.findById(id).lean<{ name: string; isActive: boolean } | null>();

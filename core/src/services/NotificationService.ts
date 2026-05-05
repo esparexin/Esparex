@@ -1,6 +1,6 @@
-import Notification from '@esparex/core/models/Notification';
-import logger from '@esparex/core/utils/logger';
-import { NotificationTypeValue } from '@esparex/core/constants/enums/notificationType';
+import Notification from '../models/Notification';
+import logger from '../utils/logger';
+import { NotificationTypeValue } from '../constants/enums/notificationType';
 import { NotificationDispatcher } from './notification/NotificationDispatcher';
 import { NotificationIntent } from '../domain/NotificationIntent';
 import { getNotificationTemplate, type TemplateParams } from './notification/NotificationTemplateService';

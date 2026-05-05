@@ -9,8 +9,8 @@ import {
 import type { PaginationOptions } from './_shared/adServiceBase';
 
 import { hydrateAdMetadata } from './AdAggregationService';
-import type { IAd } from '@esparex/core/models/Ad';
-import logger from '@esparex/core/utils/logger';
+import type { IAd } from '../../models/Ad';
+import logger from '../../utils/logger';
 
 const extractRefId = (value: unknown): string | undefined => {
     if (typeof value === 'string' && value.trim().length > 0) {

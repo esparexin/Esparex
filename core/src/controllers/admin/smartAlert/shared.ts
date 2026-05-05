@@ -1,8 +1,8 @@
 import { Request } from 'express';
-import { SmartAlertModel } from '@esparex/core/services/SmartAlertService';
-import { normalizeLocationResponse } from '@esparex/core/services/location/LocationNormalizer';
-import { serializeDoc } from '@esparex/core/utils/serialize';
-import { AppError } from '@esparex/core/utils/AppError';
+import { SmartAlertModel } from '../../../services/SmartAlertService';
+import { normalizeLocationResponse } from '../../../services/location/LocationNormalizer';
+import { serializeDoc } from '../../../utils/serialize';
+import { AppError } from '../../../utils/AppError';
 
 export { SmartAlertModel };
 

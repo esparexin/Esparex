@@ -1,21 +1,21 @@
 import mongoose from 'mongoose';
-import { AppError } from '@esparex/core/utils/AppError';
-import Ad from '@esparex/core/models/Ad';
-import SparePart from '@esparex/core/models/SparePart';
-import Brand from '@esparex/core/models/Brand';
+import { AppError } from '../utils/AppError';
+import Ad from '../models/Ad';
+import SparePart from '../models/SparePart';
+import Brand from '../models/Brand';
 import { normalizeLocation } from './location/LocationNormalizer';
 import { toGeoPoint } from '@esparex/shared';
-import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils/categoryCanonical';
-import { generateUniqueSlug } from '@esparex/core/utils/slugGenerator';
-import { LIFECYCLE_STATUS } from '@esparex/core/constants/enums/lifecycle';
-import { resolveLocationPathIds } from '@esparex/core/utils/locationHierarchy';
-import { processImages } from '@esparex/core/utils/imageProcessor';
-import { sanitizeStoredImageUrls } from '@esparex/core/utils/s3';
-import { AdContext } from '@esparex/core/types/ad.types';
+import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
+import { generateUniqueSlug } from '../utils/slugGenerator';
+import { LIFECYCLE_STATUS } from '../constants/enums/lifecycle';
+import { resolveLocationPathIds } from '../utils/locationHierarchy';
+import { processImages } from '../utils/imageProcessor';
+import { sanitizeStoredImageUrls } from '../utils/s3';
+import { AdContext } from '../types/ad.types';
 import { computeActiveExpiry } from './AdStatusService';
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/core/constants/enums/listingType';
-import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';
-import { computeListingQualityScore } from '@esparex/core/utils/adQualityScorer';
+import { LISTING_TYPE, type ListingTypeValue } from '../constants/enums/listingType';
+import { FeatureFlag, isEnabled } from '../config/featureFlags';
+import { computeListingQualityScore } from '../utils/adQualityScorer';
 import { 
     validateBrandBelongsToCategory, 
     validateModelBelongsToBrand,

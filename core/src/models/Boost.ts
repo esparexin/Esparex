@@ -38,8 +38,8 @@ BoostSchema.index({ isActive: 1 }, { name: 'idx_boost_isActive_idx' });
 BoostSchema.index({ endsAt: 1 }, { name: 'idx_boost_endsAt_idx', expireAfterSeconds: 0 });
 BoostSchema.index({ transactionId: 1 }, { name: 'idx_boost_transactionId_idx' });
 
-import { getUserConnection } from '@esparex/core/config/db';
-import { applyToJSONTransform } from '@esparex/core/utils/schemaOptions';
+import { getUserConnection } from '../config/db';
+import { applyToJSONTransform } from '../utils/schemaOptions';
 
 const Boost: Model<IBoost> = (getUserConnection().models.Boost as Model<IBoost> | undefined) || getUserConnection().model<IBoost>('Boost', BoostSchema);
 

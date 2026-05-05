@@ -1,7 +1,7 @@
 // backend/src/jobs/reconcilePayments.job.ts
 import { reconcilePayments } from './reconcilePayments';
-import { jobRunner } from '@esparex/core/utils/jobRunner';
-import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
+import { jobRunner } from '../utils/jobRunner';
+import { runWithDistributedJobLock } from '../utils/distributedJobLock';
 
 export const runPaymentReconciliationJob = async () => {
     await runWithDistributedJobLock(

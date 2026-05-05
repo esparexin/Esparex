@@ -2,8 +2,8 @@ import { Role } from '../enums/roles';
 import type { UserStatusValue } from '../enums/userStatus';
 import type { MobileVisibilityValue } from '../constants/mobileVisibility';
 export type UserRole = `${Role}`;
-export type { BusinessStatus } from './Business';
-import { BusinessStatus } from './Business';
+export type { BusinessStatus } from './business';
+import { BusinessStatus } from './business';
 
 export interface UserNotificationSettings {
     newMessages?: boolean;
