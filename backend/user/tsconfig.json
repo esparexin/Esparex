@@ -8,6 +8,8 @@
     "outDir": "./dist",
     "esModuleInterop": true,
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "resolveJsonModule": true,

@@ -16,6 +16,13 @@ function read(filePath) {
   return fs.readFileSync(filePath, "utf8");
 }
 
+function resolveFirstExistingFile(candidates) {
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  throw new Error(`Unable to locate any candidate file: ${candidates.join(", ")}`);
+}
+
 function parseArgs() {
   const scopeArg = process.argv.find((arg) => arg.startsWith("--scope="));
   const scope = scopeArg ? scopeArg.split("=")[1] : "both";
@@ -300,8 +307,17 @@ function main() {
   const appSource = read(backendAppFile);
   
   // SSOT: Routes are now managed in the shared module
-  const userSource = read(path.join(repoRoot, "shared/contracts/api/userRoutes.ts"));
-  const adminSource = read(path.join(repoRoot, "shared/contracts/api/adminRoutes.ts"));
+  const userRoutesFile = resolveFirstExistingFile([
+    path.join(repoRoot, "shared/src/contracts/api/userRoutes.ts"),
+    path.join(repoRoot, "shared/contracts/api/userRoutes.ts"),
+  ]);
+  const adminRoutesFile = resolveFirstExistingFile([
+    path.join(repoRoot, "shared/src/contracts/api/adminRoutes.ts"),
+    path.join(repoRoot, "shared/contracts/api/adminRoutes.ts"),
+  ]);
+
+  const userSource = read(userRoutesFile);
+  const adminSource = read(adminRoutesFile);
 
   const userBlock = extractBlock(userSource, "export const USER_ROUTES = {", "} as const;");
   const adminBlock = extractBlock(adminSource, "export const ADMIN_ROUTES = {", "} as const;");
