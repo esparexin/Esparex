@@ -152,7 +152,7 @@ const resolvePlanLimit = async (userId: string) => {
         status: PLAN_STATUS.ACTIVE,
         $or: [{ endDate: { $gte: new Date() } }, { endDate: null }],
     }).lean();
-    const plans = await PlanModel.find({ _id: { $in: activeUserPlans.map((up: unknown) => up.planId) } }).lean();
+    const plans = await PlanModel.find({ _id: { $in: activeUserPlans.map((up: any) => up.planId) } }).lean();
     const userRights = calculateUserPlan(plans);
     return userRights.smartAlerts || 0;
 };
@@ -175,7 +175,7 @@ export const createSmartAlertMutation = async ({
         $or: [{ endDate: { $gte: new Date() } }, { endDate: null }],
     }).lean();
 
-    const plans = await PlanModel.find({ _id: { $in: activeUserPlans.map((up: unknown) => up.planId) } }).lean();
+    const plans = await PlanModel.find({ _id: { $in: activeUserPlans.map((up: any) => up.planId) } }).lean();
     const userRights = calculateUserPlan(plans);
 
     const wallet = await WalletModel.findOne({ userId }).lean();

@@ -15,15 +15,38 @@ import path from 'path';
  * 5. Orphan Detection (Missing parentId for area/city level)
  */
 
+interface LocationIssue {
+    id: string;
+    name: string;
+    level: string;
+    problems: string[];
+}
+
+interface LocationDoc {
+    _id: mongoose.Types.ObjectId;
+    name: string;
+    level: string;
+    country: string;
+    state?: string;
+    city?: string;
+    parentId?: mongoose.Types.ObjectId;
+    path?: mongoose.Types.ObjectId[];
+    coordinates?: {
+        type: string;
+        coordinates: number[];
+    };
+    slug?: string;
+}
+
 async function runAudit() {
     try {
         logger.info('🔍 Starting Location Data Integrity Audit...');
 
-        const locations = await Location.find().lean();
+        const locations = await Location.find().lean() as unknown as LocationDoc[];
         logger.info(`📋 Total locations to audit: ${locations.length}`);
 
-        const locationMap = new Map(locations.map(loc => [loc._id.toString(), loc]));
-        const issues: unknown[] = [];
+        const locationMap = new Map<string, LocationDoc>(locations.map(loc => [loc._id.toString(), loc]));
+        const issues: LocationIssue[] = [];
 
         for (const loc of locations) {
             const problems: string[] = [];
@@ -58,7 +81,7 @@ async function runAudit() {
             let stateName = '';
             if (loc.level !== 'state' && loc.level !== 'country') {
                 for (const pid of loc.path || []) {
-                    const p = locationMap.get(pid.toString()) as unknown;
+                    const p = locationMap.get(pid.toString());
                     if (p && p.level === 'state') {
                         stateName = p.name;
                         break;
@@ -108,10 +131,10 @@ async function runAudit() {
             for (const issue of issues) {
                 if (!issue.problems.some((p: string) => p.includes('Parent') || p.includes('Hierarchy'))) continue;
 
-                const locRaw = locationMap.get(issue.id) as unknown;
+                const locRaw = locationMap.get(issue.id);
                 if (!locRaw) continue;
 
-                const updates: unknown = {};
+                const updates: Partial<LocationDoc> = {};
                 
                 // 1. Level Correction (area -> city)
                 if (locRaw.level === 'area' && locRaw.name === locRaw.city) {
@@ -149,7 +172,7 @@ async function runAudit() {
                 const batchSize = 1000;
                 for (let i = 0; i < bulkOps.length; i += batchSize) {
                     const batch = bulkOps.slice(i, i + batchSize);
-                    await Location.collection.bulkWrite(batch);
+                    await Location.collection.bulkWrite(batch as any[]);
                     logger.info(`📈 Progress: ${Math.min(i + batchSize, bulkOps.length)} / ${bulkOps.length}`);
                 }
                 logger.info(`✅ Smart Reparenting complete. Fixed ${reparentedCount} orphans.`);
@@ -161,10 +184,10 @@ async function runAudit() {
             const bulkOps: unknown[] = [];
 
             for (const issue of issues) {
-                const locRaw = locationMap.get(issue.id) as unknown;
+                const locRaw = locationMap.get(issue.id);
                 if (!locRaw) continue;
 
-                const updates: unknown = {};
+                const updates: Partial<LocationDoc> = {};
 
                 // Fix path if mismatch
                 if (issue.problems.some((p: string) => p.includes('Path mismatch') || p.includes('Path array is empty'))) {
@@ -177,7 +200,7 @@ async function runAudit() {
                     const pathForSlug = updates.path || locRaw.path || [];
                     if (locRaw.level !== 'state' && locRaw.level !== 'country') {
                         for (const pid of pathForSlug) {
-                            const p = locationMap.get(pid.toString()) as unknown;
+                            const p = locationMap.get(pid.toString());
                             if (p && p.level === 'state') {
                                 stateName = p.name;
                                 break;
@@ -202,7 +225,7 @@ async function runAudit() {
                 const batchSize = 1000;
                 for (let i = 0; i < bulkOps.length; i += batchSize) {
                     const batch = bulkOps.slice(i, i + batchSize);
-                    await Location.collection.bulkWrite(batch);
+                    await Location.collection.bulkWrite(batch as any[]);
                     logger.info(`📈 Progress: ${Math.min(i + batchSize, bulkOps.length)} / ${bulkOps.length}`);
                 }
                 logger.info('✅ Remediation complete.');

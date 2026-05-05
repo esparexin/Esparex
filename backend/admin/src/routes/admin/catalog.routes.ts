@@ -7,7 +7,7 @@ import { validateObjectId } from '../../middleware/validateObjectId';
 import { adminMutationLimiter } from '../../middleware/rateLimiter';
 import { requirePermission } from '../../middleware/adminAuth';
 import { validateRequest } from '../../middleware/validateRequest';
-import * as catalogController from '@esparex/core/controllers/admin/catalog';
+import * as catalogController from '../../controllers/catalog';
 import * as Validators from '@esparex/core/validators/catalog.validator';
 
 const router = Router();

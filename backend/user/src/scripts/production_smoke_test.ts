@@ -24,7 +24,6 @@ const originalInfo = logger.info;
 logger.info = (message: string, ...meta: unknown[]) => {
     if (typeof message === 'string' && message.startsWith('[SMOKE_TEST]')) {
         logs.push(message);
-        console.log('\x1b[36m%s\x1b[0m', message);
     }
     return originalInfo.call(logger, message, ...meta);
 };
@@ -308,31 +307,31 @@ async function main() {
             D: false
         };
 
-        try { await runScenarioA(verifiedLocation, validCategory); results.A = true; } catch (e) { console.error('SCENARIO A FAILED:', e); }
-        try { await runScenarioB(verifiedLocation, validCategory); results.B = true; } catch (e) { console.error('SCENARIO B FAILED:', e); }
-        try { await runScenarioC(verifiedLocation, validCategory); results.C = true; } catch (e) { console.error('SCENARIO C FAILED:', e); }
-        try { await runScenarioD(); results.D = true; } catch (e) { console.error('SCENARIO D FAILED:', e); }
+        try { await runScenarioA(verifiedLocation, validCategory); results.A = true; } catch (e) { logger.error('SCENARIO A FAILED:', e); }
+        try { await runScenarioB(verifiedLocation, validCategory); results.B = true; } catch (e) { logger.error('SCENARIO B FAILED:', e); }
+        try { await runScenarioC(verifiedLocation, validCategory); results.C = true; } catch (e) { logger.error('SCENARIO C FAILED:', e); }
+        try { await runScenarioD(); results.D = true; } catch (e) { logger.error('SCENARIO D FAILED:', e); }
 
-        console.log('\n\n========================================');
-        console.log('       ESPAREX SMOKE TEST REPORT');
-        console.log('========================================');
-        console.log(`SCENARIO A: ${results.A ? '✅ PASS' : '❌ FAIL'}`);
-        console.log(`SCENARIO B: ${results.B ? '✅ PASS' : '❌ FAIL'}`);
-        console.log(`SCENARIO C: ${results.C ? '✅ PASS' : '❌ FAIL'}`);
-        console.log(`SCENARIO D: ${results.D ? '✅ PASS' : '❌ FAIL'}`);
-        console.log('----------------------------------------');
-        console.log(`INVARIANTS VERIFIED:`);
-        console.log(`- SSOT: ${results.A && results.D ? 'YES' : 'NO'}`);
-        console.log(`- Fraud Guardrails: ${results.B ? 'YES' : 'NO'}`);
-        console.log(`- Atomic Aggregation: ${results.D ? 'YES' : 'NO'}`);
-        console.log(`- Privilege Boundary: ${results.C ? 'YES' : 'NO'}`);
-        console.log('----------------------------------------');
-        console.log(`FINAL RESULT: ${Object.values(results).every(v => v) ? 'PASS' : 'FAIL'}`);
-        console.log('========================================\n');
+        logger.info('\n\n========================================');
+        logger.info('       ESPAREX SMOKE TEST REPORT');
+        logger.info('========================================');
+        logger.info(`SCENARIO A: ${results.A ? '✅ PASS' : '❌ FAIL'}`);
+        logger.info(`SCENARIO B: ${results.B ? '✅ PASS' : '❌ FAIL'}`);
+        logger.info(`SCENARIO C: ${results.C ? '✅ PASS' : '❌ FAIL'}`);
+        logger.info(`SCENARIO D: ${results.D ? '✅ PASS' : '❌ FAIL'}`);
+        logger.info('----------------------------------------');
+        logger.info(`INVARIANTS VERIFIED:`);
+        logger.info(`- SSOT: ${results.A && results.D ? 'YES' : 'NO'}`);
+        logger.info(`- Fraud Guardrails: ${results.B ? 'YES' : 'NO'}`);
+        logger.info(`- Atomic Aggregation: ${results.D ? 'YES' : 'NO'}`);
+        logger.info(`- Privilege Boundary: ${results.C ? 'YES' : 'NO'}`);
+        logger.info('----------------------------------------');
+        logger.info(`FINAL RESULT: ${Object.values(results).every(v => v) ? 'PASS' : 'FAIL'}`);
+        logger.info('========================================\n');
 
         process.exit(Object.values(results).every(v => v) ? 0 : 1);
     } catch (err) {
-        console.error('Fatal Error during Smoke Test:', err);
+        logger.error('Fatal Error during Smoke Test:', err);
         process.exit(1);
     }
 }

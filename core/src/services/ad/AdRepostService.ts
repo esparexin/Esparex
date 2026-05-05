@@ -24,7 +24,7 @@ export const repostAdLogic = async (
     const sellerObjectId = new mongoose.Types.ObjectId(userId);
     const connection = getUserConnection();
     const session = await connection.startSession();
-    let updatedAd: Record<string, unknown> | null = undefined;
+    let updatedAd: Record<string, unknown> | null = null;
 
     try {
         await session.withTransaction(async () => {

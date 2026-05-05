@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Types } from 'mongoose';
-import { CHAT_REPORT_REASON_VALUES } from '../constants/enums/chatStatus';
+import { CHAT_REPORT_REASON_VALUES } from '@esparex/shared';
 
 /* -------------------------------------------------------------------------- */
 /* Helpers                                                                     */

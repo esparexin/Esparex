@@ -1,6 +1,6 @@
 import { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
 import softDeletePlugin, { ISoftDeleteDocument } from '../utils/softDeletePlugin';
-import { hasValidCoordinateArray, sanitizeGeoPoint } from '@esparex/shared';
+import { sanitizeGeoPoint } from '@esparex/shared';
 import { LISTING_STATUS, LISTING_STATUS_VALUES } from '../constants/enums/listingStatus';
 import { type AdStatusValue } from '../constants/enums/adStatus';
 import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '../constants/enums/listingType';

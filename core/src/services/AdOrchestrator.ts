@@ -13,7 +13,7 @@ import { mutateStatus } from './StatusMutationService';
 import { computeActiveExpiry } from './AdStatusService';
 import { enqueueImageOptimization } from '../queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
-import { LISTING_TYPE } from '../constants/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from '../constants/enums/listingType';
 import { LISTING_STATUS } from "../constants/enums/listingStatus";
 import type { AdContext } from '../types/ad.types';
 
@@ -42,7 +42,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
     const session = await connection.startSession();
     
     const adId = new mongoose.Types.ObjectId();
-    let createdAd: IAd | null = undefined;
+    let createdAd: IAd | null = null;
 
     try {
         const listingType = (data.listingType as string) || LISTING_TYPE.AD;
@@ -52,7 +52,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             if (context.actor === 'USER' && !context.allowQuotaBypass) {
                 const slotResult = await ListingSubmissionPolicy.reserveSlot({
                     userId: context.sellerId,
-                    listingType: listingType as unknown,
+                    listingType: listingType as ListingTypeValue,
                     listingId: adId.toString(),
                     session,
                     actor: 'user',
@@ -66,7 +66,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             if (context.actor === 'USER' && !context.allowQuotaBypass) {
                 const thresholdResult = await validateSellerTypeThreshold(
                     context.sellerId,
-                    listingType as unknown
+                    listingType as ListingTypeValue
                 );
                 if (!thresholdResult.ok) {
                     throw new AppError(thresholdResult.reason || 'Threshold exceeded', 400, thresholdResult.code);
@@ -147,9 +147,11 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 payload.expiresAt = undefined;
             }
 
-            const ads = await Ad.create([payload] as unknown, { session });
-            if (ads && ads.length > 0) {
-                createdAd = ads[0];
+            const ads = await Ad.create([payload as any], { session });
+            if (Array.isArray(ads) && ads.length > 0) {
+                createdAd = ads[0] as IAd;
+            } else if (ads) {
+                createdAd = ads as unknown as IAd;
             }
 
             // 8. Final Approval (Only if actor is ADMIN and not held for review)
@@ -173,7 +175,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                         moderatorId: context.authUserId,
                         approvedAt,
                         approvedBy: context.authUserId,
-                        expiresAt: await computeActiveExpiry(listingType as unknown),
+                        expiresAt: await computeActiveExpiry(listingType as ListingTypeValue),
                         moderationStatus: 'manual_approved',
                         rejectionReason: undefined,
                         $push: {

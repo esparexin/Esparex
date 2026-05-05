@@ -134,8 +134,8 @@ export const getSellerPhone = async (
                     sellerId: seller._id,
                     entityId: id,
                     entityType: resolvedEntityType,
-                    status: REQUEST_STATUS.APPROVED as unknown
-                } as unknown).lean();
+                    status: REQUEST_STATUS.APPROVED,
+                } as any).lean();
 
                 if (!approvedRequest) {
                     return { error: 'REQUEST_REQUIRED' };

@@ -218,7 +218,7 @@ export const resolveParentLocation = async (params: {
 
     // All queries now use `name` (the location's own name field) + `level` instead of
     // the removed deprecated `city`/`state` flat fields.
-    let parentQuery: Record<string, unknown> | null = undefined;
+    let parentQuery: Record<string, unknown> | null = null;
 
     if (level === 'state') {
         if (!country) return null;

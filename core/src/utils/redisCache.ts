@@ -88,7 +88,7 @@ const REDIS_TTL_AUDIT_SAMPLE_LIMIT = 200;
 const REDIS_MEMORY_PRESSURE_THRESHOLD = 0.7;
 const RECOMMENDED_REDIS_EVICTION_POLICY = 'allkeys-lru';
 
-let lastRedisConfigWarningSignature: string | null = undefined;
+let lastRedisConfigWarningSignature: string | null = null;
 
 const GOVERNED_CACHE_PATTERNS: ReadonlyArray<string> = [
     'feed:*:home:*',
@@ -141,10 +141,11 @@ const normalizeQueryValue = (value: unknown): string | null => {
     }
     if (typeof value === 'object') {
         try {
-            const sorted = Object.keys(value)
+            const valRecord = value as Record<string, unknown>;
+            const sorted = Object.keys(valRecord)
                 .sort()
                 .reduce<Record<string, unknown>>((acc, key) => {
-                    acc[key] = (value as Record<string, unknown>)[key];
+                    acc[key] = valRecord[key];
                     return acc;
                 }, {});
             return JSON.stringify(sorted);
@@ -209,7 +210,7 @@ const checkMemoryHealth = async () => {
                 lastRedisConfigWarningSignature = warningSignature;
             }
             if (!warningSignature) {
-                lastRedisConfigWarningSignature = undefined;
+                lastRedisConfigWarningSignature = null;
             }
         }
     } catch {

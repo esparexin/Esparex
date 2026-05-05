@@ -119,7 +119,7 @@ export const recordTransaction = async ({
         }
     };
 
-    const records = await Transaction.create([transactionPayload] as unknown, { session });
+    const records = await Transaction.create([transactionPayload] as any, { session });
     return records[0];
 };
 

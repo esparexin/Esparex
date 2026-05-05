@@ -48,6 +48,7 @@ export * from './constants/fieldLimits';
 export * from './constants/notificationRetention';
 export * from './constants/adminNotificationTargets';
 export * from './constants/mobileVisibility';
+export * from './constants/locationEvents';
 
 // UTILS
 export * from './utils/formatters';
@@ -57,6 +58,7 @@ export * from './utils/categoryFilters';
 export * from './utils/securityPatterns';
 export * from './utils/resolveCategoryId';
 export * from './utils/geoUtils';
+export * from './utils/locationPrimitives';
 export * from './utils/textValidator';
 export * from './utils/planEntitlements';
 

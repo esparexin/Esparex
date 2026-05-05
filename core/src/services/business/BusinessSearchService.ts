@@ -17,6 +17,19 @@ type BusinessCandidate = {
     [key: string]: unknown;
 };
 
+type EnrichedBusiness = {
+    _id?: unknown;
+    id?: unknown;
+    distanceKm?: number;
+    activeServicesCount: number;
+    matchingServicesCount: number;
+    brandMatchedServicesCount: number;
+    isVerified?: boolean;
+    trustScore?: number;
+    createdAt?: unknown;
+    [key: string]: unknown;
+};
+
 
 const toObjectId = (value: unknown): mongoose.Types.ObjectId | null => {
     if (value instanceof mongoose.Types.ObjectId) return value;
@@ -184,14 +197,14 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
                     : undefined;
 
             return {
-                ...(serialized as unknown),
+                ...(serialized as Record<string, unknown>),
                 activeServicesCount,
                 matchingServicesCount,
                 brandMatchedServicesCount,
                 ...(typeof distanceKm === 'number' ? { distanceKm } : {})
             };
         }))
-        .sort((left: unknown, right: unknown) => {
+        .sort((left: EnrichedBusiness, right: EnrichedBusiness) => {
             const brandMatchedDiff = right.brandMatchedServicesCount - left.brandMatchedServicesCount;
             if (brandMatchedDiff !== 0) return brandMatchedDiff;
 

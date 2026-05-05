@@ -9,9 +9,9 @@ const SCHEDULER_LOCK_TTL_SECONDS = 60;
 const SCHEDULER_LOCK_RENEW_INTERVAL_MS = 30000;
 const RENEW_LOCK_SCRIPT = 'if redis.call("GET", KEYS[1]) == ARGV[1] then return redis.call("EXPIRE", KEYS[1], ARGV[2]) else return 0 end';
 const RELEASE_LOCK_SCRIPT = 'if redis.call("GET", KEYS[1]) == ARGV[1] then return redis.call("DEL", KEYS[1]) else return 0 end';
-let schedulerLockInterval: NodeJS.Timeout | null = undefined;
+let schedulerLockInterval: NodeJS.Timeout | null = null;
 let holdsSchedulerLock = false;
-let schedulerLockToken: string | null = undefined;
+let schedulerLockToken: string | null = null;
 
 export const startScheduler = async () => {
     try {
@@ -70,7 +70,7 @@ export const startScheduler = async () => {
 export const stopScheduler = async () => {
     if (schedulerLockInterval) {
         clearInterval(schedulerLockInterval);
-        schedulerLockInterval = undefined;
+        schedulerLockInterval = null;
     }
 
     try {
@@ -85,7 +85,7 @@ export const stopScheduler = async () => {
         try {
             await redis.eval(RELEASE_LOCK_SCRIPT, 1, SCHEDULER_LOCK_KEY, schedulerLockToken);
             holdsSchedulerLock = false;
-            schedulerLockToken = undefined;
+            schedulerLockToken = null;
             logger.info('Released global scheduler lock during shutdown.');
         } catch (error) {
             logger.error('Error releasing scheduler lock', {

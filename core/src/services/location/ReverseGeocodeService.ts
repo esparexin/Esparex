@@ -17,11 +17,12 @@ import {
     buildReverseGeocodeCacheKey,
     getPublicCanonicalLocationById
 } from './_shared/locationServiceBase';
-import { haversineDistance } from '../../utils/mongoGeoUtils';
+import { haversineDistance } from '@esparex/shared';
 import type {
     LocationInputObject,
     NormalizedLocationResponse,
-    HierarchyLevel
+    HierarchyLevel,
+    GeoJSONPoint
 } from './_shared/locationServiceBase';
 export { toGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
 
@@ -72,7 +73,7 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
         .lean<LocationInputObject | null>();
 
     if (nearestCity) {
-        const cityCoords = (nearestCity.coordinates as unknown)?.coordinates;
+        const cityCoords = (nearestCity.coordinates as GeoJSONPoint)?.coordinates;
         if (cityCoords) {
             const distance = haversineDistance(lat, lng, cityCoords[1], cityCoords[0]);
             if (distance <= SNAP_THRESHOLD_KM) {
@@ -95,7 +96,7 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
                 ...mappedCity,
                 coordinates: { type: 'Point', coordinates: [lng, lat] },
                 isSnapped: isSnapped
-            } as unknown;
+            } as NormalizedLocationResponse;
         }
     }
 
@@ -180,14 +181,14 @@ export const reverseGeocode = async (
     const finalResponse = {
         ...response,
         coordinates: { type: 'Point', coordinates: [lng, lat] as [number, number] }
-    };
+    } as NormalizedLocationResponse;
 
-    const candidateCoords = (nearest.coordinates as unknown)?.coordinates;
+    const candidateCoords = (nearest.coordinates as GeoJSONPoint)?.coordinates;
     if (candidateCoords) {
         const distance = haversineDistance(lat, lng, candidateCoords[1], candidateCoords[0]);
-        if (distance <= SNAP_THRESHOLD_KM) {
+        if (distance <= SNAP_THRESHOLD_KM && finalResponse.coordinates) {
             finalResponse.coordinates.coordinates = [candidateCoords[0], candidateCoords[1]];
-            (finalResponse as unknown).isSnapped = true;
+            finalResponse.isSnapped = true;
         }
     }
 

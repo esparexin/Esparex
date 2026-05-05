@@ -261,19 +261,19 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
 
 export const getBusinessListings = async (sellerId: string, listingType: string) => {
     const listings = await Ad.find({
-        sellerId: sellerId as unknown,
-        listingType: listingType as unknown,
+        sellerId,
+        listingType,
         status: LISTING_STATUS.LIVE,
         isDeleted: { $ne: true },
-    }).sort({ createdAt: -1 }).lean();
+    } as any).sort({ createdAt: -1 }).lean();
     return listings.map((l) => normalizeAdImagesForResponse(l as unknown as Record<string, unknown>));
 };
 
 export const getBusinessStats = async (userId: string) => {
     const [totalServices, approvedServices, pendingServices] = await Promise.all([
-        Ad.countDocuments({ sellerId: userId as unknown, listingType: 'service' as unknown }),
-        Ad.countDocuments({ sellerId: userId as unknown, listingType: 'service' as unknown, status: LISTING_STATUS.LIVE }),
-        Ad.countDocuments({ sellerId: userId as unknown, listingType: 'service' as unknown, status: LISTING_STATUS.PENDING }),
+        Ad.countDocuments({ sellerId: userId, listingType: 'service' }),
+        Ad.countDocuments({ sellerId: userId, listingType: 'service', status: LISTING_STATUS.LIVE }),
+        Ad.countDocuments({ sellerId: userId, listingType: 'service', status: LISTING_STATUS.PENDING }),
     ]);
     return { totalServices, approvedServices, pendingServices, views: 0 };
 };

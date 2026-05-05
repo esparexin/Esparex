@@ -13,7 +13,7 @@ import express from 'express';
 import { requireAdmin } from '../middleware/adminAuth';
 import { adminLimiter, otpIpLimiter } from '../middleware/rateLimiter';
 import { setupQueueDashboard } from '@esparex/core/queues/queueDashboard';
-import * as systemController from '@esparex/core/controllers/admin/system';
+import * as systemController from '../controllers/system';
 import { getCsrfToken, setCsrfToken } from '../middleware/csrfProtection';
 
 import moderationRoutes from './admin/moderation.routes';

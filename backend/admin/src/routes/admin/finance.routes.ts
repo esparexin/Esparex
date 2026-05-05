@@ -7,9 +7,9 @@ import { validateObjectId } from '../../middleware/validateObjectId';
 import { searchLimiter, adminMutationLimiter } from '../../middleware/rateLimiter';
 import { requirePermission } from '../../middleware/adminAuth';
 import { validateRequest } from '../../middleware/validateRequest';
-import * as transactionController from '@esparex/core/controllers/admin/adminTransactionController';
-import * as adminInvoiceController from '@esparex/core/controllers/admin/adminInvoiceController';
-import * as adminSmartAlertsController from '@esparex/core/controllers/admin/adminSmartAlertsController';
+import * as transactionController from '../../controllers/adminTransactionController';
+import * as adminInvoiceController from '../../controllers/adminInvoiceController';
+import * as adminSmartAlertsController from '../../controllers/adminSmartAlertsController';
 import {
     adminCreateInvoiceSchema,
     adminInvoiceQuerySchema,

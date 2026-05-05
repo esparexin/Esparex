@@ -19,7 +19,7 @@ import redisClient from '../utils/redisCache';
 import { getAllowedOriginList } from '../utils/originConfig';
 import { env } from './env';
 
-let io: Server | null = undefined;
+let io: Server | null = null;
 
 /**
  * Initialise the socket.io server and attach it to the HTTP server.
@@ -142,6 +142,6 @@ export function getIO(): Server {
 export async function closeIO(): Promise<void> {
     if (!io) return;
     await new Promise<void>((resolve) => { void io!.close(() => resolve()); });
-    io = undefined;
+    io = null;
     logger.info('[Socket] Socket.io server closed');
 }

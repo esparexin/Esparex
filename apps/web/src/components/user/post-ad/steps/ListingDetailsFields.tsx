@@ -19,8 +19,6 @@ import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFi
 import { adaptLocationInput } from "@shared";
 import { MAX_AD_IMAGES, MAX_AD_DESCRIPTION_CHARS, MAX_AD_TITLE_CHARS } from "@shared";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import type { ListingLocation } from "@/types/listing";
-import type { GeoJSONPoint } from "@/types/location";
 
 type SnappedLocation = Location & { formattedAddress?: string; isSnapped?: boolean };
 

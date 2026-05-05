@@ -9,8 +9,8 @@ import { requirePermission } from '../../middleware/adminAuth';
 import { adminMutationLimiter } from '../../middleware/rateLimiter';
 import { lifecyclePolicyHttpGuard } from '../../middleware/lifecyclePolicyGuard';
 import { validateRequest } from '../../middleware/validateRequest';
-import * as listingsController from '@esparex/core/controllers/admin/adminListingsController';
-import * as reportsController from '@esparex/core/controllers/admin/adminReportsController';
+import * as listingsController from '../../controllers/adminListingsController';
+import * as reportsController from '../../controllers/adminReportsController';
 import {
     adminModerationListingsQuerySchema,
     adminReportedAdsQuerySchema,

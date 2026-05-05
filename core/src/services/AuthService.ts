@@ -334,7 +334,7 @@ export class AuthService {
 
             if (!isOtpValid) {
                 otpRecord.attempts += 1;
-                let userLockedUntil: Date | null = undefined;
+                let userLockedUntil: Date | null = null;
 
                 if (userFromMobile) {
                     userFromMobile.failedLoginAttempts = (userFromMobile.failedLoginAttempts || 0) + 1;

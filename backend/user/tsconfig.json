@@ -3,15 +3,12 @@
     "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "commonjs",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "baseUrl": ".",
     "rootDir": "./src",
     "outDir": "./dist",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "esModuleInterop": true,
     "strict": true,
-    "noImplicitAny": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "resolveJsonModule": true,
@@ -19,22 +16,10 @@
     "paths": {
       "@shared": ["./../../shared/src/index.ts"],
       "@shared/*": ["./../../shared/src/*"],
-      "@esparex/core": ["./../../core/src/index.ts"],
-      "@esparex/core/*": ["./../../core/src/*"]
+      "@esparex/core": ["./../../core/dist/index.d.ts"],
+      "@esparex/core/*": ["./../../core/dist/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "../../core/dist/**/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/__tests__",
-    "src/tests",
-    "../../core/src/__tests__",
-    "../../shared/**/__tests__",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ]
+  "include": ["src/config/**/*", "src/models/**/*", "src/middleware/**/*"],
+  "exclude": ["node_modules", "dist", "src/middleware/metricsMiddleware.ts"]
 }

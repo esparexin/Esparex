@@ -11,19 +11,19 @@ import { validateRequest } from '../../middleware/validateRequest';
 import type { ZodTypeAny } from 'zod';
 import { PlanPayloadSchema, PartialPlanPayloadSchema } from "@esparex/shared";
 
-import * as usersController from '@esparex/core/controllers/admin/adminUsersController';
-import * as businessController from '@esparex/core/controllers/admin/adminBusinessController';
-import * as systemController from '@esparex/core/controllers/admin/system';
-import * as auditController from '@esparex/core/controllers/admin/adminAuditController';
-import * as analyticsController from '@esparex/core/controllers/admin/adminAnalyticsController';
-import * as apiKeyController from '@esparex/core/controllers/admin/adminApiKeyController';
-import * as adminSessionController from '@esparex/core/controllers/admin/adminSessionController';
-import * as notificationController from '@esparex/core/controllers/admin/adminNotificationController';
-import * as planController from '@esparex/core/controllers/admin/plan';
-import * as aiController from '@esparex/core/controllers/admin/ai/aiController';
-import * as adminRevealController from '@esparex/core/controllers/admin/adminRevealController';
-import * as twoFAController from '@esparex/core/controllers/admin/admin2FAController';
-import * as adminCacheController from '@esparex/core/controllers/admin/adminCacheController';
+import * as usersController from '../../controllers/adminUsersController';
+import * as businessController from '../../controllers/adminBusinessController';
+import * as systemController from '../../controllers/system';
+import * as auditController from '../../controllers/adminAuditController';
+import * as analyticsController from '../../controllers/adminAnalyticsController';
+import * as apiKeyController from '../../controllers/adminApiKeyController';
+import * as adminSessionController from '../../controllers/adminSessionController';
+import * as notificationController from '../../controllers/adminNotificationController';
+import * as planController from '../../controllers/plan';
+import * as aiController from '../../controllers/ai/aiController';
+import * as adminRevealController from '../../controllers/adminRevealController';
+import * as twoFAController from '../../controllers/admin2FAController';
+import * as adminCacheController from '../../controllers/adminCacheController';
 import { hmacSignatureMiddleware } from '../../middleware/HMACSignatureMiddleware';
 import { aiGenerateSchema } from '@esparex/core/validators/ai.validator';
 import {
@@ -57,7 +57,7 @@ import {
     adminNotificationRecipientQuerySchema,
     adminNotificationSendSchema,
 } from '../../middleware/notificationValidators';
-import * as walletController from '@esparex/core/controllers/admin/wallet';
+import * as walletController from '../../controllers/wallet';
 import {
     adminListChats,
     adminGetChat,
@@ -65,7 +65,7 @@ import {
     adminMuteChat,
     adminExportChat,
     adminResolveReport,
-} from '@esparex/core/controllers/admin/chat/chatAdminController';
+} from '../../controllers/chat/chatAdminController';
 import {
     getAllLocations,
     createAreaLocation,
@@ -84,11 +84,11 @@ import {
     refreshLocationStats,
     getDistinctStates,
     reverseGeocode,
-} from '@esparex/core/controllers/admin/adminLocationController';
+} from '../../controllers/adminLocationController';
 import {
     getSystemConfig,
     updateSystemConfig,
-} from '@esparex/core/controllers/admin/systemConfigController';
+} from '../../controllers/systemConfigController';
 import { ADMIN_PERMISSION_KEYS } from '@esparex/core/constants/adminPermissions';
 import { systemConfigUpdateSchema } from '@esparex/core/validators/systemConfig.validator';
 

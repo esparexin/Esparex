@@ -85,7 +85,7 @@ export async function handlePaginatedContent<T extends Document>(
         const effectiveQuery = (queryParams || req.query) as Record<string, unknown>;
 
         const CATALOG_MODELS = ['Category', 'Brand', 'Model', 'ServiceType', 'ScreenSize', 'SparePart'];
-        let cacheKey: string | null = undefined;
+        let cacheKey: string | null = null;
         
         if (CATALOG_MODELS.includes(model.modelName)) {
             const roleSuffix = isUrlAdmin ? 'admin' : 'public';

@@ -250,7 +250,7 @@ export class AdCreationService {
         // --- Compute Lightweight Listing Quality Score ---
         if (listingType === LISTING_TYPE.SERVICE) {
             const { calculateServiceQuality } = await import('../utils/serviceQuality');
-            payload.listingQualityScore = calculateServiceQuality(payload, (data as unknown)?.business);
+            payload.listingQualityScore = calculateServiceQuality(payload, (data as any)?.business);
         } else {
             payload.listingQualityScore = computeListingQualityScore(payload);
         }

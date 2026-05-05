@@ -6,7 +6,7 @@ import {
   type ChatReportStatusValue,
   CHAT_REPORT_REASON_VALUES,
   type ChatReportReasonValue,
-} from '../constants/enums/chatStatus';
+} from '@esparex/shared';
 
 /* -------------------------------------------------------------------------- */
 /* Interface                                                                   */

@@ -26,7 +26,7 @@ export const updateAdLogic = async (
     const isInternalSession = !externalSession;
 
     try {
-        let updatedAd: IAd | null = undefined;
+        let updatedAd: IAd | null = null;
         let oldPriceValue: number | undefined;
         
         const executeUpdate = async () => {
@@ -162,7 +162,7 @@ export const updateAdLogic = async (
         if (typeof (updatedAd as { toObject?: unknown }).toObject === 'function') {
             return (updatedAd as unknown as { toObject: () => Record<string, unknown> }).toObject();
         }
-        return updatedAd;
+        return updatedAd as any;
     } catch (error) {
         logger.error('Failed to update ad', {
             error: error instanceof Error ? error.message : String(error),

@@ -95,7 +95,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
     let resolvedListingType: string | undefined;
 
     try {
-        let result = undefined;
+        let result: Record<string, unknown> | null = null;
 
         const executeOperations = async (activeSession: ClientSession) => {
             // 1. Resolve Model
@@ -172,8 +172,8 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             // Apply status-specific patch (e.g., soldAt, rejectionReason, $push: { timeline })
             if (patch) {
                 for (const [key, value] of Object.entries(patch)) {
-                    if (key === '$push' && typeof value === 'object' && value !== undefined) {
-                        for (const [pKey, pVal] of Object.entries(value)) {
+                    if (key === '$push' && typeof value === 'object' && value !== null) {
+                        for (const [pKey, pVal] of Object.entries(value as Record<string, unknown>)) {
                             const field = doc[pKey];
                             if (Array.isArray(field)) {
                                 field.push(pVal);
@@ -202,7 +202,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
                     ua: actor.userAgent,
                     mutationService: 'v1'
                 }
-            }] as unknown, { session: activeSession });
+            } as any], { session: activeSession });
 
             return (typeof doc.toObject === 'function' ? doc.toObject() : doc) as Record<string, unknown>;
         };

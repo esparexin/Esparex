@@ -17,7 +17,8 @@
     "paths": {
       "@core/*": ["./src/*"],
       "@esparex/core/*": ["./src/*"],
-      "@esparex/shared": ["../shared/src"]
+      "@esparex/shared/*": ["../shared/dist/*"],
+      "@esparex/shared": ["../shared/dist/index.d.ts"]
     }
   },
   "include": [

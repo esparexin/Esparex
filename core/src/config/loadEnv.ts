@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_PATH?.includes('di
     // Assuming this file is at [ROOT]/core/src/config/loadEnv.ts
     // In production dist, it's at [ROOT]/dist/core/src/config/loadEnv.js
     const distRoot = path.resolve(__dirname, '../../../');
-    (moduleAlias as unknown).addAliases({
+    (moduleAlias as any).addAliases({
         '@esparex/core': path.join(distRoot, 'core/src'),
         '@esparex/shared': path.join(distRoot, 'shared')
     });

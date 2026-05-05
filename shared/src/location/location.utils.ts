@@ -1,5 +1,5 @@
 import { ListingLocation } from "../types/location";
-import { toGeoPoint } from "../geo/geo.utils";
+import { toGeoPoint } from "../utils/geoUtils";
 
 /**
  * adaptLocationInput

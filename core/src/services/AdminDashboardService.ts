@@ -220,7 +220,7 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
     const locationScopeIds = scope.locationIds;
 
     const buildScopedLocationQuery = (extra: Record<string, unknown> = {}) => {
-        if (locationScopeIds === undefined) {
+        if (locationScopeIds === undefined || locationScopeIds === null) {
             return { isActive: true, ...extra };
         }
         if (locationScopeIds.length === 0) {
@@ -237,7 +237,7 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
     };
 
     const buildScopedAdQuery = (extra: Record<string, unknown> = {}) => {
-        if (locationScopeIds === undefined) {
+        if (locationScopeIds === undefined || locationScopeIds === null) {
             return extra;
         }
         if (locationScopeIds.length === 0) {
@@ -253,7 +253,7 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
     };
 
     const buildScopedUserQuery = (extra: Record<string, unknown> = {}) => {
-        if (locationScopeIds === undefined) {
+        if (locationScopeIds === undefined || locationScopeIds === null) {
             return extra;
         }
         if (locationScopeIds.length === 0) {
