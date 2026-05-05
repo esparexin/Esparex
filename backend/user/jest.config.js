@@ -6,9 +6,9 @@ module.exports = {
     setupFilesAfterEnv: ['<rootDir>/src/tests/jest.after-env.ts'],
     globalTeardown: '<rootDir>/src/tests/jest.globalTeardown.js',
     verbose: true,
-    roots: ['<rootDir>', '<rootDir>/../../shared'],
+    roots: ['<rootDir>'],
     transform: {
-        '^.+\\.tsx?$': ['ts-jest', { 
+        '^.+\\.tsx?$': ['ts-jest', {
             diagnostics: false,
             tsconfig: 'tsconfig.json'
         }]
@@ -16,12 +16,19 @@ module.exports = {
     moduleNameMapper: {
         '^uuid$': '<rootDir>/__mocks__/uuid.js',
         '^@sentry/profiling-node$': '<rootDir>/src/tests/mocks/sentry-profiling-node.ts',
-        '^@shared$': '<rootDir>/../../shared/index.ts',
-        '^@shared/(.*)$': '<rootDir>/../../shared/$1',
-        '^@core/(.*)$': '<rootDir>/../../core/src/$1'
+
+        // Shared package aliases (source of truth for tests)
+        '^@shared$': '<rootDir>/../../shared/src/index.ts',
+        '^@shared/(.*)$': '<rootDir>/../../shared/src/$1',
+        '^@esparex/shared$': '<rootDir>/../../shared/src/index.ts',
+        '^@esparex/shared/(.*)$': '<rootDir>/../../shared/src/$1',
+
+        // Resolve all core aliases to built JS so controller/service mocks target identical module paths
+        '^@esparex/core$': '<rootDir>/../../core/dist/index.js',
+        '^@esparex/core/(.*)$': '<rootDir>/../../core/dist/$1',
+        '^@core/(.*)$': '<rootDir>/../../core/dist/$1'
     },
     modulePathIgnorePatterns: [
-        '<rootDir>/../../core/dist',
         '<rootDir>/../../shared/dist'
     ]
 };

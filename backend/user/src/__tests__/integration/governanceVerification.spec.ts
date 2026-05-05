@@ -2,8 +2,8 @@
 import Business from '@esparex/core/models/Business';
 import Ad from '@esparex/core/models/Ad';
 import { runSuspendExpiredBusinessesJob } from '@esparex/core/jobs/suspendExpiredBusinesses.job';
-import { AD_STATUS } from "@shared/enums/adStatus";
-import { MODERATION_STATUS } from "@shared/enums/moderationStatus";
+import { LISTING_STATUS } from "@shared/enums/listingStatus";
+import { mutateStatusesBulk } from "@esparex/core/services/StatusMutationService";
 
 // Mock dependencies
 jest.mock('@esparex/core/models/Business');
@@ -17,6 +17,9 @@ jest.mock('@esparex/core/utils/jobRunner', () => ({
 jest.mock('@esparex/core/services/NotificationService', () => ({
     dispatchTemplatedNotification: jest.fn()
 }));
+jest.mock('@esparex/core/services/StatusMutationService', () => ({
+    mutateStatusesBulk: jest.fn(),
+}));
 jest.mock('@esparex/core/utils/logger');
 
 describe('Governance Fixes Verification', () => {
@@ -26,29 +29,58 @@ describe('Governance Fixes Verification', () => {
 
     it('verifies that runSuspendExpiredBusinessesJob deactivates ads of newly suspended businesses', async () => {
         const mockUserId = 'user123';
-        const mockBusiness = { _id: 'biz123', userId: mockUserId, name: 'Test Biz' };
+        const mockBusiness = { _id: 'biz123', userId: mockUserId, name: 'Test Biz', expiresAt: new Date() };
 
-        // 1. Mock Business.updateMany to simulate finding expired businesses
-        (Business.updateMany as jest.Mock).mockResolvedValue({ matchedCount: 1, modifiedCount: 1 });
+        const buildFindChainWithLean = (rows: unknown[]) => ({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue(rows),
+            }),
+        });
 
-        // 2. Mock Business.find to return the newly suspended business
         (Business.find as jest.Mock)
-            .mockReturnValueOnce({ select: jest.fn().mockResolvedValue([mockBusiness]) }) // For warnings (empty in this test)
-            .mockReturnValueOnce({ select: jest.fn().mockResolvedValue([mockBusiness]) }); // For secondary effects
+            // expiration warning query: await find(...).select(...)
+            .mockReturnValueOnce({ select: jest.fn().mockResolvedValue([]) })
+            // suspension query: await find(...).select(...).lean()
+            .mockReturnValueOnce(buildFindChainWithLean([mockBusiness]))
+            // suspended businesses query: await find(...).select(...)
+            .mockReturnValueOnce({ select: jest.fn().mockResolvedValue([mockBusiness]) });
 
-        // 3. Mock Ad.updateMany to track its call
-        const adUpdateSpy = (Ad.updateMany as jest.Mock).mockResolvedValue({ modifiedCount: 5 });
+        // 3. Ads to deactivate query
+        (Ad.find as jest.Mock).mockReturnValue({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue([{ _id: 'ad_1' }, { _id: 'ad_2' }]),
+            }),
+        });
+
+        // 4. First call = business suspension, second call = ad deactivation
+        (mutateStatusesBulk as jest.Mock)
+            .mockResolvedValueOnce(1)
+            .mockResolvedValueOnce(2);
 
         await runSuspendExpiredBusinessesJob();
 
-        // Verify Ad.updateMany was called for the correct user
-        expect(adUpdateSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ sellerId: { $in: [mockUserId] }, status: AD_STATUS.LIVE }),
-            expect.objectContaining({ 
-                $set: expect.objectContaining({ 
-                    status: AD_STATUS.PENDING,
-                    moderationStatus: MODERATION_STATUS.HELD_FOR_REVIEW 
-                }) 
+        expect(mutateStatusesBulk).toHaveBeenNthCalledWith(
+            1,
+            'business',
+            ['biz123'],
+            'suspended',
+            expect.objectContaining({ id: 'cron_expireBusinesses' }),
+            expect.any(String)
+        );
+
+        expect(mutateStatusesBulk).toHaveBeenNthCalledWith(
+            2,
+            'ad',
+            ['ad_1', 'ad_2'],
+            LISTING_STATUS.PENDING,
+            expect.objectContaining({ id: 'cron_expireBusinesses' }),
+            expect.any(String)
+        );
+
+        expect(Ad.find).toHaveBeenCalledWith(
+            expect.objectContaining({
+                sellerId: { $in: [mockUserId] },
+                status: LISTING_STATUS.LIVE,
             })
         );
     });

@@ -53,7 +53,15 @@ const makeReq = (overrides: Partial<{
     ip: string;
 }> = {}): Request => ({
     user: { _id: USER_ID, role: 'user' },
-    body: { title: 'iPhone 13', price: 50000 },
+    body: {
+        title: 'iPhone 13',
+        price: 50000,
+        location: {
+            city: 'Guntur',
+            state: 'Andhra Pradesh',
+            coordinates: [80.4365, 16.3067],
+        },
+    },
     headers: {},
     ip: '127.0.0.1',
     ...overrides,

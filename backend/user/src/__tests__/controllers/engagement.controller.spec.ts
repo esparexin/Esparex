@@ -8,7 +8,7 @@
  * Coverage goals:
  *
  * incrementListingView:
- *   1. Valid ObjectId → AdEngagementService.processListingView called with _id filter
+ *   1. Valid ObjectId → AdEngagementService.incrementAdViewByFilter called with _id filter
  *   2. Slug (non-ObjectId) → called with seoSlug filter
  *   3. Missing :id → early return
  *   4. Service result forwarded via sendSuccessResponse
@@ -29,7 +29,7 @@
 // ─── Mocks (MUST be declared before any imports) ─────────────────────────────
 
 const mockGetSingleParam = jest.fn();
-const mockProcessListingView = jest.fn();
+const mockIncrementAdViewByFilter = jest.fn();
 const mockGetSellerPhone = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
@@ -39,7 +39,7 @@ jest.mock('@esparex/core/utils/requestParams', () => ({
 }));
 
 jest.mock('@esparex/core/services/AdEngagementService', () => ({
-    processListingView: (...args: unknown[]) => mockProcessListingView(...args),
+    incrementAdViewByFilter: (...args: unknown[]) => mockIncrementAdViewByFilter(...args),
 }));
 
 jest.mock('@esparex/core/services/ContactRevealService', () => ({
@@ -110,24 +110,20 @@ describe('engagement.controller — incrementListingView', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockGetSingleParam.mockReturnValue(VALID_OBJECT_ID);
-        mockProcessListingView.mockResolvedValue({ views: 42 });
+        mockIncrementAdViewByFilter.mockResolvedValue({ views: 42 });
     });
 
-    it('calls processListingView with _id filter for a valid ObjectId', async () => {
+    it('calls incrementAdViewByFilter with _id filter for a valid ObjectId', async () => {
         const req = makeViewReq(VALID_OBJECT_ID);
         const res = makeRes();
         const next = makeNext();
 
         await incrementListingView(req, res, next);
 
-        expect(mockProcessListingView).toHaveBeenCalledWith(
-            { _id: VALID_OBJECT_ID },
-            req,
-            res
-        );
+        expect(mockIncrementAdViewByFilter).toHaveBeenCalledWith({ _id: VALID_OBJECT_ID });
     });
 
-    it('calls processListingView with seoSlug filter for a slug string', async () => {
+    it('calls incrementAdViewByFilter with seoSlug filter for a slug string', async () => {
         const slug = 'iphone-13-pro-max-gold';
         mockGetSingleParam.mockReturnValue(slug);
 
@@ -137,11 +133,7 @@ describe('engagement.controller — incrementListingView', () => {
 
         await incrementListingView(req, res, next);
 
-        expect(mockProcessListingView).toHaveBeenCalledWith(
-            { seoSlug: slug },
-            req,
-            res
-        );
+        expect(mockIncrementAdViewByFilter).toHaveBeenCalledWith({ seoSlug: slug });
     });
 
     it('returns early without calling service when getSingleParam returns null', async () => {
@@ -153,13 +145,13 @@ describe('engagement.controller — incrementListingView', () => {
 
         await incrementListingView(req, res, next);
 
-        expect(mockProcessListingView).not.toHaveBeenCalled();
+        expect(mockIncrementAdViewByFilter).not.toHaveBeenCalled();
         expect(next).not.toHaveBeenCalled();
     });
 
     it('forwards service result via sendSuccessResponse', async () => {
         const result = { views: 99, listing: { _id: VALID_OBJECT_ID } };
-        mockProcessListingView.mockResolvedValue(result);
+        mockIncrementAdViewByFilter.mockResolvedValue(result);
 
         const req = makeViewReq(VALID_OBJECT_ID);
         const res = makeRes();
@@ -173,7 +165,7 @@ describe('engagement.controller — incrementListingView', () => {
 
     it('forwards thrown errors to next()', async () => {
         const error = new Error('Redis unavailable');
-        mockProcessListingView.mockRejectedValue(error);
+        mockIncrementAdViewByFilter.mockRejectedValue(error);
 
         const req = makeViewReq(VALID_OBJECT_ID);
         const res = makeRes();
