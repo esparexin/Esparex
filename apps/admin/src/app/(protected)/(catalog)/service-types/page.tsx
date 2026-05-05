@@ -19,12 +19,9 @@ import { useAdminServiceTypes, type ServiceType } from "@/hooks/useAdminServiceT
 import { categorySupportsServices, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { toCategoryOptions, validateRequiredCategoryIds } from "@/components/catalog/catalogDomainUtils";
+import type { ServiceTypeMutationPayload } from "@/lib/api/serviceTypes";
 
-type ServiceTypeFormData = {
-    name: string;
-    categoryIds: string[];
-    isActive: boolean;
-};
+type ServiceTypeFormData = ServiceTypeMutationPayload;
 
 export default function ServiceTypesPage() {
     const { categories } = useAdminCategories();
@@ -129,12 +126,12 @@ export default function ServiceTypesPage() {
             filterLayoutClassName="md:grid-cols-2"
             filtersRenderer={
                 <>
-                    <CatalogBoundSearchCategoryFilters
-                        filters={filters}
-                        setFilters={setFilters as unknown}
-                        searchPlaceholder="Search service types..."
-                        categories={categories}
-                    />
+                        <CatalogBoundSearchCategoryFilters
+                            filters={filters}
+                            setFilters={setFilters}
+                            searchPlaceholder="Search service types..."
+                            categories={categories}
+                        />
                 </>
             }
             formRenderer={(formData, setFormData) => (

@@ -61,7 +61,7 @@ export async function buildListingMetadata({
     if (!rawParam) return { title: "Listing Not Found" };
 
     const { id } = parseListingSlugParam(rawParam);
-    let listing: ListingLike | null = undefined;
+    let listing: ListingLike | null = null;
     try {
         const cookieHeader = (await cookies()).toString();
         listing = await getListingById(

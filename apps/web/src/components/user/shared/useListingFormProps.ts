@@ -1,13 +1,22 @@
 import { useRouter } from "next/navigation";
-import { UseFormReturn } from "react-hook-form";
+import { FieldValues, UseFormReturn } from "react-hook-form";
 import { ListingImage } from "@/types/listing";
-import { appendListingImages, removeListingImageById, getBusinessLocationDisplay } from "./listingFormShared";
+import {
+    appendListingImages,
+    removeListingImageById,
+    getBusinessLocationDisplay,
+    type MaybeBusinessLocation,
+} from "./listingFormShared";
 
 /**
  * Shared hook to generate common props for GenericPostForm.
  * This eliminates the repetitive prop passing in PostServiceForm and PostSparePartForm.
  */
-export function useListingFormProps({
+type GenericListingFormValues = FieldValues & {
+    location?: unknown;
+};
+
+export function useListingFormProps<TFormValues extends GenericListingFormValues>({
     form,
     images,
     setImages,
@@ -16,13 +25,13 @@ export function useListingFormProps({
     onValidSubmit,
     businessData,
 }: {
-    form: UseFormReturn<unknown>;
+    form: UseFormReturn<TFormValues>;
     images: ListingImage[];
     setImages: React.Dispatch<React.SetStateAction<ListingImage[]>>;
     isEditMode: boolean;
     isSubmitting: boolean;
-    onValidSubmit: (data: unknown) => Promise<void | unknown>;
-    businessData: unknown;
+    onValidSubmit: (data: TFormValues) => Promise<void | unknown>;
+    businessData: { location?: MaybeBusinessLocation } | null | undefined;
 }) {
     const router = useRouter();
     const { handleSubmit } = form;

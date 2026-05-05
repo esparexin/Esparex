@@ -10,7 +10,7 @@ export type ScreenSizeMutationPayload = {
     isActive: boolean;
 };
 
-export async function getScreenSizes(filters?: Record<string, string | number>) {
+export async function getScreenSizes(filters?: Record<string, string | number | boolean>) {
     const query = buildQueryString(filters);
     return adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.SCREEN_SIZES}?${query}`);
 }

@@ -2,6 +2,7 @@ import {
     createServiceType,
     deleteServiceType,
     getServiceTypes,
+    type ServiceTypeMutationPayload,
     toggleServiceTypeStatus,
     updateServiceType,
 } from "@/lib/api/serviceTypes";
@@ -34,7 +35,7 @@ export function useAdminServiceTypes() {
     } = useAdminCatalogCollection<
         ServiceType,
         { search: string; categoryId: string },
-        Record<string, unknown>
+        ServiceTypeMutationPayload
     >({
         initialFilters: { search: "", categoryId: "all" },
         fetchList: getServiceTypes,

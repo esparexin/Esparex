@@ -78,7 +78,7 @@ const readSearchParamValue = (input: SearchParamsRecord, key: string): string | 
 
 const hasSearchGetter = (value: unknown): value is { get(key: string): string | null } =>
     typeof value === "object" &&
-    value !== undefined &&
+    value !== null &&
     "get" in value &&
     typeof (value as { get?: unknown }).get === "function";
 

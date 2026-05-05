@@ -2,7 +2,7 @@
  * Suppresses Google Maps retry console errors.
  * Uses a single shared wrapper with ref counting to avoid nested console overrides.
  */
-let originalConsoleError: typeof console.error | null = undefined;
+let originalConsoleError: typeof console.error | null = null;
 let activeSuppressors = 0;
 
 export function suppressGoogleMapsRetryErrors(): () => void {
@@ -27,7 +27,7 @@ export function suppressGoogleMapsRetryErrors(): () => void {
     activeSuppressors = Math.max(0, activeSuppressors - 1);
     if (activeSuppressors === 0 && originalConsoleError) {
       console.error = originalConsoleError;
-      originalConsoleError = undefined;
+      originalConsoleError = null;
     }
   };
 }

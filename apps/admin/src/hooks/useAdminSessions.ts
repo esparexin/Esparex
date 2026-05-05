@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { adminFetch } from "@/lib/api/adminClient";
+import { AdminApiError, adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useToast } from "@/context/ToastContext";
@@ -38,7 +38,7 @@ export function useAdminSessions(initialStatus: string = "active") {
             const parsed = parseAdminResponse<Record<string, unknown>>(response);
             setSessions(parsed.items.map(normalizeAdminSession));
         } catch (err: unknown) {
-            const msg = err.message || "Failed to load admin sessions";
+            const msg = AdminApiError.resolveMessage(err, "Failed to load admin sessions");
             setError(msg);
             showToast(msg, "error");
         } finally {
@@ -57,7 +57,7 @@ export function useAdminSessions(initialStatus: string = "active") {
             await fetchSessions();
             return { success: true };
         } catch (err: unknown) {
-            const msg = err.message || "Failed to revoke session";
+            const msg = AdminApiError.resolveMessage(err, "Failed to revoke session");
             showToast(msg, "error");
             return { success: false, error: msg };
         } finally {

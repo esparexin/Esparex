@@ -179,7 +179,7 @@ export function useChat({ conversationId, currentUserId, onConversationStateChan
     return () => {
       if (pollerRef.current) {
         clearInterval(pollerRef.current);
-        pollerRef.current = undefined;
+        pollerRef.current = null;
       }
     };
   }, [poll]);

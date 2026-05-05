@@ -81,7 +81,7 @@ function isBenignLogoutError(error: unknown): boolean {
 
   const backendMessage = String(
     error.context?.backendErrorMessage ??
-      (typeof error.details === "object" && error.details !== undefined && "error" in error.details
+      (typeof error.details === "object" && error.details !== null && "error" in error.details
         ? (error.details as { error?: unknown }).error
         : "") ??
       ""
@@ -431,7 +431,7 @@ export function AuthProvider({
   const logout = useCallback(async (options?: { skipServerLogout?: boolean }) => {
     if (networkRetryTimerRef.current) {
       clearTimeout(networkRetryTimerRef.current);
-      networkRetryTimerRef.current = undefined;
+      networkRetryTimerRef.current = null;
     }
     networkRetryCountRef.current = 0;
     try {

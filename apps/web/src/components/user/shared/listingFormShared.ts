@@ -1,6 +1,6 @@
 import type { ListingImage } from "@/types/listing";
 
-type MaybeBusinessLocation = {
+export type MaybeBusinessLocation = {
     city?: string | null;
     state?: string | null;
     display?: string | null;

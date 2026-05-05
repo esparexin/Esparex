@@ -20,7 +20,7 @@ type SparePartSubmitPayload = {
     sparePartTypeId: string;
     price: number;
     description: string;
-    images: string[];
+    images?: string[];
 };
 
 const buildSparePartCreatePayload = (payload: SparePartSubmitPayload) => ({
@@ -30,14 +30,14 @@ const buildSparePartCreatePayload = (payload: SparePartSubmitPayload) => ({
     sparePartId: payload.sparePartTypeId,
     price: payload.price,
     description: payload.description,
-    images: payload.images,
+    images: payload.images ?? [],
 });
 
 const buildSparePartEditPayload = (payload: SparePartSubmitPayload) => ({
     title: payload.title,
     description: payload.description,
     price: payload.price,
-    images: payload.images,
+    images: payload.images ?? [],
 });
 
 interface UsePostSparePartFormOrchestrationProps {
@@ -87,7 +87,7 @@ export function usePostSparePartFormOrchestration({
         editId: editSparePartId,
         schema: PostSparePartFormSchema,
         partialSchema: EditPostSparePartFormSchema,
-        submitFn: async (payload: unknown) => {
+        submitFn: async (payload: PostSparePartFormValues) => {
             if (isEditMode && editSparePartId) {
                 return updateSparePartListing(editSparePartId, buildSparePartEditPayload(payload));
             }

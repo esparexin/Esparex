@@ -28,9 +28,24 @@ export function useListingLocation({ onLocationChange }: UseListingLocationProps
             state: meta?.state,
             locationId: meta?.id
         });
-        
-        setListingLocation(normalized);
-        onLocationChange?.(normalized);
+
+        if (!normalized) {
+            setListingLocation(null);
+            onLocationChange?.(null);
+            return;
+        }
+
+        const canonicalLocation: ListingLocation = {
+            display: normalized.display ?? "",
+            city: normalized.city ?? "",
+            state: normalized.state ?? "",
+            country: normalized.country,
+            locationId: normalized.locationId,
+            coordinates: normalized.coordinates,
+        };
+
+        setListingLocation(canonicalLocation);
+        onLocationChange?.(canonicalLocation);
     }, [onLocationChange]);
  
     const clearLocation = useCallback(() => {

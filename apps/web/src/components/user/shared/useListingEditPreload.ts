@@ -66,7 +66,7 @@ export function useListingEditPreload<TPayload extends Record<string, unknown>>(
                 await callbacksRef.current.onPayload(payload as unknown as TPayload);
             } catch (error) {
                 if (!isActive) return;
-                loadedIdRef.current = undefined;
+                loadedIdRef.current = null;
                 callbacksRef.current.onError?.(error);
             } finally {
                 if (isActive) {

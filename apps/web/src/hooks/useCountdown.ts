@@ -36,11 +36,11 @@ export function useCountdown(
       return false;
     };
 
-    let intervalId: number | null = undefined;
+    let intervalId: number | undefined;
     const timeoutId = window.setTimeout(() => {
       if (tick()) return;
       intervalId = window.setInterval(() => {
-        if (tick() && intervalId !== undefined) {
+        if (intervalId !== undefined && tick()) {
           window.clearInterval(intervalId);
         }
       }, intervalMs);

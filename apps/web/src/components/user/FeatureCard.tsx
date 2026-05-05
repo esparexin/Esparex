@@ -4,7 +4,7 @@ import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 interface FeatureCardProps {
   title: React.ReactNode;
   description?: React.ReactNode;
-  Icon?: React.ComponentType<unknown>;
+  Icon?: React.ComponentType<{ className?: string }>;
   rightAction?: React.ReactNode;
   className?: string;
 }

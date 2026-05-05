@@ -20,6 +20,7 @@ import {
     CatalogTextInputField,
 } from "@/components/catalog/CatalogUiPrimitives";
 import { toCategoryOptions } from "@/components/catalog/catalogDomainUtils";
+import type { ScreenSizeMutationPayload } from "@/lib/api/screenSizes";
 
 export default function ScreenSizesPage() {
     const { categories } = useAdminCategories();
@@ -56,7 +57,7 @@ export default function ScreenSizesPage() {
 
     return (
         <>
-        <CatalogPageTemplate<ScreenSize, { size: string; name: string; value: number; categoryId: string; isActive: boolean }>
+        <CatalogPageTemplate<ScreenSize, ScreenSizeMutationPayload>
             title="Screen Sizes"
             description="Manage screen-size master data by category."
             createLabel="Add Screen Size"

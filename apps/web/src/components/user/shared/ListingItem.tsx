@@ -42,6 +42,13 @@ interface ListingItemProps {
     className?: string;
 }
 
+type ListingViews = {
+    total?: number;
+    favorites?: number;
+    unique?: number;
+    lastViewedAt?: string;
+};
+
 export function ListingItem({
     title, status, thumbnail, priceLabel, priceClassName, badgeColor = "blue",
     rejectionReason, createdAt, expiresAt, views, likes,
@@ -53,8 +60,9 @@ export function ListingItem({
     const canEdit = ["live", "pending", "rejected"].includes(status);
     const showRenew = status === "expired" || status === "rejected";
 
-    const totalViews = typeof views === "number" ? views : (views as unknown)?.total ?? 0;
-    const totalLikes = typeof views === "object" ? (views as unknown)?.favorites : likes ?? 0;
+    const viewMetrics: ListingViews | null = views && typeof views === "object" ? views : null;
+    const totalViews = typeof views === "number" ? views : viewMetrics?.total ?? 0;
+    const totalLikes = viewMetrics?.favorites ?? likes ?? 0;
 
     const colorVariants = {
         blue: {

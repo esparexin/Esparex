@@ -73,7 +73,7 @@ export function useProfileTermination({
 
     if (!parsedDeleteAccount.success) {
       const nextErrors = emptyDeleteAccountFieldErrors();
-      let nextGlobalError: string | null = undefined;
+      let nextGlobalError: string | null = null;
 
       for (const issue of parsedDeleteAccount.error.issues) {
         const field = issue.path[0];

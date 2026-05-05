@@ -2,8 +2,9 @@ import React from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { ModelListItem } from "./ModelListItem";
 import { StatusDot, CountBadge } from "./CategoryTreeRow";
+import type { HierarchyTreeBrandNode, HierarchyTreeModelNode } from "@/lib/api/catalogGovernance";
 
-export const BrandTreeRow = ({ brand, isExpanded, onToggle }: { brand: unknown, isExpanded: boolean, onToggle: () => void }) => {
+export const BrandTreeRow = ({ brand, isExpanded, onToggle }: { brand: HierarchyTreeBrandNode, isExpanded: boolean, onToggle: () => void }) => {
     return (
         <li className="border-b border-slate-100 last:border-none">
             <button
@@ -30,7 +31,7 @@ export const BrandTreeRow = ({ brand, isExpanded, onToggle }: { brand: unknown, 
                             No models for this brand
                         </li>
                     ) : (
-                        brand.models.map((model: unknown) => (
+                        brand.models.map((model: HierarchyTreeModelNode) => (
                             <ModelListItem key={model.id} model={model} />
                         ))
                     )}

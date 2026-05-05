@@ -75,10 +75,10 @@ export function shouldSuppressPopupForApiError(
 class APIClient {
     private client: AxiosInstance;
     private isBackendHealthy = true;
-    private healthCheckPromise: Promise<boolean> | null = undefined;
+    private healthCheckPromise: Promise<boolean> | null = null;
     private healthCheckTimestamp = 0;
-    private csrfToken: string | null = undefined;
-    private csrfTokenPromise: Promise<string | null> | null = undefined;
+    private csrfToken: string | null = null;
+    private csrfTokenPromise: Promise<string | null> | null = null;
     private readonly HEALTH_CACHE_MS = 10_000;
 
     constructor() {
@@ -122,11 +122,11 @@ class APIClient {
                     this.csrfToken = token;
                     return token;
                 }
-                this.csrfToken = undefined;
+                this.csrfToken = null;
                 return null;
             })
             .catch((error: unknown) => {
-                this.csrfToken = undefined;
+                this.csrfToken = null;
                 if (process.env.NODE_ENV === 'development') {
                     const normalized = normalizeError(error);
                     logger.warn('[API Client] CSRF bootstrap failed:', normalized.message);
@@ -134,7 +134,7 @@ class APIClient {
                 return null;
             })
             .finally(() => {
-                this.csrfTokenPromise = undefined;
+                this.csrfTokenPromise = null;
             });
 
         return this.csrfTokenPromise;
@@ -475,7 +475,7 @@ class APIClient {
             return result;
         } finally {
             // Clear reference when settled
-            this.healthCheckPromise = undefined;
+            this.healthCheckPromise = null;
         }
     }
 
@@ -509,7 +509,7 @@ class APIClient {
     }
 }
 
-let internalClient: APIClient | null = undefined;
+let internalClient: APIClient | null = null;
 
 const getApiClient = () => {
     if (!internalClient) {

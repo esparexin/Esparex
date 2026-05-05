@@ -255,9 +255,9 @@ export function MyAdsTab({
                                                 <p className="text-xs font-semibold text-foreground mt-0.5">₹{formatStableNumber(ad.price)}</p>
 
                                                 {/* Rejection reason */}
-                                                {isRejected && (ad as unknown).rejectionReason && (
+                                                {isRejected && ad.rejectionReason && (
                                                     <p className="text-2xs text-red-500 mt-0.5 line-clamp-2">
-                                                        Reason: {(ad as unknown).rejectionReason}
+                                                        Reason: {ad.rejectionReason}
                                                     </p>
                                                 )}
 

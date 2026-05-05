@@ -93,15 +93,16 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
     const trustScore = business.trustScore ?? 0;
     const scoreColor = trustScore > 70 ? 'text-emerald-600' : trustScore > 40 ? 'text-amber-600' : 'text-red-600';
     const scoreBg = trustScore > 70 ? 'bg-emerald-100' : trustScore > 40 ? 'bg-amber-100' : 'bg-red-100';
+    const businessLocationLabel = (business as Business & { locationLabel?: string }).locationLabel;
 
     const locationDisplay = resolveLocationDisplay({
-        locationLabel: (business as unknown).locationLabel,
+        locationLabel: businessLocationLabel,
         coordinates: business.location?.coordinates,
         fallbackDisplay: buildBusinessFallbackLocationDisplay(business.location),
         emptyText: "Location not available",
     });
     const preferredLocationDisplay =
-        (business as unknown).locationLabel ||
+        businessLocationLabel ||
         business.location?.display ||
         buildBusinessFallbackLocationDisplay(business.location) ||
         [business.location?.city, business.location?.state].filter(Boolean).join(", ") ||

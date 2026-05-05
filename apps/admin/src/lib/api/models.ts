@@ -9,7 +9,7 @@ export interface ModelFilters {
     status?: string;
     page?: string | number;
     limit?: string | number;
-    [key: string]: string | number | undefined;
+    [key: string]: string | number | boolean | undefined;
 }
 
 export async function getModels(filters?: ModelFilters) {

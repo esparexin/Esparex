@@ -195,12 +195,12 @@ export function useSmartAlerts(enabled = true) {
         setSmartAlertGlobalError(null);
     }, []);
 
-    const handleCreateAlert = async (selectedLocation: SmartAlertLocationSelection | null = undefined): Promise<void> => {
+    const handleCreateAlert = async (selectedLocation: SmartAlertLocationSelection | null = null): Promise<void> => {
         setIsMutating(true);
         const parsedForm = smartAlertFormSchema.safeParse(smartAlertForm);
         if (!parsedForm.success) {
             const nextErrors = emptySmartAlertFieldErrors();
-            let nextGlobalError: string | null = undefined;
+            let nextGlobalError: string | null = null;
             for (const issue of parsedForm.error.issues) {
                 const field = issue.path[0];
                 if (field === "name") nextErrors.name = issue.message;
@@ -248,7 +248,7 @@ export function useSmartAlerts(enabled = true) {
 
         if (!parsedPayload.success) {
             const nextErrors = emptySmartAlertFieldErrors();
-            let nextGlobalError: string | null = undefined;
+            let nextGlobalError: string | null = null;
             for (const issue of parsedPayload.error.issues) {
                 const [root, nested] = issue.path;
                 if (root === "name") nextErrors.name = issue.message;

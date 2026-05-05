@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { usePostAdImages, usePostAdLocationState, usePostAdFlow, usePostAdAction } from "../PostAdContext";
 import { useFormContext } from "react-hook-form";
+import { useLocationData } from "@/context/LocationContext";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +83,7 @@ export default function ListingDetailsFields() {
     const handleSelectLocation = useCallback((loc: Location | null) => {
         // Clear path — called when user clicks "Change" in LocationSelector
         if (!loc) {
-            setValue("location", undefined as unknown as PostAdFormData["location"], {
+            setValue("location", {}, {
                 shouldValidate: false,
                 shouldDirty: true,
                 shouldTouch: true

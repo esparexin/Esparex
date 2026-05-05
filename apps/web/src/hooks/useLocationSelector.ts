@@ -94,13 +94,13 @@ export function useLocationSelector({ mode = "local", onLocationSelect, initialD
 
     const handleLocationSelect = useCallback(
         (display: string, rawCoords?: unknown, meta?: SelectorLocationMeta) => {
-            let parsedCoords: GeoJSONPoint | null = undefined;
+            let parsedCoords: GeoJSONPoint | null = null;
 
             if (rawCoords) {
                 try {
                     parsedCoords = toGeoPoint(rawCoords);
                 } catch {
-                    parsedCoords = undefined;
+                    parsedCoords = null;
                 }
             }
 

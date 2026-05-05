@@ -2,6 +2,7 @@ import React from "react";
 import { ChevronDown, ChevronRight, CheckCircle, XCircle } from "lucide-react";
 import { getListingTypeIcon } from "@/components/catalog/CatalogUiPrimitives";
 import { BrandTreeRow } from "./BrandTreeRow";
+import type { HierarchyTreeBrandNode, HierarchyTreeCategoryNode } from "@/lib/api/catalogGovernance";
 
 export const StatusDot = ({ isActive }: { isActive: boolean }) =>
     isActive ? (
@@ -23,7 +24,7 @@ export const CategoryTreeRow = ({
     onToggleCategory,
     onToggleBrand
 }: {
-    category: unknown,
+    category: HierarchyTreeCategoryNode,
     isExpanded: boolean,
     expandedBrands: Record<string, boolean>,
     onToggleCategory: () => void,
@@ -61,7 +62,7 @@ export const CategoryTreeRow = ({
                             No brands in this category
                         </li>
                     ) : (
-                        category.brands.map((brand: unknown) => (
+                        category.brands.map((brand: HierarchyTreeBrandNode) => (
                             <BrandTreeRow
                                 key={brand.id}
                                 brand={brand}

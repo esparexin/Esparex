@@ -32,7 +32,7 @@ export function useImageUploadWorkflow<T>(
                         formData.append("folder", "ads");
 
                         try {
-                            const csrfToken = await (apiClient as unknown as { getCsrfToken?: () => Promise<string> }).getCsrfToken?.() || "";
+                            const csrfToken = (await apiClient.getCsrfToken()) || "";
                             console.log("[FRONTEND CSRF TOKEN]", csrfToken);
                             
                             const headers = {
@@ -83,7 +83,10 @@ export function useImageUploadWorkflow<T>(
                 }
             }, (errors: unknown) => {
                 logger.error("[PostAdSubmit] Form validation errors:", errors);
-                const firstErrorKey = Object.keys(errors)[0];
+                const errorRecord = errors && typeof errors === "object"
+                    ? (errors as Record<string, unknown>)
+                    : {};
+                const firstErrorKey = Object.keys(errorRecord)[0];
                 if (typeof document !== "undefined" && firstErrorKey) {
                     if (firstErrorKey === "images") {
                         document.querySelector("input[type='file']")?.scrollIntoView({ behavior: "smooth", block: "center" });

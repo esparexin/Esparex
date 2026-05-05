@@ -37,7 +37,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
     };
 
     const handleTouchEnd = (e: React.TouchEvent) => {
-        if (touchStartX.current === undefined) return;
+        if (touchStartX.current === null) return;
         const diff = touchStartX.current - (e.changedTouches[0]?.clientX ?? 0);
         if (Math.abs(diff) >= SWIPE_THRESHOLD) {
             if (diff > 0) {
@@ -46,7 +46,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                 prevImage();
             }
         }
-        touchStartX.current = undefined;
+        touchStartX.current = null;
     };
 
     const normalizedImages = toSafeImageArray(images);

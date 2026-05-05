@@ -7,6 +7,7 @@ import { queryKeys } from "@/hooks/queries/queryKeys";
 
 export type ListingStatus = "live" | "pending" | "rejected" | "expired" | "sold" | "deactivated";
 export type ListingType = "ads" | "spare-parts" | "services";
+export type ListingSoldReason = "sold_on_platform" | "sold_outside" | "no_longer_available";
 
 interface ListingOptions<T> {
     type: ListingType;
@@ -15,7 +16,7 @@ interface ListingOptions<T> {
     statusFilter: ListingStatus;
     fetchApi: () => Promise<T[]>;
     deleteApi: (id: string) => Promise<unknown>;
-    markSoldApi: (id: string, reason?: string) => Promise<unknown>;
+    markSoldApi: (id: string, reason?: ListingSoldReason) => Promise<unknown>;
     deactivateApi: (id: string) => Promise<unknown>;
     repostApi: (id: string) => Promise<unknown>;
     queryKey: readonly unknown[];
@@ -74,7 +75,7 @@ export function useUserListingManagement<T extends { id: string; status: string 
     });
 
     const { mutateAsync: handleMarkSold } = useMutation({
-        mutationFn: async ({ id, soldReason }: { id: string; soldReason?: string }) => {
+        mutationFn: async ({ id, soldReason }: { id: string; soldReason?: ListingSoldReason }) => {
             return markSoldApi(id, soldReason);
         },
         onSuccess: () => {
@@ -117,7 +118,7 @@ export function useUserListingManagement<T extends { id: string; status: string 
         error,
         refetch,
         handleDelete: (id: string) => handleDelete(id),
-        handleMarkSold: (id: string, soldReason?: string) => handleMarkSold({ id, soldReason }),
+        handleMarkSold: (id: string, soldReason?: ListingSoldReason) => handleMarkSold({ id, soldReason }),
         handleDeactivate: (id: string) => handleDeactivate(id),
         handleRepost: (id: string) => handleRepost(id),
     };

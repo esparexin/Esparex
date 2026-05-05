@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { FormProvider, UseFormReturn } from "react-hook-form";
+import { FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "./ListingModalLayout";
 import { ListingImagesField, ListingLocationField, getFirstFormErrorMessage } from "./ListingFormFields";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,13 @@ import { Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import type { ListingImage } from "@/types/listing";
 
-interface GenericPostFormProps {
-    form: UseFormReturn<unknown>;
+type GenericPostFormValues = FieldValues & {
+    images?: unknown;
+    location?: unknown;
+};
+
+interface GenericPostFormProps<TFormValues extends GenericPostFormValues> {
+    form: UseFormReturn<TFormValues>;
     title: string;
     onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
     onClose: () => void;
@@ -25,7 +30,7 @@ interface GenericPostFormProps {
     formId: string;
 }
 
-export function GenericPostForm({
+export function GenericPostForm<TFormValues extends GenericPostFormValues>({
     form,
     title,
     onSubmit,
@@ -39,9 +44,9 @@ export function GenericPostForm({
     children,
     submitLabel,
     formId,
-}: GenericPostFormProps) {
-    const imagesError = getFirstFormErrorMessage(form.formState.errors.images);
-    const locationError = getFirstFormErrorMessage(form.formState.errors.location);
+}: GenericPostFormProps<TFormValues>) {
+    const imagesError = getFirstFormErrorMessage((form.formState.errors as Record<string, unknown>).images);
+    const locationError = getFirstFormErrorMessage((form.formState.errors as Record<string, unknown>).location);
     const locationHelperText = locationDisplay
         ? "This listing uses your Business profile location. Update it in Business Hub if needed."
         : "Add a Business profile location in Business Hub before publishing.";

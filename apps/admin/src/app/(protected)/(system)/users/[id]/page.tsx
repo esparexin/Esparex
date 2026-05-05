@@ -9,9 +9,11 @@ import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import {
     getUserStatusPresentation,
     normalizeManagedUser,
+    type ManagedUser,
 } from "@/components/system/users/userManagement";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { User } from "@esparex/shared";
+import { normalizeBusinessStatus } from "@esparex/shared";
 import { ArrowLeft, Mail, Phone, Shield, User as UserIcon } from "lucide-react";
 
 type Props = {
@@ -23,26 +25,32 @@ type Props = {
 export default function UserDetailsPage({ params }: Props) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<ManagedUser | null>(null);
 
     const { id: userId } = React.use(params);
 
-    const normalizeUser = (raw: Record<string, unknown>): User =>
-        normalizeManagedUser({
+    const normalizeUser = (raw: Record<string, unknown>): ManagedUser => {
+        const normalizedUser: ManagedUser = {
             id: String(raw.id || raw._id || ""),
             name: String(raw.name || ""),
             email: String(raw.email || ""),
-            mobile: (typeof raw.mobile === "string" ? raw.mobile : "") as string,
-            role: (raw.role as User["role"]) || "user",
-            status: (raw.status as User["status"]) || "live",
+            mobile: typeof raw.mobile === "string" ? raw.mobile : "",
+            role: typeof raw.role === "string" ? (raw.role as User["role"]) : "user",
+            status: typeof raw.status === "string" ? (raw.status as User["status"]) : "live",
             isVerified: Boolean(raw.isVerified),
             isPhoneVerified: Boolean(raw.isPhoneVerified),
             isEmailVerified: Boolean(raw.isEmailVerified),
-            businessStatus: (typeof raw.businessStatus === "string" ? raw.businessStatus : undefined) as unknown,
+            businessStatus:
+                raw.businessStatus == null
+                    ? undefined
+                    : normalizeBusinessStatus(raw.businessStatus),
             totalAdsPosted: typeof raw.totalAdsPosted === "number" ? raw.totalAdsPosted : undefined,
             createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date(0).toISOString(),
             updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : new Date(0).toISOString(),
-        } as unknown);
+        };
+
+        return normalizeManagedUser(normalizedUser);
+    };
 
     useEffect(() => {
         let cancelled = false;

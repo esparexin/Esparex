@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { UseFormReturn } from "react-hook-form";
+import { FieldValues, UseFormReturn } from "react-hook-form";
 import logger from "@/lib/logger";
 import { 
     createRemoteListingImages,
@@ -12,13 +12,13 @@ import { useAuth } from "@/context/AuthContext";
 import { buildGenericListingEditResetValues } from "@/lib/listings/postingFormNormalization";
 import { useListingEditPreload } from "./useListingEditPreload";
 
-interface UseGenericListingFormProps<T extends Record<string, any>> {
+interface UseGenericListingFormProps<T extends FieldValues> {
     form: UseFormReturn<T>;
     editId?: string;
-    onDataLoaded?: (payload: unknown) => void;
+    onDataLoaded?: (payload: Record<string, unknown>) => Promise<void> | void;
 }
 
-export function useGenericListingForm<T extends Record<string, any>>({
+export function useGenericListingForm<T extends FieldValues>({
     form,
     editId,
     onDataLoaded,
@@ -40,7 +40,7 @@ export function useGenericListingForm<T extends Record<string, any>>({
                 return;
             }
 
-            form.reset(buildGenericListingEditResetValues(payload) as unknown);
+            form.reset(buildGenericListingEditResetValues(payload) as Parameters<typeof form.reset>[0]);
         },
         onError: (error) => {
             logger.error("Failed to load listing", error);

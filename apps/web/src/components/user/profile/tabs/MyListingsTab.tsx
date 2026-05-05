@@ -159,10 +159,10 @@ export function MyListingsTab({
     interface SectionConfig {
         title: string;
         icon: React.ReactNode;
-        statusTabs: readonly string[];
-        selectedStatus: string;
+        statusTabs: readonly ListingStatus[];
+        selectedStatus: ListingStatus;
         onStatusChange: (status: ListingStatus) => void;
-        getStatusCount: (s: string) => number;
+        getStatusCount: (status: ListingStatus) => number;
         items: Listing[];
         loading: boolean;
         error: unknown;

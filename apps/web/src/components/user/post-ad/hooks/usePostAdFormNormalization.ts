@@ -10,7 +10,7 @@ export function usePostAdFormNormalization(
     form: UseFormReturn<PostAdFormData>,
     isLocationLocked: boolean
 ) {
-    const buildEditAdPayload = useCallback((payload: unknown) => {
+    const buildEditAdPayload = useCallback((payload: PostAdFormData) => {
         return buildPostAdEditPayload(payload, isLocationLocked);
     }, [isLocationLocked]);
 
@@ -23,14 +23,14 @@ export function usePostAdFormNormalization(
             spareParts: form.getValues("spareParts"),
         });
 
-        (Object.entries(nextValues) as Array<[keyof typeof nextValues, unknown]>).forEach(([field, value]) => {
+        (Object.entries(nextValues) as Array<[keyof PostAdFormData, PostAdFormData[keyof PostAdFormData]]>).forEach(([field, value]) => {
             const currentValue = form.getValues(field as keyof PostAdFormData);
             const hasChanged = Array.isArray(value)
                 ? JSON.stringify(currentValue ?? []) !== JSON.stringify(value)
                 : String(currentValue ?? "") !== String(value ?? "");
 
             if (hasChanged) {
-                form.setValue(field as keyof PostAdFormData, value as unknown, {
+                form.setValue(field, value, {
                     shouldValidate: false,
                     shouldDirty: false,
                 });

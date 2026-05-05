@@ -23,6 +23,11 @@ const getNestedFieldMeta = (source: unknown, path: string): unknown =>
         return (current as Record<string, unknown>)[segment];
     }, source);
 
+const DEVICE_CONDITION_OPTIONS = [
+    { value: "power_on", label: "Power On", dot: "bg-green-500", active: "bg-green-600 text-white border-green-600 shadow-sm" },
+    { value: "power_off", label: "Power Off", dot: "bg-red-500", active: "bg-red-600 text-white border-red-600 shadow-sm" },
+] as const;
+
 export default function DeviceIdentityFields() {
     const {
         dynamicCategories,
@@ -195,13 +200,13 @@ export default function DeviceIdentityFields() {
                                 value={modelId || modelNameValue}
                                 modelDisplayName={modelNameValue}
                                 onChange={(mId, mName) => {
-                                    setValue("modelId", mId as unknown, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                    setValue("modelId", mId, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                     setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                 }}
                                 onBrandResolved={(resolvedBrandId, resolvedBrandName) => {
                                     // A new pending brand was created — sync its ID back into the form
                                     // so the ad payload carries the correct brandId ObjectId.
-                                    setValue("brandId", resolvedBrandId as unknown, { shouldDirty: true });
+                                    setValue("brandId", resolvedBrandId, { shouldDirty: true });
                                     setValue("brand", resolvedBrandName, { shouldDirty: true });
                                 }}
                             />
@@ -285,14 +290,11 @@ export default function DeviceIdentityFields() {
             <section className="space-y-3" data-field="deviceCondition">
                 <Field label="Device Condition" error={deviceConditionError}>
                     <div className="flex gap-2 flex-wrap">
-                        {[
-                            { value: "power_on", label: "Power On", dot: "bg-green-500", active: "bg-green-600 text-white border-green-600 shadow-sm" },
-                            { value: "power_off", label: "Power Off", dot: "bg-red-500", active: "bg-red-600 text-white border-red-600 shadow-sm" },
-                        ].map(({ value, label, dot, active }) => (
+                        {DEVICE_CONDITION_OPTIONS.map(({ value, label, dot, active }) => (
                             <button
                                 key={value}
                                 type="button"
-                                onClick={() => setValue("deviceCondition", value as unknown, { shouldValidate: true, shouldTouch: true })}
+                                onClick={() => setValue("deviceCondition", value, { shouldValidate: true, shouldTouch: true })}
                                 className={cn(
                                     "flex items-center gap-2 h-11 px-4 rounded-xl border-2 text-sm font-bold transition-all",
                                     deviceCondition === value

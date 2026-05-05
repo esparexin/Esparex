@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { EyeOff, Download } from "lucide-react";
+import type { ColumnDef } from "./DataTable";
 
 export interface DataTableToolbarProps<T> {
     toolbar?: React.ReactNode;
@@ -7,7 +8,7 @@ export interface DataTableToolbarProps<T> {
     selectedCount: number;
     enableColumnVisibility: boolean;
     hideColumnVisibilityButton: boolean;
-    columns: unknown[];
+    columns: ColumnDef<T>[];
     columnVisibility: Record<string, boolean>;
     setColumnVisibility: (updater: Record<string, boolean> | ((prev: Record<string, boolean>) => Record<string, boolean>)) => void;
     enableCsvExport: boolean;

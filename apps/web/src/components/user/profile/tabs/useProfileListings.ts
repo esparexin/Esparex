@@ -1,10 +1,15 @@
-import { useUserListingManagement, ListingStatus } from "@/hooks/useUserListingManagement";
+import {
+    useUserListingManagement,
+    type ListingStatus,
+    type ListingSoldReason,
+} from "@/hooks/useUserListingManagement";
 import { 
     getMyListings, 
     deleteListing, 
     markListingAsSold, 
-    deactivateListing, 
-    repostListing 
+    deactivateListing,
+    repostListing,
+    type Listing,
 } from "@/lib/api/user/listings";
 import { LISTING_TYPE } from "@shared/enums/listingType";
 import { queryKeys } from "@/hooks/queries/queryKeys";
@@ -12,7 +17,16 @@ import type { User } from "@/types/User";
 
 export type ProfileListingType = "ads" | "services" | "spare-parts";
 
-export function useProfileListings<T extends { id: unknown; status: string } = any>(
+type ListingManagerConfig = {
+    fetchApi: () => Promise<Listing[]>;
+    deleteApi: (id: string) => Promise<unknown>;
+    markSoldApi: (id: string, reason?: ListingSoldReason) => Promise<unknown>;
+    deactivateApi: (id: string) => Promise<unknown>;
+    repostApi: (id: string) => Promise<unknown>;
+    queryKey: readonly unknown[];
+};
+
+export function useProfileListings(
     type: ProfileListingType,
     activeSubTab: string,
     user: User | null,
@@ -20,9 +34,9 @@ export function useProfileListings<T extends { id: unknown; status: string } = a
 ) {
     const isActive = activeSubTab === type;
 
-    const config: unknown = {
+    const configMap: Record<ProfileListingType, ListingManagerConfig> = {
         ads: {
-            fetchApi: () => getMyListings(LISTING_TYPE.AD, statusFilter).then(res => res.data),
+            fetchApi: async () => (await getMyListings(LISTING_TYPE.AD, statusFilter)).data,
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.AD),
             markSoldApi: markListingAsSold,
             deactivateApi: deactivateListing,
@@ -30,7 +44,7 @@ export function useProfileListings<T extends { id: unknown; status: string } = a
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.AD)
         },
         services: {
-            fetchApi: () => getMyListings(LISTING_TYPE.SERVICE, statusFilter).then(res => res.data),
+            fetchApi: async () => (await getMyListings(LISTING_TYPE.SERVICE, statusFilter)).data,
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SERVICE),
             markSoldApi: markListingAsSold,
             deactivateApi: deactivateListing,
@@ -38,14 +52,15 @@ export function useProfileListings<T extends { id: unknown; status: string } = a
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.SERVICE)
         },
         "spare-parts": {
-            fetchApi: () => getMyListings(LISTING_TYPE.SPARE_PART, statusFilter).then(res => res.data),
+            fetchApi: async () => (await getMyListings(LISTING_TYPE.SPARE_PART, statusFilter)).data,
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SPARE_PART),
             markSoldApi: markListingAsSold,
             deactivateApi: deactivateListing,
             repostApi: (id: string) => repostListing(id, LISTING_TYPE.SPARE_PART),
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.SPARE_PART)
         }
-    }[type];
+    };
+    const config = configMap[type];
 
     const {
         listings,
@@ -56,8 +71,8 @@ export function useProfileListings<T extends { id: unknown; status: string } = a
         handleMarkSold,
         handleDeactivate,
         handleRepost,
-    } = useUserListingManagement<T>({
-        type: type as unknown,
+    } = useUserListingManagement<Listing>({
+        type,
         activeTab: isActive ? type : "",
         user,
         statusFilter,
