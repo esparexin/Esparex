@@ -24,7 +24,10 @@ export function createUnifiedPopupBus(idPrefix?: string) {
  * Common error popup emission logic.
  */
 export function emitGenericErrorPopup(
-  showFn: (popup: unknown, options?: unknown) => string,
+  showFn: (
+    popup: Omit<PopupState, "id" | "open"> & { id?: string },
+    options?: { dedupeKey?: string; dedupeMs?: number }
+  ) => string,
   {
     status,
     message,

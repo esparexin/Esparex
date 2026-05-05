@@ -10,6 +10,7 @@ export type GeoJSONPoint = {
     type: "Point";
     coordinates: [number, number]; // [lng, lat]
 };
+export type CanonicalGeoPoint = GeoJSONPoint;
 
 /**
  * SSOT: Canonical Listing Location Contract
@@ -17,6 +18,7 @@ export type GeoJSONPoint = {
  */
 export interface ListingLocation {
     display: string;
+    locationId?: string;
     city: string;
     state: string;
     country: string;

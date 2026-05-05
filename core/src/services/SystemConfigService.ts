@@ -13,7 +13,7 @@ import { systemConfigUpdateSchema } from '../validators/systemConfig.validator';
 type ObjectLike = Record<string, unknown>;
 
 const isObjectLike = (value: unknown): value is ObjectLike => (
-    typeof value === 'object' && value !== undefined && !Array.isArray(value)
+    typeof value === 'object' && value !== null && !Array.isArray(value)
 );
 
 const hasToObject = (value: unknown): value is { toObject: () => ObjectLike } => (

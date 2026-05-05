@@ -99,6 +99,7 @@ export * from './types/catalogHierarchy';
 export * from './observability/trace';
 export * from './observability/types';
 export { getLogger } from './observability/index';
+export { createUniversalLogger } from './observability/logger';
 
 // IMAGE DOMAIN REGISTRY
 import imageDomainRegistry from './constants/image-domain-registry.json';

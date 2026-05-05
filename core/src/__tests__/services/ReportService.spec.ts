@@ -13,7 +13,6 @@ jest.mock("@esparex/core/models/Ad", () => ({
     __esModule: true,
     default: {
         findById: jest.fn(),
-        findByIdAndUpdate: jest.fn(),
     },
 }));
 
@@ -45,18 +44,19 @@ jest.mock("@esparex/core/utils/logger", () => ({
         info: jest.fn(),
     },
 }));
+jest.mock("@esparex/core/services/StatusMutationService", () => ({
+    __esModule: true,
+    mutateStatus: jest.fn().mockResolvedValue(undefined),
+}));
 
 import mongoose from "mongoose";
-import Ad from "../../models/Ad";
+import { mutateStatus } from "../../services/StatusMutationService";
 import {
     findReportForUpdate,
     autoHideAdIfOverThreshold,
     countActiveReports,
 } from "../../services/ReportService";
-
-const mockAd = Ad as unknown as {
-    findByIdAndUpdate: jest.Mock;
-};
+const mockedMutateStatus = mutateStatus as jest.Mock;
 
 import mockReportRaw from "../../models/Report";
 
@@ -88,27 +88,26 @@ describe("ReportService", () => {
         it("does NOT hide when uniqueReports is below threshold", async () => {
             const adId = new mongoose.Types.ObjectId();
             await autoHideAdIfOverThreshold(adId, 2, 5);
-            expect(mockAd.findByIdAndUpdate).not.toHaveBeenCalled();
+            expect(mockedMutateStatus).not.toHaveBeenCalled();
         });
 
         it("sets moderationStatus to community_hidden when threshold is met", async () => {
             const adId = new mongoose.Types.ObjectId();
-            mockAd.findByIdAndUpdate.mockResolvedValue({});
             await autoHideAdIfOverThreshold(adId, 5, 5);
-            expect(mockAd.findByIdAndUpdate).toHaveBeenCalledWith(
-                adId,
-                expect.objectContaining({ moderationStatus: "community_hidden" })
+            expect(mockedMutateStatus).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    entityId: adId,
+                    patch: expect.objectContaining({ moderationStatus: "community_hidden" }),
+                })
             );
         });
 
         it("includes ad ID in the moderationReason message", async () => {
             const adId = new mongoose.Types.ObjectId();
-            mockAd.findByIdAndUpdate.mockResolvedValue({});
             await autoHideAdIfOverThreshold(adId, 10, 5);
-            const call = mockAd.findByIdAndUpdate.mock.calls[0];
-            const updatePayload = call[1] as { moderationReason?: string };
-            expect(updatePayload.moderationReason).toMatch("10");
-            expect(updatePayload.moderationReason).toMatch("5");
+            const firstCallArg = mockedMutateStatus.mock.calls[0]?.[0] as { reason?: string };
+            expect(firstCallArg.reason).toMatch("10");
+            expect(firstCallArg.reason).toMatch("5");
         });
     });
 
