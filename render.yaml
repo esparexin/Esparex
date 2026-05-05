@@ -3,8 +3,8 @@ services:
     name: esparex-api
     env: node
     plan: starter
-    buildCommand: npm install --include=dev && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user
-    startCommand: cd backend/user && node dist/index.js
+    buildCommand: npm install -g npm@11.8.0 && HUSKY=0 npm ci --include=dev && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user
+    startCommand: npm start -w @esparex/backend-user
     envVars:
       - key: NODE_ENV
         value: production
