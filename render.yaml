@@ -1,24 +1,9 @@
 services:
-  # --- Esparex Backend (Node.js API) ---
   - type: web
-    name: esparex-backend
-    env: node
-    plan: starter # Starter plan active: 0.5 CPU | 512 MB RAM
-    # Build from repo root so npm workspaces links @esparex/shared correctly
-    buildCommand: npm install --include=dev && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-admin
-    startCommand: cd backend/admin && node dist/server.js
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-
-  # --- Esparex User Backend (Main API) ---
-  - type: web
-    name: esparex-user-api
+    name: esparex-api
     env: node
     plan: starter
-    buildCommand: npm install --include=dev && npm run build -w @esparex/shared && npm run build -w core && npm run build -w @esparex/backend-user
+    buildCommand: npm install --include=dev && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user
     startCommand: cd backend/user && node dist/index.js
     envVars:
       - key: NODE_ENV
@@ -26,63 +11,55 @@ services:
       - key: PORT
         value: 10000
 
-      # ── Core ──────────────────────────────────────────────────────────────
       - key: MONGODB_URI
-        sync: false   # MongoDB Atlas connection string
+        sync: false
       - key: ADMIN_MONGODB_URI
-        sync: false   # Admin DB — same Atlas cluster, separate connection (REQUIRED — crashes without it)
+        sync: false
       - key: JWT_SECRET
-        sync: false   # Strong random string (64+ chars in production)
+        sync: false
       - key: ADMIN_JWT_SECRET
-        sync: false   # Separate secret for admin panel JWTs
+        sync: false
       - key: REFRESH_TOKEN_SECRET
-        sync: false   # Separate secret for refresh tokens
+        sync: false
       - key: OTP_HASH_SECRET
-        sync: false   # Strong random string for OTP hashing (32+ chars)
+        sync: false
 
-      # ── Redis (required in production) ────────────────────────────────────
       - key: REDIS_URL
-        sync: false   # e.g. rediss://:<password>@<host>:6379 (Upstash / Render Redis)
+        sync: false
 
-      # ── CORS & Cookie ─────────────────────────────────────────────────────
       - key: CORS_ORIGIN
-        sync: false   # e.g. https://esparex.in,https://admin.esparex.in
+        sync: false
       - key: COOKIE_DOMAIN
-        sync: false   # e.g. .esparex.in  (leading dot covers all subdomains)
+        sync: false
       - key: FRONTEND_URL
-        sync: false   # e.g. https://esparex.in
+        sync: false
       - key: FRONTEND_INTERNAL_URL
-        sync: false   # Same as FRONTEND_URL unless behind internal network
+        sync: false
       - key: ADMIN_URL
-        sync: false   # e.g. https://admin.esparex.in (used for cookie domain inference)
+        sync: false
       - key: ADMIN_FRONTEND_URL
-        sync: false   # e.g. https://admin.esparex.in
+        sync: false
 
-      # ── AWS / S3 (required when any S3 var is present) ────────────────────
       - key: AWS_ACCESS_KEY_ID
         sync: false
       - key: AWS_SECRET_ACCESS_KEY
         sync: false
       - key: AWS_REGION
-        sync: false   # e.g. ap-south-1
+        sync: false
       - key: S3_BUCKET_NAME
-        sync: false   # canonical bucket name (replaces legacy AWS_S3_BUCKET)
+        sync: false
 
-      # ── Firebase (push notifications) ────────────────────────────────────
       - key: FIREBASE_SERVICE_ACCOUNT_JSON
-        sync: false   # Paste the full service account JSON as a single-line string
+        sync: false
 
-      # ── SMS / OTP (MSG91) ─────────────────────────────────────────────────
       - key: MSG91_AUTH_KEY
         sync: false
       - key: MSG91_SENDER_ID
         sync: false
 
-      # ── AI Features ───────────────────────────────────────────────────────
       - key: GEMINI_API_KEY
         sync: false
 
-      # ── Payments ──────────────────────────────────────────────────────────
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET
@@ -90,9 +67,7 @@ services:
       - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
 
-      # ── Optional / feature flags ──────────────────────────────────────────
       - key: USE_DEFAULT_OTP
-        value: "false"   # MUST be false in production
+        value: "false"
       - key: ATLAS_LOCATION_SEARCH_INDEX
-        sync: false   # Atlas Search index name (default: location_autocomplete)
-
+        sync: false
