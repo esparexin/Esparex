@@ -121,10 +121,6 @@ const scriptSrc = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    typescript: {
-        // Temporary stabilization: strict type backlog is enforced separately via `npm run type-check`.
-        ignoreBuildErrors: true,
-    },
     compress: true,
     poweredByHeader: false,
     experimental: {

@@ -10,6 +10,8 @@
       "@esparex/shared/*": ["shared/src/*"]
     },
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "skipLibCheck": true,
     "composite": true,
     "declaration": true

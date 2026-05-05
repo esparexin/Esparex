@@ -1,10 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  typescript: {
-    // Temporary stabilization: strict type backlog is handled via dedicated `npm run type-check`.
-    ignoreBuildErrors: true,
-  },
   async redirects() {
     return [
       {
