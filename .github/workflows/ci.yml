@@ -1,0 +1,61 @@
+name: Esparex CI Baseline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baseline-build:
+    name: Baseline Monorepo Build
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+      NEXT_PUBLIC_APP_ENV: local
+      SKIP_ENV_VALIDATION: "true"
+      NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
+      NEXT_PUBLIC_APP_URL: https://esparex.in
+      NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
+      NEXT_PUBLIC_ENCRYPTION_KEY: ci-placeholder-key-32-characters-x
+      NEXT_PUBLIC_FIREBASE_API_KEY: placeholder
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: placeholder
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+      NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
+      NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies (root only)
+        run: HUSKY=0 npm install
+
+      - name: Build shared (soft fail baseline)
+        run: npm run build -w @esparex/shared || true
+
+      - name: Build core (soft fail baseline)
+        run: npm run build -w @esparex/core || true
+
+      - name: Build backend (soft fail baseline)
+        run: npm run build -w @esparex/backend-user || true
+
+      - name: Build admin app (soft fail baseline)
+        run: npm run build -w @esparex/apps-admin || true
+
+      - name: Build web app (soft fail baseline)
+        run: npm run build -w @esparex/apps-web || true
