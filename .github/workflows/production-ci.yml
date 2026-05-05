@@ -22,9 +22,7 @@ jobs:
           cache: npm
       
       - name: 🛡️ Secure Dependencies
-        # Using a retry wrapper for resilience against network flakiness
-        run: |
-          for i in {1..3}; do npm ci && break || sleep 10; done
+        run: npm ci
 
       - name: 🛡️ Dependency Audit
         # Level critical to prevent builds from failing on non-breaking issues
@@ -47,8 +45,7 @@ jobs:
           cache: npm
       
       - name: Restore dependencies
-        run: |
-          for i in {1..3}; do npm ci && break || sleep 10; done
+        run: npm ci
 
       - name: Restore ESLint Cache
         uses: actions/cache@v4
@@ -61,8 +58,8 @@ jobs:
       - name: Run Scoped Lint (JSON + GitHub Format)
         # We output JSON for the baseline analyzer AND use github format for inline PR annotations
         run: |
-          npm run lint:${{ matrix.scope }} -- --format json --output-file lint-${{ matrix.scope }}.json || true
-          npm run lint:${{ matrix.scope }} -- --format github || true
+          npm run lint:${{ matrix.scope }} -- --format json --output-file lint-${{ matrix.scope }}.json
+          npm run lint:${{ matrix.scope }} -- --format github
 
       - name: Upload Lint Results
         uses: actions/upload-artifact@v4
@@ -78,6 +75,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Restore dependencies
+        run: npm ci
 
       - name: 🛡️ Absolute Baseline Immutability
         # Hard block on baseline modification in PRs to prevent debt bypass
@@ -138,16 +143,43 @@ jobs:
           node-version: "22.x"
           cache: npm
       - name: Restore dependencies
-        run: |
-          for i in {1..3}; do npm ci && break || sleep 10; done
+        run: npm ci
       - name: Run Type Check
         run: npm run type-check
 
+  contract-api:
+    name: 🔗 Contract checks
+    needs: [governance, type-check]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+      - name: Restore dependencies
+        run: npm ci
+      - name: Verify API contracts
+        run: npm run contract:api
+
+  backend-tests:
+    name: 🧪 Backend tests
+    needs: [governance, type-check]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+      - name: Restore dependencies
+        run: npm ci
+      - name: Run backend Jest suite
+        run: npm test -w @esparex/backend-user
+
   build-verify:
     name: 🏗️ Build integrity
-    # Build verification on main pushes or when explicitly requested
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'needs-build')
-    needs: [governance, type-check]
+    needs: [contract-api, backend-tests]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -159,8 +191,7 @@ jobs:
           node-version: "22.x"
           cache: npm
       - name: Restore dependencies
-        run: |
-          for i in {1..3}; do npm ci && break || sleep 10; done
+        run: npm ci
       - name: Build
         run: npm run build -w ${{ matrix.app }}
         env:
