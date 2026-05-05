@@ -6,11 +6,9 @@ Esparex is an npm workspaces monorepo with the following structure:
 
 - **`@esparex/apps-admin`** (`apps/admin`): Admin dashboard UI (Next.js)
 - **`@esparex/apps-web`** (`apps/web`): User-facing web application (Next.js)
-- **`@esparex/backend-admin`** (`backend/admin`): Administrative API services
-- **`@esparex/backend-user`** (`backend/user`): Main user API services (Express)
+- **`@esparex/backend-user`** (`backend/user`): Unified API services (user + admin namespaces)
 - **`@esparex/core`** (`core`): Business logic, domain models, and DB services (Clean Architecture)
 - **`@esparex/shared`** (`shared`): Shared contracts, types, and utility constants
-- **`@esparex/shared-observability`** (`shared/observability`): Logging and monitoring utilities
 
 ### 📁 Folder Breakdown
 
@@ -66,11 +64,11 @@ npm run dev -w @esparex/apps-admin
 
 The project is deployed using **Vercel** (Frontends) and **Render** (Backends).
 
-### Admin Backend Deployment (Render)
-When creating the Web Service (e.g., named `backend` or `admin-api`) for the admin system:
+### Unified Backend Deployment (Render)
+When creating the Web Service (e.g., named `esparex-api`) for the API system:
 - **Root Directory**: (Leave Empty)
-- **Build Command**: `export NODE_OPTIONS="--max-old-space-size=4096" && npm install && npm run build -w core && npm run build -w @esparex/backend-admin`
-- **Start Command**: `npm start -w @esparex/backend-admin`
+- **Build Command**: `export NODE_OPTIONS="--max-old-space-size=4096" && npm install && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user`
+- **Start Command**: `npm start -w @esparex/backend-user`
 
 ### Admin System Configuration (Vercel/Render)
 
@@ -80,9 +78,8 @@ To fix 404/403 errors during login/CSRF discovery, ensure the following environm
 | :--- | :--- | :--- | :--- |
 | `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_ADMIN_API_URL` | `https://api.esparex.in/api/v1/admin` |
 | `@esparex/apps-admin` | Vercel | `PROD_RISK_OVERRIDE` | `true` |
-| `@esparex/backend-admin` | Render | `COOKIE_DOMAIN` | `.esparex.in` (required for CSRF) |
-| `@esparex/backend-admin` | Render | `CORS_ALLOWED_ORIGINS` | `https://admin.esparex.in` |
-| `@esparex/backend-admin` | Render | `CSRF_SECRET` | *[Random 32-char string]* |
+| `@esparex/backend-user` | Render | `COOKIE_DOMAIN` | `.esparex.in` (required for CSRF) |
+| `@esparex/backend-user` | Render | `CORS_ALLOWED_ORIGINS` | `https://admin.esparex.in` |
+| `@esparex/backend-user` | Render | `CSRF_SECRET` | *[Random 32-char string]* |
 
-**Note**: The `@esparex/backend-admin` routes are prefixed with `/api/v1/admin`. If your frontend points to `api.esparex.in`, ensure your load balancer/proxy correctly routes those requests to the admin service.
-
+**Note**: Admin routes are served from the unified API under `/api/v1/admin`.

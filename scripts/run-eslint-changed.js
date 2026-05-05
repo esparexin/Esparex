@@ -4,7 +4,7 @@ const { execSync, spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const WORKSPACES = ["apps/web", "apps/admin", "backend/user", "backend/admin", "core", "shared", "scripts"];
+const WORKSPACES = ["apps/web", "apps/admin", "backend/user", "core", "shared", "scripts"];
 
 function run(cmd) {
   return execSync(cmd, { stdio: ["ignore", "pipe", "pipe"], encoding: "utf8" }).trim();

@@ -8,20 +8,19 @@
     "npm": ">=11.8.0 <12"
   },
   "workspaces": [
-    "backend/admin",
-    "core",
     "apps/admin",
-    "shared",
+    "apps/web",
     "backend/user",
-    "apps/web"
+    "core",
+    "shared"
   ],
   "scripts": {
     "prepare": "husky install",
     "hooks:install": "husky install",
-    "clean:workspace-installs": "rm -rf backend/admin/node_modules backend/user/node_modules apps/admin/node_modules apps/web/node_modules shared/node_modules core/node_modules",
-    "build": "npm run build -w @esparex/shared && npm run build -w core && npm run build -w @esparex/backend-admin && npm run build -w @esparex/backend-user && npm run build -w @esparex/apps-admin && npm run build -w @esparex/apps-web",
-    "type-check": "npm run type-check -w @esparex/shared && npm run type-check -w core && npm run type-check -w @esparex/backend-admin && npm run type-check -w @esparex/backend-user && npm run type-check -w @esparex/apps-admin && npm run type-check -w @esparex/apps-web",
-    "dev:all": "concurrently \"npm run dev -w @esparex/backend-admin\" \"npm run dev -w @esparex/backend-user\" \"npm run dev -w @esparex/apps-admin\" \"npm run dev -w @esparex/apps-web\"",
+    "clean:workspace-installs": "rm -rf backend/user/node_modules apps/admin/node_modules apps/web/node_modules shared/node_modules core/node_modules",
+    "build": "npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user && npm run build -w @esparex/apps-admin && npm run build -w @esparex/apps-web",
+    "type-check": "npm run type-check -w @esparex/shared && npm run type-check -w @esparex/core && npm run type-check -w @esparex/backend-user && npm run type-check -w @esparex/apps-admin && npm run type-check -w @esparex/apps-web",
+    "dev:all": "concurrently \"npm run dev -w @esparex/backend-user\" \"npm run dev -w @esparex/apps-admin\" \"npm run dev -w @esparex/apps-web\"",
     "lint:no-api-string-literals": "node scripts/enforce-no-api-string-literals.js",
     "guard:component-api-boundary": "node scripts/enforce-component-api-boundary.js",
     "guard:compatibility-markers": "node scripts/enforce-compatibility-markers-baseline.js",
@@ -54,7 +53,7 @@
     "lint:ci": "eslint . --max-warnings=0",
     "lint:changed": "node scripts/run-eslint-changed.js",
     "lint:fix": "eslint . --fix",
-    "test": "npm test -w core && npm test -w @esparex/backend-user",
+    "test": "npm test -w @esparex/core && npm test -w @esparex/backend-user",
     "ci": "npm run lint && npm run type-check && npm run test && npm run guard:duplication",
     "ci:strict": "npm run lint:ci && npm run type-check && npm run test",
     "ci:governance": "node scripts/lint-baseline-enforcement.js ci-lint-results.json",

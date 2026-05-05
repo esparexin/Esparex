@@ -6,7 +6,8 @@
     "baseUrl": ".",
     "paths": {
       "@esparex/core/*": ["core/src/*"],
-      "@esparex/shared": ["shared/src"]
+      "@esparex/shared": ["shared/src"],
+      "@esparex/shared/*": ["shared/src/*"]
     },
     "strict": true,
     "skipLibCheck": true,
@@ -18,7 +19,6 @@
     { "path": "./core" },
     { "path": "./shared" },
     { "path": "./backend/user" },
-    { "path": "./backend/admin" },
     { "path": "./apps/web" },
     { "path": "./apps/admin" }
   ]
