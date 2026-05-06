@@ -11,7 +11,8 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_PATH?.includes('di
     const repoRoot = path.resolve(__dirname, '../../../');
     (moduleAlias as any).addAliases({
         '@esparex/core': path.join(repoRoot, 'core/dist'),
-        '@esparex/shared': path.join(repoRoot, 'shared/dist')
+        '@esparex/shared': path.join(repoRoot, 'shared/dist'),
+        '@shared': path.join(repoRoot, 'shared/dist')
     });
 }
 

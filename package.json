@@ -53,12 +53,13 @@
     "lint:ci": "eslint . --max-warnings=0",
     "lint:changed": "node scripts/run-eslint-changed.js",
     "lint:fix": "eslint . --fix",
-    "test": "npm test -w @esparex/core && npm test -w @esparex/backend-user",
+    "test": "npm test -w @esparex/backend-user && npm test -w @esparex/core",
     "ci": "npm run lint && npm run type-check && npm run test && npm run guard:duplication",
     "ci:strict": "npm run lint:ci && npm run type-check && npm run test",
     "ci:governance": "node scripts/lint-baseline-enforcement.js ci-lint-results.json",
     "guard:unused-imports": "node scripts/enforce-no-new-unused-imports.js",
-    "guard:duplication": "npx jscpd --config .jscpd.json",
+    "guard:duplication": "jscpd --config .jscpd.json",
+    "guard:env-contracts": "node scripts/guard-env-contracts.js",
     "guard:api-surface": "node scripts/enforce-api-surface-guard.js",
     "debt:baseline": "export NODE_OPTIONS='--max-old-space-size=8192' && node scripts/generate-eslint-baseline.js",
     "debt:insights": "node scripts/analyze-tech-debt.js"
@@ -76,28 +77,17 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.2.4",
-    "@types/multer": "^2.1.0",
-    "@types/nodemailer": "^8.0.0",
     "@types/validator": "^13.15.10",
     "concurrently": "^9.2.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
+    "jscpd": "^4.0.9",
     "lint-staged": "^16.4.0",
     "madge": "^8.0.0",
     "pm2": "^6.0.14",
     "tsc-alias": "^1.8.16"
-  },
-  "dependencies": {
-    "@bull-board/api": "^7.0.0",
-    "@bull-board/express": "^7.0.0",
-    "@sentry/node": "^10.51.0",
-    "@sentry/profiling-node": "^10.51.0",
-    "module-alias": "^2.3.4",
-    "multer": "^2.1.1",
-    "nodemailer": "^8.0.7",
-    "winston-daily-rotate-file": "^5.0.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

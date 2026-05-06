@@ -10,7 +10,9 @@
 import { z } from 'zod';
 import bootstrapLogger from '../utils/bootstrapLogger';
 import {
+    validateProductionSafetyFlagsOrThrow,
     validateProductionEnvOrThrow,
+    validateRuntimeCriticalEnvOrThrow,
     validateS3BucketEnvAliasOrThrow,
     validateS3RuntimeEnvOrThrow
 } from './validateEnv';
@@ -106,9 +108,9 @@ const envSchema = z.object({
     ENABLE_SWAGGER: z.string().transform(val => val === 'true').default('true'),
     ENABLE_RATE_LIMITING: z.string().transform(val => val === 'true').default('true'),
     ENABLE_MAINTENANCE_MODE: z.string().transform(val => val === 'true').default('false'),
-    RUN_SCHEDULERS: z.string().transform(val => val === 'true').default('true'),
-    ENABLE_SCHEDULER: z.string().transform(val => val === 'true').default('true'),
-    PROCESS_ROLE: z.enum(['api', 'scheduler']).default('api'),
+    RUN_SCHEDULERS: z.string().transform(val => val === 'true').default('false'),
+    ENABLE_SCHEDULER: z.string().transform(val => val === 'true').default('false'),
+    PROCESS_ROLE: z.enum(['api', 'scheduler', 'worker']).default('api'),
     TZ: z.string().default('UTC'),
 
     // Database boot flags
@@ -176,6 +178,33 @@ const envSchema = z.object({
 
     // Admin session
     ADMIN_SESSION_TTL_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+
+    // Reliability layer
+    RELIABILITY_ALERTS_ENABLED: z.string().transform(val => val !== 'false').default('true'),
+    RELIABILITY_SLACK_WEBHOOK_URL: z.string().optional(),
+    RELIABILITY_ALERT_EMAIL_TO: z.string().optional(),
+    RELIABILITY_ALERT_THROTTLE_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_API_LATENCY_THRESHOLD_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_HIGH_ERROR_RATE_THRESHOLD: z.string().transform(val => parseFloat(val)).pipe(z.number().min(0).max(1)).optional(),
+    RELIABILITY_ERROR_RATE_MIN_REQUESTS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_QUEUE_DELAY_THRESHOLD_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_DB_RESPONSE_THRESHOLD_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_SLO_WINDOW_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_SLO_API_MIN_SAMPLES: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_SLO_DB_MIN_SAMPLES: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_SLO_QUEUE_MIN_SAMPLES: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_SLO_RECOVERY_HYSTERESIS_RATIO: z.string().transform(val => parseFloat(val)).pipe(z.number().min(0.5).max(1)).optional(),
+    RELIABILITY_QUEUE_FAILURE_SPIKE_THRESHOLD: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_QUEUE_FAILURE_WINDOW_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_API_USAGE_SPIKE_THRESHOLD: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_API_USAGE_SPIKE_WINDOW_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_RATE_LIMIT_ABUSE_THRESHOLD: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_REPEATED_FAILURE_THRESHOLD: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_REPEATED_FAILURE_WINDOW_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_WORKER_AUTO_RECOVERY_DELAY_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_WORKER_AUTO_RECOVERY_MAX_ATTEMPTS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_STARTUP_READINESS_TIMEOUT_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
+    RELIABILITY_REDIS_RECOVERY_PROBE_TIMEOUT_MS: z.string().transform(Number).pipe(z.number().positive()).optional(),
 });
 
 /**
@@ -193,8 +222,10 @@ function validateEnv(): EnvConfig {
     try {
         validateS3BucketEnvAliasOrThrow(process.env);
         validateS3RuntimeEnvOrThrow(process.env);
+        validateRuntimeCriticalEnvOrThrow(process.env);
         if ((process.env.NODE_ENV || 'development') === 'production') {
             validateProductionEnvOrThrow(process.env);
+            validateProductionSafetyFlagsOrThrow(process.env);
         }
         const config = envSchema.parse(process.env);
 

@@ -1,6 +1,9 @@
 import redisClient from '../config/redis';
 import logger from './logger';
 import { env } from '../config/env';
+import { withTimeout } from './resilience';
+import { redisConnectionStatus, reliabilityAlertsTotal } from './metrics';
+import { emitReliabilityAlert } from './reliabilityAlerts';
 
 /* ============================================================================
  * 📊 CACHE METRICS (In-Memory)
@@ -26,6 +29,7 @@ const client = redisClient;
 
 export let isConnected = false;
 export let isHighMemoryPressure = false;
+let redisDisconnectedSince: number | null = null;
 
 if (!shouldDisableRedis) {
     client.on('error', (err: unknown) => {
@@ -33,6 +37,9 @@ if (!shouldDisableRedis) {
         if (isConnected) logger.error('🔴 Redis Error in Cache:', message);
         cacheMetrics.errors++;
         isConnected = false;
+        if (redisDisconnectedSince === null) {
+            redisDisconnectedSince = Date.now();
+        }
     });
 
     client.on('connect', () => {
@@ -41,6 +48,42 @@ if (!shouldDisableRedis) {
 
     client.on('reconnecting', () => {
         isConnected = false;
+        if (redisDisconnectedSince === null) {
+            redisDisconnectedSince = Date.now();
+        }
+    });
+
+    client.on('ready', () => {
+        isConnected = true;
+        if (redisDisconnectedSince !== null) {
+            const downtimeMs = Math.max(0, Date.now() - redisDisconnectedSince);
+            redisDisconnectedSince = null;
+            void (async () => {
+                let recoveryProbeOk = false;
+                try {
+                    const pong = await withTimeout(client.ping(), REDIS_RECOVERY_PROBE_TIMEOUT_MS, 'Redis recovery probe');
+                    recoveryProbeOk = pong === 'PONG';
+                } catch {
+                    recoveryProbeOk = false;
+                }
+
+                reliabilityAlertsTotal.labels('REDIS_RECOVERED', 'info').inc();
+                await emitReliabilityAlert({
+                    type: 'REDIS_RECOVERED',
+                    title: 'Redis recovered after disconnect',
+                    severity: 'info',
+                    summary: 'Redis connection recovered and is healthy',
+                    dedupeKey: 'redis_recovered',
+                    service: 'api-runtime',
+                    module: 'redis-recovery',
+                    metadata: {
+                        downtimeMs,
+                        redisMode: REDIS_MODE,
+                        recoveryProbeOk,
+                    },
+                });
+            })();
+        }
     });
 }
 
@@ -87,6 +130,8 @@ const REDIS_HEALTH_PROBE_TTL_SECONDS = 5;
 const REDIS_TTL_AUDIT_SAMPLE_LIMIT = 200;
 const REDIS_MEMORY_PRESSURE_THRESHOLD = 0.7;
 const RECOMMENDED_REDIS_EVICTION_POLICY = 'allkeys-lru';
+const REDIS_PROBE_TIMEOUT_MS = 2_000;
+const REDIS_RECOVERY_PROBE_TIMEOUT_MS = env.RELIABILITY_REDIS_RECOVERY_PROBE_TIMEOUT_MS ?? 2_000;
 
 let lastRedisConfigWarningSignature: string | null = null;
 
@@ -450,6 +495,19 @@ export const getRedisHealthProbe = async (): Promise<{
     error?: string;
 }> => {
     if (!isConnected) {
+        redisConnectionStatus.set(0);
+        reliabilityAlertsTotal.labels('REDIS_DOWN', 'critical').inc();
+        void emitReliabilityAlert({
+            type: 'REDIS_DOWN',
+            title: 'Redis is unavailable',
+            severity: 'critical',
+            summary: 'Redis client is disconnected',
+            dedupeKey: 'redis_down',
+            metadata: {
+                redisMode: REDIS_MODE,
+                connected: isConnected,
+            },
+        });
         return {
             connected: false,
             pingOk: false,
@@ -464,14 +522,33 @@ export const getRedisHealthProbe = async (): Promise<{
     const startedAt = Date.now();
 
     try {
-        const pong = await client.ping();
+        const pong = await withTimeout(client.ping(), REDIS_PROBE_TIMEOUT_MS, 'Redis ping probe');
         const pingOk = pong === 'PONG';
 
-        await client.set(probeKey, probeValue, 'EX', REDIS_HEALTH_PROBE_TTL_SECONDS);
-        const readBack = await client.get(probeKey);
-        await client.del(probeKey);
+        await withTimeout(
+            client.set(probeKey, probeValue, 'EX', REDIS_HEALTH_PROBE_TTL_SECONDS),
+            REDIS_PROBE_TIMEOUT_MS,
+            'Redis probe set'
+        );
+        const readBack = await withTimeout(client.get(probeKey), REDIS_PROBE_TIMEOUT_MS, 'Redis probe get');
+        await withTimeout(client.del(probeKey), REDIS_PROBE_TIMEOUT_MS, 'Redis probe del');
 
         const roundTripOk = readBack === probeValue;
+        redisConnectionStatus.set(pingOk && roundTripOk ? 1 : 0);
+        if (!(pingOk && roundTripOk)) {
+            reliabilityAlertsTotal.labels('REDIS_DEGRADED', 'high').inc();
+            void emitReliabilityAlert({
+                type: 'REDIS_DEGRADED',
+                title: 'Redis health probe degraded',
+                severity: 'high',
+                summary: 'Redis ping or round-trip probe failed',
+                dedupeKey: 'redis_degraded',
+                metadata: {
+                    pingOk,
+                    roundTripOk,
+                },
+            });
+        }
         return {
             connected: true,
             pingOk,
@@ -480,6 +557,18 @@ export const getRedisHealthProbe = async (): Promise<{
         };
     } catch (error: unknown) {
         cacheMetrics.errors++;
+        redisConnectionStatus.set(0);
+        reliabilityAlertsTotal.labels('REDIS_DOWN', 'critical').inc();
+        void emitReliabilityAlert({
+            type: 'REDIS_DOWN',
+            title: 'Redis probe failed',
+            severity: 'critical',
+            summary: 'Redis health probe operation failed',
+            dedupeKey: 'redis_probe_failure',
+            metadata: {
+                error: error instanceof Error ? error.message : String(error),
+            },
+        });
         return {
             connected: true,
             pingOk: false,

@@ -14,11 +14,38 @@ const redisUrl = env.REDIS_URL || (() => {
     return `redis://${auth}${redisHost}:${redisPort}/${redisDb}`;
 })();
 
-// 🔍 STARTUP AUDIT: Log the connection protocol and host (obfuscated)
-const auditUrl = (redisUrl || '').replace(/:[^:@]+@/, ':****@');
+const REDIS_CONNECT_TIMEOUT_MS = 10_000;
+const REDIS_COMMAND_TIMEOUT_MS = 8_000;
+const REDIS_MAX_RETRY_DELAY_MS = 30_000;
+const REDIS_INITIAL_RETRY_DELAY_MS = 250;
+const REDIS_RETRY_LOG_INTERVAL = 5;
+
+const getRetryDelay = (attempt: number): number =>
+    Math.min(
+        REDIS_INITIAL_RETRY_DELAY_MS * Math.pow(2, Math.max(0, attempt - 1)),
+        REDIS_MAX_RETRY_DELAY_MS
+    );
+
+const sanitizeRedisUrl = (value: string): string => value.replace(/:[^:@]+@/, ':****@');
+
+const validateRedisUrl = (urlValue: string): void => {
+    const parsed = new URL(urlValue);
+    if (!['redis:', 'rediss:'].includes(parsed.protocol)) {
+        throw new Error(`Invalid REDIS_URL protocol: ${parsed.protocol}`);
+    }
+};
+
 if (!shouldDisableRedis) {
-    console.error(`[EMERGENCY_REDIS_AUDIT] Prot: ${(redisUrl || '').split(':')[0]} | URL: ${auditUrl}`);
-    logger.warn(`[REDIS_BOOT] Protocol: ${(redisUrl || '').split(':')[0]} | URL: ${auditUrl}`);
+    validateRedisUrl(redisUrl);
+}
+
+// 🔍 STARTUP AUDIT: Log the connection protocol and host (obfuscated)
+const auditUrl = sanitizeRedisUrl(redisUrl || '');
+if (!shouldDisableRedis) {
+    logger.info('[REDIS_BOOT] Redis runtime configuration loaded', {
+        protocol: (redisUrl || '').split(':')[0],
+        url: auditUrl
+    });
 }
 
 if (env.NODE_ENV === 'production') {
@@ -34,6 +61,7 @@ const redis: Redis = shouldDisableRedis
     ? ({
         call: () => Promise.resolve(null),
         get: () => Promise.resolve(null),
+        mget: (...keys: string[]) => Promise.resolve(keys.map(() => null)),
         set: () => Promise.resolve('OK'),
         setex: () => Promise.resolve('OK'),
         del: () => Promise.resolve(0),
@@ -47,6 +75,13 @@ const redis: Redis = shouldDisableRedis
         eval: () => Promise.resolve(0),
         dbsize: () => Promise.resolve(0),
         info: () => Promise.resolve(''),
+        pipeline: () => {
+            const chain = {
+                set: () => chain,
+                exec: async () => ([]),
+            };
+            return chain;
+        },
         quit: () => Promise.resolve('OK'),
         disconnect: () => undefined,
         status: 'end',
@@ -54,14 +89,42 @@ const redis: Redis = shouldDisableRedis
     } as unknown as Redis)
     : new Redis(redisUrl, {
         maxRetriesPerRequest: null,
-        enableOfflineQueue: true,
-        enableReadyCheck: false,
-        connectTimeout: 10000,
-        tls: undefined,
+        enableOfflineQueue: false,
+        enableReadyCheck: true,
+        connectTimeout: REDIS_CONNECT_TIMEOUT_MS,
+        commandTimeout: REDIS_COMMAND_TIMEOUT_MS,
+        lazyConnect: false,
+        keepAlive: 10000,
+        maxLoadingRetryTime: REDIS_MAX_RETRY_DELAY_MS,
+        tls: redisUrl.startsWith('rediss://') ? {} : undefined,
         retryStrategy(times) {
-            const delay = Math.min(times * 50, 2000);
+            const delay = getRetryDelay(times);
+            if (times === 1 || times % REDIS_RETRY_LOG_INTERVAL === 0) {
+                logger.warn('[REDIS_RETRY] Reconnecting to Redis', {
+                    attempt: times,
+                    delayMs: delay
+                });
+            }
             return delay;
         },
+        reconnectOnError(err) {
+            const code = (err as NodeJS.ErrnoException).code;
+            if (code === 'EPERM' || code === 'EACCES') {
+                logger.error('[REDIS_RECONNECT] Permission error from Redis socket', {
+                    code,
+                    message: err.message,
+                });
+                return true;
+            }
+            if (code === 'ETIMEDOUT' || code === 'ECONNRESET') {
+                logger.warn('[REDIS_RECONNECT] Transient Redis network failure', {
+                    code,
+                    message: err.message
+                });
+                return true;
+            }
+            return false;
+        }
     });
 
 if (!shouldDisableRedis) {
@@ -74,7 +137,18 @@ if (!shouldDisableRedis) {
     });
 
     redis.on('error', (err) => {
-        logger.error('Redis connection error', { error: err.message });
+        logger.error('Redis connection error', {
+            code: (err as NodeJS.ErrnoException).code,
+            error: err.message
+        });
+    });
+
+    redis.on('close', () => {
+        logger.warn('Redis connection closed');
+    });
+
+    redis.on('ready', () => {
+        logger.info('Redis client ready');
     });
 }
 

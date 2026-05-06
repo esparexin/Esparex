@@ -17,6 +17,10 @@ import mongoose, { Connection } from 'mongoose';
 import logger from '../utils/logger';
 import { mongooseSerializationPlugin } from './mongooseSerializationPlugin';
 import { env } from './env';
+import { sleep, withTimeout } from '../utils/resilience';
+import { dbConnectionStatus, reliabilityAlertsTotal } from '../utils/metrics';
+import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
+import { recordDbResponseSample } from '../utils/sloMonitor';
 
 /* ======================================================
    GLOBAL MONGOOSE SETTINGS
@@ -125,6 +129,20 @@ const adminCache = globalWithMongoose.mongooseAdminCache;
 
 const isUnified = USER_DB_URI === ADMIN_DB_URI;
 const skipDbConnect = env.NODE_ENV === 'test' && !env.ALLOW_DB_CONNECT;
+const DB_CONNECT_MAX_ATTEMPTS = env.NODE_ENV === 'production' ? 5 : 3;
+const DB_CONNECT_BASE_BACKOFF_MS = 1_000;
+const DB_CONNECT_TIMEOUT_MS = 15_000;
+const DB_OPERATION_TIMEOUT_MS = 2_500;
+const DB_CONNECTION_OPTIONS = {
+    bufferCommands: false,
+    serverSelectionTimeoutMS: 10_000,
+    connectTimeoutMS: 10_000,
+    socketTimeoutMS: 45_000,
+    maxPoolSize: 50,
+    minPoolSize: 5,
+    heartbeatFrequencyMS: 10_000,
+    retryWrites: true,
+};
 
 /* ======================================================
    READINESS CHECK
@@ -155,10 +173,7 @@ export function getUserConnection(): Connection {
             return userCache.conn;
         }
         logger.debug('Connecting to User DB', { uri: USER_DB_URI.split('@')[1] || 'localhost' });
-        userCache.conn = mongoose.createConnection(USER_DB_URI, {
-            bufferCommands: false,
-            serverSelectionTimeoutMS: 30000,
-        });
+        userCache.conn = mongoose.createConnection(USER_DB_URI, DB_CONNECTION_OPTIONS);
         attachUserDBLogs(userCache.conn);
 
         // 3. Share with Admin if unified
@@ -188,10 +203,7 @@ export function getAdminConnection(): Connection {
             return adminCache.conn;
         }
         logger.debug('Connecting to Admin DB', { uri: ADMIN_DB_URI.split('@')[1] || 'localhost' });
-        adminCache.conn = mongoose.createConnection(ADMIN_DB_URI, {
-            bufferCommands: false,
-            serverSelectionTimeoutMS: 30000,
-        });
+        adminCache.conn = mongoose.createConnection(ADMIN_DB_URI, DB_CONNECTION_OPTIONS);
 
         attachAdminDBLogs(adminCache.conn);
 
@@ -206,33 +218,225 @@ export function getAdminConnection(): Connection {
 }
 
 
+const closeConnectionForRetry = async (conn: Connection | null): Promise<void> => {
+    if (!conn) return;
+    try {
+        await conn.close(true);
+    } catch (error) {
+        logger.warn('Failed closing Mongo connection during retry reset', {
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+};
+
+const resetConnectionCaches = async (): Promise<void> => {
+    await Promise.all([
+        closeConnectionForRetry(userCache.conn),
+        isUnified ? Promise.resolve() : closeConnectionForRetry(adminCache.conn),
+    ]);
+    userCache.conn = null;
+    adminCache.conn = null;
+    userCache.isReady = false;
+    adminCache.isReady = false;
+};
+
+const computeBackoffMs = (attempt: number): number =>
+    Math.min(DB_CONNECT_BASE_BACKOFF_MS * Math.pow(2, Math.max(0, attempt - 1)), 15_000);
+
+const pingConnection = async (conn: Connection, label: 'user' | 'admin'): Promise<void> => {
+    if (!conn.db) {
+        throw new Error(`${label} connection has no database handle`);
+    }
+    await withTimeout(
+        conn.db.admin().ping().then(() => undefined),
+        DB_OPERATION_TIMEOUT_MS,
+        `Mongo ${label} ping`
+    );
+};
+
 /* ======================================================
    INITIALIZE DATABASES (FAIL FAST)
 ====================================================== */
 
 export async function connectDB() {
-    try {
-        if (skipDbConnect) {
-            logger.info('Skipping DB connection in test environment');
+    if (skipDbConnect) {
+        logger.info('Skipping DB connection in test environment');
+        return;
+    }
+
+    for (let attempt = 1; attempt <= DB_CONNECT_MAX_ATTEMPTS; attempt += 1) {
+        try {
+            const userConn = getUserConnection();
+            const adminConn = getAdminConnection();
+
+            await withTimeout(
+                Promise.all([
+                    userConn.asPromise(),
+                    adminConn.asPromise(),
+                ]).then(() => undefined),
+                DB_CONNECT_TIMEOUT_MS,
+                'Mongo bootstrap'
+            );
+
+            await Promise.all([
+                pingConnection(userConn, 'user'),
+                pingConnection(adminConn, 'admin'),
+            ]);
+
+            logger.info('All databases connected successfully', { attempt });
             return;
+        } catch (err) {
+            const backoffMs = computeBackoffMs(attempt);
+            logger.error('Database connection attempt failed', {
+                attempt,
+                maxAttempts: DB_CONNECT_MAX_ATTEMPTS,
+                backoffMs,
+                error: err instanceof Error ? err.message : String(err),
+                stack: err instanceof Error ? err.stack : undefined,
+            });
+
+            await resetConnectionCaches();
+
+            if (attempt >= DB_CONNECT_MAX_ATTEMPTS) {
+                throw err; // 🚫 STOP SERVER BOOT
+            }
+
+            await sleep(backoffMs);
         }
-        const userConn = getUserConnection();
-        const adminConn = getAdminConnection();
-
-        await Promise.all([
-            userConn.asPromise(),
-            adminConn.asPromise(),
-        ]);
-
-        logger.info('All databases connected successfully');
-    } catch (err) {
-        logger.error('Database connection failed', {
-            error: err instanceof Error ? err.message : String(err),
-            stack: err instanceof Error ? err.stack : undefined,
-        });
-        throw err; // 🚫 STOP SERVER BOOT
     }
 }
+
+type DbConnectionHealth = {
+    status: 'up' | 'down';
+    readyState: number;
+    stateLabel: string;
+    pingOk: boolean;
+    latencyMs: number | null;
+    error?: string;
+};
+
+export type DatabaseHealthProbe = {
+    overall: 'up' | 'degraded' | 'down';
+    user: DbConnectionHealth;
+    admin: DbConnectionHealth;
+};
+
+const readyStateToLabel = (readyState: number): string => {
+    switch (readyState) {
+        case mongoose.ConnectionStates.connected: return 'connected';
+        case mongoose.ConnectionStates.connecting: return 'connecting';
+        case mongoose.ConnectionStates.disconnecting: return 'disconnecting';
+        case mongoose.ConnectionStates.disconnected: return 'disconnected';
+        default: return 'unknown';
+    }
+};
+
+const probeConnection = async (conn: Connection | null, label: 'user' | 'admin'): Promise<DbConnectionHealth> => {
+    if (!conn) {
+        dbConnectionStatus.labels(label).set(0);
+        return {
+            status: 'down',
+            readyState: mongoose.ConnectionStates.disconnected,
+            stateLabel: 'not_initialized',
+            pingOk: false,
+            latencyMs: null,
+            error: `${label} connection not initialized`
+        };
+    }
+
+    const readyState = conn.readyState;
+    const stateLabel = readyStateToLabel(readyState);
+    if (readyState !== mongoose.ConnectionStates.connected || !conn.db) {
+        dbConnectionStatus.labels(label).set(0);
+        return {
+            status: 'down',
+            readyState,
+            stateLabel,
+            pingOk: false,
+            latencyMs: null,
+            error: `${label} connection is ${stateLabel}`
+        };
+    }
+
+    const startedAt = Date.now();
+    try {
+        await withTimeout(
+            conn.db.admin().ping().then(() => undefined),
+            DB_OPERATION_TIMEOUT_MS,
+            `Mongo ${label} health ping`
+        );
+        const latencyMs = Date.now() - startedAt;
+        recordDbResponseSample(latencyMs);
+        dbConnectionStatus.labels(label).set(1);
+        return {
+            status: 'up',
+            readyState,
+            stateLabel,
+            pingOk: true,
+            latencyMs,
+        };
+    } catch (error) {
+        const latencyMs = Date.now() - startedAt;
+        recordDbResponseSample(latencyMs);
+        dbConnectionStatus.labels(label).set(0);
+        return {
+            status: 'down',
+            readyState,
+            stateLabel,
+            pingOk: false,
+            latencyMs,
+            error: error instanceof Error ? error.message : String(error),
+        };
+    }
+};
+
+export const getDatabaseHealthProbe = async (): Promise<DatabaseHealthProbe> => {
+    const [userHealth, adminHealth] = await Promise.all([
+        probeConnection(userCache.conn, 'user'),
+        probeConnection(adminCache.conn, 'admin'),
+    ]);
+
+    const overall: DatabaseHealthProbe['overall'] =
+        userHealth.status === 'up' && adminHealth.status === 'up'
+            ? 'up'
+            : userHealth.status === 'down' && adminHealth.status === 'down'
+                ? 'down'
+                : 'degraded';
+
+    if (overall === 'down') {
+        reliabilityAlertsTotal.labels('DATABASE_DOWN', 'critical').inc();
+        void emitReliabilityAlert({
+            type: 'DATABASE_DOWN',
+            title: 'Database connectivity failure',
+            severity: 'critical',
+            summary: 'Both user and admin MongoDB probes are down',
+            dedupeKey: 'database_down',
+            metadata: {
+                user: userHealth,
+                admin: adminHealth,
+            },
+        });
+    } else if (overall === 'degraded') {
+        reliabilityAlertsTotal.labels('DATABASE_DEGRADED', 'high').inc();
+        void emitReliabilityAlert({
+            type: 'DATABASE_DEGRADED',
+            title: 'Database degraded',
+            severity: 'high',
+            summary: 'One or more MongoDB probes are degraded/down',
+            dedupeKey: 'database_degraded',
+            metadata: {
+                user: userHealth,
+                admin: adminHealth,
+            },
+        });
+    }
+
+    return {
+        overall,
+        user: userHealth,
+        admin: adminHealth,
+    };
+};
 
 /* ======================================================
    LOGGING HELPERS
@@ -256,6 +460,12 @@ function attachUserDBLogs(conn: Connection) {
         if (isUnified) adminCache.isReady = false;
         logger.warn('User DB disconnected');
     });
+
+    conn.on('reconnected', () => {
+        userCache.isReady = true;
+        if (isUnified) adminCache.isReady = true;
+        logger.info('User DB reconnected');
+    });
 }
 
 function attachAdminDBLogs(conn: Connection) {
@@ -276,6 +486,12 @@ function attachAdminDBLogs(conn: Connection) {
         if (isUnified) userCache.isReady = false;
         logger.warn('Admin DB disconnected');
     });
+
+    conn.on('reconnected', () => {
+        adminCache.isReady = true;
+        if (isUnified) userCache.isReady = true;
+        logger.info('Admin DB reconnected');
+    });
 }
 
 /* ======================================================
@@ -284,10 +500,15 @@ function attachAdminDBLogs(conn: Connection) {
 
 export async function closeDB() {
     try {
-        await Promise.all([
-            userCache.conn?.close(),
-            adminCache.conn?.close(),
-        ]);
+        const seenConnectionIds = new Set<number>();
+        const closeOperations: Promise<unknown>[] = [];
+        [userCache.conn, adminCache.conn].forEach((conn) => {
+            if (!conn) return;
+            if (seenConnectionIds.has(conn.id)) return;
+            seenConnectionIds.add(conn.id);
+            closeOperations.push(conn.close());
+        });
+        await Promise.all(closeOperations);
         userCache.isReady = false;
         adminCache.isReady = false;
         userCache.conn = null;

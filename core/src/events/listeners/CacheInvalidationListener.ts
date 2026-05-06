@@ -4,11 +4,25 @@ import type { AdStatusChangedEvent } from '../LifecycleEventDispatcher';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
 import axios from 'axios';
 import { getFrontendInternalUrl } from '../../utils/appUrl';
+import { CircuitBreaker } from '../../utils/resilience';
+
+const revalidationCircuitBreaker = new CircuitBreaker({
+    name: 'nextjs_revalidation_webhook',
+    failureThreshold: 3,
+    cooldownMs: 30_000,
+    timeoutMs: 3_000,
+});
 
 const triggerNextJsRevalidation = async () => {
     try {
         const baseUrl = getFrontendInternalUrl();
-        await axios.post(`${baseUrl}/internal/revalidate`, { tag: 'homeFeed' }, { timeout: 3000 });
+        await revalidationCircuitBreaker.execute(async () => {
+            await axios.post(`${baseUrl}/internal/revalidate`, { tag: 'homeFeed' }, { timeout: 3000 });
+        }, async (error) => {
+            logger.warn('[CacheInvalidationListener] Revalidation fallback activated', {
+                error: error instanceof Error ? error.message : String(error)
+            });
+        });
         logger.info('[CacheInvalidationListener] Next.js homeFeed cache revalidated successfully.');
     } catch (error) {
         logger.error('[CacheInvalidationListener] Failed to trigger Next.js revalidation webhook', { error: error instanceof Error ? error.message : String(error) });

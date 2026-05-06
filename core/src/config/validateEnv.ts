@@ -14,6 +14,12 @@ const REQUIRED_PRODUCTION_ENV_VARS = [
     'S3_BUCKET_NAME',
 ] as const;
 
+const REQUIRED_RUNTIME_CRITICAL_ENV_VARS = [
+    'MONGODB_URI',
+    'REDIS_URL',
+    'JWT_SECRET',
+] as const;
+
 const REQUIRED_S3_RUNTIME_ENV_VARS = [
     'AWS_ACCESS_KEY_ID',
     'AWS_SECRET_ACCESS_KEY',
@@ -24,8 +30,22 @@ const REQUIRED_S3_RUNTIME_ENV_VARS = [
 const AWS_ACCESS_KEY_ID_PATTERN = /^(AKIA|ASIA|AIDA|AROA)[A-Z0-9]{16}$/;
 const AWS_SECRET_ACCESS_KEY_PATTERN = /^[A-Za-z0-9/+=]{40}$/;
 
+const BLOCKED_PRODUCTION_FLAGS = [
+    'AUTH_LOCAL_RELAXED',
+    'ALLOW_DEFAULT_ADMIN_SEED',
+    'ALLOW_DB_CONNECT',
+    'ALLOW_REDIS',
+    'ALLOW_SCHEDULER_QUEUE',
+    'ALLOW_BOOT_AUTO_INDEX',
+    'SENTRY_ENABLE_DEV',
+    'FEED_DEBUG',
+] as const;
+
 const hasValue = (value: string | undefined): boolean =>
     typeof value === 'string' && value.trim().length > 0;
+
+const isEnabledFlag = (value: string | undefined): boolean =>
+    (value || '').trim().toLowerCase() === 'true';
 
 export function validateS3BucketEnvAliasOrThrow(sourceEnv: NodeJS.ProcessEnv): void {
     const legacyBucket = sourceEnv.AWS_S3_BUCKET?.trim();
@@ -88,6 +108,19 @@ export function validateS3RuntimeEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void 
     if (!secretKeyLooksValid) {
         throw new Error(
             'Invalid S3 configuration: AWS_SECRET_ACCESS_KEY format is invalid.'
+        );
+    }
+}
+
+export function validateRuntimeCriticalEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void {
+    if ((sourceEnv.NODE_ENV || 'development') === 'test') {
+        return;
+    }
+
+    const missingVars = REQUIRED_RUNTIME_CRITICAL_ENV_VARS.filter((key) => !hasValue(sourceEnv[key]));
+    if (missingVars.length > 0) {
+        throw new Error(
+            `Missing required runtime environment variables: ${missingVars.join(', ')}`
         );
     }
 }
@@ -170,4 +203,32 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
     }
 
     bootstrapLogger.info('✅ Production environment secrets and origin constraints validated');
+}
+
+export function validateProductionSafetyFlagsOrThrow(sourceEnv: NodeJS.ProcessEnv): void {
+    if ((sourceEnv.NODE_ENV || 'development') !== 'production') {
+        return;
+    }
+
+    const enabledUnsafeFlags = BLOCKED_PRODUCTION_FLAGS.filter((key) => isEnabledFlag(sourceEnv[key]));
+    if (enabledUnsafeFlags.length > 0) {
+        throw new Error(
+            `Unsafe production flags enabled: ${enabledUnsafeFlags.join(', ')}`
+        );
+    }
+
+    if (isEnabledFlag(sourceEnv.ENABLE_SWAGGER)) {
+        throw new Error('ENABLE_SWAGGER=true is not allowed in production');
+    }
+
+    const logLevel = (sourceEnv.LOG_LEVEL || '').trim().toLowerCase();
+    if (['debug', 'verbose', 'silly', 'trace'].includes(logLevel)) {
+        throw new Error(`LOG_LEVEL=${logLevel} is not allowed in production`);
+    }
+
+    if ((sourceEnv.NODE_OPTIONS || '').includes('--inspect')) {
+        throw new Error('NODE_OPTIONS includes --inspect in production');
+    }
+
+    bootstrapLogger.info('✅ Production safety flags validated');
 }
