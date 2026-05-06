@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_PATH?.includes('di
     // Build path:  [repo]/core/dist/config/loadEnv.js
     // Resolve aliases to built JS artifacts to avoid loading TypeScript in runtime.
     const repoRoot = path.resolve(__dirname, '../../../');
-    (moduleAlias as any).addAliases({
+    (moduleAlias as unknown as { addAliases: (aliases: Record<string, string>) => void }).addAliases({
         '@esparex/core': path.join(repoRoot, 'core/dist'),
         '@esparex/shared': path.join(repoRoot, 'shared/dist'),
         '@shared': path.join(repoRoot, 'shared/dist')

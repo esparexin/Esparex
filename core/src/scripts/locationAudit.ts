@@ -172,7 +172,7 @@ async function runAudit() {
                 const batchSize = 1000;
                 for (let i = 0; i < bulkOps.length; i += batchSize) {
                     const batch = bulkOps.slice(i, i + batchSize);
-                    await Location.collection.bulkWrite(batch as any[]);
+                    await Location.collection.bulkWrite(batch as Parameters<typeof Location.collection.bulkWrite>[0]);
                     logger.info(`📈 Progress: ${Math.min(i + batchSize, bulkOps.length)} / ${bulkOps.length}`);
                 }
                 logger.info(`✅ Smart Reparenting complete. Fixed ${reparentedCount} orphans.`);
@@ -225,7 +225,7 @@ async function runAudit() {
                 const batchSize = 1000;
                 for (let i = 0; i < bulkOps.length; i += batchSize) {
                     const batch = bulkOps.slice(i, i + batchSize);
-                    await Location.collection.bulkWrite(batch as any[]);
+                    await Location.collection.bulkWrite(batch as Parameters<typeof Location.collection.bulkWrite>[0]);
                     logger.info(`📈 Progress: ${Math.min(i + batchSize, bulkOps.length)} / ${bulkOps.length}`);
                 }
                 logger.info('✅ Remediation complete.');
