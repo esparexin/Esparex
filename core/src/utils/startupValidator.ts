@@ -3,6 +3,10 @@ import Category from '../models/Category';
 import Brand from '../models/Brand';
 import ProductModel from '../models/Model';
 import type { Model as MongooseModel } from 'mongoose';
+import { getDatabaseHealthProbe } from '../config/db';
+import { getQueueHealthProbe } from '../queues/queueHealth';
+import { getRedisHealthProbe } from './redisCache';
+import { env } from '../config/env';
 
 const STARTUP_COUNT_MAX_TIME_MS = 1200;
 
@@ -56,3 +60,42 @@ export async function validateMetadataHealth() {
         });
     }
 }
+
+const STARTUP_READINESS_TIMEOUT_MS = env.RELIABILITY_STARTUP_READINESS_TIMEOUT_MS ?? 12_000;
+
+export const assertCriticalStartupReadiness = async (): Promise<void> => {
+    const startedAt = Date.now();
+    const [databaseHealth, redisHealth, queueHealth] = await Promise.all([
+        getDatabaseHealthProbe(),
+        getRedisHealthProbe(),
+        getQueueHealthProbe(),
+    ]);
+
+    const readinessFailures: string[] = [];
+    if (databaseHealth.overall === 'down') {
+        readinessFailures.push('database subsystem is down');
+    }
+    if (!redisHealth.connected || !redisHealth.pingOk || !redisHealth.roundTripOk) {
+        readinessFailures.push('redis subsystem is unavailable');
+    }
+    if (queueHealth.status === 'down') {
+        readinessFailures.push('queue subsystem is down');
+    }
+
+    if (Date.now() - startedAt > STARTUP_READINESS_TIMEOUT_MS) {
+        readinessFailures.push(`readiness evaluation exceeded ${STARTUP_READINESS_TIMEOUT_MS}ms`);
+    }
+
+    if (readinessFailures.length > 0) {
+        throw new Error(`Critical startup readiness failed: ${readinessFailures.join('; ')}`);
+    }
+
+    logger.info('Critical startup readiness passed', {
+        databaseStatus: databaseHealth.overall,
+        redisConnected: redisHealth.connected,
+        redisPingOk: redisHealth.pingOk,
+        redisRoundTripOk: redisHealth.roundTripOk,
+        queueStatus: queueHealth.status,
+        evaluatedInMs: Date.now() - startedAt,
+    });
+};
