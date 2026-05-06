@@ -10,5 +10,9 @@
   },
   "devDependencies": {
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "slugify": "^1.6.9",
+    "zod": "^3.25.76"
   }
 }
