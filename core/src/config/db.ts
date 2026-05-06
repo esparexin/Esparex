@@ -19,8 +19,27 @@ import { mongooseSerializationPlugin } from './mongooseSerializationPlugin';
 import { env } from './env';
 import { sleep, withTimeout } from '../utils/resilience';
 import { dbConnectionStatus, reliabilityAlertsTotal } from '../utils/metrics';
-import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
-import { recordDbResponseSample } from '../utils/sloMonitor';
+// Lazy import to break circular dependency: db → reliabilityAlerts → EmailService → db
+// Static import causes isUnified TDZ crash during module initialization.
+type EmitReliabilityAlert = typeof import('../utils/reliabilityAlerts').emitReliabilityAlert;
+let _emitReliabilityAlert: EmitReliabilityAlert | null = null;
+function getEmitReliabilityAlert(): EmitReliabilityAlert {
+    if (!_emitReliabilityAlert) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        _emitReliabilityAlert = require('../utils/reliabilityAlerts').emitReliabilityAlert as EmitReliabilityAlert;
+    }
+    return _emitReliabilityAlert;
+}
+// Lazy import to break circular dependency: db → sloMonitor → reliabilityAlerts → EmailService → db
+type RecordDbResponseSample = typeof import('../utils/sloMonitor').recordDbResponseSample;
+let _recordDbResponseSample: RecordDbResponseSample | null = null;
+function getRecordDbResponseSample(): RecordDbResponseSample {
+    if (!_recordDbResponseSample) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        _recordDbResponseSample = require('../utils/sloMonitor').recordDbResponseSample as RecordDbResponseSample;
+    }
+    return _recordDbResponseSample;
+}
 
 /* ======================================================
    GLOBAL MONGOOSE SETTINGS
@@ -366,7 +385,7 @@ const probeConnection = async (conn: Connection | null, label: 'user' | 'admin')
             `Mongo ${label} health ping`
         );
         const latencyMs = Date.now() - startedAt;
-        recordDbResponseSample(latencyMs);
+        getRecordDbResponseSample()(latencyMs);
         dbConnectionStatus.labels(label).set(1);
         return {
             status: 'up',
@@ -377,7 +396,7 @@ const probeConnection = async (conn: Connection | null, label: 'user' | 'admin')
         };
     } catch (error) {
         const latencyMs = Date.now() - startedAt;
-        recordDbResponseSample(latencyMs);
+        getRecordDbResponseSample()(latencyMs);
         dbConnectionStatus.labels(label).set(0);
         return {
             status: 'down',
@@ -405,7 +424,7 @@ export const getDatabaseHealthProbe = async (): Promise<DatabaseHealthProbe> => 
 
     if (overall === 'down') {
         reliabilityAlertsTotal.labels('DATABASE_DOWN', 'critical').inc();
-        void emitReliabilityAlert({
+        void getEmitReliabilityAlert()({
             type: 'DATABASE_DOWN',
             title: 'Database connectivity failure',
             severity: 'critical',
@@ -418,7 +437,7 @@ export const getDatabaseHealthProbe = async (): Promise<DatabaseHealthProbe> => 
         });
     } else if (overall === 'degraded') {
         reliabilityAlertsTotal.labels('DATABASE_DEGRADED', 'high').inc();
-        void emitReliabilityAlert({
+        void getEmitReliabilityAlert()({
             type: 'DATABASE_DEGRADED',
             title: 'Database degraded',
             severity: 'high',

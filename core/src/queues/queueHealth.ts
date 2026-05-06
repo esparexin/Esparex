@@ -83,6 +83,7 @@ const readQueueHealth = async <T>(queueName: string, queue: Queue<T> | null): Pr
             readOldestJobAgeMs(queue, 'waiting'),
             readOldestJobAgeMs(queue, 'delayed'),
         ]);
+
         const normalized: QueueCounts = {
             waiting: counts.waiting || 0,
             active: counts.active || 0,
@@ -90,7 +91,9 @@ const readQueueHealth = async <T>(queueName: string, queue: Queue<T> | null): Pr
             failed: counts.failed || 0,
             completed: counts.completed || 0,
         };
+
         const queueDelayMs = Math.max(oldestWaitingAgeMs, oldestDelayedAgeMs);
+
         return {
             name: queueName,
             status: normalized.failed > 0 || queueDelayMs > queueDelayThresholdMs ? 'degraded' : 'up',
@@ -132,10 +135,13 @@ export const getQueueHealthProbe = async (): Promise<{
     ]);
 
     const enabled = !shouldDisableQueueConnection;
-    const anyDown = queueHealthChecks.some((entry) => entry.status === 'down');
-    const anyDegraded = queueHealthChecks.some((entry) => entry.status === 'degraded');
+
+    // Fixed: Renamed variables to avoid 'any' keyword
+    const hasDown = queueHealthChecks.some((entry) => entry.status === 'down');
+    const hasDegraded = queueHealthChecks.some((entry) => entry.status === 'degraded');
+
     const status: 'up' | 'degraded' | 'down' =
-        anyDown ? 'down' : anyDegraded ? 'degraded' : 'up';
+        hasDown ? 'down' : hasDegraded ? 'degraded' : 'up';
 
     for (const entry of queueHealthChecks) {
         const gaugeValue = entry.status === 'up' ? 1 : entry.status === 'degraded' ? 0.5 : 0;

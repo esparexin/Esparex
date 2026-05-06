@@ -2,13 +2,22 @@ import imageDomainRegistry from '../constants/image-domain-registry.json';
 
 export const DEFAULT_IMAGE_PLACEHOLDER = imageDomainRegistry.placeholderImageUrl;
 
+interface NextRemotePattern {
+    hostname?: string;
+    protocol?: string;
+    port?: string;
+    pathname?: string;
+}
+
 const nextRemotePatterns = Array.isArray(imageDomainRegistry.nextRemotePatterns)
     ? imageDomainRegistry.nextRemotePatterns
     : [];
 
-const allowedHostPatterns = nextRemotePatterns
-    .map((pattern: any) => pattern?.hostname)
-    .filter((hostname: any): hostname is string => typeof hostname === 'string' && hostname.length > 0);
+const allowedHostPatterns: string[] = nextRemotePatterns
+    .map((pattern: NextRemotePattern) => pattern?.hostname)
+    .filter((hostname): hostname is string =>
+        typeof hostname === 'string' && hostname.length > 0
+    );
 
 const s3PublicHostRegex = new RegExp(imageDomainRegistry.s3PublicHostPattern, 'i');
 const s3PathStyleHostRegex = new RegExp(imageDomainRegistry.s3PathStyleHostPattern, 'i');
@@ -49,13 +58,13 @@ export const isValidS3Host = (hostname: string): boolean =>
 
 /**
  * Normalizes an image URL candidate.
- * If a custom origin is provided, it prefixed the relative upload paths.
+ * If a custom origin is provided, it prefixes the relative upload paths.
  */
 export const normalizeImageUrlCandidate = (value: unknown, origin: string = ''): string => {
     if (typeof value !== 'string') return '';
     const trimmed = value.trim();
     if (!trimmed) return '';
-    
+
     if (trimmed.startsWith('/uploads/')) {
         return origin ? `${origin}${trimmed}` : trimmed;
     }
@@ -111,11 +120,13 @@ export const toSafeImageSrc = (value: unknown, origin: string = '', fallback: st
  */
 export const toSafeImageArray = (values: unknown, origin: string = ''): string[] => {
     if (!Array.isArray(values)) return [DEFAULT_IMAGE_PLACEHOLDER];
+
     const normalized = values
         .map((value) => {
             const candidate = normalizeImageUrlCandidate(value, origin);
             return isRenderableImageUrl(candidate, origin) ? candidate : '';
         })
-        .filter((value) => value.length > 0);
+        .filter((value): value is string => value.length > 0);
+
     return normalized.length > 0 ? normalized : [DEFAULT_IMAGE_PLACEHOLDER];
 };
