@@ -3,7 +3,7 @@ import { getUserConnection } from '../config/db';
 import { ACTOR_TYPE_VALUES } from '../constants/enums/actor';
 
 export interface IStatusHistory extends Document {
-    domain: 'ad' | 'user' | 'business' | 'service';
+    domain: 'ad' | 'user' | 'business' | 'service' | 'catalog_part' | 'spare_part_listing';
     entityId: mongoose.Types.ObjectId;
     fromStatus: string;
     toStatus: string;
@@ -17,7 +17,7 @@ export interface IStatusHistory extends Document {
 
 const StatusHistorySchema = new Schema<IStatusHistory>(
     {
-        domain: { type: String, enum: ['ad', 'user', 'business', 'service'], required: true },
+        domain: { type: String, enum: ['ad', 'user', 'business', 'service', 'catalog_part', 'spare_part_listing'], required: true },
         entityId: { type: Schema.Types.ObjectId, required: true },
         fromStatus: { type: String, required: true },
         toStatus: { type: String, required: true },

@@ -112,7 +112,7 @@ export class CatalogImportService {
 
             if (ops.length > 0) {
                  
-                const bulkRes = await Brand.bulkWrite(ops as any[]);
+                const bulkRes = await Brand.bulkWrite(ops as Parameters<typeof Brand.bulkWrite>[0]);
                 result.success = (bulkRes.insertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.upsertedCount || 0);
             }
         } catch (error) {
@@ -173,7 +173,7 @@ export class CatalogImportService {
 
             if (ops.length > 0) {
                  
-                const bulkRes = await ProductModel.bulkWrite(ops as any[]);
+                const bulkRes = await ProductModel.bulkWrite(ops as Parameters<typeof ProductModel.bulkWrite>[0]);
                 result.success = (bulkRes.upsertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.matchedCount || 0);
             }
             await CatalogOrchestrator.invalidateCatalogCache();

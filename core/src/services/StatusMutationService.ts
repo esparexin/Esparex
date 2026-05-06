@@ -202,7 +202,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
                     ua: actor.userAgent,
                     mutationService: 'v1'
                 }
-            } as any], { session: activeSession });
+            }], { session: activeSession });
 
             return (typeof doc.toObject === 'function' ? doc.toObject() : doc) as Record<string, unknown>;
         };

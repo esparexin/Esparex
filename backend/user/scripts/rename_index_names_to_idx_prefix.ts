@@ -106,9 +106,9 @@ const main = async () => {
 
     const [userPlans, adminPlans] = await Promise.all([
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        collectPlansFromConnection('user', userConn.models as any),
+        collectPlansFromConnection('user', userConn.models as unknown as Parameters<typeof collectPlansFromConnection>[1]),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        collectPlansFromConnection('admin', adminConn.models as any),
+        collectPlansFromConnection('admin', adminConn.models as unknown as Parameters<typeof collectPlansFromConnection>[1]),
     ]);
 
     const plans = [...userPlans, ...adminPlans];

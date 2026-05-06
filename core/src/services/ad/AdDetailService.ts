@@ -313,18 +313,18 @@ export const getAdSuggestions = async (q: string, limit = 10): Promise<string[]>
  * Used for Admin moderation queues (e.g., pending review queue).
  */
 export const getAdsByStatus = async (
-    status: string,
+    status: IAd['status'],
     pagination: PaginationOptions
 ): Promise<{ data: Record<string, unknown>[]; total: number }> => {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
-        Ad.find({ status: status, isDeleted: { $ne: true } } as any)
+        Ad.find({ status, isDeleted: { $ne: true } })
             .sort({ createdAt: 1 })
             .skip(skip)
             .limit(limit)
             .lean(),
-        Ad.countDocuments({ status: status, isDeleted: { $ne: true } } as any)
+        Ad.countDocuments({ status, isDeleted: { $ne: true } })
     ]);
     return { data: data as unknown as Record<string, unknown>[], total };
 };

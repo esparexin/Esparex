@@ -1,4 +1,5 @@
 import Admin, { IAdmin } from '../models/Admin';
+import { Types } from 'mongoose';
 import AdminLog from '../models/AdminLog';
 import { comparePassword, generateAdminToken } from '../utils/auth';
 import { USER_STATUS } from '../constants/enums/userStatus';
@@ -174,7 +175,7 @@ export const findAdminForLogin = async (email: string) => {
 };
 
 export const updateAdminLastLogin = async (id: string | { toString(): string }) => {
-    return Admin.updateOne({ _id: id as any }, { $set: { lastLogin: new Date() } });
+    return Admin.updateOne({ _id: new Types.ObjectId(id.toString()) }, { $set: { lastLogin: new Date() } });
 };
 
 export const getAdminProfileById = async (adminId: unknown) => {

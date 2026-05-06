@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Business from '../../models/Business';
+import { ListingTypeValue } from '../../constants/enums/listingType';
 import User from '../../models/User';
 import Ad from '../../models/Ad';
 import { normalizeAdImagesForResponse } from "../adQuery/AdQueryHelpers";
@@ -262,10 +263,10 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
 export const getBusinessListings = async (sellerId: string, listingType: string) => {
     const listings = await Ad.find({
         sellerId,
-        listingType,
+        listingType: listingType as ListingTypeValue,
         status: LISTING_STATUS.LIVE,
         isDeleted: { $ne: true },
-    } as any).sort({ createdAt: -1 }).lean();
+    }).sort({ createdAt: -1 }).lean();
     return listings.map((l) => normalizeAdImagesForResponse(l as unknown as Record<string, unknown>));
 };
 

@@ -147,7 +147,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 payload.expiresAt = undefined;
             }
 
-            const ads = await Ad.create([payload as any], { session });
+            const ads = await Ad.create([payload as unknown as Record<string, unknown>], { session });
             if (Array.isArray(ads) && ads.length > 0) {
                 createdAd = ads[0] as IAd;
             } else if (ads) {

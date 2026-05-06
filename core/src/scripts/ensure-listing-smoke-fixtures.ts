@@ -120,13 +120,11 @@ async function ensureUser(params: {
 }
 
 async function resolveCategoryFor(type: ListingFixtureType) {
-  const typeSelector =
+  const typeSelector = (
     type === 'ad'
       ? {
           $or: [
-            { listingType: LISTING_TYPE.AD },
-            { listingType: { $exists: false } },
-            { listingType: { $size: 0 } },
+            { listingType: { $in: [null, 'ad'] } },
             { type: 'ad' },
           ],
         }
@@ -135,14 +133,15 @@ async function resolveCategoryFor(type: ListingFixtureType) {
             { listingType: type },
             { type },
           ],
-        };
+        }
+  ) as Record<string, unknown>;
 
   const category = await Category.findOne({
     isDeleted: { $ne: true },
     isActive: true,
-    status: { $in: ['live', 'active'] },
+    status: 'live' as const,
     ...typeSelector,
-  } as any)
+  })
     .sort({ updatedAt: -1 })
     .select('_id name slug serviceSelectionMode')
     .lean<{ _id: Types.ObjectId; name: string; slug: string; serviceSelectionMode?: 'single' | 'multi' } | null>();

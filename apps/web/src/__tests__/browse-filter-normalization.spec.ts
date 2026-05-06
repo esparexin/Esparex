@@ -20,7 +20,7 @@ describe("browseFilterNormalization", () => {
 
     it("resolves category tokens to canonical ids when categories are available", () => {
         expect(resolveBrowseCategorySelection("phones", [
-            { id: CATEGORY_ID, name: "Phones", slug: "phones" } as any,
+            { id: CATEGORY_ID, name: "Phones", slug: "phones" } as Parameters<typeof resolveBrowseCategorySelection>[1][0],
         ])).toEqual({
             categoryId: CATEGORY_ID,
             category: undefined,

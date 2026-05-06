@@ -112,7 +112,7 @@ export const ingestLocation = async (payload: {
 export const getStateLocations = async (): Promise<NormalizedLocationResponse[]> => {
     // Sprint 3: query by level='state' directly — no longer uses deprecated state field
     const stateAnchors = await Location.find(withPublicCanonicalLocationFilter({
-        level: 'state',
+        level: 'state' as const,
     }))
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ isPopular: -1, priority: -1, name: 1 })
@@ -138,7 +138,7 @@ export const getCitiesByStateId = async (
 
     // Sprint 3: query entirely via parentId/path hierarchy — no deprecated city/state fields
     const cities = await Location.find(withPublicCanonicalLocationFilter({
-        level: 'city',
+        level: 'city' as const,
         $or: [
             { parentId: stateAnchorDoc._id },
             { path: stateAnchorDoc._id }
@@ -168,7 +168,7 @@ export const getAreasByCityId = async (
 
     // Sprint 3: query entirely via parentId/path hierarchy — no deprecated city/state fields
     const areas = await Location.find(withPublicCanonicalLocationFilter({
-        level: 'area',
+        level: 'area' as const,
         $or: [
             { parentId: cityAnchorDoc._id },
             { path: cityAnchorDoc._id }
@@ -309,7 +309,7 @@ export const getDefaultCenterLocation = async (
     }
 
     const fallbackLocation = await Location.findOne(
-        withPublicCanonicalLocationFilter({ level: 'city', isPopular: true })
+        withPublicCanonicalLocationFilter({ level: 'city' as const, isPopular: true })
     )
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
         .sort({ priority: -1, name: 1 })

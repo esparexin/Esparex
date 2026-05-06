@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Ad from '../models/Ad';
+import { ListingTypeValue } from '../constants/enums/listingType';
 import { getUserConnection } from '../config/db';
 import { AdContext } from '../types/ad.types';
 import { mutateStatus } from './StatusMutationService';
@@ -123,7 +124,7 @@ export const findOwnedService = async (
     const objectId = new mongoose.Types.ObjectId(id);
     const sellerObjectId = new mongoose.Types.ObjectId(typeof userId === 'string' ? userId : userId.toString());
     if (fetchFull) {
-        return Ad.findOne({ _id: objectId, listingType: listingType, sellerId: sellerObjectId } as any);
+        return Ad.findOne({ _id: objectId, listingType: listingType as ListingTypeValue, sellerId: sellerObjectId });
     }
-    return Ad.findOne({ _id: objectId, listingType: listingType, sellerId: sellerObjectId, isDeleted: { $ne: true } } as any).select('status');
+    return Ad.findOne({ _id: objectId, listingType: listingType as ListingTypeValue, sellerId: sellerObjectId, isDeleted: { $ne: true } }).select('status');
 };
