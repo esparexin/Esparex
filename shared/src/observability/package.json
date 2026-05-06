@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "engines": {
-    "node": "22.x",
-    "npm": ">=11.8.0 <12"
+    "node": "^20.0.0 || ^22.0.0"
   },
   "scripts": {
     "type-check": "tsc --noEmit --esModuleInterop --skipLibCheck"
