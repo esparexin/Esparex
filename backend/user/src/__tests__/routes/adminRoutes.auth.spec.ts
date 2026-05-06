@@ -1,5 +1,5 @@
 import express from "express";
-import request from "supertest";
+import inject, { InjectOptions, Response as InjectResponse } from "light-my-request";
 import cookieParser from "cookie-parser";
 
 import { requireAdmin } from "../../middleware/adminAuth";
@@ -43,38 +43,38 @@ describe("admin route auth contract", () => {
 
     it("protects representative admin endpoints with 401 when no admin cookie is present", async () => {
         const checks = [
-            ["dashboard stats", request(app).get("/api/v1/admin/dashboard/stats")],
-            ["users list", request(app).get("/api/v1/admin/users")],
-            ["admin users list", request(app).get("/api/v1/admin/admin-users")],
-            ["admin user detail", request(app).get("/api/v1/admin/admin-users/65fa29c9d2c1f2e165fa29c9")],
-            ["user status update", request(app).patch("/api/v1/admin/users/65fa29c9d2c1f2e165fa29c9/status").send({ status: "suspended" })],
-            ["ads list", request(app).get("/api/v1/admin/ads")],
-            ["plans list", request(app).get("/api/v1/admin/plans")],
-            ["plans create", request(app).post("/api/v1/admin/plans").send({})],
-            ["finance transactions", request(app).get("/api/v1/admin/finance/transactions")],
-            ["notification history", request(app).get("/api/v1/admin/notifications/history")],
-            ["notification send", request(app).post("/api/v1/admin/notifications/send").send({
+            ["dashboard stats", { method: "GET", url: "/api/v1/admin/dashboard/stats" }],
+            ["users list", { method: "GET", url: "/api/v1/admin/users" }],
+            ["admin users list", { method: "GET", url: "/api/v1/admin/admin-users" }],
+            ["admin user detail", { method: "GET", url: "/api/v1/admin/admin-users/65fa29c9d2c1f2e165fa29c9" }],
+            ["user status update", { method: "PATCH", url: "/api/v1/admin/users/65fa29c9d2c1f2e165fa29c9/status", payload: { status: "suspended" } }],
+            ["ads list", { method: "GET", url: "/api/v1/admin/ads" }],
+            ["plans list", { method: "GET", url: "/api/v1/admin/plans" }],
+            ["plans create", { method: "POST", url: "/api/v1/admin/plans", payload: {} }],
+            ["finance transactions", { method: "GET", url: "/api/v1/admin/finance/transactions" }],
+            ["notification history", { method: "GET", url: "/api/v1/admin/notifications/history" }],
+            ["notification send", { method: "POST", url: "/api/v1/admin/notifications/send", payload: {
                 title: "Notice",
                 body: "Test",
                 targetType: "all",
-            })],
-            ["invoice list", request(app).get("/api/v1/admin/invoices")],
-            ["invoice detail", request(app).get("/api/v1/admin/invoices/65fa29c9d2c1f2e165fa29c9")],
-            ["invoice create", request(app).post("/api/v1/admin/invoices").send({})],
-            ["invoice status update", request(app).patch("/api/v1/admin/invoices/65fa29c9d2c1f2e165fa29c9/status").send({ status: "paid" })],
-            ["chat list", request(app).get("/api/v1/admin/chat/list")],
-            ["ad status update", request(app).patch("/api/v1/admin/ads/65fa29c9d2c1f2e165fa29c9/status").send({ status: "approved" })],
-            ["admin user delete", request(app).delete("/api/v1/admin/admin-users/65fa29c9d2c1f2e165fa29c9")],
+            } }],
+            ["invoice list", { method: "GET", url: "/api/v1/admin/invoices" }],
+            ["invoice detail", { method: "GET", url: "/api/v1/admin/invoices/65fa29c9d2c1f2e165fa29c9" }],
+            ["invoice create", { method: "POST", url: "/api/v1/admin/invoices", payload: {} }],
+            ["invoice status update", { method: "PATCH", url: "/api/v1/admin/invoices/65fa29c9d2c1f2e165fa29c9/status", payload: { status: "paid" } }],
+            ["chat list", { method: "GET", url: "/api/v1/admin/chat/list" }],
+            ["ad status update", { method: "PATCH", url: "/api/v1/admin/ads/65fa29c9d2c1f2e165fa29c9/status", payload: { status: "approved" } }],
+            ["admin user delete", { method: "DELETE", url: "/api/v1/admin/admin-users/65fa29c9d2c1f2e165fa29c9" }],
         ] as const;
 
-        const responses = await Promise.all(checks.map(async ([label, requestPromise]) => ({
+        const responses = await Promise.all(checks.map(async ([label, options]) => ({
             label,
-            response: await requestPromise,
+            response: await inject(app, options as InjectOptions),
         })));
 
-        responses.forEach(({ label, response: res }) => {
-            expect({ label, status: res.status }).toEqual({ label, status: 401 });
-            expect(res.body).toEqual(
+        responses.forEach(({ label, response: res }: { label: string; response: InjectResponse }) => {
+            expect({ label, status: res.statusCode }).toEqual({ label, status: 401 });
+            expect(res.json()).toEqual(
                 expect.objectContaining({
                     success: false,
                 })
@@ -83,10 +83,14 @@ describe("admin route auth contract", () => {
     });
 
     it("keeps the canonical public admin auth alias mounted", async () => {
-        const response = await request(app).post("/api/v1/admin/auth/login").send({
-            email: "",
-            password: "",
+        const response = await inject(app, {
+            method: "POST",
+            url: "/api/v1/admin/auth/login",
+            payload: {
+                email: "",
+                password: "",
+            },
         });
-        expect(response.status).not.toBe(404);
+        expect(response.statusCode).not.toBe(404);
     });
 });

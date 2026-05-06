@@ -4,6 +4,10 @@ import redisClient from '@esparex/core/config/redis';
 import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
 import { env } from '@esparex/core/config/env';
+import {
+    recordOtpAbuseSignal,
+    recordRateLimitSignal
+} from '@esparex/core/utils/securityMonitoring';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedisStore =
@@ -17,6 +21,30 @@ type RateLimitRequest = Request & {
     rateLimit?: {
         resetTime?: Date;
     };
+};
+
+const resolveRequestIp = (req: Request): string => req.ip || req.socket?.remoteAddress || 'unknown';
+
+const resolveUserOrMobile = (req: Request): string | undefined => {
+    const userId = req.user?._id ? String(req.user._id) : undefined;
+    if (userId) return userId;
+
+    const body = req.body as { mobile?: unknown; email?: unknown } | undefined;
+    if (body && typeof body.mobile === 'string') {
+        const mobile = body.mobile.trim().replace(/\D/g, '').slice(-10);
+        if (mobile) return mobile;
+    }
+    if (body && typeof body.email === 'string') {
+        const email = body.email.trim().toLowerCase();
+        if (email) return email;
+    }
+    return undefined;
+};
+
+const buildHybridRateLimitKey = (req: Request, actor?: string): string => {
+    const ip = resolveRequestIp(req);
+    const principal = actor || resolveUserOrMobile(req) || 'anonymous';
+    return `${principal}:${ip}`;
 };
 
 const resolveRetryAfterSeconds = (req: Request, fallbackSeconds: number): number => {
@@ -55,6 +83,29 @@ const respondRateLimited = (
     }
     record.count += 1;
     spikeCache.set(key, record);
+    const userIdRaw = req.user?._id;
+    const userId = typeof userIdRaw === 'string'
+        ? userIdRaw
+        : userIdRaw && typeof userIdRaw.toString === 'function'
+            ? userIdRaw.toString()
+            : undefined;
+
+    recordRateLimitSignal({
+        path: req.originalUrl || req.url,
+        ip: req.ip || req.socket?.remoteAddress || 'unknown',
+        bucket,
+        code: options.code,
+        userId,
+    });
+
+    if (bucket.startsWith('otp')) {
+        const actor = resolveUserOrMobile(req) || 'unknown';
+        recordOtpAbuseSignal({
+            mobileSuffix: actor.slice(-4).padStart(4, '*'),
+            reason: 'rate_limited',
+            userId,
+        });
+    }
 
 
     // Sample runaway-loop warnings to avoid attacker-controlled log amplification.
@@ -199,13 +250,15 @@ export const globalLimiter = rateLimit({
 export const authLoginLimiter = createLimiter({
     windowMs: 60 * 1000,
     max: 5, // 5 per minute
-    keyPrefix: 'auth:login:'
+    keyPrefix: 'auth:login:',
+    keyGenerator: (req: Request) => buildHybridRateLimitKey(req)
 });
 
 export const authRegisterLimiter = createLimiter({
     windowMs: 60 * 1000,
     max: 5, // 5 per minute
-    keyPrefix: 'auth:register:'
+    keyPrefix: 'auth:register:',
+    keyGenerator: (req: Request) => buildHybridRateLimitKey(req)
 });
 
 /**
@@ -217,14 +270,15 @@ export const adPostLimiter = createLimiter({
     keyPrefix: 'ads:post:',
     keyGenerator: (req: Request) => {
         const userId = req.user?._id ? String(req.user._id) : undefined;
-        return userId ?? req.ip ?? 'unknown';
+        return buildHybridRateLimitKey(req, userId);
     }
 });
 
 export const reportLimiter = createLimiter({
     windowMs: 60 * 60 * 1000,
     max: 5, // 5 per hour
-    keyPrefix: 'reports:'
+    keyPrefix: 'reports:',
+    keyGenerator: (req: Request) => buildHybridRateLimitKey(req)
 });
 
 /**
@@ -285,19 +339,22 @@ export const phoneRevealLimiter = [
 export const mutationLimiter = createLimiter({
     windowMs: 5 * 60 * 1000,
     max: 20,
-    keyPrefix: 'mutation:'
+    keyPrefix: 'mutation:',
+    keyGenerator: (req: Request) => buildHybridRateLimitKey(req)
 });
 
 export const paymentRateLimiter = createLimiter({
     windowMs: 15 * 60 * 1000,
     max: 10,
-    keyPrefix: 'payment:'
+    keyPrefix: 'payment:',
+    keyGenerator: (req: Request) => buildHybridRateLimitKey(req)
 });
 
 export const otpIpLimiter = createLimiter({
     windowMs: 10 * 60 * 1000,
     max: env.NODE_ENV === 'production' ? 5 : 15,
     keyPrefix: 'otp:ip:',
+    keyGenerator: (req: Request) => resolveRequestIp(req),
     errorCode: 'OTP_SEND_IP_RATE_LIMIT'
 });
 
@@ -309,7 +366,7 @@ export const otpSendLimiter = createLimiter({
     errorCode: 'OTP_SEND_MOBILE_RATE_LIMIT',
     keyGenerator: (req: Request) => {
         const mobile = ((req.body as { mobile?: string })?.mobile)?.trim().replace(/\D/g, '').slice(-10);
-        return mobile || req.ip || 'unknown';
+        return buildHybridRateLimitKey(req, mobile);
     }
 });
 
@@ -321,7 +378,7 @@ export const otpVerifyLimiter = createLimiter({
     errorCode: 'OTP_VERIFY_RATE_LIMIT',
     keyGenerator: (req: Request) => {
         const mobile = ((req.body as { mobile?: string })?.mobile)?.trim().replace(/\D/g, '').slice(-10);
-        return mobile || req.ip || 'unknown';
+        return buildHybridRateLimitKey(req, mobile);
     }
 });
 
@@ -336,7 +393,7 @@ export const chatSendLimiter = createLimiter({
     keyPrefix: 'chat:send:',
     keyGenerator: (req: Request) => {
         const userId = (req.user)?._id ? String((req.user)?._id) : undefined;
-        return userId ?? req.ip ?? 'unknown';
+        return buildHybridRateLimitKey(req, userId);
     }
 });
 
@@ -347,7 +404,7 @@ export const chatStartLimiter = createLimiter({
     keyPrefix: 'chat:start:',
     keyGenerator: (req: Request) => {
         const userId = (req.user)?._id ? String((req.user)?._id) : undefined;
-        return userId ?? req.ip ?? 'unknown';
+        return buildHybridRateLimitKey(req, userId);
     }
 });
 
@@ -358,6 +415,6 @@ export const chatReportLimiter = createLimiter({
     keyPrefix: 'chat:report:',
     keyGenerator: (req: Request) => {
         const userId = (req.user)?._id ? String((req.user)?._id) : undefined;
-        return userId ?? req.ip ?? 'unknown';
+        return buildHybridRateLimitKey(req, userId);
     }
 });

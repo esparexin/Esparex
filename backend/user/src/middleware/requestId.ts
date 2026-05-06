@@ -10,6 +10,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
 import { TraceContext } from "@shared";
+import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
 
 /**
  * Extend Express Request to include requestId
@@ -34,8 +35,8 @@ declare module 'express-serve-static-core' {
  */
 export function requestIdMiddleware(req: Request, res: Response, next: NextFunction) {
     // 🆔 TRACE CORRELATION
-    // Check for x-correlation-id (standardized across stack) or legacy x-request-id
-    const correlationHeader = req.headers['x-correlation-id'] || req.headers['x-request-id'];
+    // Check for x-trace-id, x-correlation-id, or legacy x-request-id
+    const correlationHeader = req.headers['x-trace-id'] || req.headers['x-correlation-id'] || req.headers['x-request-id'];
     const correlationId = Array.isArray(correlationHeader) ? correlationHeader[0] : correlationHeader;
 
     // Use current ID or generate new one
@@ -43,6 +44,11 @@ export function requestIdMiddleware(req: Request, res: Response, next: NextFunct
 
     // Sync with TraceContext for specialized loggers
     TraceContext.setCorrelationId(requestId);
+    setReliabilityContext({
+        traceId: requestId,
+        requestPath: req.originalUrl || req.url,
+        method: req.method
+    });
 
     // Attach to request for legacy consumers
     req.requestId = requestId;
@@ -50,6 +56,7 @@ export function requestIdMiddleware(req: Request, res: Response, next: NextFunct
     // Add to response headers for debugging
     res.setHeader('X-Request-ID', requestId);
     res.setHeader('X-Correlation-ID', requestId);
+    res.setHeader('X-Trace-ID', requestId);
 
     next();
 }

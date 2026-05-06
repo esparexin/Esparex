@@ -18,6 +18,7 @@ import { Role } from '../constants/enums/roles';
 import { getAdminSessionTtlMs, validateAdminSession } from '../services/AdminSessionService';
 import { USER_STATUS } from '../constants/enums/userStatus';
 import { normalizeAdminPermission, roleGrantsPermission } from '../constants/adminPermissions';
+import { setReliabilityContext } from '../utils/reliabilityContext';
 
 export const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
     const cookieToken = req.cookies?.admin_token as string | undefined;
@@ -90,6 +91,11 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         };
 
         req.user = adminUser;
+        setReliabilityContext({
+            userId: adminUser.id,
+            requestPath: req.originalUrl || req.url,
+            method: req.method,
+        });
 
         res.cookie('admin_token', token, getAdminCookieOptions(await getAdminSessionTtlMs()));
 

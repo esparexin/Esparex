@@ -7,6 +7,7 @@ import { isTokenBlacklisted } from "@esparex/core/utils/redisCache";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import logger from '@esparex/core/utils/logger';
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
+import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                      */
@@ -109,6 +110,7 @@ export const protect = async (
       role: decoded.role,
       isAdmin: decoded.role === "admin" || decoded.role === "super_admin"
     };
+    setReliabilityContext({ userId: decoded.id });
 
     // User Hydration (with Redis Caching)
     const cacheKey = `user:status:${decoded.id}`;
@@ -189,6 +191,7 @@ export const extractUser = (
         role: decoded.role,
         isAdmin: decoded.role === "admin" || decoded.role === "super_admin"
       };
+      setReliabilityContext({ userId: decoded.id });
     }
   } catch {
     // Invalid token → ignore

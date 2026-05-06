@@ -20,6 +20,7 @@ import {
     normalizeTo10Digits 
 } from '../utils/phoneUtils';
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../utils/cookieHelper';
+import { recordOtpAbuseSignal } from '../utils/securityMonitoring';
 
 type AuthFailure = {
     success: false;
@@ -127,6 +128,13 @@ const getUserAuthFailure = (
             lockUntil: user.lockUntil,
             now
         });
+        const mobileSuffix = typeof user.mobile === 'string'
+            ? user.mobile.replace(/\D/g, '').slice(-4).padStart(4, '*')
+            : '****';
+        recordOtpAbuseSignal({
+            mobileSuffix,
+            reason: 'locked',
+        });
         return createFailure(423, 'Account temporarily locked. Try again later.', {
             code: 'OTP_LOCKED',
             lockUntil: user.lockUntil.toISOString()
@@ -142,9 +150,15 @@ const handleOtpAttemptFailure = async (
     now: Date
 ): Promise<AuthFailure> => {
     const mobileVariants = getMobileVariants(mobileDigits);
+    const mobileSuffix = mobileDigits.slice(-4).padStart(4, '*');
     
     if (user) {
         const lockUntil = await lockUserForOtpAbuse(user, now);
+        recordOtpAbuseSignal({
+            mobileSuffix,
+            reason: 'locked',
+            userId: user._id ? String(user._id) : undefined,
+        });
         await Otp.deleteMany({ mobile: { $in: mobileVariants } });
         return createFailure(423, 'Too many invalid OTP attempts. Account locked temporarily.', {
             code: 'OTP_LOCKED',
@@ -152,6 +166,10 @@ const handleOtpAttemptFailure = async (
         });
     }
 
+    recordOtpAbuseSignal({
+        mobileSuffix,
+        reason: 'invalid_otp',
+    });
     await Otp.deleteMany({ mobile: { $in: mobileVariants } });
     return createFailure(400, 'Invalid OTP', {
         code: 'OTP_INVALID',
@@ -306,6 +324,11 @@ export class AuthService {
                 logger.info('Static OTP bypass: accepting valid test code without database record');
                 // Proceed directly to user resolution/creation since we don't have a record to track attempts
             } else {
+                recordOtpAbuseSignal({
+                    mobileSuffix: mobileDigits.slice(-4).padStart(4, '*'),
+                    reason: 'invalid_otp',
+                    userId: userFromMobile?._id ? String(userFromMobile._id) : undefined,
+                });
                 return createFailure(400, 'Invalid OTP', { code: 'OTP_INVALID' });
             }
         } else {
@@ -335,6 +358,11 @@ export class AuthService {
             if (!isOtpValid) {
                 otpRecord.attempts += 1;
                 let userLockedUntil: Date | null = null;
+                recordOtpAbuseSignal({
+                    mobileSuffix: mobileDigits.slice(-4).padStart(4, '*'),
+                    reason: 'invalid_otp',
+                    userId: userFromMobile?._id ? String(userFromMobile._id) : undefined,
+                });
 
                 if (userFromMobile) {
                     userFromMobile.failedLoginAttempts = (userFromMobile.failedLoginAttempts || 0) + 1;

@@ -1,5 +1,5 @@
 import express from "express";
-import request from "supertest";
+import inject from "light-my-request";
 import cookieParser from "cookie-parser";
 
 jest.mock("@esparex/core/utils/redisCache", () => ({
@@ -51,10 +51,13 @@ describe("chat routes auth contract", () => {
     const app = buildApp();
 
     it("keeps the canonical conversation route protected", async () => {
-        const response = await request(app).get("/api/v1/chat/abc123");
+        const response = await inject(app, {
+            method: "GET",
+            url: "/api/v1/chat/abc123",
+        });
 
-        expect(response.status).toBe(401);
-        expect(response.body).toEqual(
+        expect(response.statusCode).toBe(401);
+        expect(response.json()).toEqual(
             expect.objectContaining({
                 success: false,
             })
@@ -62,10 +65,13 @@ describe("chat routes auth contract", () => {
     });
 
     it("keeps the messages route protected", async () => {
-        const response = await request(app).get("/api/v1/chat/abc123/messages");
+        const response = await inject(app, {
+            method: "GET",
+            url: "/api/v1/chat/abc123/messages",
+        });
 
-        expect(response.status).toBe(401);
-        expect(response.body).toEqual(
+        expect(response.statusCode).toBe(401);
+        expect(response.json()).toEqual(
             expect.objectContaining({
                 success: false,
             })

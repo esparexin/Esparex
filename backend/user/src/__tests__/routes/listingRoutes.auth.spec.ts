@@ -1,5 +1,5 @@
 import express from "express";
-import request from "supertest";
+import inject from "light-my-request";
 import cookieParser from "cookie-parser";
 
 jest.mock("@esparex/core/utils/redisCache", () => ({
@@ -53,10 +53,13 @@ describe("listing routes precedence", () => {
     const app = buildApp();
 
     it("keeps /mine protected instead of resolving it as a public listing slug", async () => {
-        const response = await request(app).get("/api/v1/listings/mine");
+        const response = await inject(app, {
+            method: "GET",
+            url: "/api/v1/listings/mine",
+        });
 
-        expect(response.status).toBe(401);
-        expect(response.body).toEqual(
+        expect(response.statusCode).toBe(401);
+        expect(response.json()).toEqual(
             expect.objectContaining({
                 success: false,
             })
@@ -64,10 +67,13 @@ describe("listing routes precedence", () => {
     });
 
     it("keeps /mine/stats protected instead of resolving it as a public listing slug", async () => {
-        const response = await request(app).get("/api/v1/listings/mine/stats");
+        const response = await inject(app, {
+            method: "GET",
+            url: "/api/v1/listings/mine/stats",
+        });
 
-        expect(response.status).toBe(401);
-        expect(response.body).toEqual(
+        expect(response.statusCode).toBe(401);
+        expect(response.json()).toEqual(
             expect.objectContaining({
                 success: false,
             })
