@@ -8,13 +8,17 @@ import * as Validators from '@esparex/core/validators/finance.validator';
 
 import { verifyPaymentWebhook } from '../middleware/verifyPaymentWebhook';
 import { env } from '@esparex/core/config/env';
+import logger from '@esparex/core/utils/logger';
 
 if (env.NODE_ENV === 'production') {
     const missing = (['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'] as const)
         .filter((k) => !(env[k])?.trim());
     if (missing.length > 0) {
         // Warn but don't crash — payment routes will return 503 until keys are configured
-        console.warn(`[WARN] Payment routes: missing env vars: ${missing.join(', ')}. Payment features will be unavailable.`);
+        logger.warn('Payment routes are missing required production env variables', {
+            missing,
+            message: 'Payment features will return 503 until keys are configured.'
+        });
     }
 }
 

@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 import "@esparex/core/config/loadEnv";
 import logger from "@esparex/core/utils/logger";
 

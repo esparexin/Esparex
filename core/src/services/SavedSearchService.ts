@@ -2,9 +2,15 @@ import mongoose, { Types } from 'mongoose';
 import SavedSearch from '../models/SavedSearch';
 import Ad from '../models/Ad';
 import { notificationMatchQueue } from '../queues/adQueue';
+import { releaseQueueIdempotencySlot, reserveQueueIdempotencySlot } from '../queues/queueIdempotency';
+import { withQueueDefaults } from '../queues/queueDefaults';
 import { dispatchTemplatedNotification } from './NotificationService';
 import logger from '../utils/logger';
 import { toObjectId } from '../utils/idUtils';
+import { addJobWithTrace } from '../utils/queueWrapper';
+import { isQueueConnectionAvailable } from '../queues/redisConnection';
+import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
+import { reliabilityAlertsTotal } from '../utils/metrics';
 import { 
     SavedSearchMatchService, 
     type MinimalAdRecord, 
@@ -59,15 +65,46 @@ export const deleteSavedSearch = async (userId: string, id: string): Promise<boo
 };
 
 export const enqueueSavedSearchAlertDispatch = async (adId: string): Promise<void> => {
-    await notificationMatchQueue.add(
-        'alertDispatchJob',
-        { adId },
-        {
-            jobId: `saved-search-alert:${adId}`,
-            attempts: 5,
-            backoff: { type: 'exponential', delay: 5000 }
-        }
-    );
+    if (!isQueueConnectionAvailable()) {
+        logger.warn('Saved-search alert dispatch enqueue skipped: queue unavailable', { adId });
+        reliabilityAlertsTotal.labels('QUEUE_PAUSED_REDIS_UNAVAILABLE', 'high').inc();
+        void emitReliabilityAlert({
+            type: 'QUEUE_PAUSED_REDIS_UNAVAILABLE',
+            title: 'Queue paused due to Redis outage',
+            severity: 'high',
+            summary: 'notification.match.queue is unavailable for saved-search dispatch',
+            dedupeKey: 'queue_paused_saved_search_dispatch',
+            metadata: {
+                queueName: 'notification.match.queue',
+                adId,
+            },
+        });
+        return;
+    }
+
+    const jobId = `saved-search-alert:${adId}`;
+    const reserved = await reserveQueueIdempotencySlot('notification.match.queue', jobId, 6 * 60 * 60);
+    if (!reserved) {
+        logger.debug('Saved-search alert dispatch enqueue skipped (idempotent duplicate)', { adId, jobId });
+        return;
+    }
+
+    try {
+        await addJobWithTrace(
+            notificationMatchQueue,
+            'alertDispatchJob',
+            { adId },
+            withQueueDefaults({
+                jobId,
+                backoff: { type: 'exponential', delay: 5_000 },
+                removeOnComplete: 500,
+                removeOnFail: 1_000,
+            })
+        );
+    } catch (error) {
+        await releaseQueueIdempotencySlot('notification.match.queue', jobId);
+        throw error;
+    }
 };
 
 export const processSavedSearchAlertDispatch = async (adId: string): Promise<void> => {

@@ -1,6 +1,7 @@
 /* global NodeJS */
 import { initializeDatabaseMonitoring } from './middleware/metricsMiddleware';
 import { startSystemMonitor } from '@esparex/core/utils/systemMonitor';
+import { getHealthCheckData } from '@esparex/core/utils/health';
 import { startTaxonomyHealthCron } from './cron/taxonomyHealth';
 import { startGeoAuditCron } from './cron/geoAudit';
 import { startFraudEscalationCron } from './cron/fraudEscalation';
@@ -17,11 +18,13 @@ import Admin from '@esparex/core/models/Admin';
 import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
 import { createServer } from 'http';
 import { initializeEventDispatcher } from '@esparex/core/events';
-import { validateMetadataHealth } from '@esparex/core/utils/startupValidator';
+import { assertCriticalStartupReadiness, validateMetadataHealth } from '@esparex/core/utils/startupValidator';
 import { warmAllCaches } from '@esparex/core/utils/cacheWarmer';
+import { resetAllOpenCircuitBreakers } from '@esparex/core/utils/resilience';
 
 
 const PORT = env.PORT;
+let reliabilityProbeInterval: NodeJS.Timeout | null = null;
 
 async function ensureLiveAdminPresence() {
     try {
@@ -45,15 +48,17 @@ export async function startServer() {
     try {
         logger.info('Starting Esparex server...');
 
+        const schedulerRequested = env.ENABLE_SCHEDULER || env.RUN_SCHEDULERS;
+
         if (env.NODE_ENV === 'production') {
-            if (env.PROCESS_ROLE === 'api' && env.RUN_SCHEDULERS) {
+            if (env.PROCESS_ROLE === 'api' && schedulerRequested) {
                 throw new Error(
-                    'Invalid production scheduler config: PROCESS_ROLE=api must run with RUN_SCHEDULERS=false.'
+                    'Invalid production scheduler config: PROCESS_ROLE=api must run with scheduler flags disabled.'
                 );
             }
-            if (env.PROCESS_ROLE === 'scheduler' && !env.RUN_SCHEDULERS) {
+            if (env.PROCESS_ROLE === 'scheduler' && !schedulerRequested) {
                 throw new Error(
-                    'Invalid production scheduler config: PROCESS_ROLE=scheduler requires RUN_SCHEDULERS=true.'
+                    'Invalid production scheduler config: PROCESS_ROLE=scheduler requires scheduler flags enabled.'
                 );
             }
         }
@@ -74,11 +79,15 @@ export async function startServer() {
         initializeDatabaseMonitoring();
         logger.info('Boot safety mode active: skipping all index sync/create/drop operations on API startup');
         await assertDuplicateRolloutReadiness();
+        await assertCriticalStartupReadiness();
 
         // Ensure at least one LIVE admin is present for operations
         await ensureLiveAdminPresence();
 
-        const shouldRunSchedulers = env.ENABLE_SCHEDULER || env.RUN_SCHEDULERS;
+        const shouldRunSchedulers =
+            env.PROCESS_ROLE === 'scheduler'
+                ? schedulerRequested
+                : env.NODE_ENV !== 'production' && schedulerRequested;
 
         if (shouldRunSchedulers) {
             logger.info('ENABLE_SCHEDULER is true. Attempting to start scheduler inside backend entry...');
@@ -89,6 +98,7 @@ export async function startServer() {
 
         // Start system heartbeat monitor
         startSystemMonitor();
+        startReliabilityProbeLoop();
 
         if (shouldRunSchedulers) {
             // Start taxonomy health cron (lightweight; runs on scheduler-enabled process)
@@ -164,11 +174,46 @@ export async function startServer() {
 import { gracefulShutdown } from '@esparex/core/utils/shutdownHandler';
 import redisClient from '@esparex/core/utils/redisCache';
 
+function startReliabilityProbeLoop() {
+    if (reliabilityProbeInterval) return;
+    reliabilityProbeInterval = setInterval(() => {
+        void getHealthCheckData()
+            .then((health) => {
+                if (health.status !== 'ok') {
+                    logger.warn('[RELIABILITY_PROBE] degraded subsystem detected', {
+                        status: health.status,
+                        redisConnected: health.redisConnected,
+                        dbStatus: health.databaseHealth.overall,
+                        queueStatus: health.queueStatus,
+                        workerStatus: health.workerStatus,
+                    });
+                } else {
+                    const resetCount = resetAllOpenCircuitBreakers('health_probe_ok');
+                    if (resetCount > 0) {
+                        logger.warn('[RELIABILITY_PROBE] circuit breakers auto-reset after recovery', {
+                            resetCount,
+                        });
+                    }
+                }
+            })
+            .catch((error: unknown) => {
+                logger.error('[RELIABILITY_PROBE] probe execution failed', {
+                    error: error instanceof Error ? error.message : String(error),
+                });
+            });
+    }, 30_000);
+    reliabilityProbeInterval.unref();
+}
+
 /**
  * 🛡️ GRACEFUL SHUTDOWN HANDLER
  */
 function setupGracefulShutdown(server: Server) {
     const handleShutdown = async () => {
+        if (reliabilityProbeInterval) {
+            clearInterval(reliabilityProbeInterval);
+            reliabilityProbeInterval = null;
+        }
         await gracefulShutdown({
             server,
             redisClient,

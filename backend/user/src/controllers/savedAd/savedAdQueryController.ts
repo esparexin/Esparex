@@ -3,6 +3,7 @@ import { respond } from "@esparex/core/utils/respond";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { SavedAdRequest, getUserId } from './shared';
 import { getSavedAds as getSavedAdsService } from '@esparex/core/services/SavedAdService';
+import logger from '@esparex/core/utils/logger';
 
 export const getSavedAds = async (req: Request, res: Response) => {
     try {
@@ -27,8 +28,9 @@ export const getSavedAds = async (req: Request, res: Response) => {
             },
         }));
     } catch (error) {
-        console.error('[getSavedAds] Failed:', error);
+        logger.error('[getSavedAds] Failed', {
+            error: error instanceof Error ? error.message : String(error)
+        });
         sendErrorResponse(req, res, 500, 'Failed to fetch saved ads');
     }
 };
-

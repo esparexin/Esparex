@@ -1,5 +1,5 @@
 import express from "express";
-import request from "supertest";
+import inject from "light-my-request";
 
 jest.mock("../../middleware/authMiddleware", () => ({
     protect: (_req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
@@ -63,14 +63,16 @@ describe("spare-part update validation", () => {
     const app = buildApp();
 
     it("preserves immutable fields for controller-level lock checks", async () => {
-        const response = await request(app)
-            .put("/api/v1/spare-part-listings/507f1f77bcf86cd799439011")
-            .send({
+        const response = await inject(app, {
+            method: "PUT",
+            url: "/api/v1/spare-part-listings/507f1f77bcf86cd799439011",
+            payload: {
                 condition: "used",
-            });
+            },
+        });
 
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual({
+        expect(response.statusCode).toBe(200);
+        expect(response.json()).toEqual({
             body: {
                 condition: "used",
             },

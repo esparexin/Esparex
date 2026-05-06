@@ -1,4 +1,5 @@
 import { Schema, Query } from 'mongoose';
+import logger from './logger';
 
 /**
  * Safe Soft-Delete Query Scope Plugin
@@ -39,9 +40,8 @@ export function installSafeSoftDeleteQuery(schema: Schema) {
     (schema.query as Record<string, unknown>).includeDeleted = function (this: Query<unknown, unknown>) {
         // No filter applied - returns everything
         // Could add logging here for audit trail
-        console.warn(
-            '⚠️ Query.includeDeleted() - Including deleted documents. ' +
-            'Ensure proper authorization.'
+        logger.warn(
+            'Query.includeDeleted() invoked. Ensure caller enforces admin authorization.'
         );
         return this;
     };

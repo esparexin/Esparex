@@ -77,6 +77,7 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 import { isDbReady } from '@esparex/core/config/db';
 import logger from '@esparex/core/utils/logger';
 import { getAllowedOriginList, normalizeOrigin } from '@esparex/core/utils/originConfig';
+import { getHealthCheckData, healthCheckHandler } from '@esparex/core/utils/health';
 
 /* -------------------------------------------------------------------------- */
 /* SWAGGER                                                                     */
@@ -190,6 +191,7 @@ const corsOptions: cors.CorsOptions = {
         'x-no-retry',         // ✅ REQUIRED FOR OTP REQUESTS
         'X-CSRF-Token',       // ✅ REQUIRED FOR CSRF PROTECTION
         'x-correlation-id',   // ✅ REQUIRED FOR DISTRIBUTED TRACING
+        'x-trace-id',         // ✅ REQUIRED FOR DISTRIBUTED TRACING
         'x-request-id'        // ✅ REQUIRED FOR LOG CORRELATION
     ],
     exposedHeaders: [
@@ -198,6 +200,7 @@ const corsOptions: cors.CorsOptions = {
         'X-RateLimit-Reset',
         'Retry-After',
         'X-Correlation-ID',
+        'X-Trace-ID',
         'X-Request-ID'
     ]
 };
@@ -232,7 +235,8 @@ app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use(cookieParser());
 
-import { apiLatencyMiddleware, memoryUsageMiddleware } from './middleware/metricsMiddleware';
+import { apiLatencyMiddleware, getApiReliabilitySummary, memoryUsageMiddleware } from './middleware/metricsMiddleware';
+import { getSystemMetricsSummary } from '@esparex/core/utils/systemMetricsSummary';
 app.use(apiLatencyMiddleware);
 app.use(memoryUsageMiddleware);
 
@@ -289,13 +293,76 @@ app.use('/api/v1', globalLimiter);
 // Health check moved to before rate limiter
 
 
-app.get('/health', (_req, res) => {
-    res.json({
-        status: 'ok',
-        service: 'backend/user',
-        isDbReady: isDbReady(),
-        timestamp: new Date().toISOString()
-    });
+app.get('/health', healthCheckHandler);
+
+app.get('/system/status', async (_req, res) => {
+    try {
+        const health = await getHealthCheckData();
+        const statusCode = health.status === 'error' ? 503 : 200;
+
+        res.status(statusCode).json({
+            success: health.success,
+            status: health.status,
+            timestamp: new Date().toISOString(),
+            services: {
+                db: {
+                    status: health.databaseHealth.overall,
+                    details: health.databaseHealth,
+                },
+                redis: {
+                    status: health.redisConnected ? 'up' : 'down',
+                    latencyMs: health.redisPingLatencyMs,
+                    details: health.redisHealth,
+                },
+                queue: {
+                    status: health.queueStatus,
+                    details: health.queueHealth,
+                },
+                worker: {
+                    status: health.workerStatus,
+                    details: health.workerHealth,
+                },
+            },
+            uptime: health.uptime,
+            memoryUsage: health.memoryUsage,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            status: 'error',
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+
+app.get('/system/metrics-summary', async (_req, res) => {
+    try {
+        const summary = await getSystemMetricsSummary();
+        const apiReliability = getApiReliabilitySummary();
+        const statusCode = summary.api.status === 'error' ? 503 : 200;
+        res.status(statusCode).json({
+            success: summary.api.success,
+            status: summary.api.status,
+            generatedAt: summary.timestamp,
+            api: {
+                ...summary.api,
+                failureRateWindow: apiReliability.lastWindow,
+                failureThresholds: apiReliability.thresholds,
+            },
+            queue: summary.queue,
+            workers: summary.worker,
+            dependency: summary.dependency,
+            failureRates: summary.failureRates,
+            security: summary.security,
+            circuitBreakers: summary.circuitBreakers,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            status: 'error',
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
 });
 
 app.get('/', (_req, res) => {

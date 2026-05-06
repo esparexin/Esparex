@@ -62,5 +62,89 @@ export const listingCreationTotal = new client.Counter({
     labelNames: ['listingType', 'actor'] as const,
 });
 
+/**
+ * API Error Counter
+ * Tracks error responses by method/route/status.
+ */
+export const httpErrorsTotal = new client.Counter({
+    name: 'esparex_http_errors_total',
+    help: 'Total number of HTTP error responses',
+    labelNames: ['method', 'route', 'status'],
+});
+
+/**
+ * API Error Rate Gauge
+ * Sliding-window error rate (ratio 0-1).
+ */
+export const httpErrorRate = new client.Gauge({
+    name: 'esparex_http_error_rate_ratio',
+    help: 'Sliding-window HTTP error rate ratio (0-1)',
+});
+
+/**
+ * Queue Job Processing Duration
+ * Tracks worker processing time by queue/job/status.
+ */
+export const queueJobDuration = new client.Histogram({
+    name: 'esparex_queue_job_duration_seconds',
+    help: 'Duration of queue job processing in seconds',
+    labelNames: ['queue', 'job', 'status'],
+    buckets: [0.01, 0.05, 0.1, 0.5, 1, 3, 5, 10, 30, 60],
+});
+
+/**
+ * Queue Job Failures Counter
+ * Tracks worker and queue failure events.
+ */
+export const queueJobFailuresTotal = new client.Counter({
+    name: 'esparex_queue_job_failures_total',
+    help: 'Total failed queue jobs',
+    labelNames: ['queue', 'job', 'reason'],
+});
+
+/**
+ * Queue Job Processed Counter
+ */
+export const queueJobsProcessedTotal = new client.Counter({
+    name: 'esparex_queue_jobs_processed_total',
+    help: 'Total processed queue jobs',
+    labelNames: ['queue', 'job', 'status'],
+});
+
+/**
+ * Dependency Health Gauges
+ */
+export const dbConnectionStatus = new client.Gauge({
+    name: 'esparex_db_connection_status',
+    help: 'Database connection status (1=up, 0=down)',
+    labelNames: ['database'],
+});
+
+export const redisConnectionStatus = new client.Gauge({
+    name: 'esparex_redis_connection_status',
+    help: 'Redis connection status (1=up, 0=down)',
+});
+
+export const queueStatusGauge = new client.Gauge({
+    name: 'esparex_queue_status',
+    help: 'Queue status (1=up, 0.5=degraded, 0=down)',
+    labelNames: ['queue'],
+});
+
+export const workerStatusGauge = new client.Gauge({
+    name: 'esparex_worker_status',
+    help: 'Worker status (1=up, 0=down)',
+    labelNames: ['worker'],
+});
+
+/**
+ * Reliability Alert Counter
+ */
+export const reliabilityAlertsTotal = new client.Counter({
+    name: 'esparex_reliability_alerts_total',
+    help: 'Total emitted reliability alerts',
+    labelNames: ['type', 'severity'],
+});
+
 export const register = client.register;
 export default client;

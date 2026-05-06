@@ -73,7 +73,12 @@ export async function paymentWebhook(req: Request, res: Response) {
 
         return sendWebhookSuccess('Payment webhook accepted for processing');
     } catch (error) {
-        logger.error(`[PAYMENT CRITICAL ERROR] Failed to queue webhook for ${payment_id}:`, error);
+        logger.error('[PAYMENT CRITICAL ERROR] Failed to queue webhook', {
+            gatewayPaymentId: payment_id,
+            gatewayOrderId: order_id,
+            event,
+            error: error instanceof Error ? error.message : String(error)
+        });
         return sendErrorResponse(req, res, 500, "Internal processing failure");
     }
 }

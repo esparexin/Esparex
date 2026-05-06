@@ -32,8 +32,9 @@ import Category from '@esparex/core/models/Category';
 import { CATALOG_STATUS } from '@esparex/core/constants/enums/catalogStatus';
 
 const DUMMY_LOCATION_COORDS = { type: 'Point' as const, coordinates: [77.5946, 12.9716] };
+type SmokeEntityWithId = { _id: mongoose.Types.ObjectId };
 
-async function getVerifiedLocation() {
+async function getVerifiedLocation(): Promise<SmokeEntityWithId> {
     const uniqueName = `Smoke Test City ${Date.now()}`;
     const loc = await Location.create({
         name: uniqueName,
@@ -43,10 +44,10 @@ async function getVerifiedLocation() {
         isActive: true,
         verificationStatus: 'verified'
     });
-    return loc;
+    return loc as SmokeEntityWithId;
 }
 
-async function getValidCategory() {
+async function getValidCategory(): Promise<SmokeEntityWithId> {
     const uniqueName = `Smoke Test Category ${Date.now()}`;
     const cat = await Category.create({
         name: uniqueName,
@@ -55,10 +56,10 @@ async function getValidCategory() {
         isActive: true,
         status: CATALOG_STATUS.ACTIVE
     });
-    return cat;
+    return cat as SmokeEntityWithId;
 }
 
-async function runScenarioA(verifiedLocation: unknown, validCategory: unknown) {
+async function runScenarioA(verifiedLocation: SmokeEntityWithId, validCategory: SmokeEntityWithId) {
     logger.info('[SMOKE_TEST] SCENARIO A: SAFE USER FLOW START');
     
     const userId = new mongoose.Types.ObjectId();
@@ -123,7 +124,7 @@ async function runScenarioA(verifiedLocation: unknown, validCategory: unknown) {
     logger.info('[SMOKE_TEST] scenario=A status=LIVE expiresAt=SET (Verified)');
 }
 
-async function runScenarioB(verifiedLocation: unknown, validCategory: unknown) {
+async function runScenarioB(verifiedLocation: SmokeEntityWithId, validCategory: SmokeEntityWithId) {
     logger.info('[SMOKE_TEST] SCENARIO B: HIGH RISK FLOW START');
     
     const userId = new mongoose.Types.ObjectId();
@@ -165,7 +166,7 @@ async function runScenarioB(verifiedLocation: unknown, validCategory: unknown) {
     logger.info('[SMOKE_TEST] scenario=B Fraud guardrail=ENFORCED');
 }
 
-async function runScenarioC(verifiedLocation: unknown, validCategory: unknown) {
+async function runScenarioC(verifiedLocation: SmokeEntityWithId, validCategory: SmokeEntityWithId) {
     logger.info('[SMOKE_TEST] SCENARIO C: ADMIN FLOW START');
     
     const adminId = new mongoose.Types.ObjectId();
@@ -230,7 +231,12 @@ async function runScenarioC(verifiedLocation: unknown, validCategory: unknown) {
         );
         throw new Error('Scenario C Negative Failed: Escalation succeeded!');
     } catch (err: unknown) {
-        if (err.code === 'PRIVILEGE_ESCALATION_DETECTED') {
+        if (
+            typeof err === 'object'
+            && err !== null
+            && 'code' in err
+            && (err as { code?: unknown }).code === 'PRIVILEGE_ESCALATION_DETECTED'
+        ) {
             logger.info('[SMOKE_TEST] scenario=C Privilege Boundary=ENFORCED (Verified)');
         } else {
             throw err;
@@ -276,8 +282,11 @@ async function runScenarioD() {
     logger.info('[SMOKE_TEST] scenario=D Testing Crash Recovery...');
     await ViewBufferingService.recordView(adId); // Add 1 to Redis
     
-    const originalUpdate = Ad.updateOne;
-    (Ad as unknown).updateOne = async () => { throw new Error('DB_FAILURE_SIMULATED'); };
+    const adModelMutable = Ad as unknown as { updateOne: typeof Ad.updateOne };
+    const originalUpdate = adModelMutable.updateOne;
+    adModelMutable.updateOne = (async () => {
+        throw new Error('DB_FAILURE_SIMULATED');
+    }) as unknown as typeof Ad.updateOne;
 
     try {
         await ViewBufferingService.flush(adId.toString());
@@ -288,7 +297,7 @@ async function runScenarioD() {
     const restoredCount = await redis.get(`views:buffer:${adId.toString()}`);
     if (restoredCount !== '1') throw new Error(`Recovery failed: count not restored to Redis. Got ${restoredCount}`);
     
-    (Ad as unknown).updateOne = originalUpdate; // Restore
+    adModelMutable.updateOne = originalUpdate; // Restore
     logger.info('[SMOKE_TEST] scenario=D Atomic Aggregation=RESILIENT (Verified)');
 }
 
