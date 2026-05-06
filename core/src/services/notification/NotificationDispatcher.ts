@@ -6,6 +6,16 @@ import { sendNotification } from './PushGatewayService';
 import { NotificationIntent } from '../../domain/NotificationIntent';
 import logger from '../../utils/logger';
 import { resolveNotificationDeliveryPlan } from './NotificationPreferenceService';
+import {
+    releaseQueueIdempotencySlot,
+    reserveQueueIdempotencySlot
+} from '../../queues/queueIdempotency';
+import { withQueueDefaults } from '../../queues/queueDefaults';
+import { addJobWithTrace, type TraceableJobData } from '../../utils/queueWrapper';
+import { isQueueConnectionAvailable } from '../../queues/redisConnection';
+import { emitReliabilityAlert } from '../../utils/reliabilityAlerts';
+import { reliabilityAlertsTotal } from '../../utils/metrics';
+import { captureException } from '../../config/sentry';
 
 interface DispatchOptions {
     shadowDispatch?: boolean;
@@ -32,26 +42,73 @@ export class NotificationDispatcher {
         options: DispatchOptions = {}
     ): Promise<NotificationDispatchResult> {
         try {
-            const jobData = {
+            const jobData: TraceableJobData & {
+                intent: ConstructorParameters<typeof NotificationIntent>[0];
+                options: DispatchOptions;
+            } = {
                 intent: { ...intent },
                 options
             };
 
-            await notificationDeliveryQueue.add(
+            const reserved = await reserveQueueIdempotencySlot(
+                'notification.delivery.queue',
+                intent.dedupKey,
+                24 * 60 * 60
+            );
+            if (!reserved) {
+                logger.debug('[Dispatcher] Duplicate notification enqueue skipped by idempotency slot', {
+                    dedupKey: intent.dedupKey,
+                    userId: intent.userId
+                });
+                return { success: true, skipped: true };
+            }
+
+            if (!isQueueConnectionAvailable()) {
+                reliabilityAlertsTotal.labels('QUEUE_PAUSED_REDIS_UNAVAILABLE', 'high').inc();
+                void emitReliabilityAlert({
+                    type: 'QUEUE_PAUSED_REDIS_UNAVAILABLE',
+                    title: 'Queue paused due to Redis outage',
+                    severity: 'high',
+                    summary: 'notification.delivery.queue is unavailable; using sync fallback',
+                    dedupeKey: 'queue_paused_notification_delivery',
+                    metadata: {
+                        queueName: 'notification.delivery.queue',
+                        userId: intent.userId,
+                        dedupKey: intent.dedupKey,
+                    },
+                });
+                return this.executeDispatch(intent, options);
+            }
+
+            await addJobWithTrace(
+                notificationDeliveryQueue,
                 intent.type === 'SYSTEM' ? 'system_notification' : 'user_notification',
                 jobData,
-                {
+                withQueueDefaults({
                     jobId: intent.dedupKey,
                     priority: intent.priority === 'high' ? 1 : (intent.priority === 'medium' ? 2 : 3),
-                }
+                    removeOnComplete: 500,
+                    removeOnFail: 1_000,
+                }),
+                intent.userId
             );
 
             return { success: true };
         } catch (error) {
+            await releaseQueueIdempotencySlot(
+                'notification.delivery.queue',
+                intent.dedupKey
+            );
             logger.error('[Dispatcher] Failed to enqueue notification', {
                 userId: intent.userId,
                 type: intent.type,
                 error: error instanceof Error ? error.message : String(error)
+            });
+            captureException(error instanceof Error ? error : new Error(String(error)), {
+                phase: 'notification_enqueue',
+                userId: intent.userId,
+                type: intent.type,
+                dedupKey: intent.dedupKey,
             });
             
             // Fallback to sync dispatch in case of queue failure for resiliency

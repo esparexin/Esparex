@@ -1,27 +1,39 @@
 import { Queue } from 'bullmq';
-import { redisConnection } from './redisConnection';
+import { redisConnection, shouldDisableQueueConnection } from './redisConnection';
+import { withQueueDefaults } from './queueDefaults';
 
-const sharedJobOptions = {
-    attempts: 3,
-    backoff: {
-        type: 'exponential' as const,
-        delay: 2000 // 2s → 4s → 8s
-    },
-    removeOnComplete: 200,
-    removeOnFail: 500
-};
+const sharedJobOptions = withQueueDefaults();
 
-export const adQueue = new Queue('ad-events', {
-    connection: redisConnection,
-    defaultJobOptions: sharedJobOptions
-});
+const createNoopQueue = <T>() => ({
+    add: async () => null,
+    close: async () => undefined,
+    on: () => undefined,
+    getJobCounts: async () => ({
+        waiting: 0,
+        active: 0,
+        delayed: 0,
+        failed: 0,
+        completed: 0,
+    }),
+} as unknown as Queue<T>);
 
-export const notificationDeliveryQueue = new Queue('notification.delivery.queue', {
-    connection: redisConnection,
-    defaultJobOptions: sharedJobOptions
-});
+export const adQueue = shouldDisableQueueConnection
+    ? createNoopQueue()
+    : new Queue('ad-events', {
+        connection: redisConnection,
+        defaultJobOptions: sharedJobOptions
+    });
 
-export const notificationMatchQueue = new Queue('notification.match.queue', {
-    connection: redisConnection,
-    defaultJobOptions: sharedJobOptions
-});
+export const notificationDeliveryQueue = shouldDisableQueueConnection
+    ? createNoopQueue()
+    : new Queue('notification.delivery.queue', {
+        connection: redisConnection,
+        defaultJobOptions: sharedJobOptions
+    });
+
+export const notificationMatchQueue = shouldDisableQueueConnection
+    ? createNoopQueue()
+    : new Queue('notification.match.queue', {
+        connection: redisConnection,
+        defaultJobOptions: sharedJobOptions
+    });

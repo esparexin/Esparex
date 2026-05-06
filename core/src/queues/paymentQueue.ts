@@ -1,10 +1,19 @@
 import { Queue } from "bullmq";
 import logger from "../utils/logger";
-import { redisConnection } from "./redisConnection";
+import { isQueueConnectionAvailable, redisConnection, shouldDisableQueueConnection } from "./redisConnection";
+import { withQueueDefaults } from './queueDefaults';
+import {
+    buildDeterministicJobId,
+    releaseQueueIdempotencySlot,
+    reserveQueueIdempotencySlot
+} from './queueIdempotency';
+import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
+import { reliabilityAlertsTotal } from '../utils/metrics';
+import { addJobWithTrace, type TraceableJobData } from '../utils/queueWrapper';
 
 export type PaymentQueueJobName = "process_payment_capture";
 
-export interface PaymentQueueJobData {
+export interface PaymentQueueJobData extends TraceableJobData {
     event: string;
     gatewayPaymentId?: string;
     gatewayOrderId?: string;
@@ -12,21 +21,55 @@ export interface PaymentQueueJobData {
     gatewayCurrency?: string;
 }
 
-export const paymentQueue = new Queue<PaymentQueueJobData, void, PaymentQueueJobName>("payment-events", {
-    connection: redisConnection,
-    defaultJobOptions: {
-        attempts: 8,
-        backoff: {
-            type: "exponential",
-            delay: 3000
-        },
-        removeOnComplete: 500,
-        removeOnFail: 1000
-    }
-});
+const createNoopQueue = <T>() => ({
+    add: async () => null,
+    close: async () => undefined,
+    on: () => undefined,
+    getJob: async () => null,
+} as unknown as Queue<T>);
+
+export const paymentQueue = shouldDisableQueueConnection
+    ? createNoopQueue<PaymentQueueJobData>()
+    : new Queue<PaymentQueueJobData, void, PaymentQueueJobName>("payment-events", {
+        connection: redisConnection,
+        defaultJobOptions: withQueueDefaults({
+            removeOnComplete: 500,
+            removeOnFail: 1_000
+        })
+    });
 
 export async function enqueuePaymentProcessing(job: PaymentQueueJobData) {
-    const jobId = `payment:${job.gatewayPaymentId || job.gatewayOrderId || `${job.event}:${Date.now()}`}`;
+    if (!isQueueConnectionAvailable()) {
+        reliabilityAlertsTotal.labels('QUEUE_PAUSED_REDIS_UNAVAILABLE', 'high').inc();
+        void emitReliabilityAlert({
+            type: 'QUEUE_PAUSED_REDIS_UNAVAILABLE',
+            title: 'Queue paused due to Redis outage',
+            severity: 'high',
+            summary: 'payment-events queue is unavailable',
+            dedupeKey: 'queue_paused_payment_events',
+            metadata: {
+                queueName: 'payment-events',
+                gatewayPaymentId: job.gatewayPaymentId,
+                gatewayOrderId: job.gatewayOrderId,
+            },
+        });
+        throw new Error('Queue unavailable: payment-events');
+    }
+
+    const jobId = job.gatewayPaymentId || job.gatewayOrderId
+        ? `payment:${job.gatewayPaymentId || job.gatewayOrderId}`
+        : buildDeterministicJobId('payment', job);
+
+    const reserved = await reserveQueueIdempotencySlot('payment-events', jobId, 24 * 60 * 60);
+    if (!reserved) {
+        const existingJob = await paymentQueue.getJob(jobId).catch(() => null);
+        logger.info("Duplicate payment webhook enqueue skipped", {
+            jobId,
+            gatewayPaymentId: job.gatewayPaymentId,
+            gatewayOrderId: job.gatewayOrderId
+        });
+        return existingJob;
+    }
 
     try {
         const existingJob = await paymentQueue.getJob(jobId);
@@ -39,8 +82,14 @@ export async function enqueuePaymentProcessing(job: PaymentQueueJobData) {
             return existingJob;
         }
 
-        return paymentQueue.add("process_payment_capture", job, { jobId });
+        return addJobWithTrace(
+            paymentQueue,
+            "process_payment_capture",
+            job,
+            { jobId }
+        );
     } catch (error) {
+        await releaseQueueIdempotencySlot('payment-events', jobId);
         logger.error("Failed to enqueue payment processing job", {
             jobId,
             gatewayPaymentId: job.gatewayPaymentId,

@@ -2,6 +2,10 @@ import { Queue, Job, type WorkerOptions, Worker, type Processor, type JobsOption
 import { TraceContext } from "@esparex/shared";
 import logger from './logger';
 import { AuditService } from '../services/AuditService';
+import { enqueueDeadLetter } from '../queues/deadLetterQueue';
+import { clearReliabilityContext, setReliabilityContext } from './reliabilityContext';
+import { reliabilityAlertsTotal } from './metrics';
+import { emitReliabilityAlert } from './reliabilityAlerts';
 
 export interface TraceableJobData {
     _trace?: {
@@ -32,7 +36,11 @@ export async function addJobWithTrace<T extends TraceableJobData>(
     };
 
      
-    return queue.add(name as any, enrichedData as any, opts);
+    type QueueAddParams = Parameters<Queue<T>['add']>;
+    const typedJobName = name as QueueAddParams[0];
+    const typedPayload = enrichedData as QueueAddParams[1];
+    const typedOptions = opts as QueueAddParams[2];
+    return queue.add(typedJobName, typedPayload, typedOptions);
 }
 
 /**
@@ -48,6 +56,15 @@ export function registerWorkerWithTrace<T extends TraceableJobData>(
         
         // Restore context for all logs and nested service calls within this job
         TraceContext.setCorrelationId(requestId);
+        setReliabilityContext({
+            traceId: requestId,
+            userId: job.data._trace?.userId,
+            queueName,
+            jobId: job.id ? String(job.id) : undefined,
+            jobName: job.name,
+            requestPath: `queue://${queueName}/${job.name}`,
+            method: 'QUEUE',
+        });
 
         try {
             return await processor(job);
@@ -61,6 +78,7 @@ export function registerWorkerWithTrace<T extends TraceableJobData>(
             throw error;
         } finally {
             TraceContext.clear();
+            clearReliabilityContext();
         }
     };
 
@@ -68,11 +86,38 @@ export function registerWorkerWithTrace<T extends TraceableJobData>(
 
     worker.on('failed', (job, err) => {
         if (!job) return;
-        
+        const configuredAttempts = job.opts.attempts || 1;
+        const attemptsMade = job.attemptsMade;
+        const attemptsRemaining = Math.max(0, configuredAttempts - attemptsMade);
+        const requestId = job.data._trace?.requestId;
+        const userId = job.data._trace?.userId;
+
+        if (configuredAttempts > 1 && attemptsMade >= configuredAttempts - 1 && attemptsMade < configuredAttempts) {
+            reliabilityAlertsTotal.labels('QUEUE_RETRY_ESCALATION', 'high').inc();
+            void emitReliabilityAlert({
+                type: 'QUEUE_RETRY_ESCALATION',
+                title: 'Queue retry nearing exhaustion',
+                severity: 'high',
+                summary: `${queueName}:${job.name} is approaching final retry`,
+                dedupeKey: `queue_retry_escalation:${queueName}:${job.name}:${String(job.id || 'unknown')}`,
+                service: 'worker-runtime',
+                module: 'queue-runtime',
+                metadata: {
+                    queueName,
+                    jobName: job.name,
+                    jobId: String(job.id || 'unknown'),
+                    requestId,
+                    userId,
+                    attemptsMade,
+                    attemptsConfigured: configuredAttempts,
+                    attemptsRemaining,
+                    error: err.message,
+                }
+            });
+        }
+
         // Log to Admin Audit if retries are exhausted
-        if (job.attemptsMade >= (job.opts.attempts || 1)) {
-            const requestId = job.data._trace?.requestId;
-            
+        if (attemptsMade >= configuredAttempts) {
             void AuditService.logEvent({
                 action: 'JOB_FAILURE_FINAL',
                 targetType: 'system_queue',
@@ -82,15 +127,19 @@ export function registerWorkerWithTrace<T extends TraceableJobData>(
                     jobName: job.name,
                     error: err.message,
                     requestId,
-                    attempts: job.attemptsMade
+                    attempts: attemptsMade
                 }
             }, { actorType: 'system', requestId });
 
             logger.error(`[JobFatal] ${queueName}:${job.name} exhausted all retries.`, {
                 jobId: job.id,
                 requestId,
-                error: err.message
+                error: err.message,
+                attemptsMade,
+                attemptsConfigured: configuredAttempts,
             });
+
+            void enqueueDeadLetter(queueName, job, err);
         }
     });
 

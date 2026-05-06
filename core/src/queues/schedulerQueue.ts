@@ -2,6 +2,7 @@ import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
 import logger from '../utils/logger';
 import { env } from '../config/env';
 import { registerWorkerWithTrace, type TraceableJobData } from '../utils/queueWrapper';
+import { queueWorkerBackoffStrategy, withQueueDefaults } from './queueDefaults';
 
 export type SchedulerJobName =
     | 'expire_ads_job'
@@ -52,8 +53,12 @@ const parseRedisConnection = () => {
             password: parsedUrl.password ? decodeURIComponent(parsedUrl.password) : undefined,
             db: Number.isFinite(dbFromPath) ? dbFromPath : env.REDIS_DB,
             maxRetriesPerRequest: null,
-            enableReadyCheck: false,
-            tls: undefined, // 🔒 FORCE DISABLE TLS
+            enableReadyCheck: true,
+            enableOfflineQueue: false,
+            connectTimeout: 10_000,
+            keepAlive: 10_000,
+            tls: env.REDIS_URL.startsWith('rediss://') ? {} : undefined,
+            retryStrategy: (times: number) => queueWorkerBackoffStrategy(times, 250, 30_000),
         };
     }
 
@@ -63,21 +68,20 @@ const parseRedisConnection = () => {
         password: env.REDIS_PASSWORD,
         db: env.REDIS_DB,
         maxRetriesPerRequest: null,
-        enableReadyCheck: false,
-        tls: undefined, // 🔒 FORCE DISABLE TLS
+        enableReadyCheck: true,
+        enableOfflineQueue: false,
+        connectTimeout: 10_000,
+        keepAlive: 10_000,
+        tls: undefined,
+        retryStrategy: (times: number) => queueWorkerBackoffStrategy(times, 250, 30_000),
     };
 };
 
 const schedulerQueueConnection = parseRedisConnection();
-const schedulerDefaultJobOptions = {
-    attempts: 3,
-    backoff: {
-        type: 'exponential' as const,
-        delay: 2000,
-    },
+const schedulerDefaultJobOptions = withQueueDefaults({
     removeOnComplete: 200,
     removeOnFail: 500,
-};
+});
 
 const schedulerQueue = shouldDisableSchedulerQueue
     ? null

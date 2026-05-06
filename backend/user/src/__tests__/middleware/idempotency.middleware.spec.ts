@@ -82,7 +82,7 @@ describe('enforceCreateAdIdempotency', () => {
 
     it('rejects invalid UUID idempotency keys', async () => {
         const req = makeReq({
-            header: (name: string) => (name.toLowerCase() === 'idempotency-key' ? 'not-a-uuid' : undefined),
+            header: ((name: string) => (name.toLowerCase() === 'idempotency-key' ? 'not-a-uuid' : undefined)) as Request['header'],
         });
         const res = makeRes();
         const next = jest.fn();
@@ -99,10 +99,10 @@ describe('enforceCreateAdIdempotency', () => {
     it('returns 409 only when same key is reused with a different payload hash', async () => {
         const req = makeReq({
             body: { title: 'Payload A' },
-            header: (name: string) =>
+            header: ((name: string) =>
                 name.toLowerCase() === 'idempotency-key'
                     ? '37ecaf4d-f5cb-4ea4-a0f5-77fca57acff1'
-                    : undefined,
+                    : undefined) as Request['header'],
         });
         const res = makeRes();
         const next = jest.fn();
@@ -130,7 +130,7 @@ describe('enforceCreateAdIdempotency', () => {
         const idempotencyKey = '5c6e09cc-42d6-47ad-b270-c76d14fb5f0d';
         const req = makeReq({
             body: { title: 'Payload A' },
-            header: (name: string) => (name.toLowerCase() === 'idempotency-key' ? idempotencyKey : undefined),
+            header: ((name: string) => (name.toLowerCase() === 'idempotency-key' ? idempotencyKey : undefined)) as Request['header'],
         });
         const userId = ((req.user as { _id: mongoose.Types.ObjectId })._id).toString();
         const res = makeRes();
@@ -161,7 +161,7 @@ describe('enforceCreateAdIdempotency', () => {
             body: { title: 'Screen replacement' },
             originalUrl: '/api/v1/services',
             path: '/api/v1/services',
-            header: (name: string) => (name.toLowerCase() === 'idempotency-key' ? idempotencyKey : undefined),
+            header: ((name: string) => (name.toLowerCase() === 'idempotency-key' ? idempotencyKey : undefined)) as Request['header'],
         });
         const userId = ((req.user as { _id: mongoose.Types.ObjectId })._id).toString();
         const res = makeRes();

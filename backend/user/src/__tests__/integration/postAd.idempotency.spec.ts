@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import request from 'supertest';
+import inject from 'light-my-request';
 import mongoose from 'mongoose';
 import { enforceCreateAdIdempotency } from '../../middleware/idempotency';
 import IdempotencyRequest from '@esparex/core/models/IdempotencyRequest';
@@ -113,31 +113,37 @@ describe('POST /api/v1/ads idempotency integration', () => {
 
         const key = '8ba69444-0188-49df-b4b7-3af2e82eb296';
 
-        const firstResponse = await request(app)
-            .post('/api/v1/ads')
-            .set('Idempotency-Key', key)
-            .send({ title: 'MacBook Pro 16' });
-        expect(firstResponse.status).toBe(201);
-        expect(firstResponse.body).toMatchObject({
+        const firstResponse = await inject(app, {
+            method: 'POST',
+            url: '/api/v1/ads',
+            headers: { 'Idempotency-Key': key },
+            payload: { title: 'MacBook Pro 16' },
+        });
+        expect(firstResponse.statusCode).toBe(201);
+        expect(firstResponse.json()).toMatchObject({
             success: true,
             data: { id: 'ad-123', title: 'MacBook Pro 16' },
         });
 
         await new Promise((resolve) => setImmediate(resolve));
 
-        const secondResponse = await request(app)
-            .post('/api/v1/ads')
-            .set('Idempotency-Key', key)
-            .send({ title: 'MacBook Pro 16' });
-        expect(secondResponse.status).toBe(201);
-        expect(secondResponse.body).toEqual(firstResponse.body);
+        const secondResponse = await inject(app, {
+            method: 'POST',
+            url: '/api/v1/ads',
+            headers: { 'Idempotency-Key': key },
+            payload: { title: 'MacBook Pro 16' },
+        });
+        expect(secondResponse.statusCode).toBe(201);
+        expect(secondResponse.json()).toEqual(firstResponse.json());
 
-        const conflictResponse = await request(app)
-            .post('/api/v1/ads')
-            .set('Idempotency-Key', key)
-            .send({ title: 'Different payload' });
-        expect(conflictResponse.status).toBe(409);
-        expect(conflictResponse.body).toMatchObject({
+        const conflictResponse = await inject(app, {
+            method: 'POST',
+            url: '/api/v1/ads',
+            headers: { 'Idempotency-Key': key },
+            payload: { title: 'Different payload' },
+        });
+        expect(conflictResponse.statusCode).toBe(409);
+        expect(conflictResponse.json()).toMatchObject({
             success: false,
             code: 'IDEMPOTENCY_KEY_REUSED',
             conflictType: 'IDEMPOTENCY',
