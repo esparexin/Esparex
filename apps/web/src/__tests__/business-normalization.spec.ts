@@ -32,7 +32,7 @@ describe("normalizeBusiness", () => {
             isVerified: false,
             verified: false,
             createdAt: new Date().toISOString(),
-        } as any);
+        } as Record<string, unknown>);
 
         expect(business).not.toBeNull();
         expect(business?.sellerId).toBe("507f1f77bcf86cd799439012");
@@ -63,7 +63,7 @@ describe("normalizeBusiness", () => {
             trustScore: 50,
             isVerified: false,
             createdAt: new Date().toISOString(),
-        } as any);
+        } as Record<string, unknown>);
 
         expect(business).not.toBeNull();
         expect(business?.sellerId).toBe("");

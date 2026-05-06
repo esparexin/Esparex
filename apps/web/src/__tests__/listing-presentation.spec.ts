@@ -97,7 +97,7 @@ describe("listingPresentation", () => {
             resolveListingTypeBadge({
                 listingType: undefined,
                 category: "spares",
-            } as any)
+            } as Parameters<typeof resolveListingTypeBadge>[0])
         ).toEqual({
             type: "ad",
             label: "Device",

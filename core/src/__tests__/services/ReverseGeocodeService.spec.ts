@@ -80,7 +80,7 @@ describe('ReverseGeocodeService', () => {
             // The coordinates should be SNAPPED to the city center, not the input
             expect(result?.coordinates?.coordinates[0]).toBe(cityCenterLng);
             expect(result?.coordinates?.coordinates[1]).toBe(cityCenterLat);
-            expect((result as any)?.isSnapped).toBe(true);
+            expect(result?.isSnapped).toBe(true);
         });
 
         it('should NOT snap coordinates if distance > 7.5km', async () => {
@@ -126,7 +126,7 @@ describe('ReverseGeocodeService', () => {
             // The coordinates should REMAIN the input, NOT snapped
             expect(result?.coordinates?.coordinates[0]).toBe(inputLng);
             expect(result?.coordinates?.coordinates[1]).toBe(inputLat);
-            expect((result as any)?.isSnapped).toBeUndefined();
+            expect(result?.isSnapped).toBeUndefined();
         });
     });
 });
