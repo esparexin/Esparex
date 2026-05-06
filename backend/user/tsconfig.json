@@ -21,6 +21,6 @@
       "@esparex/core/*": ["./../../core/dist/*"]
     }
   },
-  "include": ["src/app.ts", "src/config/**/*", "src/models/**/*", "src/middleware/**/*", "src/@types/**/*"],
-  "exclude": ["node_modules", "dist", "src/middleware/metricsMiddleware.ts"]
+  "include": ["src/index.ts", "src/server.ts", "src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

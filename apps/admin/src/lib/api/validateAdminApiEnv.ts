@@ -24,7 +24,7 @@ export function resolveValidatedAdminApiBase(): string {
 
   const nodeEnv = process.env.NODE_ENV;
   const appEnv = (process.env.NEXT_PUBLIC_APP_ENV || nodeEnv || "development").trim().toLowerCase();
-  const riskOverride = process.env.PROD_RISK_OVERRIDE === "true";
+  const riskOverride = process.env.NEXT_PUBLIC_PROD_RISK_OVERRIDE === "true";
   const configuredUrl = process.env.NEXT_PUBLIC_ADMIN_API_URL?.trim();
   const isProduction = appEnv === "production";
 
@@ -39,9 +39,12 @@ export function resolveValidatedAdminApiBase(): string {
     return cachedAdminApiBase;
   }
 
-  if (!/^https?:\/\//.test(configuredUrl)) {
+  const isRelativeAdminPath = configuredUrl.startsWith('/');
+  const isAbsoluteHttpUrl = /^https?:\/\//.test(configuredUrl);
+
+  if (!isRelativeAdminPath && !isAbsoluteHttpUrl) {
     throw new Error(
-      `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_ADMIN_API_URL must include protocol (http/https): ${configuredUrl}`
+      `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_ADMIN_API_URL must be either an absolute http(s) URL or a relative /api path: ${configuredUrl}`
     );
   }
 
@@ -53,7 +56,7 @@ export function resolveValidatedAdminApiBase(): string {
     );
   }
 
-  if (isProduction && LOCALHOST_URL_PATTERN.test(normalizedUrl) && !riskOverride) {
+  if (isProduction && isAbsoluteHttpUrl && LOCALHOST_URL_PATTERN.test(normalizedUrl) && !riskOverride) {
     throw new Error(
       `[PRODUCTION BOOT BLOCKED] NEXT_PUBLIC_ADMIN_API_URL cannot use localhost in production: ${configuredUrl}`
     );
@@ -61,6 +64,7 @@ export function resolveValidatedAdminApiBase(): string {
 
   if (
     nodeEnv === "development" &&
+    isAbsoluteHttpUrl &&
     normalizedUrl.includes("api.exparex.in") &&
     !riskOverride
   ) {

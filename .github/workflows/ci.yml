@@ -1,4 +1,4 @@
-name: Esparex CI Baseline
+name: Esparex CI
 
 on:
   push:
@@ -9,22 +9,24 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  baseline-build:
-    name: Baseline Monorepo Build
+  ci:
+    name: Lint, Test, and Build Monorepo
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
-      NODE_ENV: production
       NEXT_PUBLIC_APP_ENV: local
+      NEXT_PUBLIC_PROD_RISK_OVERRIDE: "false"
       SKIP_ENV_VALIDATION: "true"
       NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
       NEXT_PUBLIC_APP_URL: https://esparex.in
-      NEXT_PUBLIC_ADMIN_API_URL: https://api.esparex.in/api/v1/admin
-      NEXT_PUBLIC_ENCRYPTION_KEY: ci-placeholder-key-32-characters-x
       NEXT_PUBLIC_FIREBASE_API_KEY: placeholder
       NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
       NEXT_PUBLIC_FIREBASE_PROJECT_ID: placeholder
@@ -39,26 +41,24 @@ jobs:
       - name: Setup Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
+          node-version-file: ".nvmrc"
           cache: npm
+          cache-dependency-path: package-lock.json
 
-      - name: Setup npm 11.8
-        run: npm install -g npm@11.8.0
+      - name: Install dependencies
+        run: HUSKY=0 npm ci
 
-      - name: Install dependencies (root only)
-        run: HUSKY=0 npm install --include=dev
+      - name: Validate environment contract
+        run: npm run guard:env-contracts
 
-      - name: Build shared (soft fail baseline)
-        run: npm run build -w @esparex/shared || true
+      - name: Lint, type-check, and test
+        run: npm run ci:strict
 
-      - name: Build core (soft fail baseline)
-        run: npm run build -w @esparex/core || true
+      - name: Build all workspaces
+        run: npm run build
 
-      - name: Build backend (soft fail baseline)
-        run: npm run build -w @esparex/backend-user || true
+      - name: Verify backend artifact
+        run: test -f backend/user/dist/index.js
 
-      - name: Build admin app (soft fail baseline)
-        run: npm run build -w @esparex/apps-admin || true
-
-      - name: Build web app (soft fail baseline)
-        run: npm run build -w @esparex/apps-web || true
+      - name: Check duplication guard
+        run: npm run guard:duplication

@@ -120,6 +120,7 @@ export default tseslint.config(
   },
 
   // 6. Backend & Node Specific (Backend, Core, Scripts)
+  // 6. Backend & Node Specific (Backend, Core, Scripts)
   {
     files: [
       "backend/**/*.{ts,js,cjs,mjs,mongosh.js}", 

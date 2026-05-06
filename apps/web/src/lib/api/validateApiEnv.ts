@@ -34,7 +34,7 @@ export function validateApiEnv() {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
     const nodeEnv = process.env.NODE_ENV;
     const appEnv = process.env.NEXT_PUBLIC_APP_ENV || 'local';
-    const riskOverride = process.env.PROD_RISK_OVERRIDE === 'true';
+    const riskOverride = process.env.NEXT_PUBLIC_PROD_RISK_OVERRIDE === 'true';
 
     if (!url) {
         throw new Error(
@@ -42,10 +42,12 @@ export function validateApiEnv() {
         );
     }
 
-    // Must include protocol
-    if (!/^https?:\/\//.test(url)) {
+    const isRelativeApiPath = url.startsWith('/');
+    const isAbsoluteHttpUrl = /^https?:\/\//.test(url);
+
+    if (!isRelativeApiPath && !isAbsoluteHttpUrl) {
         throw new Error(
-            `[ESPAREX CONFIG ERROR] API URL must include protocol (http/https): ${url}`
+            `[ESPAREX CONFIG ERROR] API URL must be either an absolute http(s) URL or a relative /api path: ${url}`
         );
     }
 
@@ -58,17 +60,17 @@ export function validateApiEnv() {
 
     // 🛡️ ARCHITECTURAL BOOT GUARD — PRODUCTION GATING
     if (appEnv === 'production') {
-        const hasRedRisks = url.includes("localhost") || url.includes("127.0.0.1");
+        const hasRedRisks = !isRelativeApiPath && (url.includes("localhost") || url.includes("127.0.0.1"));
 
         if (hasRedRisks && !riskOverride) {
             throw new Error(
                 `❌ [PRODUCTION BOOT BLOCKED] Unresolved security governance risks detected.\n` +
                 `The production environment cannot run while known RED risks exist (e.g. localhost API URL: ${url}).\n` +
-                `If this is intentional, set PROD_RISK_OVERRIDE=true.`
+                `If this is intentional, set NEXT_PUBLIC_PROD_RISK_OVERRIDE=true.`
             );
         }
 
-        if (appUrl && !riskOverride) {
+        if (appUrl && !riskOverride && isAbsoluteHttpUrl) {
             try {
                 const apiHost = new URL(url).hostname.toLowerCase();
                 const expectedApiHost = inferExpectedProductionApiHost(appUrl);
@@ -87,7 +89,7 @@ export function validateApiEnv() {
     }
 
     // Development rules
-    if (nodeEnv === "development") {
+    if (nodeEnv === "development" && isAbsoluteHttpUrl) {
         if (
             url.includes("prod") ||
             (url.includes("vercel.app") && !url.includes("preview"))
@@ -99,7 +101,7 @@ export function validateApiEnv() {
     }
 
     // Legacy standard check (Node-specific)
-    if (nodeEnv === "production" && !url.includes("esparex.in") && !riskOverride) {
+    if (nodeEnv === "production" && appEnv === "production" && isAbsoluteHttpUrl && !url.includes("esparex.in") && !riskOverride) {
         // This serves as a secondary check if APP_ENV isn't set but we are in a production build
         if (url.includes("localhost") || url.includes("127.0.0.1")) {
             throw new Error(`[ESPAREX CONFIG ERROR] Production build cannot use localhost API: ${url}`);

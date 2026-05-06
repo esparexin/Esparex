@@ -39,15 +39,14 @@ CI is intentionally consolidated to a single workflow:
 - Workflow file: `.github/workflows/ci.yml`
 - Trigger: `push` to `main`, `pull_request` to `main`, and manual `workflow_dispatch`
 - Runtime: Node `22.x`
-- Install strategy: root-only install (`HUSKY=0 npm install`)
+- Install strategy: deterministic root install (`HUSKY=0 npm ci`)
+- Validation stage: `npm run ci:strict` (`lint:ci` + type-check + tests)
 - Build order:
   1. `@esparex/shared`
   2. `@esparex/core`
   3. `@esparex/backend-user`
   4. `@esparex/apps-admin`
   5. `@esparex/apps-web`
-
-Baseline mode currently uses temporary soft-fail build steps (`|| true`) to keep the pipeline green while strict checks are reintroduced incrementally.
 
 ## Governance & Guardrails
 
@@ -66,11 +65,31 @@ npm run guard:platform-governance
 ```
 This will fail if forbidden keywords (`legacy`, `compatibility`, `@deprecated`) are found in comments, variables, or routes. Use `OLD` or descriptive alternatives instead.
 
+## Reliability Layer
+
+The backend exposes enterprise reliability surfaces:
+
+- `GET /metrics`: Prometheus metrics (API latency/error rate, queue duration/failures, DB latency, subsystem gauges)
+- `GET /system/status`: runtime subsystem dashboard (DB, Redis, Queue, Worker)
+- `GET /system/metrics-summary`: SLO-oriented reliability summary (API, queue backlog, failure rates, worker state, security signals)
+- `GET /health`: health contract for uptime checks
+
+Environment switches for alerting are in `backend/user/.env.example`:
+
+- `RELIABILITY_SLACK_WEBHOOK_URL`
+- `RELIABILITY_ALERT_EMAIL_TO`
+- `RELIABILITY_ALERT_THROTTLE_MS`
+- `RELIABILITY_API_LATENCY_THRESHOLD_MS`
+- `RELIABILITY_HIGH_ERROR_RATE_THRESHOLD`
+- `RELIABILITY_QUEUE_DELAY_THRESHOLD_MS`
+- `RELIABILITY_DB_RESPONSE_THRESHOLD_MS`
+- `RELIABILITY_QUEUE_FAILURE_SPIKE_THRESHOLD`
+
 ### Pull Request Requirements
 The `guard:pr-impact-analysis` CI check requires every PR to have a description following the repository template. If your PR description is empty, the CI build **will fail**.
 
-### Current CI Baseline Note
-Governance scripts (lint/type-check/duplication/contracts) remain available as npm scripts, but strict enforcement is being rolled out in phases after the baseline build pipeline stabilization.
+### Current CI Note
+The CI workflow is strict by default and fails on lint/type-check/test/build regressions.
 
 Run workspaces as needed:
 
@@ -84,11 +103,27 @@ npm run dev -w @esparex/apps-admin
 
 The project is deployed using **Vercel** (Frontends) and **Render** (Backends).
 
+### Frontend Deployments (Vercel)
+Create **two separate Vercel projects**:
+
+- `@esparex/apps-web`
+  - **Root Directory**: `apps/web`
+  - **Install Command**: *(Use Vercel default install)*
+  - **Build Command**: `cd ../.. && npm run build -w @esparex/apps-web`
+- `@esparex/apps-admin`
+  - **Root Directory**: `apps/admin`
+  - **Install Command**: *(Use Vercel default install)*
+  - **Build Command**: `cd ../.. && npm run build -w @esparex/apps-admin`
+
+Use root-workspace builds so shared/core/backend artifacts stay consistent.
+
 ### Unified Backend Deployment (Render)
 When creating the Web Service (e.g., named `esparex-api`) for the API system:
 - **Root Directory**: (Leave Empty)
-- **Build Command**: `export NODE_OPTIONS="--max-old-space-size=4096" && npm install && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user`
+- **Build Command**: `HUSKY=0 npm ci && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user && test -f backend/user/dist/index.js`
 - **Start Command**: `npm start -w @esparex/backend-user`
+
+Do not use cross-directory commands such as `cd backend` or `cd backend/user`.
 
 ### Admin System Configuration (Vercel/Render)
 
@@ -97,7 +132,8 @@ To fix 404/403 errors during login/CSRF discovery, ensure the following environm
 | Workspace | Platform | Variable | Recommended Value |
 | :--- | :--- | :--- | :--- |
 | `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_ADMIN_API_URL` | `https://api.esparex.in/api/v1/admin` |
-| `@esparex/apps-admin` | Vercel | `PROD_RISK_OVERRIDE` | `true` |
+| `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_PROD_RISK_OVERRIDE` | `false` |
+| `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_APP_ENV` | `production` |
 | `@esparex/backend-user` | Render | `COOKIE_DOMAIN` | `.esparex.in` (required for CSRF) |
 | `@esparex/backend-user` | Render | `CORS_ALLOWED_ORIGINS` | `https://admin.esparex.in` |
 | `@esparex/backend-user` | Render | `CSRF_SECRET` | *[Random 32-char string]* |
