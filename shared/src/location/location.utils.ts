@@ -74,14 +74,15 @@ export function adaptLocationInput(raw: unknown): ListingLocation | null {
   // 3. Coordinate Normalization
   let coordinates;
   try {
-    const geoInput = input.geometry?.location
+    const geometry = input.geometry as GoogleGeometry | undefined;
+    const geoInput = geometry?.location
       ? {
-        lat: typeof (input.geometry.location as GooglePlacesLocation).lat === 'function'
-          ? (input.geometry.location as GooglePlacesLocation).lat()
-          : (input.geometry.location as GooglePlacesLocation).lat,
-        lng: typeof (input.geometry.location as GooglePlacesLocation).lng === 'function'
-          ? (input.geometry.location as GooglePlacesLocation).lng()
-          : (input.geometry.location as GooglePlacesLocation).lng,
+        lat: typeof geometry.location.lat === 'function'
+          ? (geometry.location.lat as () => number)()
+          : geometry.location.lat,
+        lng: typeof geometry.location.lng === 'function'
+          ? (geometry.location.lng as () => number)()
+          : geometry.location.lng,
       }
       : input.coordinates ?? input;
 
