@@ -1,5 +1,5 @@
 import User from '../models/User';
-import Admin from '../models/Admin';
+import Admin, { IAdmin } from '../models/Admin';
 import Ad from '../models/Ad';
 import AdminMetrics from '../models/AdminMetrics';
 import { USER_STATUS } from '../constants/enums/userStatus';
@@ -416,7 +416,7 @@ export const createAdminAccount = async (
         email: normalizedEmail,
         mobile,
         password: normalizedPassword,
-        role: normalizedRole as any,
+        role: normalizedRole as IAdmin['role'],
         permissions: normalizedPermissions,
         status: USER_STATUS.LIVE
     });

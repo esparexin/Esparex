@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Ad from '../../models/Ad';
+import { ListingTypeValue } from '../../constants/enums/listingType';
 
 export const findServiceForUpdate = async (
     id: string,
@@ -7,17 +8,13 @@ export const findServiceForUpdate = async (
     businessId: string | { toString(): string } | null | undefined,
     listingType: string
 ) => {
-    const filter: Record<string, unknown> = {
+    const filter = {
         _id: new mongoose.Types.ObjectId(id),
-        listingType,
+        listingType: listingType as ListingTypeValue,
         sellerId: new mongoose.Types.ObjectId(userId.toString()),
+        businessId: businessId ? new mongoose.Types.ObjectId(businessId.toString()) : { $exists: false }
     };
-    if (businessId) {
-        filter.businessId = new mongoose.Types.ObjectId(businessId.toString());
-    } else {
-        filter.businessId = { $exists: false };
-    }
-    return Ad.findOne(filter as any)
+    return Ad.findOne(filter)
         .select('images status approvedAt categoryId brandId')
         .lean();
 };
@@ -29,15 +26,11 @@ export const updateServiceByOwner = async (
     listingType: string,
     updates: Record<string, unknown>
 ) => {
-    const filter: Record<string, unknown> = {
+    const filter = {
         _id: new mongoose.Types.ObjectId(id),
-        listingType,
+        listingType: listingType as ListingTypeValue,
         sellerId: new mongoose.Types.ObjectId(userId.toString()),
+        businessId: businessId ? new mongoose.Types.ObjectId(businessId.toString()) : { $exists: false }
     };
-    if (businessId) {
-        filter.businessId = new mongoose.Types.ObjectId(businessId.toString());
-    } else {
-        filter.businessId = { $exists: false };
-    }
-    return Ad.findOneAndUpdate(filter as any, updates, { new: true });
+    return Ad.findOneAndUpdate(filter, updates, { new: true });
 };

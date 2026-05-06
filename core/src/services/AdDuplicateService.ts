@@ -197,7 +197,7 @@ export const assessCrossUserDuplicateRisk = async (
         ...(payloadImageHashes.length > 0 ? { imageHashes: { $in: payloadImageHashes } } : {}),
     })
     .select('_id imageHashes')
-    .lean()
+    .lean<{ _id: mongoose.Types.ObjectId }[]>()
     .limit(5);
 
     if (session) query = query.session(session);
@@ -207,7 +207,7 @@ export const assessCrossUserDuplicateRisk = async (
         return { score: 0, reason: 'No cross-user duplicates detected', details: {} };
     }
 
-    const firstMatch = potentialMatches[0] as unknown as { _id: mongoose.Types.ObjectId };
+    const firstMatch = potentialMatches[0];
     const matchScore = 40 + (payloadImageHashes.length > 0 ? 40 : 0);
 
     return {

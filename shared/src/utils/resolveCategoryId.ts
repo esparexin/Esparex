@@ -15,7 +15,7 @@ export function resolveCategoryId(input: unknown): string | undefined {
 
     // 2. Object with id or _id
     if (typeof input === 'object' && input !== null) {
-        const anyInput = input as any;
+        const anyInput = input as Record<string, unknown>;
         const id = anyInput.id || anyInput._id;
         if (typeof id === 'string') return id.trim();
         if (id && typeof id.toString === 'function') return id.toString();

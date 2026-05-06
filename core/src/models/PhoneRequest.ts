@@ -5,7 +5,7 @@ export interface IPhoneRequest extends Document {
     buyerId: mongoose.Types.ObjectId;
     sellerId: mongoose.Types.ObjectId;
     entityId: mongoose.Types.ObjectId; // Ad or Service
-    entityType: 'ad' | 'service';
+    entityType: 'ad' | 'service' | 'spare_part';
     status: (typeof REQUEST_STATUS)[keyof typeof REQUEST_STATUS];
     createdAt: Date;
     updatedAt: Date;
@@ -15,7 +15,7 @@ const PhoneRequestSchema: Schema = new Schema({
     buyerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     sellerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     entityId: { type: Schema.Types.ObjectId, required: true },
-    entityType: { type: String, enum: ['ad', 'service'], required: true },
+    entityType: { type: String, enum: ['ad', 'service', 'spare_part'], required: true },
     status: {
         type: String,
         enum: REQUEST_STATUS_VALUES,
