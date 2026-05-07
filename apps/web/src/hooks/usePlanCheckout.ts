@@ -6,6 +6,7 @@ import { createPurchaseOrder } from "@/lib/api/user/plans";
 import { getWalletSummary, type WalletSummary } from "@/lib/api/user/users";
 import { loadRazorpay, type RazorpayOptions } from "@/lib/payments/razorpay";
 import { waitForWalletCredit } from "@/lib/payments/waitForWalletCredit";
+import logger from "@/lib/logger";
 
 type WalletCreditField = keyof Pick<
   WalletSummary,
@@ -113,14 +114,14 @@ export function usePlanCheckout() {
       const razorpay = new window.Razorpay(options);
       razorpay.on?.("payment.failed", (response: unknown) => {
         const errorDetail = isPaymentFailedResponse(response) ? response.error : undefined;
-        console.error("Payment failed:", errorDetail);
+        logger.error("Payment failed", errorDetail);
         const reason = errorDetail?.description || errorDetail?.reason || "Payment was declined or failed to process.";
         onPaymentFailed?.(reason);
         setIsProcessing(false);
       });
       razorpay.open();
     } catch (error) {
-      console.error("Checkout initialization failed:", error);
+      logger.error("Checkout initialization failed", error);
       onPaymentFailed?.("Failed to initialize payment gateway. Please try again later.");
       setIsProcessing(false);
       throw error;

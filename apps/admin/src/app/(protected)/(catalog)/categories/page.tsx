@@ -91,7 +91,7 @@ function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: Ca
         initialSearch,
         loading,
         initialPage,
-        totalPages: pagination.totalPages,
+                totalPages: pagination.totalPages,
     });
 
     const confirmDelete = async () => {
@@ -115,11 +115,13 @@ function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: Ca
                 pagination={pagination}
                 setPage={(page) => replaceQueryState({ page: page > 1 ? page : null })}
                 handleCreate={(data) => {
-                    const { _editingSlug, ...payload } = data;
+                    const payload = { ...data };
+                    delete payload._editingSlug;
                     return handleCreate(payload);
                 }}
                 handleUpdate={(id, data) => {
-                    const { _editingSlug, ...payload } = data;
+                    const payload = { ...data };
+                    delete payload._editingSlug;
                     return handleUpdate(id, payload);
                 }}
                 defaultFormData={{

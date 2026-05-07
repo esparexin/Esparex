@@ -60,7 +60,7 @@ export default function ListingDetailsFields() {
     // Watch values for UI logic
     const isFree = watch("isFree");
 
-    const { location: globalLocation } = useLocationData();
+    const { location } = useLocationData();
     const [userHasInteracted, setUserHasInteracted] = useState(false);
 
     // Extracted primitives — breaking the object-reference dependency that caused
@@ -74,7 +74,7 @@ export default function ListingDetailsFields() {
         name: locName,
         locationId: locLocationId,
         isSnapped: locIsSnapped,
-    } = (globalLocation ?? {}) as Partial<SnappedLocation>;
+    } = (location ?? {}) as Partial<SnappedLocation>;
 
     // One-shot guard: ensures the auto-sync runs at most once per component
     // lifetime even if the primitives above happen to produce a new identity.
@@ -139,7 +139,13 @@ export default function ListingDetailsFields() {
         hasSyncedRef.current = true;
 
         const adapted = adaptLocationInput({
-            ...globalLocation,
+            city: locCity,
+            state: locState,
+            coordinates: locCoordinates,
+            formattedAddress: locFormattedAddress,
+            name: locName,
+            locationId: locLocationId,
+            isSnapped: locIsSnapped,
             display: locFormattedAddress || (locState ? `${locName || locCity}, ${locState}` : locName || locCity) || ""
         });
 

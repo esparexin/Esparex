@@ -57,7 +57,7 @@ allFiles.forEach((file, index) => {
         if (parseInt(count) === 0) {
             orphans.push(relPath);
         }
-    } catch (e) {
+    } catch {
         // Ignore errors from grep
     }
 });

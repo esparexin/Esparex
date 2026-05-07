@@ -8,7 +8,7 @@ describe("injectApiErrors", () => {
     it("injects field errors from nested APIError details payloads", () => {
         const form = {
             setError: vi.fn(),
-        } as Parameters<typeof injectApiErrors>[0];
+        } as unknown as Parameters<typeof injectApiErrors>[0];
 
         const injected = injectApiErrors(
             form,
@@ -35,7 +35,7 @@ describe("injectApiErrors", () => {
     it("injects field errors from EsparexError context details", () => {
         const form = {
             setError: vi.fn(),
-        } as Parameters<typeof injectApiErrors>[0];
+        } as unknown as Parameters<typeof injectApiErrors>[0];
 
         const injected = injectApiErrors(
             form,

@@ -99,6 +99,7 @@ export function DataTable<T extends { id: string | number }>({
     const getScrollElement = React.useCallback(() => parentRef.current, []);
     const estimateSize = React.useCallback(() => 56, []);
 
+    // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual uses controlled internal mutation and is intentionally isolated here.
     const rowVirtualizer = useVirtualizer({
         count: data.length,
         getScrollElement,

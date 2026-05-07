@@ -37,8 +37,7 @@ export const getLocationOptions = async (
 
         // Some payloads use { data: { items } }, parseAdminResponse normalizes this
         return parseAdminResponse<Location>(response).items;
-    } catch (error) {
-        console.error("getLocationOptions failed:", error);
+    } catch {
         return [];
     }
 };

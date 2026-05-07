@@ -17,7 +17,7 @@ import type { AppLocation } from "@/types/location";
 
 import type { StepBaseProps } from "./types";
 
-interface StepAddressProps extends StepBaseProps {}
+type StepAddressProps = StepBaseProps;
 
 const asOptionalString = (value: unknown): string => {
     if (typeof value !== "string") return "";

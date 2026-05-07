@@ -40,8 +40,8 @@ type MutableLocationPayload = Partial<Location> & {
 };
 
 const stripLocationFormHelpers = (data: MutableLocationPayload): Partial<Location> => {
-    const { parentStateId: _parentStateId, ...rest } = data;
-    const normalized = { ...rest } as MutableLocationPayload;
+    const normalized = { ...data } as MutableLocationPayload;
+    delete normalized.parentStateId;
 
     if (normalized.parentId === "") {
         delete normalized.parentId;

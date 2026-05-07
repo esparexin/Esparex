@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { MachineConfig, MachineState, MachineEvent } from './machineTypes';
+import logger from '@/lib/logger';
 
 export function useStateMachine<S extends MachineState, E extends MachineEvent>(
     machine: MachineConfig<S, E>
@@ -14,7 +15,7 @@ export function useStateMachine<S extends MachineState, E extends MachineEvent>(
                     return nextState as S;
                 }
                 if (process.env.NODE_ENV === 'development') {
-                    console.warn(`[StateMachine] Invalid transition: ${currentState} -> ${String(event)}`);
+                    logger.warn(`[StateMachine] Invalid transition: ${currentState} -> ${String(event)}`);
                 }
                 return currentState;
             });

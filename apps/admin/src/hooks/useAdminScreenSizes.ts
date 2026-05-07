@@ -6,7 +6,6 @@ import {
     updateScreenSize,
     toggleScreenSizeStatus,
 } from "@/lib/api/screenSizes";
-import { useToast } from "@/context/ToastContext";
 import { useCallback } from "react";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import { ScreenSize } from "@/types/screenSize";
@@ -44,8 +43,6 @@ export function useAdminScreenSizes() {
         deleteSuccessMessage: "Screen size deleted successfully",
         deleteErrorMessage: "Failed to delete screen size",
     });
-
-    const { showToast } = useToast();
 
     const handleToggleStatus = useCallback(async (id: string) => {
         await runAction(() => toggleScreenSizeStatus(id), {

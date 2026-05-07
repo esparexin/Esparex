@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
 import {
   getPopupPriority,
@@ -13,88 +13,112 @@ interface UsePopupQueueOptions {
   onPopupRecorded?: (popup: QueuedPopup, delta: number) => void;
 }
 
+type QueueState = {
+  queue: QueuedPopup[];
+  activePopup: QueuedPopup | null;
+};
+
+type QueueAction =
+  | { type: "RECEIVE_POPUP"; popup: PopupState | null }
+  | { type: "HIDE_POPUP"; id?: string };
+
+const promoteNextPopup = (state: QueueState): QueueState => {
+  if (state.activePopup || state.queue.length === 0) return state;
+  const [nextPopup, ...rest] = state.queue;
+  return { activePopup: nextPopup ?? null, queue: rest };
+};
+
+const queueReducer = (state: QueueState, action: QueueAction): QueueState => {
+  if (action.type === "HIDE_POPUP") {
+    const shouldCloseActive =
+      Boolean(state.activePopup) && (!action.id || state.activePopup?.id === action.id);
+    return promoteNextPopup({
+      ...state,
+      activePopup: shouldCloseActive ? null : state.activePopup,
+    });
+  }
+
+  const nextPopup = action.popup;
+  if (!nextPopup) {
+    return promoteNextPopup({ ...state, activePopup: null });
+  }
+
+  if (!nextPopup.open) {
+    const shouldCloseActive =
+      Boolean(state.activePopup) && (!nextPopup.id || state.activePopup?.id === nextPopup.id);
+    const nextQueue = nextPopup.id
+      ? state.queue.filter((queuedPopup) => queuedPopup.id !== nextPopup.id)
+      : state.queue;
+
+    return promoteNextPopup({
+      activePopup: shouldCloseActive ? null : state.activePopup,
+      queue: nextQueue,
+    });
+  }
+
+  const incomingKey = popupKey(nextPopup);
+  const activeKey = state.activePopup ? popupKey(state.activePopup) : null;
+
+  if (incomingKey === activeKey) {
+    return {
+      ...state,
+      activePopup: state.activePopup
+        ? { ...state.activePopup, count: (state.activePopup.count ?? 1) + 1 }
+        : state.activePopup,
+    };
+  }
+
+  const existingIndex = state.queue.findIndex(
+    (queuedPopup) => popupKey(queuedPopup) === incomingKey
+  );
+
+  if (existingIndex >= 0) {
+    return {
+      ...state,
+      queue: state.queue.map((queuedPopup, index) =>
+        index === existingIndex
+          ? { ...queuedPopup, count: (queuedPopup.count ?? 1) + 1 }
+          : queuedPopup
+      ),
+    };
+  }
+
+  const incomingPopup: QueuedPopup = { ...nextPopup, count: 1 };
+  const incomingPriority = getPopupPriority(incomingPopup);
+  const insertIndex = state.queue.findIndex(
+    (queuedPopup) => getPopupPriority(queuedPopup) < incomingPriority
+  );
+  const nextQueue =
+    insertIndex === -1
+      ? [...state.queue, incomingPopup]
+      : [
+        ...state.queue.slice(0, insertIndex),
+        incomingPopup,
+        ...state.queue.slice(insertIndex),
+      ];
+
+  return promoteNextPopup({
+    ...state,
+    queue: nextQueue,
+  });
+};
+
 export function usePopupQueue({
   subscribe,
   hideExternal,
   onPopupRecorded,
 }: UsePopupQueueOptions) {
-  const [queue, setQueue] = useState<QueuedPopup[]>([]);
-  const [activePopup, setActivePopup] = useState<QueuedPopup | null>(null);
+  const [{ activePopup }, dispatch] = useReducer(queueReducer, {
+    queue: [],
+    activePopup: null,
+  });
   const recordedCountsRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     return subscribe((nextPopup) => {
-      if (!nextPopup) {
-        setActivePopup(null);
-        return;
-      }
-
-      if (!nextPopup.open) {
-        setActivePopup((current) => {
-          if (!current) return null;
-          if (nextPopup.id && current.id !== nextPopup.id) return current;
-          return null;
-        });
-        setQueue((currentQueue) =>
-          nextPopup.id
-            ? currentQueue.filter((queuedPopup) => queuedPopup.id !== nextPopup.id)
-            : currentQueue
-        );
-        return;
-      }
-
-      setQueue((currentQueue) => {
-        const incomingKey = popupKey(nextPopup);
-        const activeKey = activePopup ? popupKey(activePopup) : null;
-
-        if (incomingKey === activeKey) {
-          setActivePopup((current) =>
-            current ? { ...current, count: (current.count ?? 1) + 1 } : current
-          );
-          return currentQueue;
-        }
-
-        const existingIndex = currentQueue.findIndex(
-          (queuedPopup) => popupKey(queuedPopup) === incomingKey
-        );
-
-        if (existingIndex >= 0) {
-          return currentQueue.map((queuedPopup, index) =>
-            index === existingIndex
-              ? { ...queuedPopup, count: (queuedPopup.count ?? 1) + 1 }
-              : queuedPopup
-          );
-        }
-
-        const incomingPopup: QueuedPopup = {
-          ...nextPopup,
-          count: 1,
-        };
-        const incomingPriority = getPopupPriority(incomingPopup);
-        const insertIndex = currentQueue.findIndex(
-          (queuedPopup) => getPopupPriority(queuedPopup) < incomingPriority
-        );
-
-        if (insertIndex === -1) {
-          return [...currentQueue, incomingPopup];
-        }
-
-        return [
-          ...currentQueue.slice(0, insertIndex),
-          incomingPopup,
-          ...currentQueue.slice(insertIndex),
-        ];
-      });
+      dispatch({ type: "RECEIVE_POPUP", popup: nextPopup });
     });
-  }, [activePopup, subscribe]);
-
-  useEffect(() => {
-    if (activePopup || queue.length === 0) return;
-
-    const [nextPopup, ...rest] = queue;
-    setActivePopup(nextPopup ?? null);
-    setQueue(rest);
-  }, [activePopup, queue]);
+  }, [subscribe]);
 
   useEffect(() => {
     if (!activePopup?.id || !onPopupRecorded) return;
@@ -111,11 +135,7 @@ export function usePopupQueue({
 
   const hidePopup = useCallback(
     (id?: string) => {
-      setActivePopup((current) => {
-        if (!current) return null;
-        if (id && current.id !== id) return current;
-        return null;
-      });
+      dispatch({ type: "HIDE_POPUP", id });
       hideExternal(id);
       if (id) {
         delete recordedCountsRef.current[id];

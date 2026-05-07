@@ -1,4 +1,3 @@
-/* global google */
 "use client";
 
 import {
@@ -419,4 +418,3 @@ export function useLocationStatus(): LocationStatusContextType {
     if (!ctx) throw new Error("useLocationStatus must be used within LocationProvider");
     return ctx;
 }
-

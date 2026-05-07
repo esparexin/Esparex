@@ -41,6 +41,7 @@ export default function BrowseServicesVirtualizedList({
   const getScrollElement = useRef(() => parentRef.current).current;
   const estimateSize = useRef(() => (view === "list" ? LIST_ITEM_HEIGHT : GRID_ITEM_HEIGHT)).current;
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual manages virtualization internals that React Compiler cannot currently analyze.
   const rowVirtualizer = useVirtualizer({
     count: items.length,
     getScrollElement,

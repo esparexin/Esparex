@@ -23,7 +23,6 @@ type MutationOptions = {
 };
 
 interface UseAdminCatalogCollectionOptions<
-    _T extends { id: string },
     F extends AdminCollectionFilters,
     CreatePayload,
     UpdatePayload = CreatePayload,
@@ -125,7 +124,7 @@ export function useAdminCatalogCollection<
     _deleteConfirmMessage,
     deleteStrategy = "filter",
     initialPagination,
-}: UseAdminCatalogCollectionOptions<T, F, CreatePayload, UpdatePayload>) {
+}: UseAdminCatalogCollectionOptions<F, CreatePayload, UpdatePayload>) {
     const { showToast } = useToast();
 
     const fetchPage = useCallback(

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/components/ui/utils";
 import { Check, CircuitBoard } from "@/icons/IconRegistry";
@@ -43,9 +43,11 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         },
     });
 
-    const { register, watch, setValue, setError, clearErrors, formState: { errors } } = form;
-    const categoryId = watch("categoryId");
-    const sparePartTypeId = watch("sparePartTypeId");
+    const { register, setValue, setError, clearErrors, control, formState: { errors } } = form;
+    const [categoryId, sparePartTypeId, brandId, title, description] = useWatch({
+        control,
+        name: ["categoryId", "sparePartTypeId", "brandId", "title", "description"],
+    }) as [string, string, string, string, string];
 
     const {
         dynamicCategories,
@@ -157,7 +159,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                     <BrandSearchSelect
                         brands={availableBrands}
                         brandMap={brandMap}
-                        value={watch("brandId") || ""}
+                        value={brandId || ""}
                         onChange={(id) => setValue("brandId", id || "", { shouldValidate: true, shouldDirty: true })}
                         disabled={isEditMode}
                     />
@@ -220,7 +222,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                 error={errors.title?.message}
                 registerProps={register("title")}
                 placeholder="e.g. iPhone 14 OEM Display Screen"
-                valueLength={(watch("title") || "").length}
+                valueLength={(title || "").length}
                 maxLength={120}
             />
 
@@ -235,7 +237,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                 error={errors.description?.message}
                 registerProps={register("description")}
                 placeholder="Describe origin, quality, compatibility notes..."
-                valueLength={(watch("description") || "").length}
+                valueLength={(description || "").length}
             />
         </GenericPostForm>
     );

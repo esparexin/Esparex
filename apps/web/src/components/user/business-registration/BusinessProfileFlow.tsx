@@ -149,7 +149,7 @@ function getBusinessEditVariant(status: UserBusiness["status"] | undefined): Bus
 }
 
 function useBusinessProfileWizardController<TFormShape extends FieldValues>(
-    form: UseFormReturn<TFormShape, any, any>,
+    form: UseFormReturn<TFormShape>,
     options: { requireDocuments: boolean },
 ) {
     const [currentStep, setCurrentStep] = useState(0);

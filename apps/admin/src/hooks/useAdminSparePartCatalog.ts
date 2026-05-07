@@ -27,7 +27,6 @@ export function useAdminSpareParts(options: UseAdminSparePartsOptions = {}) {
         setFilters,
         setPage,
         refresh: fetchParts,
-        handleDelete: baseHandleDelete,
         handleCreate,
         handleUpdate,
         runAction,

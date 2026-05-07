@@ -120,9 +120,6 @@ export function ViewAdModal({
                                 <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4 xl:col-span-2">
                                     {(() => {
                                         const badgeClass = MODERATION_STATUS_BADGES[ad.status];
-                                        if (!badgeClass) {
-                                            console.warn(`[Moderation] Unknown listing status encountered: ${ad.status} for listing ${ad.id}`);
-                                        }
                                         return (
                                             <span
                                                 className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${badgeClass || "border-slate-200 bg-slate-100 text-slate-600"}`}

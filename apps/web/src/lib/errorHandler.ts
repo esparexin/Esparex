@@ -344,7 +344,6 @@ export const createAuthError = (reason: string): EsparexError | null => {
   // � ARCHITECTURAL STANDARDS RULE: 
   // Authentication state is NOT an error. Expected transitions (logged out / expired) return null.
   if (reason === 'sessionExpired' || reason === 'notLoggedIn') {
-    console.info(`[Auth] Silent state transition: ${reason}`);
     return null; // Silent state transition
   }
 

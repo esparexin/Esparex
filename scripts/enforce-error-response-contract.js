@@ -10,7 +10,6 @@ const appFiles = [
 
 const importToken = "import { enforceErrorResponseContract } from './middleware/errorResponseContract';";
 const middlewareToken = 'app.use(enforceErrorResponseContract);';
-const firstApiMountToken = "app.use("; // More generic to match different route prefixes
 
 appFiles.forEach(appFile => {
   if (!fs.existsSync(appFile)) {

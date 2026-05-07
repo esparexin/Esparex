@@ -1,7 +1,6 @@
 import { createModel, deleteModel, getModels, updateModel, toggleModelStatus } from "@/lib/api/models";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import type { Model } from "@shared/types";
-import { useToast } from "@/context/ToastContext";
 import { useCallback } from "react";
 import { CreateModelDTO, UpdateModelDTO } from "@shared";
 
@@ -45,8 +44,6 @@ export function useAdminModels() {
         deleteSuccessMessage: "Model deleted successfully",
         deleteErrorMessage: "Failed to delete model",
     });
-
-    const { showToast } = useToast();
 
     const handleToggleStatus = useCallback(async (id: string) => {
         await runAction(() => toggleModelStatus(id), {

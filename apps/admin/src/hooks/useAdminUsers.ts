@@ -21,9 +21,8 @@ export function useAdminUsers() {
             const response = await adminFetch<Record<string, unknown>>(ADMIN_ROUTES.ADMIN_USERS);
             const parsed = parseAdminResponse<Record<string, unknown>>(response);
             setAdmins(parsed.items.map(normalizeAdmin));
-        } catch (err) {
+        } catch {
             setError("Failed to load admin users");
-            console.error(err);
         } finally {
             setLoading(false);
         }

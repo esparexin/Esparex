@@ -156,7 +156,10 @@ export function BrowseAds({
   const pageAds = useMemo(() => data?.data ?? [], [data]);
   useEffect(() => {
     if (page !== 1) return;
-    setAvailableBrands(buildBrowseBrandOptions(pageAds));
+    const timer = setTimeout(() => {
+      setAvailableBrands(buildBrowseBrandOptions(pageAds));
+    }, 0);
+    return () => clearTimeout(timer);
   }, [page, pageAds]);
 
   // displayAds is derived from the query result — no need for separate state.

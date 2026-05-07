@@ -290,7 +290,7 @@ async function runScenarioD() {
 
     try {
         await ViewBufferingService.flush(adId.toString());
-    } catch (_err) {
+    } catch {
         // Expected failure
     }
 

@@ -23,7 +23,7 @@ HOTSPOTS.forEach(file => {
     try {
         // We use the --fix flag which is the only enterprise-safe way to heal
         execSync(`npx eslint "${file}" --fix`, { stdio: 'inherit' });
-    } catch (e) {
+    } catch {
         // ESLint exits with 1 if problems remain, that's expected
     }
 });

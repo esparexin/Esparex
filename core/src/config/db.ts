@@ -25,7 +25,7 @@ type EmitReliabilityAlert = typeof import('../utils/reliabilityAlerts').emitReli
 let _emitReliabilityAlert: EmitReliabilityAlert | null = null;
 function getEmitReliabilityAlert(): EmitReliabilityAlert {
     if (!_emitReliabilityAlert) {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+         
         _emitReliabilityAlert = require('../utils/reliabilityAlerts').emitReliabilityAlert as EmitReliabilityAlert;
     }
     return _emitReliabilityAlert;
@@ -35,7 +35,7 @@ type RecordDbResponseSample = typeof import('../utils/sloMonitor').recordDbRespo
 let _recordDbResponseSample: RecordDbResponseSample | null = null;
 function getRecordDbResponseSample(): RecordDbResponseSample {
     if (!_recordDbResponseSample) {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+         
         _recordDbResponseSample = require('../utils/sloMonitor').recordDbResponseSample as RecordDbResponseSample;
     }
     return _recordDbResponseSample;

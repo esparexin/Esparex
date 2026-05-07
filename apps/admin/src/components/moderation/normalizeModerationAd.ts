@@ -82,9 +82,6 @@ const normalizeStatus = (value: unknown): ModerationStatus => {
 
 export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationItem => {
     const seller = normalizeSeller(raw.seller || raw.sellerId);
-    if (!seller.sellerId && !seller.sellerName) {
-        console.warn(`[Moderation] Missing seller reference for listing ${raw._id || raw.id}`);
-    }
     const category = raw.category && typeof raw.category === "object" ? (raw.category as Record<string, unknown>) : null;
     const brand = raw.brand && typeof raw.brand === "object" ? (raw.brand as Record<string, unknown>) : null;
     const model = raw.model && typeof raw.model === "object" ? (raw.model as Record<string, unknown>) : null;

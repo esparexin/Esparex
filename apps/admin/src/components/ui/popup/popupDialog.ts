@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, Info, TriangleAlert } from "lucide-react";
 
 import type { PopupAction, PopupState } from "@shared";
@@ -64,11 +64,11 @@ export function usePopupDialogState(
   const [countdown, setCountdown] = useState<number | null>(null);
   useEffect(() => {
     if (!active?.retryAfter) {
-      setCountdown(null);
-      return;
+      const clearTimer = setTimeout(() => setCountdown(null), 0);
+      return () => clearTimeout(clearTimer);
     }
 
-    setCountdown(active.retryAfter);
+    const initTimer = setTimeout(() => setCountdown(active.retryAfter ?? null), 0);
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
@@ -79,26 +79,20 @@ export function usePopupDialogState(
       });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initTimer);
+      clearInterval(interval);
+    };
   }, [active?.id, active?.retryAfter]);
 
-  const actions = useMemo<PopupAction[]>(
-    () => {
-      if (active?.actions && active.actions.length > 0) {
-        return active.actions;
-      }
-
-      if (active?.type === "confirm") {
-        return [
-          { label: "Confirm" },
-          { label: "Cancel", action: onClose },
-        ];
-      }
-
-      return [];
-    },
-    [active?.actions, active?.type, onClose]
-  );
+  const actions: PopupAction[] = active?.actions && active.actions.length > 0
+    ? active.actions
+    : active?.type === "confirm"
+      ? [
+        { label: "Confirm" },
+        { label: "Cancel", action: onClose },
+      ]
+      : [];
 
   return {
     active,

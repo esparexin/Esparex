@@ -62,7 +62,8 @@ const normalizeSmartAlertBody = (
     options: { applyFrequencyDefault: boolean }
 ) => {
     const normalizedName = data.name ?? data.alertName;
-    const { alertName: _alertName, ...rest } = data;
+    const rest = { ...data };
+    delete rest.alertName;
     return {
         ...rest,
         name: normalizedName,

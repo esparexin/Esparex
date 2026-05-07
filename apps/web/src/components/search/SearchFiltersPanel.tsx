@@ -49,7 +49,7 @@ export interface SearchFiltersPanelSharedProps {
   onReset: () => void;
 }
 
-interface SearchFiltersPanelProps extends SearchFiltersPanelSharedProps {}
+type SearchFiltersPanelProps = SearchFiltersPanelSharedProps;
 
 function FilterCheckboxList({
   options,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, CreditCard, Zap, BellRing, Package } from "lucide-react";
 import { createPlan, updatePlan } from "@/lib/api/plans";
@@ -9,7 +9,6 @@ import type { Plan } from "@esparex/shared";
 import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
 type PlanType = "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";
-type MatchFrequency = "realtime" | "hourly" | "daily";
 
 const DEFAULT_FORM: PlanFormValues = {
     code: "",
@@ -139,7 +138,6 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
     const {
         register,
         handleSubmit,
-        watch,
         setValue,
         reset,
         control,
@@ -149,9 +147,9 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
         defaultValues: DEFAULT_FORM,
     });
 
-    const formType = watch("type");
-    const isDefault = watch("isDefault");
-    const notificationChannels = watch("notificationChannels");
+    const formType = useWatch({ control, name: "type" }) as PlanFormValues["type"];
+    const isDefault = useWatch({ control, name: "isDefault" }) as PlanFormValues["isDefault"];
+    const notificationChannels = (useWatch({ control, name: "notificationChannels" }) as PlanFormValues["notificationChannels"] | undefined) || [];
 
     useEffect(() => {
         if (open) {
