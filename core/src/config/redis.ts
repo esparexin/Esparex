@@ -1,6 +1,10 @@
 import Redis from 'ioredis';
 import logger from '../utils/logger';
 import { env } from './env';
+import {
+    getRedisConnectionOptions,
+    getRedisRuntimeConfig,
+} from './redisRuntime';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedis =
@@ -12,7 +16,8 @@ const redisConnectionOptions = getRedisConnectionOptions();
 const redisHost = redisRuntime.host;
 const redisPort = redisRuntime.port;
 const redisDb = redisRuntime.db;
-const redisUsername = redisRuntime.username;
+const redisPassword = redisRuntime.password;
+const redisUrl = redisRuntime.redisUrl;
 
 const REDIS_CONNECT_TIMEOUT_MS = 10_000;
 const REDIS_COMMAND_TIMEOUT_MS = 8_000;
@@ -88,7 +93,8 @@ const redis: Redis = shouldDisableRedis
         status: 'end',
         on: () => undefined,
     } as unknown as Redis)
-    : new Redis(redisUrl, {
+    : new Redis({
+        ...redisConnectionOptions,
         maxRetriesPerRequest: null,
         enableOfflineQueue: false,
         enableReadyCheck: true,
