@@ -70,7 +70,7 @@ jest.mock("@esparex/core/utils/adminLogger", () => ({
 }));
 
 jest.mock(
-    "@esparex/shared/enums/userStatus",
+    "@esparex/core/constants/enums/userStatus",
     () => ({
         __esModule: true,
 
@@ -99,7 +99,7 @@ import Admin from "@esparex/core/models/Admin";
 
 import {
     USER_STATUS,
-} from "@esparex/shared/enums/userStatus";
+} from "@esparex/core/constants/enums/userStatus";
 
 import {
     revokeAdminSessionsForAdmin,

@@ -17,7 +17,6 @@ process.env.JWT_SECRET ??= 'test_secret_key_at_least_32_characters_long';
 process.env.HMAC_SECRET ??= 'test_hmac_secret_at_least_32_characters_long';
 
 const SUPPRESSED_WARNING_PATTERNS = [
-    '--localstorage-file',
     '[DEP0169]',
     '[DEP0040]',
     '`url.parse()` behavior is not standardized',

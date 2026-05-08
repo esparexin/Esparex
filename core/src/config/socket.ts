@@ -18,6 +18,7 @@ import { verifyToken } from '../utils/auth';
 import redisClient from '../utils/redisCache';
 import { getAllowedOriginList } from '../utils/originConfig';
 import { env } from './env';
+import { getRedisConnectionOptions } from './redisRuntime';
 
 let io: Server | null = null;
 
@@ -52,9 +53,9 @@ export function initIO(httpServer: HttpServer): Server {
     try {
         // socket.io redis adapter needs a *second* dedicated client for subscribe.
         const pubClient = redisClient;
-         
-        const subClient = new Redis(env.REDIS_URL ?? `redis://localhost:${env.REDIS_PORT}`, {
-            tls: undefined, // 🔒 FORCE DISABLE TLS
+
+        const subClient = new Redis({
+            ...getRedisConnectionOptions(),
         });
         io.adapter(createAdapter(pubClient, subClient));
         logger.info('[Socket] Redis adapter attached');
