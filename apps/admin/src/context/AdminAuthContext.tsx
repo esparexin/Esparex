@@ -46,17 +46,9 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     const requestId = ++authRequestSeq.current;
     try {
       // 1. Force CSRF token pre-fetch first so cookies are initialized & matching on subsequent state-changing requests
-<<<<<<< HEAD
-      try {
-        await fetchCsrfToken();
-      } catch {
-        // intentionally ignored to allow graceful auth bootstrap fallback
-      }
-=======
       await fetchCsrfToken().catch((err) => {
         console.error("[AdminAuth] CSRF bootstrap token failed:", err);
       });
->>>>>>> 88c4c48a (fix(auth): stabilize admin session and csrf lifecycle (#52))
 
       // 2. Safely call the authenticated /me endpoint
       const result = await adminFetch<unknown>(ADMIN_ROUTES.ME);

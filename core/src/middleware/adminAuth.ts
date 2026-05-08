@@ -37,13 +37,15 @@ export const extractAdminToken = (req: Request): { token: string; source: 'cooki
     return null;
 };
 
-return (
-    cleanPath === '/manifest.json' ||
-    cleanPath === '/sw.js' ||
-    cleanPath === '/favicon.ico' ||
-    cleanPath === '/robots.txt' ||
-    cleanPath.startsWith('/icons/')
-);
+const isStaticAsset = (path: string): boolean => {
+    const cleanPath = path.split('?')[0];
+    return (
+        cleanPath === '/manifest.json' ||
+        cleanPath === '/sw.js' ||
+        cleanPath === '/favicon.ico' ||
+        cleanPath === '/robots.txt' ||
+        cleanPath.startsWith('/icons/')
+    );
 };
 
 export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
@@ -113,7 +115,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         res.cookie('admin_token', token, getAdminCookieOptions(await getAdminSessionTtlMs()));
 
         next();
-    } catch (err) {
+    } catch {
         if (shouldClearCookie) {
             res.clearCookie('admin_token', getAdminCookieOptions(0));
         }
