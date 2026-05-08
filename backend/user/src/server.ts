@@ -6,16 +6,16 @@ import { startTaxonomyHealthCron } from './cron/taxonomyHealth';
 import { startGeoAuditCron } from './cron/geoAudit';
 import { startFraudEscalationCron } from './cron/fraudEscalation';
 import { initIO } from '@esparex/core/config/socket';
-import app from './app';
 import { connectDB } from '@esparex/core/config/db';
 import mongoose from 'mongoose';
 import { Server } from 'http';
 import logger from '@esparex/core/utils/logger';
 import { env } from '@esparex/core/config/env';
+import { waitForRedisReady } from '@esparex/core/config/redis';
 import { assertDuplicateRolloutReadiness } from '@esparex/core/services/DuplicateRolloutGuard';
-import { startScheduler } from '@esparex/core/services/SchedulerBoot';
+import { startScheduler, stopScheduler } from '@esparex/core/services/SchedulerBoot';
 import Admin from '@esparex/core/models/Admin';
-import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
+import { USER_STATUS } from '@shared/enums/userStatus';
 import { createServer } from 'http';
 import { initializeEventDispatcher } from '@esparex/core/events';
 import { assertCriticalStartupReadiness, validateMetadataHealth } from '@esparex/core/utils/startupValidator';
@@ -65,6 +65,10 @@ export async function startServer() {
 
         await connectDB();
         logger.info('MongoDB connected successfully');
+        await waitForRedisReady({
+            context: `${env.PROCESS_ROLE}:server-startup`,
+        });
+        logger.info('Redis readiness gate passed for API bootstrap');
 
         // Proactive Cache Warming
         await warmAllCaches();
@@ -113,6 +117,8 @@ export async function startServer() {
             logger.info('Background cron execution disabled (RUN_SCHEDULERS=false)');
         }
 
+        const { default: app } = await import('./app');
+
         // 3️⃣ CREATE HTTP SERVER
         const server = createServer(app);
 
@@ -151,7 +157,7 @@ export async function startServer() {
             });
         });
 
-        setupGracefulShutdown(server);
+        setupGracefulShutdown(server, shouldRunSchedulers);
 
     } catch (err) {
         const error = err as NodeJS.ErrnoException;
@@ -208,11 +214,18 @@ function startReliabilityProbeLoop() {
 /**
  * 🛡️ GRACEFUL SHUTDOWN HANDLER
  */
-function setupGracefulShutdown(server: Server) {
+function setupGracefulShutdown(server: Server, shouldStopScheduler: boolean) {
     const handleShutdown = async () => {
         if (reliabilityProbeInterval) {
             clearInterval(reliabilityProbeInterval);
             reliabilityProbeInterval = null;
+        }
+        if (shouldStopScheduler) {
+            await stopScheduler().catch((error: unknown) => {
+                logger.error('Failed to stop scheduler during shutdown', {
+                    error: error instanceof Error ? error.message : String(error),
+                });
+            });
         }
         await gracefulShutdown({
             server,

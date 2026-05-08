@@ -17,6 +17,11 @@ type RedisCallable = {
     call: (...args: string[]) => Promise<RedisReply>;
 };
 
+type RedisStoreWithPendingScripts = RedisStore & {
+    incrementScriptSha?: Promise<string>;
+    getScriptSha?: Promise<string>;
+};
+
 type RateLimitRequest = Request & {
     rateLimit?: {
         resetTime?: Date;
@@ -60,6 +65,76 @@ const resolveRetryAfterSeconds = (req: Request, fallbackSeconds: number): number
 
 const MAX_SPIKE_CACHE_SIZE = 2000;
 const spikeCache = new Map<string, { count: number, resetAt: number }>();
+const REDIS_READY_WAIT_MS = env.RELIABILITY_STARTUP_READINESS_TIMEOUT_MS ?? 12_000;
+let redisReadyWaitInFlight: Promise<boolean> | null = null;
+
+const isRedisNotReadyError = (error: unknown): boolean => {
+    if (!(error instanceof Error)) return false;
+    const normalized = error.message.toLowerCase();
+    return normalized.includes("stream isn't writeable")
+        || normalized.includes('enableofflinequeue');
+};
+
+const waitForRedisReady = async (timeoutMs: number): Promise<boolean> => {
+    const redisStatus = (redisClient as unknown as { status?: string }).status;
+    if (redisStatus === 'ready') {
+        return true;
+    }
+
+    if (redisReadyWaitInFlight) {
+        return redisReadyWaitInFlight;
+    }
+
+    redisReadyWaitInFlight = new Promise<boolean>((resolve) => {
+        const timer = setTimeout(() => {
+            cleanup(false);
+        }, timeoutMs);
+        timer.unref?.();
+
+        const onReady = () => cleanup(true);
+        const onError = () => undefined;
+        const onEnd = () => cleanup(false);
+        let settled = false;
+
+        function cleanup(result: boolean) {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            redisClient.off('ready', onReady);
+            redisClient.off('error', onError);
+            redisClient.off('end', onEnd);
+            redisReadyWaitInFlight = null;
+            resolve(result);
+        }
+
+        redisClient.on('ready', onReady);
+        redisClient.on('error', onError);
+        redisClient.on('end', onEnd);
+
+        if ((redisClient as unknown as { status?: string }).status === 'ready') {
+            cleanup(true);
+        }
+    });
+
+    return redisReadyWaitInFlight;
+};
+
+const sendRedisCommandWithReadyRetry = async (...args: string[]): Promise<RedisReply> => {
+    try {
+        return await (redisClient as unknown as RedisCallable).call(...args);
+    } catch (error) {
+        if (!isRedisNotReadyError(error)) {
+            throw error;
+        }
+
+        const recovered = await waitForRedisReady(REDIS_READY_WAIT_MS);
+        if (!recovered) {
+            throw error;
+        }
+
+        return (redisClient as unknown as RedisCallable).call(...args);
+    }
+};
 
 const respondRateLimited = (
     req: Request,
@@ -134,13 +209,32 @@ const createRedisStore = (prefix: string, windowMs: number) => {
     if (env.NODE_ENV === 'production' && shouldDisableRedisStore) {
         throw new Error('FATAL: Redis store is required in production. In-memory fallback is strictly banned by SSOT.');
     }
-    return shouldDisableRedisStore
-        ? createEphemeralTestStore(prefix, windowMs)
-        : new RedisStore({
-            sendCommand: (...args: string[]) =>
-                (redisClient as unknown as RedisCallable).call(...args),
+
+    if (shouldDisableRedisStore) {
+        return createEphemeralTestStore(prefix, windowMs);
+    }
+
+    const redisStore = new RedisStore({
+        sendCommand: (...args: string[]) => sendRedisCommandWithReadyRetry(...args),
+        prefix: `rl:${prefix}`,
+    }) as RedisStoreWithPendingScripts;
+
+    // Prevent startup-time unhandled promise rejections when Redis scripts load
+    // before the underlying socket transitions to ready.
+    void redisStore.incrementScriptSha?.catch((error: unknown) => {
+        logger.warn('[RATE_LIMITER] Initial Redis increment script load deferred', {
+            error: error instanceof Error ? error.message : String(error),
             prefix: `rl:${prefix}`,
         });
+    });
+    void redisStore.getScriptSha?.catch((error: unknown) => {
+        logger.warn('[RATE_LIMITER] Initial Redis get script load deferred', {
+            error: error instanceof Error ? error.message : String(error),
+            prefix: `rl:${prefix}`,
+        });
+    });
+
+    return redisStore;
 };
 
 const createEphemeralTestStore = (prefix: string, windowMs: number): Store => {

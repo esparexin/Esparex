@@ -19,6 +19,7 @@ const REDIS_COMMAND_TIMEOUT_MS = 8_000;
 const REDIS_MAX_RETRY_DELAY_MS = 30_000;
 const REDIS_INITIAL_RETRY_DELAY_MS = 250;
 const REDIS_RETRY_LOG_INTERVAL = 5;
+const REDIS_READY_TIMEOUT_MS = env.RELIABILITY_STARTUP_READINESS_TIMEOUT_MS ?? 12_000;
 
 const getRetryDelay = (attempt: number): number =>
     Math.min(
@@ -151,6 +152,84 @@ if (!shouldDisableRedis) {
         logger.info('Redis client ready');
     });
 }
+
+const getRedisStatus = (): string => (redis as unknown as { status?: string }).status ?? 'unknown';
+
+export const waitForRedisReady = async (
+    options: {
+        timeoutMs?: number;
+        context?: string;
+    } = {}
+): Promise<void> => {
+    if (shouldDisableRedis) {
+        return;
+    }
+
+    const timeoutMs = options.timeoutMs ?? REDIS_READY_TIMEOUT_MS;
+    const context = options.context ?? 'runtime-startup';
+    const initialStatus = getRedisStatus();
+    if (initialStatus === 'ready') {
+        return;
+    }
+
+    logger.info('[REDIS_BOOT] Waiting for ready state before Redis-backed startup', {
+        context,
+        status: initialStatus,
+        timeoutMs,
+    });
+
+    let lastErrorMessage: string | null = null;
+    await new Promise<void>((resolve, reject) => {
+        let settled = false;
+        const timer = setTimeout(() => {
+            cleanup();
+            const status = getRedisStatus();
+            const reason = lastErrorMessage ? `; lastError=${lastErrorMessage}` : '';
+            reject(new Error(`Redis not ready within ${timeoutMs}ms (status=${status}, context=${context})${reason}`));
+        }, timeoutMs);
+        timer.unref?.();
+
+        const onReady = () => {
+            cleanup();
+            resolve();
+        };
+
+        const onError = (err: unknown) => {
+            if (err instanceof Error) {
+                lastErrorMessage = err.message;
+            } else {
+                lastErrorMessage = String(err);
+            }
+        };
+
+        const onEnd = () => {
+            cleanup();
+            const reason = lastErrorMessage ? `; lastError=${lastErrorMessage}` : '';
+            reject(new Error(`Redis connection ended before ready state (context=${context})${reason}`));
+        };
+
+        const cleanup = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            redis.off('ready', onReady);
+            redis.off('error', onError);
+            redis.off('end', onEnd);
+        };
+
+        redis.on('ready', onReady);
+        redis.on('error', onError);
+        redis.on('end', onEnd);
+
+        if (getRedisStatus() === 'ready') {
+            onReady();
+        }
+    });
+
+    logger.info('[REDIS_BOOT] Ready state confirmed for Redis-backed startup', {
+        context,
+    });
+};
 
 export { shouldDisableRedis };
 export default redis;

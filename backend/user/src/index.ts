@@ -1,13 +1,18 @@
 import "@esparex/core/config/loadEnv";
 import logger from "@esparex/core/utils/logger";
+import { waitForRedisReady } from '@esparex/core/config/redis';
 
 const role = process.env.PROCESS_ROLE || 'api';
 
 if (role === 'worker') {
     logger.info("Initializing BullMQ Worker Process...");
-    import("@esparex/core/workers").then(({ startWorkers }) => {
+    void (async () => {
+        await waitForRedisReady({
+            context: 'worker-bootstrap',
+        });
+        const { startWorkers } = await import("@esparex/core/workers");
         startWorkers();
-    }).catch(err => {
+    })().catch(err => {
         logger.error("Failed to start workers", { error: err instanceof Error ? err.message : String(err) });
         process.exit(1);
     });
