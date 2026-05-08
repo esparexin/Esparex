@@ -118,7 +118,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         res.cookie('admin_token', token, getAdminCookieOptions(await getAdminSessionTtlMs()));
 
         next();
-    } catch {
+    } catch (err) {
         if (shouldClearCookie) {
             res.clearCookie('admin_token', getAdminCookieOptions(0));
         }
