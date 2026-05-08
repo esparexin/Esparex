@@ -1,7 +1,8 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { CheckCircle, Edit, Filter, Loader2, Search, Trash2, XCircle } from "lucide-react";
+import { Box, Briefcase, CheckCircle, Edit, Filter, Loader2, Search, Smartphone, Trash2, Wrench as WrenchIcon, XCircle } from "lucide-react";
+import { CHAT_STATUS, LIFECYCLE_STATUS, LISTING_TYPE } from "@esparex/shared";
 
 export type SelectOption = {
     value: string;
@@ -113,8 +114,8 @@ export function CatalogActiveStatusFilter({
             onChange={onChange}
             options={[
                 { value: "all", label: "All Status" },
-                { value: "active", label: "Active Only" },
-                { value: "inactive", label: "Inactive Only" },
+                { value: CHAT_STATUS.ACTIVE, label: "Active Only" },
+                { value: LIFECYCLE_STATUS.INACTIVE, label: "Inactive Only" },
             ]}
         />
     );
@@ -414,9 +415,6 @@ export function CatalogArchivedCategoryNotice({
         </div>
     );
 }
-
-import { Box, Briefcase, Smartphone, Wrench as WrenchIcon } from "lucide-react";
-import { LISTING_TYPE } from "@esparex/shared";
 
 /**
  * Standardized icon getter for listing types.

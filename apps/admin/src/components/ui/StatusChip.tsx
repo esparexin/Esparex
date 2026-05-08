@@ -7,21 +7,23 @@
  * DO NOT inline status chip UI in individual screens — use this component.
  */
 
+import { API_KEY_STATUS, CHAT_STATUS, LIFECYCLE_STATUS, REPORT_STATUS } from "@shared";
+
 export type StatusValue =
-    | "pending"
-    | "live"
-    | "rejected"
-    | "blocked"
-    | "expired"
-    | "deactivated"
-    | "sold"
-    | "open"
-    | "resolved"
-    | "closed"
+    | typeof LIFECYCLE_STATUS.PENDING
+    | typeof LIFECYCLE_STATUS.LIVE
+    | typeof LIFECYCLE_STATUS.REJECTED
+    | typeof CHAT_STATUS.BLOCKED
+    | typeof LIFECYCLE_STATUS.EXPIRED
+    | typeof LIFECYCLE_STATUS.DEACTIVATED
+    | typeof LIFECYCLE_STATUS.SOLD
+    | typeof REPORT_STATUS.OPEN
+    | typeof REPORT_STATUS.RESOLVED
+    | typeof CHAT_STATUS.CLOSED
     | "new"
     | "refurbished"
     | "used"
-    | "revoked"
+    | typeof API_KEY_STATUS.REVOKED
     | string;
 
 type ChipStyle = {

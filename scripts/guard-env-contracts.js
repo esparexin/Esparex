@@ -12,6 +12,7 @@ const lineHasVarAssignment = (content, variableName) => {
   const pattern = new RegExp(`^\\s*${variableName}\\s*=`, 'm');
   return pattern.test(content);
 };
+const fileContainsPattern = (content, pattern) => pattern.test(content);
 
 const collectVarAssignments = (content, variableName) => {
   const pattern = new RegExp(`^\\s*${variableName}\\s*=\\s*(.*)$`, 'gm');
@@ -70,6 +71,33 @@ const mobileEnvFiles = [
   'apps/mobile/.env.production',
 ];
 
+const apiUrlContractMarkers = [
+  {
+    filePath: '.github/workflows/ci.yml',
+    pattern: /NEXT_PUBLIC_API_URL\s*:\s*.+/,
+    message:
+      '.github/workflows/ci.yml: missing NEXT_PUBLIC_API_URL in CI environment contract',
+  },
+  {
+    filePath: 'apps/web/.env.local.example',
+    pattern: /^\s*NEXT_PUBLIC_API_URL\s*=/m,
+    message:
+      'apps/web/.env.local.example: missing NEXT_PUBLIC_API_URL',
+  },
+  {
+    filePath: 'apps/web/.env.production.example',
+    pattern: /^\s*NEXT_PUBLIC_API_URL\s*=/m,
+    message:
+      'apps/web/.env.production.example: missing NEXT_PUBLIC_API_URL',
+  },
+  {
+    filePath: 'render.yaml',
+    pattern: /NEXT_PUBLIC_API_URL/,
+    message:
+      'render.yaml: missing NEXT_PUBLIC_API_URL reference for parity contract documentation',
+  },
+];
+
 for (const filePath of filesToScanForDisallowed) {
   if (!fileExists(filePath)) continue;
   const content = readFile(filePath);
@@ -107,6 +135,29 @@ for (const filePath of mobileEnvFiles) {
   }
   if (lineHasVarAssignment(content, 'NEXT_PUBLIC_ADMIN_API_URL')) {
     errors.push(`${filePath}: NEXT_PUBLIC_ADMIN_API_URL must not be defined in mobile env files`);
+  }
+}
+
+for (const contract of apiUrlContractMarkers) {
+  if (!fileExists(contract.filePath)) continue;
+  const content = readFile(contract.filePath);
+  if (!fileContainsPattern(content, contract.pattern)) {
+    errors.push(contract.message);
+  }
+}
+
+const webVercelConfigPath = 'apps/web/vercel.json';
+if (fileExists(webVercelConfigPath)) {
+  try {
+    const parsed = JSON.parse(readFile(webVercelConfigPath));
+    const apiUrl = parsed?.env?.NEXT_PUBLIC_API_URL;
+    if (typeof apiUrl !== 'string' || apiUrl.trim().length === 0) {
+      errors.push(
+        `${webVercelConfigPath}: missing env.NEXT_PUBLIC_API_URL in Vercel build contract`
+      );
+    }
+  } catch {
+    errors.push(`${webVercelConfigPath}: invalid JSON`);
   }
 }
 

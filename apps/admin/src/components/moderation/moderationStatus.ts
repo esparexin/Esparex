@@ -1,3 +1,4 @@
+import { LIFECYCLE_STATUS } from "@shared";
 import type { ModerationStatus } from "./moderationTypes";
 
 export const MODERATION_STATUS_LABELS: Record<ModerationStatus, string> = {
@@ -19,10 +20,10 @@ export const MODERATION_STATUS_BADGES: Record<ModerationStatus, string> = {
 };
 
 export const MODERATION_STATUSES: ModerationStatus[] = [
-    "pending",
-    "live",
-    "rejected",
-    "deactivated",
-    "sold",
-    "expired"
+    LIFECYCLE_STATUS.PENDING,
+    LIFECYCLE_STATUS.LIVE,
+    LIFECYCLE_STATUS.REJECTED,
+    LIFECYCLE_STATUS.DEACTIVATED,
+    LIFECYCLE_STATUS.SOLD,
+    LIFECYCLE_STATUS.EXPIRED
 ];

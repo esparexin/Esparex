@@ -1,6 +1,6 @@
 "use client";
 
-import { Business } from "@esparex/shared";
+import { BUSINESS_STATUS, type Business } from "@esparex/shared";
 import {
     X,
     Building2,
@@ -325,7 +325,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         >
                             Close
                         </button>
-                        {business.status === "live" && onSuspend && (
+                        {business.status === BUSINESS_STATUS.LIVE && onSuspend && (
                             <button
                                 onClick={() => onSuspend(business.id)}
                                 className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-orange-50 text-orange-600 font-semibold border border-orange-100 hover:bg-orange-100 transition-colors text-sm"
@@ -333,7 +333,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                 <Ban size={15} /> Suspend
                             </button>
                         )}
-                        {business.status === "suspended" && onActivate && (
+                        {business.status === BUSINESS_STATUS.SUSPENDED && onActivate && (
                             <button
                                 onClick={() => onActivate(business.id)}
                                 className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200 hover:bg-emerald-100 transition-colors text-sm"
@@ -341,7 +341,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                 <RotateCcw size={15} /> Reactivate
                             </button>
                         )}
-                        {business.status === "pending" && (
+                        {business.status === BUSINESS_STATUS.PENDING && (
                             <>
                                 <button
                                     onClick={() => onReject(business.id)}

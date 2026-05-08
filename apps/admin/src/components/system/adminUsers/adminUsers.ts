@@ -1,5 +1,13 @@
+import { CHAT_STATUS, LIFECYCLE_STATUS, USER_STATUS } from "@shared";
+
 export type AdminRole = "super_admin" | "admin" | "moderator";
-export type AdminStatus = "live" | "inactive" | "suspended" | "banned";
+export const ADMIN_STATUS_OPTIONS = [
+    USER_STATUS.LIVE,
+    USER_STATUS.INACTIVE,
+    USER_STATUS.SUSPENDED,
+    USER_STATUS.BANNED,
+] as const;
+export type AdminStatus = (typeof ADMIN_STATUS_OPTIONS)[number];
 
 export type ManagedAdmin = {
     id: string;
@@ -47,7 +55,7 @@ export const DEFAULT_EDIT_FORM: AdminEditFormState = {
     lastName: "",
     email: "",
     role: "moderator",
-    status: "live",
+    status: USER_STATUS.LIVE,
     permissionsText: "",
 };
 
@@ -70,7 +78,7 @@ export function normalizeAdmin(raw: Record<string, unknown>): ManagedAdmin {
         lastName: String(raw.lastName || ""),
         email: String(raw.email || ""),
         role: String(raw.role || "admin"),
-        status: String(raw.status || "active"),
+        status: String(raw.status || CHAT_STATUS.ACTIVE),
         permissions: Array.isArray(raw.permissions)
             ? raw.permissions.filter((item): item is string => typeof item === "string")
             : [],
@@ -81,15 +89,15 @@ export function normalizeAdmin(raw: Record<string, unknown>): ManagedAdmin {
 
 export function getAdminStatusPresentation(status: string) {
     switch (status) {
-        case "inactive":
-            return { status: "deactivated", label: "Inactive" };
-        case "suspended":
-            return { status: "pending", label: "Suspended" };
-        case "banned":
-            return { status: "blocked", label: "Banned" };
-        case "live":
+        case USER_STATUS.INACTIVE:
+            return { status: LIFECYCLE_STATUS.DEACTIVATED, label: "Inactive" };
+        case USER_STATUS.SUSPENDED:
+            return { status: LIFECYCLE_STATUS.PENDING, label: "Suspended" };
+        case USER_STATUS.BANNED:
+            return { status: CHAT_STATUS.BLOCKED, label: "Banned" };
+        case USER_STATUS.LIVE:
         default:
-            return { status: "live", label: "Live" };
+            return { status: LIFECYCLE_STATUS.LIVE, label: "Live" };
     }
 }
 
@@ -105,12 +113,13 @@ export function parsePermissionsText(permissionsText: string) {
 }
 
 export function toEditableAdminFormState(admin: ManagedAdmin): AdminEditFormState {
+    const normalizedStatus = admin.status as AdminStatus;
     return {
         firstName: admin.firstName,
         lastName: admin.lastName,
         email: admin.email,
         role: (["super_admin", "admin", "moderator"].includes(admin.role) ? admin.role : "moderator") as AdminRole,
-        status: (["live", "inactive", "suspended", "banned"].includes(admin.status) ? admin.status : "live") as AdminStatus,
+        status: ADMIN_STATUS_OPTIONS.includes(normalizedStatus) ? normalizedStatus : USER_STATUS.LIVE,
         permissionsText: admin.permissions.join(", "),
     };
 }

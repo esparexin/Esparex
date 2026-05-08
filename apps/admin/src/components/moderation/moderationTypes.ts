@@ -1,10 +1,15 @@
-export type ModerationStatus =
-    | "pending"
-    | "live"
-    | "rejected"
-    | "deactivated"
-    | "sold"
-    | "expired";
+import { LIFECYCLE_STATUS, type ListingTypeValue } from "@shared";
+
+export const MODERATION_STATUS_VALUES = [
+    LIFECYCLE_STATUS.PENDING,
+    LIFECYCLE_STATUS.LIVE,
+    LIFECYCLE_STATUS.REJECTED,
+    LIFECYCLE_STATUS.DEACTIVATED,
+    LIFECYCLE_STATUS.SOLD,
+    LIFECYCLE_STATUS.EXPIRED,
+] as const;
+
+export type ModerationStatus = (typeof MODERATION_STATUS_VALUES)[number];
 
 export type ModerationItem = {
     id: string;
@@ -52,8 +57,6 @@ export type ModerationItem = {
     fraudScore: number;
     riskScore?: number;
 };
-
-import type { ListingTypeValue } from "@shared/enums/listingType";
 
 export type ModerationFilters = {
     search: string;

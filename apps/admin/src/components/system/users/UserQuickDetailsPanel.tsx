@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CheckCircle2, User as UserIcon, X } from "lucide-react";
+import { REPORT_STATUS } from "@shared";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import {
@@ -112,7 +113,7 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                             View User Ads
                         </Link>
                         <Link
-                            href={ADMIN_UI_ROUTES.reports({ status: "open" })}
+                            href={ADMIN_UI_ROUTES.reports({ status: REPORT_STATUS.OPEN })}
                             className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                         >
                             View Reports Queue

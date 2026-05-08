@@ -4,6 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { LucideIcon } from "lucide-react";
+import { USER_STATUS } from "@shared";
 import type {
     AdminStatus,
     AdminRole,
@@ -46,7 +47,12 @@ type AdminUserFormCardProps =
     };
 
 const ROLE_OPTIONS: AdminRole[] = ["moderator", "admin", "super_admin"];
-const STATUS_OPTIONS: AdminStatus[] = ["live", "inactive", "suspended", "banned"];
+const STATUS_OPTIONS: AdminStatus[] = [
+    USER_STATUS.LIVE,
+    USER_STATUS.INACTIVE,
+    USER_STATUS.SUSPENDED,
+    USER_STATUS.BANNED,
+];
 
 type AdminUserFormValues = {
     firstName: string;
