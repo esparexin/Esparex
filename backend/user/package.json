@@ -14,7 +14,7 @@
     "start:ts": "ts-node --files -r tsconfig-paths/register src/index.ts",
     "dev": "nodemon",
     "build": "tsc && npx tsc-alias",
-    "type-check": "tsc --noEmit",
+    "type-check": "npm run build -w @esparex/core && tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint src --ext .ts --fix",
     "db:seed": "node --max-old-space-size=2048 -r ts-node/register/transpile-only -r tsconfig-paths/register src/seeds/runSeeds.ts",
