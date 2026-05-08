@@ -81,18 +81,18 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 
         const adminUser: IAuthUser = {
             _id: admin._id,
-            id: admin._id?.toString(),
+            id: admin._id?.toString() || '',
             role: admin.role || 'admin',
             isAdmin: true,
-            permissions: admin.permissions,
-            firstName: admin.firstName,
-            lastName: admin.lastName,
-            email: admin.email,
+            permissions: admin.permissions || [],
+            firstName: admin.firstName || '',
+            lastName: admin.lastName || '',
+            email: admin.email || '',
         };
 
         req.user = adminUser;
         setReliabilityContext({
-            userId: adminUser.id,
+            userId: adminUser.id || '',
             requestPath: req.originalUrl || req.url,
             method: req.method,
         });
@@ -100,7 +100,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         res.cookie('admin_token', token, getAdminCookieOptions(await getAdminSessionTtlMs()));
 
         next();
-    } catch {
+    } catch (err) {
         if (shouldClearCookie) {
             res.clearCookie('admin_token', getAdminCookieOptions(0));
         }

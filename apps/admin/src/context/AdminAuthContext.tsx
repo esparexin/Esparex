@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { AdminApiError, adminFetch, setAdminAccessToken } from "@/lib/api/adminClient";
+import { AdminApiError, adminFetch, setAdminAccessToken, fetchCsrfToken } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import type { AdminUser } from "@/types/admin";
@@ -45,6 +45,12 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const refresh = useCallback(async () => {
     const requestId = ++authRequestSeq.current;
     try {
+      // 1. Force CSRF token pre-fetch first so cookies are initialized & matching on subsequent state-changing requests
+      await fetchCsrfToken().catch((err) => {
+        console.error("[AdminAuth] CSRF bootstrap token failed:", err);
+      });
+
+      // 2. Safely call the authenticated /me endpoint
       const result = await adminFetch<unknown>(ADMIN_ROUTES.ME);
       const parsed = parseAdminResponse<never, { admin?: AdminUser }>(result);
       const nextAdmin = normalizeAdmin(parsed.data?.admin);
