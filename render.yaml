@@ -28,6 +28,8 @@ services:
 
       - key: REDIS_URL
         sync: false
+      - key: REDIS_USERNAME
+        sync: false
 
       - key: CORS_ORIGIN
         sync: false

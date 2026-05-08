@@ -1,6 +1,7 @@
 /* global NodeJS */
 import bootstrapLogger from '../utils/bootstrapLogger';
 import { inferCookieDomainFromEnv, requiresSharedCookieDomain } from '../utils/originConfig';
+import { isLocalRedisHost, resolveRedisConfig } from './redisConfig';
 
 const REQUIRED_PRODUCTION_ENV_VARS = [
     'RAZORPAY_WEBHOOK_SECRET',
@@ -143,6 +144,23 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
         throw new Error(
             `Missing required production environment variables: ${missingVars.join(', ')}`
         );
+    }
+
+    const redisConfig = resolveRedisConfig({
+        REDIS_URL: sourceEnv.REDIS_URL,
+        REDIS_HOST: sourceEnv.REDIS_HOST,
+        REDIS_PORT: sourceEnv.REDIS_PORT,
+        REDIS_DB: sourceEnv.REDIS_DB,
+        REDIS_USERNAME: sourceEnv.REDIS_USERNAME,
+        REDIS_PASSWORD: sourceEnv.REDIS_PASSWORD,
+    });
+
+    if (isLocalRedisHost(redisConfig.host)) {
+        throw new Error('REDIS_URL host is invalid for production');
+    }
+
+    if (!redisConfig.username) {
+        throw new Error('Redis ACL username is required in production');
     }
 
     const corsOrigin = sourceEnv.CORS_ORIGIN;

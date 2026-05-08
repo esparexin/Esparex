@@ -19,7 +19,7 @@ const baseProductionEnv: NodeJS.ProcessEnv = {
     RAZORPAY_WEBHOOK_SECRET: 'webhook_secret',
     OTP_HASH_SECRET: 'otp_hash_secret',
     JWT_SECRET: 'jwt_secret_value_long_enough_for_tests',
-    REDIS_URL: 'redis://localhost:6379',
+    REDIS_URL: 'rediss://redis-user:redis-pass@redis.example.com:6379/0',
     MONGODB_URI: 'mongodb://localhost:27017/esparex_test',
     ADMIN_MONGODB_URI: 'mongodb://localhost:27017/esparex_admin',
     AWS_ACCESS_KEY_ID: VALID_ACCESS_KEY_ID,
@@ -60,6 +60,22 @@ describe('validateProductionEnvOrThrow', () => {
 
         expect(() => validateProductionEnvOrThrow(env)).toThrow(
             /AUTH_BYPASS_OTP_LOCK=true is not allowed in production/
+        );
+    });
+
+    it('throws when REDIS_URL points to localhost in production', () => {
+        const env = { ...baseProductionEnv, REDIS_URL: 'redis://localhost:6379' };
+
+        expect(() => validateProductionEnvOrThrow(env)).toThrow(
+            /REDIS_URL host is invalid for production/
+        );
+    });
+
+    it('throws when Redis ACL username is missing in production', () => {
+        const env = { ...baseProductionEnv, REDIS_URL: 'rediss://:redis-pass@redis.example.com:6379/0' };
+
+        expect(() => validateProductionEnvOrThrow(env)).toThrow(
+            /Redis ACL username is required in production/
         );
     });
 
