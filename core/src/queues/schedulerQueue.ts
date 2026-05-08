@@ -1,3 +1,4 @@
+import { getBullMqConnectionOptions } from '../config/redisRuntime';
 import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
 import logger from '../utils/logger';
 import { env } from '../config/env';
@@ -43,47 +44,14 @@ const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
     quality_score_backfill_job: '*/5 * * * *',
 };
 
-const parseRedisConnection = () => {
-    if (env.REDIS_URL) {
-        const parsedUrl = new URL(env.REDIS_URL);
-        const dbFromPath = Number(parsedUrl.pathname.replace('/', '') || '0');
-        return {
-            host: parsedUrl.hostname || 'localhost',
-            port: Number(parsedUrl.port || '6379'),
-            password: parsedUrl.password ? decodeURIComponent(parsedUrl.password) : undefined,
-            db: Number.isFinite(dbFromPath) ? dbFromPath : env.REDIS_DB,
-            maxRetriesPerRequest: null,
-            enableReadyCheck: true,
-            enableOfflineQueue: false,
-            connectTimeout: 10_000,
-            keepAlive: 10_000,
-            tls: env.REDIS_URL.startsWith('rediss://') ? {} : undefined,
-            retryStrategy: (times: number) => queueWorkerBackoffStrategy(times, 250, 30_000),
-        };
-    }
-
-    return {
-        host: env.REDIS_HOST,
-        port: env.REDIS_PORT,
-        password: env.REDIS_PASSWORD,
-        db: env.REDIS_DB,
-        maxRetriesPerRequest: null,
-        enableReadyCheck: true,
-        enableOfflineQueue: false,
-        connectTimeout: 10_000,
-        keepAlive: 10_000,
-        tls: undefined,
-        retryStrategy: (times: number) => queueWorkerBackoffStrategy(times, 250, 30_000),
-    };
-};
-
-const schedulerQueueConnection = parseRedisConnection();
 const schedulerDefaultJobOptions = withQueueDefaults({
     removeOnComplete: 200,
     removeOnFail: 500,
 });
 
-const schedulerQueue = shouldDisableSchedulerQueue
+const schedulerQueueConnection = getBullMqConnectionOptions();
+
+const schedulerQueue: Queue<TraceableJobData> | null = shouldDisableSchedulerQueue
     ? null
     : new Queue<TraceableJobData, unknown, string>('scheduler-jobs', {
         connection: schedulerQueueConnection,
@@ -122,7 +90,7 @@ export const registerSchedulerJobProcessors = async (
     });
 
     await Promise.all([
-        schedulerWorker?.waitUntilReady(), 
+        schedulerWorker?.waitUntilReady(),
         schedulerQueueEvents?.waitUntilReady()
     ].filter(Boolean));
 };
@@ -134,7 +102,7 @@ export const registerSchedulerRepeatableJobs = async () => {
     const timezone = env.TZ;
     for (const [jobName, cron] of Object.entries(schedulerRepeatCrons) as Array<[SchedulerJobName, string]>) {
         await schedulerQueue.upsertJobScheduler(
-            `repeat:${jobName}`,
+            `repeat:${jobName}` as const,
             {
                 pattern: cron,
                 tz: timezone,
