@@ -2,6 +2,9 @@
   "name": "@esparex/core",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0 <23"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {

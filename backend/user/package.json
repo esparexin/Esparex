@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": "^20.0.0 || ^22.0.0"
+    "node": ">=22.0.0 <23"
   },
   "scripts": {
     "clean": "lsof -ti:5001 | xargs kill -9 || true",

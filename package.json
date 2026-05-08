@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "^20.0.0 || ^22.0.0"
+    "node": ">=22.0.0 <23"
   },
+  "packageManager": "npm@10.9.7",
   "workspaces": [
     "apps/admin",
     "apps/web",
