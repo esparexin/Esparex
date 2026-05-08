@@ -131,6 +131,7 @@ To fix 404/403 errors during login/CSRF discovery, ensure the following environm
 
 | Workspace | Platform | Variable | Recommended Value |
 | :--- | :--- | :--- | :--- |
+| `@esparex/apps-web` | Vercel | `NEXT_PUBLIC_API_URL` | `https://api.esparex.in/api/v1` |
 | `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_ADMIN_API_URL` | `https://api.esparex.in/api/v1/admin` |
 | `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_PROD_RISK_OVERRIDE` | `false` |
 | `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_APP_ENV` | `production` |

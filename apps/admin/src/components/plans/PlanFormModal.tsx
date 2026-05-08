@@ -5,7 +5,7 @@ import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, CreditCard, Zap, BellRing, Package } from "lucide-react";
 import { createPlan, updatePlan } from "@/lib/api/plans";
-import type { Plan } from "@esparex/shared";
+import { API_KEY_STATUS, type Plan } from "@esparex/shared";
 import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
 type PlanType = "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";
@@ -400,7 +400,11 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                 Free / Default Plan
                             </label>
                             <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
-                                <input type="checkbox" {...register("active")} className="accent-emerald-600" />
+                                <input
+                                    type="checkbox"
+                                    {...register(API_KEY_STATUS.ACTIVE as keyof PlanFormValues)}
+                                    className="accent-emerald-600"
+                                />
                                 Active (visible to users)
                             </label>
                             {formType === "SPOTLIGHT" && (

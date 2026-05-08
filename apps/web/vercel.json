@@ -3,6 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "env": {
-    "HUSKY": "0"
+    "HUSKY": "0",
+    "NEXT_PUBLIC_API_URL": "https://api.esparex.in/api/v1"
   }
 }

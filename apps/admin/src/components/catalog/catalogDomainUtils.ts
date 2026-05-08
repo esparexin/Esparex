@@ -1,3 +1,5 @@
+import { CATALOG_STATUS } from "@shared";
+
 type CategoryLinkedEntity = {
     categoryIds?: string[] | null;
     categoryId?: string | null;
@@ -62,8 +64,8 @@ export function validateRequiredCategoryIds(categoryIds: string[]): string | nul
 
 function getInvalidCategoryHint(category: NamedCategory | undefined): string {
     if (!category) return " (Missing)";
-    if (!category.isActive || category.status === "inactive") return " (Inactive)";
-    if (category.status === "rejected") return " (Rejected)";
+    if (!category.isActive || category.status === CATALOG_STATUS.INACTIVE) return " (Inactive)";
+    if (category.status === CATALOG_STATUS.REJECTED) return " (Rejected)";
     return " (Invalid Type)";
 }
 

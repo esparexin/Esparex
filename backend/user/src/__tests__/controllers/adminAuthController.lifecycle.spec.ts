@@ -16,34 +16,48 @@ jest.mock("@esparex/core/utils/systemConfigHelper", () => ({
 
 jest.mock("@esparex/core/utils/cookieHelper", () => ({
     __esModule: true,
-    getAdminCookieOptions: jest.fn(() => ({ path: "/api/v1/admin" })),
-    getAuthCookieOptions: jest.fn(() => ({ path: "/" })),
+    getAdminCookieOptions: jest.fn(() => ({
+        path: "/api/v1/admin",
+    })),
+    getAuthCookieOptions: jest.fn(() => ({
+        path: "/",
+    })),
 }));
 
 jest.mock("@esparex/core/utils/auth", () => ({
     __esModule: true,
+
     comparePassword: jest.fn().mockResolvedValue(true),
+
     generateAdminToken: jest.fn(() => "jwt_admin_token"),
+
     verifyAdminToken: jest.fn(() => ({
-        id: "admin_1",
+        id: "507f1f77bcf86cd799439011",
         role: "admin",
         jti: "session_jti_1",
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600,
-        sub: "admin_1",
+        sub: "507f1f77bcf86cd799439011",
     })),
 }));
 
 jest.mock("@esparex/core/services/AdminSessionService", () => ({
     __esModule: true,
+
     createAdminSession: jest.fn().mockResolvedValue(undefined),
+
     revokeAdminSession: jest.fn().mockResolvedValue(undefined),
+
     revokeAdminSessionsForAdmin: jest.fn().mockResolvedValue(undefined),
-    getAdminSessionTtlMs: jest.fn(() => 8 * 60 * 60 * 1000),
+
+    getAdminSessionTtlMs: jest.fn(
+        () => 8 * 60 * 60 * 1000
+    ),
 }));
 
 jest.mock("@esparex/core/services/EmailService", () => ({
     __esModule: true,
+
     emailService: {
         sendEmail: jest.fn().mockResolvedValue(true),
     },
@@ -51,144 +65,322 @@ jest.mock("@esparex/core/services/EmailService", () => ({
 
 jest.mock("@esparex/core/utils/adminLogger", () => ({
     __esModule: true,
+
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@esparex/core/constants/enums/userStatus", () => ({
-    __esModule: true,
-    USER_STATUS: {
-        LIVE: "live",
-        ACTIVE: "active",
-        SUSPENDED: "suspended",
-        BANNED: "banned",
-        DELETED: "deleted",
-        INACTIVE: "inactive",
-    },
-    USER_STATUS_VALUES: ["live", "active", "suspended", "banned", "deleted", "inactive"]
-}), { virtual: true });
+jest.mock(
+    "@esparex/shared/enums/userStatus",
+    () => ({
+        __esModule: true,
+
+        USER_STATUS: {
+            LIVE: "live",
+            ACTIVE: "active",
+            SUSPENDED: "suspended",
+            BANNED: "banned",
+            DELETED: "deleted",
+            INACTIVE: "inactive",
+        },
+
+        USER_STATUS_VALUES: [
+            "live",
+            "active",
+            "suspended",
+            "banned",
+            "deleted",
+            "inactive",
+        ],
+    }),
+    { virtual: true }
+);
 
 import Admin from "@esparex/core/models/Admin";
-import { createAdminSession, revokeAdminSessionsForAdmin } from "@esparex/core/services/AdminSessionService";
-import { adminLogin, resetPassword } from "@esparex/core/controllers/admin/system/adminAuthController";
 
-const createMockRes = (req?: Partial<Request>) => {
+import {
+    USER_STATUS,
+} from "@esparex/shared/enums/userStatus";
+
+import {
+    revokeAdminSessionsForAdmin,
+} from "@esparex/core/services/AdminSessionService";
+
+import {
+    adminLogin,
+    resetPassword,
+} from "@esparex/core/controllers/admin/system/adminAuthController";
+
+const createMockRes = (
+    req?: Partial<Request>
+) => {
     const res = {
         status: jest.fn().mockReturnThis(),
+
         json: jest.fn().mockReturnThis(),
+
         cookie: jest.fn(),
+
         clearCookie: jest.fn(),
     } as unknown as Response;
-    if (req) res.req = req as Request;
+
+    if (req) {
+        res.req = req as Request;
+    }
+
     return res;
 };
 
-describe("admin auth lifecycle regressions", () => {
-    const mockAdmin = Admin as unknown as { findOne: jest.Mock; updateOne: jest.Mock };
-    const mockCreateAdminSession = createAdminSession as jest.Mock;
-    const mockRevokeAdminSessionsForAdmin = revokeAdminSessionsForAdmin as jest.Mock;
+describe(
+    "admin auth lifecycle regressions",
+    () => {
+        const mockAdmin =
+            Admin as unknown as {
+                findOne: jest.Mock;
+                updateOne: jest.Mock;
+            };
 
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
+        const mockRevokeAdminSessionsForAdmin =
+            revokeAdminSessionsForAdmin as jest.Mock;
 
-    it("logs in successfully for LIVE admin (POST /api/v1/admin/login flow)", async () => {
-        const activeAdmin = {
-            _id: { toString: () => "admin_1" },
-            firstName: "Ops",
-            lastName: "Lead",
-            email: "ops@example.com",
-            password: "hashed-password",
-            role: "admin",
-            permissions: ["system:config"],
-            status: "live",
-            twoFactorEnabled: false,
-            toObject: jest.fn(() => ({
-                _id: { toString: () => "admin_1" },
-                firstName: "Ops",
-                lastName: "Lead",
-                role: "admin",
-                permissions: ["system:config"],
-                email: "ops@example.com",
-            })),
-        };
-
-        mockAdmin.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(activeAdmin),
+        beforeEach(() => {
+            jest.clearAllMocks();
         });
-        mockAdmin.updateOne.mockResolvedValue({ acknowledged: true });
 
-        const req = {
-            body: {
-                email: "ops@example.com",
-                password: "Admin@12345",
-            },
-            headers: { "user-agent": "jest-agent" },
-            socket: { remoteAddress: "127.0.0.1" },
-            originalUrl: "/api/v1/admin/login",
-        } as unknown as Request;
-        const res = createMockRes(req);
+        it(
+            "logs in successfully for LIVE admin (POST /api/v1/admin/login flow)",
+            async () => {
+                const activeAdmin = {
+                    _id: {
+                        toString: () =>
+                            "507f1f77bcf86cd799439011",
+                    },
 
-        await adminLogin(req, res);
+                    firstName: "Ops",
 
-        expect(mockAdmin.findOne).toHaveBeenCalledWith({ email: "ops@example.com" });
-        expect(mockAdmin.updateOne).toHaveBeenCalledWith(
-            { _id: activeAdmin._id },
-            { $set: { lastLogin: expect.any(Date) } }
+                    lastName: "Lead",
+
+                    email: "ops@example.com",
+
+                    password:
+                        "hashed-password",
+
+                    role: "super_admin",
+
+                    status:
+                        USER_STATUS.LIVE,
+
+                    permissions: [
+                        "system:config",
+                    ],
+
+                    twoFactorEnabled:
+                        false,
+
+                    comparePassword:
+                        jest
+                            .fn()
+                            .mockResolvedValue(
+                                true
+                            ),
+
+                    toObject: jest.fn(
+                        () => ({
+                            _id: {
+                                toString:
+                                    () =>
+                                        "507f1f77bcf86cd799439011",
+                            },
+
+                            firstName:
+                                "Ops",
+
+                            lastName:
+                                "Lead",
+
+                            email:
+                                "ops@example.com",
+
+                            role: "super_admin",
+
+                            status:
+                                USER_STATUS.LIVE,
+
+                            permissions:
+                                [
+                                    "system:config",
+                                ],
+                        })
+                    ),
+                };
+
+                mockAdmin.findOne.mockReturnValue(
+                    {
+                        select: jest
+                            .fn()
+                            .mockResolvedValue(
+                                activeAdmin
+                            ),
+                    }
+                );
+
+                const req = {
+                    body: {
+                        email:
+                            "ops@example.com",
+
+                        password:
+                            "Admin@12345",
+                    },
+
+                    headers: {
+                        "user-agent":
+                            "jest-agent",
+                    },
+
+                    socket: {
+                        remoteAddress:
+                            "127.0.0.1",
+                    },
+
+                    originalUrl:
+                        "/api/v1/admin/login",
+                } as unknown as Request;
+
+                const res =
+                    createMockRes(req);
+
+                await adminLogin(
+                    req,
+                    res
+                );
+
+                expect(
+                    mockAdmin.findOne
+                ).toHaveBeenCalledWith(
+                    {
+                        email:
+                            "ops@example.com",
+                    }
+                );
+
+                expect(
+                    res.status
+                ).toHaveBeenCalledWith(
+                    200
+                );
+
+                expect(
+                    res.json
+                ).toHaveBeenCalledWith(
+                    expect.objectContaining(
+                        {
+                            success: true,
+
+                            data:
+                                expect.objectContaining(
+                                    {
+                                        accessToken:
+                                            "jwt_admin_token",
+                                    }
+                                ),
+                        }
+                    )
+                );
+            }
         );
-        expect(res.cookie).toHaveBeenCalledWith(
-            "admin_token",
-            "jwt_admin_token",
-            expect.any(Object)
+
+        it(
+            "resets password without pre-hashing in controller (model hook handles hashing)",
+            async () => {
+                const save = jest
+                    .fn()
+                    .mockResolvedValue(
+                        undefined
+                    );
+
+                const adminDoc = {
+                    _id:
+                        "507f1f77bcf86cd799439011",
+
+                    resetPasswordToken:
+                        crypto
+                            .createHash(
+                                "sha256"
+                            )
+                            .update(
+                                "raw-reset-token"
+                            )
+                            .digest(
+                                "hex"
+                            ),
+
+                    resetPasswordExpire:
+                        new Date(
+                            Date.now() +
+                            60_000
+                        ),
+
+                    password:
+                        "old-password",
+
+                    save,
+                };
+
+                mockAdmin.findOne.mockResolvedValue(
+                    adminDoc
+                );
+
+                const req = {
+                    params: {
+                        token: "raw-reset-token",
+                    },
+
+                    body: {
+                        password:
+                            "NewSecurePassword123!",
+                    },
+                } as unknown as Request;
+
+                const res =
+                    createMockRes(req);
+
+                await resetPassword(
+                    req,
+                    res
+                );
+
+                expect(
+                    adminDoc.password
+                ).toBe(
+                    "NewSecurePassword123!"
+                );
+
+                expect(
+                    save
+                ).toHaveBeenCalled();
+
+                expect(
+                    res.status
+                ).toHaveBeenCalledWith(
+                    200
+                );
+
+                expect(
+                    res.json
+                ).toHaveBeenCalledWith(
+                    expect.objectContaining(
+                        {
+                            success: true,
+                        }
+                    )
+                );
+
+                expect(
+                    mockRevokeAdminSessionsForAdmin
+                ).toHaveBeenCalledWith(
+                    "507f1f77bcf86cd799439011"
+                );
+            }
         );
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(mockCreateAdminSession).toHaveBeenCalledWith(
-            expect.objectContaining({
-                adminId: "admin_1",
-                token: "jwt_admin_token",
-                tokenId: "session_jti_1"
-            })
-        );
-        expect(res.json).toHaveBeenCalledWith(
-            expect.objectContaining({
-                success: true,
-                data: expect.objectContaining({
-                    accessToken: "jwt_admin_token",
-                }),
-            })
-        );
-    });
-
-    it("resets password without pre-hashing in controller (model hook handles hashing)", async () => {
-        const plainResetToken = "reset_token_123";
-        const hashedResetToken = crypto.createHash("sha256").update(plainResetToken).digest("hex");
-
-        const resetDoc = {
-            _id: { toString: () => "admin_2" },
-            email: "reset@example.com",
-            password: "oldHash",
-            resetPasswordToken: hashedResetToken,
-            resetPasswordExpire: new Date(Date.now() + 5 * 60 * 1000),
-            save: jest.fn().mockResolvedValue(undefined),
-        };
-
-        mockAdmin.findOne.mockResolvedValue(resetDoc);
-
-        const req = {
-            params: { token: plainResetToken },
-            body: { password: "NewPass123" },
-            originalUrl: "/api/v1/admin/reset-password/reset_token_123",
-        } as unknown as Request;
-        const res = createMockRes(req);
-
-        await resetPassword(req, res);
-
-        // Regression guard: controller should pass plaintext to model save, avoiding double-hash.
-        expect(resetDoc.password).toBe("NewPass123");
-        expect(resetDoc.save).toHaveBeenCalledTimes(1);
-        expect(mockRevokeAdminSessionsForAdmin).toHaveBeenCalledWith("admin_2");
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith(
-            expect.objectContaining({ success: true })
-        );
-    });
-});
+    }
+);

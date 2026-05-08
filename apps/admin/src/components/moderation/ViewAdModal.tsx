@@ -6,7 +6,7 @@ import type { ModerationItem } from "./moderationTypes";
 import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "./moderationStatus";
 import { resolveLocationDisplay } from "@/lib/location/display";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
-import type { ListingTypeValue } from "@esparex/shared";
+import { LIFECYCLE_STATUS, type ListingTypeValue } from "@esparex/shared";
 import {
     Dialog,
     DialogContent,
@@ -252,7 +252,7 @@ export function ViewAdModal({
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
-                                {ad.status === "pending" && (
+                                {ad.status === LIFECYCLE_STATUS.PENDING && (
                                     <>
                                         <button
                                             type="button"
@@ -270,7 +270,7 @@ export function ViewAdModal({
                                         </button>
                                     </>
                                 )}
-                                {ad.status === "live" && (
+                                {ad.status === LIFECYCLE_STATUS.LIVE && (
                                     <>
                                         <button
                                             type="button"
@@ -290,7 +290,7 @@ export function ViewAdModal({
                                         )}
                                     </>
                                 )}
-                                {ad.status === "deactivated" && (
+                                {ad.status === LIFECYCLE_STATUS.DEACTIVATED && (
                                     <button
                                         type="button"
                                         onClick={() => void onActivate(ad.id)}
@@ -299,13 +299,13 @@ export function ViewAdModal({
                                         <Play size={15} /> Activate
                                     </button>
                                 )}
-                                {(ad.status === "live" || ad.status === "expired") && onExtend && (
+                                {(ad.status === LIFECYCLE_STATUS.LIVE || ad.status === LIFECYCLE_STATUS.EXPIRED) && onExtend && (
                                     <button
                                         type="button"
                                         onClick={() => void onExtend(ad.id)}
                                         className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50 px-4 text-sm font-semibold text-sky-700 hover:bg-sky-100 transition-colors"
                                     >
-                                        <RefreshCw size={15} /> {ad.status === "expired" ? "Restore & Extend" : "Extend Expiry"}
+                                        <RefreshCw size={15} /> {ad.status === LIFECYCLE_STATUS.EXPIRED ? "Restore & Extend" : "Extend Expiry"}
                                     </button>
                                 )}
                             </div>

@@ -1,12 +1,21 @@
-import type { User } from "@shared/types/user";
-import { USER_STATUS } from "@shared/enums/userStatus";
-import { isActiveUserStatus, normalizeUserStatus } from "@shared";
+import {
+    CHAT_STATUS,
+    LIFECYCLE_STATUS,
+    USER_STATUS,
+    isActiveUserStatus,
+    normalizeUserStatus,
+    type User,
+} from "@shared";
 
 export type ManagedUser = User & {
     totalAdsPosted?: number;
 };
 
-export type UserManagementStatusFilter = "all" | "live" | "suspended" | "banned";
+export type UserManagementStatusFilter =
+    | "all"
+    | typeof USER_STATUS.LIVE
+    | typeof USER_STATUS.SUSPENDED
+    | typeof USER_STATUS.BANNED;
 
 export type UserActionType = "suspend" | "ban" | "activate" | "verify" | "unverify";
 
@@ -37,9 +46,9 @@ export function isManagedUserActive(status?: User["status"]) {
 export function normalizeUserManagementStatusFilter(
     value: string | null | undefined
 ): UserManagementStatusFilter {
-    if (value === "active") return "live";
-    if (value === "blocked") return "banned";
-    if (value === "live" || value === "suspended" || value === "banned") return value;
+    if (value === CHAT_STATUS.ACTIVE) return USER_STATUS.LIVE;
+    if (value === CHAT_STATUS.BLOCKED) return USER_STATUS.BANNED;
+    if (value === USER_STATUS.LIVE || value === USER_STATUS.SUSPENDED || value === USER_STATUS.BANNED) return value;
     return "all";
 }
 
@@ -52,16 +61,16 @@ export function normalizeManagedUser(user: ManagedUser): ManagedUser {
 
 export function getUserStatusPresentation(status?: User["status"]) {
     switch (normalizeManagedUserStatus(status)) {
-        case "suspended":
-            return { status: "pending", label: "Suspended" };
-        case "banned":
-            return { status: "blocked", label: "Banned" };
+        case USER_STATUS.SUSPENDED:
+            return { status: LIFECYCLE_STATUS.PENDING, label: "Suspended" };
+        case USER_STATUS.BANNED:
+            return { status: CHAT_STATUS.BLOCKED, label: "Banned" };
         case "deleted":
-            return { status: "deactivated", label: "Deleted" };
-        case "inactive":
-            return { status: "deactivated", label: "Inactive" };
-        case "live":
+            return { status: LIFECYCLE_STATUS.DEACTIVATED, label: "Deleted" };
+        case USER_STATUS.INACTIVE:
+            return { status: LIFECYCLE_STATUS.DEACTIVATED, label: "Inactive" };
+        case USER_STATUS.LIVE:
         default:
-            return { status: "live", label: "Active" };
+            return { status: LIFECYCLE_STATUS.LIVE, label: "Active" };
     }
 }

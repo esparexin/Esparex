@@ -10,7 +10,7 @@ import {
     DialogTitle,
     DialogDescription,
 } from "@/components/ui/dialog";
-import { Business } from "@esparex/shared";
+import { CHAT_STATUS, type Business } from "@esparex/shared";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { getLocationOptions, reverseGeocode } from "@/lib/api/locations";
 import type { Location } from "@/types/location";
@@ -115,7 +115,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
             try {
                 const nextResults = await getLocationOptions({
                     search: nextQuery,
-                    status: "active",
+                    status: CHAT_STATUS.ACTIVE,
                     limit: 8,
                 });
 

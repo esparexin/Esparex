@@ -1,5 +1,6 @@
 import { Ban, Check, Eye, Pause, Trash2, X, ExternalLink } from "lucide-react";
 import type { ReactNode } from "react";
+import { LIFECYCLE_STATUS } from "@shared";
 import type { ModerationStatus } from "./moderationTypes";
 
 type AdminModerationActionsProps = {
@@ -51,12 +52,16 @@ export function AdminModerationActions({
     onBlockSeller,
     publicUrl
 }: AdminModerationActionsProps) {
-    const showApprove = status === "pending" && Boolean(onApprove);
-    const showReject = status === "pending" && Boolean(onReject);
-    const showDeactivate = status === "live" && Boolean(onDeactivate);
-    const showActivate = status === "deactivated" && Boolean(onActivate);
-    const showDelete = (status === "deactivated" || status === "rejected" || status === "expired") && Boolean(onDelete);
-    const showBlockSeller = status === "live" && Boolean(onBlockSeller);
+    const showApprove = status === LIFECYCLE_STATUS.PENDING && Boolean(onApprove);
+    const showReject = status === LIFECYCLE_STATUS.PENDING && Boolean(onReject);
+    const showDeactivate = status === LIFECYCLE_STATUS.LIVE && Boolean(onDeactivate);
+    const showActivate = status === LIFECYCLE_STATUS.DEACTIVATED && Boolean(onActivate);
+    const showDelete = (
+        status === LIFECYCLE_STATUS.DEACTIVATED
+        || status === LIFECYCLE_STATUS.REJECTED
+        || status === LIFECYCLE_STATUS.EXPIRED
+    ) && Boolean(onDelete);
+    const showBlockSeller = status === LIFECYCLE_STATUS.LIVE && Boolean(onBlockSeller);
 
     return (
         <div className="flex items-center justify-end gap-1">

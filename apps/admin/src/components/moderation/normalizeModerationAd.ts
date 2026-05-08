@@ -1,4 +1,4 @@
-import type { ModerationItem, ModerationStatus } from "./moderationTypes";
+import { MODERATION_STATUS_VALUES, type ModerationItem, type ModerationStatus } from "./moderationTypes";
 import type { ListingTypeValue } from "@shared/enums/listingType";
 import { LISTING_TYPE_VALUES } from "@shared/enums/listingType";
 import { toGeoPoint } from "@/lib/location/display";
@@ -13,6 +13,9 @@ const asNumber = (value: unknown): number | undefined => {
 };
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const VALID_MODERATION_STATUSES = new Set<ModerationStatus>(
+    MODERATION_STATUS_VALUES as readonly ModerationStatus[],
+);
 
 const normalizeIsoDate = (value: unknown): string | undefined => {
     const raw = asString(value);
@@ -67,14 +70,7 @@ const normalizeLocationCoordinates = (
 
 const normalizeStatus = (value: unknown): ModerationStatus => {
     const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
-    if (
-        normalized !== "pending"
-        && normalized !== "live"
-        && normalized !== "rejected"
-        && normalized !== "deactivated"
-        && normalized !== "sold"
-        && normalized !== "expired"
-    ) {
+    if (!VALID_MODERATION_STATUSES.has(normalized as ModerationStatus)) {
         throw new Error("Invalid moderation contract: listing status is missing or invalid");
     }
     return normalized as ModerationStatus;
