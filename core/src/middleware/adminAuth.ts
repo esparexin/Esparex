@@ -37,8 +37,11 @@ export const extractAdminToken = (req: Request): { token: string; source: 'cooki
     return null;
 };
 
-const isStaticAsset = (path: string): boolean => {
+const isStaticAsset = (path?: string): boolean => {
+    if (!path) return false;
+
     const cleanPath = path.split('?')[0];
+
     return (
         cleanPath === '/manifest.json' ||
         cleanPath === '/sw.js' ||
@@ -115,7 +118,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         res.cookie('admin_token', token, getAdminCookieOptions(await getAdminSessionTtlMs()));
 
         next();
-    } catch (err) {
+    } catch {
         if (shouldClearCookie) {
             res.clearCookie('admin_token', getAdminCookieOptions(0));
         }

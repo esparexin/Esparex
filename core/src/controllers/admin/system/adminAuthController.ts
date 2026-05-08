@@ -5,7 +5,6 @@
  */
 
 import { Request, Response } from 'express';
-import { IAuthUser } from '../../../types/auth';
 import type { IAdmin } from '../../../models/Admin';
 import {
     findAdminByEmailForAuth,
@@ -195,10 +194,10 @@ export const adminLogin = async (req: Request, res: Response) => {
         }
 
         if (admin.status !== USER_STATUS.LIVE) {
-            logger.warn('Admin login failed: Account status not LIVE', { 
-                email, 
+            logger.warn('Admin login failed: Account status not LIVE', {
+                email,
                 status: admin.status,
-                ip: req.ip 
+                ip: req.ip
             });
             return sendAdminError(req, res, 'Invalid credentials', 401);
         }
