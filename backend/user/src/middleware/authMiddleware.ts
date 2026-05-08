@@ -58,6 +58,17 @@ const parseCachedUserStatus = (cached: string | null): CachedUserStatus | null =
   return { status: cached };
 };
 
+const isStaticAsset = (path: string): boolean => {
+  const cleanPath = path.split('?')[0];
+  return (
+    cleanPath === '/manifest.json' ||
+    cleanPath === '/sw.js' ||
+    cleanPath === '/favicon.ico' ||
+    cleanPath === '/robots.txt' ||
+    cleanPath.startsWith('/icons/')
+  );
+};
+
 /* -------------------------------------------------------------------------- */
 /* Protect Middleware                                                         */
 /* -------------------------------------------------------------------------- */
@@ -68,6 +79,10 @@ export const protect = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (isStaticAsset(req.path)) {
+      return next();
+    }
+
     // Avoid caching authenticated responses in browsers/proxies
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Pragma", "no-cache");
@@ -177,6 +192,10 @@ export const extractUser = (
   res: Response,
   next: NextFunction
 ): void => {
+  if (isStaticAsset(req.path)) {
+    return next();
+  }
+
   const tokenData = extractToken(req);
 
   if (!tokenData) return next();

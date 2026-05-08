@@ -145,7 +145,7 @@ app.set('trust proxy', 1);
 /* -------------------------------------------------------------------------- */
 /* CORS — MUST BE FIRST                                                        */
 /* -------------------------------------------------------------------------- */
-const allowedOrigins = new Set<string>(getAllowedOriginList({
+const configuredOrigins = getAllowedOriginList({
     NODE_ENV: env.NODE_ENV,
     CORS_ORIGIN: env.CORS_ORIGIN,
     COOKIE_DOMAIN: env.COOKIE_DOMAIN,
@@ -153,25 +153,37 @@ const allowedOrigins = new Set<string>(getAllowedOriginList({
     FRONTEND_INTERNAL_URL: env.FRONTEND_INTERNAL_URL,
     ADMIN_FRONTEND_URL: env.ADMIN_FRONTEND_URL,
     ADMIN_URL: env.ADMIN_URL,
-}));
+});
+
+const allowedOriginsList = [
+    'https://esparex.in',
+    'https://www.esparex.in',
+    'https://admin.esparex.in',
+    'https://api.esparex.in',
+    'https://esparex-userfrontend.vercel.app',
+    'https://esparex-admin-frontend.vercel.app',
+    ...configuredOrigins
+].map(normalizeOrigin);
 
 const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
-        // Allow server-to-server, curl, mobile apps
         if (!origin) return callback(null, true);
 
         // 🛡️ AUTOMATIC LOCAL DEV ALLOWANCE
-        // In development, automatically allow localhost/127.0.0.1 or any private IP (for mobile testing)
-        if (env.NODE_ENV === 'development') {
+        if (env.NODE_ENV === 'development' || env.NODE_ENV === 'test') {
             const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin);
             if (isLocal) return callback(null, true);
         }
 
-        if (allowedOrigins.has(normalizeOrigin(origin))) {
+        const normalized = normalizeOrigin(origin);
+        if (
+            allowedOriginsList.includes(normalized) ||
+            /\.vercel\.app$/.test(normalized)
+        ) {
             return callback(null, true);
         }
 
-        return callback(new Error('Not allowed by CORS'));
+        return callback(new Error('CORS blocked'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
