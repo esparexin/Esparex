@@ -450,16 +450,15 @@ class APIClient {
                 silent: true // 🤫 Silence expected network errors
             } as EsparexRequestConfig)
             .then((res) => {
-                const ok =
-                    res.status === 200 &&
-                    res.data?.success === true &&
-                    res.data?.status === 'ok';
+                 const ok =
+                     res.status === 200 &&
+                     res.data?.success === true;
 
-                if (!ok) logger.warn('[API Client] Health check returned non-ok:', res.data);
-                this.isBackendHealthy = ok;
-                this.healthCheckTimestamp = Date.now();
-                return ok;
-            })
+                 if (!ok) logger.warn('[API Client] Health check returned non-ok:', res.data);
+                 this.isBackendHealthy = ok;
+                 this.healthCheckTimestamp = Date.now();
+                 return ok;
+             })
             .catch((err) => {
                 logger.warn('[Health Check Failed]', err.message || err);
                 this.isBackendHealthy = false;

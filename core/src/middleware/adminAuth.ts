@@ -37,7 +37,25 @@ export const extractAdminToken = (req: Request): { token: string; source: 'cooki
     return null;
 };
 
+const isStaticAsset = (path?: string): boolean => {
+    if (!path) return false;
+
+    const cleanPath = path.split('?')[0];
+
+    return (
+        cleanPath === '/manifest.json' ||
+        cleanPath === '/sw.js' ||
+        cleanPath === '/favicon.ico' ||
+        cleanPath === '/robots.txt' ||
+        cleanPath.startsWith('/icons/')
+    );
+};
+
 export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    if (isStaticAsset(req.path)) {
+        return next();
+    }
+
     const tokenData = extractAdminToken(req);
     if (!tokenData) {
         res.clearCookie('admin_token', getAdminCookieOptions(0));
@@ -81,18 +99,18 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 
         const adminUser: IAuthUser = {
             _id: admin._id,
-            id: admin._id?.toString(),
+            id: admin._id?.toString() || '',
             role: admin.role || 'admin',
             isAdmin: true,
-            permissions: admin.permissions,
-            firstName: admin.firstName,
-            lastName: admin.lastName,
-            email: admin.email,
+            permissions: admin.permissions || [],
+            firstName: admin.firstName || '',
+            lastName: admin.lastName || '',
+            email: admin.email || '',
         };
 
         req.user = adminUser;
         setReliabilityContext({
-            userId: adminUser.id,
+            userId: adminUser.id || '',
             requestPath: req.originalUrl || req.url,
             method: req.method,
         });

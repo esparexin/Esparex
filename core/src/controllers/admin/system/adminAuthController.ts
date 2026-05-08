@@ -5,7 +5,6 @@
  */
 
 import { Request, Response } from 'express';
-import { IAuthUser } from '../../../types/auth';
 import type { IAdmin } from '../../../models/Admin';
 import {
     findAdminByEmailForAuth,
@@ -195,10 +194,10 @@ export const adminLogin = async (req: Request, res: Response) => {
         }
 
         if (admin.status !== USER_STATUS.LIVE) {
-            logger.warn('Admin login failed: Account status not LIVE', { 
-                email, 
+            logger.warn('Admin login failed: Account status not LIVE', {
+                email,
                 status: admin.status,
-                ip: req.ip 
+                ip: req.ip
             });
             return sendAdminError(req, res, 'Invalid credentials', 401);
         }
@@ -317,8 +316,10 @@ export const adminLogout = async (req: Request, res: Response) => {
  */
 export const getMe = async (req: Request, res: Response) => {
     try {
-        // req.user is populated by requireAdmin middleware
-        const adminId = (req.user as IAuthUser)._id;
+        const adminId = req.user?._id;
+        if (!adminId) {
+            return sendAdminError(req, res, "Unauthorized: No admin session", 401);
+        }
 
         const admin = await getAdminProfileById(adminId);
 
@@ -326,17 +327,29 @@ export const getMe = async (req: Request, res: Response) => {
             return sendAdminError(req, res, "Admin not found", 401);
         }
 
+        const adminIdStr = admin._id?.toString() || (admin as { id?: string }).id || '';
+        if (!adminIdStr) {
+            return sendAdminError(req, res, "Unauthorized: Invalid admin state", 401);
+        }
+
+        const firstName = admin.firstName || '';
+        const lastName = admin.lastName || '';
+        const fullName = `${firstName} ${lastName}`.trim();
+
         sendSuccessResponse(res, {
             admin: {
                 ...admin,
-                id: admin._id.toString(),
-                name: `${admin.firstName} ${admin.lastName}`.trim()
+                id: adminIdStr,
+                name: fullName
             },
             role: admin.role,
             type: 'admin'
         });
     } catch (error: unknown) {
-        sendAuthError(req, res, error);
+        logger.error('[AdminMeError] Failed to fetch admin profile', {
+            error: error instanceof Error ? error.message : String(error)
+        });
+        return sendAdminError(req, res, "Unauthorized: Session lookup failed", 401);
     }
 };
 
