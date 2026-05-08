@@ -3,8 +3,7 @@ import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
 import logger from '../utils/logger';
 import { env } from '../config/env';
 import { registerWorkerWithTrace, type TraceableJobData } from '../utils/queueWrapper';
-import { queueWorkerBackoffStrategy, withQueueDefaults } from './queueDefaults';
-
+import { withQueueDefaults } from './queueDefaults';
 export type SchedulerJobName =
     | 'expire_ads_job'
     | 'suspend_expired_businesses'
