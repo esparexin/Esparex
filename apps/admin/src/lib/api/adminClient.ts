@@ -58,7 +58,7 @@ async function fetchWithTimeout(url: string, init: RequestInit): Promise<Respons
 
 let cachedCsrfToken: string | null = null;
 
-async function fetchCsrfToken(): Promise<string> {
+export async function fetchCsrfToken(): Promise<string> {
   if (cachedCsrfToken) return cachedCsrfToken;
 
   const response = await fetchWithTimeout(`${ADMIN_API_BASE}${ADMIN_ROUTES.CSRF_TOKEN}`, {

@@ -17,6 +17,9 @@ export interface CookieOptions {
 }
 
 const resolveCookieDomain = (): string | undefined => {
+    if (env.NODE_ENV === 'production') {
+        return '.esparex.in';
+    }
     return (
         inferCookieDomainFromEnv({
             NODE_ENV: env.NODE_ENV,
@@ -34,17 +37,23 @@ const resolveCookieDomain = (): string | undefined => {
 type SameSiteValue = Exclude<CookieOptions['sameSite'], boolean | undefined>;
 
 const resolveCookieSameSite = (): SameSiteValue => {
+    if (env.NODE_ENV === 'production') {
+        return 'none';
+    }
     if (env.COOKIE_SAME_SITE) {
         return env.COOKIE_SAME_SITE;
     }
-    return env.NODE_ENV === 'production' ? 'none' : 'lax';
+    return 'lax';
 };
 
 const resolveCookieSecure = (sameSite: SameSiteValue): boolean => {
+    if (env.NODE_ENV === 'production') {
+        return true;
+    }
     if (env.COOKIE_SECURE === true) return true;
     if (env.COOKIE_SECURE === false) return sameSite === 'none' ? true : false;
     if (sameSite === 'none') return true;
-    return env.NODE_ENV === 'production';
+    return false;
 };
 
 const buildBaseCookieOptions = (maxAgeMs: number): CookieOptions => {
@@ -71,7 +80,14 @@ export const getAuthCookieOptions = (maxAgeMs: number = 7 * 24 * 60 * 60 * 1000)
 
 export const getLegacyHostOnlyAuthCookieOptions = (
     maxAgeMs: number = 7 * 24 * 60 * 60 * 1000
-): CookieOptions => buildBaseCookieOptions(maxAgeMs);
+): CookieOptions => {
+    const domain = resolveCookieDomain();
+
+    return {
+        ...buildBaseCookieOptions(maxAgeMs),
+        ...(domain ? { domain } : {})
+    };
+};
 
 export const getAdminCookieOptions = (
     maxAgeMs: number = 7 * 24 * 60 * 60 * 1000
@@ -96,3 +112,4 @@ export const getCsrfCookieOptions = (
 };
 
 export { resolveCookieDomain };
+
