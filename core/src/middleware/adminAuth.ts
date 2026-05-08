@@ -37,18 +37,13 @@ export const extractAdminToken = (req: Request): { token: string; source: 'cooki
     return null;
 };
 
-const isStaticAsset = (path?: string): boolean => {
-    if (!path) return false;
-
-    const cleanPath = path.split('?')[0];
-
-    return (
-        cleanPath === '/manifest.json' ||
-        cleanPath === '/sw.js' ||
-        cleanPath === '/favicon.ico' ||
-        cleanPath === '/robots.txt' ||
-        cleanPath.startsWith('/icons/')
-    );
+return (
+    cleanPath === '/manifest.json' ||
+    cleanPath === '/sw.js' ||
+    cleanPath === '/favicon.ico' ||
+    cleanPath === '/robots.txt' ||
+    cleanPath.startsWith('/icons/')
+);
 };
 
 export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
