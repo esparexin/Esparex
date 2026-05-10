@@ -66,13 +66,15 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
 export const deactivateListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as AuthUser;
-        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status' });
+        // Fetch listingType so StatusMutationService resolves the correct lifecycle domain
+        // (ad vs service vs spare_part_listing) for transition validation.
+        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType' });
         if (!listing) return;
 
         const updatedListing = await mutateStatus({
             domain: 'ad',
             entityId: listing._id.toString(),
-            toStatus: 'deactivated',
+            toStatus: LISTING_STATUS.DEACTIVATED,
             actor: {
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
@@ -81,10 +83,59 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
             metadata: {
                 action: 'listing_deactivate',
                 sourceRoute: '/api/v1/listings/:id/deactivate',
+                listingType: listing.listingType,
             },
         });
 
         return sendSuccessResponse(res, updatedListing, 'Listing deactivated');
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * PATCH /api/v1/listings/:id/activate
+ * Reactivate a deactivated listing: DEACTIVATED → PENDING (back into moderation queue).
+ * Using PENDING (not LIVE) so the listing goes back through moderation review,
+ * preventing bypassed-moderation re-listings.
+ */
+export const activateListing = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user as AuthUser;
+        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType' });
+        if (!listing) return;
+
+        if (listing.status !== LISTING_STATUS.DEACTIVATED) {
+            return sendErrorResponse(req, res, 400, 'Only deactivated listings can be reactivated');
+        }
+
+        const updatedListing = await mutateStatus({
+            domain: 'ad',
+            entityId: listing._id.toString(),
+            toStatus: LISTING_STATUS.PENDING,
+            actor: {
+                type: ACTOR_TYPE.USER,
+                id: user._id.toString(),
+            },
+            reason: 'Reactivated by owner',
+            metadata: {
+                action: 'listing_activate',
+                sourceRoute: '/api/v1/listings/:id/activate',
+                listingType: listing.listingType,
+            },
+            patch: {
+                moderationStatus: 'held_for_review',
+                $push: {
+                    timeline: {
+                        status: LISTING_STATUS.PENDING,
+                        timestamp: new Date(),
+                        reason: 'Reactivated by owner — pending re-review',
+                    },
+                },
+            },
+        });
+
+        return sendSuccessResponse(res, updatedListing, 'Listing reactivated and pending review');
     } catch (error) {
         next(error);
     }
@@ -96,13 +147,16 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
 export const deleteListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as AuthUser;
-        const listing = await getAndVerifyOwnedListing(req, res);
+        // Fetch listingType so the lifecycle domain resolves correctly across all listing types
+        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType' });
         if (!listing) return;
 
+        // Use DELETED status so the LifecycleGuard transition map correctly validates
+        // the terminal transition. isDeleted:true drives the soft-delete query filter.
         await mutateStatus({
             domain: 'ad',
             entityId: listing._id.toString(),
-            toStatus: 'deactivated',
+            toStatus: LISTING_STATUS.DELETED,
             actor: {
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
@@ -111,6 +165,7 @@ export const deleteListing = async (req: Request, res: Response, next: NextFunct
             metadata: {
                 action: 'soft_delete',
                 sourceRoute: '/api/v1/listings/:id',
+                listingType: listing.listingType,
             },
             patch: {
                 isDeleted: true,
@@ -138,8 +193,8 @@ export const repostListing = async (req: Request, res: Response, next: NextFunct
         const listing = await getAndVerifyOwnedListing(req, res, { select: 'status' });
         if (!listing) return;
 
-        if (listing.status === 'expired' || listing.status === 'rejected') {
-            return sendErrorResponse(req, res, 400, 'Expired or rejected listings are strictly read-only and cannot be renewed or reposted');
+        if (listing.status !== 'expired' && listing.status !== 'rejected') {
+            return sendErrorResponse(req, res, 400, 'Only expired or rejected listings can be reposted');
         }
 
         const reposted = await AdMutationService.repostAd(id, userId);
@@ -195,27 +250,57 @@ export const promoteListing = async (req: Request, res: Response, next: NextFunc
 
 /**
  * PATCH /api/v1/listings/:id/mark-sold
- * Mark as sold only when status = "expired" and isSold = false
+ * Retrospective sold marker for expired listings.
+ * Routes through StatusMutationService to guarantee audit trail + cache invalidation.
  */
 export const markListingStatusSold = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const listing = await getAndVerifyOwnedListing(req, res);
+        const user = req.user as AuthUser;
+        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType isSold' });
         if (!listing) return;
 
-        if (listing.status !== 'expired') {
-            return sendErrorResponse(req, res, 400, 'Listing must be expired to be marked as sold under this endpoint');
+        if (listing.status !== LISTING_STATUS.EXPIRED) {
+            return sendErrorResponse(req, res, 400, 'Only expired listings can be retrospectively marked as sold via this endpoint');
         }
 
         if (listing.isSold === true) {
             return sendErrorResponse(req, res, 400, 'Listing is already marked as sold');
         }
 
-        listing.isSold = true;
-        listing.soldAt = new Date();
-        
-        await listing.save();
+        const soldReason = (req.body as { soldReason?: string })?.soldReason;
 
-        return sendSuccessResponse(res, listing, 'Listing marked as sold successfully');
+        // Route through StatusMutationService for a full audit trail, timeline entry,
+        // StatusHistory record, and automatic cache invalidation.
+        const updatedListing = await mutateStatus({
+            domain: 'ad',
+            entityId: listing._id.toString(),
+            toStatus: LISTING_STATUS.SOLD,
+            actor: {
+                type: ACTOR_TYPE.USER,
+                id: user._id.toString(),
+            },
+            reason: soldReason || 'Retrospectively marked as sold by owner (expired)',
+            metadata: {
+                action: 'listing_mark_sold_expired',
+                sourceRoute: '/api/v1/listings/:id/mark-sold',
+                listingType: listing.listingType,
+            },
+            patch: {
+                isSold: true,
+                soldAt: new Date(),
+                soldReason,
+                isChatLocked: true,
+                $push: {
+                    timeline: {
+                        status: LISTING_STATUS.SOLD,
+                        timestamp: new Date(),
+                        reason: soldReason || 'Retrospectively marked as sold by owner (expired)',
+                    },
+                },
+            },
+        });
+
+        return sendSuccessResponse(res, updatedListing, 'Listing marked as sold successfully');
     } catch (error) {
         next(error);
     }

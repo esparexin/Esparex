@@ -1,6 +1,6 @@
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
-import { Eye, Heart, Clock, Edit2, Trash2, RefreshCw, CheckSquare, PowerOff } from "lucide-react";
+import { Eye, Heart, Clock, Edit2, Trash2, RefreshCw, CheckSquare, PowerOff, Power } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/ui/utils";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
@@ -35,6 +35,7 @@ interface ListingItemProps {
     onDelete: () => void;
     onRenew?: () => void;
     onDeactivate?: () => void;
+    onActivate?: () => void;
     onMarkSold?: () => void;
     metaBadges?: MetaBadge[];
     tags?: Tag[];
@@ -53,10 +54,11 @@ export function ListingItem({
     title, status, thumbnail, priceLabel, priceClassName, badgeColor = "blue",
     rejectionReason, createdAt, expiresAt, views, likes,
     getStatusBadge, editHref, detailHref,
-    onDelete, onRenew, onDeactivate, onMarkSold,
+    onDelete, onRenew, onDeactivate, onActivate, onMarkSold,
     metaBadges = [], tags = [], priority = false, className
 }: ListingItemProps) {
     const isActive = status === "live";
+    const isDeactivated = status === "deactivated";
     const canEdit = ["live", "pending", "rejected"].includes(status);
     const showRenew = status === "expired" || status === "rejected";
 
@@ -183,7 +185,16 @@ export function ListingItem({
                             className="h-11 text-xs text-orange-600 border-orange-200 hover:bg-orange-50"
                             onClick={(e) => { e.stopPropagation(); onDeactivate(); }}
                         >
-                            <PowerOff className="h-3 w-3 mr-1" /> Hide
+                            <PowerOff className="h-3 w-3 mr-1" /> Deactivate
+                        </Button>
+                    )}
+                    {onActivate && isDeactivated && (
+                        <Button
+                            size="sm" variant="outline"
+                            className="h-11 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                            onClick={(e) => { e.stopPropagation(); onActivate(); }}
+                        >
+                            <Power className="h-3 w-3 mr-1" /> Activate
                         </Button>
                     )}
                     {showRenew && onRenew && (

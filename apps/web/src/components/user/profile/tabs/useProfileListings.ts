@@ -8,6 +8,7 @@ import {
     deleteListing, 
     markListingAsSold, 
     deactivateListing,
+    activateListing,
     repostListing,
     type Listing,
 } from "@/lib/api/user/listings";
@@ -22,6 +23,7 @@ type ListingManagerConfig = {
     deleteApi: (id: string) => Promise<unknown>;
     markSoldApi: (id: string, reason?: ListingSoldReason) => Promise<unknown>;
     deactivateApi: (id: string) => Promise<unknown>;
+    activateApi?: (id: string) => Promise<unknown>;
     repostApi: (id: string) => Promise<unknown>;
     queryKey: readonly unknown[];
 };
@@ -40,6 +42,7 @@ export function useProfileListings(
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.AD),
             markSoldApi: (id: string, reason?: ListingSoldReason) => markListingAsSold(id, reason, statusFilter === 'expired'),
             deactivateApi: (id: string) => deactivateListing(id),
+            activateApi: (id: string) => activateListing(id),
             repostApi: (id: string) => repostListing(id, LISTING_TYPE.AD),
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.AD)
         },
@@ -48,6 +51,7 @@ export function useProfileListings(
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SERVICE),
             markSoldApi: (id: string, reason?: ListingSoldReason) => markListingAsSold(id, reason, statusFilter === 'expired'),
             deactivateApi: deactivateListing,
+            activateApi: (id: string) => activateListing(id),
             repostApi: (id: string) => repostListing(id, LISTING_TYPE.SERVICE),
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.SERVICE)
         },
@@ -56,6 +60,7 @@ export function useProfileListings(
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SPARE_PART),
             markSoldApi: (id: string, reason?: ListingSoldReason) => markListingAsSold(id, reason, statusFilter === 'expired'),
             deactivateApi: deactivateListing,
+            activateApi: (id: string) => activateListing(id),
             repostApi: (id: string) => repostListing(id, LISTING_TYPE.SPARE_PART),
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.SPARE_PART)
         }
@@ -70,6 +75,7 @@ export function useProfileListings(
         handleDelete,
         handleMarkSold,
         handleDeactivate,
+        handleActivate,
         handleRepost,
     } = useUserListingManagement<Listing>({
         type,
@@ -87,6 +93,7 @@ export function useProfileListings(
         handleDelete,
         handleMarkSold,
         handleDeactivate,
+        handleActivate,
         handleRepost,
     };
 }

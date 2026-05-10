@@ -78,12 +78,14 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
 
     const resetIdempotency = useCallback(() => setIdempotencyKey(generateIdempotencyKey()), []);
 
-    const onValidSubmit = useCallback(async (data: T) => {
+    const onValidSubmit = useCallback(async (data: T, overrideImages?: ListingImage[]) => {
         setIsSubmitting(true);
         if (onError) onError("");
 
+        const imagesToProcess = overrideImages || listingImages;
+
         try {
-            if (listingImages.length === 0) {
+            if (imagesToProcess.length === 0) {
                 form.setError("images" as Path<T>, {
                     type: "manual",
                     message: "Add at least one photo to continue.",
@@ -97,7 +99,7 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
 
             // 1. Image Upload Pipeline (Sequential)
             const finalImageUrls: string[] = [];
-            for (const img of listingImages) {
+            for (const img of imagesToProcess) {
                 if (img.isRemote) {
                     finalImageUrls.push(img.preview);
                     continue;

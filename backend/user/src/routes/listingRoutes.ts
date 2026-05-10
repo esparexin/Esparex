@@ -97,6 +97,10 @@ router.patch("/:id/mark-sold", protect, validateObjectId, mutationLimiter, lifec
 // Lifecycle: LIVE -> DEACTIVATED
 router.patch("/:id/deactivate", protect, validateObjectId, mutationLimiter, lifecycleController.deactivateListing);
 
+// PATCH /api/v1/listings/:id/activate
+// Lifecycle: DEACTIVATED -> PENDING (back into moderation queue)
+router.patch("/:id/activate", protect, validateObjectId, mutationLimiter, lifecycleController.activateListing);
+
 // DELETE /api/v1/listings/:id
 // Lifecycle: Soft delete
 router.delete("/:id", protect, validateObjectId, mutationLimiter, lifecycleController.deleteListing);

@@ -11,7 +11,7 @@ export function useImageUploadWorkflow<T>(
     listingImages: ListingImage[],
     setListingImages: (images: ListingImage[]) => void,
     normalizeIdentityFieldsBeforeSubmit: () => void,
-    onValidSubmit: (data: PostAdFormData) => Promise<T>,
+    onValidSubmit: (data: PostAdFormData, overrideImages?: ListingImage[]) => Promise<T>,
     setFormError: (err: string | null) => void,
     setSubmittedAd: (ad: T) => void
 ) {
@@ -66,7 +66,7 @@ export function useImageUploadWorkflow<T>(
                     await Promise.all(uploadPromises);
                     setListingImages(updatedImages);
 
-                    const ad = await onValidSubmit(data);
+                    const ad = await onValidSubmit(data, updatedImages);
                     if (ad) {
                         setSubmittedAd(ad);
                     }

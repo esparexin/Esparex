@@ -18,6 +18,7 @@ interface ListingOptions<T> {
     deleteApi: (id: string) => Promise<unknown>;
     markSoldApi: (id: string, reason?: ListingSoldReason) => Promise<unknown>;
     deactivateApi: (id: string) => Promise<unknown>;
+    activateApi?: (id: string) => Promise<unknown>;
     repostApi: (id: string) => Promise<unknown>;
     queryKey: readonly unknown[];
 }
@@ -31,6 +32,7 @@ export function useUserListingManagement<T extends { id: string; status: string 
     deleteApi,
     markSoldApi,
     deactivateApi,
+    activateApi,
     repostApi,
     queryKey
 }: ListingOptions<T>) {
@@ -100,6 +102,18 @@ export function useUserListingManagement<T extends { id: string; status: string 
         },
     });
 
+    const { mutateAsync: handleActivate } = useMutation({
+        mutationFn: (id: string) => activateApi ? activateApi(id) : Promise.reject(new Error('Activate not supported')),
+        onSuccess: () => {
+            invalidateAll();
+            notify.success(`${entityLabel} reactivated — under review`);
+        },
+        onError: (error) => {
+            logger.error(`Activate ${type} error:`, error);
+            notify.error(`Failed to reactivate ${entityLabel.toLowerCase()}`);
+        },
+    });
+
     const { mutateAsync: handleRepost } = useMutation({
         mutationFn: repostApi,
         onSuccess: () => {
@@ -120,6 +134,7 @@ export function useUserListingManagement<T extends { id: string; status: string 
         handleDelete: (id: string) => handleDelete(id),
         handleMarkSold: (id: string, soldReason?: ListingSoldReason) => handleMarkSold({ id, soldReason }),
         handleDeactivate: (id: string) => handleDeactivate(id),
+        handleActivate: (id: string) => handleActivate(id),
         handleRepost: (id: string) => handleRepost(id),
     };
 }

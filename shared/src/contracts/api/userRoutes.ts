@@ -49,6 +49,7 @@ export const USER_ROUTES = {
   LISTING_EDIT: (id: string | number) => `listings/${id}/edit`,
   LISTING_SOLD: (id: string | number) => `listings/${id}/sold`,
   LISTING_DEACTIVATE: (id: string | number) => `listings/${id}/deactivate`,
+  LISTING_ACTIVATE: (id: string | number) => `listings/${id}/activate`,
   LISTING_PROMOTE: (id: string | number) => `listings/${id}/promote`,
   LISTING_ANALYTICS: (id: string | number) => `listings/${id}/analytics`,
   LISTING_VIEW: (id: string | number) => `listings/${id}/view`,

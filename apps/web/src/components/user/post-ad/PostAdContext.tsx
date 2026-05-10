@@ -345,7 +345,7 @@ export function PostAdProvider({
     const isLocationLocked = isEditMode && (originalAdStatus === 'live' || originalAdStatus === 'pending');
 
     // State for pending states and submission outcomes
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(isEditMode);
     const [brandIsPending, setBrandIsPending] = useState(false);
     const [submittedAd, setSubmittedAd] = useState<Listing | null>(null);
 

@@ -100,9 +100,8 @@ export const markListingAsSold = async (
 ): Promise<Listing | null> => {
     try {
         const endpoint = isExpired ? `listings/${id}/mark-sold` : API_ROUTES.USER.LISTING_SOLD(id);
-        const method = isExpired ? 'patch' : 'put';
         const { data: result, error } = await toApiResult<Listing>(
-            apiClient[method](endpoint, soldReason ? { soldReason } : {}, { silent: true })
+            apiClient.patch(endpoint, soldReason ? { soldReason } : {}, { silent: true })
         );
         if (error) throw error;
         return result ? normalizeListing(result) : null;
@@ -124,6 +123,22 @@ export const deactivateListing = async (id: string | number): Promise<boolean> =
         return !!result;
     } catch (e) {
         logger.error('Failed to deactivate listing', e);
+        throw e;
+    }
+};
+
+/**
+ * Reactivates a deactivated listing (DEACTIVATED → PENDING).
+ */
+export const activateListing = async (id: string | number): Promise<boolean> => {
+    try {
+        const { data: result, error } = await toApiResult<unknown>(
+            apiClient.patch(API_ROUTES.USER.LISTING_ACTIVATE(id), undefined, { silent: true })
+        );
+        if (error) throw error;
+        return !!result;
+    } catch (e) {
+        logger.error('Failed to activate listing', e);
         throw e;
     }
 };

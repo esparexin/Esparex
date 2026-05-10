@@ -42,14 +42,6 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
         });
         if (!listing) return;
 
-        if (listing.status === 'expired' || listing.status === 'rejected') {
-            return sendErrorResponse(req, res, 400, 'Expired or rejected listings are strictly read-only and cannot be edited');
-        }
-
-        if (listing.status === 'pending') {
-            return sendErrorResponse(req, res, 400, 'Pending listings are view-only and cannot be edited');
-        }
-
         const body = req.body as Record<string, unknown>;
         const lockErrors = collectImmutableFieldErrors(body, LOCKED_AD_EDIT_FIELD_MESSAGES);
 

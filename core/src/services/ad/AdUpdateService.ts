@@ -40,13 +40,8 @@ export const updateAdLogic = async (
             if (ad.status === LIFECYCLE_STATUS.SOLD || ad.status === LIFECYCLE_STATUS.EXPIRED || ad.status === LIFECYCLE_STATUS.REJECTED || ad.status === LIFECYCLE_STATUS.DEACTIVATED)
                 throw new AppError('This ad can no longer be edited in its current status.', 400);
 
-            // 🔒 LOCATION LOCK: Location is a trust signal — once an ad reaches pending/live
-            // it cannot be silently changed. Prevents location gaming and buyer trust breaks.
-            if (context.actor === 'USER' && (ad.status === LISTING_STATUS.LIVE || ad.status === LISTING_STATUS.PENDING)) {
-                const untypedData = data as Record<string, unknown>;
-                delete untypedData.location;
-                delete untypedData.locationId;
-            }
+            if (context.actor === 'USER' && ad.status === LISTING_STATUS.PENDING)
+                throw new AppError('Pending listings are view-only and cannot be edited', 400);
 
             if (context.actor === 'USER' && !context.allowSuspendedUser) {
                 const User = (await import('@esparex/core/models/User')).default;
