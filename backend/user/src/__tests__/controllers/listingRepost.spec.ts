@@ -7,6 +7,20 @@ jest.mock('@esparex/core/services/AdMutationService', () => ({
     repostAd: jest.fn(),
 }));
 
+jest.mock('@esparex/core/services/StatusMutationService', () => ({
+    mutateStatus: jest.fn(),
+}));
+
+jest.mock('@esparex/core/utils/controllerUtils', () => ({
+    getAndVerifyOwnedListing: jest.fn(),
+}));
+
+jest.mock('@esparex/core/services/PromotionPolicyService', () => ({
+    PromotionPolicyService: {
+        canPromote: jest.fn(),
+    },
+}));
+
 jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: jest.fn((req: unknown, res: { status: (n: number) => { json: (v: unknown) => void } }, status: number, msg: string) => {
         res.status(status).json({ error: msg });
@@ -27,9 +41,11 @@ jest.mock('@esparex/core/utils/requestParams', () => ({
 
 import { Request, Response } from 'express';
 import AdMutationService from '@esparex/core/services/AdMutationService';
+import { getAndVerifyOwnedListing } from '@esparex/core/utils/controllerUtils';
 import { repostListing } from '../../controllers/listing/lifecycle.controller';
 
 const mockedRepostAd = AdMutationService.repostAd as jest.Mock;
+const mockedGetAndVerifyOwnedListing = getAndVerifyOwnedListing as jest.Mock;
 
 const makeRes = (): Response => {
     const res = {} as Response;
@@ -48,6 +64,7 @@ const makeReq = (overrides: Partial<Request> = {}): Request =>
 
 beforeEach(() => {
     jest.clearAllMocks();
+    mockedGetAndVerifyOwnedListing.mockResolvedValue({ _id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'draft' });
 });
 
 describe('repostListing', () => {

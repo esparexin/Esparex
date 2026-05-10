@@ -21,7 +21,7 @@ describe('FeedVisibilityGuard', () => {
 
         it('returns filter with isDeleted exclusion', () => {
             const filter = buildPublicAdFilter();
-            expect(filter.isDeleted).toEqual({ $ne: true });
+            expect(filter.isDeleted).toEqual(false);
         });
 
         it('returns filter with expiresAt in the future', () => {
@@ -51,7 +51,7 @@ describe('FeedVisibilityGuard', () => {
         });
 
         it('throws for a filter missing moderationStatus', () => {
-            const badFilter = { status: 'live', isDeleted: { $ne: true } };
+            const badFilter = { status: 'live', isDeleted: false };
             expect(() => assertFeedSafetyFilter(badFilter)).toThrow(
                 '[FeedVisibilityGuard] CRITICAL'
             );

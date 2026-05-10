@@ -53,7 +53,7 @@ describe('getModerationCounts', () => {
         expect(livePipeline[0]).toEqual({
             $match: {
                 status: getLiveStatusCriteria(),
-                isDeleted: { $ne: true },
+                isDeleted: false,
                 expiresAt: { $gt: expect.any(Date) },
                 moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] },
             },
@@ -69,7 +69,7 @@ describe('getModerationCounts', () => {
 
         expect(mockedAdModel.countDocuments).toHaveBeenCalledWith({
             status: getLiveStatusCriteria(),
-            isDeleted: { $ne: true },
+            isDeleted: false,
             expiresAt: { $gt: expect.any(Date) },
             moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] },
             isSpotlight: true,
@@ -99,7 +99,7 @@ describe('getModerationCounts', () => {
         expect(livePipeline[0]).toEqual({
             $match: {
                 status: getLiveStatusCriteria(),
-                isDeleted: { $ne: true },
+                isDeleted: false,
                 expiresAt: { $gt: expect.any(Date) },
                 moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] },
                 listingType: 'service',
@@ -108,7 +108,7 @@ describe('getModerationCounts', () => {
 
         expect(mockedAdModel.countDocuments).toHaveBeenCalledWith({
             status: getLiveStatusCriteria(),
-            isDeleted: { $ne: true },
+            isDeleted: false,
             expiresAt: { $gt: expect.any(Date) },
             moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] },
             listingType: 'service',
