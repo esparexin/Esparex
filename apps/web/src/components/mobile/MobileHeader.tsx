@@ -107,16 +107,6 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                     </button>
                 </div>
 
-                <HeaderLocationPrompts
-                    isMounted={isMounted}
-                    showLocationSelector={showLocationSelector}
-                    setShowLocationSelector={setShowLocationSelector}
-                    firstVisitBackdropClassName="fixed inset-0 bg-slate-950/20 backdrop-blur-[1px]"
-                    firstVisitWrapperClassName="fixed inset-x-0 bottom-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
-                    firstVisitPromptClassName="pointer-events-auto border-slate-200 bg-white/98 shadow-[0_-18px_45px_rgba(15,23,42,0.18)]"
-                    style={{ zIndex: Z_INDEX.mobileHeaderTooltip }}
-                />
-
                 {/* 2. Main Header (56px) - Menu, Search, Bell */}
                 <div className={`flex items-center px-3 bg-white ${chromePolicy.showStickySearch ? "h-12 gap-2 border-b border-slate-100" : "h-14 gap-2"}`}>
                     {/* Hamburger Menu (Left) */}
@@ -183,7 +173,10 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
 
                 {/* Location Picker Sheet */}
                 <Sheet open={showLocationSelector} onOpenChange={setShowLocationSelector}>
-                    <SheetContent side="bottom" className="h-[calc(100svh-1rem)] max-h-[calc(100svh-1rem)] overflow-hidden rounded-t-2xl border-t-0 p-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl sm:h-[90vh] sm:max-h-[90vh]">
+                    <SheetContent 
+                        side="bottom" 
+                        className="h-[60vh] max-h-[440px] overflow-hidden rounded-t-2xl border-t-0 p-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl mx-auto max-w-sm w-full sm:h-[70vh] sm:max-h-[520px]"
+                    >
                         <SheetTitle className="sr-only">Select Location</SheetTitle>
                         <SheetDescription className="sr-only">Choose your city</SheetDescription>
                         <LocationSelector variant="panel" onClose={() => setShowLocationSelector(false)} />
@@ -191,6 +184,15 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                 </Sheet>
             </header>
 
+            <HeaderLocationPrompts
+                isMounted={isMounted}
+                showLocationSelector={showLocationSelector}
+                setShowLocationSelector={setShowLocationSelector}
+                firstVisitBackdropClassName="fixed inset-0 bg-slate-950/20 backdrop-blur-[1px]"
+                firstVisitWrapperClassName="fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] px-3 pb-3"
+                firstVisitPromptClassName="pointer-events-auto border-slate-200 bg-white shadow-[0_-18px_45px_rgba(15,23,42,0.18)] animate-in fade-in slide-in-from-bottom-4 duration-300"
+                style={{ zIndex: Z_INDEX.mobileHeaderTooltip }}
+            />
 
         </>
     );

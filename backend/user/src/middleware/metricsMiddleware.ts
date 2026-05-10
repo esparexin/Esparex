@@ -98,7 +98,7 @@ export const apiLatencyMiddleware = (req: Request, res: Response, next: NextFunc
         const route = req.route?.path || normalizeMetricRoute(requestUrl);
         const userId = resolveUserId(req);
         const ip = req.ip || req.socket?.remoteAddress || 'unknown';
-        
+
         // 1. Record Prometheus Metric
         httpRequestDuration.labels(
             req.method,
@@ -189,10 +189,13 @@ export const initializeDatabaseMonitoring = () => {
         post: (method: string, fn: (this: unknown, docs: unknown, next: () => void) => void) => void;
     };
 
-    const markStartTime = function (this: unknown, next: () => void) {
-        (this as QueryContext & AggregateContext)._startTime = Date.now();
-        next();
-    };
+    function markStartTime(this: any, next?: () => void) {
+        this._metricsStartTime = Date.now();
+
+        if (typeof next === "function") {
+            next();
+        }
+    }
 
     const logSlowOperation = function (this: unknown, _docs: unknown, next: () => void) {
         const ctx = this as QueryContext & AggregateContext;
