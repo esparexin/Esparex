@@ -324,7 +324,7 @@ AdSchema.index(
     { status: 1, isDeleted: 1, expiresAt: 1, createdAt: -1 },
     {
         name: 'ad_public_visibility_createdAt_idx',
-        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
+        partialFilterExpression: { isDeleted: false }
     }
 );
 
@@ -374,7 +374,7 @@ AdSchema.index(
     { 'location.state': 1, status: 1, createdAt: -1 },
     {
         name: 'ad_state_status_freshness_idx',
-        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
+        partialFilterExpression: { isDeleted: false }
     }
 );
 
@@ -383,7 +383,7 @@ AdSchema.index(
     { 'location.city': 1, status: 1, createdAt: -1 },
     {
         name: 'ad_city_status_freshness_idx',
-        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
+        partialFilterExpression: { isDeleted: false }
     }
 );
 
@@ -395,7 +395,7 @@ AdSchema.index(
     { categoryId: 1, status: 1, createdAt: -1 },
     { 
         name: 'ad_category_listing_search_idx',
-        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
+        partialFilterExpression: { isDeleted: false }
     }
 );
 

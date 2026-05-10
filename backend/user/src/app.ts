@@ -309,7 +309,7 @@ app.get('/health', healthCheckHandler);
 
 app.get('/system/status', async (_req, res) => {
     try {
-        const health = await getHealthCheckData();
+        const health = await getHealthCheckData(true);
         const statusCode = health.status === 'error' ? 503 : 200;
 
         res.status(statusCode).json({

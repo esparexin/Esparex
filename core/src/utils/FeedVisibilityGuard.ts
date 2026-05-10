@@ -30,7 +30,7 @@ export const buildPublicAdFilter = () => {
 
     return {
         status: getStatusMatchCriteria(LISTING_STATUS.LIVE),
-        isDeleted: { $ne: true },
+        isDeleted: false,
         expiresAt: { $gt: new Date() },
         moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] }
     };

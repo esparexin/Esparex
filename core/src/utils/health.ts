@@ -9,7 +9,7 @@ import { getWorkerStatusProbe } from './workerStatus';
  * Shared Health Check Logic
  * Provides a standardized response for system status and resource metrics.
  */
-export const getHealthCheckData = async () => {
+export const getHealthCheckData = async (deep = false) => {
     const mem = process.memoryUsage();
 
     const safeProbe = async <T>(fn: () => Promise<T>, fallback: T, timeoutMs = 2000): Promise<T> => {
@@ -42,8 +42,24 @@ export const getHealthCheckData = async () => {
             latencyMs: null
         }
     });
-    const queueHealth = await safeProbe(getQueueHealthProbe, { enabled: false, status: 'down', queues: [] });
-    const workerHealth = await safeProbe(getWorkerStatusProbe, { status: 'down', workers: [] });
+
+    let queueHealth;
+    let workerHealth;
+
+    if (deep) {
+        queueHealth = await safeProbe(getQueueHealthProbe, { enabled: false, status: 'down', queues: [] });
+        workerHealth = await safeProbe(getWorkerStatusProbe, { status: 'down', workers: [] });
+    } else {
+        queueHealth = {
+            enabled: redisConnected,
+            status: redisConnected ? 'up' as const : 'down' as const,
+            queues: [] as any[]
+        };
+        workerHealth = {
+            status: redisConnected ? 'up' as const : 'down' as const,
+            workers: [] as any[]
+        };
+    }
 
     const isRedisOperational = Boolean(redisConnected && redisHealth && redisHealth.pingOk && redisHealth.roundTripOk);
 
@@ -83,7 +99,8 @@ export const healthCheckHandler = async (req: Request, res: Response) => {
         if (process.env.NODE_ENV === 'development') {
             logger.info(`[Health] Ping from ${req.ip}`);
         }
-        const healthData = await getHealthCheckData();
+        const deep = req.query.deep === 'true';
+        const healthData = await getHealthCheckData(deep);
         return res.status(200).json(healthData);
     } catch (error) {
         return res.status(200).json({
