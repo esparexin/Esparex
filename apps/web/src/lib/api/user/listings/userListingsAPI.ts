@@ -44,24 +44,27 @@ export type ListingStatsResponse = Record<string, Record<string, number>>;
  */
 export const getMyListingsStats = async (): Promise<ListingStatsResponse> => {
     try {
-        const { data: result } = await toApiResult<any>(
-            apiClient.get('listings/my/status-counts')
-        );
+        const [adRes, serviceRes, spareRes] = await Promise.all([
+            toApiResult<any>(apiClient.get('listings/my/status-counts?listingType=ad')),
+            toApiResult<any>(apiClient.get('listings/my/status-counts?listingType=service')),
+            toApiResult<any>(apiClient.get('listings/my/status-counts?listingType=spare_part'))
+        ]);
+
         return {
             ad: {
-                live: result?.live || 0,
-                pending: result?.pending || 0,
-                expired: result?.expired || 0,
+                live: adRes.data?.live || 0,
+                pending: adRes.data?.pending || 0,
+                expired: adRes.data?.expired || 0,
             },
             service: {
-                live: 0,
-                pending: 0,
-                expired: 0,
+                live: serviceRes.data?.live || 0,
+                pending: serviceRes.data?.pending || 0,
+                expired: serviceRes.data?.expired || 0,
             },
             "spare_part": {
-                live: 0,
-                pending: 0,
-                expired: 0,
+                live: spareRes.data?.live || 0,
+                pending: spareRes.data?.pending || 0,
+                expired: spareRes.data?.expired || 0,
             },
         };
     } catch (e) {

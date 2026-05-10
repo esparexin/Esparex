@@ -102,20 +102,48 @@ export const getMyListingStatusCounts = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
 
+        const { listingType } = (req.query || {});
+
         const mongoose = (await import('mongoose')).default;
         const Ad = (await import('@esparex/core/models/Ad')).default;
 
+        const matchStage: Record<string, any> = {
+            sellerId: new mongoose.Types.ObjectId(userId),
+            isDeleted: { $ne: true },
+            status: { $ne: 'deactivated' }
+        };
+
+        const andConditions: any[] = [
+            {
+                $or: [
+                    { deletedAt: { $exists: false } },
+                    { deletedAt: null }
+                ]
+            }
+        ];
+
+        if (listingType) {
+            const typeStr = String(listingType).trim().toLowerCase();
+            if (typeStr === 'ad' || typeStr === 'ads') {
+                andConditions.push({
+                    $or: [
+                        { listingType: 'ad' },
+                        { listingType: { $exists: false } },
+                        { listingType: null }
+                    ]
+                });
+            } else if (typeStr === 'service' || typeStr === 'services') {
+                matchStage.listingType = 'service';
+            } else if (typeStr === 'spare_part' || typeStr === 'spare-parts' || typeStr === 'spare_parts') {
+                matchStage.listingType = 'spare_part';
+            }
+        }
+
+        matchStage.$and = andConditions;
+
         const results = await Ad.aggregate([
             {
-                $match: {
-                    sellerId: new mongoose.Types.ObjectId(userId),
-                    isDeleted: { $ne: true },
-                    $or: [
-                        { deletedAt: { $exists: false } },
-                        { deletedAt: null }
-                    ],
-                    status: { $ne: 'deactivated' }
-                }
+                $match: matchStage
             },
             {
                 $group: {
