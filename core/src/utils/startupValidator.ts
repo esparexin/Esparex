@@ -75,8 +75,21 @@ export const assertCriticalStartupReadiness = async (): Promise<void> => {
     if (databaseHealth.overall === 'down') {
         readinessFailures.push('database subsystem is down');
     }
-    if (!redisHealth.connected || !redisHealth.pingOk || !redisHealth.roundTripOk) {
-        readinessFailures.push('redis subsystem is unavailable');
+
+    const redisConnected = redisHealth.connected && redisHealth.pingOk && redisHealth.roundTripOk;
+    const isProduction = env.NODE_ENV === 'production';
+    const redisRequired = isProduction && env.ALLOW_REDIS === true;
+
+    if (!redisConnected) {
+        if (redisRequired) {
+            readinessFailures.push('redis subsystem is unavailable');
+        } else {
+            logger.warn('Redis unavailable; continuing with in-memory cache and rate limiter fallbacks.', {
+                connected: redisHealth.connected,
+                pingOk: redisHealth.pingOk,
+                roundTripOk: redisHealth.roundTripOk
+            });
+        }
     }
     if (queueHealth.status === 'down') {
         readinessFailures.push('queue subsystem is down');

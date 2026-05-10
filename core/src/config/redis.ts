@@ -185,56 +185,69 @@ export const waitForRedisReady = async (
     });
 
     let lastErrorMessage: string | null = null;
-    await new Promise<void>((resolve, reject) => {
-        let settled = false;
-        const timer = setTimeout(() => {
-            cleanup();
-            const status = getRedisStatus();
-            const reason = lastErrorMessage ? `; lastError=${lastErrorMessage}` : '';
-            reject(new Error(`Redis not ready within ${timeoutMs}ms (status=${status}, context=${context})${reason}`));
-        }, timeoutMs);
-        timer.unref?.();
+    try {
+        await new Promise<void>((resolve, reject) => {
+            let settled = false;
+            const timer = setTimeout(() => {
+                cleanup();
+                const status = getRedisStatus();
+                const reason = lastErrorMessage ? `; lastError=${lastErrorMessage}` : '';
+                reject(new Error(`Redis not ready within ${timeoutMs}ms (status=${status}, context=${context})${reason}`));
+            }, timeoutMs);
+            timer.unref?.();
 
-        const onReady = () => {
-            cleanup();
-            resolve();
-        };
+            const onReady = () => {
+                cleanup();
+                resolve();
+            };
 
-        const onError = (err: unknown) => {
-            if (err instanceof Error) {
-                lastErrorMessage = err.message;
-            } else {
-                lastErrorMessage = String(err);
+            const onError = (err: unknown) => {
+                if (err instanceof Error) {
+                    lastErrorMessage = err.message;
+                } else {
+                    lastErrorMessage = String(err);
+                }
+            };
+
+            const onEnd = () => {
+                cleanup();
+                const reason = lastErrorMessage ? `; lastError=${lastErrorMessage}` : '';
+                reject(new Error(`Redis connection ended before ready state (context=${context})${reason}`));
+            };
+
+            const cleanup = () => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                redis.off('ready', onReady);
+                redis.off('error', onError);
+                redis.off('end', onEnd);
+            };
+
+            redis.on('ready', onReady);
+            redis.on('error', onError);
+            redis.on('end', onEnd);
+
+            if (getRedisStatus() === 'ready') {
+                onReady();
             }
-        };
+        });
 
-        const onEnd = () => {
-            cleanup();
-            const reason = lastErrorMessage ? `; lastError=${lastErrorMessage}` : '';
-            reject(new Error(`Redis connection ended before ready state (context=${context})${reason}`));
-        };
-
-        const cleanup = () => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            redis.off('ready', onReady);
-            redis.off('error', onError);
-            redis.off('end', onEnd);
-        };
-
-        redis.on('ready', onReady);
-        redis.on('error', onError);
-        redis.on('end', onEnd);
-
-        if (getRedisStatus() === 'ready') {
-            onReady();
+        logger.info('[REDIS_BOOT] Ready state confirmed for Redis-backed startup', {
+            context,
+        });
+    } catch (error) {
+        const isProduction = env.NODE_ENV === 'production';
+        const redisRequired = isProduction && env.ALLOW_REDIS === true;
+        if (redisRequired) {
+            throw error;
+        } else {
+            logger.warn('Redis unavailable during API bootstrap; continuing with in-memory cache and rate limiter fallbacks.', {
+                context,
+                error: error instanceof Error ? error.message : String(error)
+            });
         }
-    });
-
-    logger.info('[REDIS_BOOT] Ready state confirmed for Redis-backed startup', {
-        context,
-    });
+    }
 };
 
 export { shouldDisableRedis };
