@@ -62,7 +62,10 @@ export function useListingEditPreload<TPayload extends Record<string, unknown>>(
 
             try {
                 const payload = await getListingById(editId);
-                if (!isActive || !payload) return;
+                if (!isActive) return;
+                if (!payload) {
+                    throw new Error("Listing not found");
+                }
                 await callbacksRef.current.onPayload(payload as unknown as TPayload);
             } catch (error) {
                 if (!isActive) return;

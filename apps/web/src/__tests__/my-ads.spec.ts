@@ -57,7 +57,7 @@ describe('MyAds API Regression Tests', () => {
             expect(result).toBe(true);
         });
 
-        it('should route service deletes to the service endpoint', async () => {
+        it('should route service deletes to the unified listings endpoint', async () => {
             vi.mocked(apiClient.delete).mockResolvedValueOnce({
                 success: true,
                 data: null
@@ -65,7 +65,7 @@ describe('MyAds API Regression Tests', () => {
 
             const result = await deleteAd('svc-123', LISTING_TYPE.SERVICE);
             expect(result).toBe(true);
-            expect(apiClient.delete).toHaveBeenCalledWith('services/svc-123', { silent: true });
+            expect(apiClient.delete).toHaveBeenCalledWith('listings/svc-123', { silent: true });
         });
     });
 
@@ -121,19 +121,27 @@ describe('MyAds API Regression Tests', () => {
             );
         });
 
-        it('should load listing stats from the unified listings stats endpoint', async () => {
-            vi.mocked(apiClient.get).mockResolvedValueOnce({
-                success: true,
-                data: {
-                    ad: { live: 1, total: 1 },
-                    service: { pending: 2, total: 2 },
-                    spare_part: { total: 0 }
-                }
-            });
+        it('should load listing stats from the unified listings status counts endpoint', async () => {
+            vi.mocked(apiClient.get)
+                .mockResolvedValueOnce({
+                    success: true,
+                    data: { live: 1, pending: 0, expired: 0 }
+                })
+                .mockResolvedValueOnce({
+                    success: true,
+                    data: { live: 0, pending: 2, expired: 0 }
+                })
+                .mockResolvedValueOnce({
+                    success: true,
+                    data: { live: 0, pending: 0, expired: 0 }
+                });
 
             const stats = await getMyListingsStats();
             expect(stats.ad?.live).toBe(1);
-            expect(apiClient.get).toHaveBeenCalledWith('listings/mine/stats');
+            expect(stats.service?.pending).toBe(2);
+            expect(apiClient.get).toHaveBeenCalledWith('listings/my/status-counts?listingType=ad');
+            expect(apiClient.get).toHaveBeenCalledWith('listings/my/status-counts?listingType=service');
+            expect(apiClient.get).toHaveBeenCalledWith('listings/my/status-counts?listingType=spare_part');
         });
     });
 
@@ -204,7 +212,7 @@ describe('MyAds API Regression Tests', () => {
 
             vi.mocked(apiClient.post).mockRejectedValueOnce(networkError);
 
-            await expect(repostListing('part-456', LISTING_TYPE.SPARE_PART)).rejects.toThrow('Failed to repost');
+            await expect(repostListing('part-456', LISTING_TYPE.SPARE_PART)).rejects.toThrow('Rate limited');
         });
     });
 });

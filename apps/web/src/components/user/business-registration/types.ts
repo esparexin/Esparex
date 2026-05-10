@@ -1,11 +1,11 @@
-import type { GeoJSONPoint } from "@/types/location";
+import type { GeoJSONPoint, AppLocationSource } from "@/types/location";
 
 export interface StepData {
     businessName: string;
     businessDescription: string;
     fullAddress: string;
     currentLocationDisplay: string;
-    currentLocationSource: "auto" | "";
+    currentLocationSource: AppLocationSource | "";
     currentLocationCity: string;
     currentLocationState: string;
     currentLocationPincode: string;
