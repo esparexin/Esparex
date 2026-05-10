@@ -6,6 +6,7 @@ export interface APIErrorShape {
   message: string;
   details?: unknown;
   retryAfter?: number;
+  retryAfterSeconds?: number;
   source: APIErrorSource;
 }
 
@@ -14,6 +15,7 @@ type APIErrorContext = {
   backendErrorCode?: string;
   backendErrorMessage?: string;
   retryAfter?: number;
+  retryAfterSeconds?: number;
   endpoint?: string;
 };
 
@@ -22,6 +24,7 @@ export class APIError extends Error implements APIErrorShape {
   code?: string;
   details?: unknown;
   retryAfter?: number;
+  retryAfterSeconds?: number;
   source: APIErrorSource;
 
   // Compatibility fields for existing hooks/components during the transition.
@@ -35,6 +38,7 @@ export class APIError extends Error implements APIErrorShape {
     message,
     details,
     retryAfter,
+    retryAfterSeconds,
     source,
     responseData,
     context,
@@ -48,6 +52,7 @@ export class APIError extends Error implements APIErrorShape {
     this.code = code;
     this.details = details;
     this.retryAfter = retryAfter;
+    this.retryAfterSeconds = retryAfterSeconds ?? retryAfter;
     this.source = source;
     this.userMessage = message;
 

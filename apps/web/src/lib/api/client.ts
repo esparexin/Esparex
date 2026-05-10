@@ -378,11 +378,15 @@ class APIClient {
                 // 🔄 AUTOMATIC RETRY FOR TRANSIENT FAILURES
                 const maxRetries = requestConfig?.maxRetries ?? 1;
                 const currentRetryCount = requestConfig?._retryCount ?? 0;
+
+                const isSendOtp = (requestUrl || '').includes('/auth/send-otp');
+
                 const isTransientError =
-                    latestStatus === 0 || // Network error
+                    (latestStatus === 0 || // Network error
                     latestStatus === 408 || // Timeout
-                    latestStatus === 429 || // Too many requests
-                    latestStatus >= 500; // Server error
+                    latestStatus >= 500) && // Server error
+                    latestStatus !== 429 && // Exclude 429 from auto-retries
+                    !isSendOtp; // Exclude /auth/send-otp under any circumstance
 
                 if (isTransientError && requestConfig && currentRetryCount < maxRetries) {
                     const delay = Math.pow(2, currentRetryCount) * 1000;

@@ -136,6 +136,12 @@ const sendRedisCommandWithReadyRetry = async (...args: string[]): Promise<RedisR
     }
 };
 
+const formatCountdown = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+};
+
 const respondRateLimited = (
     req: Request,
     res: Response,
@@ -196,10 +202,19 @@ const respondRateLimited = (
     if (typeof options.retryAfterSeconds === 'number') {
         res.set('Retry-After', String(options.retryAfterSeconds));
     }
+
+    let errorMessage = error;
+    if (typeof options.retryAfterSeconds === 'number') {
+        errorMessage = `Too many requests. Please try again in ${formatCountdown(options.retryAfterSeconds)}.`;
+    }
+
     return res.status(429).json({
         success: false,
-        error: error,
+        error: errorMessage,
         bucket,
+        path: req.originalUrl || req.path || 'unknown',
+        status: 429,
+        ...(options.retryAfterSeconds !== undefined ? { retryAfterSeconds: options.retryAfterSeconds } : {}),
         ...(options.retryAfterSeconds !== undefined ? { retryAfter: options.retryAfterSeconds } : {}),
         ...(options.code ? { code: options.code } : {})
     });
@@ -460,7 +475,7 @@ export const otpSendLimiter = createLimiter({
     errorCode: 'OTP_SEND_MOBILE_RATE_LIMIT',
     keyGenerator: (req: Request) => {
         const mobile = ((req.body as { mobile?: string })?.mobile)?.trim().replace(/\D/g, '').slice(-10);
-        return buildHybridRateLimitKey(req, mobile);
+        return mobile || resolveRequestIp(req);
     }
 });
 
@@ -472,7 +487,7 @@ export const otpVerifyLimiter = createLimiter({
     errorCode: 'OTP_VERIFY_RATE_LIMIT',
     keyGenerator: (req: Request) => {
         const mobile = ((req.body as { mobile?: string })?.mobile)?.trim().replace(/\D/g, '').slice(-10);
-        return buildHybridRateLimitKey(req, mobile);
+        return mobile || resolveRequestIp(req);
     }
 });
 
