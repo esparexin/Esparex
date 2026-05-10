@@ -149,40 +149,49 @@ describe('editListing.controller', () => {
         expect(mockUpdateAd).not.toHaveBeenCalled();
     });
 
-    // ── 4. Location blocked when LIVE ────────────────────────────────────────
+    // ── 4. Status blocks ────────────────────────────────────────────────────
 
-    it('blocks location change when listing status is LIVE', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'live' });
-        mockHasOwnField.mockImplementation((_obj: unknown, field: string) => field === 'location');
+    it('blocks edits when listing status is EXPIRED', async () => {
+        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'expired' });
 
-        const req = makeReq({ body: { location: { city: 'Mumbai' } } });
+        const req = makeReq();
         const res = makeRes();
         const next = makeNext();
 
         await editListing(req, res, next);
 
         expect(mockSendErrorResponse).toHaveBeenCalledWith(
-            req, res, 400, 'Validation failed',
-            expect.objectContaining({ code: 'LOCKED_FIELDS' })
+            req, res, 400, 'Expired or rejected listings are strictly read-only and cannot be edited'
         );
         expect(mockUpdateAd).not.toHaveBeenCalled();
     });
 
-    // ── 5. Location blocked when PENDING ─────────────────────────────────────
+    it('blocks edits when listing status is REJECTED', async () => {
+        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'rejected' });
 
-    it('blocks locationId change when listing status is PENDING', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'pending' });
-        mockHasOwnField.mockImplementation((_obj: unknown, field: string) => field === 'locationId');
-
-        const req = makeReq({ body: { locationId: 'loc-123' } });
+        const req = makeReq();
         const res = makeRes();
         const next = makeNext();
 
         await editListing(req, res, next);
 
         expect(mockSendErrorResponse).toHaveBeenCalledWith(
-            req, res, 400, 'Validation failed',
-            expect.objectContaining({ code: 'LOCKED_FIELDS' })
+            req, res, 400, 'Expired or rejected listings are strictly read-only and cannot be edited'
+        );
+        expect(mockUpdateAd).not.toHaveBeenCalled();
+    });
+
+    it('blocks edits when listing status is PENDING', async () => {
+        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'pending' });
+
+        const req = makeReq();
+        const res = makeRes();
+        const next = makeNext();
+
+        await editListing(req, res, next);
+
+        expect(mockSendErrorResponse).toHaveBeenCalledWith(
+            req, res, 400, 'Pending listings are view-only and cannot be edited'
         );
         expect(mockUpdateAd).not.toHaveBeenCalled();
     });

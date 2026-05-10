@@ -95,11 +95,14 @@ export const deleteListing = async (
  */
 export const markListingAsSold = async (
     id: string | number,
-    soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available'
+    soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available',
+    isExpired?: boolean
 ): Promise<Listing | null> => {
     try {
+        const endpoint = isExpired ? `listings/${id}/mark-sold` : API_ROUTES.USER.LISTING_SOLD(id);
+        const method = isExpired ? 'patch' : 'put';
         const { data: result, error } = await toApiResult<Listing>(
-            apiClient.put(API_ROUTES.USER.LISTING_SOLD(id), soldReason ? { soldReason } : {}, { silent: true })
+            apiClient[method](endpoint, soldReason ? { soldReason } : {}, { silent: true })
         );
         if (error) throw error;
         return result ? normalizeListing(result) : null;

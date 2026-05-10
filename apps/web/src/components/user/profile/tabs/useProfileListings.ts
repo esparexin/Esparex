@@ -38,15 +38,15 @@ export function useProfileListings(
         ads: {
             fetchApi: async () => (await getMyListings(LISTING_TYPE.AD, statusFilter)).data,
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.AD),
-            markSoldApi: markListingAsSold,
-            deactivateApi: deactivateListing,
+            markSoldApi: (id: string, reason?: ListingSoldReason) => markListingAsSold(id, reason, statusFilter === 'expired'),
+            deactivateApi: (id: string) => deactivateListing(id),
             repostApi: (id: string) => repostListing(id, LISTING_TYPE.AD),
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.AD)
         },
         services: {
             fetchApi: async () => (await getMyListings(LISTING_TYPE.SERVICE, statusFilter)).data,
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SERVICE),
-            markSoldApi: markListingAsSold,
+            markSoldApi: (id: string, reason?: ListingSoldReason) => markListingAsSold(id, reason, statusFilter === 'expired'),
             deactivateApi: deactivateListing,
             repostApi: (id: string) => repostListing(id, LISTING_TYPE.SERVICE),
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.SERVICE)
@@ -54,7 +54,7 @@ export function useProfileListings(
         "spare-parts": {
             fetchApi: async () => (await getMyListings(LISTING_TYPE.SPARE_PART, statusFilter)).data,
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SPARE_PART),
-            markSoldApi: markListingAsSold,
+            markSoldApi: (id: string, reason?: ListingSoldReason) => markListingAsSold(id, reason, statusFilter === 'expired'),
             deactivateApi: deactivateListing,
             repostApi: (id: string) => repostListing(id, LISTING_TYPE.SPARE_PART),
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.SPARE_PART)

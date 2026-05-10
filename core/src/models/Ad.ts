@@ -39,7 +39,9 @@ export interface IAd extends Document, ISoftDeleteDocument {
     duplicateOf?: Types.ObjectId;
     isDuplicateFlag: boolean;
     imageHashes: string[];
+    isSold?: boolean;
     soldAt?: Date;
+    rejectedAt?: Date;
     soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available';
     fraudScore: number;
     fraudFlags: string[];
@@ -144,7 +146,9 @@ const AdSchema: Schema = new Schema({
     duplicateOf: { type: Schema.Types.ObjectId, ref: 'Ad' },
     isDuplicateFlag: { type: Boolean, default: false },
     imageHashes: [{ type: String }],
+    isSold: { type: Boolean, default: false },
     soldAt: { type: Date },
+    rejectedAt: { type: Date },
     soldReason: {
         type: String,
         enum: ['sold_on_platform', 'sold_outside', 'no_longer_available']
@@ -404,6 +408,10 @@ AdSchema.index({
     'location.locationId': 1,
     createdAt: -1
 }, { name: 'ad_seller_complex_listing_idx' });
+AdSchema.index(
+    { sellerId: 1, status: 1, isSold: 1, deletedAt: 1, createdAt: -1 },
+    { name: 'idx_listings_seller_status_isSold_deletedAt_createdAt' }
+);
 AdSchema.index(
     { duplicateFingerprint: 1 },
     {

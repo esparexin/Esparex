@@ -1,7 +1,7 @@
 export const ACCOUNT_LISTING_STATUS_TABS = {
-    ads: ["live", "pending", "sold", "expired", "rejected", "deactivated"],
-    services: ["live", "pending", "expired", "rejected", "deactivated"],
-    "spare-parts": ["live", "pending", "sold", "expired", "rejected", "deactivated"],
+    ads: ["live", "pending", "expired"],
+    services: ["live", "pending", "expired"],
+    "spare-parts": ["live", "pending", "expired"],
 } as const;
 
 export type AccountListingSection = keyof typeof ACCOUNT_LISTING_STATUS_TABS;

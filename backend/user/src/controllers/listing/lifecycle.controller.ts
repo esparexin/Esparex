@@ -135,6 +135,13 @@ export const repostListing = async (req: Request, res: Response, next: NextFunct
         if (!id) return;
         const userId = (req.user as AuthUser)._id.toString();
 
+        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status' });
+        if (!listing) return;
+
+        if (listing.status === 'expired' || listing.status === 'rejected') {
+            return sendErrorResponse(req, res, 400, 'Expired or rejected listings are strictly read-only and cannot be renewed or reposted');
+        }
+
         const reposted = await AdMutationService.repostAd(id, userId);
         if (!reposted) {
             return sendErrorResponse(req, res, 404, 'Listing not found');
@@ -181,6 +188,34 @@ export const promoteListing = async (req: Request, res: Response, next: NextFunc
         }
 
         return sendSuccessResponse(res, { listingId: listing._id.toString(), currentStatus: listing.status, listingType: listing.listingType }, 'Proceed to promotion checkout');
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * PATCH /api/v1/listings/:id/mark-sold
+ * Mark as sold only when status = "expired" and isSold = false
+ */
+export const markListingStatusSold = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const listing = await getAndVerifyOwnedListing(req, res);
+        if (!listing) return;
+
+        if (listing.status !== 'expired') {
+            return sendErrorResponse(req, res, 400, 'Listing must be expired to be marked as sold under this endpoint');
+        }
+
+        if (listing.isSold === true) {
+            return sendErrorResponse(req, res, 400, 'Listing is already marked as sold');
+        }
+
+        listing.isSold = true;
+        listing.soldAt = new Date();
+        
+        await listing.save();
+
+        return sendSuccessResponse(res, listing, 'Listing marked as sold successfully');
     } catch (error) {
         next(error);
     }
