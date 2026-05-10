@@ -1,7 +1,7 @@
 export const ACCOUNT_LISTING_STATUS_TABS = {
-    ads: ["live", "pending", "expired"],
-    services: ["live", "pending", "expired"],
-    "spare-parts": ["live", "pending", "expired"],
+    ads: ["active", "pending", "expired"],
+    services: ["active", "pending", "expired"],
+    "spare-parts": ["active", "pending", "expired"],
 } as const;
 
 export type AccountListingSection = keyof typeof ACCOUNT_LISTING_STATUS_TABS;
@@ -18,12 +18,12 @@ export function normalizeAccountListingStatus(
         return normalized as AccountListingStatus;
     }
 
-    return "live";
+    return "active";
 }
 
 export function buildAccountListingRoute(
     section: AccountListingSection,
-    status: unknown = "live"
+    status: unknown = "active"
 ): string {
     const normalizedStatus = normalizeAccountListingStatus(section, status);
     return `/account/${section}?status=${encodeURIComponent(normalizedStatus)}`;

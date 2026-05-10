@@ -51,7 +51,8 @@ const adListingRouteConfig: ListingDetailRouteConfig = {
     offers: {
       "@type": "Offer",
       price: ad.price,
-      priceCurrency: "INR",
+      priceCurrency: ad.currency || "INR",
+      itemCondition: ad.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
       availability:
         ad.status === "live"
           ? "https://schema.org/InStock"
@@ -60,6 +61,7 @@ const adListingRouteConfig: ListingDetailRouteConfig = {
         ? { "@type": "Person", name: ad.sellerName }
         : undefined,
     },
+    brand: ad.brandName ? { "@type": "Brand", name: ad.brandName } : undefined,
   }),
 };
 
@@ -78,9 +80,10 @@ const serviceListingRouteConfig: ListingDetailRouteConfig = {
       name: service.sellerName || "Service Provider",
     },
     offers: {
-      "@type": "Offer",
-      price: service.price,
-      priceCurrency: "INR",
+      "@type": "AggregateOffer",
+      lowPrice: service.priceMin || service.price,
+      highPrice: service.priceMax,
+      priceCurrency: service.currency || "INR",
       availability:
         service.status === "live"
           ? "https://schema.org/InStock"
@@ -102,7 +105,8 @@ const sparePartListingRouteConfig: ListingDetailRouteConfig = {
     offers: {
       "@type": "Offer",
       price: listing.price,
-      priceCurrency: "INR",
+      priceCurrency: listing.currency || "INR",
+      itemCondition: listing.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
       availability:
         listing.status === "live"
           ? "https://schema.org/InStock"
@@ -111,6 +115,7 @@ const sparePartListingRouteConfig: ListingDetailRouteConfig = {
         ? { "@type": "Person", name: listing.sellerName }
         : undefined,
     },
+    brand: listing.brandName ? { "@type": "Brand", name: listing.brandName } : undefined,
   }),
 };
 

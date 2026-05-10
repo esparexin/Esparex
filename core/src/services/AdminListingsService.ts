@@ -595,3 +595,73 @@ export const adminGetListingCounts = async (listingTypeRaw?: unknown) => {
     const listingType = resolveListingTypeFilter(listingTypeRaw);
     return getModerationCounts(listingType);
 };
+
+// ─── Bulk Moderation ─────────────────────────────────────────────────────────
+
+export const adminBulkApproveListings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminApproveListing(id, actorId, logFn);
+            results.push({ id, success: true, listing: updated });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error),
+                statusCode: (error as { statusCode?: number }).statusCode || 500
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+        results
+    };
+};
+
+export const adminBulkRejectListings = async (
+    ids: string[],
+    actorId: string,
+    rejectionReason: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+    if (!rejectionReason || !rejectionReason.trim()) {
+        throw new AppError('Rejection reason is required for bulk rejection', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminRejectListing(id, actorId, rejectionReason, logFn);
+            results.push({ id, success: true, listing: updated });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error),
+                statusCode: (error as { statusCode?: number }).statusCode || 500
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+        results
+    };
+};

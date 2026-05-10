@@ -20,6 +20,8 @@ export const seedAdmin = async (email: string) => {
         !env.CI &&
         env.ALLOW_DEFAULT_ADMIN_SEED;
 
+    logger.info(`seedAdmin checking: email=${email}, env=${env.NODE_ENV}, CI=${env.CI}, ALLOW_SEED=${env.ALLOW_DEFAULT_ADMIN_SEED}, canSeed=${canSeedDefaultAdmin}`);
+
     if (!canSeedDefaultAdmin) return;
     if (email !== 'admin@esparex.com') return;
 
@@ -38,6 +40,8 @@ export const seedAdmin = async (email: string) => {
     const adminExists = await Admin.findOne({ email });
 
     if (adminExists) {
+        logger.info(`Admin ${email} already exists in DB. Status: ${adminExists.status}`);
+        
         // 🔄 AUTO-CORRECTION: If admin exists but is not LIVE (e.g. legacy "active" status), fix it.
         if (adminExists.status !== USER_STATUS.LIVE) {
             logger.warn(`Admin ${email} found with status ${adminExists.status}. Auto-correcting to LIVE.`);
@@ -45,48 +49,37 @@ export const seedAdmin = async (email: string) => {
             await adminExists.save();
             logger.info(`✅ Admin ${email} lifecycle stabilized (status: LIVE).`);
         }
+
+        // 🛡️ RECOVERY: Ensure default admin password is 'Admin@123' in local development
+        // This forces synchronization if the admin exists but credentials are out of sync.
+        if (env.NODE_ENV === 'development' && email === 'admin@esparex.com') {
+            adminExists.password = 'Admin@123';
+            // Also ensure status is LIVE
+            adminExists.status = USER_STATUS.LIVE;
+            await adminExists.save();
+            logger.info(`✅ Default admin credentials synchronized to 'admin@esparex.com' / 'Admin@123'`);
+        }
         return;
     }
 
     logger.warn('Seeding default admin account because ALLOW_DEFAULT_ADMIN_SEED=true');
-    await Admin.create({
-        firstName: 'Super',
-        lastName: 'Admin',
-        email: 'admin@esparex.com',
-        password: 'Admin@123',
-        role: 'super_admin',
-        status: USER_STATUS.LIVE
-    });
-    logger.info(`✅ Seeded new Super Admin: ${email}`);
-};
-
-export const loginAdmin = async (email: string, password: string): Promise<AdminLoginResult | null> => {
-    await seedAdmin(email);
-
-    const admin = await Admin.findOne({ email }).select('+password');
-    let isMatch = false;
-
-    if (admin) {
-        if (admin.status !== USER_STATUS.LIVE) {
-            throw new AppError('Account is inactive', 403, 'ACCOUNT_INACTIVE');
-        }
-        if (admin.password) {
-            isMatch = await comparePassword(password, admin.password);
-        }
+    try {
+        await Admin.create({
+            firstName: 'Super',
+            lastName: 'Admin',
+            email: 'admin@esparex.com',
+            password: 'Admin@123',
+            role: 'super_admin',
+            status: USER_STATUS.LIVE
+        });
+        logger.info(`✅ Seeded new Super Admin: ${email}`);
+    } catch (createError: unknown) {
+        logger.error('❌ SEED ERROR: Failed to create default admin', {
+            email,
+            error: createError instanceof Error ? createError.message : String(createError)
+        });
+        // We don't re-throw here to allow the login attempt to proceed (it will just fail with 401 later)
     }
-
-    if (!admin || !isMatch) {
-        return null; // Invalid credentials
-    }
-
-    admin.lastLogin = new Date();
-    await admin.save();
-
-    const token = generateAdminToken({ id: admin._id, role: admin.role });
-    const adminObj = admin.toObject({ virtuals: true }) as Partial<IAdmin>;
-    delete adminObj.password;
-
-    return { token, admin: adminObj };
 };
 
 export const getAuditLogs = async (

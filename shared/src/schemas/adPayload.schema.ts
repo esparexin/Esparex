@@ -41,6 +41,7 @@ const optionalTrimmedString = z.preprocess(
 export const BaseAdPayloadSchema = z.object({
     categoryId: optionalObjectId, // Canonical
     sparePartId: optionalObjectId, // Canonical — matches Ad.sparePartId model field
+    serviceTypeIds: z.array(optionalObjectId).optional(), // Unified support for service types
     brandId: optionalObjectId, // Canonical
     modelId: optionalObjectId, // Canonical
 

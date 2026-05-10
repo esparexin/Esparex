@@ -84,13 +84,30 @@ router.delete('/businesses/:id', adminBusiness.deleteBusinessAccount);
 router.get('/listings', adminListings.adminListListings);
 router.get('/listings/counts', adminListings.adminGetListingCounts);
 router.get('/listings/:id', adminListings.adminGetListingById);
+
+// Moderation Actions (Support both POST and PATCH for compatibility)
 router.patch('/listings/:id/approve', adminListings.adminApproveListing);
+router.post('/listings/:id/approve', adminListings.adminApproveListing);
+
 router.patch('/listings/:id/reject', adminListings.adminRejectListing);
+router.post('/listings/:id/reject', adminListings.adminRejectListing);
+
 router.patch('/listings/:id/deactivate', adminListings.adminDeactivateListing);
+router.post('/listings/:id/deactivate', adminListings.adminDeactivateListing);
+
 router.patch('/listings/:id/expire', adminListings.adminExpireListing);
+router.post('/listings/:id/expire', adminListings.adminExpireListing);
+
 router.patch('/listings/:id/extend', adminListings.adminExtendListing);
+router.post('/listings/:id/extend', adminListings.adminExtendListing);
+
 router.patch('/listings/:id/report-resolve', adminListings.adminResolveListingReport);
+router.post('/listings/:id/report-resolve', adminListings.adminResolveListingReport);
 router.delete('/listings/:id', adminListings.adminSoftDeleteListing);
+
+// Bulk Operations
+router.post('/listings/bulk/approve', adminListings.adminBulkApproveListings);
+router.post('/listings/bulk/reject', adminListings.adminBulkRejectListings);
 
 router.get('/reports', adminReports.getReportedAds);
 router.get('/reports/:id', adminReports.getReportedAdById);

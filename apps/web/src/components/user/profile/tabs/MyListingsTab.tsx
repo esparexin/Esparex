@@ -73,9 +73,9 @@ export function MyListingsTab({
         subTab as AccountListingSection,
         searchParams.get("status")
     ) as ListingStatus;
-    const adsStatus: ListingStatus = subTab === "ads" ? selectedStatus : "live";
-    const servicesStatus: ListingStatus = subTab === "services" ? selectedStatus : "live";
-    const spareStatus: ListingStatus = subTab === "spare-parts" ? selectedStatus : "live";
+    const adsStatus: ListingStatus = subTab === "ads" ? selectedStatus : "active";
+    const servicesStatus: ListingStatus = subTab === "services" ? selectedStatus : "active";
+    const spareStatus: ListingStatus = subTab === "spare-parts" ? selectedStatus : "active";
 
     // Sync state back to URL if normalized state differs from current params
     useEffect(() => {
@@ -98,23 +98,30 @@ export function MyListingsTab({
     const {
         listings: myAds, loading: loadingAds, error: adsError,
         handleDelete: handleDeleteAd, handleMarkSold: handleMarkAdSold,
-        handleDeactivate: handleDeactivateAd, handleRepost: handleRepostAd,
+        handleDeactivate: handleDeactivateAd, handleActivate: handleActivateAd, handleRepost: handleRepostAd,
         refetch: fetchMyAds
     } = useProfileListings("ads", subTab, user, adsStatus);
 
     const { 
         listings: myServices, loading: loadingServices, error: servicesError, 
-        handleDelete: handleDeleteService, handleRepost: handleRepostService, refetch: fetchMyServices 
+        handleDelete: handleDeleteService, handleDeactivate: handleDeactivateService, handleActivate: handleActivateService, handleRepost: handleRepostService, refetch: fetchMyServices 
     } = useProfileListings("services", subTab, user, servicesStatus);
 
     const { 
         listings: mySpare, loading: loadingSpare, error: spareError, 
-        handleDelete: handleDeleteSpare, handleMarkSold: handleMarkSpareSold, handleRepost: handleRepostSpare, refetch: fetchMySpare 
+        handleDelete: handleDeleteSpare, handleMarkSold: handleMarkSpareSold, handleDeactivate: handleDeactivateSpare, handleActivate: handleActivateSpare, handleRepost: handleRepostSpare, refetch: fetchMySpare 
     } = useProfileListings("spare-parts", subTab, user, spareStatus);
 
     // Modal States
     const [adToDelete, setAdToDelete] = useState<Listing | null>(null);
     const [isDeleteAdOpen, setIsDeleteAdOpen] = useState(false);
+    
+    const [adToDeactivate, setAdToDeactivate] = useState<Listing | null>(null);
+    const [isDeactivateOpen, setIsDeactivateOpen] = useState(false);
+    
+    const [adToActivate, setAdToActivate] = useState<Listing | null>(null);
+    const [isActivateOpen, setIsActivateOpen] = useState(false);
+
     const [adToSell, setAdToSell] = useState<Listing | null>(null);
     const [isSoldOpen, setIsSoldOpen] = useState(false);
     const [soldReason, setSoldReason] = useState<SoldReason | null>(null);
@@ -128,9 +135,33 @@ export function MyListingsTab({
     // Handlers
     const confirmDeleteAd = async () => {
         if (!adToDelete) return;
-        await handleDeleteAd(adToDelete.id);
+        const type = subTab === "ads" ? "ad" : subTab === "services" ? "service" : "spare_part";
+        if (type === "ad") await handleDeleteAd(adToDelete.id);
+        else if (type === "service") await handleDeleteService(adToDelete.id);
+        else await handleDeleteSpare(adToDelete.id);
+        
         setIsDeleteAdOpen(false);
         setAdToDelete(null);
+    };
+
+    const confirmDeactivate = async () => {
+        if (!adToDeactivate) return;
+        const type = subTab === "ads" ? "ad" : subTab === "services" ? "service" : "spare_part";
+        if (type === "ad") await handleDeactivateAd(adToDeactivate.id);
+        else if (type === "service") await handleDeactivateService(adToDeactivate.id);
+        else await handleDeactivateSpare(adToDeactivate.id);
+        setIsDeactivateOpen(false);
+        setAdToDeactivate(null);
+    };
+
+    const confirmActivate = async () => {
+        if (!adToActivate) return;
+        const type = subTab === "ads" ? "ad" : subTab === "services" ? "service" : "spare_part";
+        if (type === "ad") await handleActivateAd(adToActivate.id);
+        else if (type === "service") await handleActivateService(adToActivate.id);
+        else await handleActivateSpare(adToActivate.id);
+        setIsActivateOpen(false);
+        setAdToActivate(null);
     };
 
     const confirmSold = async () => {
@@ -184,9 +215,6 @@ export function MyListingsTab({
             onStatusChange: handleStatusChange,
             getStatusCount: (s: string) => {
                 const typeStats = (adCounts?.ad as Record<string, number | undefined>) || {};
-                if (s === 'live') {
-                    return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
-                }
                 return typeStats[s] ?? 0;
             },
             items: myAds,
@@ -201,6 +229,7 @@ export function MyListingsTab({
                 <ListingItem
                     title={listing.title}
                     status={listing.status}
+                    listingType="ad"
                     thumbnail={listing.images?.[0] ?? listing.image}
                     priceLabel={formatPrice(listing.price)}
                     badgeColor="blue"
@@ -217,8 +246,9 @@ export function MyListingsTab({
                         title: listing.title,
                     })}
                     onDelete={() => { setAdToDelete(listing); setIsDeleteAdOpen(true); }}
-                    onMarkSold={listing.status === "live" ? () => { setAdToSell(listing); setSoldReason(null); setIsSoldOpen(true); } : undefined}
-                    onDeactivate={() => handleDeactivateAd(listing.id)}
+                    onMarkSold={() => { setAdToSell(listing); setSoldReason(null); setIsSoldOpen(true); }}
+                    onDeactivate={() => { setAdToDeactivate(listing); setIsDeactivateOpen(true); }}
+                    onActivate={() => { setAdToActivate(listing); setIsActivateOpen(true); }}
                     onRenew={() => handleRepostAd(listing.id)}
                 />
             )
@@ -231,9 +261,6 @@ export function MyListingsTab({
             onStatusChange: handleStatusChange,
             getStatusCount: (s: string) => {
                 const typeStats = (adCounts?.service as Record<string, number | undefined>) || {};
-                if (s === 'live') {
-                    return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
-                }
                 return typeStats[s] ?? 0;
             },
             items: myServices,
@@ -248,6 +275,7 @@ export function MyListingsTab({
                 <ListingItem
                     title={service.title}
                     status={service.status}
+                    listingType="service"
                     thumbnail={service.images?.[0]}
                     priceLabel={service.priceMin ? `From ₹${formatStableNumber(service.priceMin)}` : "Price on request"}
                     badgeColor="violet"
@@ -260,8 +288,10 @@ export function MyListingsTab({
                         seoSlug: service.seoSlug,
                         title: service.title,
                     })}
-                    onDelete={() => handleDeleteService(service.id)}
+                    onDelete={() => { setAdToDelete(service); setIsDeleteAdOpen(true); }}
                     onRenew={() => handleRepostService(service.id)}
+                    onDeactivate={() => { setAdToDeactivate(service); setIsDeactivateOpen(true); }}
+                    onActivate={() => { setAdToActivate(service); setIsActivateOpen(true); }}
                     metaBadges={([
                         buildLocationMetaBadge(service.location),
                         service.onsiteService !== undefined ? {
@@ -270,14 +300,14 @@ export function MyListingsTab({
                             className: service.onsiteService ? "text-green-600" : "text-muted-foreground"
                         } : null,
                         service.turnaroundTime ? { label: service.turnaroundTime, icon: <Timer className="h-3 w-3" /> } : null
-                    ].filter((v): v is NonNullable<typeof v> => v !== undefined))}
+                    ].filter((v): v is NonNullable<typeof v> => v != null))}
                     tags={([
                         buildTag(
                             resolveReadableListingReferenceLabel(service.category),
                             "bg-violet-50 text-violet-700 border-violet-100"
                         ),
                         buildTag(resolveReadableListingReferenceLabel(service.brand))
-                    ].filter((v): v is NonNullable<typeof v> => v !== undefined))}
+                    ].filter((v): v is NonNullable<typeof v> => v != null))}
                 />
             )
         },
@@ -289,9 +319,6 @@ export function MyListingsTab({
             onStatusChange: handleStatusChange,
             getStatusCount: (s: string) => {
                 const typeStats = (adCounts?.spare_part as Record<string, number | undefined>) || {};
-                if (s === 'live') {
-                    return (typeStats.live || 0) + (typeStats.approved || 0) + (typeStats.active || 0);
-                }
                 return typeStats[s] ?? 0;
             },
             items: mySpare,
@@ -306,6 +333,7 @@ export function MyListingsTab({
                 <ListingItem
                     title={listing.title}
                     status={listing.status}
+                    listingType="spare_part"
                     thumbnail={listing.images?.[0]}
                     priceLabel={`₹${formatStableNumber(listing.price)}`}
                     badgeColor="teal"
@@ -318,12 +346,14 @@ export function MyListingsTab({
                         seoSlug: listing.seoSlug,
                         title: listing.title,
                     })}
-                    onDelete={() => handleDeleteSpare(listing.id)}
+                    onDelete={() => { setAdToDelete(listing); setIsDeleteAdOpen(true); }}
                     onRenew={() => handleRepostSpare(listing.id)}
-                    onMarkSold={listing.status === "live" ? () => { setSpareToSell(listing); setSparesSoldReason(null); setIsSparesSoldOpen(true); } : undefined}
+                    onDeactivate={() => { setAdToDeactivate(listing); setIsDeactivateOpen(true); }}
+                    onActivate={() => { setAdToActivate(listing); setIsActivateOpen(true); }}
+                    onMarkSold={() => { setSpareToSell(listing); setSparesSoldReason(null); setIsSparesSoldOpen(true); }}
                     metaBadges={([
                         buildLocationMetaBadge(listing.location)
-                    ].filter((v): v is NonNullable<typeof v> => v !== undefined))}
+                    ].filter((v): v is NonNullable<typeof v> => v != null))}
                 />
             )
         }
@@ -372,6 +402,40 @@ export function MyListingsTab({
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={confirmDeleteAd} className="bg-red-600 hover:bg-red-700 text-white">
                             Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={isDeactivateOpen} onOpenChange={setIsDeactivateOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Deactivate listing?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            &ldquo;<strong>{adToDeactivate?.title}</strong>&rdquo; will be hidden from the public. You can reactivate it later.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDeactivate} className="bg-orange-600 hover:bg-orange-700 text-white">
+                            Deactivate
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={isActivateOpen} onOpenChange={setIsActivateOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Reactivate listing?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            &ldquo;<strong>{adToActivate?.title}</strong>&rdquo; will be sent back to moderation for review before becoming live.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmActivate} className="bg-blue-600 hover:bg-blue-700 text-white">
+                            Reactivate
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

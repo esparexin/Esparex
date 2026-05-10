@@ -222,3 +222,36 @@ export const adminGetListingCountsLegacyAdapter = async (req: Request, res: Resp
         sendAdminError(req, res, error, 500);
     }
 };
+
+// ─── Bulk Moderation ─────────────────────────────────────────────────────────
+
+export const adminBulkApproveListings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkApproveListings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk approval process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkRejectListings = async (req: Request, res: Response) => {
+    try {
+        const { ids, rejectionReason, reason } = req.body as { ids: string[]; rejectionReason?: string; reason?: string };
+        const resolvedReason = rejectionReason ?? reason ?? 'Rejected by bulk moderation';
+        
+        const result = await adminListingsService.adminBulkRejectListings(
+            ids,
+            getActorId(req),
+            resolvedReason,
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk rejection process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};

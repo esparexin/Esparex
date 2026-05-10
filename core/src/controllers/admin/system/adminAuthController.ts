@@ -13,6 +13,7 @@ import {
     updateAdminLastLogin,
     getAdminProfileById,
     saveAdmin,
+    seedAdmin,
 } from '../../../services/AdminService';
 import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
 import { getAdminCookieOptions } from '../../../utils/cookieHelper';
@@ -168,6 +169,9 @@ export const adminLogin = async (req: Request, res: Response) => {
         const twoFactorCode = typeof loginBody.twoFactorCode === 'string' ? loginBody.twoFactorCode : undefined;
         if (!email || !password) return sendAdminError(req, res, 'Email and password are required', 400);
 
+        // 🛡️ GOVERNANCE: Ensure default admin exists in local dev environments
+        await seedAdmin(email);
+
         // 🛡️ SECURITY AUDIT: Load dynamic security settings
         const systemConfig = await getSystemConfigDoc();
         const requestIp = normalizeIp(
@@ -185,27 +189,26 @@ export const adminLogin = async (req: Request, res: Response) => {
         }
 
         const admin = await findAdminForLogin(email);
-        const adminRecord = admin as unknown as
-            (typeof admin & { twoFactorEnabled?: boolean; twoFactorSecret?: string });
-
         if (!admin) {
-            logger.warn('Admin login failed: Account not found', { email, ip: req.ip });
-            return sendAdminError(req, res, 'Invalid credentials', 401);
+            logger.warn('Admin login failed: Account not found in database', { email, ip: req.ip });
+            return sendAdminError(req, res, 'Admin account not found', 401);
         }
 
         if (admin.status !== USER_STATUS.LIVE) {
-            logger.warn('Admin login failed: Account status not LIVE', {
+            logger.warn('Admin login failed: Account status is not LIVE', {
                 email,
                 status: admin.status,
                 ip: req.ip
             });
-            return sendAdminError(req, res, 'Invalid credentials', 401);
+            return sendAdminError(req, res, `Admin account is ${admin.status} (expected LIVE)`, 401);
         }
 
         const isMatch = admin.password ? await comparePassword(password, admin.password) : false;
+        const adminRecord = admin as unknown as
+            (typeof admin & { twoFactorEnabled?: boolean; twoFactorSecret?: string });
         if (!isMatch) {
-            logger.warn('Admin login failed: Invalid password', { email, ip: req.ip });
-            return sendAdminError(req, res, 'Invalid credentials', 401);
+            logger.warn('Admin login failed: Password mismatch', { email, ip: req.ip });
+            return sendAdminError(req, res, 'Incorrect password', 401);
         }
 
         // Use updateOne to bypass pre-save hooks — avoids accidental bcrypt re-hash

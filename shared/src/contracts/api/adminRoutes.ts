@@ -62,6 +62,8 @@ export const ADMIN_ROUTES = {
   LISTING_EXPIRE: (id: string) => `/listings/${id}/expire`,
   LISTING_EXTEND: (id: string) => `/listings/${id}/extend`,
   LISTING_COUNTS: "/listings/counts",
+  LISTING_BULK_APPROVE: "/listings/bulk/approve",
+  LISTING_BULK_REJECT: "/listings/bulk/reject",
   LISTING_DELETE: (id: string) => `/listings/${id}`,
   LISTING_REPORT_RESOLVE: (id: string) => `/listings/${id}/report-resolve`,
   // Legacy report aliases mapped to canonical reports surface

@@ -5,7 +5,7 @@ import type { User } from "@/types/User";
 import logger from "@/lib/logger";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 
-export type ListingStatus = "live" | "pending" | "rejected" | "expired" | "sold" | "deactivated";
+export type ListingStatus = "active" | "pending" | "rejected" | "expired" | "sold" | "deactivated";
 export type ListingType = "ads" | "spare-parts" | "services";
 export type ListingSoldReason = "sold_on_platform" | "sold_outside" | "no_longer_available";
 
@@ -53,6 +53,13 @@ export function useUserListingManagement<T extends { id: string; status: string 
         queryKey: [...queryKey, statusFilter],
         queryFn: async () => {
             const all = await fetchApi();
+            // Grouped status filtering logic to match backend tab groupings
+            if (statusFilter === "active") {
+                return all.filter((l) => ["active", "live", "deactivated"].includes(l.status));
+            }
+            if (statusFilter === "expired") {
+                return all.filter((l) => ["expired", "sold"].includes(l.status));
+            }
             return all.filter((l) => l.status === statusFilter);
         },
         enabled: isEnabled,

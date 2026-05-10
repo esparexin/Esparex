@@ -161,8 +161,11 @@ export async function blockAdminSeller(sellerId: string, reason: string): Promis
 /**
  * Bulk Approve Ads/Services
  */
-export async function bulkApproveAds(ids: string[], _domain: 'ad' | 'service'): Promise<void> {
-    await Promise.all(ids.map(id => adminFetch(ADMIN_ROUTES.LISTING_APPROVE(id), { method: "POST" })));
+export async function bulkApproveAds(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_APPROVE, { 
+        method: "POST",
+        body: { ids }
+    });
 }
 
 /**
@@ -171,16 +174,18 @@ export async function bulkApproveAds(ids: string[], _domain: 'ad' | 'service'): 
 export async function bulkUpdateAdStatus(
     ids: string[],
     status: string,
-    _domain: 'ad' | 'service',
     reason?: string
 ): Promise<void> {
+    if (status === 'rejected') {
+        await adminFetch(ADMIN_ROUTES.LISTING_BULK_REJECT, {
+            method: "POST",
+            body: { ids, rejectionReason: reason || 'Rejected in bulk operation' }
+        });
+        return;
+    }
+
+    // Fallback for other statuses not yet supported by bulk backend
     await Promise.all(ids.map(id => {
-        if (status === 'rejected') {
-            return adminFetch(ADMIN_ROUTES.LISTING_REJECT(id), {
-                method: "POST",
-                body: { rejectionReason: reason || 'Rejected in bulk operation' }
-            });
-        }
         if (status === 'deactivated') {
             return adminFetch(ADMIN_ROUTES.LISTING_DEACTIVATE(id), { method: 'POST' });
         }

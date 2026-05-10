@@ -109,8 +109,7 @@ export const getMyListingStatusCounts = async (req: Request, res: Response) => {
 
         const matchStage: Record<string, any> = {
             sellerId: new mongoose.Types.ObjectId(userId),
-            isDeleted: { $ne: true },
-            status: { $ne: 'deactivated' }
+            isDeleted: { $ne: true }
         };
 
         const andConditions: any[] = [
@@ -160,11 +159,11 @@ export const getMyListingStatusCounts = async (req: Request, res: Response) => {
         results.forEach((bucket) => {
             const status = bucket._id;
             const count = bucket.count;
-            if (status === 'active' || status === 'live') {
+            if (status === 'active' || status === 'live' || status === 'deactivated') {
                 live += count;
             } else if (status === 'pending') {
                 pending += count;
-            } else if (status === 'expired' || status === 'rejected') {
+            } else if (status === 'expired' || status === 'sold') {
                 expired += count;
             }
         });
@@ -201,18 +200,17 @@ export const getMyTabListings = async (req: Request, res: Response) => {
             $or: [
                 { deletedAt: { $exists: false } },
                 { deletedAt: null }
-            ],
-            status: { $ne: 'deactivated' }
+            ]
         };
 
         if (tab) {
             const tabStr = String(tab).trim().toLowerCase();
-            if (tabStr === 'live') {
-                query.status = { $in: ['active', 'live'] };
+            if (tabStr === 'live' || tabStr === 'active') {
+                query.status = { $in: ['active', 'live', 'deactivated'] };
             } else if (tabStr === 'pending') {
                 query.status = 'pending';
             } else if (tabStr === 'expired') {
-                query.status = { $in: ['expired', 'rejected'] };
+                query.status = { $in: ['expired', 'sold'] };
             } else {
                 query.status = { $in: [] };
             }

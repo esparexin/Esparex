@@ -20,6 +20,7 @@ export interface Tag {
 interface ListingItemProps {
     title: string;
     status: string;
+    listingType?: string;
     thumbnail?: string;
     priceLabel: string;
     priceClassName?: string;
@@ -51,16 +52,29 @@ type ListingViews = {
 };
 
 export function ListingItem({
-    title, status, thumbnail, priceLabel, priceClassName, badgeColor = "blue",
+    title, status, listingType = "ad", thumbnail, priceLabel, priceClassName, badgeColor = "blue",
     rejectionReason, createdAt, expiresAt, views, likes,
     getStatusBadge, editHref, detailHref,
     onDelete, onRenew, onDeactivate, onActivate, onMarkSold,
     metaBadges = [], tags = [], priority = false, className
 }: ListingItemProps) {
-    const isActive = status === "live";
+    const isAd = listingType.toLowerCase() === "ad";
+    
+    // Rule mapping based on the Final Action Matrix
+    const isActive = status === "live" || status === "active";
     const isDeactivated = status === "deactivated";
-    const canEdit = ["live", "pending", "rejected"].includes(status);
-    const showRenew = status === "expired" || status === "rejected";
+    const isPending = status === "pending" || status === "held_for_review";
+    const isExpired = status === "expired" || status === "rejected"; // Assuming rejected falls here or pending
+    const isSold = status === "sold";
+
+    const showEdit = isActive || isDeactivated || isPending;
+    const showDeactivate = isActive;
+    const showActivate = isDeactivated;
+    // Delete is allowed everywhere EXCEPT on LIVE Ads (must be deactivated first)
+    const showDelete = !(isActive && isAd); 
+    
+    const showMarkSold = isAd && (isActive || isExpired);
+    const showRenew = !isAd && (isExpired || isSold);
 
     const viewMetrics: ListingViews | null = views && typeof views === "object" ? views : null;
     const totalViews = typeof views === "number" ? views : viewMetrics?.total ?? 0;
@@ -144,11 +158,14 @@ export function ListingItem({
                                 <Clock className="h-3 w-3" /> Expires <RelativeTimeText value={expiresAt} />
                             </span>
                         )}
-                        {metaBadges.map((badge, idx) => (
-                            <span key={idx} className={cn("flex items-center gap-1", badge.className)}>
-                                {badge.icon} {badge.label}
-                            </span>
-                        ))}
+                        {metaBadges.map((badge, idx) => {
+                            if (!badge) return null;
+                            return (
+                                <span key={idx} className={cn("flex items-center gap-1", badge.className)}>
+                                    {badge.icon} {badge.label}
+                                </span>
+                            );
+                        })}
                         {!isActive && createdAt && (
                             <span className="flex items-center gap-1 text-foreground-subtle">
                                 <Clock className="h-3 w-3" /> <RelativeTimeText value={createdAt} />
@@ -159,18 +176,21 @@ export function ListingItem({
                     {/* Tags */}
                     {tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1.5">
-                            {tags.map((tag, idx) => (
-                                <span key={idx} className={cn("px-2 py-0.5 rounded-full text-2xs font-medium border", tag.className || "bg-slate-50 text-foreground-tertiary border-slate-100")}>
-                                    {tag.label}
-                                </span>
-                            ))}
+                            {tags.map((tag, idx) => {
+                                if (!tag) return null;
+                                return (
+                                    <span key={idx} className={cn("px-2 py-0.5 rounded-full text-2xs font-medium border", tag.className || "bg-slate-50 text-foreground-tertiary border-slate-100")}>
+                                        {tag.label}
+                                    </span>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center justify-end gap-2 mt-2">
-                    {onMarkSold && isActive && (
+                    {onMarkSold && showMarkSold && (
                         <Button 
                             size="sm" variant="outline"
                             className="h-11 text-xs text-green-700 border-green-200 hover:bg-green-50"
@@ -179,7 +199,7 @@ export function ListingItem({
                             <CheckSquare className="h-3 w-3 mr-1" /> Mark Sold
                         </Button>
                     )}
-                    {onDeactivate && isActive && (
+                    {onDeactivate && showDeactivate && (
                         <Button
                             size="sm" variant="outline"
                             className="h-11 text-xs text-orange-600 border-orange-200 hover:bg-orange-50"
@@ -188,7 +208,7 @@ export function ListingItem({
                             <PowerOff className="h-3 w-3 mr-1" /> Deactivate
                         </Button>
                     )}
-                    {onActivate && isDeactivated && (
+                    {onActivate && showActivate && (
                         <Button
                             size="sm" variant="outline"
                             className="h-11 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
@@ -197,7 +217,7 @@ export function ListingItem({
                             <Power className="h-3 w-3 mr-1" /> Activate
                         </Button>
                     )}
-                    {showRenew && onRenew && (
+                    {onRenew && showRenew && (
                         <Button
                             variant="outline"
                             size="sm"
@@ -207,21 +227,23 @@ export function ListingItem({
                             <RefreshCw className="h-3 w-3 mr-1" /> Renew
                         </Button>
                     )}
-                    {canEdit && (
+                    {showEdit && (
                         <Link href={editHref} onClick={(e) => e.stopPropagation()}>
                             <Button variant="outline" size="sm" className="h-11 text-xs">
                                 <Edit2 className="h-3 w-3 mr-1" /> Edit
                             </Button>
                         </Link>
                     )}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-11 w-11 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                    >
-                        <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    {showDelete && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-11 w-11 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                        >
+                            <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                    )}
                 </div>
             </div>
         </div>

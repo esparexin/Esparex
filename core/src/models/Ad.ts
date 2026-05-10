@@ -500,7 +500,10 @@ AdSchema.pre('save', async function (this: IAd) {
     }
 
     if (!this.seoSlug) {
-        this.seoSlug = await generateUniqueSlug(Ad, this.title, undefined);
+        // Build an SEO-optimized base for the slug: "Title in City"
+        const locationContext = this.location?.city ? ` in ${this.location.city}` : '';
+        const slugTitle = `${this.title}${locationContext}`;
+        this.seoSlug = await generateUniqueSlug(Ad, slugTitle, undefined);
     }
 });
 

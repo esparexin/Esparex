@@ -128,7 +128,7 @@ export const deactivateListing = async (id: string | number): Promise<boolean> =
 };
 
 /**
- * Reactivates a deactivated listing (DEACTIVATED → PENDING).
+ * Reactivates a deactivated listing (DEACTIVATED → LIVE).
  */
 export const activateListing = async (id: string | number): Promise<boolean> => {
     try {

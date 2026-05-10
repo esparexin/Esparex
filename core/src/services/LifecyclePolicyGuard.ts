@@ -47,13 +47,22 @@ export const enforceLifecycleMutationPolicy = (input: LifecycleMutationPolicyInp
     if (!isListingDomain(input.domain)) return;
     if (toLower(input.toStatus) !== LISTING_STATUS.LIVE) return;
 
-    if (action !== 'moderation_approve') {
+    const fromStatus = toLower(input.fromStatus);
+    const isReactivation = action === 'listing_activate' && fromStatus === LISTING_STATUS.DEACTIVATED;
+
+    // 🛡️ POLICY: Only moderation approval or user reactivation of deactivated listings can go LIVE
+    if (action !== 'moderation_approve' && !isReactivation) {
         throw toPolicyError('Live transition must be initiated by moderation approval.', 'LIVE_TRANSITION_REQUIRES_APPROVAL_ACTION', 400);
     }
 
-    if (input.actor.type !== ACTOR_TYPE.ADMIN) {
+    // 🛡️ POLICY: Only admins can approve, but users can reactivate their own deactivated listings
+    // We permit USER actors here if isReactivation is true to allow owner reactivation.
+    if (input.actor.type !== ACTOR_TYPE.ADMIN && !isReactivation) {
         throw toPolicyError('Only admin moderation may transition listing to live.', 'LIVE_TRANSITION_REQUIRES_ADMIN_ACTOR', 403);
     }
+
+    // 🛡️ POLICY: Reactivation preserves existing metadata; moderation approval requires fresh timestamps
+    if (isReactivation) return;
 
     const approvedAt = input.patch?.approvedAt;
     const expiresAt = input.patch?.expiresAt;

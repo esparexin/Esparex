@@ -3,7 +3,7 @@ import UserWallet from '../models/UserWallet';
 import { recordTransaction, consumeCredit } from './WalletService';
 import { AppError } from '../utils/AppError';
 
-export type AdPostingSlotSource = 'free_slot' | 'ad_credit' | 'idempotency_hit';
+export type AdPostingSlotSource = 'free_slot' | 'ad_credit' | 'active_slot_limit' | 'idempotency_hit';
 
 export const MONTHLY_FREE_AD_SLOTS = 5;
 

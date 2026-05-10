@@ -12,7 +12,9 @@ import {
     deleteAdminAd,
     extendAdminListing,
     fetchAdminAdDetail,
-    rejectAdminAd
+    rejectAdminAd,
+    bulkApproveAds,
+    bulkUpdateAdStatus
 } from "@/lib/api/moderation";
 import { normalizeModerationAd } from "@/components/moderation/normalizeModerationAd";
 import { useAdminMutation } from "@/hooks/useAdminMutation";
@@ -119,7 +121,7 @@ export function useAdActions({
         if (rejectTargetIds.length === 0) return;
         await runMutation(
             async () => {
-                await Promise.all(rejectTargetIds.map((id) => rejectAdminAd(id, reason)));
+                await bulkUpdateAdStatus(rejectTargetIds, 'rejected', reason);
             },
             {
                 successMessage: `Rejected ${rejectTargetIds.length} ${entityLabel}(s)`,
@@ -217,7 +219,7 @@ export function useAdActions({
         if (selectedIds.length === 0) return;
         await runMutation(
             async () => {
-                await Promise.all(selectedIds.map((id) => approveAdminAd(id)));
+                await bulkApproveAds(selectedIds);
             },
             {
                 successMessage: `Approved ${selectedIds.length} ${entityLabel}(s)`,

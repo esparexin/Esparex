@@ -95,9 +95,8 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
 
 /**
  * PATCH /api/v1/listings/:id/activate
- * Reactivate a deactivated listing: DEACTIVATED → PENDING (back into moderation queue).
- * Using PENDING (not LIVE) so the listing goes back through moderation review,
- * preventing bypassed-moderation re-listings.
+ * Reactivate a deactivated listing: DEACTIVATED → LIVE.
+ * Direct transition as content has not changed.
  */
 export const activateListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -112,7 +111,7 @@ export const activateListing = async (req: Request, res: Response, next: NextFun
         const updatedListing = await mutateStatus({
             domain: 'ad',
             entityId: listing._id.toString(),
-            toStatus: LISTING_STATUS.PENDING,
+            toStatus: LISTING_STATUS.LIVE,
             actor: {
                 type: ACTOR_TYPE.USER,
                 id: user._id.toString(),
@@ -124,18 +123,17 @@ export const activateListing = async (req: Request, res: Response, next: NextFun
                 listingType: listing.listingType,
             },
             patch: {
-                moderationStatus: 'held_for_review',
                 $push: {
                     timeline: {
-                        status: LISTING_STATUS.PENDING,
+                        status: LISTING_STATUS.LIVE,
                         timestamp: new Date(),
-                        reason: 'Reactivated by owner — pending re-review',
+                        reason: 'Reactivated by owner',
                     },
                 },
             },
         });
 
-        return sendSuccessResponse(res, updatedListing, 'Listing reactivated and pending review');
+        return sendSuccessResponse(res, updatedListing, 'Listing reactivated');
     } catch (error) {
         next(error);
     }

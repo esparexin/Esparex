@@ -4,11 +4,12 @@ import logger from '../../utils/logger';
 import Ad from '../../models/Ad';
 import { getUserConnection } from '../../config/db';
 import { LISTING_STATUS } from "../../constants/enums/listingStatus";
-import { consumeAdPostingSlot } from '../PlanService';
+import { ListingSubmissionPolicy } from '../ListingSubmissionPolicy';
 import { getAdPostingBalance } from '../AdSlotService';
 import { mutateStatus } from '../StatusMutationService';
 import { normalizeAdStatus } from "../AdStatusService";
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
+import { type ListingTypeValue } from '../../constants/enums/listingType';
 
 export const repostAdLogic = async (
     id: string,
@@ -46,12 +47,14 @@ export const repostAdLogic = async (
                 throw new AppError('Only expired or rejected ads can be reposted', 400);
             }
 
-            const postingBalance = await getAdPostingBalance(userId, session);
-            if (!postingBalance || postingBalance.totalRemaining < 1) {
-                throw new AppError('Insufficient posting credits for repost', 402);
-            }
-
-            await consumeAdPostingSlot(userId, session);
+            // 🛡️ GOVERNANCE: Unified Slot Reservation via SubmissionPolicy
+            await ListingSubmissionPolicy.reserveSlot({
+                userId,
+                listingType: (ad.listingType as ListingTypeValue),
+                listingId: id,
+                session,
+                actor: 'user'
+            });
 
             const nextStatus = LISTING_STATUS.PENDING;
             const now = new Date();

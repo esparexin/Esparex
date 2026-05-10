@@ -169,6 +169,34 @@ export async function validateServiceCategoryCapability(categoryId: string): Pro
     return { ok: true };
 }
 
+/**
+ * 🛠️ Unified Category Capability Guard
+ * Validates that a category supports the specific listing type.
+ */
+export async function validateListingCategoryCapability(
+    categoryId: string,
+    listingType: string
+): Promise<ValidationResult> {
+    validateObjectIdOrThrow('categoryId', categoryId);
+    
+    // Normalize listing type for query
+    const type = listingType.toLowerCase().trim();
+    
+    const category = await Category.findOne({
+        _id: categoryId,
+        ...ACTIVE_CATEGORY_QUERY,
+        listingType: type
+    }).select('_id').lean();
+
+    if (!category) {
+        return { 
+            ok: false, 
+            reason: `This category does not support ${type} listings.` 
+        };
+    }
+    return { ok: true };
+}
+
 export async function getCategorySelectionMode(categoryId: unknown): Promise<'single' | 'multi'> {
     const doc = await Category.findById(categoryId)
         .select('serviceSelectionMode')
