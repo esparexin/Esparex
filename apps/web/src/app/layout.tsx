@@ -1,25 +1,15 @@
 import { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
+import { Poppins } from 'next/font/google';
 import { cookies } from 'next/headers';
 import '../styles/globals.css';
 import { RootClientShell } from '@/components/providers/RootClientShell';
 
-// Preload only the normal weight — italic is rarely needed on first paint
-const inter = localFont({
-    src: '../../public/fonts/Inter-VariableFont_opsz,wght.ttf',
-    variable: '--font-inter',
-    display: 'swap',
-    preload: true,
-    style: 'normal',
-});
-
-const interItalic = localFont({
-    src: '../../public/fonts/Inter-Italic-VariableFont_opsz,wght.ttf',
-    variable: '--font-inter-italic',
-    display: 'swap',
-    preload: false,
-    style: 'italic',
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-primary',
+  display: 'swap',
 });
 
 const metadataBase = (() => {
@@ -69,8 +59,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     const initialHasAuthCookie = Boolean(cookieStore.get('esparex_auth'));
 
     return (
-        <html lang="en">
-            <body className={`${inter.variable} ${interItalic.variable} ${inter.className}`}>
+        <html lang="en" className={poppins.variable}>
+            <body>
                 <RootClientShell initialHasAuthCookie={initialHasAuthCookie}>{children}</RootClientShell>
             </body>
         </html>

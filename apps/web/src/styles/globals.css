@@ -103,8 +103,6 @@
   --mesh-2: #06b6d4;
   --mesh-3: #f59e0b;
 
-  /* Font family token (used by Tailwind font-inter class) */
-  --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
   /* Link / interactive / trust blue — intentional companion to primary green */
   --link: 221.2 83.2% 53.3%;        /* blue-600 #2563eb */
@@ -189,7 +187,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-normal antialiased;
+    @apply bg-background text-foreground font-sans font-normal antialiased;
     font-size: var(--text-base);
     line-height: 1.5;
   }
