@@ -10,5 +10,5 @@ export function AppPopup({
   popup: RenderablePopup | null;
   onClose: () => void;
 }) {
-  return <PopupDialogView popup={popup} onClose={onClose} />;
+  return <PopupDialogView key={popup?.id ?? "idle"} popup={popup} onClose={onClose} />;
 }

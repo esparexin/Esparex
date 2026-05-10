@@ -88,7 +88,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                             <button
                                 key={t.value}
                                 onClick={() => onSubTabChange(t.value)}
-                                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap
+                                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap
                                     ${activeSubTab === t.value
                                         ? activeTabClass
                                         : "border-transparent text-muted-foreground hover:text-foreground-secondary"
@@ -109,7 +109,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                         <button
                             key={status}
                             onClick={() => onStatusChange(status)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${selectedStatus === status
+                            className={`px-4 h-11 flex items-center justify-center rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${selectedStatus === status
                                 ? "bg-slate-900 text-white shadow"
                                 : "bg-slate-100 text-foreground-tertiary hover:bg-slate-200"
                                 }`}

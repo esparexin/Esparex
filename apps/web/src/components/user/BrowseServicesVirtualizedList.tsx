@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 import { type Listing as Service } from "@/lib/api/user/listings";
@@ -38,8 +38,8 @@ export default function BrowseServicesVirtualizedList({
     return () => window.removeEventListener("resize", updateLanes);
   }, [view]);
 
-  const getScrollElement = useRef(() => parentRef.current).current;
-  const estimateSize = useRef(() => (view === "list" ? LIST_ITEM_HEIGHT : GRID_ITEM_HEIGHT)).current;
+  const getScrollElement = useCallback(() => parentRef.current, []);
+  const estimateSize = useCallback(() => (view === "list" ? LIST_ITEM_HEIGHT : GRID_ITEM_HEIGHT), [view]);
 
   // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual manages virtualization internals that React Compiler cannot currently analyze.
   const rowVirtualizer = useVirtualizer({

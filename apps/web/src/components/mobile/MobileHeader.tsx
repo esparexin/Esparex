@@ -73,7 +73,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                 <div className="h-11 bg-slate-50/80 border-b border-slate-100 flex items-center px-4">
                     <button
                         type="button"
-                        className="flex items-center gap-2 mr-3"
+                        className="flex items-center gap-2 mr-3 h-11"
                         onClick={() => navigateTo('home')}
                         aria-label="Go to homepage"
                     >
@@ -90,7 +90,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
 
                     <button
                         type="button"
-                        className="active:bg-slate-100 transition-colors flex items-center flex-1 min-w-0 text-left"
+                        className="active:bg-slate-100 transition-colors flex items-center flex-1 min-w-0 text-left h-11"
                         onClick={() => isMounted && setShowLocationSelector(true)}
                         aria-label={headerLocationDetails.headerText
                             ? `Change location. Current location: ${headerLocationDetails.headerText}`

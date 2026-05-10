@@ -115,9 +115,22 @@ export function usePopupQueue({
   const recordedCountsRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
-    return subscribe((nextPopup) => {
-      dispatch({ type: "RECEIVE_POPUP", popup: nextPopup });
+    let isMounted = true;
+    const unsubscribe = subscribe((nextPopup) => {
+      if (!isMounted) return;
+
+      // Defer state update using microtask to avoid synchronous layout render cascades
+      queueMicrotask(() => {
+        if (isMounted) {
+          dispatch({ type: "RECEIVE_POPUP", popup: nextPopup });
+        }
+      });
     });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, [subscribe]);
 
   useEffect(() => {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { usePostAdImages, usePostAdLocationState, usePostAdFlow, usePostAdAction } from "../PostAdContext";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { useLocationData } from "@/context/LocationContext";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
@@ -37,12 +37,35 @@ const buildLocationValue = (adapted: ReturnType<typeof adaptLocationInput>): Non
     coordinates: adapted?.coordinates,
 });
 
+function TitleCharCounter() {
+    const title = useWatch({ name: "title" }) as string || "";
+    return (
+        <span className={cn(
+            "text-xs font-bold tracking-tight",
+            title.length >= MAX_AD_TITLE_CHARS ? "text-amber-600" : "text-foreground-subtle"
+        )}>
+            {title.length} / {MAX_AD_TITLE_CHARS}
+        </span>
+    );
+}
+
+function DescriptionCharCounter() {
+    const description = useWatch({ name: "description" }) as string || "";
+    return (
+        <span className={cn(
+            "text-xs font-bold tracking-tight",
+            description.length >= MAX_AD_DESCRIPTION_CHARS ? "text-amber-600" : "text-foreground-subtle"
+        )}>
+            {description.length} / {MAX_AD_DESCRIPTION_CHARS}
+        </span>
+    );
+}
+
 export default function ListingDetailsFields() {
     const {
         register,
         setValue,
         setError,
-        watch,
         trigger,
         formState: { errors, touchedFields, submitCount },
     } = useFormContext<PostAdFormData>();
@@ -57,8 +80,9 @@ export default function ListingDetailsFields() {
         removeImage,
     } = usePostAdAction();
 
-    // Watch values for UI logic
-    const isFree = watch("isFree");
+    // Use granular subcomponent subscriptions or direct useWatch to isolate updates
+    const isFree = useWatch({ name: "isFree" });
+    const locationVal = useWatch({ name: "location" });
 
     const { location } = useLocationData();
     const [userHasInteracted, setUserHasInteracted] = useState(false);
@@ -163,8 +187,6 @@ export default function ListingDetailsFields() {
             { shouldValidate: true, shouldDirty: false }
         );
     }, [
-        // ✅ All scalar primitives — no object-reference churn.
-        // ❌ Never put globalLocation (full object) here; it causes infinite loops.
         locCity,
         locState,
         locCoordinates,
@@ -177,7 +199,6 @@ export default function ListingDetailsFields() {
         userHasInteracted,
     ]);
 
-    const locationVal = watch("location");
     const hasAttemptedSubmit = submitCount > 0;
     const hasAttemptedStepValidation = Boolean(stepValidationAttempts[2]);
     const shouldShowFieldError = useCallback(
@@ -219,12 +240,7 @@ export default function ListingDetailsFields() {
                             </Button>
                         </div>
                         <div className="flex justify-end">
-                            <span className={cn(
-                                "text-xs font-bold tracking-tight",
-                                (watch("title") || "").length >= MAX_AD_TITLE_CHARS ? "text-amber-600" : "text-foreground-subtle"
-                            )}>
-                                {(watch("title") || "").length} / {MAX_AD_TITLE_CHARS}
-                            </span>
+                            <TitleCharCounter />
                         </div>
                     </div>
                 </Field>
@@ -253,12 +269,7 @@ export default function ListingDetailsFields() {
                             </Button>
                         </div>
                         <div className="flex justify-end">
-                            <span className={cn(
-                                "text-xs font-bold tracking-tight",
-                                (watch("description") || "").length >= MAX_AD_DESCRIPTION_CHARS ? "text-amber-600" : "text-foreground-subtle"
-                            )}>
-                                {(watch("description") || "").length} / {MAX_AD_DESCRIPTION_CHARS}
-                            </span>
+                            <DescriptionCharCounter />
                         </div>
                     </div>
                 </Field>

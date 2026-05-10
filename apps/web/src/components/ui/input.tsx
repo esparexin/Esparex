@@ -1,13 +1,27 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { useFieldContext } from "./field";
 
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, id: customId, "aria-describedby": customDescribedBy, ...props }, ref) => {
     const reactId = React.useId().replace(/:/g, "");
-    const resolvedId = props.id ?? props.name ?? `input-${reactId}`;
-    const resolvedName = props.name ?? props.id ?? resolvedId;
+    const fieldContext = useFieldContext();
+
+    // ID Resolution Order:
+    // 1. Context ID (if present inside a <Field> container)
+    // 2. Explicit custom ID passed directly to Input
+    // 3. Fallback auto-generated ID
+    const resolvedId = fieldContext?.id ?? customId ?? `input-${reactId}`;
+    const resolvedName = props.name ?? customId ?? resolvedId;
+
+    // ARIA DescribedBy: merge existing custom descriptions with the context error identifier
+    const errorId = fieldContext?.hasError ? fieldContext.errorId : undefined;
+    const resolvedDescribedBy = [customDescribedBy, errorId].filter(Boolean).join(" ") || undefined;
+
+    // ARIA Invalid: dynamically set to "true" if an error is present, unless explicitly overridden
+    const isInvalid = props["aria-invalid"] ?? (fieldContext?.hasError ? "true" : undefined);
 
     return (
       <input
@@ -21,6 +35,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {...props}
         id={resolvedId}
         name={resolvedName}
+        aria-describedby={resolvedDescribedBy}
+        aria-invalid={isInvalid}
       />
     );
   }
