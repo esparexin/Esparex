@@ -155,11 +155,17 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
                     page: cachedResult.pagination?.page ?? query.page ?? 1,
                     limit: cachedResult.pagination?.limit ?? query.limit ?? 20
                 };
-                return res.json(respond<PaginatedResponse<Ad>>({
+                const payload = respond<PaginatedResponse<Ad>>({
                     success: true,
                     data: cachedResult.data as Ad[],
                     pagination
-                }));
+                });
+                const etagValue = `W/"${Buffer.from(JSON.stringify(payload)).toString('base64').substring(0, 24)}"`;
+                res.setHeader('ETag', etagValue);
+                if (req.headers['if-none-match'] === etagValue) {
+                    return res.status(304).end();
+                }
+                return res.json(payload);
             }
         }
 
@@ -304,10 +310,16 @@ export const getHomeFeed = async (req: Request, res: Response, next: NextFunctio
             categoryId: query.categoryId,
         });
 
-        return res.json(respond<ApiResponse<HomeFeedResponse>>({
+        const payload = respond<ApiResponse<HomeFeedResponse>>({
             success: true,
             data: data
-        }));
+        });
+        const etagValue = `W/"${Buffer.from(JSON.stringify(payload)).toString('base64').substring(0, 24)}"`;
+        res.setHeader('ETag', etagValue);
+        if (req.headers['if-none-match'] === etagValue) {
+            return res.status(304).end();
+        }
+        return res.json(payload);
     } catch (error: unknown) {
         return next(error);
     }

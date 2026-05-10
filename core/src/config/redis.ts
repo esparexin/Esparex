@@ -8,7 +8,7 @@ import {
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedis =
-    (env.NODE_ENV === 'test' || isJestRuntime) && !env.ALLOW_REDIS;
+    (env.NODE_ENV === 'test' || isJestRuntime || !env.ALLOW_REDIS);
 
 const redisRuntime = getRedisRuntimeConfig();
 const redisConnectionOptions = getRedisConnectionOptions();
@@ -19,8 +19,8 @@ const redisDb = redisRuntime.db;
 const redisPassword = redisRuntime.password;
 const redisUrl = redisRuntime.redisUrl;
 
-const REDIS_CONNECT_TIMEOUT_MS = 10_000;
-const REDIS_COMMAND_TIMEOUT_MS = 8_000;
+const REDIS_CONNECT_TIMEOUT_MS = env.NODE_ENV === 'production' ? 10_000 : 2_000;
+const REDIS_COMMAND_TIMEOUT_MS = env.NODE_ENV === 'production' ? 8_000 : 2_000;
 const REDIS_MAX_RETRY_DELAY_MS = 30_000;
 const REDIS_INITIAL_RETRY_DELAY_MS = 250;
 const REDIS_RETRY_LOG_INTERVAL = 5;
@@ -95,7 +95,7 @@ const redis: Redis = shouldDisableRedis
     } as unknown as Redis)
     : new Redis({
         ...redisConnectionOptions,
-        maxRetriesPerRequest: null,
+        maxRetriesPerRequest: env.NODE_ENV === 'production' ? null : 0,
         enableOfflineQueue: false,
         enableReadyCheck: true,
         connectTimeout: REDIS_CONNECT_TIMEOUT_MS,

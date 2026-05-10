@@ -98,6 +98,12 @@ export async function handlePaginatedContent<T extends Document>(
             
             const cachedPayload = await getCache<CachedPaginatedPayload>(cacheKey);
             if (cachedPayload) {
+                const etagValue = `W/"${Buffer.from(JSON.stringify(cachedPayload)).toString('base64').substring(0, 24)}"`;
+                res.setHeader('ETag', etagValue);
+                if (req.headers['if-none-match'] === etagValue) {
+                    return res.status(304).end();
+                }
+
                 if (isUrlAdmin) {
                     if (
                         Array.isArray(cachedPayload.items) &&

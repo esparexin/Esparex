@@ -11,7 +11,7 @@ import {
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedisStore =
-    (env.NODE_ENV === 'test' || isJestRuntime) && !env.ALLOW_REDIS;
+    (env.NODE_ENV === 'test' || isJestRuntime || !env.ALLOW_REDIS);
 
 type RedisCallable = {
     call: (...args: string[]) => Promise<RedisReply>;
