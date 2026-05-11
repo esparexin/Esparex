@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocationStatus, useLocationDispatch } from "@/context/LocationContext";
@@ -463,7 +464,7 @@ export default function LocationSelector({
                 </div>
             </div>
 
-            {isOpen && !hasSelection && !disabled && (
+            {isOpen && !hasSelection && !disabled && typeof document !== "undefined" && createPortal(
                 <>
                     <div style={{ zIndex: Z_INDEX.locationSelectorBackdrop }} className="fixed inset-0 bg-transparent" onMouseDown={handleBackdropMouseDown} />
                     <div ref={dropdownRef} style={dropdownStyle} className="bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
@@ -485,7 +486,8 @@ export default function LocationSelector({
                     </div>
                     {renderResultsBody()}
                     </div>
-                </>
+                </>,
+                document.body
             )}
         </div>
     );
