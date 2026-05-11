@@ -309,6 +309,9 @@ export const adminApproveListing = async (
             approvedAt,
             approvedBy: actorId,
             expiresAt,
+            expiryWarningSentAt: null,
+            expiryWarningCount: 0,
+            lastExpiryWarningChannel: null,
             moderationStatus: 'manual_approved',
             rejectionReason: undefined,
             $push: {

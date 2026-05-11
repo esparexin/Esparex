@@ -312,6 +312,51 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
     }
 };
 
+/**
+ * Automaticaly deactivate Smart Alerts that have passed their expiresAt date.
+ */
+export const expireSmartAlerts = async () => {
+    const now = new Date();
+    const expiring = await SmartAlert.find({
+        isActive: true,
+        expiresAt: { $lt: now }
+    });
+
+    if (!expiring.length) return [];
+
+    const processed = [];
+    for (const alert of expiring) {
+        try {
+            alert.isActive = false;
+            alert.status = 'expired';
+            alert.expiredAt = now;
+            
+            if (!alert.timeline) alert.timeline = [];
+            alert.timeline.push({
+                status: 'expired',
+                timestamp: now,
+                reason: 'Automated search alert expiry'
+            });
+
+            await alert.save();
+            processed.push(alert);
+            
+            logger.info('[SmartAlertCleanup] Deactivated expired alert', { 
+                alertId: alert._id, 
+                userId: alert.userId,
+                expiresAt: alert.expiresAt 
+            });
+        } catch (err) {
+            logger.error('[SmartAlertCleanup] Failed to expire alert', {
+                alertId: alert._id,
+                error: err instanceof Error ? err.message : String(err)
+            });
+        }
+    }
+
+    return processed;
+};
+
 export const getAlertDeliveryLogs = async (skip: number, limit: number) => {
     const [logs, total] = await Promise.all([
         AlertDeliveryLog.find({})

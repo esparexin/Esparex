@@ -308,6 +308,8 @@ export const toggleSmartAlertStatusMutation = async ({
             });
         }
         alert.isActive = true;
+        alert.expiryWarningSentAt = undefined;
+        alert.expiryWarningCount = 0;
     }
 
     await alert.save();

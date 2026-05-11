@@ -155,7 +155,10 @@ export const renewBusiness = async (id: string, actor: { type: ActorTypeValue; i
         reason: 'Business renewal extension',
         patch: {
             expiresAt: nextExpiry,
-            isVerified: true
+            isVerified: true,
+            expiryWarningSentAt: null,
+            expiryWarningCount: 0,
+            lastExpiryWarningChannel: null,
         }
     });
 };

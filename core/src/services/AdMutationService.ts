@@ -103,6 +103,9 @@ export const extendListingExpiry = async (
         id,
         {
             expiresAt,
+            expiryWarningSentAt: null,
+            expiryWarningCount: 0,
+            lastExpiryWarningChannel: null,
             $push: {
                 timeline: {
                     status: currentStatus,
