@@ -17,7 +17,7 @@ function normalizeLowercase(value: unknown): string {
 export function normalizeBusinessStatus(
   value: unknown,
   fallback: "pending" = "pending"
-): "live" | "pending" | "rejected" | "suspended" | "deleted" {
+): "live" | "pending" | "rejected" | "suspended" | "deleted" | "expired" | "deactivated" | "closed" {
   return sharedNormalizeBusinessStatus(value, fallback);
 }
 

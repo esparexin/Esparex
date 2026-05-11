@@ -22,9 +22,9 @@ export interface ListingLike {
     title?: string;
     description?: string;
     images?: string[];
-    price?: number;
-    priceMin?: number;
-    priceMax?: number;
+    price?: number | null;
+    priceMin?: number | null;
+    priceMax?: number | null;
     currency?: string;
     status?: string;
     sellerName?: string;

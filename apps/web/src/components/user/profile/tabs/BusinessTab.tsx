@@ -8,7 +8,12 @@ import {
     MapPin,
     Phone,
     Wrench,
+    Power,
+    PowerOff,
+    LogOut,
+    RefreshCw,
 } from "lucide-react";
+
 import { type Business } from "@/lib/api/user/businesses";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
@@ -20,7 +25,12 @@ interface BusinessTabProps {
     isLoading?: boolean;
     isFetched?: boolean;
     navigateTo: (page: string, adId?: string | number, category?: string, sellerIdOrBusinessId?: string) => void;
+    onDeactivate?: () => Promise<void>;
+    onReactivate?: () => Promise<void>;
+    onClose?: () => Promise<void>;
+    onRenew?: (id: string) => Promise<unknown>;
 }
+
 
 export function BusinessTab({
     businessData,
@@ -28,7 +38,12 @@ export function BusinessTab({
     isLoading,
     isFetched,
     navigateTo,
+    onDeactivate,
+    onReactivate,
+    onClose,
+    onRenew,
 }: BusinessTabProps) {
+
     if (isLoading && !isFetched) {
         return (
             <div className="space-y-4 animate-pulse">
@@ -107,7 +122,38 @@ export function BusinessTab({
                             >
                                 View Public Store
                             </Button>
+
+                            {onDeactivate && (
+                                <Button
+                                    onClick={async () => {
+                                        if (confirm("Are you sure you want to deactivate your business? Your listings will be hidden.")) {
+                                            await onDeactivate();
+                                        }
+                                    }}
+                                    variant="secondary"
+                                    className="h-11 rounded-xl border border-white/20 bg-white/10 px-5 font-semibold text-white hover:bg-white/15"
+                                >
+                                    <PowerOff className="mr-2 h-4 w-4" />
+                                    Deactivate
+                                </Button>
+                            )}
+
+                            {onClose && (
+                                <Button
+                                    onClick={async () => {
+                                        if (confirm("Are you sure you want to PERMANENTLY CLOSE your business? This action cannot be undone and your role will be reverted.")) {
+                                            await onClose();
+                                        }
+                                    }}
+                                    variant="secondary"
+                                    className="h-11 rounded-xl border border-white/20 bg-white/10 px-5 font-semibold text-white hover:bg-red-500/20"
+                                >
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    Close Business
+                                </Button>
+                            )}
                         </div>
+
                     </CardContent>
                 </Card>
 
@@ -161,13 +207,43 @@ export function BusinessTab({
 
     if (businessData) {
         return (
-            <BusinessApplicationStatus
-                businessData={businessData}
-                onEditApplication={() => navigateTo("profile-settings-business")}
-                onWithdraw={() => navigateTo("business-register")}
-            />
+            <div className="space-y-4">
+                <BusinessApplicationStatus
+                    businessData={businessData}
+                    onEditApplication={() => navigateTo("profile-settings-business")}
+                    onWithdraw={() => navigateTo("business-register")}
+                />
+
+                {(status === "deactivated" || status === "expired") && (
+                    <Card className="rounded-3xl border-dashed border-2">
+                        <CardHeader>
+                            <CardTitle className="text-lg">Resume Business Operations</CardTitle>
+                            <CardDescription>
+                                {status === "deactivated" 
+                                    ? "Your business is currently hidden. Reactivate it to start showing your listings again."
+                                    : "Your business subscription has expired. Renew it to continue using premium features."}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex gap-3">
+                            {status === "deactivated" && onReactivate && (
+                                <Button onClick={onReactivate} className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700">
+                                    <Power className="mr-2 h-4 w-4" />
+                                    Reactivate Now
+                                </Button>
+                            )}
+                            {status === "expired" && onRenew && (
+                                <Button onClick={() => onRenew(businessData.id)} className="h-11 rounded-xl bg-blue-600 hover:bg-blue-700">
+                                    <RefreshCw className="mr-2 h-4 w-4" />
+                                    Renew Subscription
+                                </Button>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
         );
     }
+
 
     return (
         <Card className="rounded-3xl gap-0">

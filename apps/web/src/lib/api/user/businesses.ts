@@ -428,3 +428,53 @@ export const withdrawBusiness = async (): Promise<boolean> => {
         throw e;
     }
 };
+
+export const deactivateBusiness = async (): Promise<boolean> => {
+    try {
+        await toApiResult<{ message: string }>(
+            apiClient.post(API_ROUTES.USER.BUSINESS_DEACTIVATE)
+        );
+        return true;
+    } catch (e) {
+        logger.error('Failed to deactivate business', e);
+        throw e;
+    }
+};
+
+export const reactivateBusiness = async (): Promise<boolean> => {
+    try {
+        await toApiResult<{ message: string }>(
+            apiClient.post(API_ROUTES.USER.BUSINESS_REACTIVATE)
+        );
+        return true;
+    } catch (e) {
+        logger.error('Failed to reactivate business', e);
+        throw e;
+    }
+};
+
+export const closeBusiness = async (): Promise<boolean> => {
+    try {
+        await toApiResult<{ message: string }>(
+            apiClient.post(API_ROUTES.USER.BUSINESS_CLOSE)
+        );
+        return true;
+    } catch (e) {
+        logger.error('Failed to close business', e);
+        throw e;
+    }
+};
+
+export const renewBusiness = async (id: string): Promise<Business | null> => {
+    try {
+        const { data: apiData } = await toApiResult<ApiBusiness>(
+            apiClient.post(API_ROUTES.USER.BUSINESS_RENEW(id))
+        );
+        if (!apiData) return null;
+        return normalizeBusiness(apiData);
+    } catch (e) {
+        logger.error('Failed to renew business', e);
+        throw e;
+    }
+};
+
