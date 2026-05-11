@@ -307,3 +307,17 @@ export const adminBulkRenewBusinesses = async (req: Request, res: Response) => {
         sendAdminError(req, res, error);
     }
 };
+
+export const adminBulkResendBusinessWarnings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminBusinessService.adminBulkResendBusinessWarnings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk re-send business warnings completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};

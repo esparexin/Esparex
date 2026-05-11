@@ -16,7 +16,18 @@ export interface IAdminLog extends Document {
 const AdminLogSchema = new Schema<IAdminLog>({
     adminId: { type: Schema.Types.ObjectId, ref: 'Admin', required: false },
     action: { type: String, required: true },
-    targetType: { type: String, enum: ['User', 'Ad', 'Plan', 'Business', 'System', 'Category', 'Brand', 'Model', 'Service', 'SparePart', 'Location', 'ModerationRule', 'Config', 'Notification', 'ScheduledNotification', 'Report', 'Contact', 'Transaction', 'Invoice', 'ServiceType', 'ScreenSize', 'Admin', 'Keyword', 'Geofence', 'ApiKey'], required: true },
+    targetType: { 
+        type: String, 
+        enum: [
+            'User', 'Ad', 'Plan', 'Business', 'System', 'Category', 'Brand', 'Model', 
+            'Service', 'SparePart', 'SparePartListing', 'Location', 'ModerationRule', 
+            'Config', 'Notification', 'ScheduledNotification', 'Report', 'Contact', 
+            'Transaction', 'Invoice', 'ServiceType', 'ScreenSize', 'Admin', 'Keyword', 
+            'Geofence', 'Conversation', 'ApiKey', 'SmartAlert', 'ExpiryWarning', 
+            'SpotlightPromotion'
+        ], 
+        required: true 
+    },
     targetId: { type: Schema.Types.Mixed }, // Can be ObjectId or string ID
     metadata: { type: Schema.Types.Mixed },
     ipAddress: { type: String },

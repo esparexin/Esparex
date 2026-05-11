@@ -543,3 +543,57 @@ export const adminBulkRenewBusinesses = async (
     }
     return count;
 };
+
+export const adminBulkResendBusinessWarnings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of business IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const biz = await Business.findById(id);
+            if (!biz) throw new AppError('Business not found', 404);
+
+            await dispatchTemplatedNotification(
+                biz.userId.toString(),
+                'BUSINESS_STATUS',
+                'BUSINESS_EXPIRY_WARNING_3D',
+                { 
+                    name: biz.name, 
+                    date: biz.expiresAt?.toLocaleDateString() || 'N/A' 
+                },
+                { businessId: biz._id.toString() }
+            );
+
+            biz.expiryWarningSentAt = new Date();
+            biz.expiryWarningCount = (biz.expiryWarningCount || 0) + 1;
+            biz.lastExpiryWarningChannel = 'in-app';
+            await biz.save();
+
+            await logFn('expiry_warning_resent', 'ExpiryWarning', id, {
+                entityType: 'Business',
+                adminId: actorId
+            });
+
+            results.push({ id, success: true });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+        results
+    };
+};

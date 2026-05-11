@@ -56,6 +56,7 @@ export const ADMIN_ROUTES = {
   BUSINESS_BULK_DEACTIVATE: "/businesses/bulk/deactivate",
   BUSINESS_BULK_EXPIRE: "/businesses/bulk/expire",
   BUSINESS_BULK_RENEW: "/businesses/bulk/renew",
+  BUSINESS_BULK_RESEND_WARNINGS: "/businesses/bulk/resend-warnings",
   DELETE_BUSINESS: (id: string) => `/businesses/${id}`,
   BUSINESS_UPDATE: (id: string) => `/businesses/${id}`,
   BUSINESS_STATUS: (id: string) => `/businesses/${id}/status`,
@@ -75,6 +76,8 @@ export const ADMIN_ROUTES = {
   LISTING_BULK_DEACTIVATE: "/listings/bulk/deactivate",
   LISTING_BULK_EXPIRE: "/listings/bulk/expire",
   LISTING_BULK_EXTEND: "/listings/bulk/extend",
+  LISTING_BULK_RESEND_WARNINGS: "/listings/bulk/resend-warnings",
+  LISTING_BULK_RESEND_SPOTLIGHT_WARNINGS: "/listings/bulk/resend-spotlight-warnings",
   LISTING_DELETE: (id: string) => `/listings/${id}`,
   LISTING_REPORT_RESOLVE: (id: string) => `/listings/${id}/report-resolve`,
   // Legacy report aliases mapped to canonical reports surface
@@ -148,6 +151,7 @@ export const ADMIN_ROUTES = {
   IMPORT_SEED: "/import/seed-devices",
   SMART_ALERTS: "/smart-alerts",
   SMART_ALERT_LOGS: "/smart-alerts/logs",
+  SMART_ALERT_BULK_RESEND_WARNINGS: "/smart-alerts/bulk/resend-warnings",
 } as const;
 
 export type AdminRoutePath =

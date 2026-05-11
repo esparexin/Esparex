@@ -57,9 +57,10 @@ export const runExpiryWarningJob = async (job?: TraceableJobData): Promise<void>
 
                 await AdminLog.create({
                     action: 'expiry_warning_sent',
-                    targetType: 'Business',
+                    targetType: 'ExpiryWarning',
                     targetId: biz._id,
                     metadata: {
+                        entityType: 'Business',
                         channel: 'in-app',
                         expiresAt: biz.expiresAt,
                         actorType: ACTOR_TYPE.SYSTEM
@@ -98,9 +99,10 @@ export const runExpiryWarningJob = async (job?: TraceableJobData): Promise<void>
 
                 await AdminLog.create({
                     action: 'expiry_warning_sent',
-                    targetType: 'Ad',
+                    targetType: 'ExpiryWarning',
                     targetId: ad._id,
                     metadata: {
+                        entityType: 'Ad',
                         channel: 'in-app',
                         expiresAt: ad.expiresAt,
                         actorType: ACTOR_TYPE.SYSTEM
@@ -138,7 +140,7 @@ export const runExpiryWarningJob = async (job?: TraceableJobData): Promise<void>
 
                 await AdminLog.create({
                     action: 'expiry_warning_sent',
-                    targetType: 'Ad',
+                    targetType: 'SpotlightPromotion',
                     targetId: ad._id,
                     metadata: {
                         type: 'spotlight',
@@ -179,7 +181,7 @@ export const runExpiryWarningJob = async (job?: TraceableJobData): Promise<void>
 
                 await AdminLog.create({
                     action: 'expiry_warning_sent',
-                    targetType: 'System', // SmartAlert doesn't have its own targetType in AdminLog enum, using System
+                    targetType: 'SmartAlert',
                     targetId: alert._id,
                     metadata: {
                         subType: 'SmartAlert',

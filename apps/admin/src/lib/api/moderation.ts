@@ -63,6 +63,10 @@ export async function fetchAdminModerationAds(input: {
     if (filters.dateFrom) params.set("createdAfter", new Date(filters.dateFrom + "T00:00:00.000Z").toISOString());
     if (filters.dateTo) params.set("createdBefore", new Date(filters.dateTo + "T23:59:59.999Z").toISOString());
     if (filters.listingType) params.set("listingType", filters.listingType);
+    if (filters.expiryWarningStatus && filters.expiryWarningStatus !== "all") params.set("expiryWarningStatus", filters.expiryWarningStatus);
+    if (filters.expiringWithinDays) params.set("expiringWithinDays", filters.expiringWithinDays);
+    if (filters.spotlightWarningStatus && filters.spotlightWarningStatus !== "all") params.set("spotlightWarningStatus", filters.spotlightWarningStatus);
+    if (filters.spotlightExpiringWithinDays) params.set("spotlightExpiringWithinDays", filters.spotlightExpiringWithinDays);
 
     applySort(params, filters.sort);
 
@@ -218,6 +222,20 @@ export async function bulkExpireAds(ids: string[]): Promise<void> {
 
 export async function bulkExtendAds(ids: string[]): Promise<void> {
     await adminFetch(ADMIN_ROUTES.LISTING_BULK_EXTEND, {
+        method: "POST",
+        body: { ids }
+    });
+}
+
+export async function bulkResendListingWarnings(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_RESEND_WARNINGS, {
+        method: "POST",
+        body: { ids }
+    });
+}
+
+export async function bulkResendSpotlightWarnings(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_RESEND_SPOTLIGHT_WARNINGS, {
         method: "POST",
         body: { ids }
     });

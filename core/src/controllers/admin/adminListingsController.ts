@@ -297,3 +297,31 @@ export const adminBulkExtendListings = async (req: Request, res: Response) => {
         return sendAdminError(req, res, error);
     }
 };
+
+export const adminBulkResendListingWarnings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkResendListingWarnings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk re-send listing warnings completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkResendSpotlightWarnings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkResendSpotlightWarnings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk re-send spotlight warnings completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};

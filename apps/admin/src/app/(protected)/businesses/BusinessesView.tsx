@@ -99,7 +99,7 @@ export default function BusinessesView() {
     const { 
         businesses, loading, error, pagination, overview, 
         handleSuspend, handleActivate, fetchBusinesses,
-        handleBulkApprove, handleBulkReject, handleBulkDeactivate, handleBulkExpire, handleBulkRenew
+        handleBulkApprove, handleBulkReject, handleBulkDeactivate, handleBulkExpire, handleBulkRenew, handleBulkResendWarnings
     } = businessList;
 
     const toggleSelectAll = () => {
@@ -453,6 +453,15 @@ export default function BusinessesView() {
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors border border-blue-200"
                             >
                                 <CalendarClock size={14} /> Renew
+                            </button>
+                            <button
+                                onClick={() => {
+                                    void handleBulkResendWarnings(Array.from(selectedIds));
+                                    setSelectedIds(new Set());
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-xs font-bold transition-colors border border-indigo-200"
+                            >
+                                <History size={14} /> Resend Warnings
                             </button>
                         </div>
                     }

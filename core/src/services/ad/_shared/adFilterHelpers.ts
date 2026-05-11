@@ -58,6 +58,10 @@ export interface AdFilters {
     /** Filter by canonical Ad record listingType values. */
     listingType?: ListingTypeValue | ListingTypeValue[];
     businessId?: string | mongoose.Types.ObjectId;
+    expiryWarningStatus?: 'sent' | 'not_sent';
+    expiringWithinDays?: number;
+    spotlightWarningStatus?: 'sent' | 'not_sent';
+    spotlightExpiringWithinDays?: number;
 }
 
 export interface PaginationOptions {

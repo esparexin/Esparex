@@ -32,6 +32,19 @@ const ACTION_OPTIONS = [
     { value: "APPROVE_AD", label: "Ad Approvals" },
     { value: "BAN_USER", label: "User Bans" },
     { value: "UPDATE_SYSTEM_CONFIG", label: "Config Changes" },
+    { value: "expiry_warning_sent", label: "Expiry Warnings" },
+    { value: "automated_expiry", label: "Automated Expirations" },
+];
+
+const TARGET_TYPE_OPTIONS = [
+    { value: "all", label: "All Target Types" },
+    { value: "Ad", label: "Ad" },
+    { value: "Business", label: "Business" },
+    { value: "SmartAlert", label: "Smart Alert" },
+    { value: "ExpiryWarning", label: "Expiry Warning" },
+    { value: "SpotlightPromotion", label: "Spotlight Promotion" },
+    { value: "User", label: "User" },
+    { value: "System", label: "System" },
 ];
 
 export default function AuditLogsPage() {
@@ -49,10 +62,12 @@ export default function AuditLogsPage() {
 
     const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const rawAction = searchParams.get("action");
+    const rawTargetType = searchParams.get("targetType");
     const rawPage = searchParams.get("page");
 
     const search = normalizeSearchParamValue(rawSearch);
     const actionFilter = normalizeSearchParamValue(rawAction) || "all";
+    const targetTypeFilter = normalizeSearchParamValue(rawTargetType) || "all";
     const page = parsePositiveIntParam(rawPage, 1);
 
     const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
@@ -79,12 +94,13 @@ export default function AuditLogsPage() {
             void getAuditLogs({
                 q: search,
                 action: actionFilter,
+                targetType: targetTypeFilter,
                 page,
                 limit: 50,
             });
         }, 300);
         return () => clearTimeout(timer);
-    }, [actionFilter, page, search, getAuditLogs]);
+    }, [actionFilter, targetTypeFilter, page, search, getAuditLogs]);
 
     useEffect(() => {
         const nextUrl = buildUrlWithSearchParams(
@@ -93,6 +109,7 @@ export default function AuditLogsPage() {
                 q: search || null,
                 search: null,
                 action: actionFilter === "all" ? null : actionFilter,
+                targetType: targetTypeFilter === "all" ? null : targetTypeFilter,
                 page: page > 1 ? page : null,
             })
         );
@@ -101,7 +118,7 @@ export default function AuditLogsPage() {
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    }, [actionFilter, page, pathname, router, search, searchParams]);
+    }, [actionFilter, targetTypeFilter, page, pathname, router, search, searchParams]);
 
     useEffect(() => {
         if (!loading && page > pagination.pages) {
@@ -197,6 +214,20 @@ export default function AuditLogsPage() {
                 status={actionFilter}
                 onStatusChange={(value) => replaceQueryState({ action: value === "all" ? null : value, page: null })}
                 statusOptions={statusOptions}
+                extraFilters={
+                    <div className="flex items-center gap-1.5 ml-2 border-l border-slate-100 pl-4">
+                        <Database className="shrink-0 text-slate-400" size={14} aria-hidden="true" />
+                        <select
+                            value={targetTypeFilter}
+                            onChange={(e) => replaceQueryState({ targetType: e.target.value === "all" ? null : e.target.value, page: null })}
+                            className="rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-2.5 pr-7 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                        >
+                            {TARGET_TYPE_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                }
             />
 
             {error ? (

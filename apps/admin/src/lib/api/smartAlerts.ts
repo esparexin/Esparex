@@ -41,3 +41,10 @@ export async function fetchSmartAlertLogs({
         },
     };
 }
+
+export async function bulkResendAlertWarnings(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.SMART_ALERT_BULK_RESEND_WARNINGS, {
+        method: "POST",
+        body: { ids },
+    });
+}

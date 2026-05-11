@@ -6,6 +6,7 @@ import type { AdminLog } from "@/types/audit";
 interface AuditLogFilters {
     q?: string;
     action?: string;
+    targetType?: string;
     page: number;
     limit: number;
 }
@@ -27,6 +28,7 @@ export function useAuditLogs() {
             const { items, pagination: nextPagination } = await fetchAuditLogs({
                 q: filters.q ?? "",
                 action: filters.action ?? "all",
+                targetType: filters.targetType ?? "all",
                 page: filters.page,
                 limit: filters.limit,
             });

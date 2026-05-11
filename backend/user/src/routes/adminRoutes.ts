@@ -89,6 +89,7 @@ router.post('/businesses/bulk/reject', adminBusiness.adminBulkRejectBusinesses);
 router.post('/businesses/bulk/deactivate', adminBusiness.adminBulkDeactivateBusinesses);
 router.post('/businesses/bulk/expire', adminBusiness.adminBulkExpireBusinesses);
 router.post('/businesses/bulk/renew', adminBusiness.adminBulkRenewBusinesses);
+router.post('/businesses/bulk/resend-warnings', adminBusiness.adminBulkResendBusinessWarnings);
 
 
 // Listings and reports
@@ -122,6 +123,8 @@ router.post('/listings/bulk/reject', adminListings.adminBulkRejectListings);
 router.post('/listings/bulk/deactivate', adminListings.adminBulkDeactivateListings);
 router.post('/listings/bulk/expire', adminListings.adminBulkExpireListings);
 router.post('/listings/bulk/extend', adminListings.adminBulkExtendListings);
+router.post('/listings/bulk/resend-warnings', adminListings.adminBulkResendListingWarnings);
+router.post('/listings/bulk/resend-spotlight-warnings', adminListings.adminBulkResendSpotlightWarnings);
 
 router.get('/reports', adminReports.getReportedAds);
 router.get('/reports/:id', adminReports.getReportedAdById);
@@ -209,5 +212,9 @@ router.post('/import/seed-devices', adminImportContent.seedDevices);
 router.get('/smart-alerts', adminSmartAlerts.getAllSmartAlerts);
 router.get('/smart-alerts/logs', adminSmartAlerts.getSmartAlertLogs);
 router.delete('/smart-alerts/:id', adminSmartAlerts.deleteSmartAlertById);
+router.post('/smart-alerts/bulk/resend-warnings', adminSmartAlerts.adminBulkResendAlertWarnings);
+
+// Add these to respective sections if needed, but I'll add them near their bulk operations
+// For clarity, I'll place them exactly where the other bulk operations are.
 
 export default router;

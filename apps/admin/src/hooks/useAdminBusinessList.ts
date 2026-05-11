@@ -300,6 +300,18 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
         handleBulkDeactivate,
         handleBulkExpire,
         handleBulkRenew,
+        handleBulkResendWarnings: async (ids: string[]) => {
+            try {
+                await adminFetch(ADMIN_ROUTES.BUSINESS_BULK_RESEND_WARNINGS, {
+                    method: "POST",
+                    body: { ids },
+                });
+                showToast(`Expiry warnings resent for ${ids.length} businesses`, "success");
+                await fetchBusinesses();
+            } catch (err) {
+                showToast(getErrorMessage(err, "Failed to resend business warnings"), "error");
+            }
+        },
     };
 }
 

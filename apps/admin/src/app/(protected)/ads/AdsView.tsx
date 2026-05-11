@@ -74,6 +74,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
         openSingleReject, openBulkReject, handleRejectSubmit,
         handleApprove, handleDeactivate, handleActivate, handleDelete, handleBanSeller, 
         handleBulkApprove, handleBulkDelete, handleBulkDeactivate, handleBulkExpire, handleBulkExtend,
+        handleBulkResendWarnings, handleBulkResendSpotlightWarnings,
         handleModalApprove, handleModalDeactivate, handleModalActivate, handleModalBlockSeller, handleModalExtend,
         deleteModalOpen, setDeleteModalOpen, deleteTargetIds, deleteDisplayTitle, handleConfirmDelete,
         banModalOpen, setBanModalOpen, banTargetSellerName, handleConfirmBan,
@@ -225,10 +226,51 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                 onChange={(e) => updateFilter("dateTo", e.target.value)}
                                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
                             />
+                            
+                            {/* Expiry Warning Filters */}
+                            <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3 ml-1">
+                                <select
+                                    value={filters.expiryWarningStatus}
+                                    onChange={(e) => updateFilter("expiryWarningStatus", e.target.value as any)}
+                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                >
+                                    <option value="all">Warning: All</option>
+                                    <option value="sent">Warning Sent</option>
+                                    <option value="not_sent">Not Sent</option>
+                                </select>
+                                <input
+                                    type="number"
+                                    value={filters.expiringWithinDays}
+                                    onChange={(e) => updateFilter("expiringWithinDays", e.target.value)}
+                                    placeholder="Exp: Days"
+                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-sky-200 w-20"
+                                />
+                            </div>
+
+                            {/* Spotlight Warning Filters */}
+                            <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3 ml-1">
+                                <select
+                                    value={filters.spotlightWarningStatus}
+                                    onChange={(e) => updateFilter("spotlightWarningStatus", e.target.value as any)}
+                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                >
+                                    <option value="all">Spot: All</option>
+                                    <option value="sent">Spot Warn Sent</option>
+                                    <option value="not_sent">Not Sent</option>
+                                </select>
+                                <input
+                                    type="number"
+                                    value={filters.spotlightExpiringWithinDays}
+                                    onChange={(e) => updateFilter("spotlightExpiringWithinDays", e.target.value)}
+                                    placeholder="Spot: Days"
+                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-sky-200 w-20"
+                                />
+                            </div>
+
                             <button
                                 type="button"
                                 onClick={clearFilters}
-                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 ml-1"
                             >
                                 Clear
                             </button>
@@ -319,6 +361,22 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                                     className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-all shadow-sm"
                                                 >
                                                     Extend Selected
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => void handleBulkResendWarnings()}
+                                                className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-all shadow-sm"
+                                            >
+                                                Resend Warnings
+                                            </button>
+                                            {listingType === 'ad' && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => void handleBulkResendSpotlightWarnings()}
+                                                    className="rounded-lg border border-fuchsia-200 bg-fuchsia-50 px-3 py-2 text-xs font-semibold text-fuchsia-700 hover:bg-fuchsia-100 transition-all shadow-sm"
+                                                >
+                                                    Resend Spotlight
                                                 </button>
                                             )}
                                         </div>

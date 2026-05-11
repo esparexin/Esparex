@@ -33,6 +33,10 @@ export type ListingModerationFilters = {
     createdBefore?: string;
     listingType?: ModerationListingType;
     sortBy?: 'newest' | 'oldest' | 'price_high' | 'price_low' | 'most_viewed' | 'risk_desc';
+    expiryWarningStatus?: 'sent' | 'not_sent';
+    expiringWithinDays?: number;
+    spotlightWarningStatus?: 'sent' | 'not_sent';
+    spotlightExpiringWithinDays?: number;
 };
 
 export type ModerationPagination = {
@@ -79,6 +83,10 @@ export const listModerationListings = async (
             createdBefore: filters.createdBefore,
             listingType: filters.listingType,
             sortBy: filters.sortBy,
+            expiryWarningStatus: filters.expiryWarningStatus,
+            expiringWithinDays: filters.expiringWithinDays,
+            spotlightWarningStatus: filters.spotlightWarningStatus,
+            spotlightExpiringWithinDays: filters.spotlightExpiringWithinDays,
         },
         pagination,
         {

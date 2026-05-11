@@ -15,7 +15,9 @@ import {
     rejectAdminAd,
     bulkApproveAds,
     bulkUpdateAdStatus,
-    bulkExtendAds
+    bulkExtendAds,
+    bulkResendListingWarnings,
+    bulkResendSpotlightWarnings
 } from "@/lib/api/moderation";
 import { normalizeModerationAd } from "@/components/moderation/normalizeModerationAd";
 import { useAdminMutation } from "@/hooks/useAdminMutation";
@@ -394,6 +396,34 @@ export function useAdActions({
                 {
                     successMessage: `Extended ${selectedIds.length} ${entityLabel}(s)`,
                     failureMessage: `Failed to bulk extend ${entityLabelPlural}`,
+                    onSuccess: () => {
+                        setSelectedIds([]);
+                        refresh();
+                    }
+                }
+            );
+        },
+        handleBulkResendWarnings: async () => {
+            if (selectedIds.length === 0) return;
+            await runMutation(
+                () => bulkResendListingWarnings(selectedIds),
+                {
+                    successMessage: `Resent expiry warnings for ${selectedIds.length} ${entityLabel}(s)`,
+                    failureMessage: `Failed to resend ${entityLabel} warnings`,
+                    onSuccess: () => {
+                        setSelectedIds([]);
+                        refresh();
+                    }
+                }
+            );
+        },
+        handleBulkResendSpotlightWarnings: async () => {
+            if (selectedIds.length === 0) return;
+            await runMutation(
+                () => bulkResendSpotlightWarnings(selectedIds),
+                {
+                    successMessage: `Resent spotlight warnings for ${selectedIds.length} ${entityLabel}(s)`,
+                    failureMessage: `Failed to resend spotlight warnings`,
                     onSuccess: () => {
                         setSelectedIds([]);
                         refresh();

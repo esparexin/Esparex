@@ -3,6 +3,9 @@ import AlertDeliveryLog from '../models/AlertDeliveryLog';
 import { Types } from 'mongoose';
 import logger from '../utils/logger';
 import { buildGeoNearStage } from '../utils/mongoGeoUtils';
+import { dispatchTemplatedNotification } from './NotificationService';
+import type { AdminLogFn } from './AdminListingsService';
+import { AppError } from '../utils/AppError';
 
 import { getCache, setCache } from '../utils/redisCache';
 import crypto from 'crypto';
@@ -341,6 +344,19 @@ export const expireSmartAlerts = async () => {
             await alert.save();
             processed.push(alert);
             
+            // Log to AdminLog for audit visibility
+            const AdminLog = (await import('../models/AdminLog')).default;
+            await AdminLog.create({
+                action: 'automated_expiry',
+                targetType: 'SmartAlert',
+                targetId: alert._id,
+                metadata: {
+                    userId: alert.userId,
+                    expiresAt: alert.expiresAt,
+                    reason: 'Automated search alert expiry'
+                }
+            });
+
             logger.info('[SmartAlertCleanup] Deactivated expired alert', { 
                 alertId: alert._id, 
                 userId: alert.userId,
@@ -391,4 +407,58 @@ export const SmartAlertModel = SmartAlert as unknown as {
     find: (query: Record<string, unknown>) => SmartAlertQuery;
     findById: (id: string) => Promise<SmartAlertDocument | null>;
     findByIdAndDelete: (id: string) => Promise<unknown>;
+};
+
+export const adminBulkResendAlertWarnings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of alert IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const alert = await SmartAlert.findById(id);
+            if (!alert) throw new AppError('Alert not found', 404);
+
+            await dispatchTemplatedNotification(
+                alert.userId.toString(),
+                'SYSTEM',
+                'SMART_ALERT_EXPIRY_WARNING_3D',
+                { 
+                    name: alert.name || 'Saved Search', 
+                    date: alert.expiresAt?.toLocaleDateString() || 'N/A' 
+                },
+                { alertId: alert._id.toString() }
+            );
+
+            alert.expiryWarningSentAt = new Date();
+            alert.expiryWarningCount = (alert.expiryWarningCount || 0) + 1;
+            alert.lastExpiryWarningChannel = 'in-app';
+            await alert.save();
+
+            await logFn('expiry_warning_resent', 'SmartAlert', id, {
+                subType: 'SmartAlert',
+                adminId: actorId
+            });
+
+            results.push({ id, success: true });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+        results
+    };
 };
